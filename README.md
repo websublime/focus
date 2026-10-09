@@ -57,7 +57,7 @@ focus engine graph compile --harness claude --core fixtures/upstream/core --out 
 | `focus-js` | JavaScript semantics the on-disk formats depend on: whitespace, sort order and collation, `Object.keys` order, `JSON.parse`/`stringify`, number printing and rounding, ECMAScript regex |
 | `focus-frontmatter` | The YAML-subset frontmatter readers, ported pattern for pattern |
 | `focus-harness` | What differs between Claude Code, Cursor and GitHub Copilot, as data |
-| `focus-workspace` | Which project and harness a command acts on, every path in them, atomic writes, the workspace lock |
+| `focus-workspace` | Which project, harness, space and intent record a command acts on, every path in them, atomic writes, the workspace lock |
 | `focus-graph` | Stage, scope, agent, sensor and rule schemas; the compile; composed scopes; graph queries; plan validation; ARS |
 | `focus-audit` | The audit ledger's format: the event vocabulary, how an entry is validated and written, how entries are read back |
 | `focus-cli` | The `focus` binary (the package is named `focus`) |

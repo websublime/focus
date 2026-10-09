@@ -542,5 +542,112 @@ for _ in range(scale * 20):
         args.append(rng.choice(FIELD_ARGS))
     add("field_args", args=args)
 
+# --------------------------------------------------------------------------
+# Which record a command acts on: a project as a set of files, a selector, and
+# what the environment says about the caller.
+#
+# Left out on purpose: backslashes in names (a separator on Windows only, so
+# the answer depends on the platform replaying the corpus), a delegated
+# worktree's marker and a process-to-session map (focus refuses both).
+# --------------------------------------------------------------------------
+
+RECORDS = ["add-login-1a2b3c4d", "fix-logout-9f8e7d6c", "260101-tidy", "undefined-abc", "x", "5-ab"]
+STATUSES = ["in-flight", "complete", "archived", "archived", " Archived ", "ARCHIVED\n", "archive", ""]
+
+
+def registry_row(record):
+    slug, _, tail = record.rpartition("-")
+    uuid = "00000000-0000-0000-0000-0000" + tail.rjust(8, "0")
+    status = rng.choice(STATUSES)
+    return rng.choice([
+        {"uuid": uuid, "slug": slug, "status": status},
+        {"uuid": uuid, "slug": slug, "status": status},
+        {"uuid": uuid, "slug": slug, "dirName": record, "status": status},
+        {"uuid": "unrelated", "slug": "renamed", "dirName": record, "status": status},
+        {"uuid": uuid.upper(), "slug": slug, "status": status},
+        {"uuid": "ffffffff-0000-0000-0000-00000000" + tail[-4:].rjust(4, "0"), "slug": slug, "status": status},
+        {"uuid": uuid, "slug": slug},
+        {"uuid": uuid, "slug": slug, "status": 1},
+        {"uuid": 5, "slug": slug, "status": status},
+        {"slug": slug, "status": status},
+        {"uuid": uuid, "slug": 5, "status": status},
+        {"uuid": uuid, "slug": [slug], "status": status},
+        {"uuid": uuid, "slug": slug, "dirName": 0, "status": status},
+        {"uuid": uuid, "slug": slug, "dirName": 7, "status": status},
+        {"uuid": uuid, "status": status},
+        None, 7, "text", [], True,
+    ])
+
+
+def selection_case():
+    files = {}
+    spaces = ["default"] + (["payments"] if rng.random() < 0.5 else [])
+    held = {}
+    for space in spaces:
+        base = f"aidlc/spaces/{space}/intents"
+        records = rng.sample(RECORDS, rng.choice([0, 1, 1, 1, 1, 2, 2, 3]))
+        held[space] = records
+        for record in records:
+            name = "aidlc-state.md" if rng.random() < 0.9 else "notes.md"
+            files[f"{base}/{record}/{name}"] = "state\n"
+        roll = rng.random()
+        if roll < 0.55:
+            rows = [registry_row(record) for record in records if rng.random() < 0.85]
+            if rng.random() < 0.2:
+                rows.insert(rng.randrange(len(rows) + 1), registry_row(rng.choice(RECORDS)))
+            files[f"{base}/intents.json"] = json.dumps(rows)
+        elif roll < 0.65:
+            files[f"{base}/intents.json"] = rng.choice(["not json", '{"uuid": "x"}', "[]", "null", "\ufeff[]"])
+        roll = rng.random()
+        if roll < 0.3 and records:
+            files[f"{base}/active-intent"] = rng.choice(["{}", "{}\n", "  {}  \n"]).format(rng.choice(records))
+        elif roll < 0.4:
+            files[f"{base}/active-intent"] = rng.choice(["gone-00000000", "", "  \n", "two words", "."])
+        elif roll < 0.47:
+            files[f"{base}/active-intent"] = "../other"
+            if rng.random() < 0.7:
+                files[f"aidlc/spaces/{space}/other/aidlc-state.md"] = "state\n"
+    if rng.random() < 0.45:
+        files["aidlc/active-space"] = rng.choice(["payments", "payments\n", " payments ", "nope", "Bad Name", "default", ""])
+
+    # Mostly a space that has a record, so that most bindings name a real one.
+    space = rng.choice([name for name in spaces if held[name]] or spaces)
+    record = rng.choice(held[space]) if held[space] else "nothing-00000000"
+    if rng.random() < 0.45:
+        binding = rng.choice([
+            {"space": space, "intent": record, "boundAt": "2026-10-09T16:22:42Z", "source": "create"},
+            {"space": space, "intent": record, "boundAt": "2026-10-09T16:22:42Z", "source": "switch"},
+            {"space": space, "intent": record, "boundAt": "2026-10-09T16:22:42Z", "source": "cursor"},
+            {"space": space, "intent": record, "boundAt": "2026-10-09T16:22:42Z"},
+            {"space": space, "intent": record, "boundAt": "2026-10-09T16:22:42Z"},
+            {"space": space, "intent": record, "boundAt": "2026-10-09T16:22:42Z", "source": "made-up"},
+            {"space": space, "intent": None, "boundAt": "t", "source": "archive"},
+            {"space": space, "intent": "gone-00000000", "boundAt": "t"},
+            {"space": "Bad Name", "intent": record, "boundAt": "t"},
+            {"space": space, "intent": record, "boundAt": ""},
+            {"space": space, "intent": record},
+            {"space": space, "boundAt": "t"},
+            {"space": space, "intent": " " + record, "boundAt": "t"},
+            {"space": space, "intent": 5, "boundAt": "t"},
+            [space, record], "text", None,
+        ])
+        files["aidlc/.aidlc-sessions/s1.binding.json"] = rng.choice([json.dumps(binding)] * 9 + ["{ nope"])
+
+    selector = {}
+    if rng.random() < 0.35:
+        selector["space"] = rng.choice(spaces + spaces + ["zz", "../x", ".", "a/b", ""])
+    if rng.random() < 0.3:
+        selector["intent"] = rng.choice(RECORDS[:3] + [record, "nope", "", "a/b", ".."])
+    if rng.random() < (0.7 if "aidlc/.aidlc-sessions/s1.binding.json" in files else 0.2):
+        selector["sessionId"] = rng.choice(["s1", "s1", "s1", "s1", "s2", "-bad", "has space", ""])
+    fields = {"files": files, "selector": selector}
+    if rng.random() < 0.25:
+        fields["override"] = {"id": rng.choice(["s1", "s1", "s2", "bad id"]), "payload": rng.random() < 0.5}
+    return fields
+
+
+for _ in range(scale * 80):
+    add("selection", **selection_case())
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")
