@@ -826,7 +826,13 @@ pub fn oracle(args: &mut Args) -> Result<(), String> {
             "id".to_owned(),
             case.get("id").cloned().unwrap_or(Value::Null),
         );
-        answer.insert("out".to_owned(), cases::run_case(&case));
+        let kind = case.get("kind").and_then(Value::as_str).unwrap_or_default();
+        let out = if focus_audit::oracle::KINDS.contains(&kind) {
+            focus_audit::oracle::run_case(&case)
+        } else {
+            cases::run_case(&case)
+        };
+        answer.insert("out".to_owned(), out);
         writeln!(stdout, "{}", json::stringify(&Value::Object(answer)))
             .map_err(|err| err.to_string())?;
     }

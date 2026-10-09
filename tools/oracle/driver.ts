@@ -3,10 +3,12 @@
 //   bun tools/oracle/driver.ts <upstream checkout> <cases.ndjson>  > expected.ndjson
 //
 // Each input line is one case; each output line is {"id", "out"} in the shape
-// `focus dev oracle` prints for the same case (crates/focus-graph/src/oracle.rs).
-// The two outputs are compared as text, so key order is part of the answer.
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+// `focus dev oracle` prints for the same case (the `oracle` module of the crate
+// that owns the kind). The two outputs are compared as text, so key order is
+// part of the answer.
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
 
 const [upstream, casesPath] = process.argv.slice(2);
 if (!upstream || !casesPath) {
@@ -19,6 +21,14 @@ const stageSchema = await import(tool("aidlc-stage-schema.ts"));
 const sensorSchema = await import(tool("aidlc-sensor-schema.ts"));
 const ruleSchema = await import(tool("aidlc-rule-schema.ts"));
 const graph = await import(tool("aidlc-graph.ts"));
+const audit = await import(tool("aidlc-audit.ts"));
+
+// A scratch project for the cases that can only be asked by writing a file.
+// A case names it `{P}`; answers name it the same way, so they do not depend
+// on where it was.
+const scratch = mkdtempSync(join(tmpdir(), "focus-oracle-"));
+process.on("exit", () => rmSync(scratch, { recursive: true, force: true }));
+let shards = 0;
 
 // Text the JSON parser wrote is the runtime's, not the engine's: both sides
 // keep the engine's sentence and replace what follows it.
@@ -134,6 +144,30 @@ function answer(c: Record<string, any>): unknown {
       }
       return { heading: null, mode: null };
     }
+    case "audit_entry": {
+      // Rendering is not exported; appending to a shard of our own is the way
+      // in. The first block's timestamp is the only thing that varies.
+      const fields: Record<string, string> = {};
+      for (const [key, value] of c.fields) fields[key] = value.replaceAll("{P}", scratch);
+      const shard = join(scratch, `shard-${shards++}.md`);
+      try {
+        audit.appendAuditEntryAtPathUnlocked(c.eventType, fields, scratch, shard);
+      } catch (err) {
+        return { error: message(err).replaceAll(scratch, "{P}") };
+      }
+      const written = readFileSync(shard, "utf-8").replace(/^\*\*Timestamp\*\*: \S+$/m, "**Timestamp**: <ts>");
+      return { shard: written.replaceAll(scratch, "{P}") };
+    }
+    case "audit_find":
+      return { found: lib.findAllEvents(c.audit, c.event, c.slug ?? undefined) };
+    case "audit_field":
+      return { value: lib.auditBlockField(c.block, c.name) };
+    case "bullet_field":
+      return { value: lib.getField(c.content, c.field) };
+    case "unsafe_line":
+      return { unsafe: lib.hasUnsafeSingleLineCharacter(c.value) };
+    case "field_args":
+      return { fields: lib.parseFieldArgs(c.args) };
     default:
       return { unsupported: c.kind };
   }

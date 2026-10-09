@@ -4452,3 +4452,1140 @@
 {"id":"guardwild-04451","out":{"heading":null,"mode":null}}
 {"id":"guardwild-04452","out":{"heading":"## Guard Policy","mode":"strict"}}
 {"id":"guardwild-04453","out":{"heading":null,"mode":null}}
+{"id":"audit_entry-04454","out":{"shard":"# Focus Audit Log\n\n## Stage Start\n**Timestamp**: <ts>\n**Event**: STAGE_STARTED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04455","out":{"shard":"# Focus Audit Log\n\n## Stage Awaiting Approval\n**Timestamp**: <ts>\n**Event**: STAGE_AWAITING_APPROVAL\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04456","out":{"shard":"# Focus Audit Log\n\n## Stage Revising\n**Timestamp**: <ts>\n**Event**: STAGE_REVISING\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04457","out":{"shard":"# Focus Audit Log\n\n## Stage Completion\n**Timestamp**: <ts>\n**Event**: STAGE_COMPLETED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04458","out":{"shard":"# Focus Audit Log\n\n## Stage Jump\n**Timestamp**: <ts>\n**Event**: STAGE_JUMPED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04459","out":{"shard":"# Focus Audit Log\n\n## Stage Skip\n**Timestamp**: <ts>\n**Event**: STAGE_SKIPPED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04460","out":{"shard":"# Focus Audit Log\n\n## Phase Start\n**Timestamp**: <ts>\n**Event**: PHASE_STARTED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04461","out":{"shard":"# Focus Audit Log\n\n## Phase Completion\n**Timestamp**: <ts>\n**Event**: PHASE_COMPLETED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04462","out":{"shard":"# Focus Audit Log\n\n## Phase Verification\n**Timestamp**: <ts>\n**Event**: PHASE_VERIFIED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04463","out":{"shard":"# Focus Audit Log\n\n## Phase Skip\n**Timestamp**: <ts>\n**Event**: PHASE_SKIPPED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04464","out":{"shard":"# Focus Audit Log\n\n## Workflow Start\n**Timestamp**: <ts>\n**Event**: WORKFLOW_STARTED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04465","out":{"shard":"# Focus Audit Log\n\n## Workflow Completion\n**Timestamp**: <ts>\n**Event**: WORKFLOW_COMPLETED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04466","out":{"shard":"# Focus Audit Log\n\n## Workflow Parked\n**Timestamp**: <ts>\n**Event**: WORKFLOW_PARKED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04467","out":{"shard":"# Focus Audit Log\n\n## Workflow Unparked\n**Timestamp**: <ts>\n**Event**: WORKFLOW_UNPARKED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04468","out":{"shard":"# Focus Audit Log\n\n## Workflow Archived\n**Timestamp**: <ts>\n**Event**: WORKFLOW_ARCHIVED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04469","out":{"shard":"# Focus Audit Log\n\n## Workflow Unarchived\n**Timestamp**: <ts>\n**Event**: WORKFLOW_UNARCHIVED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04470","out":{"shard":"# Focus Audit Log\n\n## Intent Repos Changed\n**Timestamp**: <ts>\n**Event**: INTENT_REPOS_CHANGED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04471","out":{"shard":"# Focus Audit Log\n\n## Session Start\n**Timestamp**: <ts>\n**Event**: SESSION_STARTED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04472","out":{"shard":"# Focus Audit Log\n\n## Session Resume\n**Timestamp**: <ts>\n**Event**: SESSION_RESUMED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04473","out":{"shard":"# Focus Audit Log\n\n## Session Compacted\n**Timestamp**: <ts>\n**Event**: SESSION_COMPACTED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04474","out":{"shard":"# Focus Audit Log\n\n## Session End\n**Timestamp**: <ts>\n**Event**: SESSION_ENDED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04475","out":{"shard":"# Focus Audit Log\n\n## Human Turn\n**Timestamp**: <ts>\n**Event**: HUMAN_TURN\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04476","out":{"shard":"# Focus Audit Log\n\n## Host Turn\n**Timestamp**: <ts>\n**Event**: HOST_TURN\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04477","out":{"shard":"# Focus Audit Log\n\n## Workspace Scaffolded\n**Timestamp**: <ts>\n**Event**: WORKSPACE_SCAFFOLDED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04478","out":{"shard":"# Focus Audit Log\n\n## Workspace Scanned\n**Timestamp**: <ts>\n**Event**: WORKSPACE_SCANNED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04479","out":{"shard":"# Focus Audit Log\n\n## Workspace Initialised\n**Timestamp**: <ts>\n**Event**: WORKSPACE_INITIALISED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04480","out":{"shard":"# Focus Audit Log\n\n## Decision Recorded\n**Timestamp**: <ts>\n**Event**: DECISION_RECORDED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04481","out":{"shard":"# Focus Audit Log\n\n## Gate Approved\n**Timestamp**: <ts>\n**Event**: GATE_APPROVED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04482","out":{"shard":"# Focus Audit Log\n\n## Gate Rejected\n**Timestamp**: <ts>\n**Event**: GATE_REJECTED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04483","out":{"shard":"# Focus Audit Log\n\n## Question Answered\n**Timestamp**: <ts>\n**Event**: QUESTION_ANSWERED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04484","out":{"shard":"# Focus Audit Log\n\n## Question Unanswered\n**Timestamp**: <ts>\n**Event**: QUESTION_UNANSWERED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04485","out":{"shard":"# Focus Audit Log\n\n## Question Replied\n**Timestamp**: <ts>\n**Event**: QUESTION_REPLIED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04486","out":{"shard":"# Focus Audit Log\n\n## Request Routed\n**Timestamp**: <ts>\n**Event**: REQUEST_ROUTED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04487","out":{"shard":"# Focus Audit Log\n\n## Summary Confirmation Recorded\n**Timestamp**: <ts>\n**Event**: SUMMARY_CONFIRMATION_RECORDED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04488","out":{"shard":"# Focus Audit Log\n\n## Verification Command Recorded\n**Timestamp**: <ts>\n**Event**: VERIFICATION_COMMAND_RECORDED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04489","out":{"shard":"# Focus Audit Log\n\n## Construction Policy Recorded\n**Timestamp**: <ts>\n**Event**: CONSTRUCTION_POLICY_RECORDED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04490","out":{"shard":"# Focus Audit Log\n\n## Checkpoint Verification Recorded\n**Timestamp**: <ts>\n**Event**: CHECKPOINT_VERIFICATION_RECORDED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04491","out":{"shard":"# Focus Audit Log\n\n## Plan Approval Recorded\n**Timestamp**: <ts>\n**Event**: PLAN_APPROVAL_RECORDED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04492","out":{"shard":"# Focus Audit Log\n\n## Plan Approval Overridden\n**Timestamp**: <ts>\n**Event**: PLAN_APPROVAL_OVERRIDDEN\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04493","out":{"shard":"# Focus Audit Log\n\n## Plan Approval Skipped\n**Timestamp**: <ts>\n**Event**: PLAN_APPROVAL_SKIPPED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04494","out":{"shard":"# Focus Audit Log\n\n## Review Requested\n**Timestamp**: <ts>\n**Event**: REVIEW_REQUESTED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04495","out":{"shard":"# Focus Audit Log\n\n## Review Completed\n**Timestamp**: <ts>\n**Event**: REVIEW_COMPLETED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04496","out":{"shard":"# Focus Audit Log\n\n## Pipeline Link Completed\n**Timestamp**: <ts>\n**Event**: PIPELINE_LINK_COMPLETED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04497","out":{"shard":"# Focus Audit Log\n\n## Unit Started\n**Timestamp**: <ts>\n**Event**: UNIT_STARTED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04498","out":{"shard":"# Focus Audit Log\n\n## Unit Paused\n**Timestamp**: <ts>\n**Event**: UNIT_PAUSED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04499","out":{"shard":"# Focus Audit Log\n\n## Unit Resumed\n**Timestamp**: <ts>\n**Event**: UNIT_RESUMED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04500","out":{"shard":"# Focus Audit Log\n\n## Unit Completed\n**Timestamp**: <ts>\n**Event**: UNIT_COMPLETED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04501","out":{"shard":"# Focus Audit Log\n\n## Unit Skipped\n**Timestamp**: <ts>\n**Event**: UNIT_SKIPPED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04502","out":{"shard":"# Focus Audit Log\n\n## Artifact Created\n**Timestamp**: <ts>\n**Event**: ARTIFACT_CREATED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04503","out":{"shard":"# Focus Audit Log\n\n## Artifact Updated\n**Timestamp**: <ts>\n**Event**: ARTIFACT_UPDATED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04504","out":{"shard":"# Focus Audit Log\n\n## Artifact Reused\n**Timestamp**: <ts>\n**Event**: ARTIFACT_REUSED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04505","out":{"shard":"# Focus Audit Log\n\n## Subagent Completed\n**Timestamp**: <ts>\n**Event**: SUBAGENT_COMPLETED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04506","out":{"shard":"# Focus Audit Log\n\n## Subagent Prompt Unmatched\n**Timestamp**: <ts>\n**Event**: SUBAGENT_PROMPT_UNMATCHED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04507","out":{"shard":"# Focus Audit Log\n\n## Reviewer Scope Blocked\n**Timestamp**: <ts>\n**Event**: REVIEWER_SCOPE_BLOCKED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04508","out":{"shard":"# Focus Audit Log\n\n## Review Freeze Blocked\n**Timestamp**: <ts>\n**Event**: REVIEW_FREEZE_BLOCKED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04509","out":{"shard":"# Focus Audit Log\n\n## Plan Approval Blocked\n**Timestamp**: <ts>\n**Event**: PLAN_APPROVAL_BLOCKED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04510","out":{"shard":"# Focus Audit Log\n\n## Guard Disabled\n**Timestamp**: <ts>\n**Event**: GUARD_DISABLED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04511","out":{"shard":"# Focus Audit Log\n\n## Document Indexed\n**Timestamp**: <ts>\n**Event**: DOCUMENT_INDEXED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04512","out":{"shard":"# Focus Audit Log\n\n## Document Updated\n**Timestamp**: <ts>\n**Event**: DOCUMENT_UPDATED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04513","out":{"shard":"# Focus Audit Log\n\n## Document Removed\n**Timestamp**: <ts>\n**Event**: DOCUMENT_REMOVED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04514","out":{"shard":"# Focus Audit Log\n\n## Health Check\n**Timestamp**: <ts>\n**Event**: HEALTH_CHECKED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04515","out":{"shard":"# Focus Audit Log\n\n## Scope Detection\n**Timestamp**: <ts>\n**Event**: SCOPE_DETECTED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04516","out":{"shard":"# Focus Audit Log\n\n## Scope Change\n**Timestamp**: <ts>\n**Event**: SCOPE_CHANGED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04517","out":{"shard":"# Focus Audit Log\n\n## Plugin Selection Change\n**Timestamp**: <ts>\n**Event**: PLUGIN_SELECTION_CHANGED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04518","out":{"shard":"# Focus Audit Log\n\n## Depth Change\n**Timestamp**: <ts>\n**Event**: DEPTH_CHANGED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04519","out":{"shard":"# Focus Audit Log\n\n## Test Strategy Change\n**Timestamp**: <ts>\n**Event**: TEST_STRATEGY_CHANGED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04520","out":{"shard":"# Focus Audit Log\n\n## Review Class Change\n**Timestamp**: <ts>\n**Event**: REVIEW_CLASS_CHANGED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04521","out":{"shard":"# Focus Audit Log\n\n## Guard Policy Set\n**Timestamp**: <ts>\n**Event**: GUARD_POLICY_SET\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04522","out":{"shard":"# Focus Audit Log\n\n## Change Control Set\n**Timestamp**: <ts>\n**Event**: CHANGE_CONTROL_SET\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04523","out":{"shard":"# Focus Audit Log\n\n## Change Accepted\n**Timestamp**: <ts>\n**Event**: CHANGE_ACCEPTED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04524","out":{"shard":"# Focus Audit Log\n\n## Guard Restored\n**Timestamp**: <ts>\n**Event**: GUARD_RESTORED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04525","out":{"shard":"# Focus Audit Log\n\n## Guard Stood Aside\n**Timestamp**: <ts>\n**Event**: GUARD_STOOD_ASIDE\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04526","out":{"shard":"# Focus Audit Log\n\n## Ceremony Set\n**Timestamp**: <ts>\n**Event**: CEREMONY_SET\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04527","out":{"shard":"# Focus Audit Log\n\n## Plan Recomposed\n**Timestamp**: <ts>\n**Event**: RECOMPOSED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04528","out":{"shard":"# Focus Audit Log\n\n## Workspace Reclassified\n**Timestamp**: <ts>\n**Event**: WORKSPACE_RECLASSIFIED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04529","out":{"shard":"# Focus Audit Log\n\n## Scope Saved\n**Timestamp**: <ts>\n**Event**: SCOPE_SAVED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04530","out":{"shard":"# Focus Audit Log\n\n## Error Logged\n**Timestamp**: <ts>\n**Event**: ERROR_LOGGED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04531","out":{"shard":"# Focus Audit Log\n\n## Recovery Completed\n**Timestamp**: <ts>\n**Event**: RECOVERY_COMPLETED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04532","out":{"shard":"# Focus Audit Log\n\n## Coordination Stood Aside\n**Timestamp**: <ts>\n**Event**: COORDINATION_STOOD_ASIDE\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04533","out":{"shard":"# Focus Audit Log\n\n## Bolt Started\n**Timestamp**: <ts>\n**Event**: BOLT_STARTED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04534","out":{"shard":"# Focus Audit Log\n\n## Bolt Completed\n**Timestamp**: <ts>\n**Event**: BOLT_COMPLETED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04535","out":{"shard":"# Focus Audit Log\n\n## Bolt Failed\n**Timestamp**: <ts>\n**Event**: BOLT_FAILED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04536","out":{"shard":"# Focus Audit Log\n\n## Autonomy Mode Set\n**Timestamp**: <ts>\n**Event**: AUTONOMY_MODE_SET\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04537","out":{"shard":"# Focus Audit Log\n\n## Unit Ownership Set\n**Timestamp**: <ts>\n**Event**: UNIT_OWNERSHIP_SET\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04538","out":{"shard":"# Focus Audit Log\n\n## Unit Gate Rhythm Set\n**Timestamp**: <ts>\n**Event**: UNIT_GATE_RHYTHM_SET\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04539","out":{"shard":"# Focus Audit Log\n\n## Construction Policy Set\n**Timestamp**: <ts>\n**Event**: CONSTRUCTION_POLICY_SET\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04540","out":{"shard":"# Focus Audit Log\n\n## Unit Merged\n**Timestamp**: <ts>\n**Event**: UNIT_MERGED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04541","out":{"shard":"# Focus Audit Log\n\n## Worktree Created\n**Timestamp**: <ts>\n**Event**: WORKTREE_CREATED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04542","out":{"shard":"# Focus Audit Log\n\n## Worktree Merged\n**Timestamp**: <ts>\n**Event**: WORKTREE_MERGED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04543","out":{"shard":"# Focus Audit Log\n\n## Worktree Discarded\n**Timestamp**: <ts>\n**Event**: WORKTREE_DISCARDED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04544","out":{"shard":"# Focus Audit Log\n\n## State Forked\n**Timestamp**: <ts>\n**Event**: STATE_FORKED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04545","out":{"shard":"# Focus Audit Log\n\n## State Merged\n**Timestamp**: <ts>\n**Event**: STATE_MERGED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04546","out":{"shard":"# Focus Audit Log\n\n## Audit Forked\n**Timestamp**: <ts>\n**Event**: AUDIT_FORKED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04547","out":{"shard":"# Focus Audit Log\n\n## Audit Merged\n**Timestamp**: <ts>\n**Event**: AUDIT_MERGED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04548","out":{"shard":"# Focus Audit Log\n\n## Practices Discovered\n**Timestamp**: <ts>\n**Event**: PRACTICES_DISCOVERED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04549","out":{"shard":"# Focus Audit Log\n\n## Practices Affirmed\n**Timestamp**: <ts>\n**Event**: PRACTICES_AFFIRMED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04550","out":{"shard":"# Focus Audit Log\n\n## Practices Override\n**Timestamp**: <ts>\n**Event**: PRACTICES_OVERRIDE\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04551","out":{"shard":"# Focus Audit Log\n\n## Practices Section Empty\n**Timestamp**: <ts>\n**Event**: PRACTICES_SECTION_EMPTY\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04552","out":{"shard":"# Focus Audit Log\n\n## Merge Dispatch Invoked\n**Timestamp**: <ts>\n**Event**: MERGE_DISPATCH_INVOKED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04553","out":{"shard":"# Focus Audit Log\n\n## Merge Dispatch Returned\n**Timestamp**: <ts>\n**Event**: MERGE_DISPATCH_RETURNED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04554","out":{"shard":"# Focus Audit Log\n\n## Merge Dispatch Fallback\n**Timestamp**: <ts>\n**Event**: MERGE_DISPATCH_FALLBACK\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04555","out":{"shard":"# Focus Audit Log\n\n## Sensor Fired\n**Timestamp**: <ts>\n**Event**: SENSOR_FIRED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04556","out":{"shard":"# Focus Audit Log\n\n## Sensor Passed\n**Timestamp**: <ts>\n**Event**: SENSOR_PASSED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04557","out":{"shard":"# Focus Audit Log\n\n## Sensor Failed\n**Timestamp**: <ts>\n**Event**: SENSOR_FAILED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04558","out":{"shard":"# Focus Audit Log\n\n## Sensor Budget Override\n**Timestamp**: <ts>\n**Event**: SENSOR_BUDGET_OVERRIDE\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04559","out":{"shard":"# Focus Audit Log\n\n## Guardrail Loaded\n**Timestamp**: <ts>\n**Event**: GUARDRAIL_LOADED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04560","out":{"shard":"# Focus Audit Log\n\n## Memory Empty\n**Timestamp**: <ts>\n**Event**: MEMORY_EMPTY\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04561","out":{"shard":"# Focus Audit Log\n\n## Rule Learned\n**Timestamp**: <ts>\n**Event**: RULE_LEARNED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04562","out":{"shard":"# Focus Audit Log\n\n## Sensor Proposed\n**Timestamp**: <ts>\n**Event**: SENSOR_PROPOSED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04563","out":{"shard":"# Focus Audit Log\n\n## Swarm Started\n**Timestamp**: <ts>\n**Event**: SWARM_STARTED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04564","out":{"shard":"# Focus Audit Log\n\n## Swarm Unit Converged\n**Timestamp**: <ts>\n**Event**: SWARM_UNIT_CONVERGED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04565","out":{"shard":"# Focus Audit Log\n\n## Swarm Source Merged\n**Timestamp**: <ts>\n**Event**: SWARM_SOURCE_MERGED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04566","out":{"shard":"# Focus Audit Log\n\n## Swarm Unit Failed\n**Timestamp**: <ts>\n**Event**: SWARM_UNIT_FAILED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04567","out":{"shard":"# Focus Audit Log\n\n## Swarm Baton Returned\n**Timestamp**: <ts>\n**Event**: SWARM_BATON_RETURNED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04568","out":{"shard":"# Focus Audit Log\n\n## Swarm Completed\n**Timestamp**: <ts>\n**Event**: SWARM_COMPLETED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04569","out":{"shard":"# Focus Audit Log\n\n## Swarm Degraded\n**Timestamp**: <ts>\n**Event**: SWARM_DEGRADED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04570","out":{"shard":"# Focus Audit Log\n\n## Source Committed\n**Timestamp**: <ts>\n**Event**: SOURCE_COMMITTED\n**Stage**: code-generation\n**Note**: n\n\n---\n"}}
+{"id":"audit_entry-04571","out":{"error":"Invalid event type: NOPE. Must be one of: STAGE_STARTED, STAGE_AWAITING_APPROVAL, STAGE_REVISING, STAGE_COMPLETED, STAGE_JUMPED, STAGE_SKIPPED, PHASE_STARTED, PHASE_COMPLETED, PHASE_VERIFIED, PHASE_SKIPPED, WORKFLOW_STARTED, WORKFLOW_COMPLETED, WORKFLOW_PARKED, WORKFLOW_UNPARKED, WORKFLOW_ARCHIVED, WORKFLOW_UNARCHIVED, INTENT_REPOS_CHANGED, SESSION_STARTED, SESSION_RESUMED, SESSION_COMPACTED, SESSION_ENDED, HUMAN_TURN, HOST_TURN, WORKSPACE_SCAFFOLDED, WORKSPACE_SCANNED, WORKSPACE_INITIALISED, DECISION_RECORDED, GATE_APPROVED, GATE_REJECTED, QUESTION_ANSWERED, QUESTION_UNANSWERED, QUESTION_REPLIED, REQUEST_ROUTED, SUMMARY_CONFIRMATION_RECORDED, VERIFICATION_COMMAND_RECORDED, CONSTRUCTION_POLICY_RECORDED, CHECKPOINT_VERIFICATION_RECORDED, PLAN_APPROVAL_RECORDED, PLAN_APPROVAL_OVERRIDDEN, PLAN_APPROVAL_SKIPPED, REVIEW_REQUESTED, REVIEW_COMPLETED, PIPELINE_LINK_COMPLETED, UNIT_STARTED, UNIT_PAUSED, UNIT_RESUMED, UNIT_COMPLETED, UNIT_SKIPPED, ARTIFACT_CREATED, ARTIFACT_UPDATED, ARTIFACT_REUSED, SUBAGENT_COMPLETED, SUBAGENT_PROMPT_UNMATCHED, REVIEWER_SCOPE_BLOCKED, REVIEW_FREEZE_BLOCKED, PLAN_APPROVAL_BLOCKED, GUARD_DISABLED, DOCUMENT_INDEXED, DOCUMENT_UPDATED, DOCUMENT_REMOVED, HEALTH_CHECKED, SCOPE_DETECTED, SCOPE_CHANGED, PLUGIN_SELECTION_CHANGED, DEPTH_CHANGED, TEST_STRATEGY_CHANGED, REVIEW_CLASS_CHANGED, GUARD_POLICY_SET, CHANGE_CONTROL_SET, CHANGE_ACCEPTED, GUARD_RESTORED, GUARD_STOOD_ASIDE, CEREMONY_SET, RECOMPOSED, WORKSPACE_RECLASSIFIED, SCOPE_SAVED, ERROR_LOGGED, RECOVERY_COMPLETED, COORDINATION_STOOD_ASIDE, BOLT_STARTED, BOLT_COMPLETED, BOLT_FAILED, AUTONOMY_MODE_SET, UNIT_OWNERSHIP_SET, UNIT_GATE_RHYTHM_SET, CONSTRUCTION_POLICY_SET, UNIT_MERGED, WORKTREE_CREATED, WORKTREE_MERGED, WORKTREE_DISCARDED, STATE_FORKED, STATE_MERGED, AUDIT_FORKED, AUDIT_MERGED, PRACTICES_DISCOVERED, PRACTICES_AFFIRMED, PRACTICES_OVERRIDE, PRACTICES_SECTION_EMPTY, MERGE_DISPATCH_INVOKED, MERGE_DISPATCH_RETURNED, MERGE_DISPATCH_FALLBACK, SENSOR_FIRED, SENSOR_PASSED, SENSOR_FAILED, SENSOR_BUDGET_OVERRIDE, GUARDRAIL_LOADED, MEMORY_EMPTY, RULE_LEARNED, SENSOR_PROPOSED, SWARM_STARTED, SWARM_UNIT_CONVERGED, SWARM_SOURCE_MERGED, SWARM_UNIT_FAILED, SWARM_BATON_RETURNED, SWARM_COMPLETED, SWARM_DEGRADED, SOURCE_COMMITTED"}}
+{"id":"audit_entry-04572","out":{"shard":"# Focus Audit Log\n\n## Error Logged\n**Timestamp**: <ts>\n**Event**: ERROR_LOGGED\n\n---\n"}}
+{"id":"audit_entry-04573","out":{"shard":"# Focus Audit Log\n\n## Intent Repos Changed\n**Timestamp**: <ts>\n**Event**: INTENT_REPOS_CHANGED\n\n---\n"}}
+{"id":"audit_entry-04574","out":{"shard":"# Focus Audit Log\n\n## Worktree Discarded\n**Timestamp**: <ts>\n**Event**: WORKTREE_DISCARDED\n**A b.c_(d)/e-f**: xy\n**Bolt slug**: value-{\\nP}\\nx\n\n---\n"}}
+{"id":"audit_entry-04575","out":{"error":"Invalid audit field key: \"|Stage\". Field keys must match /^[A-Za-z][A-Za-z0-9 ._()/-]*$/ so they remain one Markdown label on one physical line."}}
+{"id":"audit_entry-04576","out":{"shard":"# Focus Audit Log\n\n## Summary Confirmation Recorded\n**Timestamp**: <ts>\n**Event**: SUMMARY_CONFIRMATION_RECORDED\n**Note**: focus-state\n\n---\n"}}
+{"id":"audit_entry-04577","out":{"shard":"# Focus Audit Log\n\n## Checkpoint Verification Recorded\n**Timestamp**: <ts>\n**Event**: CHECKPOINT_VERIFICATION_RECORDED\n**Details (raw)**: a=b\n\n---\n"}}
+{"id":"audit_entry-04578","out":{"error":"Invalid event type: STAGE_STARTED . Must be one of: STAGE_STARTED, STAGE_AWAITING_APPROVAL, STAGE_REVISING, STAGE_COMPLETED, STAGE_JUMPED, STAGE_SKIPPED, PHASE_STARTED, PHASE_COMPLETED, PHASE_VERIFIED, PHASE_SKIPPED, WORKFLOW_STARTED, WORKFLOW_COMPLETED, WORKFLOW_PARKED, WORKFLOW_UNPARKED, WORKFLOW_ARCHIVED, WORKFLOW_UNARCHIVED, INTENT_REPOS_CHANGED, SESSION_STARTED, SESSION_RESUMED, SESSION_COMPACTED, SESSION_ENDED, HUMAN_TURN, HOST_TURN, WORKSPACE_SCAFFOLDED, WORKSPACE_SCANNED, WORKSPACE_INITIALISED, DECISION_RECORDED, GATE_APPROVED, GATE_REJECTED, QUESTION_ANSWERED, QUESTION_UNANSWERED, QUESTION_REPLIED, REQUEST_ROUTED, SUMMARY_CONFIRMATION_RECORDED, VERIFICATION_COMMAND_RECORDED, CONSTRUCTION_POLICY_RECORDED, CHECKPOINT_VERIFICATION_RECORDED, PLAN_APPROVAL_RECORDED, PLAN_APPROVAL_OVERRIDDEN, PLAN_APPROVAL_SKIPPED, REVIEW_REQUESTED, REVIEW_COMPLETED, PIPELINE_LINK_COMPLETED, UNIT_STARTED, UNIT_PAUSED, UNIT_RESUMED, UNIT_COMPLETED, UNIT_SKIPPED, ARTIFACT_CREATED, ARTIFACT_UPDATED, ARTIFACT_REUSED, SUBAGENT_COMPLETED, SUBAGENT_PROMPT_UNMATCHED, REVIEWER_SCOPE_BLOCKED, REVIEW_FREEZE_BLOCKED, PLAN_APPROVAL_BLOCKED, GUARD_DISABLED, DOCUMENT_INDEXED, DOCUMENT_UPDATED, DOCUMENT_REMOVED, HEALTH_CHECKED, SCOPE_DETECTED, SCOPE_CHANGED, PLUGIN_SELECTION_CHANGED, DEPTH_CHANGED, TEST_STRATEGY_CHANGED, REVIEW_CLASS_CHANGED, GUARD_POLICY_SET, CHANGE_CONTROL_SET, CHANGE_ACCEPTED, GUARD_RESTORED, GUARD_STOOD_ASIDE, CEREMONY_SET, RECOMPOSED, WORKSPACE_RECLASSIFIED, SCOPE_SAVED, ERROR_LOGGED, RECOVERY_COMPLETED, COORDINATION_STOOD_ASIDE, BOLT_STARTED, BOLT_COMPLETED, BOLT_FAILED, AUTONOMY_MODE_SET, UNIT_OWNERSHIP_SET, UNIT_GATE_RHYTHM_SET, CONSTRUCTION_POLICY_SET, UNIT_MERGED, WORKTREE_CREATED, WORKTREE_MERGED, WORKTREE_DISCARDED, STATE_FORKED, STATE_MERGED, AUDIT_FORKED, AUDIT_MERGED, PRACTICES_DISCOVERED, PRACTICES_AFFIRMED, PRACTICES_OVERRIDE, PRACTICES_SECTION_EMPTY, MERGE_DISPATCH_INVOKED, MERGE_DISPATCH_RETURNED, MERGE_DISPATCH_FALLBACK, SENSOR_FIRED, SENSOR_PASSED, SENSOR_FAILED, SENSOR_BUDGET_OVERRIDE, GUARDRAIL_LOADED, MEMORY_EMPTY, RULE_LEARNED, SENSOR_PROPOSED, SWARM_STARTED, SWARM_UNIT_CONVERGED, SWARM_SOURCE_MERGED, SWARM_UNIT_FAILED, SWARM_BATON_RETURNED, SWARM_COMPLETED, SWARM_DEGRADED, SOURCE_COMMITTED"}}
+{"id":"audit_entry-04579","out":{"error":"Invalid audit field key: \" lead\". Field keys must match /^[A-Za-z][A-Za-z0-9 ._()/-]*$/ so they remain one Markdown label on one physical line."}}
+{"id":"audit_entry-04580","out":{"shard":"# Focus Audit Log\n\n## Phase Skip\n**Timestamp**: <ts>\n**Event**: PHASE_SKIPPED\n**Tool**: at <project-dir>\n\n---\n"}}
+{"id":"audit_entry-04581","out":{"error":"Invalid audit field key: \"é\". Field keys must match /^[A-Za-z][A-Za-z0-9 ._()/-]*$/ so they remain one Markdown label on one physical line."}}
+{"id":"audit_entry-04582","out":{"shard":"# Focus Audit Log\n\n## Swarm Baton Returned\n**Timestamp**: <ts>\n**Event**: SWARM_BATON_RETURNED\n**Note**: <project-dir>/src/main.rs\n**Bolt slug**: value b<project-dir> ax,\n\n---\n"}}
+{"id":"audit_entry-04583","out":{"shard":"# Focus Audit Log\n\n## Workflow Completion\n**Timestamp**: <ts>\n**Event**: WORKFLOW_COMPLETED\n**Bolt slug**: a\\nb\\nc\n**Stage**: é 😀\n\n---\n"}}
+{"id":"audit_entry-04584","out":{"error":"Invalid audit field key: \"42\". Field keys must match /^[A-Za-z][A-Za-z0-9 ._()/-]*$/ so they remain one Markdown label on one physical line."}}
+{"id":"audit_entry-04585","out":{"error":"Invalid audit field key: \"9x\". Field keys must match /^[A-Za-z][A-Za-z0-9 ._()/-]*$/ so they remain one Markdown label on one physical line."}}
+{"id":"audit_entry-04586","out":{"error":"Invalid audit field key: \"\". Field keys must match /^[A-Za-z][A-Za-z0-9 ._()/-]*$/ so they remain one Markdown label on one physical line."}}
+{"id":"audit_entry-04587","out":{"shard":"# Focus Audit Log\n\n## Merge Dispatch Invoked\n**Timestamp**: <ts>\n**Event**: MERGE_DISPATCH_INVOKED\n**Tool**: a=b\n\n---\n"}}
+{"id":"audit_entry-04588","out":{"shard":"# Focus Audit Log\n\n## Review Class Change\n**Timestamp**: <ts>\n**Event**: REVIEW_CLASS_CHANGED\n\n---\n"}}
+{"id":"audit_entry-04589","out":{"error":"Invalid audit field key: \"Stag|\". Field keys must match /^[A-Za-z][A-Za-z0-9 ._()/-]*$/ so they remain one Markdown label on one physical line."}}
+{"id":"audit_entry-04590","out":{"shard":"# Focus Audit Log\n\n## Unit Completed\n**Timestamp**: <ts>\n**Event**: UNIT_COMPLETED\n\n---\n"}}
+{"id":"audit_entry-04591","out":{"error":"Invalid event type: __proto__. Must be one of: STAGE_STARTED, STAGE_AWAITING_APPROVAL, STAGE_REVISING, STAGE_COMPLETED, STAGE_JUMPED, STAGE_SKIPPED, PHASE_STARTED, PHASE_COMPLETED, PHASE_VERIFIED, PHASE_SKIPPED, WORKFLOW_STARTED, WORKFLOW_COMPLETED, WORKFLOW_PARKED, WORKFLOW_UNPARKED, WORKFLOW_ARCHIVED, WORKFLOW_UNARCHIVED, INTENT_REPOS_CHANGED, SESSION_STARTED, SESSION_RESUMED, SESSION_COMPACTED, SESSION_ENDED, HUMAN_TURN, HOST_TURN, WORKSPACE_SCAFFOLDED, WORKSPACE_SCANNED, WORKSPACE_INITIALISED, DECISION_RECORDED, GATE_APPROVED, GATE_REJECTED, QUESTION_ANSWERED, QUESTION_UNANSWERED, QUESTION_REPLIED, REQUEST_ROUTED, SUMMARY_CONFIRMATION_RECORDED, VERIFICATION_COMMAND_RECORDED, CONSTRUCTION_POLICY_RECORDED, CHECKPOINT_VERIFICATION_RECORDED, PLAN_APPROVAL_RECORDED, PLAN_APPROVAL_OVERRIDDEN, PLAN_APPROVAL_SKIPPED, REVIEW_REQUESTED, REVIEW_COMPLETED, PIPELINE_LINK_COMPLETED, UNIT_STARTED, UNIT_PAUSED, UNIT_RESUMED, UNIT_COMPLETED, UNIT_SKIPPED, ARTIFACT_CREATED, ARTIFACT_UPDATED, ARTIFACT_REUSED, SUBAGENT_COMPLETED, SUBAGENT_PROMPT_UNMATCHED, REVIEWER_SCOPE_BLOCKED, REVIEW_FREEZE_BLOCKED, PLAN_APPROVAL_BLOCKED, GUARD_DISABLED, DOCUMENT_INDEXED, DOCUMENT_UPDATED, DOCUMENT_REMOVED, HEALTH_CHECKED, SCOPE_DETECTED, SCOPE_CHANGED, PLUGIN_SELECTION_CHANGED, DEPTH_CHANGED, TEST_STRATEGY_CHANGED, REVIEW_CLASS_CHANGED, GUARD_POLICY_SET, CHANGE_CONTROL_SET, CHANGE_ACCEPTED, GUARD_RESTORED, GUARD_STOOD_ASIDE, CEREMONY_SET, RECOMPOSED, WORKSPACE_RECLASSIFIED, SCOPE_SAVED, ERROR_LOGGED, RECOVERY_COMPLETED, COORDINATION_STOOD_ASIDE, BOLT_STARTED, BOLT_COMPLETED, BOLT_FAILED, AUTONOMY_MODE_SET, UNIT_OWNERSHIP_SET, UNIT_GATE_RHYTHM_SET, CONSTRUCTION_POLICY_SET, UNIT_MERGED, WORKTREE_CREATED, WORKTREE_MERGED, WORKTREE_DISCARDED, STATE_FORKED, STATE_MERGED, AUDIT_FORKED, AUDIT_MERGED, PRACTICES_DISCOVERED, PRACTICES_AFFIRMED, PRACTICES_OVERRIDE, PRACTICES_SECTION_EMPTY, MERGE_DISPATCH_INVOKED, MERGE_DISPATCH_RETURNED, MERGE_DISPATCH_FALLBACK, SENSOR_FIRED, SENSOR_PASSED, SENSOR_FAILED, SENSOR_BUDGET_OVERRIDE, GUARDRAIL_LOADED, MEMORY_EMPTY, RULE_LEARNED, SENSOR_PROPOSED, SWARM_STARTED, SWARM_UNIT_CONVERGED, SWARM_SOURCE_MERGED, SWARM_UNIT_FAILED, SWARM_BATON_RETURNED, SWARM_COMPLETED, SWARM_DEGRADED, SOURCE_COMMITTED"}}
+{"id":"audit_entry-04592","out":{"shard":"# Focus Audit Log\n\n## Workflow Unparked\n**Timestamp**: <ts>\n**Event**: WORKFLOW_UNPARKED\n**Tool**: code-generation\n**Bolt slug**: <project-dir>\\win\\path\n\n---\n"}}
+{"id":"audit_entry-04593","out":{"error":"Invalid event type: STAGE_STARTED . Must be one of: STAGE_STARTED, STAGE_AWAITING_APPROVAL, STAGE_REVISING, STAGE_COMPLETED, STAGE_JUMPED, STAGE_SKIPPED, PHASE_STARTED, PHASE_COMPLETED, PHASE_VERIFIED, PHASE_SKIPPED, WORKFLOW_STARTED, WORKFLOW_COMPLETED, WORKFLOW_PARKED, WORKFLOW_UNPARKED, WORKFLOW_ARCHIVED, WORKFLOW_UNARCHIVED, INTENT_REPOS_CHANGED, SESSION_STARTED, SESSION_RESUMED, SESSION_COMPACTED, SESSION_ENDED, HUMAN_TURN, HOST_TURN, WORKSPACE_SCAFFOLDED, WORKSPACE_SCANNED, WORKSPACE_INITIALISED, DECISION_RECORDED, GATE_APPROVED, GATE_REJECTED, QUESTION_ANSWERED, QUESTION_UNANSWERED, QUESTION_REPLIED, REQUEST_ROUTED, SUMMARY_CONFIRMATION_RECORDED, VERIFICATION_COMMAND_RECORDED, CONSTRUCTION_POLICY_RECORDED, CHECKPOINT_VERIFICATION_RECORDED, PLAN_APPROVAL_RECORDED, PLAN_APPROVAL_OVERRIDDEN, PLAN_APPROVAL_SKIPPED, REVIEW_REQUESTED, REVIEW_COMPLETED, PIPELINE_LINK_COMPLETED, UNIT_STARTED, UNIT_PAUSED, UNIT_RESUMED, UNIT_COMPLETED, UNIT_SKIPPED, ARTIFACT_CREATED, ARTIFACT_UPDATED, ARTIFACT_REUSED, SUBAGENT_COMPLETED, SUBAGENT_PROMPT_UNMATCHED, REVIEWER_SCOPE_BLOCKED, REVIEW_FREEZE_BLOCKED, PLAN_APPROVAL_BLOCKED, GUARD_DISABLED, DOCUMENT_INDEXED, DOCUMENT_UPDATED, DOCUMENT_REMOVED, HEALTH_CHECKED, SCOPE_DETECTED, SCOPE_CHANGED, PLUGIN_SELECTION_CHANGED, DEPTH_CHANGED, TEST_STRATEGY_CHANGED, REVIEW_CLASS_CHANGED, GUARD_POLICY_SET, CHANGE_CONTROL_SET, CHANGE_ACCEPTED, GUARD_RESTORED, GUARD_STOOD_ASIDE, CEREMONY_SET, RECOMPOSED, WORKSPACE_RECLASSIFIED, SCOPE_SAVED, ERROR_LOGGED, RECOVERY_COMPLETED, COORDINATION_STOOD_ASIDE, BOLT_STARTED, BOLT_COMPLETED, BOLT_FAILED, AUTONOMY_MODE_SET, UNIT_OWNERSHIP_SET, UNIT_GATE_RHYTHM_SET, CONSTRUCTION_POLICY_SET, UNIT_MERGED, WORKTREE_CREATED, WORKTREE_MERGED, WORKTREE_DISCARDED, STATE_FORKED, STATE_MERGED, AUDIT_FORKED, AUDIT_MERGED, PRACTICES_DISCOVERED, PRACTICES_AFFIRMED, PRACTICES_OVERRIDE, PRACTICES_SECTION_EMPTY, MERGE_DISPATCH_INVOKED, MERGE_DISPATCH_RETURNED, MERGE_DISPATCH_FALLBACK, SENSOR_FIRED, SENSOR_PASSED, SENSOR_FAILED, SENSOR_BUDGET_OVERRIDE, GUARDRAIL_LOADED, MEMORY_EMPTY, RULE_LEARNED, SENSOR_PROPOSED, SWARM_STARTED, SWARM_UNIT_CONVERGED, SWARM_SOURCE_MERGED, SWARM_UNIT_FAILED, SWARM_BATON_RETURNED, SWARM_COMPLETED, SWARM_DEGRADED, SOURCE_COMMITTED"}}
+{"id":"audit_entry-04594","out":{"shard":"# Focus Audit Log\n\n## Workflow Parked\n**Timestamp**: <ts>\n**Event**: WORKFLOW_PARKED\n**Details (raw)**: vlu😀e{P\\n/x\n**Stage**: a\\nb\n**A b.c_(d)/e-f**: value{P}😀/\\nx\n\n---\n"}}
+{"id":"audit_entry-04595","out":{"shard":"# Focus Audit Log\n\n## Stage Jump\n**Timestamp**: <ts>\n**Event**: STAGE_JUMPED\n\n---\n"}}
+{"id":"audit_entry-04596","out":{"shard":"# Focus Audit Log\n\n## Workspace Reclassified\n**Timestamp**: <ts>\n**Event**: WORKSPACE_RECLASSIFIED\n**A b.c_(d)/e-f**: code-generation\n**Bolt slug**: \n**constructor**: at <project-dir>\n\n---\n"}}
+{"id":"audit_entry-04597","out":{"shard":"# Focus Audit Log\n\n## Review Class Change\n**Timestamp**: <ts>\n**Event**: REVIEW_CLASS_CHANGED\n**Details (raw)**: <project-dir>\n**Bolt slug**: é 😀\n**Note**: <project-dir>\\win\\path\n\n---\n"}}
+{"id":"audit_entry-04598","out":{"shard":"# Focus Audit Log\n\n## Unit Skipped\n**Timestamp**: <ts>\n**Event**: UNIT_SKIPPED\n**A b.c_(d)/e-f**: <project-dir>\\win\\path\n**Stage**: é 😀\n\n---\n"}}
+{"id":"audit_entry-04599","out":{"shard":"# Focus Audit Log\n\n## Unit Completed\n**Timestamp**: <ts>\n**Event**: UNIT_COMPLETED\n\n---\n"}}
+{"id":"audit_entry-04600","out":{"error":"Invalid audit field key: \"1\". Field keys must match /^[A-Za-z][A-Za-z0-9 ._()/-]*$/ so they remain one Markdown label on one physical line."}}
+{"id":"audit_entry-04601","out":{"error":"Invalid event type: stage_started. Must be one of: STAGE_STARTED, STAGE_AWAITING_APPROVAL, STAGE_REVISING, STAGE_COMPLETED, STAGE_JUMPED, STAGE_SKIPPED, PHASE_STARTED, PHASE_COMPLETED, PHASE_VERIFIED, PHASE_SKIPPED, WORKFLOW_STARTED, WORKFLOW_COMPLETED, WORKFLOW_PARKED, WORKFLOW_UNPARKED, WORKFLOW_ARCHIVED, WORKFLOW_UNARCHIVED, INTENT_REPOS_CHANGED, SESSION_STARTED, SESSION_RESUMED, SESSION_COMPACTED, SESSION_ENDED, HUMAN_TURN, HOST_TURN, WORKSPACE_SCAFFOLDED, WORKSPACE_SCANNED, WORKSPACE_INITIALISED, DECISION_RECORDED, GATE_APPROVED, GATE_REJECTED, QUESTION_ANSWERED, QUESTION_UNANSWERED, QUESTION_REPLIED, REQUEST_ROUTED, SUMMARY_CONFIRMATION_RECORDED, VERIFICATION_COMMAND_RECORDED, CONSTRUCTION_POLICY_RECORDED, CHECKPOINT_VERIFICATION_RECORDED, PLAN_APPROVAL_RECORDED, PLAN_APPROVAL_OVERRIDDEN, PLAN_APPROVAL_SKIPPED, REVIEW_REQUESTED, REVIEW_COMPLETED, PIPELINE_LINK_COMPLETED, UNIT_STARTED, UNIT_PAUSED, UNIT_RESUMED, UNIT_COMPLETED, UNIT_SKIPPED, ARTIFACT_CREATED, ARTIFACT_UPDATED, ARTIFACT_REUSED, SUBAGENT_COMPLETED, SUBAGENT_PROMPT_UNMATCHED, REVIEWER_SCOPE_BLOCKED, REVIEW_FREEZE_BLOCKED, PLAN_APPROVAL_BLOCKED, GUARD_DISABLED, DOCUMENT_INDEXED, DOCUMENT_UPDATED, DOCUMENT_REMOVED, HEALTH_CHECKED, SCOPE_DETECTED, SCOPE_CHANGED, PLUGIN_SELECTION_CHANGED, DEPTH_CHANGED, TEST_STRATEGY_CHANGED, REVIEW_CLASS_CHANGED, GUARD_POLICY_SET, CHANGE_CONTROL_SET, CHANGE_ACCEPTED, GUARD_RESTORED, GUARD_STOOD_ASIDE, CEREMONY_SET, RECOMPOSED, WORKSPACE_RECLASSIFIED, SCOPE_SAVED, ERROR_LOGGED, RECOVERY_COMPLETED, COORDINATION_STOOD_ASIDE, BOLT_STARTED, BOLT_COMPLETED, BOLT_FAILED, AUTONOMY_MODE_SET, UNIT_OWNERSHIP_SET, UNIT_GATE_RHYTHM_SET, CONSTRUCTION_POLICY_SET, UNIT_MERGED, WORKTREE_CREATED, WORKTREE_MERGED, WORKTREE_DISCARDED, STATE_FORKED, STATE_MERGED, AUDIT_FORKED, AUDIT_MERGED, PRACTICES_DISCOVERED, PRACTICES_AFFIRMED, PRACTICES_OVERRIDE, PRACTICES_SECTION_EMPTY, MERGE_DISPATCH_INVOKED, MERGE_DISPATCH_RETURNED, MERGE_DISPATCH_FALLBACK, SENSOR_FIRED, SENSOR_PASSED, SENSOR_FAILED, SENSOR_BUDGET_OVERRIDE, GUARDRAIL_LOADED, MEMORY_EMPTY, RULE_LEARNED, SENSOR_PROPOSED, SWARM_STARTED, SWARM_UNIT_CONVERGED, SWARM_SOURCE_MERGED, SWARM_UNIT_FAILED, SWARM_BATON_RETURNED, SWARM_COMPLETED, SWARM_DEGRADED, SOURCE_COMMITTED"}}
+{"id":"audit_entry-04602","out":{"shard":"# Focus Audit Log\n\n## Workflow Start\n**Timestamp**: <ts>\n**Event**: WORKFLOW_STARTED\n\n---\n"}}
+{"id":"audit_entry-04603","out":{"shard":"# Focus Audit Log\n\n## Artifact Updated\n**Timestamp**: <ts>\n**Event**: ARTIFACT_UPDATED\n**A b.c_(d)/e-f**: valeé {P\t/x\n\n---\n"}}
+{"id":"audit_entry-04604","out":{"shard":"# Focus Audit Log\n\n## Swarm Degraded\n**Timestamp**: <ts>\n**Event**: SWARM_DEGRADED\n**Details (raw)**: é 😀\n\n---\n"}}
+{"id":"audit_entry-04605","out":{"shard":"# Focus Audit Log\n\n## Audit Merged\n**Timestamp**: <ts>\n**Event**: AUDIT_MERGED\n\n---\n"}}
+{"id":"audit_entry-04606","out":{"shard":"# Focus Audit Log\n\n## Guard Disabled\n**Timestamp**: <ts>\n**Event**: GUARD_DISABLED\n**Details (raw)**: é 😀\n\n---\n"}}
+{"id":"audit_entry-04607","out":{"shard":"# Focus Audit Log\n\n## Merge Dispatch Returned\n**Timestamp**: <ts>\n**Event**: MERGE_DISPATCH_RETURNED\n\n---\n"}}
+{"id":"audit_entry-04608","out":{"shard":"# Focus Audit Log\n\n## Question Answered\n**Timestamp**: <ts>\n**Event**: QUESTION_ANSWERED\n**Bolt slug**: valu <project-dir>/>\n**A b.c_(d)/e-f**: xy\n\n---\n"}}
+{"id":"audit_entry-04609","out":{"error":"Invalid audit field key: \"é\". Field keys must match /^[A-Za-z][A-Za-z0-9 ._()/-]*$/ so they remain one Markdown label on one physical line."}}
+{"id":"audit_entry-04610","out":{"error":"Reserved field key: Event. The emitter writes **Event**: itself; a caller-supplied value would forge a second matching line and spoof multiline event queries."}}
+{"id":"audit_entry-04611","out":{"shard":"# Focus Audit Log\n\n## Construction Policy Set\n**Timestamp**: <ts>\n**Event**: CONSTRUCTION_POLICY_SET\n**Bolt slug**: a=b\n**Note**: code-generation\n**trail **: va:-e <project-dir>\\n~x\n**Details (raw)**: see <project-dir>/a and <project-dir>/b\n\n---\n"}}
+{"id":"audit_entry-04612","out":{"shard":"# Focus Audit Log\n\n## Plan Approval Skipped\n**Timestamp**: <ts>\n**Event**: PLAN_APPROVAL_SKIPPED\n**A b.c_(d)/e-f**: <project-dir>\\win\\path\n**Stage**: \n\n---\n"}}
+{"id":"audit_entry-04613","out":{"shard":"# Focus Audit Log\n\n## Session End\n**Timestamp**: <ts>\n**Event**: SESSION_ENDED\n**Details (raw)**: <project-dir>/src/main.rs\n**Stage**: a\\nb\n\n---\n"}}
+{"id":"audit_entry-04614","out":{"shard":"# Focus Audit Log\n\n## Stage Completion\n**Timestamp**: <ts>\n**Event**: STAGE_COMPLETED\n**Stage**: xy\n**Tool**: a\\nb\n**Note**: see <project-dir>/a and <project-dir>/b\n\n---\n"}}
+{"id":"audit_entry-04615","out":{"error":"Invalid event type: STAGE_STARTED . Must be one of: STAGE_STARTED, STAGE_AWAITING_APPROVAL, STAGE_REVISING, STAGE_COMPLETED, STAGE_JUMPED, STAGE_SKIPPED, PHASE_STARTED, PHASE_COMPLETED, PHASE_VERIFIED, PHASE_SKIPPED, WORKFLOW_STARTED, WORKFLOW_COMPLETED, WORKFLOW_PARKED, WORKFLOW_UNPARKED, WORKFLOW_ARCHIVED, WORKFLOW_UNARCHIVED, INTENT_REPOS_CHANGED, SESSION_STARTED, SESSION_RESUMED, SESSION_COMPACTED, SESSION_ENDED, HUMAN_TURN, HOST_TURN, WORKSPACE_SCAFFOLDED, WORKSPACE_SCANNED, WORKSPACE_INITIALISED, DECISION_RECORDED, GATE_APPROVED, GATE_REJECTED, QUESTION_ANSWERED, QUESTION_UNANSWERED, QUESTION_REPLIED, REQUEST_ROUTED, SUMMARY_CONFIRMATION_RECORDED, VERIFICATION_COMMAND_RECORDED, CONSTRUCTION_POLICY_RECORDED, CHECKPOINT_VERIFICATION_RECORDED, PLAN_APPROVAL_RECORDED, PLAN_APPROVAL_OVERRIDDEN, PLAN_APPROVAL_SKIPPED, REVIEW_REQUESTED, REVIEW_COMPLETED, PIPELINE_LINK_COMPLETED, UNIT_STARTED, UNIT_PAUSED, UNIT_RESUMED, UNIT_COMPLETED, UNIT_SKIPPED, ARTIFACT_CREATED, ARTIFACT_UPDATED, ARTIFACT_REUSED, SUBAGENT_COMPLETED, SUBAGENT_PROMPT_UNMATCHED, REVIEWER_SCOPE_BLOCKED, REVIEW_FREEZE_BLOCKED, PLAN_APPROVAL_BLOCKED, GUARD_DISABLED, DOCUMENT_INDEXED, DOCUMENT_UPDATED, DOCUMENT_REMOVED, HEALTH_CHECKED, SCOPE_DETECTED, SCOPE_CHANGED, PLUGIN_SELECTION_CHANGED, DEPTH_CHANGED, TEST_STRATEGY_CHANGED, REVIEW_CLASS_CHANGED, GUARD_POLICY_SET, CHANGE_CONTROL_SET, CHANGE_ACCEPTED, GUARD_RESTORED, GUARD_STOOD_ASIDE, CEREMONY_SET, RECOMPOSED, WORKSPACE_RECLASSIFIED, SCOPE_SAVED, ERROR_LOGGED, RECOVERY_COMPLETED, COORDINATION_STOOD_ASIDE, BOLT_STARTED, BOLT_COMPLETED, BOLT_FAILED, AUTONOMY_MODE_SET, UNIT_OWNERSHIP_SET, UNIT_GATE_RHYTHM_SET, CONSTRUCTION_POLICY_SET, UNIT_MERGED, WORKTREE_CREATED, WORKTREE_MERGED, WORKTREE_DISCARDED, STATE_FORKED, STATE_MERGED, AUDIT_FORKED, AUDIT_MERGED, PRACTICES_DISCOVERED, PRACTICES_AFFIRMED, PRACTICES_OVERRIDE, PRACTICES_SECTION_EMPTY, MERGE_DISPATCH_INVOKED, MERGE_DISPATCH_RETURNED, MERGE_DISPATCH_FALLBACK, SENSOR_FIRED, SENSOR_PASSED, SENSOR_FAILED, SENSOR_BUDGET_OVERRIDE, GUARDRAIL_LOADED, MEMORY_EMPTY, RULE_LEARNED, SENSOR_PROPOSED, SWARM_STARTED, SWARM_UNIT_CONVERGED, SWARM_SOURCE_MERGED, SWARM_UNIT_FAILED, SWARM_BATON_RETURNED, SWARM_COMPLETED, SWARM_DEGRADED, SOURCE_COMMITTED"}}
+{"id":"audit_entry-04616","out":{"error":"Invalid audit field key: \"9x\". Field keys must match /^[A-Za-z][A-Za-z0-9 ._()/-]*$/ so they remain one Markdown label on one physical line."}}
+{"id":"audit_entry-04617","out":{"error":"Invalid event type: stage_started. Must be one of: STAGE_STARTED, STAGE_AWAITING_APPROVAL, STAGE_REVISING, STAGE_COMPLETED, STAGE_JUMPED, STAGE_SKIPPED, PHASE_STARTED, PHASE_COMPLETED, PHASE_VERIFIED, PHASE_SKIPPED, WORKFLOW_STARTED, WORKFLOW_COMPLETED, WORKFLOW_PARKED, WORKFLOW_UNPARKED, WORKFLOW_ARCHIVED, WORKFLOW_UNARCHIVED, INTENT_REPOS_CHANGED, SESSION_STARTED, SESSION_RESUMED, SESSION_COMPACTED, SESSION_ENDED, HUMAN_TURN, HOST_TURN, WORKSPACE_SCAFFOLDED, WORKSPACE_SCANNED, WORKSPACE_INITIALISED, DECISION_RECORDED, GATE_APPROVED, GATE_REJECTED, QUESTION_ANSWERED, QUESTION_UNANSWERED, QUESTION_REPLIED, REQUEST_ROUTED, SUMMARY_CONFIRMATION_RECORDED, VERIFICATION_COMMAND_RECORDED, CONSTRUCTION_POLICY_RECORDED, CHECKPOINT_VERIFICATION_RECORDED, PLAN_APPROVAL_RECORDED, PLAN_APPROVAL_OVERRIDDEN, PLAN_APPROVAL_SKIPPED, REVIEW_REQUESTED, REVIEW_COMPLETED, PIPELINE_LINK_COMPLETED, UNIT_STARTED, UNIT_PAUSED, UNIT_RESUMED, UNIT_COMPLETED, UNIT_SKIPPED, ARTIFACT_CREATED, ARTIFACT_UPDATED, ARTIFACT_REUSED, SUBAGENT_COMPLETED, SUBAGENT_PROMPT_UNMATCHED, REVIEWER_SCOPE_BLOCKED, REVIEW_FREEZE_BLOCKED, PLAN_APPROVAL_BLOCKED, GUARD_DISABLED, DOCUMENT_INDEXED, DOCUMENT_UPDATED, DOCUMENT_REMOVED, HEALTH_CHECKED, SCOPE_DETECTED, SCOPE_CHANGED, PLUGIN_SELECTION_CHANGED, DEPTH_CHANGED, TEST_STRATEGY_CHANGED, REVIEW_CLASS_CHANGED, GUARD_POLICY_SET, CHANGE_CONTROL_SET, CHANGE_ACCEPTED, GUARD_RESTORED, GUARD_STOOD_ASIDE, CEREMONY_SET, RECOMPOSED, WORKSPACE_RECLASSIFIED, SCOPE_SAVED, ERROR_LOGGED, RECOVERY_COMPLETED, COORDINATION_STOOD_ASIDE, BOLT_STARTED, BOLT_COMPLETED, BOLT_FAILED, AUTONOMY_MODE_SET, UNIT_OWNERSHIP_SET, UNIT_GATE_RHYTHM_SET, CONSTRUCTION_POLICY_SET, UNIT_MERGED, WORKTREE_CREATED, WORKTREE_MERGED, WORKTREE_DISCARDED, STATE_FORKED, STATE_MERGED, AUDIT_FORKED, AUDIT_MERGED, PRACTICES_DISCOVERED, PRACTICES_AFFIRMED, PRACTICES_OVERRIDE, PRACTICES_SECTION_EMPTY, MERGE_DISPATCH_INVOKED, MERGE_DISPATCH_RETURNED, MERGE_DISPATCH_FALLBACK, SENSOR_FIRED, SENSOR_PASSED, SENSOR_FAILED, SENSOR_BUDGET_OVERRIDE, GUARDRAIL_LOADED, MEMORY_EMPTY, RULE_LEARNED, SENSOR_PROPOSED, SWARM_STARTED, SWARM_UNIT_CONVERGED, SWARM_SOURCE_MERGED, SWARM_UNIT_FAILED, SWARM_BATON_RETURNED, SWARM_COMPLETED, SWARM_DEGRADED, SOURCE_COMMITTED"}}
+{"id":"audit_entry-04618","out":{"error":"Invalid event type: STAGE_STARTED . Must be one of: STAGE_STARTED, STAGE_AWAITING_APPROVAL, STAGE_REVISING, STAGE_COMPLETED, STAGE_JUMPED, STAGE_SKIPPED, PHASE_STARTED, PHASE_COMPLETED, PHASE_VERIFIED, PHASE_SKIPPED, WORKFLOW_STARTED, WORKFLOW_COMPLETED, WORKFLOW_PARKED, WORKFLOW_UNPARKED, WORKFLOW_ARCHIVED, WORKFLOW_UNARCHIVED, INTENT_REPOS_CHANGED, SESSION_STARTED, SESSION_RESUMED, SESSION_COMPACTED, SESSION_ENDED, HUMAN_TURN, HOST_TURN, WORKSPACE_SCAFFOLDED, WORKSPACE_SCANNED, WORKSPACE_INITIALISED, DECISION_RECORDED, GATE_APPROVED, GATE_REJECTED, QUESTION_ANSWERED, QUESTION_UNANSWERED, QUESTION_REPLIED, REQUEST_ROUTED, SUMMARY_CONFIRMATION_RECORDED, VERIFICATION_COMMAND_RECORDED, CONSTRUCTION_POLICY_RECORDED, CHECKPOINT_VERIFICATION_RECORDED, PLAN_APPROVAL_RECORDED, PLAN_APPROVAL_OVERRIDDEN, PLAN_APPROVAL_SKIPPED, REVIEW_REQUESTED, REVIEW_COMPLETED, PIPELINE_LINK_COMPLETED, UNIT_STARTED, UNIT_PAUSED, UNIT_RESUMED, UNIT_COMPLETED, UNIT_SKIPPED, ARTIFACT_CREATED, ARTIFACT_UPDATED, ARTIFACT_REUSED, SUBAGENT_COMPLETED, SUBAGENT_PROMPT_UNMATCHED, REVIEWER_SCOPE_BLOCKED, REVIEW_FREEZE_BLOCKED, PLAN_APPROVAL_BLOCKED, GUARD_DISABLED, DOCUMENT_INDEXED, DOCUMENT_UPDATED, DOCUMENT_REMOVED, HEALTH_CHECKED, SCOPE_DETECTED, SCOPE_CHANGED, PLUGIN_SELECTION_CHANGED, DEPTH_CHANGED, TEST_STRATEGY_CHANGED, REVIEW_CLASS_CHANGED, GUARD_POLICY_SET, CHANGE_CONTROL_SET, CHANGE_ACCEPTED, GUARD_RESTORED, GUARD_STOOD_ASIDE, CEREMONY_SET, RECOMPOSED, WORKSPACE_RECLASSIFIED, SCOPE_SAVED, ERROR_LOGGED, RECOVERY_COMPLETED, COORDINATION_STOOD_ASIDE, BOLT_STARTED, BOLT_COMPLETED, BOLT_FAILED, AUTONOMY_MODE_SET, UNIT_OWNERSHIP_SET, UNIT_GATE_RHYTHM_SET, CONSTRUCTION_POLICY_SET, UNIT_MERGED, WORKTREE_CREATED, WORKTREE_MERGED, WORKTREE_DISCARDED, STATE_FORKED, STATE_MERGED, AUDIT_FORKED, AUDIT_MERGED, PRACTICES_DISCOVERED, PRACTICES_AFFIRMED, PRACTICES_OVERRIDE, PRACTICES_SECTION_EMPTY, MERGE_DISPATCH_INVOKED, MERGE_DISPATCH_RETURNED, MERGE_DISPATCH_FALLBACK, SENSOR_FIRED, SENSOR_PASSED, SENSOR_FAILED, SENSOR_BUDGET_OVERRIDE, GUARDRAIL_LOADED, MEMORY_EMPTY, RULE_LEARNED, SENSOR_PROPOSED, SWARM_STARTED, SWARM_UNIT_CONVERGED, SWARM_SOURCE_MERGED, SWARM_UNIT_FAILED, SWARM_BATON_RETURNED, SWARM_COMPLETED, SWARM_DEGRADED, SOURCE_COMMITTED"}}
+{"id":"audit_entry-04619","out":{"shard":"# Focus Audit Log\n\n## Scope Saved\n**Timestamp**: <ts>\n**Event**: SCOPE_SAVED\n\n---\n"}}
+{"id":"audit_entry-04620","out":{"shard":"# Focus Audit Log\n\n## Unit Resumed\n**Timestamp**: <ts>\n**Event**: UNIT_RESUMED\n\n---\n"}}
+{"id":"audit_entry-04621","out":{"shard":"# Focus Audit Log\n\n## Plan Approval Recorded\n**Timestamp**: <ts>\n**Event**: PLAN_APPROVAL_RECORDED\n\n---\n"}}
+{"id":"audit_entry-04622","out":{"shard":"# Focus Audit Log\n\n## Question Replied\n**Timestamp**: <ts>\n**Event**: QUESTION_REPLIED\n**Tool**: a\\nb\n**trail **: é 😀\n\n---\n"}}
+{"id":"audit_entry-04623","out":{"shard":"# Focus Audit Log\n\n## Request Routed\n**Timestamp**: <ts>\n**Event**: REQUEST_ROUTED\n**Tool**: valu,e }P}]/xa\n**A b.c_(d)/e-f**: {alu# 😀<project-dir>/x\n**Details (raw)**: see <project-dir>/a and <project-dir>/b\n\n---\n"}}
+{"id":"audit_entry-04624","out":{"shard":"# Focus Audit Log\n\n## Stage Start\n**Timestamp**: <ts>\n**Event**: STAGE_STARTED\n**Bolt slug**: {P}x\n**Tool**: =\n**Details (raw)**:   spaced  \n\n---\n"}}
+{"id":"audit_entry-04625","out":{"shard":"# Focus Audit Log\n\n## Unit Completed\n**Timestamp**: <ts>\n**Event**: UNIT_COMPLETED\n**A b.c_(d)/e-f**: **Event**: HUMAN_TURN\n**Note**: \\n---\\n## Forged\\n**Event**: GATE_APPROVED\n**Stage**: é 😀\n\n---\n"}}
+{"id":"audit_entry-04626","out":{"error":"Reserved field key: Event. The emitter writes **Event**: itself; a caller-supplied value would forge a second matching line and spoof multiline event queries."}}
+{"id":"audit_entry-04627","out":{"error":"Invalid event type: NOPE. Must be one of: STAGE_STARTED, STAGE_AWAITING_APPROVAL, STAGE_REVISING, STAGE_COMPLETED, STAGE_JUMPED, STAGE_SKIPPED, PHASE_STARTED, PHASE_COMPLETED, PHASE_VERIFIED, PHASE_SKIPPED, WORKFLOW_STARTED, WORKFLOW_COMPLETED, WORKFLOW_PARKED, WORKFLOW_UNPARKED, WORKFLOW_ARCHIVED, WORKFLOW_UNARCHIVED, INTENT_REPOS_CHANGED, SESSION_STARTED, SESSION_RESUMED, SESSION_COMPACTED, SESSION_ENDED, HUMAN_TURN, HOST_TURN, WORKSPACE_SCAFFOLDED, WORKSPACE_SCANNED, WORKSPACE_INITIALISED, DECISION_RECORDED, GATE_APPROVED, GATE_REJECTED, QUESTION_ANSWERED, QUESTION_UNANSWERED, QUESTION_REPLIED, REQUEST_ROUTED, SUMMARY_CONFIRMATION_RECORDED, VERIFICATION_COMMAND_RECORDED, CONSTRUCTION_POLICY_RECORDED, CHECKPOINT_VERIFICATION_RECORDED, PLAN_APPROVAL_RECORDED, PLAN_APPROVAL_OVERRIDDEN, PLAN_APPROVAL_SKIPPED, REVIEW_REQUESTED, REVIEW_COMPLETED, PIPELINE_LINK_COMPLETED, UNIT_STARTED, UNIT_PAUSED, UNIT_RESUMED, UNIT_COMPLETED, UNIT_SKIPPED, ARTIFACT_CREATED, ARTIFACT_UPDATED, ARTIFACT_REUSED, SUBAGENT_COMPLETED, SUBAGENT_PROMPT_UNMATCHED, REVIEWER_SCOPE_BLOCKED, REVIEW_FREEZE_BLOCKED, PLAN_APPROVAL_BLOCKED, GUARD_DISABLED, DOCUMENT_INDEXED, DOCUMENT_UPDATED, DOCUMENT_REMOVED, HEALTH_CHECKED, SCOPE_DETECTED, SCOPE_CHANGED, PLUGIN_SELECTION_CHANGED, DEPTH_CHANGED, TEST_STRATEGY_CHANGED, REVIEW_CLASS_CHANGED, GUARD_POLICY_SET, CHANGE_CONTROL_SET, CHANGE_ACCEPTED, GUARD_RESTORED, GUARD_STOOD_ASIDE, CEREMONY_SET, RECOMPOSED, WORKSPACE_RECLASSIFIED, SCOPE_SAVED, ERROR_LOGGED, RECOVERY_COMPLETED, COORDINATION_STOOD_ASIDE, BOLT_STARTED, BOLT_COMPLETED, BOLT_FAILED, AUTONOMY_MODE_SET, UNIT_OWNERSHIP_SET, UNIT_GATE_RHYTHM_SET, CONSTRUCTION_POLICY_SET, UNIT_MERGED, WORKTREE_CREATED, WORKTREE_MERGED, WORKTREE_DISCARDED, STATE_FORKED, STATE_MERGED, AUDIT_FORKED, AUDIT_MERGED, PRACTICES_DISCOVERED, PRACTICES_AFFIRMED, PRACTICES_OVERRIDE, PRACTICES_SECTION_EMPTY, MERGE_DISPATCH_INVOKED, MERGE_DISPATCH_RETURNED, MERGE_DISPATCH_FALLBACK, SENSOR_FIRED, SENSOR_PASSED, SENSOR_FAILED, SENSOR_BUDGET_OVERRIDE, GUARDRAIL_LOADED, MEMORY_EMPTY, RULE_LEARNED, SENSOR_PROPOSED, SWARM_STARTED, SWARM_UNIT_CONVERGED, SWARM_SOURCE_MERGED, SWARM_UNIT_FAILED, SWARM_BATON_RETURNED, SWARM_COMPLETED, SWARM_DEGRADED, SOURCE_COMMITTED"}}
+{"id":"audit_entry-04628","out":{"shard":"# Focus Audit Log\n\n## Stage Skip\n**Timestamp**: <ts>\n**Event**: STAGE_SKIPPED\n\n---\n"}}
+{"id":"audit_entry-04629","out":{"shard":"# Focus Audit Log\n\n## Guard Disabled\n**Timestamp**: <ts>\n**Event**: GUARD_DISABLED\n**Stage**: é 😀\n\n---\n"}}
+{"id":"audit_entry-04630","out":{"shard":"# Focus Audit Log\n\n## Bolt Started\n**Timestamp**: <ts>\n**Event**: BOLT_STARTED\n\n---\n"}}
+{"id":"audit_entry-04631","out":{"shard":"# Focus Audit Log\n\n## State Forked\n**Timestamp**: <ts>\n**Event**: STATE_FORKED\n**A b.c_(d)/e-f**: value {😀P}/x\n**Workflow**: é 😀\n**Stage**: a=b\n\n---\n"}}
+{"id":"audit_entry-04632","out":{"shard":"# Focus Audit Log\n\n## Artifact Created\n**Timestamp**: <ts>\n**Event**: ARTIFACT_CREATED\n**Tool**: é 😀\n**constructor**: xy\n**Note**: é 😀\n\n---\n"}}
+{"id":"audit_entry-04633","out":{"shard":"# Focus Audit Log\n\n## Workflow Completion\n**Timestamp**: <ts>\n**Event**: WORKFLOW_COMPLETED\n**Note**: at <project-dir>\n\n---\n"}}
+{"id":"audit_entry-04634","out":{"shard":"# Focus Audit Log\n\n## Question Unanswered\n**Timestamp**: <ts>\n**Event**: QUESTION_UNANSWERED\n\n---\n"}}
+{"id":"audit_entry-04635","out":{"shard":"# Focus Audit Log\n\n## Audit Forked\n**Timestamp**: <ts>\n**Event**: AUDIT_FORKED\n\n---\n"}}
+{"id":"audit_entry-04636","out":{"error":"Invalid audit field key: \"\". Field keys must match /^[A-Za-z][A-Za-z0-9 ._()/-]*$/ so they remain one Markdown label on one physical line."}}
+{"id":"audit_entry-04637","out":{"error":"Invalid event type: STAGE_STARTED . Must be one of: STAGE_STARTED, STAGE_AWAITING_APPROVAL, STAGE_REVISING, STAGE_COMPLETED, STAGE_JUMPED, STAGE_SKIPPED, PHASE_STARTED, PHASE_COMPLETED, PHASE_VERIFIED, PHASE_SKIPPED, WORKFLOW_STARTED, WORKFLOW_COMPLETED, WORKFLOW_PARKED, WORKFLOW_UNPARKED, WORKFLOW_ARCHIVED, WORKFLOW_UNARCHIVED, INTENT_REPOS_CHANGED, SESSION_STARTED, SESSION_RESUMED, SESSION_COMPACTED, SESSION_ENDED, HUMAN_TURN, HOST_TURN, WORKSPACE_SCAFFOLDED, WORKSPACE_SCANNED, WORKSPACE_INITIALISED, DECISION_RECORDED, GATE_APPROVED, GATE_REJECTED, QUESTION_ANSWERED, QUESTION_UNANSWERED, QUESTION_REPLIED, REQUEST_ROUTED, SUMMARY_CONFIRMATION_RECORDED, VERIFICATION_COMMAND_RECORDED, CONSTRUCTION_POLICY_RECORDED, CHECKPOINT_VERIFICATION_RECORDED, PLAN_APPROVAL_RECORDED, PLAN_APPROVAL_OVERRIDDEN, PLAN_APPROVAL_SKIPPED, REVIEW_REQUESTED, REVIEW_COMPLETED, PIPELINE_LINK_COMPLETED, UNIT_STARTED, UNIT_PAUSED, UNIT_RESUMED, UNIT_COMPLETED, UNIT_SKIPPED, ARTIFACT_CREATED, ARTIFACT_UPDATED, ARTIFACT_REUSED, SUBAGENT_COMPLETED, SUBAGENT_PROMPT_UNMATCHED, REVIEWER_SCOPE_BLOCKED, REVIEW_FREEZE_BLOCKED, PLAN_APPROVAL_BLOCKED, GUARD_DISABLED, DOCUMENT_INDEXED, DOCUMENT_UPDATED, DOCUMENT_REMOVED, HEALTH_CHECKED, SCOPE_DETECTED, SCOPE_CHANGED, PLUGIN_SELECTION_CHANGED, DEPTH_CHANGED, TEST_STRATEGY_CHANGED, REVIEW_CLASS_CHANGED, GUARD_POLICY_SET, CHANGE_CONTROL_SET, CHANGE_ACCEPTED, GUARD_RESTORED, GUARD_STOOD_ASIDE, CEREMONY_SET, RECOMPOSED, WORKSPACE_RECLASSIFIED, SCOPE_SAVED, ERROR_LOGGED, RECOVERY_COMPLETED, COORDINATION_STOOD_ASIDE, BOLT_STARTED, BOLT_COMPLETED, BOLT_FAILED, AUTONOMY_MODE_SET, UNIT_OWNERSHIP_SET, UNIT_GATE_RHYTHM_SET, CONSTRUCTION_POLICY_SET, UNIT_MERGED, WORKTREE_CREATED, WORKTREE_MERGED, WORKTREE_DISCARDED, STATE_FORKED, STATE_MERGED, AUDIT_FORKED, AUDIT_MERGED, PRACTICES_DISCOVERED, PRACTICES_AFFIRMED, PRACTICES_OVERRIDE, PRACTICES_SECTION_EMPTY, MERGE_DISPATCH_INVOKED, MERGE_DISPATCH_RETURNED, MERGE_DISPATCH_FALLBACK, SENSOR_FIRED, SENSOR_PASSED, SENSOR_FAILED, SENSOR_BUDGET_OVERRIDE, GUARDRAIL_LOADED, MEMORY_EMPTY, RULE_LEARNED, SENSOR_PROPOSED, SWARM_STARTED, SWARM_UNIT_CONVERGED, SWARM_SOURCE_MERGED, SWARM_UNIT_FAILED, SWARM_BATON_RETURNED, SWARM_COMPLETED, SWARM_DEGRADED, SOURCE_COMMITTED"}}
+{"id":"audit_entry-04638","out":{"error":"Invalid audit field key: \"1\". Field keys must match /^[A-Za-z][A-Za-z0-9 ._()/-]*$/ so they remain one Markdown label on one physical line."}}
+{"id":"audit_entry-04639","out":{"error":"Reserved field key: Event. The emitter writes **Event**: itself; a caller-supplied value would forge a second matching line and spoof multiline event queries."}}
+{"id":"audit_entry-04640","out":{"shard":"# Focus Audit Log\n\n## Coordination Stood Aside\n**Timestamp**: <ts>\n**Event**: COORDINATION_STOOD_ASIDE\n**Details (raw)**: focus-state\n**A b.c_(d)/e-f**: va😀e <project-dir>/ \n**Stage**: \n\n---\n"}}
+{"id":"audit_entry-04641","out":{"shard":"# Focus Audit Log\n\n## Question Answered\n**Timestamp**: <ts>\n**Event**: QUESTION_ANSWERED\n\n---\n"}}
+{"id":"audit_entry-04642","out":{"shard":"# Focus Audit Log\n\n## Coordination Stood Aside\n**Timestamp**: <ts>\n**Event**: COORDINATION_STOOD_ASIDE\n**Tool**: =\n**Note**: a=b\n\n---\n"}}
+{"id":"audit_entry-04643","out":{"shard":"# Focus Audit Log\n\n## Gate Rejected\n**Timestamp**: <ts>\n**Event**: GATE_REJECTED\n**Tool**: **Event**: HUMAN_TURN\n\n---\n"}}
+{"id":"audit_entry-04644","out":{"error":"Reserved field key: Event. The emitter writes **Event**: itself; a caller-supplied value would forge a second matching line and spoof multiline event queries."}}
+{"id":"audit_entry-04645","out":{"shard":"# Focus Audit Log\n\n## Plan Approval Skipped\n**Timestamp**: <ts>\n**Event**: PLAN_APPROVAL_SKIPPED\n**A b.c_(d)/e-f**: <project-dir>\tnext\n**Stage**: code-generation\n\n---\n"}}
+{"id":"audit_entry-04646","out":{"shard":"# Focus Audit Log\n\n## Artifact Reused\n**Timestamp**: <ts>\n**Event**: ARTIFACT_REUSED\n**Tool**: see <project-dir>/a and <project-dir>/b\n\n---\n"}}
+{"id":"audit_entry-04647","out":{"error":"Reserved field key: Event. The emitter writes **Event**: itself; a caller-supplied value would forge a second matching line and spoof multiline event queries."}}
+{"id":"audit_entry-04648","out":{"shard":"# Focus Audit Log\n\n## Phase Skip\n**Timestamp**: <ts>\n**Event**: PHASE_SKIPPED\n**Workflow**: <project-dir>\tnext\n\n---\n"}}
+{"id":"audit_entry-04649","out":{"shard":"# Focus Audit Log\n\n## Stage Jump\n**Timestamp**: <ts>\n**Event**: STAGE_JUMPED\n**Details (raw)**: code-generation\n**Stage**: value ~<project-dir>/x\n\n---\n"}}
+{"id":"audit_entry-04650","out":{"error":"Invalid audit field key: \"42\". Field keys must match /^[A-Za-z][A-Za-z0-9 ._()/-]*$/ so they remain one Markdown label on one physical line."}}
+{"id":"audit_entry-04651","out":{"error":"Invalid event type: . Must be one of: STAGE_STARTED, STAGE_AWAITING_APPROVAL, STAGE_REVISING, STAGE_COMPLETED, STAGE_JUMPED, STAGE_SKIPPED, PHASE_STARTED, PHASE_COMPLETED, PHASE_VERIFIED, PHASE_SKIPPED, WORKFLOW_STARTED, WORKFLOW_COMPLETED, WORKFLOW_PARKED, WORKFLOW_UNPARKED, WORKFLOW_ARCHIVED, WORKFLOW_UNARCHIVED, INTENT_REPOS_CHANGED, SESSION_STARTED, SESSION_RESUMED, SESSION_COMPACTED, SESSION_ENDED, HUMAN_TURN, HOST_TURN, WORKSPACE_SCAFFOLDED, WORKSPACE_SCANNED, WORKSPACE_INITIALISED, DECISION_RECORDED, GATE_APPROVED, GATE_REJECTED, QUESTION_ANSWERED, QUESTION_UNANSWERED, QUESTION_REPLIED, REQUEST_ROUTED, SUMMARY_CONFIRMATION_RECORDED, VERIFICATION_COMMAND_RECORDED, CONSTRUCTION_POLICY_RECORDED, CHECKPOINT_VERIFICATION_RECORDED, PLAN_APPROVAL_RECORDED, PLAN_APPROVAL_OVERRIDDEN, PLAN_APPROVAL_SKIPPED, REVIEW_REQUESTED, REVIEW_COMPLETED, PIPELINE_LINK_COMPLETED, UNIT_STARTED, UNIT_PAUSED, UNIT_RESUMED, UNIT_COMPLETED, UNIT_SKIPPED, ARTIFACT_CREATED, ARTIFACT_UPDATED, ARTIFACT_REUSED, SUBAGENT_COMPLETED, SUBAGENT_PROMPT_UNMATCHED, REVIEWER_SCOPE_BLOCKED, REVIEW_FREEZE_BLOCKED, PLAN_APPROVAL_BLOCKED, GUARD_DISABLED, DOCUMENT_INDEXED, DOCUMENT_UPDATED, DOCUMENT_REMOVED, HEALTH_CHECKED, SCOPE_DETECTED, SCOPE_CHANGED, PLUGIN_SELECTION_CHANGED, DEPTH_CHANGED, TEST_STRATEGY_CHANGED, REVIEW_CLASS_CHANGED, GUARD_POLICY_SET, CHANGE_CONTROL_SET, CHANGE_ACCEPTED, GUARD_RESTORED, GUARD_STOOD_ASIDE, CEREMONY_SET, RECOMPOSED, WORKSPACE_RECLASSIFIED, SCOPE_SAVED, ERROR_LOGGED, RECOVERY_COMPLETED, COORDINATION_STOOD_ASIDE, BOLT_STARTED, BOLT_COMPLETED, BOLT_FAILED, AUTONOMY_MODE_SET, UNIT_OWNERSHIP_SET, UNIT_GATE_RHYTHM_SET, CONSTRUCTION_POLICY_SET, UNIT_MERGED, WORKTREE_CREATED, WORKTREE_MERGED, WORKTREE_DISCARDED, STATE_FORKED, STATE_MERGED, AUDIT_FORKED, AUDIT_MERGED, PRACTICES_DISCOVERED, PRACTICES_AFFIRMED, PRACTICES_OVERRIDE, PRACTICES_SECTION_EMPTY, MERGE_DISPATCH_INVOKED, MERGE_DISPATCH_RETURNED, MERGE_DISPATCH_FALLBACK, SENSOR_FIRED, SENSOR_PASSED, SENSOR_FAILED, SENSOR_BUDGET_OVERRIDE, GUARDRAIL_LOADED, MEMORY_EMPTY, RULE_LEARNED, SENSOR_PROPOSED, SWARM_STARTED, SWARM_UNIT_CONVERGED, SWARM_SOURCE_MERGED, SWARM_UNIT_FAILED, SWARM_BATON_RETURNED, SWARM_COMPLETED, SWARM_DEGRADED, SOURCE_COMMITTED"}}
+{"id":"audit_entry-04652","out":{"error":"Invalid audit field key: \"1\". Field keys must match /^[A-Za-z][A-Za-z0-9 ._()/-]*$/ so they remain one Markdown label on one physical line."}}
+{"id":"audit_entry-04653","out":{"shard":"# Focus Audit Log\n\n## Session End\n**Timestamp**: <ts>\n**Event**: SESSION_ENDED\n**A b.c_(d)/e-f**: value {P.\n\n---\n"}}
+{"id":"audit_entry-04654","out":{"shard":"# Focus Audit Log\n\n## Gate Rejected\n**Timestamp**: <ts>\n**Event**: GATE_REJECTED\n**Details (raw)**: xy\n**Bolt slug**: vaue ,P}/\n**Note**: xy\n\n---\n"}}
+{"id":"audit_entry-04655","out":{"error":"Invalid event type: toString. Must be one of: STAGE_STARTED, STAGE_AWAITING_APPROVAL, STAGE_REVISING, STAGE_COMPLETED, STAGE_JUMPED, STAGE_SKIPPED, PHASE_STARTED, PHASE_COMPLETED, PHASE_VERIFIED, PHASE_SKIPPED, WORKFLOW_STARTED, WORKFLOW_COMPLETED, WORKFLOW_PARKED, WORKFLOW_UNPARKED, WORKFLOW_ARCHIVED, WORKFLOW_UNARCHIVED, INTENT_REPOS_CHANGED, SESSION_STARTED, SESSION_RESUMED, SESSION_COMPACTED, SESSION_ENDED, HUMAN_TURN, HOST_TURN, WORKSPACE_SCAFFOLDED, WORKSPACE_SCANNED, WORKSPACE_INITIALISED, DECISION_RECORDED, GATE_APPROVED, GATE_REJECTED, QUESTION_ANSWERED, QUESTION_UNANSWERED, QUESTION_REPLIED, REQUEST_ROUTED, SUMMARY_CONFIRMATION_RECORDED, VERIFICATION_COMMAND_RECORDED, CONSTRUCTION_POLICY_RECORDED, CHECKPOINT_VERIFICATION_RECORDED, PLAN_APPROVAL_RECORDED, PLAN_APPROVAL_OVERRIDDEN, PLAN_APPROVAL_SKIPPED, REVIEW_REQUESTED, REVIEW_COMPLETED, PIPELINE_LINK_COMPLETED, UNIT_STARTED, UNIT_PAUSED, UNIT_RESUMED, UNIT_COMPLETED, UNIT_SKIPPED, ARTIFACT_CREATED, ARTIFACT_UPDATED, ARTIFACT_REUSED, SUBAGENT_COMPLETED, SUBAGENT_PROMPT_UNMATCHED, REVIEWER_SCOPE_BLOCKED, REVIEW_FREEZE_BLOCKED, PLAN_APPROVAL_BLOCKED, GUARD_DISABLED, DOCUMENT_INDEXED, DOCUMENT_UPDATED, DOCUMENT_REMOVED, HEALTH_CHECKED, SCOPE_DETECTED, SCOPE_CHANGED, PLUGIN_SELECTION_CHANGED, DEPTH_CHANGED, TEST_STRATEGY_CHANGED, REVIEW_CLASS_CHANGED, GUARD_POLICY_SET, CHANGE_CONTROL_SET, CHANGE_ACCEPTED, GUARD_RESTORED, GUARD_STOOD_ASIDE, CEREMONY_SET, RECOMPOSED, WORKSPACE_RECLASSIFIED, SCOPE_SAVED, ERROR_LOGGED, RECOVERY_COMPLETED, COORDINATION_STOOD_ASIDE, BOLT_STARTED, BOLT_COMPLETED, BOLT_FAILED, AUTONOMY_MODE_SET, UNIT_OWNERSHIP_SET, UNIT_GATE_RHYTHM_SET, CONSTRUCTION_POLICY_SET, UNIT_MERGED, WORKTREE_CREATED, WORKTREE_MERGED, WORKTREE_DISCARDED, STATE_FORKED, STATE_MERGED, AUDIT_FORKED, AUDIT_MERGED, PRACTICES_DISCOVERED, PRACTICES_AFFIRMED, PRACTICES_OVERRIDE, PRACTICES_SECTION_EMPTY, MERGE_DISPATCH_INVOKED, MERGE_DISPATCH_RETURNED, MERGE_DISPATCH_FALLBACK, SENSOR_FIRED, SENSOR_PASSED, SENSOR_FAILED, SENSOR_BUDGET_OVERRIDE, GUARDRAIL_LOADED, MEMORY_EMPTY, RULE_LEARNED, SENSOR_PROPOSED, SWARM_STARTED, SWARM_UNIT_CONVERGED, SWARM_SOURCE_MERGED, SWARM_UNIT_FAILED, SWARM_BATON_RETURNED, SWARM_COMPLETED, SWARM_DEGRADED, SOURCE_COMMITTED"}}
+{"id":"audit_entry-04656","out":{"shard":"# Focus Audit Log\n\n## Document Indexed\n**Timestamp**: <ts>\n**Event**: DOCUMENT_INDEXED\n**A b.c_(d)/e-f**: focus-state\n\n---\n"}}
+{"id":"audit_entry-04657","out":{"error":"Invalid event type: . Must be one of: STAGE_STARTED, STAGE_AWAITING_APPROVAL, STAGE_REVISING, STAGE_COMPLETED, STAGE_JUMPED, STAGE_SKIPPED, PHASE_STARTED, PHASE_COMPLETED, PHASE_VERIFIED, PHASE_SKIPPED, WORKFLOW_STARTED, WORKFLOW_COMPLETED, WORKFLOW_PARKED, WORKFLOW_UNPARKED, WORKFLOW_ARCHIVED, WORKFLOW_UNARCHIVED, INTENT_REPOS_CHANGED, SESSION_STARTED, SESSION_RESUMED, SESSION_COMPACTED, SESSION_ENDED, HUMAN_TURN, HOST_TURN, WORKSPACE_SCAFFOLDED, WORKSPACE_SCANNED, WORKSPACE_INITIALISED, DECISION_RECORDED, GATE_APPROVED, GATE_REJECTED, QUESTION_ANSWERED, QUESTION_UNANSWERED, QUESTION_REPLIED, REQUEST_ROUTED, SUMMARY_CONFIRMATION_RECORDED, VERIFICATION_COMMAND_RECORDED, CONSTRUCTION_POLICY_RECORDED, CHECKPOINT_VERIFICATION_RECORDED, PLAN_APPROVAL_RECORDED, PLAN_APPROVAL_OVERRIDDEN, PLAN_APPROVAL_SKIPPED, REVIEW_REQUESTED, REVIEW_COMPLETED, PIPELINE_LINK_COMPLETED, UNIT_STARTED, UNIT_PAUSED, UNIT_RESUMED, UNIT_COMPLETED, UNIT_SKIPPED, ARTIFACT_CREATED, ARTIFACT_UPDATED, ARTIFACT_REUSED, SUBAGENT_COMPLETED, SUBAGENT_PROMPT_UNMATCHED, REVIEWER_SCOPE_BLOCKED, REVIEW_FREEZE_BLOCKED, PLAN_APPROVAL_BLOCKED, GUARD_DISABLED, DOCUMENT_INDEXED, DOCUMENT_UPDATED, DOCUMENT_REMOVED, HEALTH_CHECKED, SCOPE_DETECTED, SCOPE_CHANGED, PLUGIN_SELECTION_CHANGED, DEPTH_CHANGED, TEST_STRATEGY_CHANGED, REVIEW_CLASS_CHANGED, GUARD_POLICY_SET, CHANGE_CONTROL_SET, CHANGE_ACCEPTED, GUARD_RESTORED, GUARD_STOOD_ASIDE, CEREMONY_SET, RECOMPOSED, WORKSPACE_RECLASSIFIED, SCOPE_SAVED, ERROR_LOGGED, RECOVERY_COMPLETED, COORDINATION_STOOD_ASIDE, BOLT_STARTED, BOLT_COMPLETED, BOLT_FAILED, AUTONOMY_MODE_SET, UNIT_OWNERSHIP_SET, UNIT_GATE_RHYTHM_SET, CONSTRUCTION_POLICY_SET, UNIT_MERGED, WORKTREE_CREATED, WORKTREE_MERGED, WORKTREE_DISCARDED, STATE_FORKED, STATE_MERGED, AUDIT_FORKED, AUDIT_MERGED, PRACTICES_DISCOVERED, PRACTICES_AFFIRMED, PRACTICES_OVERRIDE, PRACTICES_SECTION_EMPTY, MERGE_DISPATCH_INVOKED, MERGE_DISPATCH_RETURNED, MERGE_DISPATCH_FALLBACK, SENSOR_FIRED, SENSOR_PASSED, SENSOR_FAILED, SENSOR_BUDGET_OVERRIDE, GUARDRAIL_LOADED, MEMORY_EMPTY, RULE_LEARNED, SENSOR_PROPOSED, SWARM_STARTED, SWARM_UNIT_CONVERGED, SWARM_SOURCE_MERGED, SWARM_UNIT_FAILED, SWARM_BATON_RETURNED, SWARM_COMPLETED, SWARM_DEGRADED, SOURCE_COMMITTED"}}
+{"id":"audit_entry-04658","out":{"error":"Reserved field key: Event. The emitter writes **Event**: itself; a caller-supplied value would forge a second matching line and spoof multiline event queries."}}
+{"id":"audit_entry-04659","out":{"shard":"# Focus Audit Log\n\n## Guardrail Loaded\n**Timestamp**: <ts>\n**Event**: GUARDRAIL_LOADED\n\n---\n"}}
+{"id":"audit_entry-04660","out":{"shard":"# Focus Audit Log\n\n## Plan Approval Overridden\n**Timestamp**: <ts>\n**Event**: PLAN_APPROVAL_OVERRIDDEN\n\n---\n"}}
+{"id":"audit_entry-04661","out":{"error":"Reserved field key: Event. The emitter writes **Event**: itself; a caller-supplied value would forge a second matching line and spoof multiline event queries."}}
+{"id":"audit_entry-04662","out":{"shard":"# Focus Audit Log\n\n## Practices Section Empty\n**Timestamp**: <ts>\n**Event**: PRACTICES_SECTION_EMPTY\n\n---\n"}}
+{"id":"audit_entry-04663","out":{"shard":"# Focus Audit Log\n\n## Human Turn\n**Timestamp**: <ts>\n**Event**: HUMAN_TURN\n**A b.c_(d)/e-f**: code-generation\n\n---\n"}}
+{"id":"audit_entry-04664","out":{"shard":"# Focus Audit Log\n\n## Worktree Discarded\n**Timestamp**: <ts>\n**Event**: WORKTREE_DISCARDED\n\n---\n"}}
+{"id":"audit_entry-04665","out":{"shard":"# Focus Audit Log\n\n## Swarm Degraded\n**Timestamp**: <ts>\n**Event**: SWARM_DEGRADED\n\n---\n"}}
+{"id":"audit_entry-04666","out":{"shard":"# Focus Audit Log\n\n## Sensor Failed\n**Timestamp**: <ts>\n**Event**: SENSOR_FAILED\n**Details (raw)**: focus-state\n**constructor**: \n\n---\n"}}
+{"id":"audit_entry-04667","out":{"shard":"# Focus Audit Log\n\n## Workspace Scanned\n**Timestamp**: <ts>\n**Event**: WORKSPACE_SCANNED\n\n---\n"}}
+{"id":"audit_entry-04668","out":{"shard":"# Focus Audit Log\n\n## Document Updated\n**Timestamp**: <ts>\n**Event**: DOCUMENT_UPDATED\n\n---\n"}}
+{"id":"audit_entry-04669","out":{"error":"Reserved field key: Event. The emitter writes **Event**: itself; a caller-supplied value would forge a second matching line and spoof multiline event queries."}}
+{"id":"audit_entry-04670","out":{"shard":"# Focus Audit Log\n\n## Guard Stood Aside\n**Timestamp**: <ts>\n**Event**: GUARD_STOOD_ASIDE\n**A b.c_(d)/e-f**: value {}/x\n\n---\n"}}
+{"id":"audit_entry-04671","out":{"shard":"# Focus Audit Log\n\n## Stage Completion\n**Timestamp**: <ts>\n**Event**: STAGE_COMPLETED\n**Note**: a\\nb\n**Bolt slug**: é 😀\n\n---\n"}}
+{"id":"audit_entry-04672","out":{"shard":"# Focus Audit Log\n\n## Session Start\n**Timestamp**: <ts>\n**Event**: SESSION_STARTED\n**Tool**: <project-dir>\tnext\n**Note**: <project-dir>\tnext\n**Bolt slug**: =\n\n---\n"}}
+{"id":"audit_entry-04673","out":{"error":"Invalid event type: toString. Must be one of: STAGE_STARTED, STAGE_AWAITING_APPROVAL, STAGE_REVISING, STAGE_COMPLETED, STAGE_JUMPED, STAGE_SKIPPED, PHASE_STARTED, PHASE_COMPLETED, PHASE_VERIFIED, PHASE_SKIPPED, WORKFLOW_STARTED, WORKFLOW_COMPLETED, WORKFLOW_PARKED, WORKFLOW_UNPARKED, WORKFLOW_ARCHIVED, WORKFLOW_UNARCHIVED, INTENT_REPOS_CHANGED, SESSION_STARTED, SESSION_RESUMED, SESSION_COMPACTED, SESSION_ENDED, HUMAN_TURN, HOST_TURN, WORKSPACE_SCAFFOLDED, WORKSPACE_SCANNED, WORKSPACE_INITIALISED, DECISION_RECORDED, GATE_APPROVED, GATE_REJECTED, QUESTION_ANSWERED, QUESTION_UNANSWERED, QUESTION_REPLIED, REQUEST_ROUTED, SUMMARY_CONFIRMATION_RECORDED, VERIFICATION_COMMAND_RECORDED, CONSTRUCTION_POLICY_RECORDED, CHECKPOINT_VERIFICATION_RECORDED, PLAN_APPROVAL_RECORDED, PLAN_APPROVAL_OVERRIDDEN, PLAN_APPROVAL_SKIPPED, REVIEW_REQUESTED, REVIEW_COMPLETED, PIPELINE_LINK_COMPLETED, UNIT_STARTED, UNIT_PAUSED, UNIT_RESUMED, UNIT_COMPLETED, UNIT_SKIPPED, ARTIFACT_CREATED, ARTIFACT_UPDATED, ARTIFACT_REUSED, SUBAGENT_COMPLETED, SUBAGENT_PROMPT_UNMATCHED, REVIEWER_SCOPE_BLOCKED, REVIEW_FREEZE_BLOCKED, PLAN_APPROVAL_BLOCKED, GUARD_DISABLED, DOCUMENT_INDEXED, DOCUMENT_UPDATED, DOCUMENT_REMOVED, HEALTH_CHECKED, SCOPE_DETECTED, SCOPE_CHANGED, PLUGIN_SELECTION_CHANGED, DEPTH_CHANGED, TEST_STRATEGY_CHANGED, REVIEW_CLASS_CHANGED, GUARD_POLICY_SET, CHANGE_CONTROL_SET, CHANGE_ACCEPTED, GUARD_RESTORED, GUARD_STOOD_ASIDE, CEREMONY_SET, RECOMPOSED, WORKSPACE_RECLASSIFIED, SCOPE_SAVED, ERROR_LOGGED, RECOVERY_COMPLETED, COORDINATION_STOOD_ASIDE, BOLT_STARTED, BOLT_COMPLETED, BOLT_FAILED, AUTONOMY_MODE_SET, UNIT_OWNERSHIP_SET, UNIT_GATE_RHYTHM_SET, CONSTRUCTION_POLICY_SET, UNIT_MERGED, WORKTREE_CREATED, WORKTREE_MERGED, WORKTREE_DISCARDED, STATE_FORKED, STATE_MERGED, AUDIT_FORKED, AUDIT_MERGED, PRACTICES_DISCOVERED, PRACTICES_AFFIRMED, PRACTICES_OVERRIDE, PRACTICES_SECTION_EMPTY, MERGE_DISPATCH_INVOKED, MERGE_DISPATCH_RETURNED, MERGE_DISPATCH_FALLBACK, SENSOR_FIRED, SENSOR_PASSED, SENSOR_FAILED, SENSOR_BUDGET_OVERRIDE, GUARDRAIL_LOADED, MEMORY_EMPTY, RULE_LEARNED, SENSOR_PROPOSED, SWARM_STARTED, SWARM_UNIT_CONVERGED, SWARM_SOURCE_MERGED, SWARM_UNIT_FAILED, SWARM_BATON_RETURNED, SWARM_COMPLETED, SWARM_DEGRADED, SOURCE_COMMITTED"}}
+{"id":"audit_entry-04674","out":{"error":"Invalid event type: toString. Must be one of: STAGE_STARTED, STAGE_AWAITING_APPROVAL, STAGE_REVISING, STAGE_COMPLETED, STAGE_JUMPED, STAGE_SKIPPED, PHASE_STARTED, PHASE_COMPLETED, PHASE_VERIFIED, PHASE_SKIPPED, WORKFLOW_STARTED, WORKFLOW_COMPLETED, WORKFLOW_PARKED, WORKFLOW_UNPARKED, WORKFLOW_ARCHIVED, WORKFLOW_UNARCHIVED, INTENT_REPOS_CHANGED, SESSION_STARTED, SESSION_RESUMED, SESSION_COMPACTED, SESSION_ENDED, HUMAN_TURN, HOST_TURN, WORKSPACE_SCAFFOLDED, WORKSPACE_SCANNED, WORKSPACE_INITIALISED, DECISION_RECORDED, GATE_APPROVED, GATE_REJECTED, QUESTION_ANSWERED, QUESTION_UNANSWERED, QUESTION_REPLIED, REQUEST_ROUTED, SUMMARY_CONFIRMATION_RECORDED, VERIFICATION_COMMAND_RECORDED, CONSTRUCTION_POLICY_RECORDED, CHECKPOINT_VERIFICATION_RECORDED, PLAN_APPROVAL_RECORDED, PLAN_APPROVAL_OVERRIDDEN, PLAN_APPROVAL_SKIPPED, REVIEW_REQUESTED, REVIEW_COMPLETED, PIPELINE_LINK_COMPLETED, UNIT_STARTED, UNIT_PAUSED, UNIT_RESUMED, UNIT_COMPLETED, UNIT_SKIPPED, ARTIFACT_CREATED, ARTIFACT_UPDATED, ARTIFACT_REUSED, SUBAGENT_COMPLETED, SUBAGENT_PROMPT_UNMATCHED, REVIEWER_SCOPE_BLOCKED, REVIEW_FREEZE_BLOCKED, PLAN_APPROVAL_BLOCKED, GUARD_DISABLED, DOCUMENT_INDEXED, DOCUMENT_UPDATED, DOCUMENT_REMOVED, HEALTH_CHECKED, SCOPE_DETECTED, SCOPE_CHANGED, PLUGIN_SELECTION_CHANGED, DEPTH_CHANGED, TEST_STRATEGY_CHANGED, REVIEW_CLASS_CHANGED, GUARD_POLICY_SET, CHANGE_CONTROL_SET, CHANGE_ACCEPTED, GUARD_RESTORED, GUARD_STOOD_ASIDE, CEREMONY_SET, RECOMPOSED, WORKSPACE_RECLASSIFIED, SCOPE_SAVED, ERROR_LOGGED, RECOVERY_COMPLETED, COORDINATION_STOOD_ASIDE, BOLT_STARTED, BOLT_COMPLETED, BOLT_FAILED, AUTONOMY_MODE_SET, UNIT_OWNERSHIP_SET, UNIT_GATE_RHYTHM_SET, CONSTRUCTION_POLICY_SET, UNIT_MERGED, WORKTREE_CREATED, WORKTREE_MERGED, WORKTREE_DISCARDED, STATE_FORKED, STATE_MERGED, AUDIT_FORKED, AUDIT_MERGED, PRACTICES_DISCOVERED, PRACTICES_AFFIRMED, PRACTICES_OVERRIDE, PRACTICES_SECTION_EMPTY, MERGE_DISPATCH_INVOKED, MERGE_DISPATCH_RETURNED, MERGE_DISPATCH_FALLBACK, SENSOR_FIRED, SENSOR_PASSED, SENSOR_FAILED, SENSOR_BUDGET_OVERRIDE, GUARDRAIL_LOADED, MEMORY_EMPTY, RULE_LEARNED, SENSOR_PROPOSED, SWARM_STARTED, SWARM_UNIT_CONVERGED, SWARM_SOURCE_MERGED, SWARM_UNIT_FAILED, SWARM_BATON_RETURNED, SWARM_COMPLETED, SWARM_DEGRADED, SOURCE_COMMITTED"}}
+{"id":"audit_entry-04675","out":{"shard":"# Focus Audit Log\n\n## Scope Saved\n**Timestamp**: <ts>\n**Event**: SCOPE_SAVED\n\n---\n"}}
+{"id":"audit_entry-04676","out":{"error":"Invalid audit field key: \"é\". Field keys must match /^[A-Za-z][A-Za-z0-9 ._()/-]*$/ so they remain one Markdown label on one physical line."}}
+{"id":"audit_entry-04677","out":{"error":"Invalid audit field key: \"é\". Field keys must match /^[A-Za-z][A-Za-z0-9 ._()/-]*$/ so they remain one Markdown label on one physical line."}}
+{"id":"audit_entry-04678","out":{"shard":"# Focus Audit Log\n\n## Recovery Completed\n**Timestamp**: <ts>\n**Event**: RECOVERY_COMPLETED\n**Stage**: code-generation\n**trail **: a\\nb\\nc\n**A b.c_(d)/e-f**: =\n\n---\n"}}
+{"id":"audit_entry-04679","out":{"shard":"# Focus Audit Log\n\n## Plan Approval Blocked\n**Timestamp**: <ts>\n**Event**: PLAN_APPROVAL_BLOCKED\n**trail **: \n**Stage**: \n**Note**: **Event**: HUMAN_TURN\n\n---\n"}}
+{"id":"audit_entry-04680","out":{"shard":"# Focus Audit Log\n\n## Rule Learned\n**Timestamp**: <ts>\n**Event**: RULE_LEARNED\n**A b.c_(d)/e-f**: a\\nb\n**Note**: a\\nb\n\n---\n"}}
+{"id":"audit_entry-04681","out":{"error":"Invalid event type:  STAGE_STARTED. Must be one of: STAGE_STARTED, STAGE_AWAITING_APPROVAL, STAGE_REVISING, STAGE_COMPLETED, STAGE_JUMPED, STAGE_SKIPPED, PHASE_STARTED, PHASE_COMPLETED, PHASE_VERIFIED, PHASE_SKIPPED, WORKFLOW_STARTED, WORKFLOW_COMPLETED, WORKFLOW_PARKED, WORKFLOW_UNPARKED, WORKFLOW_ARCHIVED, WORKFLOW_UNARCHIVED, INTENT_REPOS_CHANGED, SESSION_STARTED, SESSION_RESUMED, SESSION_COMPACTED, SESSION_ENDED, HUMAN_TURN, HOST_TURN, WORKSPACE_SCAFFOLDED, WORKSPACE_SCANNED, WORKSPACE_INITIALISED, DECISION_RECORDED, GATE_APPROVED, GATE_REJECTED, QUESTION_ANSWERED, QUESTION_UNANSWERED, QUESTION_REPLIED, REQUEST_ROUTED, SUMMARY_CONFIRMATION_RECORDED, VERIFICATION_COMMAND_RECORDED, CONSTRUCTION_POLICY_RECORDED, CHECKPOINT_VERIFICATION_RECORDED, PLAN_APPROVAL_RECORDED, PLAN_APPROVAL_OVERRIDDEN, PLAN_APPROVAL_SKIPPED, REVIEW_REQUESTED, REVIEW_COMPLETED, PIPELINE_LINK_COMPLETED, UNIT_STARTED, UNIT_PAUSED, UNIT_RESUMED, UNIT_COMPLETED, UNIT_SKIPPED, ARTIFACT_CREATED, ARTIFACT_UPDATED, ARTIFACT_REUSED, SUBAGENT_COMPLETED, SUBAGENT_PROMPT_UNMATCHED, REVIEWER_SCOPE_BLOCKED, REVIEW_FREEZE_BLOCKED, PLAN_APPROVAL_BLOCKED, GUARD_DISABLED, DOCUMENT_INDEXED, DOCUMENT_UPDATED, DOCUMENT_REMOVED, HEALTH_CHECKED, SCOPE_DETECTED, SCOPE_CHANGED, PLUGIN_SELECTION_CHANGED, DEPTH_CHANGED, TEST_STRATEGY_CHANGED, REVIEW_CLASS_CHANGED, GUARD_POLICY_SET, CHANGE_CONTROL_SET, CHANGE_ACCEPTED, GUARD_RESTORED, GUARD_STOOD_ASIDE, CEREMONY_SET, RECOMPOSED, WORKSPACE_RECLASSIFIED, SCOPE_SAVED, ERROR_LOGGED, RECOVERY_COMPLETED, COORDINATION_STOOD_ASIDE, BOLT_STARTED, BOLT_COMPLETED, BOLT_FAILED, AUTONOMY_MODE_SET, UNIT_OWNERSHIP_SET, UNIT_GATE_RHYTHM_SET, CONSTRUCTION_POLICY_SET, UNIT_MERGED, WORKTREE_CREATED, WORKTREE_MERGED, WORKTREE_DISCARDED, STATE_FORKED, STATE_MERGED, AUDIT_FORKED, AUDIT_MERGED, PRACTICES_DISCOVERED, PRACTICES_AFFIRMED, PRACTICES_OVERRIDE, PRACTICES_SECTION_EMPTY, MERGE_DISPATCH_INVOKED, MERGE_DISPATCH_RETURNED, MERGE_DISPATCH_FALLBACK, SENSOR_FIRED, SENSOR_PASSED, SENSOR_FAILED, SENSOR_BUDGET_OVERRIDE, GUARDRAIL_LOADED, MEMORY_EMPTY, RULE_LEARNED, SENSOR_PROPOSED, SWARM_STARTED, SWARM_UNIT_CONVERGED, SWARM_SOURCE_MERGED, SWARM_UNIT_FAILED, SWARM_BATON_RETURNED, SWARM_COMPLETED, SWARM_DEGRADED, SOURCE_COMMITTED"}}
+{"id":"audit_entry-04682","out":{"error":"Invalid audit field key: \" lead\". Field keys must match /^[A-Za-z][A-Za-z0-9 ._()/-]*$/ so they remain one Markdown label on one physical line."}}
+{"id":"audit_entry-04683","out":{"shard":"# Focus Audit Log\n\n## Workflow Parked\n**Timestamp**: <ts>\n**Event**: WORKFLOW_PARKED\n**Tool**: xy\n\n---\n"}}
+{"id":"audit_entry-04684","out":{"error":"Invalid event type: STAGE_STARTED . Must be one of: STAGE_STARTED, STAGE_AWAITING_APPROVAL, STAGE_REVISING, STAGE_COMPLETED, STAGE_JUMPED, STAGE_SKIPPED, PHASE_STARTED, PHASE_COMPLETED, PHASE_VERIFIED, PHASE_SKIPPED, WORKFLOW_STARTED, WORKFLOW_COMPLETED, WORKFLOW_PARKED, WORKFLOW_UNPARKED, WORKFLOW_ARCHIVED, WORKFLOW_UNARCHIVED, INTENT_REPOS_CHANGED, SESSION_STARTED, SESSION_RESUMED, SESSION_COMPACTED, SESSION_ENDED, HUMAN_TURN, HOST_TURN, WORKSPACE_SCAFFOLDED, WORKSPACE_SCANNED, WORKSPACE_INITIALISED, DECISION_RECORDED, GATE_APPROVED, GATE_REJECTED, QUESTION_ANSWERED, QUESTION_UNANSWERED, QUESTION_REPLIED, REQUEST_ROUTED, SUMMARY_CONFIRMATION_RECORDED, VERIFICATION_COMMAND_RECORDED, CONSTRUCTION_POLICY_RECORDED, CHECKPOINT_VERIFICATION_RECORDED, PLAN_APPROVAL_RECORDED, PLAN_APPROVAL_OVERRIDDEN, PLAN_APPROVAL_SKIPPED, REVIEW_REQUESTED, REVIEW_COMPLETED, PIPELINE_LINK_COMPLETED, UNIT_STARTED, UNIT_PAUSED, UNIT_RESUMED, UNIT_COMPLETED, UNIT_SKIPPED, ARTIFACT_CREATED, ARTIFACT_UPDATED, ARTIFACT_REUSED, SUBAGENT_COMPLETED, SUBAGENT_PROMPT_UNMATCHED, REVIEWER_SCOPE_BLOCKED, REVIEW_FREEZE_BLOCKED, PLAN_APPROVAL_BLOCKED, GUARD_DISABLED, DOCUMENT_INDEXED, DOCUMENT_UPDATED, DOCUMENT_REMOVED, HEALTH_CHECKED, SCOPE_DETECTED, SCOPE_CHANGED, PLUGIN_SELECTION_CHANGED, DEPTH_CHANGED, TEST_STRATEGY_CHANGED, REVIEW_CLASS_CHANGED, GUARD_POLICY_SET, CHANGE_CONTROL_SET, CHANGE_ACCEPTED, GUARD_RESTORED, GUARD_STOOD_ASIDE, CEREMONY_SET, RECOMPOSED, WORKSPACE_RECLASSIFIED, SCOPE_SAVED, ERROR_LOGGED, RECOVERY_COMPLETED, COORDINATION_STOOD_ASIDE, BOLT_STARTED, BOLT_COMPLETED, BOLT_FAILED, AUTONOMY_MODE_SET, UNIT_OWNERSHIP_SET, UNIT_GATE_RHYTHM_SET, CONSTRUCTION_POLICY_SET, UNIT_MERGED, WORKTREE_CREATED, WORKTREE_MERGED, WORKTREE_DISCARDED, STATE_FORKED, STATE_MERGED, AUDIT_FORKED, AUDIT_MERGED, PRACTICES_DISCOVERED, PRACTICES_AFFIRMED, PRACTICES_OVERRIDE, PRACTICES_SECTION_EMPTY, MERGE_DISPATCH_INVOKED, MERGE_DISPATCH_RETURNED, MERGE_DISPATCH_FALLBACK, SENSOR_FIRED, SENSOR_PASSED, SENSOR_FAILED, SENSOR_BUDGET_OVERRIDE, GUARDRAIL_LOADED, MEMORY_EMPTY, RULE_LEARNED, SENSOR_PROPOSED, SWARM_STARTED, SWARM_UNIT_CONVERGED, SWARM_SOURCE_MERGED, SWARM_UNIT_FAILED, SWARM_BATON_RETURNED, SWARM_COMPLETED, SWARM_DEGRADED, SOURCE_COMMITTED"}}
+{"id":"audit_entry-04685","out":{"error":"Invalid event type: Stage Start. Must be one of: STAGE_STARTED, STAGE_AWAITING_APPROVAL, STAGE_REVISING, STAGE_COMPLETED, STAGE_JUMPED, STAGE_SKIPPED, PHASE_STARTED, PHASE_COMPLETED, PHASE_VERIFIED, PHASE_SKIPPED, WORKFLOW_STARTED, WORKFLOW_COMPLETED, WORKFLOW_PARKED, WORKFLOW_UNPARKED, WORKFLOW_ARCHIVED, WORKFLOW_UNARCHIVED, INTENT_REPOS_CHANGED, SESSION_STARTED, SESSION_RESUMED, SESSION_COMPACTED, SESSION_ENDED, HUMAN_TURN, HOST_TURN, WORKSPACE_SCAFFOLDED, WORKSPACE_SCANNED, WORKSPACE_INITIALISED, DECISION_RECORDED, GATE_APPROVED, GATE_REJECTED, QUESTION_ANSWERED, QUESTION_UNANSWERED, QUESTION_REPLIED, REQUEST_ROUTED, SUMMARY_CONFIRMATION_RECORDED, VERIFICATION_COMMAND_RECORDED, CONSTRUCTION_POLICY_RECORDED, CHECKPOINT_VERIFICATION_RECORDED, PLAN_APPROVAL_RECORDED, PLAN_APPROVAL_OVERRIDDEN, PLAN_APPROVAL_SKIPPED, REVIEW_REQUESTED, REVIEW_COMPLETED, PIPELINE_LINK_COMPLETED, UNIT_STARTED, UNIT_PAUSED, UNIT_RESUMED, UNIT_COMPLETED, UNIT_SKIPPED, ARTIFACT_CREATED, ARTIFACT_UPDATED, ARTIFACT_REUSED, SUBAGENT_COMPLETED, SUBAGENT_PROMPT_UNMATCHED, REVIEWER_SCOPE_BLOCKED, REVIEW_FREEZE_BLOCKED, PLAN_APPROVAL_BLOCKED, GUARD_DISABLED, DOCUMENT_INDEXED, DOCUMENT_UPDATED, DOCUMENT_REMOVED, HEALTH_CHECKED, SCOPE_DETECTED, SCOPE_CHANGED, PLUGIN_SELECTION_CHANGED, DEPTH_CHANGED, TEST_STRATEGY_CHANGED, REVIEW_CLASS_CHANGED, GUARD_POLICY_SET, CHANGE_CONTROL_SET, CHANGE_ACCEPTED, GUARD_RESTORED, GUARD_STOOD_ASIDE, CEREMONY_SET, RECOMPOSED, WORKSPACE_RECLASSIFIED, SCOPE_SAVED, ERROR_LOGGED, RECOVERY_COMPLETED, COORDINATION_STOOD_ASIDE, BOLT_STARTED, BOLT_COMPLETED, BOLT_FAILED, AUTONOMY_MODE_SET, UNIT_OWNERSHIP_SET, UNIT_GATE_RHYTHM_SET, CONSTRUCTION_POLICY_SET, UNIT_MERGED, WORKTREE_CREATED, WORKTREE_MERGED, WORKTREE_DISCARDED, STATE_FORKED, STATE_MERGED, AUDIT_FORKED, AUDIT_MERGED, PRACTICES_DISCOVERED, PRACTICES_AFFIRMED, PRACTICES_OVERRIDE, PRACTICES_SECTION_EMPTY, MERGE_DISPATCH_INVOKED, MERGE_DISPATCH_RETURNED, MERGE_DISPATCH_FALLBACK, SENSOR_FIRED, SENSOR_PASSED, SENSOR_FAILED, SENSOR_BUDGET_OVERRIDE, GUARDRAIL_LOADED, MEMORY_EMPTY, RULE_LEARNED, SENSOR_PROPOSED, SWARM_STARTED, SWARM_UNIT_CONVERGED, SWARM_SOURCE_MERGED, SWARM_UNIT_FAILED, SWARM_BATON_RETURNED, SWARM_COMPLETED, SWARM_DEGRADED, SOURCE_COMMITTED"}}
+{"id":"audit_entry-04686","out":{"error":"Invalid audit field key: \"x:y\". Field keys must match /^[A-Za-z][A-Za-z0-9 ._()/-]*$/ so they remain one Markdown label on one physical line."}}
+{"id":"audit_entry-04687","out":{"error":"Invalid audit field key: \"é\". Field keys must match /^[A-Za-z][A-Za-z0-9 ._()/-]*$/ so they remain one Markdown label on one physical line."}}
+{"id":"audit_entry-04688","out":{"error":"Invalid event type: toString. Must be one of: STAGE_STARTED, STAGE_AWAITING_APPROVAL, STAGE_REVISING, STAGE_COMPLETED, STAGE_JUMPED, STAGE_SKIPPED, PHASE_STARTED, PHASE_COMPLETED, PHASE_VERIFIED, PHASE_SKIPPED, WORKFLOW_STARTED, WORKFLOW_COMPLETED, WORKFLOW_PARKED, WORKFLOW_UNPARKED, WORKFLOW_ARCHIVED, WORKFLOW_UNARCHIVED, INTENT_REPOS_CHANGED, SESSION_STARTED, SESSION_RESUMED, SESSION_COMPACTED, SESSION_ENDED, HUMAN_TURN, HOST_TURN, WORKSPACE_SCAFFOLDED, WORKSPACE_SCANNED, WORKSPACE_INITIALISED, DECISION_RECORDED, GATE_APPROVED, GATE_REJECTED, QUESTION_ANSWERED, QUESTION_UNANSWERED, QUESTION_REPLIED, REQUEST_ROUTED, SUMMARY_CONFIRMATION_RECORDED, VERIFICATION_COMMAND_RECORDED, CONSTRUCTION_POLICY_RECORDED, CHECKPOINT_VERIFICATION_RECORDED, PLAN_APPROVAL_RECORDED, PLAN_APPROVAL_OVERRIDDEN, PLAN_APPROVAL_SKIPPED, REVIEW_REQUESTED, REVIEW_COMPLETED, PIPELINE_LINK_COMPLETED, UNIT_STARTED, UNIT_PAUSED, UNIT_RESUMED, UNIT_COMPLETED, UNIT_SKIPPED, ARTIFACT_CREATED, ARTIFACT_UPDATED, ARTIFACT_REUSED, SUBAGENT_COMPLETED, SUBAGENT_PROMPT_UNMATCHED, REVIEWER_SCOPE_BLOCKED, REVIEW_FREEZE_BLOCKED, PLAN_APPROVAL_BLOCKED, GUARD_DISABLED, DOCUMENT_INDEXED, DOCUMENT_UPDATED, DOCUMENT_REMOVED, HEALTH_CHECKED, SCOPE_DETECTED, SCOPE_CHANGED, PLUGIN_SELECTION_CHANGED, DEPTH_CHANGED, TEST_STRATEGY_CHANGED, REVIEW_CLASS_CHANGED, GUARD_POLICY_SET, CHANGE_CONTROL_SET, CHANGE_ACCEPTED, GUARD_RESTORED, GUARD_STOOD_ASIDE, CEREMONY_SET, RECOMPOSED, WORKSPACE_RECLASSIFIED, SCOPE_SAVED, ERROR_LOGGED, RECOVERY_COMPLETED, COORDINATION_STOOD_ASIDE, BOLT_STARTED, BOLT_COMPLETED, BOLT_FAILED, AUTONOMY_MODE_SET, UNIT_OWNERSHIP_SET, UNIT_GATE_RHYTHM_SET, CONSTRUCTION_POLICY_SET, UNIT_MERGED, WORKTREE_CREATED, WORKTREE_MERGED, WORKTREE_DISCARDED, STATE_FORKED, STATE_MERGED, AUDIT_FORKED, AUDIT_MERGED, PRACTICES_DISCOVERED, PRACTICES_AFFIRMED, PRACTICES_OVERRIDE, PRACTICES_SECTION_EMPTY, MERGE_DISPATCH_INVOKED, MERGE_DISPATCH_RETURNED, MERGE_DISPATCH_FALLBACK, SENSOR_FIRED, SENSOR_PASSED, SENSOR_FAILED, SENSOR_BUDGET_OVERRIDE, GUARDRAIL_LOADED, MEMORY_EMPTY, RULE_LEARNED, SENSOR_PROPOSED, SWARM_STARTED, SWARM_UNIT_CONVERGED, SWARM_SOURCE_MERGED, SWARM_UNIT_FAILED, SWARM_BATON_RETURNED, SWARM_COMPLETED, SWARM_DEGRADED, SOURCE_COMMITTED"}}
+{"id":"audit_entry-04689","out":{"error":"Reserved field key: Event. The emitter writes **Event**: itself; a caller-supplied value would forge a second matching line and spoof multiline event queries."}}
+{"id":"audit_entry-04690","out":{"error":"Invalid event type: . Must be one of: STAGE_STARTED, STAGE_AWAITING_APPROVAL, STAGE_REVISING, STAGE_COMPLETED, STAGE_JUMPED, STAGE_SKIPPED, PHASE_STARTED, PHASE_COMPLETED, PHASE_VERIFIED, PHASE_SKIPPED, WORKFLOW_STARTED, WORKFLOW_COMPLETED, WORKFLOW_PARKED, WORKFLOW_UNPARKED, WORKFLOW_ARCHIVED, WORKFLOW_UNARCHIVED, INTENT_REPOS_CHANGED, SESSION_STARTED, SESSION_RESUMED, SESSION_COMPACTED, SESSION_ENDED, HUMAN_TURN, HOST_TURN, WORKSPACE_SCAFFOLDED, WORKSPACE_SCANNED, WORKSPACE_INITIALISED, DECISION_RECORDED, GATE_APPROVED, GATE_REJECTED, QUESTION_ANSWERED, QUESTION_UNANSWERED, QUESTION_REPLIED, REQUEST_ROUTED, SUMMARY_CONFIRMATION_RECORDED, VERIFICATION_COMMAND_RECORDED, CONSTRUCTION_POLICY_RECORDED, CHECKPOINT_VERIFICATION_RECORDED, PLAN_APPROVAL_RECORDED, PLAN_APPROVAL_OVERRIDDEN, PLAN_APPROVAL_SKIPPED, REVIEW_REQUESTED, REVIEW_COMPLETED, PIPELINE_LINK_COMPLETED, UNIT_STARTED, UNIT_PAUSED, UNIT_RESUMED, UNIT_COMPLETED, UNIT_SKIPPED, ARTIFACT_CREATED, ARTIFACT_UPDATED, ARTIFACT_REUSED, SUBAGENT_COMPLETED, SUBAGENT_PROMPT_UNMATCHED, REVIEWER_SCOPE_BLOCKED, REVIEW_FREEZE_BLOCKED, PLAN_APPROVAL_BLOCKED, GUARD_DISABLED, DOCUMENT_INDEXED, DOCUMENT_UPDATED, DOCUMENT_REMOVED, HEALTH_CHECKED, SCOPE_DETECTED, SCOPE_CHANGED, PLUGIN_SELECTION_CHANGED, DEPTH_CHANGED, TEST_STRATEGY_CHANGED, REVIEW_CLASS_CHANGED, GUARD_POLICY_SET, CHANGE_CONTROL_SET, CHANGE_ACCEPTED, GUARD_RESTORED, GUARD_STOOD_ASIDE, CEREMONY_SET, RECOMPOSED, WORKSPACE_RECLASSIFIED, SCOPE_SAVED, ERROR_LOGGED, RECOVERY_COMPLETED, COORDINATION_STOOD_ASIDE, BOLT_STARTED, BOLT_COMPLETED, BOLT_FAILED, AUTONOMY_MODE_SET, UNIT_OWNERSHIP_SET, UNIT_GATE_RHYTHM_SET, CONSTRUCTION_POLICY_SET, UNIT_MERGED, WORKTREE_CREATED, WORKTREE_MERGED, WORKTREE_DISCARDED, STATE_FORKED, STATE_MERGED, AUDIT_FORKED, AUDIT_MERGED, PRACTICES_DISCOVERED, PRACTICES_AFFIRMED, PRACTICES_OVERRIDE, PRACTICES_SECTION_EMPTY, MERGE_DISPATCH_INVOKED, MERGE_DISPATCH_RETURNED, MERGE_DISPATCH_FALLBACK, SENSOR_FIRED, SENSOR_PASSED, SENSOR_FAILED, SENSOR_BUDGET_OVERRIDE, GUARDRAIL_LOADED, MEMORY_EMPTY, RULE_LEARNED, SENSOR_PROPOSED, SWARM_STARTED, SWARM_UNIT_CONVERGED, SWARM_SOURCE_MERGED, SWARM_UNIT_FAILED, SWARM_BATON_RETURNED, SWARM_COMPLETED, SWARM_DEGRADED, SOURCE_COMMITTED"}}
+{"id":"audit_entry-04691","out":{"error":"Reserved field key: Event. The emitter writes **Event**: itself; a caller-supplied value would forge a second matching line and spoof multiline event queries."}}
+{"id":"audit_entry-04692","out":{"error":"Invalid event type: stage_started. Must be one of: STAGE_STARTED, STAGE_AWAITING_APPROVAL, STAGE_REVISING, STAGE_COMPLETED, STAGE_JUMPED, STAGE_SKIPPED, PHASE_STARTED, PHASE_COMPLETED, PHASE_VERIFIED, PHASE_SKIPPED, WORKFLOW_STARTED, WORKFLOW_COMPLETED, WORKFLOW_PARKED, WORKFLOW_UNPARKED, WORKFLOW_ARCHIVED, WORKFLOW_UNARCHIVED, INTENT_REPOS_CHANGED, SESSION_STARTED, SESSION_RESUMED, SESSION_COMPACTED, SESSION_ENDED, HUMAN_TURN, HOST_TURN, WORKSPACE_SCAFFOLDED, WORKSPACE_SCANNED, WORKSPACE_INITIALISED, DECISION_RECORDED, GATE_APPROVED, GATE_REJECTED, QUESTION_ANSWERED, QUESTION_UNANSWERED, QUESTION_REPLIED, REQUEST_ROUTED, SUMMARY_CONFIRMATION_RECORDED, VERIFICATION_COMMAND_RECORDED, CONSTRUCTION_POLICY_RECORDED, CHECKPOINT_VERIFICATION_RECORDED, PLAN_APPROVAL_RECORDED, PLAN_APPROVAL_OVERRIDDEN, PLAN_APPROVAL_SKIPPED, REVIEW_REQUESTED, REVIEW_COMPLETED, PIPELINE_LINK_COMPLETED, UNIT_STARTED, UNIT_PAUSED, UNIT_RESUMED, UNIT_COMPLETED, UNIT_SKIPPED, ARTIFACT_CREATED, ARTIFACT_UPDATED, ARTIFACT_REUSED, SUBAGENT_COMPLETED, SUBAGENT_PROMPT_UNMATCHED, REVIEWER_SCOPE_BLOCKED, REVIEW_FREEZE_BLOCKED, PLAN_APPROVAL_BLOCKED, GUARD_DISABLED, DOCUMENT_INDEXED, DOCUMENT_UPDATED, DOCUMENT_REMOVED, HEALTH_CHECKED, SCOPE_DETECTED, SCOPE_CHANGED, PLUGIN_SELECTION_CHANGED, DEPTH_CHANGED, TEST_STRATEGY_CHANGED, REVIEW_CLASS_CHANGED, GUARD_POLICY_SET, CHANGE_CONTROL_SET, CHANGE_ACCEPTED, GUARD_RESTORED, GUARD_STOOD_ASIDE, CEREMONY_SET, RECOMPOSED, WORKSPACE_RECLASSIFIED, SCOPE_SAVED, ERROR_LOGGED, RECOVERY_COMPLETED, COORDINATION_STOOD_ASIDE, BOLT_STARTED, BOLT_COMPLETED, BOLT_FAILED, AUTONOMY_MODE_SET, UNIT_OWNERSHIP_SET, UNIT_GATE_RHYTHM_SET, CONSTRUCTION_POLICY_SET, UNIT_MERGED, WORKTREE_CREATED, WORKTREE_MERGED, WORKTREE_DISCARDED, STATE_FORKED, STATE_MERGED, AUDIT_FORKED, AUDIT_MERGED, PRACTICES_DISCOVERED, PRACTICES_AFFIRMED, PRACTICES_OVERRIDE, PRACTICES_SECTION_EMPTY, MERGE_DISPATCH_INVOKED, MERGE_DISPATCH_RETURNED, MERGE_DISPATCH_FALLBACK, SENSOR_FIRED, SENSOR_PASSED, SENSOR_FAILED, SENSOR_BUDGET_OVERRIDE, GUARDRAIL_LOADED, MEMORY_EMPTY, RULE_LEARNED, SENSOR_PROPOSED, SWARM_STARTED, SWARM_UNIT_CONVERGED, SWARM_SOURCE_MERGED, SWARM_UNIT_FAILED, SWARM_BATON_RETURNED, SWARM_COMPLETED, SWARM_DEGRADED, SOURCE_COMMITTED"}}
+{"id":"audit_entry-04693","out":{"shard":"# Focus Audit Log\n\n## Stage Revising\n**Timestamp**: <ts>\n**Event**: STAGE_REVISING\n**Bolt slug**: =\n\n---\n"}}
+{"id":"audit_entry-04694","out":{"shard":"# Focus Audit Log\n\n## Swarm Baton Returned\n**Timestamp**: <ts>\n**Event**: SWARM_BATON_RETURNED\n**Note**: a=b\n\n---\n"}}
+{"id":"audit_entry-04695","out":{"shard":"# Focus Audit Log\n\n## Phase Start\n**Timestamp**: <ts>\n**Event**: PHASE_STARTED\n**Bolt slug**:   spaced  \n**Tool**: valu# <project-dir>/x\n\n---\n"}}
+{"id":"audit_entry-04696","out":{"error":"Invalid event type: . Must be one of: STAGE_STARTED, STAGE_AWAITING_APPROVAL, STAGE_REVISING, STAGE_COMPLETED, STAGE_JUMPED, STAGE_SKIPPED, PHASE_STARTED, PHASE_COMPLETED, PHASE_VERIFIED, PHASE_SKIPPED, WORKFLOW_STARTED, WORKFLOW_COMPLETED, WORKFLOW_PARKED, WORKFLOW_UNPARKED, WORKFLOW_ARCHIVED, WORKFLOW_UNARCHIVED, INTENT_REPOS_CHANGED, SESSION_STARTED, SESSION_RESUMED, SESSION_COMPACTED, SESSION_ENDED, HUMAN_TURN, HOST_TURN, WORKSPACE_SCAFFOLDED, WORKSPACE_SCANNED, WORKSPACE_INITIALISED, DECISION_RECORDED, GATE_APPROVED, GATE_REJECTED, QUESTION_ANSWERED, QUESTION_UNANSWERED, QUESTION_REPLIED, REQUEST_ROUTED, SUMMARY_CONFIRMATION_RECORDED, VERIFICATION_COMMAND_RECORDED, CONSTRUCTION_POLICY_RECORDED, CHECKPOINT_VERIFICATION_RECORDED, PLAN_APPROVAL_RECORDED, PLAN_APPROVAL_OVERRIDDEN, PLAN_APPROVAL_SKIPPED, REVIEW_REQUESTED, REVIEW_COMPLETED, PIPELINE_LINK_COMPLETED, UNIT_STARTED, UNIT_PAUSED, UNIT_RESUMED, UNIT_COMPLETED, UNIT_SKIPPED, ARTIFACT_CREATED, ARTIFACT_UPDATED, ARTIFACT_REUSED, SUBAGENT_COMPLETED, SUBAGENT_PROMPT_UNMATCHED, REVIEWER_SCOPE_BLOCKED, REVIEW_FREEZE_BLOCKED, PLAN_APPROVAL_BLOCKED, GUARD_DISABLED, DOCUMENT_INDEXED, DOCUMENT_UPDATED, DOCUMENT_REMOVED, HEALTH_CHECKED, SCOPE_DETECTED, SCOPE_CHANGED, PLUGIN_SELECTION_CHANGED, DEPTH_CHANGED, TEST_STRATEGY_CHANGED, REVIEW_CLASS_CHANGED, GUARD_POLICY_SET, CHANGE_CONTROL_SET, CHANGE_ACCEPTED, GUARD_RESTORED, GUARD_STOOD_ASIDE, CEREMONY_SET, RECOMPOSED, WORKSPACE_RECLASSIFIED, SCOPE_SAVED, ERROR_LOGGED, RECOVERY_COMPLETED, COORDINATION_STOOD_ASIDE, BOLT_STARTED, BOLT_COMPLETED, BOLT_FAILED, AUTONOMY_MODE_SET, UNIT_OWNERSHIP_SET, UNIT_GATE_RHYTHM_SET, CONSTRUCTION_POLICY_SET, UNIT_MERGED, WORKTREE_CREATED, WORKTREE_MERGED, WORKTREE_DISCARDED, STATE_FORKED, STATE_MERGED, AUDIT_FORKED, AUDIT_MERGED, PRACTICES_DISCOVERED, PRACTICES_AFFIRMED, PRACTICES_OVERRIDE, PRACTICES_SECTION_EMPTY, MERGE_DISPATCH_INVOKED, MERGE_DISPATCH_RETURNED, MERGE_DISPATCH_FALLBACK, SENSOR_FIRED, SENSOR_PASSED, SENSOR_FAILED, SENSOR_BUDGET_OVERRIDE, GUARDRAIL_LOADED, MEMORY_EMPTY, RULE_LEARNED, SENSOR_PROPOSED, SWARM_STARTED, SWARM_UNIT_CONVERGED, SWARM_SOURCE_MERGED, SWARM_UNIT_FAILED, SWARM_BATON_RETURNED, SWARM_COMPLETED, SWARM_DEGRADED, SOURCE_COMMITTED"}}
+{"id":"audit_entry-04697","out":{"shard":"# Focus Audit Log\n\n## Workspace Reclassified\n**Timestamp**: <ts>\n**Event**: WORKSPACE_RECLASSIFIED\n**Note**: xy\n\n---\n"}}
+{"id":"audit_entry-04698","out":{"shard":"# Focus Audit Log\n\n## Session Resume\n**Timestamp**: <ts>\n**Event**: SESSION_RESUMED\n\n---\n"}}
+{"id":"audit_entry-04699","out":{"shard":"# Focus Audit Log\n\n## Swarm Unit Converged\n**Timestamp**: <ts>\n**Event**: SWARM_UNIT_CONVERGED\n**Bolt slug**: v0alue }}/x\n\n---\n"}}
+{"id":"audit_entry-04700","out":{"shard":"# Focus Audit Log\n\n## Question Replied\n**Timestamp**: <ts>\n**Event**: QUESTION_REPLIED\n**Details (raw)**: a\\nb\\nc\n\n---\n"}}
+{"id":"audit_entry-04701","out":{"error":"Reserved field key: Event. The emitter writes **Event**: itself; a caller-supplied value would forge a second matching line and spoof multiline event queries."}}
+{"id":"audit_entry-04702","out":{"shard":"# Focus Audit Log\n\n## Session Start\n**Timestamp**: <ts>\n**Event**: SESSION_STARTED\n**Note**: valu <project-dir>/x\n\n---\n"}}
+{"id":"audit_entry-04703","out":{"shard":"# Focus Audit Log\n\n## Audit Forked\n**Timestamp**: <ts>\n**Event**: AUDIT_FORKED\n\n---\n"}}
+{"id":"audit_entry-04704","out":{"error":"Reserved field key: Event. The emitter writes **Event**: itself; a caller-supplied value would forge a second matching line and spoof multiline event queries."}}
+{"id":"audit_entry-04705","out":{"error":"Invalid event type: toString. Must be one of: STAGE_STARTED, STAGE_AWAITING_APPROVAL, STAGE_REVISING, STAGE_COMPLETED, STAGE_JUMPED, STAGE_SKIPPED, PHASE_STARTED, PHASE_COMPLETED, PHASE_VERIFIED, PHASE_SKIPPED, WORKFLOW_STARTED, WORKFLOW_COMPLETED, WORKFLOW_PARKED, WORKFLOW_UNPARKED, WORKFLOW_ARCHIVED, WORKFLOW_UNARCHIVED, INTENT_REPOS_CHANGED, SESSION_STARTED, SESSION_RESUMED, SESSION_COMPACTED, SESSION_ENDED, HUMAN_TURN, HOST_TURN, WORKSPACE_SCAFFOLDED, WORKSPACE_SCANNED, WORKSPACE_INITIALISED, DECISION_RECORDED, GATE_APPROVED, GATE_REJECTED, QUESTION_ANSWERED, QUESTION_UNANSWERED, QUESTION_REPLIED, REQUEST_ROUTED, SUMMARY_CONFIRMATION_RECORDED, VERIFICATION_COMMAND_RECORDED, CONSTRUCTION_POLICY_RECORDED, CHECKPOINT_VERIFICATION_RECORDED, PLAN_APPROVAL_RECORDED, PLAN_APPROVAL_OVERRIDDEN, PLAN_APPROVAL_SKIPPED, REVIEW_REQUESTED, REVIEW_COMPLETED, PIPELINE_LINK_COMPLETED, UNIT_STARTED, UNIT_PAUSED, UNIT_RESUMED, UNIT_COMPLETED, UNIT_SKIPPED, ARTIFACT_CREATED, ARTIFACT_UPDATED, ARTIFACT_REUSED, SUBAGENT_COMPLETED, SUBAGENT_PROMPT_UNMATCHED, REVIEWER_SCOPE_BLOCKED, REVIEW_FREEZE_BLOCKED, PLAN_APPROVAL_BLOCKED, GUARD_DISABLED, DOCUMENT_INDEXED, DOCUMENT_UPDATED, DOCUMENT_REMOVED, HEALTH_CHECKED, SCOPE_DETECTED, SCOPE_CHANGED, PLUGIN_SELECTION_CHANGED, DEPTH_CHANGED, TEST_STRATEGY_CHANGED, REVIEW_CLASS_CHANGED, GUARD_POLICY_SET, CHANGE_CONTROL_SET, CHANGE_ACCEPTED, GUARD_RESTORED, GUARD_STOOD_ASIDE, CEREMONY_SET, RECOMPOSED, WORKSPACE_RECLASSIFIED, SCOPE_SAVED, ERROR_LOGGED, RECOVERY_COMPLETED, COORDINATION_STOOD_ASIDE, BOLT_STARTED, BOLT_COMPLETED, BOLT_FAILED, AUTONOMY_MODE_SET, UNIT_OWNERSHIP_SET, UNIT_GATE_RHYTHM_SET, CONSTRUCTION_POLICY_SET, UNIT_MERGED, WORKTREE_CREATED, WORKTREE_MERGED, WORKTREE_DISCARDED, STATE_FORKED, STATE_MERGED, AUDIT_FORKED, AUDIT_MERGED, PRACTICES_DISCOVERED, PRACTICES_AFFIRMED, PRACTICES_OVERRIDE, PRACTICES_SECTION_EMPTY, MERGE_DISPATCH_INVOKED, MERGE_DISPATCH_RETURNED, MERGE_DISPATCH_FALLBACK, SENSOR_FIRED, SENSOR_PASSED, SENSOR_FAILED, SENSOR_BUDGET_OVERRIDE, GUARDRAIL_LOADED, MEMORY_EMPTY, RULE_LEARNED, SENSOR_PROPOSED, SWARM_STARTED, SWARM_UNIT_CONVERGED, SWARM_SOURCE_MERGED, SWARM_UNIT_FAILED, SWARM_BATON_RETURNED, SWARM_COMPLETED, SWARM_DEGRADED, SOURCE_COMMITTED"}}
+{"id":"audit_entry-04706","out":{"error":"Reserved field key: Event. The emitter writes **Event**: itself; a caller-supplied value would forge a second matching line and spoof multiline event queries."}}
+{"id":"audit_entry-04707","out":{"error":"Invalid audit field key: \"a*b\". Field keys must match /^[A-Za-z][A-Za-z0-9 ._()/-]*$/ so they remain one Markdown label on one physical line."}}
+{"id":"audit_entry-04708","out":{"shard":"# Focus Audit Log\n\n## Source Committed\n**Timestamp**: <ts>\n**Event**: SOURCE_COMMITTED\n\n---\n"}}
+{"id":"audit_entry-04709","out":{"shard":"# Focus Audit Log\n\n## Workspace Scanned\n**Timestamp**: <ts>\n**Event**: WORKSPACE_SCANNED\n\n---\n"}}
+{"id":"audit_entry-04710","out":{"error":"Invalid event type: . Must be one of: STAGE_STARTED, STAGE_AWAITING_APPROVAL, STAGE_REVISING, STAGE_COMPLETED, STAGE_JUMPED, STAGE_SKIPPED, PHASE_STARTED, PHASE_COMPLETED, PHASE_VERIFIED, PHASE_SKIPPED, WORKFLOW_STARTED, WORKFLOW_COMPLETED, WORKFLOW_PARKED, WORKFLOW_UNPARKED, WORKFLOW_ARCHIVED, WORKFLOW_UNARCHIVED, INTENT_REPOS_CHANGED, SESSION_STARTED, SESSION_RESUMED, SESSION_COMPACTED, SESSION_ENDED, HUMAN_TURN, HOST_TURN, WORKSPACE_SCAFFOLDED, WORKSPACE_SCANNED, WORKSPACE_INITIALISED, DECISION_RECORDED, GATE_APPROVED, GATE_REJECTED, QUESTION_ANSWERED, QUESTION_UNANSWERED, QUESTION_REPLIED, REQUEST_ROUTED, SUMMARY_CONFIRMATION_RECORDED, VERIFICATION_COMMAND_RECORDED, CONSTRUCTION_POLICY_RECORDED, CHECKPOINT_VERIFICATION_RECORDED, PLAN_APPROVAL_RECORDED, PLAN_APPROVAL_OVERRIDDEN, PLAN_APPROVAL_SKIPPED, REVIEW_REQUESTED, REVIEW_COMPLETED, PIPELINE_LINK_COMPLETED, UNIT_STARTED, UNIT_PAUSED, UNIT_RESUMED, UNIT_COMPLETED, UNIT_SKIPPED, ARTIFACT_CREATED, ARTIFACT_UPDATED, ARTIFACT_REUSED, SUBAGENT_COMPLETED, SUBAGENT_PROMPT_UNMATCHED, REVIEWER_SCOPE_BLOCKED, REVIEW_FREEZE_BLOCKED, PLAN_APPROVAL_BLOCKED, GUARD_DISABLED, DOCUMENT_INDEXED, DOCUMENT_UPDATED, DOCUMENT_REMOVED, HEALTH_CHECKED, SCOPE_DETECTED, SCOPE_CHANGED, PLUGIN_SELECTION_CHANGED, DEPTH_CHANGED, TEST_STRATEGY_CHANGED, REVIEW_CLASS_CHANGED, GUARD_POLICY_SET, CHANGE_CONTROL_SET, CHANGE_ACCEPTED, GUARD_RESTORED, GUARD_STOOD_ASIDE, CEREMONY_SET, RECOMPOSED, WORKSPACE_RECLASSIFIED, SCOPE_SAVED, ERROR_LOGGED, RECOVERY_COMPLETED, COORDINATION_STOOD_ASIDE, BOLT_STARTED, BOLT_COMPLETED, BOLT_FAILED, AUTONOMY_MODE_SET, UNIT_OWNERSHIP_SET, UNIT_GATE_RHYTHM_SET, CONSTRUCTION_POLICY_SET, UNIT_MERGED, WORKTREE_CREATED, WORKTREE_MERGED, WORKTREE_DISCARDED, STATE_FORKED, STATE_MERGED, AUDIT_FORKED, AUDIT_MERGED, PRACTICES_DISCOVERED, PRACTICES_AFFIRMED, PRACTICES_OVERRIDE, PRACTICES_SECTION_EMPTY, MERGE_DISPATCH_INVOKED, MERGE_DISPATCH_RETURNED, MERGE_DISPATCH_FALLBACK, SENSOR_FIRED, SENSOR_PASSED, SENSOR_FAILED, SENSOR_BUDGET_OVERRIDE, GUARDRAIL_LOADED, MEMORY_EMPTY, RULE_LEARNED, SENSOR_PROPOSED, SWARM_STARTED, SWARM_UNIT_CONVERGED, SWARM_SOURCE_MERGED, SWARM_UNIT_FAILED, SWARM_BATON_RETURNED, SWARM_COMPLETED, SWARM_DEGRADED, SOURCE_COMMITTED"}}
+{"id":"audit_entry-04711","out":{"shard":"# Focus Audit Log\n\n## Question Unanswered\n**Timestamp**: <ts>\n**Event**: QUESTION_UNANSWERED\n**Tool**: see <project-dir>/a and <project-dir>/b\n**Details (raw)**: a\\nb\\nc\n\n---\n"}}
+{"id":"audit_entry-04712","out":{"error":"Reserved field key: Event. The emitter writes **Event**: itself; a caller-supplied value would forge a second matching line and spoof multiline event queries."}}
+{"id":"audit_entry-04713","out":{"shard":"# Focus Audit Log\n\n## Review Requested\n**Timestamp**: <ts>\n**Event**: REVIEW_REQUESTED\n**Tool**: valueb{Pa/x\n\n---\n"}}
+{"id":"audit_entry-04714","out":{"shard":"# Focus Audit Log\n\n## Review Completed\n**Timestamp**: <ts>\n**Event**: REVIEW_COMPLETED\n**Stage**: =\n\n---\n"}}
+{"id":"audit_entry-04715","out":{"shard":"# Focus Audit Log\n\n## Swarm Unit Converged\n**Timestamp**: <ts>\n**Event**: SWARM_UNIT_CONVERGED\n**Bolt slug**: code-generation\n\n---\n"}}
+{"id":"audit_entry-04716","out":{"error":"Reserved field key: Event. The emitter writes **Event**: itself; a caller-supplied value would forge a second matching line and spoof multiline event queries."}}
+{"id":"audit_entry-04717","out":{"shard":"# Focus Audit Log\n\n## Stage Skip\n**Timestamp**: <ts>\n**Event**: STAGE_SKIPPED\n**Note**:   spaced  \n**Stage**: \n\n---\n"}}
+{"id":"audit_entry-04718","out":{"error":"Invalid event type: Stage Start. Must be one of: STAGE_STARTED, STAGE_AWAITING_APPROVAL, STAGE_REVISING, STAGE_COMPLETED, STAGE_JUMPED, STAGE_SKIPPED, PHASE_STARTED, PHASE_COMPLETED, PHASE_VERIFIED, PHASE_SKIPPED, WORKFLOW_STARTED, WORKFLOW_COMPLETED, WORKFLOW_PARKED, WORKFLOW_UNPARKED, WORKFLOW_ARCHIVED, WORKFLOW_UNARCHIVED, INTENT_REPOS_CHANGED, SESSION_STARTED, SESSION_RESUMED, SESSION_COMPACTED, SESSION_ENDED, HUMAN_TURN, HOST_TURN, WORKSPACE_SCAFFOLDED, WORKSPACE_SCANNED, WORKSPACE_INITIALISED, DECISION_RECORDED, GATE_APPROVED, GATE_REJECTED, QUESTION_ANSWERED, QUESTION_UNANSWERED, QUESTION_REPLIED, REQUEST_ROUTED, SUMMARY_CONFIRMATION_RECORDED, VERIFICATION_COMMAND_RECORDED, CONSTRUCTION_POLICY_RECORDED, CHECKPOINT_VERIFICATION_RECORDED, PLAN_APPROVAL_RECORDED, PLAN_APPROVAL_OVERRIDDEN, PLAN_APPROVAL_SKIPPED, REVIEW_REQUESTED, REVIEW_COMPLETED, PIPELINE_LINK_COMPLETED, UNIT_STARTED, UNIT_PAUSED, UNIT_RESUMED, UNIT_COMPLETED, UNIT_SKIPPED, ARTIFACT_CREATED, ARTIFACT_UPDATED, ARTIFACT_REUSED, SUBAGENT_COMPLETED, SUBAGENT_PROMPT_UNMATCHED, REVIEWER_SCOPE_BLOCKED, REVIEW_FREEZE_BLOCKED, PLAN_APPROVAL_BLOCKED, GUARD_DISABLED, DOCUMENT_INDEXED, DOCUMENT_UPDATED, DOCUMENT_REMOVED, HEALTH_CHECKED, SCOPE_DETECTED, SCOPE_CHANGED, PLUGIN_SELECTION_CHANGED, DEPTH_CHANGED, TEST_STRATEGY_CHANGED, REVIEW_CLASS_CHANGED, GUARD_POLICY_SET, CHANGE_CONTROL_SET, CHANGE_ACCEPTED, GUARD_RESTORED, GUARD_STOOD_ASIDE, CEREMONY_SET, RECOMPOSED, WORKSPACE_RECLASSIFIED, SCOPE_SAVED, ERROR_LOGGED, RECOVERY_COMPLETED, COORDINATION_STOOD_ASIDE, BOLT_STARTED, BOLT_COMPLETED, BOLT_FAILED, AUTONOMY_MODE_SET, UNIT_OWNERSHIP_SET, UNIT_GATE_RHYTHM_SET, CONSTRUCTION_POLICY_SET, UNIT_MERGED, WORKTREE_CREATED, WORKTREE_MERGED, WORKTREE_DISCARDED, STATE_FORKED, STATE_MERGED, AUDIT_FORKED, AUDIT_MERGED, PRACTICES_DISCOVERED, PRACTICES_AFFIRMED, PRACTICES_OVERRIDE, PRACTICES_SECTION_EMPTY, MERGE_DISPATCH_INVOKED, MERGE_DISPATCH_RETURNED, MERGE_DISPATCH_FALLBACK, SENSOR_FIRED, SENSOR_PASSED, SENSOR_FAILED, SENSOR_BUDGET_OVERRIDE, GUARDRAIL_LOADED, MEMORY_EMPTY, RULE_LEARNED, SENSOR_PROPOSED, SWARM_STARTED, SWARM_UNIT_CONVERGED, SWARM_SOURCE_MERGED, SWARM_UNIT_FAILED, SWARM_BATON_RETURNED, SWARM_COMPLETED, SWARM_DEGRADED, SOURCE_COMMITTED"}}
+{"id":"audit_entry-04719","out":{"shard":"# Focus Audit Log\n\n## Plan Approval Overridden\n**Timestamp**: <ts>\n**Event**: PLAN_APPROVAL_OVERRIDDEN\n**Stage**: <project-dir>/src/main.rs\n**Note**: <project-dir>\\win\\path\n**A b.c_(d)/e-f**: \\n---\\n## Forged\\n**Event**: GATE_APPROVED\n\n---\n"}}
+{"id":"audit_entry-04720","out":{"shard":"# Focus Audit Log\n\n## Test Strategy Change\n**Timestamp**: <ts>\n**Event**: TEST_STRATEGY_CHANGED\n**Tool**:   spaced  \n**Note**: =\n**Stage**: <project-dir>\\win\\path\n\n---\n"}}
+{"id":"audit_entry-04721","out":{"error":"Invalid audit field key: \"St'ge\". Field keys must match /^[A-Za-z][A-Za-z0-9 ._()/-]*$/ so they remain one Markdown label on one physical line."}}
+{"id":"audit_entry-04722","out":{"shard":"# Focus Audit Log\n\n## Decision Recorded\n**Timestamp**: <ts>\n**Event**: DECISION_RECORDED\n\n---\n"}}
+{"id":"audit_entry-04723","out":{"error":"Reserved field key: Event. The emitter writes **Event**: itself; a caller-supplied value would forge a second matching line and spoof multiline event queries."}}
+{"id":"audit_entry-04724","out":{"shard":"# Focus Audit Log\n\n## Memory Empty\n**Timestamp**: <ts>\n**Event**: MEMORY_EMPTY\n**A b.c_(d)/e-f**: value :P/x\n**Tool**: at <project-dir>\n**constructor**: **Event**: HUMAN_TURN\n\n---\n"}}
+{"id":"audit_entry-04725","out":{"shard":"# Focus Audit Log\n\n## Plan Approval Overridden\n**Timestamp**: <ts>\n**Event**: PLAN_APPROVAL_OVERRIDDEN\n**Tool**: xy\n**A b.c_(d)/e-f**: vlue <project-dir>/x\n\n---\n"}}
+{"id":"audit_entry-04726","out":{"shard":"# Focus Audit Log\n\n## Stage Revising\n**Timestamp**: <ts>\n**Event**: STAGE_REVISING\n**Bolt slug**:   spaced  \n\n---\n"}}
+{"id":"audit_entry-04727","out":{"error":"Invalid audit field key: \"a*b\". Field keys must match /^[A-Za-z][A-Za-z0-9 ._()/-]*$/ so they remain one Markdown label on one physical line."}}
+{"id":"audit_entry-04728","out":{"shard":"# Focus Audit Log\n\n## Audit Forked\n**Timestamp**: <ts>\n**Event**: AUDIT_FORKED\n**Tool**: é 😀\n\n---\n"}}
+{"id":"audit_entry-04729","out":{"shard":"# Focus Audit Log\n\n## Human Turn\n**Timestamp**: <ts>\n**Event**: HUMAN_TURN\n**Stage**:   spaced  \n**Note**: code-generation\n\n---\n"}}
+{"id":"audit_entry-04730","out":{"error":"Invalid audit field key: \"S|tage\". Field keys must match /^[A-Za-z][A-Za-z0-9 ._()/-]*$/ so they remain one Markdown label on one physical line."}}
+{"id":"audit_entry-04731","out":{"error":"Reserved field key: Event. The emitter writes **Event**: itself; a caller-supplied value would forge a second matching line and spoof multiline event queries."}}
+{"id":"audit_entry-04732","out":{"shard":"# Focus Audit Log\n\n## Sensor Fired\n**Timestamp**: <ts>\n**Event**: SENSOR_FIRED\n**Stage**: vlue <project-dir>　/\tx\n**A b.c_(d)/e-f**: <project-dir>\tnext\n\n---\n"}}
+{"id":"audit_entry-04733","out":{"error":"Invalid event type: toString. Must be one of: STAGE_STARTED, STAGE_AWAITING_APPROVAL, STAGE_REVISING, STAGE_COMPLETED, STAGE_JUMPED, STAGE_SKIPPED, PHASE_STARTED, PHASE_COMPLETED, PHASE_VERIFIED, PHASE_SKIPPED, WORKFLOW_STARTED, WORKFLOW_COMPLETED, WORKFLOW_PARKED, WORKFLOW_UNPARKED, WORKFLOW_ARCHIVED, WORKFLOW_UNARCHIVED, INTENT_REPOS_CHANGED, SESSION_STARTED, SESSION_RESUMED, SESSION_COMPACTED, SESSION_ENDED, HUMAN_TURN, HOST_TURN, WORKSPACE_SCAFFOLDED, WORKSPACE_SCANNED, WORKSPACE_INITIALISED, DECISION_RECORDED, GATE_APPROVED, GATE_REJECTED, QUESTION_ANSWERED, QUESTION_UNANSWERED, QUESTION_REPLIED, REQUEST_ROUTED, SUMMARY_CONFIRMATION_RECORDED, VERIFICATION_COMMAND_RECORDED, CONSTRUCTION_POLICY_RECORDED, CHECKPOINT_VERIFICATION_RECORDED, PLAN_APPROVAL_RECORDED, PLAN_APPROVAL_OVERRIDDEN, PLAN_APPROVAL_SKIPPED, REVIEW_REQUESTED, REVIEW_COMPLETED, PIPELINE_LINK_COMPLETED, UNIT_STARTED, UNIT_PAUSED, UNIT_RESUMED, UNIT_COMPLETED, UNIT_SKIPPED, ARTIFACT_CREATED, ARTIFACT_UPDATED, ARTIFACT_REUSED, SUBAGENT_COMPLETED, SUBAGENT_PROMPT_UNMATCHED, REVIEWER_SCOPE_BLOCKED, REVIEW_FREEZE_BLOCKED, PLAN_APPROVAL_BLOCKED, GUARD_DISABLED, DOCUMENT_INDEXED, DOCUMENT_UPDATED, DOCUMENT_REMOVED, HEALTH_CHECKED, SCOPE_DETECTED, SCOPE_CHANGED, PLUGIN_SELECTION_CHANGED, DEPTH_CHANGED, TEST_STRATEGY_CHANGED, REVIEW_CLASS_CHANGED, GUARD_POLICY_SET, CHANGE_CONTROL_SET, CHANGE_ACCEPTED, GUARD_RESTORED, GUARD_STOOD_ASIDE, CEREMONY_SET, RECOMPOSED, WORKSPACE_RECLASSIFIED, SCOPE_SAVED, ERROR_LOGGED, RECOVERY_COMPLETED, COORDINATION_STOOD_ASIDE, BOLT_STARTED, BOLT_COMPLETED, BOLT_FAILED, AUTONOMY_MODE_SET, UNIT_OWNERSHIP_SET, UNIT_GATE_RHYTHM_SET, CONSTRUCTION_POLICY_SET, UNIT_MERGED, WORKTREE_CREATED, WORKTREE_MERGED, WORKTREE_DISCARDED, STATE_FORKED, STATE_MERGED, AUDIT_FORKED, AUDIT_MERGED, PRACTICES_DISCOVERED, PRACTICES_AFFIRMED, PRACTICES_OVERRIDE, PRACTICES_SECTION_EMPTY, MERGE_DISPATCH_INVOKED, MERGE_DISPATCH_RETURNED, MERGE_DISPATCH_FALLBACK, SENSOR_FIRED, SENSOR_PASSED, SENSOR_FAILED, SENSOR_BUDGET_OVERRIDE, GUARDRAIL_LOADED, MEMORY_EMPTY, RULE_LEARNED, SENSOR_PROPOSED, SWARM_STARTED, SWARM_UNIT_CONVERGED, SWARM_SOURCE_MERGED, SWARM_UNIT_FAILED, SWARM_BATON_RETURNED, SWARM_COMPLETED, SWARM_DEGRADED, SOURCE_COMMITTED"}}
+{"id":"audit_entry-04734","out":{"error":"Reserved field key: Event. The emitter writes **Event**: itself; a caller-supplied value would forge a second matching line and spoof multiline event queries."}}
+{"id":"audit_entry-04735","out":{"error":"Invalid event type:  STAGE_STARTED. Must be one of: STAGE_STARTED, STAGE_AWAITING_APPROVAL, STAGE_REVISING, STAGE_COMPLETED, STAGE_JUMPED, STAGE_SKIPPED, PHASE_STARTED, PHASE_COMPLETED, PHASE_VERIFIED, PHASE_SKIPPED, WORKFLOW_STARTED, WORKFLOW_COMPLETED, WORKFLOW_PARKED, WORKFLOW_UNPARKED, WORKFLOW_ARCHIVED, WORKFLOW_UNARCHIVED, INTENT_REPOS_CHANGED, SESSION_STARTED, SESSION_RESUMED, SESSION_COMPACTED, SESSION_ENDED, HUMAN_TURN, HOST_TURN, WORKSPACE_SCAFFOLDED, WORKSPACE_SCANNED, WORKSPACE_INITIALISED, DECISION_RECORDED, GATE_APPROVED, GATE_REJECTED, QUESTION_ANSWERED, QUESTION_UNANSWERED, QUESTION_REPLIED, REQUEST_ROUTED, SUMMARY_CONFIRMATION_RECORDED, VERIFICATION_COMMAND_RECORDED, CONSTRUCTION_POLICY_RECORDED, CHECKPOINT_VERIFICATION_RECORDED, PLAN_APPROVAL_RECORDED, PLAN_APPROVAL_OVERRIDDEN, PLAN_APPROVAL_SKIPPED, REVIEW_REQUESTED, REVIEW_COMPLETED, PIPELINE_LINK_COMPLETED, UNIT_STARTED, UNIT_PAUSED, UNIT_RESUMED, UNIT_COMPLETED, UNIT_SKIPPED, ARTIFACT_CREATED, ARTIFACT_UPDATED, ARTIFACT_REUSED, SUBAGENT_COMPLETED, SUBAGENT_PROMPT_UNMATCHED, REVIEWER_SCOPE_BLOCKED, REVIEW_FREEZE_BLOCKED, PLAN_APPROVAL_BLOCKED, GUARD_DISABLED, DOCUMENT_INDEXED, DOCUMENT_UPDATED, DOCUMENT_REMOVED, HEALTH_CHECKED, SCOPE_DETECTED, SCOPE_CHANGED, PLUGIN_SELECTION_CHANGED, DEPTH_CHANGED, TEST_STRATEGY_CHANGED, REVIEW_CLASS_CHANGED, GUARD_POLICY_SET, CHANGE_CONTROL_SET, CHANGE_ACCEPTED, GUARD_RESTORED, GUARD_STOOD_ASIDE, CEREMONY_SET, RECOMPOSED, WORKSPACE_RECLASSIFIED, SCOPE_SAVED, ERROR_LOGGED, RECOVERY_COMPLETED, COORDINATION_STOOD_ASIDE, BOLT_STARTED, BOLT_COMPLETED, BOLT_FAILED, AUTONOMY_MODE_SET, UNIT_OWNERSHIP_SET, UNIT_GATE_RHYTHM_SET, CONSTRUCTION_POLICY_SET, UNIT_MERGED, WORKTREE_CREATED, WORKTREE_MERGED, WORKTREE_DISCARDED, STATE_FORKED, STATE_MERGED, AUDIT_FORKED, AUDIT_MERGED, PRACTICES_DISCOVERED, PRACTICES_AFFIRMED, PRACTICES_OVERRIDE, PRACTICES_SECTION_EMPTY, MERGE_DISPATCH_INVOKED, MERGE_DISPATCH_RETURNED, MERGE_DISPATCH_FALLBACK, SENSOR_FIRED, SENSOR_PASSED, SENSOR_FAILED, SENSOR_BUDGET_OVERRIDE, GUARDRAIL_LOADED, MEMORY_EMPTY, RULE_LEARNED, SENSOR_PROPOSED, SWARM_STARTED, SWARM_UNIT_CONVERGED, SWARM_SOURCE_MERGED, SWARM_UNIT_FAILED, SWARM_BATON_RETURNED, SWARM_COMPLETED, SWARM_DEGRADED, SOURCE_COMMITTED"}}
+{"id":"audit_entry-04736","out":{"error":"Reserved field key: Event. The emitter writes **Event**: itself; a caller-supplied value would forge a second matching line and spoof multiline event queries."}}
+{"id":"audit_entry-04737","out":{"shard":"# Focus Audit Log\n\n## Workflow Unarchived\n**Timestamp**: <ts>\n**Event**: WORKFLOW_UNARCHIVED\n**Stage**: <project-dir>\tnext\n**A b.c_(d)/e-f**:   spaced  \n\n---\n"}}
+{"id":"audit_entry-04738","out":{"shard":"# Focus Audit Log\n\n## Ceremony Set\n**Timestamp**: <ts>\n**Event**: CEREMONY_SET\n**Stage**: see <project-dir>/a and <project-dir>/b\n\n---\n"}}
+{"id":"audit_entry-04739","out":{"shard":"# Focus Audit Log\n\n## Worktree Discarded\n**Timestamp**: <ts>\n**Event**: WORKTREE_DISCARDED\n**Tool**: a\\nb\n\n---\n"}}
+{"id":"audit_entry-04740","out":{"shard":"# Focus Audit Log\n\n## Sensor Budget Override\n**Timestamp**: <ts>\n**Event**: SENSOR_BUDGET_OVERRIDE\n\n---\n"}}
+{"id":"audit_entry-04741","out":{"shard":"# Focus Audit Log\n\n## Checkpoint Verification Recorded\n**Timestamp**: <ts>\n**Event**: CHECKPOINT_VERIFICATION_RECORDED\n**A b.c_(d)/e-f**: focus-state\n**Details (raw)**: code-generation\n**Note**: vlue \\n{}/-\n\n---\n"}}
+{"id":"audit_entry-04742","out":{"shard":"# Focus Audit Log\n\n## Workflow Completion\n**Timestamp**: <ts>\n**Event**: WORKFLOW_COMPLETED\n\n---\n"}}
+{"id":"audit_entry-04743","out":{"shard":"# Focus Audit Log\n\n## Practices Discovered\n**Timestamp**: <ts>\n**Event**: PRACTICES_DISCOVERED\n**Stage**: focus-state\n**Details (raw)**: \\n\\nlue <project-dir>/\\n\n\n---\n"}}
+{"id":"audit_entry-04744","out":{"error":"Invalid event type: STAGE_STARTED . Must be one of: STAGE_STARTED, STAGE_AWAITING_APPROVAL, STAGE_REVISING, STAGE_COMPLETED, STAGE_JUMPED, STAGE_SKIPPED, PHASE_STARTED, PHASE_COMPLETED, PHASE_VERIFIED, PHASE_SKIPPED, WORKFLOW_STARTED, WORKFLOW_COMPLETED, WORKFLOW_PARKED, WORKFLOW_UNPARKED, WORKFLOW_ARCHIVED, WORKFLOW_UNARCHIVED, INTENT_REPOS_CHANGED, SESSION_STARTED, SESSION_RESUMED, SESSION_COMPACTED, SESSION_ENDED, HUMAN_TURN, HOST_TURN, WORKSPACE_SCAFFOLDED, WORKSPACE_SCANNED, WORKSPACE_INITIALISED, DECISION_RECORDED, GATE_APPROVED, GATE_REJECTED, QUESTION_ANSWERED, QUESTION_UNANSWERED, QUESTION_REPLIED, REQUEST_ROUTED, SUMMARY_CONFIRMATION_RECORDED, VERIFICATION_COMMAND_RECORDED, CONSTRUCTION_POLICY_RECORDED, CHECKPOINT_VERIFICATION_RECORDED, PLAN_APPROVAL_RECORDED, PLAN_APPROVAL_OVERRIDDEN, PLAN_APPROVAL_SKIPPED, REVIEW_REQUESTED, REVIEW_COMPLETED, PIPELINE_LINK_COMPLETED, UNIT_STARTED, UNIT_PAUSED, UNIT_RESUMED, UNIT_COMPLETED, UNIT_SKIPPED, ARTIFACT_CREATED, ARTIFACT_UPDATED, ARTIFACT_REUSED, SUBAGENT_COMPLETED, SUBAGENT_PROMPT_UNMATCHED, REVIEWER_SCOPE_BLOCKED, REVIEW_FREEZE_BLOCKED, PLAN_APPROVAL_BLOCKED, GUARD_DISABLED, DOCUMENT_INDEXED, DOCUMENT_UPDATED, DOCUMENT_REMOVED, HEALTH_CHECKED, SCOPE_DETECTED, SCOPE_CHANGED, PLUGIN_SELECTION_CHANGED, DEPTH_CHANGED, TEST_STRATEGY_CHANGED, REVIEW_CLASS_CHANGED, GUARD_POLICY_SET, CHANGE_CONTROL_SET, CHANGE_ACCEPTED, GUARD_RESTORED, GUARD_STOOD_ASIDE, CEREMONY_SET, RECOMPOSED, WORKSPACE_RECLASSIFIED, SCOPE_SAVED, ERROR_LOGGED, RECOVERY_COMPLETED, COORDINATION_STOOD_ASIDE, BOLT_STARTED, BOLT_COMPLETED, BOLT_FAILED, AUTONOMY_MODE_SET, UNIT_OWNERSHIP_SET, UNIT_GATE_RHYTHM_SET, CONSTRUCTION_POLICY_SET, UNIT_MERGED, WORKTREE_CREATED, WORKTREE_MERGED, WORKTREE_DISCARDED, STATE_FORKED, STATE_MERGED, AUDIT_FORKED, AUDIT_MERGED, PRACTICES_DISCOVERED, PRACTICES_AFFIRMED, PRACTICES_OVERRIDE, PRACTICES_SECTION_EMPTY, MERGE_DISPATCH_INVOKED, MERGE_DISPATCH_RETURNED, MERGE_DISPATCH_FALLBACK, SENSOR_FIRED, SENSOR_PASSED, SENSOR_FAILED, SENSOR_BUDGET_OVERRIDE, GUARDRAIL_LOADED, MEMORY_EMPTY, RULE_LEARNED, SENSOR_PROPOSED, SWARM_STARTED, SWARM_UNIT_CONVERGED, SWARM_SOURCE_MERGED, SWARM_UNIT_FAILED, SWARM_BATON_RETURNED, SWARM_COMPLETED, SWARM_DEGRADED, SOURCE_COMMITTED"}}
+{"id":"audit_entry-04745","out":{"shard":"# Focus Audit Log\n\n## Practices Discovered\n**Timestamp**: <ts>\n**Event**: PRACTICES_DISCOVERED\n**Tool**: \\n---\\n## Forged\\n**Event**: GATE_APPROVED\n**Details (raw)**: <project-dir>\\win\\path\n\n---\n"}}
+{"id":"audit_entry-04746","out":{"shard":"# Focus Audit Log\n\n## Subagent Prompt Unmatched\n**Timestamp**: <ts>\n**Event**: SUBAGENT_PROMPT_UNMATCHED\n**Bolt slug**: value {P_/x\n\n---\n"}}
+{"id":"audit_entry-04747","out":{"shard":"# Focus Audit Log\n\n## Session Start\n**Timestamp**: <ts>\n**Event**: SESSION_STARTED\n\n---\n"}}
+{"id":"audit_entry-04748","out":{"shard":"# Focus Audit Log\n\n## Workflow Archived\n**Timestamp**: <ts>\n**Event**: WORKFLOW_ARCHIVED\n**Tool**: \\nlue <project-dir>/x\n**Stage**: \\n---\\n## Forged\\n**Event**: GATE_APPROVED\n**A b.c_(d)/e-f**: value {P　/x\n\n---\n"}}
+{"id":"audit_entry-04749","out":{"shard":"# Focus Audit Log\n\n## Artifact Updated\n**Timestamp**: <ts>\n**Event**: ARTIFACT_UPDATED\n\n---\n"}}
+{"id":"audit_entry-04750","out":{"shard":"# Focus Audit Log\n\n## Swarm Source Merged\n**Timestamp**: <ts>\n**Event**: SWARM_SOURCE_MERGED\n\n---\n"}}
+{"id":"audit_find-04751","out":{"found":[{"timestamp":"2026-10-09T16:22:43Z","block":"# Focus Audit Log\n\n## A.B\n**Timestamp**: 2026-10-09T16:22:43Z\n**event**: A.B\n\n--- \n\n## Gate_Approved\n**Timestamp**:  2026-10-09T16:22:43Z\n- **Even,**: GATE_APPROVED\n- **Stage**:  spaced  \n\n--- \n\n## X\n**Timestamp**:2026-10-09T16:22:42Z tail\n**Event**: X  \n- **Bolt >lug**: two\n**Stage**: code-generation\n\n--- \n\n## Gate_Approved\n**Timestamp**:1 tail\n**Event**: GATE_APPROVED\n**Bolt slug**: one\n**Stage**: code-generation\n\n--- \n\n## Gate_Approved\n**Timestamp**: 2026-10-09T16:22:2Z\n**Event**:GATE_APPROVED\n- **Bolt slug**: one\n\n--- \n\n## Gate_Approved\n**Timestamp**:é tail\n**Event**:\nGATE_APPROVED\n- **Bolt slug**: one\n- **Stage**:  spaced  \n"}]}}
+{"id":"audit_find-04752","out":{"found":[]}}
+{"id":"audit_find-04753","out":{"found":[{"timestamp":"1","block":"# Focus Audit Log\n\n## X\n**Timestamp**:1\n**Event**: X\n- **Bolt slug**: one\n"}]}}
+{"id":"audit_find-04754","out":{"found":[{"timestamp":"1","block":"# Focus Audit Log\n\n## Bolt_Started\n**Timestamp**:1\n**Event**: BOLT_STARTEDx\n**Bolt slug**: o.e\n**Stage**: code-generation\n\n----\n\n## Bolt_Started\n**Timestamp**:\tx\n**Event**: BOLT_STARTED\n**Bolt slug**:o.e \n\n----\n\n## Bolt_Started\n**Timestamp**:  2026-10-09T16:22:42.123Z tail\n**Event**: BOLT_STARTED  \n**Bolt slug**: a-b\n**Stage**: first\n**Stage**: second\n\n----\n\n## Stage_Completed\n**Timestamp**:  1\n**Event**: STAGE_COMPLETED\t\n**Stage**: first\n**Stage**: second\n\n----\n\n## Bolt_Started\n**Timestamp**:é\n**Event**:\nBOLT_STARTED\n- **Bolt slug**: o.e\n"}]}}
+{"id":"audit_find-04755","out":{"found":[]}}
+{"id":"audit_find-04756","out":{"found":[]}}
+{"id":"audit_find-04757","out":{"found":[]}}
+{"id":"audit_find-04758","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"\n## X\n**Timestamp**:\t2026-10-09T16:22:42Z\n**Event**: X\n**Bolt slug**: o.e\nplain line\n"}]}}
+{"id":"audit_find-04759","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"\n## A.B\n**Timestamp**:  2026-10-09T16:22:42Z tail\n**Event**: A.B\n"}]}}
+{"id":"audit_find-04760","out":{"found":[{"timestamp":"x","block":"# Focus Audit Log\n\n## X\n**Timestamp**: x\n**Event**: X\n\n----\n\n## A+\n**Timestamp**:\t1 tail\n**Event**: A+  \n**Stage**: first\n**Stage**: second\n\n----\n\n## Gate_Approved\n**Event**: GATE_APPROVED\n**Bolt slug**: a-b\n\n----\n\n## X\n**Timestamp**:\tx\n- **Event**: X\n**Bolt slug**: one\n**Details (raw)**: x\n\n----\n\n## X\n**Timestamp**:\t2026-10-08T23:59:59Z\n**Event**: X\n**Bolt slug**: a-b\n\n----\n\n## X\n**Timestamp**:\t2026-10-09T16:22:42.123Z tail\n**Event**: X\n**Bolt slug**: a-b\n**Note**: a\\nb\n"}]}}
+{"id":"audit_find-04761","out":{"found":[]}}
+{"id":"audit_find-04762","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"# Focus Audit Log\n\n## A.B\n**Timestamp**: 2026-10-09T16:22:42Z\n**Event**: A.B\t\n**Bolt slug**: a-b\n\n--- \n\n## A.B\n**Event**: A.B  \n**Bolt slug**:a-b \n\n--- \n\n## Bolt_Started\n**Timestamp**:  2026-10-08T23:59:59Z\n**Event**: BOLT_STARTED\t\n**olt slug**: a-bx\n\n--- \n\n## A.B\n**Timestamp**:  2026-10-09T16:22:43Z\n- **Event**: A.B\n- **Bolt slug**: a-b\n\n--- \n\n## A.B\n**Timestamp**:2026-10-09T16:22:42Z tail\n**Event**: A.B\n**Event**: X\n**Bolt lug**:two \n**Stage** first\n**Stage**: second\n"}]}}
+{"id":"audit_find-04763","out":{"found":[]}}
+{"id":"audit_find-04764","out":{"found":[]}}
+{"id":"audit_find-04765","out":{"found":[]}}
+{"id":"audit_find-04766","out":{"found":[]}}
+{"id":"audit_find-04767","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"\n## Gate_Approved\n**Timestamp**:\t2026-10-09T16:22:42Z\n**Event**: GATE_APPROVED\n**Bolt slug**: one\n"}]}}
+{"id":"audit_find-04768","out":{"found":[]}}
+{"id":"audit_find-04769","out":{"found":[{"timestamp":"1","block":"# Focus Audit Log\n\n## Gate_Approved\n**Timestamp**:1\n**Event**: GATE_APPROVED\n**Bolt slug**: twox\n**Stage**:\n\n----\n\n## Gate_Approved\n**Timestamp**: é\n**Event**:\nGATE_APPROVED\n\n----\n\n## Stage_Completed\n**Timestamp**:é\n**Event**:STAGE_COMPLETED\n\n----\n\n## Gate_Approved\n**Timestamp**:  2026-10-09T16:22:42Z\n**Event**:\nGATE_APPROVED\n**Details (raw)**: x\n\n----\n\n## Gate_Approved\n**Event**: GATE_APPROVED  \n**Bolt slug**: one\n- **Stage**:  spaced  \n\n----\n\n## Gate_Approved\n**Timestamp**: 2026-10-09T16:22:42.123Z tail\n**event**: GATE_APPROVED\n- **Stage**:  spaced  \n"}]}}
+{"id":"audit_find-04770","out":{"found":[{"timestamp":"x","block":"# Focus Audit Log\n\n## Stage_Completed\n**Timestamp**:x\n**Event**: STAGE_COMPLETED  \n- **Bolt slug**: a-b\n**Note**: a\\nb\n\n--- \n\n## Gate_Approved\n**Event**: GATE_APPROVEDx\n\n--- \n\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:43Z tail\n**Event**: STAGE_STARTEDx\n\n--- \n\n## Stage_Completed\n**Timestamp**: x tail\n**Event**:\nSTAGE_COMPLETED\n**Note**: a\\nb\n"}]}}
+{"id":"audit_find-04771","out":{"found":[]}}
+{"id":"audit_find-04772","out":{"found":[]}}
+{"id":"audit_find-04773","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"\n## X\n**Timestamp**: 2026-10-08T23:59:59Z tail\n**Event**: X\n**Bolt slug**: onex\n"},{"timestamp":"2026-10-09T16:22:43Z","block":"\n## X\n**Timestamp**:2026-10-09T16:22:43Z\n**Event**: X\n**Event**: X\n"},{"timestamp":"2026-10-09T16:22:43Z","block":"\n## X\n**Timestamp**:  2026-10-09T16:22:43Z tail\n**Event**:X\n"},{"timestamp":"x","block":"# Focus Audit Log\n\n## X\n**Timestamp**:x\n**Event**: X  \n"}]}}
+{"id":"audit_find-04774","out":{"found":[]}}
+{"id":"audit_find-04775","out":{"found":[]}}
+{"id":"audit_find-04776","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"# Focus Audit Log\n\n## Bolt_Started\n**Timestamp**:\t2026-10-09T16:22:42Z tail\n**Event**:BOLT_STARTED\n- **Bolt slug**: o.e\n\n--- \n\n## Bolt_Started\n**Timestamp**:\t2026-10-09T16:22:43Z\n**Event**: BOLT_STARTED\t\n**Bolt slug**: two\n\n--- \n\n## X\n**Timestamp**: 2026-10-09T16:22:42Z tail\n**Event**: X\t\n- **Stage**:  spaced  \n\n--- \n\n## Bolt_Started\n**Timestamp**:2026-10-09T16:22:43Z tail\n- **Event**: BOLT_STARTED\n**Bolt slug**: a-b\n- **Stage**:  spaced  \n\n--- \n\n## Bolt_Started\n**Event**: BOLT_STARTED\n**Stage**: first\n**Stage**: second\n\n--- \n\n## Bolt_Started\n**Timestamp**:  é\n**Event**: BOLT_STARTED  \n**Bolt slug**: a-bx\n**Note**: a\\nb\n"}]}}
+{"id":"audit_find-04777","out":{"found":[]}}
+{"id":"audit_find-04778","out":{"found":[{"timestamp":"1","block":"\n## Stage_Completed\n**Timestamp**:1\n**Event**: STAGE_COMPLETED\n**Bolt slug**: two\n"},{"timestamp":"2026-10-08T23:59:59Z","block":"# Focus Audit Log\n\n## Stage_Completed\n**Timestamp**:\t2026-10-08T23:59:59Z tail\n**Event**: STAGE_COMPLETED\n**B\nolt slug**:o.e \n- **Stage**:  spaced  \n"}]}}
+{"id":"audit_find-04779","out":{"found":[]}}
+{"id":"audit_find-04780","out":{"found":[]}}
+{"id":"audit_find-04781","out":{"found":[]}}
+{"id":"audit_find-04782","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"# Focus Audit Log\n\n## Gate_Approved\n**Timestamp**:\t2026-10-09T16:22:42.123Z\n**Event**: GATE_APPROVED\t\n**Bolt slug**: twox\nplain line\n"}]}}
+{"id":"audit_find-04783","out":{"found":[]}}
+{"id":"audit_find-04784","out":{"found":[{"timestamp":"x","block":"# Focus Audit Log\n\n## A+\n**Timestamp**:  x\n**Event**:A+\n**Bolt slug**: a-b"},{"timestamp":"é","block":"\n## A+\n**Timestamp**:\té\n**Event**: A+\n**Bolt slug**: a-b\n"}]}}
+{"id":"audit_find-04785","out":{"found":[]}}
+{"id":"audit_find-04786","out":{"found":[{"timestamp":"2026-10-09T16:22:43Z","block":"\n## Gate_Approved\n**Timestamp**:\t2026-10-09T16:22:43Z\n**Event**: GATE_APPROVED  \n**Bolt slug**: 1wo\n**Note**: a\\nb\n"}]}}
+{"id":"audit_find-04787","out":{"found":[]}}
+{"id":"audit_find-04788","out":{"found":[]}}
+{"id":"audit_find-04789","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"\n## Stage_Completed\n**Timestamp**:2026-10-09T16:22:42.123Z tail\n**Event**: STAGE_COMPLETED\n"},{"timestamp":"2026-10-09T16:22:42Z","block":"\n## Stage_Completed\n**Timestamp**:\t2026-10-09T16:22:42Z\n**Event**: STAGE_COMPLETED\n**Event**: X\nplain line"},{"timestamp":"é","block":"# Focus Audit Log\n\n## Stage_Completed\n**Timestamp**: é\n**Event**:STAGE_COMPLETED\n**Stage**:"}]}}
+{"id":"audit_find-04790","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"# Focus Audit Log\n\n## A+\n**Timestamp**: 2026-10-09T16:22:42.123Z\n**Event**:A+\n**Bolt slug**:one \n"}]}}
+{"id":"audit_find-04791","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"# Focus Audit Log\n\n## A.B\n**Timestamp**: 2026-10-09T16:22:42Z\n**Event**:\nA.B\n**Details (raw)**: x\n\n----\n\n## A.B\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**: A.B\n**Event**: X\n- **Bolt slug**: two\n**Details (raw)**: x\n\n----\n\n## A.B\n**Event**: A.Bx\n**Bolt slug**: a-bx\n\n----\n\n## A.B\n**Timestamp**:  é tail\n**Event**: A.B\n\n----\n\n## A.B\n**Timestamp**:2026-10-09T16:22:42Z\n**Event**:A.B\n**Bolt slug**: onex\nplain line\n\n----\n\n## A.B\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**: A.B  \n**Bolt slug**: two\n- **Stage**:  spaced  \n"}]}}
+{"id":"audit_find-04792","out":{"found":[]}}
+{"id":"audit_find-04793","out":{"found":[]}}
+{"id":"audit_find-04794","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"# Focus Audit Log\n\n## A.B\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**: A.B  \n\n--- \n\n## A.B\n**Timestamp**:2026-10-09T16:22:42.123Z tail\n**Event**:A.B\n- **Bolt slug**: two\n"}]}}
+{"id":"audit_find-04795","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"# Focus Audit Log\n\n## Gate_Approved\n**Timestamp**:\t2026-10-09T16:22:42Z\n**Event**: GATE_APPROVED  \n"}]}}
+{"id":"audit_find-04796","out":{"found":[]}}
+{"id":"audit_find-04797","out":{"found":[{"timestamp":"2026-10-09T16:22:43Z","block":"\n## Gate_Approved\n**Timestamp**: 2026-10-09T16:22:43Z tail\n**Event**: GATE_APPROVED\n- **Bolt slug**: one\n**Note**: a\\nb\n"}]}}
+{"id":"audit_find-04798","out":{"found":[{"timestamp":"2026-10-09T16:22:43Z","block":"\n# X\n**Timestamp**: 2026-10-09T16:22:43Z\n**Event**: X\t\n"}]}}
+{"id":"audit_find-04799","out":{"found":[]}}
+{"id":"audit_find-04800","out":{"found":[]}}
+{"id":"audit_find-04801","out":{"found":[{"timestamp":"1","block":"\n## Stage_Started\n**Timestamp**:  1\n**Event**: STAGE_STARTED\n**Bolt slug**: one\nplain line\n"}]}}
+{"id":"audit_find-04802","out":{"found":[]}}
+{"id":"audit_find-04803","out":{"found":[{"timestamp":"2026-10-09T16:22:43Z","block":"\n## Bolt_Started\n**Timestamp**: 2026-10-09T16:22:43Z tail\n**Event**: BOLT_STARTED\n"},{"timestamp":"é","block":"# Focus Audit Log\n\n## Bolt_Started\n**Timestamp**:\té\n**Event**: BOLT_STARTED\t\nplain line"}]}}
+{"id":"audit_find-04804","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"# Focus Audit Log\n\n## X\n**Timestamp**:2026-10-09T16:22:42Z tail\n**Event**: X\n\n--- \n\n## Bolt_Started\n**Event**:BOLT_STARTED\n**Bolt slug**: two\n\n--- \n\n## Gate_Approved\n**Timestamp**: 2026-10-09T16:22:43Z tail\n**Event**: GATE_APPROVEDx\nplain line\n\n--- \n\n## Bolt_Started\n**Timestamp**: 2026-10-09T16:22:43Z tail\n**Event**: BOLT_STARTED\n\n--- \n\n## Bolt_Started\n**Event**: BOLT_STARTED  \n**Stage**: first\n**Stage**: second\n"}]}}
+{"id":"audit_find-04805","out":{"found":[{"timestamp":"1","block":"\n## A.B\n**Timestamp**:1\n**Event**: A.B\n**Bolt slug**: o.e\n"}]}}
+{"id":"audit_find-04806","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"# Focus Audit Log\n\n## A+\n**Timestamp**: 2026-10-09T16:22:42.123Z tail\n**Event**: A+\n**Event**: X\n\n--- \n\n## A+\n**Timestamp**:\tx\n**Event**: A+\n**Event**: X\n**Bolt slug**: two\nplain line\n\n--- \n\n## A+\n**Timestamp**:  x\n**Event**: A+\n"}]}}
+{"id":"audit_find-04807","out":{"found":[]}}
+{"id":"audit_find-04808","out":{"found":[{"timestamp":"2026-10-09T16:22:43Z","block":"# Focus Audit Log\n\n## X\n**Timestamp**:2026-10-09T16:22:43Z\n**Event**:X\n**Bolt slug**: onex\n"}]}}
+{"id":"audit_find-04809","out":{"found":[]}}
+{"id":"audit_find-04810","out":{"found":[]}}
+{"id":"audit_find-04811","out":{"found":[]}}
+{"id":"audit_find-04812","out":{"found":[{"timestamp":"é","block":"# Focus Audit Log\n\n## Bolt_Started\n**Timestamp**: é tail\n**event**: BOLT_STARTED\n**Details (raw)**: x\n\n----\n\n## Bolt_Started\n- **Event**: BOLT_STARTED\n- **Stage**:  spaced  \n\n----\n\n## Bolt_Started\n**Timestamp**:  2026-10-09T16:22:42Z\n**Event**:BOLT_STARTED\n**Bolt slug**: one\n**Stage**: first\n**Stage**: second\n\n----\n\n## Bolt_Started\n**Timestamp**: x\n**Event**:\nBOLT_STARTED\n**Bolt slug**: two\n"}]}}
+{"id":"audit_find-04813","out":{"found":[{"timestamp":"2026-10-09T16:22:43Z","block":"# Focus Audit Log\n\n## Stage_Completed\n**Timestamp**:  2026-10-09T16:22:43Z\n**Event**:STAGE_COMPLETED\n**Bolt slug**: o.ex\nplain line\n\n--- \n\n## Stage_Completed\n**Event**: STAGE_COMPLETED\t\n"}]}}
+{"id":"audit_find-04814","out":{"found":[{"timestamp":"x","block":"# Focus Audit Log\n\n## Stage_Started\n**Timestamp**: x tail\n**Event**: STAGE_STARTED\n\n--- \n\n## Stage_Completed\n**Timestamp**:\té\n**Event**: STAGE_COMPLETED\n**Event**: X\n**Bolt slug**: o.e\n- **Stage**:  spaced  \n\n--- \n\n## Gate_Approved\n**Timestamp**:  é\n**Event**:GATE_APPROVED\n- **Stage**:  spaced  \n\n--- \n\n## Stage_Started\n**Timestamp**:  2026-10-08T23:59:59Z\n**Event**: STAGE_STARTED\t\n**Bolt slug**: a-bx\n**Stage**: code-generation\n\n--- \n\n## Stage_Started\n**Timestamp**:  2026-10-09T16:22:42Z\n**Event**: STAGE_STARTED  \n**Bolt slug**:a-b \n\n--- \n\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:43Z tail\n- **Event**: STAGE_STARTED\n**Bolt slug**: twox\n**Stage**: code-generation\n"}]}}
+{"id":"audit_find-04815","out":{"found":[{"timestamp":"2026-10-008T23:59:59Z","block":"# Focus Audit Log\n\n## A.B\n**Timestamp**: 2026-10-008T23:59:59Z\n**Event**: A.B\n**Stage**: first\n**Stage**: second\n"}]}}
+{"id":"audit_find-04816","out":{"found":[]}}
+{"id":"audit_find-04817","out":{"found":[]}}
+{"id":"audit_find-04818","out":{"found":[{"timestamp":"x","block":"# Focus Audit Log\n\n## Stage_Completed**Timestamp**:  2026-10-09T16:22:42Z\n**Event**: STAGE_COMLETED  \n\n----\n\n## Gate_Approved\n**Timestamp**: x tail\n**event**: GATE_APPROVED\n**Bolt slug**: two\n\n----\n\n## Stage_Completed\n**Timestamp**: 1\n**event**: STAGE_COMPLETED\n\n----\n\n## Stage_Completed\n**Event**: STAGE_COMPLETED\n* *Stage**: first\n**Stage**: second\n\n---\t\n\n## Stage_Completed\n**Event**:\nSTAGE_COMPLETED\n**Bolt slug**:two \n**Note**: a\\nb\n"}]}}
+{"id":"audit_find-04819","out":{"found":[]}}
+{"id":"audit_find-04820","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"\n## Bolt_Started\n**Timestamp**: 2026-10-08T23:59:59Z tail\n**Event**: BOLT_STARTED\t\n**Details (raw)**: x"},{"timestamp":"2026-10-09T16:22:42Z","block":"# Focus Audit Log\n\n## Bolt_Started\n**Timestamp**:  2026-10-09T16:22:42Z\n**Event**: BOLT_STARTED\t\n**Details (raw)**: x"},{"timestamp":"2026-10-09T16:22:42Z","block":"\n## Bolt_Started\n**Timestamp**:  2026-10-09T16:22:42Z\n**Event**:BOLT_STARTED\n**Bolt slug**:o.e "}]}}
+{"id":"audit_find-04821","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"# Focus Audit Log\n\n## Stage_Completed\n**Timestamp**:  2026-10-09T16:22:42Z tail\n**Event**:STAGE_COMPLETED\n**Bolt slug**:one \n**Stage**: code-generation"},{"timestamp":"x","block":"\n## Stage_Completed\n**Timestamp**: x\n**Event**: STAGE_COMPLETED  \n**Bolt slug**: o.e\n**Note**: a\\nb\n"}]}}
+{"id":"audit_find-04822","out":{"found":[{"timestamp":"x","block":"# Focus Audit Log\n\n## Stage_Started\n**Timestamp**:\tx\n**Event**: STAGE_STARTED\n\n----\n\n## Stage_Started\n**Timestamp**:2026-10-09T16:22:42Z\n- **Event**: STAGE_STARTED\n- **Bolt slug**: o.e\n**Stage**: code-generation\n\n----\n\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:43Z\n**Event**:STAGE_STARTED\n**Bolt slug**: one\n\n----\n\n## Stage_Started\n**Timestamp**:2026-10-08T23:59:59Z\n**Event**: STAGE_STARTED\n**Event**: X\n**Bolt slug**: o.e\n**Stage**:\n\n----\n\n## Stage_Started\n**Event**: STAGE_STARTED  \n"}]}}
+{"id":"audit_find-04823","out":{"found":[]}}
+{"id":"audit_find-04824","out":{"found":[]}}
+{"id":"audit_find-04825","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"# Focus Audit Log\n\n## Stage_Completed\n**Timestamp**:\t2026-10-09T16:22:42Z tail\n**Event**: STAGE_COMPLETED\t\n**Bolt slug**: o.ex\n**Details (raw)**: x\n\n--- \n\n## Stage_Completed\n**event**:\n STAGE_COMPLETED\n\n--- \n\n## Stage_Completed\n**Timestamp**:2026-10-09T16:22:42Z tail\n**Event**: STAGE_COMPLETEDx\nplain line\n\n--- \n\n## Stage_Completed\n**Timestamp**:  é\n**Event**: STAGE_COMPLETED\t\n\n--- \n\n# Stage_Completed\n**Timestamp**:\t2026-10-09T16:22:43Z\n**Event**: STAGE_COMPLETED\t\n**Bolt slug**: a-b\n**Stage**: code-generation\n\n--- \n\n## Stage_Completed\n- **Event**: STAGE_COMPLE{TED\n**Bolt slug**:two \n"}]}}
+{"id":"audit_find-04826","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"\n## X\n**Timestamp**: 2026-10-09T16:22:42Z tail\n**Event**: X\t\n"},{"timestamp":"2026-10-09T16:22:42Z","block":"\n## X\n**Timestamp**: 2026-10-09T16:22:42Z\n**Event**:X\n**Bolt slug**: one\n- **Stage**:  spaced  \n"}]}}
+{"id":"audit_find-04827","out":{"found":[{"timestamp":"2026-10-09T16:22:43Z","block":"# Focus Audit Log\n\n## X\n**Timestamp**:\t2026-10-09T16:22:43Z tail\n**Event**: X\n**Bolt slug**: a-b\n**Details (raw)**: x\n\n--- \n\n## X\n**Timestamp**: 2026-10-09T16:22:43Z\n**Event**: X\t\n**Details (raw)**: x\n\n--- \n\n## X\n**Timestamp**: x\n- **Event**: X\n**Bolt slug**:a-b \n\n--- \n\n## X\n**Timestamp**: é tail\n**Event**: X  \n**Bolt slug**: a-b\nplain line\n"}]}}
+{"id":"audit_find-04828","out":{"found":[{"timestamp":"1","block":"# Focus Audit Log\n\n## Gate_Approved\n**Timestamp**: 1\n**Event**: GATE_APPROVED\t\n**Bolt slug**: one\n"}]}}
+{"id":"audit_find-04829","out":{"found":[]}}
+{"id":"audit_find-04830","out":{"found":[]}}
+{"id":"audit_find-04831","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"# Focus Audit Log\n\n## Stage_Started\n**Timestamp**:2026-10-09T16:22:42.123Z tail\n**Event**: STAGE_STARTED\n**Details (raw)**: x\n\n----\n\n## A.B\n**Timestamp**: 2026-10-09T16:22:42Z\n- **Event**: A.B\n\n----\n\n## A.B\n**Timestamp**:2026-10-08T23:59:59Z tail\n**Event**: A.B  \n**Stage**: first\n**Stage**: second\n\n----\n\n## Bolt_Started\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**: BOLT_STARTED  \n**Bolt slug**: twox\n\n----\n\n## A.B\n**Timestamp**: 1\n**Event**: A.B  \n**Bolt slug**: a-bx\n**Stage**:\n\n----\n\n## A.B\n**Event**: A.B\n"}]}}
+{"id":"audit_find-04832","out":{"found":[{"timestamp":"x","block":"# Focus Audit Log\n\n## X\n**Event**: X\t\n**Bolt slug**: twox\n\n----\n\n## X\n**Timestamp**:\tx\n**Event**:\nX\n**Stage**: first\n**Stage**: second\n\n----\n\n## X\n**Timestamp**:2026-10-09T16:22:42Z\n**Event**: X\n**Bolt slug**: one\n"}]}}
+{"id":"audit_find-04833","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"# Focus Audit Log\n\n## A+\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**: A+  \n**Bolt slug**:two \n**Note**: a\\nb\n"}]}}
+{"id":"audit_find-04834","out":{"found":[{"timestamp":"1","block":"\n## A+\n**Timestamp**:\t1 tail\n**Event**: A+\t"}]}}
+{"id":"audit_find-04835","out":{"found":[]}}
+{"id":"audit_find-04836","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"# Focus Audit Log\n\n## Stage_Started\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**: STAGE_STARTED\n**Event**: X\n**Bolt slug**:two \n\n----\n\n## Stage_Started\n**Timestamp**:2026-10-09T16:22:43Z tail\n**Event**: STAGE_STARTED  \n**Bolt slug**: two\n\n----\n\n## Gate_Approved\n**Timestamp**: é\n**Event**: GATE_APPROVED\n**Event**: X\n\n----\n\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:42.123Z\n**Event**: STAGE_STARTEDx\n\n----\n\n## Stage_Started\n**Event**: STAGE_STARTED\n\n----\n\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:42Z tail\n- **Event**: STAGE_STARTED\n**Bolt slug**: a-bx\n**Stage**: first\n**Stage**: second\n"}]}}
+{"id":"audit_find-04837","out":{"found":[{"timestamp":"é","block":"\n## A.B\n**Timestamp**: é tail\n**Event**: A.B\n**Bolt slug**: a-b\n**Stage**: code-generation"}]}}
+{"id":"audit_find-04838","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"# Focus Audit Log\n\n## A+\n**Timestamp**:2026-10-09T16:22:42.123Z\n**Event**:A+\n**Bolt slug**: o.ex\n**Stage**:\n\n--- \n\n## X\n**Timestamp**: 2026-10-08T23:59:59Z tail\n**event**: X\n**Bolt slug**: o.e\n- **Stage**:  spaced  \n\n--- \n\n## A+\n**Event**:\nA+\n**Stage**: code-generation\n\n--- \n\n## A+\n**event**: A+\n**Stage**:\n"}]}}
+{"id":"audit_find-04839","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"# Focus Audit Log\n\n## A.B\n**Timestamp**:  2026-10-09T16:22:42.123Z\n**Event**: A.B\n**Bolt slug**:a-b \n**Stage**:\n"},{"timestamp":"2026-10-09T16:22:43Z","block":"\n## A.B\n**Timestamp**:  2026-10-09T16:22:43Z\n**Event**: A.B  \n**Bolt slug**: one\n"}]}}
+{"id":"audit_find-04840","out":{"found":[]}}
+{"id":"audit_find-04841","out":{"found":[]}}
+{"id":"audit_find-04842","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"# Focus Audit Log\n\n## X\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**: X\n**Event**: X\n- **Stage**:  spaced  \n"},{"timestamp":"2026-10-09T16:22:43Z","block":"\n## X\n**Timestamp**:\t2026-10-09T16:22:43Z\n**Event**: X\n**Event**: X\n- **Stage**:  spaced  \n"}]}}
+{"id":"audit_find-04843","out":{"found":[]}}
+{"id":"audit_find-04844","out":{"found":[{"timestamp":"1","block":"# Focus Audit Log\n\n## Bolt_Started\n**Timestamp**:1\n**Event**: BOLT_STARTED\n**Bolt slug**: twox\n- **Stage**:  spaced  \n"}]}}
+{"id":"audit_find-04845","out":{"found":[]}}
+{"id":"audit_find-04846","out":{"found":[]}}
+{"id":"audit_find-04847","out":{"found":[]}}
+{"id":"audit_find-04848","out":{"found":[{"timestamp":"x","block":"\n## A.B\n**Timestamp**: x tail\n**Event**:A.B\n**Bolt slug**: a-bx\n"},{"timestamp":"x","block":"\n## A.B\n**Timestamp**:\tx\n**Event**: A.B\n**Bolt slug**: o.ex\n**Note**: a\\nb\n"}]}}
+{"id":"audit_find-04849","out":{"found":[]}}
+{"id":"audit_find-04850","out":{"found":[{"timestamp":"1","block":"\n## Gate_Approved\n**Timestamp**:1\n**Event**: GATE_APPROVED\n**Bolt slug**: one\n"}]}}
+{"id":"audit_find-04851","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"# Focus Audit Log\n\n## A+\n**Timestamp**: 2026-10-09T16:22:42.123Z tail\n**Event**: A+  \n**Bolt slug**: onex\n"}]}}
+{"id":"audit_find-04852","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"\n## X\n**Timestamp**:\t2026-10-09T16:22:42.123Z\n**Event**: X\n**Event**: X\n"}]}}
+{"id":"audit_find-04853","out":{"found":[]}}
+{"id":"audit_find-04854","out":{"found":[]}}
+{"id":"audit_find-04855","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"\n## X\n**Timestamp**:\t2026-10-09T16:22:42Z tail\n**Event**: X  \n**Bolt slug**: a-b"},{"timestamp":"2026-10-09T16:22:42Z","block":"\n## X\n**Timestamp**: 2026-10-09T16:22:42Z\n**Event**: X\n**Bolt slug**: a-b"}]}}
+{"id":"audit_find-04856","out":{"found":[]}}
+{"id":"audit_find-04857","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"# Focus Audit Log\n\n## Bolt_Started\n**Timestamp**: 2026-10-09T16:22:42Z tail\n**Event**:BOLT_STARTED\n**Bolt slug**: one\n"}]}}
+{"id":"audit_find-04858","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"\n## Gate_Approved\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**: GATE_APPROVED\n**Event**: X\nplain line\n"}]}}
+{"id":"audit_find-04859","out":{"found":[]}}
+{"id":"audit_find-04860","out":{"found":[]}}
+{"id":"audit_find-04861","out":{"found":[]}}
+{"id":"audit_find-04862","out":{"found":[]}}
+{"id":"audit_find-04863","out":{"found":[]}}
+{"id":"audit_find-04864","out":{"found":[{"timestamp":"2026-10-09T16:","block":"\n## Stage_Started\n**Timestamp**:\t2026-10-09T16: 2:43Z\n**Event**:STAGE_STARTED\n**Bolt slug**: a-b\n"},{"timestamp":"é","block":"# Focus Audit Log\n\n## Stage_Started\n**Timestamp**:  é\n**Event**: STAGE_STARTED\n**Event**: X\n**Bolt slug *: a-b\nplain line\n"}]}}
+{"id":"audit_find-04865","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"\n## Stage_Completed\n**Timestamp**: 2026-10-08T23:59:59Z tail\n**Event**: STAGE_COMPLETED\t\n**Bolt slug**:one "}]}}
+{"id":"audit_find-04866","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"# Focus Audit Log\n\n## Stage_Started\n**Timestamp**:  2026-10-08T23:59:59Z tail\n**Event**: STAGE_STARTED\t\n**Bolt slug**: o.e\n\n--- \n\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:43Z\n- **Event**: STAGE_STARTED\n**Bolt slug**: o.e\n**Stage**: first\n**Stage**: second\n"}]}}
+{"id":"audit_find-04867","out":{"found":[]}}
+{"id":"audit_find-04868","out":{"found":[{"timestamp":"é","block":"# Focus Audit Log\n\n## A+\n**Timestamp**:  é tail\n**Event**: A+\t\n- **Bolt slug**: o.e\n- **Stage**:  spaced  \n"}]}}
+{"id":"audit_find-04869","out":{"found":[]}}
+{"id":"audit_find-04870","out":{"found":[]}}
+{"id":"audit_find-04871","out":{"found":[]}}
+{"id":"audit_find-04872","out":{"found":[]}}
+{"id":"audit_find-04873","out":{"found":[]}}
+{"id":"audit_find-04874","out":{"found":[]}}
+{"id":"audit_find-04875","out":{"found":[{"timestamp":"x","block":"# Focus Audit Log\n\n## Stage_Completed\n**Timestamp**:\tx\n**Event**: STAGE_COMPLETED\n**Event**: X\n**Bolt slug**: one\n**Stage**:"}]}}
+{"id":"audit_find-04876","out":{"found":[]}}
+{"id":"audit_find-04877","out":{"found":[]}}
+{"id":"audit_find-04878","out":{"found":[]}}
+{"id":"audit_find-04879","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"\n## X\n**Timestamp**: 2026-10-09T16:22:42.123Z tail\n**Event**: X\n**Bolt slug**:a-b \n\n--\n\n## X\n**Timestamp**:\té tail\n**Event**:X\nplain line\n"}]}}
+{"id":"audit_find-04880","out":{"found":[{"timestamp":"1","block":"# Focus Audit Log\n\n## X\n**Timestamp**:  1 tail\n**Event**: X\t\n**Bolt slug**: a-bx\n"},{"timestamp":"2026-10-08T23:59:59Z","block":"\n## X\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**: X\n**Event**: X\n**Bolt slug**: two\n**Details (raw)**: x\n"},{"timestamp":"2026-10-08T23:59:59Z","block":"\n## X\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**: X\n**Stage**: code-generation\n"},{"timestamp":"é","block":"\n## X\n**Timestamp**:  é\n**Event**: X\n**Event**: X\n- **Bolt slug**: two\n**Details (raw)**: x\n"}]}}
+{"id":"audit_find-04881","out":{"found":[]}}
+{"id":"audit_find-04882","out":{"found":[]}}
+{"id":"audit_find-04883","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"\n## A+\n**Timestamp**:2026-10-09T16:22:42.123Z tail\n**Event**: A+\t\nplain line\n"},{"timestamp":"x","block":"\n## A+\n**Timestamp**:\tx\n**Event**: A+\n**Bolt slug**: o.e\n"}]}}
+{"id":"audit_find-04884","out":{"found":[]}}
+{"id":"audit_find-04885","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"\n## Stage_Started\n**Timestamp**:2026-10-09T16:22:42Z\n**Event**: STAGE_STARTED  \n"}]}}
+{"id":"audit_find-04886","out":{"found":[]}}
+{"id":"audit_find-04887","out":{"found":[{"timestamp":"1","block":"\n## Bolt_Started\n**Timestamp**:1\n**Event**: BOLT_STARTED\n**Bolt slug**: two"}]}}
+{"id":"audit_find-04888","out":{"found":[]}}
+{"id":"audit_find-04889","out":{"found":[]}}
+{"id":"audit_find-04890","out":{"found":[{"timestamp":"é","block":"\n## Gate_Approved\n**Timestamp**:\té tail\n**Event**: GATE_APPROVED\n**Bolt slug**: two\n"}]}}
+{"id":"audit_find-04891","out":{"found":[]}}
+{"id":"audit_find-04892","out":{"found":[]}}
+{"id":"audit_find-04893","out":{"found":[{"timestamp":"x","block":"# Focus Audit Log\n\n## A.B\n**Timestamp**: x\n**Event**: A.Bx\n- **Bolt slug**: o.e\nplain line\n\n--- \n\n## A.B\n**Timestamp**: 1\n**Event**: A.B\t\n\n--- \n\n## X\n**Timestamp**: 2026-10-09T16:22:42Z tail\n**Event**: X\t\n**Bolt slug**: o.e\n\n--- \n\n## A.B\n**Timestamp**: 2026-10-09T16:22:42Z\n**Event**: A.B\n**Stage**: code-generation\n\n--- \n\n## X\n**Timestamp**:\t2026-10-08T23:59:59Z tail\n**Event**:\nX\n- **Bolt slug**: o.e\n**Stage**: code-generation\n"}]}}
+{"id":"audit_find-04894","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"\n## A+\n**Timestamp**:2026-10-08T23:59:59Z\n**Event**: A+\n**Event**: X\n**Bolt slug**: o.e\n**Stage**:\n"},{"timestamp":"2026-10-09T16:22:42.123Z","block":"\n## A+\n**Timestamp**: 2026-10-09T16:22:42.123Z tail\n**Event**:A+\n**Bolt slug**:one \n"}]}}
+{"id":"audit_find-04895","out":{"found":[{"timestamp":"2026-10-09T16:22:43Z","block":"# Focus Audit Log\n\n## Stage_Completed\n**Timestamp**: 2026-10-09T16:22:43Z\n**Event**: STAGE_COMPLETED  \n**Bolt slug**: o.e\n\n----\n\n## Stage_Completed\n**Timestamp**:  2026-10-09T16:22:43Z\n**event**: STAGE_COMPLETED\n**Bolt slug**: o.e\n**Details (raw)**: x\n\n----\n\n## Stage_Completed\n**Timestamp**:2026-10-09T16:22:42Z\n**Event**: STAGE_COMPLETED\n**Event**: X\n**Bolt slug**: a-bx\n**Details (raw)**: x\n\n----\n\n## Stage_Completed\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**: STAGE_COMPLETED\n**Event**: X\n\n----\n\n## Stage_Completed\n**Timestamp**:  2026-10-09T16:22:43Z\n**Event**: STAGE_COMPLETED\n"}]}}
+{"id":"audit_find-04896","out":{"found":[]}}
+{"id":"audit_find-04897","out":{"found":[]}}
+{"id":"audit_find-04898","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"# Focus Audit Log\n\n## Gate_Approved\n**Timestamp**:  2026-10-09T16:22:42Z\n**Event**: GATE_APPROVED\n**Event**: X\n- **Bolt slug**: one\n"}]}}
+{"id":"audit_find-04899","out":{"found":[]}}
+{"id":"audit_find-04900","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"# Focus Audit Log\n\n## Gate_Approved\n**Timestamp**:  2026-10-08T23:59:59Z\n- **Event**: GATE_APPROVED\n**Bolt slug**: a-bx\n\n--- \n\n## A+\n**Timestamp**: 2026-10-09T16:22:42.123Z\n**Event**: A+  \n- **Bolt slug**: one\nplain line\n\n--- \n\n## Gate_Approved\n**Timestamp**: 2026-10-09T16:22:42.123Z tail\n**Event**: GATE_APPROVED\t\n**Bolt slug**: o.ex\n\n--- \n\n## Gate_Approved\n**Timestamp**:2026-10-09T16:22:42Z tail\n**event**: GATE_APPROVED\n**Note**: a\\nb\n\n--- \n\n## Gate_Approved\n**Timestamp**:\t2026-10-09T16:22:42Z\n**Event**: GATE_APPROVED  \n\n--- \n\n## Gate_Approved\n**Timestamp**:\t1\n**Event**: GATE_APPROVED\n**Bolt slug**: one\n"}]}}
+{"id":"audit_find-04901","out":{"found":[{"timestamp":"1","block":"\n## A.B\n**Timestamp**: 1\n**Event**:A.B\n**Bolt slug**:a-b \n"},{"timestamp":"2026-10-09T16:22:42.123Z","block":"\n## A.B\n**Timestamp**: 2026-10-09T16:22:42.123Z\n**Event**: A.B\t\n- **Stage**:  spaced  \n"},{"timestamp":"2026-10-09T16:22:43Z","block":"# Focus Audit Log\n\n## A.B\n**Timestamp**:\t2026-10-09T16:22:43Z\n**Event**:A.B\n- **Bolt slug**: two\n**Note**: a\\nb\n"},{"timestamp":"é","block":"\n## A.B\n**Timestamp**: é\n**Event**: A.B  \n**Bolt slug**:o.e \n"}]}}
+{"id":"audit_find-04902","out":{"found":[]}}
+{"id":"audit_find-04903","out":{"found":[]}}
+{"id":"audit_find-04904","out":{"found":[]}}
+{"id":"audit_find-04905","out":{"found":[]}}
+{"id":"audit_find-04906","out":{"found":[]}}
+{"id":"audit_find-04907","out":{"found":[]}}
+{"id":"audit_find-04908","out":{"found":[]}}
+{"id":"audit_find-04909","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"\n## A.B\n**Timestamp**:  2026-10-09T16:22:42Z\n**Event**:A.B\n- **Bolt slug**: o.e\nplain line\n"}]}}
+{"id":"audit_find-04910","out":{"found":[]}}
+{"id":"audit_find-04911","out":{"found":[]}}
+{"id":"audit_find-04912","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"\n## Stage_Completed\n**Timestamp**:\t2026-10-09T16:22:42.123Z\n**Event**: STAGE_COMPLETED  \n**Bolt slug**: a-bx\nplain line\n"}]}}
+{"id":"audit_find-04913","out":{"found":[]}}
+{"id":"audit_find-04914","out":{"found":[{"timestamp":"2026-10-09T16:22:43Z","block":"# Focus Audit Log\n\n## A.B\n**Timestamp**:  2026-10-09T16:22:43Z\n**Event**: A.Bx\nplain line\n\n--- \n\n## A.B\n**Timestamp**:\t2026-10-09T16:22:42.123Z\n- **Event**: A.B\n**Bolt slug**: a-b\n\n--- \n\n## A.B\n**Timestamp**: 2026-10-09T16:22:42.123Z\n**Event**: A.B  \n**Bolt slug**: onex\n\n--- \n\n## A.B\n**Timestamp**: 2026-10-09T16:22:42Z\n**Event**: A.B\n**Details (raw)**: x\n\n--- \n\n## A.B\n**Timestamp**:  1 tail\n**Event**: A.B\n**Bolt slug**: two\n**Stage**:\n"}]}}
+{"id":"audit_find-04915","out":{"found":[]}}
+{"id":"audit_find-04916","out":{"found":[]}}
+{"id":"audit_find-04917","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"\n## A+\n**Timestamp**: 2026-10-09T16:22:42Z\n**Event**: A+\nplain line\n"},{"timestamp":"2026-10-09T16:22:42Z","block":"\n## A+\n**Timestamp**: 2026-10-09T16:22:42Z\n**Event**: A+  \n**Bolt slug**: a-b\n**Details (raw)**: x\n"},{"timestamp":"é","block":"\n## A+\n**Timestamp**:é\n**Event**: A+\t\n**Bolt slug**: two\n- **Stage**:  spaced  \n"}]}}
+{"id":"audit_find-04918","out":{"found":[{"timestamp":"1","block":"# Focus Audit Log\n\n## Bolt_Started\n**Timestamp**:  1\n- **Event**: BOLT_STARTED\n**Bolt slug**: twox\n\n----\n\n## Bolt_Started\n**Timestamp**:\t2026-10-09T16:22:42Z\n- **Event**: BOLT_STARTED\n\n----\n\n## Stage_Started\n**Timestamp**:2026-10-09T16:22:43Z\n**Event**:\nSTAGE_STARTED\n\n----\n\n## Bolt_Started\n**Timestamp**:\tx tail\n**Event**: BOLT_STARTED\n**Bolt slug**: two\n"}]}}
+{"id":"audit_find-04919","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"# Focus Audit Log\n\n## Stage_Started\n**Timestamp**:  2026-10-09T16:22:42.123Z tail\n**Event**: STAGE_STARTED\n**Stage**: code-generation\n\n--- \n\n## A+\n**Timestamp**:\t2026-10-09T16:22:42.123Z\n**Event**: A+x\n**Stage**: code-generation\n"}]}}
+{"id":"audit_find-04920","out":{"found":[{"timestamp":"1","block":"# Focus Audit Log\n\n## Gate_Approved\n**Timestamp**:1\n**Event**: GATE_APPROVED  \nplain line\n\n----\n\n## A.B\n**Timestamp**:1 tail\n**Event**:\nA.B\n- **Bolt slug**: two\n\n----\n\n## Gate_Approved\n**Timestamp**:é tail\n**Event**: GATE_APPROVED\n- **Bolt slug**: two\n**Note**: a\\nb\n\n----\n\n## Gate_Approved\n**Timestamp**:\t2026-10-09T16:22:42Z tail\n**Event**:\nGATE_APPROVED\n- **Bolt slug**: two\n\n----\n\n## Stage_Completed\n**Timestamp**:\tx\n**Event**: STAGE_COMPLETED\t\n**Bolt slug**: two\n"}]}}
+{"id":"audit_find-04921","out":{"found":[{"timestamp":"é","block":"# Focus Audit Log\n\n## A.B\n**Timestamp**: é tail\n**Event**: A.B\n**Event**: X\n**Bolt slug**: a-bx\n**Details (raw)**: x\n\n----\n\n## X\n**Timestamp**:2026-10-09T16:22:42Z\n**Event**:\nX\n"}]}}
+{"id":"audit_find-04922","out":{"found":[]}}
+{"id":"audit_find-04923","out":{"found":[]}}
+{"id":"audit_find-04924","out":{"found":[]}}
+{"id":"audit_find-04925","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"# Focus Audit Log\n\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:42Z\n**Event**: STAGE_STARTED\n- **Bolt slug**: one\n\n--- \n\n## Stage_Started\n**Timestamp**:\t2026-10-09T16:22:42Z tail\n**Event**: STAGE_STARTEDx\n**Bolt slug**: one\n\n--- \n\n## Stage_Started\n**Timestamp**:  1\n**Event**: STAGE_STARTED\n**Event**: X\n- **Bolt slug**: one\n"}]}}
+{"id":"audit_find-04926","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"# Focus Audit Log\n\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:42.123Z tail\n**Event**:STAGE_STARTED\n- **Bolt slug**: a-b\n"}]}}
+{"id":"audit_find-04927","out":{"found":[]}}
+{"id":"audit_find-04928","out":{"found":[{"timestamp":"1","block":"# Focus Audit Log\n\n## Stage_Started\n**Timestamp**: 1\n**Event**: STAGE_STARTED  \n"},{"timestamp":"2026-10-09T16:22:43Z","block":"\n## Stage_Started\n**Timestamp**:  2026-10-09T16:22:43Z\n**Event**: STAGE_STARTED\n**Event**: X\n**Details (raw)**: x\n"},{"timestamp":"é","block":"\n## Stage_Started\n**Timestamp**:  é tail\n**Event**: STAGE_STARTED  \n- **Bolt slug**: one\n"}]}}
+{"id":"audit_find-04929","out":{"found":[]}}
+{"id":"audit_find-04930","out":{"found":[{"timestamp":"2026-10-09T16:22:43Z","block":"# Focus Audit Log\n\n## A+\n**Timestamp**:2026-10-09T16:22:43Z tail\n**Event**: A+\n**Bolt slug**:one \n"}]}}
+{"id":"audit_find-04931","out":{"found":[]}}
+{"id":"audit_find-04932","out":{"found":[{"timestamp":"1","block":"# Focus Audit Log\n\n## Bolt_Started\n**Timestamp**:\t1\n**Event**: BOLT_STARTED\t\n"}]}}
+{"id":"audit_find-04933","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"# AI-\nLC Audit Log\n\n## X\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**: X\n**Bolt slug**: o.e\n**Stage**: code-generation\n"}]}}
+{"id":"audit_find-04934","out":{"found":[]}}
+{"id":"audit_find-04935","out":{"found":[]}}
+{"id":"audit_find-04936","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"\n## Stage_Started\n**Timestamp**:\t2026-10-08T23:59:59Z\n**Event**: STAGE_STARTED\t\n**Bolt slug**: o.e\n"},{"timestamp":"2026-10-09T16:22:43Z","block":"\n## Stage_Started\n**Timestamp**:\t2026-10-09T16:22:43Z tail\n**Event**:STAGE_STARTED\n**Bolt slug**: two\n**Note**: a\\nb\n"},{"timestamp":"x","block":"\n## Stage_Started\n**Timestamp**: x\n**Event**: STAGE_STARTED\n**Bolt slug**: a-b\n"}]}}
+{"id":"audit_find-04937","out":{"found":[]}}
+{"id":"audit_find-04938","out":{"found":[{"timestamp":"2026-10-09T16:22:43Z","block":"# Focus Audit Log\n\n## A.B\n**Timestamp**: 2026-10-09T16:22:43Z tail\n**Event**: A.B\n**Bolt slug**: twox\n\n--- \n\n## A.B\n**Timestamp**: é tail\n**Event**: A.B  \n**Bolt slug**: two\n\n--- \n\n## A.B\n**Event**:\nA.B\n**Bolt slug**: a-b\n**Note**: a\\nb\n\n--- \n\n## A.B\n**Timestamp**:\t2026-10-09T16:22:42Z\n**Event**: A.B\n**Bolt slug**:a-b \n"}]}}
+{"id":"audit_find-04939","out":{"found":[]}}
+{"id":"audit_find-04940","out":{"found":[]}}
+{"id":"audit_find-04941","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"\n## Gate_Approved\n**Timestamp**:\t2026-10-09T16:22:42Z\n**Event**: GATE_APPROVED\n**Event**: X\n**Bolt slug**: twox\n"},{"timestamp":"é","block":"# Focus Audit Log\n\n## Gate_Approved\n**Timestamp**:\té\n**Event**: GATE_APPROVED\n**Event**: X\n**Stage**: first\n**Stage**: second\n"},{"timestamp":"é","block":"\n## Gate_Approved\n**Timestamp**:  é tail\n**Event**: GATE_APPROVED\n"}]}}
+{"id":"audit_find-04942","out":{"found":[]}}
+{"id":"audit_find-04943","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"\n## Stage_Started\n**Timestamp**:\t2026-10-09T16:22:42Z\n**Event**: STAGE_STARTED\n**Bolt slug**:two \n"},{"timestamp":"2026-10-09T16:22:42Z","block":"\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:42Z tail\n**Event**: STAGE_STARTED\n**Bolt slug**: two\n"}]}}
+{"id":"audit_find-04944","out":{"found":[]}}
+{"id":"audit_find-04945","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"# Focus Audit Log\n\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:42.123Z\n**Event**:STAGE_STARTED\n**Stage**: code-generation\n\n----\n\n## Stage_Strted\n**Timestamp**:  é\n**Event**: STAGE_STARTED\n\n----\n\n## Stage_Started\n**Timestamp**: 2026-10-09T16: 2:42Z\n**Event**: STAGE_STARTED\n\n----\n\n## Stage_Started\n**Timestmp**: 2026-10-09T16:22:43Z\n**Event**:\nSTAGE_STARTED\n\n----\n\n## Stage_Started\n**Timestamp**:2026-10-09T16:22:43Z\n**Event**: STAGE_STARTEDx\n**Bolt slug**:one \n\n----\n\n## Stage_Started\n**Timestamp**:\té\n**Event**:\nSTAGE_STARTED\n**Bolt slug**: two\nplain line\n"}]}}
+{"id":"audit_find-04946","out":{"found":[]}}
+{"id":"audit_find-04947","out":{"found":[]}}
+{"id":"audit_find-04948","out":{"found":[]}}
+{"id":"audit_find-04949","out":{"found":[]}}
+{"id":"audit_find-04950","out":{"found":[]}}
+{"id":"audit_find-04951","out":{"found":[{"timestamp":"é","block":"# Focus Audit Log\n\n## Bolt_Started\n**Timestamp**:  é\n**Event**: BOLT_STARTED\t\n**Bolt slug**: two\nplain line\n"}]}}
+{"id":"audit_find-04952","out":{"found":[{"timestamp":"2026-10-09T16:22:42","block":"# Focus Audit Log\n\n## Stage_Completed\n**Timestamp*{*:\t2026-10-09T16:22:42Z tail\n**Event**: STAGE_COMPLETED\t\n**Stage**: first\n**Stage**: se:cond\n\n--- \n\n## Bolt_Started\n**Timestamp**: 2026-10-09T16:22:42\n**Event**:BOLT_STARTED\n**Bolt slug**: two\n"}]}}
+{"id":"audit_find-04953","out":{"found":[{"timestamp":"2026-10-0","block":"\n## Bolt_Started\n**Timestamp**:  2026-10-0　T16:22:42.123Z\n**Event**: BOLT_STARTED\n**Event**: X\n**Bolt slug**: a-bx\n"},{"timestamp":"2026-10-08T23:59:59Z","block":"# Focus Audit Log\n\n## Bolt_Started\n**Timestamp**:  2026-10-08T23:59:59Z\n**Event**: BOLT_STARTED\n**Bolt slug**: o.e\nplain line\n"}]}}
+{"id":"audit_find-04954","out":{"found":[]}}
+{"id":"audit_find-04955","out":{"found":[{"timestamp":"2b026-10-09T16:22:42Z","block":"# AI DLC Audit Log\n\n## Stage_Started\n**Timestamp**: 2b026-10-09T16:22:42Z tail\n**Event**: STAGE_STARTED\n**Event**: X\n**Bolt slug**: oe "}]}}
+{"id":"audit_find-04956","out":{"found":[]}}
+{"id":"audit_find-04957","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"\n## A.B\n**Timestamp**:\t2026-10-09T16:22:42Z tail\n**Event**: A.B\n**Event**: X\n**Bolt slug**: one\n**Stage**:\n"},{"timestamp":"é","block":"\n## A.B\n**Timestamp**:  é\n**Event**: A.B\n**Event**: X\n**Bolt slug**:one \n"}]}}
+{"id":"audit_find-04958","out":{"found":[{"timestamp":"2026-10-09T16:22:43Z","block":"\n## Stage_Completed\n**Timestamp**: 2026-10-09T16:22:43Z\n**Event**: STAGE_COMPLETED\n**Bolt slug**: onex\n**Note**: a\\nb\n"},{"timestamp":"é","block":"# Focus Audit Log\n\n## Stage_Completed\n**Timestamp**: é\n**Event**:STAGE_COMPLETED\n"}]}}
+{"id":"audit_find-04959","out":{"found":[{"timestamp":"1","block":"# Focus Audit Log\n\n## Bolt_Started\n**Timestamp**:\t1\n**Event**: BOLT_STARTED\t\n- **Bolt slug**: two\n"}]}}
+{"id":"audit_find-04960","out":{"found":[{"timestamp":"é","block":"\n## A+\n**Timestamp**:é\n**Event**: A+  \n"}]}}
+{"id":"audit_find-04961","out":{"found":[]}}
+{"id":"audit_find-04962","out":{"found":[{"timestamp":"1","block":"\n## Bolt_Started\n**Timestamp**: 1 tail\n**Event**: BOLT_STARTED\n**Event**: X\n**Bolt slug**:a-b \n**Details (raw)**: x\n"},{"timestamp":"é","block":"\n## Bolt_Started\n**Timestamp**:é tail\n**Event**: BOLT_STARTED\n**Bolt slug**:a-b \n**Details (raw)**: x\n"}]}}
+{"id":"audit_find-04963","out":{"found":[]}}
+{"id":"audit_find-04964","out":{"found":[]}}
+{"id":"audit_find-04965","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"# Focus Audit Log\n\n## X\n**Timestamp**: 2026-10-08T23:59:59Z tail\n**Event**: X\n**Bolt slug**: onex\n**Stage**: first\n**Stage**: second\n"}]}}
+{"id":"audit_find-04966","out":{"found":[{"timestamp":"2026-10-09T16:22:43Z","block":"# Focus Audit Log\n\n## Stage_Started\n**Timestamp**:2026-10-09T16:22:43Z\n**Event**: STAGE_STARTED\n**Bolt slug**: one\n**Note**: a\\nb\n"}]}}
+{"id":"audit_find-04967","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"\n## Bolt_Started\n**Timestamp**:2026-10-08T23:59:59Z\n**Event**: BOLT_STARTED  \n**Bolt slug**: one\n**Note**: a\\nb\n"},{"timestamp":"2026-10-09T16:22:42Z","block":"\n## Bolt_Started\n**Timestamp**:\t2026-10-09T16:22:42Z tail\n**Event**: BOLT_STARTED\n- **Bolt slug**: two\n**Stage**: first\n**Stage**: second\n"},{"timestamp":"2026-10-09T16:22:42Z","block":"\n## Bolt_Started\n**Timestamp**:  2026-10-09T16:22:42Z\n**Event**:BOLT_STARTED\n**Bolt slug**: onex\n**Stage**: code-generation\n"},{"timestamp":"x","block":"# Focus Audit Log\n\n## Bolt_Started\n**Timestamp**:\tx tail\n**Event**: BOLT_STARTED  \n**Bolt slug**:a-b \n**Stage**: first\n**Stage**: second\n"}]}}
+{"id":"audit_find-04968","out":{"found":[]}}
+{"id":"audit_find-04969","out":{"found":[]}}
+{"id":"audit_find-04970","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"# Focus Audit Log\n\n## Stage_Completed\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**: STAGE_COMPLETED\n**Event**: X\n**Details (raw)**: x\n\n----\n\n## Stage_Completed\n**Timestamp**:  é\n**Event**:\nSTAGE_COMPLETED\n**Bolt slug**:two \n\n----\n\n## Gate_Approved\n**Event**: GATE_APPROVED\n**Stage**:\n"}]}}
+{"id":"audit_find-04971","out":{"found":[{"timestamp":"1","block":"\n## A.B\n**Timestamp**: 1\n**Event**: A.B\n**Bolt slug**:a-b \n**Details (raw)**: x\n"},{"timestamp":"2026-10-08T23:59:59Z","block":"\n## A.B\n**Timestamp**:\t2026-10-08T23:59:59Z tail\n**Event**: A.B\n**Bolt slug**: a-b"}]}}
+{"id":"audit_find-04972","out":{"found":[]}}
+{"id":"audit_find-04973","out":{"found":[]}}
+{"id":"audit_find-04974","out":{"found":[{"timestamp":"1","block":"\n## X\n**Timestamp**: 1\n**Event**: X\n**Stage**: first\n**Stage**: second\n"},{"timestamp":"2026-10-09T16:22:42Z","block":"\n## X\n**Timestamp**:\t2026-10-09T16:22:42Z\n**Event**: X\n"},{"timestamp":"x","block":"# Focus Audit Log\n\n## X\n**Timestamp**:  x tail\n**Event**: X  \n**Bolt slug**: twox\n**Note**: a\\nb\n"}]}}
+{"id":"audit_find-04975","out":{"found":[]}}
+{"id":"audit_find-04976","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"\n## Stage_Completed\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**:STAGE_COMPLETED\n"},{"timestamp":"2026-10-09T16:22:42.123Z","block":"\n## Stage_Completed\n**Timestamp**:\t2026-10-09T16:22:42.123Z\n**Event**: STAGE_COMPLETED\n**Stage**: code-generation\n"}]}}
+{"id":"audit_find-04977","out":{"found":[]}}
+{"id":"audit_find-04978","out":{"found":[]}}
+{"id":"audit_find-04979","out":{"found":[{"timestamp":"é","block":"# Focus Audit Log\n\n## Stage_Completed\n**Timestamp**: é\n**Event**: STAGE_COMPLETED\n**Stage**: code-generation"}]}}
+{"id":"audit_find-04980","out":{"found":[{"timestamp":"1","block":"\n## Stage_Started\n**Timestamp**:1 tail\n**Event**: STAGE_STARTED\t\n**Bolt slug**: a-b\n**Stage**: code-generation\n"},{"timestamp":"1","block":"\n## Stage_Started\n**Timestamp**: 1 tail\n**Event**: STAGE_STARTED\n**Bolt slug**:o.e \n"},{"timestamp":"2026-10-08T23:59:59Z","block":"\n## Stage_Started\n**Timestamp**:\t2026-10-08T23:59:59Z\n**Event**: STAGE_STARTED\n**Bolt slug**: a-b\nplain line\n"},{"timestamp":"x","block":"\n## Stage_Started\n**Timestamp**: x\n**Event**: STAGE_STARTED\n"}]}}
+{"id":"audit_find-04981","out":{"found":[]}}
+{"id":"audit_find-04982","out":{"found":[]}}
+{"id":"audit_find-04983","out":{"found":[]}}
+{"id":"audit_find-04984","out":{"found":[{"timestamp":"2","block":"\n## Stage_Started\n**Timestamp**:2 026-10-08T23:59:59Z\n**Event**: STAGE_STARTED  \n**Stage**:\n"}]}}
+{"id":"audit_find-04985","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"# Focus Audit Log\n\n## Bolt_Started\n**Event**:BOLT_STARTED\n**Stage**:\n\n--- \n\n## Bolt_Started\n**Timestamp**:\t2026-10-09T16:22:42Z tail\n**event**: BOLT_STARTED\n**Bolt slug**: a-b\n- **Stage**:  spaced  \n\n--- \n\n## Bolt_Started\n**Timestamp**:2026-10-08T23:59:59Z\n**Event**: BOLT_STARTED\t\n**Bolt slug**: a-b\n**Details (raw)**: x\n\n--- \n\n## Bolt_Started\n**Timestamp**: x\n**event**: BOLT_STARTED\n"}]}}
+{"id":"audit_find-04986","out":{"found":[{"timestamp":"1","block":"# Focus Audit Log\n\n## A.B\n**Timestamp**:\t1 tail\n**Event**: A.B\n"},{"timestamp":"2026-10-08T23:59:59Z","block":"\n## A.B\n**Timestamp**:\t2026-10-08T23:59:59Z\n**Event**: A.B\n**Stage**: first\n**Stage**: second\n"}]}}
+{"id":"audit_find-04987","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"\n## X\n**Timestamp**:\t2026-10-09T16:22:42Z\n**Event**: X\n**Stage**: first\n**Stage**: second\n"},{"timestamp":"x","block":"\n## X\n**Timestamp**:x\n**Event**: X\n**Stage**: code-generation\n"}]}}
+{"id":"audit_find-04988","out":{"found":[]}}
+{"id":"audit_find-04989","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"# Focus Audit Log\n\n## Stage_Started\n**Timestamp**:\t2026-10-09T16:22:42Z\n**Event**:\nSTAGE_STARTED\n**Bolt slug**: one\n- **Stage**:  spaced  \n\n--- \n\n## Bolt_Started\n**Timestamp**: é\n**event**: BOLT_STARTED\n**Details (raw)**: x\n\n--- \n\n## Stage_Started\n**Timestamp**:2026-10-09T16:22:42Z tail\n**event**: STAGE_STARTED\n**Bolt slug**: two\n\n--- \n\n## Stage_Started\n**Timestamp**:\t2026-10-08T23:59:59Z tail\n**Event**: STAGE_STARTED  \n**Bolt slug**: twox\n- **Stage**:  spaced  \n\n--- \n\n## Stage_Started\n**Timestamp**:  2026-10-09T16:22:42.123Z tail\n**Event**: STAGE_STARTED\n**Stage**: code-generation\n\n--- \n\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:42Z tail\n- **Event**: STAGE_STARTED\n**Bolt slug**: two\nplain line\n"}]}}
+{"id":"audit_find-04990","out":{"found":[]}}
+{"id":"audit_field-04991","out":{"value":null}}
+{"id":"audit_field-04992","out":{"value":".B"}}
+{"id":"audit_field-04993","out":{"value":null}}
+{"id":"audit_field-04994","out":{"value":"2026-10-09T16:22:42Z"}}
+{"id":"audit_field-04995","out":{"value":"A+"}}
+{"id":"audit_field-04996","out":{"value":null}}
+{"id":"audit_field-04997","out":{"value":"one"}}
+{"id":"audit_field-04998","out":{"value":"A.B"}}
+{"id":"audit_field-04999","out":{"value":null}}
+{"id":"audit_field-05000","out":{"value":"2026-10-09T16:22:42Z tail"}}
+{"id":"audit_field-05001","out":{"value":"A+"}}
+{"id":"audit_field-05002","out":{"value":"code-generation"}}
+{"id":"audit_field-05003","out":{"value":null}}
+{"id":"audit_field-05004","out":{"value":"STAGE_STARTED"}}
+{"id":"audit_field-05005","out":{"value":"2026-10-09T16:22:42.123Z tail"}}
+{"id":"audit_field-05006","out":{"value":null}}
+{"id":"audit_field-05007","out":{"value":null}}
+{"id":"audit_field-05008","out":{"value":"2026-10-08T23:59:59Z tail"}}
+{"id":"audit_field-05009","out":{"value":null}}
+{"id":"audit_field-05010","out":{"value":null}}
+{"id":"audit_field-05011","out":{"value":null}}
+{"id":"audit_field-05012","out":{"value":null}}
+{"id":"audit_field-05013","out":{"value":"GATE_APPROVED"}}
+{"id":"audit_field-05014","out":{"value":null}}
+{"id":"audit_field-05015","out":{"value":"BOLT_STARTED"}}
+{"id":"audit_field-05016","out":{"value":null}}
+{"id":"audit_field-05017","out":{"value":null}}
+{"id":"audit_field-05018","out":{"value":"2026-10-08T23:59:59Z"}}
+{"id":"audit_field-05019","out":{"value":"é"}}
+{"id":"audit_field-05020","out":{"value":null}}
+{"id":"audit_field-05021","out":{"value":null}}
+{"id":"audit_field-05022","out":{"value":null}}
+{"id":"audit_field-05023","out":{"value":""}}
+{"id":"audit_field-05024","out":{"value":"1 tail"}}
+{"id":"audit_field-05025","out":{"value":"A.B"}}
+{"id":"audit_field-05026","out":{"value":"STAGE_COMPLETED"}}
+{"id":"audit_field-05027","out":{"value":null}}
+{"id":"audit_field-05028","out":{"value":null}}
+{"id":"audit_field-05029","out":{"value":null}}
+{"id":"audit_field-05030","out":{"value":null}}
+{"id":"audit_field-05031","out":{"value":"2026-10-08T23:59:59Z"}}
+{"id":"audit_field-05032","out":{"value":null}}
+{"id":"audit_field-05033","out":{"value":"A+"}}
+{"id":"audit_field-05034","out":{"value":"code-generation"}}
+{"id":"audit_field-05035","out":{"value":"two"}}
+{"id":"audit_field-05036","out":{"value":null}}
+{"id":"audit_field-05037","out":{"value":"STAGE_COMPLETED"}}
+{"id":"audit_field-05038","out":{"value":null}}
+{"id":"audit_field-05039","out":{"value":null}}
+{"id":"audit_field-05040","out":{"value":"GATE_APPROVED"}}
+{"id":"audit_field-05041","out":{"value":null}}
+{"id":"audit_field-05042","out":{"value":null}}
+{"id":"audit_field-05043","out":{"value":null}}
+{"id":"audit_field-05044","out":{"value":null}}
+{"id":"audit_field-05045","out":{"value":null}}
+{"id":"audit_field-05046","out":{"value":null}}
+{"id":"audit_field-05047","out":{"value":null}}
+{"id":"audit_field-05048","out":{"value":"é tail"}}
+{"id":"audit_field-05049","out":{"value":null}}
+{"id":"audit_field-05050","out":{"value":"BOLT_STARTED"}}
+{"id":"audit_field-05051","out":{"value":"BOLT_STARTED"}}
+{"id":"audit_field-05052","out":{"value":"X"}}
+{"id":"audit_field-05053","out":{"value":null}}
+{"id":"audit_field-05054","out":{"value":null}}
+{"id":"audit_field-05055","out":{"value":"2026-10-09T16:22:43|"}}
+{"id":"audit_field-05056","out":{"value":null}}
+{"id":"audit_field-05057","out":{"value":"BOLT_STARTED"}}
+{"id":"audit_field-05058","out":{"value":null}}
+{"id":"audit_field-05059","out":{"value":null}}
+{"id":"audit_field-05060","out":{"value":null}}
+{"id":"audit_field-05061","out":{"value":"STAGE_STARTED"}}
+{"id":"audit_field-05062","out":{"value":"o.e"}}
+{"id":"audit_field-05063","out":{"value":null}}
+{"id":"audit_field-05064","out":{"value":"GATE_APPROVED"}}
+{"id":"audit_field-05065","out":{"value":null}}
+{"id":"audit_field-05066","out":{"value":null}}
+{"id":"audit_field-05067","out":{"value":"A+"}}
+{"id":"audit_field-05068","out":{"value":"2026-10-08T23:59:59Z"}}
+{"id":"audit_field-05069","out":{"value":null}}
+{"id":"audit_field-05070","out":{"value":null}}
+{"id":"audit_field-05071","out":{"value":null}}
+{"id":"audit_field-05072","out":{"value":"STAGE_STARTED"}}
+{"id":"audit_field-05073","out":{"value":"2026-10-08T23:59:59Z tail"}}
+{"id":"audit_field-05074","out":{"value":null}}
+{"id":"audit_field-05075","out":{"value":null}}
+{"id":"audit_field-05076","out":{"value":"2026-10-09T16:22:42.123Z tail"}}
+{"id":"audit_field-05077","out":{"value":null}}
+{"id":"audit_field-05078","out":{"value":null}}
+{"id":"audit_field-05079","out":{"value":null}}
+{"id":"audit_field-05080","out":{"value":"BOLT_STARTED"}}
+{"id":"audit_field-05081","out":{"value":""}}
+{"id":"audit_field-05082","out":{"value":null}}
+{"id":"audit_field-05083","out":{"value":null}}
+{"id":"audit_field-05084","out":{"value":null}}
+{"id":"audit_field-05085","out":{"value":null}}
+{"id":"audit_field-05086","out":{"value":"X"}}
+{"id":"audit_field-05087","out":{"value":"2026-10-09T16:22:42Z"}}
+{"id":"audit_field-05088","out":{"value":null}}
+{"id":"audit_field-05089","out":{"value":"é"}}
+{"id":"audit_field-05090","out":{"value":"spaced"}}
+{"id":"audit_field-05091","out":{"value":"2026-10-09T16:22:42Z tail"}}
+{"id":"audit_field-05092","out":{"value":null}}
+{"id":"audit_field-05093","out":{"value":null}}
+{"id":"audit_field-05094","out":{"value":null}}
+{"id":"audit_field-05095","out":{"value":null}}
+{"id":"audit_field-05096","out":{"value":"2026-10-09T16:22:42Z tail"}}
+{"id":"audit_field-05097","out":{"value":null}}
+{"id":"audit_field-05098","out":{"value":null}}
+{"id":"audit_field-05099","out":{"value":null}}
+{"id":"audit_field-05100","out":{"value":"STAGE_COMPLETED"}}
+{"id":"audit_field-05101","out":{"value":null}}
+{"id":"audit_field-05102","out":{"value":"STAGE_STARTED"}}
+{"id":"audit_field-05103","out":{"value":"1"}}
+{"id":"audit_field-05104","out":{"value":null}}
+{"id":"audit_field-05105","out":{"value":null}}
+{"id":"audit_field-05106","out":{"value":"STAGE_COMPLETED"}}
+{"id":"audit_field-05107","out":{"value":null}}
+{"id":"audit_field-05108","out":{"value":"2026-10-09T16:22:42Z"}}
+{"id":"audit_field-05109","out":{"value":null}}
+{"id":"audit_field-05110","out":{"value":"STAGE_COMPLETEDx"}}
+{"id":"audit_field-05111","out":{"value":null}}
+{"id":"audit_field-05112","out":{"value":"2026-10-09T16:22:42.123Z tail"}}
+{"id":"audit_field-05113","out":{"value":"twox"}}
+{"id":"audit_field-05114","out":{"value":null}}
+{"id":"audit_field-05115","out":{"value":null}}
+{"id":"audit_field-05116","out":{"value":"2026-10-09T16:22:43Z tail"}}
+{"id":"audit_field-05117","out":{"value":null}}
+{"id":"audit_field-05118","out":{"value":"é"}}
+{"id":"audit_field-05119","out":{"value":null}}
+{"id":"audit_field-05120","out":{"value":null}}
+{"id":"audit_field-05121","out":{"value":null}}
+{"id":"audit_field-05122","out":{"value":null}}
+{"id":"audit_field-05123","out":{"value":null}}
+{"id":"audit_field-05124","out":{"value":null}}
+{"id":"audit_field-05125","out":{"value":"one"}}
+{"id":"audit_field-05126","out":{"value":null}}
+{"id":"audit_field-05127","out":{"value":null}}
+{"id":"audit_field-05128","out":{"value":"spaced"}}
+{"id":"audit_field-05129","out":{"value":null}}
+{"id":"audit_field-05130","out":{"value":null}}
+{"id":"audit_field-05131","out":{"value":null}}
+{"id":"audit_field-05132","out":{"value":null}}
+{"id":"audit_field-05133","out":{"value":null}}
+{"id":"audit_field-05134","out":{"value":null}}
+{"id":"audit_field-05135","out":{"value":"1 tail"}}
+{"id":"audit_field-05136","out":{"value":null}}
+{"id":"audit_field-05137","out":{"value":null}}
+{"id":"audit_field-05138","out":{"value":null}}
+{"id":"audit_field-05139","out":{"value":"A+"}}
+{"id":"audit_field-05140","out":{"value":null}}
+{"id":"audit_field-05141","out":{"value":null}}
+{"id":"audit_field-05142","out":{"value":"two"}}
+{"id":"audit_field-05143","out":{"value":"STAGE_COMPLETED"}}
+{"id":"audit_field-05144","out":{"value":null}}
+{"id":"audit_field-05145","out":{"value":"code-generation"}}
+{"id":"audit_field-05146","out":{"value":null}}
+{"id":"audit_field-05147","out":{"value":null}}
+{"id":"audit_field-05148","out":{"value":"x"}}
+{"id":"audit_field-05149","out":{"value":null}}
+{"id":"audit_field-05150","out":{"value":"STAGE_STARTED"}}
+{"id":"audit_field-05151","out":{"value":null}}
+{"id":"audit_field-05152","out":{"value":null}}
+{"id":"audit_field-05153","out":{"value":"A+x"}}
+{"id":"audit_field-05154","out":{"value":"2026-10-09T16:22:42Z"}}
+{"id":"audit_field-05155","out":{"value":null}}
+{"id":"audit_field-05156","out":{"value":null}}
+{"id":"audit_field-05157","out":{"value":"X"}}
+{"id":"audit_field-05158","out":{"value":"A.B"}}
+{"id":"audit_field-05159","out":{"value":"one"}}
+{"id":"audit_field-05160","out":{"value":null}}
+{"id":"audit_field-05161","out":{"value":null}}
+{"id":"audit_field-05162","out":{"value":null}}
+{"id":"audit_field-05163","out":{"value":null}}
+{"id":"audit_field-05164","out":{"value":"2026-10-09T16:22:42Z"}}
+{"id":"audit_field-05165","out":{"value":"A+"}}
+{"id":"audit_field-05166","out":{"value":"BOLT_STARTED"}}
+{"id":"audit_field-05167","out":{"value":null}}
+{"id":"audit_field-05168","out":{"value":"2026-10-09T16:22:42Z tail"}}
+{"id":"audit_field-05169","out":{"value":null}}
+{"id":"audit_field-05170","out":{"value":"x tail"}}
+{"id":"bullet_field-05171","out":{"value":null}}
+{"id":"bullet_field-05172","out":{"value":null}}
+{"id":"bullet_field-05173","out":{"value":null}}
+{"id":"bullet_field-05174","out":{"value":null}}
+{"id":"bullet_field-05175","out":{"value":null}}
+{"id":"bullet_field-05176","out":{"value":null}}
+{"id":"bullet_field-05177","out":{"value":null}}
+{"id":"bullet_field-05178","out":{"value":null}}
+{"id":"bullet_field-05179","out":{"value":null}}
+{"id":"bullet_field-05180","out":{"value":null}}
+{"id":"bullet_field-05181","out":{"value":null}}
+{"id":"bullet_field-05182","out":{"value":null}}
+{"id":"bullet_field-05183","out":{"value":null}}
+{"id":"bullet_field-05184","out":{"value":null}}
+{"id":"bullet_field-05185","out":{"value":""}}
+{"id":"bullet_field-05186","out":{"value":null}}
+{"id":"bullet_field-05187","out":{"value":null}}
+{"id":"bullet_field-05188","out":{"value":"standard"}}
+{"id":"bullet_field-05189","out":{"value":""}}
+{"id":"bullet_field-05190","out":{"value":null}}
+{"id":"bullet_field-05191","out":{"value":null}}
+{"id":"bullet_field-05192","out":{"value":null}}
+{"id":"bullet_field-05193","out":{"value":null}}
+{"id":"bullet_field-05194","out":{"value":"second"}}
+{"id":"bullet_field-05195","out":{"value":null}}
+{"id":"bullet_field-05196","out":{"value":null}}
+{"id":"bullet_field-05197","out":{"value":null}}
+{"id":"bullet_field-05198","out":{"value":null}}
+{"id":"bullet_field-05199","out":{"value":""}}
+{"id":"bullet_field-05200","out":{"value":null}}
+{"id":"bullet_field-05201","out":{"value":"lower"}}
+{"id":"bullet_field-05202","out":{"value":null}}
+{"id":"bullet_field-05203","out":{"value":null}}
+{"id":"bullet_field-05204","out":{"value":null}}
+{"id":"bullet_field-05205","out":{"value":null}}
+{"id":"bullet_field-05206","out":{"value":null}}
+{"id":"bullet_field-05207","out":{"value":null}}
+{"id":"bullet_field-05208","out":{"value":"second"}}
+{"id":"bullet_field-05209","out":{"value":""}}
+{"id":"bullet_field-05210","out":{"value":null}}
+{"id":"bullet_field-05211","out":{"value":null}}
+{"id":"bullet_field-05212","out":{"value":null}}
+{"id":"bullet_field-05213","out":{"value":"bugf﻿x"}}
+{"id":"bullet_field-05214","out":{"value":null}}
+{"id":"bullet_field-05215","out":{"value":"standard"}}
+{"id":"bullet_field-05216","out":{"value":null}}
+{"id":"bullet_field-05217","out":{"value":null}}
+{"id":"bullet_field-05218","out":{"value":"second"}}
+{"id":"bullet_field-05219","out":{"value":""}}
+{"id":"bullet_field-05220","out":{"value":"lower"}}
+{"id":"bullet_field-05221","out":{"value":"bugfix"}}
+{"id":"bullet_field-05222","out":{"value":null}}
+{"id":"bullet_field-05223","out":{"value":null}}
+{"id":"bullet_field-05224","out":{"value":null}}
+{"id":"bullet_field-05225","out":{"value":null}}
+{"id":"bullet_field-05226","out":{"value":"feature"}}
+{"id":"bullet_field-05227","out":{"value":""}}
+{"id":"bullet_field-05228","out":{"value":null}}
+{"id":"bullet_field-05229","out":{"value":null}}
+{"id":"bullet_field-05230","out":{"value":null}}
+{"id":"bullet_field-05231","out":{"value":null}}
+{"id":"bullet_field-05232","out":{"value":null}}
+{"id":"bullet_field-05233","out":{"value":null}}
+{"id":"bullet_field-05234","out":{"value":null}}
+{"id":"bullet_field-05235","out":{"value":null}}
+{"id":"bullet_field-05236","out":{"value":null}}
+{"id":"bullet_field-05237","out":{"value":null}}
+{"id":"bullet_field-05238","out":{"value":null}}
+{"id":"bullet_field-05239","out":{"value":null}}
+{"id":"bullet_field-05240","out":{"value":null}}
+{"id":"bullet_field-05241","out":{"value":null}}
+{"id":"bullet_field-05242","out":{"value":null}}
+{"id":"bullet_field-05243","out":{"value":null}}
+{"id":"bullet_field-05244","out":{"value":null}}
+{"id":"bullet_field-05245","out":{"value":null}}
+{"id":"bullet_field-05246","out":{"value":null}}
+{"id":"bullet_field-05247","out":{"value":null}}
+{"id":"bullet_field-05248","out":{"value":null}}
+{"id":"bullet_field-05249","out":{"value":null}}
+{"id":"bullet_field-05250","out":{"value":""}}
+{"id":"bullet_field-05251","out":{"value":null}}
+{"id":"bullet_field-05252","out":{"value":null}}
+{"id":"bullet_field-05253","out":{"value":null}}
+{"id":"bullet_field-05254","out":{"value":null}}
+{"id":"bullet_field-05255","out":{"value":null}}
+{"id":"bullet_field-05256","out":{"value":null}}
+{"id":"bullet_field-05257","out":{"value":null}}
+{"id":"bullet_field-05258","out":{"value":""}}
+{"id":"bullet_field-05259","out":{"value":null}}
+{"id":"bullet_field-05260","out":{"value":null}}
+{"id":"bullet_field-05261","out":{"value":"bugfix"}}
+{"id":"bullet_field-05262","out":{"value":null}}
+{"id":"bullet_field-05263","out":{"value":"standard # note"}}
+{"id":"bullet_field-05264","out":{"value":null}}
+{"id":"bullet_field-05265","out":{"value":"standard"}}
+{"id":"bullet_field-05266","out":{"value":"bugfix"}}
+{"id":"bullet_field-05267","out":{"value":null}}
+{"id":"bullet_field-05268","out":{"value":null}}
+{"id":"bullet_field-05269","out":{"value":null}}
+{"id":"bullet_field-05270","out":{"value":null}}
+{"id":"bullet_field-05271","out":{"value":"bugfix"}}
+{"id":"bullet_field-05272","out":{"value":null}}
+{"id":"bullet_field-05273","out":{"value":"bugfix"}}
+{"id":"bullet_field-05274","out":{"value":"lower"}}
+{"id":"bullet_field-05275","out":{"value":null}}
+{"id":"bullet_field-05276","out":{"value":null}}
+{"id":"bullet_field-05277","out":{"value":"bugfix"}}
+{"id":"bullet_field-05278","out":{"value":null}}
+{"id":"bullet_field-05279","out":{"value":"standard"}}
+{"id":"bullet_field-05280","out":{"value":null}}
+{"id":"bullet_field-05281","out":{"value":null}}
+{"id":"bullet_field-05282","out":{"value":null}}
+{"id":"bullet_field-05283","out":{"value":null}}
+{"id":"bullet_field-05284","out":{"value":"standard # note"}}
+{"id":"bullet_field-05285","out":{"value":null}}
+{"id":"bullet_field-05286","out":{"value":null}}
+{"id":"bullet_field-05287","out":{"value":""}}
+{"id":"bullet_field-05288","out":{"value":"standard"}}
+{"id":"bullet_field-05289","out":{"value":"lower"}}
+{"id":"bullet_field-05290","out":{"value":null}}
+{"id":"bullet_field-05291","out":{"value":""}}
+{"id":"bullet_field-05292","out":{"value":null}}
+{"id":"bullet_field-05293","out":{"value":null}}
+{"id":"bullet_field-05294","out":{"value":null}}
+{"id":"bullet_field-05295","out":{"value":null}}
+{"id":"bullet_field-05296","out":{"value":null}}
+{"id":"bullet_field-05297","out":{"value":null}}
+{"id":"bullet_field-05298","out":{"value":null}}
+{"id":"bullet_field-05299","out":{"value":"standard # note"}}
+{"id":"bullet_field-05300","out":{"value":null}}
+{"id":"bullet_field-05301","out":{"value":"feature"}}
+{"id":"bullet_field-05302","out":{"value":null}}
+{"id":"bullet_field-05303","out":{"value":null}}
+{"id":"bullet_field-05304","out":{"value":"second"}}
+{"id":"bullet_field-05305","out":{"value":"bugfix"}}
+{"id":"bullet_field-05306","out":{"value":"second"}}
+{"id":"bullet_field-05307","out":{"value":""}}
+{"id":"bullet_field-05308","out":{"value":null}}
+{"id":"bullet_field-05309","out":{"value":null}}
+{"id":"bullet_field-05310","out":{"value":""}}
+{"id":"bullet_field-05311","out":{"value":"lower"}}
+{"id":"bullet_field-05312","out":{"value":null}}
+{"id":"bullet_field-05313","out":{"value":""}}
+{"id":"bullet_field-05314","out":{"value":null}}
+{"id":"bullet_field-05315","out":{"value":null}}
+{"id":"bullet_field-05316","out":{"value":""}}
+{"id":"bullet_field-05317","out":{"value":null}}
+{"id":"bullet_field-05318","out":{"value":null}}
+{"id":"bullet_field-05319","out":{"value":"standard # note"}}
+{"id":"bullet_field-05320","out":{"value":null}}
+{"id":"bullet_field-05321","out":{"value":"lower"}}
+{"id":"bullet_field-05322","out":{"value":null}}
+{"id":"bullet_field-05323","out":{"value":""}}
+{"id":"bullet_field-05324","out":{"value":null}}
+{"id":"bullet_field-05325","out":{"value":null}}
+{"id":"bullet_field-05326","out":{"value":null}}
+{"id":"bullet_field-05327","out":{"value":null}}
+{"id":"bullet_field-05328","out":{"value":"lower"}}
+{"id":"bullet_field-05329","out":{"value":null}}
+{"id":"bullet_field-05330","out":{"value":null}}
+{"id":"bullet_field-05331","out":{"value":null}}
+{"id":"bullet_field-05332","out":{"value":null}}
+{"id":"bullet_field-05333","out":{"value":null}}
+{"id":"bullet_field-05334","out":{"value":null}}
+{"id":"bullet_field-05335","out":{"value":null}}
+{"id":"bullet_field-05336","out":{"value":null}}
+{"id":"bullet_field-05337","out":{"value":null}}
+{"id":"bullet_field-05338","out":{"value":null}}
+{"id":"bullet_field-05339","out":{"value":null}}
+{"id":"bullet_field-05340","out":{"value":""}}
+{"id":"bullet_field-05341","out":{"value":null}}
+{"id":"bullet_field-05342","out":{"value":null}}
+{"id":"bullet_field-05343","out":{"value":null}}
+{"id":"bullet_field-05344","out":{"value":null}}
+{"id":"bullet_field-05345","out":{"value":null}}
+{"id":"bullet_field-05346","out":{"value":"lower"}}
+{"id":"bullet_field-05347","out":{"value":"feature"}}
+{"id":"bullet_field-05348","out":{"value":null}}
+{"id":"bullet_field-05349","out":{"value":"lower"}}
+{"id":"bullet_field-05350","out":{"value":""}}
+{"id":"unsafe_line-05351","out":{"unsafe":true}}
+{"id":"unsafe_line-05352","out":{"unsafe":true}}
+{"id":"unsafe_line-05353","out":{"unsafe":true}}
+{"id":"unsafe_line-05354","out":{"unsafe":true}}
+{"id":"unsafe_line-05355","out":{"unsafe":true}}
+{"id":"unsafe_line-05356","out":{"unsafe":false}}
+{"id":"unsafe_line-05357","out":{"unsafe":true}}
+{"id":"unsafe_line-05358","out":{"unsafe":true}}
+{"id":"unsafe_line-05359","out":{"unsafe":false}}
+{"id":"unsafe_line-05360","out":{"unsafe":true}}
+{"id":"unsafe_line-05361","out":{"unsafe":false}}
+{"id":"unsafe_line-05362","out":{"unsafe":true}}
+{"id":"unsafe_line-05363","out":{"unsafe":true}}
+{"id":"unsafe_line-05364","out":{"unsafe":false}}
+{"id":"unsafe_line-05365","out":{"unsafe":true}}
+{"id":"unsafe_line-05366","out":{"unsafe":false}}
+{"id":"unsafe_line-05367","out":{"unsafe":false}}
+{"id":"unsafe_line-05368","out":{"unsafe":true}}
+{"id":"unsafe_line-05369","out":{"unsafe":true}}
+{"id":"unsafe_line-05370","out":{"unsafe":false}}
+{"id":"unsafe_line-05371","out":{"unsafe":false}}
+{"id":"unsafe_line-05372","out":{"unsafe":false}}
+{"id":"unsafe_line-05373","out":{"unsafe":false}}
+{"id":"unsafe_line-05374","out":{"unsafe":false}}
+{"id":"unsafe_line-05375","out":{"unsafe":false}}
+{"id":"unsafe_line-05376","out":{"unsafe":true}}
+{"id":"unsafe_line-05377","out":{"unsafe":false}}
+{"id":"unsafe_line-05378","out":{"unsafe":true}}
+{"id":"unsafe_line-05379","out":{"unsafe":true}}
+{"id":"unsafe_line-05380","out":{"unsafe":true}}
+{"id":"unsafe_line-05381","out":{"unsafe":true}}
+{"id":"unsafe_line-05382","out":{"unsafe":false}}
+{"id":"unsafe_line-05383","out":{"unsafe":true}}
+{"id":"unsafe_line-05384","out":{"unsafe":false}}
+{"id":"unsafe_line-05385","out":{"unsafe":true}}
+{"id":"unsafe_line-05386","out":{"unsafe":true}}
+{"id":"unsafe_line-05387","out":{"unsafe":false}}
+{"id":"unsafe_line-05388","out":{"unsafe":true}}
+{"id":"unsafe_line-05389","out":{"unsafe":true}}
+{"id":"unsafe_line-05390","out":{"unsafe":false}}
+{"id":"unsafe_line-05391","out":{"unsafe":true}}
+{"id":"unsafe_line-05392","out":{"unsafe":false}}
+{"id":"unsafe_line-05393","out":{"unsafe":false}}
+{"id":"unsafe_line-05394","out":{"unsafe":true}}
+{"id":"unsafe_line-05395","out":{"unsafe":false}}
+{"id":"unsafe_line-05396","out":{"unsafe":false}}
+{"id":"unsafe_line-05397","out":{"unsafe":true}}
+{"id":"unsafe_line-05398","out":{"unsafe":false}}
+{"id":"unsafe_line-05399","out":{"unsafe":false}}
+{"id":"unsafe_line-05400","out":{"unsafe":true}}
+{"id":"unsafe_line-05401","out":{"unsafe":true}}
+{"id":"unsafe_line-05402","out":{"unsafe":true}}
+{"id":"unsafe_line-05403","out":{"unsafe":false}}
+{"id":"unsafe_line-05404","out":{"unsafe":false}}
+{"id":"unsafe_line-05405","out":{"unsafe":false}}
+{"id":"unsafe_line-05406","out":{"unsafe":false}}
+{"id":"unsafe_line-05407","out":{"unsafe":true}}
+{"id":"unsafe_line-05408","out":{"unsafe":false}}
+{"id":"unsafe_line-05409","out":{"unsafe":true}}
+{"id":"unsafe_line-05410","out":{"unsafe":false}}
+{"id":"unsafe_line-05411","out":{"unsafe":true}}
+{"id":"unsafe_line-05412","out":{"unsafe":true}}
+{"id":"unsafe_line-05413","out":{"unsafe":false}}
+{"id":"unsafe_line-05414","out":{"unsafe":true}}
+{"id":"unsafe_line-05415","out":{"unsafe":false}}
+{"id":"unsafe_line-05416","out":{"unsafe":true}}
+{"id":"unsafe_line-05417","out":{"unsafe":false}}
+{"id":"unsafe_line-05418","out":{"unsafe":true}}
+{"id":"unsafe_line-05419","out":{"unsafe":false}}
+{"id":"unsafe_line-05420","out":{"unsafe":true}}
+{"id":"unsafe_line-05421","out":{"unsafe":false}}
+{"id":"unsafe_line-05422","out":{"unsafe":false}}
+{"id":"unsafe_line-05423","out":{"unsafe":true}}
+{"id":"unsafe_line-05424","out":{"unsafe":false}}
+{"id":"unsafe_line-05425","out":{"unsafe":true}}
+{"id":"unsafe_line-05426","out":{"unsafe":false}}
+{"id":"unsafe_line-05427","out":{"unsafe":true}}
+{"id":"unsafe_line-05428","out":{"unsafe":true}}
+{"id":"unsafe_line-05429","out":{"unsafe":false}}
+{"id":"unsafe_line-05430","out":{"unsafe":false}}
+{"id":"unsafe_line-05431","out":{"unsafe":false}}
+{"id":"unsafe_line-05432","out":{"unsafe":false}}
+{"id":"unsafe_line-05433","out":{"unsafe":false}}
+{"id":"unsafe_line-05434","out":{"unsafe":false}}
+{"id":"unsafe_line-05435","out":{"unsafe":true}}
+{"id":"unsafe_line-05436","out":{"unsafe":false}}
+{"id":"unsafe_line-05437","out":{"unsafe":true}}
+{"id":"unsafe_line-05438","out":{"unsafe":false}}
+{"id":"unsafe_line-05439","out":{"unsafe":true}}
+{"id":"unsafe_line-05440","out":{"unsafe":true}}
+{"id":"unsafe_line-05441","out":{"unsafe":false}}
+{"id":"unsafe_line-05442","out":{"unsafe":true}}
+{"id":"unsafe_line-05443","out":{"unsafe":true}}
+{"id":"unsafe_line-05444","out":{"unsafe":true}}
+{"id":"unsafe_line-05445","out":{"unsafe":true}}
+{"id":"unsafe_line-05446","out":{"unsafe":false}}
+{"id":"unsafe_line-05447","out":{"unsafe":false}}
+{"id":"unsafe_line-05448","out":{"unsafe":false}}
+{"id":"unsafe_line-05449","out":{"unsafe":true}}
+{"id":"unsafe_line-05450","out":{"unsafe":true}}
+{"id":"unsafe_line-05451","out":{"unsafe":false}}
+{"id":"unsafe_line-05452","out":{"unsafe":false}}
+{"id":"unsafe_line-05453","out":{"unsafe":true}}
+{"id":"unsafe_line-05454","out":{"unsafe":false}}
+{"id":"unsafe_line-05455","out":{"unsafe":true}}
+{"id":"unsafe_line-05456","out":{"unsafe":false}}
+{"id":"unsafe_line-05457","out":{"unsafe":true}}
+{"id":"unsafe_line-05458","out":{"unsafe":true}}
+{"id":"unsafe_line-05459","out":{"unsafe":true}}
+{"id":"unsafe_line-05460","out":{"unsafe":true}}
+{"id":"unsafe_line-05461","out":{"unsafe":true}}
+{"id":"unsafe_line-05462","out":{"unsafe":false}}
+{"id":"unsafe_line-05463","out":{"unsafe":false}}
+{"id":"unsafe_line-05464","out":{"unsafe":true}}
+{"id":"unsafe_line-05465","out":{"unsafe":true}}
+{"id":"unsafe_line-05466","out":{"unsafe":false}}
+{"id":"unsafe_line-05467","out":{"unsafe":true}}
+{"id":"unsafe_line-05468","out":{"unsafe":false}}
+{"id":"unsafe_line-05469","out":{"unsafe":false}}
+{"id":"unsafe_line-05470","out":{"unsafe":false}}
+{"id":"field_args-05471","out":{"fields":{}}}
+{"id":"field_args-05472","out":{"fields":{"constructor":"c"}}}
+{"id":"field_args-05473","out":{"fields":{"1":"one","b":"","--field":"inline","Stage":"again"}}}
+{"id":"field_args-05474","out":{"fields":{"constructor":"c","é":"é"}}}
+{"id":"field_args-05475","out":{"fields":{"42":"answer","--field":"inline","constructor":"c"}}}
+{"id":"field_args-05476","out":{"fields":{}}}
+{"id":"field_args-05477","out":{"fields":{"é":"é"}}}
+{"id":"field_args-05478","out":{"fields":{"Stage":"code-generation"}}}
+{"id":"field_args-05479","out":{"fields":{"1":"one","Stage":"again"}}}
+{"id":"field_args-05480","out":{"fields":{}}}
+{"id":"field_args-05481","out":{"fields":{"Stage":"again","é":"é","b":""}}}
+{"id":"field_args-05482","out":{"fields":{"--field":"inline","Note":"a=b"}}}
+{"id":"field_args-05483","out":{"fields":{"--field":"inline"}}}
+{"id":"field_args-05484","out":{"fields":{"Stage":"code-generation"}}}
+{"id":"field_args-05485","out":{"fields":{"42":"answer","--field":"inline","constructor":"c"}}}
+{"id":"field_args-05486","out":{"fields":{"42":"answer"}}}
+{"id":"field_args-05487","out":{"fields":{"é":"é"}}}
+{"id":"field_args-05488","out":{"fields":{}}}
+{"id":"field_args-05489","out":{"fields":{}}}
+{"id":"field_args-05490","out":{"fields":{}}}
+{"id":"field_args-05491","out":{"fields":{}}}
+{"id":"field_args-05492","out":{"fields":{}}}
+{"id":"field_args-05493","out":{"fields":{"é":"é"}}}
+{"id":"field_args-05494","out":{"fields":{}}}
+{"id":"field_args-05495","out":{"fields":{"42":"answer","é":"é"}}}
+{"id":"field_args-05496","out":{"fields":{"--field":"inline"}}}
+{"id":"field_args-05497","out":{"fields":{}}}
+{"id":"field_args-05498","out":{"fields":{"Stage":"code-generation"}}}
+{"id":"field_args-05499","out":{"fields":{}}}
+{"id":"field_args-05500","out":{"fields":{"constructor":"c"}}}
+{"id":"field_args-05501","out":{"fields":{}}}
+{"id":"field_args-05502","out":{"fields":{"--field":"inline"}}}
+{"id":"field_args-05503","out":{"fields":{}}}
+{"id":"field_args-05504","out":{"fields":{"Stage":"again"}}}
+{"id":"field_args-05505","out":{"fields":{"b":"","constructor":"c"}}}
+{"id":"field_args-05506","out":{"fields":{}}}
+{"id":"field_args-05507","out":{"fields":{"Note":"a=b"}}}
+{"id":"field_args-05508","out":{"fields":{"--field":"inline","é":"é"}}}
+{"id":"field_args-05509","out":{"fields":{"constructor":"c"}}}
+{"id":"field_args-05510","out":{"fields":{"b":""}}}
+{"id":"field_args-05511","out":{"fields":{"Note":"a=b","constructor":"c"}}}
+{"id":"field_args-05512","out":{"fields":{}}}
+{"id":"field_args-05513","out":{"fields":{}}}
+{"id":"field_args-05514","out":{"fields":{"42":"answer"}}}
+{"id":"field_args-05515","out":{"fields":{"1":"one"}}}
+{"id":"field_args-05516","out":{"fields":{"Stage":"again"}}}
+{"id":"field_args-05517","out":{"fields":{"1":"one"}}}
+{"id":"field_args-05518","out":{"fields":{"Note":"a=b"}}}
+{"id":"field_args-05519","out":{"fields":{"é":"é","b":"","Stage":"code-generation"}}}
+{"id":"field_args-05520","out":{"fields":{}}}
+{"id":"field_args-05521","out":{"fields":{"b":""}}}
+{"id":"field_args-05522","out":{"fields":{"Stage":"again","Note":"a=b","b":""}}}
+{"id":"field_args-05523","out":{"fields":{"b":""}}}
+{"id":"field_args-05524","out":{"fields":{"é":"é","constructor":"c","b":""}}}
+{"id":"field_args-05525","out":{"fields":{"é":"é"}}}
+{"id":"field_args-05526","out":{"fields":{}}}
+{"id":"field_args-05527","out":{"fields":{}}}
+{"id":"field_args-05528","out":{"fields":{}}}
+{"id":"field_args-05529","out":{"fields":{}}}
+{"id":"field_args-05530","out":{"fields":{"42":"answer"}}}
+{"id":"field_args-05531","out":{"fields":{"42":"answer","b":"","Note":"a=b"}}}
+{"id":"field_args-05532","out":{"fields":{"1":"one"}}}
+{"id":"field_args-05533","out":{"fields":{}}}
+{"id":"field_args-05534","out":{"fields":{"b":"","--field":"inline"}}}
+{"id":"field_args-05535","out":{"fields":{}}}
+{"id":"field_args-05536","out":{"fields":{}}}
+{"id":"field_args-05537","out":{"fields":{"1":"one","Note":"a=b","Stage":"code-generation"}}}
+{"id":"field_args-05538","out":{"fields":{"1":"one","constructor":"c"}}}
+{"id":"field_args-05539","out":{"fields":{"constructor":"c"}}}
+{"id":"field_args-05540","out":{"fields":{}}}
+{"id":"field_args-05541","out":{"fields":{}}}
+{"id":"field_args-05542","out":{"fields":{}}}
+{"id":"field_args-05543","out":{"fields":{"Stage":"code-generation"}}}
+{"id":"field_args-05544","out":{"fields":{}}}
+{"id":"field_args-05545","out":{"fields":{"--field":"inline"}}}
+{"id":"field_args-05546","out":{"fields":{"--field":"inline"}}}
+{"id":"field_args-05547","out":{"fields":{"constructor":"c"}}}
+{"id":"field_args-05548","out":{"fields":{}}}
+{"id":"field_args-05549","out":{"fields":{"Stage":"again"}}}
+{"id":"field_args-05550","out":{"fields":{"Stage":"again"}}}
+{"id":"field_args-05551","out":{"fields":{}}}
+{"id":"field_args-05552","out":{"fields":{"b":""}}}
+{"id":"field_args-05553","out":{"fields":{}}}
+{"id":"field_args-05554","out":{"fields":{"é":"é"}}}
+{"id":"field_args-05555","out":{"fields":{}}}
+{"id":"field_args-05556","out":{"fields":{}}}
+{"id":"field_args-05557","out":{"fields":{"42":"answer"}}}
+{"id":"field_args-05558","out":{"fields":{"é":"é"}}}
+{"id":"field_args-05559","out":{"fields":{"42":"answer","é":"é"}}}
+{"id":"field_args-05560","out":{"fields":{}}}
+{"id":"field_args-05561","out":{"fields":{}}}
+{"id":"field_args-05562","out":{"fields":{"constructor":"c"}}}
+{"id":"field_args-05563","out":{"fields":{}}}
+{"id":"field_args-05564","out":{"fields":{"b":""}}}
+{"id":"field_args-05565","out":{"fields":{"constructor":"c"}}}
+{"id":"field_args-05566","out":{"fields":{}}}
+{"id":"field_args-05567","out":{"fields":{"42":"answer"}}}
+{"id":"field_args-05568","out":{"fields":{"1":"one"}}}
+{"id":"field_args-05569","out":{"fields":{}}}
+{"id":"field_args-05570","out":{"fields":{"Stage":"again","--field":"inline"}}}
+{"id":"field_args-05571","out":{"fields":{"b":""}}}
+{"id":"field_args-05572","out":{"fields":{}}}
+{"id":"field_args-05573","out":{"fields":{}}}
+{"id":"field_args-05574","out":{"fields":{"Stage":"code-generation","--field":"inline"}}}
+{"id":"field_args-05575","out":{"fields":{"Stage":"again","constructor":"c"}}}
+{"id":"field_args-05576","out":{"fields":{"42":"answer"}}}
+{"id":"field_args-05577","out":{"fields":{"1":"one","Stage":"code-generation"}}}
+{"id":"field_args-05578","out":{"fields":{"1":"one","Stage":"code-generation"}}}
+{"id":"field_args-05579","out":{"fields":{}}}
+{"id":"field_args-05580","out":{"fields":{"1":"one"}}}
+{"id":"field_args-05581","out":{"fields":{}}}
+{"id":"field_args-05582","out":{"fields":{"b":"","--field":"inline"}}}
+{"id":"field_args-05583","out":{"fields":{}}}
+{"id":"field_args-05584","out":{"fields":{"42":"answer","--field":"inline"}}}
+{"id":"field_args-05585","out":{"fields":{"b":""}}}
+{"id":"field_args-05586","out":{"fields":{"b":"","Stage":"code-generation"}}}
+{"id":"field_args-05587","out":{"fields":{"1":"one"}}}
+{"id":"field_args-05588","out":{"fields":{}}}
+{"id":"field_args-05589","out":{"fields":{"1":"one","é":"é"}}}
+{"id":"field_args-05590","out":{"fields":{}}}

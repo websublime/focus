@@ -26,17 +26,22 @@ Two properties the comparison relies on, both checked where they could fail:
   a tree holding a name between the two can order its files differently in
   each engine. No vendored tree does, and the differential would show it.
 
-The methodology keeps its name: "AI-DLC" is not mapped.
+The methodology keeps its name: "AI-DLC" is not mapped, except in the few
+phrases where upstream's engine signs something it writes (PHRASES).
 """
 import os
 import sys
 
 PAIRS = (("aidlc", "focus"), ("AIDLC", "FOCUS"), ("Aidlc", "Focus"))
 
+# Where upstream's engine puts its own name on something it writes. These are
+# whole phrases, not the word: in prose "AI-DLC" is the method and stays.
+PHRASES = (("# AI-DLC Audit Log", "# Focus Audit Log"),)
+
 
 def to_focus(text):
     """Upstream's vocabulary to Focus's."""
-    for theirs, ours in PAIRS:
+    for theirs, ours in PAIRS + PHRASES:
         text = text.replace(theirs, ours)
     return text
 
@@ -48,7 +53,8 @@ def to_upstream(text):
     "aidlc"), but `to_focus(to_upstream(x)) == x` for any text that holds no
     upstream name, which is every file of a mapped tree.
     """
-    for theirs, ours in PAIRS:
+    # Phrases first: once the word is mapped back, a phrase no longer reads as written.
+    for theirs, ours in PHRASES + PAIRS:
         text = text.replace(ours, theirs)
     return text
 

@@ -590,6 +590,22 @@ fn an_argument_that_is_not_unicode_is_refused_as_a_mistake() {
 }
 
 #[test]
+fn every_kind_of_oracle_case_is_answered_by_some_crate() {
+    let cases = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../fixtures/oracle/cases.ndjson");
+    let run = focus(&["dev", "oracle", cases.to_str().unwrap()]);
+    assert!(run.status.success(), "{}", text(&run.stderr));
+    let answers = text(&run.stdout);
+    assert_eq!(
+        answers.lines().count(),
+        fs::read_to_string(&cases).unwrap().lines().count()
+    );
+    let orphan = answers
+        .lines()
+        .find(|line| line.contains("\"out\":{\"unsupported\":"));
+    assert_eq!(orphan, None);
+}
+
+#[test]
 fn compiling_where_nothing_is_installed_creates_nothing() {
     let empty = scratch("not-a-project");
     let run = focus_in(

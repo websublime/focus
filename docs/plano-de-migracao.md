@@ -87,7 +87,7 @@ Os princípios do original que o desenho em Rust tem de preservar (`AGENTS.md`):
 ## 4. Arquitetura alvo
 
 ```
-focus-cli ✔ ───────────► focus-hooks ──► focus-orchestrate ──► focus-state ──► focus-audit
+focus-cli ✔ ───────────► focus-hooks ──► focus-orchestrate ──► focus-state ──► focus-audit ◐
     │                        │                  │                   │               │
     │                        ▼                  ▼                   ▼               ▼
     ├──► focus-project   focus-guards      focus-sensors       focus-graph ✔   focus-workspace ✔
@@ -97,7 +97,7 @@ focus-cli ✔ ───────────► focus-hooks ──► focus-o
                      focus-harness ✔    focus-markdown    focus-frontmatter ✔    focus-js ✔
 ```
 
-✔ assinala os crates que já existem.
+✔ assinala os crates que já existem; ◐ os que existem em parte.
 
 | Crate | Responsabilidade | Estado |
 | --- | --- | --- |
@@ -107,7 +107,7 @@ focus-cli ✔ ───────────► focus-hooks ──► focus-o
 | `focus-graph` | Schemas, compile do grafo e do grid, scopes compostos, consultas, validação de planos, ARS | Completo para o CLI de `graph` |
 | `focus-workspace` | Projeto e harness de um comando, caminhos, escrita atómica, lock do workspace, recusa de links; mais tarde, settings, spaces e intents | Existe; settings em M2 |
 | `focus-markdown` | Estrutura de blocos Markdown (`markdownBlocks`, `visibleMarkdownLines`) | M2 |
-| `focus-audit` | Shards de auditoria, registo de eventos, runtime graph | M2 |
+| `focus-audit` | Shards de auditoria, registo de eventos, runtime graph | Formato existe (M2, fatia 1) |
 | `focus-state` | Ficheiro de estado, máquinas de workflow, fase e stage, criação de intents | M3 |
 | `focus-guards` | Lexer de shell, integridade de runtime, fences, decisões de guard | M4 |
 | `focus-hooks` | Os corpos dos hooks e o dispatcher | M4 e M6 |
@@ -188,6 +188,7 @@ Cada marco fecha com um critério verificável contra o oráculo.
 - Leitura e escrita de shards, registo dos 117 eventos, compile do runtime graph. Este compile é determinístico mas não é puro: lê o audit log, o ficheiro de estado, o stage graph e os `memory.md`, e acrescenta linhas `MEMORY_EMPTY` à auditoria.
 - `focus-markdown`, com a decisão de parser tomada por medição (risco R1). Substitui o leitor por linhas de `guard_memory` e deixa de haver ficheiros de memória recusados.
 - Critério: para os mesmos shards, `runtime-graph.json` byte a byte igual; linhas de auditoria iguais com relógio injetado.
+- Entra em fatias, cada uma um pull request verificado por si (secção 13).
 
 **M3. Estado e criação de intents.**
 - Ficheiro de estado, transições (`advance`, `approve`, `reject`, `skip`, `gate-start`, `park`), `intent-create`, `jump`, `validity`, `--status`.
@@ -456,3 +457,40 @@ focus engine graph --help
 tools/oracle/refresh.sh ../aidlc-workflows                          # regenera fixtures e grava o diferencial
 python3 tools/oracle/differential.py ../aidlc-workflows --fuzz 600  # os dois motores lado a lado
 ```
+
+## 13. Estado de M2
+
+M2 está em curso. O arranque confirmou o que R2 previa: os módulos de M2 não são folhas. `aidlc-audit.ts` importa 35 nomes de `aidlc-lib.ts` e `aidlc-runtime.ts` importa 27, e atrás deles estão a resolução do registo de um intent, o lock de auditoria, bolts, worktrees e a leitura do ficheiro de estado. Por isso M2 entra de baixo para cima, em seis fatias.
+
+| Fatia | O que traz | Como se verifica | Estado |
+| --- | --- | --- | --- |
+| 1. Formato do registo | Os 117 tipos de evento e os seus títulos, validação e bloco de uma entrada, leitores de blocos e de campos, timestamp. Crate `focus-audit` | Corpus de oráculo | Feita |
+| 2. Registo de um intent | Spaces, intents, cursor do intent ativo, seleção do workflow, nome e caminho do shard (`auditFilePath`, `auditShardName`, `auditShards`), em `focus-workspace` | Corpus e diferencial sobre árvores com vários spaces e intents | Por fazer |
+| 3. Escrita e leitura em disco | Append sob lock de auditoria, com as verificações de links e de identidade do ficheiro; `focus engine audit append`, `append-batch` e `history`; relógio injetável | Diferencial de comandos: shards iguais a menos do timestamp | Por fazer |
+| 4. Settings | `focus.settings.json` nas três camadas e os switches gravados. Fecha o limite 2 de M1 | Corpus e diferencial de `validate-grid` | Por fazer |
+| 5. Markdown | `focus-markdown`, com o parser escolhido por medição contra os 391 documentos de `markdown-goldens/corpus.json` (R1). Fecha o limite 1 de M1 | Corpus próprio e os goldens do original | Por fazer |
+| 6. Runtime graph | `runtime-graph.json` a partir dos shards, do ficheiro de estado e dos `memory.md` | `runtime-graph.json` byte a byte igual | Por fazer |
+
+A fatia 6 lê o ficheiro de estado (`readStateFile`, `parseCheckboxes`, `parseStateStageSuffixes`), que o plano tinha em M3, e os registos de bolts e worktrees, que estão adiados. Porta-se só o leitor de estado de que o compile precisa; o resto do ficheiro de estado continua em M3. Se a fatia de leitura se revelar inseparável das transições, a fatia 6 passa para depois do arranque de M3 e M2 fecha com as cinco primeiras.
+
+### Fatia 1: formato do registo
+
+O que existe em `focus-audit`:
+
+- **Vocabulário.** Os 117 tipos de evento, pela ordem do original, cada um com o título do seu bloco. A lista foi tirada do original a correr, não copiada à mão: a recusa de um tipo desconhecido enumera-os todos, e cada título saiu de uma entrada escrita pelo original.
+- **Escrever uma entrada.** A validação recusa um tipo fora do vocabulário, um campo chamado `Event` e um nome de campo que não seja uma etiqueta numa só linha. O bloco tem uma linha de timestamp, uma de evento e uma por campo; os terminadores de linha de um valor passam a `\n` e a localização do projeto passa a `<project-dir>`.
+- **Ler.** Todos os blocos de um evento, do mais antigo para o mais recente; o campo de um bloco; o campo em lista de um ficheiro de estado; os argumentos `--field chave=valor`.
+- **Timestamp.** UTC ao segundo, com o instante como parâmetro: quem escreve o registo pode correr com um relógio fixo.
+
+O título de um shard é o único sítio em que o engine assina um ficheiro que escreve; em Focus é `# Focus Audit Log`.
+
+| Verificação | Resultado |
+| --- | --- |
+| Corpus incluído, seis tipos de caso novos | 1 137 casos novos (5 591 no total), 0 diferenças |
+| Corpus alargado, seeds 21 a 23 à escala 40 | 20 751 casos, 0 diferenças |
+| Quatro mutações deliberadas (separadores de linha por escapar, redação sem o caso do espaço, empates reordenados, prefixo de lista por ignorar) | Todas detetadas pelo corpus: 6, 7, 4 e 5 casos |
+| `cargo test` | 129 testes |
+
+Cada crate passou a repetir no seu próprio teste os tipos de caso a que responde, e um teste do CLI garante que nenhum tipo fica sem dono.
+
+O que a fatia 1 não tem: nada decide ainda para que shard vai uma entrada, não há lock de auditoria nem comando `audit`. `CLI_PROTECTED_EVENT_TYPES` e a lista de eventos que um merge não pode trazer entram com os comandos que as usam (fatia 3).

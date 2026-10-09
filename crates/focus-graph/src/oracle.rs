@@ -23,6 +23,24 @@ use crate::runtime;
 use crate::sensors;
 use crate::stage_schema::{self, ValidationContext};
 
+/// The kinds of case this crate answers. Each kind in the corpus belongs to
+/// exactly one crate, and each crate replays its own.
+pub const KINDS: [&str; 13] = [
+    "stage",
+    "sensor",
+    "rule",
+    "scalar",
+    "list",
+    "collate",
+    "num",
+    "cycles",
+    "record",
+    "foldback",
+    "settings",
+    "guard",
+    "guardwild",
+];
+
 /// Answer one oracle case. An unknown `kind` answers `{"unsupported": kind}`.
 #[must_use]
 pub fn run_case(case: &Value) -> Value {
