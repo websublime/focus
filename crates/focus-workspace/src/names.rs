@@ -28,6 +28,22 @@ pub const ACTIVE_SPACE_POINTER: &str = "active-space";
 /// The space every project has.
 pub const DEFAULT_SPACE: &str = "default";
 
+/// The cursor file naming the active intent's record, inside a space's
+/// intents directory. Per checkout, never committed.
+pub const ACTIVE_INTENT_POINTER: &str = "active-intent";
+
+/// The file that makes a directory an intent's record: where the workflow
+/// stands.
+pub const STATE_FILE: &str = "focus-state.md";
+
+/// Per-user runtime state about conversations, inside [`WORKSPACE_DIR`].
+/// Never committed.
+pub const SESSIONS_DIR: &str = ".focus-sessions";
+
+/// The marker an engine leaves in a worktree it created for one unit of
+/// work, relative to the project.
+pub const WORKTREE_META: &str = ".focus/worktree-meta.json";
+
 /// The engine's working directory inside an intent record or a space's
 /// intents directory. Never committed.
 pub const ENGINE_DIR: &str = ".focus-engine";

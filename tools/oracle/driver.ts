@@ -6,9 +6,9 @@
 // `focus dev oracle` prints for the same case (the `oracle` module of the crate
 // that owns the kind). The two outputs are compared as text, so key order is
 // part of the answer.
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { dirname, join, relative, resolve, sep } from "node:path";
 
 const [upstream, casesPath] = process.argv.slice(2);
 if (!upstream || !casesPath) {
@@ -29,6 +29,7 @@ const audit = await import(tool("aidlc-audit.ts"));
 const scratch = mkdtempSync(join(tmpdir(), "focus-oracle-"));
 process.on("exit", () => rmSync(scratch, { recursive: true, force: true }));
 let shards = 0;
+let trees = 0;
 
 // Text the JSON parser wrote is the runtime's, not the engine's: both sides
 // keep the engine's sentence and replace what follows it.
@@ -157,6 +158,47 @@ function answer(c: Record<string, any>): unknown {
       }
       const written = readFileSync(shard, "utf-8").replace(/^\*\*Timestamp\*\*: \S+$/m, "**Timestamp**: <ts>");
       return { shard: written.replaceAll(scratch, "{P}") };
+    }
+    case "selection": {
+      // A project built from the case's files; answers name paths relative to it.
+      const root = join(scratch, `tree-${trees++}`);
+      mkdirSync(root, { recursive: true });
+      for (const [rel, text] of Object.entries(c.files as Record<string, string>)) {
+        mkdirSync(dirname(join(root, rel)), { recursive: true });
+        writeFileSync(join(root, rel), text);
+      }
+      const selector = c.selector ?? {};
+      const before = [process.env.AIDLC_SESSION_OVERRIDE, process.env.AIDLC_SESSION_OVERRIDE_SOURCE];
+      if (c.override) {
+        process.env.AIDLC_SESSION_OVERRIDE = c.override.id;
+        if (c.override.payload) process.env.AIDLC_SESSION_OVERRIDE_SOURCE = "payload";
+      }
+      const inTree = (path: string | null) => (path === null ? null : relative(root, path).split(sep).join("/"));
+      try {
+        const chosen = lib.resolveWorkflowSelection(root, selector);
+        const out: Record<string, unknown> = {
+          space: chosen.space,
+          intent: chosen.intent,
+          sessionId: chosen.sessionId,
+          binding: chosen.binding,
+        };
+        // The path helpers take no session, so they are asked only when the case names none.
+        if (selector.sessionId === undefined) {
+          out.recordDir = inTree(lib.recordDir(root, selector.intent, selector.space));
+          out.relativeRecordDir = lib.relativeRecordDir(root, selector.intent, selector.space);
+        }
+        out.intents = lib.listIntentDirs(root, chosen.space);
+        return out;
+      } catch (err) {
+        // A registry row the untyped read trips over fails with the runtime's words.
+        return { error: err instanceof TypeError ? "<runtime>" : message(err).replaceAll(root, "{P}") };
+      } finally {
+        for (const [index, name] of ["AIDLC_SESSION_OVERRIDE", "AIDLC_SESSION_OVERRIDE_SOURCE"].entries()) {
+          if (before[index] === undefined) delete process.env[name];
+          else process.env[name] = before[index];
+        }
+        rmSync(root, { recursive: true, force: true });
+      }
     }
     case "audit_find":
       return { found: lib.findAllEvents(c.audit, c.event, c.slug ?? undefined) };

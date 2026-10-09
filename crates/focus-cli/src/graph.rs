@@ -829,6 +829,8 @@ pub fn oracle(args: &mut Args) -> Result<(), String> {
         let kind = case.get("kind").and_then(Value::as_str).unwrap_or_default();
         let out = if focus_audit::oracle::KINDS.contains(&kind) {
             focus_audit::oracle::run_case(&case)
+        } else if focus_workspace::oracle::KINDS.contains(&kind) {
+            focus_workspace::oracle::run_case(&case)
         } else {
             cases::run_case(&case)
         };
