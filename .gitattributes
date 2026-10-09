@@ -1,0 +1,13 @@
+# Everything is text with LF endings on every platform.
+*.rs text eol=lf
+*.toml text eol=lf
+*.md text eol=lf
+*.py text eol=lf
+*.ts text eol=lf
+*.sh text eol=lf
+*.yml text eol=lf
+
+# Fixtures are compared byte for byte with what upstream produced on Linux.
+# Git must never rewrite their line endings. This rule comes last on purpose:
+# the last matching line wins, and the patterns above match fixture files too.
+fixtures/** -text

@@ -1,0 +1,17 @@
+[package]
+name = "focus-js"
+description = "JavaScript-semantics primitives the engine port depends on for byte parity with the TypeScript original."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+regress.workspace = true
+serde = "1"
+serde_json.workspace = true
+
+[lints]
+workspace = true

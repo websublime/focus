@@ -1,0 +1,17 @@
+[package]
+name = "focus-workspace"
+description = "Where things live in a project that runs Focus, and how they are written: directory resolution, atomic writes and the workspace lock."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+serde_json.workspace = true
+focus-harness.workspace = true
+focus-js.workspace = true
+
+[lints]
+workspace = true

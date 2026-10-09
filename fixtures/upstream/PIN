@@ -1,0 +1,19 @@
+repository: https://github.com/awslabs/aidlc-workflows
+commit: 2a555f7a4387cd1b8254029cccb9fd1e99974574
+committed: 2026-10-08T22:40:19+00:00
+version: 2.11.0
+license: MIT-0 (see LICENSE)
+
+Everything below was copied from upstream at that commit and then renamed by
+tools/oracle/names.py: upstream's `aidlc` is Focus's `focus`, in file names
+and in file contents. Nothing else was changed.
+
+core/       The authored Markdown the stage-graph compile reads: stage, agent,
+            sensor, scope and method files, from upstream's core/.
+golden/     stage-graph.json and scope-grid.json as upstream's own packager
+            compiled them for each harness (bun scripts/package.ts), from
+            dist/<harness>/<harness dir>/tools/data/.
+installed/  The part of an installed Claude Code project the graph verbs read
+            or write, from dist/claude/.
+
+Refresh all three with tools/oracle/refresh.sh <upstream checkout>.

@@ -1,0 +1,36 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.89"
+license = "MIT"
+repository = "https://github.com/websublime/focus"
+publish = false
+
+[workspace.dependencies]
+regress = "0.12"
+serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
+focus-js = { path = "crates/focus-js" }
+focus-frontmatter = { path = "crates/focus-frontmatter" }
+focus-harness = { path = "crates/focus-harness" }
+focus-graph = { path = "crates/focus-graph" }
+focus-workspace = { path = "crates/focus-workspace" }
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true
+
+# The profile `dist` builds release artifacts with.
+[profile.dist]
+inherits = "release"
+lto = "thin"

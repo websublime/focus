@@ -1,0 +1,20 @@
+[workspace]
+members = ["cargo:."]
+
+# Release packaging, by cargo-dist (https://opensource.axo.dev/cargo-dist/).
+# Releases are published to the repository named in Cargo.toml.
+[dist]
+# The dist version CI installs.
+cargo-dist-version = "0.32.0"
+# Release from GitHub Actions, on a version tag.
+ci = "github"
+# On a pull request, check that a release could be planned; build nothing.
+pr-run-mode = "plan"
+# Installers generated for each release.
+installers = ["shell", "powershell"]
+# What `focus` is built for.
+targets = ["aarch64-apple-darwin", "aarch64-unknown-linux-gnu", "x86_64-apple-darwin", "x86_64-unknown-linux-gnu", "x86_64-pc-windows-msvc"]
+# Where the installers put the binary.
+install-path = "CARGO_HOME"
+# No self-updater: updating an engine mid-workflow is the engine's own job.
+install-updater = false

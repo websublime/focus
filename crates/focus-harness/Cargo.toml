@@ -1,0 +1,12 @@
+[package]
+name = "focus-harness"
+description = "The harnesses Focus projects the engine into: Claude Code, Cursor and GitHub Copilot."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true

@@ -1,0 +1,33 @@
+[package]
+name = "focus"
+description = "The focus command."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "focus"
+path = "src/main.rs"
+
+# The workspace is not published to crates.io; the binary is still released.
+[package.metadata.dist]
+dist = true
+
+[dependencies]
+serde_json.workspace = true
+focus-graph.workspace = true
+focus-harness.workspace = true
+focus-js.workspace = true
+focus-workspace.workspace = true
+
+[dev-dependencies]
+focus-harness.workspace = true
+focus-workspace.workspace = true
+regress.workspace = true
+sha2 = "0.10"
+
+[lints]
+workspace = true
