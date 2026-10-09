@@ -268,7 +268,7 @@ Duas leituras desta tabela. A mutação do fold-back passou no diferencial grava
 
 **R7. Regex fora do comum.** O original usa lookbehind (9 ocorrências) e a flag `v` com `\p{RGI_Emoji}` (2). O `regress` compila ambos e aplica-os a uma amostra com o resultado esperado (há um teste em `focus-js`); ainda não passaram por um corpus diferencial.
 
-**R8. Plataformas.** Em aberto, com menos incógnitas. O lock usa `std::fs::File::lock` (`flock` em Linux e macOS, `LockFileEx` em Windows), sem FFI. Há um CI configurado para as três plataformas e empacotamento por `cargo-dist` para cinco alvos. Nada disto correu fora de Linux: o CI nunca foi executado (não há repositório), e o que afirmo sobre macOS e Windows é leitura de documentação, não medição. O diferencial gravado só corre em Unix, porque as mensagens trazem caminhos com o separador da plataforma.
+**R8. Plataformas.** Medido pela primeira vez em 2026-10-09, no CI do primeiro pull request: os lints e os testes passam em Linux, macOS e Windows com a toolchain fixada (1.97.0), e o workspace compila com a 1.89. O lock usa `std::fs::File::lock` (`flock` em Linux e macOS, `LockFileEx` em Windows), sem FFI, e os seus testes correm nas três. Fica por medir o que só corre em Unix: o diferencial gravado (as mensagens trazem caminhos com o separador da plataforma) e os testes de links. A repetição do rename em Windows, quando outro processo tem o ficheiro aberto, continua sem um teste que a force. A primeira execução no `main` falhou nos lints por outra razão: o CI instalava a `stable` do dia, mais recente do que a usada aqui. A toolchain passou a estar fixada em `rust-toolchain.toml`.
 
 **R9. Nomes no conteúdo reutilizado.** Fechado pela decisão 10. Focus adotou o Markdown como seu e renomeou-o: `aidlc` passou a `focus` em nomes de ficheiros, de diretórios e no texto, com a mesma substituição que as ferramentas de paridade aplicam (secção 7). Ficam dois efeitos a vigiar. Primeiro, os dois nomes ordenam de forma diferente em relação a outros (`aidlc` < `bravo` < `focus`): uma árvore com um plugin ou um ficheiro cujo nome caia entre os dois pode ser percorrida noutra ordem por cada motor, e duas mensagens de erro dependem da ordem. Nenhuma árvore do diferencial cai aí, e o diferencial mostrava-o. Segundo, a parte do Markdown que M1 ainda não lê (skills, knowledge, o texto dos harnesses) entra em M8 pelo mesmo mapa; as 408 invocações `{{INVOKE}}` e as 48 por caminho de ferramenta TS precisam de mais do que o mapa, e já estavam no âmbito de M8.
 
@@ -389,7 +389,7 @@ O que M1 não faz, e o que acontece quando lá se chega:
 4. **Só a árvore Claude passou pelos verbos.** Os goldens de compile cobrem os três harnesses; os 1 130 comandos de verbos correram sobre a distribuição `claude`. O código não distingue harnesses fora do diretório e dos caminhos de sensores, mas não foi medido.
 5. **`saveComposedScope`** (gravar um plano aprovado como scope, com rollback) não está portado: é chamado pelo fluxo de criação, não pelo CLI de `graph` (M5).
 6. **Ferramentas de plugin** (`create`, `build`, `validate`, `test`, `emit`) não estão portadas (M8). O compile honra a seleção.
-7. **macOS e Windows nunca correram** (R8). Em particular, os ramos que só existem em Windows (repetir o rename enquanto outro processo tem o ficheiro aberto, `LockFileEx`) nunca executaram, e não há teste que os exercite: os testes de links e o diferencial gravado só correm em Unix. A primeira execução do CI é a primeira medição.
+7. **O que só corre em Unix** (R8). O CI passa nas três plataformas, mas o diferencial gravado e os testes de links não correm em Windows, e nenhum teste força a repetição do rename quando outro processo tem o ficheiro aberto.
 8. **`compile --check` num checkout com CRLF.** `stage-graph.json` é comparado byte a byte, como no original. Num clone feito pelo Git for Windows com `core.autocrlf=true`, o ficheiro chega com CRLF e o `--check` diz sempre que está desatualizado. O sítio certo para resolver é o instalador (M8), que deve escrever um `.gitattributes` para a árvore do harness; até lá, quem usar Windows acrescenta-o à mão.
 9. **Lock herdado.** O original deixa um processo filho correr `graph compile` dentro do lock do pai (`AIDLC_WORKSPACE_LOCK_OWNER_PID`; `aidlc-utility.ts`, L911, fá-lo). Focus não tem esse caminho e não o vai ter: quem já tem o lock chama `write_compiled` em processo. Os pontos de chamada de M3 a M5 têm de ser portados assim, senão o filho espera 30 s e falha.
 10. **Uma recusa nomeia um comando que ainda não existe.** A mensagem para uma chave de política antiga num ficheiro de scope manda correr `focus config`, que é de M8.
@@ -426,11 +426,12 @@ O que a revisão deu como são, por medição em Linux: lock e escrita atómica 
 | 3 | Lock próprio, à maneira do Rust | Lock de ficheiro do sistema operativo, sem FFI e sem compatibilidade com o do original. R5 fechado |
 | 4 | O nome é `focus` | Comando `focus`, variáveis `FOCUS_*`, pacote `focus` |
 | 5 | Linux, macOS e Windows, com `cargo-dist` | CI nas três, release para cinco alvos |
-| 6 | O repositório é criado por ti | Nada foi commitado nem publicado. O workspace está pronto para `git init` |
+| 6 | O repositório é criado por ti | Criado: `websublime/focus` (decisões 8 e 11) |
 | 7 | MIT | `LICENSE` e metadados Cargo |
 | 8 | Repositório `git@github.com:websublime/focus.git` | `repository` nos metadados Cargo; o workflow de release volta a planear em pull requests (`dist plan` dá 5 arquivos e 2 instaladores) |
 | 9 | Titular: Websublime | `LICENSE` |
 | 10 | O projeto chama-se focus e tudo reflete esse nome | Nomes em disco, conteúdo e mensagens renomeados de `aidlc` para `focus`. R9 fechado. O original continua a ser a referência através de um mapa de nomes (secção 7) |
+| 11 | O repositório é a fonte, com GitHub Flow | Tudo vive em `websublime/focus`. O `main` está sempre verde; cada alteração é um branch curto e um pull request, que só entra com o CI verde nas três plataformas. As regras estão em `CLAUDE.md` |
 
 A decisão 3 dizia "cargo toma posse". Li-a como: nada de compatibilidade com o lock em TypeScript, usar o que a toolchain do Rust dá. Se querias dizer outra coisa, é barato corrigir agora.
 
@@ -439,7 +440,6 @@ A decisão 3 dizia "cargo toma posse". Li-a como: nada de compatibilidade com o 
 1. **`.gitignore` do lock.** `focus/.focus-lock` não deve ser commitado. O instalador (M8) é quem escreve o `.gitignore` do projeto; até lá, quem usar Focus num projeto real acrescenta a linha à mão.
 2. **Peso das fixtures (R10).** 7,7 MB no repositório, ou diferencial gravado fora dele.
 3. **O nome do método na prosa.** O Markdown reutilizado diz "AI-DLC" quando fala do método (por exemplo, "AI-DLC workflow"). Não mexi: é o nome de uma metodologia, não um identificador, e trocá-lo por substituição de texto estraga a gramática ("an AI-DLC" passaria a "an Focus"). Se o queres fora, é uma edição de conteúdo à mão, que cabe em M8 com o resto do Markdown.
-4. **Primeiro commit.** O repositório `websublime/focus` existe e está nos metadados; nada foi commitado nem enviado a partir daqui.
 
 ## 12. Como correr
 

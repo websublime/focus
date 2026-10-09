@@ -105,13 +105,20 @@ without that mark.
 
 Focus builds for Linux, macOS and Windows. CI (`.github/workflows/ci.yml`) runs
 the lints and the tests on all three; the recorded differential replays on
-Linux and macOS only. So far the code has only ever been run on Linux.
+Linux and macOS only.
 
 Releases are packaged by [cargo-dist](https://opensource.axo.dev/cargo-dist/)
 (`dist-workspace.toml`): archives for five targets plus shell and PowerShell
 installers, built by `.github/workflows/release.yml` when a version tag is
 pushed to [websublime/focus](https://github.com/websublime/focus). On a pull
 request the same workflow only checks that a release could be planned.
+
+## Contributing
+
+The repository follows GitHub Flow: `main` is always green, every change is a
+short-lived branch and a pull request, and a pull request merges only with CI
+passing on Linux, macOS and Windows. `CLAUDE.md` lists the rules a change has
+to keep.
 
 ## License
 
