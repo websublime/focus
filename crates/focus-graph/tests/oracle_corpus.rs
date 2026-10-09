@@ -36,6 +36,10 @@ fn every_case_gets_upstreams_answer() {
         // Parsed as upstream's driver parses it, so nested objects are in the
         // order a JS object enumerates them.
         let case: Value = focus_js::json::parse(line).unwrap();
+        // Other kinds are replayed by the crate that answers them.
+        if !focus_graph::oracle::KINDS.contains(&case["kind"].as_str().unwrap_or_default()) {
+            continue;
+        }
         let answer = run_case(&case);
         let got = stringify(&json!({ "id": case["id"], "out": answer }));
         // A memory file with Markdown focus has no parser for may be declined

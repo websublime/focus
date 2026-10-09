@@ -18,6 +18,7 @@ dist = true
 
 [dependencies]
 serde_json.workspace = true
+focus-audit.workspace = true
 focus-graph.workspace = true
 focus-harness.workspace = true
 focus-js.workspace = true

@@ -1,0 +1,16 @@
+[package]
+name = "focus-audit"
+description = "The audit ledger: its event vocabulary, how an entry is validated and written, and how entries are read back."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+serde_json.workspace = true
+focus-js.workspace = true
+
+[lints]
+workspace = true

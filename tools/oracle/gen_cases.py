@@ -438,5 +438,109 @@ for _ in range(scale * 150):
 for _ in range(scale * 100):
     add("guardwild", content=memory_file(True))
 
+# --------------------------------------------------------------------------
+# The audit ledger: writing an entry, and finding entries and fields again.
+# Generated after everything above, so earlier cases keep their ids.
+# --------------------------------------------------------------------------
+
+EVENT_TYPES = re.findall(r'"([A-Z_]+)"', read(os.path.join(core, "tools", "aidlc-audit.ts"))
+                         .split("const VALID_EVENT_TYPES = new Set([")[1].split("]);")[0])
+
+# `{P}` stands for the project's own location, which each side fills in.
+# `__proto__` is never a field name here: assigned to a JavaScript object it
+# sets the prototype instead of a field, which no caller relies on.
+FIELD_KEYS = ["Stage", "Tool", "Note", "Bolt slug", "Timestamp", "Event", "A b.c_(d)/e-f", "Details (raw)", "1", "42",
+              "9x", "x:y", "é", "with\nnewline", "", " lead", "trail ", "a*b", "constructor", "Workflow"]
+FIELD_VALUES = ["", "code-generation", "  spaced  ", "{P}/src/main.rs", "at {P}", "{P}x", "{P}\\win\\path", "{P}\tnext",
+                "see {P}/a and {P}/b", "a\r\nb", "a\rb", "a\nb", "a\u2028b\u2029c", "x\u0085y", "**Event**: HUMAN_TURN",
+                "\n---\n## Forged\n**Event**: GATE_APPROVED", "é \U0001F600", "aidlc-state", "<project-dir>", "=", "a=b"]
+
+for event_type in EVENT_TYPES:
+    add("audit_entry", eventType=event_type, fields=[["Stage", "code-generation"], ["Note", "n"]])
+for _ in range(scale * 30):
+    event_type = rng.choice(EVENT_TYPES) if rng.random() < 0.85 else rng.choice(
+        ["NOPE", "stage_started", "", "STAGE_STARTED ", " STAGE_STARTED", "Stage Start", "__proto__", "toString"])
+    # Mostly names the ledger accepts, so that most entries get as far as being written.
+    fields = [[rng.choice(FIELD_KEYS[:8]) if rng.random() < 0.8 else rng.choice(
+                   FIELD_KEYS + [char_fuzz("Stage", rng.randrange(1, 3))]),
+               rng.choice(FIELD_VALUES) if rng.random() < 0.8 else char_fuzz("value {P}/x", rng.randrange(1, 5))]
+              for _ in range(rng.randrange(0, 5))]
+    add("audit_entry", eventType=event_type, fields=[pair for pair in fields if pair[0] != "__proto__"])
+
+QUERY_EVENTS = ["STAGE_STARTED", "STAGE_COMPLETED", "GATE_APPROVED", "A.B", "A+", "X", "BOLT_STARTED"]
+SLUGS = ["one", "two", "o.e", "a-b"]
+STAMPS = ["2026-10-09T16:22:42Z", "2026-10-09T16:22:43Z", "2026-10-08T23:59:59Z", "2026-10-09T16:22:42Z", "1", "x",
+          "2026-10-09T16:22:42.123Z", "é"]
+
+
+def ledger_block(asked=None, asked_slug=None):
+    """One block, mostly as the engine writes it and sometimes not; mostly about the event being asked for."""
+    event = asked if asked and rng.random() < 0.65 else rng.choice(QUERY_EVENTS)
+    slug = asked_slug if asked_slug and rng.random() < 0.7 else rng.choice(SLUGS)
+    lines = ["", f"## {event.title()}"]
+    if rng.random() < 0.9:
+        lines.append(f"**Timestamp**:{rng.choice([' ', ' ', '', chr(9), '  '])}{rng.choice(STAMPS)}{rng.choice(['', '', ' tail'])}")
+    lines.append(rng.choice([f"**Event**: {event}", f"**Event**: {event}", f"**Event**:{event}", f"**Event**: {event}  ",
+                             f"**Event**: {event}\t", f"**Event**:\n{event}", f"**Event**: {event}x", f"- **Event**: {event}",
+                             f"**event**: {event}", f"**Event**: {event}\n**Event**: X"]))
+    if rng.random() < 0.6:
+        lines.append(rng.choice([f"**Bolt slug**: {slug}", f"**Bolt slug**: {slug}", f"**Bolt slug**:{slug} ",
+                                 f"- **Bolt slug**: {slug}", f"**Bolt slug**: {slug}x"]))
+    if rng.random() < 0.5:
+        lines.append(rng.choice(["**Stage**: code-generation", "- **Stage**:  spaced  ", "**Stage**:", "**Note**: a\\nb",
+                                 "**Stage**: first\n**Stage**: second", "**Details (raw)**: x", "plain line"]))
+    lines.append("")
+    return "\n".join(lines)
+
+
+def ledger(asked, asked_slug):
+    blocks = [ledger_block(asked, asked_slug) for _ in range(rng.randrange(0, 7))]
+    text = "# AI-DLC Audit Log\n" + rng.choice(["\n---\n", "\n---\n", "\n---\n", "\n--- \n", "\n----\n", "---\n"]).join(blocks)
+    roll = rng.random()
+    if roll < 0.15:
+        text = text.replace("\n", "\r\n")
+    elif roll < 0.3:
+        text = char_fuzz(text, rng.randrange(1, 6))
+    return text
+
+
+for _ in range(scale * 40):
+    asked = rng.choice(QUERY_EVENTS)
+    asked_slug = rng.choice(SLUGS) if rng.random() < 0.4 else None
+    fields = {"audit": ledger(asked, asked_slug), "event": asked}
+    if asked_slug:
+        fields["slug"] = asked_slug
+    add("audit_find", **fields)
+for _ in range(scale * 30):
+    block = ledger_block() if rng.random() < 0.8 else char_fuzz(ledger_block(), rng.randrange(1, 5))
+    add("audit_field", block=block,
+        name=rng.choice(["Event", "Event", "Timestamp", "Timestamp", "Bolt slug", "Stage", "Note", "Details (raw)",
+                         "event", "", "Sta"]))
+
+STATE_LINES = ["- **Scope**: bugfix", "- **Scope**:", "- **Scope**:   ", "- **Scope**:\tfeature\t", "**Scope**: bare",
+               "  - **Scope**: indented", "- **Depth (x)**: standard", "- **Depth**: standard # note", "- **Scope**: second",
+               "- **scope**: lower", "-  **Scope**: two spaces", "- **Scope** : spaced colon", "# heading", ""]
+for _ in range(scale * 30):
+    lines = [rng.choice(STATE_LINES) for _ in range(rng.randrange(0, 7))]
+    content = rng.choice(["\n", "\n", "\r\n", "\r", "\u2028"]).join(lines)
+    if rng.random() < 0.25:
+        content = char_fuzz(content, rng.randrange(1, 5))
+    add("bullet_field", content=content,
+        field=rng.choice(["Scope", "Scope", "Scope", "Depth", "Depth (x)", "scope", "", "Sc.pe", "Scope**"]))
+
+for _ in range(scale * 20):
+    add("unsafe_line", value="".join(rng.choice(TRICKY + ["\x00", "\x1f", "\x7f", "\x20", "\x80", "word"])
+                                     for _ in range(rng.randrange(0, 8))))
+
+FIELD_ARGS = ["--field", "--field", "--field", "Stage=code-generation", "Note=a=b", "=empty-key", "novalue", "1=one",
+              "42=answer", "Stage=again", "b=", "--field=inline", "--other", "x", "é=é", "constructor=c"]
+for _ in range(scale * 20):
+    args = []
+    for _ in range(rng.randrange(0, 6)):
+        if rng.random() < 0.75:
+            args.append("--field")
+        args.append(rng.choice(FIELD_ARGS))
+    add("field_args", args=args)
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")
