@@ -460,12 +460,13 @@ python3 tools/oracle/differential.py ../aidlc-workflows --fuzz 600  # os dois mo
 
 ## 13. Estado de M2
 
-M2 está em curso. O arranque confirmou o que R2 previa: os módulos de M2 não são folhas. `aidlc-audit.ts` importa 35 nomes de `aidlc-lib.ts` e `aidlc-runtime.ts` importa 27, e atrás deles estão a resolução do registo de um intent, o lock de auditoria, bolts, worktrees e a leitura do ficheiro de estado. Por isso M2 entra de baixo para cima, em seis fatias.
+M2 está em curso. O arranque confirmou o que R2 previa: os módulos de M2 não são folhas. `aidlc-audit.ts` importa 35 nomes de `aidlc-lib.ts` e `aidlc-runtime.ts` importa 27, e atrás deles estão a resolução do registo de um intent, o lock de auditoria, bolts, worktrees e a leitura do ficheiro de estado. Por isso M2 entra de baixo para cima, em seis fatias; a segunda partiu-se em duas.
 
 | Fatia | O que traz | Como se verifica | Estado |
 | --- | --- | --- | --- |
 | 1. Formato do registo | Os 117 tipos de evento e os seus títulos, validação e bloco de uma entrada, leitores de blocos e de campos, timestamp. Crate `focus-audit` | Corpus de oráculo | Feita |
-| 2. Registo de um intent | Spaces, intents, cursor do intent ativo, seleção do workflow, nome e caminho do shard (`auditFilePath`, `auditShardName`, `auditShards`), em `focus-workspace` | Corpus e diferencial sobre árvores com vários spaces e intents | Por fazer |
+| 2a. Qual é o registo | Spaces, intents, registo de intents, cursor do intent ativo, binding de sessão e a seleção do workflow, em `focus-workspace` | Corpus: projetos descritos como conjuntos de ficheiros | Feita |
+| 2b. O shard | Identidade do clone (`focus/.focus-clone-id`), nome e caminho do shard (`auditFilePath`, `auditShardName`), listagem e leitura de todos os shards de um registo (`auditShards`, `readAllAuditShards`) | Corpus | Por fazer |
 | 3. Escrita e leitura em disco | Append sob lock de auditoria, com as verificações de links e de identidade do ficheiro; `focus engine audit append`, `append-batch` e `history`; relógio injetável | Diferencial de comandos: shards iguais a menos do timestamp | Por fazer |
 | 4. Settings | `focus.settings.json` nas três camadas e os switches gravados. Fecha o limite 2 de M1 | Corpus e diferencial de `validate-grid` | Por fazer |
 | 5. Markdown | `focus-markdown`, com o parser escolhido por medição contra os 391 documentos de `markdown-goldens/corpus.json` (R1). Fecha o limite 1 de M1 | Corpus próprio e os goldens do original | Por fazer |
@@ -489,8 +490,39 @@ O título de um shard é o único sítio em que o engine assina um ficheiro que 
 | Corpus incluído, seis tipos de caso novos | 1 137 casos novos (5 591 no total), 0 diferenças |
 | Corpus alargado, seeds 21 a 23 à escala 40 | 20 751 casos, 0 diferenças |
 | Quatro mutações deliberadas (separadores de linha por escapar, redação sem o caso do espaço, empates reordenados, prefixo de lista por ignorar) | Todas detetadas pelo corpus: 6, 7, 4 e 5 casos |
-| `cargo test` | 129 testes |
+| `cargo test` (à data da fatia 1) | 129 testes |
 
 Cada crate passou a repetir no seu próprio teste os tipos de caso a que responde, e um teste do CLI garante que nenhum tipo fica sem dono.
 
 O que a fatia 1 não tem: nada decide ainda para que shard vai uma entrada, não há lock de auditoria nem comando `audit`. `CLI_PROTECTED_EVENT_TYPES` e a lista de eventos que um merge não pode trazer entram com os comandos que as usam (fatia 3).
+
+### Fatia 2a: qual é o registo
+
+Quase nenhum comando diz em que space e em que intent atua. `focus-workspace::records` decide os dois, sempre pela mesma ordem: o que o comando disse (`--space`, `--intent`); o binding da sessão que chama, se houver sessão conhecida; os cursores do checkout (`focus/active-space` e, no space, `active-intent`); e o único registo vivo do space, quando há exatamente um. Sem nada disso, não resolve intent nenhum e a resposta é só o space.
+
+O que existe:
+
+- **O registo de intents** (`intents.json`) lido como o original o lê, sem tipos: uma linha junta-se a uma diretoria pelo `dirName` que guarda ou, nas linhas antigas, por `<slug>-<hex>` com o hex a ser a cauda do `uuid`. Um registo arquivado não volta sozinho.
+- **O cursor do intent ativo**, que só conta quando nomeia um registo que existe. É texto livre, por isso o caminho que nomeia junta-se como o `path.join` do Node o junta, e não como o `Path::join` do Rust: um cursor que comece por `/` não substitui a base.
+- **O binding de uma sessão** (`focus/.focus-sessions/<id>.binding.json`), que se ignora quando está malformado ou nomeia um registo que já não existe.
+- **A seleção**, com a recusa de seletores que sejam caminhos (`../x`, `a/b`).
+
+| Verificação | Resultado |
+| --- | --- |
+| Corpus incluído, um tipo de caso novo (`selection`) | 480 casos novos (6 071 no total), 0 diferenças |
+| Corpus alargado, seeds 31 a 33 à escala 40 | 9 600 casos, 0 diferenças |
+| Seis mutações deliberadas (estado sem `trim`, estado sensível a maiúsculas, `dirName` falso a decidir, uuid casado pela cabeça, primeiro de vários registos a ganhar, binding a seguir para outro space) | Todas detetadas. A primeira e a terceira passaram na primeira versão do gerador, que foi corrigido até as apanhar |
+| `cargo test` | 135 testes |
+
+Três diferenças face ao original, todas recusas onde Focus não tem ainda o que o original usa:
+
+| | Original | Focus |
+| --- | --- | --- |
+| Linha do registo que a leitura sem tipos não consegue ler (`null`, `status` que não é texto, `uuid` que não é texto numa linha casada pelo slug) | Falha com a mensagem do runtime (`TypeError`) | Falha nas mesmas condições, com uma mensagem que nomeia o ficheiro. O corpus fixa quando falha; o texto é de cada um |
+| Worktree delegada (`.focus/worktree-meta.json`) | Resolve para o intent do checkout principal | Recusa: worktrees estão adiadas |
+| Sessões registadas por processo (`focus/.focus-sessions/pids/`) sem sessão nomeada | Percorre a árvore de processos para saber que conversa chama | Recusa e pede a sessão ou `--space` e `--intent`. Só acontece depois de haver hooks de sessão, que são de M4 |
+
+As duas últimas têm um teste marcado "Deliberate deviation". Não aparecem no diferencial porque ainda não há comando que use a seleção: entram lá com a fatia 3.
+
+O corpus deixa de fora, de propósito, nomes com `\`: é separador só em Windows, por isso a resposta dependeria da plataforma que repete o corpus.
+
