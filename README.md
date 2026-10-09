@@ -105,7 +105,7 @@ without that mark.
 
 Focus builds for Linux, macOS and Windows. CI (`.github/workflows/ci.yml`) runs
 the lints and the tests on all three; the recorded differential replays on
-Linux and macOS only. So far the code has only ever been run on Linux.
+Linux and macOS only.
 
 Releases are packaged by [cargo-dist](https://opensource.axo.dev/cargo-dist/)
 (`dist-workspace.toml`): archives for five targets plus shell and PowerShell
