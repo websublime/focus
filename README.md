@@ -113,6 +113,13 @@ installers, built by `.github/workflows/release.yml` when a version tag is
 pushed to [websublime/focus](https://github.com/websublime/focus). On a pull
 request the same workflow only checks that a release could be planned.
 
+## Contributing
+
+The repository follows GitHub Flow: `main` is always green, every change is a
+short-lived branch and a pull request, and a pull request merges only with CI
+passing on Linux, macOS and Windows. `CLAUDE.md` lists the rules a change has
+to keep.
+
 ## License
 
 MIT, copyright Websublime; see `LICENSE`. The reference is MIT-0, which places

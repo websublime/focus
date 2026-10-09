@@ -1,0 +1,7 @@
+# The toolchain every lint and test runs on, locally and in CI. Pinned so that
+# a new stable release cannot turn `main` red through a new lint: moving it is
+# a pull request of its own. The oldest toolchain the workspace builds with is
+# `rust-version` in Cargo.toml, which CI checks separately.
+[toolchain]
+channel = "1.97.0"
+components = ["clippy", "rustfmt"]
