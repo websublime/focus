@@ -93,13 +93,29 @@ fn group<'a>(found: &regress::Match, text: &'a str, index: usize) -> &'a str {
     found.group(index).map_or("", |range| &text[range])
 }
 
+/// `text` with the tree's location taken out: a path inside it reads
+/// relative to it, and the tree itself reads `<tree>`. The location is
+/// recognised both as given and with links resolved, because a path the
+/// engine resolved (the install root) is printed resolved, and a temporary
+/// directory is behind a link on macOS.
+fn without_tree(text: &str, root: &Path) -> String {
+    let mut text = text.to_owned();
+    let mut spellings = vec![root.display().to_string()];
+    if let Ok(real) = fs::canonicalize(root) {
+        spellings.insert(0, real.display().to_string());
+    }
+    for root in spellings {
+        text = text
+            .replace(&format!("{root}{}", std::path::MAIN_SEPARATOR), "")
+            .replace(&root, "<tree>");
+    }
+    text
+}
+
 /// The recorder's `normalise`, for focus's side: the engine's name for
 /// itself, the tree's location, and text the runtime wrote.
 fn normalise(text: &str, root: &Path) -> String {
-    let root = root.display().to_string();
-    let mut text = text
-        .replace(&format!("{root}{}", std::path::MAIN_SEPARATOR), "")
-        .replace(&root, "<tree>");
+    let mut text = without_tree(text, root);
     text = replace_all(&text, r"^focus graph ", |_, _| "graph ".to_owned());
     text = text
         .replace("focus engine graph", "<cli> graph")
@@ -148,10 +164,7 @@ fn started() -> &'static str {
 
 /// The recorder's `normalise_audit`, for focus's side.
 fn normalise_audit(text: &str, root: &Path) -> String {
-    let root = root.display().to_string();
-    let mut text = text
-        .replace(&format!("{root}{}", std::path::MAIN_SEPARATOR), "")
-        .replace(&root, "<tree>")
+    let mut text = without_tree(text, root)
         .replace("Usage: focus engine audit ", "Usage: <cli> audit ")
         .replace(
             "`focus engine orchestrate report`",

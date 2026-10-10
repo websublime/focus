@@ -253,8 +253,16 @@ RUNTIME_TEXT = [
 ]
 
 
+def without_tree(text, tree):
+    """`text` with the tree's location taken out, as given and with links resolved (an engine prints a path it
+    resolved, such as the install root, resolved)."""
+    for root in dict.fromkeys((os.path.realpath(tree.root), tree.root)):
+        text = text.replace(root + "/", "").replace(root, "<tree>")
+    return text
+
+
 def normalise(text, tree, engine):
-    text = text.replace(tree.root + "/", "").replace(tree.root, "<tree>")
+    text = without_tree(text, tree)
     text = re.sub(r"^(aidlc-graph|focus graph) ", "graph ", text, flags=re.M)
     text = text.replace("bun aidlc-graph.ts", "<cli> graph").replace("focus engine graph", "<cli> graph")
     # The composed-scope sentinel names the command; quoted in a message, it is the same command.
@@ -1110,7 +1118,7 @@ RECORD_DIR = "aidlc/spaces/default/intents/add-login-1a2b3c4d"
 
 
 def normalise_audit(text, tree, engine):
-    text = text.replace(tree.root + "/", "").replace(tree.root, "<tree>")
+    text = without_tree(text, tree)
     text = text.replace("Usage: aidlc-audit ", "Usage: <cli> audit ").replace("Usage: focus engine audit ",
                                                                              "Usage: <cli> audit ")
     for tool in ("orchestrate", "log"):
