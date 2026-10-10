@@ -837,6 +837,8 @@ pub fn oracle(args: &mut Args) -> Result<(), String> {
             focus_audit::oracle::run_case(&case)
         } else if focus_workspace::oracle::KINDS.contains(&kind) {
             focus_workspace::oracle::run_case(&case)
+        } else if focus_markdown::oracle::KINDS.contains(&kind) {
+            focus_markdown::oracle::run_case(&case)
         } else {
             cases::run_case(&case)
         };

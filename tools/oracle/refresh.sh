@@ -5,7 +5,8 @@
 #   tools/oracle/refresh.sh <upstream checkout> [corpus seed] [corpus scale]
 #
 # Needs bun (to run upstream) and cargo. Steps:
-#   1. build upstream's distributions (bun scripts/package.ts);
+#   1. build upstream's distributions (bun scripts/package.ts), and install
+#      the packages of the Markdown referee;
 #   2. copy the authored Markdown the compile reads, the stage-graph.json and
 #      scope-grid.json upstream compiled from it, and the installed Claude Code
 #      tree the graph verbs read, into fixtures/upstream/;
@@ -27,6 +28,8 @@ ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$ROOT"
 
 (cd "$UPSTREAM" && bun install --frozen-lockfile >/dev/null && bun scripts/package.ts >/dev/null)
+# The third parser the Markdown cases are judged with (referee/referee.ts).
+(cd tools/oracle/referee && bun install --frozen-lockfile >/dev/null)
 
 FIX=fixtures/upstream
 rm -rf "$FIX/core" "$FIX/golden"

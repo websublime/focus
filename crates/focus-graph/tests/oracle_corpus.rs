@@ -31,7 +31,6 @@ fn every_case_gets_upstreams_answer() {
     );
 
     let mut differing = Vec::new();
-    let mut declined = 0;
     for (line, want) in cases.iter().zip(&expected) {
         // Parsed as upstream's driver parses it, so nested objects are in the
         // order a JS object enumerates them.
@@ -42,12 +41,6 @@ fn every_case_gets_upstreams_answer() {
         }
         let answer = run_case(&case);
         let got = stringify(&json!({ "id": case["id"], "out": answer }));
-        // A memory file with Markdown focus has no parser for may be declined
-        // instead of answered. Nothing else may.
-        if case["kind"] == "guardwild" && answer.get("refused").is_some() {
-            declined += 1;
-            continue;
-        }
         if got != *want {
             differing.push(format!(
                 "{}\n  upstream: {want}\n  focus:    {got}",
@@ -55,14 +48,6 @@ fn every_case_gets_upstreams_answer() {
             ));
         }
     }
-    let wild = cases
-        .iter()
-        .filter(|l| l.contains("\"kind\": \"guardwild\""))
-        .count();
-    assert!(
-        declined * 10 < wild * 9,
-        "focus declined {declined} of {wild} guardwild cases; the reader is refusing too much to prove anything"
-    );
     assert!(
         differing.is_empty(),
         "{} of {} cases differ from upstream; first:\n{}",
