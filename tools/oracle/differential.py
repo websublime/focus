@@ -2,7 +2,7 @@
 """Run upstream's engine and focus on the same project trees and compare.
 
     differential.py <upstream checkout with dist/ built> [focus binary]
-                    [--fuzz N] [--seed S] [--only PATTERN] [--record DIR]
+                    [--fuzz N] [--seed S] [--only PATTERN] [--record DIR] [--explain]
 
 Every check builds a Claude Code project from upstream's own distribution,
 edits it in one specific way, gives each engine its own copy, runs the same
@@ -18,7 +18,8 @@ output is never mapped, so a name it failed to change shows as a difference.
 Checks are written once, in upstream's names.
 
 A check is `same`, a listed `deviation` (focus differs on purpose; the reason
-is printed), or `DIFFERENT`. Exits non-zero when anything is DIFFERENT.
+is printed, and with --explain so is where the two differ), or `DIFFERENT`.
+Exits non-zero when anything is DIFFERENT.
 
 With --record, what upstream did in each check is written to DIR (the tree it
 started from, the command, the outcome), all under Focus's names, so
@@ -31,7 +32,12 @@ What is normalised before comparing, besides the map, and nothing else:
     of a refusal);
   - the location of the temporary tree;
   - error text produced by the runtime, not by the engine (the operating
-    system's message for a missing file, the JSON parser's message).
+    system's message for a missing file, the JSON parser's message);
+  - for the audit command, which writes the time and may mint an identity:
+    a timestamp written during the run (`<now>`), and the host and token of
+    a clone identity minted during the run;
+  - for the audit command, the shape of a refusal upstream lets reach its
+    runtime (see SHAPES).
 """
 import json
 import os
@@ -41,6 +47,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 
 # `python3 -I` leaves the script's directory off the path.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -62,6 +69,7 @@ RECORD = option("--record")
 FUZZ = int(option("--fuzz", "0"))
 SEED = int(option("--seed", "1"))
 ONLY = option("--only")
+EXPLAIN = "--explain" in argv and not argv.remove("--explain")
 UPSTREAM = os.path.abspath(argv[0])
 FOCUS = os.path.abspath(argv[1] if len(argv) > 1 else "target/release/focus")
 BUN = shutil.which("bun") or os.path.expanduser("~/.bun/bin/bun")
@@ -93,7 +101,18 @@ DEVIATIONS = {
         "verdict about Guard Policy; focus reports the scope file",
 }
 
+# Differences of shape that are settled before comparing, and counted.
+SHAPES = {
+    "uncaught":
+        "upstream lets a refusal thrown inside an audit verb reach the runtime, which prints a source excerpt "
+        "and a stack trace around the sentence; focus prints the same sentence as {\"error\": ...}, like every "
+        "other refusal of the command. The sentence is compared",
+}
+
 results = {"same": 0, "deviation": 0, "DIFFERENT": 0}
+shapes = {name: 0 for name in SHAPES}
+# A timestamp at or after this instant was written during the run.
+STARTED = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(time.time() - 2))
 
 
 class Tree:
@@ -380,6 +399,8 @@ def run_queued(quiet=False):
 
 
 def compare(name, trees, args, env, stdin, files):
+    if files == "audit":
+        return compare_audit(name, trees, args, env)
     ts, rs = trees
     outcome = {}
     started_from = overlay(ts) if RECORD and not has_links(ts.root) else None
@@ -410,6 +431,8 @@ def compare(name, trees, args, env, stdin, files):
     elif any(re.fullmatch(pattern, name) for pattern in DEVIATIONS):
         verdict = "deviation"
         detail = next(reason for pattern, reason in DEVIATIONS.items() if re.fullmatch(pattern, name))
+        if EXPLAIN:
+            detail += "\n           " + "\n           ".join(problems)
     else:
         verdict, detail = "DIFFERENT", "\n           ".join(problems)
     if started_from is not None and not name.startswith("fuzz/"):
@@ -998,6 +1021,477 @@ def fuzz(count):
         check(f"fuzz/{tree}/grid_{index}", trees[tree], args, stdin=json.dumps(document))
 
 
+# --------------------------------------------------------------------------
+# The audit command.
+#
+# A check is a project built from nothing but the files the check names, and
+# one or more commands run on it in order. The outcome is what each command
+# printed and how it exited, and every file of the workspace the commands
+# created, changed or removed. Each check gets trees of its own: a command
+# that appends writes the time, so a tree an earlier check wrote to cannot be
+# recorded and replayed later.
+#
+# Upstream's tool is run from its distribution with --project-dir, so a tree
+# needs no harness installed.
+# --------------------------------------------------------------------------
+
+AUDIT_TOOL = os.path.join(DIST, ".claude", "tools", "aidlc-audit.ts")
+STAMP = re.compile(r"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ")
+RECORD_DIR = "aidlc/spaces/default/intents/add-login-1a2b3c4d"
+
+
+def normalise_audit(text, tree, engine):
+    text = text.replace(tree.root + "/", "").replace(tree.root, "<tree>")
+    text = text.replace("Usage: aidlc-audit ", "Usage: <cli> audit ").replace("Usage: focus engine audit ",
+                                                                             "Usage: <cli> audit ")
+    for tool in ("orchestrate", "log"):
+        suffix = " report" if tool == "orchestrate" else ""
+        text = text.replace(f"aidlc-{tool}.ts{suffix}", f"<cli> {tool}{suffix}")
+        text = text.replace(f"`focus engine {tool}{suffix}`", f"<cli> {tool}{suffix}")
+    text = STAMP.sub(lambda found: "<now>" if found.group(0) >= STARTED else found.group(0), text)
+    text = re.sub(r"(could not be opened: [^\n(]*\()[^\n]*?\)(?=\"\}|\n|$)", r"\1<runtime>)", text)
+    return text
+
+
+def uncaught(stderr):
+    """The sentence of an error upstream let reach the runtime, or None when stderr is not one."""
+    found = re.search(r"^error: (.*?)\n +at ", stderr, flags=re.M | re.S)
+    if not found or "\nBun v" not in stderr:
+        return None
+    return found.group(1)
+
+
+def workspace_files(tree, top="aidlc"):
+    """Every file under `top` (the workspace), by path under Focus's names. A link is listed, not read."""
+    say = (lambda text: text) if tree.mapped else to_focus
+    top = tree.path(top)
+    files = {}
+    for folder, dirs, names in os.walk(top):
+        for name in list(dirs):
+            if os.path.islink(os.path.join(folder, name)):
+                files[say(os.path.relpath(os.path.join(folder, name), tree.root))] = "<link>"
+        for name in names:
+            path = os.path.join(folder, name)
+            rel = say(os.path.relpath(path, tree.root))
+            # Focus's lock is a file in the workspace; upstream's is a directory elsewhere.
+            if os.path.basename(rel).startswith(".focus-lock"):
+                continue
+            if os.path.islink(path):
+                files[rel] = "<link>"
+            elif not os.path.isfile(path):
+                files[rel] = "<not a file>"
+            else:
+                with open(path, "rb") as handle:
+                    files[rel] = say(handle.read().decode("utf-8", errors="replace"))
+    return files
+
+
+def minted(rel, text):
+    """A path and content with a clone identity minted during the run written as placeholders."""
+    rel = re.sub(r"/audit/[a-z0-9][a-z0-9-]*-[0-9a-f]{12}\.md$", "/audit/<host>-<token>.md", rel)
+    if rel.endswith("/.focus-clone-id") and text is not None:
+        text = re.sub(r"\A[0-9a-f]{12}\n[a-z0-9][a-z0-9-]*\n\Z", "<token>\n<host>\n", text)
+    return rel, text
+
+
+def audit_pair(name, files, links=(), hard_links=()):
+    """Two empty projects holding `files` ({path: text}, upstream's names), `links` and `hard_links`
+    (each a (path, target))."""
+    trees = []
+    for engine in ("ts", "rs"):
+        root = os.path.join(WORK, name.replace("/", "_"), engine)
+        os.makedirs(root)
+        tree = Tree(root, mapped=engine == "rs")
+        for rel, text in files.items():
+            tree.write(rel, text)
+        for rel, target in links:
+            os.makedirs(os.path.dirname(tree.path(rel)), exist_ok=True)
+            os.symlink(tree.path(target), tree.path(rel))
+        for rel, target in hard_links:
+            os.link(tree.path(target), tree.path(rel))
+        trees.append(tree)
+    return trees
+
+
+def run_audit(engine, tree, args, env):
+    full = dict(os.environ)
+    for key in list(full):
+        if key.startswith(("AIDLC_", "FOCUS_")) or key == "CLAUDE_PROJECT_DIR":
+            del full[key]
+    # `{P}` in an argument is the project's own location.
+    args = [arg.replace("{P}", tree.root) for arg in args]
+    if engine == "ts":
+        full.update({f"AIDLC_{k}": v for k, v in (env or {}).items()})
+        command = [BUN, AUDIT_TOOL, *args, "--project-dir", tree.root]
+    else:
+        full.update({f"FOCUS_{k}": to_focus(v) for k, v in (env or {}).items()})
+        command = [FOCUS, "engine", "audit", *map(to_focus, args), "--project-dir", tree.root, "--harness", "claude"]
+    done = subprocess.run(command, cwd=tree.root, env=full, capture_output=True, text=True, timeout=120)
+    return done.returncode, done.stdout, done.stderr
+
+
+# Checks whose trees a recording cannot hold: a hard link is two names for one file.
+UNRECORDED = set()
+
+
+def audit_check(name, files, steps, env=None, links=(), hard_links=(), group="audit"):
+    """Queue one audit check: `steps` (a list of argument lists) run in order on a project holding `files`."""
+    name = f"{group}/{name}"
+    if ONLY and not re.search(ONLY, name):
+        return
+    if hard_links:
+        UNRECORDED.add(name)
+    JOBS.append((name, audit_pair(name, files, links, hard_links), steps, env, None, "audit"))
+
+
+def compare_audit(name, trees, steps, env):
+    ts, rs = trees
+    outcome, shaped = {}, False
+    started_from = None
+    if RECORD and not has_links(ts.root) and name not in UNRECORDED and not name.startswith("fuzz/"):
+        started_from = workspace_files(ts, "")
+    for engine, tree in (("ts", ts), ("rs", rs)):
+        say = to_focus if engine == "ts" else (lambda text: text)
+        before = workspace_files(tree)
+        exits, outs, errs = [], [], []
+        for args in steps:
+            code, out, err = run_audit(engine, tree, args, env)
+            if engine == "ts" and code != 0:
+                sentence = uncaught(err)
+                if sentence is not None:
+                    err = json.dumps({"error": sentence}, ensure_ascii=False, separators=(",", ":")) + "\n"
+                    shaped = True
+            exits.append(str(code))
+            outs.append(say(normalise_audit(out, tree, engine)))
+            errs.append(say(normalise_audit(err, tree, engine)))
+        mark = (lambda parts: parts[0]) if len(steps) == 1 else (
+            lambda parts: "".join(f"[{index}] {part}" if part.endswith("\n") or not part else f"[{index}] {part}\n"
+                                  for index, part in enumerate(parts)))
+        outcome[engine] = {"exit": ",".join(exits), "stdout": mark(outs), "stderr": mark(errs)}
+        after = workspace_files(tree)
+        for rel in sorted(set(before) | set(after)):
+            if before.get(rel) == after.get(rel):
+                continue
+            text = after.get(rel)
+            shown, text = minted(rel, text if text is None else normalise_audit(text, tree, engine))
+            outcome[engine][shown] = "<removed>" if text is None else text
+    problems = []
+    for key in sorted(set(outcome["ts"]) | set(outcome["rs"])):
+        left, right = outcome["ts"].get(key, "<absent>"), outcome["rs"].get(key, "<absent>")
+        if left != right:
+            problems.append(f"{key}: {first_difference(left, right)}")
+    if not problems:
+        verdict = "same"
+        said = (outcome["ts"]["stderr"] or outcome["ts"]["stdout"]).strip().split("\n")[0][:110]
+        detail = f"exit {outcome['ts']['exit'][:40]}" + (f": {said}" if said else "")
+        if shaped:
+            shapes["uncaught"] += 1
+            detail += "  (upstream: uncaught)"
+    elif any(re.fullmatch(pattern, name) for pattern in DEVIATIONS):
+        verdict = "deviation"
+        detail = next(reason for pattern, reason in DEVIATIONS.items() if re.fullmatch(pattern, name))
+        if EXPLAIN:
+            detail += "\n           " + "\n           ".join(problems)
+    else:
+        verdict, detail = "DIFFERENT", "\n           ".join(problems)
+    if started_from is not None:
+        import hashlib
+        key = hashlib.sha256(json.dumps(started_from, sort_keys=True).encode()).hexdigest()[:16]
+        RECORDED_TREES[key] = started_from
+        RECORDED_CHECKS[name] = {
+            "name": name, "tool": "audit", "base": "empty", "tree": key,
+            "steps": [[to_focus(arg) for arg in args] for args in steps], "args": [],
+            "env": {key_: to_focus(value) for key_, value in (env or {}).items()},
+            "stdin": None, "writes": True,
+            "deviation": detail if verdict == "deviation" else None,
+            "expect": {key_: compact(value) for key_, value in outcome["ts"].items()},
+        }
+    return verdict, name, detail
+
+
+def block(event, at, *fields):
+    return "\n".join(["", f"## {event.title()}", f"**Timestamp**: {at}", f"**Event**: {event}", *fields, ""]) + "\n---\n"
+
+
+def note(heading, at, *lines):
+    return "\n".join(["", f"## {heading}", f"**Timestamp**: {at}", *lines, ""]) + "\n---\n"
+
+
+TITLE = "# AI-DLC Audit Log\n"
+CLONE = {"aidlc/.aidlc-clone-id": "abc123\nlaptop\n"}
+RECORD_FILES = {**CLONE, f"{RECORD_DIR}/aidlc-state.md": "# State\n",
+                "aidlc/spaces/default/intents/active-intent": "add-login-1a2b3c4d\n"}
+MINE = TITLE + block("WORKFLOW_STARTED", "2026-01-05T10:00:00Z", "**Workflow**: feature") + block(
+    "STAGE_STARTED", "2026-01-05T10:00:05Z", "**Stage**: requirements-analysis", "- **Note**: bulleted",
+    "**Stage**: second") + note("A decision", "2026-01-05T10:00:06Z", "We chose the", "", "second option.") + block(
+    "STAGE_COMPLETED", "2026-01-05T10:01:00Z", "**Stage**: requirements-analysis", "**7**: seven", "**Empty**:")
+THEIRS = TITLE + block("STAGE_STARTED", "2026-01-05T10:00:05Z", "**Stage**: code-generation") + block(
+    "ERROR_LOGGED", "2026-01-05T10:00:30Z", "**Tool**: aidlc-state", "**Stage**: code-generation") + block(
+    "GATE_APPROVED", "2026-01-05T10:02:00Z", "**Stage**: requirements-analysis")
+HISTORY_FILES = {**RECORD_FILES, f"{RECORD_DIR}/audit/laptop-abc123.md": MINE,
+                 f"{RECORD_DIR}/audit/desktop-ffffffffffff.md": THEIRS,
+                 # A sync tool's conflict copy of this clone's shard, one row longer.
+                 f"{RECORD_DIR}/audit/laptop-abc123 2.md": MINE + block("STAGE_SKIPPED", "2026-01-05T10:03:00Z"),
+                 f"{RECORD_DIR}/audit/README.txt": "not a shard\n"}
+EVENT_TYPES = re.findall(r'"([A-Z_]+)"', open(AUDIT_TOOL, encoding="utf-8").read()
+                         .split("const VALID_EVENT_TYPES = new Set([")[1].split("]);")[0])
+APPEND = ["append", "ERROR_LOGGED", "--field", "Stage=code-generation"]
+BATCH = lambda *entries: ["append-batch", json.dumps(list(entries))]
+ROW = lambda event, **fields: {"eventType": event, "fields": fields}
+
+DEVIATIONS.update({
+    r"audit/usage/(none|unknown)":
+        "upstream's usage lists audit-fork and audit-merge; focus lists the verbs it has",
+    r"audit/usage/audit_(fork|merge)":
+        "forking and merging a bolt's ledger come with bolts and worktrees, which focus has not ported; it "
+        "refuses both verbs by name",
+    r"audit/append/field_(without_equals|empty_key|dangling)":
+        "upstream drops a --field it cannot split into key=value and appends without it; focus refuses, because "
+        "a field dropped from the ledger leaves nothing to say it was asked for",
+    r"audit/append/(stray_argument|flag_as_type)":
+        "upstream ignores arguments it does not know; focus refuses them",
+    r"audit/append_(batch|raw)/stray_argument":
+        "upstream ignores arguments it does not know; focus refuses them",
+    "audit/append/audit_is_file":
+        "with a file where the audit directory goes, upstream surfaces the runtime's error for the open; focus "
+        "says which shard could not be opened",
+    "audit/append/metrics_endpoint":
+        "upstream sends a metric per entry to the configured endpoint; focus has no metrics yet and refuses the "
+        "append instead of leaving the endpoint without what it expects",
+    "audit/append/unit_claim":
+        "upstream ignores a unit claim that does not apply and otherwise lets it name the shard; focus does not "
+        "work with units yet and refuses while the claim file exists",
+    "audit/append/delegated_worktree":
+        "upstream resolves a delegated worktree to the main checkout's intent; focus does not work with "
+        "worktrees yet and refuses while the marker exists",
+    "audit/append/sessions_by_process":
+        "upstream walks the process tree to find which conversation is calling; focus refuses and asks for the "
+        "session, or for --space and --intent",
+})
+
+
+def audit_checks():
+    check_ = audit_check
+    # Usage.
+    check_("usage/none", {}, [[]])
+    check_("usage/unknown", {}, [["nope"]])
+    check_("usage/audit_fork", RECORD_FILES, [["audit-fork", "--slug", "one"]])
+    check_("usage/audit_merge", RECORD_FILES, [["audit-merge", "--slug", "one"]])
+    check_("usage/append", {}, [["append"]])
+    check_("usage/append_empty_type", {}, [["append", ""]])
+    check_("usage/append_batch", {}, [["append-batch"]])
+    check_("usage/append_raw", {}, [["append-raw"]])
+    check_("usage/append_raw_no_body", {}, [["append-raw", "Heading"]])
+    check_("usage/append_raw_empty_body", {}, [["append-raw", "Heading", ""]])
+
+    # append: where an entry goes.
+    check_("append/no_intent", CLONE, [APPEND + ["--field", "Note=a b"], ["history"]])
+    check_("append/active_intent", RECORD_FILES, [APPEND, ["history"]])
+    check_("append/mints_identity", {}, [APPEND, APPEND])
+    check_("append/mints_identity_in_record", {k: v for k, v in RECORD_FILES.items() if k not in CLONE}, [APPEND])
+    check_("append/completes_identity",
+           {**RECORD_FILES, "aidlc/.aidlc-clone-id": "abc123\n", f"{RECORD_DIR}/audit/old-name-abc123.md": MINE},
+           [APPEND])
+    check_("append/existing_shard", HISTORY_FILES, [APPEND, ["history", "--limit", "2"]])
+    check_("append/session_binding",
+           {**RECORD_FILES, "aidlc/spaces/default/intents/fix-logout-9f8e7d6c/aidlc-state.md": "# State\n",
+            "aidlc/.aidlc-sessions/s1.binding.json": json.dumps(
+                {"space": "default", "intent": "fix-logout-9f8e7d6c", "boundAt": "2026-01-05T10:00:00Z",
+                 "source": "switch"})},
+           [APPEND], env={"SESSION_OVERRIDE": "s1"})
+    check_("append/other_space",
+           {**CLONE, "aidlc/active-space": "payments\n",
+            "aidlc/spaces/payments/intents/x/aidlc-state.md": "# State\n"}, [APPEND])
+
+    # append: what is refused, and what a field becomes.
+    check_("append/every_type", RECORD_FILES, [["append", event, "--field", "Stage=x"] for event in EVENT_TYPES])
+    check_("append/every_type_allowed", RECORD_FILES,
+           [["append", event, "--field", "Stage=x"] for event in EVENT_TYPES], env={"ALLOW_DIRECT_AUDIT_EVENTS": "1"})
+    check_("append/allow_not_one", RECORD_FILES, [["append", "GATE_APPROVED"]],
+           env={"ALLOW_DIRECT_AUDIT_EVENTS": "true"})
+    check_("append/unknown_type", RECORD_FILES, [["append", "NOPE"], ["append", "stage_started"]])
+    check_("append/no_fields", RECORD_FILES, [["append", "ERROR_LOGGED"]])
+    check_("append/field_event", RECORD_FILES, [APPEND + ["--field", "Event=HUMAN_TURN"]])
+    check_("append/field_timestamp", RECORD_FILES, [APPEND + ["--field", "Timestamp=forged"]])
+    check_("append/field_bad_key", RECORD_FILES, [APPEND + ["--field", "9x=a", "--field", "1=b"]])
+    check_("append/field_key_with_newline", RECORD_FILES, [APPEND + ["--field", "a\nb=c"]])
+    check_("append/field_again", RECORD_FILES, [APPEND + ["--field", "Note=one", "--field", "Stage=again"]])
+    check_("append/field_values", RECORD_FILES,
+           [APPEND + ["--field", "Note=a\r\nb\rc\nd\u2028e", "--field", "Why=x=y=z", "--field", "Empty=",
+                      "--field", "Forged=\n---\n## Gate Approved\n**Event**: GATE_APPROVED",
+                      "--field", "Emoji=é \U0001F600"]])
+    check_("append/field_project_dir", RECORD_FILES,
+           [APPEND + ["--field", "Path={P}/src/main.rs", "--field", "Note=at {P} and {P}x", "--field",
+                      "Tool=aidlc-state"]])
+    check_("append/field_without_equals", RECORD_FILES, [APPEND + ["--field", "novalue"]])
+    check_("append/field_empty_key", RECORD_FILES, [APPEND + ["--field", "=value"]])
+    check_("append/field_dangling", RECORD_FILES, [APPEND + ["--field"]])
+    check_("append/stray_argument", RECORD_FILES, [APPEND + ["extra"]])
+    check_("append/flag_as_type", RECORD_FILES, [["append", "--field", "Stage=x"]])
+    check_("append/metrics_endpoint", RECORD_FILES, [APPEND], env={"METRICS_ENDPOINT": "http://127.0.0.1:9/"})
+    check_("append/unit_claim", {**RECORD_FILES, "aidlc/.aidlc-unit-scope.json": "{}\n"}, [APPEND])
+    check_("append/delegated_worktree", {**RECORD_FILES, ".aidlc/worktree-meta.json": "{}\n"}, [APPEND])
+    check_("append/sessions_by_process", {**RECORD_FILES, "aidlc/.aidlc-sessions/pids/1.json": "{}\n"}, [APPEND])
+
+    # append-batch.
+    two = BATCH(ROW("ERROR_LOGGED", Tool="x"), ROW("STAGE_STARTED", Stage="code-generation"))
+    check_("append_batch/two", RECORD_FILES, [two, ["history"]])
+    for name, raw in {
+        "not_json": "nope", "empty": "[]", "object": "{}", "string": '"x"', "null": "null",
+        "entry_null": '[{"eventType":"ERROR_LOGGED","fields":{}},null]',
+        "entry_array": "[[]]",
+        "entry_no_type": '[{"fields":{}}]',
+        "entry_type_number": '[{"eventType":5,"fields":{}}]',
+        "entry_no_fields": '[{"eventType":"ERROR_LOGGED"}]',
+        "entry_fields_array": '[{"eventType":"ERROR_LOGGED","fields":[]}]',
+        "entry_fields_null": '[{"eventType":"ERROR_LOGGED","fields":null}]',
+        "value_number": '[{"eventType":"ERROR_LOGGED","fields":{"a":"b"}},{"eventType":"ERROR_LOGGED","fields":{"a":1}}]',
+        "value_null": '[{"eventType":"ERROR_LOGGED","fields":{"a":null}}]',
+        "unknown_type_second": '[{"eventType":"ERROR_LOGGED","fields":{}},{"eventType":"NOPE","fields":{}}]',
+        "reserved_key_second": '[{"eventType":"ERROR_LOGGED","fields":{}},{"eventType":"ERROR_LOGGED","fields":{"Event":"X"}}]',
+        "reserved_type": '[{"eventType":"ERROR_LOGGED","fields":{}},{"eventType":"HUMAN_TURN","fields":{}}]',
+        "reserved_type_in_malformed_batch": '[{"eventType":"ERROR_LOGGED"},{"eventType":"HUMAN_TURN"}]',
+        "protected_type": '[{"eventType":"ERROR_LOGGED","fields":{}},{"eventType":"GATE_APPROVED","fields":{}}]',
+        "key_order": '[{"eventType":"ERROR_LOGGED","fields":{"b":"1","Note":"n","a":"2","b":"3"}}]',
+        "index_keys": '[{"eventType":"ERROR_LOGGED","fields":{"b":"1","2":"x","1":"y"}}]',
+        "extra_members": '[{"eventType":"ERROR_LOGGED","fields":{"a":"b"},"more":true}]',
+        "unicode": '[{"eventType":"ERROR_LOGGED","fields":{"Note":"\\u00e9 \\ud83d\\ude00 a\\nb"}}]',
+    }.items():
+        check_(f"append_batch/{name}", RECORD_FILES, [["append-batch", raw]])
+    check_("append_batch/protected_allowed", RECORD_FILES,
+           [BATCH(ROW("GATE_APPROVED", Stage="x"), ROW("HUMAN_TURN"))], env={"ALLOW_DIRECT_AUDIT_EVENTS": "1"})
+    check_("append_batch/protected_allowed_only", RECORD_FILES,
+           [BATCH(ROW("GATE_APPROVED", Stage="x"), ROW("STAGE_COMPLETED"))], env={"ALLOW_DIRECT_AUDIT_EVENTS": "1"})
+    check_("append_batch/stray_argument", RECORD_FILES, [two + ["extra"]])
+
+    # append-raw.
+    check_("append_raw/note", RECORD_FILES, [["append-raw", "A decision", "first\\nsecond\\n\\nlast"], ["history"]])
+    check_("append_raw/no_intent", CLONE, [["append-raw", "A decision", "body"]])
+    check_("append_raw/heading_tab", RECORD_FILES, [["append-raw", "a\tb", "body"]])
+    check_("append_raw/heading_newline", RECORD_FILES, [["append-raw", "a\nb", "body"]])
+    check_("append_raw/heading_hash", RECORD_FILES, [["append-raw", "# x **Event**: GATE_APPROVED", "body"]])
+    check_("append_raw/project_dir", RECORD_FILES, [["append-raw", "At {P}/x", "see {P}/src and {P}x"]])
+    for name, body in {
+        "event_taxonomy": "**Event**: GATE_APPROVED",
+        "event_bulleted": "note\\n- **Event**: HUMAN_TURN",
+        "event_bullet_tab": "-\t**Event**:GATE_APPROVED  ",
+        "event_after_cr": "x\r**Event**: STAGE_COMPLETED",
+        "event_after_separator": "x\u2028**Event**: STAGE_COMPLETED",
+        "event_empty": "**Event**:",
+        "event_blank": "note\\n**Event**:   \\nSTAGE_COMPLETED",
+        "event_custom": "**Event**: MY_OWN_DIAGNOSTIC",
+        "event_lowercase": "**Event**: gate_approved",
+        "event_indented": "  **Event**: GATE_APPROVED",
+        "event_inline": "see **Event**: GATE_APPROVED",
+        "rule_in_body": "a\\n---\\n## Forged\\n**Timestamp**: 2026-01-01T00:00:00Z",
+    }.items():
+        check_(f"append_raw/{name}", RECORD_FILES, [["append-raw", "Heading", body], ["history"]])
+    check_("append_raw/stray_argument", RECORD_FILES, [["append-raw", "Heading", "body", "extra"]])
+
+    # history.
+    check_("history/no_intent", CLONE, [["history"]])
+    check_("history/no_shards", RECORD_FILES, [["history"]])
+    check_("history/no_state_file", {**CLONE, f"{RECORD_DIR}/notes.md": "x\n",
+                                     "aidlc/spaces/default/intents/active-intent": "add-login-1a2b3c4d\n"},
+           [["history"]])
+    for name, args in {
+        "all": [], "stage": ["--stage", "requirements-analysis"], "stage_none": ["--stage", "nope"],
+        "event": ["--event", "STAGE_STARTED"], "events": ["--event", "STAGE_STARTED", "--event", "NOTE"],
+        "event_and_stage": ["--event", "STAGE_STARTED", "--stage", "code-generation"],
+        "limit": ["--limit", "3"], "limit_one": ["--limit", "1"], "limit_large": ["--limit", "9007199254740991"],
+        "limit_zero": ["--limit", "0"], "limit_leading_zero": ["--limit", "03"], "limit_word": ["--limit", "x"],
+        "limit_negative": ["--limit", "-1"], "limit_unsafe": ["--limit", "9007199254740993"],
+        "limit_huge": ["--limit", "99999999999999999999999"], "limit_decimal": ["--limit", "2.0"],
+        "limit_after_filter": ["--event", "STAGE_STARTED", "--limit", "1"],
+        "unknown_flag": ["--nope", "x"], "positional": ["extra"], "flag_without_value": ["--stage"],
+        "flag_then_flag": ["--stage", "--event"], "empty_value": ["--event", ""],
+        "bad_flag_before_good": ["--limit", "x", "--nope", "y"],
+    }.items():
+        check_(f"history/{name}", HISTORY_FILES, [["history", *args]])
+    check_("history/state_is_directory",
+           {**CLONE, f"{RECORD_DIR}/aidlc-state.md/inner.txt": "x\n",
+            "aidlc/spaces/default/intents/active-intent": "add-login-1a2b3c4d\n"}, [["history"], APPEND])
+    check_("history/crlf_shard", {**RECORD_FILES, f"{RECORD_DIR}/audit/laptop-abc123.md": MINE.replace("\n", "\r\n")},
+           [["history"]])
+    check_("history/shard_is_directory", {**HISTORY_FILES, f"{RECORD_DIR}/audit/folder.md/inner.txt": "x\n"},
+           [["history"]])
+    check_("history/audit_is_file", {**RECORD_FILES, f"{RECORD_DIR}/audit": "a file\n"}, [["history"]])
+    check_("append/audit_is_file", {**RECORD_FILES, f"{RECORD_DIR}/audit": "a file\n"}, [APPEND])
+    check_("history/space_shard_not_read",
+           {**HISTORY_FILES, "aidlc/spaces/default/intents/audit/laptop-abc123.md": TITLE + block(
+               "WORKSPACE_SCANNED", "2026-01-04T09:00:00Z")}, [["history"]])
+    check_("history/after_writes", RECORD_FILES,
+           [APPEND, ["append-raw", "Why", "because"], BATCH(ROW("STAGE_STARTED", Stage="a"), ROW("STAGE_SKIPPED")),
+            ["history"], ["history", "--stage", "a"], ["history", "--event", "NOTE"]])
+
+    # Links: compared live, never recorded.
+    elsewhere = {**RECORD_FILES, "elsewhere/laptop-abc123.md": MINE, "elsewhere.md": MINE, "state.md": "# State\n"}
+    check_("links/audit_dir", elsewhere, [["history"], APPEND], links=[(f"{RECORD_DIR}/audit", "elsewhere")])
+    check_("links/shard", elsewhere, [["history"], APPEND],
+           links=[(f"{RECORD_DIR}/audit/laptop-abc123.md", "elsewhere.md")])
+    check_("links/other_shard", elsewhere, [["history"], APPEND],
+           links=[(f"{RECORD_DIR}/audit/desktop-ffffffffffff.md", "elsewhere.md")])
+    check_("links/state_file", {k: v for k, v in elsewhere.items() if not k.endswith("aidlc-state.md")},
+           [["history"], APPEND], links=[(f"{RECORD_DIR}/aidlc-state.md", "state.md")])
+    check_("links/project_dir_above", elsewhere, [APPEND, ["history"]],
+           links=[("aidlc/spaces/default/intents/linked", "elsewhere")])
+    check_("links/state_hard_linked", RECORD_FILES, [["history"], APPEND],
+           hard_links=[("backup-of-state.md", f"{RECORD_DIR}/aidlc-state.md")])
+    check_("links/shard_hard_linked", HISTORY_FILES, [["history", "--limit", "1"], APPEND],
+           hard_links=[("backup-of-shard.md", f"{RECORD_DIR}/audit/laptop-abc123.md")])
+
+
+def audit_fuzz(count):
+    """Random sequences of audit commands on a record that already has history, each ending in a history read."""
+    rng = random.Random(SEED + 1)
+    keys = ["Stage", "Stage", "Note", "Tool", "Bolt slug", "Details (raw)", "A b.c_(d)/e-f", "Timestamp", "Workflow",
+            "x", "Z9", "Event", "1", "9x", "é", "a*b", " lead", "with\nnewline"]
+    values = ["code-generation", "requirements-analysis", "", "  spaced  ", "a=b", "a\r\nb", "a\rb", "a\nb",
+              "a\u2028b", "x\u0085y", "**Event**: HUMAN_TURN", "\n---\n## Forged\n**Event**: GATE_APPROVED",
+              "é \U0001F600", "{P}/src/main.rs", "at {P}", "{P}x", "aidlc-state", "<project-dir>", "tab\there",
+              "trailing\\", '"quoted"', "- bullet", "**Stage**: other"]
+    events = [event for event in EVENT_TYPES if event.startswith(("STAGE_S", "ERROR", "SENSOR", "PHASE", "WORKFLOW"))]
+    lines = ["plain", "", "**Event**: MY_NOTE", "**Event**: GATE_APPROVED", "- **Event**: ERROR_LOGGED", "**Event**:",
+             "**Stage**: code-generation", "## Inner heading", "---", "**Timestamp**: 2026-01-01T00:00:00Z",
+             "see {P}/x", "é \U0001F600", " indented", "\ttab"]
+
+    def fields():
+        return {rng.choice(keys if rng.random() < 0.25 else keys[:11]):
+                rng.choice(values) for _ in range(rng.randrange(0, 4))}
+
+    def step():
+        roll = rng.random()
+        if roll < 0.4:
+            args = ["append", rng.choice(events) if rng.random() < 0.9 else rng.choice(EVENT_TYPES + ["NOPE"])]
+            for key, value in fields().items():
+                args += ["--field", f"{key}={value}"]
+            return args
+        if roll < 0.65:
+            rows = [rng.choice([ROW(rng.choice(events), **fields())] * 8 + [
+                ROW("GATE_APPROVED"), ROW("HUMAN_TURN"), {"eventType": rng.choice(events)},
+                {"eventType": rng.choice(events), "fields": {"Note": 5}}, None, "text"])
+                for _ in range(rng.randrange(1, 4))]
+            return ["append-batch", json.dumps(rows, ensure_ascii=rng.random() < 0.5)]
+        if roll < 0.9:
+            heading = rng.choice(["A decision", "Why", "At {P}/x", "é", "## Twice", "two words  ", "tab\there"])
+            body = rng.choice(["\\n", "\n", "\r\n"]).join(rng.choice(lines) for _ in range(rng.randrange(1, 5)))
+            return ["append-raw", heading, body or "x"]
+        args = ["history"]
+        if rng.random() < 0.5:
+            args += ["--stage", rng.choice(["code-generation", "requirements-analysis", "nope"])]
+        if rng.random() < 0.5:
+            args += ["--event", rng.choice(events + ["NOTE", "GATE_APPROVED"])]
+        if rng.random() < 0.4:
+            args += ["--limit", rng.choice(["1", "2", "5", "0", "x"])]
+        return args
+
+    for index in range(count):
+        files = rng.choice([RECORD_FILES, HISTORY_FILES, HISTORY_FILES, CLONE])
+        env = {"ALLOW_DIRECT_AUDIT_EVENTS": "1"} if rng.random() < 0.15 else None
+        audit_check(str(index), files, [step() for _ in range(rng.randrange(2, 6))] + [["history"]], env=env,
+                    group="fuzz/audit")
+
+
 try:
     for name, edits in COMPILE.items():
         compile_check(name, *edits)
@@ -1010,9 +1504,12 @@ try:
         check("compile/twice_second", twice, ["compile"], files=True)
         check("compile/twice_check", twice, ["compile", "--check"], files=True)
     verbs()
+    audit_checks()
     run_queued()
     if FUZZ:
-        fuzz(FUZZ)
+        if not ONLY or not re.search(ONLY, "fuzz/audit"):
+            fuzz(FUZZ)
+        audit_fuzz(FUZZ // 3)
         run_queued(quiet=True)
 finally:
     shutil.rmtree(WORK, ignore_errors=True)
@@ -1030,4 +1527,7 @@ if RECORD and not ONLY and not results["DIFFERENT"]:
 total = sum(results.values())
 print(f"\n{total} checks: {results['same']} same, {results['deviation']} known deviation, "
       f"{results['DIFFERENT']} different")
+for name, count in shapes.items():
+    if count:
+        print(f"{count} of the same after a difference of shape ({name}): {SHAPES[name]}")
 sys.exit(1 if results["DIFFERENT"] else 0)

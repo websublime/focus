@@ -9,9 +9,11 @@
 //!
 //! This crate answers "which project, which harness, which path"
 //! ([`project`], [`Layout`]), reads the harness manifest ([`manifest`]), and
-//! owns the two write disciplines everything else builds on: a write is
-//! atomic ([`atomic`]), and a read-modify-write happens under the workspace
-//! lock ([`lock`]).
+//! owns the disciplines everything else builds on: a write is atomic
+//! ([`atomic`]), a read-modify-write happens under the workspace lock
+//! ([`lock`]), and a file whose path is not trusted is opened without
+//! following a link and checked to be what the path names ([`files`],
+//! [`links`]).
 //!
 //! Upstream resolves all of this inside `aidlc-lib.ts` and
 //! `aidlc-runtime-paths.ts`, mostly from the location of the running script.
@@ -20,6 +22,7 @@
 
 pub mod atomic;
 pub mod env;
+pub mod files;
 pub mod links;
 pub mod lock;
 pub mod manifest;

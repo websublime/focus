@@ -13,5 +13,13 @@ serde_json.workspace = true
 focus-harness.workspace = true
 focus-js.workspace = true
 
+# Only the open(2) flag and errno values: no call into libc is made from here.
+[target.'cfg(unix)'.dependencies]
+libc.workspace = true
+
+# A file's identity, where the standard library does not give one.
+[target.'cfg(windows)'.dependencies]
+same-file.workspace = true
+
 [lints]
 workspace = true

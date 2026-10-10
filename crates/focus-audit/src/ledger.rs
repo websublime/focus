@@ -27,6 +27,7 @@ use focus_js::text::trim;
 use focus_js::{EngineError, Result, bail, re};
 use focus_workspace::Layout;
 use focus_workspace::atomic::write_atomic;
+use focus_workspace::files::read_append_only;
 use focus_workspace::links::link_on_the_way;
 use focus_workspace::names::{CLONE_ID_FILE, UNIT_SCOPE_FILE};
 use focus_workspace::records::{Invoker, Selector, resolve_selection};
@@ -36,23 +37,38 @@ use crate::shards::{ShardEvent, ShardText, copied_blocks, parse_shard_events, sh
 const CLONE_TOKEN: &str = "^[a-z0-9]{1,32}$";
 const CLONE_HOST: &str = "^[a-z0-9][a-z0-9-]{0,47}$";
 
-/// What a clone's identity is made from when it has to be minted: this
-/// machine's name and a fresh token. Passed in, so a test or the oracle can
-/// fix both.
+/// What a ledger takes from the machine it runs on: its name, a fresh token
+/// when a clone's identity has to be minted, and the time. Passed in, so a
+/// test or the oracle can fix all three.
 pub struct Machine {
     /// The host segment of a shard name (see [`host_segment`]).
     pub host: String,
     /// Twelve lowercase hex characters nobody else has.
     pub mint_token: Box<dyn Fn() -> String>,
+    /// The instant an entry is written.
+    pub now: Box<dyn Fn() -> SystemTime>,
 }
 
 impl Machine {
-    /// This machine: its host name, and tokens from the system's randomness.
+    /// This machine: its host name, tokens from the system's randomness, and
+    /// the system clock.
     #[must_use]
     pub fn this() -> Self {
         Self {
             host: host_segment(&gethostname::gethostname().to_string_lossy()),
             mint_token: Box::new(random_token),
+            now: Box::new(SystemTime::now),
+        }
+    }
+
+    /// A machine with a given name, one token and a clock stopped at `at`.
+    #[must_use]
+    pub fn fixed(host: &str, token: &str, at: SystemTime) -> Self {
+        let token = token.to_owned();
+        Self {
+            host: host.to_owned(),
+            mint_token: Box::new(move || token.clone()),
+            now: Box::new(move || at),
         }
     }
 }
@@ -141,8 +157,8 @@ fn names_in(dir: &Path) -> Vec<String> {
 
 /// One project's ledgers, read and named as this clone.
 pub struct Ledger<'a> {
-    layout: &'a Layout,
-    machine: Machine,
+    pub(crate) layout: &'a Layout,
+    pub(crate) machine: Machine,
     /// Settled once per process: a workspace that cannot be written still
     /// gets one identity for as long as the process lives.
     identity: OnceCell<CloneIdentity>,
@@ -381,7 +397,7 @@ impl<'a> Ledger<'a> {
     /// The text of each shard, with its index in `shards`. A shard that has
     /// vanished, is not a regular file, or sits behind a link is left out and
     /// reported in `unreadable`.
-    fn shard_texts(
+    pub(crate) fn shard_texts(
         &self,
         shards: &[PathBuf],
         mut unreadable: Option<&mut Vec<PathBuf>>,
@@ -481,49 +497,6 @@ impl<'a> Ledger<'a> {
     }
 }
 
-/// Read a file the engine only ever appends to. Only a regular file is read,
-/// and never through a link: the file is opened once without following a
-/// link and without blocking (a FIFO with no writer would otherwise hang the
-/// reader), and what was opened is checked to be what the path still names.
-/// The file growing while it is read is normal for a live ledger and is not
-/// an error: every parser discards a block that is not yet complete.
-fn read_append_only(path: &Path) -> Option<Vec<u8>> {
-    use std::io::Read;
-
-    let mut options = std::fs::OpenOptions::new();
-    options.read(true);
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::OpenOptionsExt;
-        options.custom_flags(libc::O_NOFOLLOW | libc::O_NONBLOCK);
-    }
-    #[cfg(not(unix))]
-    if !std::fs::symlink_metadata(path).is_ok_and(|meta| meta.is_file()) {
-        return None;
-    }
-    let mut file = options.open(path).ok()?;
-    let opened = file.metadata().ok()?;
-    if !opened.is_file()
-        || std::fs::symlink_metadata(path)
-            .ok()?
-            .file_type()
-            .is_symlink()
-    {
-        return None;
-    }
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::MetadataExt;
-        let named = std::fs::metadata(std::fs::canonicalize(path).ok()?).ok()?;
-        if (named.dev(), named.ino()) != (opened.dev(), opened.ino()) {
-            return None;
-        }
-    }
-    let mut bytes = Vec::new();
-    file.read_to_end(&mut bytes).ok()?;
-    Some(bytes)
-}
-
 /// A refusal for callers that must not go on with part of a record.
 #[must_use]
 pub fn unreadable_history() -> EngineError {
@@ -560,10 +533,7 @@ mod tests {
         }
 
         fn ledger(&self) -> Ledger<'_> {
-            let machine = Machine {
-                host: "laptop".to_owned(),
-                mint_token: Box::new(|| "0123456789ab".to_owned()),
-            };
+            let machine = Machine::fixed("laptop", "0123456789ab", SystemTime::UNIX_EPOCH);
             Ledger::new(&self.0, machine)
         }
     }
@@ -597,10 +567,7 @@ mod tests {
         assert_eq!(tree.read("focus/.focus-clone-id"), "0123456789ab\nlaptop\n");
 
         // Another process on a machine that has since been renamed.
-        let renamed = Machine {
-            host: "elsewhere".to_owned(),
-            mint_token: Box::new(|| "ffffffffffff".to_owned()),
-        };
+        let renamed = Machine::fixed("elsewhere", "ffffffffffff", SystemTime::UNIX_EPOCH);
         let later = Ledger::new(&tree.0, renamed);
         assert_eq!(later.shard_name().unwrap(), "laptop-0123456789ab.md");
     }
@@ -715,10 +682,7 @@ mod tests {
         }
 
         fn read_as(layout: &Layout) -> (Vec<String>, Vec<String>, Vec<String>) {
-            let machine = Machine {
-                host: "laptop".to_owned(),
-                mint_token: Box::new(|| "0123456789ab".to_owned()),
-            };
+            let machine = Machine::fixed("laptop", "0123456789ab", SystemTime::UNIX_EPOCH);
             let ledger = Ledger::new(layout, machine);
             let (selector, invoker) = (Selector::default(), Invoker::default());
             let name = |path: &Path| path.file_name().unwrap().to_string_lossy().into_owned();

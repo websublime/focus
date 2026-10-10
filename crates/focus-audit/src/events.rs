@@ -139,6 +139,92 @@ pub const EVENTS: [(&str, &str); 117] = [
     ("SOURCE_COMMITTED", "Source Committed"),
 ];
 
+/// Event types only their owning hook or tool may write. The `audit` command
+/// refuses them outright, whatever the environment says: each one is either a
+/// person's own act (a turn, a reply) or a receipt a tool derives from work it
+/// verified.
+///
+/// Upstream's `CLI_RESERVED_EVENT_TYPES`.
+pub const RESERVED_FOR_OWNERS: [&str; 17] = [
+    "HUMAN_TURN",
+    "HOST_TURN",
+    "QUESTION_UNANSWERED",
+    "QUESTION_REPLIED",
+    "SUMMARY_CONFIRMATION_RECORDED",
+    "VERIFICATION_COMMAND_RECORDED",
+    "CONSTRUCTION_POLICY_RECORDED",
+    "CHECKPOINT_VERIFICATION_RECORDED",
+    "PLAN_APPROVAL_RECORDED",
+    "PLAN_APPROVAL_OVERRIDDEN",
+    "PLAN_APPROVAL_SKIPPED",
+    "ARTIFACT_CREATED",
+    "ARTIFACT_UPDATED",
+    "ARTIFACT_REUSED",
+    "REVIEW_REQUESTED",
+    "REVIEW_COMPLETED",
+    "PIPELINE_LINK_COMPLETED",
+];
+
+/// Event types that carry authority: gate resolutions, approvals, presence,
+/// unit and bolt lifecycle, provenance. Each has one owning emitter inside
+/// the engine, so the `audit` command refuses them and a conductor cannot
+/// mint authority it does not have; everything else stays appendable as the
+/// diagnostic escape hatch. `FOCUS_ALLOW_DIRECT_AUDIT_EVENTS=1` lifts the
+/// refusal, for fixtures that stand in for the owning emitters.
+///
+/// Upstream's `CLI_PROTECTED_EVENT_TYPES`.
+pub const PROTECTED_FROM_THE_COMMAND: [&str; 49] = [
+    "STAGE_COMPLETED",
+    "HUMAN_TURN",
+    "HOST_TURN",
+    "QUESTION_UNANSWERED",
+    "QUESTION_REPLIED",
+    "REQUEST_ROUTED",
+    "GATE_APPROVED",
+    "GATE_REJECTED",
+    "QUESTION_ANSWERED",
+    "PLAN_APPROVAL_RECORDED",
+    "PLAN_APPROVAL_OVERRIDDEN",
+    "PLAN_APPROVAL_SKIPPED",
+    "REVIEW_REQUESTED",
+    "REVIEW_COMPLETED",
+    "PIPELINE_LINK_COMPLETED",
+    "ARTIFACT_REUSED",
+    "SWARM_STARTED",
+    "SWARM_UNIT_CONVERGED",
+    "SWARM_SOURCE_MERGED",
+    "AUTONOMY_MODE_SET",
+    "UNIT_OWNERSHIP_SET",
+    "UNIT_GATE_RHYTHM_SET",
+    "CONSTRUCTION_POLICY_SET",
+    "UNIT_STARTED",
+    "UNIT_PAUSED",
+    "UNIT_RESUMED",
+    "UNIT_COMPLETED",
+    "UNIT_SKIPPED",
+    "UNIT_MERGED",
+    "DOCUMENT_INDEXED",
+    "DOCUMENT_UPDATED",
+    "DOCUMENT_REMOVED",
+    "BOLT_STARTED",
+    "BOLT_COMPLETED",
+    "BOLT_FAILED",
+    "AUDIT_FORKED",
+    "AUDIT_MERGED",
+    "STATE_FORKED",
+    "STATE_MERGED",
+    "WORKTREE_CREATED",
+    "WORKTREE_MERGED",
+    "WORKTREE_DISCARDED",
+    "SOURCE_COMMITTED",
+    "GUARD_POLICY_SET",
+    "CHANGE_CONTROL_SET",
+    "CHANGE_ACCEPTED",
+    "GUARD_RESTORED",
+    "GUARD_STOOD_ASIDE",
+    "CEREMONY_SET",
+];
+
 /// The heading a block of this event type is written under; `None` when the
 /// type is not one the ledger accepts.
 #[must_use]

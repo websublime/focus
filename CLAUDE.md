@@ -37,7 +37,12 @@ This repository is the source of truth for the code, the plan and the fixtures.
   `regex` crate where the result reaches disk or a message.
 - **A deliberate deviation is declared three times**: a test marked
   "Deliberate deviation", an entry in `DEVIATIONS` in
-  `tools/oracle/differential.py`, and a row in the plan.
+  `tools/oracle/differential.py` (or in `SHAPES`, when the difference is one
+  of shape that is settled before comparing and the content is still
+  compared), and a row in the plan.
+- **A file whose path comes from the workspace is not opened by name and
+  believed.** Reads and appends go through `focus-workspace::files`, and the
+  directories above the file through `focus-workspace::links`.
 - **Input that is not ported is refused, never ignored.**
 
 ## Toolchain
@@ -58,4 +63,5 @@ cargo test --workspace
 # With Bun and an upstream checkout at the pinned commit:
 tools/oracle/refresh.sh ../aidlc-workflows                                          # regenerate fixtures
 python3 -I tools/oracle/differential.py ../aidlc-workflows target/release/focus --fuzz 600
+python3 -I tools/oracle/differential.py ../aidlc-workflows target/release/focus --only '^audit/' --explain
 ```

@@ -453,6 +453,10 @@ focus engine graph compile          # recompila no sítio, sob lock
 focus engine graph validate-scope feature
 focus engine graph --help
 
+focus engine audit append ERROR_LOGGED --field Stage=code-generation
+focus engine audit history --limit 20
+focus engine audit --help
+
 # Com Bun e um clone do original no commit do PIN:
 tools/oracle/refresh.sh ../aidlc-workflows                          # regenera fixtures e grava o diferencial
 python3 tools/oracle/differential.py ../aidlc-workflows --fuzz 600  # os dois motores lado a lado
@@ -467,7 +471,7 @@ M2 está em curso. O arranque confirmou o que R2 previa: os módulos de M2 não 
 | 1. Formato do registo | Os 117 tipos de evento e os seus títulos, validação e bloco de uma entrada, leitores de blocos e de campos, timestamp. Crate `focus-audit` | Corpus de oráculo | Feita |
 | 2a. Qual é o registo | Spaces, intents, registo de intents, cursor do intent ativo, binding de sessão e a seleção do workflow, em `focus-workspace` | Corpus: projetos descritos como conjuntos de ficheiros | Feita |
 | 2b. O shard | Identidade do clone (`focus/.focus-clone-id`), nome e caminho do shard (`auditFilePath`, `auditShardName`), listagem e leitura de todos os shards de um registo (`auditShards`, `readAuditShardEvents`, `readAllAuditShards`), cópias lidas uma só vez | Corpus: projetos em disco e conjuntos de shards | Feita |
-| 3. Escrita e leitura em disco | Append sob lock de auditoria, com as verificações de links e de identidade do ficheiro; `focus engine audit append`, `append-batch` e `history`; relógio injetável | Diferencial de comandos: shards iguais a menos do timestamp | Por fazer |
+| 3. Escrita e leitura em disco | Append sob o lock do workspace, com as verificações de links e de identidade do ficheiro; `focus engine audit append`, `append-batch`, `append-raw` e `history`; relógio injetável | Diferencial de comandos: shards iguais a menos do timestamp | Feita |
 | 4. Settings | `focus.settings.json` nas três camadas e os switches gravados. Fecha o limite 2 de M1 | Corpus e diferencial de `validate-grid` | Por fazer |
 | 5. Markdown | `focus-markdown`, com o parser escolhido por medição contra os 391 documentos de `markdown-goldens/corpus.json` (R1). Fecha o limite 1 de M1 | Corpus próprio e os goldens do original | Por fazer |
 | 6. Runtime graph | `runtime-graph.json` a partir dos shards, do ficheiro de estado e dos `memory.md` | `runtime-graph.json` byte a byte igual | Por fazer |
@@ -558,3 +562,46 @@ Uma diferença face ao original:
 Tem um teste marcado "Deliberate deviation" e entra no diferencial com a fatia 3, como as da fatia 2a.
 
 O que a fatia 2b não tem: nada escreve ainda num shard. O append sob lock, as verificações do lado da escrita e o comando `audit` são a fatia 3.
+
+### Fatia 3: escrever e ler em disco, e o comando `audit`
+
+O que existe:
+
+- **Abrir um ficheiro em cujo caminho não se confia** (`focus-workspace::files`). O workspace vai para o git: quem consegue fazer um commit consegue pôr um link, um pipe ou um dispositivo onde o engine espera um ficheiro. Três coisas valem em todas as aberturas: o último componente nunca é seguido (`O_NOFOLLOW`; em Windows abre-se o reparse point e não o alvo), abrir nunca espera (`O_NONBLOCK`: um FIFO sem escritor bloquearia no `open`), e o que se abriu é verificado no descritor e comparado com o que o caminho ainda nomeia. Há dois leitores: o de ficheiros só de append (shards), que tolera crescimento e um segundo hard link, e o estrito (ficheiro de estado), que recusa os dois. A identidade de um ficheiro vem de `dev` e `ino` em Unix e, em Windows, da crate `same-file`, porque a biblioteca padrão ainda não a dá.
+- **Append** (`focus-audit::append`). Todas as escritas acabam numa função. O shard tem de ficar dentro do projeto, nenhuma diretoria do caminho pode ser um link (verificado antes e depois de criar a diretoria), abre-se uma vez sem seguir links, confirma-se que é um ficheiro regular que o caminho ainda nomeia, escreve-se o título (se o ficheiro está vazio) e o bloco numa só escrita, e confirma-se de novo. Um lote é validado inteiro antes de se escrever e escrito de uma vez: uma entrada recusada não deixa as anteriores gravadas.
+- **O lock é o do workspace.** O original tem um lock de auditoria próprio, por intent, numa diretoria temporária. Focus usa o lock que já tem (decisão 3): quem escreve recebe `&WorkspaceLock`. É mais grosso (um por projeto, não um por intent), o que basta enquanto não houver bolts em paralelo.
+- **O relógio é da máquina.** `Machine` passou a ter três coisas: o nome, o gerador de tokens e o relógio. Os testes fixam os três. O comando não tem variável de ambiente para fixar a hora: num registo que serve de prova, a hora não é coisa que quem chama possa escolher.
+- **Notas.** `append-raw` escreve um bloco livre. Como os leitores encontram um evento pela linha `**Event**:` em qualquer sítio do bloco, um corpo que traga essa linha com um evento do vocabulário é recusado; fora do vocabulário passa.
+- **O que o comando recusa escrever.** 17 tipos reservados aos seus donos (sempre) e 49 que carregam autoridade (a não ser com `FOCUS_ALLOW_DIRECT_AUDIT_EVENTS=1`, para fixtures). As duas listas são as do original e são verificadas tipo a tipo no diferencial.
+- **História** (`focus-audit::history`, `audit history`). Eventos e notas do registo ativo, de todos os shards, por timestamp; dentro de um timestamp, por posição no shard e por shard. Duas linhas de shards diferentes no mesmo segundo ficam marcadas `unordered`, sem desempate inventado. Exige o ficheiro de estado do registo, lido pelo leitor estrito, e falha inteira se um shard ou uma diretoria não for de confiança. A saída leva sempre o aviso de que o texto do registo é dado e não instrução.
+
+| Verificação | Resultado |
+| --- | --- |
+| Diferencial, comando `audit` | 125 verificações novas: 109 iguais, 16 desvios deliberados, 0 diferentes. Cada uma é um projeto construído do zero e um ou mais comandos em sequência; compara-se o que cada comando disse e todos os ficheiros do workspace que mudaram |
+| Diferencial completo, com fuzz (`--fuzz 600`) | 2 150 verificações: 2 118 iguais, 32 desvios, 0 diferentes |
+| Fuzz do `audit`, seeds 1, 5 e 11 | 950 sequências de 3 a 6 comandos aleatórios, cada uma a acabar numa leitura da história, 0 diferentes |
+| Os 117 tipos de evento pela linha de comandos, com e sem a variável que levanta a recusa | Iguais, tipo a tipo |
+| 24 mutações deliberadas (listas de tipos, a variável, validação de `--limit`, ordenação e empates da história, campos, filtros, notas, título do shard, verificações de links e do ficheiro de estado) | Todas detetadas pelo diferencial; três repetidas contra o fuzz, detetadas |
+| Diferencial gravado | 1 339 verificações (118 do `audit`), repetidas em `cargo test` sem Bun, em Unix |
+| Em Linux, macOS e Windows | Testes do CLI: append, nota, lote e história de ponta a ponta; 40 appends de 8 processos em paralelo sem um bloco partido |
+| `cargo test` | 170 testes |
+
+O que o diferencial teve de resolver para comparar um comando que escreve a hora e pode cunhar uma identidade: um timestamp escrito durante a execução passa a `<now>` (os das árvores de partida são de janeiro e ficam como estão), e o host e o token de uma identidade cunhada durante a execução passam a `<host>` e `<token>`. No diferencial gravado cada verificação do `audit` parte de uma árvore sua, porque uma árvore em que outra verificação já escreveu traria as horas da gravação.
+
+Desvios deliberados, todos no diferencial pelo nome e com teste marcado:
+
+| | Original | Focus |
+| --- | --- | --- |
+| Recusa lançada dentro de um verbo (tipo desconhecido, campo reservado, JSON inválido de um lote) | Chega ao runtime, que imprime um excerto do código e um stack trace à volta da frase | A mesma frase em `{"error": ...}`, como todas as outras recusas do comando. O diferencial compara a frase e conta estes casos à parte (23 nas verificações com nome) |
+| `--field` que não se consegue partir em chave e valor | Descartado; a entrada é escrita sem ele | Recusa: um campo descartado não deixa rasto de ter sido pedido |
+| Argumentos que o comando não conhece | Ignorados | `Unexpected argument` |
+| `audit-fork`, `audit-merge` | Bifurcam e fundem o registo de um bolt | Recusados pelo nome: bolts e worktrees estão adiados. O texto de uso lista só os verbos que existem |
+| Métricas (`FOCUS_METRICS_ENDPOINT`) | Envia uma métrica por entrada | Recusa o append: métricas estão adiadas, e um endpoint que deixa de receber em silêncio é pior do que uma recusa |
+| Ficheiro onde devia estar a diretoria `audit` | Mostra o erro do runtime | Diz que shard não se conseguiu abrir |
+| Claim de uma unit, worktree delegada, sessões por processo | (fatias 2a e 2b) | Entraram agora no diferencial, por já haver um comando que lá chega |
+
+O que ficou de fora, e onde entra:
+
+- **Observadores só de leitura.** O original recusa qualquer escrita quando o engine corre como sonda (o hook de paragem, a verificação de rota). As sondas são de M4 e M5; a barreira entra com elas.
+- **Lock por intent.** Enquanto o lock for o do workspace, dois intents não escrevem em paralelo. Reavaliar com os bolts.
+- **Fork e merge do registo de um bolt**, com o orquestrador.

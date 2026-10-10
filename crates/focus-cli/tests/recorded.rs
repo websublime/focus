@@ -3,7 +3,8 @@
 //! `tools/oracle/differential.py --record` runs upstream's engine and focus on
 //! the same edited project trees and, when they agree, stores what upstream
 //! did in each check: the tree it started from, the command, and the outcome
-//! (exit code, both output streams, and for a compile the files it left).
+//! (exit code, both output streams, and the files it left: for a compile the
+//! compiled ones, for the audit command whatever changed in the workspace).
 //! This test rebuilds each tree, runs the same command through the `focus`
 //! binary, and requires the same outcome, so the comparison keeps running
 //! where there is no upstream checkout and no Bun.
@@ -49,10 +50,16 @@ fn copy_dir(from: &Path, to: &Path) {
     }
 }
 
-/// The vendored install with one recorded tree's differences applied.
-fn materialise(overlay: &Value, root: &Path) {
+/// The vendored install with one recorded tree's differences applied; or,
+/// for a check recorded on a project built from nothing (`empty`), only the
+/// files the tree names.
+fn materialise(overlay: &Value, root: &Path, empty: bool) {
     let _ = fs::remove_dir_all(root);
-    copy_dir(&fixtures().join("upstream/installed/claude"), root);
+    if empty {
+        fs::create_dir_all(root).unwrap();
+    } else {
+        copy_dir(&fixtures().join("upstream/installed/claude"), root);
+    }
     for (rel, content) in overlay.as_object().unwrap() {
         let path = root.join(rel);
         match content.as_str() {
@@ -128,6 +135,189 @@ fn normalise(text: &str, root: &Path) -> String {
     text
 }
 
+/// A timestamp at or after this instant was written during the replay.
+fn started() -> &'static str {
+    static STARTED: std::sync::OnceLock<String> = std::sync::OnceLock::new();
+    STARTED.get_or_init(|| {
+        focus_audit::time::iso_timestamp(
+            std::time::SystemTime::now() - std::time::Duration::from_secs(2),
+        )
+    })
+}
+
+/// The recorder's `normalise_audit`, for focus's side.
+fn normalise_audit(text: &str, root: &Path) -> String {
+    let root = root.display().to_string();
+    let mut text = text
+        .replace(&format!("{root}{}", std::path::MAIN_SEPARATOR), "")
+        .replace(&root, "<tree>")
+        .replace("Usage: focus engine audit ", "Usage: <cli> audit ")
+        .replace(
+            "`focus engine orchestrate report`",
+            "<cli> orchestrate report",
+        )
+        .replace("`focus engine log`", "<cli> log");
+    text = replace_all(&text, r"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ", |found, text| {
+        let stamp = &text[found.range()];
+        if stamp >= started() {
+            "<now>".to_owned()
+        } else {
+            stamp.to_owned()
+        }
+    });
+    replace_all(
+        &text,
+        r#"(could not be opened: [^\n(]*\()[^\n]*?\)(?="\}|\n|$)"#,
+        |found, text| format!("{}<runtime>)", group(found, text, 1)),
+    )
+}
+
+/// Every file of the workspace, as the recorder lists them: Focus's own lock
+/// left out.
+fn workspace_files(root: &Path) -> BTreeMap<String, String> {
+    fn walk(root: &Path, dir: &Path, files: &mut BTreeMap<String, String>) {
+        let Ok(entries) = fs::read_dir(dir) else {
+            return;
+        };
+        for entry in entries {
+            let path = entry.unwrap().path();
+            let rel = path
+                .strip_prefix(root)
+                .unwrap()
+                .to_string_lossy()
+                .into_owned();
+            let name = path.file_name().unwrap().to_string_lossy().into_owned();
+            if path.is_dir() {
+                walk(root, &path, files);
+            } else if !name.starts_with(".focus-lock") {
+                files.insert(
+                    rel,
+                    String::from_utf8_lossy(&fs::read(&path).unwrap()).into_owned(),
+                );
+            }
+        }
+    }
+    let mut files = BTreeMap::new();
+    walk(root, &root.join("focus"), &mut files);
+    files
+}
+
+/// The recorder's `minted`: a clone identity minted during the run, written
+/// as placeholders in a shard's name and in the clone file.
+fn minted(rel: &str, text: Option<String>) -> (String, Option<String>) {
+    let shown = replace_all(
+        rel,
+        r"/audit/[a-z0-9][a-z0-9-]*-[0-9a-f]{12}\.md$",
+        |_, _| "/audit/<host>-<token>.md".to_owned(),
+    );
+    let text = match text {
+        Some(text) if shown.ends_with("/.focus-clone-id") => {
+            let regex = regress::Regex::new(r"^[0-9a-f]{12}\n[a-z0-9][a-z0-9-]*\n$").unwrap();
+            Some(if regex.find(&text).is_some() {
+                "<token>\n<host>\n".to_owned()
+            } else {
+                text
+            })
+        }
+        other => other,
+    };
+    (shown, text)
+}
+
+/// Run an audit check's commands in order in `root`; the outcome in the
+/// recorder's shape.
+fn replay_audit(check: &Value, root: &Path) -> BTreeMap<String, String> {
+    let before = workspace_files(root);
+    let steps = check["steps"].as_array().unwrap();
+    let (mut exits, mut outs, mut errs) = (Vec::new(), Vec::new(), Vec::new());
+    for step in steps {
+        let mut command = Command::new(env!("CARGO_BIN_EXE_focus"));
+        command.args(["engine", "audit"]);
+        command.args(
+            step.as_array()
+                .unwrap()
+                .iter()
+                .map(|arg| arg.as_str().unwrap().replace("{P}", root.to_str().unwrap())),
+        );
+        command.args([
+            "--project-dir",
+            root.to_str().unwrap(),
+            "--harness",
+            "claude",
+        ]);
+        for (name, _) in std::env::vars() {
+            if name.starts_with("FOCUS_") || name == "CLAUDE_PROJECT_DIR" {
+                command.env_remove(name);
+            }
+        }
+        for (name, value) in check["env"].as_object().unwrap() {
+            command.env(format!("FOCUS_{name}"), value.as_str().unwrap());
+        }
+        let output = command.current_dir(root).output().unwrap();
+        exits.push(output.status.code().unwrap_or(-1).to_string());
+        outs.push(normalise_audit(
+            &String::from_utf8_lossy(&output.stdout),
+            root,
+        ));
+        errs.push(normalise_audit(
+            &String::from_utf8_lossy(&output.stderr),
+            root,
+        ));
+    }
+    let mark = |parts: Vec<String>| -> String {
+        if parts.len() == 1 {
+            return parts.into_iter().next().unwrap();
+        }
+        parts
+            .iter()
+            .enumerate()
+            .map(|(index, part)| {
+                if part.ends_with('\n') || part.is_empty() {
+                    format!("[{index}] {part}")
+                } else {
+                    format!("[{index}] {part}\n")
+                }
+            })
+            .collect()
+    };
+    let mut actual = BTreeMap::new();
+    actual.insert("exit".to_owned(), exits.join(","));
+    actual.insert("stdout".to_owned(), mark(outs));
+    actual.insert("stderr".to_owned(), mark(errs));
+    let after = workspace_files(root);
+    let paths: std::collections::BTreeSet<&String> = before.keys().chain(after.keys()).collect();
+    for rel in paths {
+        if before.get(rel) == after.get(rel) {
+            continue;
+        }
+        let text = after.get(rel).map(|text| normalise_audit(text, root));
+        let (shown, text) = minted(rel, text);
+        actual.insert(shown, text.unwrap_or_else(|| "<removed>".to_owned()));
+    }
+    actual
+}
+
+fn problems_in(
+    expected: &serde_json::Map<String, Value>,
+    mut actual: BTreeMap<String, String>,
+) -> Vec<String> {
+    let mut problems = Vec::new();
+    for (key, want) in expected {
+        let got = actual.remove(key).unwrap_or_else(|| "<absent>".to_owned());
+        if !matches(want, &got) {
+            problems.push(format!(
+                "{key}\n      upstream: {}\n      focus:    {}",
+                shown(want),
+                got.chars().take(400).collect::<String>()
+            ));
+        }
+    }
+    for (key, _) in actual {
+        problems.push(format!("{key}: focus wrote a file upstream did not"));
+    }
+    problems
+}
+
 /// What a check may write, as the recorder snapshots it.
 fn written_files(root: &Path) -> BTreeMap<String, String> {
     let mut files = BTreeMap::new();
@@ -174,6 +364,12 @@ fn shown(expected: &Value) -> String {
 
 /// Run one check in `root`; the problems found, empty when it matches.
 fn replay(check: &Value, root: &Path) -> Vec<String> {
+    if check["tool"] == "audit" {
+        return problems_in(
+            check["expect"].as_object().unwrap(),
+            replay_audit(check, root),
+        );
+    }
     let mut command = Command::new(env!("CARGO_BIN_EXE_focus"));
     command.args(["engine", "graph"]);
     command.args(
@@ -235,21 +431,7 @@ fn replay(check: &Value, root: &Path) -> Vec<String> {
         }
     }
 
-    let mut problems = Vec::new();
-    for (key, want) in expected {
-        let got = actual.remove(key).unwrap_or_else(|| "<absent>".to_owned());
-        if !matches(want, &got) {
-            problems.push(format!(
-                "{key}\n      upstream: {}\n      focus:    {}",
-                shown(want),
-                got.chars().take(400).collect::<String>()
-            ));
-        }
-    }
-    for (key, _) in actual {
-        problems.push(format!("{key}: focus wrote a file upstream did not"));
-    }
-    problems
+    problems_in(expected, actual)
 }
 
 #[test]
@@ -300,11 +482,11 @@ fn focus_does_what_upstream_did_in_every_recorded_check() {
                             }
                             let root = if check["writes"] == true {
                                 let own = scratch.join(format!("{tree}-{step}"));
-                                materialise(&trees[*tree], &own);
+                                materialise(&trees[*tree], &own, check["base"] == "empty");
                                 own
                             } else {
                                 if !shared_ready {
-                                    materialise(&trees[*tree], &shared);
+                                    materialise(&trees[*tree], &shared, check["base"] == "empty");
                                     shared_ready = true;
                                 }
                                 shared.clone()
@@ -380,6 +562,21 @@ fn the_recording_covers_every_verb_and_both_outcomes() {
                 || verb == "topo",
             "no recorded failure for {verb}"
         );
+    }
+    for verb in ["append", "append-batch", "append-raw", "history"] {
+        let of_verb: Vec<&Value> = checks
+            .iter()
+            .filter(|c| {
+                c["tool"] == "audit" && c["steps"][0][0] == verb && c["deviation"].is_null()
+            })
+            .collect();
+        let exits = |code: &str| {
+            of_verb
+                .iter()
+                .any(|c| c["expect"]["exit"].as_str().unwrap().split(',').next() == Some(code))
+        };
+        assert!(exits("0"), "no recorded success for audit {verb}");
+        assert!(exits("1"), "no recorded failure for audit {verb}");
     }
     let deviations = checks.iter().filter(|c| !c["deviation"].is_null()).count();
     assert!(

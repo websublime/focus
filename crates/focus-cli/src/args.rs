@@ -94,6 +94,16 @@ impl Args {
         Some((idx < self.rest.len()).then(|| self.rest.remove(idx)))
     }
 
+    /// The next argument, without taking it.
+    pub fn peek(&self) -> Option<&str> {
+        self.rest.first().map(String::as_str)
+    }
+
+    /// Take everything that is left, in order.
+    pub fn take_rest(&mut self) -> Vec<String> {
+        std::mem::take(&mut self.rest)
+    }
+
     /// Fail on anything left over, so a mistyped flag is never ignored.
     pub fn finish(&self) -> Result<(), String> {
         match self.rest.first() {
