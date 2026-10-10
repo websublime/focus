@@ -4,7 +4,7 @@ use focus_js::{EngineError, Result, bail};
 use focus_workspace::atomic::write_atomic;
 use focus_workspace::links::refuse_link_on_the_way;
 use focus_workspace::manifest::announced_name;
-use focus_workspace::{Layout, WorkspaceLock};
+use focus_workspace::{Layout, WorkspaceLock, observer};
 
 use crate::compile::{Compiled, Sources, compile};
 use crate::composed;
@@ -72,6 +72,7 @@ pub fn write_compiled(
         .iter()
         .zip([&compiled.stage_graph_json, &compiled.scope_grid_json])
     {
+        observer::refuse_write(observer::WRITE_FILE_ATOMIC)?;
         write_atomic(path, text.as_bytes())
             .map_err(|err| EngineError::new(format!("{}: {err}", path.display())))?;
     }

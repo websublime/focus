@@ -32,7 +32,9 @@ use focus_js::text::trim;
 use focus_js::{EngineError, Result, bail, json, num, re};
 use serde_json::Value;
 
-use crate::names::{ACTIVE_INTENT_POINTER, SESSIONS_DIR, STATE_FILE, WORKSPACE_DIR, WORKTREE_META};
+use crate::names::{
+    ACTIVE_INTENT_POINTER, ENGINE_DIR, SESSIONS_DIR, STATE_FILE, WORKSPACE_DIR, WORKTREE_META,
+};
 use crate::project::{Layout, is_space_name};
 
 /// What a command said about where to act.
@@ -378,6 +380,35 @@ fn is_path(value: &str) -> bool {
         || (cfg!(windows) && value.contains('\\'))
 }
 
+/// Why this project's selection cannot be settled yet, when the reason is
+/// something Focus has not ported: a delegated worktree, or sessions recorded
+/// by process with no session named. Upstream settles both. A caller that
+/// can do without the selection may carry on where this answers.
+#[must_use]
+pub fn not_ported(layout: &Layout, selector: &Selector, invoker: &Invoker) -> Option<EngineError> {
+    let worktree_meta = layout.project.join(WORKTREE_META);
+    if worktree_meta.exists() {
+        return Some(EngineError::new(format!(
+            "{} marks this checkout as a worktree an engine created for one unit of work. Focus does not work inside delegated worktrees yet. Run the command from the main checkout.",
+            worktree_meta.display()
+        )));
+    }
+    let named = valid_session_id(selector.session_id.as_deref());
+    let handed_down = valid_session_id(invoker.session_override.as_deref());
+    let pid_map = layout.workspace_root().join(SESSIONS_DIR).join("pids");
+    if named.is_none() && !(handed_down.is_some() && invoker.from_payload) && pid_map.exists() {
+        // Upstream would walk the process tree to find which recorded
+        // conversation is calling, and refuse an exported override that
+        // disagrees with it. Guessing here could act on another
+        // conversation's intent.
+        return Some(EngineError::new(format!(
+            "{} records which process belongs to which conversation, and Focus cannot yet tell which conversation is calling. Name the session, or pass --space and --intent.",
+            pid_map.display()
+        )));
+    }
+    None
+}
+
 /// Settle the space and the intent a command acts on.
 ///
 /// # Errors
@@ -396,27 +427,11 @@ pub fn resolve_selection(
     if let Some(intent) = selector.intent.as_deref().filter(|intent| is_path(intent)) {
         bail!("\"{intent}\" is not an intent name: it is a path.");
     }
-    let worktree_meta = layout.project.join(WORKTREE_META);
-    if worktree_meta.exists() {
-        bail!(
-            "{} marks this checkout as a worktree an engine created for one unit of work. Focus does not work inside delegated worktrees yet. Run the command from the main checkout.",
-            worktree_meta.display()
-        );
+    if let Some(refusal) = not_ported(layout, selector, invoker) {
+        return Err(refusal);
     }
-
     let named = valid_session_id(selector.session_id.as_deref());
     let handed_down = valid_session_id(invoker.session_override.as_deref());
-    let pid_map = layout.workspace_root().join(SESSIONS_DIR).join("pids");
-    if named.is_none() && !(handed_down.is_some() && invoker.from_payload) && pid_map.exists() {
-        // Upstream would walk the process tree to find which recorded
-        // conversation is calling, and refuse an exported override that
-        // disagrees with it. Guessing here could act on another
-        // conversation's intent.
-        bail!(
-            "{} records which process belongs to which conversation, and Focus cannot yet tell which conversation is calling. Name the session, or pass --space and --intent.",
-            pid_map.display()
-        );
-    }
     let session_id = named.or(handed_down);
     let binding = session_id.and_then(|id| read_session_binding(layout, id));
 
@@ -446,6 +461,20 @@ impl Selection {
         self.intent
             .as_ref()
             .map(|intent| join_as_written(&layout.intents_dir(&self.space), intent))
+    }
+
+    /// Where the record's files are: the record directory, or the space's
+    /// `intents` directory while no intent resolves (`docsRoot`).
+    #[must_use]
+    pub fn docs_root(&self, layout: &Layout) -> PathBuf {
+        self.record_dir(layout)
+            .unwrap_or_else(|| layout.intents_dir(&self.space))
+    }
+
+    /// The engine's own directory under [`Self::docs_root`] (`engineDir`).
+    #[must_use]
+    pub fn engine_dir(&self, layout: &Layout) -> PathBuf {
+        self.docs_root(layout).join(ENGINE_DIR)
     }
 
     /// The record directory as text relative to the project, with forward

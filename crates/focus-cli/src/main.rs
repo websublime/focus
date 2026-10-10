@@ -29,7 +29,7 @@ Commands:
   engine graph validate-scope  Check a scope's stages have their inputs
   engine graph validate-grid   Check a proposed plan
   engine graph ars             Compute the arithmetic behind a tailored plan
-  engine graph resolve         Print a scope's plan
+  engine graph resolve         Write or print a scope's plan
   engine graph export          Print the graph, scopes and agents as one document
   engine audit append          Append a diagnostic event to the audit ledger
   engine audit append-batch    Append several events as one write

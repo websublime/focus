@@ -28,7 +28,7 @@ use focus_js::{Result, bail};
 use focus_workspace::files::{names_the_same_file, open_to_append};
 use focus_workspace::links::refuse_link_in_chain;
 use focus_workspace::records::{Invoker, Selector};
-use focus_workspace::{WorkspaceLock, env};
+use focus_workspace::{WorkspaceLock, env, observer};
 
 use crate::entry::{
     Entry, SHARD_TITLE, lexical_absolute_path, redact_project_dir_prefix, render_block, validate,
@@ -173,6 +173,9 @@ impl Ledger<'_> {
 /// shard itself, is a link; it is not a regular file; or the path stopped
 /// naming the file that was opened, before or during the write.
 pub(crate) fn append_block_at(project: &Path, shard: &Path, block: &str) -> Result<()> {
+    // The ledger is evidence of what happened: an observer that appended to
+    // it would be writing the receipts it came to read.
+    observer::refuse_write(observer::APPEND_AUDIT_BLOCK)?;
     let shown = shard.display();
     let outside = || format!("Refusing audit shard outside project: {shown}");
     let project_abs = lexical_absolute_path(project);

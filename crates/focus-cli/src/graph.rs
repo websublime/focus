@@ -19,8 +19,9 @@ use focus_js::{json, num};
 use focus_workspace::atomic::write_atomic;
 use focus_workspace::manifest::HarnessManifest;
 use focus_workspace::names::DEFAULT_SPACE;
+use focus_workspace::records::{self, Invoker, Selector};
 use focus_workspace::settings::Places;
-use focus_workspace::{Layout, WorkspaceLock, env, project};
+use focus_workspace::{Layout, WorkspaceLock, env, observer, project};
 use serde_json::{Map, Value};
 
 use crate::Failure;
@@ -56,7 +57,8 @@ The harness is --harness, else FOCUS_HARNESS, else the only one installed.
   ars --iae <s> --csu <s> --ve <s> --r <s> --ua <s>
       [--completed <csv>] [--project-type <brownfield|greenfield>]
                                The arithmetic behind a tailored plan, as JSON
-  resolve <scope> --stdout     A scope's plan (needs FOCUS_GRAPH_RESOLVE=1)
+  resolve <scope> [--stdout]   A scope's plan, written into the active record
+                               or printed (needs FOCUS_GRAPH_RESOLVE=1)
   export [--check <file>]      The graph, scopes, artifacts and agents as JSON
 
 topo, artifacts, producers, consumers and cycles (without --scope) also accept
@@ -608,18 +610,38 @@ fn run_resolve(args: &mut Args) -> Verb {
         })
         .collect();
     let text = format!("{}\n", json::stringify_pretty(&Value::Array(plan)));
-    if to_stdout {
-        return print_text(&text);
-    }
-    // The default target is the active intent record's engine directory, and
-    // finding that record is the state reader's job.
-    let Some(path) = env::path("PLAN_PATH").map(PathBuf::from) else {
-        return Err(format!(
-            "writing the plan into the active intent record needs the state reader, which Focus does not have yet. Pass --stdout, or set {} to a file.",
-            env::full_name("PLAN_PATH")
-        )
-        .into());
+    // Where the plan goes: the file the environment names, else the engine
+    // directory of the active record. Upstream works that out before it
+    // looks at --stdout, so a registry it cannot read stops both forms.
+    // An empty value still names the file (`??` upstream), and writing to
+    // nowhere fails.
+    let named = env::var("PLAN_PATH").map(PathBuf::from);
+    let target = match &named {
+        Some(path) => Some(path.clone()),
+        None => {
+            let (selector, invoker) = (Selector::default(), Invoker::from_env());
+            match records::resolve_selection(&layout, &selector, &invoker) {
+                Ok(selection) => Some(selection.engine_dir(&layout).join("plan.json")),
+                // What Focus has not ported is no obstacle to printing.
+                Err(_)
+                    if to_stdout && records::not_ported(&layout, &selector, &invoker).is_some() =>
+                {
+                    None
+                }
+                Err(refusal) => return Err(refusal.into()),
+            }
+        }
     };
+    let path = match target {
+        Some(path) if !to_stdout => path,
+        _ => return print_text(&text),
+    };
+    observer::refuse_write(observer::WRITE_FILE_ATOMIC)?;
+    if named.is_none()
+        && let Some(dir) = path.parent()
+    {
+        fs::create_dir_all(dir)?;
+    }
     write_atomic(&path, text.as_bytes()).map_err(|err| format!("{}: {err}", path.display()))?;
     print_lines([path.display().to_string().as_str()])
 }
@@ -773,6 +795,8 @@ fn same_dir(a: &Path, b: &Path) -> bool {
 }
 
 fn write_compiled(dir: &Path, compiled: &Compiled) -> Verb {
+    observer::refuse_write(observer::WRITE_FILE_ATOMIC)?;
+    fs::create_dir_all(dir).map_err(|err| format!("{}: {err}", dir.display()))?;
     for (name, text) in [
         ("stage-graph.json", &compiled.stage_graph_json),
         ("scope-grid.json", &compiled.scope_grid_json),
