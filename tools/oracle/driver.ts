@@ -87,6 +87,14 @@ function answer(c: Record<string, any>): unknown {
       return { value: lib.listField(c.fm, c.key) };
     case "collate":
       return { sign: Math.sign(c.a.localeCompare(c.b)) };
+    case "icase":
+      // What each pattern matches in the text, case ignored, outside the
+      // Unicode modes: the mode nearly all of upstream's patterns are in.
+      return {
+        found: (c.patterns as string[]).map((pattern) =>
+          [...(c.hay as string).matchAll(new RegExp(pattern, "gi"))].map((match) => match[0]),
+        ),
+      };
     case "num": {
       const x = Number(c.text);
       return {

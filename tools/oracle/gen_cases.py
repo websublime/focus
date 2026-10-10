@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Generate oracle cases.
 
-    gen_cases.py <core dir> <seed> <scale>  > cases.ndjson
+    gen_cases.py <core dir> <seed> <scale> <patterns.json>  > cases.ndjson
 
-Cases are inputs only. The answers come from upstream (driver.ts) and from
+`patterns.json` is what `patterns.ts` prints: upstream's case-insensitive
+regular expressions. Cases are inputs only. The answers come from upstream (driver.ts) and from
 focus (`focus dev oracle`), and are compared as text. Generation is seeded, so
 a seed and a scale name one corpus exactly.
 
@@ -23,6 +24,8 @@ import markdown_docs  # noqa: E402
 from names import PHRASES  # noqa: E402
 
 core, seed, scale = sys.argv[1], int(sys.argv[2]), int(sys.argv[3])
+with open(sys.argv[4], encoding="utf-8") as listed:
+    UPSTREAM_ICASE = json.load(listed)
 rng = random.Random(seed)
 FENCE = re.compile(r"^---\r?\n([\s\S]*?)\r?\n---")
 
@@ -1175,6 +1178,62 @@ for part in ("aidlc-common/stages", "agents", "sensors", "scopes", "memory"):
 careful = markdown_docs.writer(rng, careful=True)
 for _ in range(scale * 50):
     markdown(careful())
+
+# --- icase: which characters a case-insensitive pattern takes for which -------
+#
+# Outside the Unicode modes JavaScript compares characters by their upper-case
+# form, and never takes a character outside ASCII for one inside it. Every
+# character of the Basic Multilingual Plane with another case is a pattern
+# here, alone and as a class of one, and the text searched holds all of them.
+# The characters focus's engine compares otherwise, and the ones focus puts in
+# their place (crates/focus-js/src/re.rs), are not patterns: focus refuses a
+# pattern that names one. They are in the text, where what matters is that no
+# other pattern takes them.
+MISFOLDED = ({0x131, 0x17F, 0x3F4, 0x1E9E, 0x1FD3, 0x1FE3, 0x2126, 0x212A, 0x212B, 0xFB05, 0xFB06}
+             | set(range(0x1F80, 0x1FB0)) | {0x1FB3, 0x1FBC, 0x1FC3, 0x1FCC, 0x1FF3, 0x1FFC})
+STAND_INS = {0x138, 0x2129}
+CASED = [cp for cp in range(0x80, 0x20000)
+         if not 0xD800 <= cp <= 0xDFFF and (chr(cp).upper() != chr(cp) or chr(cp).lower() != chr(cp))]
+BMP = [cp for cp in CASED if cp < 0x10000]
+LETTERS = list(range(0x41, 0x5B)) + list(range(0x61, 0x7B))
+NAMED = [cp for cp in LETTERS + BMP if cp not in MISFOLDED | STAND_INS]
+ICASE_TEXT = ("".join(chr(cp) for cp in range(0x20, 0x7F)) + "".join(chr(cp) for cp in BMP)
+              + "ĸ℩ 日本 sſ kK iı Straße STRASSE")
+ICASE_PATTERNS = ([f"\\u{cp:04x}" for cp in NAMED] + [f"[\\u{cp:04x}]" for cp in NAMED]
+                  # Two in a row, which an engine may search for otherwise than one.
+                  + [f"\\u{a:04x}\\u{b:04x}" for a, b in list(zip(NAMED, NAMED[1:]))[::3]]
+                  + ["[a-z]", "[A-Z]", "[^a-z]", "[^A-Z0-9 -/]", r"\w", r"\W+", "[a-z]+", r"\S+", r".",
+                     r"[\D]+", r"[^\D]+", r"[\S]+", r"[^\S]+", r"[\s\S]+", "[^\\s\"']+", r"[\w-]+", r"[^\w-]+",
+                     r"[\d\s]+", r"[^\d\s]+", r"(s)\1", r"(k)\1", r"(i)\1", "strasse", r"straße",
+                     r"\bs\b", r"s\B", "s", "S", "k", "K", "i", "I", r"[sS]", r"[^sS]", r"[ék]",
+                     r"[^ék]+", r"[^ß]+", r"[^ωå]+", r"µ", r"σ", r"ǅ",
+                     r"[αω]", r"<(script|style)\b[\s\S]*?(?:<\/\1\s*>|$)"])
+for start in range(0, len(ICASE_PATTERNS), 200):
+    add("icase", patterns=ICASE_PATTERNS[start:start + 200], hay=ICASE_TEXT)
+# A backreference compares what a group took with the text, a third way to
+# compare: every ASCII letter is followed here by every character with a
+# case, and none may be taken for the letter.
+add("icase", patterns=["(" + "|".join(chr(letter) for letter in range(0x61, 0x7B)) + r")\1", r"(s|k|i)\1"],
+    hay="".join(chr(letter) + chr(cp) for letter in range(0x61, 0x7B) for cp in BMP))
+# Upstream's own case-insensitive patterns, over that text and over lines where
+# a letter focus's engine would misread stands where the pattern has its ASCII
+# twin. One of them refused by focus would fail here, before its module is
+# ported.
+TWINS = "\n".join([
+    "<script>x</\u017fcript> <STYLE>a</\u017fTYLE> </style>", "<H1> <h\u0131> <t\u0131tle>x</T\u0131TLE>",
+    "eslint couldn\u2019t find an eslint.config", "ESLINT COULDN'T FIND A CONFIGURATION",
+    "the human\u2019s deci\u017fion", "not a human decision \u3002", "conductor\u2019s default\u3002",
+    "```J\u017fON\n{}\n```", "```JSON\n{}\n```", "Mode: \u017ftrict", "Mode: STRICT", "\u212aey: value",
+    "\u017fkip the plan-approval", "please SKIP the plan approvals", "bun .\u212airo/tools/x.ts", "\u2126 \u212b \u1e9e",
+])
+for start in range(0, len(UPSTREAM_ICASE), 200):
+    add("icase", patterns=UPSTREAM_ICASE[start:start + 200], hay=ICASE_TEXT + "\n" + TWINS)
+# Beyond the Basic Multilingual Plane a character is two code units to
+# JavaScript, and a code unit of a pair has no other case. focus refuses a
+# pattern that names such a character; what is left to check is that no
+# other pattern is troubled by them. None here consumes half a pair.
+add("icase", patterns=["[a-z]+", r"\w+", r"\W+", r"[^a-z ]+", r"\S+", r"(az)\1", r"[\s\S]+"],
+    hay="".join(chr(cp) for cp in CASED if cp >= 0x10000) + " az AZ azAZ")
 
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")
