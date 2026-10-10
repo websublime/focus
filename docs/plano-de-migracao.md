@@ -2,7 +2,7 @@
 
 O projeto chamava-se Sulca até 2026-10-09; o workspace, os crates e o binário passaram a `focus`.
 
-Estado em 2026-10-09, com os marcos M0 e M1 fechados. Referência: `awslabs/aidlc-workflows` no commit `2a555f7` (v2.11.0, licença MIT-0). Focus é um fork congelado nesse commit; o que o original publicar depois não é seguido.
+Estado em 2026-10-10, com os marcos M0 e M1 fechados e M2 em curso (cinco fatias de seis; secção 13). Referência: `awslabs/aidlc-workflows` no commit `2a555f7` (v2.11.0, licença MIT-0). Focus é um fork congelado nesse commit; o que o original publicar depois não é seguido.
 
 ## 1. Resumo
 
@@ -23,7 +23,7 @@ Três conclusões condicionam tudo o resto:
 
 1. **O port é guiado por um oráculo, não por leitura.** O engine original corre aqui (Bun), por isso cada marco termina com as mesmas entradas a passar pelos dois motores e as respostas comparadas como texto. Em M1: 1 825 comandos executados nos dois motores sobre árvores de projeto alteradas, com 0 diferenças fora de 16 verificações que são desvios deliberados (8 causas), e 208 030 casos de função com 0 diferenças (secção 10).
 2. **`aidlc-lib.ts` não se porta de cima para baixo.** São 42 056 linhas importadas por 73 dos outros 110 ficheiros. Reparte-se por crates, à medida que cada marco precisa de uma fatia.
-3. **O maior risco técnico é o Markdown, e já tem o primeiro consumidor.** O engine interpreta Markdown com o `Bun.markdown`. Em M1, `validate-grid` precisou de saber se um ficheiro de memória declara uma Guard Policy, o que depende de que linhas são visíveis. Focus resolve os ficheiros em que isso se decide linha a linha e recusa os restantes (secção 10); o parser a sério é de M2.
+3. **O maior risco técnico era o Markdown.** O engine interpreta Markdown com o `Bun.markdown`, e o que cada consumidor pode ler depende de que linhas são visíveis. Em M1, `validate-grid` resolvia os ficheiros em que isso se decide linha a linha e recusava os restantes. A fatia 5 de M2 trouxe o leitor a sério (`focus-markdown`, secção 13): lê a estrutura com um parser, coincide com o original linha a linha nos documentos que as pessoas escrevem, e onde os dois se separam há um terceiro parser a arbitrar.
 
 ## 2. O que existe a montante
 
@@ -231,6 +231,8 @@ Os dois motores não partilham vocabulário: o original lê e escreve `aidlc`, F
 
 `cargo test` repete o corpus, o diferencial gravado e os goldens sem Bun e sem clone do original. `refresh.sh` regenera tudo a partir de um clone.
 
+Há um tipo de caso do corpus que não se compara como texto: `markdown`, a estrutura de um documento linha a linha. O original aproxima-a e Focus lê-a de um parser, por isso cada linha é julgada com outros dois parsers a arbitrar (`markdown_rule.py`, `referee/`; secção 13, fatia 5). O mesmo juízo corre ao vivo sobre documentos hostis com `differential.py --markdown N`.
+
 O que o diferencial normaliza antes de comparar, e nada mais: o nome com que cada motor se refere a si próprio, a localização da árvore temporária, e o texto que vem do runtime e não do engine (a mensagem do sistema operativo para um ficheiro em falta, a do parser de JSON).
 
 Os instrumentos foram testados contra si próprios. Em M0, trocar `trim` pela versão do Rust acusou 106 diferenças em 14 695 casos. Em M1, cinco mutações deliberadas, todas detetadas e depois repostas:
@@ -255,7 +257,7 @@ Duas leituras desta tabela. A mutação do fold-back passou no diferencial grava
 
 ## 8. Riscos
 
-**R1. Markdown.** Continua a ser o maior risco, e deixou de ser hipotético: `validate-grid` já depende dele (secção 10). O original interpreta Markdown com `Bun.markdown` e tem código que compensa comportamentos de versões concretas do Bun (comentários em `aidlc-lib.ts`, linhas 40572 e 40957). Sensores e a verificação de autoridade de review dependem desse resultado. Um parser Rust (`pulldown-cmark`, `comrak`) vai divergir em casos-limite. Mitigação: antes de escolher, medir cada candidato contra `markdown-goldens/corpus.json` e contra todo o Markdown de `core/`; onde a divergência for um defeito do Bun, seguir a especificação e registar o desvio.
+**R1. Markdown.** Medido e reduzido na fatia 5 de M2 (secção 13). O original interpreta Markdown com `Bun.markdown`, que não dá posições na fonte, e descobre a estrutura inserindo palavras-sonda e vendo onde saem; tem ainda código que repara o renderer onde este se afasta do CommonMark. Focus lê a estrutura com `pulldown-cmark`. Nos 391 documentos de `markdown-goldens/corpus.json` e nos 256 ficheiros de Markdown do repositório do original, não há uma linha colocada pelos dois em que a estrutura difira. Fora do que as pessoas escrevem, separam-se, e cada linha é julgada com um terceiro parser. O que fica do risco: os consumidores que ainda não estão portados (sensores, autoridade de review, perguntas) vão ler a mesma estrutura, e onde o original falha a colocar uma linha vão ver outra coisa; cada um entra com o seu diferencial. E o parser tem cantos de tabelas em que lê diferente do GFM (0,19% das linhas em documentos hostis), contados e com teto.
 
 **R2. `aidlc-lib.ts`.** Não há fronteiras internas a seguir. Mitigação: em cada marco, extrair primeiro a lista de funções de `lib` que os módulos do marco importam (os imports são nomeados) e atribuí-las a um crate antes de portar.
 
@@ -273,7 +275,7 @@ Duas leituras desta tabela. A mutação do fold-back passou no diferencial grava
 
 **R9. Nomes no conteúdo reutilizado.** Fechado pela decisão 10. Focus adotou o Markdown como seu e renomeou-o: `aidlc` passou a `focus` em nomes de ficheiros, de diretórios e no texto, com a mesma substituição que as ferramentas de paridade aplicam (secção 7). Ficam dois efeitos a vigiar. Primeiro, os dois nomes ordenam de forma diferente em relação a outros (`aidlc` < `bravo` < `focus`): uma árvore com um plugin ou um ficheiro cujo nome caia entre os dois pode ser percorrida noutra ordem por cada motor, e duas mensagens de erro dependem da ordem. Nenhuma árvore do diferencial cai aí, e o diferencial mostrava-o. Segundo, a parte do Markdown que M1 ainda não lê (skills, knowledge, o texto dos harnesses) entra em M8 pelo mesmo mapa; as 408 invocações `{{INVOKE}}` e as 48 por caminho de ferramenta TS precisam de mais do que o mapa, e já estavam no âmbito de M8.
 
-**R10. Peso das fixtures.** `fixtures/` tem 7,7 MB (corpus 2,2; diferencial gravado 3,7; referência 1,9). É o preço de `cargo test` provar paridade sem Bun. Se pesar no repositório, o diferencial gravado comprime bem ou pode viver fora.
+**R10. Peso das fixtures.** `fixtures/` tem 13,7 MB (corpus 7,5, dos quais 2,4 são os documentos de Markdown e as respostas linha a linha; diferencial gravado 4,3; referência 1,9). É o preço de `cargo test` provar paridade sem Bun. Se pesar no repositório, o diferencial gravado comprime bem ou pode viver fora.
 
 ## 9. Estado de M0
 
@@ -384,7 +386,7 @@ Os sete primeiros aparecem pelo nome no diferencial e têm um teste marcado "Del
 
 O que M1 não faz, e o que acontece quando lá se chega:
 
-1. **Guard Policy em memória lida por linhas.** O original decide que linhas de um ficheiro de memória são visíveis com um parser CommonMark completo. `focus-graph::guard_memory` lê os ficheiros em que isso se decide linha a linha: fora de comentários que abrem no início de uma linha, não pode haver fences, crases desemparelhadas ou escapadas, nem `<` fora de um span de código; e a secção `## Guard Policy` não pode ter linhas indentadas quatro espaços ou mais. Os três ficheiros que o original distribui cabem. Um ficheiro fora disso faz `validate-grid` parar com erro, a nomear o ficheiro e a linha, quando a proposta é `relaxed` ou `off`; uma proposta `strict` não consulta a memória. Dentro do domínio, 45 035 casos gerados deram a resposta do original.
+1. **Guard Policy em memória lida por linhas.** Fechado na fatia 5 de M2: `focus-graph::guard_memory` lê as linhas visíveis com `focus-markdown` e já não recusa ficheiro nenhum (secção 13). Em M1 lia só os ficheiros em que a visibilidade se decide linha a linha e parava com erro nos restantes.
 2. **Kill switches só pelo ambiente.** Fechado na fatia 4 de M2: `validate-grid` vê os switches gravados em `focus.settings.json` nas três camadas, e o ambiente responde primeiro (secção 13).
 3. **Space por omissão.** A memória consultada é a do space de `--space`, senão a do cursor `focus/active-space`. Bindings de sessão e worktrees delegadas não são consultados (M3).
 4. **Só a árvore Claude passou pelos verbos.** Os goldens de compile cobrem os três harnesses; os 1 130 comandos de verbos correram sobre a distribuição `claude`. O código não distingue harnesses fora do diretório e dos caminhos de sensores, mas não foi medido.
@@ -439,7 +441,7 @@ A decisão 3 dizia "cargo toma posse". Li-a como: nada de compatibilidade com o 
 ### Em aberto
 
 1. **`.gitignore` do lock.** `focus/.focus-lock` não deve ser commitado. O instalador (M8) é quem escreve o `.gitignore` do projeto; até lá, quem usar Focus num projeto real acrescenta a linha à mão.
-2. **Peso das fixtures (R10).** 7,7 MB no repositório, ou diferencial gravado fora dele.
+2. **Peso das fixtures (R10).** 13,7 MB no repositório, ou diferencial gravado fora dele.
 3. **O nome do método na prosa.** O Markdown reutilizado diz "AI-DLC" quando fala do método (por exemplo, "AI-DLC workflow"). Não mexi: é o nome de uma metodologia, não um identificador, e trocá-lo por substituição de texto estraga a gramática ("an AI-DLC" passaria a "an Focus"). Se o queres fora, é uma edição de conteúdo à mão, que cabe em M8 com o resto do Markdown.
 
 ## 12. Como correr
@@ -460,6 +462,7 @@ focus engine audit --help
 # Com Bun e um clone do original no commit do PIN:
 tools/oracle/refresh.sh ../aidlc-workflows                          # regenera fixtures e grava o diferencial
 python3 tools/oracle/differential.py ../aidlc-workflows --fuzz 600  # os dois motores lado a lado
+python3 tools/oracle/differential.py ../aidlc-workflows --only '^$' --markdown 2500   # só o Markdown hostil
 ```
 
 ## 13. Estado de M2
@@ -473,7 +476,7 @@ M2 está em curso. O arranque confirmou o que R2 previa: os módulos de M2 não 
 | 2b. O shard | Identidade do clone (`focus/.focus-clone-id`), nome e caminho do shard (`auditFilePath`, `auditShardName`), listagem e leitura de todos os shards de um registo (`auditShards`, `readAuditShardEvents`, `readAllAuditShards`), cópias lidas uma só vez | Corpus: projetos em disco e conjuntos de shards | Feita |
 | 3. Escrita e leitura em disco | Append sob o lock do workspace, com as verificações de links e de identidade do ficheiro; `focus engine audit append`, `append-batch`, `append-raw` e `history`; relógio injetável | Diferencial de comandos: shards iguais a menos do timestamp | Feita |
 | 4. Settings | `focus.settings.json` nas três camadas e os switches gravados. Fecha o limite 2 de M1 | Corpus e diferencial de `validate-grid` | Feita |
-| 5. Markdown | `focus-markdown`, com o parser escolhido por medição contra os 391 documentos de `markdown-goldens/corpus.json` (R1). Fecha o limite 1 de M1 | Corpus próprio e os goldens do original | Por fazer |
+| 5. Markdown | `focus-markdown`: a estrutura de um documento linha a linha e as linhas que um consumidor pode ler, com `pulldown-cmark` (R1). Fecha o limite 1 de M1 | Corpus com os goldens do original, o Markdown que ele distribui e documentos gerados; fuzz ao vivo com um terceiro parser a arbitrar | Feita |
 | 6. Runtime graph | `runtime-graph.json` a partir dos shards, do ficheiro de estado e dos `memory.md` | `runtime-graph.json` byte a byte igual | Por fazer |
 
 A fatia 6 lê o ficheiro de estado (`readStateFile`, `parseCheckboxes`, `parseStateStageSuffixes`), que o plano tinha em M3, e os registos de bolts e worktrees, que estão adiados. Porta-se só o leitor de estado de que o compile precisa; o resto do ficheiro de estado continua em M3. Se a fatia de leitura se revelar inseparável das transições, a fatia 6 passa para depois do arranque de M3 e M2 fecha com as cinco primeiras.
@@ -642,3 +645,102 @@ Um desvio deliberado:
 O corpus deixa de fora, de propósito: números que não cabem num double e metades de pares de substituição (os dois parsers de JSON não concordam, e nenhum ficheiro de settings precisa deles), e valores de `ca-bundle` cuja condição de "absoluto" depende da plataforma.
 
 O que a fatia 4 não tem: escrever settings (`focus config`, M8), e os consumidores das outras flags (`defaultScope`, `swarm`, `hookDebug`, os tempos) e de `models`, que entram com os módulos que as usam.
+
+### Fatia 5: Markdown
+
+O engine lê Markdown que pessoas e agentes escrevem: ficheiros de memória, de estado, de perguntas, reviews. O que pode usar é o texto que um leitor veria como texto. Um título dentro de um bloco de código não é um título, um campo dentro de um comentário não é um campo. Decidir isso pede a estrutura de blocos do documento, como o CommonMark e o GFM a definem.
+
+O crate `focus-markdown` dá duas coisas:
+
+- **`analyse`**: para cada linha da fonte, o tipo de bloco a que pertence (parágrafo, título, regra, código com fence, código indentado, bloco HTML, definição de referência, tabela ou em branco), as citações e itens de lista em que está, a coluna onde começa o seu conteúdo e os troços que são código inline, HTML ou comentário. Espelha `markdownBlocks`.
+- **`visible_lines`**: o documento com o mesmo número de linhas, em que uma linha de código ou de bloco HTML fica vazia, um comentário é cortado da sua linha, e uma linha que só continua um span de código ou uma etiqueta fica vazia. Tem as duas opções do original (manter código indentado, manter marcas onde havia comentários). Espelha `visibleMarkdownLines`.
+
+**Como o original o faz, e porque Focus não faz igual.** O `Bun.markdown` renderiza sem dizer onde cada coisa estava na fonte. O original contorna isso: insere uma palavra-sonda em cada linha, renderiza, e vê em que bloco a palavra saiu. Quando uma sonda muda o resultado, divide o conjunto ao meio e tenta outra vez, até 256 renders por documento. Tem ainda três reparações para sítios em que o renderer se afasta do CommonMark (uma tabela que não acaba num título, um fence fechado fora do seu contentor, uma etiqueta indentada sob um parágrafo). A intenção é ler CommonMark; o método é uma aproximação. Focus tem um parser que dá posições (`pulldown-cmark` 0.13.4) e lê a estrutura diretamente.
+
+**A escolha do parser.** Mediu-se o `pulldown-cmark` contra o que o original responde. Nos 391 documentos de `markdown-goldens/corpus.json` (11 052 linhas: 11 048 iguais, 4 que o original não coloca) e nos 256 ficheiros de Markdown do repositório do original (`core/`, `docs/` e a raiz; 68 695 linhas: 59 397 iguais, 9 224 que o original não coloca, quase todas em 16 documentos onde o orçamento de renders se esgota, e 74 em que não chegou a registar um span que lá está) não há uma linha em que os dois leiam estruturas diferentes. Nas 9 228 que o original não coloca, o árbitro lê como Focus. O `comrak` não chegou a ser medido: o primeiro candidato não deixou diferenças por explicar. O `markdown` (markdown-rs) ficou de fora por outra razão: é o mesmo algoritmo do micromark, que faz de árbitro, e um árbitro não pode ser parte.
+
+O parser tem defeitos, e cinco estão contornados em `analysis.rs`, todos com um caso no corpus ou um teste:
+
+- Um bloco HTML aberto por `<script>`, `<pre>`, `<style>` ou `<textarea>` acaba, no CommonMark, na primeira linha com a etiqueta de fecho de qualquer das quatro, em qualquer caixa. O parser só o fecha com a que corresponde à de abertura, em minúsculas; `<pre>` seguido de `</style>` escondia o resto do documento. Focus deteta o bloco que passou do fim, troca a etiqueta nessa linha pela que o parser espera e volta a ler.
+- Uma segunda definição do mesmo rótulo continua a ser uma definição, mas o parser guarda a primeira e não diz nada sobre as outras. Focus não toma o silêncio por texto.
+- Tabulação vertical e form feed são, para o CommonMark, caracteres como os outros no que toca a blocos; o parser toma-os por espaço. Focus entrega-lhe outro carácter de controlo no lugar deles.
+- **O parser entra em pânico** num documento de 16 bytes: um item de lista só com uma definição, seguido de uma linha de espaços indentada para lá do item (`- [a]: b` e depois seis espaços). Uma linha de espaços e uma linha vazia são a mesma coisa para o CommonMark, por isso Focus entrega-lhe a linha vazia. E para o que não se conhece: um pânico dentro do parser é apanhado e vira uma recusa do documento, sem mensagem do runtime.
+- Uma declaração `<!x ...` no meio de uma linha acaba, para o parser, no `>` seguinte, mesmo que esse `>` seja o marcador de citação da linha de baixo. Um span que acabe antes de o texto da sua linha começar não é um span, e Focus não o regista.
+
+**Um documento que Focus não consegue ler é recusado, não adivinhado.** `analyse` devolve erro em dois casos: o parser falhou, ou não disse nada sobre uma linha que não é em branco, nem marcadores de contentor, nem uma definição pelo aspeto. `validate-grid` recusa então a proposta a nomear o ficheiro. Em mais de 45 000 documentos (corpus, fuzz e 30 000 de ruído puro) não aconteceu nenhuma das duas.
+
+**Como se compara.** A resposta de Focus não tem de ser igual à do original: tem de ser igual, ou diferente por uma razão que se possa verificar. `tools/oracle/referee/referee.ts` lê cada documento com dois parsers que dão posições, e as respostas ficam ao lado da do original: o micromark (via mdast), com tabelas GFM, é o árbitro; o commonmark.js, a implementação de referência do CommonMark, é a segunda opinião, pedida só onde o árbitro e Focus diferem e só em linhas a que nenhum chama tabela, porque não as conhece. A segunda opinião existe porque o micromark tem leituras próprias em listas aninhadas (uma lista ordenada que não começa em 1, logo a seguir a código indentado, para ele não é lista), e aí é a referência que decide. Cada linha de cada documento recebe um veredicto (`tools/oracle/markdown_rule.py`; o teste do corpus repete a regra em Rust):
+
+| Veredicto | O que quer dizer | Conta como |
+| --- | --- | --- |
+| igual | o registo de Focus para a linha é o do original | igual |
+| por colocar | o original não respondeu nada para a linha, e o árbitro lê-a como Focus | desvio `markdown/commonmark` |
+| sem texto | a linha é só espaço e marcadores de contentor, e ou os dois diferem em chamar-lhe em branco ou dentro de um bloco de código ou HTML, ou o original não a colocou | desvio `markdown/commonmark` |
+| só o original | os dois diferem e o árbitro lê como Focus | desvio `markdown/commonmark` |
+| coluna de reparação | um span continua para uma linha que abre com uma etiqueta indentada; o original dá-o uma coluna antes | desvio `markdown/commonmark` |
+| só Focus, ou os três diferentes | o parser de Focus lê de outra maneira | limite `markdown/reading`, com teto |
+| port | mesma estrutura, nada por perto que explique a diferença | falha, sempre |
+
+No corpus incluído só os cinco primeiros são aceites. No fuzz ao vivo, o sexto é aceite até 5% dos documentos.
+
+| Verificação | Resultado |
+| --- | --- |
+| Corpus incluído: 798 documentos (382 dos 391 goldens e 70 dos 71 ficheiros de `core/` já em `fixtures/`, 46 escritos à mão, 300 gerados como um autor cuidadoso escreve) | 27 149 linhas: 26 665 iguais, 443 por colocar, 5 sem texto, 35 só o original, 1 coluna de reparação. 0 por explicar |
+| Corpus alargado, seeds 41 e 42 à escala 40 | 4 992 documentos, 141 144 linhas: 135 515 iguais, 5 404 por colocar, 207 só o original, 16 sem texto, 2 colunas de reparação. 0 por explicar |
+| Guard Policy em memória, com o leitor novo | 913 casos `guard` e 600 `guardwild`, 0 diferenças; alargado, 20 026 casos, 0 diferenças |
+| Fuzz ao vivo, 4 seeds de 2 500 documentos escritos sem cuidado (aninhamento ao acaso, construções por fechar, caracteres trocados) | 239 195 linhas: 216 682 iguais (90,6%), 18 806 por colocar (7,9%), 2 597 só o original (1,09%), 645 sem texto, 3 colunas de reparação, 456 só Focus e 6 com os três diferentes (0,19% no total, em 1,3% a 1,8% dos documentos). 0 de port, 0 recusados |
+| Ruído: 30 000 documentos de pedaços de sintaxe ao acaso, com NUL, controlos e caracteres de vários bytes | nenhum pânico, nenhum recusado |
+| Mutações deliberadas no crate e no leitor de Guard Policy | 49, em duas rondas: 44 detetadas pelos testes; 2 revelaram código que não fazia nada, que saiu; 2 são equivalentes; 1 é a recusa defensiva, a que nenhuma entrada conhecida chega |
+| Mutações contra o fuzz ao vivo | 4, todas detetadas: 3 pelo teto, 1 como diferença de port |
+| Diferencial, `validate-grid` com memória | 65 verificações novas em 13 árvores: 56 iguais, 9 desvios deliberados (3 causas) |
+| Diferencial completo | 1 445 verificações com nome: 1 403 iguais, 42 desvios, 0 diferentes. 1 434 gravadas |
+| `cargo test` | 198 testes |
+
+A primeira ronda de mutações deixou passar 11 de 31. Seis eram linhas que o corpus não tinha (um span de três linhas, uma etiqueta de três linhas, um NUL antes de um span, um rótulo definido três vezes, um item de lista três colunas dentro de uma citação, um bloco fechado na primeira linha): entraram no corpus como documentos escritos à mão, respondidos pelo original. Duas eram a mesma resposta em que a regra aceita mais do que uma, a coluna de um span numa célula de tabela: tem um teste com os valores do original (`tests/reading.rs`). Duas mostraram código que não fazia nada (aparar as linhas em branco depois de código indentado, que o parser já faz; pôr em minúsculas as etiquetas de fecho, que a releitura já cobre), e saiu. Uma é equivalente.
+
+Nove goldens e um ficheiro de `core/` ficam fora do corpus incluído porque contêm uma das três frases que o mapa de nomes muda de comprimento (secção 7): as colunas que o original respondeu deixariam de bater com o documento traduzido. Foram medidos nos nomes do original, com os restantes.
+
+**Revisão independente.** Antes do pull request, um revisor sem acesso ao raciocínio do port leu o crate, a regra e os testes, e correu documentos construídos de propósito contra a biblioteca. Encontrou dez coisas; todas estão corrigidas, com caso no corpus ou teste, exceto a que é do `focus-js` e fica registada abaixo:
+
+- o pânico do parser (acima), que o fuzz de 10 000 documentos não tinha apanhado e que um gerador com outra seed apanhava;
+- tempo cúbico numa só linha com milhares de spans (8 000 spans: 58 s; agora 0,1 s), por se voltar a percorrer a linha para cada sonda de cada span;
+- num item de lista sem parágrafo, uma linha sem texto próprio (o título de um link na linha seguinte, `- ![](x)`) ficava sem bloco e era dada como definição. O conteúdo inline de um item passou a incluir links, imagens e ênfase do princípio ao fim;
+- texto de um item depois de uma citação só com código ficava dentro da citação;
+- `</ſtyle>` fechava um bloco aberto por `<pre>`: um padrão sem distinção de caixa toma `ſ` por `s`. As etiquetas passaram a comparar-se em minúsculas ASCII;
+- o span da declaração que acabava no marcador de citação (acima), com início depois do fim;
+- as colunas de um span numa célula de tabela contadas em bytes onde o original conta unidades UTF-16;
+- `structured_field` tirava um `\r` solto no fim da última linha, que o original mantém;
+- form feed e tabulação vertical (acima).
+
+A regra também ficou mais apertada com a revisão: uma linha que o original não coloca passou a ter de ser lida pelo árbitro como Focus a lê (antes passava sem juízo), e "só marcadores" deixou de aceitar `-->`, `---` e `***`.
+
+**Desvios deliberados.** Um de cada em `crates/focus-markdown/tests/deviations.rs`, com a resposta do original ao lado.
+
+| | Original | Focus |
+| --- | --- | --- |
+| Linha onde não cabe uma sonda (um marcador de lista sozinho, um `>` sozinho) | Fica `unknown` | Todas as linhas são colocadas; não há esse tipo |
+| Documento longo | Pára ao fim de 256 renders e lê o resto como texto. Sessenta tabelas pequenas bastam; um `Mode: strict` dentro de um comentário, depois delas, passa a declarar uma Guard Policy | Lê o fim de um documento como lê o início |
+| `> [Answer]:` seguido de `> ---` | Definição e regra, e `ANSWER` na lista de rótulos definidos | Título setext, como no CommonMark |
+| `<!x y>` (declaração com letra minúscula) | Parágrafo com uma etiqueta; a linha fica visível, e o que vier a seguir até ao próximo `>` também | Bloco HTML (CommonMark 0.31, condição 4) |
+| `[Answer]: <!--<!---->` | Definição | Parágrafo: um destino entre `<>` não pode conter `<` |
+| Span de código que fecha no início de uma linha | Acaba o span uma linha antes; a última fica visível | O span cobre a linha onde fecha |
+| Span aberto depois de uma crase escapada | Não regista o span; as linhas que cobre ficam visíveis | A crase escapada é texto e o span começa na seguinte |
+| Etiqueta indentada quatro colunas sob um parágrafo | Não a regista, e dá um span que continue para essa linha uma coluna antes | Regista-a onde está |
+| Linha só com um espaço que não é espaço nem tabulação (um espaço não separável) | Em branco | Parágrafo: para o CommonMark é texto |
+
+Em todos, o árbitro lê como Focus. Os três que mudam o que `validate-grid` decide (o documento longo, a crase escapada e a declaração em minúsculas) estão também no diferencial, com nome, e em testes de `guard_memory.rs`.
+
+Um limite, que não é escolha: em cantos de tabelas o `pulldown-cmark` lê diferente do GFM (uma linha de cabeçalho sem `|` sobre um delimitador com `|`; um delimitador que começa como item de lista; uma linha indentada depois de uma tabela), e lê de outra maneira HTML inline que atravessa linhas dentro de contentores. Aí o original e o árbitro têm razão. `tests/deviations.rs` fixa o que Focus faz hoje, para que uma versão nova do parser que o mude apareça, e o fuzz recusa uma subida.
+
+Uma coisa é do original de propósito, embora esteja errada: a coluna de um span de código numa célula de tabela com `\|`. O original mede o span pelo texto renderizado, onde `\|` é um carácter e não dois, e dá-o mais curto. Os sensores leem essas colunas, por isso Focus dá as do original.
+
+**O limite 1 de M1 fechou.** `guard_memory` lê as linhas visíveis com `focus-markdown`: já não há ficheiro de memória recusado por ter Markdown a mais, e os 600 casos `guardwild` do corpus, que antes podiam ser recusados, respondem todos como o original. Do gerador desses casos saiu uma construção, a do span depois de uma crase escapada: é um dos desvios acima.
+
+O que a fatia 5 não tem:
+
+- **Os outros consumidores.** Títulos, campos, perguntas e respostas, e as fontes de afirmações dos sensores leem esta estrutura; entram com os módulos que os usam (M3 em diante), cada um com o seu diferencial.
+- **As reparações do original** (`markdownRepairs`). Existem para corrigir o `Bun.markdown`; um parser que lê CommonMark não precisa delas.
+- **O que a regra não vê.** O registo comparado não leva a identidade do bloco de uma linha (salvo em blocos HTML), nem os contentores de linhas de código, em branco, de definição e de regra, nem a projeção com as duas opções ligadas. Nenhum consumidor do original os lê. E numa linha julgada "só o original", os spans e as projeções de Focus não têm contra o que comparar.
+- **Uma coluna a meio de um carácter.** Numa célula de tabela, quando a conta do original cai a meio de um par de substituição UTF-16, Focus dá o início do carácter. Um `\|` seguido de um emoji dentro de código, numa tabela.
+- **Tempo em documentos patológicos.** O contorno do bloco HTML relê o documento uma vez por cada bloco que acabe com a etiqueta de outro ou em maiúsculas: mil desses blocos custam cerca de 0,1 s, quatro mil cerca de 1,4 s. Nenhum documento real tem um.
+- **`focus-js`: padrões sem distinção de caixa.** O motor de expressões regulares que `focus-js` usa toma `ſ` por `s` e `K` (o sinal kelvin) por `k` quando a flag é `i` sem `u`; o JavaScript não. Neste crate as etiquetas já não passam por aí. Os outros padrões portados com `i` ficam por corrigir no próprio `focus-js`, num pull request à parte, a seguir a este.

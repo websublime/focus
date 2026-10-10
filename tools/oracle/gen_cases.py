@@ -18,6 +18,10 @@ import random
 import re
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import markdown_docs  # noqa: E402
+from names import PHRASES  # noqa: E402
+
 core, seed, scale = sys.argv[1], int(sys.argv[2]), int(sys.argv[3])
 rng = random.Random(seed)
 FENCE = re.compile(r"^---\r?\n([\s\S]*?)\r?\n---")
@@ -371,11 +375,12 @@ for _ in range(scale * 30):
             raw[key] = rng.choice(SETTING_VALUES)
     add("settings", raw=raw)
 
-# Guard Policy declarations in a memory file. "guard" cases stay inside what
-# focus's line reader claims to read exactly as upstream's Markdown parser
-# does, so focus must answer every one of them. "guardwild" cases add the
-# constructs outside that claim; there focus may refuse, but must never answer
-# differently.
+# Guard Policy declarations in a memory file. "guard" cases are plain
+# Markdown; "guardwild" cases add what hides text from a reader: fences, HTML
+# blocks, comments and code spans that run over lines. One construct is left
+# out, a code span opened after an escaped backtick (``a \` b ` ... ` c``):
+# upstream's analysis does not see that span and focus does (it is a
+# `markdown` deviation, declared in crates/focus-graph/src/guard_memory.rs).
 MODES = ["Mode: strict", "- Mode: relaxed", "* **Mode**: off", "**Mode:** strict", "mode :   STRICT  ",
          "Mode: `off`", "- Mode: lenient", "Mode:", "Mode:\n  strict", "- Mode:\n  relaxed\n  wrapped",
          "Mode: strict\nMethodology: tdd", "  Mode: off", "Mode strict", "Modes: strict", "> Mode: strict",
@@ -395,7 +400,7 @@ WILD_BLOCKS = ["```\ncode\nMode: strict\n```", "```md\n## Guard Policy\nMode: st
                "text <!-- inline\nMode: strict\n--> more", "a `span that\nMode: strict\nends` here",
                "<!-->\nMode: strict", "<details>\n\nMode: relaxed\n\n</details>", "``Mode: strict``",
                "text <b>bold</b>", "<!-- c --> <!-- d --> Mode: off", "-  list\n\n       Mode: strict",
-               "<?php\nMode: strict\n?>", "a \\` b `\nMode: strict\n` c", "  <!-- indented comment\nMode: off\n-->",
+               "<?php\nMode: strict\n?>", "a \\` b\nMode: strict\n\\` c", "  <!-- indented comment\nMode: off\n-->",
                "> quote\n> ```\n> Mode: strict\n> ```", "<![CDATA[\nMode: strict\n]]>", "``` unclosed fence", "Mode: strict <-- an arrow"]
 HEADINGS = ["## Guard Policy", "## Guard Policy", "## Guard Policy", "## Change Control", "## Guard Policy  ",
             "##  Guard Policy", "## Guard policy", "### Guard Policy", " ## Guard Policy", "## Guard Policy:",
@@ -1060,6 +1065,116 @@ for _ in range(scale * 60):
                         "AIDLC_X9_Y in /somewhere", "AIDLC_DISABLE_SENSORS in", "AIDLC_DISABLE_SENSORS  in x",
                         "aidlc_disable_sensors in x", "X AIDLC_DISABLE_SENSORS in x", "scope feature", "", "AIDLC_ in x"], 4)
     add("settings_layers", files=files, ask=asked, env=env, probe=probe)
+
+# --- markdown: a document's structure, line by line ---------------------------
+#
+# Three sources: the documents upstream keeps to pin its own analysis
+# (tests/fixtures/markdown-goldens), the Markdown it ships and reads (stage,
+# agent, sensor, scope and memory files), and documents written here the way a
+# careful author writes them. Documents written carelessly or with malice are
+# compared live, not vendored (`differential.py --markdown`).
+
+
+def markdown(content):
+    # The corpus is stored in Focus's names. A phrase the map changes the
+    # length of would move the columns upstream answered with, and a renamed
+    # label would sort elsewhere in its list of labels.
+    if any(theirs in content for theirs, _ in PHRASES) or re.search(r"\[[^\]\n]*aidlc[^\]\n]*\]:", content, re.I):
+        return
+    add("markdown", content=content)
+
+
+# Written by hand: what the generated documents reach too rarely to pin, and
+# one document for each way the two analyses part (the same documents as in
+# crates/focus-markdown/tests/deviations.rs).
+WRITTEN = [
+    # A construct over three lines: the middle line is wholly inside it.
+    "a `b\nmiddle\nc` d\n",
+    "x <!-- a\nmiddle\nb --> y\n",
+    "text <span\n  class=\"x\">s</span> more\n",
+    "text <a\n  href=\"u\"\n  title=\"t\">link</a> more\n",
+    # A list item three columns into a quote, and code four columns in.
+    ">    - item\n>      more\n",
+    ">     code\n> text\n",
+    # A block of raw text ended on its first line, by another's closing tag, in upper case.
+    "<pre> x </style>\nafter\n",
+    "<pre>\ncode\n</style>\n\nafter\n",
+    "<SCRIPT>\nx\n</SCRIPT>\nafter\n\n<style>\n</TextArea> y\nz\n",
+    "- <pre>\n  </script>\n- <textarea>\n  x\n\n  </pre>\n\ntext\n",
+    # One label defined three times, and twice with a title on its own line.
+    "[a]: /1\n[a]: /2\n[a]: /3\n\n[a]\n",
+    "[a]: /one\n[A]: /two\n  'title'\n\n[a]\n",
+    # Blank lines after indented code are not code.
+    "    code\n\ntext\n",
+    "    code\n\n    more\n    \n\ntext\n",
+    # A NUL before a code span: one unit in the source, three bytes as the parser reads it.
+    "a\x00b `c` d\n",
+    "\x00 <!-- c --> `x` \x00\n",
+    # A code span in a table cell with an escaped pipe before, after and around the probe.
+    "| a | b |\n| --- | --- |\n| `a\\|b` | `x\\|y\\|z` |\n| ` p\\|q ` | `\\|` |\n",
+    # The same with the escaped pipe before the probe, where which probe is measured from shows.
+    "| a | b |\n|---|---|\n| `\\|a` | `\\|a\\|` |\n| `a\\|b\\|c` | x `\\|` `q\\|` |\n| <!-- \\| --> `z` | t |\n",
+    # A comment block, then on its last line a comment whose opening is `<!-->`.
+    "<!-- a --> x <!--> y --> z\n",
+    # Heading tags inside a line, and opening one.
+    "text <h2 id=x>t</h2> and <h3>u</h3>\n\n<h2>t</h2> <h3>u</h3>\n",
+    # Where the analyses part.
+    "1. one\n\n11.\n\n> a\n>\n> b\n",
+    "".join(f"| a{n} | b |\n| --- | --- |\n| `x{n}` | <!-- c --> |\n\n" for n in range(60))
+    + "## Guard Policy\n\n<!--\nMode: strict\n-->\n",
+    "> [Answer]:\n> ---\n",
+    "<!x y>\nstill text\n",
+    "[Answer]: <!--<!---->\n\n[Answer]\n",
+    "a `` b\nMode: strict\n`` c\n",
+    "a \\` b `\nMode: strict\n` c\n",
+    "para\n    <div>\nmore\n",
+    "para `x\n    <h2> a` b\n",
+    "a\n\n\u00a0\n\nb\n",
+    # A tight list item whose text has a line with no text of its own, and one with none at all.
+    "- see [the plan](docs/plan.md\n  \"Plan\")\n- next\n",
+    "- [a\n  ](u)\n- **bold\n  over lines**\n",
+    "- ![](x)\n- [](y)\n",
+    # Text of a tight item after a quote that holds only code.
+    "- a\n  > ```\n  > code\n  > ```\n  b\n",
+    "- a\n  >     code\n  b\n- c\n",
+    # Letters that fold to ASCII ones are not them: `ſ` is no `s`.
+    "<pre>\n</\u017ftyle>\nMode: strict\n</pre>\nafter\n",
+    # A declaration the parser would end at a quote marker on the next line.
+    "> a <!x ` b\n> Mode: strict\n",
+    # Columns are counted in UTF-16 code units where upstream counts them.
+    "| a |\n|---|\n| `x\\|\\|\u00e9\u00e9` | `\u00e9\\|x` |\n",
+    # Form feed and vertical tab are characters, not white space.
+    "a\n\u000c\nb\n",
+    ">\u000c\n",
+    "<pre\u000c>\nx\n</PRE>\nMode: strict\n",
+    "[a]: /u\u000b\n\n[a]\n",
+    "x\u000c`c` <b\u000cid=x>\n",
+    # A list item holding only a definition, then a line of white space indented past it.
+    "- [a]: b\n      \n",
+    "> - [a]: /u\n\t\n",
+    "- item\n  - [ref]: https://example.com\n        \n- next\n",
+]
+for document in WRITTEN:
+    markdown(document)
+# The same reader as a memory file's: what hides a `Mode:` line and what does not.
+for document in [
+    "## Guard Policy\n\n> - [a]: b\n\t\n\nMode: off\n",
+    "## Guard Policy\n<pre>\n</\u017ftyle>\nMode: strict\n</pre>\n",
+    "## Guard Policy\n<pre\u000c>\nMode: strict\n",
+    "## Guard Policy\n- see [the plan](docs/plan.md\n  \"Mode: strict\")\n- Mode: off\n",
+    "## Guard Policy\n- a\n  > ```\n  > x\n  > ```\n  Mode: relaxed\n",
+    "## Guard Policy\r\nMode: strict\r",
+]:
+    add("guard", content=document)
+goldens = json.loads(read(os.path.join(core, "..", "tests", "fixtures", "markdown-goldens", "corpus.json")))["documents"]
+for name in sorted(goldens):
+    markdown(goldens[name]["content"])
+for part in ("aidlc-common/stages", "agents", "sensors", "scopes", "memory"):
+    for path in sorted(glob.glob(os.path.join(core, part, "**", "*.md"), recursive=True)):
+        markdown(read(path))
+careful = markdown_docs.writer(rng, careful=True)
+for _ in range(scale * 50):
+    markdown(careful())
 
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

@@ -5,31 +5,19 @@
 //! to relax the policy is checked against those files before it reaches a
 //! person: if any layer says strict, the proposal is refused there.
 //!
+//! What counts is what a reader of the rendered file sees: a `Mode:` line
+//! inside an HTML comment, a code block or a code span that runs over lines
+//! declares nothing, and a heading inside one opens no section. That is
+//! decided by `focus-markdown`.
+//!
 //! Mirrors `memoryGuardPolicyDeclarations`, `memorySectionBody` and
 //! `structuredField` in `aidlc-lib.ts` (L38958, L38506, L38461).
-//!
-//! # What this reader does not do
-//!
-//! Upstream decides which lines of a memory file are *visible* with a full
-//! CommonMark parse (`Bun.markdown`): text inside an HTML comment, a fenced
-//! block or a multi-line code span is not read. Focus has no Markdown block
-//! parser yet (it is the largest open risk in the migration plan), so this
-//! module reads only files where visibility can be decided line by line, and
-//! **refuses** the rest instead of guessing. A file is readable here when,
-//! outside comment blocks that open at the start of a line:
-//!
-//! - no line has a fence (`~~~`, or two or more backticks in a row);
-//! - backticks on a line pair up, and none is preceded by a backslash;
-//! - every `<` sits inside such a code span;
-//!
-//! and when the `## Guard Policy` section itself has no line indented four
-//! spaces or more. The files upstream ships satisfy all of this. The refusal
-//! names the file and the line, so the fix is visible.
 
 use std::path::{Path, PathBuf};
 
 use focus_js::text::{trim, trim_end};
-use focus_js::{EngineError, Result, bail, re};
+use focus_js::{Result, bail, re};
+use focus_markdown::{Visible, visible_lines};
 
 use crate::fsx::read_text;
 use crate::scopes::GuardPolicy;
@@ -68,8 +56,8 @@ impl Declaration {
 ///
 /// # Errors
 ///
-/// A `Mode:` value that is not one of the three; or a file this reader cannot
-/// read reliably (see the module docs).
+/// A `Mode:` value that is not one of the three, or a file that cannot be
+/// read, from disk or as Markdown.
 pub fn declarations(memory_dir: &Path) -> Result<Vec<Declaration>> {
     let mut out = Vec::new();
     for layer in LAYERS {
@@ -77,50 +65,40 @@ pub fn declarations(memory_dir: &Path) -> Result<Vec<Declaration>> {
         if !path.exists() {
             continue;
         }
-        let content = read_text(&path)?;
-        let lines =
-            visible_lines(&content).map_err(|refusal| EngineError::new(refusal.describe(&path)))?;
-        for heading in [GUARD_POLICY_HEADING, CHANGE_CONTROL_HEADING] {
-            let body = section_body(&lines, heading)
-                .map_err(|refusal| EngineError::new(refusal.describe(&path)))?;
-            if trim(&body.join("\n")).is_empty() {
-                continue;
-            }
-            let Some(raw) = structured_field(&body, "Mode") else {
-                continue;
-            };
-            let section = heading.trim_start_matches("## ");
-            let Some(value) = GuardPolicy::parse(&raw) else {
-                bail!(
-                    "Invalid {section} Mode \"{raw}\" in {} (section: {section}). Expected one of: strict, relaxed, off.",
-                    path.display()
-                );
-            };
-            out.push(Declaration {
-                layer,
-                path: path.clone(),
-                heading,
-                value,
-            });
-            break;
-        }
+        let declared = declared_mode(&read_text(&path)?)
+            .map_err(|refusal| refusal.prefixed(path.display()))?;
+        let Some((heading, raw)) = declared else {
+            continue;
+        };
+        let section = heading.trim_start_matches("## ");
+        let Some(value) = GuardPolicy::parse(&raw) else {
+            bail!(
+                "Invalid {section} Mode \"{raw}\" in {} (section: {section}). Expected one of: strict, relaxed, off.",
+                path.display()
+            );
+        };
+        out.push(Declaration {
+            layer,
+            path,
+            heading,
+            value,
+        });
     }
     Ok(out)
 }
 
 /// The first `Mode:` value a memory file declares, with the heading it sits
-/// under: the current heading is read before the retired one. `Ok(None)`
-/// when the file declares nothing.
+/// under: the current heading is read before the retired one. `None` when
+/// the file declares nothing.
 ///
 /// # Errors
 ///
-/// Why the file cannot be read reliably (see the module docs).
-pub fn declared_mode(content: &str) -> std::result::Result<Option<(&'static str, String)>, String> {
-    let describe = |refusal: Unreadable| format!("line {} {}", refusal.line, refusal.reason);
-    let lines = visible_lines(content).map_err(describe)?;
+/// The file cannot be read as Markdown (see `focus_markdown::analyse`).
+pub fn declared_mode(content: &str) -> Result<Option<(&'static str, String)>> {
+    let lines = visible_lines(content, Visible::default())?;
     for heading in [GUARD_POLICY_HEADING, CHANGE_CONTROL_HEADING] {
-        let body = section_body(&lines, heading).map_err(describe)?;
-        if trim(&body.join("\n")).is_empty() {
+        let body = section_body(&lines, heading);
+        if trim(&body).is_empty() {
             continue;
         }
         if let Some(raw) = structured_field(&body, "Mode") {
@@ -130,136 +108,40 @@ pub fn declared_mode(content: &str) -> std::result::Result<Option<(&'static str,
     Ok(None)
 }
 
-/// Why a file is outside what this reader can decide.
-#[derive(Debug, Clone, PartialEq, Eq)]
-struct Unreadable {
-    /// 1-based.
-    line: usize,
-    reason: &'static str,
-}
-
-impl Unreadable {
-    fn describe(&self, path: &Path) -> String {
-        format!(
-            "{}: line {} {}, and deciding what that hides needs a full Markdown reader, which Focus does not have yet. Focus cannot tell whether this file sets a Guard Policy, so it will not judge a relaxed or off proposal against it. Simplify that line, or propose strict.",
-            path.display(),
-            self.line,
-            self.reason
-        )
-    }
-}
-
-/// The file's lines as a reader sees them: a line hidden inside a comment
-/// block is empty.
-fn visible_lines(content: &str) -> std::result::Result<Vec<String>, Unreadable> {
-    let normalized = content
-        .strip_prefix('\u{FEFF}')
-        .unwrap_or(content)
-        .replace("\r\n", "\n")
-        .replace('\r', "\n");
-    let mut out = Vec::new();
-    let mut in_comment = false;
-    for (idx, line) in normalized.split('\n').enumerate() {
-        let refuse = |reason| Unreadable {
-            line: idx + 1,
-            reason,
-        };
-        if line.contains(['\u{0}', '\u{1}', '\u{2}']) {
-            return Err(refuse("contains a control character"));
-        }
-        let after_comment = |rest: &str| {
-            if rest.contains('<') {
-                Err(refuse("has markup after the end of a comment"))
-            } else {
-                Ok(rest.to_owned())
-            }
-        };
-        if in_comment {
-            match line.find("-->") {
-                Some(end) => {
-                    in_comment = false;
-                    out.push(after_comment(&line[end + 3..])?);
-                }
-                None => out.push(String::new()),
-            }
-            continue;
-        }
-        if line.starts_with("<!--") {
-            match line.find("-->") {
-                Some(end) if end < 4 => {
-                    return Err(refuse("opens a comment with a degenerate `<!-->`"));
-                }
-                Some(end) => out.push(after_comment(&line[end + 3..])?),
-                None => {
-                    in_comment = true;
-                    out.push(String::new());
-                }
-            }
-            continue;
-        }
-        check_plain(line).map_err(refuse)?;
-        out.push(line.to_owned());
-    }
-    Ok(out)
-}
-
-/// A line outside any comment block must not start or continue a construct
-/// that hides text.
-fn check_plain(line: &str) -> std::result::Result<(), &'static str> {
-    if line.contains("~~~") || line.contains("``") {
-        return Err("has a code fence or a multi-backtick code span");
-    }
-    if line.contains("\\`") {
-        return Err("has an escaped backtick");
-    }
-    let mut in_code = false;
-    for c in line.chars() {
-        match c {
-            '`' => in_code = !in_code,
-            '<' if !in_code => return Err("has `<` outside a code span"),
-            _ => {}
-        }
-    }
-    if in_code {
-        return Err("has an unpaired backtick");
-    }
-    Ok(())
-}
-
-/// The lines of one `## Heading` section: from the line after the heading to
-/// the next `## ` heading.
-fn section_body(lines: &[String], heading: &str) -> std::result::Result<Vec<String>, Unreadable> {
+/// The body of one `## Heading` section of a file's visible lines: from the
+/// line after the heading to the next `## ` heading. A heading hidden in a
+/// comment or a code block neither opens nor closes it, and hidden lines
+/// inside it are empty.
+#[must_use]
+pub fn section_body(lines: &[String], heading: &str) -> String {
     let Some(start) = lines.iter().position(|line| trim_end(line) == heading) else {
-        return Ok(Vec::new());
+        return String::new();
     };
     let end = lines[start + 1..]
         .iter()
         .position(|line| re::test(r"^## [^\n]*$", "", line))
         .map_or(lines.len(), |offset| start + 1 + offset);
-    let body = &lines[start + 1..end];
-    for (offset, line) in body.iter().enumerate() {
-        let indent: String = line
-            .chars()
-            .take_while(|c| matches!(c, ' ' | '\t'))
-            .collect();
-        let deep = indent.contains('\t') || indent.len() >= 4;
-        if deep && !trim(line).is_empty() {
-            return Err(Unreadable {
-                line: start + 2 + offset,
-                reason: "is indented four spaces or more inside the Guard Policy section",
-            });
-        }
-    }
-    Ok(body.to_vec())
+    lines[start + 1..end].join("\n")
 }
 
 /// A `Field: value` line, with an optional list marker and optional bold
 /// around the field name, plus its wrapped continuation lines. `None` when
 /// the field is absent or its value is empty.
-fn structured_field(section: &[String], field: &str) -> Option<String> {
+#[must_use]
+pub fn structured_field(section: &str, field: &str) -> Option<String> {
+    let escaped: String = field
+        .chars()
+        .flat_map(|c| {
+            let special = ".*+?^${}()|[]\\".contains(c);
+            special.then_some('\\').into_iter().chain(Some(c))
+        })
+        .collect();
     let head =
-        format!(r"^([ \t]*)(?:[-*][ \t]*)?(?:\*\*)?{field}(?:\*\*)?[ \t]*:[ \t]*(.*?)[ \t]*$");
-    for (idx, line) in section.iter().enumerate() {
+        format!(r"^([ \t]*)(?:[-*][ \t]*)?(?:\*\*)?{escaped}(?:\*\*)?[ \t]*:[ \t]*(.*?)[ \t]*$");
+    // Upstream splits on `/\r?\n/`: a `\r` not before a line feed stays.
+    let unix = section.replace("\r\n", "\n");
+    let lines: Vec<&str> = unix.split('\n').collect();
+    for (idx, line) in lines.iter().enumerate() {
         let Some(found) = re::find(&head, "i", line) else {
             continue;
         };
@@ -268,7 +150,7 @@ fn structured_field(section: &[String], field: &str) -> Option<String> {
         // A wrapped value continues on lines indented deeper than its head,
         // until a blank line, a shallower line, another structured field, or
         // a line that opens another block.
-        for next in &section[idx + 1..] {
+        for next in &lines[idx + 1..] {
             let indent = next.chars().take_while(|c| matches!(c, ' ' | '\t')).count();
             if indent <= head_indent || !re::test(r"\S", "", next) {
                 break;
@@ -376,34 +258,118 @@ mod tests {
     }
 
     #[test]
-    fn a_file_that_needs_a_markdown_parser_is_refused_not_guessed() {
-        for (file, reason) in [
-            (
-                "```\n## Guard Policy\nMode: strict\n```\n",
-                "line 1 has a code fence",
-            ),
-            (
-                "text <!-- c\n## Guard Policy\n",
-                "line 1 has `<` outside a code span",
-            ),
-            ("a `b\nc` d\n", "line 1 has an unpaired backtick"),
-            (
-                "## Guard Policy\n    Mode: strict\n",
-                "line 2 is indented four spaces",
-            ),
-            (
-                "<div>\n## Guard Policy\n</div>\n",
-                "line 1 has `<` outside a code span",
-            ),
+    fn what_a_reader_does_not_see_declares_nothing() {
+        for hidden in [
+            // A fenced block, a comment that opens mid-line, an HTML block,
+            // indented code, a code span over lines, a processing instruction.
+            "## Guard Policy\n\n```\nMode: strict\n```\n",
+            "```\n## Guard Policy\nMode: strict\n```\n",
+            "## Guard Policy\ntext <!-- c\nMode: strict\n--> more\n",
+            "## Guard Policy\n\n<div>\nMode: strict\n</div>\n",
+            "## Guard Policy\n\n    Mode: strict\n",
+            "## Guard Policy\na `b\nMode: strict\nc` d\n",
+            "## Guard Policy\n\n<?php\nMode: strict\n?>\n",
+            "<div>\n## Guard Policy\nMode: strict\n</div>\n",
         ] {
-            let message = declared(file).unwrap_err().message().to_owned();
-            assert!(message.contains(reason), "{file:?}: {message}");
+            assert_eq!(declared(hidden).unwrap(), [], "{hidden:?}");
         }
-        // `<` inside a code span is plain text, as in the shipped org.md.
-        let fine = "A `Conversation language: <language>` line.\n\n## Guard Policy\nMode: off\n";
+        // What only looks hidden is read: a comment that closed, `<` inside
+        // a code span, a code span on one line.
+        for seen in [
+            "## Guard Policy\n<!-- one\ntwo --> Mode: off\n",
+            "A `Conversation language: <language>` line.\n\n## Guard Policy\nMode: off\n",
+            "## Guard Policy\n\n<details>\n\nMode: off\n\n</details>\n",
+        ] {
+            assert_eq!(
+                declared(seen).unwrap(),
+                [(GUARD_POLICY_HEADING, GuardPolicy::Off)],
+                "{seen:?}"
+            );
+        }
+    }
+
+    /// Deliberate deviation: upstream reads this `Mode:` line and Focus does
+    /// not. An escaped backtick is text, so the code span here opens at the
+    /// second backtick of the first line and closes on the third line, with
+    /// the `Mode:` line inside it: that is what CommonMark renders, and what
+    /// both engines do for a span with no escape before it. Upstream's
+    /// analysis looks for a span by putting a probe word after each backtick
+    /// run; after the escaped one the probe renders as text, and the span is
+    /// not recorded. Focus reads the span from the parser. Declared in
+    /// `tools/oracle/differential.py` (`verbs/memory_span_after_escape`) and
+    /// in the plan (markdown/commonmark).
+    #[test]
+    fn a_span_opened_after_an_escaped_backtick_hides_what_it_covers() {
+        let escaped = "## Guard Policy\na \\` b `\nMode: strict\n` c\n";
+        assert_eq!(declared(escaped).unwrap(), []);
+        // The same span without the escape, which upstream hides too.
         assert_eq!(
-            declared(fine).unwrap(),
-            [(GUARD_POLICY_HEADING, GuardPolicy::Off)]
+            declared("## Guard Policy\na `b\nMode: strict\n` c\n").unwrap(),
+            []
         );
+        // Escaped at both ends there is no span, and the line is read.
+        assert_eq!(
+            declared("## Guard Policy\na \\` b\nMode: strict\n\\` c\n").unwrap(),
+            [(GUARD_POLICY_HEADING, GuardPolicy::Strict)]
+        );
+    }
+
+    /// Deliberate deviation: upstream reads this commented-out `Mode:` line
+    /// and Focus does not. Upstream's analysis stops after 256 renders of a
+    /// document and reads what it had not reached as text; sixty small
+    /// tables are enough to get there, and the comment after them is then
+    /// taken for a declaration. The same section at the top of the file
+    /// declares nothing in both. Declared in `tools/oracle/differential.py`
+    /// (`verbs/memory_past_budget`) and in the plan (markdown/commonmark).
+    #[test]
+    fn a_comment_at_the_end_of_a_long_file_is_still_a_comment() {
+        let section = "## Guard Policy\n\n<!--\nMode: strict\n-->\n";
+        let tables: String = (0..60)
+            .map(|n| format!("| a{n} | b |\n| --- | --- |\n| `x{n}` | <!-- c --> |\n\n"))
+            .collect();
+        assert_eq!(declared(section).unwrap(), []);
+        assert_eq!(declared(&format!("{tables}{section}")).unwrap(), []);
+    }
+
+    /// Deliberate deviation: upstream reads this `Mode:` line and Focus does
+    /// not. `<!` followed by a letter opens an HTML block that runs to the
+    /// first line with a `>` in it (CommonMark 0.31, start condition 4), so
+    /// the line after it is inside the block. Upstream's renderer follows a
+    /// text of the specification that wanted the letter in upper case, and
+    /// reads a paragraph. Declared in `tools/oracle/differential.py`
+    /// (`verbs/memory_lowercase_declaration`) and in the plan
+    /// (markdown/commonmark).
+    #[test]
+    fn a_declaration_in_lower_case_hides_what_follows_it() {
+        assert_eq!(
+            declared("## Guard Policy\n<!x\nMode: strict\n").unwrap(),
+            []
+        );
+        // In upper case both engines read a block.
+        assert_eq!(
+            declared("## Guard Policy\n<!X\nMode: strict\n").unwrap(),
+            []
+        );
+        // The block ends on the line that holds `>`.
+        assert_eq!(
+            declared("## Guard Policy\n<!x y>\nMode: strict\n").unwrap(),
+            [(GUARD_POLICY_HEADING, GuardPolicy::Strict)]
+        );
+    }
+
+    #[test]
+    fn a_field_name_is_matched_as_text() {
+        assert_eq!(
+            structured_field("A.b: 1\nAxb: 2", "A.b").as_deref(),
+            Some("1")
+        );
+        assert_eq!(structured_field("Axb: 2", "A.b"), None);
+        assert_eq!(
+            structured_field("- **Mode**: strict\r\n  wrapped\r\n", "Mode").as_deref(),
+            Some("strict wrapped")
+        );
+        // A carriage return with no line feed after it is part of its line,
+        // and the value pattern does not run over it.
+        assert_eq!(structured_field("Mode: strict\r", "Mode"), None);
     }
 }

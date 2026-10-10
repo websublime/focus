@@ -9,6 +9,7 @@
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve, sep } from "node:path";
+import { referee, second } from "./referee/referee.ts";
 
 const [upstream, casesPath] = process.argv.slice(2);
 if (!upstream || !casesPath) {
@@ -353,6 +354,79 @@ function answer(c: Record<string, any>): unknown {
         else process.env.AIDLC_INSTALL_ROOT = before;
         rmSync(root, { recursive: true, force: true });
       }
+    }
+    case "markdown": {
+      // One record for each line: what a consumer reads off the analysis and
+      // off the three projections. A line the analysis did not place answers
+      // null and is not compared (see below). Columns are UTF-16 code
+      // units. An HTML block is known by the line it starts on, and a
+      // container by its shape: `>`, `u` or `o`. The number an ordered list
+      // starts at is left out: nothing upstream reads it, and its analysis
+      // takes it from a render with probes in it, where a list may have
+      // split and start elsewhere .
+      const blocks = lib.markdownBlocks(c.content);
+      const visible = lib.visibleMarkdownLines(c.content);
+      const boundaries = lib.visibleMarkdownLines(c.content, { preserveCommentBoundaries: true });
+      const indented = lib.visibleMarkdownLines(c.content, { preserveIndentedCode: true });
+      const fenceLine = (text: string) =>
+        /^(`{3,}|~{3,})/.test(text.replace(/^(?:[ \t]{0,3}(?:>[ \t]?|(?:[-*+]|\d{1,9}[.)])(?:[ \t]+|$)))*[ \t]*/, ""));
+      const source = c.content.replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n").split("\n");
+      const lines = blocks.lines.map((line: any, index: number) => {
+        // Not placed by the analysis: left `unknown`; called a fence only
+        // because the line reads like one (no block behind it); or a fence
+        // line whose probe rendered nowhere, which the analysis takes for a
+        // link reference definition.
+        if (line.kind === "unknown") return null;
+        if (line.kind === "codeFenced" && line.block === -1) return null;
+        if (line.kind === "definition" && fenceLine(source[index])) return null;
+        const code = line.kind === "codeFenced" || line.kind === "codeIndented";
+        const structured = ["heading", "paragraph", "table", "htmlFlow"].includes(line.kind);
+        return [
+          line.kind,
+          line.htmlKind,
+          code ? null : line.contentStart,
+          structured
+            ? line.containers
+                .map((held: any) => (held.kind === "blockQuote" ? ">" : held.ordered ? "o" : "u"))
+                .join(" ")
+            : null,
+          line.kind === "htmlFlow"
+            ? blocks.lines.findIndex((other: any) => other.kind === "htmlFlow" && other.block === line.block)
+            : null,
+          line.invisible.map((span: any) => [span.start, span.end, span.kind, span.tokenStartLine, span.tokenEndLine]),
+          // A projection that leaves the line as it is answers `true`, and
+          // so does one that answers what the plain projection does.
+          visible[index] === source[index] ? true : visible[index],
+          boundaries[index] === visible[index] ? true : boundaries[index],
+          indented[index] === visible[index] ? true : indented[index],
+        ];
+      });
+      const third = referee(c.content);
+      return {
+        lines,
+        definitions: blocks.definitions.map((d: any) => [d.label, d.startLine, d.endLine]),
+        labels: blocks.labels,
+        // A third reading, by a parser that reports source positions. It
+        // is what a line is held to where upstream's analysis and Focus's
+        // differ (see `markdown_rule.py`). Only the lines it reads otherwise
+        // than upstream are listed, by index. `second` is the reference
+        // implementation's reading, listed where it is not the referee's.
+        referee: {
+          lines: Object.fromEntries(
+            third.lines.flatMap((said, index) => {
+              const line = lines[index];
+              const agreed = line !== null && JSON.stringify([line[0], line[3], line[2], line[4]]) === JSON.stringify(said);
+              return agreed ? [] : [[String(index), said]];
+            }),
+          ),
+          tokens: third.tokens,
+          second: Object.fromEntries(
+            second(c.content).flatMap((said, index) =>
+              JSON.stringify(said) === JSON.stringify(third.lines[index]) ? [] : [[String(index), said]],
+            ),
+          ),
+        },
+      };
     }
     case "audit_find":
       return { found: lib.findAllEvents(c.audit, c.event, c.slug ?? undefined) };

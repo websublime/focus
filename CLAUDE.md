@@ -43,6 +43,11 @@ This repository is the source of truth for the code, the plan and the fixtures.
 - **A file whose path comes from the workspace is not opened by name and
   believed.** Reads and appends go through `focus-workspace::files`, and the
   directories above the file through `focus-workspace::links`.
+- **Markdown is read through `focus-markdown`.** What a consumer may act on
+  is what a reader of the rendered file sees: nothing scans a document for
+  `#`, backticks or `<!--`. A `markdown` answer is judged, not compared:
+  where it differs from upstream's, the referee (`tools/oracle/referee/`)
+  must read the line as Focus does (`tools/oracle/markdown_rule.py`).
 - **Input that is not ported is refused, never ignored.**
 
 ## Toolchain
@@ -63,5 +68,6 @@ cargo test --workspace
 # With Bun and an upstream checkout at the pinned commit:
 tools/oracle/refresh.sh ../aidlc-workflows                                          # regenerate fixtures
 python3 -I tools/oracle/differential.py ../aidlc-workflows target/release/focus --fuzz 600
+python3 -I tools/oracle/differential.py ../aidlc-workflows target/release/focus --only '^$' --markdown 2500
 python3 -I tools/oracle/differential.py ../aidlc-workflows target/release/focus --only '^audit/' --explain
 ```

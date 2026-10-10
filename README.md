@@ -19,9 +19,9 @@ project.
 is under way (M2).** Compiling the graph, including plugin selection and
 composed scopes, and every `graph` verb are ported and held to parity with the
 reference. Of the ledger, the format, the shards and the `audit` command
-(append, notes, history) exist, and so do the settings files; Markdown and the
-runtime graph are next. State, guards, hooks and the orchestrator are not
-written yet. The plan for the rest, module by
+(append, notes, history) exist, and so do the settings files and the Markdown
+reader; the runtime graph is next. State, guards, hooks and the orchestrator
+are not written yet. The plan for the rest, module by
 module, is in [`docs/plano-de-migracao.md`](docs/plano-de-migracao.md)
 (Portuguese).
 
@@ -69,6 +69,7 @@ focus engine graph compile --harness claude --core fixtures/upstream/core --out 
 | `focus-frontmatter` | The YAML-subset frontmatter readers, ported pattern for pattern |
 | `focus-harness` | What differs between Claude Code, Cursor and GitHub Copilot, as data |
 | `focus-workspace` | Which project, harness, space and intent record a command acts on, every path in them, the settings of the machine, the project and one clone, atomic writes, the workspace lock, and opening a file whose path is not trusted |
+| `focus-markdown` | The block structure of a Markdown document, line by line, and the lines of it a reader of the engine's files may act on: not what sits in a comment, a code block or an HTML block |
 | `focus-graph` | Stage, scope, agent, sensor and rule schemas; the compile; composed scopes; graph queries; plan validation; ARS |
 | `focus-audit` | The audit ledger: the event vocabulary, how an entry is validated and written, how entries are read back, the shard each clone writes, appending to it under the lock, and a record's history from all its shards |
 | `focus-cli` | The `focus` binary (the package is named `focus`) |
@@ -97,6 +98,17 @@ so a name left unchanged shows up as a difference.
 - **Goldens** (`fixtures/upstream/golden/`): the compiled files the reference's
   packager produced.
 
+One kind of answer is judged instead of compared. The reference has no
+Markdown parser that reports source positions, so it works a document's
+structure out by rendering it with probe words in it; Focus reads the
+structure from a parser. On documents people write the two agree line for
+line, and the corpus holds Focus to that. Where they differ, two other parsers
+(`tools/oracle/referee/`: micromark, and commonmark.js as a second opinion)
+are the judge: a line Focus reads otherwise than the reference, or that the
+reference did not place at all, must be one the referee reads as Focus does. `tools/oracle/markdown_rule.py` is the rule, and
+`differential.py --markdown N` applies it live to documents written with no
+care for the syntax.
+
 `cargo test` replays all three. It needs neither Bun nor a checkout of the
 reference. To regenerate them, and to run both engines live side by side:
 
@@ -105,10 +117,11 @@ git clone https://github.com/awslabs/aidlc-workflows ../aidlc-workflows
 git -C ../aidlc-workflows checkout "$(sed -n 's/^commit: //p' fixtures/upstream/PIN)"
 tools/oracle/refresh.sh ../aidlc-workflows                                  # needs bun
 python3 tools/oracle/differential.py ../aidlc-workflows --fuzz 600          # live, with random cases
+python3 tools/oracle/differential.py ../aidlc-workflows --markdown 2500     # live, hostile Markdown
 ```
 
 Where Focus differs from the reference on purpose, the migration plan lists it
-(section 10). A difference in what a command does to the same project has a
+(sections 10 and 13). A difference in what a command does to the same project has a
 test marked "Deliberate deviation" that says why, and the differential lists it
 by name with its reason. Differences of surface (Focus's own lock, its
 environment variables, refusing unknown flags) are covered by the CLI tests

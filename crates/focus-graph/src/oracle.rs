@@ -67,7 +67,7 @@ pub fn run_case(case: &Value) -> Value {
         "guard" | "guardwild" => match guard_memory::declared_mode(text("content")) {
             Ok(Some((heading, raw))) => json!({ "heading": heading, "mode": raw }),
             Ok(None) => json!({ "heading": null, "mode": null }),
-            Err(reason) => json!({ "refused": reason }),
+            Err(refusal) => json!({ "error": refusal.message() }),
         },
         other => json!({ "unsupported": other }),
     }

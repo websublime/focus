@@ -3,6 +3,7 @@
 
     differential.py <upstream checkout with dist/ built> [focus binary]
                     [--fuzz N] [--seed S] [--only PATTERN] [--record DIR] [--explain]
+                    [--markdown N]
 
 Every check builds a Claude Code project from upstream's own distribution,
 edits it in one specific way, gives each engine its own copy, runs the same
@@ -25,6 +26,11 @@ With --record, what upstream did in each check is written to DIR (the tree it
 started from, the command, the outcome), all under Focus's names, so
 `cargo test` can replay the same checks against focus with no upstream and no
 Bun present.
+
+With --markdown N, N Markdown documents written with no care for what the
+syntax allows are read by upstream's analysis, by Focus's and by a third
+parser, and every line is judged (see the Markdown section below). It needs
+the referee's packages: `bun install` in tools/oracle/referee.
 
 What is normalised before comparing, besides the map, and nothing else:
   - how each engine is invoked (`aidlc-graph <verb>:` / `focus graph <verb>:`,
@@ -51,6 +57,8 @@ import time
 
 # `python3 -I` leaves the script's directory off the path.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import markdown_docs  # noqa: E402
+import markdown_rule  # noqa: E402
 from names import rename_tree, to_focus, to_upstream  # noqa: E402
 
 argv = sys.argv[1:]
@@ -67,6 +75,7 @@ def option(name, default=None):
 
 RECORD = option("--record")
 FUZZ = int(option("--fuzz", "0"))
+MARKDOWN = int(option("--markdown", "0"))
 SEED = int(option("--seed", "1"))
 ONLY = option("--only")
 EXPLAIN = "--explain" in argv and not argv.remove("--explain")
@@ -96,6 +105,17 @@ DEVIATIONS = {
         "writing either file",
     "compile/check_missing_graph":
         "upstream surfaces the raw ENOENT; focus reports the file as out of date",
+    r"verbs/memory_span_after_escape/grid_.*":
+        "a code span that opens after an escaped backtick and closes two lines down hides the `Mode:` line "
+        "between; upstream's analysis does not record the span and reads the line, focus reads what CommonMark "
+        "renders (markdown/commonmark)",
+    r"verbs/memory_lowercase_declaration/grid_.*":
+        "`<!` and a letter open an HTML block that runs to the next `>` (CommonMark 0.31), and the `Mode:` line "
+        "is inside it; upstream's renderer wants the letter in upper case and reads the line (markdown/commonmark)",
+    r"verbs/memory_past_budget/grid_.*":
+        "upstream stops analysing a document after 256 renders and reads the rest as text, so a `Mode:` line "
+        "inside a comment declares a policy when enough of the file comes before it; focus reads the end of a "
+        "file as it reads its start (markdown/commonmark)",
     r"verbs/bad_scope/grid_matched_.*":
         "with a scope file that does not load, upstream falls back to 'strict' inside a try/catch and prints a "
         "verdict about Guard Policy; focus reports the scope file",
@@ -814,6 +834,25 @@ VERB_TREES = {
                                                    lambda body: body + "\n## Change Control\n\nMode: strict\n"),
                                   proposals),
     "memory_wrapped": raw(memory("team", "- Mode:\n  strict\n- Other: x"), proposals),
+    # A `Mode:` line a reader of the rendered file does not see declares nothing.
+    "memory_in_fence": raw(memory("team", "```\nMode: strict\n```"), proposals),
+    "memory_in_comment": raw(memory("team", "see <!-- the old rule:\nMode: strict\n--> above"), proposals),
+    "memory_in_html_block": raw(memory("team", "<div>\nMode: strict\n</div>"), proposals),
+    "memory_in_indented_code": raw(memory("team", "Example:\n\n    Mode: strict"), proposals),
+    "memory_in_code_span": raw(memory("team", "a `span that\nMode: strict\nends` here"), proposals),
+    "memory_in_quoted_fence": raw(memory("team", "> ```\n> Mode: strict\n> ```"), proposals),
+    "memory_heading_in_fence": raw(lambda t: t.edit("aidlc/spaces/default/memory/team.md", lambda body: body.replace(
+        "## Guard Policy\n", "```md\n## Guard Policy\nMode: strict\n```\n\n## Guard Policy\n", 1)), proposals),
+    # And one that only looks hidden is read.
+    "memory_after_comment": raw(memory("team", "<!-- one\ntwo --> Mode: strict"), proposals),
+    "memory_in_details": raw(memory("team", "<details>\n\nMode: strict\n\n</details>"), proposals),
+    "memory_escaped_backticks": raw(memory("team", "a \\` b\nMode: strict\n\\` c"), proposals),
+    "memory_span_after_escape": raw(memory("team", "a \\` b `\nMode: strict\n` c"), proposals),
+    "memory_lowercase_declaration": raw(memory("team", "<!x\nMode: strict"), proposals),
+    # Sixty small tables use up upstream's render budget; what follows them it reads as text.
+    "memory_past_budget": raw(lambda t: t.edit("aidlc/spaces/default/memory/team.md", lambda body: body.replace(
+        "## Guard Policy\n", "".join(f"| a{n} | b |\n| --- | --- |\n| `x{n}` | <!-- c --> |\n\n" for n in range(60))
+        + "## Guard Policy\n\n<!--\nMode: strict\n-->\n", 1)), proposals),
     "other_space": raw(lambda t: t.write("aidlc/spaces/payments/memory/team.md", "## Guard Policy\n\nMode: strict\n"),
                        proposals),
     "active_space": raw(lambda t: t.write("aidlc/spaces/payments/memory/team.md",
@@ -969,6 +1008,12 @@ def verbs():
                  "memory_retired_heading", "memory_wrapped", "other_space", "active_space", "bad_scope"):
         for name, args in grid_cases.items():
             on(tree, f"grid_{name}", ["validate-grid", *args])
+    for tree in ("memory_in_fence", "memory_in_comment", "memory_in_html_block", "memory_in_indented_code",
+                 "memory_in_code_span", "memory_in_quoted_fence", "memory_heading_in_fence", "memory_after_comment",
+                 "memory_in_details", "memory_escaped_backticks", "memory_span_after_escape",
+                 "memory_lowercase_declaration", "memory_past_budget"):
+        for name in ("bugfix", "matched_ok", "matched_guard_lower", "custom_flag_policy", "guard_flag_strict"):
+            on(tree, f"grid_{name}", ["validate-grid", *grid_cases[name]])
     on("stock", "grid_stdin", ["validate-grid", "--proposal", "-"],
        stdin=json.dumps({"stages": {"code-generation": "EXECUTE"}}))
     on("no_proposal", "grid_default_path_missing", ["validate-grid"])
@@ -1569,6 +1614,95 @@ def audit_fuzz(count):
                     group="fuzz/audit")
 
 
+# --------------------------------------------------------------------------
+# Markdown: a document's structure, line by line.
+# --------------------------------------------------------------------------
+#
+# Not a command: the two analyses are asked through the oracle (upstream's
+# `markdownBlocks` and `visibleMarkdownLines` by driver.ts, Focus's by
+# `focus dev oracle`) about documents nobody would write on purpose: random
+# nesting, unclosed constructs, stray characters. On documents written with
+# care the two agree line for line, and those are in the vendored corpus.
+# Here they are not expected to: upstream approximates the structure, and
+# each line is judged with a third parser as referee (markdown_rule.py).
+
+DEVIATIONS.update({
+    "fuzz/markdown/commonmark":
+        "upstream's analysis leaves the line unplaced, or places it otherwise than CommonMark does and the "
+        "referee reads it as focus does; focus reads the structure from a parser",
+    "fuzz/markdown/reading":
+        "focus's parser reads the line otherwise than upstream's renderer and the referee do, or all three "
+        "differ: corners of tables, of tabs in nested containers and of raw HTML that runs over lines, in "
+        "documents nobody writes; counted, and refused above the ceiling",
+})
+# The share of documents that may hold a line only Focus reads its way. It is
+# 1.6% at the hostility used here; a defect in Focus's analysis shows as
+# several times that.
+READING_CEILING = 0.05
+
+
+def markdown_fuzz(count):
+    rng = random.Random(SEED)
+    write = markdown_docs.writer(rng, careful=False)
+    cases = [{"id": f"markdown-{index:05d}", "kind": "markdown", "content": write()} for index in range(count)]
+    asked = os.path.join(WORK, "markdown.ndjson")
+    with open(asked, "w", encoding="utf-8") as handle:
+        for case in cases:
+            handle.write(json.dumps(case, ensure_ascii=False) + "\n")
+    driver = os.path.join(os.path.dirname(os.path.abspath(__file__)), "driver.ts")
+    theirs = subprocess.run([BUN, driver, UPSTREAM, asked], capture_output=True, text=True, encoding="utf-8")
+    if theirs.returncode != 0:
+        sys.exit(f"differential.py: the oracle driver failed (are the referee's packages installed? "
+                 f"`bun install` in tools/oracle/referee)\n{theirs.stderr[-2000:]}")
+    ours = subprocess.run([FOCUS, "dev", "oracle", asked], capture_output=True, text=True, encoding="utf-8", check=True)
+    tally = markdown_rule.Tally()
+    # Split on line feeds only: a document may hold other line separators, and JSON leaves them as they are.
+    wanted, given = (out.rstrip("\n").split("\n") for out in (theirs.stdout, ours.stdout))
+    if not len(cases) == len(wanted) == len(given):
+        sys.exit(f"differential.py: {len(cases)} documents asked, {len(wanted)} answered by upstream, "
+                 f"{len(given)} by focus")
+    for case, want, got in zip(cases, wanted, given):
+        want, got = json.loads(want), json.loads(got)
+        if not case["id"] == want["id"] == got["id"]:
+            sys.exit(f"differential.py: answers out of step at {case['id']}")
+        tally.add(case, want["out"], got["out"])
+    # A document is one check: different when something in it has no
+    # explanation, a deviation when a line was judged to be one, else same.
+    counted = {"same": 0, "deviation": 0, "DIFFERENT": 0, "reading": 0}
+    for verdicts, failed in tally.held:
+        if failed or "port" in verdicts:
+            counted["DIFFERENT"] += 1
+        elif verdicts & set(markdown_rule.READING + ("follows a reading",)):
+            counted["reading"] += 1
+        elif verdicts - {"same", "unplaced"}:
+            counted["deviation"] += 1
+        else:
+            counted["same"] += 1
+    over = counted["reading"] > READING_CEILING * len(cases)
+    counted["DIFFERENT" if over else "deviation"] += counted.pop("reading")
+    for verdict, documents in counted.items():
+        results[verdict] += documents
+    print(f"\nmarkdown: {tally.summary()}")
+    for verdict, examples in tally.examples.items():
+        if EXPLAIN or verdict == "port":
+            for example in examples[:3]:
+                print(f"           {verdict}: {example[:300]}")
+    for failure in tally.failures[:5]:
+        print(f"DIFFERENT fuzz/markdown {failure[:300]}")
+    if tally.of("port"):
+        print(f"DIFFERENT fuzz/markdown: {tally.of('port')} lines differ with nothing in the document's structure "
+              f"to explain it")
+    apart = tally.of("no text", "upstream alone", "repair column", "follows")
+    if apart:
+        print(f"deviation fuzz/markdown/commonmark ({apart} lines): {DEVIATIONS['fuzz/markdown/commonmark']}")
+    reading = tally.of(*markdown_rule.READING, "follows a reading")
+    if over:
+        print(f"DIFFERENT fuzz/markdown/reading: more than {READING_CEILING:.0%} of the documents hold a line only "
+              f"focus reads its way ({reading} lines)")
+    elif reading:
+        print(f"deviation fuzz/markdown/reading ({reading} lines): {DEVIATIONS['fuzz/markdown/reading']}")
+
+
 try:
     for name, edits in COMPILE.items():
         compile_check(name, *edits)
@@ -1588,6 +1722,8 @@ try:
             fuzz(FUZZ)
         audit_fuzz(FUZZ // 3)
         run_queued(quiet=True)
+    if MARKDOWN:
+        markdown_fuzz(MARKDOWN)
 finally:
     shutil.rmtree(WORK, ignore_errors=True)
 
