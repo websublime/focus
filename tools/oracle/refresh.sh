@@ -67,7 +67,8 @@ rm -f "$FIX/PIN.bak"
 # Cases are generated from upstream's own files and answered by upstream, then
 # both the questions and the answers are translated.
 ASKED=$(mktemp -d)
-python3 -I tools/oracle/gen_cases.py "$UPSTREAM/core" "$SEED" "$SCALE" >"$ASKED/cases.ndjson"
+bun tools/oracle/patterns.ts "$UPSTREAM" >"$ASKED/patterns.json"
+python3 -I tools/oracle/gen_cases.py "$UPSTREAM/core" "$SEED" "$SCALE" "$ASKED/patterns.json" >"$ASKED/cases.ndjson"
 bun tools/oracle/driver.ts "$UPSTREAM" "$ASKED/cases.ndjson" >"$ASKED/expected.ndjson"
 python3 -I tools/oracle/names.py text <"$ASKED/cases.ndjson" >fixtures/oracle/cases.ndjson
 python3 -I tools/oracle/names.py text <"$ASKED/expected.ndjson" >fixtures/oracle/expected.ndjson

@@ -109,6 +109,13 @@ reference did not place at all, must be one the referee reads as Focus does. `to
 `differential.py --markdown N` applies it live to documents written with no
 care for the syntax.
 
+The reference's regular expressions are ported as written and run on an
+ECMAScript engine (`regress`). That engine ignores case otherwise than
+JavaScript for a few characters (it takes long `ſ` for `s`); `focus-js`
+corrects it, and refuses a pattern the correction would not cover. The corpus
+holds it to that with every character that has a case as a pattern, and with
+the reference's own case-insensitive patterns (`tools/oracle/patterns.ts`).
+
 `cargo test` replays all three. It needs neither Bun nor a checkout of the
 reference. To regenerate them, and to run both engines live side by side:
 

@@ -224,7 +224,7 @@ Quatro instrumentos, todos em `tools/oracle/`:
 
 Os dois motores não partilham vocabulário: o original lê e escreve `aidlc`, Focus lê e escreve `focus`. `names.py` é o mapa entre os dois, uma substituição de texto (`aidlc`, `AIDLC`, `Aidlc`). O original é sempre interrogado nas palavras dele; as árvores, as perguntas e as respostas são traduzidas antes de chegarem a Focus ou a `fixtures/`. A saída de Focus nunca é traduzida, por isso um nome que tenha ficado por mudar aparece como diferença. Os dois nomes têm o mesmo comprimento, o que deixa intactos tamanhos, colunas e limites em bytes.
 
-1. **Corpus de oráculo.** `gen_cases.py` gera casos com seed; `driver.ts` responde com o código do original; `focus dev oracle` responde com o de Focus; comparam-se como texto, incluindo a ordem das chaves. Treze tipos de caso: frontmatter de stage, sensor e regra, os dois leitores primitivos, colação, números, ciclos, registos de scopes compostos, fold-back, settings de proposta e Guard Policy em memória. Um corpus de 4 454 casos fica em `fixtures/oracle/`.
+1. **Corpus de oráculo.** `gen_cases.py` gera casos com seed; `driver.ts` responde com o código do original; `focus dev oracle` responde com o de Focus; comparam-se como texto, incluindo a ordem das chaves. Cada crate declara os tipos de caso a que responde (`KINDS`, no seu módulo `oracle`): em `focus-graph`, frontmatter de stage, sensor e regra, os dois leitores primitivos, colação, números, padrões sem distinção de caixa, ciclos, registos de scopes compostos, fold-back, settings de proposta e Guard Policy em memória; os de `focus-audit`, `focus-workspace` e `focus-markdown` entraram com M2 (secção 13). Um corpus de 8 526 casos fica em `fixtures/oracle/`.
 2. **Diferencial ao vivo.** `differential.py` constrói um projeto Claude Code a partir da distribuição do original, altera-o de uma forma específica, dá uma cópia a cada motor, corre o mesmo comando nos dois e compara o que um chamador observa: código de saída, stdout, stderr e, num compile, os ficheiros que ficam em disco. Com `--fuzz N` acrescenta propostas e pontuações aleatórias.
 3. **Diferencial gravado.** Com `--record`, o mesmo script guarda o que o original fez em cada verificação (a árvore de partida, o comando, o resultado) em `fixtures/recorded/`. Um teste reconstrói cada árvore e exige de Focus o mesmo resultado.
 4. **Goldens.** Os ficheiros compilados pelo packager original, em `fixtures/upstream/golden/`.
@@ -269,7 +269,7 @@ Duas leituras desta tabela. A mutação do fold-back passou no diferencial grava
 
 **R6. Números.** Resolvido. `focus-js::num` imprime e arredonda como o JavaScript (`String`, `toFixed`, `Number`, `Math.round`), e `JSON.stringify` usa-o. O corpus alargado encontrou um defeito na primeira passagem: quando um double fica exatamente a meio entre dois candidatos mais curtos, o JavaScript escolhe o de último dígito par e o formatador do Rust o de cima (`2126906910518472.25` imprime `...472.2` num e `...472.3` no outro). Corrigido; 5 casos em 124 818 antes, 0 em 208 030 depois.
 
-**R7. Regex fora do comum.** O original usa lookbehind (9 ocorrências) e a flag `v` com `\p{RGI_Emoji}` (2). O `regress` compila ambos e aplica-os a uma amostra com o resultado esperado (há um teste em `focus-js`); ainda não passaram por um corpus diferencial.
+**R7. Regex fora do comum.** O original usa lookbehind (9 ocorrências) e a flag `v` com `\p{RGI_Emoji}` (2). O `regress` compila ambos e aplica-os a uma amostra com o resultado esperado (há um teste em `focus-js`); ainda não passaram por um corpus diferencial. A flag `i` passou: o `regress` compara caracteres de outra maneira que o JavaScript em quatro sítios, `focus-js` corrige-o e recusa o padrão que a correção não cobre (secção 13, "Entre a fatia 5 e a 6").
 
 **R8. Plataformas.** Medido pela primeira vez em 2026-10-09, no CI do primeiro pull request: os lints e os testes passam em Linux, macOS e Windows com a toolchain fixada (1.97.0), e o workspace compila com a 1.89. O lock usa `std::fs::File::lock` (`flock` em Linux e macOS, `LockFileEx` em Windows), sem FFI, e os seus testes correm nas três. Fica por medir o que só corre em Unix: o diferencial gravado (as mensagens trazem caminhos com o separador da plataforma) e os testes de links. A repetição do rename em Windows, quando outro processo tem o ficheiro aberto, continua sem um teste que a force. A primeira execução no `main` falhou nos lints por outra razão: o CI instalava a `stable` do dia, mais recente do que a usada aqui. A toolchain passou a estar fixada em `rust-toolchain.toml`.
 
@@ -477,6 +477,7 @@ M2 está em curso. O arranque confirmou o que R2 previa: os módulos de M2 não 
 | 3. Escrita e leitura em disco | Append sob o lock do workspace, com as verificações de links e de identidade do ficheiro; `focus engine audit append`, `append-batch`, `append-raw` e `history`; relógio injetável | Diferencial de comandos: shards iguais a menos do timestamp | Feita |
 | 4. Settings | `focus.settings.json` nas três camadas e os switches gravados. Fecha o limite 2 de M1 | Corpus e diferencial de `validate-grid` | Feita |
 | 5. Markdown | `focus-markdown`: a estrutura de um documento linha a linha e as linhas que um consumidor pode ler, com `pulldown-cmark` (R1). Fecha o limite 1 de M1 | Corpus com os goldens do original, o Markdown que ele distribui e documentos gerados; fuzz ao vivo com um terceiro parser a arbitrar | Feita |
+| Entre a 5 e a 6 | `focus-js`: a flag `i` sem `u` compara caracteres como o JavaScript | Corpus: todos os caracteres com caixa como padrão, e os padrões do original | Feita |
 | 6. Runtime graph | `runtime-graph.json` a partir dos shards, do ficheiro de estado e dos `memory.md` | `runtime-graph.json` byte a byte igual | Por fazer |
 
 A fatia 6 lê o ficheiro de estado (`readStateFile`, `parseCheckboxes`, `parseStateStageSuffixes`), que o plano tinha em M3, e os registos de bolts e worktrees, que estão adiados. Porta-se só o leitor de estado de que o compile precisa; o resto do ficheiro de estado continua em M3. Se a fatia de leitura se revelar inseparável das transições, a fatia 6 passa para depois do arranque de M3 e M2 fecha com as cinco primeiras.
@@ -700,7 +701,7 @@ A primeira ronda de mutações deixou passar 11 de 31. Seis eram linhas que o co
 
 Nove goldens e um ficheiro de `core/` ficam fora do corpus incluído porque contêm uma das três frases que o mapa de nomes muda de comprimento (secção 7): as colunas que o original respondeu deixariam de bater com o documento traduzido. Foram medidos nos nomes do original, com os restantes.
 
-**Revisão independente.** Antes do pull request, um revisor sem acesso ao raciocínio do port leu o crate, a regra e os testes, e correu documentos construídos de propósito contra a biblioteca. Encontrou dez coisas; todas estão corrigidas, com caso no corpus ou teste, exceto a que é do `focus-js` e fica registada abaixo:
+**Revisão independente.** Antes do pull request, um revisor sem acesso ao raciocínio do port leu o crate, a regra e os testes, e correu documentos construídos de propósito contra a biblioteca. Encontrou dez coisas; todas estão corrigidas, com caso no corpus ou teste; a que é do `focus-js` foi corrigida a seguir, num pull request seu ("Entre a fatia 5 e a 6", abaixo):
 
 - o pânico do parser (acima), que o fuzz de 10 000 documentos não tinha apanhado e que um gerador com outra seed apanhava;
 - tempo cúbico numa só linha com milhares de spans (8 000 spans: 58 s; agora 0,1 s), por se voltar a percorrer a linha para cada sonda de cada span;
@@ -743,4 +744,49 @@ O que a fatia 5 não tem:
 - **O que a regra não vê.** O registo comparado não leva a identidade do bloco de uma linha (salvo em blocos HTML), nem os contentores de linhas de código, em branco, de definição e de regra, nem a projeção com as duas opções ligadas. Nenhum consumidor do original os lê. E numa linha julgada "só o original", os spans e as projeções de Focus não têm contra o que comparar.
 - **Uma coluna a meio de um carácter.** Numa célula de tabela, quando a conta do original cai a meio de um par de substituição UTF-16, Focus dá o início do carácter. Um `\|` seguido de um emoji dentro de código, numa tabela.
 - **Tempo em documentos patológicos.** O contorno do bloco HTML relê o documento uma vez por cada bloco que acabe com a etiqueta de outro ou em maiúsculas: mil desses blocos custam cerca de 0,1 s, quatro mil cerca de 1,4 s. Nenhum documento real tem um.
-- **`focus-js`: padrões sem distinção de caixa.** O motor de expressões regulares que `focus-js` usa toma `ſ` por `s` e `K` (o sinal kelvin) por `k` quando a flag é `i` sem `u`; o JavaScript não. Neste crate as etiquetas já não passam por aí. Os outros padrões portados com `i` ficam por corrigir no próprio `focus-js`, num pull request à parte, a seguir a este.
+- **`focus-js`: padrões sem distinção de caixa.** Ficou para um pull request à parte e está feito: é a secção seguinte.
+
+### Entre a fatia 5 e a 6: a flag `i` em `focus-js`
+
+A revisão da fatia 5 encontrou `</ſtyle>` a fechar um bloco aberto por `<pre>`. A causa não estava no Markdown. Os padrões do original são portados tal como estão e corridos no `regress` (decisão 2 da secção 4), e esse motor, na versão 0.12.0, não ignora a caixa como o JavaScript.
+
+**O que o JavaScript faz.** Com `i` e sem `u` nem `v`, dois caracteres são iguais quando têm a mesma forma maiúscula, e só se essa forma for uma única unidade de código; e um carácter fora do ASCII nunca é igual a um de dentro. Por isso `ſ` (s longo) não é `s`, `K` (o sinal kelvin) não é `k` e `ı` (i sem ponto) não é `i`, embora as maiúsculas deles sejam `S`, `K` e `I`. Com `u`, as regras são outras (o *case folding* do Unicode) e aí `ſ` é `s`.
+
+**Onde o `regress` faz diferente.** Mediu-se contra o Bun com todos os caracteres do plano básico que têm outra caixa (2 355), cada um como padrão sozinho, como classe de um só elemento e em sequência com o vizinho, sobre um texto que os contém todos. São quatro sítios:
+
+| Onde | O que o `regress` faz | O JavaScript |
+| --- | --- | --- |
+| 65 caracteres do plano básico | Toma `ı`, `ſ` e `K` por `i`, `s` e `k` (num literal, numa classe, numa classe negada e numa backreference); toma uma pela outra a minúscula e a maiúscula das 54 letras gregas com iota subscrito; e, só dentro de uma classe, junta o sinal ohm a `ω`, o angstrom a `å`, `ẞ` a `ß`, o símbolo theta a `θ`, duas letras do grego estendido às suas gémeas do bloco grego, e as duas ligaduras de s longo uma à outra | Cada um dos 65 só é igual a si próprio |
+| Letras fora do plano básico (Deseret, Osage, Adlam e outras: 520) | Junta a maiúscula à minúscula | São dois *code units* cada, e um *code unit* de um par não tem caixa |
+| `\W` dentro de uma classe (`[\W]`, `[^\W\d_]`) | Leva `s` e `k` consigo, porque `ſ` e `K` estão em `\W` | `\W` é o complemento de `[A-Za-z0-9_]` |
+| Intervalo de classe que sai do ASCII (`[Ā-ž]`) | Fecha o intervalo sobre os mesmos pares | Não |
+
+Fora destes quatro, as respostas são iguais: letras acentuadas, grego, cirílico e o resto dos alfabetos com caixa comparam-se como no Bun.
+
+**A correção.** Um padrão compilado em `focus_js::re` com `i` e sem `u` nem `v` nunca chega a ver os 65: no texto que lhe é dado, cada um é trocado por um carácter sem caixa com o mesmo comprimento em UTF-8 (`ĸ`, U+0138, para os de dois bytes; `℩`, U+2129, para os de três), e a procura corre sobre esse texto. As posições não mudam, por isso os intervalos de um resultado valem no texto original. A troca só acontece quando o texto tem um dos 65.
+
+Isto é exato enquanto o padrão não conseguir distinguir um carácter sem caixa fora do ASCII de outro, e não tocar nos outros três sítios. Um padrão que o faça é recusado ao ser compilado, com um pânico que diz porquê (um padrão é uma constante vinda do original, e recusá-lo é um erro de port, não uma condição de execução):
+
+- nomeia um dos 65, um dos dois substitutos, ou um carácter fora do plano básico;
+- tem numa classe um intervalo que sai do ASCII, ou `\W`;
+- tem uma backreference e um grupo que não é uma escolha de palavras ASCII (`(script|style)` passa; `(\S+)` não): o que esse grupo captura podia conter dois caracteres que a troca tornou um.
+
+O original tem 226 padrões com `i` sem `u` nem `v` em `core/`, `harness/` e `scripts/`, contados com o parser do TypeScript (196 literais e 30 construídos; nenhum com `i` e `u`). Quatro nomeiam caracteres fora do ASCII (pontuação, sem caixa), um tem uma backreference (a um grupo de nomes de etiquetas), nenhum tem `\W` numa classe. Os 165 literais distintos de `core/` e `harness/` estão no corpus (`tools/oracle/patterns.ts` extrai-os) e nenhum é recusado. Os 30 construídos interpolam nomes de campos, de agentes e de ferramentas em pedaços do mesmo género; cada um é verificado quando o módulo que o constrói for portado, porque compilar um padrão recusado falha no primeiro teste que o use.
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Corpus, tipo `icase` | 31 casos, 5 682 padrões: cada padrão responde com tudo o que encontra no texto, e a resposta é comparada com a do Bun. 0 diferenças |
+| O que os padrões são | Cada letra ASCII e cada carácter com caixa do plano básico, salvo os 65 (2 342), como literal e como classe; 781 pares de vizinhos; 43 padrões com classes, escapes, classes negadas, `\b` e backreferences; cada letra ASCII seguida de cada carácter com caixa, para a comparação que uma backreference faz; um texto com as 520 letras fora do plano básico; e os 165 padrões do original, sobre o mesmo texto e sobre linhas com `ſ`, `ı` e `K` no lugar das letras que os padrões esperam |
+| Sem a correção | Diferem do Bun: `i`, `s`, `k` e as classes que os contêm (`[a-z]`, `\w`); os 54 literais gregos; 18 classes de um elemento; os 520 literais fora do plano básico; `[\W]` e `[^\W]`; os três intervalos fora do ASCII que se experimentaram |
+| Mutações em `re.rs` | 31, 30 apanhadas. A que passa é uma guarda de limites que nenhum padrão válido alcança |
+| `cargo test` | 203 testes |
+
+A lista dos 65 não pode estar no corpus como padrões, porque Focus os recusa. Está fixada num teste de `focus-js`: são 65, cada um é recusado pelo nome e trocado por um substituto do mesmo comprimento.
+
+**O que isto não tem.**
+
+- **Outra versão do motor.** A lista é a do `regress` 0.12.0, fixado em `Cargo.lock`. Uma versão que compare de outra maneira aparece no corpus: se passar a errar noutro carácter, um dos 2 342 padrões falha; se deixar de errar nos 65, a troca fica a mais e não faz mal.
+- **Os modos `u` e `v` com `i`.** O JavaScript usa aí o *case folding* do Unicode e o `regress` também; o original não tem nenhum padrão assim, e o corpus não os mede.
+- **Meio par de substituição.** Continua como estava (docs do módulo): sem `u`, um padrão do JavaScript pode consumir metade de um par, e no `regress` não. Nenhum padrão portado o faz sobre UTF-8 válido.

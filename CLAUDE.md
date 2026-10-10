@@ -34,7 +34,9 @@ This repository is the source of truth for the code, the plan and the fixtures.
   comparison establishes is recorded under `fixtures/` and replayed.
 - **`focus-js` owns JavaScript semantics** (whitespace, ordering, collation,
   JSON, numbers, regex). Ported code does not call `str::trim`, `sort` or the
-  `regex` crate where the result reaches disk or a message.
+  `regex` crate where the result reaches disk or a message. A pattern is
+  compiled through `focus_js::re`, never on `regress` directly: `re` corrects
+  how that engine ignores case, and refuses a pattern it cannot correct.
 - **A deliberate deviation is declared three times**: a test marked
   "Deliberate deviation", an entry in `DEVIATIONS` in
   `tools/oracle/differential.py` (or in `SHAPES`, when the difference is one

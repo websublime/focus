@@ -25,13 +25,14 @@ use crate::stage_schema::{self, ValidationContext};
 
 /// The kinds of case this crate answers. Each kind in the corpus belongs to
 /// exactly one crate, and each crate replays its own.
-pub const KINDS: [&str; 13] = [
+pub const KINDS: [&str; 14] = [
     "stage",
     "sensor",
     "rule",
     "scalar",
     "list",
     "collate",
+    "icase",
     "num",
     "cycles",
     "record",
@@ -52,6 +53,7 @@ pub fn run_case(case: &Value) -> Value {
         "scalar" => json!({ "value": fm::scalar_field(text("fm"), text("key")) }),
         "list" => json!({ "value": fm::list_field(text("fm"), text("key")) }),
         "collate" => json!({ "sign": locale_compare(text("a"), text("b")) as i8 }),
+        "icase" => icase(case, text("hay")),
         "num" => number(
             text("text"),
             case.get("digits").and_then(Value::as_u64).unwrap_or(0),
@@ -71,6 +73,25 @@ pub fn run_case(case: &Value) -> Value {
         },
         other => json!({ "unsupported": other }),
     }
+}
+
+/// What each of a batch of patterns matches in `hay` under flag `i`.
+fn icase(case: &Value, hay: &str) -> Value {
+    let found: Vec<Value> = case["patterns"]
+        .as_array()
+        .map(Vec::as_slice)
+        .unwrap_or_default()
+        .iter()
+        .map(|pattern| {
+            let matches: Vec<&str> =
+                focus_js::re::compile(pattern.as_str().unwrap_or_default(), "i")
+                    .find_iter(hay)
+                    .map(|found| &hay[found.range()])
+                    .collect();
+            json!(matches)
+        })
+        .collect();
+    json!({ "found": found })
 }
 
 fn number(text: &str, digits: u64) -> Value {
