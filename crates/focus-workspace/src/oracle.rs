@@ -18,9 +18,10 @@ use serde_json::{Map, Value, json};
 
 use crate::project::Layout;
 use crate::records::{Invoker, Selector, list_intent_dirs, resolve_selection};
+use crate::settings::{Layer, Places, is_kill_switch_source, normalize_settings};
 
 /// The kinds of case this crate answers.
-pub const KINDS: [&str; 1] = ["selection"];
+pub const KINDS: [&str; 3] = ["selection", "settings_file", "settings_layers"];
 
 /// How a case names the machine answering it, in a path or a clone file.
 pub const MACHINE: &str = "{H}";
@@ -32,6 +33,8 @@ static TREES: AtomicU64 = AtomicU64::new(0);
 pub fn run_case(case: &Value) -> Value {
     match case.get("kind").and_then(Value::as_str).unwrap_or_default() {
         "selection" => selection(case),
+        "settings_file" => settings_file(case),
+        "settings_layers" => in_scratch_tree(case, |root| settings_layers(root, case)),
         other => json!({ "unsupported": other }),
     }
 }
@@ -109,6 +112,107 @@ fn build(root: &Path, case: &Value, host: Option<&str>) -> std::io::Result<()> {
             .set_modified(at)?;
     }
     Ok(())
+}
+
+/// Where a settings case's machine file is, as an answer names it.
+const MACHINE_FILE: &str = "{M}/focus.settings.json";
+
+fn layer_named(name: &str) -> Layer {
+    match name {
+        "machine" => Layer::Machine,
+        "local" => Layer::Local,
+        _ => Layer::Project,
+    }
+}
+
+fn settings_file(case: &Value) -> Value {
+    let raw = case["raw"].as_str().unwrap_or_default();
+    let Ok(parsed) = focus_js::json::parse(raw) else {
+        return json!({ "error": "<json>" });
+    };
+    let layer = layer_named(case["layer"].as_str().unwrap_or_default());
+    match normalize_settings(&parsed, layer, "{F}", MACHINE_FILE) {
+        Ok(value) => json!({ "value": value }),
+        Err(err) => json!({ "error": err.message() }),
+    }
+}
+
+fn settings_layers(root: &Path, case: &Value) -> Value {
+    let (project, machine) = (root.join("project"), root.join("machine"));
+    let _ = std::fs::create_dir_all(&project);
+    let _ = std::fs::create_dir_all(&machine);
+    let places = Places::with_install_root(&project, &machine);
+    // The runtime's words for a file that is not JSON are its own.
+    let named = |text: &str| {
+        let text = match text.find(": invalid JSON: ") {
+            Some(at) => format!("{}<runtime>", &text[..at + ": invalid JSON: ".len()]),
+            None => text.to_owned(),
+        };
+        // A file is named with the platform's separator; the answer uses `/`.
+        let separator = std::path::MAIN_SEPARATOR;
+        let (machine, project) = (machine.display().to_string(), project.display().to_string());
+        text.replace(&format!("{machine}{separator}"), "{M}/")
+            .replace(&format!("{project}{separator}"), "{P}/")
+            .replace(&machine, "{M}")
+            .replace(&project, "{P}")
+    };
+    let given = case.get("env").and_then(Value::as_object);
+    let env = |name: &str| -> Option<String> { given?.get(name)?.as_str().map(str::to_owned) };
+
+    let mut answer = Map::new();
+    match places.resolve() {
+        Ok(resolved) => {
+            let mut sources = Map::new();
+            for (path, layer) in &resolved.sources {
+                sources.insert(path.clone(), json!(layer.name()));
+            }
+            answer.insert("value".to_owned(), resolved.value);
+            answer.insert("sources".to_owned(), Value::Object(sources));
+            answer.insert("present".to_owned(), json!(resolved.present));
+        }
+        Err(err) => {
+            answer.insert("error".to_owned(), json!(named(err.message())));
+        }
+    }
+    let (mut flags, mut switches, mut recorded) = (Map::new(), Map::new(), Map::new());
+    for name in case["ask"]
+        .as_array()
+        .into_iter()
+        .flatten()
+        .filter_map(Value::as_str)
+    {
+        flags.insert(
+            name.to_owned(),
+            match places.flag(name, &env) {
+                Ok(value) => json!(value),
+                Err(_) => json!({ "error": true }),
+            },
+        );
+        switches.insert(
+            name.to_owned(),
+            json!(named(&places.kill_switch_source(name, &env))),
+        );
+        recorded.insert(
+            name.to_owned(),
+            json!(places.bypass_recorded_in(name).map(Layer::target)),
+        );
+    }
+    answer.insert("flags".to_owned(), Value::Object(flags));
+    answer.insert("switches".to_owned(), Value::Object(switches));
+    answer.insert("recorded".to_owned(), Value::Object(recorded));
+    answer.insert(
+        "isSwitch".to_owned(),
+        json!(
+            case["probe"]
+                .as_array()
+                .into_iter()
+                .flatten()
+                .filter_map(Value::as_str)
+                .map(is_kill_switch_source)
+                .collect::<Vec<_>>()
+        ),
+    );
+    Value::Object(answer)
 }
 
 fn resolve(root: &Path, case: &Value) -> Value {

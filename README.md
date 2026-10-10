@@ -19,8 +19,9 @@ project.
 is under way (M2).** Compiling the graph, including plugin selection and
 composed scopes, and every `graph` verb are ported and held to parity with the
 reference. Of the ledger, the format, the shards and the `audit` command
-(append, notes, history) exist; settings, Markdown and the runtime graph are
-next. State, guards, hooks and the orchestrator are not written yet. The plan for the rest, module by
+(append, notes, history) exist, and so do the settings files; Markdown and the
+runtime graph are next. State, guards, hooks and the orchestrator are not
+written yet. The plan for the rest, module by
 module, is in [`docs/plano-de-migracao.md`](docs/plano-de-migracao.md)
 (Portuguese).
 
@@ -67,7 +68,7 @@ focus engine graph compile --harness claude --core fixtures/upstream/core --out 
 | `focus-js` | JavaScript semantics the on-disk formats depend on: whitespace, sort order and collation, `Object.keys` order, `JSON.parse`/`stringify`, number printing and rounding, ECMAScript regex |
 | `focus-frontmatter` | The YAML-subset frontmatter readers, ported pattern for pattern |
 | `focus-harness` | What differs between Claude Code, Cursor and GitHub Copilot, as data |
-| `focus-workspace` | Which project, harness, space and intent record a command acts on, every path in them, atomic writes, the workspace lock, and opening a file whose path is not trusted |
+| `focus-workspace` | Which project, harness, space and intent record a command acts on, every path in them, the settings of the machine, the project and one clone, atomic writes, the workspace lock, and opening a file whose path is not trusted |
 | `focus-graph` | Stage, scope, agent, sensor and rule schemas; the compile; composed scopes; graph queries; plan validation; ARS |
 | `focus-audit` | The audit ledger: the event vocabulary, how an entry is validated and written, how entries are read back, the shard each clone writes, appending to it under the lock, and a record's history from all its shards |
 | `focus-cli` | The `focus` binary (the package is named `focus`) |

@@ -116,6 +116,7 @@ fn normalise(text: &str, root: &Path) -> String {
             true,
         ),
         (r"(is not valid JSON: ).*()", false),
+        (r"(: invalid JSON: ).*()", false),
         (r"(has an unparseable grid fence: ).*()", false),
         (r"(cannot read ars priors at [^:]+: ).*()", false),
         (

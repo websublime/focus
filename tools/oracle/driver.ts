@@ -22,6 +22,7 @@ const sensorSchema = await import(tool("aidlc-sensor-schema.ts"));
 const ruleSchema = await import(tool("aidlc-rule-schema.ts"));
 const graph = await import(tool("aidlc-graph.ts"));
 const audit = await import(tool("aidlc-audit.ts"));
+const settings = await import(tool("aidlc-settings.ts"));
 
 // A scratch project for the cases that can only be asked by writing a file.
 // A case names it `{P}`; answers name it the same way, so they do not depend
@@ -287,6 +288,69 @@ function answer(c: Record<string, any>): unknown {
       } catch (err) {
         return { error: message(err).replaceAll(root, "{P}") };
       } finally {
+        rmSync(root, { recursive: true, force: true });
+      }
+    }
+    case "settings_file":
+    case "settings_layers": {
+      // The machine's file lives in the install root, which each case gets
+      // for itself. `{M}` and `{P}` in an answer are that root and the project.
+      const root = join(scratch, `tree-${trees++}`);
+      const project = join(root, "project");
+      const machine = join(root, "machine");
+      mkdirSync(project, { recursive: true });
+      mkdirSync(machine, { recursive: true });
+      const before = process.env.AIDLC_INSTALL_ROOT;
+      process.env.AIDLC_INSTALL_ROOT = machine;
+      settings._resetSettingsCacheForTests();
+      const named = (text: string) =>
+        text
+          .replace(/(: invalid JSON: ).*/s, "$1<runtime>")
+          .replaceAll(machine, "{M}")
+          .replaceAll(project, "{P}");
+      try {
+        if (c.kind === "settings_file") {
+          let parsed: unknown;
+          try {
+            parsed = JSON.parse(c.raw);
+          } catch {
+            return { error: "<json>" };
+          }
+          try {
+            return { value: settings.normalizeAidlcSettings(parsed, c.layer, "{F}") };
+          } catch (err) {
+            return { error: named(message(err)) };
+          }
+        }
+        for (const [rel, text] of Object.entries(c.files as Record<string, string>)) {
+          mkdirSync(dirname(join(root, rel)), { recursive: true });
+          writeFileSync(join(root, rel), text);
+        }
+        const out: Record<string, unknown> = {};
+        try {
+          const resolved = settings.resolveAidlcSettings(project);
+          out.value = resolved.value;
+          out.sources = resolved.sources;
+          out.present = [resolved.files.machine.present, resolved.files.project.present, resolved.files.local.present];
+        } catch (err) {
+          out.error = named(message(err));
+        }
+        const flags: Record<string, unknown> = {};
+        const switches: Record<string, string> = {};
+        const recorded: Record<string, string | null> = {};
+        for (const name of c.ask as string[]) {
+          try {
+            flags[name] = lib.resolveProjectFlag(name, c.env, project) ?? null;
+          } catch {
+            flags[name] = { error: true };
+          }
+          switches[name] = named(lib.killSwitchSource(name, c.env, project));
+          recorded[name] = settings.bypassRecordedIn(project, name)?.target ?? null;
+        }
+        return { ...out, flags, switches, recorded, isSwitch: (c.probe as string[]).map((s) => lib.isKillSwitchSource(s)) };
+      } finally {
+        if (before === undefined) delete process.env.AIDLC_INSTALL_ROOT;
+        else process.env.AIDLC_INSTALL_ROOT = before;
         rmSync(root, { recursive: true, force: true });
       }
     }

@@ -385,7 +385,7 @@ Os sete primeiros aparecem pelo nome no diferencial e têm um teste marcado "Del
 O que M1 não faz, e o que acontece quando lá se chega:
 
 1. **Guard Policy em memória lida por linhas.** O original decide que linhas de um ficheiro de memória são visíveis com um parser CommonMark completo. `focus-graph::guard_memory` lê os ficheiros em que isso se decide linha a linha: fora de comentários que abrem no início de uma linha, não pode haver fences, crases desemparelhadas ou escapadas, nem `<` fora de um span de código; e a secção `## Guard Policy` não pode ter linhas indentadas quatro espaços ou mais. Os três ficheiros que o original distribui cabem. Um ficheiro fora disso faz `validate-grid` parar com erro, a nomear o ficheiro e a linha, quando a proposta é `relaxed` ou `off`; uma proposta `strict` não consulta a memória. Dentro do domínio, 45 035 casos gerados deram a resposta do original.
-2. **Kill switches só pelo ambiente.** `validate-grid` avisa quando `FOCUS_DISABLE_SENSORS` e semelhantes forçam uma cerimónia a desligado. Um switch gravado em `focus.settings.json` não é visto: falta um aviso, o veredicto não muda. Fecha em M2.
+2. **Kill switches só pelo ambiente.** Fechado na fatia 4 de M2: `validate-grid` vê os switches gravados em `focus.settings.json` nas três camadas, e o ambiente responde primeiro (secção 13).
 3. **Space por omissão.** A memória consultada é a do space de `--space`, senão a do cursor `focus/active-space`. Bindings de sessão e worktrees delegadas não são consultados (M3).
 4. **Só a árvore Claude passou pelos verbos.** Os goldens de compile cobrem os três harnesses; os 1 130 comandos de verbos correram sobre a distribuição `claude`. O código não distingue harnesses fora do diretório e dos caminhos de sensores, mas não foi medido.
 5. **`saveComposedScope`** (gravar um plano aprovado como scope, com rollback) não está portado: é chamado pelo fluxo de criação, não pelo CLI de `graph` (M5).
@@ -472,7 +472,7 @@ M2 está em curso. O arranque confirmou o que R2 previa: os módulos de M2 não 
 | 2a. Qual é o registo | Spaces, intents, registo de intents, cursor do intent ativo, binding de sessão e a seleção do workflow, em `focus-workspace` | Corpus: projetos descritos como conjuntos de ficheiros | Feita |
 | 2b. O shard | Identidade do clone (`focus/.focus-clone-id`), nome e caminho do shard (`auditFilePath`, `auditShardName`), listagem e leitura de todos os shards de um registo (`auditShards`, `readAuditShardEvents`, `readAllAuditShards`), cópias lidas uma só vez | Corpus: projetos em disco e conjuntos de shards | Feita |
 | 3. Escrita e leitura em disco | Append sob o lock do workspace, com as verificações de links e de identidade do ficheiro; `focus engine audit append`, `append-batch`, `append-raw` e `history`; relógio injetável | Diferencial de comandos: shards iguais a menos do timestamp | Feita |
-| 4. Settings | `focus.settings.json` nas três camadas e os switches gravados. Fecha o limite 2 de M1 | Corpus e diferencial de `validate-grid` | Por fazer |
+| 4. Settings | `focus.settings.json` nas três camadas e os switches gravados. Fecha o limite 2 de M1 | Corpus e diferencial de `validate-grid` | Feita |
 | 5. Markdown | `focus-markdown`, com o parser escolhido por medição contra os 391 documentos de `markdown-goldens/corpus.json` (R1). Fecha o limite 1 de M1 | Corpus próprio e os goldens do original | Por fazer |
 | 6. Runtime graph | `runtime-graph.json` a partir dos shards, do ficheiro de estado e dos `memory.md` | `runtime-graph.json` byte a byte igual | Por fazer |
 
@@ -605,3 +605,40 @@ O que ficou de fora, e onde entra:
 - **Observadores só de leitura.** O original recusa qualquer escrita quando o engine corre como sonda (o hook de paragem, a verificação de rota). As sondas são de M4 e M5; a barreira entra com elas.
 - **Lock por intent.** Enquanto o lock for o do workspace, dois intents não escrevem em paralelo. Reavaliar com os bolts.
 - **Fork e merge do registo de um bolt**, com o orquestrador.
+
+### Fatia 4: settings
+
+Três ficheiros guardam o que uma máquina, um projeto e o clone de uma pessoa decidiram, todos com a mesma forma: o da máquina (`focus.settings.json` na raiz de instalação), o do projeto (`focus.settings.json` na raiz do projeto, no git) e o local (`focus.settings.local.json`, de uma pessoa, fora do git).
+
+O que existe em `focus-workspace::settings`:
+
+- **Um ficheiro lê-se inteiro ou não se lê.** Chave desconhecida, valor do tipo errado ou chave só de máquina num ficheiro de projeto: erro que nomeia o ficheiro. Um erro de escrita não passa por uma definição ausente. Estão portadas as três secções: as chaves de máquina (`update-check`, `offline`, `release-base-url`, `ca-bundle`), `flags` e `models`.
+- **Camadas.** O ficheiro mais próximo ganha valor a valor: local, depois projeto, depois máquina. A exceção é a lista de switches gravados (`flags.bypasses`), que é a união dos três: um ficheiro mais próximo acrescenta switches e nunca volta a ligar em silêncio uma verificação que outro desligou. Cada valor fica com a camada de onde veio.
+- **O ambiente responde primeiro.** O valor de uma variável para um projeto é o que o ambiente diz, se disser alguma coisa, mesmo vazio; só depois o que os settings gravam. É assim que um processo volta a ligar, só para si, um switch gravado.
+- **De onde vem um switch**, para dizer a uma pessoa onde o desligar: `env NOME`, ou `NOME in <ficheiro>` com o ficheiro mais próximo que o grava.
+- **Raiz de instalação**: `FOCUS_INSTALL_ROOT`; senão `%LOCALAPPDATA%\focus` em Windows; senão `$XDG_DATA_HOME/focus` ou `~/.local/share/focus`.
+
+Com isto, `validate-grid` passou a avisar quando um switch gravado força uma cerimónia a desligado (limite 2 de M1). Só lê os settings quando o plano tem alguma cerimónia ligada, como o original: um plano sem cerimónias nem dá por um ficheiro de settings inválido.
+
+| Verificação | Resultado |
+| --- | --- |
+| Corpus incluído, dois tipos de caso novos (`settings_file`, `settings_layers`) | 960 casos novos (7 691 no total), 0 diferenças |
+| Corpus alargado, seeds 41 e 42 à escala 40 | 12 800 casos, 0 diferenças |
+| 35 mutações deliberadas | 33 detetadas. As duas que passam são a mesma ordenação aplicada em dois sítios: cada uma cobre a outra |
+| Diferencial, `validate-grid` com settings | 30 verificações novas em 11 árvores: 29 iguais, 1 desvio deliberado. Três mutações do ponto de ligação, todas detetadas |
+| Diferencial completo | 1 380 verificações com nome: 1 347 iguais, 33 desvios, 0 diferentes. 1 369 gravadas |
+| `cargo test` | 174 testes |
+
+O gerador da primeira versão era hostil de mais: 62 de 480 ficheiros falhavam logo no `schemaVersion` e quase nenhum chegava a `models.agents`. Passou a gerar metade dos ficheiros sem nenhum valor inválido e a ter um caso escrito à mão por cada recusa a que os gerados raramente chegam.
+
+Uma variável mudou de nome além da regra geral: `AWS_AIDLC_DEFAULT_SCOPE` é a única que o original prefixa de outra maneira, e em Focus é `FOCUS_DEFAULT_SCOPE`, porque todas as variáveis que Focus lê são `FOCUS_*`. O mapa de nomes tem a exceção, e o Markdown de `focus-classic.md` que a menciona foi regenerado.
+
+Um desvio deliberado:
+
+| | Original | Focus |
+| --- | --- | --- |
+| `release-base-url` | Validado pelo parser de URL do runtime, que aceita muitas grafias do mesmo sítio (`HTTPS://`, uma só barra, espaços à volta, `?` vazio) | Lê uma grafia: esquema em minúsculas, duas barras, host de letras, dígitos, pontos e hífenes, porta e caminho opcionais. O resto é recusado, com a frase do original. Um parser de URL completo para uma chave que só o atualizador vai usar (M8) não se justifica agora |
+
+O corpus deixa de fora, de propósito: números que não cabem num double e metades de pares de substituição (os dois parsers de JSON não concordam, e nenhum ficheiro de settings precisa deles), e valores de `ca-bundle` cuja condição de "absoluto" depende da plataforma.
+
+O que a fatia 4 não tem: escrever settings (`focus config`, M8), e os consumidores das outras flags (`defaultScope`, `swarm`, `hookDebug`, os tempos) e de `models`, que entram com os módulos que as usam.

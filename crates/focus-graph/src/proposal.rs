@@ -59,8 +59,9 @@ pub struct ProposalWorld<'a> {
     /// refusal sentence. Called only for a relaxed or off proposal.
     pub memory_strict: &'a dyn Fn() -> Result<Option<String>>,
     /// Whether a kill switch forces a ceremony off on this machine, and the
-    /// name of the switch.
-    pub kill_switch: &'a dyn Fn(&str) -> Option<String>,
+    /// name of the switch. Fails when the settings that could record one
+    /// cannot be read.
+    pub kill_switch: &'a dyn Fn(&str) -> Result<Option<String>>,
 }
 
 /// `String(value)` for a JSON value.
@@ -524,7 +525,7 @@ pub fn validate(
             summary.off = settings_off_list(&parsed);
             for key in CEREMONY_KEYS {
                 if parsed.get(key).is_some_and(|v| v == "on")
-                    && let Some(switch) = (world.kill_switch)(key)
+                    && let Some(switch) = (world.kill_switch)(key)?
                 {
                     advisories.push(format!(
                             "{key} is on in these settings, but {switch} forces it off on this machine; the scope still stores on, and the ceremony runs once that switch is cleared."

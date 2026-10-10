@@ -19,6 +19,7 @@ use focus_js::{json, num};
 use focus_workspace::atomic::write_atomic;
 use focus_workspace::manifest::HarnessManifest;
 use focus_workspace::names::DEFAULT_SPACE;
+use focus_workspace::settings::Places;
 use focus_workspace::{Layout, WorkspaceLock, env, project};
 use serde_json::{Map, Value};
 
@@ -478,11 +479,16 @@ fn run_validate_grid(args: &mut Args) -> Verb {
             .find(|declaration| declaration.value == scopes::GuardPolicy::Strict)
             .map(guard_memory::Declaration::strict_refusal))
     };
-    // Only the environment is read. A switch recorded in a settings file is
-    // not seen until the settings reader exists.
-    let kill_switch = |key: &str| -> Option<String> {
-        let (_, name) = CEREMONY_SWITCHES.iter().find(|(k, _)| *k == key)?;
-        env::is_on(name).then(|| env::full_name(name))
+    // A switch is on when this process's environment says `1`, or, when the
+    // environment says nothing, when a settings file records it.
+    let places = Places::of(&layout.project);
+    let kill_switch = |key: &str| -> focus_js::Result<Option<String>> {
+        let Some((_, name)) = CEREMONY_SWITCHES.iter().find(|(k, _)| *k == key) else {
+            return Ok(None);
+        };
+        let name = env::full_name(name);
+        let set = places.flag(&name, &|variable| std::env::var(variable).ok())?;
+        Ok((set.as_deref() == Some("1")).then_some(name))
     };
 
     let (result, valid) = proposal::validate(

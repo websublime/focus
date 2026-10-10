@@ -246,6 +246,7 @@ RUNTIME_TEXT = [
     # (prefix the engine wrote, what follows the runtime's own text)
     (r"(Stage graph not readable at [^:]+: ).*?(\. Reinstall)", r"\1<runtime>\2"),
     (r"(is not valid JSON: ).*", r"\1<runtime>"),
+    (r"(: invalid JSON: ).*", r"\1<runtime>"),
     (r"(has an unparseable grid fence: ).*", r"\1<runtime>"),
     (r"(cannot read ars priors at [^:]+: ).*", r"\1<runtime>"),
     (r"(validate-grid: cannot read [^:]+: ).*?(\. Write the grid|$)", r"\1<runtime>\2"),
@@ -312,7 +313,8 @@ LARGE = 3000
 
 def relevant_files(root):
     found = {}
-    for directory in (*BASE_DIRS, "p"):
+    # A settings path can hold a directory where the file goes; walking a file finds nothing.
+    for directory in (*BASE_DIRS, "p", "machine", "aidlc.settings.json", "aidlc.settings.local.json"):
         for folder, _, names in os.walk(os.path.join(root, directory)):
             for name in names:
                 path = os.path.join(folder, name)
@@ -320,7 +322,7 @@ def relevant_files(root):
                 if os.path.islink(path) or "/.aidlc-" in f"/{rel}" and "composer-proposal" not in rel:
                     continue
                 found[rel] = path
-    for rel in BASE_FILES:
+    for rel in (*BASE_FILES, "aidlc.settings.json", "aidlc.settings.local.json"):
         if os.path.isfile(os.path.join(root, rel)):
             found[rel] = os.path.join(root, rel)
     return found
@@ -967,6 +969,73 @@ def verbs():
            ["validate-grid", "--proposal", "p/full_feature.json", "--custom"], {switch: "1"})
     on("stock", "grid_kill_switch_not_one", ["validate-grid", "--proposal", "p/full_feature.json", "--custom"],
        {"DISABLE_SENSORS": "true"})
+    settings_checks(on)
+
+
+def recorded(*switches, **more):
+    """A settings file that records `switches` (and whatever else `more` says)."""
+    return json.dumps({"schemaVersion": 1, "flags": {"schemaVersion": 1, "bypasses": list(switches)}, **more})
+
+
+def settings_files(**files):
+    """An edit that writes settings files: project=, local=, machine= (the last under machine/, which a check
+    names as the install root)."""
+    where = {"project": "aidlc.settings.json", "local": "aidlc.settings.local.json",
+             "machine": "machine/aidlc.settings.json"}
+    return lambda tree: [tree.write(where[layer], text) for layer, text in files.items()]
+
+
+VERB_TREES.update({
+    "settings_project": raw(proposals, settings_files(
+        project=recorded("AIDLC_DISABLE_SENSORS", "AIDLC_DISABLE_LEARNINGS"))),
+    "settings_local": raw(proposals, settings_files(local=recorded("AIDLC_DISABLE_PLAN_APPROVAL_GUARD"))),
+    "settings_machine": raw(proposals, settings_files(
+        machine=recorded("AIDLC_DISABLE_SUMMARY_CONFIRMATION", offline=True))),
+    "settings_layers": raw(proposals, settings_files(
+        machine=recorded("AIDLC_DISABLE_SENSORS", **{"release-base-url": "https://releases.example.com/"}),
+        project=recorded("AIDLC_DISABLE_LEARNINGS", "AIDLC_SKIP_ARTIFACT_GUARD"),
+        local=recorded("AIDLC_DISABLE_SUMMARY_CONFIRMATION"))),
+    "settings_no_switches": raw(proposals, settings_files(
+        project=json.dumps({"schemaVersion": 1, "flags": {"schemaVersion": 1, "swarm": True}}),
+        local=json.dumps({"schemaVersion": 1}))),
+    "settings_unknown_key": raw(proposals, settings_files(project='{"schemaVersion": 1, "flag": {}}')),
+    "settings_not_json": raw(proposals, settings_files(local="{ nope")),
+    "settings_machine_key_in_project": raw(proposals, settings_files(
+        project='{"schemaVersion": 1, "offline": true}')),
+    "settings_unknown_switch": raw(proposals, settings_files(project=recorded("AIDLC_DISABLE_COLLABORATORS"))),
+    "settings_is_directory": raw(proposals, lambda tree: tree.write("aidlc.settings.json/inside.txt", "x\n")),
+    "settings_url_spelling": raw(proposals, settings_files(
+        machine=json.dumps({"schemaVersion": 1, "release-base-url": "HTTPS://Releases.Example.com"}))),
+})
+
+DEVIATIONS.update({
+    "verbs/settings_url_spelling/grid_ceremonies_on":
+        "upstream validates release-base-url with its runtime's URL parser, which accepts many spellings of one "
+        "location; focus reads one spelling (lower-case scheme, two slashes, a plain host) and refuses the rest",
+})
+
+
+def settings_checks(on):
+    on_ = ["validate-grid", "--proposal", "p/full_feature.json", "--custom"]
+    root = {"INSTALL_ROOT": "machine"}
+    for tree in ("settings_project", "settings_local", "settings_machine", "settings_layers", "settings_no_switches",
+                 "settings_unknown_key", "settings_not_json", "settings_machine_key_in_project",
+                 "settings_unknown_switch", "settings_is_directory", "settings_url_spelling"):
+        on(tree, "grid_ceremonies_on", on_, root)
+        # No ceremony is on in this plan, so no switch is looked up and the settings are never read.
+        on(tree, "grid_no_ceremonies", ["validate-grid", "--proposal", "p/bugfix.json"], root)
+    # The environment answers first, whatever it says.
+    on("settings_project", "grid_env_says_zero", on_, {"DISABLE_SENSORS": "0"})
+    on("settings_project", "grid_env_says_nothing", on_, {"DISABLE_SENSORS": "", "DISABLE_LEARNINGS": ""})
+    on("settings_project", "grid_env_says_one", on_, {"DISABLE_SENSORS": "1", "DISABLE_PLAN_APPROVAL_GUARD": "1"})
+    on("settings_layers", "grid_env_clears_each", on_,
+       {**root, "DISABLE_SENSORS": "0", "DISABLE_LEARNINGS": "no", "DISABLE_SUMMARY_CONFIRMATION": "off"})
+    # Without the install root named, the machine's file is somewhere else and is not this one.
+    on("settings_machine", "grid_machine_file_not_named", on_)
+    on("settings_layers", "grid_machine_file_not_named", on_)
+    on("settings_layers", "grid_matched", ["validate-grid", "--proposal", "p/full_bugfix.json", "--matched", "bugfix"],
+       root)
+    on("settings_layers", "grid_report", [*on_, "--report"], root)
 
 
 def fuzz(count):
