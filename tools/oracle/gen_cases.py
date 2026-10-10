@@ -649,5 +649,179 @@ def selection_case():
 for _ in range(scale * 80):
     add("selection", **selection_case())
 
+# --------------------------------------------------------------------------
+# Several shards read as one ledger, and a record's ledger on disk.
+#
+# A shard is written here as the engine writes one (a title, then blocks that
+# each end in a rule), with the departures a reader has to survive: notes,
+# rows without a timestamp or an event, a row repeated in its own file, and
+# files that are copies of one another, whole, cut short, grown or diverged.
+#
+# `{H}` in a path or in the clone file is the name of the machine answering.
+# Left out on purpose: links (a platform's to make), a unit claim (focus
+# refuses it), and backslashes in names.
+# --------------------------------------------------------------------------
+
+ROW_STAMPS = ["2026-10-09T16:22:42Z", "2026-10-09T16:22:42Z", "2026-10-09T16:22:43Z", "2026-10-09T16:23:00Z",
+              "2026-10-08T23:59:59Z"]
+NOTE_HEADINGS = ["## A note", "##  Spaced heading ", "## Decision", "##", "### Deeper", "##Tight", "## é"]
+SHARD_NAMES = ["laptop-0123456789ab.md", "laptop-0123456789ab 2.md", "desktop-ffffffffffff.md", "old-name-abc123.md",
+               "build-01-abc123.md", "copy of laptop.md", "Laptop-ABC.md", "notes.md", "a-b.md", "-x-1.md"]
+
+
+def shard_row():
+    """One block of a shard, without the rule that ends it."""
+    stamp = rng.choice(ROW_STAMPS)
+    event = rng.choice(QUERY_EVENTS)
+    roll = rng.random()
+    if roll < 0.6:
+        lines = ["", f"## {event.title()}", f"**Timestamp**: {stamp}", f"**Event**: {event}"]
+        if rng.random() < 0.5:
+            lines.append(rng.choice(["**Stage**: code-generation", "**Bolt slug**: one", "**Note**: a\\nb"]))
+    elif roll < 0.82:
+        at = rng.choice([f"**Timestamp**: {stamp}", f"**Timestamp**: {stamp}", f"- **Timestamp**: {stamp}"])
+        lines = rng.choice([
+            ["", rng.choice(NOTE_HEADINGS), at, "first line", "", "second line  "],
+            ["", rng.choice(NOTE_HEADINGS), at],
+            ["", rng.choice(NOTE_HEADINGS), "before the stamp", at, "after it"],
+            ["", at, rng.choice(NOTE_HEADINGS), "stamp above the heading"],
+            ["", "no heading", at],
+            ["", "## One", "## Two", at, "text"],
+            ["", "## One", at, f"**Timestamp**: {stamp}", "a second stamp"],
+        ])
+    else:
+        lines = rng.choice([
+            ["", f"## {event.title()}", f"**Event**: {event}"],
+            ["", f"## {event.title()}", "**Timestamp**:", f"**Event**: {event}"],
+            ["", f"## {event.title()}", f"**Timestamp**: {stamp}", "**Event**:"],
+            ["", f"## {event.title()}", f"**Timestamp**: {stamp}", "**Event**:   "],
+            ["", "just prose"],
+            [""],
+        ])
+    lines.append("")
+    return "\n".join(lines)
+
+
+def shard_text():
+    rows = [shard_row() for _ in range(rng.randrange(0, 5))]
+    if rows and rng.random() < 0.15:
+        rows.append(rng.choice(rows))
+    return "# AI-DLC Audit Log\n" + "".join(row + "\n---\n" for row in rows)
+
+
+def shard_set(count):
+    """`count` shards for one directory, as [name, content]: some independent, some copies of an earlier one."""
+    shards = []
+    for name in rng.sample(SHARD_NAMES, count):
+        if shards and rng.random() < 0.6:
+            source = rng.choice(shards)[1]
+            rows = source.split("\n---\n")
+            roll = rng.random()
+            if roll < 0.3:
+                content = source
+            elif roll < 0.5:
+                content = "\n---\n".join(rows[:rng.randrange(1, len(rows) + 1)]) + rng.choice(["\n---\n", ""])
+            elif roll < 0.75:
+                content = source + "".join(shard_row() + "\n---\n" for _ in range(rng.randrange(1, 3)))
+            elif roll < 0.85:
+                content = source.replace("\n", "\r\n")
+            elif roll < 0.93:
+                content = source.replace("**Timestamp**: 2", "**Timestamp**: 1", 1)
+            else:
+                content = "\n---\n".join(rows[:1] + rows[2:])
+        else:
+            content = shard_text()
+        shards.append([name, content])
+    return shards
+
+
+for _ in range(scale * 60):
+    shards = shard_set(rng.choice([1, 2, 2, 2, 3, 3, 4]))
+    names = [name for name, _ in shards]
+    prefix = rng.choice(["", "audit/", "/project/aidlc/spaces/default/intents/x/audit/"])
+    add("shard_read",
+        shards=[{"shard": prefix + name, "content": content} for name, content in shards],
+        own=rng.choice([None, None, names[0], rng.choice(names), rng.choice(names), "elsewhere-000000000000.md"]))
+
+LEDGER_HOSTS = ["laptop", "desktop", "old-name", "build-01"]
+CLONE_ID = "aidlc/.aidlc-clone-id"
+
+
+def ledger_case():
+    files, mtimes = {}, {}
+    token = rng.choice(["abc123", "0123456789ab"])
+    roll = rng.random()
+    if roll < 0.3:
+        pass
+    elif roll < 0.55:
+        files[CLONE_ID] = f"{token}\n{rng.choice(LEDGER_HOSTS + ['{H}'])}\n"
+    elif roll < 0.85:
+        files[CLONE_ID] = rng.choice([f"{token}\n", f"{token}\n", token, f"{token}\r\n", f" {token} \n\n",
+                                      f"{token}\nBad Host\n", f"{token}\n-bad\n", f"\ufeff{token}\n",
+                                      f"{token}\n" + "h" * 49 + "\n"])
+    else:
+        files[CLONE_ID] = rng.choice(["", "\n", "ABC123\nlaptop\n", "a" * 33 + "\nlaptop\n", "two words\nlaptop\n",
+                                      f"{token}\r\nlaptop\r\n", f" {token} \n laptop \nthird\n", "\nlaptop\n"])
+    spaces = ["default"] + (["payments"] if rng.random() < 0.35 else [])
+    held = {}
+    for space in spaces:
+        base = f"aidlc/spaces/{space}/intents"
+        records = rng.sample(RECORDS[:3], rng.choice([0, 1, 1, 1, 2]))
+        held[space] = records
+        for record in records:
+            files[f"{base}/{record}/aidlc-state.md"] = "state\n"
+        if records and rng.random() < 0.8:
+            files[f"{base}/active-intent"] = rng.choice(records)
+        for audit in [f"{base}/audit"] + [f"{base}/{record}/audit" for record in records]:
+            roll = rng.random()
+            if roll < 0.2:
+                continue
+            if roll < 0.25:
+                files[audit] = "a file where a directory goes\n"
+                continue
+            shards = shard_set(rng.choice([1, 1, 2, 2, 3]))
+            if rng.random() < 0.55:
+                # A shard this clone's token names, under some host.
+                host = rng.choice(LEDGER_HOSTS + ["{H}", "{H}", "Bad_Host"])
+                # Often a copy of a neighbour, and often the shorter of the two: being this clone's own
+                # is then the only thing that makes it the one to read.
+                content = shard_text()
+                if rng.random() < 0.6:
+                    content = rng.choice(shards)[1]
+                    rows = content.split("\n---\n")
+                    if len(rows) > 2 and rng.random() < 0.6:
+                        content = "\n---\n".join(rows[:rng.randrange(1, len(rows) - 1)]) + "\n---\n"
+                shards.append([f"{host}-{token}.md", content])
+            for name, content in shards:
+                files[f"{audit}/{name}"] = content
+            if rng.random() < 0.12:
+                files[f"{audit}/folder.md/inner.txt"] = "a directory named like a shard\n"
+            if rng.random() < 0.2:
+                files[f"{audit}/README.txt"] = "not a shard\n"
+    if rng.random() < 0.3:
+        files["aidlc/active-space"] = rng.choice(spaces)
+    for rel in files:
+        if rel.endswith(f"-{token}.md"):
+            mtimes[rel] = 1760000000 + rng.choice([0, 0, 60, 120])
+    selector = {}
+    space = rng.choice(spaces)
+    roll = rng.random()
+    if roll < 0.2:
+        selector["space"] = space
+    elif roll < 0.35 and held[space]:
+        selector["intent"] = rng.choice(held[space])
+    elif roll < 0.45 and held[space]:
+        selector = {"space": space, "intent": rng.choice(held[space])}
+    elif roll < 0.5:
+        selector["space"] = rng.choice(["zz", "payments"])
+    fields = {"files": files, "selector": selector, "mintFirst": rng.random() < 0.5}
+    if mtimes:
+        fields["mtimes"] = mtimes
+    return fields
+
+
+for _ in range(scale * 50):
+    add("ledger", **ledger_case())
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

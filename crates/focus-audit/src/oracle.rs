@@ -11,23 +11,47 @@
 //! same bytes from the title and the block. A value names the scratch project
 //! as `{P}`, which each side replaces with a project location of its own and
 //! puts back in its answer.
+//!
+//! A `ledger` case does touch the disk: it describes a project as a set of
+//! files, and each side builds it in a scratch directory and reads it as a
+//! clone would. Two things in the answer are the machine's and not the
+//! engine's, the host name and a freshly minted token; both sides write them
+//! `{H}` and `{T}`. A case can also name the machine, as `{H}`, in a path or
+//! in the clone file, which is how "a shard under this machine's current
+//! name" is asked without knowing the name.
 
-use std::path::PathBuf;
+use std::collections::BTreeSet;
+use std::path::{Path, PathBuf};
 
+use focus_harness::Harness;
+use focus_workspace::Layout;
+use focus_workspace::names::CLONE_ID_FILE;
+use focus_workspace::oracle::{MACHINE, in_scratch_tree_on, relative};
+use focus_workspace::records::{Invoker, Selector};
 use serde_json::{Map, Value, json};
 
 use crate::entry::{Entry, Fields, SHARD_TITLE, render_block, validate};
+use crate::ledger::{Ledger, Machine};
 use crate::read;
+use crate::shards::{ShardText, copied_blocks, parse_shard_events, parse_shard_notes};
 
 /// The kinds of case this crate answers.
-pub const KINDS: [&str; 6] = [
+pub const KINDS: [&str; 8] = [
     "audit_entry",
     "audit_find",
     "audit_field",
     "bullet_field",
     "unsafe_line",
     "field_args",
+    "shard_read",
+    "ledger",
 ];
+
+/// The machine a `ledger` case is answered as. Neither value is one a case
+/// uses, so wherever one shows in an answer it came from the machine.
+const ORACLE_HOST: &str = "the-oracle-s-machine";
+const ORACLE_TOKEN: &str = "0racle0token";
+const MINTED: &str = "{T}";
 
 const PROJECT: &str = "{P}";
 
@@ -56,8 +80,138 @@ pub fn run_case(case: &Value) -> Value {
             }
             json!({ "fields": fields })
         }
+        "shard_read" => shard_read(case),
+        "ledger" => in_scratch_tree_on(case, Some(ORACLE_HOST), |root| ledger(root, case)),
         other => json!({ "unsupported": other }),
     }
+}
+
+fn shard_read(case: &Value) -> Value {
+    let shards: Vec<ShardText> = case
+        .get("shards")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .map(|shard| ShardText {
+            shard: shard["shard"].as_str().unwrap_or_default().to_owned(),
+            content: shard["content"].as_str().unwrap_or_default().to_owned(),
+        })
+        .collect();
+    let own = case.get("own").and_then(Value::as_str).map(str::to_owned);
+    let skip: Vec<BTreeSet<usize>> = copied_blocks(&shards, || own);
+    let mut events = Vec::new();
+    let mut notes = Vec::new();
+    for (index, (shard, copied)) in shards.iter().zip(&skip).enumerate() {
+        for row in parse_shard_events(&shard.content, &shard.shard, index, copied) {
+            events.push(json!({
+                "event": row.event,
+                "timestamp": row.timestamp,
+                "pos": row.pos,
+                "shardIndex": row.shard_index,
+                "block": row.block,
+            }));
+        }
+        for note in parse_shard_notes(&shard.content, &shard.shard, index, copied) {
+            notes.push(json!({
+                "heading": note.heading,
+                "text": note.text,
+                "timestamp": note.timestamp,
+                "pos": note.pos,
+                "shardIndex": note.shard_index,
+            }));
+        }
+    }
+    json!({ "skip": skip, "events": events, "notes": notes })
+}
+
+fn ledger(root: &Path, case: &Value) -> Value {
+    let layout = Layout::new(root, Harness::Claude);
+    let chosen = case.get("selector");
+    let pick = |key: &str| {
+        chosen
+            .and_then(|selector| selector.get(key))
+            .and_then(Value::as_str)
+            .map(str::to_owned)
+    };
+    let selector = Selector {
+        space: pick("space"),
+        intent: pick("intent"),
+        session_id: None,
+    };
+    let invoker = Invoker::default();
+    let machine = Machine {
+        host: ORACLE_HOST.to_owned(),
+        mint_token: Box::new(|| ORACLE_TOKEN.to_owned()),
+    };
+    let ledger = Ledger::new(&layout, machine);
+    let named = |text: &str| {
+        text.replace(ORACLE_HOST, MACHINE)
+            .replace(ORACLE_TOKEN, MINTED)
+    };
+    let in_tree = |path: &Path| named(&relative(root, path));
+    let clone_id = || {
+        std::fs::read(layout.workspace_root().join(CLONE_ID_FILE))
+            .ok()
+            .map(|bytes| named(&String::from_utf8_lossy(&bytes)))
+    };
+
+    let answer = (|| -> focus_js::Result<Value> {
+        let mut audit_file = None;
+        if case.get("mintFirst") == Some(&Value::Bool(true)) {
+            audit_file = Some(ledger.audit_file(&selector, &invoker)?);
+        }
+        let shards = ledger.shards(&selector, &invoker, None)?;
+        let mut unreadable = Vec::new();
+        let events = ledger.read_events(&selector, &invoker, Some(&mut unreadable))?;
+        let all = ledger.read_all(&selector, &invoker)?;
+        let reader_left = clone_id();
+        let audit_file = match audit_file {
+            Some(path) => path,
+            None => ledger.audit_file(&selector, &invoker)?,
+        };
+        let mut answer = Map::new();
+        answer.insert("auditFile".to_owned(), json!(in_tree(&audit_file)));
+        answer.insert("cloneId".to_owned(), json!(clone_id()));
+        answer.insert("readerLeft".to_owned(), json!(reader_left));
+        answer.insert(
+            "shards".to_owned(),
+            json!(
+                shards
+                    .iter()
+                    .map(|shard| in_tree(shard))
+                    .collect::<Vec<_>>()
+            ),
+        );
+        answer.insert(
+            "unreadable".to_owned(),
+            json!(
+                unreadable
+                    .iter()
+                    .map(|path| in_tree(path))
+                    .collect::<Vec<_>>()
+            ),
+        );
+        answer.insert(
+            "events".to_owned(),
+            json!(
+                events
+                    .iter()
+                    .map(|row| json!([
+                        in_tree(Path::new(&row.shard)),
+                        row.shard_index,
+                        row.pos,
+                        row.event,
+                        row.timestamp
+                    ]))
+                    .collect::<Vec<_>>()
+            ),
+        );
+        answer.insert("all".to_owned(), json!(all));
+        Ok(Value::Object(answer))
+    })();
+    answer.unwrap_or_else(
+        |err| json!({ "error": err.message().replace(&root.display().to_string(), "{P}") }),
+    )
 }
 
 fn strings(list: Option<&Value>) -> Vec<String> {

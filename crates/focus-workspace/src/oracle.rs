@@ -22,6 +22,9 @@ use crate::records::{Invoker, Selector, list_intent_dirs, resolve_selection};
 /// The kinds of case this crate answers.
 pub const KINDS: [&str; 1] = ["selection"];
 
+/// How a case names the machine answering it, in a path or a clone file.
+pub const MACHINE: &str = "{H}";
+
 static TREES: AtomicU64 = AtomicU64::new(0);
 
 /// Answer one oracle case. An unknown `kind` answers `{"unsupported": kind}`.
@@ -38,21 +41,42 @@ fn text(value: Option<&Value>) -> Option<String> {
 }
 
 fn selection(case: &Value) -> Value {
+    in_scratch_tree(case, |root| resolve(root, case))
+}
+
+/// Build the project a case describes in a scratch directory of its own, ask
+/// `answer` about it, and remove it. `{H}` in a file's path stands for the
+/// name of the machine answering, which `host` gives; a case that needs none
+/// passes `None` and the paths are used as written.
+pub fn in_scratch_tree(case: &Value, answer: impl FnOnce(&Path) -> Value) -> Value {
+    in_scratch_tree_on(case, None, answer)
+}
+
+/// [`in_scratch_tree`] for a case whose paths may name the machine.
+pub fn in_scratch_tree_on(
+    case: &Value,
+    host: Option<&str>,
+    answer: impl FnOnce(&Path) -> Value,
+) -> Value {
     let root = std::env::temp_dir().join(format!(
         "focus-oracle-{}-{}",
         std::process::id(),
         TREES.fetch_add(1, Ordering::Relaxed)
     ));
     let _ = std::fs::remove_dir_all(&root);
-    let answer = match build(&root, case) {
-        Ok(()) => resolve(&root, case),
+    let answer = match build(&root, case, host) {
+        Ok(()) => answer(&root),
         Err(err) => json!({ "error": format!("could not build the case's tree: {err}") }),
     };
     let _ = std::fs::remove_dir_all(&root);
     answer
 }
 
-fn build(root: &Path, case: &Value) -> std::io::Result<()> {
+fn build(root: &Path, case: &Value, host: Option<&str>) -> std::io::Result<()> {
+    let named = |rel: &str| match host {
+        Some(host) => root.join(rel.replace(MACHINE, host)),
+        None => root.join(rel),
+    };
     std::fs::create_dir_all(root)?;
     for (rel, content) in case
         .get("files")
@@ -60,11 +84,29 @@ fn build(root: &Path, case: &Value) -> std::io::Result<()> {
         .into_iter()
         .flatten()
     {
-        let path = root.join(rel);
+        let path = named(rel);
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;
         }
-        std::fs::write(path, content.as_str().unwrap_or_default())?;
+        let content = content.as_str().unwrap_or_default();
+        match host {
+            Some(host) => std::fs::write(path, content.replace(MACHINE, host))?,
+            None => std::fs::write(path, content)?,
+        }
+    }
+    // Written last, so that building the tree does not disturb them.
+    for (rel, seconds) in case
+        .get("mtimes")
+        .and_then(Value::as_object)
+        .into_iter()
+        .flatten()
+    {
+        let at = std::time::UNIX_EPOCH
+            + std::time::Duration::from_secs(seconds.as_u64().unwrap_or_default());
+        std::fs::OpenOptions::new()
+            .write(true)
+            .open(named(rel))?
+            .set_modified(at)?;
     }
     Ok(())
 }
@@ -133,7 +175,8 @@ fn resolve(root: &Path, case: &Value) -> Value {
 
 /// `path` relative to `root`, with forward slashes; a path outside `root`
 /// climbs with `..`, as `path.relative` writes it.
-fn relative(root: &Path, path: &Path) -> String {
+#[must_use]
+pub fn relative(root: &Path, path: &Path) -> String {
     let (root, path): (Vec<Component>, Vec<Component>) =
         (root.components().collect(), path.components().collect());
     let shared = root.iter().zip(&path).take_while(|(a, b)| a == b).count();

@@ -18,7 +18,8 @@ project.
 **Status: the stage graph is complete (milestones M0 and M1); the audit ledger
 is under way (M2).** Compiling the graph, including plugin selection and
 composed scopes, and every `graph` verb are ported and held to parity with the
-reference. Of the ledger, the format exists. State, guards, hooks and the
+reference. Of the ledger, the format exists, and so does reading a record's
+shards from disk; nothing appends to one yet. State, guards, hooks and the
 orchestrator are not written yet. The plan for the rest, module by
 module, is in [`docs/plano-de-migracao.md`](docs/plano-de-migracao.md)
 (Portuguese).
@@ -59,7 +60,7 @@ focus engine graph compile --harness claude --core fixtures/upstream/core --out 
 | `focus-harness` | What differs between Claude Code, Cursor and GitHub Copilot, as data |
 | `focus-workspace` | Which project, harness, space and intent record a command acts on, every path in them, atomic writes, the workspace lock |
 | `focus-graph` | Stage, scope, agent, sensor and rule schemas; the compile; composed scopes; graph queries; plan validation; ARS |
-| `focus-audit` | The audit ledger's format: the event vocabulary, how an entry is validated and written, how entries are read back |
+| `focus-audit` | The audit ledger: the event vocabulary, how an entry is validated and written, how entries are read back, the shard each clone writes and every shard of a record read as one |
 | `focus-cli` | The `focus` binary (the package is named `focus`) |
 
 `fixtures/upstream/` holds the reference's Markdown, its compiled output and an

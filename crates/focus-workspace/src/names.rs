@@ -40,6 +40,15 @@ pub const STATE_FILE: &str = "focus-state.md";
 /// Never committed.
 pub const SESSIONS_DIR: &str = ".focus-sessions";
 
+/// This clone's identity, inside [`WORKSPACE_DIR`]: the token and host its
+/// audit shards are named after. Never committed, which is what makes two
+/// clones differ.
+pub const CLONE_ID_FILE: &str = ".focus-clone-id";
+
+/// The claim a team member holds on one unit of work, inside
+/// [`WORKSPACE_DIR`]. Never committed.
+pub const UNIT_SCOPE_FILE: &str = ".focus-unit-scope.json";
+
 /// The marker an engine leaves in a worktree it created for one unit of
 /// work, relative to the project.
 pub const WORKTREE_META: &str = ".focus/worktree-meta.json";
