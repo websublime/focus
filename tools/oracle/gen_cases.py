@@ -823,5 +823,243 @@ def ledger_case():
 for _ in range(scale * 50):
     add("ledger", **ledger_case())
 
+# --------------------------------------------------------------------------
+# Settings files: one file checked, and the machine's, the project's and one
+# person's merged.
+#
+# Left out on purpose, because the two JSON parsers do not agree on them and
+# no settings file needs them: numbers too large for a double, and strings
+# with half of a surrogate pair. A `release-base-url` is only ever one the two
+# engines read alike (focus reads one spelling of a location; see its test).
+# `ca-bundle` is only ever `/...` or relative: what else is absolute depends on
+# the platform replaying the corpus.
+# --------------------------------------------------------------------------
+
+BYPASSES = ["AIDLC_SKIP_ARTIFACT_GUARD", "AIDLC_SKIP_REVISION_BACKSTOP", "AIDLC_SKIP_SUMMARY_CONFIRMATION_GUARD",
+            "AIDLC_SKIP_HUMAN_PRESENCE_GUARD", "AIDLC_DISABLE_ENSEMBLE_EVIDENCE", "AIDLC_DISABLE_PLAN_APPROVAL_GUARD",
+            "AIDLC_DISABLE_REVIEWER_SCOPE_HOOK", "AIDLC_DISABLE_REVIEW_FREEZE_HOOK", "AIDLC_DISABLE_USAGE_TRACKING",
+            "AIDLC_DISABLE_SENSORS", "AIDLC_DISABLE_LEARNINGS", "AIDLC_DISABLE_SUMMARY_CONFIRMATION"]
+FLAG_VARIABLES = ["AWS_AIDLC_DEFAULT_SCOPE", "AIDLC_USE_SWARM", "AIDLC_HOOK_DEBUG", "AIDLC_SENSOR_TIMEOUT_MS",
+                  "AIDLC_QUESTION_RETENTION_DAYS"]
+RELEASE_URLS = ["https://example.com", "https://releases.example.com:8443/aidlc/", "https://example.com/a///",
+                "https://example.com/a/b%20c", "http://localhost:8080", "http://127.0.0.1/x", "https://10.0.0.1",
+                "http://example.com", "https://user@example.com", "https://user:secret@example.com",
+                "https://example.com/?q=1", "https://example.com/#top", "ftp://example.com", "example.com", "https://",
+                "https://example.com:99999", "https://1.2.3.4.5", "https://256.1.1.1", "", 5, None, True]
+EFFORTS = ["low", "medium", "high", "xhigh", "max"]
+
+
+# How likely each value of the file being generated is to be an invalid one. Zero for about half of the files,
+# so that half get past every check and the rest mostly fail at one.
+ODDS = [0.0]
+
+
+def odd(valid, *invalid):
+    """Mostly a valid value, sometimes one of the invalid ones."""
+    return rng.choice(invalid) if invalid and rng.random() < ODDS[0] else valid
+
+
+def flags_section():
+    flags = {"schemaVersion": odd(1, 2, "1", None, 1.5)}
+    if rng.random() < ODDS[0]:
+        del flags["schemaVersion"]
+    if rng.random() < 0.4:
+        flags["defaultScope"] = odd(rng.choice(["feature", "bugfix", "x-1", "a"]), "Feature", "", "1st", 5, None,
+                                    "has space")
+    if rng.random() < 0.4:
+        flags["swarm"] = odd(rng.choice([True, False]), "true", 1, None)
+    if rng.random() < 0.3:
+        flags["hookDebug"] = odd(rng.choice([True, False]), 0, "no")
+    if rng.random() < 0.4:
+        flags["sensorTimeoutMs"] = odd(rng.choice([1, 900, 60000, 5.0, 1e3]), 0, -5, 1.5, "900", None, True)
+    if rng.random() < 0.3:
+        flags["questionRetentionDays"] = odd(rng.choice([1, 30, 365]), 0, 2.5, "30")
+    if rng.random() < 0.55:
+        names = rng.sample(BYPASSES, rng.randrange(0, 5))
+        if names and rng.random() < 0.3:
+            names.append(names[0])
+        flags["bypasses"] = odd(names, names + ["AIDLC_DISABLE_COLLABORATORS"], names + [5], "AIDLC_DISABLE_SENSORS",
+                                None, {"AIDLC_DISABLE_SENSORS": True}, names + ["aidlc_disable_sensors"])
+    if rng.random() < ODDS[0]:
+        flags[rng.choice(["unknown", "Swarm", "1", "bypass"])] = True
+    return flags
+
+
+def groups_section():
+    groups = {}
+    for name in rng.sample(["deciding", "reviewing", "writing-up"], rng.randrange(0, 4)):
+        groups[name] = odd({"effort": rng.choice(EFFORTS)}, {"effort": "extreme"}, {}, {"effort": "low", "more": 1},
+                           "low", None, {"effort": 5})
+    if rng.random() < ODDS[0]:
+        groups[rng.choice(["thinking", "Deciding", "2"])] = {"effort": "low"}
+    return groups
+
+
+def models_section():
+    models = {"schemaVersion": odd(1, 2, "1")}
+    if rng.random() < 0.4:
+        models["preset"] = odd(rng.choice(["thorough", "balanced", "minimal"]), "fast", 5, None)
+    if rng.random() < 0.5:
+        models["groups"] = odd(groups_section(), [], None, "x")
+    if rng.random() < 0.6:
+        agents = {}
+        for name in rng.sample(["architect", "reviewer", "qa-lead", "2", "10", "constructor", "x1"], rng.randrange(0, 4)):
+            agent = {}
+            if rng.random() < 0.6:
+                agent["effort"] = odd(rng.choice(EFFORTS), "extreme", 5, None)
+            if rng.random() < 0.6:
+                agent["model"] = odd(
+                    {harness: odd(rng.choice(["model-a", " model-b ", "m"]), "", "  ", 5, None)
+                     for harness in rng.sample(["claude", "codex", "copilot", "cursor", "kiro", "kiro-ide", "opencode"],
+                                               rng.randrange(0, 3))},
+                    {"vscode": "m"}, [], "m", None)
+            if rng.random() < ODDS[0]:
+                agent["temperature"] = 1
+            agents[name] = odd(agent, None, "x", [])
+        if rng.random() < ODDS[0]:
+            agents[rng.choice(["Architect", "-lead", "a_b", ""])] = {"effort": "low"}
+        models["agents"] = odd(agents, [], None)
+    if rng.random() < 0.35:
+        profiles = {}
+        for name in rng.sample(["fast", "careful", "3", "night-shift"], rng.randrange(0, 3)):
+            profiles[name] = odd({"groups": groups_section()}, {}, {"groups": groups_section(), "more": 1},
+                                 {"groups": None}, None, "x")
+        if rng.random() < ODDS[0]:
+            profiles["Bad Name"] = {"groups": {}}
+        models["profiles"] = odd(profiles, [], None)
+    if rng.random() < ODDS[0]:
+        models[rng.choice(["default", "model"])] = "x"
+    return models
+
+
+def settings_object(layer):
+    ODDS[0] = rng.choice([0.0, 0.0, 0.0, 0.04, 0.04, 0.1])
+    settings = {"schemaVersion": odd(1, 2, "1", None, 0)}
+    if rng.random() < ODDS[0] / 2:
+        del settings["schemaVersion"]
+    if rng.random() < 0.2:
+        settings["$schema"] = odd("./aidlc-settings.schema.json", "", "   ", 5, None)
+    if rng.random() < 0.6:
+        settings["flags"] = odd(flags_section(), None, [], "x", 5)
+    if rng.random() < 0.4:
+        settings["models"] = odd(models_section(), None, [], "x")
+    if rng.random() < (0.6 if layer == "machine" else 0.05):
+        if rng.random() < 0.5:
+            settings["update-check"] = odd(rng.choice([True, False]), "false", 0, None)
+        if rng.random() < 0.5:
+            settings["offline"] = odd(rng.choice([True, False]), "yes")
+        if rng.random() < 0.6:
+            settings["release-base-url"] = rng.choice(RELEASE_URLS[:7] if rng.random() < 0.6 else RELEASE_URLS)
+        if rng.random() < 0.4:
+            settings["ca-bundle"] = rng.choice(["/etc/ssl/ca.pem", "/etc/ssl/ca.pem", "/", "relative/ca.pem", "", 5,
+                                                None])
+    if rng.random() < ODDS[0]:
+        settings[rng.choice(["flag", "Models", "plugins", "7"])] = {}
+    return settings
+
+
+def settings_raw(layer):
+    roll = rng.random()
+    if roll < 0.04:
+        return rng.choice(["", "{", "nope", "[]", "null", "5", '"x"', "﻿{\"schemaVersion\":1}", "{} extra",
+                           '{"schemaVersion":1,}'])
+    if roll < 0.16:
+        return rng.choice(['{"schemaVersion":1.0}', '{"schemaVersion":1e0}', '{"schemaVersion":1,"schemaVersion":2}',
+                           '{"schemaVersion":2,"schemaVersion":1}',
+                           '{"schemaVersion":1,"flags":{"schemaVersion":1.0,"sensorTimeoutMs":5.0}}',
+                           '{"schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":1e3,"questionRetentionDays":2e1}}',
+                           '{"schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":1.5e0}}',
+                           '{"schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":9007199254740993}}',
+                           '{\n  "schemaVersion": 1,\n  "flags": { "schemaVersion": 1, "swarm": true }\n}\n',
+                           # One of each refusal a generated file rarely reaches.
+                           '{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"deciding":{"effort":"low","more":1}}}}',
+                           '{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"deciding":{"effort":"low"},"thinking":{"effort":"low"}}}}',
+                           '{"schemaVersion":1,"models":{"schemaVersion":1,"profiles":{"fast":{"groups":{},"more":1}}}}',
+                           '{"schemaVersion":1,"models":{"schemaVersion":1,"profiles":{"Fast":{"groups":{}}}}}',
+                           '{"schemaVersion":1,"models":{"schemaVersion":1,"profiles":{"fast":{}}}}',
+                           '{"schemaVersion":1,"models":{"schemaVersion":1,"agents":{"architect":{"effort":"low","temperature":1}}}}',
+                           '{"schemaVersion":1,"models":{"schemaVersion":1,"agents":{"architect":{"model":{"vscode":"m"}}}}}',
+                           '{"schemaVersion":1,"models":{"schemaVersion":1,"agents":{"architect":{"model":{"claude":"  "}}}}}',
+                           '{"schemaVersion":1,"models":{"schemaVersion":1,"agents":{"architect":{},"reviewer":{"model":{}}}}}',
+                           '{"schemaVersion":1,"models":{"schemaVersion":1,"agents":{"10":{"effort":"low"},"b":{"effort":"max"},"2":{"effort":"high"}},"profiles":{"z":{"groups":{}},"1":{"groups":{}}}}}',
+                           '{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"1st"}}',
+                           '{"schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":0}}',
+                           '{"schemaVersion":1,"flags":{"schemaVersion":1,"questionRetentionDays":-1}}',
+                           '{"schemaVersion":1,"flags":{"schemaVersion":1,"zeta":1,"alpha":2,"3":true}}',
+                           '{"schemaVersion":1,"zeta":1,"alpha":2,"3":true}',
+                           '{"schemaVersion":1,"$schema":" "}'])
+    return json.dumps(settings_object(layer), ensure_ascii=rng.random() < 0.5)
+
+
+for _ in range(scale * 100):
+    layer = rng.choice(["machine", "machine", "project", "project", "local"])
+    add("settings_file", raw=settings_raw(layer), layer=layer)
+
+
+def valid_settings(layer):
+    """A settings file that is accepted, with enough in it to merge."""
+    settings = {"schemaVersion": 1}
+    flags = {"schemaVersion": 1}
+    if rng.random() < 0.5:
+        flags["defaultScope"] = rng.choice(["feature", "bugfix", "poc"])
+    if rng.random() < 0.5:
+        flags["swarm"] = rng.choice([True, False])
+    if rng.random() < 0.4:
+        flags["hookDebug"] = rng.choice([True, False])
+    if rng.random() < 0.4:
+        flags["sensorTimeoutMs"] = rng.choice([900, 60000, 5.0])
+    if rng.random() < 0.3:
+        flags["questionRetentionDays"] = rng.choice([7, 30])
+    if rng.random() < 0.6:
+        flags["bypasses"] = rng.sample(BYPASSES, rng.randrange(0, 4))
+    if rng.random() < 0.8:
+        settings["flags"] = flags
+    if rng.random() < 0.45:
+        models = {"schemaVersion": 1}
+        if rng.random() < 0.5:
+            models["preset"] = rng.choice(["thorough", "balanced", "minimal"])
+        if rng.random() < 0.6:
+            models["groups"] = {name: {"effort": rng.choice(EFFORTS)}
+                                for name in rng.sample(["deciding", "reviewing", "writing-up"], rng.randrange(1, 4))}
+        if rng.random() < 0.6:
+            models["agents"] = {
+                name: rng.choice([{"effort": rng.choice(EFFORTS)},
+                                  {"model": {rng.choice(["claude", "cursor", "copilot"]): rng.choice(["model-a", "m"])}},
+                                  {"effort": rng.choice(EFFORTS), "model": {"claude": "model-a", "codex": "c"}}])
+                for name in rng.sample(["architect", "reviewer", "2", "10", "qa-lead"], rng.randrange(1, 4))}
+        if rng.random() < 0.3:
+            models["profiles"] = {rng.choice(["fast", "careful"]): {"groups": {"deciding": {"effort": "low"}}}}
+        settings["models"] = models
+    if layer == "machine" and rng.random() < 0.6:
+        settings.update(rng.choice([{"offline": True}, {"update-check": False},
+                                    {"release-base-url": "https://releases.example.com/aidlc/"},
+                                    {"ca-bundle": "/etc/ssl/ca.pem", "offline": False}]))
+    return json.dumps(settings)
+
+
+LAYER_FILES = {"machine": "machine/aidlc.settings.json", "project": "project/aidlc.settings.json",
+               "local": "project/aidlc.settings.local.json"}
+
+for _ in range(scale * 60):
+    files = {}
+    for layer, rel in LAYER_FILES.items():
+        roll = rng.random()
+        if roll < 0.3:
+            continue
+        if roll < 0.9:
+            files[rel] = valid_settings(layer)
+        elif roll < 0.96:
+            files[rel] = settings_raw(layer)
+        else:
+            files[rel + "/inside.txt"] = "a directory where the file goes\n"
+    asked = rng.sample(BYPASSES, 3) + rng.sample(FLAG_VARIABLES, 2) + ["AIDLC_DISABLE_COLLABORATORS"]
+    env = {}
+    if rng.random() < 0.4:
+        env[rng.choice(asked)] = rng.choice(["1", "0", "", "true", "feature"])
+    probe = rng.sample(["env AIDLC_DISABLE_SENSORS", "env ", "env", "AIDLC_DISABLE_SENSORS in aidlc.settings.json",
+                        "AIDLC_X9_Y in /somewhere", "AIDLC_DISABLE_SENSORS in", "AIDLC_DISABLE_SENSORS  in x",
+                        "aidlc_disable_sensors in x", "X AIDLC_DISABLE_SENSORS in x", "scope feature", "", "AIDLC_ in x"], 4)
+    add("settings_layers", files=files, ask=asked, env=env, probe=probe)
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

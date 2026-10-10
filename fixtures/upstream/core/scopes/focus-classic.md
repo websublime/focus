@@ -16,7 +16,7 @@ collaborators: off
 # classic scope
 
 `classic` is the implicit default scope - used when neither the user nor
-`AWS_FOCUS_DEFAULT_SCOPE` names one - and restores v1-style ceremony through
+`FOCUS_DEFAULT_SCOPE` names one - and restores v1-style ceremony through
 Inception and Construction, with one human approval per stage. Ideation is
 skipped and Operation remains a placeholder. Stage-declared execution modes
 are unchanged; collaborators are off, so each stage runs with its lead agent

@@ -8,7 +8,8 @@
 //!   every harness installed in the project.
 //!
 //! This crate answers "which project, which harness, which path"
-//! ([`project`], [`Layout`]), reads the harness manifest ([`manifest`]), and
+//! ([`project`], [`Layout`]) and "which record" ([`records`]), reads the
+//! harness manifest ([`manifest`]) and the settings files ([`settings`]), and
 //! owns the disciplines everything else builds on: a write is atomic
 //! ([`atomic`]), a read-modify-write happens under the workspace lock
 //! ([`lock`]), and a file whose path is not trusted is opened without
@@ -30,6 +31,7 @@ pub mod names;
 pub mod oracle;
 pub mod project;
 pub mod records;
+pub mod settings;
 
 pub use lock::WorkspaceLock;
 pub use project::Layout;

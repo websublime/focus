@@ -61,6 +61,13 @@ pub const ENGINE_DIR: &str = ".focus-engine";
 /// of core scope, sensor and agent files.
 pub const CORE_PLUGIN: &str = "focus";
 
+/// A settings file: the project's at the project root, committed, and the
+/// machine's in the install root.
+pub const SETTINGS_FILE: &str = "focus.settings.json";
+
+/// One person's settings for a project, at the project root. Never committed.
+pub const LOCAL_SETTINGS_FILE: &str = "focus.settings.local.json";
+
 /// The workspace lock file, inside [`WORKSPACE_DIR`].
 pub const LOCK_FILE: &str = ".focus-lock";
 

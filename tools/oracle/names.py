@@ -21,7 +21,8 @@ except the tools that drive upstream.
 Two properties the comparison relies on, both checked where they could fail:
 
 - the two names have the same length, so no byte count, column or size limit
-  moves;
+  moves (the phrases below are the exception, and none is in a compiled
+  file);
 - they sort differently against other names (`aidlc` < `bravo` < `focus`), so
   a tree holding a name between the two can order its files differently in
   each engine. No vendored tree does, and the differential would show it.
@@ -36,12 +37,18 @@ PAIRS = (("aidlc", "focus"), ("AIDLC", "FOCUS"), ("Aidlc", "Focus"))
 
 # Where upstream's engine puts its own name on something it writes. These are
 # whole phrases, not the word: in prose "AI-DLC" is the method and stays.
-PHRASES = (("# AI-DLC Audit Log", "# Focus Audit Log"),)
+PHRASES = (
+    ("# AI-DLC Audit Log", "# Focus Audit Log"),
+    ("in the AI-DLC settings", "in the Focus settings"),
+    # The one variable upstream prefixes otherwise. Every variable Focus reads is FOCUS_*.
+    ("AWS_AIDLC_DEFAULT_SCOPE", "FOCUS_DEFAULT_SCOPE"),
+)
 
 
 def to_focus(text):
     """Upstream's vocabulary to Focus's."""
-    for theirs, ours in PAIRS + PHRASES:
+    # Phrases first: they are written in upstream's words, which the pairs would change.
+    for theirs, ours in PHRASES + PAIRS:
         text = text.replace(theirs, ours)
     return text
 
