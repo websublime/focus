@@ -466,7 +466,7 @@ M2 está em curso. O arranque confirmou o que R2 previa: os módulos de M2 não 
 | --- | --- | --- | --- |
 | 1. Formato do registo | Os 117 tipos de evento e os seus títulos, validação e bloco de uma entrada, leitores de blocos e de campos, timestamp. Crate `focus-audit` | Corpus de oráculo | Feita |
 | 2a. Qual é o registo | Spaces, intents, registo de intents, cursor do intent ativo, binding de sessão e a seleção do workflow, em `focus-workspace` | Corpus: projetos descritos como conjuntos de ficheiros | Feita |
-| 2b. O shard | Identidade do clone (`focus/.focus-clone-id`), nome e caminho do shard (`auditFilePath`, `auditShardName`), listagem e leitura de todos os shards de um registo (`auditShards`, `readAllAuditShards`) | Corpus | Por fazer |
+| 2b. O shard | Identidade do clone (`focus/.focus-clone-id`), nome e caminho do shard (`auditFilePath`, `auditShardName`), listagem e leitura de todos os shards de um registo (`auditShards`, `readAuditShardEvents`, `readAllAuditShards`), cópias lidas uma só vez | Corpus: projetos em disco e conjuntos de shards | Feita |
 | 3. Escrita e leitura em disco | Append sob lock de auditoria, com as verificações de links e de identidade do ficheiro; `focus engine audit append`, `append-batch` e `history`; relógio injetável | Diferencial de comandos: shards iguais a menos do timestamp | Por fazer |
 | 4. Settings | `focus.settings.json` nas três camadas e os switches gravados. Fecha o limite 2 de M1 | Corpus e diferencial de `validate-grid` | Por fazer |
 | 5. Markdown | `focus-markdown`, com o parser escolhido por medição contra os 391 documentos de `markdown-goldens/corpus.json` (R1). Fecha o limite 1 de M1 | Corpus próprio e os goldens do original | Por fazer |
@@ -526,3 +526,35 @@ As duas últimas têm um teste marcado "Deliberate deviation". Não aparecem no 
 
 O corpus deixa de fora, de propósito, nomes com `\`: é separador só em Windows, por isso a resposta dependeria da plataforma que repete o corpus.
 
+### Fatia 2b: o shard
+
+O registo de auditoria vai para o git, e cada clone escreve num ficheiro só seu (`<registo>/audit/<host>-<token>.md`, o shard) para que dois clones nunca entrem em conflito de merge. A história de um registo é a leitura de todos os seus shards.
+
+O que existe em `focus-audit`:
+
+- **Identidade do clone** (`ledger`). O token e o host vêm de `focus/.focus-clone-id`, que não vai para o git. Sem ficheiro, o clone cunha um token e grava-o com o nome da máquina. Um ficheiro só com token (formato antigo) é completado com o host que o shard desse token já tem: primeiro o que estiver sob o nome atual da máquina, depois o escrito mais recentemente, e o menor nome em caso de empate. O host fica gravado porque o nome de uma máquina muda (outra rede, uma VPN) e o shard não pode partir-se quando muda. A máquina (nome e gerador de tokens) é um parâmetro, e é assim que os testes e o oráculo a fixam.
+- **Onde se escreve.** O shard do clone no registo selecionado; sem intent resolvido, no registo do space. É a seleção da fatia 2a que decide.
+- **O que se lê.** Os shards do intent; com space dito e intent por dizer, também os do space, antes; sem intent nenhum, os do space, que é onde a escrita teria ido. Um leitor nunca escreve: sabe o nome do seu shard sem cunhar token nem tocar no ficheiro do clone.
+- **Leitura que não confia no disco.** Um shard só é lido se for um ficheiro regular e não estiver atrás de um link: abre-se uma vez sem seguir links e sem bloquear (um FIFO sem escritor prenderia o leitor) e confirma-se que o que se abriu é o que o caminho ainda nomeia. Um shard recusado é listado e reportado como ilegível; uma diretoria atrás de um link é reportada e não é listada. Crescer durante a leitura é normal num registo vivo e não é erro. Um segundo hard link (um backup) não impede a leitura.
+- **Vários shards como um registo** (`shards`). Cada evento guarda o shard de onde veio e a sua posição nele, porque a ordem de escrita só se conhece dentro de um shard. Uma nota é um bloco com timestamp, sem evento, com título acima do timestamp.
+- **Cópias.** Uma cópia de conflito de uma ferramenta de sincronização, ou feita à mão, repete linhas que outro shard já tem. Só se comparam ficheiros que começam pelo mesmo bloco; entre esses, cada bloco repetido lê-se uma vez, do melhor ficheiro: o shard do próprio clone, depois um com nome de shard, depois o que tem mais blocos, depois a ordem dos nomes.
+
+| Verificação | Resultado |
+| --- | --- |
+| Corpus incluído, dois tipos de caso novos (`shard_read`, `ledger`) | 660 casos novos (6 731 no total), 0 diferenças |
+| Corpus alargado, seeds 7 e 23 à escala 40 | 8 800 casos, 0 diferenças |
+| Trinta mutações deliberadas (ordem de preferência entre cópias, agrupamento pelo primeiro bloco, regras de nota e de evento, escolha do host, diretorias lidas, junção dos shards, filtro e ordem dos nomes, leitura do ficheiro do clone) | 27 detetadas. As três que passam não têm efeito observável num só processo: uma linha que não pode ser título e timestamp ao mesmo tempo, o host relido depois de uma corrida entre dois processos, e a identidade em memória quando o workspace não se pode escrever |
+| Links, FIFO e hard link | Sete árvores perguntadas ao original em Linux e fixadas como testes unix. Não entram no corpus, que Windows também repete |
+| `cargo test` | 152 testes |
+
+O que o oráculo teve de resolver: o nome da máquina e o token cunhado não são do engine. Os dois lados escrevem-nos `{H}` e `{T}` na resposta, e um caso pode nomear a máquina como `{H}` num caminho ou no ficheiro do clone, que é como se pergunta "um shard sob o nome atual desta máquina" sem saber o nome. As datas de modificação dos shards candidatos são fixadas pelo caso.
+
+Uma diferença face ao original:
+
+| | Original | Focus |
+| --- | --- | --- |
+| Claim de uma unit (`focus/.focus-unit-scope.json`) | Quando o estado diz que as units têm dono e o claim é do intent ativo, o claim pode nomear o shard a escrever; fora disso, o ficheiro é ignorado | Recusa sempre que o ficheiro existe: units entram com o orquestrador, e um claim ignorado escreveria no shard errado |
+
+Tem um teste marcado "Deliberate deviation" e entra no diferencial com a fatia 3, como as da fatia 2a.
+
+O que a fatia 2b não tem: nada escreve ainda num shard. O append sob lock, as verificações do lado da escrita e o comando `audit` são a fatia 3.

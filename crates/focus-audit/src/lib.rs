@@ -7,24 +7,31 @@
 //! the format matters twice over: an entry must be impossible to forge from a
 //! field value, and a reader must find it again exactly.
 //!
-//! This crate owns the format and nothing else yet:
+//! This crate owns the format and where a record's ledger is on disk:
 //!
 //! - [`events`]: the vocabulary, the 117 event types an entry may name;
 //! - [`entry`]: what an entry is, what the ledger refuses, and the bytes a
 //!   block is written as;
 //! - [`read`]: how blocks and fields are found again;
-//! - [`time`]: the timestamp an entry carries.
+//! - [`time`]: the timestamp an entry carries;
+//! - [`shards`]: several shards read as one ledger, with each event's place
+//!   kept and a copied shard's rows read once;
+//! - [`ledger`]: this clone's identity, the shard it writes, and every shard
+//!   of a record read from disk.
 //!
-//! Which shard an entry goes to, the lock a write takes and the `audit`
-//! command come with the record resolution of the workspace. Ported from
+//! Appending under the lock and the `audit` command come next. Ported from
 //! `aidlc-audit.ts` and the readers it shares with `aidlc-lib.ts`, and held to
 //! their answers by the oracle corpus under `fixtures/`.
 
 pub mod entry;
 pub mod events;
+pub mod ledger;
 pub mod oracle;
 pub mod read;
+pub mod shards;
 pub mod time;
 
 pub use entry::{Entry, Fields, SHARD_TITLE, render_block, validate};
 pub use focus_js::{EngineError, Result};
+pub use ledger::{CloneIdentity, Ledger, Machine};
+pub use shards::{ShardEvent, ShardNote, ShardText};

@@ -9,8 +9,16 @@ repository.workspace = true
 publish.workspace = true
 
 [dependencies]
+gethostname.workspace = true
+getrandom.workspace = true
 serde_json.workspace = true
+focus-harness.workspace = true
 focus-js.workspace = true
+focus-workspace.workspace = true
+
+# Only the open(2) flag values: no call into libc is made from here.
+[target.'cfg(unix)'.dependencies]
+libc.workspace = true
 
 [lints]
 workspace = true

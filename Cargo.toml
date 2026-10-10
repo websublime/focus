@@ -11,6 +11,9 @@ repository = "https://github.com/websublime/focus"
 publish = false
 
 [workspace.dependencies]
+gethostname = "1"
+getrandom = "0.3"
+libc = "0.2"
 regress = "0.12"
 serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
 focus-js = { path = "crates/focus-js" }

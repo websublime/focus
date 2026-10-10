@@ -6,7 +6,7 @@
 // `focus dev oracle` prints for the same case (the `oracle` module of the crate
 // that owns the kind). The two outputs are compared as text, so key order is
 // part of the answer.
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve, sep } from "node:path";
 
@@ -197,6 +197,96 @@ function answer(c: Record<string, any>): unknown {
           if (before[index] === undefined) delete process.env[name];
           else process.env[name] = before[index];
         }
+        rmSync(root, { recursive: true, force: true });
+      }
+    }
+    case "shard_read": {
+      const skip = lib.copiedAuditBlocks(c.shards, () => c.own);
+      const events: unknown[] = [];
+      const notes: unknown[] = [];
+      c.shards.forEach((shard: { shard: string; content: string }, index: number) => {
+        for (const row of lib.parseAuditShardEvents(shard.content, shard.shard, index, skip[index])) {
+          events.push({ event: row.event, timestamp: row.timestamp, pos: row.pos, shardIndex: row.shardIndex, block: row.block });
+        }
+        for (const note of lib.parseAuditShardNotes(shard.content, shard.shard, index, skip[index])) {
+          notes.push({ heading: note.heading, text: note.text, timestamp: note.timestamp, pos: note.pos, shardIndex: note.shardIndex });
+        }
+      });
+      return { skip: skip.map((set: Set<number>) => [...set].sort((a, b) => a - b)), events, notes };
+    }
+    case "ledger": {
+      // A project read as a clone reads it. The machine's name and a minted
+      // token are not the engine's to decide: `{H}` and `{T}` in the answer,
+      // and `{H}` in a case's path or clone file is this machine's name.
+      const machine: string = lib.auditShardHostSegment();
+      const here = (text: string) => text.replaceAll("{H}", machine);
+      for (const rel of Object.keys(c.files)) {
+        if (rel.split("/").pop()!.startsWith(`${machine}-`)) {
+          throw new Error(`${c.id}: a file is named after this machine (${machine}); the answer could not tell the two apart`);
+        }
+      }
+      const root = join(scratch, `tree-${trees++}`);
+      mkdirSync(root, { recursive: true });
+      for (const [rel, text] of Object.entries(c.files as Record<string, string>)) {
+        mkdirSync(dirname(join(root, here(rel))), { recursive: true });
+        writeFileSync(join(root, here(rel)), here(text));
+      }
+      for (const [rel, seconds] of Object.entries((c.mtimes ?? {}) as Record<string, number>)) {
+        utimesSync(join(root, here(rel)), seconds, seconds);
+      }
+      const selector = c.selector ?? {};
+      const asked = JSON.stringify(c.files);
+      const cloneId = () => {
+        try {
+          return readFileSync(join(root, "aidlc", ".aidlc-clone-id"), "utf-8");
+        } catch {
+          return null;
+        }
+      };
+      try {
+        let auditFile: string | undefined;
+        if (c.mintFirst) auditFile = lib.auditFilePath(root, selector.intent, selector.space);
+        const shards: string[] = lib.auditShards(root, selector.intent, selector.space);
+        const unreadable: string[] = [];
+        const events = lib.readAuditShardEvents(root, selector.intent, selector.space, unreadable);
+        const all: string = lib.readAllAuditShards(root, selector.intent, selector.space);
+        const readerLeft = cloneId();
+        auditFile ??= lib.auditFilePath(root, selector.intent, selector.space) as string;
+        // The shard this clone writes is `<host>-<token>.md`: a token no file
+        // of the case holds was minted here.
+        const own = auditFile.split(sep).pop()!;
+        const token = own.slice(own.lastIndexOf("-") + 1, -".md".length);
+        const minted = !asked.includes(token);
+        const fileName = (name: string) => {
+          let shown = name;
+          if (minted && shown.endsWith(`-${token}.md`)) shown = `${shown.slice(0, -`${token}.md`.length)}{T}.md`;
+          if (shown.startsWith(`${machine}-`)) shown = `{H}${shown.slice(machine.length)}`;
+          return shown;
+        };
+        const inTree = (path: string) => {
+          const parts = relative(root, path).split(sep);
+          parts.push(fileName(parts.pop()!));
+          return parts.join("/");
+        };
+        const idFile = (text: string | null) => {
+          if (text === null) return null;
+          const lines = text.split("\n");
+          if (minted && lines[0] === token) lines[0] = "{T}";
+          if (lines[1] === machine) lines[1] = "{H}";
+          return lines.join("\n");
+        };
+        return {
+          auditFile: inTree(auditFile),
+          cloneId: idFile(cloneId()),
+          readerLeft: idFile(readerLeft),
+          shards: shards.map(inTree),
+          unreadable: unreadable.map(inTree),
+          events: events.map((row: any) => [inTree(row.shard), row.shardIndex, row.pos, row.event, row.timestamp]),
+          all,
+        };
+      } catch (err) {
+        return { error: message(err).replaceAll(root, "{P}") };
+      } finally {
         rmSync(root, { recursive: true, force: true });
       }
     }
