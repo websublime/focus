@@ -379,7 +379,7 @@ Os sete primeiros aparecem pelo nome no diferencial e têm um teste marcado "Del
 | Nomes em disco e no conteúdo | `aidlc/`, `.aidlc-engine`, `aidlc-common/`, `aidlc-<nome>.md`, plugin core `aidlc`, `.aidlc` como árvore do Copilot, `/aidlc`, `aidlc.settings.json` | O mesmo com `focus` no lugar de `aidlc`, em todo o lado. Um projeto instalado pelo original não é um projeto Focus |
 | O engine a falar de si | "AI-DLC" | "Focus" |
 | Flags desconhecidas | Ignoradas | `Unexpected argument` |
-| `resolve` sem `--stdout` | Escreve `plan.json` no registo do intent ativo | Recusa, a não ser que `FOCUS_PLAN_PATH` indique um ficheiro |
+| `resolve` sem `--stdout` | Escreve `plan.json` no registo do intent ativo | Em M1 recusava. Fechado em M2: escreve no mesmo sítio (secção 13, "Antes da fatia 6") |
 | `export --check` | Compara com uma fixture num caminho relativo ao repositório do original | `--check <ficheiro>` |
 
 ### Limites de M1
@@ -478,6 +478,7 @@ M2 está em curso. O arranque confirmou o que R2 previa: os módulos de M2 não 
 | 4. Settings | `focus.settings.json` nas três camadas e os switches gravados. Fecha o limite 2 de M1 | Corpus e diferencial de `validate-grid` | Feita |
 | 5. Markdown | `focus-markdown`: a estrutura de um documento linha a linha e as linhas que um consumidor pode ler, com `pulldown-cmark` (R1). Fecha o limite 1 de M1 | Corpus com os goldens do original, o Markdown que ele distribui e documentos gerados; fuzz ao vivo com um terceiro parser a arbitrar | Feita |
 | Entre a 5 e a 6 | `focus-js`: a flag `i` sem `u` compara caracteres como o JavaScript | Corpus: todos os caracteres com caixa como padrão, e os padrões do original | Feita |
+| Antes da 6 | A barreira de observador nas escritas duráveis; `resolve` escreve o plano no registo; a escrita atómica deixa de criar diretórios | Diferencial de comandos | Feita |
 | 6. Runtime graph | `runtime-graph.json` a partir dos shards, do ficheiro de estado e dos `memory.md` | `runtime-graph.json` byte a byte igual | Por fazer |
 
 A fatia 6 lê o ficheiro de estado (`readStateFile`, `parseCheckboxes`, `parseStateStageSuffixes`), que o plano tinha em M3, e os registos de bolts e worktrees, que estão adiados. Porta-se só o leitor de estado de que o compile precisa; o resto do ficheiro de estado continua em M3. Se a fatia de leitura se revelar inseparável das transições, a fatia 6 passa para depois do arranque de M3 e M2 fecha com as cinco primeiras.
@@ -790,3 +791,34 @@ A lista dos 65 não pode estar no corpus como padrões, porque Focus os recusa. 
 - **Outra versão do motor.** A lista é a do `regress` 0.12.0, fixado em `Cargo.lock`. Uma versão que compare de outra maneira aparece no corpus: se passar a errar noutro carácter, um dos 2 342 padrões falha; se deixar de errar nos 65, a troca fica a mais e não faz mal.
 - **Os modos `u` e `v` com `i`.** O JavaScript usa aí o *case folding* do Unicode e o `regress` também; o original não tem nenhum padrão assim, e o corpus não os mede.
 - **Meio par de substituição.** Continua como estava (docs do módulo): sem `u`, um padrão do JavaScript pode consumir metade de um par, e no `regress` não. Nenhum padrão portado o faz sobre UTF-8 válido.
+
+### Antes da fatia 6: o que as fatias anteriores tinham deixado
+
+Ao ler `aidlc-runtime.ts` para a fatia 6 apareceram três coisas que as fatias 1 a 4 e M1 não tinham, todas nas escritas. Entram num pull request seu, antes do runtime graph, que escreve pelos mesmos caminhos.
+
+**A barreira de observador.** Há invocações do engine que só servem para saber uma coisa: o hook de Stop pergunta-lhe o que faria a seguir, e `unit start` pergunta que unit encaminharia. Cada uma marca-se no ambiente (`FOCUS_STOP_HOOK_PROBE=1`, `FOCUS_ROUTE_CHECK=1`), e a partir daí o processo é um observador: não pode mudar um byte do projeto. No original, cada primitiva de escrita durável começa por verificar isso (`refuseEngineObserverWrite`) e recusa com uma frase que diz que primitiva foi alcançada. Focus não tinha a barreira: um observador que chegasse a `audit append` ou a `graph compile` escrevia.
+
+`focus-workspace::observer` tem agora a verificação, e chamam-na os sítios que espelham as primitivas do original que Focus já tem: a escrita de um shard (`appendAuditBlockAtPath`) e cada escrita atómica de dados do projeto (`writeFileAtomic`: os dois ficheiros compilados, o ficheiro de identidade de um scope composto reposto, o registo de um scope criado, o plano de `resolve`, a atualização do ficheiro de identidade do clone). A frase é a do original, com os nomes que ele dá às primitivas, para se ler igual dos dois lados.
+
+Dois pormenores que o diferencial mostrou e que ficam iguais: um observador que faz `audit append` num clone sem identidade ainda a cria (essa escrita não passa pela barreira no original), e a atualização de um ficheiro de identidade antigo é recusada em silêncio (a recusa cai no mesmo `catch` de um disco só de leitura) antes de o append ser recusado com a frase.
+
+**`resolve` escreve o plano.** Era o último desvio de M1 que dependia de saber qual é o registo. `focus engine graph resolve <scope>` escreve agora `plan.json` no diretório do engine do registo que o projeto resolve (o intent ativo, o único registo, o da sessão; sem intent, o do space), cria esse diretório, e imprime o caminho. `FOCUS_PLAN_PATH` continua a ganhar, e aí o diretório não é criado. O original calcula o destino antes de olhar para `--stdout`, por isso um registo de intents que não se consegue ler pára as duas formas; Focus faz o mesmo.
+
+**A escrita atómica não cria diretórios.** `write_atomic` criava os diretórios em falta até ao ficheiro; `writeFileAtomic` não cria nenhum, e quem chama é que os cria onde o original cria (`mkdirSync` antes de repor um scope, de criar um registo, de escrever o plano por omissão). Com `FOCUS_PLAN_PATH` a apontar para um diretório que não existe, Focus escrevia e o original falhava; agora falham os dois. Um valor vazio também conta como caminho, como no original (`??`), e escrever em lado nenhum falha.
+
+| Verificação | Resultado |
+| --- | --- |
+| Diferencial, `verbs/resolve_writes/*` (14) | Sem intent, um registo, intent ativo, dois registos sem cursor, outro space, plano já existente, scope desconhecido, `--stdout`, caminho no ambiente (existente, em diretório em falta, vazio): iguais, ficheiros incluídos. 2 desvios, abaixo |
+| Diferencial, `verbs/observer/*` (18) e `audit/observer/*` (15) | Cada marcador com `resolve`, `compile`, `compile --check`, a reposição e a criação de registos de scopes, `topo`, `append`, `append-batch`, `append-raw`, `history`, criar e completar a identidade do clone: iguais. Um valor que não é `1` não faz um observador |
+| Diferencial completo | 1 493 verificações com nome: 1 449 iguais, 44 desvios, 0 diferentes. 1 482 gravadas |
+| Mutações | 18, 17 apanhadas. A que passa é a barreira na criação do registo de um scope: num compile, a escrita dos ficheiros compilados recusa primeiro |
+| `cargo test` | 207 testes |
+
+Desvios, os dois já declarados noutros comandos e agora também em `resolve`:
+
+| | Original | Focus |
+| --- | --- | --- |
+| `resolve` num projeto com sessões registadas por processo | Percorre a árvore de processos para saber que conversa chama, e escreve no registo dela | Recusa escrever; com `--stdout` imprime o plano, que não precisa de registo |
+| `resolve` com uma linha do registo de intents que não se lê | Falha com o que o runtime diz do valor (`undefined is not an object`) | Diz que ficheiro e o que uma linha precisa. Os dois falham antes de imprimir |
+
+O que isto não tem: as outras primitivas com barreira no original (`writeStateFile`, `writeBufferAtomic`, `removeRecordFileNoFollow`, `clearSummaryAuthorization`, a transação da diretiva ativa) pertencem a módulos por portar e trazem a sua chamada quando entrarem. A regra fica em `CLAUDE.md`.

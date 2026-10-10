@@ -139,6 +139,10 @@ fn normalise(text: &str, root: &Path) -> String {
             r"(validate-grid: cannot read [^:]+: ).*?(\. Write the grid|$)",
             true,
         ),
+        (
+            r"(graph resolve: ).*: No such file or directory \(os error 2\)()",
+            false,
+        ),
     ] {
         text = replace_all(&text, pattern, |found, text| {
             let tail = if keeps_tail {
@@ -352,6 +356,22 @@ fn written_files(root: &Path) -> BTreeMap<String, String> {
             files.insert(rel.clone(), fs::read_to_string(root.join(&rel)).unwrap());
         }
     }
+    // The plan `resolve` writes into the record it finds.
+    fn plans(root: &Path, dir: &Path, files: &mut BTreeMap<String, String>) {
+        let Ok(entries) = fs::read_dir(dir) else {
+            return;
+        };
+        for entry in entries {
+            let path = entry.unwrap().path();
+            if path.is_dir() {
+                plans(root, &path, files);
+            } else if path.ends_with(".focus-engine/plan.json") {
+                let rel = path.strip_prefix(root).unwrap().to_string_lossy();
+                files.insert(rel.into_owned(), fs::read_to_string(&path).unwrap());
+            }
+        }
+    }
+    plans(root, &root.join("focus/spaces"), &mut files);
     files
 }
 

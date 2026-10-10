@@ -28,6 +28,7 @@ pub mod links;
 pub mod lock;
 pub mod manifest;
 pub mod names;
+pub mod observer;
 pub mod oracle;
 pub mod project;
 pub mod records;

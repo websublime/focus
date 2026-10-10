@@ -24,6 +24,7 @@ use focus_js::order::{cmp_utf16, js_key_order};
 use focus_js::{EngineError, Result, bail, json, re};
 use focus_workspace::atomic::write_atomic;
 use focus_workspace::links::refuse_link_on_the_way;
+use focus_workspace::observer;
 use serde_json::{Map, Value};
 
 use crate::fsx::{read_dir_sorted, read_text};
@@ -315,6 +316,13 @@ pub fn identity_file_for(scopes_dir: &Path, name: &str) -> Option<PathBuf> {
 }
 
 /// `file` inside `dir`, refused when the joined path would land anywhere else.
+/// The directory a file is about to be written into, made when missing: the
+/// write itself creates none.
+fn make_dir(dir: &Path) -> Result<()> {
+    std::fs::create_dir_all(dir)
+        .map_err(|err| EngineError::new(format!("{}: {err}", dir.display())))
+}
+
 fn file_inside(dir: &Path, file: &str) -> Result<PathBuf> {
     let path = dir.join(file);
     let single = Path::new(file).components().count() == 1
@@ -359,6 +367,8 @@ pub fn materialize_identities(
         let restored =
             file_inside(scopes_dir, &format!("focus-{}.md", record.name)).and_then(|target| {
                 refuse_link_on_the_way(project, &target)?;
+                make_dir(scopes_dir)?;
+                observer::refuse_write(observer::WRITE_FILE_ATOMIC)?;
                 write_atomic(&target, record.identity.as_bytes())
                     .map_err(|err| EngineError::new(format!("{}: {err}", target.display())))?;
                 Ok(target)
@@ -418,11 +428,13 @@ pub fn backfill_records(
             continue;
         }
         refuse_link_on_the_way(project, &target)?;
+        make_dir(records_dir)?;
         let rendered = render_record(
             &read_text(&identity_path)?,
             stages,
             Some(&identity_path.display().to_string()),
         )?;
+        observer::refuse_write(observer::WRITE_FILE_ATOMIC)?;
         write_atomic(&target, rendered.as_bytes())
             .map_err(|err| EngineError::new(format!("{}: {err}", target.display())))?;
         written.push(name.clone());
@@ -550,5 +562,24 @@ mod tests {
         let merged = merge(Map::new(), &folded);
         assert!(merged.contains_key("constructor"));
         std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    /// The write creates no directory, so restoring a scope makes the one it
+    /// goes into, as upstream does before its own write.
+    #[test]
+    fn a_scope_is_restored_into_a_directory_that_was_not_there() {
+        let project = std::env::temp_dir().join(format!("focus-restore-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&project);
+        let (records, scopes) = (project.join("records"), project.join("harness/scopes"));
+        std::fs::create_dir_all(&records).unwrap();
+        std::fs::write(
+            records.join("spike.md"),
+            render_record(IDENTITY, &stages(), None).unwrap(),
+        )
+        .unwrap();
+        let written = materialize_identities(&project, &records, &scopes).unwrap();
+        assert_eq!(written, [scopes.join("focus-spike.md")]);
+        assert_eq!(std::fs::read_to_string(&written[0]).unwrap(), IDENTITY);
+        std::fs::remove_dir_all(&project).unwrap();
     }
 }

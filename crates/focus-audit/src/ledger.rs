@@ -25,12 +25,12 @@ use std::time::SystemTime;
 use focus_js::order::cmp_utf16;
 use focus_js::text::trim;
 use focus_js::{EngineError, Result, bail, re};
-use focus_workspace::Layout;
 use focus_workspace::atomic::write_atomic;
 use focus_workspace::files::read_append_only;
 use focus_workspace::links::link_on_the_way;
 use focus_workspace::names::{CLONE_ID_FILE, UNIT_SCOPE_FILE};
 use focus_workspace::records::{Invoker, Selector, resolve_selection};
+use focus_workspace::{Layout, observer};
 
 use crate::shards::{ShardEvent, ShardText, copied_blocks, parse_shard_events, shard_blocks};
 
@@ -255,7 +255,11 @@ impl<'a> Ledger<'a> {
                 // An upgrade replaces a file a concurrent reader may be
                 // reading; a first write has nothing to tear.
                 if upgrading {
-                    write_atomic(&path, content.as_bytes())
+                    // The atomic write is behind the observer barrier, and
+                    // a refusal there is one more way the write can fail.
+                    observer::refuse_write(observer::WRITE_FILE_ATOMIC)
+                        .map_err(|refusal| std::io::Error::other(refusal.to_string()))
+                        .and_then(|()| write_atomic(&path, content.as_bytes()))
                 } else {
                     std::fs::write(&path, &content)
                 }

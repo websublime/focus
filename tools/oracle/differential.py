@@ -270,6 +270,9 @@ RUNTIME_TEXT = [
     (r"(has an unparseable grid fence: ).*", r"\1<runtime>"),
     (r"(cannot read ars priors at [^:]+: ).*", r"\1<runtime>"),
     (r"(validate-grid: cannot read [^:]+: ).*?(\. Write the grid|$)", r"\1<runtime>\2"),
+    # A plan written where there is no directory: each runtime's own words for "no such file".
+    (r"(graph resolve: )(?:ENOENT: no such file or directory, .*|.*: No such file or directory \(os error 2\))",
+     r"\1<runtime>"),
 ]
 
 
@@ -313,6 +316,11 @@ def snapshot(tree):
             for file in sorted(os.listdir(real)):
                 with open(os.path.join(real, file), encoding="utf-8") as handle:
                     files[f"{to_focus(directory)}/{say(file)}"] = say(handle.read())
+    # The plan `resolve` writes into the record it finds, wherever that is.
+    for folder, _, names in os.walk(tree.path("aidlc/spaces")):
+        if "plan.json" in names and os.path.basename(folder) == os.path.basename(tree.path(".aidlc-engine")):
+            with open(os.path.join(folder, "plan.json"), encoding="utf-8") as handle:
+                files[to_focus(os.path.relpath(os.path.join(folder, "plan.json"), tree.root))] = say(handle.read())
     return files
 
 
@@ -693,6 +701,8 @@ COMPILE = {
     "composed_scopes_dir_is_link": [with_record("spike"), lambda t: (
         shutil.move(t.path(".claude/scopes"), t.path("moved-scopes")),
         os.symlink(t.path("moved-scopes"), t.path(".claude/scopes")))],
+    # The directory a scope is restored into is made when it is not there.
+    "composed_scopes_dir_missing": [with_record("spike"), lambda t: shutil.rmtree(t.path(".claude/scopes"))],
 }
 
 COMPILE_CHECKS = {
@@ -897,11 +907,60 @@ def verbs():
             built[name] = VERB_TREES[name](f"verbs/{name}")
         return built[name]
 
-    def on(tree, name, args, env=None, stdin=None):
+    def on(tree, name, args, env=None, stdin=None, files=False):
         label = f"verbs/{tree}/{name}"
         if ONLY and not re.search(ONLY, label):
             return
-        check(label, trees(tree), args, env, stdin)
+        check(label, trees(tree), args, env, stdin, files)
+
+    def alone(name, args, env, *edits):
+        """A check that writes, on a pair of trees of its own."""
+        label = f"verbs/{name}"
+        if not ONLY or re.search(ONLY, label):
+            check(label, pair(label, *edits), args, env, files=True)
+
+    # `resolve` writes the plan into the engine directory of the record it finds: the active intent's, the
+    # lone record's, the one a session is bound to, or the space's own while there is no intent.
+    state = lambda record, space="default": lambda t: t.write(
+        f"aidlc/spaces/{space}/intents/{record}/aidlc-state.md", "# State\n")
+    cursor = lambda record, space="default": lambda t: t.write(
+        f"aidlc/spaces/{space}/intents/active-intent", record + "\n")
+    one, two = "add-login-1a2b3c4d", "fix-logout-9f8e7d6c"
+    alone("resolve_writes/no_intent", ["resolve", "bugfix"], RESOLVE)
+    alone("resolve_writes/lone_record", ["resolve", "bugfix"], RESOLVE, state(one))
+    alone("resolve_writes/active_intent", ["resolve", "feature"], RESOLVE, state(one), state(two), cursor(two))
+    alone("resolve_writes/two_records_no_cursor", ["resolve", "bugfix"], RESOLVE, state(one), state(two))
+    alone("resolve_writes/other_space", ["resolve", "bugfix"], RESOLVE, state(one, "payments"),
+          lambda t: t.write("aidlc/active-space", "payments\n"))
+    alone("resolve_writes/twice", ["resolve", "bugfix"], RESOLVE, state(one),
+          lambda t: t.write(f"aidlc/spaces/default/intents/{one}/.aidlc-engine/plan.json", "[]\n"))
+    alone("resolve_writes/unknown_scope", ["resolve", "nope"], RESOLVE, state(one))
+    # A file the environment names is written where it is said to go, and its directory is not made.
+    alone("resolve_writes/plan_path", ["resolve", "bugfix"], {**RESOLVE, "PLAN_PATH": "plan.json"}, state(one))
+    alone("resolve_writes/plan_path_missing_dir", ["resolve", "bugfix"], {**RESOLVE, "PLAN_PATH": "nowhere/plan.json"})
+    alone("resolve_writes/plan_path_empty", ["resolve", "bugfix"], {**RESOLVE, "PLAN_PATH": ""}, state(one))
+    alone("resolve_writes/stdout_writes_nothing", ["resolve", "bugfix", "--stdout"], RESOLVE, state(one))
+    alone("resolve_writes/registry_unreadable_row", ["resolve", "bugfix", "--stdout"], RESOLVE, state(one), state(two),
+          lambda t: t.write("aidlc/spaces/default/intents/intents.json", '[{"slug": "add-login"}]\n'))
+    alone("resolve_writes/sessions_by_process", ["resolve", "bugfix"], RESOLVE, state(one),
+          lambda t: t.write("aidlc/.aidlc-sessions/pids/1.json", "{}\n"))
+    alone("resolve_writes/sessions_by_process_stdout", ["resolve", "bugfix", "--stdout"], RESOLVE, state(one),
+          lambda t: t.write("aidlc/.aidlc-sessions/pids/1.json", "{}\n"))
+    # An observer changes nothing: each durable write refuses.
+    for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
+        probe = {marker: "1"}
+        alone(f"observer/{marker.lower()}/resolve", ["resolve", "bugfix"], {**RESOLVE, **probe}, state(one))
+        alone(f"observer/{marker.lower()}/resolve_stdout", ["resolve", "bugfix", "--stdout"], {**RESOLVE, **probe},
+              state(one))
+        alone(f"observer/{marker.lower()}/resolve_plan_path", ["resolve", "bugfix"],
+              {**RESOLVE, **probe, "PLAN_PATH": "p/plan.json"})
+        alone(f"observer/{marker.lower()}/compile", ["compile"], probe)
+        alone(f"observer/{marker.lower()}/compile_check", ["compile", "--check"], probe)
+        alone(f"observer/{marker.lower()}/compile_restores_scope", ["compile"], probe, with_record("spike"))
+        alone(f"observer/{marker.lower()}/compile_backfills_record", ["compile"], probe, grid_only)
+        alone(f"observer/{marker.lower()}/topo", ["topo"], probe)
+    alone("observer/not_one/compile", ["compile"], {"STOP_HOOK_PROBE": "true"})
+    alone("observer/not_one/resolve", ["resolve", "bugfix"], {**RESOLVE, "ROUTE_CHECK": "0"}, state(one))
 
     for tree in ("stock", "plugins_disabled", "plugins_enabled", "plugins_only", "composed", "cyclic", "no_grid",
                  "broken_graph", "missing_graph", "bad_scope", "extra_scope_file"):
@@ -1177,7 +1236,8 @@ def normalise_audit(text, tree, engine):
 
 def uncaught(stderr):
     """The sentence of an error upstream let reach the runtime, or None when stderr is not one."""
-    found = re.search(r"^error: (.*?)\n +at ", stderr, flags=re.M | re.S)
+    # A plain Error prints as `error: sentence`; a named one as its name, the sentence, then its own fields.
+    found = re.search(r"^(?:error|[A-Z]\w*Error): (.*?)\n(?: \w+: [^\n]*\n)*\s+at ", stderr, flags=re.M | re.S)
     if not found or "\nBun v" not in stderr:
         return None
     return found.group(1)
@@ -1386,6 +1446,12 @@ DEVIATIONS.update({
     "audit/append/delegated_worktree":
         "upstream resolves a delegated worktree to the main checkout's intent; focus does not work with "
         "worktrees yet and refuses while the marker exists",
+    "verbs/resolve_writes/sessions_by_process":
+        "upstream walks the process tree to find which conversation is calling, and writes the plan into its "
+        "record; focus refuses to write, and still prints the plan with --stdout, which needs no record",
+    "verbs/resolve_writes/registry_unreadable_row":
+        "with a registry row it cannot read, upstream fails with what its runtime says about the value; focus "
+        "says which file and what a row needs. Both fail before printing, --stdout or not",
     "audit/append/sessions_by_process":
         "upstream walks the process tree to find which conversation is calling; focus refuses and asks for the "
         "session, or for --space and --intent",
@@ -1405,6 +1471,21 @@ def audit_checks():
     check_("usage/append_raw", {}, [["append-raw"]])
     check_("usage/append_raw_no_body", {}, [["append-raw", "Heading"]])
     check_("usage/append_raw_empty_body", {}, [["append-raw", "Heading", ""]])
+
+    # An observer reads and never appends; what it may still do is mint this clone's identity.
+    for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
+        probe = {marker: "1"}
+        check_(f"observer/{marker.lower()}/append", RECORD_FILES, [APPEND, ["history"]], probe)
+        check_(f"observer/{marker.lower()}/append_batch", RECORD_FILES,
+               [BATCH(ROW("ERROR_LOGGED", Stage="x")), ["history"]], probe)
+        check_(f"observer/{marker.lower()}/append_raw", RECORD_FILES, [["append-raw", "Heading", "body"]], probe)
+        check_(f"observer/{marker.lower()}/history", HISTORY_FILES, [["history"]], probe)
+        check_(f"observer/{marker.lower()}/mints_identity", {}, [APPEND, APPEND], probe)
+        check_(f"observer/{marker.lower()}/completes_identity",
+               {**RECORD_FILES, "aidlc/.aidlc-clone-id": "abc123\n", f"{RECORD_DIR}/audit/old-name-abc123.md": MINE},
+               [APPEND], probe)
+        check_(f"observer/{marker.lower()}/refused_first", RECORD_FILES, [["append", "HUMAN_TURN"]], probe)
+    check_("observer/not_one/append", RECORD_FILES, [APPEND], {"STOP_HOOK_PROBE": "yes", "ROUTE_CHECK": ""})
 
     # append: where an entry goes.
     check_("append/no_intent", CLONE, [APPEND + ["--field", "Note=a b"], ["history"]])

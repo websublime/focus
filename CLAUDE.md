@@ -51,6 +51,10 @@ This repository is the source of truth for the code, the plan and the fixtures.
   where it differs from upstream's, the referee (`tools/oracle/referee/`)
   must read the line as Focus does (`tools/oracle/markdown_rule.py`).
 - **Input that is not ported is refused, never ignored.**
+- **A durable write starts at the observer barrier.** Whatever writes project
+  data calls `focus_workspace::observer::refuse_write` first, as upstream's
+  primitive does (`refuseEngineObserverWrite`), and creates its own directory:
+  `write_atomic` creates none.
 
 ## Toolchain
 

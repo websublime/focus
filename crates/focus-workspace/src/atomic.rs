@@ -19,8 +19,10 @@ const REPLACE_RETRY: Duration = Duration::from_secs(10);
 
 static SEQUENCE: AtomicU64 = AtomicU64::new(0);
 
-/// Replace the contents of `path` with `data`, creating missing parent
-/// directories.
+/// Replace the contents of `path` with `data`. The directory it goes into
+/// must exist: like upstream's `writeFileAtomic`, this creates none, so a
+/// caller that names a place that is not there is told so instead of having
+/// it made.
 ///
 /// The bytes go to a sibling temporary file created exclusively (so two
 /// writers never share one), are flushed to disk, and are renamed over the
@@ -31,9 +33,6 @@ static SEQUENCE: AtomicU64 = AtomicU64::new(0);
 ///
 /// Any I/O failure. The temporary file is removed; the target is untouched.
 pub fn write_atomic(path: &Path, data: &[u8]) -> io::Result<()> {
-    if let Some(parent) = path.parent().filter(|p| !p.as_os_str().is_empty()) {
-        fs::create_dir_all(parent)?;
-    }
     let tmp = loop {
         let candidate = temp_sibling(path);
         match OpenOptions::new()
@@ -113,6 +112,10 @@ mod tests {
         let _ = fs::remove_dir_all(&dir);
         let target = dir.join("nested").join("data.json");
 
+        // A directory that is not there is an error, and stays not there.
+        assert!(write_atomic(&target, b"first").is_err());
+        assert!(!dir.exists());
+        fs::create_dir_all(dir.join("nested")).unwrap();
         write_atomic(&target, b"first").unwrap();
         write_atomic(&target, b"second").unwrap();
         assert_eq!(fs::read(&target).unwrap(), b"second");

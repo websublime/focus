@@ -408,26 +408,177 @@ fn resolve_is_gated_and_prints_a_plan() {
         serde_json::json!({"slug": "workspace-scaffold", "phase": "initialization", "action": "EXECUTE"})
     );
 
-    // Without --stdout the plan goes into the active intent record, which
-    // nothing in Focus can locate yet; a named file works.
-    let no_target = focus_in(
-        &root,
-        &["engine", "graph", "resolve", "bugfix"],
-        &[("FOCUS_GRAPH_RESOLVE", "1")],
+    // Without --stdout the plan goes into the engine directory of the record
+    // the project resolves to: here the space's own, as there is no intent.
+    let resolve = ["engine", "graph", "resolve", "bugfix"];
+    let in_space = focus_in(&root, &resolve, &[("FOCUS_GRAPH_RESOLVE", "1")]);
+    assert!(in_space.status.success(), "{}", text(&in_space.stderr));
+    let plan_file = root.join("focus/spaces/default/intents/.focus-engine/plan.json");
+    assert_eq!(text(&in_space.stdout), format!("{}\n", plan_file.display()));
+    assert_eq!(fs::read(&plan_file).unwrap(), open.stdout);
+    // With an intent, its record.
+    let record = root.join("focus/spaces/default/intents/add-login-1a2b3c4d");
+    fs::create_dir_all(&record).unwrap();
+    fs::write(record.join("focus-state.md"), "# State\n").unwrap();
+    let in_record = focus_in(&root, &resolve, &[("FOCUS_GRAPH_RESOLVE", "1")]);
+    assert!(in_record.status.success(), "{}", text(&in_record.stderr));
+    assert_eq!(
+        fs::read(record.join(".focus-engine/plan.json")).unwrap(),
+        open.stdout
     );
-    assert_eq!(no_target.status.code(), Some(1));
-    assert!(text(&no_target.stderr).contains("Pass --stdout, or set FOCUS_PLAN_PATH to a file."));
+    // A file the environment names wins, and its directory is not created.
     let target = root.join("plan.json");
-    let written = focus_in(
-        &root,
-        &["engine", "graph", "resolve", "bugfix"],
-        &[
-            ("FOCUS_GRAPH_RESOLVE", "1"),
-            ("FOCUS_PLAN_PATH", target.to_str().unwrap()),
-        ],
-    );
+    let named = [
+        ("FOCUS_GRAPH_RESOLVE", "1"),
+        ("FOCUS_PLAN_PATH", target.to_str().unwrap()),
+    ];
+    let written = focus_in(&root, &resolve, &named);
     assert!(written.status.success(), "{}", text(&written.stderr));
     assert_eq!(fs::read(&target).unwrap(), open.stdout);
+    let nowhere = root.join("not-there/plan.json");
+    let missing = focus_in(
+        &root,
+        &resolve,
+        &[
+            ("FOCUS_GRAPH_RESOLVE", "1"),
+            ("FOCUS_PLAN_PATH", nowhere.to_str().unwrap()),
+        ],
+    );
+    assert_eq!(missing.status.code(), Some(1));
+    assert!(!nowhere.parent().unwrap().exists());
+    let _ = fs::remove_dir_all(root);
+}
+
+/// Deliberate deviation. Upstream finds the calling conversation by walking
+/// the process tree and writes the plan into its record. Focus has not ported
+/// that: it refuses to write, and still prints the plan with `--stdout`,
+/// which needs no record.
+#[test]
+fn resolve_does_not_guess_which_conversation_is_calling() {
+    let root = installed("resolve-sessions");
+    fs::create_dir_all(root.join("focus/.focus-sessions/pids")).unwrap();
+    let gate = [("FOCUS_GRAPH_RESOLVE", "1")];
+    let refused = focus_in(&root, &["engine", "graph", "resolve", "bugfix"], &gate);
+    assert_eq!(refused.status.code(), Some(1));
+    assert!(
+        text(&refused.stderr).contains("cannot yet tell which conversation is calling"),
+        "{}",
+        text(&refused.stderr)
+    );
+    assert!(
+        !root
+            .join("focus/spaces/default/intents/.focus-engine")
+            .exists()
+    );
+    let printed = focus_in(
+        &root,
+        &["engine", "graph", "resolve", "bugfix", "--stdout"],
+        &gate,
+    );
+    assert!(printed.status.success(), "{}", text(&printed.stderr));
+    let _ = fs::remove_dir_all(root);
+}
+
+/// Deliberate deviation. With a registry row it cannot read, upstream fails
+/// with what its runtime says about the value (`undefined is not an object`).
+/// Focus says which file and what a row needs. Both fail before printing a
+/// plan, `--stdout` or not: upstream works out where the plan would go first.
+#[test]
+fn resolve_stops_at_a_registry_row_it_cannot_read() {
+    let root = installed("resolve-registry");
+    let intents = root.join("focus/spaces/default/intents");
+    for record in ["add-login-1a2b3c4d", "fix-logout-9f8e7d6c"] {
+        fs::create_dir_all(intents.join(record)).unwrap();
+        fs::write(intents.join(record).join("focus-state.md"), "# State\n").unwrap();
+    }
+    fs::write(
+        intents.join("intents.json"),
+        "[{\"slug\": \"add-login\"}]\n",
+    )
+    .unwrap();
+    let refused = focus_in(
+        &root,
+        &["engine", "graph", "resolve", "bugfix", "--stdout"],
+        &[("FOCUS_GRAPH_RESOLVE", "1")],
+    );
+    assert_eq!(refused.status.code(), Some(1));
+    assert!(refused.stdout.is_empty());
+    assert!(
+        text(&refused.stderr).starts_with("focus graph resolve: ")
+            && text(&refused.stderr).contains("intents.json has a row that is not an intent"),
+        "{}",
+        text(&refused.stderr)
+    );
+    let _ = fs::remove_dir_all(root);
+}
+
+/// An observer changes no byte of the project: each durable write refuses,
+/// and what only reads still answers.
+#[test]
+fn an_observer_is_stopped_at_every_durable_write() {
+    let root = installed("observer");
+    let record = root.join("focus/spaces/default/intents/add-login-1a2b3c4d");
+    fs::create_dir_all(&record).unwrap();
+    fs::write(record.join("focus-state.md"), "# State\n").unwrap();
+    let refusal = |marker: &str, primitive: &str| {
+        format!(
+            "An engine observer ({marker}) reached the durable write primitive \"{primitive}\". Observers read the current directive and must change no project bytes. This is an engine defect, not a workflow problem."
+        )
+    };
+    let graph = fs::read(root.join(".claude/tools/data/stage-graph.json")).unwrap();
+    for marker in ["FOCUS_STOP_HOOK_PROBE", "FOCUS_ROUTE_CHECK"] {
+        let env = [(marker, "1"), ("FOCUS_GRAPH_RESOLVE", "1")];
+        let compile = focus_in(&root, &["engine", "graph", "compile"], &env);
+        assert_eq!(compile.status.code(), Some(1));
+        assert_eq!(
+            text(&compile.stderr),
+            format!(
+                "focus graph compile: {}\n",
+                refusal(marker, "writeFileAtomic")
+            )
+        );
+        let resolve = focus_in(&root, &["engine", "graph", "resolve", "bugfix"], &env);
+        assert_eq!(
+            text(&resolve.stderr),
+            format!(
+                "focus graph resolve: {}\n",
+                refusal(marker, "writeFileAtomic")
+            )
+        );
+        let append = focus_in(&root, &["engine", "audit", "append", "ERROR_LOGGED"], &env);
+        assert_eq!(append.status.code(), Some(1));
+        assert_eq!(
+            text(&append.stderr),
+            format!(
+                "{}\n",
+                serde_json::json!({ "error": refusal(marker, "appendAuditBlockAtPath") })
+            )
+        );
+        for reads in [
+            &["engine", "graph", "compile", "--check"][..],
+            &["engine", "graph", "resolve", "bugfix", "--stdout"],
+            &["engine", "graph", "topo"],
+            &["engine", "audit", "history"],
+        ] {
+            let read = focus_in(&root, reads, &env);
+            assert!(read.status.success(), "{reads:?}: {}", text(&read.stderr));
+        }
+    }
+    // Nothing was written but this clone's identity, which an append mints
+    // before it reaches the ledger, as upstream's does.
+    assert_eq!(
+        fs::read(root.join(".claude/tools/data/stage-graph.json")).unwrap(),
+        graph
+    );
+    assert!(!record.join(".focus-engine").exists());
+    assert!(!record.join("audit").exists());
+    // Only `1` makes an observer.
+    let not_one = focus_in(
+        &root,
+        &["engine", "graph", "compile"],
+        &[("FOCUS_STOP_HOOK_PROBE", "true"), ("FOCUS_ROUTE_CHECK", "")],
+    );
+    assert!(not_one.status.success(), "{}", text(&not_one.stderr));
     let _ = fs::remove_dir_all(root);
 }
 
