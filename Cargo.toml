@@ -15,6 +15,7 @@ gethostname = "1"
 getrandom = "0.3"
 libc = "0.2"
 regress = "0.12"
+same-file = "1"
 serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
 focus-js = { path = "crates/focus-js" }
 focus-frontmatter = { path = "crates/focus-frontmatter" }

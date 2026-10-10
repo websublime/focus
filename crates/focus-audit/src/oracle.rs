@@ -139,10 +139,7 @@ fn ledger(root: &Path, case: &Value) -> Value {
         session_id: None,
     };
     let invoker = Invoker::default();
-    let machine = Machine {
-        host: ORACLE_HOST.to_owned(),
-        mint_token: Box::new(|| ORACLE_TOKEN.to_owned()),
-    };
+    let machine = Machine::fixed(ORACLE_HOST, ORACLE_TOKEN, std::time::SystemTime::UNIX_EPOCH);
     let ledger = Ledger::new(&layout, machine);
     let named = |text: &str| {
         text.replace(ORACLE_HOST, MACHINE)

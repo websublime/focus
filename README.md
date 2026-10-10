@@ -18,9 +18,9 @@ project.
 **Status: the stage graph is complete (milestones M0 and M1); the audit ledger
 is under way (M2).** Compiling the graph, including plugin selection and
 composed scopes, and every `graph` verb are ported and held to parity with the
-reference. Of the ledger, the format exists, and so does reading a record's
-shards from disk; nothing appends to one yet. State, guards, hooks and the
-orchestrator are not written yet. The plan for the rest, module by
+reference. Of the ledger, the format, the shards and the `audit` command
+(append, notes, history) exist; settings, Markdown and the runtime graph are
+next. State, guards, hooks and the orchestrator are not written yet. The plan for the rest, module by
 module, is in [`docs/plano-de-migracao.md`](docs/plano-de-migracao.md)
 (Portuguese).
 
@@ -37,9 +37,18 @@ focus engine graph validate-scope feature
 focus engine graph validate-grid --proposal plan.json --custom
 focus engine graph ars --iae 0.3 --csu 0.75 --ve 0.2 --r 0.55 --ua 0.4
 focus engine graph export             # graph, scopes, artifacts and agents as JSON
+
+focus engine audit append ERROR_LOGGED --field Stage=code-generation --field "Note=what happened"
+focus engine audit append-raw "A decision" "why we chose it"
+focus engine audit history --stage code-generation --limit 20
 ```
 
-`focus engine graph --help` lists every verb and flag. The project is, in
+`focus engine graph --help` and `focus engine audit --help` list every verb and
+flag. The `audit` command is the diagnostic way into the ledger: events that
+carry authority (a gate approval, a person's turn, a unit's completion) are
+written only by the engine's own tools and hooks, and are refused there.
+
+The project is, in
 order: `--project-dir`; `FOCUS_PROJECT_DIR`; the directory the host names
 (`CLAUDE_PROJECT_DIR`, which Claude Code sets for hooks); the nearest directory
 at or above the current one with a harness installed. The harness is
@@ -58,9 +67,9 @@ focus engine graph compile --harness claude --core fixtures/upstream/core --out 
 | `focus-js` | JavaScript semantics the on-disk formats depend on: whitespace, sort order and collation, `Object.keys` order, `JSON.parse`/`stringify`, number printing and rounding, ECMAScript regex |
 | `focus-frontmatter` | The YAML-subset frontmatter readers, ported pattern for pattern |
 | `focus-harness` | What differs between Claude Code, Cursor and GitHub Copilot, as data |
-| `focus-workspace` | Which project, harness, space and intent record a command acts on, every path in them, atomic writes, the workspace lock |
+| `focus-workspace` | Which project, harness, space and intent record a command acts on, every path in them, atomic writes, the workspace lock, and opening a file whose path is not trusted |
 | `focus-graph` | Stage, scope, agent, sensor and rule schemas; the compile; composed scopes; graph queries; plan validation; ARS |
-| `focus-audit` | The audit ledger: the event vocabulary, how an entry is validated and written, how entries are read back, the shard each clone writes and every shard of a record read as one |
+| `focus-audit` | The audit ledger: the event vocabulary, how an entry is validated and written, how entries are read back, the shard each clone writes, appending to it under the lock, and a record's history from all its shards |
 | `focus-cli` | The `focus` binary (the package is named `focus`) |
 
 `fixtures/upstream/` holds the reference's Markdown, its compiled output and an

@@ -2,11 +2,13 @@
 //!
 //! The command tree follows upstream's `aidlc` so that a hook registration or
 //! a skill written for one reads the same for the other: engine internals live
-//! under `engine`, and `engine graph <verb>` is upstream's `aidlc-graph.ts`.
+//! under `engine`: `engine graph <verb>` is upstream's `aidlc-graph.ts`, and
+//! `engine audit <verb>` its `aidlc-audit.ts`.
 //! Arguments are parsed by hand, as upstream does: the engine's usage and
 //! error text is part of what agents read, so it is written, not generated.
 
 mod args;
+mod audit;
 mod graph;
 
 use std::process::ExitCode;
@@ -29,8 +31,13 @@ Commands:
   engine graph ars             Compute the arithmetic behind a tailored plan
   engine graph resolve         Print a scope's plan
   engine graph export          Print the graph, scopes and agents as one document
+  engine audit append          Append a diagnostic event to the audit ledger
+  engine audit append-batch    Append several events as one write
+  engine audit append-raw      Append a free-form note
+  engine audit history         Print the active record's events and notes
 
-Run `focus engine graph --help` for the options of each.";
+Run `focus engine graph --help` or `focus engine audit --help` for the options
+of each.";
 
 /// How a command failed.
 pub enum Failure {
@@ -71,8 +78,11 @@ fn main() -> ExitCode {
         }
         Some("engine") => match args.next_positional().as_deref() {
             Some("graph") => graph::run(&mut args),
-            Some(other) => Err(format!("Unknown engine command: {other}. Valid: graph").into()),
-            None => Err("Usage: focus engine <command>. Valid: graph".into()),
+            Some("audit") => audit::run(&mut args),
+            Some(other) => {
+                Err(format!("Unknown engine command: {other}. Valid: audit, graph").into())
+            }
+            None => Err("Usage: focus engine <command>. Valid: audit, graph".into()),
         },
         // Development aid: answers oracle cases for the parity corpus.
         Some("dev") => match args.next_positional().as_deref() {

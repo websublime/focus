@@ -231,7 +231,7 @@ pub fn redact_project_dir_prefix(value: &str, project_dir: &Path) -> String {
 
 /// `path.resolve`: absolute, with `.` and `..` settled by reading the path,
 /// not the disk.
-fn lexical_absolute(path: &Path) -> String {
+pub(crate) fn lexical_absolute_path(path: &Path) -> std::path::PathBuf {
     let absolute = std::path::absolute(path).unwrap_or_else(|_| path.to_path_buf());
     let mut settled = std::path::PathBuf::new();
     for component in absolute.components() {
@@ -243,7 +243,11 @@ fn lexical_absolute(path: &Path) -> String {
             other => settled.push(other),
         }
     }
-    settled.to_string_lossy().into_owned()
+    settled
+}
+
+fn lexical_absolute(path: &Path) -> String {
+    lexical_absolute_path(path).to_string_lossy().into_owned()
 }
 
 /// Windows spells a canonical path `\\?\C:\...`; people and tools spell it

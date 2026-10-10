@@ -94,6 +94,34 @@ pub fn refuse_link_on_the_way(project: &Path, target: &Path) -> Result<()> {
     }
 }
 
+/// Fail when any directory on the way from `anchor` down to `rel`, or the
+/// file itself, is a link. `anchor` is a location already resolved; `rel` is
+/// relative to it.
+///
+/// Every component is looked at, not only the last: a containment check on
+/// the resolved path says where a write lands today, not whether it passed
+/// through something that can be pointed elsewhere tomorrow. A component that
+/// does not exist yet cannot redirect anything and ends the walk.
+///
+/// The ledger's and the state file's guard, in upstream's words
+/// (`assertNoSymlinkInChainOrThrow`, `aidlc-lib.ts` L33164).
+///
+/// # Errors
+///
+/// A component is a link; the message gives its full path.
+pub fn refuse_link_in_chain(anchor: &Path, rel: &Path) -> Result<()> {
+    let Some(parts) = link_on_the_way(anchor, &anchor.join(rel)) else {
+        return Ok(());
+    };
+    let link = parts
+        .iter()
+        .fold(anchor.to_path_buf(), |path, part| path.join(part));
+    bail!(
+        "{} is a symlink, and no path component may be a symlink here. A redirected container directory is refused exactly like a symlink found INSIDE an already-trusted one.",
+        link.display()
+    );
+}
+
 #[cfg(all(test, unix))]
 mod tests {
     use super::*;

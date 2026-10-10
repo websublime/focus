@@ -17,20 +17,27 @@
 //! - [`shards`]: several shards read as one ledger, with each event's place
 //!   kept and a copied shard's rows read once;
 //! - [`ledger`]: this clone's identity, the shard it writes, and every shard
-//!   of a record read from disk.
+//!   of a record read from disk;
+//! - [`append`]: writing entries and notes to a shard, under the workspace
+//!   lock and without trusting the path;
+//! - [`history`]: a record's events and notes in one order, as a person or
+//!   an agent reads them.
 //!
-//! Appending under the lock and the `audit` command come next. Ported from
-//! `aidlc-audit.ts` and the readers it shares with `aidlc-lib.ts`, and held to
-//! their answers by the oracle corpus under `fixtures/`.
+//! Ported from `aidlc-audit.ts` and the readers it shares with
+//! `aidlc-lib.ts`, and held to their answers by the oracle corpus and the
+//! recorded differential under `fixtures/`.
 
+pub mod append;
 pub mod entry;
 pub mod events;
+pub mod history;
 pub mod ledger;
 pub mod oracle;
 pub mod read;
 pub mod shards;
 pub mod time;
 
+pub use append::Note;
 pub use entry::{Entry, Fields, SHARD_TITLE, render_block, validate};
 pub use focus_js::{EngineError, Result};
 pub use ledger::{CloneIdentity, Ledger, Machine};

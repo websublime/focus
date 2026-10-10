@@ -16,9 +16,5 @@ focus-harness.workspace = true
 focus-js.workspace = true
 focus-workspace.workspace = true
 
-# Only the open(2) flag values: no call into libc is made from here.
-[target.'cfg(unix)'.dependencies]
-libc.workspace = true
-
 [lints]
 workspace = true
