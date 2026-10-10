@@ -414,7 +414,14 @@ fn resolve_is_gated_and_prints_a_plan() {
     let in_space = focus_in(&root, &resolve, &[("FOCUS_GRAPH_RESOLVE", "1")]);
     assert!(in_space.status.success(), "{}", text(&in_space.stderr));
     let plan_file = root.join("focus/spaces/default/intents/.focus-engine/plan.json");
-    assert_eq!(text(&in_space.stdout), format!("{}\n", plan_file.display()));
+    // The path is printed as the engine found the project, which on some
+    // systems is through a link the test's own path does not go through.
+    let printed = text(&in_space.stdout);
+    assert!(
+        Path::new(printed.trim_end())
+            .ends_with("focus/spaces/default/intents/.focus-engine/plan.json"),
+        "{printed}"
+    );
     assert_eq!(fs::read(&plan_file).unwrap(), open.stdout);
     // With an intent, its record.
     let record = root.join("focus/spaces/default/intents/add-login-1a2b3c4d");

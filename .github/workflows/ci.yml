@@ -34,8 +34,10 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Lint
         run: |
-          cargo clippy --workspace --all-targets --message-format=short -- -D warnings 2>&1 | tee lint.log
-          status=${PIPESTATUS[0]}
+          # The shell stops at a failing pipeline, so the status is taken on
+          # the same line: what follows is what reports the failure.
+          status=0
+          cargo clippy --workspace --all-targets --message-format=short -- -D warnings 2>&1 | tee lint.log || status=$?
           if [ "$status" -ne 0 ]; then
             grep -E '(^| )(error|warning)(\[|:)' lint.log | head -9 | while IFS= read -r line; do echo "::error::${line}"; done
           fi
@@ -45,8 +47,8 @@ jobs:
       # (see crates/focus-cli/tests/recorded.rs).
       - name: Test
         run: |
-          cargo test --workspace 2>&1 | tee test.log
-          status=${PIPESTATUS[0]}
+          status=0
+          cargo test --workspace 2>&1 | tee test.log || status=$?
           if [ "$status" -ne 0 ]; then
             grep -E '^test .* FAILED$|panicked at|^error(\[|:)|^  (left|right):|^assertion ' test.log | head -9 | while IFS= read -r line; do echo "::error::${line}"; done
             # Whatever the pattern missed: what follows the first failure.
