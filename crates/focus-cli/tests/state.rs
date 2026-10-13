@@ -204,7 +204,16 @@ fn fields_and_checkboxes_are_read_and_written() {
 #[test]
 fn a_refusal_is_recorded_in_the_ledger_with_the_project_redacted() {
     let root = project("errors");
-    let here = root.to_str().unwrap().to_owned();
+    // The project is found from the working directory, which the process
+    // reads resolved (`/private/var/…` for a macOS temp dir), so the path
+    // the ledger redacts is the resolved one.
+    let here = fs::canonicalize(&root)
+        .unwrap()
+        .to_string_lossy()
+        .into_owned();
+    let here = here
+        .strip_prefix(r"\\?\")
+        .map_or(here.clone(), str::to_owned);
     assert_eq!(
         refusal(&state(&root, &["get", &format!("{here}/x")], &[])),
         format!("Field not found: {here}/x")
