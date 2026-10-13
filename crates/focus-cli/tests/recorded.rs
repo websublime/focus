@@ -201,6 +201,41 @@ fn normalise_audit(text: &str, root: &Path) -> String {
             "<cli> orchestrate report",
         )
         .replace("`focus engine log`", "<cli> log");
+    // The state tool names itself, its verbs and the orchestrator's.
+    text = replace_all(
+        &text,
+        r"`focus engine (state|orchestrate)(?: ([^`]*))?`",
+        |found, text| {
+            let tool = group(found, text, 1);
+            match found.group(2) {
+                Some(range) => format!("<cli> {tool} {}", &text[range]),
+                None => format!("<cli> {tool}"),
+            }
+        },
+    );
+    text = text
+        .replace("Usage: focus engine state ", "Usage: <cli> state ")
+        .replace("Run focus engine state --help", "Run <cli> state --help")
+        .replace("how closely Focus checks", "how closely <engine> checks");
+    text = replace_all(
+        &text,
+        r"`focus engine config set (guard\.[a-z-]+) off`",
+        |found, text| format!("<cli-config {} off>", group(found, text, 1)),
+    );
+    text = text.replace(" --harness claude\n", "\n");
+    text = replace_all(
+        &text,
+        r#"(?:<project-dir>/)?[^\s"]*focus-state\.md: Is a directory \(os error 21\)"#,
+        |_, _| "<runtime>".to_owned(),
+    );
+    text = replace_all(
+        &text,
+        r"(?<![\w-])focus-state(?![\w.-])(?: ([a-z-]+))?(?![\w-])",
+        |found, text| match found.group(1) {
+            Some(range) => format!("<cli> state {}", &text[range]),
+            None => "<cli> state".to_owned(),
+        },
+    );
     text = replace_all(&text, r"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ", |found, text| {
         let stamp = &text[found.range()];
         if stamp >= started() {
@@ -426,7 +461,7 @@ fn shown(expected: &Value) -> String {
 
 /// Run one check in `root`; the problems found, empty when it matches.
 fn replay(check: &Value, root: &Path) -> Vec<String> {
-    if check["tool"] == "audit" || check["tool"] == "runtime" {
+    if ["audit", "runtime", "state"].contains(&check["tool"].as_str().unwrap_or_default()) {
         return problems_in(
             check["expect"].as_object().unwrap(),
             replay_audit(check, root),
@@ -660,6 +695,24 @@ fn the_recording_covers_every_verb_and_both_outcomes() {
         assert!(exits("0"), "no recorded success for runtime {verb}");
         assert!(exits("1"), "no recorded failure for runtime {verb}");
     }
+    for verb in ["get", "set", "checkbox", "count"] {
+        let exits = |code: &str| {
+            checks
+                .iter()
+                .filter(|c| c["tool"] == "state" && c["deviation"].is_null())
+                .any(|c| {
+                    let codes = c["expect"]["exit"].as_str().unwrap().split(',');
+                    c["steps"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .zip(codes)
+                        .any(|(step, exit)| step[0] == verb && exit == code)
+                })
+        };
+        assert!(exits("0"), "no recorded success for state {verb}");
+        assert!(exits("1"), "no recorded failure for state {verb}");
+    }
     // A deviation is recorded and not replayed, so a recording made mostly
     // of them would prove little: they stay under a tenth of it, and for
     // each command what is replayed is at least twice what is not.
@@ -669,7 +722,7 @@ fn the_recording_covers_every_verb_and_both_outcomes() {
         "{deviations} of {} recorded checks are deviations; the replay proves little",
         checks.len()
     );
-    for tool in ["graph", "audit", "runtime"] {
+    for tool in ["graph", "audit", "runtime", "state"] {
         let of_tool: Vec<&Value> = checks
             .iter()
             .filter(|c| c["tool"].as_str().unwrap_or("graph") == tool)

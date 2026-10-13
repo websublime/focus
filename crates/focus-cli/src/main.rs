@@ -3,8 +3,8 @@
 //! The command tree follows upstream's `aidlc` so that a hook registration or
 //! a skill written for one reads the same for the other: engine internals live
 //! under `engine`: `engine graph <verb>` is upstream's `aidlc-graph.ts`,
-//! `engine audit <verb>` its `aidlc-audit.ts`, and `engine runtime <verb>`
-//! its `aidlc-runtime.ts`.
+//! `engine audit <verb>` its `aidlc-audit.ts`, `engine runtime <verb>` its
+//! `aidlc-runtime.ts`, and `engine state <verb>` its `aidlc-state.ts`.
 //! Arguments are parsed by hand, as upstream does: the engine's usage and
 //! error text is part of what agents read, so it is written, not generated.
 
@@ -12,6 +12,7 @@ mod args;
 mod audit;
 mod graph;
 mod runtime;
+mod state;
 
 use std::process::ExitCode;
 
@@ -40,9 +41,14 @@ Commands:
   engine runtime compile       Write the active record's runtime graph
   engine runtime read          Print one stage's row of the runtime graph
   engine runtime summary       Print the runtime graph's numbers
+  engine state get             Print one field of the active record's state file
+  engine state set             Set fields of the state file
+  engine state checkbox        Set the state of stages in Stage Progress
+  engine state count           Count the stages in one state
 
-Run `focus engine graph --help`, `focus engine audit --help` or
-`focus engine runtime --help` for the options of each.";
+Run `focus engine graph --help`, `focus engine audit --help`,
+`focus engine runtime --help` or `focus engine state --help` for the
+options of each.";
 
 /// How a command failed.
 pub enum Failure {
@@ -85,10 +91,14 @@ fn main() -> ExitCode {
             Some("graph") => graph::run(&mut args),
             Some("audit") => audit::run(&mut args),
             Some("runtime") => runtime::run(&mut args),
-            Some(other) => {
-                Err(format!("Unknown engine command: {other}. Valid: audit, graph, runtime").into())
+            Some("state") => state::run(&mut args),
+            Some(other) => Err(format!(
+                "Unknown engine command: {other}. Valid: audit, graph, runtime, state"
+            )
+            .into()),
+            None => {
+                Err("Usage: focus engine <command>. Valid: audit, graph, runtime, state".into())
             }
-            None => Err("Usage: focus engine <command>. Valid: audit, graph, runtime".into()),
         },
         // Development aid: answers oracle cases for the parity corpus.
         Some("dev") => match args.next_positional().as_deref() {

@@ -157,6 +157,7 @@ version = "0.1.0"
 dependencies = [
  "focus-audit",
  "focus-js",
+ "focus-workspace",
  "serde_json",
 ]
 

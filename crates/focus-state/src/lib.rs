@@ -17,10 +17,12 @@
 //! Ported from `aidlc-lib.ts`, and held to its answers by the oracle corpus.
 
 pub mod fields;
+pub mod file;
 pub mod oracle;
 pub mod progress;
 
 pub use fields::{get_field, set_field};
+pub use file::{read_state_file, write_state_file};
 pub use progress::{
     Checkbox, CheckboxState, completed_overlay, count_checkboxes, parse_checkboxes,
     parse_stage_suffixes, set_checkbox, set_stage_suffix,
