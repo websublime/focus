@@ -44,7 +44,10 @@ This repository is the source of truth for the code, the plan and the fixtures.
   compared), and a row in the plan.
 - **A file whose path comes from the workspace is not opened by name and
   believed.** Reads and appends go through `focus-workspace::files`, and the
-  directories above the file through `focus-workspace::links`.
+  directories above the file through `focus-workspace::links`. The exception
+  is a file upstream itself opens by name and only reports on (a stage's
+  diary, the compiled runtime graph): it is read the same way, and the module
+  that does so says why nothing is decided by it.
 - **Markdown is read through `focus-markdown`.** What a consumer may act on
   is what a reader of the rendered file sees: nothing scans a document for
   `#`, backticks or `<!--`. A `markdown` answer is judged, not compared:

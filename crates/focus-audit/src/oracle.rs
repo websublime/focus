@@ -32,11 +32,13 @@ use serde_json::{Map, Value, json};
 
 use crate::entry::{Entry, Fields, SHARD_TITLE, render_block, validate};
 use crate::ledger::{Ledger, Machine};
+use crate::memory::parse_memory_headings;
 use crate::read;
 use crate::shards::{ShardText, copied_blocks, parse_shard_events, parse_shard_notes};
+use crate::units::parse_bolt_dag;
 
 /// The kinds of case this crate answers.
-pub const KINDS: [&str; 8] = [
+pub const KINDS: [&str; 10] = [
     "audit_entry",
     "audit_find",
     "audit_field",
@@ -45,6 +47,8 @@ pub const KINDS: [&str; 8] = [
     "field_args",
     "shard_read",
     "ledger",
+    "memory_counts",
+    "bolt_dag",
 ];
 
 /// The machine a `ledger` case is answered as. Neither value is one a case
@@ -82,6 +86,37 @@ pub fn run_case(case: &Value) -> Value {
         }
         "shard_read" => shard_read(case),
         "ledger" => in_scratch_tree_on(case, Some(ORACLE_HOST), |root| ledger(root, case)),
+        "memory_counts" => {
+            let counts = parse_memory_headings(text("raw"));
+            json!({
+                "interpretations": counts.interpretations,
+                "deviations": counts.deviations,
+                "tradeoffs": counts.tradeoffs,
+                "open_questions": counts.open_questions,
+                "total": counts.total(),
+            })
+        }
+        "bolt_dag" => match parse_bolt_dag(text("body")) {
+            Ok(dag) => {
+                let units: Vec<Value> = dag
+                    .units
+                    .into_iter()
+                    .map(|unit| {
+                        let mut row = Map::new();
+                        row.insert("name".to_owned(), json!(unit.name));
+                        row.insert("depends_on".to_owned(), json!(unit.depends_on));
+                        if let Some(kind) = unit.kind {
+                            row.insert("kind".to_owned(), json!(kind));
+                        }
+                        Value::Object(row)
+                    })
+                    .collect();
+                json!({ "ok": true, "units": units, "batches": dag.batches })
+            }
+            Err(unreadable) => {
+                json!({ "ok": false, "reason": unreadable.reason, "detail": unreadable.detail })
+            }
+        },
         other => json!({ "unsupported": other }),
     }
 }

@@ -2,7 +2,7 @@
 
 O projeto chamava-se Sulca até 2026-10-09; o workspace, os crates e o binário passaram a `focus`.
 
-Estado em 2026-10-10, com os marcos M0 e M1 fechados e M2 em curso (cinco fatias de seis; secção 13). Referência: `awslabs/aidlc-workflows` no commit `2a555f7` (v2.11.0, licença MIT-0). Focus é um fork congelado nesse commit; o que o original publicar depois não é seguido.
+Estado em 2026-10-13, com os marcos M0, M1 e M2 fechados (secção 13 para o último). Referência: `awslabs/aidlc-workflows` no commit `2a555f7` (v2.11.0, licença MIT-0). Focus é um fork congelado nesse commit; o que o original publicar depois não é seguido.
 
 ## 1. Resumo
 
@@ -17,7 +17,7 @@ Focus é um engine em Rust para o AI-DLC, nascido como port do engine original e
 - **Plataformas:** Linux, macOS e Windows, com distribuição por `cargo-dist`.
 - **Licença:** MIT.
 
-O que existe hoje são os dois primeiros marcos. M0 deu o compile do grafo. M1 fechou o grafo: seleção de plugins e scopes compostos no compile, escrita no sítio sob um lock de workspace próprio, e todos os verbos de `focus engine graph` (`topo`, `cycles`, `scope`, `artifacts`, `producers`, `consumers`, `validate-scope`, `validate-grid`, `ars`, `resolve`, `export`). Estado, auditoria, guards, hooks e orchestrator ainda não existem.
+O que existe hoje são os três primeiros marcos. M0 deu o compile do grafo. M1 fechou o grafo: seleção de plugins e scopes compostos no compile, escrita no sítio sob um lock de workspace próprio, e todos os verbos de `focus engine graph` (`topo`, `cycles`, `scope`, `artifacts`, `producers`, `consumers`, `validate-scope`, `validate-grid`, `ars`, `resolve`, `export`). M2 trouxe a auditoria (o formato, os shards, o comando `audit`), as settings, o leitor de Markdown e o runtime graph (o comando `runtime`), mais três correções que apareceram pelo caminho (secção 13). Estado, guards, hooks e orchestrator ainda não existem.
 
 Três conclusões condicionam tudo o resto:
 
@@ -87,28 +87,28 @@ Os princípios do original que o desenho em Rust tem de preservar (`AGENTS.md`):
 ## 4. Arquitetura alvo
 
 ```
-focus-cli ✔ ───────────► focus-hooks ──► focus-orchestrate ──► focus-state ──► focus-audit ◐
+focus-cli ✔ ───────────► focus-hooks ──► focus-orchestrate ──► focus-state ◐ ─► focus-audit ✔
     │                        │                  │                   │               │
     │                        ▼                  ▼                   ▼               ▼
     ├──► focus-project   focus-guards      focus-sensors       focus-graph ✔   focus-workspace ✔
     │                        │                  │                   │               │
     └────────────────────────┴──────────────────┴───────────────────┴───────────────┘
                                                 │
-                     focus-harness ✔    focus-markdown    focus-frontmatter ✔    focus-js ✔
+                     focus-harness ✔    focus-markdown ✔  focus-frontmatter ✔    focus-js ✔
 ```
 
 ✔ assinala os crates que já existem; ◐ os que existem em parte.
 
 | Crate | Responsabilidade | Estado |
 | --- | --- | --- |
-| `focus-js` | Semântica JS: espaço em branco, ordenações e colação, ordem de chaves, `JSON.parse` e `JSON.stringify`, impressão e arredondamento de números, regex ECMAScript | Existe |
+| `focus-js` | Semântica JS: espaço em branco, ordenações e colação, ordem de chaves, `JSON.parse` e `JSON.stringify`, impressão e arredondamento de números, regex ECMAScript, `Date.parse` para os timestamps que o engine escreve | Existe |
 | `focus-frontmatter` | Leitores de frontmatter (subconjunto de YAML do original) | Existe |
 | `focus-harness` | Descritores dos três harnesses; mais tarde, os adapters de payload | Descritores existem |
 | `focus-graph` | Schemas, compile do grafo e do grid, scopes compostos, consultas, validação de planos, ARS | Completo para o CLI de `graph` |
 | `focus-workspace` | Projeto e harness de um comando, caminhos, escrita atómica, lock do workspace, recusa de links; mais tarde, settings, spaces e intents | Existe; settings em M2 |
 | `focus-markdown` | Estrutura de blocos Markdown (`markdownBlocks`, `visibleMarkdownLines`) | M2 |
-| `focus-audit` | Shards de auditoria, registo de eventos, runtime graph | Formato existe (M2, fatia 1) |
-| `focus-state` | Ficheiro de estado, máquinas de workflow, fase e stage, criação de intents | M3 |
+| `focus-audit` | Shards de auditoria, registo de eventos, runtime graph | Existe (M2) |
+| `focus-state` | Ficheiro de estado, máquinas de workflow, fase e stage, criação de intents | Existem os leitores de Stage Progress (M2, fatia 6); o resto é M3 |
 | `focus-guards` | Lexer de shell, integridade de runtime, fences, decisões de guard | M4 |
 | `focus-hooks` | Os corpos dos hooks e o dispatcher | M4 e M6 |
 | `focus-orchestrate` | `next` e `report`, diretivas, plan approval, checkpoints | M5 |
@@ -183,12 +183,12 @@ Cada marco fecha com um critério verificável contra o oráculo.
 
 **M1. Grafo completo e workspace.** Feito. Critério cumprido: `focus engine graph compile` escreve no sítio, sob lock, e todos os verbos de `graph` passam o diferencial; ver secção 10. Ficou por fazer a pista paralela opcional (o lexer de shell), que passa para M4, e a fatia de settings de `focus-workspace`, que passa para M2 porque nenhum verbo de `graph` a exige além de um aviso.
 
-**M2. Auditoria, Markdown e settings.**
+**M2. Auditoria, Markdown e settings.** Feito. Critério cumprido: para os mesmos shards, `runtime-graph.json` sai byte a byte igual, e as linhas de auditoria que o compile escreve também, a menos do timestamp; ver secção 13.
 - Settings (`focus.settings.json` nas três camadas, switches gravados). Fecha o limite de M1 nos kill switches.
 - Leitura e escrita de shards, registo dos 117 eventos, compile do runtime graph. Este compile é determinístico mas não é puro: lê o audit log, o ficheiro de estado, o stage graph e os `memory.md`, e acrescenta linhas `MEMORY_EMPTY` à auditoria.
 - `focus-markdown`, com a decisão de parser tomada por medição (risco R1). Substitui o leitor por linhas de `guard_memory` e deixa de haver ficheiros de memória recusados.
 - Critério: para os mesmos shards, `runtime-graph.json` byte a byte igual; linhas de auditoria iguais com relógio injetado.
-- Entra em fatias, cada uma um pull request verificado por si (secção 13).
+- Entrou em fatias, cada uma um pull request verificado por si (secção 13).
 
 **M3. Estado e criação de intents.**
 - Ficheiro de estado, transições (`advance`, `approve`, `reject`, `skip`, `gate-start`, `park`), `intent-create`, `jump`, `validity`, `--status`.
@@ -275,7 +275,7 @@ Duas leituras desta tabela. A mutação do fold-back passou no diferencial grava
 
 **R9. Nomes no conteúdo reutilizado.** Fechado pela decisão 10. Focus adotou o Markdown como seu e renomeou-o: `aidlc` passou a `focus` em nomes de ficheiros, de diretórios e no texto, com a mesma substituição que as ferramentas de paridade aplicam (secção 7). Ficam dois efeitos a vigiar. Primeiro, os dois nomes ordenam de forma diferente em relação a outros (`aidlc` < `bravo` < `focus`): uma árvore com um plugin ou um ficheiro cujo nome caia entre os dois pode ser percorrida noutra ordem por cada motor, e duas mensagens de erro dependem da ordem. Nenhuma árvore do diferencial cai aí, e o diferencial mostrava-o. Segundo, a parte do Markdown que M1 ainda não lê (skills, knowledge, o texto dos harnesses) entra em M8 pelo mesmo mapa; as 408 invocações `{{INVOKE}}` e as 48 por caminho de ferramenta TS precisam de mais do que o mapa, e já estavam no âmbito de M8.
 
-**R10. Peso das fixtures.** `fixtures/` tem 13,7 MB (corpus 7,5, dos quais 2,4 são os documentos de Markdown e as respostas linha a linha; diferencial gravado 4,3; referência 1,9). É o preço de `cargo test` provar paridade sem Bun. Se pesar no repositório, o diferencial gravado comprime bem ou pode viver fora.
+**R10. Peso das fixtures.** `fixtures/` tem 17 MB (corpus 8,6, dos quais 2,4 são os documentos de Markdown e as respostas linha a linha; diferencial gravado 6,6; referência 1,9). É o preço de `cargo test` provar paridade sem Bun. Se pesar no repositório, o diferencial gravado comprime bem ou pode viver fora.
 
 ## 9. Estado de M0
 
@@ -441,7 +441,7 @@ A decisão 3 dizia "cargo toma posse". Li-a como: nada de compatibilidade com o 
 ### Em aberto
 
 1. **`.gitignore` do lock.** `focus/.focus-lock` não deve ser commitado. O instalador (M8) é quem escreve o `.gitignore` do projeto; até lá, quem usar Focus num projeto real acrescenta a linha à mão.
-2. **Peso das fixtures (R10).** 13,7 MB no repositório, ou diferencial gravado fora dele.
+2. **Peso das fixtures (R10).** 17 MB no repositório, ou diferencial gravado fora dele.
 3. **O nome do método na prosa.** O Markdown reutilizado diz "AI-DLC" quando fala do método (por exemplo, "AI-DLC workflow"). Não mexi: é o nome de uma metodologia, não um identificador, e trocá-lo por substituição de texto estraga a gramática ("an AI-DLC" passaria a "an Focus"). Se o queres fora, é uma edição de conteúdo à mão, que cabe em M8 com o resto do Markdown.
 
 ## 12. Como correr
@@ -459,6 +459,10 @@ focus engine audit append ERROR_LOGGED --field Stage=code-generation
 focus engine audit history --limit 20
 focus engine audit --help
 
+focus engine runtime compile        # escreve o runtime-graph.json do registo ativo
+focus engine runtime summary
+focus engine runtime --help
+
 # Com Bun e um clone do original no commit do PIN:
 tools/oracle/refresh.sh ../aidlc-workflows                          # regenera fixtures e grava o diferencial
 python3 tools/oracle/differential.py ../aidlc-workflows --fuzz 600  # os dois motores lado a lado
@@ -467,7 +471,7 @@ python3 tools/oracle/differential.py ../aidlc-workflows --only '^$' --markdown 2
 
 ## 13. Estado de M2
 
-M2 está em curso. O arranque confirmou o que R2 previa: os módulos de M2 não são folhas. `aidlc-audit.ts` importa 35 nomes de `aidlc-lib.ts` e `aidlc-runtime.ts` importa 27, e atrás deles estão a resolução do registo de um intent, o lock de auditoria, bolts, worktrees e a leitura do ficheiro de estado. Por isso M2 entra de baixo para cima, em seis fatias; a segunda partiu-se em duas.
+M2 está feito. O arranque confirmou o que R2 previa: os módulos de M2 não são folhas. `aidlc-audit.ts` importa 35 nomes de `aidlc-lib.ts` e `aidlc-runtime.ts` importa 27, e atrás deles estão a resolução do registo de um intent, o lock de auditoria, bolts, worktrees e a leitura do ficheiro de estado. Por isso M2 entrou de baixo para cima, em seis fatias; a segunda partiu-se em duas, e entre a quinta e a sexta entraram dois pull requests de correções.
 
 | Fatia | O que traz | Como se verifica | Estado |
 | --- | --- | --- | --- |
@@ -479,9 +483,9 @@ M2 está em curso. O arranque confirmou o que R2 previa: os módulos de M2 não 
 | 5. Markdown | `focus-markdown`: a estrutura de um documento linha a linha e as linhas que um consumidor pode ler, com `pulldown-cmark` (R1). Fecha o limite 1 de M1 | Corpus com os goldens do original, o Markdown que ele distribui e documentos gerados; fuzz ao vivo com um terceiro parser a arbitrar | Feita |
 | Entre a 5 e a 6 | `focus-js`: a flag `i` sem `u` compara caracteres como o JavaScript | Corpus: todos os caracteres com caixa como padrão, e os padrões do original | Feita |
 | Antes da 6 | A barreira de observador nas escritas duráveis; `resolve` escreve o plano no registo; a escrita atómica deixa de criar diretórios | Diferencial de comandos | Feita |
-| 6. Runtime graph | `runtime-graph.json` a partir dos shards, do ficheiro de estado e dos `memory.md` | `runtime-graph.json` byte a byte igual | Por fazer |
+| 6. Runtime graph | `runtime-graph.json` a partir dos shards, do ficheiro de estado e dos `memory.md`; `focus engine runtime compile`, `read` e `summary` | Corpus, diferencial de comandos e fuzz de auditorias: `runtime-graph.json` byte a byte igual | Feita |
 
-A fatia 6 lê o ficheiro de estado (`readStateFile`, `parseCheckboxes`, `parseStateStageSuffixes`), que o plano tinha em M3, e os registos de bolts e worktrees, que estão adiados. Porta-se só o leitor de estado de que o compile precisa; o resto do ficheiro de estado continua em M3. Se a fatia de leitura se revelar inseparável das transições, a fatia 6 passa para depois do arranque de M3 e M2 fecha com as cinco primeiras.
+A fatia 6 precisava do ficheiro de estado, que o plano tinha em M3, e de bolts e worktrees, que estão adiados. A leitura revelou-se separável: o compile só lê o campo `Scope`, e o resumo as linhas de checkbox (`parseCheckboxes`, `parseStateStageSuffixes`), duas funções sem dependências. Portaram-se essas, para o crate `focus-state`, que assim começa aqui; o resto do ficheiro de estado continua em M3. Dos bolts, o compile só lê eventos da auditoria; o que mexe em worktrees (`fragment-fork`, `fragment-merge`) ficou recusado pelo nome.
 
 ### Fatia 1: formato do registo
 
@@ -822,3 +826,89 @@ Desvios, os dois já declarados noutros comandos e agora também em `resolve`:
 | `resolve` com uma linha do registo de intents que não se lê | Falha com o que o runtime diz do valor (`undefined is not an object`) | Diz que ficheiro e o que uma linha precisa. Os dois falham antes de imprimir |
 
 O que isto não tem: as outras primitivas com barreira no original (`writeStateFile`, `writeBufferAtomic`, `removeRecordFileNoFollow`, `clearSummaryAuthorization`, a transação da diretiva ativa) pertencem a módulos por portar e trazem a sua chamada quando entrarem. A regra fica em `CLAUDE.md`.
+
+### Fatia 6: runtime graph
+
+`stage-graph.json` diz que stages existem e como dependem uns dos outros. O runtime graph é o seu par para um workflow em curso: que stages começaram e quando, quais foram aprovados, quem os conduziu, quantas entradas tem o diário de cada um, que sensores dispararam e como acabou cada disparo, o que se aprendeu em cada gate e, num stage construído por vários bolts em paralelo, uma linha por bolt. Os gates, o ciclo de vida e o resumo da sessão leem-no em vez de percorrerem a auditoria.
+
+Nada nele é decidido: cada campo é uma leitura da auditoria, do ficheiro de estado e dos diários, e compilar duas vezes a mesma auditoria dá os mesmos bytes. O "agora" nunca é o relógio; é o timestamp mais recente que a auditoria tem.
+
+**O comando.** `focus engine runtime` é o `aidlc-runtime.ts` do original:
+
+- `compile` lê todos os shards do registo ativo, o ficheiro de estado, os `memory.md` dos stages e o bloco de units, e escreve `runtime-graph.json` no registo. Escreve ainda um evento `MEMORY_EMPTY` por cada stage aprovado com o diário vazio, uma vez por aprovação, e as duas escritas acontecem dentro do mesmo lock, o evento primeiro.
+- `read <stage>` imprime a linha de um stage.
+- `summary [--json]` imprime os números do grafo: stages por resultado e por fase, entradas de diário por tipo, sensores por desfecho, aprendizagens, duração. As skills de sessão tiram daqui todos os números que mostram, para que nenhum modelo conte nada.
+
+**O que existe.**
+
+- `focus-audit::runtime_graph`: a leitura. Não toca em ficheiros: recebe a auditoria como texto e duas maneiras de perguntar (onde está um stage no stage graph, o que tem o diário de um stage) e devolve o grafo, os diários vazios a registar e o que o original diria no stderr. É aqui que estão as regras: o workflow é o último iniciado; a linha de um stage é o seu início mais recente e a conclusão que se lhe segue; um `--single` não entra; num stage de Construction com dois ou mais bolts bifurcados dentro da sua janela, cada bolt tem a sua linha e o stage herda o pior resultado; um disparo emparelha com o seu desfecho pelo `Fire id`, nunca pela posição; num stage fechado, um disparo sem desfecho é `incomplete`, e num stage aberto só o é passado um minuto.
+- `focus-audit::memory`: as contagens de um diário (`parseMemoryHeadings`).
+- `focus-audit::units`: o bloco `units:` de `unit-of-work-dependency.md` e a ordem em que as units podem ser construídas (`parseBoltDag`), com o scanner do original, que não usa um parser de YAML.
+- `focus-audit::summary`: os números e a página.
+- `focus-state`, o crate do ficheiro de estado, começa aqui com o que o resumo precisa: as linhas de checkbox de Stage Progress (`parseCheckboxes`, `parseStateStageSuffixes`) e o que um workflow completo diz dos seus stages. O resto do ficheiro de estado é M3.
+- `focus-js::date`: `Date.parse`, para os timestamps que o engine escreve (ver abaixo).
+
+**`Date.parse`.** O original pergunta ao JavaScript há quanto tempo disparou um sensor e quanto durou um workflow. O `Date.parse` lê o formato de data do ECMAScript e, quando o texto não está nele, passa-o a um segundo parser, permissivo, cujas regras são do runtime e cuja resposta pode depender do fuso da máquina. Medido no Bun: `2026-02-29T00:00:00Z` é o dia 1 de março; um `t` minúsculo serve; um texto sem fuso é lido na hora local; uma fração de dez ou mais dígitos é lida por regras próprias (`.0674309079` dá 674 milissegundos).
+
+Focus responde por uma forma só, a de todos os timestamps que o engine escreve: `AAAA-MM-DDTHH:MM[:SS[.fração]](Z|±HH:MM)`, numa data que o calendário tem, com fração de um a nove dígitos. Sabe mais uma coisa: um texto sem nenhum dígito não é data para parser nenhum, o que cobre o que as pessoas de facto deixam no lugar de um timestamp (uma palavra, nada). Para tudo o resto não tem resposta, e quem precisar dela recusa.
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Corpus, tipo `instant` | 19 casos, 1 831 textos (1 096 são datas, 735 não): instantes da forma, com datas de fim de mês e de 29 de fevereiro, anos de 0000 a 9999, frações de 1 a 9 dígitos e fusos até ±23:59; textos partidos de onze maneiras; palavras sem dígitos. 0 diferenças do Bun |
+| Corpus, tipo `memory_counts` | 242 diários, com os quatro títulos e as suas variantes, fences, citações, comentários, BOM, CRLF e as doze linhas que são nomes de membros de `Object.prototype`. 0 diferenças |
+| Corpus, tipo `bolt_dag` | 333 documentos: os legíveis, com uma ou várias levas e com `kind`, e cada uma das catorze recusas. 0 diferenças |
+| Corpus, tipo `progress` | 180 ficheiros de estado. 0 diferenças |
+| Diferencial, `runtime/*` | 138 verificações com nome: 95 iguais, 43 desvios, 0 diferentes. Comparam o que cada comando diz e todos os ficheiros do workspace que cria ou muda, `runtime-graph.json` byte a byte |
+| Fuzz, `fuzz/runtime` | 3 600 auditorias aleatórias em seis seeds, corridas depois das correções da revisão (workflows como um engine os regista, com ruído por cima: qualquer evento a qualquer hora, rótulos escritos de todas as maneiras, vários shards, CRLF), cada uma compilada duas vezes, resumida e lida: 0 diferentes. Tinham 13 269 stages (2 143 construídos por bolts, com 5 557 bolts), 22 389 disparos de sensores dos quatro desfechos, 3 187 stages com aprendizagens, 4 205 com diário, e os dois motores escreveram 2 891 eventos `MEMORY_EMPTY` cada. O fuzz imprime estes números, para se ver o que comparou |
+| Mutações | 114, em três rondas (62, 23 e, depois da revisão, 29). Passaram 18, 1 e 2; cada uma deu um teste, um caso de corpus ou a remoção de código que estava a mais, e repetida é apanhada. Fica uma, equivalente: no leitor do bloco de units, retomar a procura na linha que fecha o bloco em vez de na seguinte (essa linha não abre bloco nenhum) |
+| Diferencial completo | 1 631 verificações com nome: 1 544 iguais, 87 desvios, 0 diferentes. 1 618 gravadas, sobre 259 árvores |
+| `cargo test` | 262 testes |
+
+**O limite de desvios na gravação mudou.** Um desvio é gravado e não é repetido por `cargo test`, por isso uma gravação feita sobretudo de desvios provaria pouco, e há um teste que o vigia. Exigia menos de um vigésimo do total; com esta fatia a gravação tem 83 em 1 618, acima disso, porque o `runtime` tem muitas recusas declaradas (41 das suas 136 verificações gravadas: cada forma de ficheiro que o engine não escreveu, cada timestamp que não lê). O teste passou a exigir menos de um décimo no total e, comando a comando, no máximo um terço. Foi o limite que mudou, não as verificações: cada desvio continua a ter o seu teste marcado, que corre sem Bun.
+
+**Pormenores do original que ficam iguais**, porque o grafo é comparado byte a byte:
+
+- Num diário, uma linha que seja exatamente `constructor`, `toString` ou outro nome que todo o objeto JavaScript herda fecha a secção em que está: o original procura a linha num objeto simples com `in`. As entradas a seguir não contam para nada até ao próximo título.
+- O caminho do diário numa linha do grafo, quando não há intent, é o do space `default`, seja qual for o space ativo.
+- `**Stage**:` sem valor lê o valor da linha seguinte (`\s*` atravessa a quebra de linha).
+- O ficheiro de identidade de um clone novo é criado por um compile que tenha um `MEMORY_EMPTY` a escrever, como por qualquer append.
+
+**Desvios deliberados.** Cada um tem um teste marcado, uma entrada em `DEVIATIONS` e uma linha aqui.
+
+| | Original | Focus |
+| --- | --- | --- |
+| Sensor sem desfecho num stage aberto, com um timestamp (o dele ou o mais recente da auditoria) que tem dígitos e não é um instante com fuso | Pergunta ao `Date.parse`: lê muitas formas pelas regras do runtime e, sem fuso, na hora local da máquina | Recusa o compile e diz que timestamp não leu. Uma palavra no lugar do timestamp não é data para nenhum dos dois, e o disparo fica de fora nos dois |
+| `summary` com um timestamp desses no início do workflow ou na última conclusão | A duração é a diferença de dois `Date.parse` | Recusa, pela mesma razão |
+| `runtime-graph.json` que não tem a forma que o engine escreve | Falha com o que o runtime diz do valor (`undefined is not an object`), conta debaixo de um nome que não é resultado, ou lê sem dizer nada (uma contagem que é texto, aprendizagens ou contagens de diário que não são um objeto, contagens cuja soma passa do maior inteiro exato) | Diz que o ficheiro não é um runtime graph, o que tem de errado e como o escrever de novo |
+| Uso | Lista `fragment-fork` e `fragment-merge` | Lista os verbos que tem; recusa esses dois pelo nome (vêm com bolts e worktrees) |
+| Argumento desconhecido, flag repetida, flag sem o seu valor | Ignorados (sem valor, `--project-dir` é o diretório corrente) | Recusados |
+| `FOCUS_METRICS_ENDPOINT` definido e um `MEMORY_EMPTY` a escrever | Envia a métrica | Recusa o append, e com ele o compile: não escreve evento nem grafo. Sem evento a escrever, compila |
+| Sessões registadas por processo; worktree delegada; claim de unit | Resolve cada um | Recusa, como no comando `audit` (os mesmos três desvios, pelas mesmas funções) |
+| `stage-graph.json` que não tem a forma que o compile escreve: um stage que o workflow usou sem fase em texto; num resumo, uma fase que não é texto; uma linha `null`; um ficheiro que não é uma lista | Falha com o que o runtime diz do valor (`The "paths[1]" property must be of type string, got undefined`, `null is not an object (evaluating 's.enabled')`) ou, no resumo, conta o stage debaixo do valor escrito como texto (`7`) | Diz que o stage graph não é o que o compile escreveu e como o compilar de novo. O que o compile podia ter escrito lê-se como no original: um slug em duas linhas é a segunda; um stage sem fase que o workflow não usou não impede nada; num resumo, sem fase é `unknown` |
+| Fase com nome de membro de objeto (`constructor`) num resumo | Guarda as fases num objeto simples: conta o stage no valor herdado e não lista a fase | Lista-a como qualquer outra |
+| JSON que o `JSON.parse` lê e o leitor de Focus não guarda: um número que não cabe num double (`1e400`), metade de um par de substituição escrita com escape (`"\ud800"`), mais de 127 níveis | Lê | Diz que o ficheiro não é JSON que leia. Vale para todo o JSON que Focus lê e está fixado em `focus-js` |
+| O diretório do workspace é um link | Deixa de fora os shards atrás do link, não vê workflow nenhum e escreve um grafo vazio através dele | Não toma o lock nem escreve através de um link, e diz qual é |
+| Barra invertida no caminho do projeto | O leitor de shards toma-a por separador, não encontra nenhum e compila um grafo sem stages | É um carácter do nome, e a auditoria é lida |
+
+**O que a fatia 6 não tem.**
+
+- **`fragment-fork` e `fragment-merge`.** Copiam o grafo para a worktree de um bolt e retiram-no. Entram com bolts e worktrees.
+- **Quem chama o compile.** No original é o hook de `PostToolUse` depois de cada evento que faz avançar um workflow; os hooks são M4 e M6. Até lá o comando existe e corre à mão.
+- **A métrica de cada evento** (`tapAuditMetric`), como no comando `audit`.
+- **`Date.parse` fora da forma.** As outras formas que o Bun lê não estão portadas e não vão estar: as regras são do runtime e, sem fuso, da máquina. Um timestamp escrito pelo engine nunca cai aqui.
+- **O stage graph de outro projeto.** O original lê o `stage-graph.json` que está ao lado da ferramenta (ou o que `AIDLC_STAGE_GRAPH` indicar, uma costura de testes que Focus não tem), seja qual for o `--project-dir`; Focus é um binário e lê o do projeto que lhe indicam. Num projeto instalado são o mesmo ficheiro. Lido, não medido: o diferencial corre sempre a ferramenta do próprio projeto.
+- **O registo é escolhido uma vez.** O original volta a resolver o registo ativo em cada caminho que calcula; Focus resolve-o no início do comando. Só se nota se o cursor mudar a meio de um compile.
+- **Caminhos gravados com letra de drive e sem raiz** (`C:wt\a`, no Windows). O original resolve-os contra o diretório corrente desse drive; Focus contra o projeto. Lido, não medido: o diferencial corre em Linux.
+- **As palavras de um erro do sistema.** Quando um ficheiro do registo não se consegue ler (um diretório no lugar dele, falta de permissão), os dois motores falham no mesmo passo e cada um diz o erro com as palavras do seu runtime. O diferencial compara o passo, o código de saída e os ficheiros, não essas palavras.
+
+**Revisão independente.** Antes do pull request, a fatia foi lida por um revisor que não a escreveu, com o original a correr ao lado. Reproduziu dezanove diferenças e apontou mais cinco só por leitura; nenhuma estava no que o corpus, o diferencial e o fuzz comparavam, todas em entradas que eles não geravam. Correu ainda 283 casos seus sobre campos e separadores, diários, bolts e sensores, units, ficheiro de estado, auditorias grandes ou em codificações erradas e ficheiros que são diretórios, sem encontrar outra diferença.
+
+- **Corrigidas** (Focus fazia diferente do original sem razão): um slug em duas linhas do stage graph (ganha a segunda); o caminho do diário quando a fase parece um caminho absoluto ou o slug é `..` (as partes juntam-se como no `join` do Node, sem recomeçar na raiz); `--project-dir` com um `..` depois de um link, que fazia Focus escrever um grafo vazio por cima do grafo certo (o caminho do projeto passa a ser resolvido no texto, como no original, antes de qualquer leitura); um observador deixava `focus/.focus-lock` criado (um observador já não toma o lock, porque vai ser recusado na escrita); `learnings_captured` e `memory_breakdown` com um valor que não é objeto nem `null`, e contagens que somadas passam do maior inteiro exato, eram lidos em silêncio (são recusados como grafo que o engine não escreveu); uma linha `null` no stage graph era saltada (é recusada).
+- **Declaradas**: as seis linhas do fim da tabela de desvios, cada uma com o seu teste, a sua entrada em `DEVIATIONS` e a sua verificação no diferencial.
+- **Anotadas** em "o que a fatia 6 não tem": quatro das que só se leram. A quinta é o parágrafo a seguir a este.
+
+Da revisão saíram ainda verificações para o que estava certo e ninguém media: o "agora" da auditoria (move-o um início de stage ou uma linha de sensor, e mais nenhuma), disparos sem desfecho dentro de bolts abertos e fechados, dois desfechos no mesmo instante, nomes de bolts fora do plano básico (a ordem é por unidade UTF-16), e um diretório no lugar de cada ficheiro que o compile lê ou escreve. Uma das verificações que já existiam para o "agora" não media nada (o disparo tinha trinta segundos nos dois casos) e foi corrigida.
+
+**Os ficheiros do registo abrem-se pelo nome.** O ficheiro de estado, os diários, o bloco de units e o grafo compilado são lidos como o original os lê aqui, com `readFileSync`, seguindo links. O que contêm não decide nada: o grafo é uma leitura, e tudo o que tem autoridade volta a ser lido da auditoria, cujos shards são abertos sem confiar no caminho. A regra de `CLAUDE.md` sobre ficheiros do workspace diz agora a que ficheiros se aplica.

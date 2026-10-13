@@ -38,13 +38,52 @@ pub fn resolve_project_dir(explicit: Option<&Path>) -> Result<PathBuf> {
                 .map(PathBuf::from)
         });
     if let Some(dir) = named {
-        return Ok(cwd.join(dir));
+        // Settled by reading the path, as every path upstream joins onto its
+        // project is: `a/link/..` is `a`, wherever the link leads.
+        return Ok(settled(&cwd.join(dir)));
     }
     Ok(cwd
         .ancestors()
         .find(|dir| !installed_harnesses(dir).is_empty())
         .unwrap_or(&cwd)
         .to_path_buf())
+}
+
+/// `path.resolve`: `path` made absolute, with `.` and `..` settled by reading
+/// the path, not the disk.
+#[must_use]
+pub fn settled(path: &Path) -> PathBuf {
+    let absolute = std::path::absolute(path).unwrap_or_else(|_| path.to_path_buf());
+    let mut settled = PathBuf::new();
+    for component in absolute.components() {
+        match component {
+            std::path::Component::ParentDir => {
+                settled.pop();
+            }
+            std::path::Component::CurDir => {}
+            other => settled.push(other),
+        }
+    }
+    settled
+}
+
+/// `path.join(base, ...parts)`: the parts put after `base` one by one and
+/// the whole settled by reading it. Unlike [`Path::join`], a part that looks
+/// absolute does not start over: it goes under what came before, as in
+/// upstream's `join`.
+#[must_use]
+pub fn joined(base: &Path, parts: &[&str]) -> PathBuf {
+    let mut path = base.to_path_buf();
+    for part in parts {
+        for component in Path::new(part).components() {
+            match component {
+                std::path::Component::Normal(name) => path.push(name),
+                std::path::Component::ParentDir => path.push(".."),
+                _ => {}
+            }
+        }
+    }
+    settled(&path)
 }
 
 /// The harnesses installed in `project`: each supported harness whose
@@ -272,6 +311,33 @@ mod tests {
         fn drop(&mut self) {
             let _ = std::fs::remove_dir_all(&self.0);
         }
+    }
+
+    // The paths are a Unix machine's.
+    #[cfg(unix)]
+    #[test]
+    fn a_path_is_settled_by_reading_it() {
+        let settled = |path: &str| settled(Path::new(path));
+        assert_eq!(settled("/a/b/../c/./d/"), Path::new("/a/c/d"));
+        assert_eq!(settled("/a/../../b"), Path::new("/b"));
+        assert_eq!(settled("/"), Path::new("/"));
+        // A relative path is under the current directory.
+        let cwd = std::env::current_dir().unwrap();
+        assert_eq!(settled("x/../y"), cwd.join("y"));
+        assert_eq!(settled("."), cwd);
+        // The disk is not asked: a link on the way is a name like any other.
+        let tree = Tree::new("settled");
+        std::fs::create_dir_all(tree.0.join("real/inner")).unwrap();
+        std::os::unix::fs::symlink(tree.0.join("real/inner"), tree.0.join("link")).unwrap();
+        assert_eq!(super::settled(&tree.0.join("link/..")), tree.0);
+
+        let joined = |parts: &[&str]| joined(Path::new("/base/dir"), parts);
+        assert_eq!(joined(&["a", "b"]), Path::new("/base/dir/a/b"));
+        assert_eq!(joined(&["/abs", "b"]), Path::new("/base/dir/abs/b"));
+        assert_eq!(joined(&["a", "..", "b"]), Path::new("/base/dir/b"));
+        assert_eq!(joined(&["..", "..", "..", "x"]), Path::new("/x"));
+        assert_eq!(joined(&["a/../b", "./c"]), Path::new("/base/dir/b/c"));
+        assert_eq!(joined(&[]), Path::new("/base/dir"));
     }
 
     #[test]

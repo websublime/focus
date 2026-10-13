@@ -23,6 +23,7 @@ focus-graph.workspace = true
 focus-harness.workspace = true
 focus-js.workspace = true
 focus-markdown.workspace = true
+focus-state.workspace = true
 focus-workspace.workspace = true
 
 [dev-dependencies]

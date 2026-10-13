@@ -347,7 +347,9 @@ RECORDED_CHECKS = {}
 LARGE = 3000
 
 
-def relevant_files(root):
+def relevant_files(root, hidden=False):
+    """The files of a tree a recording keeps. The graph verbs read none of the engine's own dot-files, so those
+    are left out unless `hidden`: the runtime command reads the clone's identity."""
     found = {}
     # A settings path can hold a directory where the file goes; walking a file finds nothing.
     for directory in (*BASE_DIRS, "p", "machine", "aidlc.settings.json", "aidlc.settings.local.json"):
@@ -355,7 +357,7 @@ def relevant_files(root):
             for name in names:
                 path = os.path.join(folder, name)
                 rel = os.path.relpath(path, root)
-                if os.path.islink(path) or "/.aidlc-" in f"/{rel}" and "composer-proposal" not in rel:
+                if os.path.islink(path) or (not hidden and "/.aidlc-" in f"/{rel}" and "composer-proposal" not in rel):
                     continue
                 found[rel] = path
     for rel in (*BASE_FILES, "aidlc.settings.json", "aidlc.settings.local.json"):
@@ -374,22 +376,23 @@ def has_links(root):
 _base_cache = {}
 
 
-def overlay(tree):
+def overlay(tree, hidden=False):
     """`tree` as its difference from the base: {relative path: text, or None when removed}."""
     import hashlib
-    if not _base_cache:
-        for rel, path in relevant_files(DIST).items():
+    base = _base_cache.setdefault(hidden, {})
+    if not base:
+        for rel, path in relevant_files(DIST, hidden).items():
             with open(path, "rb") as handle:
-                _base_cache[rel] = handle.read()
+                base[rel] = handle.read()
     now = {}
-    for rel, path in relevant_files(tree.root).items():
+    for rel, path in relevant_files(tree.root, hidden).items():
         with open(path, "rb") as handle:
             now[rel] = handle.read()
     diff = {}
     for rel, data in now.items():
-        if _base_cache.get(rel) != data:
+        if base.get(rel) != data:
             diff[rel] = data.decode("utf-8")
-    for rel in _base_cache:
+    for rel in base:
         if rel not in now:
             diff[rel] = None
     # Stored under Focus's names, like the base the replay starts from.
@@ -437,8 +440,8 @@ def run_queued(quiet=False):
 
 
 def compare(name, trees, args, env, stdin, files):
-    if files == "audit":
-        return compare_audit(name, trees, args, env)
+    if files in ("audit", "runtime"):
+        return compare_audit(name, trees, args, env, files)
     ts, rs = trees
     outcome = {}
     started_from = overlay(ts) if RECORD and not has_links(ts.root) else None
@@ -1223,6 +1226,18 @@ RECORD_DIR = "aidlc/spaces/default/intents/add-login-1a2b3c4d"
 
 def normalise_audit(text, tree, engine):
     text = without_tree(text, tree)
+    # The runtime command names itself at the start of what it says on standard error.
+    text = re.sub(r"^%s(?=[ :])" % ("aidlc-runtime" if engine == "ts" else "focus runtime"), "runtime", text,
+                  flags=re.M)
+    text = text.replace("Run aidlc-runtime --help", "Run <cli> runtime --help")
+    text = text.replace("Run focus engine runtime --help", "Run <cli> runtime --help")
+    text = re.sub(r"^(runtime (?:read|summary): )(?:JSON Parse error: [^\n]*|[^\n]* at line \d+ column \d+)$",
+                  r"\1<runtime>", text, flags=re.M)
+    # A file that turns out to be a directory: each runtime's own words for it.
+    text = re.sub(r"^(runtime \w+: )(?:EISDIR: [^\n]*|[^\n]*: Is a directory \(os error 21\))$", r"\1<runtime>", text,
+                  flags=re.M)
+    for pattern, replacement in RUNTIME_TEXT:
+        text = re.sub(pattern, replacement, text, flags=re.M)
     text = text.replace("Usage: aidlc-audit ", "Usage: <cli> audit ").replace("Usage: focus engine audit ",
                                                                              "Usage: <cli> audit ")
     for tool in ("orchestrate", "log"):
@@ -1295,19 +1310,23 @@ def audit_pair(name, files, links=(), hard_links=()):
     return trees
 
 
-def run_audit(engine, tree, args, env):
+def run_audit(engine, tree, args, env, tool="audit"):
     full = dict(os.environ)
     for key in list(full):
         if key.startswith(("AIDLC_", "FOCUS_")) or key == "CLAUDE_PROJECT_DIR":
             del full[key]
     # `{P}` in an argument is the project's own location.
     args = [arg.replace("{P}", tree.root) for arg in args]
+    # A step that says where the project is says it itself.
+    where = [] if "--project-dir" in args else ["--project-dir", tree.root]
     if engine == "ts":
         full.update({f"AIDLC_{k}": v for k, v in (env or {}).items()})
-        command = [BUN, AUDIT_TOOL, *args, "--project-dir", tree.root]
+        # The runtime tool reads the stage graph beside it, so it is run from the tree's own installation.
+        script = AUDIT_TOOL if tool == "audit" else tree.path(f".claude/tools/aidlc-{tool}.ts")
+        command = [BUN, script, *args, *where]
     else:
         full.update({f"FOCUS_{k}": to_focus(v) for k, v in (env or {}).items()})
-        command = [FOCUS, "engine", "audit", *map(to_focus, args), "--project-dir", tree.root, "--harness", "claude"]
+        command = [FOCUS, "engine", tool, *map(to_focus, args), *where, "--harness", "claude"]
     done = subprocess.run(command, cwd=tree.root, env=full, capture_output=True, text=True, timeout=120)
     return done.returncode, done.stdout, done.stderr
 
@@ -1326,18 +1345,19 @@ def audit_check(name, files, steps, env=None, links=(), hard_links=(), group="au
     JOBS.append((name, audit_pair(name, files, links, hard_links), steps, env, None, "audit"))
 
 
-def compare_audit(name, trees, steps, env):
+def compare_audit(name, trees, steps, env, tool="audit"):
     ts, rs = trees
     outcome, shaped = {}, False
     started_from = None
     if RECORD and not has_links(ts.root) and name not in UNRECORDED and not name.startswith("fuzz/"):
-        started_from = workspace_files(ts, "")
+        # An audit check starts from nothing but its files; a runtime check from an installed project.
+        started_from = workspace_files(ts, "") if tool == "audit" else overlay(ts, hidden=True)
     for engine, tree in (("ts", ts), ("rs", rs)):
         say = to_focus if engine == "ts" else (lambda text: text)
         before = workspace_files(tree)
         exits, outs, errs = [], [], []
         for args in steps:
-            code, out, err = run_audit(engine, tree, args, env)
+            code, out, err = run_audit(engine, tree, args, env, tool)
             if engine == "ts" and code != 0:
                 sentence = uncaught(err)
                 if sentence is not None:
@@ -1351,6 +1371,8 @@ def compare_audit(name, trees, steps, env):
                                   for index, part in enumerate(parts)))
         outcome[engine] = {"exit": ",".join(exits), "stdout": mark(outs), "stderr": mark(errs)}
         after = workspace_files(tree)
+        if engine == "ts" and name.startswith("fuzz/runtime"):
+            seen_in_graphs(after)
         for rel in sorted(set(before) | set(after)):
             if before.get(rel) == after.get(rel):
                 continue
@@ -1378,10 +1400,13 @@ def compare_audit(name, trees, steps, env):
         verdict, detail = "DIFFERENT", "\n           ".join(problems)
     if started_from is not None:
         import hashlib
-        key = hashlib.sha256(json.dumps(started_from, sort_keys=True).encode()).hexdigest()[:16]
-        RECORDED_TREES[key] = started_from
+        if tool == "audit":
+            key = hashlib.sha256(json.dumps(started_from, sort_keys=True).encode()).hexdigest()[:16]
+            RECORDED_TREES[key] = started_from
+        else:
+            key = started_from
         RECORDED_CHECKS[name] = {
-            "name": name, "tool": "audit", "base": "empty", "tree": key,
+            "name": name, "tool": tool, "base": "empty" if tool == "audit" else "installed", "tree": key,
             "steps": [[to_focus(arg) for arg in args] for args in steps], "args": [],
             "env": {key_: to_focus(value) for key_, value in (env or {}).items()},
             "stdin": None, "writes": True,
@@ -1644,6 +1669,676 @@ def audit_checks():
            hard_links=[("backup-of-shard.md", f"{RECORD_DIR}/audit/laptop-abc123.md")])
 
 
+# --------------------------------------------------------------------------
+# The runtime command.
+#
+# A check is an installed project (the stage graph is the harness's own) with
+# the files the check names laid over it, and one or more commands run on it
+# in order, compared like an audit check: what each command said, and every
+# file of the workspace it created, changed or removed.
+# --------------------------------------------------------------------------
+
+STATE = "# AI-DLC State\n\n- **Scope**: feature\n- **Status**: In Progress\n"
+T = lambda minute, second=0: f"2026-01-05T10:{minute:02d}:{second:02d}Z"
+STARTED_ROW = lambda minute, stage, *fields: block("STAGE_STARTED", T(minute), f"**Stage**: {stage}", *fields)
+COMPLETED_ROW = lambda minute, stage, *fields: block("STAGE_COMPLETED", T(minute), f"**Stage**: {stage}", *fields)
+WORKFLOW = block("WORKFLOW_STARTED", T(0), "**Scope**: bugfix")
+SHARD = f"{RECORD_DIR}/audit/laptop-abc123.md"
+DIARY = lambda phase, stage: f"{RECORD_DIR}/{phase}/{stage}/memory.md"
+A_DIARY = ("# Memory\n\n## Interpretations\n- 2026-01-05T10:01:00Z — read it as X; because Y\n\n## Deviations\n\n"
+           "## Tradeoffs\n- one\n- two\n\n## Open questions\n> none yet\n")
+UNITS = f"{RECORD_DIR}/inception/units-generation/unit-of-work-dependency.md"
+A_UNITS = ("# Dependencies\n\n```yaml\nunits:\n  - name: api\n    depends_on: [auth]\n  - name: auth\n    kind: service\n"
+           "    depends_on: []\n  - name: web\n    depends_on:\n      - api\n```\n")
+FIRED = lambda minute, second, stage, fire, sensor="linter", *fields: block(
+    "SENSOR_FIRED", T(minute, second), f"**Stage slug**: {stage}", f"**Sensor ID**: {sensor}", f"**Fire id**: {fire}",
+    *fields)
+ENDED = lambda kind, minute, second, fire, *fields: block(f"SENSOR_{kind}", T(minute, second), f"**Fire id**: {fire}",
+                                                          *fields)
+FORKED = lambda minute, bolt, *fields: block("STATE_FORKED", T(minute), f"**Bolt slug**: {bolt}", *fields)
+MERGED = lambda minute, bolt: block("STATE_MERGED", T(minute), f"**Bolt slug**: {bolt}")
+A_WORKFLOW = (TITLE + WORKFLOW + STARTED_ROW(1, "intent-capture", "**Agent**: someone-else") +
+              COMPLETED_ROW(5, "intent-capture") + STARTED_ROW(6, "requirements-analysis") +
+              COMPLETED_ROW(9, "requirements-analysis") + STARTED_ROW(10, "code-generation"))
+
+
+def runtime_check(name, files, steps, env=None, edits=(), group="runtime"):
+    """Queue one runtime check: `steps` run in order on an installed project holding `files`."""
+    name = f"{group}/{name}"
+    if ONLY and not re.search(ONLY, name):
+        return
+    lay = lambda tree: [tree.write(rel, text) for rel, text in files.items()]
+    JOBS.append((name, pair(name, lay, *edits), steps, env, None, "runtime"))
+
+
+DEVIATIONS.update({
+    "runtime/usage/none":
+        "upstream's usage lists fragment-fork and fragment-merge; focus lists the verbs it has",
+    r"runtime/usage/fragment_(fork|merge)":
+        "copying the runtime graph into a bolt's worktree comes with bolts and worktrees, which focus has not "
+        "ported; it refuses both verbs by name",
+    r"runtime/usage/(stray_argument|flag_twice|flag_without_its_value)":
+        "upstream ignores what it does not use (an argument it does not know, a flag given twice, a flag with no "
+        "value); focus refuses it",
+    r"runtime/(compile|summary)/stage_graph_(phase_missing|phase_not_text|null_row|not_a_list)":
+        "on a stage-graph.json that is not shaped as the compile writes it, upstream fails with what its runtime "
+        "says of the value, or (summary, a phase that is not text) counts under the value's name; focus says "
+        "the stage graph is not one the compile wrote",
+    "runtime/summary/phase_named_like_an_object_member":
+        "upstream keeps the phases of a summary in a plain object, so a phase named after something every object "
+        "inherits (`constructor`) is not listed; focus lists it like any other",
+    r"runtime/read/json_(number_out_of_range|half_pair_escape|nested_deeper_than_127)":
+        "three things JSON.parse reads and focus's JSON reader refuses: a number no double holds (1e400), an "
+        "escaped half of a surrogate pair, and nesting deeper than 127 levels. focus says the file is not JSON it "
+        "reads",
+    "runtime/compile/workspace_is_a_link":
+        "with the workspace directory a link, upstream leaves out the shards behind it and writes an empty graph "
+        "through the link; focus takes no lock and writes nothing through a link",
+    "runtime/compile/project_path_with_a_backslash":
+        "with a backslash in the project's path, upstream's shard reader takes it for a separator, finds no shard "
+        "and compiles an empty graph; focus reads the ledger",
+    "runtime/compile/metrics_endpoint":
+        "upstream sends a metric for the MEMORY_EMPTY event to the configured endpoint; focus has no metrics yet "
+        "and refuses the append, and with it the compile, instead of leaving the endpoint without what it expects",
+    r"runtime/(compile|read|summary)/sessions_by_process":
+        "upstream walks the process tree to find which conversation is calling; focus refuses and asks for the "
+        "session",
+    "runtime/compile/delegated_worktree":
+        "upstream resolves a delegated worktree to the main checkout's intent; focus does not work with "
+        "worktrees yet and refuses while the marker exists",
+    "runtime/compile/unit_claim":
+        "upstream ignores a unit claim that does not apply and otherwise lets it name the shard; focus does not "
+        "work with units yet and refuses while the claim file exists",
+    r"runtime/compile/orphan_(no_zone|junk_after|latest_no_zone|leap_day|long_fraction|date_only)":
+        "whether a sensor that never ended counts as incomplete in an open stage depends on how long ago it fired, "
+        "and upstream asks JavaScript's Date.parse, which reads many forms by the runtime's own rules and in the "
+        "machine's time zone. focus reads an instant written with its zone on a real date, knows that a text "
+        "with no digit is no date, and refuses the compile when the timestamp it needs is anything else",
+    r"runtime/(read|summary)/not_a_graph_.*":
+        "on a runtime-graph.json that is not shaped as the engine writes it, upstream fails with what its runtime "
+        "says of the value, counts under names that are no outcome, or reads it without a word (a count that is "
+        "text, learnings or a breakdown that is no object, counts whose sum no number holds exactly); focus says "
+        "the file is not a runtime graph and how to write it again",
+    r"runtime/summary/duration_(no_zone|date_only)":
+        "the duration is a difference of two Date.parse answers upstream; focus refuses a timestamp it does not "
+        "read (see the orphan checks)",
+})
+
+
+def runtime_checks():
+    check_ = runtime_check
+    record = {**RECORD_FILES, f"{RECORD_DIR}/aidlc-state.md": STATE}
+    compiled = [["compile"], ["read", "intent-capture"], ["summary", "--json"], ["summary"]]
+
+    # Usage.
+    check_("usage/none", {}, [[]])
+    check_("usage/unknown", {}, [["nope"]])
+    check_("usage/fragment_fork", record, [["fragment-fork", "--slug", "one"]])
+    check_("usage/fragment_merge", record, [["fragment-merge", "--slug", "one"]])
+    check_("usage/read_no_slug", record, [["read"]])
+    check_("usage/read_no_graph", record, [["read", "intent-capture"]])
+    check_("usage/summary_no_graph", record, [["summary"]])
+
+    # compile: where there is nothing to read yet.
+    check_("compile/no_state", CLONE, [["compile"], ["read", "x"]])
+    check_("compile/no_ledger", record, compiled)
+    check_("compile/no_ledger_no_intent", {**CLONE, "aidlc/spaces/default/intents/aidlc-state.md": STATE}, compiled)
+    check_("compile/no_workflow", {**record, SHARD: TITLE + STARTED_ROW(1, "intent-capture")}, compiled)
+    check_("compile/state_without_scope", {**RECORD_FILES, SHARD: TITLE + WORKFLOW}, compiled)
+
+    # compile: stages.
+    check_("compile/a_workflow", {**record, SHARD: A_WORKFLOW}, compiled + [["read", "code-generation"],
+                                                                           ["read", "nope"]])
+    check_("compile/twice", {**record, SHARD: A_WORKFLOW}, [["compile"], ["compile"]])
+    check_("compile/scope_from_ledger", {**RECORD_FILES, SHARD: A_WORKFLOW}, compiled)
+    check_("compile/unknown_stage", {**record, SHARD: A_WORKFLOW + STARTED_ROW(11, "not-a-stage")}, compiled)
+    check_("compile/restarted_stage",
+           {**record, SHARD: A_WORKFLOW + STARTED_ROW(12, "intent-capture") + COMPLETED_ROW(13, "intent-capture") +
+            COMPLETED_ROW(14, "intent-capture")}, compiled)
+    check_("compile/second_workflow",
+           {**record, SHARD: A_WORKFLOW + block("WORKFLOW_STARTED", T(20), "**Scope**: mvp") +
+            STARTED_ROW(21, "market-research")}, compiled)
+    check_("compile/single_stage_rows",
+           {**record, SHARD: A_WORKFLOW + STARTED_ROW(15, "feasibility", "**Workflow**: single-stage:feasibility") +
+            COMPLETED_ROW(16, "feasibility", "**Workflow**: single-stage:feasibility")}, compiled)
+    check_("compile/same_instant",
+           {**record, SHARD: TITLE + WORKFLOW + STARTED_ROW(1, "market-research") + STARTED_ROW(1, "intent-capture") +
+            COMPLETED_ROW(1, "intent-capture") + COMPLETED_ROW(1, "market-research")}, compiled)
+    check_("compile/label_without_value",
+           {**record, SHARD: TITLE + WORKFLOW + block("STAGE_STARTED", T(1), "**Stage**:", "**Agent**:", "x")},
+           compiled)
+    check_("compile/two_shards",
+           {**record, SHARD: A_WORKFLOW, f"{RECORD_DIR}/audit/desktop-ffffffffffff.md":
+            TITLE + COMPLETED_ROW(11, "code-generation") + STARTED_ROW(12, "build-and-test")}, compiled)
+
+    # compile: diaries, and the event an empty one is.
+    diaries = {DIARY("ideation", "intent-capture"): A_DIARY,
+               DIARY("inception", "requirements-analysis"): "# Memory\n\n## Interpretations\n\n## Deviations\n",
+               DIARY("construction", "code-generation"): "## Tradeoffs\n"}
+    check_("compile/diaries", {**record, SHARD: A_WORKFLOW, **diaries}, compiled + [["compile"], ["summary"]])
+    check_("compile/empty_diary_again_after_restart",
+           {**record, SHARD: A_WORKFLOW + block("MEMORY_EMPTY", T(9, 30), "**Stage**: requirements-analysis") +
+            STARTED_ROW(11, "requirements-analysis") + COMPLETED_ROW(12, "requirements-analysis"), **diaries},
+           [["compile"], ["compile"]])
+    check_("compile/empty_diary_already_recorded",
+           {**record, SHARD: A_WORKFLOW + block("MEMORY_EMPTY", T(9, 30), "**Stage**: requirements-analysis"),
+            **diaries}, [["compile"]])
+    # A clone that has no identity yet gets one from the compile that has an event to write, and from no other.
+    no_clone = {k: v for k, v in record.items() if k not in CLONE}
+    check_("compile/mints_identity", {**no_clone, SHARD: A_WORKFLOW, **diaries}, [["compile"], ["compile"]])
+    check_("compile/mints_no_identity", {**no_clone, SHARD: A_WORKFLOW}, [["compile"]])
+    check_("compile/diary_is_a_directory",
+           {**record, SHARD: A_WORKFLOW, DIARY("ideation", "intent-capture") + "/x": "x"}, [["compile"]])
+
+    # compile: the units' order.
+    check_("compile/units", {**record, SHARD: A_WORKFLOW, UNITS: A_UNITS}, compiled)
+    check_("compile/units_unreadable", {**record, SHARD: A_WORKFLOW, UNITS: A_UNITS.replace("[auth]", "[nobody]")},
+           compiled)
+    check_("compile/units_no_block", {**record, SHARD: A_WORKFLOW, UNITS: "# Dependencies\n"}, compiled)
+    check_("compile/units_before_any_workflow", {**record, UNITS: A_UNITS}, compiled)
+
+    # compile: sensors.
+    sensors = (A_WORKFLOW + FIRED(2, 0, "intent-capture", "aaaaaaaa") + ENDED("PASSED", 2, 5, "aaaaaaaa") +
+               FIRED(2, 1, "intent-capture", "bbbbbbbb", "types") +
+               ENDED("FAILED", 2, 9, "bbbbbbbb", "**Detail path**: aidlc/x/detail.md") +
+               FIRED(2, 2, "intent-capture", "cccccccc") + ENDED("BUDGET_OVERRIDE", 2, 3, "cccccccc") +
+               FIRED(3, 0, "intent-capture", "dddddddd") +                     # closed stage, no ending
+               FIRED(7, 0, "intent-capture", "eeeeeeee") +                     # outside its stage's window
+               FIRED(10, 5, "code-generation", "ffffffff") +                   # open stage, old enough
+               FIRED(12, 0, "code-generation", "99999999") +                   # open stage, the latest row
+               FIRED(11, 30, "code-generation", "88888888") +                  # open stage, under a minute old
+               FIRED(11, 0, "code-generation", "77777777") + ENDED("PASSED", 11, 1, "77777777") +
+               ENDED("PASSED", 11, 2, "77777777") + ENDED("FAILED", 11, 1, "77777777", "**Detail path**: late") +
+               FIRED(10, 6, "code-generation", "") + FIRED(10, 7, "code-generation", "66666666", ""))
+    check_("compile/sensors", {**record, SHARD: sensors}, compiled + [["read", "code-generation"]])
+    check_("compile/sensor_exactly_a_minute_old",
+           {**record, SHARD: A_WORKFLOW + FIRED(11, 0, "code-generation", "aaaaaaaa") +
+            FIRED(12, 0, "code-generation", "bbbbbbbb")}, compiled + [["read", "code-generation"]])
+
+    # compile: what was learned at a gate.
+    learned = lambda minute, stage, *fields: block("RULE_LEARNED", T(minute), f"**Stage**: {stage}", *fields)
+    check_("compile/learnings",
+           {**record, SHARD: A_WORKFLOW + learned(2, "intent-capture") +
+            learned(3, "intent-capture", "**Source**: user_addition") +
+            block("SENSOR_PROPOSED", T(4), "**Stage**: intent-capture", "**Source**: orchestrator") +
+            learned(5, "intent-capture") + learned(7, "requirements-analysis", "**Source**: user_addition") +
+            learned(11, "code-generation")}, compiled + [["read", "requirements-analysis"]])
+
+    # compile: a stage built by several bolts.
+    bolts = (A_WORKFLOW + FORKED(11, "web", "**Worktree path**: <project-dir>/wt/web") +
+             FORKED(12, "api", "**Worktree path**: wt/api") + FORKED(13, "db") +
+             MERGED(14, "api") + block("BOLT_FAILED", T(15), "**Bolt slug**: db") +
+             FIRED(12, 30, "code-generation", "aaaaaaaa", "linter", "**Output path**: <project-dir>/wt/api/src/a.ts") +
+             ENDED("PASSED", 12, 31, "aaaaaaaa") +
+             FIRED(12, 40, "code-generation", "bbbbbbbb", "linter", "**Output path**: wt/web/b.ts") +
+             FIRED(12, 50, "code-generation", "cccccccc", "linter", "**Output path**: src/main.ts") +
+             ENDED("PASSED", 12, 51, "cccccccc") + FIRED(12, 55, "code-generation", "dddddddd"))
+    check_("compile/bolts", {**record, SHARD: bolts}, compiled + [["read", "code-generation"]])
+    check_("compile/bolts_all_merged",
+           {**record, SHARD: A_WORKFLOW + FORKED(11, "web") + FORKED(12, "api") + MERGED(13, "web") +
+            MERGED(14, "api") + COMPLETED_ROW(16, "code-generation")}, compiled + [["read", "code-generation"]])
+    check_("compile/one_bolt", {**record, SHARD: A_WORKFLOW + FORKED(11, "web") + MERGED(13, "web")},
+           compiled + [["read", "code-generation"]])
+    check_("compile/bolts_outside_construction",
+           {**record, SHARD: A_WORKFLOW + FORKED(2, "web") + FORKED(3, "api")}, compiled)
+    check_("compile/bolt_forked_twice",
+           {**record, SHARD: A_WORKFLOW + FORKED(11, "web", "**Worktree path**: /abs/one") + FORKED(12, "api") +
+            FORKED(13, "web", "**Worktree path**: wt/../outside/./two/") + MERGED(12, "web")},
+           compiled + [["read", "code-generation"]])
+
+    # compile: timestamps as people leave them. Only one place reads a timestamp as a time: a sensor with no
+    # ending in a stage that is still open. Everywhere else a timestamp is text, compared as text.
+    stamped = lambda event, at, *fields: block(event, at, *fields)
+    odd_times = (TITLE + stamped("WORKFLOW_STARTED", "2026-01-05", "**Scope**: bugfix") +
+                 stamped("STAGE_STARTED", "2026-01-05T10:01", "**Stage**: intent-capture") +
+                 stamped("SENSOR_FIRED", "yesterday", "**Stage slug**: intent-capture", "**Sensor ID**: linter",
+                         "**Fire id**: aaaaaaaa") +
+                 stamped("SENSOR_FIRED", "2026-01-05T10:02:00+02:00", "**Stage slug**: intent-capture",
+                         "**Sensor ID**: linter", "**Fire id**: bbbbbbbb") +
+                 stamped("SENSOR_PASSED", "2026-01-05T10:02:01+02:00", "**Fire id**: bbbbbbbb") +
+                 stamped("STAGE_COMPLETED", "z-last", "**Stage**: intent-capture") +
+                 stamped("STAGE_STARTED", "2026-01-05T10:06:00.500Z", "**Stage**: market-research"))
+    check_("compile/timestamps_as_text", {**record, SHARD: odd_times}, compiled)
+    orphan = lambda fired, latest="2026-01-05T10:30:00Z": {**record, SHARD: (
+        A_WORKFLOW + stamped("SENSOR_FIRED", fired, "**Stage slug**: code-generation", "**Sensor ID**: linter",
+                             "**Fire id**: aaaaaaaa") +
+        stamped("SENSOR_FIRED", latest, "**Stage slug**: nope", "**Sensor ID**: linter", "**Fire id**: bbbbbbbb"))}
+    check_("compile/orphan_with_zone", orphan("2026-01-05T12:11:00.250+02:00"), compiled)
+    check_("compile/orphan_no_zone", orphan("2026-01-05T10:11:00"), [["compile"]])
+    check_("compile/orphan_junk_after", orphan("2026-01-05T10:11:00Zzz"), [["compile"]])
+    check_("compile/orphan_date_only", orphan("2026-01-05"), [["compile"]])
+    check_("compile/orphan_latest_no_zone", orphan("2026-01-05T10:11:00Z", "2026-01-05T10:30:00"), [["compile"]])
+    # A word where a timestamp goes is no date to anyone: the firing has no age, and is left out.
+    check_("compile/orphan_is_a_word", orphan("yesterday"), compiled + [["read", "code-generation"]])
+    check_("compile/orphan_latest_is_a_word", orphan("2026-01-05T10:11:00Z", "tomorrow"),
+           compiled + [["read", "code-generation"]])
+    check_("compile/orphan_word_against_unread", orphan("2026-01-05T10:11:00", "tomorrow"),
+           compiled + [["read", "code-generation"]])
+    check_("compile/orphan_leap_day", orphan("2026-02-29T10:11:00Z", "2026-03-05T10:30:00Z"), [["compile"]])
+    check_("compile/orphan_long_fraction", orphan("2026-01-05T10:11:00.0674309079Z"), [["compile"]])
+
+    # compile: the stage graph it places stages by.
+    stage_graph = ".claude/tools/data/stage-graph.json"
+    check_("compile/no_stage_graph", {**record, SHARD: A_WORKFLOW}, compiled, edits=[lambda t: t.remove(stage_graph)])
+    check_("compile/no_stage_graph_no_workflow", record, compiled, edits=[lambda t: t.remove(stage_graph)])
+    check_("compile/broken_stage_graph", {**record, SHARD: A_WORKFLOW}, compiled,
+           edits=[lambda t: t.write(stage_graph, "{ nope")])
+
+    def without_agents(tree):
+        stages = tree.json(stage_graph)
+        for stage in stages:
+            if stage["slug"] == "requirements-analysis":
+                del stage["lead_agent"]
+            if stage["slug"] == "code-generation":
+                stage["lead_agent"] = ""
+            if stage["slug"] == "intent-capture":
+                stage["enabled"] = False
+        tree.write_json(stage_graph, stages)
+    check_("compile/stage_graph_agents", {**record, SHARD: A_WORKFLOW}, compiled + [["read", "requirements-analysis"]],
+           edits=[without_agents])
+
+    # The stage graph as a person might leave it. What the compile wrote, two rows for one slug included, is
+    # read as upstream reads it; what it could not have written is refused.
+    def edited(change):
+        def edit(tree):
+            stages = tree.json(stage_graph)
+            change(stages)
+            tree.write_json(stage_graph, stages)
+        return edit
+    row_of = lambda stages, slug: next(stage for stage in stages if stage["slug"] == slug)
+    check_("compile/stage_graph_slug_twice",
+           {**record, SHARD: A_WORKFLOW, DIARY("operation", "intent-capture"): A_DIARY}, compiled,
+           edits=[edited(lambda stages: stages.append({**row_of(stages, "intent-capture"), "phase": "operation",
+                                                        "lead_agent": "the-later-row"}))])
+    check_("compile/diary_under_a_phase_that_looks_absolute",
+           {**record, SHARD: A_WORKFLOW, f"{RECORD_DIR}/abs-phase/intent-capture/memory.md": A_DIARY}, compiled,
+           edits=[edited(lambda stages: row_of(stages, "intent-capture").update(phase="/abs-phase"))])
+    check_("compile/stage_named_dot_dot",
+           {**record, SHARD: A_WORKFLOW + STARTED_ROW(11, "..") + COMPLETED_ROW(12, ".."),
+            f"{RECORD_DIR}/memory.md": "## Deviations\n"}, compiled,
+           edits=[edited(lambda stages: stages.append({**row_of(stages, "requirements-analysis"), "slug": ".."}))])
+    no_phase = edited(lambda stages: row_of(stages, "requirements-analysis").pop("phase"))
+    phase_7 = edited(lambda stages: row_of(stages, "intent-capture").update(phase=7))
+    hand_graph = {**record, f"{RECORD_DIR}/runtime-graph.json": json.dumps(
+        {"workflow_id": T(0), "scope": "feature", "started_at": T(0), "stages": [
+            {"stage_slug": slug, "completed_at": None, "sensor_firings": [], "outcome": "approved",
+             "memory_breakdown": None, "learnings_captured": None}
+            for slug in ("intent-capture", "requirements-analysis", "code-generation")]}) + "\n"}
+    check_("compile/stage_graph_phase_missing", {**record, SHARD: A_WORKFLOW}, [["compile"]], edits=[no_phase])
+    check_("compile/stage_graph_phase_missing_unused", {**record, SHARD: TITLE + WORKFLOW + STARTED_ROW(1, "intent-capture")},
+           compiled, edits=[no_phase])
+    check_("summary/stage_graph_phase_missing_is_unknown", hand_graph, [["summary", "--json"]], edits=[no_phase])
+    check_("summary/stage_graph_phase_null_is_unknown", hand_graph, [["summary", "--json"]],
+           edits=[edited(lambda stages: row_of(stages, "intent-capture").update(phase=None))])
+    check_("summary/stage_graph_phase_not_text", hand_graph, [["summary", "--json"]], edits=[phase_7])
+    check_("compile/stage_graph_null_row", {**record, SHARD: A_WORKFLOW}, [["compile"]],
+           edits=[edited(lambda stages: stages.insert(3, None))])
+    check_("summary/stage_graph_null_row", hand_graph, [["summary"]], edits=[edited(lambda stages: stages.append(None))])
+    check_("compile/stage_graph_not_a_list", {**record, SHARD: A_WORKFLOW}, [["compile"]],
+           edits=[lambda t: t.write(stage_graph, '{"stages": []}\n')])
+    check_("compile/stage_graph_rows_that_are_not_stages", {**record, SHARD: A_WORKFLOW}, compiled,
+           edits=[edited(lambda stages: stages.extend([7, "text", [], {}]))])
+    check_("summary/phase_named_like_an_object_member", hand_graph, [["summary", "--json"]],
+           edits=[edited(lambda stages: row_of(stages, "intent-capture").update(phase="constructor"))])
+
+    # compile: what settles a tie, and what the ledger's "now" is.
+    stamped_fire = lambda at, stage, fire, *fields: stamped("SENSOR_FIRED", at, f"**Stage slug**: {stage}",
+                                                            "**Sensor ID**: linter", f"**Fire id**: {fire}", *fields)
+    check_("compile/now_is_a_stage_start",
+           {**record, SHARD: A_WORKFLOW + FIRED(10, 0, "code-generation", "aaaaaaaa") +
+            STARTED_ROW(11, "feasibility", "**Workflow**: single-stage:feasibility") +
+            FIRED(10, 45, "code-generation", "bbbbbbbb")}, compiled + [["read", "code-generation"]])
+    check_("compile/now_is_an_ending",
+           {**record, SHARD: A_WORKFLOW + FIRED(10, 30, "code-generation", "aaaaaaaa") +
+            ENDED("FAILED", 11, 30, "zzzzzzzz")}, compiled + [["read", "code-generation"]])
+    check_("compile/now_is_no_other_row",
+           {**record, SHARD: A_WORKFLOW + FIRED(10, 0, "code-generation", "aaaaaaaa") +
+            COMPLETED_ROW(11, "build-and-test") + FORKED(11, "web") + block("RULE_LEARNED", T(11), "**Stage**: x") +
+            block("MEMORY_EMPTY", T(11), "**Stage**: intent-capture") + block("WORKFLOW_COMPLETED", T(11))},
+           compiled + [["read", "code-generation"]])
+    check_("compile/two_endings_at_one_instant",
+           {**record, SHARD: A_WORKFLOW + FIRED(2, 0, "intent-capture", "aaaaaaaa") + ENDED("PASSED", 2, 5, "aaaaaaaa") +
+            ENDED("FAILED", 2, 5, "aaaaaaaa", "**Detail path**: where") + FIRED(2, 1, "intent-capture", "bbbbbbbb") +
+            ENDED("FAILED", 2, 6, "bbbbbbbb", "**Detail path**: where") + ENDED("BUDGET_OVERRIDE", 2, 6, "bbbbbbbb"),
+            UNITS: A_UNITS.replace("[auth]", "[nobody]")},
+           compiled + [["read", "intent-capture"]])
+    check_("compile/empty_diary_recorded_at_the_approval",
+           {**record, SHARD: A_WORKFLOW + block("MEMORY_EMPTY", T(9), "**Stage**: requirements-analysis"), **diaries},
+           [["compile"]])
+    check_("compile/bolts_at_the_edges",
+           {**record, SHARD: A_WORKFLOW + FORKED(10, "web", "**Worktree path**: wt/web") + MERGED(10, "web") +
+            FORKED(11, "api", "**Worktree path**: wt/api") + MERGED(12, "api") +
+            block("BOLT_FAILED", T(12), "**Bolt slug**: api") + FORKED(13, "db", "**Worktree path**: wt/db") +
+            # An old firing with no ending in a bolt still open, one in a bolt that closed, one under no bolt.
+            FIRED(13, 10, "code-generation", "aaaaaaaa", "linter", "**Output path**: wt/db/a") +
+            FIRED(11, 10, "code-generation", "bbbbbbbb", "linter", "**Output path**: wt/api/b") +
+            FIRED(10, 10, "code-generation", "cccccccc", "linter", "**Output path**: src/c") +
+            FIRED(15, 0, "code-generation", "dddddddd", "linter", "**Output path**: wt/db/d")},
+           compiled + [["read", "code-generation"]])
+    check_("compile/bolts_named_past_the_basic_plane",
+           {**record, SHARD: A_WORKFLOW + FORKED(11, "\ue000") + FORKED(12, "\U0001F600") + FORKED(13, "z") +
+            FORKED(14, "\uffff") + FORKED(15, "\U00010000")}, compiled + [["read", "code-generation"]])
+
+    # compile: a file that is a directory where the compile reads or writes.
+    check_("compile/graph_is_a_directory", {**record, SHARD: A_WORKFLOW, f"{RECORD_DIR}/runtime-graph.json/x": "x"},
+           [["compile"], ["read", "intent-capture"], ["summary"]])
+    check_("compile/state_is_a_directory", {**CLONE, "aidlc/spaces/default/intents/active-intent": "add-login-1a2b3c4d\n",
+                                            f"{RECORD_DIR}/aidlc-state.md/x": "x", SHARD: A_WORKFLOW}, [["compile"]])
+    check_("compile/units_is_a_directory", {**record, SHARD: A_WORKFLOW, UNITS + "/x": "x"}, [["compile"]])
+
+    # compile: links and odd paths.
+    def workspace_link(tree):
+        shutil.move(tree.path("aidlc"), tree.path("moved"))
+        os.symlink(tree.path("moved"), tree.path("aidlc"))
+    check_("compile/workspace_is_a_link", {**record, SHARD: A_WORKFLOW}, [["compile"]], edits=[workspace_link])
+    def under_a_backslash(tree):
+        # Upstream's tool cannot be run from a path with a backslash (Bun takes it for a separator when it
+        # looks for the script), so the tool stays where it is and the project it is pointed at moves. Focus
+        # finds the stage graph in the project, so the installation goes along.
+        shutil.copytree(tree.path(".claude"), tree.path("back\\slash/.claude"))
+        shutil.move(tree.path("aidlc"), tree.path("back\\slash/aidlc"))
+    # The recording keeps the workspace where an installed project has it, so this tree is not one it holds.
+    UNRECORDED.add("runtime/compile/project_path_with_a_backslash")
+    check_("compile/project_path_with_a_backslash", {**record, SHARD: A_WORKFLOW},
+           [["compile", "--project-dir", "{P}/back\\slash"],
+            ["read", "intent-capture", "--project-dir", "{P}/back\\slash"]], edits=[under_a_backslash])
+
+    # compile: which record.
+    other = "aidlc/spaces/payments/intents"
+    check_("compile/other_space_no_intent",
+           {**CLONE, "aidlc/active-space": "payments\n", f"{other}/aidlc-state.md": STATE,
+            f"{other}/audit/laptop-abc123.md": A_WORKFLOW, f"{other}/ideation/intent-capture/memory.md": A_DIARY},
+           compiled)
+    check_("compile/two_records_no_cursor",
+           {**CLONE, f"{RECORD_DIR}/aidlc-state.md": STATE, SHARD: A_WORKFLOW,
+            "aidlc/spaces/default/intents/fix-logout-9f8e7d6c/aidlc-state.md": STATE}, compiled)
+    check_("compile/crlf_shard", {**record, SHARD: A_WORKFLOW.replace("\n", "\r\n")}, compiled)
+
+    # compile: what Focus does not do yet, and an observer.
+    empty = {**record, SHARD: A_WORKFLOW, DIARY("inception", "requirements-analysis"): "## Deviations\n"}
+    check_("compile/metrics_endpoint", empty, [["compile"]], {"METRICS_ENDPOINT": "http://127.0.0.1:9/x"})
+    check_("compile/metrics_endpoint_nothing_to_send", {**record, SHARD: A_WORKFLOW}, [["compile"]],
+           {"METRICS_ENDPOINT": "http://127.0.0.1:9/x"})
+    pids = {"aidlc/.aidlc-sessions/pids/1.json": "{}\n"}
+    check_("compile/sessions_by_process", {**record, SHARD: A_WORKFLOW, **pids}, [["compile"]])
+    check_("read/sessions_by_process", {**record, **pids}, [["read", "x"]])
+    check_("summary/sessions_by_process", {**record, **pids}, [["summary"]])
+    check_("compile/delegated_worktree", {**record, SHARD: A_WORKFLOW, ".aidlc/worktree-meta.json": "{}\n"},
+           [["compile"]])
+    check_("compile/unit_claim", {**record, SHARD: A_WORKFLOW, "aidlc/.aidlc-unit-scope.json": "{}\n"}, [["compile"]])
+    check_("usage/stray_argument", {**record, SHARD: A_WORKFLOW}, [["compile", "now"]])
+    check_("usage/flag_twice", hand_graph, [["summary", "--json", "--json"]])
+    check_("usage/flag_without_its_value", {**record, SHARD: A_WORKFLOW}, [["compile", "--project-dir"]])
+
+    # Where the project is, said in other ways.
+    a_project = {**record, SHARD: A_WORKFLOW}
+    check_("project_dir/before_the_verb", a_project, [["--project-dir", "{P}", "compile"],
+                                                      ["--project-dir", "{P}", "read", "intent-capture"]])
+    check_("project_dir/relative", a_project, [["compile", "--project-dir", "."],
+                                               ["read", "intent-capture", "--project-dir", "./"],
+                                               ["summary", "--project-dir", "aidlc/.."]])
+    check_("project_dir/trailing_slash", a_project, [["compile", "--project-dir", "{P}/"],
+                                                     ["compile", "--project-dir", "{P}//"]])
+    check_("project_dir/with_dots", a_project, [["compile", "--project-dir", "{P}/aidlc/../."],
+                                                ["read", "intent-capture", "--project-dir", "{P}/nowhere/.."]])
+    check_("project_dir/not_there", a_project, [["compile", "--project-dir", "{P}/nowhere"]])
+    for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
+        probe = {marker: "1"}
+        check_(f"observer/{marker.lower()}/compile", {**record, SHARD: A_WORKFLOW}, compiled, probe)
+        check_(f"observer/{marker.lower()}/compile_empty_diary", empty, [["compile"]], probe)
+        check_(f"observer/{marker.lower()}/compile_no_ledger", record, [["compile"]], probe)
+        check_(f"observer/{marker.lower()}/compile_no_state", CLONE, [["compile"]], probe)
+        check_(f"observer/{marker.lower()}/reads",
+               {**record, f"{RECORD_DIR}/runtime-graph.json":
+                '{"workflow_id":"w","scope":"s","started_at":"","stages":[]}\n'}, [["read", "x"], ["summary"]], probe)
+
+    # read and summary on a graph someone else wrote.
+    graph = f"{RECORD_DIR}/runtime-graph.json"
+    check_("read/not_json", {**record, graph: "{ nope"}, [["read", "x"], ["summary"]])
+    a_stage = {"stage_slug": "intent-capture", "started_at": T(1), "completed_at": T(5), "agent": "a",
+               "memory_path": "m", "memory_entries": 2, "memory_breakdown": {"interpretations": 1, "deviations": 0,
+                                                                             "tradeoffs": 1, "open_questions": 0},
+               "sensor_firings": [{"id": "linter", "fire_id": "a", "result": "passed", "ts": T(2)},
+                                  {"id": "linter", "fire_id": "b", "result": "something-new", "ts": T(2)}],
+               "outcome": "approved", "learnings_captured": {"from_orchestrator": 2, "from_user_addition": 1}}
+    a_graph = lambda *stages, **top: json.dumps({"workflow_id": T(0), "scope": "feature", "started_at": T(0),
+                                                 "stages": list(stages), **top}, indent=2) + "\n"
+    by_bolts = {**a_stage, "stage_slug": "code-generation", "completed_at": None, "memory_breakdown": None,
+                "learnings_captured": None, "outcome": "pending",
+                "instances": [{**a_stage, "bolt": "api", "completed_at": T(40), "outcome": "failed"},
+                              {**a_stage, "bolt": "web", "completed_at": None, "outcome": "pending",
+                               "memory_breakdown": None, "sensor_firings": []}]}
+    check_("summary/hand_written",
+           {**record, graph: a_graph(a_stage, by_bolts, {**a_stage, "stage_slug": "9", "completed_at": "",
+                                                         "extra": {"2": 1, "1": 2, "b": [1.5, 1e21, -0.0]}},
+                                     {**a_stage, "stage_slug": "not-in-the-stage-graph", "completed_at": T(41, 29),
+                                      "memory_entries": None}, extra=True)},
+           [["summary", "--json"], ["summary"], ["read", "9"], ["read", "code-generation"]])
+    check_("summary/half_minutes",
+           {**record, graph: a_graph({**a_stage, "completed_at": T(0, 30)})}, [["summary", "--json"]])
+    check_("summary/ends_before_it_starts",
+           {**record, graph: a_graph({**a_stage, "completed_at": "2026-01-05T09:00:00Z"})}, [["summary"]])
+    check_("summary/no_stages", {**record, graph: a_graph()}, [["summary", "--json"], ["summary"], ["read", "x"]])
+    # JSON that JavaScript reads and focus's reader does not.
+    with_extra = lambda extra: a_graph(a_stage).replace('"scope": "feature"', f'"scope": "feature", "extra": {extra}')
+    check_("read/json_number_out_of_range", {**record, graph: with_extra("1e400")}, [["read", "intent-capture"]])
+    check_("read/json_half_pair_escape", {**record, graph: with_extra('"\\ud800"')}, [["read", "intent-capture"]])
+    check_("read/json_nested_deeper_than_127", {**record, graph: with_extra("[" * 200 + "]" * 200)},
+           [["read", "intent-capture"]])
+    check_("read/json_nested_127_deep", {**record, graph: with_extra("[" * 120 + "]" * 120)}, [["read", "intent-capture"]])
+    check_("summary/duration_of_a_word",
+           {**record, graph: a_graph({**a_stage, "completed_at": "soon"})}, [["summary", "--json"], ["summary"]])
+    check_("summary/duration_no_zone",
+           {**record, graph: a_graph({**a_stage, "completed_at": "2026-01-05T10:05:00"})}, [["summary", "--json"]])
+    check_("summary/duration_date_only",
+           {**record, graph: a_graph({**a_stage, "completed_at": T(5)}).replace(f'"started_at": "{T(0)}",\n  "stages"',
+                                                                               '"started_at": "2026-01-05",\n  "stages"')},
+           [["summary", "--json"]])
+    not_graphs = {
+        "list": "[]", "null": "null", "no_stages": "{}", "stages_not_a_list": '{"stages": {}}',
+        "null_stage": a_graph(None), "stage_without_slug": a_graph({"outcome": "approved", "sensor_firings": []}),
+        "unknown_outcome": a_graph({**a_stage, "outcome": "odd"}),
+        "no_firings": a_graph({k: v for k, v in a_stage.items() if k != "sensor_firings"}),
+        "count_not_a_count": a_graph({**a_stage, "memory_entries": "2"}),
+        "learnings_not_an_object": a_graph({**a_stage, "learnings_captured": True}),
+        "breakdown_not_an_object": a_graph({**a_stage, "memory_breakdown": "none"}),
+        # Each count is one a double holds exactly, and their sum is not.
+        "counts_past_exact": a_graph(
+            {**a_stage, "learnings_captured": {"from_orchestrator": 9007199254740991, "from_user_addition": 0}},
+            {**a_stage, "stage_slug": "requirements-analysis",
+             "learnings_captured": {"from_orchestrator": 1, "from_user_addition": 0}}),
+    }
+    # `read` looks at less of the graph than `summary` does, so less can be wrong with it.
+    for name in ("list", "stages_not_a_list", "null_stage", "stage_without_slug", "unknown_outcome", "no_firings",
+                 "count_not_a_count"):
+        check_(f"read/not_a_graph_{name}", {**record, graph: not_graphs[name]}, [["read", "intent-capture"]])
+    for name in ("null", "no_stages", "null_stage", "stage_without_slug", "unknown_outcome", "no_firings",
+                 "count_not_a_count", "learnings_not_an_object", "breakdown_not_an_object", "counts_past_exact"):
+        check_(f"summary/not_a_graph_{name}", {**record, graph: not_graphs[name]}, [["summary", "--json"]])
+    check_("summary/completed_workflow",
+           {**RECORD_FILES, SHARD: A_WORKFLOW, f"{RECORD_DIR}/aidlc-state.md":
+            "# AI-DLC State\n\n- **Scope**: feature\n- **Status**: Completed\n\n## Stage Progress\n"
+            "- [x] intent-capture — EXECUTE\n- [ ] requirements-analysis — EXECUTE\n"
+            "- [S] user-stories — EXECUTE\n- [x] market-research — EXECUTE\n"
+            "- [-] code-generation — SKIP: no\n- [x] made-up — EXECUTE\n"},
+           [["compile"], ["summary", "--json"], ["summary"]])
+
+
+# What the random ledgers turned out to hold, so that a run of the fuzz says what it compared.
+GRAPHS = {}
+GRAPHS_LOCK = __import__("threading").Lock()
+
+
+def seen_in_graphs(files):
+    with GRAPHS_LOCK:
+        tally_graphs(files)
+
+
+def tally_graphs(files):
+    count = lambda what, by=1: GRAPHS.__setitem__(what, GRAPHS.get(what, 0) + by)
+    for rel, text in files.items():
+        if rel.endswith("/audit/laptop-abc123.md"):
+            count("MEMORY_EMPTY events written",
+                  sum(1 for found in re.finditer(r"\*\*Timestamp\*\*: (\S+)\r?\n\*\*Event\*\*: MEMORY_EMPTY", text)
+                      if found.group(1) >= STARTED))
+        if not rel.endswith("/runtime-graph.json"):
+            continue
+        graph = json.loads(text)
+        count("graphs")
+        count("graphs with no workflow", graph["workflow_id"] == "")
+        count("graphs with the units' order", "bolt_dag" in graph)
+        for stage in graph["stages"]:
+            count("stages")
+            count(f"stages {stage['outcome']}")
+            count("stages with a diary", stage["memory_entries"] is not None)
+            count("stages with learnings", bool(stage["learnings_captured"]) and
+                  sum(stage["learnings_captured"].values()) > 0)
+            count("stages built by bolts", "instances" in stage)
+            for unit in [stage, *stage.get("instances", [])]:
+                for firing in unit["sensor_firings"]:
+                    count(f"firings {firing['result']}")
+            for instance in stage.get("instances", []):
+                count(f"bolts {instance['outcome']}")
+
+
+def runtime_fuzz(count):
+    """Random ledgers, diaries and units files; each compiled twice, summed up and read."""
+    rng = random.Random(SEED + 2)
+    with open(os.path.join(DIST, ".claude", "tools", "data", "stage-graph.json"), encoding="utf-8") as handle:
+        phase_of = {stage["slug"]: stage["phase"] for stage in json.load(handle)}
+    real = ["intent-capture", "market-research", "requirements-analysis", "units-generation", "functional-design",
+            "code-generation", "build-and-test", "deployment-execution"]
+    fires = ["aaaaaaaa", "bbbbbbbb", "cccccccc", "dddddddd", "eeeeeeee", ""]
+    bolts = ["api", "web", "db", "Zeta", ""]
+    paths = ["wt/api", "<project-dir>/wt/web", "<project-dir>", "/abs/db", "wt/api/../web/x.ts", "src/main.ts", "",
+             "wt/apiary/x"]
+
+    def at():
+        roll = rng.random()
+        if roll < 0.9:
+            return T(rng.randrange(0, 30), rng.choice([0, 0, 0, 20, 40, 59]))
+        if roll < 0.94:
+            return f"2026-01-05T{rng.randrange(11, 14)}:{rng.randrange(60):02d}:00{rng.choice(['+01:00', '.250Z', '-00:30'])}"
+        if roll < 0.97:
+            return T(rng.randrange(0, 30))[:-1] + rng.choice([".5Z", ".000Z", "Z"])
+        return rng.choice(["yesterday", "soon", "z-last", "-"])
+
+    def row():
+        stage = rng.choice(real * 3 + ["not-a-stage"])
+        label = lambda name, value: rng.choice([f"**{name}**: {value}"] * 12 + [
+            f"**{name}**:{value}", f"**{name}**:   {value}  ", f"- **{name}**: {value}", f"**{name}**:",
+            f"**{name}**: {value}\n**{name}**: other", f" **{name}**: {value}"])
+        roll = rng.random()
+        if roll < 0.22:
+            extra = rng.choice([[], [], [label("Agent", rng.choice(["a-agent", "", " spaced "]))],
+                                [label("Workflow", "single-stage:" + stage)], [label("Workflow", "main")]])
+            return block("STAGE_STARTED", at(), label("Stage", stage), *extra)
+        if roll < 0.38:
+            return block("STAGE_COMPLETED", at(), label("Stage", stage))
+        if roll < 0.56:
+            extra = [label("Output path", rng.choice(paths))] if rng.random() < 0.5 else []
+            return block("SENSOR_FIRED", at(), label("Stage slug", stage),
+                         label("Sensor ID", rng.choice(["linter", "types", ""])), label("Fire id", rng.choice(fires)),
+                         *extra)
+        if roll < 0.7:
+            extra = [label("Detail path", rng.choice(["aidlc/x/detail.md", ""]))] if rng.random() < 0.5 else []
+            return block(rng.choice(["SENSOR_PASSED", "SENSOR_FAILED", "SENSOR_FAILED", "SENSOR_BUDGET_OVERRIDE"]), at(),
+                         label("Fire id", rng.choice(fires)), *extra)
+        if roll < 0.78:
+            extra = [label("Source", rng.choice(["user_addition", "orchestrator", ""]))] if rng.random() < 0.6 else []
+            return block(rng.choice(["RULE_LEARNED", "SENSOR_PROPOSED"]), at(), label("Stage", stage), *extra)
+        if roll < 0.9:
+            extra = [label("Worktree path", rng.choice(paths))] if rng.random() < 0.6 else []
+            return block(rng.choice(["STATE_FORKED", "STATE_FORKED", "STATE_MERGED", "BOLT_FAILED"]), at(),
+                         label("Bolt slug", rng.choice(bolts)), *extra)
+        if roll < 0.94:
+            return block("MEMORY_EMPTY", at(), label("Stage", stage))
+        if roll < 0.97:
+            return block("WORKFLOW_STARTED", at(), *([label("Scope", rng.choice(["mvp", "", "bugfix"]))]
+                                                    if rng.random() < 0.7 else []))
+        return note("A decision", at(), "We chose.", "**Stage**: code-generation")
+
+    diary_lines = ["## Interpretations", "## Deviations", "## Tradeoffs", "## Open questions", "## Notes", "- one", "- two",
+                   "> quoted", "<!-- hidden -->", "```", "", "constructor", "plain"]
+    def timeline():
+        """A workflow as an engine would log it: stages one after another, each with what happens inside it."""
+        clock = [0]
+
+        def tick(most=90):
+            clock[0] += rng.choice([0, 1, 5, 20, 61, rng.randrange(most + 1)])
+            return T(clock[0] // 60 % 60, clock[0] % 60) if clock[0] < 3600 else f"2026-01-05T11:{clock[0] // 60 % 60:02d}:{clock[0] % 60:02d}Z"
+
+        rows = [block("WORKFLOW_STARTED", tick(0), "**Scope**: bugfix")]
+        fire = [0]
+        for stage in rng.sample(real, rng.randrange(1, len(real) + 1)) + rng.sample(real, rng.randrange(0, 2)):
+            agent = [f"**Agent**: {rng.choice(['a-agent', 'b-agent'])}"] if rng.random() < 0.4 else []
+            rows.append(block("STAGE_STARTED", tick(), f"**Stage**: {stage}", *agent))
+            forked = []
+            if phase_of[stage] == "construction" and rng.random() < 0.7:
+                for bolt in rng.sample(bolts[:4], rng.randrange(1, 4)):
+                    worktree = rng.choice([f"wt/{bolt}", f"<project-dir>/wt/{bolt}", "", None])
+                    rows.append(block("STATE_FORKED", tick(), f"**Bolt slug**: {bolt}",
+                                      *([] if worktree is None else [f"**Worktree path**: {worktree}"])))
+                    forked.append((bolt, worktree))
+            for _ in range(rng.randrange(0, 5)):
+                fire[0] += 1
+                fire_id = f"{fire[0]:08x}"
+                under = rng.choice(forked)[1] if forked and rng.random() < 0.7 else None
+                output = [f"**Output path**: {under}/src/{fire_id}.ts"] if under else (
+                    ["**Output path**: src/main.ts"] if rng.random() < 0.3 else [])
+                rows.append(block("SENSOR_FIRED", tick(), f"**Stage slug**: {stage}",
+                                  f"**Sensor ID**: {rng.choice(['linter', 'types', 'tests'])}", f"**Fire id**: {fire_id}",
+                                  *output))
+                for _ in range(rng.choice([0, 1, 1, 1, 1, 2])):
+                    kind = rng.choice(["PASSED", "PASSED", "FAILED", "BUDGET_OVERRIDE"])
+                    detail = ["**Detail path**: aidlc/x/detail.md"] if kind == "FAILED" and rng.random() < 0.7 else []
+                    rows.append(block(f"SENSOR_{kind}", tick(30), f"**Fire id**: {fire_id}", *detail))
+            for _ in range(rng.choice([0, 0, 1, 2])):
+                source = rng.choice([[], ["**Source**: user_addition"], ["**Source**: orchestrator"]])
+                rows.append(block(rng.choice(["RULE_LEARNED", "SENSOR_PROPOSED"]), tick(), f"**Stage**: {stage}", *source))
+            for bolt, _ in forked:
+                roll = rng.random()
+                if roll < 0.6:
+                    rows.append(block("STATE_MERGED", tick(), f"**Bolt slug**: {bolt}"))
+                elif roll < 0.8:
+                    rows.append(block("BOLT_FAILED", tick(), f"**Bolt slug**: {bolt}"))
+            if rng.random() < 0.75:
+                rows.append(block("STAGE_COMPLETED", tick(), f"**Stage**: {stage}"))
+        return rows
+
+    for index in range(count):
+        rows = timeline() if rng.random() < 0.8 else []
+        # And rows nobody would log: any event at any time, labels written every way.
+        noise = [row() for _ in range(rng.randrange(0, 12 if rows else 40))]
+        for one in noise:
+            rows.insert(rng.randrange(len(rows) + 1), one)
+        shards = [[], [], []]
+        for one in rows:
+            shards[rng.choice([0, 0, 0, 1, 2])].append(one)
+        files = dict(RECORD_FILES)
+        for rows_of, name in zip(shards, ("laptop-abc123", "desktop-ffffffffffff", "tablet-0123456789ab")):
+            if rows_of:
+                text = TITLE + "".join(rows_of)
+                files[f"{RECORD_DIR}/audit/{name}.md"] = text.replace("\n", "\r\n") if rng.random() < 0.1 else text
+        state = ["# AI-DLC State", ""]
+        if rng.random() < 0.7:
+            state.append(f"- **Scope**: {rng.choice(['feature', '', ' padded '])}")
+        if rng.random() < 0.3:
+            state += ["- **Status**: Completed", "", "## Stage Progress"]
+            state += [f"- [{rng.choice('x x-S?R')}] {slug} — {rng.choice(['EXECUTE', 'EXECUTE', 'SKIP: no'])}"
+                      for slug in rng.sample(real + ["made-up"], rng.randrange(0, 7))]
+        if rng.random() < 0.95:
+            files[f"{RECORD_DIR}/aidlc-state.md"] = "\n".join(state) + "\n"
+        for slug in rng.sample(real, rng.randrange(0, 7)):
+            files[DIARY(phase_of[slug], slug)] = rng.choice(["", "## Deviations\n", "# Memory\n\n## Interpretations\n\n"]) if (
+                rng.random() < 0.4) else "\n".join(rng.choice(diary_lines) for _ in range(rng.randrange(0, 9))) + "\n"
+        if rng.random() < 0.3:
+            files[UNITS] = rng.choice([A_UNITS, A_UNITS, A_UNITS.replace("[auth]", "[web]"), "# none\n",
+                                       A_UNITS.replace("kind: service", "kind: big")])
+        runtime_check(str(index), files, [["compile"], ["compile"], ["summary", "--json"], ["summary"],
+                                          ["read", rng.choice(real)]], group="fuzz/runtime")
+
+
 def audit_fuzz(count):
     """Random sequences of audit commands on a record that already has history, each ending in a history read."""
     rng = random.Random(SEED + 1)
@@ -1797,11 +2492,13 @@ try:
         check("compile/twice_check", twice, ["compile", "--check"], files=True)
     verbs()
     audit_checks()
+    runtime_checks()
     run_queued()
     if FUZZ:
         if not ONLY or not re.search(ONLY, "fuzz/audit"):
             fuzz(FUZZ)
         audit_fuzz(FUZZ // 3)
+        runtime_fuzz(FUZZ // 4)
         run_queued(quiet=True)
     if MARKDOWN:
         markdown_fuzz(MARKDOWN)
@@ -1821,6 +2518,8 @@ if RECORD and not ONLY and not results["DIFFERENT"]:
 total = sum(results.values())
 print(f"\n{total} checks: {results['same']} same, {results['deviation']} known deviation, "
       f"{results['DIFFERENT']} different")
+if GRAPHS:
+    print("fuzz/runtime compared: " + ", ".join(f"{count} {what}" for what, count in sorted(GRAPHS.items())))
 for name, count in shapes.items():
     if count:
         print(f"{count} of the same after a difference of shape ({name}): {SHAPES[name]}")

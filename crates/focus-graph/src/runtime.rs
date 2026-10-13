@@ -141,6 +141,11 @@ pub fn load_stages_all(path: &Path) -> Result<Vec<Stage>> {
     let Value::Array(rows) = parsed else {
         bail!("Stage graph at {shown} is not a list of stages");
     };
+    // Upstream reads `enabled` off every row, which a `null` does not have:
+    // any other row that is no object reads as an empty stage, to it and here.
+    if rows.iter().any(Value::is_null) {
+        bail!("Stage graph at {shown} has a row that is null, not a stage");
+    }
     Ok(rows.iter().map(Stage::from_json).collect())
 }
 

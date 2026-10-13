@@ -76,3 +76,50 @@ fn the_corpus_shows_both_accepted_and_refused_entries() {
     assert!(count("Reserved field key: Event") > 5);
     assert!(count("<project-dir>") > 5);
 }
+
+#[test]
+fn the_corpus_shows_units_read_and_refused_and_diaries_with_entries() {
+    let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../fixtures/oracle");
+    let expected = fs::read_to_string(dir.join("expected.ndjson")).unwrap();
+    let of = |kind: &str| -> Vec<&str> {
+        let start = format!("{{\"id\":\"{kind}-");
+        expected.lines().filter(|l| l.starts_with(&start)).collect()
+    };
+    let units = of("bolt_dag");
+    let count = |needle: &str| units.iter().filter(|l| l.contains(needle)).count();
+    assert!(count("\"out\":{\"ok\":true") > 100);
+    // More than one batch: an order, not only a list.
+    assert!(count("\"],[\"") > 50);
+    assert!(count("\"kind\":\"") > 50);
+    assert!(count("\"reason\":\"absent\"") > 10);
+    assert!(count("\"reason\":\"malformed\"") > 50);
+    assert!(count("\"reason\":\"cyclic\"") >= 2);
+    for refusal in [
+        "units: must be a block list",
+        "units: block has no entries",
+        "depends_on: before any - name: entry",
+        "kind: before any - name: entry",
+        "has invalid kind",
+        "unrecognised line in units block",
+        "duplicate unit name",
+        "case-folding unit name collision",
+        "depends on itself",
+        "depends on unknown unit",
+        "Invalid Unit name",
+        "chars; max is 64",
+        "Unit name is empty",
+        "missing units: key",
+    ] {
+        assert!(count(refusal) >= 1, "no units block refused for: {refusal}");
+    }
+    let diaries = of("memory_counts");
+    let entries = diaries
+        .iter()
+        .filter(|l| !l.contains("\"total\":0}"))
+        .count();
+    assert!(
+        entries > 80,
+        "{entries} of {} diaries have entries",
+        diaries.len()
+    );
+}

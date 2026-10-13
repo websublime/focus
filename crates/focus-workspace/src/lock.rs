@@ -29,9 +29,9 @@ use focus_js::{EngineError, Result, bail, json};
 use serde_json::{Map, Value};
 
 use crate::atomic::write_atomic;
-use crate::env;
 use crate::links::refuse_link_on_the_way;
 use crate::project::Layout;
+use crate::{env, observer};
 
 /// How long an acquire waits for another process before giving up.
 /// `FOCUS_LOCK_TIMEOUT_MS` overrides it.
@@ -47,7 +47,8 @@ static HELD: Mutex<Vec<PathBuf>> = Mutex::new(Vec::new());
 /// lock.
 #[derive(Debug)]
 pub struct WorkspaceLock {
-    file: File,
+    /// The locked file; `None` for an observer, which holds nothing.
+    file: Option<File>,
     path: PathBuf,
     owner_path: PathBuf,
 }
@@ -76,6 +77,16 @@ impl WorkspaceLock {
     pub fn acquire_within(layout: &Layout, purpose: &str, timeout: Duration) -> Result<Self> {
         let path = layout.lock_file();
         let owner_path = layout.lock_owner_file();
+        // An observer changes no byte of the project, and the lock is a
+        // file in it. It needs none: every write it could reach under the
+        // lock refuses it (see `observer`), so there is nothing to serialise.
+        if observer::observing().is_some() {
+            return Ok(Self {
+                file: None,
+                path,
+                owner_path,
+            });
+        }
         // The lock file is the first thing a command writes in a project.
         refuse_link_on_the_way(&layout.project, &path)?;
         if let Some(parent) = path.parent() {
@@ -108,7 +119,7 @@ impl WorkspaceLock {
         // prints if it times out waiting.
         let _ = write_atomic(&owner_path, owner_note(purpose).as_bytes());
         Ok(Self {
-            file,
+            file: Some(file),
             path: identity,
             owner_path,
         })
@@ -117,8 +128,11 @@ impl WorkspaceLock {
 
 impl Drop for WorkspaceLock {
     fn drop(&mut self) {
+        let Some(file) = &self.file else {
+            return;
+        };
         let _ = fs::remove_file(&self.owner_path);
-        let _ = self.file.unlock();
+        let _ = file.unlock();
         HELD.lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner)
             .retain(|held| *held != self.path);

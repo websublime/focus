@@ -24,6 +24,7 @@ focus-harness = { path = "crates/focus-harness" }
 focus-graph = { path = "crates/focus-graph" }
 focus-audit = { path = "crates/focus-audit" }
 focus-markdown = { path = "crates/focus-markdown" }
+focus-state = { path = "crates/focus-state" }
 focus-workspace = { path = "crates/focus-workspace" }
 
 [workspace.lints.rust]
