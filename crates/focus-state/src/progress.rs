@@ -34,6 +34,36 @@ pub enum CheckboxState {
 }
 
 impl CheckboxState {
+    /// The six states, in the order upstream lists them.
+    pub const ALL: [CheckboxState; 6] = [
+        Self::Pending,
+        Self::InProgress,
+        Self::AwaitingApproval,
+        Self::Revising,
+        Self::Completed,
+        Self::Skipped,
+    ];
+
+    /// The state named `name`, as `isCheckboxState` admits it: exactly one
+    /// of the six names.
+    #[must_use]
+    pub fn parse(name: &str) -> Option<Self> {
+        Self::ALL.into_iter().find(|state| state.name() == name)
+    }
+
+    /// The box as it is written: `[x]`, `[ ]` and so on (`CHECKBOX_MAP`).
+    #[must_use]
+    pub fn marker(self) -> &'static str {
+        match self {
+            Self::Pending => "[ ]",
+            Self::InProgress => "[-]",
+            Self::AwaitingApproval => "[?]",
+            Self::Revising => "[R]",
+            Self::Completed => "[x]",
+            Self::Skipped => "[S]",
+        }
+    }
+
     /// The name upstream gives the state.
     #[must_use]
     pub fn name(self) -> &'static str {
@@ -80,6 +110,35 @@ pub fn parse_checkboxes(content: &str) -> Vec<Checkbox> {
             }
         })
         .collect()
+}
+
+/// `setCheckbox`: the first checkbox line of `slug` with its box set to
+/// `state`, whatever it was. Content with no such line is unchanged.
+#[must_use]
+pub fn set_checkbox(content: &str, slug: &str, state: CheckboxState) -> String {
+    let line = format!(r"^(- )\[[ xSR?-]\]( {} —)", re::escape(slug));
+    re::replace(&line, "m", content, &format!("$1{}$2", state.marker()))
+}
+
+/// `setStageSuffix`: the first checkbox line of `slug` with its action set
+/// to `action` (`EXECUTE` or `SKIP`), its box untouched. Content with no
+/// such line is unchanged.
+#[must_use]
+pub fn set_stage_suffix(content: &str, slug: &str, action: &str) -> String {
+    let line = format!(
+        r"^(- \[[ xSR?-]\] {}\s*—\s*)(EXECUTE|SKIP)\b",
+        re::escape(slug)
+    );
+    re::replace(&line, "m", content, &format!("$1{action}"))
+}
+
+/// `countCheckboxes`: how many checkbox lines are in `state`.
+#[must_use]
+pub fn count_checkboxes(content: &str, state: CheckboxState) -> usize {
+    parse_checkboxes(content)
+        .iter()
+        .filter(|line| line.state == state)
+        .count()
 }
 
 /// The action the approved plan gave each stage, `EXECUTE` or `SKIP`, in the
@@ -162,6 +221,35 @@ mod tests {
                 (slug, state, suffix)
             );
         }
+    }
+
+    #[test]
+    fn a_checkbox_is_set_on_its_own_line_only() {
+        let state =
+            "- [ ] aXb \u{2014} EXECUTE\n- [ ] a.b \u{2014} EXECUTE\n- [x] a.b \u{2014} SKIP\n";
+        assert_eq!(
+            set_checkbox(state, "aXb", CheckboxState::Completed),
+            "- [x] aXb \u{2014} EXECUTE\n- [ ] a.b \u{2014} EXECUTE\n- [x] a.b \u{2014} SKIP\n"
+        );
+        // The first line of a slug, whatever its state, and nothing for a
+        // slug that is not there; the name is matched as written, so `.`
+        // is a dot.
+        assert_eq!(
+            set_checkbox(state, "a.b", CheckboxState::Skipped),
+            "- [ ] aXb \u{2014} EXECUTE\n- [S] a.b \u{2014} EXECUTE\n- [x] a.b \u{2014} SKIP\n"
+        );
+        assert_eq!(set_checkbox(state, "a", CheckboxState::Skipped), state);
+        assert_eq!(
+            set_stage_suffix(state, "a.b", "SKIP"),
+            "- [ ] aXb \u{2014} EXECUTE\n- [ ] a.b \u{2014} SKIP\n- [x] a.b \u{2014} SKIP\n"
+        );
+        assert_eq!(set_stage_suffix(state, "a.bx", "SKIP"), state);
+        assert_eq!(count_checkboxes(state, CheckboxState::Pending), 2);
+        assert_eq!(
+            CheckboxState::parse("in-progress"),
+            Some(CheckboxState::InProgress)
+        );
+        assert_eq!(CheckboxState::parse("In-Progress"), None);
     }
 
     #[test]

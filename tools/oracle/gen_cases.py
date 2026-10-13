@@ -1451,5 +1451,81 @@ for _ in range(scale * 30):
         content = char_fuzz(content, rt.randrange(1, 4))
     add("progress", content=content)
 
+# --- M3: Guard Policy, fences and the lines they are read from -----------------------------------------
+# A case is a state text, the scope files' defaults, the memory declarations and the environment; the
+# answer is the policy, every fence, and the decision for each fence.
+gp = random.Random(seed * 7919 + 7)
+POLICY_WORDS = ["strict", "relaxed", "off"]
+LABELS = ["set by you", "you", "set by a command", "from scope classic", "from scope feature", "from project.md",
+          "from org.md", "not set", "", "from ", "set by  you", "FROM scope x", "from scope  wide "]
+FENCE_NAMES = ["plan-approval", "review-freeze", "state-transition", "reviewer-scope"]
+
+
+def policy_line(careful):
+    word = gp.choice(POLICY_WORDS)
+    if not careful and gp.random() < 0.3:
+        word = gp.choice(["Strict", "OFF", "Relaxed", "`off`", "**strict**", "offx", "none", "sometimes", "", "strict relaxed",
+                          "strict (", "off ()", "off (a (b))", " off ", "o\u0066f"])
+    label = gp.choice(LABELS)
+    shape = gp.random()
+    if shape < 0.5:
+        return f"{word} ({label})"
+    if shape < 0.7:
+        return word
+    if shape < 0.8:
+        return f"{word}  ({label})  "
+    return f"{word} ({label}) extra" if not careful else f"{word} ({label})"
+
+
+def guards_line(careful):
+    picked = gp.sample(FENCE_NAMES + (["human-presence", "nope", "`plan-approval`", "Review-Freeze", "plan-approval"] if not careful else []),
+                       gp.randrange(0, 4))
+    if not picked:
+        return gp.choice(["none", "None", "", "  ", "none (set by you)"])
+    return gp.choice([", ", ",", " , "]).join(picked) + gp.choice(["", " (set by you)", " (x)", "  "])
+
+
+def state_text(careful):
+    lines = ["# Focus State", ""]
+    if gp.random() < 0.9:
+        lines.append(f"- **Scope**: {gp.choice(['feature', 'bugfix', 'classic', 'Feature', ' feature ', 'nope', '', 'enterprise'])}")
+    for field in ["Guard Policy", "Change Control"]:
+        if gp.random() < (0.6 if field == "Guard Policy" else 0.25):
+            lines.append(f"- **{field}**: {policy_line(careful)}")
+    for field in ["Guards Off", "Guards On"]:
+        if gp.random() < 0.4:
+            lines.append(f"- **{field}**: {guards_line(careful)}")
+    if gp.random() < 0.3:
+        lines.append("- **Test Strategy**: unit")
+    if gp.random() < 0.2:
+        lines.append("- **Review Override**: no")
+    gp.shuffle(lines[2:]) if gp.random() < 0.3 else None
+    lines += ["", "## Notes", "- **Guard Policy**: off (in a later section, still the second line)"] if gp.random() < 0.1 else []
+    text = gp.choice(["\n", "\n", "\r\n"]).join(lines) + gp.choice(["", "\n"])
+    if not careful and gp.random() < 0.1:
+        text = char_fuzz(text, gp.randrange(1, 3))
+    return text
+
+
+for _ in range(scale * 60):
+    careful = gp.random() < 0.5
+    scopes = {}
+    for name in gp.sample(["feature", "bugfix", "classic", "enterprise", "wide", "Feature"], gp.randrange(0, 5)):
+        scopes[name] = gp.choice([None, None, "off", "strict", "relaxed"])
+    memory = []
+    for layer in ["org", "team", "project"]:
+        if gp.random() < 0.3:
+            memory.append({"layer": layer, "heading": gp.choice(["## Guard Policy", "## Guard Policy", "## Change Control"]),
+                           "value": gp.choice(POLICY_WORDS + ([] if careful else ["Strict", "OFF", "maybe", "`relaxed`"]))})
+    env = [name for name in ["AIDLC_DISABLE_PLAN_APPROVAL_GUARD", "AIDLC_DISABLE_REVIEW_FREEZE_HOOK", "AIDLC_DISABLE_REVIEWER_SCOPE_HOOK",
+                             "AIDLC_SKIP_HUMAN_PRESENCE_GUARD", "AIDLC_UNATTENDED"] if gp.random() < 0.15]
+    add("guard_policy", state=state_text(careful), scopes=scopes, memory=memory, env=env, tolerate=gp.random() < 0.5)
+
+for _ in range(scale * 25):
+    careful = gp.random() < 0.5
+    fences = gp.sample(FENCE_NAMES + ["human-presence", "nope", "Plan-Approval"], gp.randrange(0, 5))
+    line = gp.choice([policy_line(careful), guards_line(careful), policy_line(careful)])
+    add("guards_line", line=line, fences=fences, content=state_text(careful))
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

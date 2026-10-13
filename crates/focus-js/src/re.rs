@@ -251,9 +251,161 @@ pub fn group<'t>(text: &'t str, m: &Match, idx: usize) -> Option<&'t str> {
     m.group(idx).map(|range: Range<usize>| &text[range])
 }
 
+/// `escapeRegex`: `text` quoted so that a pattern matches it literally.
+#[must_use]
+pub fn escape(text: &str) -> String {
+    let mut quoted = String::with_capacity(text.len());
+    for c in text.chars() {
+        if ".*+?^${}()|[]\\".contains(c) {
+            quoted.push('\\');
+        }
+        quoted.push(c);
+    }
+    quoted
+}
+
+/// `text.replace(/pattern/flags, replacement)` with a string replacement:
+/// the first match, or every match with `g`, replaced by `replacement` with
+/// its `$` patterns expanded as JavaScript expands them (`$$`, `$&`, `` $` ``,
+/// `$'`, `$n`, `$nn`, `$<name>`). A `$` followed by anything else, or by a
+/// group the pattern does not have, stays as written.
+#[must_use]
+pub fn replace(pattern: &str, flags: &'static str, text: &str, replacement: &str) -> String {
+    let compiled = compile(pattern, flags);
+    let matches: Vec<Match> = if flags.contains('g') {
+        compiled.find_iter(text).collect()
+    } else {
+        compiled.find(text).into_iter().collect()
+    };
+    let mut out = String::with_capacity(text.len());
+    let mut at = 0;
+    for m in &matches {
+        out.push_str(&text[at..m.range.start]);
+        substitute(&mut out, text, m, replacement);
+        at = m.range.end;
+    }
+    out.push_str(&text[at..]);
+    out
+}
+
+/// `GetSubstitution`: `replacement` with its `$` patterns expanded for `m`.
+fn substitute(out: &mut String, text: &str, m: &Match, replacement: &str) {
+    let groups = m.captures.len();
+    let chars: Vec<char> = replacement.chars().collect();
+    let mut i = 0;
+    while i < chars.len() {
+        let c = chars[i];
+        if c != '$' || i + 1 >= chars.len() {
+            out.push(c);
+            i += 1;
+            continue;
+        }
+        let next = chars[i + 1];
+        match next {
+            '$' => {
+                out.push('$');
+                i += 2;
+            }
+            '&' => {
+                out.push_str(&text[m.range.clone()]);
+                i += 2;
+            }
+            '`' => {
+                out.push_str(&text[..m.range.start]);
+                i += 2;
+            }
+            '\'' => {
+                out.push_str(&text[m.range.end..]);
+                i += 2;
+            }
+            '0'..='9' => {
+                let digit = |c: char| c.to_digit(10).map(|d| d as usize);
+                let first = digit(next).expect("a digit");
+                let second = chars.get(i + 2).copied().and_then(digit);
+                // Two digits name a group when the pattern has that many.
+                if let Some(second) = second
+                    && (1..=groups).contains(&(first * 10 + second))
+                {
+                    push_group(out, text, m, first * 10 + second);
+                    i += 3;
+                } else if (1..=groups).contains(&first) {
+                    push_group(out, text, m, first);
+                    i += 2;
+                } else {
+                    out.push('$');
+                    i += 1;
+                }
+            }
+            '<' if m.named_groups().next().is_some() => {
+                let close = chars[i + 2..].iter().position(|c| *c == '>');
+                if let Some(close) = close {
+                    let name: String = chars[i + 2..i + 2 + close].iter().collect();
+                    if let Some(range) = m.named_group(&name) {
+                        out.push_str(&text[range]);
+                    }
+                    i += 3 + close;
+                } else {
+                    out.push('$');
+                    i += 1;
+                }
+            }
+            _ => {
+                out.push('$');
+                i += 1;
+            }
+        }
+    }
+}
+
+fn push_group(out: &mut String, text: &str, m: &Match, idx: usize) {
+    if let Some(range) = m.group(idx) {
+        out.push_str(&text[range]);
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn replace_expands_dollar_patterns_as_javascript_does() {
+        // Captured from `text.replace(new RegExp(pat, flags), rep)` under Bun.
+        for (text, pat, flags, rep, want) in [
+            ("a-b-c", "-", "", "+", "a+b-c"),
+            ("a-b-c", "-", "g", "+", "a+b+c"),
+            (
+                "x=1",
+                r"^(x)=(\d)$",
+                "",
+                "$2$1 $$ $& [$`] [$'] $3 $0 $10 $01 $<n> $",
+                "1x $ x=1 [] [] $3 $0 x0 x $<n> $",
+            ),
+            ("ab", "(a)(b)", "", "$2$1$12$21$00$99", "baa2b1$00$99"),
+            ("abc", "(?<n>b)", "", "[$<n>][$<m>]", "a[b][]c"),
+            (
+                "- **Scope**: old",
+                r"^(- \*\*Scope\*\*:)[ \t]*.*$",
+                "m",
+                "$1 $$1 $9",
+                "- **Scope**: $1 $9",
+            ),
+            ("aaa", "a", "g", "$&$&", "aaaaaa"),
+            ("abc", "(x)?b", "", "[$1]", "a[]c"),
+            ("", "^", "", "X", "X"),
+            ("héllo wörld", "ö", "g", "$`|$'", "héllo whéllo w|rldrld"),
+        ] {
+            assert_eq!(replace(pat, flags, text, rep), want, "{text:?} {rep:?}");
+        }
+        assert_eq!(escape("a.b*c$[d]\\e"), r"a\.b\*c\$\[d\]\\e");
+    }
+
+    #[test]
+    fn dollar_matches_before_every_line_terminator() {
+        for text in ["a\nb", "a\rb", "a\r\nb", "a\u{2028}b", "a\u{2029}b", "a"] {
+            let found = find(r"^(.*)$", "m", text).unwrap();
+            assert_eq!(group(text, &found, 1), Some("a"), "{text:?}");
+        }
+    }
 
     #[test]
     fn whitespace_class_is_ecmascript() {

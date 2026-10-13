@@ -1,0 +1,22 @@
+[package]
+name = "focus-guards"
+description = "Guard Policy, fences and the authority that covers an action: what the guards decide before anything moves."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+serde_json.workspace = true
+focus-graph.workspace = true
+focus-js.workspace = true
+focus-state.workspace = true
+focus-workspace.workspace = true
+
+[dev-dependencies]
+focus-harness.workspace = true
+
+[lints]
+workspace = true

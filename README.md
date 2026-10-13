@@ -80,7 +80,8 @@ focus engine graph compile --harness claude --core fixtures/upstream/core --out 
 | `focus-markdown` | The block structure of a Markdown document, line by line, and the lines of it a reader of the engine's files may act on: not what sits in a comment, a code block or an HTML block |
 | `focus-graph` | Stage, scope, agent, sensor and rule schemas; the compile; composed scopes; graph queries; plan validation; ARS |
 | `focus-audit` | The audit ledger: the event vocabulary, how an entry is validated and written, how entries are read back, the shard each clone writes, appending to it under the lock, and a record's history from all its shards. And what a ledger reads as: the runtime graph of a workflow, its summary, the counts of a stage's diary, and the order units can be built in |
-| `focus-state` | The state file of a workflow. So far, its checkbox lines and what a complete workflow says of its stages |
+| `focus-state` | The state file of a workflow: its bulleted fields and checkbox lines, read and written as text |
+| `focus-guards` | Guard Policy, the five fences and the authority behind an action: what the guards decide before anything moves |
 | `focus-cli` | The `focus` binary (the package is named `focus`) |
 
 `fixtures/upstream/` holds the reference's Markdown, its compiled output and an
