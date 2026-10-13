@@ -330,7 +330,11 @@ def first_difference(a, b):
         left = a_lines[index] if index < len(a_lines) else "<end>"
         right = b_lines[index] if index < len(b_lines) else "<end>"
         if left != right:
-            return f"line {index + 1}\n             upstream: {left[:300]}\n             focus:    {right[:300]}"
+            # Long lines (a JSON document on one line) are shown from where they first differ.
+            at = next((i for i, (x, y) in enumerate(zip(left, right)) if x != y), min(len(left), len(right)))
+            start = max(0, at - 80)
+            left, right = left[start:start + 300], right[start:start + 300]
+            return f"line {index + 1}\n             upstream: {left}\n             focus:    {right}"
     return "identical"
 
 
@@ -440,7 +444,7 @@ def run_queued(quiet=False):
 
 
 def compare(name, trees, args, env, stdin, files):
-    if files in ("audit", "runtime"):
+    if files in ("audit", "runtime", "state"):
         return compare_audit(name, trees, args, env, files)
     ts, rs = trees
     outcome = {}
@@ -1244,6 +1248,25 @@ def normalise_audit(text, tree, engine):
         suffix = " report" if tool == "orchestrate" else ""
         text = text.replace(f"aidlc-{tool}.ts{suffix}", f"<cli> {tool}{suffix}")
         text = text.replace(f"`focus engine {tool}{suffix}`", f"<cli> {tool}{suffix}")
+    # The state tool names itself, its verbs and the orchestrator's in each engine's own spelling.
+    # (A file's text has already been through the name map, so the tool is named either way.)
+    text = re.sub(r"(?:aidlc|focus)-(state|orchestrate)\.ts(?: ([a-z-]+))?",
+                  lambda m: f"<cli> {m.group(1)}" + (f" {m.group(2)}" if m.group(2) else ""), text)
+    text = re.sub(r"`focus engine (state|orchestrate)(?: ([^`]*))?`", lambda m: f"<cli> {m.group(1)}" + (f" {m.group(2)}" if m.group(2) else ""), text)
+    # A state file that is a directory: each runtime's own words.
+    text = re.sub(r"(?:EISDIR: illegal operation on a directory, read|(?:<project-dir>/)?[^\s\"]*(?:aidlc|focus)-state\.md: Is a directory \(os error 21\))",
+                  "<runtime>", text)
+    # The tool's own name (never the state file's) in a row's Tool or Details, or in the line it prints.
+    text = re.sub(r"(?<![\w-])(?:aidlc|focus)-state(?![\w.-])(?: (get|set|checkbox|count|[a-z-]+))?(?![\w-])",
+                  lambda m: "<cli> state" + (f" {m.group(1)}" if m.group(1) else ""), text)
+    text = text.replace("Usage: focus engine state ", "Usage: <cli> state ")
+    text = text.replace("Run focus engine state --help", "Run <cli> state --help")
+    # The fence switch is one operation, spelled for each engine's installation.
+    text = re.sub(r"`bun \.claude/tools/(?:aidlc|focus)-utility\.ts config-change --(guard\.[a-z-]+) off`", r"<cli-config \1 off>", text)
+    text = re.sub(r"`focus engine config set (guard\.[a-z-]+) off`", r"<cli-config \1 off>", text)
+    text = text.replace("how closely AI-DLC checks", "how closely <engine> checks").replace("how closely Focus checks", "how closely <engine> checks")
+    # The Command field of an error row carries the arguments the differential adds for Focus.
+    text = text.replace(" --harness claude\n", "\n")
     text = STAMP.sub(lambda found: "<now>" if found.group(0) >= STARTED else found.group(0), text)
     text = re.sub(r"(could not be opened: [^\n(]*\()[^\n]*?\)(?=\"\}|\n|$)", r"\1<runtime>)", text)
     return text
@@ -1707,11 +1730,36 @@ def runtime_check(name, files, steps, env=None, edits=(), group="runtime"):
     name = f"{group}/{name}"
     if ONLY and not re.search(ONLY, name):
         return
-    lay = lambda tree: [tree.write(rel, text) for rel, text in files.items()]
-    JOBS.append((name, pair(name, lay, *edits), steps, env, None, "runtime"))
+    def lay(tree):
+        for rel, text in files.items():
+            if text is None:
+                os.remove(tree.path(rel)) if os.path.exists(tree.path(rel)) else None
+            else:
+                tree.write(rel, text)
+    # The group names the tool, run from the tree's own installation.
+    JOBS.append((name, pair(name, lay, *edits), steps, env, None, group))
 
 
 DEVIATIONS.update({
+    r"state/usage/(none|unknown)":
+        "upstream's usage lists its 33 verbs, Focus's the four it has",
+    r"state/usage/[a-z-]+_not_ported":
+        "upstream passes the verb through the state-transition fence (standing aside, with a GUARD_STOOD_ASIDE row) "
+        "and then runs it or prints its usage; focus refuses the verb by name, with no fence consulted, since it "
+        "does not have it yet",
+    r"state/usage/flag_without_its_value":
+        "upstream takes a trailing --project-dir with no value as part of the field; focus refuses the flag",
+    r"state/usage/metrics_endpoint":
+        "upstream sends a metric for the ERROR_LOGGED row to the configured endpoint; focus has no metrics yet "
+        "and writes no row rather than leave the endpoint without what it expects (the refusal is printed either way)",
+    r"state/marker/.*":
+        "a record carrying an active-directive or turn marker: upstream reads the authority behind the action off "
+        "them and keeps the state-write record beside the first; the hooks and orchestrator that write them are M4 "
+        "and M5, so focus refuses to decide a fence with the markers there, and refuses to write the state beside "
+        "the active directive",
+    r"state/record/(sessions_by_process|delegated_worktree)":
+        "upstream walks the process tree to find which conversation is calling, and resolves a delegated worktree to "
+        "the main checkout's intent; focus refuses and asks for the session",
     "runtime/usage/none":
         "upstream's usage lists fragment-fork and fragment-merge; focus lists the verbs it has",
     r"runtime/usage/fragment_(fork|merge)":
@@ -1763,6 +1811,140 @@ DEVIATIONS.update({
         "the duration is a difference of two Date.parse answers upstream; focus refuses a timestamp it does not "
         "read (see the orphan checks)",
 })
+
+
+STATE_FULL = ("# AI-DLC State\n\n## Workflow\n- **Scope**: feature\n- **Status**: In Progress\n- **Current Stage**: code-generation\n"
+              "- **Completed**: 2\n- **Guard Policy**: off (from scope feature)\n\n## Stage Progress\n"
+              "- [x] intent-capture \u2014 EXECUTE\n- [x] requirements-analysis \u2014 EXECUTE\n- [-] code-generation \u2014 EXECUTE\n"
+              "- [ ] build-and-test \u2014 EXECUTE\n- [S] nfr-design \u2014 SKIP: not needed\n\n## Runtime State\n- **Parked**: no\n")
+
+
+def state_checks():
+    """`aidlc-state.ts` on the verbs Focus has: get, set, checkbox, count, and what stands before a write."""
+    check_ = lambda name, files, steps, env=None, edits=(): runtime_check(name, files, steps, env, edits, group="state")
+    record = {**RECORD_FILES, f"{RECORD_DIR}/aidlc-state.md": STATE_FULL}
+    direct = {"ALLOW_DIRECT_STATE_TRANSITIONS": "1"}
+    shard = {SHARD: TITLE + WORKFLOW + STARTED_ROW(1, "intent-capture")}
+
+    # Usage.
+    check_("usage/none", record, [[]])
+    check_("usage/unknown", record, [["nope"]])
+    check_("usage/get_no_field", record, [["get"]])
+    check_("usage/set_no_pair", record, [["set"]], direct)
+    check_("usage/checkbox_no_pair", record, [["checkbox"]], direct)
+    check_("usage/count_no_state", record, [["count"]])
+    for verb in ("advance", "approve", "park", "unit", "fork", "practices-event", "set-construction-checkpoints"):
+        check_(f"usage/{verb}_not_ported", {**record, **shard}, [[verb]])
+
+    # get: a field, a field with spaces, an empty one, one that is not there, and with no state file.
+    check_("get/fields", record, [["get", "Scope"], ["get", "Current", "Stage"], ["get", "Parked"], ["get", "Nope"],
+                                  ["get", "Completed"], ["get", "Stage Progress"]])
+    check_("get/empty_value", {**record, f"{RECORD_DIR}/aidlc-state.md": "- **Scope**: \n- **Next**: x\n"},
+           [["get", "Scope"], ["get", "Next"]])
+    check_("get/no_state_file", RECORD_FILES | {f"{RECORD_DIR}/aidlc-state.md": None}, [["get", "Scope"]])
+    check_("get/no_record", CLONE, [["get", "Scope"]])
+    check_("get/crlf", {**record, f"{RECORD_DIR}/aidlc-state.md": STATE_FULL.replace("\n", "\r\n")},
+           [["get", "Scope"], ["get", "Current Stage"], ["count", "completed"]])
+    # The error row names the tool, the command and the error, with the project's path redacted.
+    check_("get/error_logged", {**record, **shard}, [["get", "Nope"], ["get", "{P}/x"], ["count", "nope"], ["get"]])
+    check_("get/error_without_shard", record, [["get", "Nope"]])
+    check_("get/error_without_intent", {**CLONE, "aidlc/spaces/default/intents/aidlc-state.md": STATE_FULL}, [["get", "Nope"]])
+
+    # set: fields, special values, a batch that fails before any write, typed setters, dollar patterns.
+    check_("set/fields", {**record, **shard},
+           [["set", "Scope=bugfix", "Current Stage=build-and-test"], ["get", "Scope"], ["get", "Current Stage"]], direct)
+    check_("set/now_and_counts", {**record, **shard},
+           [["set", "Completed=+1"], ["set", "Completed=-1", "Completed=-1", "Completed=-1"], ["set", "Parked=+1"],
+            ["set", "Nope=+1", "Scope=-1"], ["get", "Scope"], ["set", "Status=NOW"]], direct)
+    check_("set/absent_field_is_no_op", {**record, **shard}, [["set", "Nope=1"], ["set", "Scope=x", "Nope=2"], ["get", "Scope"]], direct)
+    check_("set/invalid_pair", {**record, **shard}, [["set", "Scope=x", "nopair"], ["set", "=x"], ["get", "Scope"]], direct)
+    check_("set/typed_setters", {**record, **shard},
+           [["set", "Construction Checkpoints=enabled"], ["set", "Scope=x", "Construction Execution=swarm"],
+            ["set", "Construction Iteration=unit-major"], ["set", "Construction Verification Command=make"]], direct)
+    check_("set/dollar_patterns", {**record, **shard},
+           [["set", "Scope=$1 $& $$ $' $9 $<n>"], ["get", "Scope"], ["set", "Scope=$2"], ["get", "Scope"]], direct)
+    check_("set/empty_and_odd_values", {**record, **shard},
+           [["set", "Scope="], ["get", "Scope"], ["set", "Scope=a=b=c"], ["get", "Scope"], ["set", "Scope=  spaced  "],
+            ["get", "Scope"], ["set", "Scope=\u00e9 \U0001F600"], ["get", "Scope"]], direct)
+    check_("set/no_state_file", {**RECORD_FILES, f"{RECORD_DIR}/aidlc-state.md": None, **shard}, [["set", "Scope=x"]], direct)
+    check_("set/archived", {**record, f"{RECORD_DIR}/aidlc-state.md": STATE_FULL.replace("In Progress", "Archived"), **shard},
+           [["set", "Scope=x"], ["checkbox", "build-and-test=completed"], ["get", "Scope"], ["count", "completed"]], direct)
+    check_("set/crlf", {**record, f"{RECORD_DIR}/aidlc-state.md": STATE_FULL.replace("\n", "\r\n"), **shard},
+           [["set", "Scope=x", "Completed=+1"], ["checkbox", "build-and-test=completed"]], direct)
+
+    # checkbox and count.
+    check_("checkbox/states", {**record, **shard},
+           [["checkbox", "build-and-test=in-progress", "code-generation=completed"], ["count", "completed"],
+            ["count", "in-progress"], ["checkbox", "nfr-design=pending"], ["count", "skipped"], ["count", "pending"],
+            ["checkbox", "intent-capture=awaiting-approval", "intent-capture=revising"], ["count", "revising"]], direct)
+    check_("checkbox/unknown_slug_and_state", {**record, **shard},
+           [["checkbox", "nope=completed"], ["checkbox", "build-and-test=done"], ["checkbox", "=completed"],
+            ["checkbox", "build-and-test=completed", "x=nope"], ["count", "completed"]], direct)
+    check_("checkbox/completed_counter_follows", {**record, f"{RECORD_DIR}/aidlc-state.md": STATE_FULL.replace("**Completed**: 2", "**Completed**: 9"), **shard},
+           [["get", "Completed"], ["checkbox", "build-and-test=completed"], ["get", "Completed"]], direct)
+    check_("checkbox/no_completed_field", {**record, f"{RECORD_DIR}/aidlc-state.md": STATE_FULL.replace("- **Completed**: 2\n", ""), **shard},
+           [["checkbox", "build-and-test=completed"], ["get", "Completed"]], direct)
+    check_("count/states", record, [["count", "completed"], ["count", "pending"], ["count", "in-progress"], ["count", "skipped"],
+                                    ["count", "awaiting-approval"], ["count", "revising"], ["count", "done"]])
+
+    # The engine-owned gate: by the fence, by the owner, by the switch.
+    lowered = {**record, **shard}
+    check_("gate/fence_down_by_scope_default", {**record, f"{RECORD_DIR}/aidlc-state.md": STATE_FULL.replace("- **Guard Policy**: off (from scope feature)\n", ""), **shard},
+           [["set", "Scope=x"], ["checkbox", "build-and-test=completed"]])
+    check_("gate/fence_down_by_policy_line", lowered, [["set", "Scope=x"]])
+    check_("gate/fence_down_relaxed_speaks", {**record, f"{RECORD_DIR}/aidlc-state.md": STATE_FULL.replace("off (from scope feature)", "relaxed (set by you)") + "- **Guards Off**: state-transition (set by you)\n", **shard},
+           [["set", "Scope=x"], ["checkbox", "build-and-test=completed"]])
+    check_("gate/fence_down_without_shard", record, [["set", "Scope=x"], ["get", "Scope"]])
+    check_("gate/fence_up_strict", {**record, f"{RECORD_DIR}/aidlc-state.md": STATE_FULL.replace("off (from scope feature)", "strict (set by you)"), **shard},
+           [["set", "Scope=x"], ["checkbox", "build-and-test=completed"], ["get", "Scope"]])
+    check_("gate/fence_up_by_guards_on", {**record, f"{RECORD_DIR}/aidlc-state.md": STATE_FULL + "- **Guards On**: state-transition (set by you)\n", **shard},
+           [["set", "Scope=x"]])
+    check_("gate/fence_up_by_memory", {**record, "aidlc/spaces/default/memory/team.md": "# Team\n\n## Guard Policy\n\nMode: strict\n", **shard},
+           [["set", "Scope=x"]])
+    check_("gate/fence_up_enterprise", {**record, f"{RECORD_DIR}/aidlc-state.md": STATE_FULL.replace("- **Guard Policy**: off (from scope feature)\n", "").replace("feature", "enterprise"), **shard},
+           [["set", "Scope=x"]])
+    check_("gate/policy_unreadable_state", {**record, f"{RECORD_DIR}/aidlc-state.md": STATE_FULL.replace("off (from scope feature)", "sometimes"), **shard},
+           [["set", "Scope=x"]])
+    check_("gate/policy_unreadable_memory", {**record, "aidlc/spaces/default/memory/org.md": "## Guard Policy\n\nMode: maybe\n", **shard},
+           [["set", "Scope=x"]])
+    check_("gate/no_state_file", {**RECORD_FILES, f"{RECORD_DIR}/aidlc-state.md": None, **shard}, [["set", "Scope=x"]])
+    # The owner is this process, which a replay is not run from.
+    UNRECORDED.add("state/gate/owner_is_parent")
+    check_("gate/owner_is_parent", {**record, f"{RECORD_DIR}/aidlc-state.md": STATE_FULL.replace("off (from scope feature)", "strict (set by you)"), **shard},
+           [["set", "Scope=x"], ["get", "Scope"]], {"STATE_TRANSITION_OWNER": f"orchestrate:{os.getpid()}"})
+    check_("gate/owner_is_another", {**record, f"{RECORD_DIR}/aidlc-state.md": STATE_FULL.replace("off (from scope feature)", "strict (set by you)"), **shard},
+           [["set", "Scope=x"]], {"STATE_TRANSITION_OWNER": "orchestrate:1"})
+    check_("gate/switch_off_is_not_on", {**record, f"{RECORD_DIR}/aidlc-state.md": STATE_FULL.replace("off (from scope feature)", "strict (set by you)"), **shard},
+           [["set", "Scope=x"]], {"ALLOW_DIRECT_STATE_TRANSITIONS": "0"})
+    check_("gate/reads_need_no_gate", {**record, f"{RECORD_DIR}/aidlc-state.md": STATE_FULL.replace("off (from scope feature)", "strict (set by you)"), **shard},
+           [["get", "Scope"], ["count", "completed"]])
+
+    # Observers, and a record with a marker.
+    for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
+        check_(f"observer/{marker.lower()}", {**record, **shard},
+               [["set", "Scope=x"], ["checkbox", "build-and-test=completed"], ["get", "Scope"], ["count", "completed"]],
+               {marker: "1", **direct})
+        check_(f"observer/{marker.lower()}_at_the_gate", {**record, **shard}, [["set", "Scope=x"]], {marker: "1"})
+    check_("marker/active_directive", {**record, f"{RECORD_DIR}/.aidlc-engine/active-directive.json": "{}\n", **shard},
+           [["set", "Scope=x"], ["get", "Scope"]], direct)
+    check_("marker/active_directive_at_the_gate", {**record, f"{RECORD_DIR}/.aidlc-engine/active-directive.json": "{}\n", **shard},
+           [["set", "Scope=x"]])
+    check_("marker/turn_markers_at_the_gate", {**record, f"{RECORD_DIR}/.aidlc-engine/human-turn": "", f"{RECORD_DIR}/.aidlc-engine/engine-touch": "", **shard},
+           [["set", "Scope=x"]])
+
+    # Which record, and what Focus does not resolve.
+    other = "aidlc/spaces/payments/intents"
+    check_("record/other_space", {**CLONE, "aidlc/active-space": "payments\n", f"{other}/aidlc-state.md": STATE_FULL}, [["get", "Scope"], ["set", "Scope=x"], ["get", "Scope"]], direct)
+    check_("record/two_records_no_cursor", {**CLONE, f"{RECORD_DIR}/aidlc-state.md": STATE_FULL, "aidlc/spaces/default/intents/fix-logout-9f8e7d6c/aidlc-state.md": STATE_FULL}, [["get", "Scope"]])
+    check_("record/sessions_by_process", {**record, "aidlc/.aidlc-sessions/pids/1.json": "{}\n"}, [["get", "Scope"]])
+    check_("record/delegated_worktree", {**record, ".aidlc/worktree-meta.json": "{}\n"}, [["get", "Scope"]])
+    check_("record/unit_claim", {**record, "aidlc/.aidlc-unit-scope.json": "{}\n", **shard}, [["get", "Scope"], ["set", "Scope=x"]], direct)
+    check_("record/state_is_a_directory", {**RECORD_FILES, f"{RECORD_DIR}/aidlc-state.md": None, f"{RECORD_DIR}/aidlc-state.md/x": "x"},
+           [["get", "Scope"], ["set", "Scope=x"]], direct)
+    check_("usage/project_dir_before_the_verb", record, [["--project-dir", "{P}", "get", "Scope"]])
+    check_("usage/stray_argument", record, [["get", "Scope", "--x"], ["count", "completed", "extra"]])
+    check_("usage/flag_without_its_value", record, [["get", "Scope", "--project-dir"]])
+    check_("usage/metrics_endpoint", {**record, **shard}, [["get", "Nope"]], {"METRICS_ENDPOINT": "http://127.0.0.1:9/x"})
 
 
 def runtime_checks():
@@ -2493,6 +2675,7 @@ try:
     verbs()
     audit_checks()
     runtime_checks()
+    state_checks()
     run_queued()
     if FUZZ:
         if not ONLY or not re.search(ONLY, "fuzz/audit"):

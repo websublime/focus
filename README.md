@@ -46,16 +46,22 @@ focus engine audit history --stage code-generation --limit 20
 focus engine runtime compile          # write the active record's runtime-graph.json
 focus engine runtime read code-generation
 focus engine runtime summary          # stages, diaries, sensors, learnings, duration
+
+focus engine state get "Current Stage" # one field of the active record's state file
+focus engine state count completed
+FOCUS_ALLOW_DIRECT_STATE_TRANSITIONS=1 focus engine state set Scope=bugfix Completed=+1
 ```
 
-`focus engine graph --help`, `focus engine audit --help` and
-`focus engine runtime --help` list every verb and flag. The `audit` command is
+`focus engine graph --help`, `focus engine audit --help`,
+`focus engine runtime --help` and `focus engine state --help` list every verb
+and flag. The `audit` command is
 the diagnostic way into the ledger: events that carry authority (a gate
 approval, a person's turn, a unit's completion) are written only by the
 engine's own tools and hooks, and are refused there. The `runtime` command
 reads the ledger back as a graph of what the workflow has done; the engine
 will compile it after every event, and until the hooks exist it is run by
-hand.
+hand. The `state` command reads and writes the state file as data; a write
+that is not the orchestrator's passes the state-transition fence first.
 
 The project is, in
 order: `--project-dir`; `FOCUS_PROJECT_DIR`; the directory the host names
@@ -80,7 +86,7 @@ focus engine graph compile --harness claude --core fixtures/upstream/core --out 
 | `focus-markdown` | The block structure of a Markdown document, line by line, and the lines of it a reader of the engine's files may act on: not what sits in a comment, a code block or an HTML block |
 | `focus-graph` | Stage, scope, agent, sensor and rule schemas; the compile; composed scopes; graph queries; plan validation; ARS |
 | `focus-audit` | The audit ledger: the event vocabulary, how an entry is validated and written, how entries are read back, the shard each clone writes, appending to it under the lock, and a record's history from all its shards. And what a ledger reads as: the runtime graph of a workflow, its summary, the counts of a stage's diary, and the order units can be built in |
-| `focus-state` | The state file of a workflow: its bulleted fields and checkbox lines, read and written as text |
+| `focus-state` | The state file of a workflow: its bulleted fields and checkbox lines, read and written as text, and the file on disk |
 | `focus-guards` | Guard Policy, the five fences and the authority behind an action: what the guards decide before anything moves |
 | `focus-cli` | The `focus` binary (the package is named `focus`) |
 

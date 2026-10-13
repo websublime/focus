@@ -26,6 +26,7 @@ pub const ROUTE_CHECK: &str = "ROUTE_CHECK";
 /// an audit shard is appended to is its `appendAuditBlockAtPath`.
 pub const WRITE_FILE_ATOMIC: &str = "writeFileAtomic";
 pub const APPEND_AUDIT_BLOCK: &str = "appendAuditBlockAtPath";
+pub const WRITE_STATE_FILE: &str = "writeStateFile";
 
 /// The variable that makes this process an observer, when one does.
 #[must_use]

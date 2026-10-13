@@ -920,7 +920,7 @@ M3 está em curso. O que o plano chamava "estado e criação de intents" é, no 
 | Fatia | O que traz | Como se verifica | Estado |
 | --- | --- | --- | --- |
 | 1. Guard Policy e fences | `focus-guards`: a resolução da política de um workflow (a linha do estado, o default do scope, as camadas de memória), as linhas `Guards Off` e `Guards On`, os kill switches, o que cada política baixa, a decisão de uma fence e a autoridade de uma ação sem marcadores de hooks | Corpus | Feita |
-| 2. O ficheiro de estado como dados | `focus-state`: campos, checkboxes, listas de refs, progresso de fase; ler e escrever o ficheiro (barreira `writeStateFile`, ficheiro só de leitura); `focus engine state get`, `set`, `checkbox` e `count`, com a porta das transições e o `ERROR_LOGGED` de cada recusa | Corpus e diferencial | |
+| 2. O ficheiro de estado como dados | `focus-state`: campos, checkboxes, listas de refs, progresso de fase; ler e escrever o ficheiro (barreira `writeStateFile`, ficheiro só de leitura); `focus engine state get`, `set`, `checkbox` e `count`, com a porta das transições e o `ERROR_LOGGED` de cada recusa | Corpus e diferencial | Feita |
 | 3. Criação de intents | `intent-create`: o registo, o cursor, o ficheiro de estado a partir do template | Diferencial | |
 | 4. Transições de stage | `advance`, `gate-start`, `approve`, `reject`, `revise`, `skip`, `resume`, `finalize`, `complete-workflow`, em série e sem units | Diferencial e fuzz de sequências | |
 | 5. Parar, saltar, validar | `park`, `unpark`, `jump`, `validity`, `--status` | Diferencial | |
@@ -959,5 +959,46 @@ Antes de mexer no ficheiro de estado, cada transição do original pergunta se p
 - **A autoridade com marcadores.** `authorityFor` lê o marcador da diretiva ativa, os marcadores de turno e o ledger de dispatches em curso; sem eles, a autoridade é "nada cobre a ação", e é isso que Focus responde. Com eles, recusa (desvio acima).
 - **Quem age sobre a decisão.** Os hooks que seguram uma fence e a linha `GUARD_STOOD_ASIDE` na auditoria entram com quem os chama: o comando `state` na fatia 2, os hooks em M4.
 - **As ceremónias por scope** (`sensors`, `learnings`, `summary_confirmation`, `plan_approval`, `collaborators`) e os switches do `config set`: leem-se ao lado disto no original e entram com os comandos que os usam.
+
+### Fatia 2: o ficheiro de estado como dados, e o comando `state`
+
+`focus engine state` é o `aidlc-state.ts` do original nos verbos que leem e escrevem o ficheiro pelo nome: `get <campo>`, `set <campo=valor>…` (com `NOW`, `+1` e `-1`), `checkbox <stage=estado>…` (que acerta o contador `Completed`) e `count <estado>`. Os outros 29 verbos do original são recusados pelo nome, cada um com uma frase que diz o que faz; os de M3 entram nas fatias 4 e 5.
+
+**O que está antes de uma escrita.** O workflow não pode estar arquivado. E uma escrita genérica é do engine: um `set` ou `checkbox` que não venha do orchestrator (`FOCUS_STATE_TRANSITION_OWNER` com o pid do processo pai, ou `FOCUS_ALLOW_DIRECT_STATE_TRANSITIONS=1`) passa primeiro pela fence `state-transition`, que a fatia 1 decide. Com a fence em baixo, a escrita segue com uma linha no stderr (salvo com a política `off`, que já a disse quando foi posta) e uma linha `GUARD_STOOD_ASIDE` na auditoria; em cima, é recusada com a frase do original, que diz como a pessoa baixa a fence, ou porque não pode (a memória da equipa segura `strict`; uma política que não se lê).
+
+**O que uma recusa deixa.** Cada recusa imprime `{"error": …}` no stderr, sai com 1 e, quando o registo tem ficheiro de estado, escreve uma linha `ERROR_LOGGED` na auditoria com a ferramenta, o comando e o erro, com o caminho do projeto redigido nos dois (`redactProjectDirPrefix`, agora em `focus-workspace::project`). A recusa de uma seleção que Focus não resolve, que o original faz antes de tudo isto, é impressa sozinha.
+
+**O que existe.** `focus-state::file` (`readStateFile`, `writeStateFile`: a barreira de observador, a recusa de um ficheiro só de leitura, que uma escrita atómica passaria por cima sem dar por isso), `focus-cli::state`, e a redação do caminho do projeto.
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Diferencial, `state/*` | 68 verificações com nome: 52 iguais, 16 desvios, 0 diferentes. Comparam o que cada comando diz e todos os ficheiros do workspace: o ficheiro de estado byte a byte, as linhas `GUARD_STOOD_ASIDE` e `ERROR_LOGGED` campo a campo |
+| Diferencial completo | 1 699 verificações: 1 596 iguais, 103 desvios, 0 diferentes. 1 685 gravadas, sobre 285 árvores |
+| Mutações | 28 no comando, na escrita do ficheiro e na redação; 24 apanhadas. Duas eram equivalentes e o código foi simplificado (a redação do caminho, que o renderizador das linhas da auditoria já faz desde M2, e uma flag que dizia se uma recusa se grava, quando uma recusa de seleção nunca encontra registo onde se gravar); uma é equivalente por construção (`!= Hold` para `== StandAside`); e a da recusa de um ficheiro só de leitura só se apanha sem ser root, como o CI corre |
+| `cargo test` | 294 testes |
+
+**Pormenores do original que ficam iguais.**
+
+- `set` num campo que não existe não faz nada e conta o campo como atualizado; `+1` num campo que não é número dá `NaN`, e `-1` também (`Math.max(0, NaN)`).
+- Um valor com padrões `$` é colado como o `replace` do JavaScript o cola (fatia 1).
+- O lote de um `set` ou `checkbox` é verificado inteiro antes de qualquer escrita.
+- O `GUARD_STOOD_ASIDE` é escrito só quando o shard deste clone existe, e a sua falha não pára a escrita; a linha no stderr diz "Recorded in the audit trail" na mesma.
+- Com um observador na porta, a primeira escrita que o pára é a do ficheiro de estado: a linha `GUARD_STOOD_ASIDE` é de melhor esforço.
+
+**Desvios deliberados.**
+
+| | Original | Focus |
+| --- | --- | --- |
+| Uso, e um verbo desconhecido | Lista os 33 verbos | Lista os quatro que tem |
+| Um dos 29 verbos que Focus não tem | Passa-o pela fence `state-transition` (afastando-se, com `GUARD_STOOD_ASIDE`) e corre-o ou imprime o seu uso | Recusa-o pelo nome, sem consultar a fence |
+| `--project-dir` no fim, sem valor | Fica a fazer parte do nome do campo | Recusa a flag, antes de saber o registo |
+| `FOCUS_METRICS_ENDPOINT` definido numa recusa | Escreve o `ERROR_LOGGED` e envia a métrica | Não escreve a linha (a recusa é impressa na mesma) |
+| Um registo com um marcador de autoridade | Lê neles quem cobre a ação; com `active-directive.json`, guarda ao lado o registo das escritas do estado | Recusa decidir a fence (fatia 1) e, com o marcador da diretiva, recusa escrever o estado: o registo das escritas é de M5 |
+| Sessões por processo; worktree delegada | Resolve | Recusa, como nos outros comandos |
+| `FOCUS_STATE_TRANSITION_OWNER` em Windows | Compara com o pid do pai | Recusa: Focus não lê o pid do pai aí ainda. Em Linux e macOS compara |
+
+**O que a fatia 2 não tem.** O registo das escritas do estado (`state-writes.json`), que o orchestrator lê para dizer o que pôs um passo fora de data; entra com ele (M5). O lock é o do workspace, não um por intent (decisão 3, R5).
 
 Fora de M3 e recusados pelo nome, como `fragment-fork` ficou em M2: os subcomandos de units, bolts e swarm (`unit`, `fork`, `merge`, `fold-unit-merge`, `refresh-unit-progress`, `sync-unit-scope-stage`, `set-unit-ownership`, `set-unit-gate-rhythm`), as políticas de Construction (`set-construction-*`, `set-skeleton-stance`), as práticas (`practices-event`, `practices-promote`), `reuse-artifact`, `lookup` e `acknowledge-compaction`.

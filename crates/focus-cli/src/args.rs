@@ -94,6 +94,11 @@ impl Args {
         Some((idx < self.rest.len()).then(|| self.rest.remove(idx)))
     }
 
+    /// Everything that is left, in order, without taking it.
+    pub fn remaining(&self) -> &[String] {
+        &self.rest
+    }
+
     /// The next argument, without taking it.
     pub fn peek(&self) -> Option<&str> {
         self.rest.first().map(String::as_str)
