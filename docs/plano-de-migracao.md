@@ -90,7 +90,7 @@ Os princípios do original que o desenho em Rust tem de preservar (`AGENTS.md`):
 focus-cli ✔ ───────────► focus-hooks ──► focus-orchestrate ──► focus-state ◐ ─► focus-audit ✔
     │                        │                  │                   │               │
     │                        ▼                  ▼                   ▼               ▼
-    ├──► focus-project   focus-guards      focus-sensors       focus-graph ✔   focus-workspace ✔
+    ├──► focus-project   focus-guards ◐    focus-sensors       focus-graph ✔   focus-workspace ✔
     │                        │                  │                   │               │
     └────────────────────────┴──────────────────┴───────────────────┴───────────────┘
                                                 │
@@ -108,8 +108,8 @@ focus-cli ✔ ───────────► focus-hooks ──► focus-o
 | `focus-workspace` | Projeto e harness de um comando, caminhos, escrita atómica, lock do workspace, recusa de links; mais tarde, settings, spaces e intents | Existe; settings em M2 |
 | `focus-markdown` | Estrutura de blocos Markdown (`markdownBlocks`, `visibleMarkdownLines`) | M2 |
 | `focus-audit` | Shards de auditoria, registo de eventos, runtime graph | Existe (M2) |
-| `focus-state` | Ficheiro de estado, máquinas de workflow, fase e stage, criação de intents | Existem os leitores de Stage Progress (M2, fatia 6); o resto é M3 |
-| `focus-guards` | Lexer de shell, integridade de runtime, fences, decisões de guard | M4 |
+| `focus-state` | Ficheiro de estado, máquinas de workflow, fase e stage, criação de intents | Existem os campos e as checkboxes, lidos e escritos como texto (M2, fatia 6; M3, fatia 1); o resto é M3 |
+| `focus-guards` | Lexer de shell, integridade de runtime, fences, decisões de guard | Existe a resolução da Guard Policy, as fences e a decisão de uma fence (M3, fatia 1); o resto é M4 |
 | `focus-hooks` | Os corpos dos hooks e o dispatcher | M4 e M6 |
 | `focus-orchestrate` | `next` e `report`, diretivas, plan approval, checkpoints | M5 |
 | `focus-sensors` | Dispatcher e os seis sensores | M7 |
@@ -275,7 +275,7 @@ Duas leituras desta tabela. A mutação do fold-back passou no diferencial grava
 
 **R9. Nomes no conteúdo reutilizado.** Fechado pela decisão 10. Focus adotou o Markdown como seu e renomeou-o: `aidlc` passou a `focus` em nomes de ficheiros, de diretórios e no texto, com a mesma substituição que as ferramentas de paridade aplicam (secção 7). Ficam dois efeitos a vigiar. Primeiro, os dois nomes ordenam de forma diferente em relação a outros (`aidlc` < `bravo` < `focus`): uma árvore com um plugin ou um ficheiro cujo nome caia entre os dois pode ser percorrida noutra ordem por cada motor, e duas mensagens de erro dependem da ordem. Nenhuma árvore do diferencial cai aí, e o diferencial mostrava-o. Segundo, a parte do Markdown que M1 ainda não lê (skills, knowledge, o texto dos harnesses) entra em M8 pelo mesmo mapa; as 408 invocações `{{INVOKE}}` e as 48 por caminho de ferramenta TS precisam de mais do que o mapa, e já estavam no âmbito de M8.
 
-**R10. Peso das fixtures.** `fixtures/` tem 17 MB (corpus 8,6, dos quais 2,4 são os documentos de Markdown e as respostas linha a linha; diferencial gravado 6,6; referência 1,9). É o preço de `cargo test` provar paridade sem Bun. Se pesar no repositório, o diferencial gravado comprime bem ou pode viver fora.
+**R10. Peso das fixtures.** `fixtures/` tem 19 MB (corpus 10, dos quais 2,4 são os documentos de Markdown e as respostas linha a linha; diferencial gravado 6,6; referência 1,9). É o preço de `cargo test` provar paridade sem Bun. Se pesar no repositório, o diferencial gravado comprime bem ou pode viver fora.
 
 ## 9. Estado de M0
 
@@ -441,7 +441,7 @@ A decisão 3 dizia "cargo toma posse". Li-a como: nada de compatibilidade com o 
 ### Em aberto
 
 1. **`.gitignore` do lock.** `focus/.focus-lock` não deve ser commitado. O instalador (M8) é quem escreve o `.gitignore` do projeto; até lá, quem usar Focus num projeto real acrescenta a linha à mão.
-2. **Peso das fixtures (R10).** 17 MB no repositório, ou diferencial gravado fora dele.
+2. **Peso das fixtures (R10).** 19 MB no repositório, ou diferencial gravado fora dele.
 3. **O nome do método na prosa.** O Markdown reutilizado diz "AI-DLC" quando fala do método (por exemplo, "AI-DLC workflow"). Não mexi: é o nome de uma metodologia, não um identificador, e trocá-lo por substituição de texto estraga a gramática ("an AI-DLC" passaria a "an Focus"). Se o queres fora, é uma edição de conteúdo à mão, que cabe em M8 com o resto do Markdown.
 
 ## 12. Como correr
@@ -912,3 +912,52 @@ Focus responde por uma forma só, a de todos os timestamps que o engine escreve:
 Da revisão saíram ainda verificações para o que estava certo e ninguém media: o "agora" da auditoria (move-o um início de stage ou uma linha de sensor, e mais nenhuma), disparos sem desfecho dentro de bolts abertos e fechados, dois desfechos no mesmo instante, nomes de bolts fora do plano básico (a ordem é por unidade UTF-16), e um diretório no lugar de cada ficheiro que o compile lê ou escreve. Uma das verificações que já existiam para o "agora" não media nada (o disparo tinha trinta segundos nos dois casos) e foi corrigida.
 
 **Os ficheiros do registo abrem-se pelo nome.** O ficheiro de estado, os diários, o bloco de units e o grafo compilado são lidos como o original os lê aqui, com `readFileSync`, seguindo links. O que contêm não decide nada: o grafo é uma leitura, e tudo o que tem autoridade volta a ser lido da auditoria, cujos shards são abertos sem confiar no caminho. A regra de `CLAUDE.md` sobre ficheiros do workspace diz agora a que ficheiros se aplica.
+
+## 14. Estado de M3
+
+M3 está em curso. O que o plano chamava "estado e criação de intents" é, no original, `aidlc-state.ts` (8 867 linhas, 33 subcomandos), `aidlc-jump.ts`, `aidlc-validity.ts` e a parte de `aidlc-utility.ts` que cria intents e mostra o estado; atrás deles, outra vez, está `aidlc-lib.ts`: a resolução da Guard Policy, as fences e a autoridade de uma ação, que as transições de stage consultam antes de mexer no ficheiro de estado. Entra de baixo para cima, como M2.
+
+| Fatia | O que traz | Como se verifica | Estado |
+| --- | --- | --- | --- |
+| 1. Guard Policy e fences | `focus-guards`: a resolução da política de um workflow (a linha do estado, o default do scope, as camadas de memória), as linhas `Guards Off` e `Guards On`, os kill switches, o que cada política baixa, a decisão de uma fence e a autoridade de uma ação sem marcadores de hooks | Corpus | Feita |
+| 2. O ficheiro de estado como dados | `focus-state`: campos, checkboxes, listas de refs, progresso de fase; ler e escrever o ficheiro (barreira `writeStateFile`, ficheiro só de leitura); `focus engine state get`, `set`, `checkbox` e `count`, com a porta das transições e o `ERROR_LOGGED` de cada recusa | Corpus e diferencial | |
+| 3. Criação de intents | `intent-create`: o registo, o cursor, o ficheiro de estado a partir do template | Diferencial | |
+| 4. Transições de stage | `advance`, `gate-start`, `approve`, `reject`, `revise`, `skip`, `resume`, `finalize`, `complete-workflow`, em série e sem units | Diferencial e fuzz de sequências | |
+| 5. Parar, saltar, validar | `park`, `unpark`, `jump`, `validity`, `--status` | Diferencial | |
+
+### Fatia 1: Guard Policy e fences
+
+Antes de mexer no ficheiro de estado, cada transição do original pergunta se pode: `aidlc-state.ts set` ou `advance`, chamados diretamente e não pelo orchestrator, passam pela fence `state-transition`, e só avançam se ela estiver em baixo. Saber se está em baixo é resolver a Guard Policy do workflow e, a partir dela, o estado de cada fence. É uma leitura sem efeitos, e por isso a primeira fatia.
+
+**O que existe.** O crate `focus-guards`, que começa aqui:
+
+- `policy`: a resolução da Guard Policy (`resolveGuardPolicy`). A linha do estado (`Guard Policy`, ou o nome retirado `Change Control`, lida mais uma versão) ganha ao default do scope; uma camada de memória que declare `strict` ganha a tudo e fica com o nome do ficheiro como fonte; uma camada `relaxed` ou `off` (a mais estreita) substitui um valor que veio do scope ou não estava definido, nunca o que a pessoa escolheu; duas linhas que discordem resolvem para `strict`. O default do scope vem dos ficheiros de scope do harness, `off` para um que não declare nada e `strict` para um que não exista. A escrita da linha (`setGuardPolicyLine`) e dos rótulos (`off (from scope classic)`).
+- `fences`: as cinco fences e a escada que decide cada uma (`resolveFences`): o kill switch do ambiente ou das settings, depois `Guards Off` salvo quando a memória segura `strict`, depois `Guards On`, depois a palavra da política (`off` baixa quatro, `relaxed` duas, `strict` nenhuma), depois em cima. As linhas `Guards Off` e `Guards On` lidas e escritas.
+- `authority`: a autoridade que cobre uma ação e a decisão (`decideGuard`): uma fence em baixo afasta-se, uma em cima segura, e nem uma mensagem da pessoa nem uma instrução do engine a baixam. A frase que a pessoa ouve quando uma fence se afasta.
+- `workflow`: `Guards::read` junta o que uma decisão precisa de um projeto (o estado do registo, o default do scope, a memória do space, as settings), e `decide` responde por uma fence.
+- `focus-state::fields`: os campos do ficheiro de estado lidos e escritos como texto (`getField`, `setField`, `setFieldStrict`, `setOrInsertField`, `removeField`, `setPhaseProgress`, `appendUnderHeading`, as listas de refs), e em `progress` a escrita de uma checkbox (`setCheckbox`, `setStageSuffix`, `countCheckboxes`). As fences escrevem linhas do estado, e é por aqui que o fazem.
+- `focus-js::re::replace`: o `String.prototype.replace` do JavaScript com uma string de substituição. Os escritores do estado colam o valor por essa via, e os padrões `$` que o valor tenha (`$1`, `$&`, `$$`) são expandidos como lá. O original sabe-o: cita o `$` do comando de verificação antes de o guardar. Focus faz o mesmo em vez de corrigir o que seria uma diferença.
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Corpus, tipo `guard_policy` | 360 casos: um ficheiro de estado (linhas `Guard Policy` e `Change Control` com os treze rótulos e as formas partidas, `Guards Off` e `Guards On`, CRLF, ruído), os defaults de até cinco scopes, até três camadas de memória com os dois títulos, os cinco kill switches e `FOCUS_UNATTENDED`. Para cada caso, a resolução inteira, as cinco fences e a decisão de cada uma. 0 diferenças |
+| Corpus, tipo `guards_line` | 150 casos: ler e escrever as três linhas. 0 diferenças |
+| Mutações | 38, em `focus-guards`, nos campos e checkboxes de `focus-state` e no `replace` de `focus-js`. 36 apanhadas; as duas que passam são equivalentes (o `\b` depois da palavra da política, que o fim da linha já impõe; `none` comparado sem baixar a caixa, que a leitura dos nomes a seguir também não reconhece). Uma terceira equivalente foi retirada do código |
+| `cargo test` | 282 testes |
+
+**Desvios deliberados.**
+
+| | Original | Focus |
+| --- | --- | --- |
+| Um registo com um marcador de autoridade (`active-directive.json`, `human-turn`, `engine-touch` no diretório do engine) | Lê neles quem cobre a ação | Recusa decidir: os marcadores são escritos pelos hooks (M4) e pelo orchestrator (M5), que não existem. O teste está marcado; a verificação no diferencial entra com o comando `state` (fatia 2), que é o primeiro a decidir uma fence |
+| A frase de uma recusa nomeia o skill de entrada | `/aidlc` nos três harnesses de Focus (`$aidlc` só no Codex, que Focus não tem) | `/focus` |
+
+**O que a fatia 1 não tem.**
+
+- **A autoridade com marcadores.** `authorityFor` lê o marcador da diretiva ativa, os marcadores de turno e o ledger de dispatches em curso; sem eles, a autoridade é "nada cobre a ação", e é isso que Focus responde. Com eles, recusa (desvio acima).
+- **Quem age sobre a decisão.** Os hooks que seguram uma fence e a linha `GUARD_STOOD_ASIDE` na auditoria entram com quem os chama: o comando `state` na fatia 2, os hooks em M4.
+- **As ceremónias por scope** (`sensors`, `learnings`, `summary_confirmation`, `plan_approval`, `collaborators`) e os switches do `config set`: leem-se ao lado disto no original e entram com os comandos que os usam.
+
+Fora de M3 e recusados pelo nome, como `fragment-fork` ficou em M2: os subcomandos de units, bolts e swarm (`unit`, `fork`, `merge`, `fold-unit-merge`, `refresh-unit-progress`, `sync-unit-scope-stage`, `set-unit-ownership`, `set-unit-gate-rhythm`), as políticas de Construction (`set-construction-*`, `set-skeleton-stance`), as práticas (`practices-event`, `practices-promote`), `reuse-artifact`, `lookup` e `acknowledge-compaction`.

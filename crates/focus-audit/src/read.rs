@@ -22,17 +22,7 @@ pub struct Found {
     pub block: String,
 }
 
-/// `escapeRegex`: quote a string for use inside a pattern.
-fn escape_regex(text: &str) -> String {
-    let mut quoted = String::with_capacity(text.len());
-    for c in text.chars() {
-        if ".*+?^${}()|[]\\".contains(c) {
-            quoted.push('\\');
-        }
-        quoted.push(c);
-    }
-    quoted
-}
+use focus_js::re::escape as escape_regex;
 
 /// Every block of `audit` whose event is `event` (and, when `slug` is given,
 /// whose `Bolt slug` is `slug`), oldest first.

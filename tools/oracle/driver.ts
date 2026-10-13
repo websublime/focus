@@ -108,6 +108,87 @@ function answer(c: Record<string, any>): unknown {
         checkboxes: lib.parseCheckboxes(c.content),
         suffixes: [...lib.parseStateStageSuffixes(c.content)],
       };
+    case "guard_policy": {
+      // A project with the case's memory files and scope defaults; the state
+      // text is handed in. Every fence is resolved and decided, with the
+      // environment the case sets and no markers in the record.
+      const root = join(scratch, `tree-${trees++}`);
+      const memoryDir = join(root, "aidlc", "spaces", "default", "memory");
+      mkdirSync(memoryDir, { recursive: true });
+      for (const declared of c.memory as { layer: string; heading: string; value: string }[]) {
+        writeFileSync(join(memoryDir, `${declared.layer}.md`), `# ${declared.layer}\n\n${declared.heading}\n\nMode: ${declared.value}\n`);
+      }
+      const mappingPath = join(root, "scope-mapping.json");
+      const mapping: Record<string, { guardPolicy?: string }> = {};
+      for (const [name, policy] of Object.entries(c.scopes as Record<string, string | null>)) {
+        mapping[name] = policy === null ? {} : { guardPolicy: policy };
+      }
+      writeFileSync(mappingPath, JSON.stringify(mapping));
+      const before: Record<string, string | undefined> = {};
+      const names = ["AIDLC_SCOPE_MAPPING", "AIDLC_DISABLE_PLAN_APPROVAL_GUARD", "AIDLC_DISABLE_REVIEW_FREEZE_HOOK",
+        "AIDLC_DISABLE_REVIEWER_SCOPE_HOOK", "AIDLC_SKIP_HUMAN_PRESENCE_GUARD", "AIDLC_UNATTENDED"];
+      for (const name of names) {
+        before[name] = process.env[name];
+        delete process.env[name];
+      }
+      process.env.AIDLC_SCOPE_MAPPING = mappingPath;
+      for (const name of c.env as string[]) process.env[name] = "1";
+      lib._resetScopeMappingForTests();
+      const named = (text: string) => text.replaceAll(root, "{P}");
+      try {
+        let policy: any;
+        try {
+          policy = lib.resolveGuardPolicy(root, c.state, { tolerateInvalidState: c.tolerate });
+        } catch (err) {
+          return { error: named(message(err)) };
+        }
+        if (policy.memoryStrict) policy.memoryStrict = { ...policy.memoryStrict, path: named(policy.memoryStrict.path) };
+        const fences = lib.resolveFences(policy, c.state);
+        const decisions = [];
+        for (const fence of lib.GUARD_FENCES) {
+          const decided = lib.decideFence(root, fence, { stateContent: c.state });
+          decisions.push({
+            decision: decided.decision,
+            authority: { covered: decided.authority.covered, actor: decided.authority.actor, unattended: decided.authority.unattended },
+            policy: decided.policy,
+            fenceSetting: decided.fenceSetting,
+            source: decided.source,
+            speaks: lib.guardStandAsideSpeaks(decided),
+            line: lib.guardStoodAsideLine(fence, decided.source, "aidlc-state set", true),
+          });
+        }
+        return {
+          policy,
+          accepts: lib.guardPolicyAcceptsChanges(root, c.state),
+          fences: lib.GUARD_FENCES.map((fence: string) => ({
+            fence, value: fences[fence].value, source: fences[fence].source,
+            label: lib.fenceSourceLabel(fences[fence]), formatted: lib.formatFence(fences[fence]),
+          })),
+          decisions,
+        };
+      } finally {
+        for (const name of names) {
+          if (before[name] === undefined) delete process.env[name];
+          else process.env[name] = before[name];
+        }
+        lib._resetScopeMappingForTests();
+        rmSync(root, { recursive: true, force: true });
+      }
+    }
+    case "guards_line": {
+      const fences = (c.fences as string[]).map((raw) => lib.parseGuardFence(raw)).filter((fence: string | null) => fence !== null);
+      const parsed = lib.parseGuardPolicyStateLine(c.line);
+      return {
+        parsedGuards: lib.parseGuardsOffLine(c.line),
+        parsedPolicy: parsed,
+        formattedGuards: lib.formatGuardsOffLine(fences),
+        formattedPolicy: parsed ? lib.formatGuardPolicy(parsed.value, parsed.source) : null,
+        label: lib.changeControlSourceLabel(c.line),
+        guardsOff: lib.setGuardsOffLine(c.content, fences),
+        guardsOn: lib.setGuardsOnLine(c.content, fences),
+        policyLine: lib.setGuardPolicyLine(c.content, c.line),
+      };
+    }
     case "icase":
       // What each pattern matches in the text, case ignored, outside the
       // Unicode modes: the mode nearly all of upstream's patterns are in.
