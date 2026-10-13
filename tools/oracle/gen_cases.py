@@ -1235,5 +1235,221 @@ for start in range(0, len(UPSTREAM_ICASE), 200):
 add("icase", patterns=["[a-z]+", r"\w+", r"\W+", r"[^a-z ]+", r"\S+", r"(az)\1", r"[\s\S]+"],
     hay="".join(chr(cp) for cp in CASED if cp >= 0x10000) + " az AZ azAZ")
 
+# --- The runtime graph's readers: instants, diaries, units, checkboxes --------
+#
+# A generator of its own, so that what it draws moves none of the cases above.
+rt = random.Random(seed * 7919 + 6)
+
+
+def instant():
+    """A timestamp of the one shape focus reads: an instant with its zone written out, on a real date."""
+    year = rt.choice([0, 1, 99, 1600, 1900, 1969, 1970, 1999, 2000, 2024, 2026, 2100, 9999, rt.randrange(10000)])
+    month = rt.randrange(1, 13)
+    leap = year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
+    last = [31, 29 if leap else 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1]
+    day = rt.choice([1, last, rt.randrange(1, last + 1)])
+    text = f"{year:04d}-{month:02d}-{day:02d}T{rt.randrange(24):02d}:{rt.randrange(60):02d}"
+    if rt.random() < 0.85:
+        text += f":{rt.randrange(60):02d}"
+        if rt.random() < 0.4:
+            text += "." + "".join(rt.choice("0123456789") for _ in range(rt.choice([1, 2, 3, 3, 4, 6, 8, 9])))
+    if rt.random() < 0.6:
+        return text + "Z"
+    return text + f"{rt.choice('+-')}{rt.choice([0, 1, 5, 12, 14, 23, rt.randrange(24)]):02d}:{rt.choice([0, 30, 45, 59, rt.randrange(60)]):02d}"
+
+
+def not_an_instant(text):
+    """`text` broken in a way that makes it no date to JavaScript either."""
+    way = rt.randrange(11)
+    if way == 0:
+        return text[:5] + rt.choice(["00", "13", "19", "99"]) + text[7:]
+    if way == 1:
+        return text[:8] + rt.choice(["00", "32", "40", "99"]) + text[10:]
+    if way == 2:
+        return text[:14] + rt.choice(["60", "61", "99"]) + text[16:]
+    if way == 3 and text[16:17] == ":":
+        return text[:17] + rt.choice(["60", "61", "99"]) + text[19:]
+    if way == 4:
+        return text + rt.choice(["x", " ", "Z", "junk", ":00", "\u200b"])
+    if way == 5:
+        return rt.choice(["x", " ", "T", "+"]) + text
+    if way == 6:
+        return text[:4] + rt.choice(["/", ".", "", "\u2010"]) + text[5:]
+    if way == 7 and text.endswith("Z"):
+        return text[:-1] + rt.choice(["+24:00", "+00:60", "+1:00", "+01", "-99:99", "+01:0", " Z", "UTC", "\u2212" + "01:00"])
+    if way == 8:
+        return text[:11] + rt.choice(["25", "30", "99", "2"]) + text[13:]
+    if way == 9:
+        return text[:13] + rt.choice([".", "-", "", " "]) + text[14:]
+    return text.replace(":", rt.choice(["", ";", "::"]), 1)
+
+
+WORDS = ["yesterday", "tomorrow", "soon", "now", "today", "z-last", "Jan", "January", "Mon", "Monday", "GMT", "UTC",
+         "Z", "T", "AM", "PM", "noon", "midnight", "never", "n/a", "TBD", "-", "--", ":", "::", "T::Z", "(", "()", "+",
+         "\u00e9t\u00e9", "\u65e5\u672c", "\U0001F600", "\u0661\u0662\u0663", "\uff12\uff10\uff12\uff16", "\u2014",
+         " ", "\t", "\u00a0", "Infinity", "NaN", "null", "undefined", "true"]
+for _ in range(scale * 3):
+    texts = [instant() for _ in range(60)]
+    texts += [not_an_instant(instant()) for _ in range(20)]
+    # No digit, no date: single words, and several strung together.
+    texts += [rt.choice([" ", "-", ",", ", ", "/", ":", "T", ""]).join(rt.choice(WORDS) for _ in range(rt.randrange(1, 5)))
+              for _ in range(20)]
+    add("instant", texts=texts)
+add("instant", texts=["2026-01-05T10:00:00Z", "2026-01-05T10:00:00.000Z", "2026-01-05T10:00Z", "1970-01-01T00:00:00Z",
+                      "1969-12-31T23:59:59.999Z", "0000-01-01T00:00:00Z", "9999-12-31T23:59:59.999Z",
+                      "2024-02-29T23:59:59-23:59", "2000-02-29T00:00:00+23:59", "1900-02-28T12:00:00.5+05:45",
+                      "9999-12-31T23:59:59.999999999Z", "0000-01-01T00:00:00.999999999Z", "2026-06-30T23:59:59.9999-23:59",
+                      "2026-01-05T10:00:00.000000001Z", "2026-01-05T10:00:00.099999999Z", "2026-01-05T10:00:00.0005Z",
+                      "", "yesterday", "2026-13-01T00:00:00Z", "2026-01-32T00:00:00Z", "2026-01-05T23:60:00Z",
+                      "2026-01-05T23:59:60Z", "2026-01-05T10:00:00+24:00", "2026-01-05T10:00:00.Z",
+                      "2026-01-05T10:00:00Zjunk", "2026-01-05T10:00:00+01", "2026-1-5T10:00:00Z",
+                      "2026-01-05T10:00:00 Z", "2026-01-05T10:00:00,5Z", "20260105T100000Z", "2026-W01"])
+
+MEMORY_HEADINGS = ["## Interpretations", "## Deviations", "## Tradeoffs", "## Open questions"]
+MEMORY_LINES = (MEMORY_HEADINGS * 3 + [
+    "## Interpretations ", " ## Deviations", "## tradeoffs", "## Open Questions", "### Deviations", "##Tradeoffs",
+    "## Notes", "## ", "##", "# Memory", "", "", "   ", "\t", "\u00a0", "\u3000", "\ufeff",
+    "- 2026-01-05T10:01:00Z \u2014 read it as X; because Y", "- one", "- two", "  - nested", "wrapped onto a second line",
+    "- three", "- four; with context", "* starred", "1. numbered", "plain words",
+    "> quoted", "  > quoted, indented", ">", "<!-- hidden -->", "  <!-- hidden -->  ", "<!-- opened", "closed -->",
+    "<!-- a --> and more", "<!-- a --><!-- b -->", "<!---->", "<!-- \u2028 -->", "<!-- a\r -->",
+    "```", "```js", "``` ", " ```", "~~~", "````",
+    "constructor", "__proto__", "hasOwnProperty", "isPrototypeOf", "propertyIsEnumerable", "toLocaleString",
+    "toString", "valueOf", "__defineGetter__", "__defineSetter__", "__lookupGetter__", "__lookupSetter__",
+    " constructor", "constructor ", "toString()", "total", "interpretations",
+])
+for _ in range(scale * 40):
+    body = [rt.choice(MEMORY_LINES) for _ in range(rt.randrange(1, 30))]
+    raw = rt.choice(["\n", "\n", "\r\n", "\r"]).join(body) + rt.choice(["", "\n", "\r\n"])
+    if rt.random() < 0.1:
+        raw = "\ufeff" + raw
+    if rt.random() < 0.15:
+        raw = char_fuzz(raw, rt.randrange(1, 4))
+    add("memory_counts", raw=raw)
+add("memory_counts", raw="")
+add("memory_counts", raw="\n".join(f"## Deviations\n{name}\n- after {name}" for name in MEMORY_LINES[-17:-5]))
+
+UNIT_NAMES = ["auth", "api", "web", "store", "a", "x1", "9lives", "with.dot", "under_score", "a-b", "Api", "API",
+              "-lead", ".lead", "sp ace", "tab\tbed", "été", "\U0001F600", "x" * 64, "x" * 65,
+              "\U0001F600" * 33, '"auth"', "'api'", '"', "''", "a#b", "auth # the first", "[auth]", "name", "units"]
+UNIT_KIND_VALUES = ["service", "spec", "ui", "packaging", "library", '"ui"', "'spec'", "Service", "big", "", "ui # k"]
+
+
+def deps_inline(names, careful):
+    items = [rt.choice([name, name, f'"{name}"', f"'{name}'", f" {name} "]) for name in names]
+    text = "[" + rt.choice([", ", ",", " , "]).join(items) + "]"
+    way = rt.randrange(4 if careful else 12)
+    if way == 0:
+        return text + "  # why"
+    if way == 1 and not names:
+        return rt.choice(["", "[]", "[ ]"])
+    if way == 2 and len(names) == 1:
+        return names[0]
+    if way == 4:
+        return text[:-1]
+    if way == 5:
+        return text + " trailing"
+    if way == 6:
+        return text.replace("]", ",]")
+    if way == 7:
+        return rt.choice(["~", "null", "solo", "''"])
+    if way == 8:
+        return text.replace("[", '["a\\"]b", ', 1)
+    if way == 9:
+        return text.replace("[", "['it,s', ", 1)
+    if way == 10:
+        return text + "]"
+    return text
+
+
+def units_block(careful):
+    names = rt.sample(UNIT_NAMES[:10], rt.randrange(1, 7))
+    if not careful and rt.random() < 0.35:
+        names[rt.randrange(len(names))] = rt.choice(UNIT_NAMES)
+    lines = [rt.choice(["units:", "units:", "units :", "  units:", "units: "] if careful or rt.random() < 0.8 else
+                       ["units: []", "Units:", "unit:", "units:  x", "units"])]
+    for index, name in enumerate(names):
+        pad = rt.choice(["  ", "  ", "", "    ", "\t"])
+        dash = (["- name:", "- name:", "-  name :", "-\tname:", "- name:   "] if careful or rt.random() < 0.85 else
+                ["-name:", "- Name:", "* name:"])
+        lines.append(f"{pad}{rt.choice(dash)} {name}")
+        earlier = names[:index]
+        pool = earlier if careful or rt.random() < 0.6 else names[index:] + ["ghost"]
+        deps = rt.sample(pool, min(len(pool), rt.randrange(0, 4))) if pool else []
+        way = rt.randrange(8)
+        if way <= 3:
+            lines.append(f"{pad}  depends_on: {deps_inline(deps, careful)}")
+        elif way == 4:
+            lines.append(f"{pad}  depends_on:")
+            lines += [f"{pad}    - {rt.choice([dep, repr(dep)])}" for dep in deps]
+        if rt.random() < 0.3:
+            kinds = UNIT_KIND_VALUES[:7] if careful else UNIT_KIND_VALUES
+            lines.insert(len(lines) - rt.randrange(0, 2), f"{pad}  kind: {rt.choice(kinds)}")
+        if not careful and rt.random() < 0.08:
+            lines.append(rt.choice(["    note: free text", "  - stray", "random words", "    depends_on: [a]\n    kind: ui",
+                                    "  # a comment", "---"]))
+        if rt.random() < 0.15:
+            lines.append(rt.choice(["", "   ", "\t"]))
+    if not careful and rt.random() < 0.15:
+        rt.shuffle(lines)
+    return lines
+
+
+for _ in range(scale * 50):
+    careful = rt.random() < 0.6
+    fence = rt.choice(["```yaml", "```yaml", "```yml", "```yaml ", "  ```yaml"] if careful or rt.random() < 0.8 else
+                      ["```YAML", "```", "~~~yaml", "```yaml units", "````yaml"])
+    body = ["# Dependencies", ""]
+    if rt.random() < 0.2:
+        body += ["```mermaid", "graph TD", "units: no", "```", ""]
+    if rt.random() < 0.15:
+        body += ["```yaml", "other: 1", rt.choice(["```", "```", "   ```  ", "````"]), ""]
+    body += [fence, *units_block(careful)]
+    if careful or rt.random() < 0.7:
+        body.append(rt.choice(["```", "```", "  ```  ", "``` "] if careful else ["```", "````", "~~~", "```yaml"]))
+    body += ["", "trailing prose"]
+    text = rt.choice(["\n", "\n", "\n", "\r\n"]).join(body)
+    if not careful and rt.random() < 0.25:
+        text = char_fuzz(text, rt.randrange(1, 4))
+    add("bolt_dag", body=text)
+for body in ["", "```yaml\nunits:\n```", "```yaml\nunits\n:\n  - name: a\n```", "```yaml\nunits:\n  - name: a\n    depends_on: [b]\n  - name: b\n    depends_on: [a]\n```",
+             "```yaml\nunits:\n  - name: a\n    depends_on: [a]\n```", "```yaml\nunits:\n  - name: c\n  - name: b\n    depends_on: [c]\n  - name: a\n  - name: d\n    depends_on: [a, b]\n```\r",
+             "```yaml\nunits:\n  depends_on: [a]\n```", "```yaml\nunits:\n  kind: ui\n```", "```yaml\nunits:\n  - name: a\n  - name: a\n```",
+             "```yaml\nunits:\n  - name: Api\n  - name: api\n```", "```yaml\nunits:\n  - name: a\n    - kind: ui\n```",
+             "```yaml\nunits:\n  - name: a\n    depends_on: \"\"\n```", "```yaml\nunits:\n  - name: a\n    depends_on: ''\n```\n```yaml\nunits:\n  - name: b\n```",
+             # Round in a circle: three units, two with one that is free, and a circle a level down.
+             "```yaml\nunits:\n  - name: a\n    depends_on: [c]\n  - name: b\n    depends_on: [a]\n  - name: c\n    depends_on: [b]\n```",
+             "```yaml\nunits:\n  - name: z\n  - name: a\n    depends_on: [b]\n  - name: b\n    depends_on: [a, z]\n```",
+             "```yaml\nunits:\n  - name: a\n  - name: b\n    depends_on: [a, c]\n  - name: c\n    depends_on: [b]\n```",
+             # Each way a name cannot be a unit's.
+             "```yaml\nunits:\n  - name: a b\n```", "```yaml\nunits:\n  - name: " + "x" * 65 + "\n```",
+             "```yaml\nunits:\n  - name: " + "\U0001F600" * 33 + "\n```", "```yaml\nunits:\n  - name: ''\n```",
+             "```yaml\nunits:\n  - name: \"\n```", "```yaml\nunits:\n  - name: -a\n```",
+             "```yaml\nunits: [a, b]\n```", "```yaml\nunits:\n  - name: a\n    kind: big\n```",
+             # A document that ends in a carriage return, inside the block: the last line keeps it.
+             "```yaml\nunits:\n  - name: a\n    depends_on: []\r", "```yaml\nunits:\n  - name: a\n  - name: b\n    depends_on: [a]\r",
+             "```yaml\r\nunits:\r\n  - name: a\r\n    depends_on: []\r\n", "```yaml\nunits:\n  - name: a\r",
+             # A backslash escapes inside double quotes only.
+             "```yaml\nunits:\n  - name: a\n  - name: b\n    depends_on: ['a\\', a]\n```",
+             "```yaml\nunits:\n  - name: a\n  - name: b\n    depends_on: [\"a\\\", a]\n```",
+             "```yaml\nunits:\n  - name: a\n  - name: b\n    depends_on: [\"x\\\"]\", a]\n```",
+             "```yaml\nunits:\n  - name: a\n    note: x\n```", "```yaml\nunits:\n  - name: a\n    depends_on: [ghost]\n```"]:
+    add("bolt_dag", body=body)
+
+BOX_LINES = ["- [x] intent-capture \u2014 EXECUTE", "- [ ] requirements-analysis \u2014 EXECUTE", "- [-] code-generation \u2014 EXECUTE",
+             "- [?] build-and-test \u2014 EXECUTE", "- [R] user-stories \u2014 EXECUTE", "- [S] nfr-design \u2014 SKIP: not needed",
+             "- [S] nfr-design \u2014 SKIP", "- [x] intent-capture \u2014 SKIP", "- [x] a\u2014EXECUTE", "- [x] a  \u2014  EXECUTE  ",
+             "- [x] a \u2014 EXECUTED", "- [x] a \u2014 EXECUTE: now", "- [x] a \u2014 execute", "- [x] a \u2014", "- [x] a \u2014 ",
+             "- [x] a - EXECUTE", "- [x] a \u2013 EXECUTE", "- [X] a \u2014 EXECUTE", "- [] a \u2014 EXECUTE", "- [xx] a \u2014 EXECUTE",
+             " - [x] a \u2014 EXECUTE", "* [x] a \u2014 EXECUTE", "- [x]  a \u2014 EXECUTE", "- [x] a b \u2014 EXECUTE", "- [x] a\t\u2014\tSKIP",
+             "- [x] a", "\u2014 EXECUTE", "- [x] \u2014 EXECUTE", "- [x] a\u00a0\u2014\u00a0EXECUTE", "- [x] \u00e9t\u00e9 \u2014 EXECUTE",
+             "- **Status**: Completed", "## Stage Progress", "", "text", "- [x] a \u2014 EXECUTE \u2014 SKIP", "- [x] a \u2014 SKIPPED"]
+for _ in range(scale * 30):
+    lines = [rt.choice(BOX_LINES) for _ in range(rt.randrange(1, 14))]
+    content = rt.choice(["\n", "\n", "\r\n", "\r"]).join(lines) + rt.choice(["", "\n"])
+    if rt.random() < 0.15:
+        content = char_fuzz(content, rt.randrange(1, 4))
+    add("progress", content=content)
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

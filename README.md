@@ -15,13 +15,13 @@ a Focus project carries Focus's name: the command, the `FOCUS_*` variables, the
 in each of those places, so a project set up for upstream is not a Focus
 project.
 
-**Status: the stage graph is complete (milestones M0 and M1); the audit ledger
-is under way (M2).** Compiling the graph, including plugin selection and
+**Status: the stage graph and the audit ledger are complete (milestones M0 to
+M2).** Compiling the graph, including plugin selection and
 composed scopes, and every `graph` verb are ported and held to parity with the
-reference. Of the ledger, the format, the shards and the `audit` command
-(append, notes, history) exist, and so do the settings files and the Markdown
-reader; the runtime graph is next. State, guards, hooks and the orchestrator
-are not written yet. The plan for the rest, module by
+reference. So are the ledger (the format, the shards, the `audit` command:
+append, notes, history), the settings files, the Markdown reader, and the
+runtime graph a workflow's ledger compiles to. State, guards, hooks and the
+orchestrator are not written yet. The plan for the rest, module by
 module, is in [`docs/plano-de-migracao.md`](docs/plano-de-migracao.md)
 (Portuguese).
 
@@ -42,12 +42,20 @@ focus engine graph export             # graph, scopes, artifacts and agents as J
 focus engine audit append ERROR_LOGGED --field Stage=code-generation --field "Note=what happened"
 focus engine audit append-raw "A decision" "why we chose it"
 focus engine audit history --stage code-generation --limit 20
+
+focus engine runtime compile          # write the active record's runtime-graph.json
+focus engine runtime read code-generation
+focus engine runtime summary          # stages, diaries, sensors, learnings, duration
 ```
 
-`focus engine graph --help` and `focus engine audit --help` list every verb and
-flag. The `audit` command is the diagnostic way into the ledger: events that
-carry authority (a gate approval, a person's turn, a unit's completion) are
-written only by the engine's own tools and hooks, and are refused there.
+`focus engine graph --help`, `focus engine audit --help` and
+`focus engine runtime --help` list every verb and flag. The `audit` command is
+the diagnostic way into the ledger: events that carry authority (a gate
+approval, a person's turn, a unit's completion) are written only by the
+engine's own tools and hooks, and are refused there. The `runtime` command
+reads the ledger back as a graph of what the workflow has done; the engine
+will compile it after every event, and until the hooks exist it is run by
+hand.
 
 The project is, in
 order: `--project-dir`; `FOCUS_PROJECT_DIR`; the directory the host names
@@ -65,13 +73,14 @@ focus engine graph compile --harness claude --core fixtures/upstream/core --out 
 
 | Crate | Owns |
 | --- | --- |
-| `focus-js` | JavaScript semantics the on-disk formats depend on: whitespace, sort order and collation, `Object.keys` order, `JSON.parse`/`stringify`, number printing and rounding, ECMAScript regex |
+| `focus-js` | JavaScript semantics the on-disk formats depend on: whitespace, sort order and collation, `Object.keys` order, `JSON.parse`/`stringify`, number printing and rounding, ECMAScript regex, and `Date.parse` for the timestamps the engine writes |
 | `focus-frontmatter` | The YAML-subset frontmatter readers, ported pattern for pattern |
 | `focus-harness` | What differs between Claude Code, Cursor and GitHub Copilot, as data |
 | `focus-workspace` | Which project, harness, space and intent record a command acts on, every path in them, the settings of the machine, the project and one clone, atomic writes, the workspace lock, and opening a file whose path is not trusted |
 | `focus-markdown` | The block structure of a Markdown document, line by line, and the lines of it a reader of the engine's files may act on: not what sits in a comment, a code block or an HTML block |
 | `focus-graph` | Stage, scope, agent, sensor and rule schemas; the compile; composed scopes; graph queries; plan validation; ARS |
-| `focus-audit` | The audit ledger: the event vocabulary, how an entry is validated and written, how entries are read back, the shard each clone writes, appending to it under the lock, and a record's history from all its shards |
+| `focus-audit` | The audit ledger: the event vocabulary, how an entry is validated and written, how entries are read back, the shard each clone writes, appending to it under the lock, and a record's history from all its shards. And what a ledger reads as: the runtime graph of a workflow, its summary, the counts of a stage's diary, and the order units can be built in |
+| `focus-state` | The state file of a workflow. So far, its checkbox lines and what a complete workflow says of its stages |
 | `focus-cli` | The `focus` binary (the package is named `focus`) |
 
 `fixtures/upstream/` holds the reference's Markdown, its compiled output and an

@@ -1,0 +1,17 @@
+[package]
+name = "focus-state"
+description = "The state file of a workflow: what it records and how it is read."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+serde_json.workspace = true
+focus-audit.workspace = true
+focus-js.workspace = true
+
+[lints]
+workspace = true

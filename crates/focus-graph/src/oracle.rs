@@ -25,7 +25,7 @@ use crate::stage_schema::{self, ValidationContext};
 
 /// The kinds of case this crate answers. Each kind in the corpus belongs to
 /// exactly one crate, and each crate replays its own.
-pub const KINDS: [&str; 14] = [
+pub const KINDS: [&str; 15] = [
     "stage",
     "sensor",
     "rule",
@@ -33,6 +33,7 @@ pub const KINDS: [&str; 14] = [
     "list",
     "collate",
     "icase",
+    "instant",
     "num",
     "cycles",
     "record",
@@ -54,6 +55,23 @@ pub fn run_case(case: &Value) -> Value {
         "list" => json!({ "value": fm::list_field(text("fm"), text("key")) }),
         "collate" => json!({ "sign": locale_compare(text("a"), text("b")) as i8 }),
         "icase" => icase(case, text("hay")),
+        "instant" => {
+            let ms: Vec<Option<i64>> = case
+                .get("texts")
+                .and_then(Value::as_array)
+                .into_iter()
+                .flatten()
+                .map(
+                    |text| match focus_js::date::parse(text.as_str().unwrap_or_default()) {
+                        focus_js::date::Instant::At(ms) => Some(ms),
+                        // `NaN` is `null` in JSON. A text focus does not read
+                        // has no answer; the corpus holds none.
+                        _ => None,
+                    },
+                )
+                .collect();
+            json!({ "ms": ms })
+        }
         "num" => number(
             text("text"),
             case.get("digits").and_then(Value::as_u64).unwrap_or(0),

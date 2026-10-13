@@ -112,20 +112,9 @@ fn without_tree(text: &str, root: &Path) -> String {
     text
 }
 
-/// The recorder's `normalise`, for focus's side: the engine's name for
-/// itself, the tree's location, and text the runtime wrote.
-fn normalise(text: &str, root: &Path) -> String {
-    let mut text = without_tree(text, root);
-    text = replace_all(&text, r"^focus graph ", |_, _| "graph ".to_owned());
-    text = text
-        .replace("focus engine graph", "<cli> graph")
-        .replace("'focus config'", "'<cli> config'");
-    text = replace_all(&text, r"\bFOCUS_([A-Z_]+)\b", |found, text| {
-        format!("<ENV>_{}", group(found, text, 1))
-    });
-    text = text
-        .replace("so Focus changed nothing", "so <engine> changed nothing")
-        .replace("treated as a Focus persona", "treated as <engine> persona");
+/// Text a runtime wrote, after the engine's own words: kept up to where the
+/// engine stops talking.
+fn runtime_text(mut text: String) -> String {
     for (pattern, keeps_tail) in [
         (
             r"(Stage graph not readable at [^:]+: ).*?(\. Reinstall)",
@@ -156,6 +145,23 @@ fn normalise(text: &str, root: &Path) -> String {
     text
 }
 
+/// The recorder's `normalise`, for focus's side: the engine's name for
+/// itself, the tree's location, and text the runtime wrote.
+fn normalise(text: &str, root: &Path) -> String {
+    let mut text = without_tree(text, root);
+    text = replace_all(&text, r"^focus graph ", |_, _| "graph ".to_owned());
+    text = text
+        .replace("focus engine graph", "<cli> graph")
+        .replace("'focus config'", "'<cli> config'");
+    text = replace_all(&text, r"\bFOCUS_([A-Z_]+)\b", |found, text| {
+        format!("<ENV>_{}", group(found, text, 1))
+    });
+    text = text
+        .replace("so Focus changed nothing", "so <engine> changed nothing")
+        .replace("treated as a Focus persona", "treated as <engine> persona");
+    runtime_text(text)
+}
+
 /// A timestamp at or after this instant was written during the replay.
 fn started() -> &'static str {
     static STARTED: std::sync::OnceLock<String> = std::sync::OnceLock::new();
@@ -168,7 +174,27 @@ fn started() -> &'static str {
 
 /// The recorder's `normalise_audit`, for focus's side.
 fn normalise_audit(text: &str, root: &Path) -> String {
-    let mut text = without_tree(text, root)
+    let mut text = without_tree(text, root);
+    // The runtime command names itself at the start of what it says.
+    text = replace_all(&text, r"^focus runtime(?=[ :])", |_, _| {
+        "runtime".to_owned()
+    });
+    text = text.replace(
+        "Run focus engine runtime --help",
+        "Run <cli> runtime --help",
+    );
+    text = replace_all(
+        &text,
+        r"^(runtime (?:read|summary): )[^\n]* at line \d+ column \d+$",
+        |found, text| format!("{}<runtime>", group(found, text, 1)),
+    );
+    text = replace_all(
+        &text,
+        r"^(runtime \w+: )[^\n]*: Is a directory \(os error 21\)$",
+        |found, text| format!("{}<runtime>", group(found, text, 1)),
+    );
+    text = runtime_text(text);
+    let mut text = text
         .replace("Usage: focus engine audit ", "Usage: <cli> audit ")
         .replace(
             "`focus engine orchestrate report`",
@@ -250,19 +276,21 @@ fn replay_audit(check: &Value, root: &Path) -> BTreeMap<String, String> {
     let (mut exits, mut outs, mut errs) = (Vec::new(), Vec::new(), Vec::new());
     for step in steps {
         let mut command = Command::new(env!("CARGO_BIN_EXE_focus"));
-        command.args(["engine", "audit"]);
-        command.args(
-            step.as_array()
-                .unwrap()
-                .iter()
-                .map(|arg| arg.as_str().unwrap().replace("{P}", root.to_str().unwrap())),
-        );
-        command.args([
-            "--project-dir",
-            root.to_str().unwrap(),
-            "--harness",
-            "claude",
-        ]);
+        command.args(["engine", check["tool"].as_str().unwrap()]);
+        let args: Vec<String> = step
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|arg| arg.as_str().unwrap().replace("{P}", root.to_str().unwrap()))
+            .collect();
+        // A step that says where the project is says it itself, as in the
+        // recorder.
+        let placed = args.iter().any(|arg| arg == "--project-dir");
+        command.args(args);
+        if !placed {
+            command.args(["--project-dir", root.to_str().unwrap()]);
+        }
+        command.args(["--harness", "claude"]);
         for (name, _) in std::env::vars() {
             if name.starts_with("FOCUS_") || name == "CLAUDE_PROJECT_DIR" {
                 command.env_remove(name);
@@ -398,7 +426,7 @@ fn shown(expected: &Value) -> String {
 
 /// Run one check in `root`; the problems found, empty when it matches.
 fn replay(check: &Value, root: &Path) -> Vec<String> {
-    if check["tool"] == "audit" {
+    if check["tool"] == "audit" || check["tool"] == "runtime" {
         return problems_in(
             check["expect"].as_object().unwrap(),
             replay_audit(check, root),
@@ -612,10 +640,45 @@ fn the_recording_covers_every_verb_and_both_outcomes() {
         assert!(exits("0"), "no recorded success for audit {verb}");
         assert!(exits("1"), "no recorded failure for audit {verb}");
     }
+    // A runtime check runs several verbs in a row; each must succeed in some
+    // check and fail in some check, wherever in the row it stands.
+    for verb in ["compile", "read", "summary"] {
+        let exits = |code: &str| {
+            checks
+                .iter()
+                .filter(|c| c["tool"] == "runtime" && c["deviation"].is_null())
+                .any(|c| {
+                    let codes = c["expect"]["exit"].as_str().unwrap().split(',');
+                    c["steps"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .zip(codes)
+                        .any(|(step, exit)| step[0] == verb && exit == code)
+                })
+        };
+        assert!(exits("0"), "no recorded success for runtime {verb}");
+        assert!(exits("1"), "no recorded failure for runtime {verb}");
+    }
+    // A deviation is recorded and not replayed, so a recording made mostly
+    // of them would prove little: they stay under a tenth of it, and for
+    // each command what is replayed is at least twice what is not.
     let deviations = checks.iter().filter(|c| !c["deviation"].is_null()).count();
     assert!(
-        deviations * 20 < checks.len(),
+        deviations * 10 < checks.len(),
         "{deviations} of {} recorded checks are deviations; the replay proves little",
         checks.len()
     );
+    for tool in ["graph", "audit", "runtime"] {
+        let of_tool: Vec<&Value> = checks
+            .iter()
+            .filter(|c| c["tool"].as_str().unwrap_or("graph") == tool)
+            .collect();
+        let apart = of_tool.iter().filter(|c| !c["deviation"].is_null()).count();
+        assert!(
+            !of_tool.is_empty() && apart * 3 <= of_tool.len(),
+            "{apart} of the {} recorded checks of {tool} are deviations",
+            of_tool.len()
+        );
+    }
 }

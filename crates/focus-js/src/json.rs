@@ -103,10 +103,15 @@ fn quote(s: &str) -> String {
 /// ascending), at every level, and a repeated key keeps its first position
 /// with its last value.
 ///
+/// Three texts that `JSON.parse` reads are refused here, because the value
+/// they stand for is one this reader cannot hold: a number no double holds
+/// (`1e400`, `Infinity` to JavaScript), an escaped half of a surrogate pair
+/// (`"\ud800"`), and nesting deeper than 127 levels.
+///
 /// # Errors
 ///
-/// The parser's message when `text` is not JSON. The wording is
-/// `serde_json`'s, not the JS engine's.
+/// The parser's message when `text` is not JSON, or is one of those three.
+/// The wording is `serde_json`'s, not the JS engine's.
 pub fn parse(text: &str) -> Result<Value, serde_json::Error> {
     serde_json::from_str::<Value>(text).map(js_order)
 }
@@ -164,5 +169,27 @@ mod tests {
         let text = r#"{"b":{"10":1,"x":2,"9":3},"2":0,"a":1,"b":{"z":1,"1":2}}"#;
         let expected = r#"{"2":0,"b":{"1":2,"z":1},"a":1}"#;
         assert_eq!(stringify(&parse(text).unwrap()), expected);
+    }
+
+    /// Deliberate deviation. `JSON.parse` reads a number no double holds as
+    /// `Infinity`, an escaped half of a surrogate pair as that half, and
+    /// arrays or objects nested to any depth the stack allows. This reader
+    /// holds none of the three, and says the text is not JSON it reads.
+    #[test]
+    fn three_texts_javascript_reads_are_refused() {
+        for text in ["1e400", "[-1e400]", r#""\ud800""#, r#"{"k": "a\udc00b"}"#] {
+            assert!(parse(text).is_err(), "{text}");
+        }
+        let nested = |levels: usize| "[".repeat(levels) + &"]".repeat(levels);
+        assert!(parse(&nested(127)).is_ok());
+        assert!(parse(&nested(128)).is_err());
+        // What is near each of them is read.
+        for (text, printed) in [
+            ("1e308", "1e+308"),
+            ("1e-400", "0"),
+            (r#""\ud83d\ude00""#, "\"\u{1F600}\""),
+        ] {
+            assert_eq!(stringify(&parse(text).unwrap()), printed, "{text}");
+        }
     }
 }

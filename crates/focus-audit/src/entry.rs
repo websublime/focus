@@ -232,18 +232,7 @@ pub fn redact_project_dir_prefix(value: &str, project_dir: &Path) -> String {
 /// `path.resolve`: absolute, with `.` and `..` settled by reading the path,
 /// not the disk.
 pub(crate) fn lexical_absolute_path(path: &Path) -> std::path::PathBuf {
-    let absolute = std::path::absolute(path).unwrap_or_else(|_| path.to_path_buf());
-    let mut settled = std::path::PathBuf::new();
-    for component in absolute.components() {
-        match component {
-            std::path::Component::ParentDir => {
-                settled.pop();
-            }
-            std::path::Component::CurDir => {}
-            other => settled.push(other),
-        }
-    }
-    settled
+    focus_workspace::project::settled(path)
 }
 
 fn lexical_absolute(path: &Path) -> String {

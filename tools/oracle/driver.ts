@@ -87,6 +87,27 @@ function answer(c: Record<string, any>): unknown {
       return { value: lib.listField(c.fm, c.key) };
     case "collate":
       return { sign: Math.sign(c.a.localeCompare(c.b)) };
+    case "instant":
+      // NaN is `null` in JSON, which is also what focus answers for a text it
+      // does not read: the cases hold no text the two would read differently.
+      return { ms: (c.texts as string[]).map((text) => Date.parse(text)) };
+    case "memory_counts": {
+      const counted = lib.parseMemoryHeadings(c.raw);
+      return {
+        interpretations: counted.interpretations,
+        deviations: counted.deviations,
+        tradeoffs: counted.tradeoffs,
+        open_questions: counted.open_questions,
+        total: counted.total,
+      };
+    }
+    case "bolt_dag":
+      return lib.parseBoltDag(c.body);
+    case "progress":
+      return {
+        checkboxes: lib.parseCheckboxes(c.content),
+        suffixes: [...lib.parseStateStageSuffixes(c.content)],
+      };
     case "icase":
       // What each pattern matches in the text, case ignored, outside the
       // Unicode modes: the mode nearly all of upstream's patterns are in.

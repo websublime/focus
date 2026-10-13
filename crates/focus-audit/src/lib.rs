@@ -32,10 +32,14 @@ pub mod entry;
 pub mod events;
 pub mod history;
 pub mod ledger;
+pub mod memory;
 pub mod oracle;
 pub mod read;
+pub mod runtime_graph;
 pub mod shards;
+pub mod summary;
 pub mod time;
+pub mod units;
 
 pub use append::Note;
 pub use entry::{Entry, Fields, SHARD_TITLE, render_block, validate};
