@@ -143,7 +143,7 @@ fn detect_scans_the_project_and_names_where_the_scopes_live() {
         scanned.starts_with("Project type: Brownfield\nLanguages: TypeScript, JavaScript\nFrameworks: Vite, React\nBuild system: pnpm (package.json)\nSubmodules: 2 declared, 1 uninitialized\nScopes dir: "),
         "{scanned}"
     );
-    let json = rooted(&ok(&utility(&root, &["detect", "--json"])));
+    let json = ok(&utility(&root, &["detect", "--json"]));
     let parsed: serde_json::Value = serde_json::from_str(&json).unwrap();
     assert_eq!(parsed["projectType"], "Brownfield");
     assert_eq!(parsed["languages"], "TypeScript, JavaScript");
@@ -155,8 +155,9 @@ fn detect_scans_the_project_and_names_where_the_scopes_live() {
             {"name": "two", "path": "two", "url": "", "initialized": false},
         ])
     );
-    assert_eq!(parsed["scopesDir"], scopes);
-    assert_eq!(parsed["scopeGridPath"], grid);
+    // A path in JSON carries its separators escaped, so it is read first.
+    assert_eq!(rooted(parsed["scopesDir"].as_str().unwrap()), scopes);
+    assert_eq!(rooted(parsed["scopeGridPath"].as_str().unwrap()), grid);
     assert_eq!(
         parsed["proposalPath"],
         "focus/spaces/default/intents/.focus-engine/composer-proposal.json"
