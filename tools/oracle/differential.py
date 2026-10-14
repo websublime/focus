@@ -2034,7 +2034,7 @@ def utility_checks():
     check_("detect/all_js_frameworks",
            {**empty("next.config.js", "vite.config.js", "angular.json", "nuxt.config.js", "remix.config.js", "gatsby-config.js",
                     "astro.config.ts", "svelte.config.js", "nest-cli.json", "manage.py"), "package.json": '{"dependencies":{"react":"1"}}',
-            "Gemfile": "gem 'rails'\n", "pom.xml": "spring-boot"}, both)
+            "Gemfile": "gem 'rails'\n", "pom.xml": "spring-boot", **empty("src/a.py", "src/b.py", "src/c.py")}, both)
     check_("detect/rails_gemfile", {"Gemfile": "source 'x'\ngem 'rails', '7'\n"}, both)
     check_("detect/rails_commented", {"Gemfile": "# gem 'rails'\ngem 'x' # rails\n"}, both)
     check_("detect/rails_word_boundary", {"Gemfile": "gem 'railsy'\ngem 'trails'\n"}, both)
@@ -2075,7 +2075,7 @@ def utility_checks():
     check_("detect/nested_source_dir_name_is_case_sensitive", empty("SRC/x.py", "Lib/y.py"), both)
     check_("detect/nested_frameworks_and_build",
            {"a/package.json": '{"dependencies":{"react":"1"}}', "a/vite.config.js": "", "b/Cargo.toml": "", "b/x.rs": "",
-            "b/vite.config.ts": ""}, both)
+            "b/y.rs": "", "b/vite.config.ts": ""}, both)
     check_("detect/nested_build_system_first_wins", {"a/go.mod": "", "b/Cargo.toml": ""}, both)
     check_("detect/nested_languages_add_up", empty("a/x.py", "a/y.py", "b/z.py", "b/w.rs", "c/v.rs"), both)
     check_("detect/root_hit_skips_nesting", empty("x.py", "services/api/main.go"), both)
