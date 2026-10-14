@@ -201,7 +201,19 @@ fn normalise_audit(text: &str, root: &Path) -> String {
             "<cli> orchestrate report",
         )
         .replace("`focus engine log`", "<cli> log");
-    // The state tool names itself, its verbs and the orchestrator's.
+    // The state tool names itself, its verbs and the orchestrator's. A
+    // memory file copied whole may name upstream's script too.
+    text = replace_all(
+        &text,
+        r"focus-(state|orchestrate)\.ts(?: ([a-z-]+))?",
+        |found, text| {
+            let tool = group(found, text, 1);
+            match found.group(2) {
+                Some(range) => format!("<cli> {tool} {}", &text[range]),
+                None => format!("<cli> {tool}"),
+            }
+        },
+    );
     text = replace_all(
         &text,
         r"`focus engine (state|orchestrate)(?: ([^`]*))?`",

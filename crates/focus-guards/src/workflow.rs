@@ -484,9 +484,16 @@ mod tests {
             .set_modified(later + std::time::Duration::from_secs(5))
             .unwrap();
         assert_eq!(tree.guards().unwrap().authority().covered, Cover::None);
-        for marker in ["human-turn", "engine-touch"] {
-            fs::remove_file(tree.0.project.join(format!("{engine}/{marker}"))).unwrap();
-        }
+        // A marker that is not a regular file proves nothing, however new.
+        fs::remove_file(tree.0.project.join(format!("{engine}/human-turn"))).unwrap();
+        tree.write(&format!("{engine}/human-turn/x"), "");
+        fs::File::open(tree.0.project.join(format!("{engine}/human-turn")))
+            .unwrap()
+            .set_modified(later + std::time::Duration::from_secs(50))
+            .unwrap();
+        assert_eq!(tree.guards().unwrap().authority().covered, Cover::None);
+        fs::remove_dir_all(tree.0.project.join(format!("{engine}/human-turn"))).unwrap();
+        fs::remove_file(tree.0.project.join(format!("{engine}/engine-touch"))).unwrap();
         assert!(tree.guards().is_ok());
     }
 }

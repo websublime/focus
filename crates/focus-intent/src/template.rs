@@ -490,4 +490,167 @@ mod tests {
         );
         assert_eq!(format_ceremony("off", "you"), "off (set by you)");
     }
+
+    #[test]
+    fn the_state_file_follows_the_graph_it_is_built_from() {
+        // Two initialization stages, a construction stage per unit without
+        // `workspace_requires`, and no operation stage at all.
+        let graph = focus_graph::runtime::load_from_value(&serde_json::json!([
+            {"slug": "workspace-scaffold", "number": "0.1", "phase": "initialization"},
+            {"slug": "state-init", "number": "0.3", "phase": "initialization"},
+            {"slug": "intent-capture", "number": "1.1", "phase": "ideation", "lead_agent": "focus-product-agent"},
+            {"slug": "reverse-engineering", "number": "2.1", "phase": "inception"},
+            {"slug": "units-generation", "number": "2.7", "phase": "inception"},
+            {"slug": "functional-design", "number": "3.1", "phase": "construction", "for_each": "unit-of-work"},
+            {"slug": "code-generation", "number": "3.5", "phase": "construction", "for_each": "unit-of-work", "workspace_requires": true},
+        ]));
+        let definition = ScopeDefinition {
+            meta: focus_graph::scopes::ScopeMetadata {
+                name: "feature".to_owned(),
+                plugin: None,
+                depth: "Standard".to_owned(),
+                description: String::new(),
+                keywords: Vec::new(),
+                test_strategy: Some("Minimal".to_owned()),
+                runner: None,
+                skeleton: false,
+                existing_code: true,
+                review_cap: None,
+                freeform_default: false,
+                guard_policy: None,
+                ceremony: vec![("plan_approval", "off".to_owned())],
+            },
+            stages: [
+                "workspace-scaffold",
+                "state-init",
+                "intent-capture",
+                "reverse-engineering",
+                "units-generation",
+                "functional-design",
+                "code-generation",
+            ]
+            .into_iter()
+            .map(|slug| (slug.to_owned(), Value::from("EXECUTE")))
+            .collect(),
+        };
+        let plan: Plan = graph
+            .iter()
+            .map(|stage| (stage.slug.clone(), "EXECUTE"))
+            .collect();
+        let scan = Scan {
+            project_type: "Greenfield",
+            languages: "Unknown".to_owned(),
+            frameworks: "Unknown".to_owned(),
+            build_system: "Unknown".to_owned(),
+            nested_root: None,
+            submodules: Vec::new(),
+        };
+        let mut inputs = Inputs {
+            definition: &definition,
+            graph: &graph,
+            plan: &plan,
+            composed: None,
+            declared_type: None,
+            scan: &scan,
+            depth: Some("comprehensive"),
+            test_strategy: None,
+            review_override: Some("advisory".to_owned()),
+            guard_policy: "off (from scope feature)",
+            ceremonies: &[("sensors", "off", true)],
+            description: "Add login",
+            request: Some("q-1"),
+            timestamp: "2026-10-14T00:00:00Z",
+        };
+        let built = build(&inputs);
+        assert_eq!(built.completed_init, 2);
+        assert_eq!(built.total_in_scope, 6);
+        assert_eq!(
+            built.execute_numbers,
+            ["0.1", "0.3", "1.1", "2.7", "3.1", "3.5"]
+        );
+        assert_eq!(
+            built.skip_entries,
+            ["2.1 (reverse-engineering \u{2014} greenfield)"]
+        );
+        assert!(built.greenfield_note);
+        assert_eq!(built.depth, "Comprehensive");
+        assert_eq!(built.test_strategy, "Minimal");
+        assert_eq!(built.first_post_init, "intent-capture");
+        assert_eq!(built.first_phase, "IDEATION");
+        let content = &built.content;
+        assert!(
+            content.contains("- **Question Id**: q-1\n- **State Version**: 8\n"),
+            "{content}"
+        );
+        assert!(content.contains("- **Completed**: 2\n"), "{content}");
+        assert!(
+            content.contains("- **Review Override**: advisory\n"),
+            "{content}"
+        );
+        assert!(
+            content.contains(
+                "- **Sensors**: off (set by you)\n- **Learnings**: on (from scope feature)\n"
+            ),
+            "{content}"
+        );
+        assert!(
+            content.contains("- **Plan Approval**: off (from scope feature)\n"),
+            "{content}"
+        );
+        assert!(
+            content.contains("- **Construction Checkpoints**: enabled\n"),
+            "{content}"
+        );
+        assert!(content.contains("- **Operation**: Skipped\n"), "{content}");
+        assert!(
+            content.contains("### OPERATION PHASE\n\n## Current Status"),
+            "{content}"
+        );
+        assert!(content.contains("- [x] workspace-scaffold \u{2014} EXECUTE\n- [x] state-init \u{2014} EXECUTE\n\n### IDEATION PHASE\n- [-] intent-capture \u{2014} EXECUTE\n"), "{content}");
+        assert!(
+            content.contains("- [ ] reverse-engineering \u{2014} SKIP\n"),
+            "{content}"
+        );
+        assert!(
+            content.contains("- **Next Stage**: units-generation\n"),
+            "{content}"
+        );
+        // Without the per-unit stage that needs the workspace, no checkpoints;
+        // a composed plan that leaves Reverse Engineering out on a new project
+        // says why.
+        let composed: Plan = plan
+            .iter()
+            .map(|(slug, action)| {
+                (
+                    slug.clone(),
+                    if slug == "code-generation" || slug == "reverse-engineering" {
+                        "SKIP"
+                    } else {
+                        *action
+                    },
+                )
+            })
+            .collect();
+        inputs.plan = &composed;
+        inputs.composed = Some(Some("lean"));
+        let built = build(&inputs);
+        assert!(
+            !built.content.contains("Construction Checkpoints"),
+            "{}",
+            built.content
+        );
+        assert!(
+            built.content.contains("- **Plan**: lean\n"),
+            "{}",
+            built.content
+        );
+        assert_eq!(
+            built.skip_entries,
+            [
+                "2.1 (reverse-engineering \u{2014} greenfield)",
+                "3.5 (code-generation)"
+            ]
+        );
+        assert!(!built.greenfield_note);
+    }
 }

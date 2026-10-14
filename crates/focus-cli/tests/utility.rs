@@ -362,6 +362,8 @@ fn intent_create_mints_a_record_and_selects_it() {
         assert!(record.join(phase).is_dir(), "{phase}");
     }
     assert!(root.join("focus/active-memory/org.md").is_file());
+    assert!(root.join("focus/spaces/default/knowledge").is_dir());
+    assert!(root.join("focus/spaces/default/codekb").is_dir());
     let ledger = fs::read_to_string(record.join("audit/laptop-abc123.md")).unwrap();
     assert!(
         ledger.starts_with("# Focus Audit Log\n\n## Workflow Start\n"),

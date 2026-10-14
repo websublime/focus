@@ -260,4 +260,81 @@ mod tests {
         assert_eq!(composed_plan_label(Some("Lean Login")), "tailored plan");
         assert_eq!(composed_plan_label(None), "tailored plan");
     }
+
+    fn graph() -> Vec<Stage> {
+        focus_graph::runtime::load_from_value(&serde_json::json!([
+            {"slug": "workspace-scaffold", "number": "0.1", "phase": "initialization"},
+            {"slug": "intent-capture", "number": "1.1", "phase": "ideation"},
+            {"slug": "market-research", "number": "1.2", "phase": "ideation"},
+            {"slug": "feasibility", "number": "1.3", "phase": "ideation"},
+            {"slug": "code-generation", "number": "3.5", "phase": "construction"},
+        ]))
+    }
+
+    fn definition(stages: &[(&str, &str)]) -> ScopeDefinition {
+        ScopeDefinition {
+            meta: focus_graph::scopes::ScopeMetadata {
+                name: "feature".to_owned(),
+                plugin: None,
+                depth: "Standard".to_owned(),
+                description: String::new(),
+                keywords: Vec::new(),
+                test_strategy: None,
+                runner: None,
+                skeleton: false,
+                existing_code: false,
+                review_cap: None,
+                freeform_default: false,
+                guard_policy: None,
+                ceremony: Vec::new(),
+            },
+            stages: stages
+                .iter()
+                .map(|(slug, action)| ((*slug).to_owned(), Value::from(*action)))
+                .collect(),
+        }
+    }
+
+    #[test]
+    fn the_next_stage_follows_the_state_over_the_grid() {
+        let graph = graph();
+        let def = definition(&[
+            ("intent-capture", "EXECUTE"),
+            ("market-research", "EXECUTE"),
+            ("code-generation", "EXECUTE"),
+        ]);
+        let next = |after: &str, state: Option<&str>| {
+            next_in_scope_stage(after, &def, &graph, state).map(|stage| stage.slug.as_str())
+        };
+        assert_eq!(next("intent-capture", None), Some("market-research"));
+        // A completed or skipped stage is passed; a state's SKIP drops a
+        // stage and its EXECUTE promotes one.
+        let state = "- [x] market-research \u{2014} EXECUTE\n- [ ] feasibility \u{2014} EXECUTE\n";
+        assert_eq!(next("intent-capture", Some(state)), Some("feasibility"));
+        let state = "- [S] market-research \u{2014} EXECUTE\n- [ ] code-generation \u{2014} SKIP\n";
+        assert_eq!(next("intent-capture", Some(state)), None);
+        assert_eq!(next("nope", None), None);
+        assert_eq!(next("code-generation", None), None);
+        assert_eq!(
+            first_post_init_stage(
+                &stages_in_scope(&serde_json::Map::new(), "feature", &graph),
+                &graph
+            ),
+            "intent-capture"
+        );
+        let (plan, errors) = plan_with_changes(
+            &def,
+            &graph,
+            &Changes {
+                skip: vec!["market-research".into()],
+                add: vec!["feasibility".into()],
+            },
+        );
+        assert!(errors.is_empty());
+        assert_eq!(first_post_init_stage(&plan, &graph), "intent-capture");
+        assert_eq!(
+            phases_with_execute_stages(&plan, &graph),
+            ["ideation", "construction"]
+        );
+    }
 }

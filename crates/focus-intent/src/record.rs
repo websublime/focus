@@ -347,6 +347,14 @@ mod tests {
             std::fs::read_to_string(layout.workspace_root().join(ACTIVE_SPACE_POINTER)).unwrap(),
             "payments\n"
         );
+        // A cursor naming no space stays as it is: an existing cursor wins,
+        // whatever it says.
+        std::fs::write(layout.workspace_root().join(ACTIVE_SPACE_POINTER), "nope\n").unwrap();
+        ensure_active_space_cursor(&layout);
+        assert_eq!(
+            std::fs::read_to_string(layout.workspace_root().join(ACTIVE_SPACE_POINTER)).unwrap(),
+            "nope\n"
+        );
         assert!(!is_bindable_record_name("a/b"));
         assert!(!is_bindable_record_name(" a"));
         assert!(!is_bindable_record_name("a\u{85}"));

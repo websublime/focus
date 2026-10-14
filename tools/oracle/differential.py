@@ -351,7 +351,8 @@ JOBS = []
 # The part of an installed project the graph verbs read or write. Recording
 # stores each tree as its difference from this subset of upstream's
 # distribution, which refresh.sh vendors as fixtures/upstream/installed/claude.
-BASE_DIRS = (".claude/aidlc-common/stages", ".claude/agents", ".claude/scopes", ".claude/sensors", "aidlc")
+BASE_DIRS = (".claude/aidlc-common/stages", ".claude/agents", ".claude/scopes", ".claude/sensors",
+             ".claude/tools/data/memory-seed", "aidlc")
 BASE_FILES = tuple(f".claude/tools/data/{name}"
                    for name in ("harness.json", "stage-graph.json", "scope-grid.json", "ars-priors.json"))
 RECORDED_TREES = {}
@@ -2002,6 +2003,8 @@ def state_checks():
         os.utime(tree.path(f"{RECORD_DIR}/.aidlc-engine/human-turn"), (1_700_000_000, 1_700_000_000))
         os.utime(tree.path(f"{RECORD_DIR}/.aidlc-engine/engine-touch"), (1_700_000_100, 1_700_000_100))
     markers = {**record, f"{RECORD_DIR}/.aidlc-engine/human-turn": "", f"{RECORD_DIR}/.aidlc-engine/engine-touch": "", **shard}
+    # The markers' times decide, and a recording holds no times: compared live only.
+    UNRECORDED.update({"state/marker/turn_after_touch", "state/marker/touch_after_turn"})
     check_("marker/turn_after_touch", markers, [["set", "Scope=x"]], edits=(turn_after_touch,))
     check_("marker/turn_after_touch_unattended", markers, [["set", "Scope=x"]], {"UNATTENDED": "1"}, edits=(turn_after_touch,))
     check_("marker/touch_after_turn", markers, [["set", "Scope=x"]], edits=(touch_after_turn,))
@@ -2245,9 +2248,22 @@ def intent_create_checks():
     check_("create/composed_plan", {}, [feature + ["--skip", "market-research, feasibility", "--add", "reverse-engineering", "--plan-name", "lean-login"]])
     check_("create/composed_plan_unnamed", {}, [feature + ["--skip", "team-formation"], create + ["--scope", "bugfix", "--label", "x", "--add", "market-research", "--plan-name", "Bad Name"]])
     check_("create/composed_plan_empties_a_phase", {}, [create + ["--scope", "bugfix", "--label", "x", "--skip", "deployment-execution,observability-setup,incident-response"]])
+    check_("create/composed_plan_skips_reverse_engineering", {}, [feature + ["--skip", "reverse-engineering"]])
+    check_("create/composed_plan_without_code_generation", {}, [feature + ["--skip", "code-generation"]])
+    # A grid that skips an initialization stage, and a graph with no operation stage at all.
+    def grid_skips_init(tree):
+        grid = tree.json(".claude/tools/data/scope-grid.json")
+        grid["feature"]["stages"]["workspace-scaffold"] = "SKIP"
+        tree.write_json(".claude/tools/data/scope-grid.json", grid)
+    check_("create/grid_skips_an_init_stage", {}, [feature], edits=(grid_skips_init,))
+    def no_operation(tree):
+        graph = tree.json(".claude/tools/data/stage-graph.json")
+        tree.write_json(".claude/tools/data/stage-graph.json", [stage for stage in graph if stage["phase"] != "operation"])
+    check_("create/graph_without_operation", {}, [feature], edits=(no_operation,))
     check_("create/ceremonies", {}, [feature + ["--sensors", "off", "--learnings", "OFF", "--summary-confirmation", "on", "--collaborators", "on"]])
     check_("create/guard_policy_scope_default", {}, [feature + ["--guard-policy", "off"]])
     check_("create/guard_policy_raised", {}, [feature + ["--guard-policy", "relaxed"], create + ["--scope", "feature", "--label", "two", "--guard-policy", "STRICT"]])
+    check_("create/guard_policy_strict_on_strict_scope", {}, [create + ["--scope", "enterprise", "--label", "x", "--guard-policy", "strict"]])
     check_("create/guard_policy_lowered", {}, [create + ["--scope", "enterprise", "--label", "x", "--guard-policy", "off"],
                                                create + ["--scope", "enterprise", "--label", "x", "--guard-policy", "relaxed"]])
     check_("create/guard_policy_lowered_unattended", {}, [create + ["--scope", "enterprise", "--label", "x", "--guard-policy", "off"]], {"UNATTENDED": "1"})
@@ -2261,7 +2277,8 @@ def intent_create_checks():
     check_("create/plan_approval_off", {}, [feature + ["--plan-approval", "off"]])
     check_("create/plan_approval_off_unattended", {}, [feature + ["--plan-approval", "off"]], {"UNATTENDED": "1"})
     check_("create/plan_approval_off_bypassed", {}, [feature + ["--plan-approval", "off"]], {"SKIP_HUMAN_PRESENCE_GUARD": "1"})
-    check_("create/plan_approval_off_by_scope", {}, [create + ["--scope", "bugfix", "--label", "x", "--plan-approval", "off"]])
+    check_("create/plan_approval_off_by_scope", {}, [create + ["--scope", "express", "--label", "x", "--plan-approval", "off"],
+                                                     create + ["--scope", "bugfix", "--label", "y", "--plan-approval", "off"]])
     check_("create/memory_strict", strict_team, [feature, create + ["--scope", "feature", "--label", "two", "--guard-policy", "relaxed"],
                                                  create + ["--scope", "feature", "--label", "three", "--guard-policy", "strict"],
                                                  create + ["--scope", "feature", "--label", "four", "--plan-approval", "off"]])
@@ -2277,6 +2294,7 @@ def intent_create_checks():
     check_("create/repos_discovered", {"api/.git/HEAD": "", "web/.git/HEAD": "", "docs/README.md": "", ".hidden/.git/HEAD": "", "node_modules/.git/HEAD": ""}, [feature])
     check_("create/space_explicit", {"aidlc/spaces/payments/memory/org.md": "# Org\n"}, [feature + ["--space", "payments"], create + ["--scope", "feature", "--label", "two", "--space", "default"]])
     check_("create/space_active", {"aidlc/active-space": "payments\n", "aidlc/spaces/payments/memory/org.md": "# Org\n"}, [feature])
+    check_("create/space_cursor_without_a_dir", {"aidlc/active-space": "payments\n"}, [feature])
     check_("create/space_strict", {"aidlc/spaces/payments/memory/team.md": "# Team\n\n## Guard Policy\n\nMode: strict\n"},
            [feature + ["--space", "payments", "--guard-policy", "relaxed"], feature + ["--space", "payments"]])
     check_("create/then_state", {}, [feature, ["detect", "--json"], create + ["--scope", "bugfix", "--label", "fix it"]])
@@ -2285,6 +2303,8 @@ def intent_create_checks():
     def binary_memory(tree):
         with open(tree.path("aidlc/spaces/default/memory/notes.md"), "wb") as handle:
             handle.write(b"\xff\xfe not text")
+    # A recording holds text; the file that is not text is compared live only.
+    UNRECORDED.add("utility/create/memory_binary")
     check_("create/memory_binary", {}, [feature], edits=(binary_memory,))
     check_("create/registry_malformed", {"aidlc/spaces/default/intents/intents.json": "{not a list"}, [feature])
     check_("create/registry_existing", {"aidlc/spaces/default/intents/intents.json": '[{"uuid":"u","slug":"old","dirName":"250101-old","status":"done"}]\n'}, [feature])
