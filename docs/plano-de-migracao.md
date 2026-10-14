@@ -105,7 +105,7 @@ focus-cli ✔ ───────────► focus-hooks ──► focus-o
 | `focus-frontmatter` | Leitores de frontmatter (subconjunto de YAML do original) | Existe |
 | `focus-harness` | Descritores dos três harnesses; mais tarde, os adapters de payload | Descritores existem |
 | `focus-graph` | Schemas, compile do grafo e do grid, scopes compostos, consultas, validação de planos, ARS | Completo para o CLI de `graph` |
-| `focus-workspace` | Projeto e harness de um comando, caminhos, escrita atómica, lock do workspace, recusa de links; mais tarde, settings, spaces e intents | Existe; settings em M2 |
+| `focus-workspace` | Projeto e harness de um comando, caminhos, escrita atómica, lock do workspace, recusa de links, o scan do workspace; mais tarde, spaces e intents | Existe; settings em M2, scan em M3 |
 | `focus-markdown` | Estrutura de blocos Markdown (`markdownBlocks`, `visibleMarkdownLines`) | M2 |
 | `focus-audit` | Shards de auditoria, registo de eventos, runtime graph | Existe (M2) |
 | `focus-state` | Ficheiro de estado, máquinas de workflow, fase e stage, criação de intents | Existem os campos e as checkboxes, lidos e escritos como texto (M2, fatia 6; M3, fatia 1); o resto é M3 |
@@ -921,7 +921,7 @@ M3 está em curso. O que o plano chamava "estado e criação de intents" é, no 
 | --- | --- | --- | --- |
 | 1. Guard Policy e fences | `focus-guards`: a resolução da política de um workflow (a linha do estado, o default do scope, as camadas de memória), as linhas `Guards Off` e `Guards On`, os kill switches, o que cada política baixa, a decisão de uma fence e a autoridade de uma ação sem marcadores de hooks | Corpus | Feita |
 | 2. O ficheiro de estado como dados | `focus-state`: campos, checkboxes, listas de refs, progresso de fase; ler e escrever o ficheiro (barreira `writeStateFile`, ficheiro só de leitura); `focus engine state get`, `set`, `checkbox` e `count`, com a porta das transições e o `ERROR_LOGGED` de cada recusa | Corpus e diferencial | Feita |
-| 3. Criação de intents | `intent-create`: o registo, o cursor, o ficheiro de estado a partir do template | Diferencial | |
+| 3. Criação de intents | `intent-create`: o registo, o cursor, o ficheiro de estado a partir do template; antes dele, o scanner do workspace que lhe classifica o projeto (`detect`) | Diferencial | Em curso: 3a (`detect`) feita |
 | 4. Transições de stage | `advance`, `gate-start`, `approve`, `reject`, `revise`, `skip`, `resume`, `finalize`, `complete-workflow`, em série e sem units | Diferencial e fuzz de sequências | |
 | 5. Parar, saltar, validar | `park`, `unpark`, `jump`, `validity`, `--status` | Diferencial | |
 
@@ -1000,5 +1000,39 @@ Antes de mexer no ficheiro de estado, cada transição do original pergunta se p
 | `FOCUS_STATE_TRANSITION_OWNER` em Windows | Compara com o pid do pai | Recusa: Focus não lê o pid do pai aí ainda. Em Linux e macOS compara |
 
 **O que a fatia 2 não tem.** O registo das escritas do estado (`state-writes.json`), que o orchestrator lê para dizer o que pôs um passo fora de data; entra com ele (M5). O lock é o do workspace, não um por intent (decisão 3, R5).
+
+### Fatia 3a: o scanner do workspace, e o comando `utility`
+
+A criação de um intent começa por classificar o projeto: Greenfield ou Brownfield, e com que linguagens, frameworks e sistema de build. O original fá-lo com regras sobre os ficheiros que estão lá (`detectWorkspace`, em `aidlc-utility.ts`): conta ficheiros por extensão na raiz e, até seis níveis, em `src`, `app`, `lib`, `pages`, `components` e `tests`; lê alguns manifestos (`package.json`, `Gemfile`, `pom.xml`, `pyproject.toml`); e, quando a raiz não mostra código, desce até três níveis à procura de projetos aninhados, nomeando também cada repositório git que passa. Um `.gitmodules` com uma entrada válida declara código, mesmo por buscar. O que depende da ordem em que o sistema lista um diretório (qual das linguagens empatadas vem primeiro) segue essa ordem, como no original; o passeio aninhado ordena as entradas, como no original.
+
+`focus engine utility` é o `aidlc-utility.ts`: `detect [--json]` imprime o scan e onde vivem os scopes (para o composer não ter de o derivar), `now` imprime a hora do engine. Os outros 32 verbos são recusados pelo nome, cada um com uma frase que diz o que faz; `intent-create` entra na fatia 3b. Os argumentos leem-se como o original os lê (`parseArgs`: tudo é flag, `--json` sozinho vale `true`), e uma recusa deixa o `ERROR_LOGGED` ao lado do registo que `--intent` ou `--space` nomeiam, senão do ativo. A recusa e a linha que deixa passaram a ser de `focus-cli::report`, partilhadas com `state`.
+
+**O que existe.** `focus-workspace::scan` (`detect`, `parse_gitmodules`, os ficheiros que o engine escreveu inteiros, lidos do descritor de projeção de cada harness instalado), `focus-cli::utility`, `focus-cli::report`, `Parsed` em `focus-cli::args`.
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Diferencial, `utility/*` | 112 verificações com nome: 99 iguais, 13 desvios, 0 diferentes. Cobrem cada extensão, cada framework e cada sistema de build, o limiar das linguagens secundárias, os diretórios excluídos, a profundidade, os projetos aninhados e a sua ordem, os repositórios git, o `.gitmodules` (entradas inválidas, CRLF, caminhos com `\`), os manifestos que são diretórios ou JSON inválido, os links (não gravados) e os ficheiros escritos inteiros pelo engine |
+| Diferencial completo | 1 811 verificações: 1 695 iguais, 116 desvios, 0 diferentes. 1 794 gravadas, sobre 378 árvores: as do `utility` gravam o projeto inteiro, porque o scan lê-o inteiro |
+| Mutações | 47 no scanner, no comando e no leitor de flags; 40 apanhadas, 11 delas só depois de o diferencial e os testes ganharem o caso que faltava (um diretório `.oculto` no passeio, um ficheiro chamado `.py`, `..` com `\\` no `.gitmodules`, a sonda do `.git`, o limiar de um quinto, a ordem UTF-16, um repositório acima de um hit, seis submodules, `--space` sem valor, um valor que começa por `-`, um valor em branco). Sete são equivalentes: o teste de link redundante com `symlink_metadata` (simplificado); `src` na lista do passeio aninhado (um diretório com `src` é Brownfield e nunca é entrado); `package.json` presente antes de o ler; `.` na lista dos ficheiros inteiros (um diretório nunca é igual a um ficheiro); os diretórios a saltar no varrimento de profundidade 0 (que não entra em nenhum); as linhas `;` e `#` do `.gitmodules` (a chave levaria o marcador); e `\\` para `/` no caminho da proposta, que só em Windows se apanha |
+| `cargo test` | 310 testes |
+
+**Pormenores do original que ficam iguais.**
+
+- `.env.py` tem extensão: o ponto só não conta no início do nome.
+- Um `src` que é um link é um sinal de código e é lido através do link; um ficheiro que é um link nunca é contado.
+- `{...dependencies, ...peerDependencies}.react`: a entrada de peer tem a última palavra, e `""`, `0` e `null` não são React. `dependencies` como string não vazia conta como dependência (`Object.keys`).
+- O Bun lê o `package.json` do diretório de trabalho ao arrancar e queixa-se no stderr de um que não consegue ler; o diferencial retira essa queixa, que é do runtime e não da ferramenta.
+
+**Desvios deliberados.**
+
+| | Original | Focus |
+| --- | --- | --- |
+| Uso, e um verbo desconhecido | Lista os 34 verbos; um verbo em falta é `"undefined"` | Lista os dois que tem |
+| Um dos 32 verbos que Focus não tem | Corre-o | Recusa-o pelo nome |
+| `detect --project-dir` num diretório sem instalação | Faz o scan do diretório e nomeia os scopes da instalação de onde o próprio script corre | Recusa: Focus não corre de lado nenhum, e o projeto nomeado tem de ter a instalação cujos scopes reporta |
+
+**O que a fatia 3a não tem.** `reclassify` (a pessoa diz que é projeto novo ou código existente), que mexe no estado e na auditoria e entra com as transições.
 
 Fora de M3 e recusados pelo nome, como `fragment-fork` ficou em M2: os subcomandos de units, bolts e swarm (`unit`, `fork`, `merge`, `fold-unit-merge`, `refresh-unit-progress`, `sync-unit-scope-stage`, `set-unit-ownership`, `set-unit-gate-rhythm`), as políticas de Construction (`set-construction-*`, `set-skeleton-stance`), as práticas (`practices-event`, `practices-promote`), `reuse-artifact`, `lookup` e `acknowledge-compaction`.

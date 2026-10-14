@@ -4,15 +4,18 @@
 //! a skill written for one reads the same for the other: engine internals live
 //! under `engine`: `engine graph <verb>` is upstream's `aidlc-graph.ts`,
 //! `engine audit <verb>` its `aidlc-audit.ts`, `engine runtime <verb>` its
-//! `aidlc-runtime.ts`, and `engine state <verb>` its `aidlc-state.ts`.
+//! `aidlc-runtime.ts`, `engine state <verb>` its `aidlc-state.ts` and
+//! `engine utility <verb>` its `aidlc-utility.ts`.
 //! Arguments are parsed by hand, as upstream does: the engine's usage and
 //! error text is part of what agents read, so it is written, not generated.
 
 mod args;
 mod audit;
 mod graph;
+mod report;
 mod runtime;
 mod state;
+mod utility;
 
 use std::process::ExitCode;
 
@@ -45,10 +48,12 @@ Commands:
   engine state set             Set fields of the state file
   engine state checkbox        Set the state of stages in Stage Progress
   engine state count           Count the stages in one state
+  engine utility detect        Scan the workspace: project type, languages, build system
+  engine utility now           Print the engine's time
 
 Run `focus engine graph --help`, `focus engine audit --help`,
-`focus engine runtime --help` or `focus engine state --help` for the
-options of each.";
+`focus engine runtime --help`, `focus engine state --help` or
+`focus engine utility --help` for the options of each.";
 
 /// How a command failed.
 pub enum Failure {
@@ -92,13 +97,15 @@ fn main() -> ExitCode {
             Some("audit") => audit::run(&mut args),
             Some("runtime") => runtime::run(&mut args),
             Some("state") => state::run(&mut args),
+            Some("utility") => utility::run(&mut args),
             Some(other) => Err(format!(
-                "Unknown engine command: {other}. Valid: audit, graph, runtime, state"
+                "Unknown engine command: {other}. Valid: audit, graph, runtime, state, utility"
             )
             .into()),
-            None => {
-                Err("Usage: focus engine <command>. Valid: audit, graph, runtime, state".into())
-            }
+            None => Err(
+                "Usage: focus engine <command>. Valid: audit, graph, runtime, state, utility"
+                    .into(),
+            ),
         },
         // Development aid: answers oracle cases for the parity corpus.
         Some("dev") => match args.next_positional().as_deref() {

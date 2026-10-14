@@ -351,12 +351,13 @@ RECORDED_CHECKS = {}
 LARGE = 3000
 
 
-def relevant_files(root, hidden=False):
+def relevant_files(root, hidden=False, everything=False):
     """The files of a tree a recording keeps. The graph verbs read none of the engine's own dot-files, so those
-    are left out unless `hidden`: the runtime command reads the clone's identity."""
+    are left out unless `hidden`: the runtime command reads the clone's identity. The utility's scan reads the
+    whole project, so its checks keep `everything`."""
     found = {}
     # A settings path can hold a directory where the file goes; walking a file finds nothing.
-    for directory in (*BASE_DIRS, "p", "machine", "aidlc.settings.json", "aidlc.settings.local.json"):
+    for directory in ("",) if everything else (*BASE_DIRS, "p", "machine", "aidlc.settings.json", "aidlc.settings.local.json"):
         for folder, _, names in os.walk(os.path.join(root, directory)):
             for name in names:
                 path = os.path.join(folder, name)
@@ -380,16 +381,16 @@ def has_links(root):
 _base_cache = {}
 
 
-def overlay(tree, hidden=False):
+def overlay(tree, hidden=False, everything=False):
     """`tree` as its difference from the base: {relative path: text, or None when removed}."""
     import hashlib
-    base = _base_cache.setdefault(hidden, {})
+    base = _base_cache.setdefault((hidden, everything), {})
     if not base:
-        for rel, path in relevant_files(DIST, hidden).items():
+        for rel, path in relevant_files(DIST, hidden, everything).items():
             with open(path, "rb") as handle:
                 base[rel] = handle.read()
     now = {}
-    for rel, path in relevant_files(tree.root, hidden).items():
+    for rel, path in relevant_files(tree.root, hidden, everything).items():
         with open(path, "rb") as handle:
             now[rel] = handle.read()
     diff = {}
@@ -444,7 +445,7 @@ def run_queued(quiet=False):
 
 
 def compare(name, trees, args, env, stdin, files):
-    if files in ("audit", "runtime", "state"):
+    if files in ("audit", "runtime", "state", "utility"):
         return compare_audit(name, trees, args, env, files)
     ts, rs = trees
     outcome = {}
@@ -1230,6 +1231,11 @@ RECORD_DIR = "aidlc/spaces/default/intents/add-login-1a2b3c4d"
 
 def normalise_audit(text, tree, engine):
     text = without_tree(text, tree)
+    if engine == "ts":
+        # Bun reads the working directory's package.json as it starts, and says on standard error what it
+        # thinks of one it cannot parse; that is the runtime, not the tool.
+        text = re.sub(r"^\d+ \| [^\n]*\n[ ]*\^\n(?:error|warn): [^\n]*\n +at [^\n]*package\.json:\d+:\d+\n", "", text,
+                      flags=re.M)
     # The runtime command names itself at the start of what it says on standard error.
     text = re.sub(r"^%s(?=[ :])" % ("aidlc-runtime" if engine == "ts" else "focus runtime"), "runtime", text,
                   flags=re.M)
@@ -1261,6 +1267,8 @@ def normalise_audit(text, tree, engine):
                   lambda m: "<cli> state" + (f" {m.group(1)}" if m.group(1) else ""), text)
     text = text.replace("Usage: focus engine state ", "Usage: <cli> state ")
     text = text.replace("Run focus engine state --help", "Run <cli> state --help")
+    # The utility tool's own name in a row's Tool or Command.
+    text = re.sub(r"(?<![\w-])(?:aidlc|focus)-utility(?![\w.-])", "<cli> utility", text)
     # The fence switch is one operation, spelled for each engine's installation.
     text = re.sub(r"`bun \.claude/tools/(?:aidlc|focus)-utility\.ts config-change --(guard\.[a-z-]+) off`", r"<cli-config \1 off>", text)
     text = re.sub(r"`focus engine config set (guard\.[a-z-]+) off`", r"<cli-config \1 off>", text)
@@ -1374,7 +1382,7 @@ def compare_audit(name, trees, steps, env, tool="audit"):
     started_from = None
     if RECORD and not has_links(ts.root) and name not in UNRECORDED and not name.startswith("fuzz/"):
         # An audit check starts from nothing but its files; a runtime check from an installed project.
-        started_from = workspace_files(ts, "") if tool == "audit" else overlay(ts, hidden=True)
+        started_from = workspace_files(ts, "") if tool == "audit" else overlay(ts, hidden=True, everything=tool == "utility")
     for engine, tree in (("ts", ts), ("rs", rs)):
         say = to_focus if engine == "ts" else (lambda text: text)
         before = workspace_files(tree)
@@ -1760,6 +1768,16 @@ DEVIATIONS.update({
     r"state/record/(sessions_by_process|delegated_worktree)":
         "upstream walks the process tree to find which conversation is calling, and resolves a delegated worktree to "
         "the main checkout's intent; focus refuses and asks for the session",
+    r"utility/usage/(none|unknown)":
+        "upstream's refusal lists its 34 verbs (and a missing verb is \"undefined\"), Focus's the ones it has",
+    r"utility/usage/[a-z-]+_not_ported":
+        "upstream runs the verb; focus refuses it by name, since it does not have it yet",
+    r"utility/usage/error_(logged|without_record)":
+        "the refusal of an unknown verb lists each engine's own verbs; the row that records it is compared up to "
+        "that text",
+    "utility/detect/project_dir_without_install":
+        "upstream scans the directory named and reports the scopes of the install its own script runs from; focus "
+        "runs from nowhere, and refuses a project that does not hold the install",
     "runtime/usage/none":
         "upstream's usage lists fragment-fork and fragment-merge; focus lists the verbs it has",
     r"runtime/usage/fragment_(fork|merge)":
@@ -1945,6 +1963,163 @@ def state_checks():
     check_("usage/stray_argument", record, [["get", "Scope", "--x"], ["count", "completed", "extra"]])
     check_("usage/flag_without_its_value", record, [["get", "Scope", "--project-dir"]])
     check_("usage/metrics_endpoint", {**record, **shard}, [["get", "Nope"]], {"METRICS_ENDPOINT": "http://127.0.0.1:9/x"})
+
+
+def utility_checks():
+    """`aidlc-utility.ts` on the verbs Focus has: detect and now, and how a refusal is recorded."""
+    check_ = lambda name, files, steps, env=None, edits=(): runtime_check(name, files, steps, env, edits, group="utility")
+    record = {**RECORD_FILES, f"{RECORD_DIR}/aidlc-state.md": STATE_FULL}
+    shard = {SHARD: TITLE + WORKFLOW + STARTED_ROW(1, "intent-capture")}
+    both = [["detect"], ["detect", "--json"]]
+    empty = lambda *names: {name: "" for name in names}
+
+    # Usage, and what a refusal leaves.
+    check_("usage/none", record, [[]])
+    check_("usage/unknown", record, [["nope"]])
+    for verb in ("help", "version", "status", "doctor", "intent", "space", "config-get", "scope-table"):
+        check_(f"usage/{verb}_not_ported", {**record, **shard}, [[verb]])
+    check_("usage/error_logged", {**record, **shard},
+           [["nope"], ["nope", "--intent", "add-login-1a2b3c4d"], ["nope", "--space", "default"], ["nope", "--space"],
+            ["nope", "--intent", "fix-logout-9f8e7d6c"], ["nope", "--json", "--x=y"]])
+    check_("usage/error_without_record", CLONE, [["nope"]])
+    check_("now/prints_the_time", {}, [["now"], ["now", "--json"]])
+
+    # detect: the root.
+    check_("detect/empty", {}, both)
+    check_("detect/empty_record", record, both)
+    check_("detect/root_files", empty("a.ts", "b.TS", "c.tsx", "d.js", "e.mjs", "README.md", ".env.py", ".py", "noext", "x."), both)
+    check_("detect/every_language",
+           empty(*(f"src/f{i}{ext}" for i, ext in enumerate([".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".py", ".java", ".kt", ".go",
+                                                                ".rs", ".rb", ".cs", ".cpp", ".c", ".h", ".hpp", ".swift", ".php", ".md"]))),
+           both)
+    check_("detect/secondary_threshold", {**empty(*(f"src/{n}.go" for n in range(10))), **empty("src/a.rs", "src/b.rs", "src/c.py")}, both)
+    check_("detect/secondary_threshold_is_a_fifth", {**empty(*(f"src/{n}.go" for n in range(8))), "src/a.rs": ""}, both)
+    check_("detect/one_of_each_is_a_tie", empty("src/a.rs", "src/b.py", "lib/c.go"), both)
+    check_("detect/source_dirs_to_depth_six",
+           {**empty("src/a/b/c/d/e/f/g.py", "src/a/b/c/d/e/f/g/h.py", "other/deep.py", "tests/t.rb", "pages/p.php",
+                    "components/c.swift", "app/a.kt", "lib/l.cs")}, both)
+    check_("detect/excluded_dirs",
+           empty("node_modules/x.js", "dist/y.js", "build/z.js", "target/t.rs", "vendor/v.go", ".next/n.js", ".git/g.py",
+                 "aidlc-docs/d.py", "src/node_modules/m.js", "src/dist/d.ts", ".claude/c.ts", ".kiro/k.ts", ".aidlc/a.ts"), both)
+    check_("detect/source_dir_is_a_file", {"src": "not a dir\n"}, both)
+    check_("detect/source_dir_alone", {"src/.keep": ""}, both)
+
+    # detect: frameworks and build systems.
+    check_("detect/react_and_vite", {"package.json": '{"dependencies":{"react":"18"}}', "vite.config.ts": ""}, both)
+    check_("detect/react_peer_last_word",
+           {"package.json": '{"dependencies":{"react":"18"},"peerDependencies":{"react":""}}'}, both)
+    check_("detect/react_peer_only", {"package.json": '{"peerDependencies":{"react":"18"}}'}, both)
+    check_("detect/react_odd_values",
+           {"package.json": '{"dependencies":{"react":0},"peerDependencies":"react"}'}, both)
+    check_("detect/dev_deps_only", {"package.json": '{"devDependencies":{"x":"1"},"peerDependencies":{"y":"1"}}'}, both)
+    check_("detect/deps_as_string", {"package.json": '{"dependencies":"abc"}'}, both)
+    check_("detect/deps_as_empty_string", {"package.json": '{"dependencies":""}'}, both)
+    check_("detect/deps_as_list", {"package.json": '{"dependencies":[1]}'}, both)
+    check_("detect/deps_as_number", {"package.json": '{"dependencies":7}'}, both)
+    check_("detect/package_json_is_a_list", {"package.json": '[{"dependencies":{"x":"1"}}]'}, both)
+    check_("detect/package_json_invalid", {"package.json": '{"dependencies":'}, both)
+    check_("detect/package_json_is_a_directory", {"package.json/x": ""}, both)
+    check_("detect/package_json_with_bom", {"package.json": '\ufeff{"dependencies":{"x":"1"}}'}, both)
+    check_("detect/package_json_duplicate_key",
+           {"package.json": '{"dependencies":{"x":"1"},"dependencies":{}}'}, both)
+    for name, files in [("next", {"next.config.mjs": ""}), ("angular", {"angular.json": ""}), ("nuxt", {"nuxt.config.ts": ""}),
+                        ("remix", {"remix.config.js": ""}), ("gatsby", {"gatsby-config.js": ""}), ("astro", {"astro.config.mjs": ""}),
+                        ("svelte", {"svelte.config.js": ""}), ("nest", {"nest-cli.json": ""}), ("django", {"manage.py": ""})]:
+        check_(f"detect/framework_{name}", files, both)
+    check_("detect/all_js_frameworks",
+           {**empty("next.config.js", "vite.config.js", "angular.json", "nuxt.config.js", "remix.config.js", "gatsby-config.js",
+                    "astro.config.ts", "svelte.config.js", "nest-cli.json", "manage.py"), "package.json": '{"dependencies":{"react":"1"}}',
+            "Gemfile": "gem 'rails'\n", "pom.xml": "spring-boot"}, both)
+    check_("detect/rails_gemfile", {"Gemfile": "source 'x'\ngem 'rails', '7'\n"}, both)
+    check_("detect/rails_commented", {"Gemfile": "# gem 'rails'\ngem 'x' # rails\n"}, both)
+    check_("detect/rails_word_boundary", {"Gemfile": "gem 'railsy'\ngem 'trails'\n"}, both)
+    check_("detect/rails_after_a_comment_line", {"Gemfile": "# a\ngem 'rails'\n"}, both)
+    check_("detect/rails_unicode_space", {"Gemfile": "gem\u00a0'rails'\n"}, both)
+    check_("detect/spring_boot", {"pom.xml": "<artifactId>spring-boot-starter</artifactId>"}, both)
+    check_("detect/maven_without_spring", {"pom.xml": "<project/>"}, both)
+    for name, files in [("pnpm", {"package.json": "{}", "pnpm-lock.yaml": ""}), ("yarn", {"package.json": "{}", "yarn.lock": ""}),
+                        ("bun", {"package.json": "{}", "bun.lockb": ""}), ("bun_text", {"package.json": "{}", "bun.lock": ""}),
+                        ("npm", {"package.json": "{}"}), ("lock_order", {"package.json": "{}", "yarn.lock": "", "pnpm-lock.yaml": "", "bun.lock": ""}),
+                        ("poetry", {"pyproject.toml": "[tool.poetry]\n"}), ("uv", {"pyproject.toml": "[tool.uv]\n"}),
+                        ("hatch", {"pyproject.toml": "[tool.hatch]\n"}), ("hatch_then_poetry", {"pyproject.toml": "[tool.hatch]\n[tool.poetry]\n"}),
+                        ("python", {"pyproject.toml": "[project]\n"}), ("pip", {"requirements.txt": ""}), ("setuptools", {"setup.py": ""}),
+                        ("cargo", {"Cargo.toml": ""}), ("go", {"go.mod": ""}), ("gradle", {"build.gradle": ""}), ("gradle_kts", {"build.gradle.kts": ""}),
+                        ("composer", {"composer.json": ""}), ("bundler", {"Gemfile": ""}),
+                        ("precedence", {"Cargo.toml": "", "go.mod": "", "requirements.txt": "", "pyproject.toml": "x", "package.json": "{}"}),
+                        ("manifest_is_a_directory", {"Cargo.toml/x": ""})]:
+        check_(f"detect/build_{name}", files, both)
+
+    # detect: nested projects and git repositories.
+    nested = empty("README.md", "services/api/go.mod", "services/api/main.go", "services/api/handlers/h.go",
+                   "services/web/index.html", "services/web/.git/HEAD", "examples/x.py", "a/b/c/d/deep.py", "Docs/x.py")
+    check_("detect/nested", nested, both)
+    check_("detect/nested_three_levels", empty("a/b/c/main.rs", "a/b/c/d/deep.py"), both)
+    check_("detect/nested_hit_not_entered", empty("a/x.py", "a/b/y.rs", "a/b/c/z.go"), both)
+    check_("detect/nested_order", empty("b/x.py", "a/y.rs", "B/z.go", "_/w.kt", "src-x/v.c"), both)
+    check_("detect/nested_order_is_utf16", empty("\uff5e/a.py", "\U0001f600/b.py", "z/c.py"), both)
+    check_("detect/nested_hit_below_a_repo", empty("a/.git/HEAD", "a/b/main.go"), both)
+    check_("detect/nested_repo_only", {"web/.git/HEAD": ""}, both)
+    check_("detect/nested_repo_and_hit", empty("web/.git/HEAD", "api/main.go", "api/.git/HEAD"), both)
+    check_("detect/nested_repo_below_a_hit", empty("api/main.go", "api/inner/.git/HEAD"), both)
+    check_("detect/nested_repo_at_depth_three", {"a/b/c/.git/HEAD": ""}, both)
+    check_("detect/nested_repo_at_depth_four", {"a/b/c/d/.git/HEAD": ""}, both)
+    check_("detect/nested_excluded_names",
+           empty("docs/x.py", "Examples/y.py", "SAMPLE/z.py", "testdata/t.py", "fixtures/f.py", "templates/t.py", "scripts/s.py",
+                 "reference/r.py", "demo/d.py", "aidlc/a.py", "AIDLC/b.py", ".hidden/h.py", "Node_Modules/n.py", "Dist/d.py"), both)
+    check_("detect/nested_excluded_names_below", empty("a/docs/x.py", "a/.hidden/h.py", "a/b/examples/e.py"), both)
+    check_("detect/nested_source_dir_name_is_case_sensitive", empty("SRC/x.py", "Lib/y.py"), both)
+    check_("detect/nested_frameworks_and_build",
+           {"a/package.json": '{"dependencies":{"react":"1"}}', "a/vite.config.js": "", "b/Cargo.toml": "", "b/x.rs": "",
+            "b/vite.config.ts": ""}, both)
+    check_("detect/nested_build_system_first_wins", {"a/go.mod": "", "b/Cargo.toml": ""}, both)
+    check_("detect/nested_languages_add_up", empty("a/x.py", "a/y.py", "b/z.py", "b/w.rs", "c/v.rs"), both)
+    check_("detect/root_hit_skips_nesting", empty("x.py", "services/api/main.go"), both)
+    check_("detect/root_manifest_skips_nesting", {"Cargo.toml": "", "services/api/main.go": ""}, both)
+
+    # detect: submodules.
+    modules = ("[submodule \"libs/one\"]\n\tpath = libs/one\n\turl = https://x/one.git\n; path = commented\n# url = commented\n"
+               "[submodule \"two\"]\n  path=/abs\n"
+               "[submodule \"three\"]\n path = a/../b\n[other]\npath = x\n[submodule \"four\"]\nurl = u\n[submodule \"five\"]\npath = five\n"
+               "[submodule \"six\"]\r\npath = c:\\win\r\n[submodule \"seven\"]\npath = sub\\dir\n[submodule \"eight\"]\npath = up\\..\\x\n")
+    check_("detect/gitmodules", {".gitmodules": modules, "libs/one/.git": "gitdir: ../../.git/modules/one\n", "five/.keep": ""}, both)
+    check_("detect/gitmodules_garbage", {".gitmodules": "garbage\n= x\n[submodule]\npath=y\n[submodule \"\"]\npath=z\n"}, both)
+    check_("detect/gitmodules_many", {".gitmodules": "".join(f"[submodule \"m{n}\"]\npath = m{n}\n" for n in range(7))}, both)
+    check_("detect/gitmodules_is_a_directory", {".gitmodules/x": ""}, both)
+    check_("detect/gitmodules_with_nested_hit", {".gitmodules": "[submodule \"s\"]\npath = s\n", "a/x.py": ""}, both)
+    check_("detect/gitmodules_odd_header", {".gitmodules": "[submodule \"a\u2028b\"]\npath = p\n[submodule\t\"c\"]\npath = q\n"}, both)
+
+    # detect: where the scopes live, and the files the engine wrote whole.
+    check_("detect/other_space", {"aidlc/active-space": "payments\n", "aidlc/spaces/payments/.keep": ""}, both)
+    check_("detect/space_cursor_without_a_dir", {"aidlc/active-space": "payments\n"}, both)
+    check_("detect/project_dir_explicit", empty("x.py"), [["detect", "--project-dir", "{P}"]])
+    check_("detect/project_dir_without_install", empty("x.py", "nope/y.py"), [["detect", "--project-dir", "{P}/nope"]])
+    check_("detect/json_flag_with_a_value", empty("x.py"), [["detect", "--json", "yes"], ["detect", "--json=true"], ["detect", "extra"]])
+
+    def whole_file(tree):
+        descriptor = tree.json(".claude/tools/data/aidlc-projection.json")
+        descriptor["rootIntegrations"].append({"path": "whole.ts", "policy": "whole-file"})
+        descriptor["rootIntegrations"].append({"path": "ext.ts", "policy": "whole-file", "extendedPolicy": "json-entries"})
+        descriptor["rootIntegrations"].append({"path": "./sub/../up.ts", "policy": "whole-file"})
+        tree.write_json(".claude/tools/data/aidlc-projection.json", descriptor)
+    check_("detect/engine_whole_files", empty("whole.ts", "ext.ts", "up.ts"), both, edits=(whole_file,))
+    check_("detect/engine_whole_file_alone", empty("whole.ts"), both, edits=(whole_file,))
+    def broken_descriptor(tree):
+        tree.write(".claude/tools/data/aidlc-projection.json", "{")
+    check_("detect/engine_descriptor_unreadable", empty("x.ts"), both, edits=(broken_descriptor,))
+
+    def links(tree):
+        tree.write("real/x.py", "")
+        os.symlink(tree.path("real/x.py"), tree.path("y.py"))
+        os.symlink(tree.path("real"), tree.path("linked"))
+    check_("detect/links_are_not_followed", {}, both, edits=(links,))
+    def linked_source_dir(tree):
+        tree.write("real/x.py", "")
+        os.symlink(tree.path("real"), tree.path("src"))
+    check_("detect/linked_source_dir_is_read_through", {}, both, edits=(linked_source_dir,))
+    def linked_manifest(tree):
+        tree.write("real/package.json", '{"dependencies":{"react":"1"}}')
+        os.symlink(tree.path("real/package.json"), tree.path("package.json"))
+    check_("detect/linked_manifest_is_read", {}, both, edits=(linked_manifest,))
 
 
 def runtime_checks():
@@ -2676,6 +2851,7 @@ try:
     audit_checks()
     runtime_checks()
     state_checks()
+    utility_checks()
     run_queued()
     if FUZZ:
         if not ONLY or not re.search(ONLY, "fuzz/audit"):

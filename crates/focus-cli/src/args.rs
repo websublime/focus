@@ -117,3 +117,121 @@ impl Args {
         }
     }
 }
+
+/// Arguments as upstream's utility tool reads them (`parseArgs` in
+/// `aidlc-lib.ts`): positionals in order, `--key value`, `--key=value`, and
+/// `--key` alone as `true`; `--` ends the flags.
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
+pub struct Parsed {
+    pub positional: Vec<String>,
+    /// In the order first given; a flag given twice keeps its last value.
+    pub flags: Vec<(String, String)>,
+    /// Flags given with no value (`--json`), whose value reads `true`.
+    pub bare: Vec<String>,
+    /// Flags whose value is blank (`--scope ""`, `--scope=`).
+    pub blank: Vec<String>,
+}
+
+impl Parsed {
+    #[must_use]
+    pub fn from_args(args: &[String]) -> Self {
+        let mut parsed = Self::default();
+        let mut i = 0;
+        while i < args.len() {
+            let arg = &args[i];
+            if arg == "--" {
+                parsed.positional.extend(args[i + 1..].iter().cloned());
+                break;
+            }
+            if let Some(token) = arg.strip_prefix("--") {
+                if let Some((key, value)) = token.split_once('=') {
+                    parsed.set(key, value);
+                    i += 1;
+                    continue;
+                }
+                match args.get(i + 1) {
+                    Some(value) if !value.starts_with("--") => {
+                        parsed.set(token, value);
+                        i += 2;
+                    }
+                    _ => {
+                        parsed.set(token, "true");
+                        parsed.bare.push(token.to_owned());
+                        i += 1;
+                    }
+                }
+            } else {
+                parsed.positional.push(arg.clone());
+                i += 1;
+            }
+        }
+        parsed
+    }
+
+    fn set(&mut self, key: &str, value: &str) {
+        match self.flags.iter_mut().find(|(known, _)| known == key) {
+            Some(known) => known.1 = value.to_owned(),
+            None => self.flags.push((key.to_owned(), value.to_owned())),
+        }
+        if focus_js::text::trim(value).is_empty() {
+            self.blank.push(key.to_owned());
+        }
+    }
+
+    /// The value of a flag, as last given.
+    #[must_use]
+    pub fn flag(&self, key: &str) -> Option<&str> {
+        self.flags
+            .iter()
+            .find(|(known, _)| known == key)
+            .map(|(_, value)| value.as_str())
+    }
+
+    /// A flag given with a value: not bare, not blank.
+    #[must_use]
+    pub fn valued(&self, key: &str) -> Option<&str> {
+        let missing = self.bare.iter().chain(&self.blank).any(|name| name == key);
+        if missing { None } else { self.flag(key) }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn parse(args: &[&str]) -> Parsed {
+        Parsed::from_args(&args.iter().map(|arg| (*arg).to_owned()).collect::<Vec<_>>())
+    }
+
+    #[test]
+    fn flags_are_read_as_upstreams_utility_reads_them() {
+        let parsed = parse(&[
+            "detect",
+            "--json",
+            "--scope=",
+            "--label",
+            " ",
+            "--space",
+            "x",
+            "--space",
+            "y",
+            "--",
+            "--not-a-flag",
+        ]);
+        assert_eq!(parsed.positional, ["detect", "--not-a-flag"]);
+        assert_eq!(parsed.flag("json"), Some("true"));
+        assert_eq!(parsed.flag("space"), Some("y"));
+        assert_eq!(parsed.bare, ["json"]);
+        assert_eq!(parsed.blank, ["scope", "label"]);
+        assert_eq!(parsed.valued("space"), Some("y"));
+        assert_eq!(parsed.valued("json"), None);
+        assert_eq!(parsed.valued("label"), None);
+        // A value that starts with `--` is the next flag; `--k=v` keeps `=`
+        // in the value.
+        let parsed = parse(&["--a", "--b=c=d", "--c", "-d"]);
+        assert_eq!(parsed.flag("a"), Some("true"));
+        assert_eq!(parsed.flag("b"), Some("c=d"));
+        assert_eq!(parsed.flag("c"), Some("-d"));
+        assert_eq!(parsed.bare, ["a"]);
+    }
+}

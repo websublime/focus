@@ -32,6 +32,7 @@ pub mod observer;
 pub mod oracle;
 pub mod project;
 pub mod records;
+pub mod scan;
 pub mod settings;
 
 pub use lock::WorkspaceLock;
