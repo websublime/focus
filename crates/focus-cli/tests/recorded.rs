@@ -236,6 +236,10 @@ fn normalise_audit(text: &str, root: &Path) -> String {
             None => "<cli> state".to_owned(),
         },
     );
+    // The utility tool's own name in a row's Tool or Command.
+    text = replace_all(&text, r"(?<![\w-])focus-utility(?![\w.-])", |_, _| {
+        "<cli> utility".to_owned()
+    });
     text = replace_all(&text, r"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ", |found, text| {
         let stamp = &text[found.range()];
         if stamp >= started() {
@@ -461,7 +465,9 @@ fn shown(expected: &Value) -> String {
 
 /// Run one check in `root`; the problems found, empty when it matches.
 fn replay(check: &Value, root: &Path) -> Vec<String> {
-    if ["audit", "runtime", "state"].contains(&check["tool"].as_str().unwrap_or_default()) {
+    if ["audit", "runtime", "state", "utility"]
+        .contains(&check["tool"].as_str().unwrap_or_default())
+    {
         return problems_in(
             check["expect"].as_object().unwrap(),
             replay_audit(check, root),
@@ -614,7 +620,7 @@ fn focus_does_what_upstream_did_in_every_recorded_check() {
 
     assert!(
         failures.is_empty(),
-        "{} of {} recorded checks differ from upstream; first:\n{}",
+        "{} of {} recorded checks differ from upstream; first: {}",
         failures.len(),
         checks.len(),
         failures
@@ -713,6 +719,26 @@ fn the_recording_covers_every_verb_and_both_outcomes() {
         assert!(exits("0"), "no recorded success for state {verb}");
         assert!(exits("1"), "no recorded failure for state {verb}");
     }
+    for verb in ["detect", "now"] {
+        let ran = checks
+            .iter()
+            .filter(|c| c["tool"] == "utility" && c["deviation"].is_null())
+            .filter(|c| {
+                c["expect"]["exit"]
+                    .as_str()
+                    .unwrap()
+                    .split(',')
+                    .all(|exit| exit == "0")
+            })
+            .any(|c| {
+                c["steps"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .any(|step| step[0] == verb)
+            });
+        assert!(ran, "no recorded success for utility {verb}");
+    }
     // A deviation is recorded and not replayed, so a recording made mostly
     // of them would prove little: they stay under a tenth of it, and for
     // each command what is replayed is at least twice what is not.
@@ -722,7 +748,7 @@ fn the_recording_covers_every_verb_and_both_outcomes() {
         "{deviations} of {} recorded checks are deviations; the replay proves little",
         checks.len()
     );
-    for tool in ["graph", "audit", "runtime", "state"] {
+    for tool in ["graph", "audit", "runtime", "state", "utility"] {
         let of_tool: Vec<&Value> = checks
             .iter()
             .filter(|c| c["tool"].as_str().unwrap_or("graph") == tool)

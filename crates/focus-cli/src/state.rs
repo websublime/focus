@@ -27,27 +27,25 @@
 //! `assertWorkflowNotArchived` and `exitWithError` in `aidlc-state.ts`, and
 //! `emitError` in `aidlc-lib.ts`.
 
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
-use focus_audit::entry::redact_project_dir_prefix;
 use focus_audit::ledger::{Ledger, Machine};
 use focus_audit::{Entry, Fields};
 use focus_guards::authority::Decision;
 use focus_guards::fences::Fence;
 use focus_guards::workflow::Guards;
-use focus_harness::Harness;
 use focus_js::json;
 use focus_js::text::{parse_int, trim};
 use focus_state::fields::{get_field, set_field};
 use focus_state::file::{read_state_file, write_state_file};
 use focus_state::progress::{CheckboxState, count_checkboxes, set_checkbox};
-use focus_workspace::names::STATE_FILE;
 use focus_workspace::records::{self, Invoker, Selection, Selector};
-use focus_workspace::{Layout, WorkspaceLock, env, project};
+use focus_workspace::{Layout, WorkspaceLock, env};
 use serde_json::json;
 
 use crate::Failure;
 use crate::args::Args;
+use crate::report::{Context, Refusal, state_path};
 
 const HELP: &str = "\
 Usage: focus engine state <verb> [--project-dir <dir>]
@@ -121,34 +119,6 @@ const NOT_PORTED: [(&str, &str); 29] = [
 /// What a verb answered: text to print, or nothing.
 type Verb = Result<Option<String>, Refusal>;
 
-/// Why a verb refused. Every refusal is offered to the ledger as an
-/// `ERROR_LOGGED` row; one made because the record cannot be resolved finds
-/// no record to write beside, and so is printed alone, as upstream prints
-/// it.
-struct Refusal {
-    message: String,
-}
-
-impl Refusal {
-    fn of(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
-
-impl From<String> for Refusal {
-    fn from(message: String) -> Self {
-        Self::of(message)
-    }
-}
-
-impl From<focus_js::EngineError> for Refusal {
-    fn from(err: focus_js::EngineError) -> Self {
-        Self::of(err.to_string())
-    }
-}
-
 pub fn run(args: &mut Args) -> Result<(), Failure> {
     if matches!(args.peek(), Some("--help" | "-h")) {
         println!("{HELP}");
@@ -168,7 +138,9 @@ pub fn run(args: &mut Args) -> Result<(), Failure> {
     let context = Context {
         project_dir,
         harness,
+        tool: "focus-state",
         command,
+        selector: Selector::default(),
     };
     match answer(args, &context) {
         Ok(Some(text)) => {
@@ -176,88 +148,8 @@ pub fn run(args: &mut Args) -> Result<(), Failure> {
             Ok(())
         }
         Ok(None) => Ok(()),
-        Err(refusal) => {
-            context.record_error(&refusal.message);
-            eprintln!("{}", json::stringify(&json!({ "error": refusal.message })));
-            Err(Failure::Reported)
-        }
+        Err(refusal) => Err(context.refuse(&refusal)),
     }
-}
-
-struct Context {
-    project_dir: Option<String>,
-    harness: Option<String>,
-    command: String,
-}
-
-impl Context {
-    fn project(&self) -> Result<PathBuf, String> {
-        project::resolve_project_dir(self.project_dir.as_deref().map(Path::new))
-            .map_err(|err| err.to_string())
-    }
-
-    /// The workspace of the project. No path the state verbs read depends
-    /// on the harness, so a project with several installed, or none, is
-    /// not asked which; the fence decision, which reads the scope files,
-    /// resolves it when it is reached.
-    fn workspace(&self) -> Result<Layout, String> {
-        let project = self.project()?;
-        let harness = if self.harness.is_some()
-            || env::var("HARNESS").is_some_and(|harness| !harness.is_empty())
-        {
-            project::resolve_harness(&project, self.harness.as_deref())
-                .map_err(|err| err.to_string())?
-        } else {
-            project::installed_harnesses(&project)
-                .first()
-                .copied()
-                .unwrap_or(Harness::Claude)
-        };
-        Ok(Layout::new(project, harness))
-    }
-
-    /// `emitError`'s row: an `ERROR_LOGGED` in the ledger of the record the
-    /// command targeted, when that record has a state file. Best effort,
-    /// on an already failing command.
-    fn record_error(&self, message: &str) {
-        let Ok(layout) = self.workspace() else {
-            return;
-        };
-        let invoker = Invoker::from_env();
-        let selector = Selector::default();
-        let Ok(selection) = records::resolve_selection(&layout, &selector, &invoker) else {
-            return;
-        };
-        if selection.intent.is_none() || !state_path(&layout, &selection).exists() {
-            return;
-        }
-        let Ok(held) = WorkspaceLock::acquire(&layout, "recording an error") else {
-            return;
-        };
-        if !state_path(&layout, &selection).exists() {
-            return;
-        }
-        let mut fields = Fields::new();
-        fields.set("Tool", "focus-state");
-        // Redacted here as upstream redacts them, before the row's renderer
-        // redacts every field again.
-        fields.set(
-            "Command",
-            redact_project_dir_prefix(&self.command, &layout.project),
-        );
-        fields.set("Error", redact_project_dir_prefix(message, &layout.project));
-        let ledger = Ledger::new(&layout, Machine::this());
-        let _ = ledger.append(
-            &held,
-            &[Entry::new("ERROR_LOGGED", fields)],
-            &selector,
-            &invoker,
-        );
-    }
-}
-
-fn state_path(layout: &Layout, selection: &Selection) -> PathBuf {
-    selection.docs_root(layout).join(STATE_FILE)
 }
 
 /// The record the command acts on.

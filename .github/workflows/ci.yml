@@ -50,11 +50,12 @@ jobs:
           status=0
           cargo test --workspace 2>&1 | tee test.log || status=$?
           if [ "$status" -ne 0 ]; then
-            grep -E '^test .* FAILED$|panicked at|^error(\[|:)|^  (left|right):|^assertion ' test.log | head -9 | while IFS= read -r line; do echo "::error::${line}"; done
-            # Whatever the pattern missed: what follows the first failure.
-            grep -n -m1 -E 'FAILED|panicked|^error' test.log | cut -d: -f1 | while IFS= read -r at; do
-              sed -n "$((at + 1)),$((at + 9))p" test.log | cut -c1-300 | while IFS= read -r line; do echo "::error::${line}"; done
+            # GitHub keeps ten annotations per step: the lines after the first panic come first, as they
+            # carry the message, then the lines the pattern names.
+            grep -n -m1 -E 'panicked at' test.log | cut -d: -f1 | while IFS= read -r at; do
+              sed -n "$((at)),$((at + 6))p" test.log | grep -v '^$' | cut -c1-300 | while IFS= read -r line; do echo "::error::${line}"; done
             done
+            grep -E '^test .* FAILED$|^error(\[|:)|^  (left|right):|^assertion ' test.log | head -3 | while IFS= read -r line; do echo "::error::${line}"; done
           fi
           exit "$status"
 
