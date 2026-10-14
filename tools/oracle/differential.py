@@ -2003,6 +2003,9 @@ def state_checks():
            [["set", "Scope=x"], ["get", "Scope"]], direct)
     check_("marker/active_directive_at_the_gate", {**record, f"{RECORD_DIR}/.aidlc-engine/active-directive.json": "{}\n", **shard},
            [["set", "Scope=x"]])
+    # The markers' times decide, and a recording holds no times: these are compared live only.
+    UNRECORDED.update({"state/marker/turn_markers_at_the_gate", "state/marker/turn_after_touch",
+                       "state/marker/touch_after_turn", "state/marker/turn_marker_is_a_directory"})
     check_("marker/turn_markers_at_the_gate", {**record, f"{RECORD_DIR}/.aidlc-engine/human-turn": "", f"{RECORD_DIR}/.aidlc-engine/engine-touch": "", **shard},
            [["set", "Scope=x"]])
     # The person's turn after the engine's touch is a grant; the engine's after the person's covers nothing.
@@ -2013,8 +2016,6 @@ def state_checks():
         os.utime(tree.path(f"{RECORD_DIR}/.aidlc-engine/human-turn"), (1_700_000_000, 1_700_000_000))
         os.utime(tree.path(f"{RECORD_DIR}/.aidlc-engine/engine-touch"), (1_700_000_100, 1_700_000_100))
     markers = {**record, f"{RECORD_DIR}/.aidlc-engine/human-turn": "", f"{RECORD_DIR}/.aidlc-engine/engine-touch": "", **shard}
-    # The markers' times decide, and a recording holds no times: compared live only.
-    UNRECORDED.update({"state/marker/turn_after_touch", "state/marker/touch_after_turn"})
     check_("marker/turn_after_touch", markers, [["set", "Scope=x"]], edits=(turn_after_touch,))
     check_("marker/turn_after_touch_unattended", markers, [["set", "Scope=x"]], {"UNATTENDED": "1"}, edits=(turn_after_touch,))
     check_("marker/touch_after_turn", markers, [["set", "Scope=x"]], edits=(touch_after_turn,))
