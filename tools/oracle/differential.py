@@ -1814,6 +1814,9 @@ DEVIATIONS.update({
     "utility/create/flat_layout":
         "the first creation on a project at the flat focus-docs/ layout moves that layout into its own record; "
         "focus does not migrate yet and refuses",
+    "utility/create/pending_person_lines":
+        "the lines a chat is still owed (the human-turn hook's record, M4) follow the work it creates: upstream "
+        "rewrites the file for the new record, focus leaves it where it is",
     r"utility/create/(creation_grant|presence_bypass)_on_disk":
         "what the person said before the work existed, and a recorded presence bypass, are the human-turn hook's "
         "records (M4); upstream spends them, focus refuses when one is there for the session",
@@ -2293,6 +2296,8 @@ def intent_create_checks():
     check_("create/presence_bypass_on_disk", {"aidlc/.aidlc-sessions/.aidlc-plan-approval/presence-bypass-sess-0001": "2026-01-01T00:00:00Z\n"},
            [create + ["--scope", "enterprise", "--label", "x", "--guard-policy", "off"]], {"SESSION_OVERRIDE": "sess-0001", "SKIP_HUMAN_PRESENCE_GUARD": "1"})
     check_("create/record_dir_taken", {f"aidlc/spaces/default/intents/{TODAY}-add-login/.keep": ""}, [feature])
+    check_("create/pending_person_lines", {"aidlc/.aidlc-sessions/sess-0001.person-lines": json.dumps({"work": None, "lines": [{"line": "Sensors are off for this piece of work.", "at": int(time.time() * 1000)}], "said": []}) + "\n"},
+           [feature], {"SESSION_OVERRIDE": "sess-0001"})
     check_("create/memory_seed_absent", {"aidlc/spaces/default/memory/org.md": None, "aidlc/spaces/default/memory/team.md": None,
                                          "aidlc/spaces/default/memory/project.md": None}, [feature])
 

@@ -1073,6 +1073,7 @@ A criação de um intent começa por classificar o projeto: Greenfield ou Brownf
 | O uso de `intent-create` | Oferece `--request` | Lista as flags que tem |
 | Um projeto com o layout plano `focus-docs/` | A primeira criação migra-o para um registo | Recusa |
 | As concessões que o hook de turno humano guarda para um chat (`*-at-creation-<sessão>.json`), e um bypass de presença gravado | Gasta-as | Recusa quando há uma para a sessão (M4) |
+| As linhas que um chat ainda deve à pessoa (`<sessão>.person-lines`) | Passam para o trabalho criado | Ficam onde estão (M4) |
 | Os blocos de `.gitignore` e `AGENTS.md` numa cópia em que o config nunca correu | Acrescenta-os na primeira criação | Não lhes toca: é do instalador (M6). O diferencial não compara os ficheiros da raiz; fica dito aqui |
 | `--project-dir` sem instalação, sessões por processo, worktree delegada | Resolve | Recusa, como nos outros comandos |
 
