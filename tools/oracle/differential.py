@@ -1987,7 +1987,9 @@ def utility_checks():
     # detect: the root.
     check_("detect/empty", {}, both)
     check_("detect/empty_record", record, both)
-    check_("detect/root_files", empty("a.ts", "b.TS", "c.tsx", "d.js", "e.mjs", "README.md", ".env.py", ".py", "noext", "x."), both)
+    # Counts kept distinct: languages with the same count are listed in the order the OS lists the files.
+    check_("detect/root_files", empty("a.ts", "b.TS", "c.tsx", "h.ts", "d.js", "e.mjs", "f.cjs", "README.md", ".env.py", ".py",
+                                      "noext", "x."), both)
     # One extension at a time: languages with the same count are listed in the order the OS lists the files,
     # which a replay on another file system would not reproduce.
     for ext in [".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".py", ".java", ".kt", ".go", ".rs", ".rb", ".cs", ".cpp",
