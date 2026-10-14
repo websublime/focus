@@ -1359,11 +1359,21 @@ def audit_pair(name, files, links=(), hard_links=()):
     return trees
 
 
+# The marks a coding tool leaves on the environment of the commands it starts: a refusal names the host whose
+# terminal the command came from, so a check runs with none, and names one itself when it wants one.
+HOST_MARKS = ("CLAUDECODE", "CLAUDE_CODE_", "CODEX_", "CURSOR_", "KIRO_", "OPENCODE", "COPILOT_", "VSCODE_")
+
+
 def run_audit(engine, tree, args, env, tool="audit"):
     full = dict(os.environ)
     for key in list(full):
-        if key.startswith(("AIDLC_", "FOCUS_")) or key == "CLAUDE_PROJECT_DIR":
+        if (key.startswith(("AIDLC_", "FOCUS_")) or key == "CLAUDE_PROJECT_DIR" or key.upper() == "TERM_PROGRAM"
+                or key.upper().startswith(HOST_MARKS)):
             del full[key]
+    # A name given as `=NAME` is set as it is, for both engines.
+    raw = {k[1:]: v for k, v in (env or {}).items() if k.startswith("=")}
+    env = {k: v for k, v in (env or {}).items() if not k.startswith("=")}
+    full.update(raw)
     # `{P}` in an argument is the project's own location.
     args = [arg.replace("{P}", tree.root) for arg in args]
     # A step that says where the project is says it itself.
@@ -2273,6 +2283,13 @@ def intent_create_checks():
            {"TEST_CONFIG_TTY": "1"})
     check_("create/guard_policy_lowered_at_a_terminal_bypassed", {}, [create + ["--scope", "enterprise", "--label", "x", "--guard-policy", "off"]],
            {"TEST_CONFIG_TTY": "1", "SKIP_HUMAN_PRESENCE_GUARD": "1"})
+    check_("create/guard_policy_lowered_in_a_hosts_terminal", {}, [create + ["--scope", "enterprise", "--label", "x", "--guard-policy", "off"]],
+           {"TEST_CONFIG_TTY": "1", "=TERM_PROGRAM": "cursor"})
+    check_("create/guard_policy_lowered_under_a_hosts_mark", {}, [create + ["--scope", "enterprise", "--label", "x", "--guard-policy", "off"],
+                                                                 feature + ["--plan-approval", "off"]],
+           {"TEST_CONFIG_TTY": "1", "=CLAUDE_CODE_ENTRYPOINT": "cli"})
+    check_("create/guard_policy_lowered_with_a_tools_config_only", {}, [create + ["--scope", "enterprise", "--label", "x", "--guard-policy", "off"]],
+           {"TEST_CONFIG_TTY": "1", "=CODEX_HOME": "/x"})
     check_("create/change_control_retired", {}, [feature + ["--change-control", "relaxed"]])
     check_("create/plan_approval_off", {}, [feature + ["--plan-approval", "off"]])
     check_("create/plan_approval_off_unattended", {}, [feature + ["--plan-approval", "off"]], {"UNATTENDED": "1"})

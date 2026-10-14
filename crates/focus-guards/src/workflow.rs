@@ -484,13 +484,16 @@ mod tests {
             .set_modified(later + std::time::Duration::from_secs(5))
             .unwrap();
         assert_eq!(tree.guards().unwrap().authority().covered, Cover::None);
-        // A marker that is not a regular file proves nothing, however new.
+        // A marker that is not a regular file proves nothing, however new:
+        // the engine's touch is dated well before, and the person's turn is
+        // a directory made now.
+        engine_touch
+            .set_modified(
+                std::time::SystemTime::UNIX_EPOCH + std::time::Duration::from_secs(1_700_000_000),
+            )
+            .unwrap();
         fs::remove_file(tree.0.project.join(format!("{engine}/human-turn"))).unwrap();
         tree.write(&format!("{engine}/human-turn/x"), "");
-        fs::File::open(tree.0.project.join(format!("{engine}/human-turn")))
-            .unwrap()
-            .set_modified(later + std::time::Duration::from_secs(50))
-            .unwrap();
         assert_eq!(tree.guards().unwrap().authority().covered, Cover::None);
         fs::remove_dir_all(tree.0.project.join(format!("{engine}/human-turn"))).unwrap();
         fs::remove_file(tree.0.project.join(format!("{engine}/engine-touch"))).unwrap();

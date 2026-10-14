@@ -307,6 +307,33 @@ fn workspace_files(root: &Path) -> BTreeMap<String, String> {
     files
 }
 
+/// The environment a check runs in: nothing of Focus's own, and no mark of
+/// the host this replay happens to run under (a refusal names the host whose
+/// terminal the command came from).
+fn clean_env(command: &mut Command) {
+    for (name, _) in std::env::vars() {
+        let upper = name.to_uppercase();
+        if name.starts_with("FOCUS_")
+            || name == "CLAUDE_PROJECT_DIR"
+            || upper == "TERM_PROGRAM"
+            || [
+                "CLAUDECODE",
+                "CLAUDE_CODE_",
+                "CODEX_",
+                "CURSOR_",
+                "KIRO_",
+                "OPENCODE",
+                "COPILOT_",
+                "VSCODE_",
+            ]
+            .iter()
+            .any(|prefix| upper.starts_with(prefix))
+        {
+            command.env_remove(name);
+        }
+    }
+}
+
 /// The recorder's `minted`: a clone identity minted during the run, written
 /// as placeholders in a shard's name and in the clone file.
 fn minted(rel: &str, text: Option<String>) -> (String, Option<String>) {
@@ -366,13 +393,14 @@ fn replay_audit(check: &Value, root: &Path) -> BTreeMap<String, String> {
             command.args(["--project-dir", root.to_str().unwrap()]);
         }
         command.args(["--harness", "claude"]);
-        for (name, _) in std::env::vars() {
-            if name.starts_with("FOCUS_") || name == "CLAUDE_PROJECT_DIR" {
-                command.env_remove(name);
-            }
-        }
+        clean_env(&mut command);
         for (name, value) in check["env"].as_object().unwrap() {
-            command.env(format!("FOCUS_{name}"), value.as_str().unwrap());
+            // A name given as `=NAME` is set as it is: the recorder's way of
+            // naming a terminal's host.
+            match name.strip_prefix('=') {
+                Some(raw) => command.env(raw, value.as_str().unwrap()),
+                None => command.env(format!("FOCUS_{name}"), value.as_str().unwrap()),
+            };
         }
         let output = command.current_dir(root).output().unwrap();
         exits.push(output.status.code().unwrap_or(-1).to_string());
@@ -524,13 +552,12 @@ fn replay(check: &Value, root: &Path) -> Vec<String> {
         "--harness",
         "claude",
     ]);
-    for (name, _) in std::env::vars() {
-        if name.starts_with("FOCUS_") || name == "CLAUDE_PROJECT_DIR" {
-            command.env_remove(name);
-        }
-    }
+    clean_env(&mut command);
     for (name, value) in check["env"].as_object().unwrap() {
-        command.env(format!("FOCUS_{name}"), value.as_str().unwrap());
+        match name.strip_prefix('=') {
+            Some(raw) => command.env(raw, value.as_str().unwrap()),
+            None => command.env(format!("FOCUS_{name}"), value.as_str().unwrap()),
+        };
     }
     command
         .current_dir(root)
