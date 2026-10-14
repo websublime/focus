@@ -227,9 +227,25 @@ fn normalise_audit(text: &str, root: &Path) -> String {
     );
     text = text
         .replace("Usage: focus engine state ", "Usage: <cli> state ")
-        .replace("Run focus engine state --help", "Run <cli> state --help")
+        .replace("Run focus engine state --help", "Run <cli> state --help");
+    // The state tool naming one of its own verbs in a sentence.
+    text = replace_all(
+        &text,
+        r"(?<![`\w])focus engine state (?=[a-z-]+ )",
+        |_, _| "<cli> state ".to_owned(),
+    );
+    text = text
         .replace("Usage: focus engine utility ", "Usage: <cli> utility ")
         .replace("how closely Focus checks", "how closely <engine> checks");
+    // A validity receipt's hashes are taken over paths that carry the
+    // workspace directory's name, so they differ from upstream's by
+    // construction; the recorder verified each engine's against its own
+    // tree and recorded them as <verified> (differential.py, SHAPES).
+    text = replace_all(
+        &text,
+        r#""(structureHash|contentHash)":"sha256:[0-9a-f]{64}""#,
+        |found, text| format!("\"{}\":\"<verified>\"", group(found, text, 1)),
+    );
     text = replace_all(
         &text,
         r"`focus engine config set (guard\.[a-z-]+) off`",
@@ -605,14 +621,21 @@ fn focus_does_what_upstream_did_in_every_recorded_check() {
     let dir = fixtures().join("recorded");
     let trees: Value =
         serde_json::from_str(&fs::read_to_string(dir.join("trees.json")).unwrap()).unwrap();
+    // `FOCUS_RECORDED_ONLY=<text>` replays the checks whose name holds the
+    // text, for working on one group; the whole recording is the test.
+    let only = std::env::var("FOCUS_RECORDED_ONLY").ok();
     let checks: Vec<Value> = fs::read_to_string(dir.join("checks.ndjson"))
         .unwrap()
         .lines()
         .filter(|line| !line.is_empty())
         .map(|line| serde_json::from_str(line).unwrap())
+        .filter(|check: &Value| {
+            only.as_deref()
+                .is_none_or(|only| check["name"].as_str().unwrap().contains(only))
+        })
         .collect();
     assert!(
-        checks.len() > 1000,
+        only.is_some() || checks.len() > 1000,
         "the recording is unexpectedly small: {} checks",
         checks.len()
     );

@@ -43,11 +43,18 @@ fn primary(b: u8) -> usize {
 /// digits, then letters; a prefix sorts before its extensions); then, for
 /// strings equal that far, lowercase before uppercase at the first difference.
 ///
+/// A NUL is ignorable at every level of the collation, so a key joined with
+/// `\0` (upstream joins an artifact and its producer that way) compares as
+/// the joined text would.
+///
 /// Anything else falls back to code-unit order, which is **not** ICU order; a
 /// caller that can see such input and whose output depends on the order needs
 /// a real collator (the migration plan tracks the upstream call sites).
 #[must_use]
 pub fn locale_compare(a: &str, b: &str) -> Ordering {
+    if a.contains('\0') || b.contains('\0') {
+        return locale_compare(&a.replace('\0', ""), &b.replace('\0', ""));
+    }
     if !is_collation_safe(a) || !is_collation_safe(b) {
         return cmp_utf16(a, b);
     }
@@ -128,6 +135,16 @@ mod tests {
             ("v1.2", "v1-2", Greater),
             ("9", "a", Less),
             ("same", "same", Equal),
+            // A NUL is ignorable: a key joined with it compares as the joined text.
+            (
+                "requirements\0requirements-analysis",
+                "requirements-analysis-questions\0requirements-analysis",
+                Greater,
+            ),
+            ("a\0b", "ab", Equal),
+            ("a\0c", "ab", Greater),
+            ("\0a", "a", Equal),
+            ("api\0\0x", "api\0service\0x", Greater),
         ] {
             assert_eq!(locale_compare(a, b), expected, "{a:?} vs {b:?}");
         }

@@ -81,17 +81,25 @@ const ENTRY_SKILL: &str = "/focus";
 const GUARD_POLICY_RENAME_NOTICE: &str = "Change Control is now Guard Policy (--guard-policy, config key guard-policy, scope key guard_policy, memory heading ## Guard Policy). The old names still work in this release and are removed in the next minor.";
 const NO_CODE_FOUND_YET: &str = "The scan found no code in this folder yet; Reverse Engineering documents what is here when it runs.";
 
-/// The install's scopes and graph, read once.
-struct Install {
-    graph: Vec<Stage>,
-    enabled_scopes: Vec<ScopeMetadata>,
-    definitions: Vec<ScopeDefinition>,
-    grid: serde_json::Map<String, Value>,
-    valid_scopes: Vec<String>,
+/// The install's scopes and graph, read once. Creation reads it to plan a
+/// piece of work; a transition, to find a stage and the scope's next one.
+pub struct Install {
+    /// The enabled stages, in graph order.
+    pub graph: Vec<Stage>,
+    pub enabled_scopes: Vec<ScopeMetadata>,
+    pub definitions: Vec<ScopeDefinition>,
+    pub grid: serde_json::Map<String, Value>,
+    /// The scope names a command accepts, sorted.
+    pub valid_scopes: Vec<String>,
 }
 
 impl Install {
-    fn read(layout: &Layout) -> Result<Self> {
+    /// Read the install of `layout`'s harness.
+    ///
+    /// # Errors
+    ///
+    /// The stage graph, a scope file or the manifest cannot be read.
+    pub fn read(layout: &Layout) -> Result<Self> {
         let all = runtime::load_stages_all(&layout.stage_graph())?;
         let graph = runtime::enabled(&all);
         let scopes_all = scopes::load_all(&layout.scopes_dir())?;
@@ -109,11 +117,21 @@ impl Install {
         })
     }
 
-    fn definition(&self, scope: &str) -> Option<&ScopeDefinition> {
+    /// The scope's definition, when the install has it.
+    #[must_use]
+    pub fn definition(&self, scope: &str) -> Option<&ScopeDefinition> {
         self.definitions.iter().find(|def| def.meta.name == scope)
     }
 
-    fn unknown_scope(&self, scope: &str) -> EngineError {
+    /// `findStageBySlug`: the enabled stage with this slug.
+    #[must_use]
+    pub fn stage(&self, slug: &str) -> Option<&Stage> {
+        self.graph.iter().find(|stage| stage.slug == slug)
+    }
+
+    /// The refusal of a scope the install does not have.
+    #[must_use]
+    pub fn unknown_scope(&self, scope: &str) -> EngineError {
         EngineError::new(format!(
             "Unknown scope: \"{scope}\". Valid scopes: {}.",
             self.valid_scopes.join(", ")
@@ -260,7 +278,9 @@ fn resolve_repo_set(layout: &Layout, explicit: Option<&str>) -> Result<Vec<Strin
     Ok(discover_sibling_repos(&layout.project))
 }
 
-fn is_valid_repo_name(name: &str) -> bool {
+/// `isValidRepoName`: one path segment, neither `.` nor `..`.
+#[must_use]
+pub fn is_valid_repo_name(name: &str) -> bool {
     re::test(r"^[A-Za-z0-9][A-Za-z0-9._-]*$", "", name) && name != "." && name != ".."
 }
 

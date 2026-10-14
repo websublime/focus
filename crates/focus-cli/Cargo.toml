@@ -26,13 +26,14 @@ focus-markdown.workspace = true
 focus-state.workspace = true
 focus-guards.workspace = true
 focus-intent.workspace = true
+focus-lifecycle.workspace = true
 focus-workspace.workspace = true
 
 [dev-dependencies]
 focus-harness.workspace = true
 focus-workspace.workspace = true
 regress.workspace = true
-sha2 = "0.10"
+sha2.workspace = true
 
 [lints]
 workspace = true
