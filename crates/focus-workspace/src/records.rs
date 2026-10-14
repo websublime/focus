@@ -200,6 +200,13 @@ fn record_dir_matches(row: &Value, dir_name: &str) -> std::result::Result<bool, 
     Ok(String::from_utf16_lossy(tail) == suffix)
 }
 
+/// `recordDirMatches` for a reader that takes an unreadable row as no
+/// match: whether record directory `dir_name` belongs to registry row `row`.
+#[must_use]
+pub fn row_names_record(row: &Value, dir_name: &str) -> bool {
+    record_dir_matches(row, dir_name) == Ok(true)
+}
+
 /// Whether a row's status is `archived`, whatever its case or padding.
 fn is_archived(row: &Value) -> std::result::Result<bool, ()> {
     match row.get("status") {

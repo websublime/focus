@@ -46,6 +46,7 @@ What is normalised before comparing, besides the map, and nothing else:
     runtime (see SHAPES).
 """
 import json
+import hashlib
 import os
 import random
 import re
@@ -132,6 +133,17 @@ SHAPES = {
         "upstream lets a refusal thrown inside an audit verb reach the runtime, which prints a source excerpt "
         "and a stack trace around the sentence; focus prints the same sentence as {\"error\": ...}, like every "
         "other refusal of the command. The sentence is compared",
+    "guard-ask":
+        "a guard that refuses a transition prints its sentence, then (upstream) the guard-recovery ask as a JSON "
+        "line: the remedies the conductor may offer, read off the review attempt and kept with the refusal's "
+        "streak under the engine directory (M5). Focus prints the sentence. The ask line and the streak record "
+        "are left out before comparing; the sentence, the error row and everything else are compared",
+    "validation-basis":
+        "a completion row carries the validity receipt: per artifact, a hash of the files it resolved to and a "
+        "hash of their contents, both taken over paths that carry the workspace directory's name (aidlc/ there, "
+        "focus/ here), so the two engines' hashes differ by construction. Each engine's hashes are recomputed "
+        "here from its own tree and names, and a hash that matches is compared as <verified>; one that does not "
+        "is compared as it is",
 }
 
 results = {"same": 0, "deviation": 0, "DIFFERENT": 0}
@@ -1276,6 +1288,8 @@ def normalise_audit(text, tree, engine):
                   lambda m: "<cli> state" + (f" {m.group(1)}" if m.group(1) else ""), text)
     text = text.replace("Usage: focus engine state ", "Usage: <cli> state ")
     text = text.replace("Run focus engine state --help", "Run <cli> state --help")
+    # The state tool naming one of its own verbs in a sentence (`skip takes --route or --unit`).
+    text = re.sub(r"(?<![`\w])focus engine state (?=[a-z-]+ )", "<cli> state ", text)
     text = text.replace("Usage: focus engine utility ", "Usage: <cli> utility ")
     # The utility tool's own name in a row's Tool or Command.
     text = re.sub(r"(?<![\w-])(?:aidlc|focus)-utility(?![\w.-])", "<cli> utility", text)
@@ -1405,9 +1419,179 @@ def audit_check(name, files, steps, env=None, links=(), hard_links=(), group="au
     JOBS.append((name, audit_pair(name, files, links, hard_links), steps, env, None, "audit"))
 
 
+# The ask after a refusal's sentence: on its own line in what is printed, and as the two characters `\n`
+# inside the error row's one-line field.
+ASK_LINE = re.compile(r'\n\{"kind":"ask",.*')
+ASK_FIELD = re.compile(r'\\n\{"kind":"ask",[^\n]*')
+
+
+def without_guard_ask(stderr):
+    """Upstream's refusal without the guard-recovery ask on its last line, and whether there was one."""
+    try:
+        parsed = json.loads(stderr)
+    except ValueError:
+        return stderr, False
+    if not isinstance(parsed, dict) or not isinstance(parsed.get("error"), str) or not ASK_LINE.search(parsed["error"]):
+        return stderr, False
+    parsed["error"] = ASK_LINE.sub("", parsed["error"])
+    return json.dumps(parsed, ensure_ascii=False, separators=(",", ":")) + "\n", True
+
+
+ARTIFACT_FILENAMES = {"build-test-results": "test-results.md", "load-test-results": "test-results.md", "traceability": "traceability.json"}
+
+
+def committed_text(data):
+    """`committedTextBytes`: CRLF read as LF when the bytes are text with CRLFs."""
+    if b"\r" not in data or b"\0" in data or re.search(rb"\r(?!\n)", data):
+        return data
+    return data.replace(b"\r\n", b"\n")
+
+
+# Printable ASCII in the order of the CLDR root collation (`localeCompare`), a letter's cases together.
+ROOT_ORDER = " _-,;:!?.'\"()[]{}@*/\\&#%`^+<=>|~$0123456789abcdefghijklmnopqrstuvwxyz"
+
+
+def root_key(text):
+    """A sort key giving `localeCompare`'s order for printable ASCII (a NUL is ignorable)."""
+    return [ROOT_ORDER.find(char.lower()) for char in text if char != "\0"]
+
+
+def verify_validation_bases(tree, engine, rel, text):
+    """Each receipt's hashes in `text` (a shard at `rel`, under Focus's names) recomputed from this engine's own
+    tree and names, and written as <verified> where they match. Only the artifacts of ordinary stages (one file
+    under the record) are recomputed; a per-unit or code-knowledge-base artifact keeps its hash."""
+    if "**Validation Basis**: " not in text:
+        return text, False
+    graph = {stage["slug"]: stage for stage in tree.json(".claude/tools/data/stage-graph.json")}
+    record = to_upstream(rel.rsplit("/audit/", 1)[0])
+    say = (lambda path: path) if engine == "ts" else to_focus
+    canonical = lambda value: json.dumps(value, separators=(",", ":"), sort_keys=True, ensure_ascii=False)
+    sha = lambda value: "sha256:" + hashlib.sha256(value.encode("utf-8") if isinstance(value, str) else value).hexdigest()
+
+    def repos():
+        try:
+            rows = tree.json("aidlc/spaces/default/intents/intents.json")
+            row = next(row for row in rows if row.get("dirName") == os.path.basename(record))
+        except (ValueError, OSError, StopIteration, AttributeError):
+            return None
+        listed = row.get("repos") or []
+        if listed:
+            return sorted(set(listed))
+        # With none recorded, the store is named after the project's folder (each engine's own), unless no store
+        # carries that name and exactly one store no row claims does: a folder that was moved keeps its store.
+        name = os.path.basename(tree.root)
+        root = tree.path("aidlc/spaces/default/codekb")
+        if not os.path.exists(os.path.join(root, name)) and os.path.isdir(root):
+            claimed = {repo for other in rows for repo in (other.get("repos") or [])}
+            stores = [store for store in os.listdir(root) if os.path.isdir(os.path.join(root, store)) and store not in claimed]
+            if len(stores) == 1:
+                return stores
+        return [name]
+
+    def state():
+        try:
+            return tree.read(f"{record}/aidlc-state.md")
+        except OSError:
+            return ""
+
+    def plan_action(slug):
+        found = re.search(rf"^- \[[ xSR?-]\] {re.escape(slug)}\s*\u2014\s*(EXECUTE|SKIP)\b", state(), flags=re.M)
+        if found:
+            return found.group(1)
+        return tree.json(".claude/tools/data/scope-grid.json").get(re.search(r"^- \*\*Scope\*\*: (.*)$", state(), flags=re.M).group(1), {}).get("stages", {}).get(slug)
+
+    def stage_level():
+        """`usesStageLevelPerUnitArtifacts`."""
+        if plan_action("units-generation") == "EXECUTE":
+            return False
+        return not re.search(r"^- \[x\] units-generation ", state(), flags=re.M)
+
+    def units(slug):
+        """The DAG's units with their kinds, or the directories under construction/ holding the stage's with no
+        DAG; None when the DAG is malformed (the receipt is then a warning, verified by its text)."""
+        try:
+            doc = tree.read(f"{record}/inception/units-generation/unit-of-work-dependency.md")
+        except OSError:
+            doc = None
+        if doc is not None:
+            block_ = re.search(r"```yaml\nunits:\n(.*?)```", doc, flags=re.S)
+            if block_ is None:
+                return None
+            found, current = [], None
+            for line in block_.group(1).split("\n"):
+                name = re.match(r"\s*- name: (\S+)", line)
+                kind = re.match(r"\s+kind: (\S+)", line)
+                if name:
+                    current = [name.group(1), None]
+                    found.append(current)
+                elif kind and current:
+                    current[1] = kind.group(1)
+            return sorted((tuple(unit) for unit in found), key=lambda unit: root_key(unit[0]))
+        try:
+            cached = tree.json(f"{record}/runtime-graph.json").get("bolt_dag", {})
+            kinds = {unit["name"]: unit["kind"] for unit in cached.get("units", []) if isinstance(unit, dict)}
+            return sorted(((name, kinds.get(name)) for batch in cached["batches"] for name in batch), key=lambda unit: root_key(unit[0]))
+        except (OSError, ValueError, KeyError, TypeError, AttributeError):
+            pass
+        construction = tree.path(f"{record}/construction")
+        if not os.path.isdir(construction):
+            return []
+        return sorted(((name, None) for name in os.listdir(construction) if os.path.isdir(os.path.join(construction, name, slug))),
+                      key=lambda unit: root_key(unit[0]))
+
+    def applies(stage, artifact, kind):
+        kinds = (stage.get("produces_kinds") or {}).get(artifact)
+        return kind is None or kinds is None or kind in kinds
+
+    def verify(entry):
+        stage = graph.get(entry.get("producer"))
+        if stage is None:
+            return entry
+        filename = ARTIFACT_FILENAMES.get(entry["artifact"], entry["artifact"] + ".md")
+        if stage["slug"] == "reverse-engineering":
+            stores = repos()
+            if stores is None:
+                return entry
+            paths = [(f"aidlc/spaces/default/codekb/{repo}/{filename}", None, None) for repo in stores]
+        elif stage.get("for_each") == "unit-of-work" and not stage_level():
+            resolved = units(stage["slug"])
+            if resolved is None:
+                return entry
+            paths = [(f"{record}/construction/{unit}/{stage['slug']}/{filename}", unit, kind) for unit, kind in resolved
+                     if applies(stage, entry["artifact"], kind)]
+        else:
+            paths = [(f"{record}/{stage['phase']}/{stage['slug']}/{filename}", None, None)]
+        prints = []
+        for path, unit, kind in paths:
+            full = tree.path(path)
+            if not os.path.lexists(full):
+                digest, present = "missing", False
+            elif not os.path.isfile(full):
+                digest, present = "not-a-file", False
+            else:
+                with open(full, "rb") as handle:
+                    digest, present = sha(committed_text(handle.read())), True
+            prints.append((say(path), unit, kind, digest, present))
+        prints = [print_ for print_ in prints if entry.get("required", True) or print_[4]]
+        prints.sort(key=lambda print_: root_key((print_[1] or "") + (print_[2] or "") + print_[0]))
+        structure = sha(canonical([{"path": path, "unit": unit, "unitKind": kind} for path, unit, kind, _, _ in prints]))
+        content = sha(canonical([{"path": path, "sha256": digest, "present": present} for path, _, _, digest, present in prints]))
+        if entry.get("structureHash") == structure and entry.get("contentHash") == content and entry.get("instanceCount") == len(prints):
+            return {**entry, "structureHash": "<verified>", "contentHash": "<verified>"}
+        return entry
+
+    def rewrite(found):
+        basis = json.loads(found.group(1))
+        for side in ("inputs", "outputs"):
+            basis[side] = [verify(entry) for entry in basis.get(side, [])]
+        return "**Validation Basis**: " + canonical(basis)
+
+    return re.sub(r"^\*\*Validation Basis\*\*: (\{.*\})$", rewrite, text, flags=re.M), True
+
+
 def compare_audit(name, trees, steps, env, tool="audit"):
     ts, rs = trees
-    outcome, shaped, shaped_source = {}, False, False
+    outcome, shaped, shaped_source, shaped_ask, shaped_basis = {}, False, False, False, False
     started_from = None
     if RECORD and not has_links(ts.root) and name not in UNRECORDED and not name.startswith("fuzz/"):
         # An audit check starts from nothing but its files; a runtime check from an installed project.
@@ -1423,6 +1607,8 @@ def compare_audit(name, trees, steps, env, tool="audit"):
                 if sentence is not None:
                     err = json.dumps({"error": sentence}, ensure_ascii=False, separators=(",", ":")) + "\n"
                     shaped = True
+                err, asked = without_guard_ask(err)
+                shaped_ask |= asked
             exits.append(str(code))
             outs.append(say(normalise_audit(out, tree, engine)))
             errs.append(say(normalise_audit(err, tree, engine)))
@@ -1441,10 +1627,20 @@ def compare_audit(name, trees, steps, env, tool="audit"):
             if "/.focus-engine/source-review/" in rel and engine == "ts":
                 shaped_source = True
                 continue
+            # The guard-recovery streak is the recovery machinery's (SHAPES).
+            if "/.focus-engine/guard-refusals/" in rel and engine == "ts":
+                shaped_ask = True
+                continue
+            if text is not None and "/audit/" in rel:
+                text, seen = verify_validation_bases(tree, engine, rel, text)
+                shaped_basis |= seen and engine == "ts"
             shown, text = minted(rel, text if text is None else normalise_audit(text, tree, engine))
             if text is not None and "**Source Baseline**: " in text:
                 shaped_source = True
                 text = re.sub(r"^\*\*Source Baseline\*\*: [^\n]*\n", "", text, flags=re.M)
+            if text is not None and engine == "ts" and ASK_FIELD.search(text):
+                shaped_ask = True
+                text = ASK_FIELD.sub("", text)
             outcome[engine][shown] = "<removed>" if text is None else text
     problems = []
     for key in sorted(set(outcome["ts"]) | set(outcome["rs"])):
@@ -1461,6 +1657,12 @@ def compare_audit(name, trees, steps, env, tool="audit"):
         if shaped_source:
             shapes["source-baseline"] += 1
             detail += "  (source baseline left out)"
+        if shaped_ask:
+            shapes["guard-ask"] += 1
+            detail += "  (guard ask left out)"
+        if shaped_basis:
+            shapes["validation-basis"] += 1
+            detail += "  (receipt hashes verified)"
     elif any(re.fullmatch(pattern, name) for pattern in DEVIATIONS):
         verdict = "deviation"
         detail = next(reason for pattern, reason in DEVIATIONS.items() if re.fullmatch(pattern, name))
@@ -1772,8 +1974,9 @@ A_WORKFLOW = (TITLE + WORKFLOW + STARTED_ROW(1, "intent-capture", "**Agent**: so
               COMPLETED_ROW(9, "requirements-analysis") + STARTED_ROW(10, "code-generation"))
 
 
-def runtime_check(name, files, steps, env=None, edits=(), group="runtime"):
-    """Queue one runtime check: `steps` run in order on an installed project holding `files`."""
+def runtime_check(name, files, steps, env=None, edits=(), group="runtime", tool=None):
+    """Queue one runtime check: `steps` run in order on an installed project holding `files`. The group names the
+    tool, unless `tool` does."""
     name = f"{group}/{name}"
     if ONLY and not re.search(ONLY, name):
         return
@@ -1783,17 +1986,17 @@ def runtime_check(name, files, steps, env=None, edits=(), group="runtime"):
                 os.remove(tree.path(rel)) if os.path.exists(tree.path(rel)) else None
             else:
                 tree.write(rel, text)
-    # The group names the tool, run from the tree's own installation.
-    JOBS.append((name, pair(name, lay, *edits), steps, env, None, group))
+    # The tool is run from the tree's own installation.
+    JOBS.append((name, pair(name, lay, *edits), steps, env, None, tool or group))
 
 
 DEVIATIONS.update({
-    r"state/usage/(none|unknown)":
-        "upstream's usage lists its 33 verbs, Focus's the four it has",
     r"state/usage/[a-z-]+_not_ported":
         "upstream passes the verb through the state-transition fence (standing aside, with a GUARD_STOOD_ASIDE row) "
         "and then runs it or prints its usage; focus refuses the verb by name, with no fence consulted, since it "
         "does not have it yet",
+    r"state/usage/(none|unknown)":
+        "upstream's usage lists its 33 verbs, Focus's the nine it has",
     r"state/usage/flag_without_its_value":
         "upstream takes a trailing --project-dir with no value as part of the field; focus refuses the flag",
     r"state/usage/metrics_endpoint":
@@ -1806,6 +2009,25 @@ DEVIATIONS.update({
     r"state/record/(sessions_by_process|delegated_worktree)":
         "upstream walks the process tree to find which conversation is calling, and resolves a delegated worktree to "
         "the main checkout's intent; focus refuses and asks for the session",
+    r"state/advance/(summary_owed|review_owed|review_owed_advisory_cap|pipeline_owed)":
+        "the stage owes evidence that is an aidlc-log record (a summary confirmation, a reviewer's receipt, a "
+        "pipeline's handoffs) compared with the stage's outputs and the source the review saw (the attestation, "
+        "M5): upstream weighs it and refuses with what is missing; focus refuses by name until it reads those "
+        "records. With the ceremony off, the review class none, or the kill switch set, neither owes it and the "
+        "transition runs whole (the checks beside this one)",
+    "state/advance/review_rows_in_ledger":
+        "a closed stage's recovery reads the review rows of its attempt (which the stage's STAGE_STARTED floors); "
+        "upstream finds the one here stale and asks for a fresh review; focus refuses to weigh review rows at all",
+    "state/advance/construction":
+        "a Construction stage runs per unit of work with checkpoints, unit gates and swarms (M4): upstream admits "
+        "it with no unit DAG as a stage-level one; focus refuses the phase by name",
+    r"state/(advance/usage_ledger|skip/route_usage_ledger)":
+        "a completion row carries the token usage the harness hooks folded into the usage ledger; upstream reads "
+        "the ledger and adds the rollup fields; focus does not read it yet and refuses the completion while the "
+        "ledger holds usage for it, rather than write the row without",
+    "state/skip/unit":
+        "skip --unit skips one unit of work's step, which needs the unit DAG and the units' lifecycle (M4); "
+        "upstream checks the Construction policy first and refuses on that; focus refuses the flag by name",
     r"utility/usage/(none|unknown)":
         "upstream's refusal lists its 34 verbs (and a missing verb is \"undefined\"), Focus's the ones it has",
     r"utility/usage/[a-z-]+_not_ported":
@@ -1907,7 +2129,7 @@ def state_checks():
     check_("usage/set_no_pair", record, [["set"]], direct)
     check_("usage/checkbox_no_pair", record, [["checkbox"]], direct)
     check_("usage/count_no_state", record, [["count"]])
-    for verb in ("advance", "approve", "park", "unit", "fork", "practices-event", "set-construction-checkpoints"):
+    for verb in ("gate-start", "approve", "park", "unit", "fork", "practices-event", "set-construction-checkpoints"):
         check_(f"usage/{verb}_not_ported", {**record, **shard}, [[verb]])
 
     # get: a field, a field with spaces, an empty one, one that is not there, and with no state file.
@@ -2338,6 +2560,315 @@ def intent_create_checks():
            [feature], {"SESSION_OVERRIDE": "sess-0001"})
     check_("create/memory_seed_absent", {"aidlc/spaces/default/memory/org.md": None, "aidlc/spaces/default/memory/team.md": None,
                                          "aidlc/spaces/default/memory/project.md": None}, [feature])
+
+
+# --------------------------------------------------------------------------
+# The lifecycle transitions.
+#
+# A check starts from a record upstream created (`intent-create --scope
+# feature --review none --summary-confirmation off`), written here as it
+# was created so a transition's reading of it is what is compared: the
+# summary-confirmation ceremony off and the review class `none` are what
+# let a transition run whole on both engines (admission, M3 slice 4).
+# --------------------------------------------------------------------------
+
+CREATED_DIR = "aidlc/spaces/default/intents/260105-add-login"
+CREATED_SHARD = f"{CREATED_DIR}/audit/laptop-abc123.md"
+CREATED_STATE = '# AI-DLC State Tracking\n\n## Project Information\n- **Project**: Add login to the app\n- **Project Description Source**: project-description.json\n- **Project Type**: Greenfield\n- **Project Type Source**: workspace scan\n- **Scope**: feature\n- **Start Date**: 2026-01-05T10:00:00Z\n- **State Version**: 8\n- **Active Agent**: aidlc-product-agent\n- **Worktree Path**:\n- **Bolt Refs**:\n- **Practices Affirmed Timestamp**:\n\n## Scope Configuration\n- **Stages to Execute**: 0.1, 0.2, 0.3, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7\n- **Stages to Skip**: 2.1 (reverse-engineering — greenfield)\n- **Depth**: Standard\n- **Test Strategy**: Standard\n- **Review Override**: none\n- **Guard Policy**: off (from scope feature)\n- **Sensors**: on (from scope feature)\n- **Learnings**: on (from scope feature)\n- **Summary Confirmation**: off (set by a command)\n- **Plan Approval**: on (from scope feature)\n- **Collaborators**: off (from scope feature)\n\n## Workspace State\n- **Project Root**: .\n- **Languages**: Unknown\n- **Frameworks**: Unknown\n- **Build System**: Unknown\n\n## Execution Plan Summary\n- **Total Stages**: 32\n- **Completed**: 3\n- **In Progress**: intent-capture\n\n## Runtime State\n- **Revision Count**: 0\n- **Construction Checkpoints**: enabled\n- **Construction Iteration**: unit-major\n- **Construction Execution**: serial\n\n## Phase Progress\n<!-- Status values: Pending, Active, Verified, Skipped -->\n\n- **Initialization**: Verified\n- **Ideation**: Active\n- **Inception**: Pending\n- **Construction**: Pending\n- **Operation**: Pending\n\n## Stage Progress\n<!-- Checkbox states: [ ] not started, [-] in progress, [?] awaiting approval (gate open), [R] revising (user rejected gate), [x] completed, [S] skipped via --stage/--phase jump -->\n\n### INITIALIZATION PHASE\n- [x] workspace-scaffold — EXECUTE\n- [x] workspace-detection — EXECUTE\n- [x] state-init — EXECUTE\n\n### IDEATION PHASE\n- [-] intent-capture — EXECUTE\n- [ ] market-research — EXECUTE\n- [ ] feasibility — EXECUTE\n- [ ] scope-definition — EXECUTE\n- [ ] team-formation — EXECUTE\n- [ ] rough-mockups — EXECUTE\n- [ ] approval-handoff — EXECUTE\n\n### INCEPTION PHASE\n- [ ] reverse-engineering — SKIP\n- [ ] practices-discovery — EXECUTE\n- [ ] requirements-analysis — EXECUTE\n- [ ] user-stories — EXECUTE\n- [ ] refined-mockups — EXECUTE\n- [ ] domain-design — EXECUTE\n- [ ] units-generation — EXECUTE\n- [ ] contract-design — EXECUTE\n- [ ] delivery-planning — EXECUTE\n\n### CONSTRUCTION PHASE\nPer unit: [TBD]\n- [ ] functional-design — EXECUTE\n- [ ] nfr-requirements — EXECUTE\n- [ ] nfr-design — EXECUTE\n- [ ] infrastructure-design — EXECUTE\n- [ ] code-generation — EXECUTE\n- [ ] build-and-test — EXECUTE\n- [ ] ci-pipeline — EXECUTE\n\n### OPERATION PHASE\n- [ ] deployment-pipeline — EXECUTE\n- [ ] environment-provisioning — EXECUTE\n- [ ] deployment-execution — EXECUTE\n- [ ] observability-setup — EXECUTE\n- [ ] incident-response — EXECUTE\n- [ ] performance-validation — EXECUTE\n- [ ] feedback-optimization — EXECUTE\n\n## Current Status\n- **Lifecycle Phase**: IDEATION\n- **Current Stage**: intent-capture\n- **Next Stage**: market-research\n- **Status**: Running\n- **Last Updated**: 2026-01-05T10:00:00Z\n\n## Session Resume Point\n- **Last Completed Stage**: state-init\n- **Next Action**: Execute intent-capture\n- **Pending Artifacts**: none\n'
+CREATED_AUDIT = '# AI-DLC Audit Log\n\n## Workflow Start\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: WORKFLOW_STARTED\n**Scope**: feature\n**Request**: /aidlc Add login to the app\n**Review Override**: none\n\n---\n\n## Phase Start\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: PHASE_STARTED\n**Phase**: initialization\n**Stage count**: 3\n**Scope**: feature\n\n---\n\n## Stage Start\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: STAGE_STARTED\n**Stage**: workspace-scaffold\n**Agent**: orchestrator\n\n---\n\n## Workspace Scaffolded\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: WORKSPACE_SCAFFOLDED\n**Request**: /aidlc Add login to the app\n**Details**: 5 in-scope phase dirs + verification/ + space-level knowledge/ ensured (shell shipped by SEED)\n\n---\n\n## Stage Completion\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: STAGE_COMPLETED\n**Stage**: workspace-scaffold\n**Details**: 5 in-scope phase dirs + verification/ + space-level knowledge/ ensured\n\n---\n\n## Stage Start\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: STAGE_STARTED\n**Stage**: workspace-detection\n**Agent**: orchestrator\n\n---\n\n## Workspace Scanned\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: WORKSPACE_SCANNED\n**Project Type**: Greenfield\n**Languages**: Unknown\n**Frameworks**: Unknown\n**Build System**: Unknown\n**Details**: Deterministic rule-based scan\n\n---\n\n## Stage Completion\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: STAGE_COMPLETED\n**Stage**: workspace-detection\n**Details**: Classified Greenfield; languages=Unknown; frameworks=Unknown\n\n---\n\n## Stage Start\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: STAGE_STARTED\n**Stage**: state-init\n**Agent**: orchestrator\n\n---\n\n## Workspace Initialised\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: WORKSPACE_INITIALISED\n**Request**: /aidlc Add login to the app\n**Project Type**: Greenfield\n**Project Type Source**: workspace scan\n**Scope**: feature\n**Languages**: Unknown\n**Frameworks**: Unknown\n**Build System**: Unknown\n**Details**: 32 stages in scope, routing to intent-capture\n\n---\n\n## Stage Completion\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: STAGE_COMPLETED\n**Stage**: state-init\n**Details**: State initialized: feature scope, 32 stages, routing to intent-capture\n\n---\n\n## Phase Completion\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: PHASE_COMPLETED\n**From phase**: initialization\n**To phase**: ideation\n**Stages completed**: 3\n\n---\n\n## Phase Verification\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: PHASE_VERIFIED\n**Phase boundary**: initialization → ideation\n\n---\n\n## Phase Start\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: PHASE_STARTED\n**Phase**: ideation\n**Scope**: feature\n\n---\n\n## Stage Start\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: STAGE_STARTED\n**Stage**: intent-capture\n**Agent**: aidlc-product-agent\n\n---\n'
+CREATED_REGISTRY = ('[\n  {\n    "uuid": "01a138fa-d37d-787d-af4a-966efbb0b6fd",\n    "slug": "add-login",\n'
+                    '    "dirName": "260105-add-login",\n    "scope": "feature",\n    "status": "in-flight"\n  }\n]\n')
+
+
+def created(state=CREATED_STATE, audit=CREATED_AUDIT, registry=CREATED_REGISTRY, **more):
+    """A created record's files: its state, its shard, its registry row, the cursor and the clone identity."""
+    files = {**CLONE, "aidlc/spaces/default/intents/active-intent": "260105-add-login\n",
+             "aidlc/spaces/default/intents/intents.json": registry, f"{CREATED_DIR}/aidlc-state.md": state,
+             CREATED_SHARD: audit, f"{CREATED_DIR}/project-description.json": '"Add login to the app"\n'}
+    files.update(more)
+    return files
+
+
+def artifact(stage, name, text="# Written\n", phase="ideation"):
+    return {f"{CREATED_DIR}/{phase}/{stage}/{name}.md": text}
+
+
+def at_stage(state, current, done=(), skipped=(), phase="IDEATION", next_stage=None):
+    """`state` with `current` in progress, `done` ticked and `skipped` passed, the cursor fields following."""
+    for slug in done:
+        state = state.replace(f"- [ ] {slug} ", f"- [x] {slug} ").replace(f"- [-] {slug} ", f"- [x] {slug} ")
+    for slug in skipped:
+        state = state.replace(f"- [ ] {slug} ", f"- [S] {slug} ").replace(f"- [-] {slug} ", f"- [S] {slug} ")
+    state = state.replace("- [-] intent-capture ", "- [ ] intent-capture ").replace(f"- [ ] {current} ", f"- [-] {current} ")
+    state = re.sub(r"- \*\*Current Stage\*\*: [^\n]*", f"- **Current Stage**: {current}", state)
+    state = re.sub(r"- \*\*In Progress\*\*: [^\n]*", f"- **In Progress**: {current}", state)
+    state = re.sub(r"- \*\*Lifecycle Phase\*\*: [^\n]*", f"- **Lifecycle Phase**: {phase}", state)
+    if next_stage is not None:
+        state = re.sub(r"- \*\*Next Stage\*\*: [^\n]*", f"- **Next Stage**: {next_stage}", state)
+    return state
+
+
+def transition_checks():
+    """`aidlc-state.ts advance`, `finalize`, `complete-workflow`, `skip` and `resume`: the transitions, what admits
+    them, and what a replay writes once."""
+    check_ = lambda name, files, steps, env=None, edits=(): runtime_check(name, files, steps, env, edits, group="state")
+    direct = {"ALLOW_DIRECT_STATE_TRANSITIONS": "1"}
+    ic = artifact("intent-capture", "intent-statement")
+    ideation = ["intent-capture", "market-research", "feasibility", "scope-definition", "team-formation", "rough-mockups"]
+
+    # advance: usage, the slugs, the scope, and the whole transition.
+    check_("advance/usage", created(), [["advance"], ["advance", "--flag"]], direct)
+    check_("advance/unknown_stage", created(), [["advance", "nope"], ["advance", "intent-capture", "nope"]], direct)
+    check_("advance/no_scope", created(CREATED_STATE.replace("- **Scope**: feature\n", "")), [["advance", "intent-capture"]], direct)
+    check_("advance/empty_scope", created(CREATED_STATE.replace("- **Scope**: feature\n", "- **Scope**: \n")), [["advance", "intent-capture"]], direct)
+    check_("advance/invalid_scope", created(CREATED_STATE.replace("- **Scope**: feature\n", "- **Scope**: nope\n")), [["advance", "intent-capture"]], direct)
+    check_("advance/not_current", created(**ic), [["advance", "market-research"], ["advance", "feasibility", "scope-definition"]], direct)
+    check_("advance/no_artifacts", created(), [["advance", "intent-capture"], ["resume"]], direct)
+    check_("advance/whole", created(**ic), [["advance", "intent-capture"], ["resume"], ["advance", "intent-capture"], ["get", "Completed"]], direct)
+    check_("advance/explicit_next", created(**ic), [["advance", "intent-capture", "feasibility"], ["resume"]], direct)
+    check_("advance/explicit_next_skipped", created(**ic), [["advance", "intent-capture", "reverse-engineering"]], direct)
+    check_("advance/explicit_next_plan_skip", created(CREATED_STATE.replace("- [ ] market-research \u2014 EXECUTE", "- [ ] market-research \u2014 SKIP"), **ic),
+           [["advance", "intent-capture", "market-research"], ["advance", "intent-capture"]], direct)
+    check_("advance/no_next", created(at_stage(CREATED_STATE, "feedback-optimization", done=ideation), **artifact("feedback-optimization", "slo-report", phase="operation")),
+           [["advance", "feedback-optimization"]], direct)
+    check_("advance/phase_boundary", created(at_stage(CREATED_STATE, "approval-handoff", done=ideation), **artifact("approval-handoff", "initiative-brief")),
+           [["advance", "approval-handoff"], ["resume"], ["get", "Ideation"], ["get", "Inception"]], direct)
+    check_("advance/already_ticked", created(at_stage(CREATED_STATE, "intent-capture", done=["intent-capture"]), **ic),
+           [["advance", "intent-capture"], ["resume"]], direct)
+    check_("advance/already_ticked_and_audited", created(at_stage(CREATED_STATE, "intent-capture", done=["intent-capture"]),
+                                                          CREATED_AUDIT + COMPLETED_ROW(1, "intent-capture"), **ic),
+           [["advance", "intent-capture"], ["advance", "intent-capture"]], direct)
+    # Ticked with the next stage open but no completion row: not a replay, and the row is written now.
+    check_("advance/already_ticked_next_started", created(at_stage(CREATED_STATE, "market-research", done=["intent-capture"]), **ic),
+           [["advance", "intent-capture"], ["resume"]], direct)
+    # A completion row at the workflow's own instant still counts for it.
+    check_("advance/already_ticked_audited_same_instant", created(at_stage(CREATED_STATE, "market-research", done=["intent-capture"]),
+                                                                   CREATED_AUDIT + COMPLETED_ROW(0, "intent-capture"), **ic),
+           [["advance", "intent-capture"]], direct)
+    check_("advance/subagent_stage", created(at_stage(CREATED_STATE, "practices-discovery", done=ideation + ["approval-handoff"], phase="INCEPTION"),
+                                             **artifact("practices-discovery", "team-practices", phase="inception")),
+           [["advance", "practices-discovery"], ["resume"]], direct)
+    check_("advance/archived", created(CREATED_STATE.replace("- **Status**: Running", "- **Status**: Archived"), **ic),
+           [["advance", "intent-capture"], ["finalize", "intent-capture"], ["complete-workflow", "intent-capture"],
+            ["skip", "market-research"], ["resume"], ["get", "Scope"]], direct)
+    check_("advance/artifact_guard_off", created(), [["advance", "intent-capture"]], {**direct, "SKIP_ARTIFACT_GUARD": "1"})
+    check_("advance/artifact_is_a_directory", created(**{f"{CREATED_DIR}/ideation/intent-capture/intent-statement.md/x": ""}),
+           [["advance", "intent-capture"]], direct)
+    check_("advance/crlf_artifact", created(**artifact("intent-capture", "intent-statement", "# Written\r\nline\r\n")),
+           [["advance", "intent-capture"]], direct)
+    check_("advance/optional_output_present", created(at_stage(CREATED_STATE, "requirements-analysis", done=ideation + ["approval-handoff"], phase="INCEPTION"),
+                                                      **artifact("requirements-analysis", "requirements", phase="inception")),
+           [["advance", "requirements-analysis"]], direct)
+    # The evidence a transition owes to `aidlc-log` records (M5): refused by name where upstream weighs it.
+    check_("advance/summary_owed", created(CREATED_STATE.replace("- **Summary Confirmation**: off (set by a command)", "- **Summary Confirmation**: on (from scope feature)"), **ic),
+           [["advance", "intent-capture"]], direct)
+    check_("advance/summary_kill_switch", created(CREATED_STATE.replace("- **Summary Confirmation**: off (set by a command)", "- **Summary Confirmation**: on (from scope feature)"), **ic),
+           [["advance", "intent-capture"]], {**direct, "SKIP_SUMMARY_CONFIRMATION_GUARD": "1"})
+    check_("advance/summary_ceremony_off_by_switch", created(CREATED_STATE.replace("- **Summary Confirmation**: off (set by a command)", "- **Summary Confirmation**: on (from scope feature)"), **ic),
+           [["advance", "intent-capture"]], {**direct, "DISABLE_SUMMARY_CONFIRMATION": "1"})
+    check_("advance/review_owed", created(CREATED_STATE.replace("- **Review Override**: none", "- **Review Override**: "), **ic),
+           [["advance", "intent-capture"]], direct)
+    check_("advance/review_owed_advisory_cap", created(CREATED_STATE.replace("- **Review Override**: none", "- **Review Override**: advisory"), **ic),
+           [["advance", "intent-capture"]], direct)
+    check_("advance/review_rows_in_ledger", created(CREATED_STATE.replace("- **Review Override**: none", "- **Review Override**: "),
+                                                     CREATED_AUDIT + block("REVIEW_COMPLETED", T(2), "**Stage**: intent-capture", "**Reviewer**: aidlc-product-lead-agent", "**Verdict**: READY"), **ic),
+           [["advance", "intent-capture"]], direct)
+    check_("advance/no_reviewer_without_override", created(CREATED_STATE.replace("- **Review Override**: none", "- **Review Override**: "), **artifact("market-research", "competitive-analysis")),
+           [["skip", "intent-capture", "--route", "--reason", "no"], ["advance", "market-research"]], direct)
+    pipeline = at_stage(CREATED_STATE.replace("- [ ] reverse-engineering \u2014 SKIP", "- [ ] reverse-engineering \u2014 EXECUTE"),
+                        "reverse-engineering", done=ideation + ["approval-handoff"], phase="INCEPTION")
+    codekb = {f"aidlc/spaces/default/codekb/app/{name}.md": "# Known\n" for name in
+              ("business-overview", "architecture", "code-structure", "api-documentation", "component-inventory", "technology-stack",
+               "dependencies", "code-quality-assessment", "reverse-engineering-timestamp")}
+    with_repo = CREATED_REGISTRY.replace('"status": "in-flight"', '"status": "in-flight",\n    "repos": ["app"]')
+    check_("advance/pipeline_owed", created(pipeline, registry=with_repo, **codekb), [["advance", "reverse-engineering"]], direct)
+    check_("advance/pipeline_evidence_off", created(pipeline, registry=with_repo, **codekb), [["advance", "reverse-engineering"]],
+           {**direct, "DISABLE_ENSEMBLE_EVIDENCE": "1"})
+    check_("advance/codekb_incomplete", created(pipeline, registry=with_repo, **{k: v for k, v in codekb.items() if "architecture" not in k}),
+           [["advance", "reverse-engineering"]], {**direct, "DISABLE_ENSEMBLE_EVIDENCE": "1"})
+    check_("advance/construction", created(at_stage(CREATED_STATE, "functional-design", done=ideation + ["approval-handoff"], phase="CONSTRUCTION"),
+                                           **{f"{CREATED_DIR}/construction/api/functional-design/entities.md": "# E\n"}),
+           [["advance", "functional-design"]], direct)
+    usage = {"aidlc/.aidlc-sessions/usage-ledger.json": json.dumps({"schemaVersion": 3, "cursors": {}, "workflows": {"w": {
+        "totals": {"tokens": {"input": 10, "output": 5, "cacheRead": 0, "cacheCreate5m": 0, "cacheCreate1h": 0}}, "byStage": {"intent-capture": {}}}}})}
+    check_("advance/usage_ledger", created(**ic, **usage), [["advance", "intent-capture"]], direct)
+    check_("advance/usage_ledger_off", created(**ic, **usage), [["advance", "intent-capture"]], {**direct, "DISABLE_USAGE_TRACKING": "1"})
+    check_("advance/answer_mode_reused", created(audit=CREATED_AUDIT + block("DECISION_RECORDED", T(1), "**Stage**: intent-capture",
+                                                 "**Decision**: How would you like to answer them?", "**Options**: Guide me, I'll edit the file, Chat") +
+                                                 block("QUESTION_ANSWERED", T(2), "**Stage**: intent-capture", "**Details**: Chat"), **ic),
+           [["advance", "intent-capture"]], direct)
+    # The receipt's inputs: optional ones present, brownfield-only ones, a project type that is neither, and a
+    # producer that cannot be told (a warning instead of a receipt).
+    check_("advance/optional_input_present", created(at_stage(CREATED_STATE, "feasibility", done=["intent-capture", "market-research"]),
+                                                     **artifact("feasibility", "raid-log"), **artifact("market-research", "competitive-analysis")),
+           [["advance", "feasibility"]], direct)
+    inception = at_stage(CREATED_STATE, "requirements-analysis", done=ideation + ["approval-handoff"], phase="INCEPTION")
+    brownfield = {**codekb, **artifact("requirements-analysis", "requirements", phase="inception"), **artifact("intent-capture", "intent-statement")}
+    check_("advance/brownfield_inputs", created(inception.replace("- **Project Type**: Greenfield", "- **Project Type**: Brownfield"), registry=with_repo, **brownfield),
+           [["advance", "requirements-analysis"]], direct)
+    check_("advance/greenfield_inputs", created(inception, registry=with_repo, **brownfield), [["advance", "requirements-analysis"]], direct)
+    check_("advance/project_type_unknown", created(inception.replace("- **Project Type**: Greenfield", "- **Project Type**: Mixed"), registry=with_repo, **brownfield),
+           [["advance", "requirements-analysis"]], direct)
+    check_("advance/codekb_repo_unrecorded", created(inception.replace("- **Project Type**: Greenfield", "- **Project Type**: Brownfield"), **brownfield),
+           [["advance", "requirements-analysis"]], direct)
+    check_("advance/codekb_two_unclaimed_stores", created(inception.replace("- **Project Type**: Greenfield", "- **Project Type**: Brownfield"), **brownfield,
+                                                          **{"aidlc/spaces/default/codekb/other/architecture.md": "# Other\n"}),
+           [["advance", "requirements-analysis"]], direct)
+    def two_producers(tree):
+        graph = tree.json(".claude/tools/data/stage-graph.json")
+        next(stage for stage in graph if stage["slug"] == "market-research")["produces"].append("intent-statement")
+        tree.write_json(".claude/tools/data/stage-graph.json", graph)
+    check_("advance/validation_warning", created(at_stage(CREATED_STATE, "scope-definition", done=["intent-capture", "market-research", "feasibility"]),
+                                                 **artifact("scope-definition", "scope-document")),
+           [["advance", "scope-definition"]], direct, edits=(two_producers,))
+    # Inputs a per-unit stage produced: from the unit DAG, from the directories when there is none, at stage level
+    # when Units Generation was not planned, and a warning when the DAG cannot be read.
+    operation = at_stage(CREATED_STATE, "deployment-pipeline", done=ideation + ["approval-handoff"], phase="OPERATION")
+    per_unit = {f"{CREATED_DIR}/construction/api/infrastructure-design/cicd-pipeline.md": "# api\n",
+                f"{CREATED_DIR}/construction/web/infrastructure-design/cicd-pipeline.md": "# web\n",
+                f"{CREATED_DIR}/construction/web/infrastructure-design/infrastructure-specification.md": "# web\n",
+                f"{CREATED_DIR}/construction/docs/README.md": "no stage dir\n",
+                **artifact("deployment-pipeline", "cd-config", phase="operation")}
+    check_("advance/per_unit_inputs_from_dirs", created(operation, **per_unit), [["advance", "deployment-pipeline"]], direct)
+    check_("advance/per_unit_inputs_from_dag", created(operation, **per_unit, **{UNITS.replace(RECORD_DIR, CREATED_DIR): A_UNITS}), [["advance", "deployment-pipeline"]], direct)
+    check_("advance/per_unit_inputs_dag_malformed", created(operation, **per_unit, **{UNITS.replace(RECORD_DIR, CREATED_DIR): "```yaml\nunits:\n  - name: api\n    depends_on: [nope]\n```\n"}),
+           [["advance", "deployment-pipeline"]], direct)
+    check_("advance/per_unit_inputs_stage_level", created(operation.replace("- [ ] units-generation \u2014 EXECUTE", "- [S] units-generation \u2014 SKIP"), **per_unit,
+                                                           **{f"{CREATED_DIR}/construction/infrastructure-design/cicd-pipeline.md": "# all\n"}),
+           [["advance", "deployment-pipeline"]], direct)
+    check_("advance/per_unit_inputs_units_done", created(operation.replace("- [ ] units-generation \u2014 EXECUTE", "- [x] units-generation \u2014 SKIP"), **per_unit),
+           [["advance", "deployment-pipeline"]], direct)
+    check_("advance/per_unit_inputs_cached_dag", created(operation, **per_unit, **{f"{CREATED_DIR}/runtime-graph.json": json.dumps(
+        {"bolt_dag": {"batches": [["auth"], ["api"]], "units": [{"name": "auth", "kind": "service"}]}})}),
+           [["advance", "deployment-pipeline"]], direct)
+    check_("advance/fence", created(**ic), [["advance", "intent-capture"]])
+    check_("advance/fence_up", created(CREATED_STATE.replace("off (from scope feature)", "strict (set by you)"), **ic), [["advance", "intent-capture"], ["resume"]])
+    check_("advance/no_state_file", created(**{f"{CREATED_DIR}/aidlc-state.md": None}), [["advance", "intent-capture"], ["resume"]], direct)
+
+    # finalize and complete-workflow.
+    check_("finalize/usage", created(), [["finalize"], ["finalize", "--x"]], direct)
+    check_("finalize/unknown_stage", created(), [["finalize", "nope"]], direct)
+    check_("finalize/no_artifacts", created(), [["finalize", "intent-capture"]], direct)
+    check_("finalize/whole", created(**ic), [["finalize", "intent-capture"], ["resume"], ["finalize", "intent-capture"], ["advance", "intent-capture"]], direct)
+    check_("finalize/phase_boundary", created(at_stage(CREATED_STATE, "approval-handoff", done=ideation), **artifact("approval-handoff", "initiative-brief")),
+           [["finalize", "approval-handoff"], ["resume"]], direct)
+    check_("finalize/last_stage", created(at_stage(CREATED_STATE, "feedback-optimization", done=ideation), **artifact("feedback-optimization", "slo-report", phase="operation")),
+           [["finalize", "feedback-optimization"], ["resume"]], direct)
+    check_("finalize/no_scope", created(CREATED_STATE.replace("- **Scope**: feature\n", ""), **ic), [["finalize", "intent-capture"]], direct)
+    check_("complete/usage", created(), [["complete-workflow"], ["complete-workflow", "--reason", "x"]], direct)
+    check_("complete/unknown_stage", created(), [["complete-workflow", "nope"]], direct)
+    check_("complete/no_artifacts", created(), [["complete-workflow", "intent-capture", "--reason", "done"]], direct)
+    check_("complete/whole", created(**ic), [["complete-workflow", "intent-capture", "--reason", "enough"], ["resume"], ["get", "Status"]], direct)
+    check_("complete/without_reason", created(**ic), [["complete-workflow", "intent-capture"], ["complete-workflow", "intent-capture"]], direct)
+    check_("complete/reason_is_a_flag", created(**ic), [["complete-workflow", "intent-capture", "--reason", "--route"], ["complete-workflow", "--reason"]], direct)
+    check_("complete/after_finalize", created(**ic), [["finalize", "intent-capture"], ["complete-workflow", "intent-capture"]], direct)
+    check_("complete/no_scope", created(CREATED_STATE.replace("- **Scope**: feature\n", ""), **ic), [["complete-workflow", "intent-capture"]], direct)
+    check_("complete/registry_without_row", created(registry="[]\n", **ic), [["complete-workflow", "intent-capture"]], direct)
+    check_("complete/registry_malformed", created(registry="{not a list", **ic), [["complete-workflow", "intent-capture"]], direct)
+
+    # skip: plain, routed, and what a replay writes once.
+    check_("skip/usage", created(), [["skip"]], direct)
+    check_("skip/unknown_stage", created(), [["skip", "nope"], ["skip", "--route"]], direct)
+    check_("skip/plain", created(), [["skip", "market-research"], ["skip", "feasibility", "--reason", "  not needed  "], ["skip", "intent-capture"],
+                                     ["count", "skipped"], ["skip", "market-research"], ["resume"]], direct)
+    check_("skip/plain_refused_states", created(at_stage(CREATED_STATE, "market-research", done=["intent-capture"])),
+           [["skip", "intent-capture"], ["skip", "nope"]], direct)
+    check_("skip/reason_without_value", created(), [["skip", "market-research", "--reason"], ["skip", "market-research", "--reason", "--route"]], direct)
+    check_("skip/route_and_unit", created(), [["skip", "intent-capture", "--route", "--unit", "api", "--reason", "x"]], direct)
+    check_("skip/unit", created(), [["skip", "intent-capture", "--unit", "api", "--reason", "x"], ["skip", "intent-capture", "--unit"]], direct)
+    check_("skip/route_needs_reason", created(), [["skip", "intent-capture", "--route"], ["skip", "intent-capture", "--route", "--reason", " "]], direct)
+    check_("skip/route_whole", created(), [["skip", "intent-capture", "--route", "--reason", "not this one"], ["resume"],
+                                           ["skip", "intent-capture", "--route", "--reason", "again"]], direct)
+    check_("skip/route_not_current", created(), [["skip", "market-research", "--route", "--reason", "x"]], direct)
+    check_("skip/route_awaiting_approval", created(CREATED_STATE.replace("- [-] intent-capture \u2014 EXECUTE", "- [?] intent-capture \u2014 EXECUTE")),
+           [["skip", "intent-capture", "--route", "--reason", "x"]], direct)
+    check_("skip/route_awaiting_approval_plan_skip", created(CREATED_STATE.replace("- [-] intent-capture \u2014 EXECUTE", "- [?] intent-capture \u2014 SKIP")),
+           [["skip", "intent-capture", "--route", "--reason", "new project"], ["resume"]], direct)
+    check_("skip/route_phase_boundary", created(at_stage(CREATED_STATE, "approval-handoff", done=ideation)),
+           [["skip", "approval-handoff", "--route", "--reason", "x"], ["resume"]], direct)
+    check_("skip/route_last_stage", created(at_stage(CREATED_STATE, "feedback-optimization", done=ideation)),
+           [["skip", "feedback-optimization", "--route", "--reason", "x"], ["resume"]], direct)
+    check_("skip/route_no_scope", created(CREATED_STATE.replace("- **Scope**: feature\n", "")), [["skip", "intent-capture", "--route", "--reason", "x"]], direct)
+    skipped_state = CREATED_STATE.replace("- [-] intent-capture \u2014 EXECUTE", "- [S] intent-capture \u2014 EXECUTE")
+    check_("skip/route_replay_after_crash", created(skipped_state, CREATED_AUDIT + block("STAGE_SKIPPED", T(1), "**Stage**: intent-capture", "**Reason**: x", "**Skip Kind**: conditional-runtime")),
+           [["skip", "intent-capture", "--route", "--reason", "x"], ["resume"]], direct)
+    check_("skip/route_replay_partial", created(skipped_state, CREATED_AUDIT + block("STAGE_SKIPPED", T(1), "**Stage**: intent-capture", "**Reason**: x", "**Skip Kind**: conditional-runtime") +
+                                                STARTED_ROW(1, "market-research")),
+           [["skip", "intent-capture", "--route", "--reason", "x"]], direct)
+    check_("skip/route_replay_after_restart", created(skipped_state, CREATED_AUDIT + block("STAGE_SKIPPED", T(1), "**Stage**: intent-capture", "**Reason**: x", "**Skip Kind**: conditional-runtime") +
+                                                      STARTED_ROW(2, "intent-capture")),
+           [["skip", "intent-capture", "--route", "--reason", "x"]], direct)
+    # A workflow started again: what the earlier one recorded is not this one's.
+    check_("skip/route_replay_after_workflow_restart", created(skipped_state, CREATED_AUDIT + block("STAGE_SKIPPED", T(1), "**Stage**: intent-capture", "**Reason**: x", "**Skip Kind**: conditional-runtime") +
+                                                               block("WORKFLOW_STARTED", T(2), "**Scope**: feature")),
+           [["skip", "intent-capture", "--route", "--reason", "x"]], direct)
+    last_skipped = at_stage(CREATED_STATE, "feedback-optimization", done=ideation).replace("- [-] feedback-optimization", "- [S] feedback-optimization")
+    check_("skip/route_last_stage_replay", created(last_skipped, CREATED_AUDIT + block("STAGE_SKIPPED", T(1), "**Stage**: feedback-optimization", "**Reason**: x", "**Skip Kind**: conditional-runtime") +
+                                                   block("PHASE_COMPLETED", T(1), "**From phase**: operation", "**To phase**: (end)", "**Stages completed**: 9")),
+           [["skip", "feedback-optimization", "--route", "--reason", "x"]], direct)
+    check_("skip/route_usage_ledger", created(at_stage(CREATED_STATE, "feedback-optimization", done=ideation), **usage),
+           [["skip", "feedback-optimization", "--route", "--reason", "x"]], direct)
+    check_("skip/fence", created(), [["skip", "market-research"]])
+    check_("skip/fence_up", created(CREATED_STATE.replace("off (from scope feature)", "strict (set by you)")), [["skip", "market-research"]])
+
+    # resume.
+    check_("resume/fresh", created(), [["resume", "extra", "--flags"]])
+    check_("resume/compaction_pending", created(audit=CREATED_AUDIT + block("SESSION_COMPACTED", T(1), "**Details**: x")), [["resume"]])
+    check_("resume/compaction_handled", created(audit=CREATED_AUDIT + block("SESSION_COMPACTED", T(1), "**Details**: x") + block("RECOVERY_COMPLETED", T(2), "**Choice**: continue")), [["resume"]])
+    check_("resume/unit_fields", created(CREATED_STATE + "- **Active Unit**: api\n- **Unit Pause Reason**: \n"), [["resume"]])
+    check_("resume/unit_fields_full", created(CREATED_STATE + "- **Active Unit**: api\n- **Unit State**: paused\n- **Unit Pause Reason**: lunch\n- **Unit Next Action**: resume\n"), [["resume"]])
+    check_("resume/sparse_state", created("# State\n- **Scope**: \n"), [["resume"]])
+    check_("resume/no_shard", created(**{CREATED_SHARD: None}), [["resume"]])
+    check_("resume/no_state_file", created(**{f"{CREATED_DIR}/aidlc-state.md": None}), [["resume"]])
+    check_("resume/needs_no_gate", created(CREATED_STATE.replace("off (from scope feature)", "strict (set by you)")), [["resume"]])
+    for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
+        check_(f"observer/{marker.lower()}_advance", created(**ic), [["advance", "intent-capture"], ["skip", "market-research"], ["resume"]], {marker: "1", **direct})
+
+
+def transition_fuzz(count):
+    """Random sequences of transitions on a created record, started at a random stage with random artifacts."""
+    rng = random.Random(SEED + 3)
+    with open(os.path.join(DIST, ".claude", "tools", "data", "stage-graph.json"), encoding="utf-8") as handle:
+        graph = [stage for stage in json.load(handle) if stage["phase"] not in ("initialization", "construction")
+                 and stage["slug"] != "reverse-engineering"]
+    order = [stage["slug"] for stage in graph]
+    for index in range(count):
+        start = rng.randrange(0, len(order) - 1)
+        current = graph[start]
+        state = at_stage(CREATED_STATE, current["slug"], done=order[:start], phase=current["phase"].upper())
+        files = {}
+        # Artifacts for the stages ahead, most of them, and a few behind.
+        for stage in graph[start:start + 6] + rng.sample(graph[:start], min(start, 2)):
+            if rng.random() < 0.8:
+                for name in rng.sample(stage["produces"], rng.randrange(1, len(stage["produces"]) + 1)):
+                    files.update(artifact(stage["slug"], name, rng.choice(["# A\n", "# B\r\nline\r\n", "", "x"]), phase=stage["phase"]))
+        slugs = order[max(0, start - 1):start + 5]
+        steps, cursor = [], start
+        for _ in range(rng.randrange(3, 8)):
+            slug = order[min(cursor, len(order) - 1)] if rng.random() < 0.7 else rng.choice(slugs)
+            kind = rng.choice(["advance", "advance", "advance", "finalize", "skip", "route", "complete", "resume", "get"])
+            if kind == "advance":
+                steps.append(["advance", slug] + ([rng.choice(slugs)] if rng.random() < 0.2 else []))
+                cursor += 1
+            elif kind == "finalize":
+                steps.append(["finalize", slug])
+                cursor += 1
+            elif kind == "skip":
+                steps.append(["skip", rng.choice(slugs)] + (["--reason", rng.choice(["not needed", " ", "x"])] if rng.random() < 0.6 else []))
+            elif kind == "route":
+                steps.append(["skip", slug, "--route", "--reason", rng.choice(["not this one", "new project"])])
+                cursor += 1
+            elif kind == "complete":
+                steps.append(["complete-workflow", slug] + (["--reason", "enough"] if rng.random() < 0.5 else []))
+            elif kind == "resume":
+                steps.append(["resume"])
+            else:
+                steps.append(["get", rng.choice(["Current Stage", "Completed", "Status", "Next Stage"])])
+        steps.append(["resume"])
+        env = {"ALLOW_DIRECT_STATE_TRANSITIONS": "1"}
+        if rng.random() < 0.2:
+            env["SKIP_ARTIFACT_GUARD"] = "1"
+        runtime_check(str(index), created(state, **files), steps, env, group="fuzz/transitions", tool="state")
 
 
 def runtime_checks():
@@ -3071,12 +3602,14 @@ try:
     state_checks()
     utility_checks()
     intent_create_checks()
+    transition_checks()
     run_queued()
     if FUZZ:
         if not ONLY or not re.search(ONLY, "fuzz/audit"):
             fuzz(FUZZ)
         audit_fuzz(FUZZ // 3)
         runtime_fuzz(FUZZ // 4)
+        transition_fuzz(FUZZ // 4)
         run_queued(quiet=True)
     if MARKDOWN:
         markdown_fuzz(MARKDOWN)

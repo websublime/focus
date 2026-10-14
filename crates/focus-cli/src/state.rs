@@ -3,12 +3,12 @@
 //! The state file of the active record, as data: `get` prints one field,
 //! `set` writes fields, `checkbox` sets the box of stages in Stage Progress
 //! and `count` counts them. The transitions that move a workflow through
-//! its stages are the orchestrator's, and the verbs that make them
-//! (`advance`, `approve` and the rest) are M3's later slices; the verbs
-//! here read and write the file by name.
+//! its stages (`advance`, `finalize`, `complete-workflow`, `skip`, and
+//! `resume` to read where it stands) are `focus-lifecycle`'s; the gate
+//! verbs (`gate-start`, `approve`, `reject`, `revise`) are M3's next slice.
 //!
 //! Two things stand before a write. The workflow must not be archived. And
-//! generic state writes are engine-owned: a `set` or `checkbox` the
+//! lifecycle transitions and generic state writes are engine-owned: one the
 //! orchestrator did not make (`FOCUS_STATE_TRANSITION_OWNER` naming this
 //! process's parent, or `FOCUS_ALLOW_DIRECT_STATE_TRANSITIONS=1`) passes
 //! the state-transition fence first, and goes through only when the fence
@@ -24,8 +24,9 @@
 //! alone, as upstream prints it.
 //!
 //! Mirrors `main`, `handleGet`, `handleSet`, `handleCheckbox`, `handleCount`,
-//! `assertWorkflowNotArchived` and `exitWithError` in `aidlc-state.ts`, and
-//! `emitError` in `aidlc-lib.ts`.
+//! `assertWorkflowNotArchived`, `getFlagValue` and `exitWithError` in
+//! `aidlc-state.ts` (the transition handlers' argument reading included),
+//! and `emitError` in `aidlc-lib.ts`.
 
 use std::path::PathBuf;
 
@@ -36,6 +37,8 @@ use focus_guards::fences::Fence;
 use focus_guards::workflow::Guards;
 use focus_js::json;
 use focus_js::text::{parse_int, trim};
+use focus_lifecycle::transitions;
+use focus_lifecycle::workflow::Workflow;
 use focus_state::fields::{get_field, set_field};
 use focus_state::file::{read_state_file, write_state_file};
 use focus_state::progress::{CheckboxState, count_checkboxes, set_checkbox};
@@ -59,23 +62,50 @@ The state file of the active record, as data.
                            Completed count with it
   count <state>            Count the stages in one state
 
+  advance <completed> [<next>]
+                           Close a stage and open the next in-scope one
+  finalize <completed>     Close a stage and move the cursor, opening none
+  complete-workflow <completed> [--reason <text>]
+                           Close the last stage
+  skip <slug> [--reason <text>] [--route]
+                           Pass a stage; with --route, move on from it
+  resume                   Print where the work stands
+
 A state is one of pending, in-progress, awaiting-approval, revising,
 completed, skipped. Writes are the engine's: set FOCUS_ALLOW_DIRECT_STATE_TRANSITIONS=1
 to make one by hand.";
 
-const USAGE: &str = "Usage: focus engine state <subcommand>. Valid: get, set, checkbox, count. Run with --help for detail.";
+const USAGE: &str = "Usage: focus engine state <subcommand>. Valid: get, set, checkbox, count, advance, finalize, complete-workflow, skip, resume. Run with --help for detail.";
+
+/// The verbs Focus has.
+const VERBS: [&str; 9] = [
+    "get",
+    "set",
+    "checkbox",
+    "count",
+    "advance",
+    "finalize",
+    "complete-workflow",
+    "skip",
+    "resume",
+];
+
+/// `engineOwnedTransitions`: the verbs that pass the state-transition fence.
+const ENGINE_OWNED: [&str; 6] = [
+    "set",
+    "checkbox",
+    "advance",
+    "finalize",
+    "complete-workflow",
+    "skip",
+];
 
 /// The verbs upstream has that Focus does not port, each refused by name.
-const NOT_PORTED: [(&str, &str); 29] = [
-    ("advance", "moves the workflow to its next stage"),
-    ("finalize", "finalizes a stage"),
-    ("complete-workflow", "completes the workflow"),
+const NOT_PORTED: [(&str, &str); 24] = [
     ("gate-start", "opens a stage's approval gate"),
     ("approve", "records a gate's approval"),
     ("reject", "records a gate's rejection"),
     ("revise", "sends a stage back for revision"),
-    ("skip", "skips a stage"),
-    ("resume", "resumes a stage"),
     ("park", "parks the workflow"),
     ("unpark", "unparks the workflow"),
     (
@@ -196,14 +226,17 @@ fn answer(args: &mut Args, context: &Context) -> Verb {
             "{verb} {does}, and Focus does not do that yet."
         )));
     }
-    if !["get", "set", "checkbox", "count"].contains(&verb.as_str()) {
+    if !VERBS.contains(&verb.as_str()) {
         return Err(Refusal::of(format!(
             "Unknown subcommand: {verb}. Run focus engine state --help for usage."
         )));
     }
     let record = Record::find(context)?;
-    if verb == "set" || verb == "checkbox" {
+    if ENGINE_OWNED.contains(&verb.as_str()) {
         admit_write(&record, &verb)?;
+    }
+    // `archivedProtectedCommands`: every verb but the readers.
+    if !matches!(verb.as_str(), "get" | "count") {
         let content = record.read_state()?;
         if get_field(&content, "Status") == Some("Archived") {
             return Err(Refusal::of(format!(
@@ -216,8 +249,104 @@ fn answer(args: &mut Args, context: &Context) -> Verb {
         "get" => get(&record, &rest),
         "set" => set(&record, &rest),
         "checkbox" => checkbox(&record, &rest),
-        _ => count(&record, &rest),
+        "count" => count(&record, &rest),
+        _ => transition(record, &verb, &rest),
     }
+}
+
+/// `getFlagValue`: the value after `flag`, which must be there and not be
+/// another flag.
+fn flag_value<'a>(args: &'a [String], flag: &str) -> Result<Option<&'a str>, Refusal> {
+    let Some(at) = args.iter().position(|arg| arg == flag) else {
+        return Ok(None);
+    };
+    let Some(value) = args.get(at + 1) else {
+        return Err(Refusal::of(format!(
+            "{flag} expects a value, got end of arguments."
+        )));
+    };
+    if value.starts_with("--") {
+        return Err(Refusal::of(format!(
+            "{flag} expects a value, got another flag: \"{value}\". Did you forget the value?"
+        )));
+    }
+    Ok(Some(value))
+}
+
+/// The lifecycle verbs, each reading its arguments as upstream's handler
+/// does, then handed to `focus-lifecycle`.
+fn transition(record: Record, verb: &str, args: &[String]) -> Verb {
+    let operation = format!("`focus engine state {verb}`");
+    let wf = Workflow::open(record.layout, record.selection, record.invoker)?;
+    // Positional arguments are the ones that are not flags; a flag's value
+    // is one of them unless the verb takes the flag.
+    let positional: Vec<&String> = args.iter().filter(|arg| !arg.starts_with("--")).collect();
+    let answer = match verb {
+        "advance" => {
+            let Some(completed) = positional.first() else {
+                return Err(Refusal::of(
+                    "Usage: focus engine state advance <completed-slug> [<next-slug>]",
+                ));
+            };
+            transitions::advance(
+                &wf,
+                completed,
+                positional.get(1).map(|s| s.as_str()),
+                &operation,
+            )?
+        }
+        "finalize" => {
+            let Some(completed) = positional.first() else {
+                return Err(Refusal::of(
+                    "Usage: focus engine state finalize <completed-slug>",
+                ));
+            };
+            transitions::finalize(&wf, completed, &operation)?
+        }
+        "complete-workflow" => {
+            let reason_at = args.iter().position(|arg| arg == "--reason");
+            let positional: Vec<&String> = args
+                .iter()
+                .enumerate()
+                .filter(|(index, arg)| {
+                    !arg.starts_with("--") && reason_at.is_none_or(|at| *index != at + 1)
+                })
+                .map(|(_, arg)| arg)
+                .collect();
+            let Some(completed) = positional.first() else {
+                return Err(Refusal::of(
+                    "Usage: focus engine state complete-workflow <completed-slug> [--reason <text>]",
+                ));
+            };
+            let reason = reason_at
+                .and_then(|at| args.get(at + 1))
+                .map(String::as_str);
+            transitions::complete_workflow(&wf, completed, reason, &operation)?
+        }
+        "skip" => {
+            let Some(slug) = args.first() else {
+                return Err(Refusal::of(
+                    "Usage: focus engine state skip <slug> [--reason <text>] [--route | --unit <name>]",
+                ));
+            };
+            let reason = flag_value(&args[1..], "--reason")?;
+            let route = args.iter().any(|arg| arg == "--route");
+            let unit = flag_value(&args[1..], "--unit")?;
+            if route && unit.is_some() {
+                return Err(Refusal::of(
+                    "focus engine state skip takes --route or --unit, not both.",
+                ));
+            }
+            if let Some(unit) = unit {
+                return Err(Refusal::of(format!(
+                    "skip --unit skips one unit of work's step (\"{unit}\"), which needs the unit DAG and the units' lifecycle: Focus does not run units yet."
+                )));
+            }
+            transitions::skip(&wf, slug, reason, route)?
+        }
+        _ => transitions::resume(&wf)?,
+    };
+    Ok(Some(json::stringify(&answer)))
 }
 
 /// The engine-owned gate on a generic state write. The orchestrator passes

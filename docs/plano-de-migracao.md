@@ -93,6 +93,7 @@ focus-cli ✔ ───────────► focus-hooks ──► focus-o
     ├──► focus-project   focus-guards ◐    focus-sensors       focus-graph ✔   focus-workspace ✔
     │                        │                  │                   │               │
     ├──► focus-intent ✔ ─────┴──────────────────┼───────────────────┤               │
+    ├──► focus-lifecycle ◐ ──────────────────────┼───────────────────┤               │
     │                        │                  │                   │               │
     └────────────────────────┴──────────────────┴───────────────────┴───────────────┘
                                                 │
@@ -112,6 +113,7 @@ focus-cli ✔ ───────────► focus-hooks ──► focus-o
 | `focus-audit` | Shards de auditoria, registo de eventos, runtime graph | Existe (M2) |
 | `focus-state` | Ficheiro de estado, máquinas de workflow, fase e stage | Existem os campos, as checkboxes e o ficheiro (M3, fatias 1 e 2); as transições são M3 |
 | `focus-intent` | Criação de intents: nomes, plano, template do estado, registo e cursores | Existe (M3, fatia 3b) |
+| `focus-lifecycle` | Transições de stage: a cadeia de admissão, onde estão os artefactos de uma stage, o recibo de validade de uma conclusão, e as transições em si | Existem `advance`, `finalize`, `complete-workflow`, `skip` e `resume` (M3, fatia 4a); os verbos de gate são a fatia 4b |
 | `focus-guards` | Lexer de shell, integridade de runtime, fences, decisões de guard | Existe a resolução da Guard Policy, as fences e a decisão de uma fence (M3, fatia 1); o resto é M4 |
 | `focus-hooks` | Os corpos dos hooks e o dispatcher | M4 e M6 |
 | `focus-orchestrate` | `next` e `report`, diretivas, plan approval, checkpoints | M5 |
@@ -925,7 +927,8 @@ M3 está em curso. O que o plano chamava "estado e criação de intents" é, no 
 | 1. Guard Policy e fences | `focus-guards`: a resolução da política de um workflow (a linha do estado, o default do scope, as camadas de memória), as linhas `Guards Off` e `Guards On`, os kill switches, o que cada política baixa, a decisão de uma fence e a autoridade de uma ação sem marcadores de hooks | Corpus | Feita |
 | 2. O ficheiro de estado como dados | `focus-state`: campos, checkboxes, listas de refs, progresso de fase; ler e escrever o ficheiro (barreira `writeStateFile`, ficheiro só de leitura); `focus engine state get`, `set`, `checkbox` e `count`, com a porta das transições e o `ERROR_LOGGED` de cada recusa | Corpus e diferencial | Feita |
 | 3. Criação de intents | `intent-create`: o registo, o cursor, o ficheiro de estado a partir do template; antes dele, o scanner do workspace que lhe classifica o projeto (`detect`) | Diferencial | Feita (3a `detect`, 3b `intent-create`) |
-| 4. Transições de stage | `advance`, `gate-start`, `approve`, `reject`, `revise`, `skip`, `resume`, `finalize`, `complete-workflow`, em série e sem units | Diferencial e fuzz de sequências | |
+| 4a. Transições de stage | `advance`, `finalize`, `complete-workflow`, `skip` e `resume`, em série e sem units: `focus-lifecycle`. Cada transição passa pela cadeia de admissão do original (`admitStageAction`): o workflow não arquivado, os artefactos declarados da stage, o trabalho de código de uma stage `workspace_requires`, a evidência da confirmação do sumário, os recibos do reviewer, os handoffs de um pipeline. As evidências são registos que `aidlc-log` escreve e que comparam a identidade da fonte (a atestação): são M5, e uma transição que as deva recusa-se pelo nome até lá; com a cerimónia `summary_confirmation` desligada, a classe de review `none`, uma stage sem reviewer ou os kill switches, o original não deve nenhuma e a transição corre inteira. Uma stage de Construction (checkpoints, units, swarms: M4) recusa-se pelo nome. A conclusão deixa o recibo de validade (`Validation Basis`) | Diferencial e fuzz de sequências | Feita |
+| 4b. Os verbos de gate | `gate-start`, `approve`, `reject`, `revise`: a resposta da pessoa (`--user-input`, as palavras do gate que o hook de turno guarda), os sensores de gate, os campos do pedido de aprovação | Diferencial | |
 | 5. Parar, saltar, validar | `park`, `unpark`, `jump`, `validity`, `--status` | Diferencial | |
 
 ### Fatia 1: Guard Policy e fences
@@ -1078,5 +1081,45 @@ A criação de um intent começa por classificar o projeto: Greenfield ou Brownf
 | `--project-dir` sem instalação, sessões por processo, worktree delegada | Resolve | Recusa, como nos outros comandos |
 
 **O que a fatia 3b não tem.** `reclassify`, `status`, os verbos `intent` (list, switch, archive, unarchive) e `space`: entram com as transições e o estado visível (fatias 4 e 5).
+
+### Fatia 4a: as transições
+
+`focus engine state advance`, `finalize`, `complete-workflow`, `skip` e `resume` são os `handleAdvance`, `handleFinalize`, `handleCompleteWorkflow`, `handleSkip` e `handleResume` do original: o que o orquestrador faz ao estado depois de uma decisão. Cada transição corre inteira sob o lock do workspace, lê o estado, decide, escreve primeiro as linhas da auditoria e depois o ficheiro de estado (uma linha que não se consegue escrever pára a transição antes de o estado mudar), e responde com um objeto JSON. Uma transição repetida depois de um crash reconhece o que já fez e escreve-o uma vez: `advance` de uma stage já marcada e já auditada com a seguinte já aberta é um replay; `skip --route` de uma stage já saltada lê a cauda da auditoria desde o seu `STAGE_SKIPPED` e só escreve as linhas que faltam.
+
+Antes de mexer, a transição passa pela cadeia de admissão (`admitStageAction`), listada uma vez em `focus-lifecycle::admission`: o workflow não está arquivado; os artefactos declarados da stage existem (um basta; todos, em todos os stores, para a base de conhecimento do código); uma stage que produz código (`workspace_requires`) deixou trabalho fora da árvore do workspace, que num repositório git se distingue de uma baseline brownfield (uma alteração por confirmar, ou código no último commit) e fora dele é um ficheiro que exista; a confirmação do sumário, o recibo do reviewer e os handoffs de um pipeline, quando devidos. A conclusão de uma stage deixa na linha `STAGE_COMPLETED` o recibo de validade (`Validation Basis`, `aidlc-validity.ts`): o contrato da stage no grafo, o tipo de projeto, e por cada artefacto de entrada e de saída um hash dos ficheiros a que resolveu e um hash do seu conteúdo (CRLF lido como LF); o que não se consegue capturar fica como `Validation Warning` e não pára a conclusão. `STAGE_STARTED` leva o modo de resposta que a pessoa escolheu antes (`Answer Mode`), lido do par pergunta/resposta da auditoria.
+
+**O que existe.** `focus-lifecycle` (`workflow`: o registo, o lock, a auditoria; `stage`: o que uma transição lê de uma stage compilada além dos campos tipados; `events`: o que se lê de volta da auditoria, o emparelhamento decisão/resposta e o modo de resposta; `artifacts`: onde cada stage escreve, o DAG de units, o nome do store da base de conhecimento, o trabalho de código; `validity`: o recibo; `admission`: a cadeia; `transitions`: as cinco; `registry`: a linha do registo ao concluir), `Install` público em `focus-intent`, e em `focus-js` um NUL ignorável na colação (`localeCompare` de uma chave `artefacto\0produtor`).
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Diferencial, `state/{advance,finalize,complete,skip,resume}/*` | 104 verificações com nome: 95 iguais, 9 desvios, 0 diferentes. Comparam o que o comando diz, o ficheiro de estado byte a byte, as linhas da auditoria campo a campo e o registo. Cobrem cada recusa (uso, stage desconhecida, scope em falta, vazio ou inválido, a stage que não é a atual, a seguinte explícita saltada pelo plano, sem seguinte, arquivado, sem ficheiro de estado), a transição inteira, a fronteira de fase, o replay, a stage já marcada com e sem a sua linha, o guard dos artefactos (um diretório no lugar do ficheiro, CRLF, o kill switch), as entradas do recibo (opcionais presentes, só de brownfield, tipo de projeto desconhecido, dois produtores, as de uma stage por unit lidas do DAG, dos diretórios, ao nível da stage, com o DAG em cache e com o DAG ilegível), a base de conhecimento com o repo registado, por registar e incompleta, a porta das transições, os observadores; para `skip`, o salto simples em cada estado, `--route` e cada replay parcial, a aprovação pendente com e sem SKIP no plano, a última stage com o registo a fechar; para `resume`, a compactação pendente e tratada, os campos de unit, um estado esparso |
+| Diferencial, fuzz de sequências (`fuzz/transitions`) | 650 sequências de 3 a 8 transições a partir de uma stage ao acaso com artefactos ao acaso (`--fuzz 200` e `--fuzz 2400 --seed 7`): todas iguais |
+| Diferencial completo | 2 025 verificações: 1 893 iguais, 132 desvios, 0 diferentes; 5 das iguais com a pergunta de recuperação retirada e 35 com os hashes do recibo verificados antes de comparar. 2 002 gravadas, sobre 482 árvores. O replay ganhou `FOCUS_RECORDED_ONLY=<texto>` para repetir um grupo |
+| Mutações | 33 em `admission`, `transitions`, `events`, `artifacts` e `validity`; 32 apanhadas, 7 delas só depois de o diferencial e os testes ganharem o caso que faltava (uma stage marcada com a seguinte aberta e sem linha de conclusão, uma linha de conclusão no instante do `WORKFLOW_STARTED`, um workflow começado de novo depois de um salto, dois stores por reclamar, e três testes unitários sobre a fixture: o trabalho de código, as fases que devem sumário, o modo de pipeline). Uma é equivalente: `required` ausente num `consumes` (o compile escreve-o sempre) |
+| `cargo test` | 347 testes |
+
+**Pormenores do original que ficam iguais.**
+
+- Os argumentos posicionais são os que não começam por `--`; o valor de uma flag que o verbo não lê conta como posicional (`advance x --foo y` abre `y`). `complete-workflow` exclui o valor de `--reason`, que pode ser outra flag; `skip` lê `--reason` com `getFlagValue` (um valor em falta ou outra flag recusa-se).
+- `advance` com a seguinte explícita só recusa a que o plano salta; a seguinte derivada passa as stages concluídas e saltadas e lê o sufixo do estado antes do grid.
+- `finalize` move o cursor sem abrir a seguinte nem escrever linha nenhuma; a seguinte `advance` da mesma stage escreve então o `STAGE_COMPLETED`.
+- O contador `Completed` conta as stages de inicialização.
+- `resume` não passa pela porta das transições e lê os últimos 400 linhas da auditoria para a compactação pendente.
+
+**Desvios deliberados.**
+
+| | Original | Focus |
+| --- | --- | --- |
+| A pergunta de recuperação depois da frase de um guard (`{"kind":"ask",…}`) e o registo da série em `.focus-engine/guard-refusals/` | Escreve os dois: os remédios que o condutor pode oferecer, lidos da tentativa de review (M5) | Imprime a frase. O diferencial retira a linha e o ficheiro antes de comparar (`SHAPES`), e compara a frase, a linha `ERROR_LOGGED` e tudo o resto |
+| Os hashes do recibo de validade | Sobre caminhos que levam o nome do diretório do workspace (`aidlc/`) | Sobre `focus/`: diferem por construção. O diferencial recalcula os hashes de cada engine a partir da sua própria árvore e dos seus nomes e compara os que batem como `<verified>` (`SHAPES`); um que não bata compara-se tal como está. A gravação guarda `<verified>` e o replay normaliza os hashes de Focus da mesma forma |
+| A confirmação do sumário, o recibo do reviewer e os handoffs de um pipeline, quando devidos | Pesa os registos de `aidlc-log` e recusa com o que falta | Recusa pelo nome (M5). Com a cerimónia `summary_confirmation` desligada (`--summary-confirmation off`, `FOCUS_DISABLE_SUMMARY_CONFIRMATION`, `FOCUS_SKIP_SUMMARY_CONFIRMATION_GUARD`), a classe de review `none` (`--review none`, `review_cap` do scope), uma stage sem reviewer, ou `FOCUS_DISABLE_ENSEMBLE_EVIDENCE` para um pipeline, nenhum dos dois deve nada e a transição corre inteira. Uma stage já marcada que tem linhas `REVIEW_*` na auditoria recusa-se também: a recuperação do original pesa-as |
+| Uma stage de Construction | Admite-a sem DAG de units como stage ao nível da stage | Recusa a fase pelo nome: checkpoints, unit gates e swarms são M4 |
+| O rollup de uso (tokens, custo) na linha de conclusão | Lê o ledger de uso que os hooks do harness dobram das transcrições | Recusa a conclusão enquanto `focus/.focus-sessions/usage-ledger.json` tiver uso para ela (`FOCUS_DISABLE_USAGE_TRACKING=1` para concluir sem) |
+| `skip --unit` | Verifica a política de Construction e recusa por ela | Recusa a flag pelo nome (M4) |
+| O uso de `state` | Lista os 33 verbos | Lista os nove que tem |
+
+**O que a fatia 4a não tem.** Os verbos de gate (`gate-start`, `approve`, `reject`, `revise`), que leem a resposta da pessoa e os sensores: fatia 4b. `park`, `unpark`, `jump`, `validity` e `--status`: fatia 5.
 
 Fora de M3 e recusados pelo nome, como `fragment-fork` ficou em M2: os subcomandos de units, bolts e swarm (`unit`, `fork`, `merge`, `fold-unit-merge`, `refresh-unit-progress`, `sync-unit-scope-stage`, `set-unit-ownership`, `set-unit-gate-rhythm`), as políticas de Construction (`set-construction-*`, `set-skeleton-stance`), as práticas (`practices-event`, `practices-promote`), `reuse-artifact`, `lookup` e `acknowledge-compaction`.

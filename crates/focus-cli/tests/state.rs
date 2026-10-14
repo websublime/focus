@@ -396,14 +396,14 @@ fn the_state_command_names_the_verbs_it_has() {
     let root = project("usage");
     assert_eq!(
         refusal(&state(&root, &[], &[])),
-        "Usage: focus engine state <subcommand>. Valid: get, set, checkbox, count. Run with --help for detail."
+        "Usage: focus engine state <subcommand>. Valid: get, set, checkbox, count, advance, finalize, complete-workflow, skip, resume. Run with --help for detail."
     );
     assert_eq!(
         refusal(&state(&root, &["nope"], &[])),
         "Unknown subcommand: nope. Run focus engine state --help for usage."
     );
     for (verb, does) in [
-        ("advance", "moves the workflow to its next stage"),
+        ("gate-start", "opens a stage's approval gate"),
         ("approve", "records a gate's approval"),
         ("park", "parks the workflow"),
         ("unit", "runs a unit of work's step"),
@@ -552,5 +552,297 @@ fn a_write_waits_for_the_workspace_lock() {
     assert_eq!(ok(&state(&root, &["get", "Scope"], &wait)), "feature\n");
     drop(held);
     assert!(state(&root, &["set", "Scope=x"], &wait).status.success());
+    let _ = fs::remove_dir_all(root);
+}
+
+/// The state of a record upstream created on the feature scope with the
+/// summary-confirmation ceremony off and the review class `none`: what a
+/// transition reads, and no more.
+const CREATED: &str = "# Focus State Tracking\n\n## Project Information\n- **Project**: Add login to the app\n- **Project Type**: Greenfield\n- **Scope**: feature\n- **Review Override**: none\n- **Guard Policy**: off (from scope feature)\n- **Summary Confirmation**: off (set by a command)\n\n## Execution Plan Summary\n- **Total Stages**: 32\n- **Completed**: 3\n- **In Progress**: intent-capture\n\n## Phase Progress\n- **Initialization**: Verified\n- **Ideation**: Active\n- **Inception**: Pending\n- **Construction**: Pending\n- **Operation**: Pending\n\n## Stage Progress\n- [x] workspace-scaffold \u{2014} EXECUTE\n- [x] workspace-detection \u{2014} EXECUTE\n- [x] state-init \u{2014} EXECUTE\n- [-] intent-capture \u{2014} EXECUTE\n- [ ] market-research \u{2014} EXECUTE\n- [ ] feasibility \u{2014} EXECUTE\n- [ ] scope-definition \u{2014} EXECUTE\n- [ ] team-formation \u{2014} EXECUTE\n- [ ] rough-mockups \u{2014} EXECUTE\n- [ ] approval-handoff \u{2014} EXECUTE\n- [ ] reverse-engineering \u{2014} SKIP\n- [ ] practices-discovery \u{2014} EXECUTE\n- [ ] requirements-analysis \u{2014} EXECUTE\n- [ ] user-stories \u{2014} EXECUTE\n- [ ] refined-mockups \u{2014} EXECUTE\n- [ ] domain-design \u{2014} EXECUTE\n- [ ] units-generation \u{2014} EXECUTE\n- [ ] contract-design \u{2014} EXECUTE\n- [ ] delivery-planning \u{2014} EXECUTE\n- [ ] functional-design \u{2014} EXECUTE\n- [ ] nfr-requirements \u{2014} EXECUTE\n- [ ] nfr-design \u{2014} EXECUTE\n- [ ] infrastructure-design \u{2014} EXECUTE\n- [ ] code-generation \u{2014} EXECUTE\n- [ ] build-and-test \u{2014} EXECUTE\n- [ ] ci-pipeline \u{2014} EXECUTE\n- [ ] deployment-pipeline \u{2014} EXECUTE\n- [ ] environment-provisioning \u{2014} EXECUTE\n- [ ] deployment-execution \u{2014} EXECUTE\n- [ ] observability-setup \u{2014} EXECUTE\n- [ ] incident-response \u{2014} EXECUTE\n- [ ] performance-validation \u{2014} EXECUTE\n- [ ] feedback-optimization \u{2014} EXECUTE\n\n## Current Status\n- **Lifecycle Phase**: IDEATION\n- **Current Stage**: intent-capture\n- **Next Stage**: market-research\n- **Status**: Running\n- **Last Updated**: 2026-01-05T10:00:00Z\n\n## Session Resume Point\n- **Last Completed Stage**: state-init\n- **Next Action**: Execute intent-capture\n";
+const CREATED_RECORD: &str = "focus/spaces/default/intents/260105-add-login";
+const CREATED_SHARD: &str = "# Focus Audit Log\n\n## Workflow Start\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: WORKFLOW_STARTED\n**Scope**: feature\n\n---\n\n## Stage Start\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: STAGE_STARTED\n**Stage**: intent-capture\n**Agent**: focus-product-agent\n\n---\n";
+
+/// An installed project with a created record at its first stage.
+fn created(name: &str, state: &str) -> PathBuf {
+    let root = std::env::temp_dir().join(format!("focus-state-{}-{name}", std::process::id()));
+    let _ = fs::remove_dir_all(&root);
+    let fixtures = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../fixtures/upstream");
+    copy_dir(&fixtures.join("installed/claude"), &root);
+    write(&root, &format!("{CREATED_RECORD}/focus-state.md"), state);
+    write(
+        &root,
+        &format!("{CREATED_RECORD}/audit/laptop-abc123.md"),
+        CREATED_SHARD,
+    );
+    write(
+        &root,
+        "focus/spaces/default/intents/active-intent",
+        "260105-add-login\n",
+    );
+    write(
+        &root,
+        "focus/spaces/default/intents/intents.json",
+        "[\n  {\n    \"uuid\": \"01a138fa-d37d-787d-af4a-966efbb0b6fd\",\n    \"slug\": \"add-login\",\n    \"dirName\": \"260105-add-login\",\n    \"scope\": \"feature\",\n    \"status\": \"in-flight\"\n  }\n]\n",
+    );
+    write(&root, "focus/.focus-clone-id", "abc123\nlaptop\n");
+    root
+}
+
+fn created_shard(root: &Path) -> String {
+    fs::read_to_string(root.join(CREATED_RECORD).join("audit/laptop-abc123.md")).unwrap()
+}
+
+fn created_state(root: &Path) -> String {
+    fs::read_to_string(root.join(CREATED_RECORD).join("focus-state.md")).unwrap()
+}
+
+fn sha256_hex(bytes: &[u8]) -> String {
+    use sha2::Digest;
+    sha2::Sha256::digest(bytes)
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect()
+}
+
+#[test]
+fn a_transition_runs_whole_with_its_rows_first() {
+    let root = created("advance", CREATED);
+    write(
+        &root,
+        &format!("{CREATED_RECORD}/ideation/intent-capture/intent-statement.md"),
+        "# Intent\r\nline\r\n",
+    );
+    let answer: serde_json::Value =
+        serde_json::from_str(&ok(&state(&root, &["advance", "intent-capture"], &DIRECT))).unwrap();
+    assert_eq!(answer["completed"], "intent-capture");
+    assert_eq!(answer["started"], "market-research");
+    assert_eq!(answer["phase"], "IDEATION");
+    assert_eq!(answer["completed_count"], 4);
+    assert_eq!(answer["next_after"], "feasibility");
+    assert_eq!(answer["already_completed"], false);
+    assert_eq!(
+        answer["memory_path"],
+        "focus/spaces/default/intents/260105-add-login/ideation/market-research/memory.md"
+    );
+    let state_file = created_state(&root);
+    assert!(
+        state_file.contains("- [x] intent-capture \u{2014} EXECUTE\n- [-] market-research"),
+        "{state_file}"
+    );
+    assert!(
+        state_file.contains("- **Current Stage**: market-research\n- **Next Stage**: feasibility"),
+        "{state_file}"
+    );
+    assert!(state_file.contains("- **Completed**: 4\n"), "{state_file}");
+    assert!(
+        state_file.contains("- **Next Action**: Execute Market Research\n"),
+        "{state_file}"
+    );
+    let ledger = created_shard(&root);
+    assert!(
+        ledger.contains(
+            "**Event**: STAGE_COMPLETED\n**Stage**: intent-capture\n**Validation Basis**: "
+        ),
+        "{ledger}"
+    );
+    assert!(
+        ledger.contains("**Details**: Stage Intent Capture & Framing completed\n"),
+        "{ledger}"
+    );
+    assert!(ledger.ends_with("**Event**: STAGE_STARTED\n**Stage**: market-research\n**Agent**: focus-product-agent\n\n---\n"), "{ledger}");
+    // The receipt hashes the artifact's path and its text with CRLF read as LF.
+    let basis: serde_json::Value = serde_json::from_str(
+        ledger
+            .split("**Validation Basis**: ")
+            .nth(1)
+            .unwrap()
+            .split('\n')
+            .next()
+            .unwrap(),
+    )
+    .unwrap();
+    assert_eq!(basis["schema"], 3);
+    assert_eq!(basis["projectType"], "greenfield");
+    assert_eq!(basis["inputs"], serde_json::json!([]));
+    let statement = basis["outputs"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|entry| entry["artifact"] == "intent-statement")
+        .unwrap();
+    let path = format!("{CREATED_RECORD}/ideation/intent-capture/intent-statement.md");
+    let content = format!(
+        r#"[{{"path":"{path}","present":true,"sha256":"sha256:{}"}}]"#,
+        sha256_hex(b"# Intent\nline\n")
+    );
+    assert_eq!(
+        statement["contentHash"],
+        format!("sha256:{}", sha256_hex(content.as_bytes()))
+    );
+    assert_eq!(statement["presentCount"], 1);
+    // A second advance of the same stage is a replay, and writes nothing.
+    let again: serde_json::Value =
+        serde_json::from_str(&ok(&state(&root, &["advance", "intent-capture"], &DIRECT))).unwrap();
+    assert_eq!(again["replay"], true);
+    assert_eq!(created_shard(&root), ledger);
+    let resumed: serde_json::Value =
+        serde_json::from_str(&ok(&state(&root, &["resume"], &[]))).unwrap();
+    assert_eq!(resumed["current_stage"], "market-research");
+    assert_eq!(resumed["gate_state"], "in-progress");
+    assert_eq!(resumed["compaction_pending"], false);
+    let _ = fs::remove_dir_all(root);
+}
+
+#[test]
+fn a_stage_without_its_artifacts_is_refused_before_anything_changes() {
+    let root = created("artifacts", CREATED);
+    assert_eq!(
+        refusal(&state(&root, &["advance", "intent-capture"], &DIRECT)),
+        "Cannot complete \"intent-capture\": none of its declared artifacts exist under the intent's record directory. The stage protocol requires Intent Capture & Framing to produce output before the gate. Produce the artifacts before completing. (declared: intent-statement, stakeholder-map, intent-capture-questions)"
+    );
+    assert_eq!(created_state(&root), CREATED);
+    let ledger = created_shard(&root);
+    assert!(ledger.contains("**Event**: ERROR_LOGGED\n**Tool**: focus-state\n**Command**: focus-state advance intent-capture\n"), "{ledger}");
+    assert!(!ledger.contains("STAGE_COMPLETED"), "{ledger}");
+    // The guard can be turned off for a run.
+    let off = [
+        ("FOCUS_ALLOW_DIRECT_STATE_TRANSITIONS", "1"),
+        ("FOCUS_SKIP_ARTIFACT_GUARD", "1"),
+    ];
+    assert!(
+        ok(&state(&root, &["finalize", "intent-capture"], &off)).contains("\"completed_count\":4")
+    );
+    let _ = fs::remove_dir_all(root);
+}
+
+#[test]
+fn a_skip_routes_and_a_completion_closes_the_registry_row() {
+    let root = created("skip", CREATED);
+    let skipped: serde_json::Value = serde_json::from_str(&ok(&state(
+        &root,
+        &["skip", "intent-capture", "--route", "--reason", "not this"],
+        &DIRECT,
+    )))
+    .unwrap();
+    assert_eq!(skipped["started"], "market-research");
+    assert_eq!(skipped["recovered"], false);
+    assert!(created_shard(&root).contains("**Event**: STAGE_SKIPPED\n**Stage**: intent-capture\n**Reason**: not this\n**Skip Kind**: conditional-runtime\n"));
+    assert_eq!(
+        refusal(&state(
+            &root,
+            &["skip", "intent-capture", "--route", "--reason", "again"],
+            &DIRECT
+        )),
+        "Cannot route skipped stage \"intent-capture\": Current Stage is \"market-research\"."
+    );
+    assert_eq!(
+        refusal(&state(
+            &root,
+            &["skip", "market-research", "--route"],
+            &DIRECT
+        )),
+        "focus engine state skip --route requires a nonblank --reason <text>."
+    );
+    assert_eq!(
+        refusal(&state(
+            &root,
+            &["skip", "market-research", "--reason"],
+            &DIRECT
+        )),
+        "--reason expects a value, got end of arguments."
+    );
+    write(
+        &root,
+        &format!("{CREATED_RECORD}/ideation/market-research/market-trends.md"),
+        "# Trends\n",
+    );
+    let done: serde_json::Value = serde_json::from_str(&ok(&state(
+        &root,
+        &["complete-workflow", "market-research", "--reason", "enough"],
+        &DIRECT,
+    )))
+    .unwrap();
+    assert_eq!(done["status"], "Completed");
+    assert_eq!(done["reason"], "enough");
+    let registry =
+        fs::read_to_string(root.join("focus/spaces/default/intents/intents.json")).unwrap();
+    assert!(registry.contains("\"status\": \"complete\""), "{registry}");
+    let ledger = created_shard(&root);
+    assert!(ledger.contains("**Event**: WORKFLOW_COMPLETED\n**Scope**: feature\n**Details**: Scope: feature, 4 stages completed\n**Reason**: enough\n"), "{ledger}");
+    assert!(created_state(&root).contains("- **Status**: Completed\n"));
+    let _ = fs::remove_dir_all(root);
+}
+
+/// Deliberate deviation. The evidence a transition owes to `aidlc-log`
+/// records (a summary confirmation, a reviewer's receipt, a pipeline's
+/// handoffs), a Construction stage's checkpoints and units, the usage
+/// ledger's rollup and a unit's skip are each M4's or M5's: upstream weighs
+/// them, Focus refuses by name.
+#[test]
+fn what_focus_cannot_weigh_yet_is_refused_by_name() {
+    let root = created("by-name", CREATED);
+    write(
+        &root,
+        &format!("{CREATED_RECORD}/ideation/intent-capture/intent-statement.md"),
+        "# Intent\n",
+    );
+    let state_path = root.join(CREATED_RECORD).join("focus-state.md");
+    let with = |state: &str| fs::write(&state_path, state).unwrap();
+    with(&CREATED.replace(
+        "- **Summary Confirmation**: off (set by a command)",
+        "- **Summary Confirmation**: on (from scope feature)",
+    ));
+    assert!(
+        refusal(&state(&root, &["advance", "intent-capture"], &DIRECT))
+            .starts_with("\"intent-capture\" owes a summary confirmation")
+    );
+    with(&CREATED.replace("- **Review Override**: none\n", ""));
+    assert!(refusal(&state(&root, &["advance", "intent-capture"], &DIRECT)).starts_with("\"intent-capture\" owes a review receipt from focus-product-lead-agent (its review class resolves to advisory)"));
+    with(
+        &CREATED
+            .replace("- [-] intent-capture", "- [x] intent-capture")
+            .replace("- [ ] functional-design", "- [-] functional-design")
+            .replace(
+                "- **Current Stage**: intent-capture",
+                "- **Current Stage**: functional-design",
+            ),
+    );
+    assert!(
+        refusal(&state(&root, &["advance", "functional-design"], &DIRECT))
+            .starts_with("\"functional-design\" is a Construction stage")
+    );
+    with(CREATED);
+    write(
+        &root,
+        "focus/.focus-sessions/usage-ledger.json",
+        "{\"workflows\":{\"w\":{\"byStage\":{\"intent-capture\":{}},\"totals\":{\"tokens\":{\"input\":1}}}}}\n",
+    );
+    assert!(refusal(&state(&root, &["advance", "intent-capture"], &DIRECT)).ends_with("Focus does not read the usage ledger yet. Set FOCUS_DISABLE_USAGE_TRACKING=1 to complete without the rollup."));
+    fs::remove_file(root.join("focus/.focus-sessions/usage-ledger.json")).unwrap();
+    assert!(
+        refusal(&state(
+            &root,
+            &["skip", "intent-capture", "--unit", "api", "--reason", "x"],
+            &DIRECT
+        ))
+        .starts_with("skip --unit skips one unit of work's step (\"api\")")
+    );
+    assert_eq!(
+        refusal(&state(
+            &root,
+            &[
+                "skip",
+                "intent-capture",
+                "--route",
+                "--unit",
+                "api",
+                "--reason",
+                "x"
+            ],
+            &DIRECT
+        )),
+        "focus engine state skip takes --route or --unit, not both."
+    );
+    assert_eq!(created_state(&root), CREATED);
     let _ = fs::remove_dir_all(root);
 }

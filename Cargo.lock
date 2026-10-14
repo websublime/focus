@@ -78,6 +78,7 @@ dependencies = [
  "focus-harness",
  "focus-intent",
  "focus-js",
+ "focus-lifecycle",
  "focus-markdown",
  "focus-state",
  "focus-workspace",
@@ -156,6 +157,21 @@ dependencies = [
  "regress",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "focus-lifecycle"
+version = "0.1.0"
+dependencies = [
+ "focus-audit",
+ "focus-graph",
+ "focus-harness",
+ "focus-intent",
+ "focus-js",
+ "focus-state",
+ "focus-workspace",
+ "serde_json",
+ "sha2",
 ]
 
 [[package]]
