@@ -620,7 +620,7 @@ fn focus_does_what_upstream_did_in_every_recorded_check() {
 
     assert!(
         failures.is_empty(),
-        "{} of {} recorded checks differ from upstream; first:\n{}",
+        "{} of {} recorded checks differ from upstream; first: {}",
         failures.len(),
         checks.len(),
         failures
