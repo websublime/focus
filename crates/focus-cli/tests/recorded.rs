@@ -216,11 +216,17 @@ fn normalise_audit(text: &str, root: &Path) -> String {
     text = text
         .replace("Usage: focus engine state ", "Usage: <cli> state ")
         .replace("Run focus engine state --help", "Run <cli> state --help")
+        .replace("Usage: focus engine utility ", "Usage: <cli> utility ")
         .replace("how closely Focus checks", "how closely <engine> checks");
     text = replace_all(
         &text,
         r"`focus engine config set (guard\.[a-z-]+) off`",
         |found, text| format!("<cli-config {} off>", group(found, text, 1)),
+    );
+    text = replace_all(
+        &text,
+        r"`focus engine config set guard-policy (strict|relaxed|off)`",
+        |found, text| format!("<cli-config guard-policy {}>", group(found, text, 1)),
     );
     text = text.replace(" --harness claude\n", "\n");
     text = replace_all(
@@ -239,6 +245,10 @@ fn normalise_audit(text: &str, root: &Path) -> String {
     // The utility tool's own name in a row's Tool or Command.
     text = replace_all(&text, r"(?<![\w-])focus-utility(?![\w.-])", |_, _| {
         "<cli> utility".to_owned()
+    });
+    let day = today();
+    text = replace_all(&text, &format!(r"(?<![0-9a-f]){day}-(?=[a-z])"), |_, _| {
+        "<day>-".to_owned()
     });
     text = replace_all(&text, r"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ", |found, text| {
         let stamp = &text[found.range()];
@@ -293,6 +303,7 @@ fn minted(rel: &str, text: Option<String>) -> (String, Option<String>) {
         r"/audit/[a-z0-9][a-z0-9-]*-[0-9a-f]{12}\.md$",
         |_, _| "/audit/<host>-<token>.md".to_owned(),
     );
+    let shown = shown.replace(&format!("/intents/{}-", today()), "/intents/<day>-");
     let text = match text {
         Some(text) if shown.ends_with("/.focus-clone-id") => {
             let regex = regress::Regex::new(r"^[0-9a-f]{12}\n[a-z0-9][a-z0-9-]*\n$").unwrap();
@@ -302,9 +313,22 @@ fn minted(rel: &str, text: Option<String>) -> (String, Option<String>) {
                 text
             })
         }
+        Some(text) if shown.ends_with("/intents.json") || shown.ends_with("/creation-receipt") => {
+            Some(replace_all(
+                &text,
+                r"[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}",
+                |_, _| "<uuid>".to_owned(),
+            ))
+        }
         other => other,
     };
     (shown, text)
+}
+
+/// The day a record minted during the replay is named after, `YYMMDD`.
+fn today() -> String {
+    let stamp = focus_audit::time::iso_timestamp(std::time::SystemTime::now());
+    format!("{}{}{}", &stamp[2..4], &stamp[5..7], &stamp[8..10])
 }
 
 /// Run an audit check's commands in order in `root`; the outcome in the

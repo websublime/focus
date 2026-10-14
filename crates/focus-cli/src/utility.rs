@@ -39,17 +39,19 @@ The workflow from outside: what the workspace holds, and the engine's time.
   detect [--json]          Scan the workspace: project type, languages,
                            frameworks, build system, submodules; and where
                            the scopes live
+  intent-create            Create a piece of work: its record, ledger, state
+                           file and registry row (run with --help for the
+                           flags)
   now                      Print the engine's time, as the ledger stamps it
 
 Run with --help for this text.";
 
 /// Upstream's other verbs: what each does, for the line that refuses it.
-const NOT_PORTED: [(&str, &str); 32] = [
+const NOT_PORTED: [(&str, &str); 31] = [
     ("help", "prints upstream's help"),
     ("version", "prints the engine's version"),
     ("status", "prints the workflow's status"),
     ("doctor", "checks the installation"),
-    ("intent-create", "creates an intent record"),
     ("init", "is the retired name of intent-create"),
     ("intent", "lists, switches, archives and unarchives intents"),
     ("space", "lists, switches and creates spaces"),
@@ -92,7 +94,32 @@ const NOT_PORTED: [(&str, &str); 32] = [
 ];
 
 /// The verbs Focus has.
-const VERBS: [&str; 2] = ["detect", "now"];
+const VERBS: [&str; 3] = ["detect", "intent-create", "now"];
+
+const INTENT_CREATE_USAGE: &str = "Usage: focus engine utility intent-create --scope <scope> [--arguments \"<description>\"] [--label \"<short label>\"] [--depth <level>] [--test-strategy <level>] [--review <class>] [--guard-policy <value>] [--sensors <on|off>] [--learnings <on|off>] [--summary-confirmation <on|off>] [--collaborators <on|off>] [--skip <slug,...>] [--add <slug,...>] [--repos <name,...>] [--project-type <greenfield|brownfield>] [--space <name>] [--project-dir <path>]";
+
+/// The flags of intent-create that take a value; blank is refused.
+const INTENT_CREATE_VALUE_FLAGS: [&str; 19] = [
+    "scope",
+    "arguments",
+    "request",
+    "label",
+    "depth",
+    "test-strategy",
+    "review",
+    "guard-policy",
+    "change-control",
+    "sensors",
+    "learnings",
+    "summary-confirmation",
+    "skip",
+    "add",
+    "plan-name",
+    "repos",
+    "project-type",
+    "space",
+    "project-dir",
+];
 
 type Verb = Result<Option<String>, Refusal>;
 
@@ -103,6 +130,12 @@ pub fn run(args: &mut Args) -> Result<(), Failure> {
     }
     let raw = args.take_rest();
     let parsed = Parsed::from_args(&raw);
+    if parsed.positional.first().map(String::as_str) == Some("intent-create")
+        && (parsed.flag("help") == Some("true") || raw.iter().any(|arg| arg == "-h"))
+    {
+        println!("{INTENT_CREATE_USAGE}");
+        return Ok(());
+    }
     let command = trim(&format!("focus-utility {}", raw.join(" "))).to_owned();
     let context = Context {
         project_dir: parsed.valued("project-dir").map(str::to_owned),
@@ -139,6 +172,7 @@ fn answer(parsed: &Parsed, context: &Context) -> Verb {
     }
     match verb.as_str() {
         "detect" => detect(parsed, context),
+        "intent-create" => intent_create(parsed, context),
         "now" => Ok(Some(format!(
             "{}\n",
             focus_audit::time::iso_timestamp(SystemTime::now())
@@ -148,6 +182,106 @@ fn answer(parsed: &Parsed, context: &Context) -> Verb {
             VERBS.join(", ")
         ))),
     }
+}
+
+/// `validateIntentCreateFlagValues`, then the creation itself.
+fn intent_create(parsed: &Parsed, context: &Context) -> Verb {
+    // Creation takes every input as a flag: anything past the verb means the
+    // shell split a value that was not quoted, and a silently stored prefix
+    // would be unrecoverable data loss.
+    if parsed.positional.len() > 1 {
+        let orphans: Vec<String> = parsed.positional[1..]
+            .iter()
+            .map(|word| json::stringify(&json!(word)))
+            .collect();
+        let hint = match parsed.flag("arguments") {
+            Some(arguments) => format!(
+                " This usually means an unquoted --arguments=... was split by the shell: only {} would have been kept. Quote the whole value, e.g. --arguments=\"<full description>\".",
+                json::stringify(&json!(arguments))
+            ),
+            None => " Pass every value through a flag, quoting any value that contains spaces."
+                .to_owned(),
+        };
+        return Err(Refusal::of(format!(
+            "intent-create does not accept positional arguments, but received {}.{hint}",
+            orphans.join(", ")
+        )));
+    }
+    let missing = |name: &str| {
+        parsed
+            .bare
+            .iter()
+            .chain(&parsed.blank)
+            .any(|flag| flag == name)
+    };
+    if parsed.flag("intent").is_some() {
+        return Err(Refusal::of(
+            "intent-create does not accept --intent: it creates a new intent and names it itself. Use --space <name> to choose the space it is created in.",
+        ));
+    }
+    let invalid: Vec<String> = INTENT_CREATE_VALUE_FLAGS
+        .iter()
+        .filter(|name| {
+            missing(name)
+                || parsed
+                    .flag(name)
+                    .is_some_and(|value| trim(value).is_empty())
+        })
+        .map(|name| format!("--{name}"))
+        .collect();
+    if !invalid.is_empty() {
+        return Err(Refusal::of(format!(
+            "intent-create refused: {} {} a nonblank value.",
+            invalid.join(", "),
+            if invalid.len() == 1 {
+                "requires"
+            } else {
+                "require"
+            }
+        )));
+    }
+    let value = |name: &str| parsed.flag(name).map(|value| trim(value).to_owned());
+    // An engine question's answer is the question store's (M5).
+    if let Some(request) = value("request") {
+        return Err(Refusal::of(format!(
+            "--request {request} names an engine question's answer, and Focus does not keep engine questions yet. Pass --arguments and --label instead."
+        )));
+    }
+    let layout = context.workspace()?;
+    let mut ceremonies = Vec::new();
+    for (key, flag) in [
+        ("sensors", "sensors"),
+        ("learnings", "learnings"),
+        ("summary_confirmation", "summary-confirmation"),
+        ("plan_approval", "plan-approval"),
+        ("collaborators", "collaborators"),
+    ] {
+        if let Some(raw) = parsed.flag(flag) {
+            ceremonies.push((key, raw.to_owned()));
+        }
+    }
+    let request = focus_intent::create::Request {
+        scope: value("scope"),
+        arguments: value("arguments"),
+        label: value("label"),
+        depth: value("depth"),
+        test_strategy: value("test-strategy"),
+        project_type: value("project-type"),
+        review: value("review"),
+        guard_policy: value("guard-policy"),
+        change_control: value("change-control"),
+        ceremonies,
+        skip: value("skip"),
+        add: value("add"),
+        plan_name: value("plan-name"),
+        repos: value("repos"),
+        space: value("space"),
+    };
+    let created = focus_intent::create::create(&layout, &request)?;
+    for note in &created.notes {
+        eprintln!("{note}");
+    }
+    Ok(Some(created.summary))
 }
 
 /// The scopes the install's plugin selection leaves enabled.

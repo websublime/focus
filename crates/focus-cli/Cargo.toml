@@ -25,6 +25,7 @@ focus-js.workspace = true
 focus-markdown.workspace = true
 focus-state.workspace = true
 focus-guards.workspace = true
+focus-intent.workspace = true
 focus-workspace.workspace = true
 
 [dev-dependencies]

@@ -26,6 +26,7 @@ focus-audit = { path = "crates/focus-audit" }
 focus-markdown = { path = "crates/focus-markdown" }
 focus-state = { path = "crates/focus-state" }
 focus-guards = { path = "crates/focus-guards" }
+focus-intent = { path = "crates/focus-intent" }
 focus-workspace = { path = "crates/focus-workspace" }
 
 [workspace.lints.rust]

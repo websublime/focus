@@ -21,6 +21,7 @@
 //! Focus is one binary installed outside the project, so nothing here derives
 //! from where the executable sits.
 
+pub mod active_memory;
 pub mod atomic;
 pub mod env;
 pub mod files;
@@ -34,6 +35,7 @@ pub mod project;
 pub mod records;
 pub mod scan;
 pub mod settings;
+pub mod terminal;
 
 pub use lock::WorkspaceLock;
 pub use project::Layout;

@@ -49,6 +49,7 @@ Commands:
   engine state checkbox        Set the state of stages in Stage Progress
   engine state count           Count the stages in one state
   engine utility detect        Scan the workspace: project type, languages, build system
+  engine utility intent-create Create a piece of work
   engine utility now           Print the engine's time
 
 Run `focus engine graph --help`, `focus engine audit --help`,

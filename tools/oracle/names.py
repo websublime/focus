@@ -39,6 +39,8 @@ PAIRS = (("aidlc", "focus"), ("AIDLC", "FOCUS"), ("Aidlc", "Focus"))
 # whole phrases, not the word: in prose "AI-DLC" is the method and stays.
 PHRASES = (
     ("# AI-DLC Audit Log", "# Focus Audit Log"),
+    ("# AI-DLC State Tracking", "# Focus State Tracking"),
+    ("AI-DLC keeps this copy in step with", "Focus keeps this copy in step with"),
     ("in the AI-DLC settings", "in the Focus settings"),
     # The one variable upstream prefixes otherwise. Every variable Focus reads is FOCUS_*.
     ("AWS_AIDLC_DEFAULT_SCOPE", "FOCUS_DEFAULT_SCOPE"),

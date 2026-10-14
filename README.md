@@ -52,6 +52,7 @@ focus engine state count completed
 FOCUS_ALLOW_DIRECT_STATE_TRANSITIONS=1 focus engine state set Scope=bugfix Completed=+1
 
 focus engine utility detect --json     # project type, languages, frameworks, build system
+focus engine utility intent-create --scope feature --arguments "Add login" --label "add login"
 focus engine utility now
 ```
 
@@ -65,8 +66,10 @@ reads the ledger back as a graph of what the workflow has done; the engine
 will compile it after every event, and until the hooks exist it is run by
 hand. The `state` command reads and writes the state file as data; a write
 that is not the orchestrator's passes the state-transition fence first. The
-`utility` command is the workflow from outside: `detect` scans the workspace
-the way intent creation classifies a project.
+`utility` command is the workflow from outside: `intent-create` starts a piece
+of work (its record, its ledger's first rows, its state file built from the
+scope's plan, its registry row), and `detect` is the scan that classifies the
+project for it.
 
 The project is, in
 order: `--project-dir`; `FOCUS_PROJECT_DIR`; the directory the host names
@@ -93,6 +96,7 @@ focus engine graph compile --harness claude --core fixtures/upstream/core --out 
 | `focus-audit` | The audit ledger: the event vocabulary, how an entry is validated and written, how entries are read back, the shard each clone writes, appending to it under the lock, and a record's history from all its shards. And what a ledger reads as: the runtime graph of a workflow, its summary, the counts of a stage's diary, and the order units can be built in |
 | `focus-state` | The state file of a workflow: its bulleted fields and checkbox lines, read and written as text, and the file on disk |
 | `focus-guards` | Guard Policy, the five fences and the authority behind an action: what the guards decide before anything moves |
+| `focus-intent` | Creating a piece of work: the record's name and id, the plan it runs, the state file built from it, the registry row and the cursors |
 | `focus-cli` | The `focus` binary (the package is named `focus`) |
 
 `fixtures/upstream/` holds the reference's Markdown, its compiled output and an

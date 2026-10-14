@@ -29,12 +29,13 @@ use focus_workspace::records::{self, Invoker, Selector};
 use focus_workspace::settings::Places;
 use focus_workspace::{Layout, env};
 
-use crate::authority::{Authority, FenceDecision, decide_fence};
+use crate::authority::{Authority, Cover, FenceDecision, GrantSource, decide_fence};
 use crate::fences::{Fence, FenceResolution, resolve_fences};
 use crate::policy::{self, Declaration, GuardPolicy, Resolution};
 
-/// The files in a record's engine directory that carry an authority.
-const MARKERS: [&str; 3] = ["active-directive.json", "human-turn", "engine-touch"];
+/// The marker in a record's engine directory that carries the engine's
+/// instruction and the turn sequence, written by the orchestrator (M5).
+const DIRECTIVE_MARKER: &str = "active-directive.json";
 
 /// What the guards of a workflow are decided from.
 pub struct Guards {
@@ -47,6 +48,9 @@ pub struct Guards {
     pub memory_dir: PathBuf,
     places: Places,
     unattended: bool,
+    /// The turn markers' times, when the record carries both as regular
+    /// files: the person's last turn and the engine's last touch.
+    turn_markers: Option<(std::time::SystemTime, std::time::SystemTime)>,
 }
 
 impl Guards {
@@ -72,8 +76,11 @@ impl Guards {
             |selection| selection.docs_root(layout).join(STATE_FILE),
         );
         let state = read_text(&state_path).unwrap_or_default();
+        let mut turn_markers = None;
         if let Some(selection) = &selection {
-            refuse_markers(&selection.engine_dir(layout))?;
+            let engine_dir = selection.engine_dir(layout);
+            refuse_directive_marker(&engine_dir)?;
+            turn_markers = read_turn_markers(&selection.docs_root(layout), &engine_dir);
         }
         Ok(Self {
             scope_default: scope_default(layout, &state)?,
@@ -82,6 +89,7 @@ impl Guards {
             memory_dir: layout.memory_dir(space),
             places: Places::of(&layout.project),
             unattended: env::var("UNATTENDED").as_deref() == Some("1"),
+            turn_markers,
         })
     }
 
@@ -132,16 +140,30 @@ impl Guards {
     /// The effective setting of every fence under `policy`.
     #[must_use]
     pub fn fences(&self, policy: &Resolution) -> Vec<FenceResolution> {
-        let flag = |name: &str| self.places.flag(name, &env::var).ok().flatten();
-        let source = |name: &str| self.places.kill_switch_source(name, &env::var);
+        // A kill switch is named in full (`FOCUS_…`), so the environment is
+        // read as it is.
+        let read = |name: &str| std::env::var(name).ok();
+        let flag = |name: &str| self.places.flag(name, &read).ok().flatten();
+        let source = |name: &str| self.places.kill_switch_source(name, &read);
         resolve_fences(policy, &self.state, &flag, &source)
     }
 
-    /// The authority behind the action: nothing covers it, since the record
-    /// carries no marker (see the module docs).
+    /// The authority behind the action, read off the turn markers: a
+    /// person's turn recorded after the engine's last touch is a grant; an
+    /// unattended driver's prompt is not a person's message, even when an
+    /// attended turn left fresh markers; otherwise nothing covers the action
+    /// (see the module docs).
     #[must_use]
     pub fn authority(&self) -> Authority {
-        Authority::without_markers(self.unattended)
+        let mut authority = Authority::without_markers(self.unattended);
+        if !self.unattended
+            && let Some((human, engine)) = self.turn_markers
+            && human > engine
+        {
+            authority.covered = Cover::Grant;
+            authority.grant = Some((GrantSource::TurnMarker, None));
+        }
+        authority
     }
 
     /// `decideFence`: the whole decision for one fence. An unreadable policy
@@ -174,17 +196,35 @@ fn read_text(path: &Path) -> Option<String> {
         .map(|bytes| String::from_utf8_lossy(&bytes).into_owned())
 }
 
-fn refuse_markers(engine_dir: &Path) -> Result<()> {
-    for marker in MARKERS {
-        let path = engine_dir.join(marker);
-        if path.symlink_metadata().is_ok() {
-            bail!(
-                "{} records the authority behind what the agent is doing (a person's turn or the engine's own instruction), and Focus does not read that yet, so a guard cannot say whether this action is covered. Remove the marker or run this with the engine's own tools.",
-                path.display()
-            );
-        }
+fn refuse_directive_marker(engine_dir: &Path) -> Result<()> {
+    let path = engine_dir.join(DIRECTIVE_MARKER);
+    if path.symlink_metadata().is_ok() {
+        bail!(
+            "{} records the authority behind what the agent is doing (a person's turn or the engine's own instruction), and Focus does not read that yet, so a guard cannot say whether this action is covered. Remove the marker or run this with the engine's own tools.",
+            path.display()
+        );
     }
     Ok(())
+}
+
+/// `turnMarkersShowConversational`'s reading of the markers: both present
+/// as regular files, through no link, with their times; anything else
+/// proves nothing. An absent engine marker is not "the engine was never
+/// touched": it is also the shape of a fresh install.
+fn read_turn_markers(
+    record_root: &Path,
+    engine_dir: &Path,
+) -> Option<(std::time::SystemTime, std::time::SystemTime)> {
+    let time_of = |name: &str| {
+        let relative = Path::new(focus_workspace::names::ENGINE_DIR).join(name);
+        focus_workspace::links::refuse_link_in_chain(record_root, &relative).ok()?;
+        let meta = fs::symlink_metadata(engine_dir.join(name)).ok()?;
+        if !meta.is_file() {
+            return None;
+        }
+        meta.modified().ok()
+    };
+    Some((time_of("human-turn")?, time_of("engine-touch")?))
 }
 
 /// `scopeGuardPolicyDefault`: the default of the state's scope from the
@@ -396,24 +436,56 @@ mod tests {
         );
     }
 
-    /// Deliberate deviation. Upstream reads the authority behind an action
-    /// off the markers its hooks and orchestrator write; Focus has neither
-    /// yet, and refuses a record that carries one rather than decide with an
-    /// authority it cannot read.
+    /// Deliberate deviation. Upstream reads the engine's instruction and the
+    /// turn sequence off the active-directive marker its orchestrator
+    /// writes; Focus has no orchestrator yet, and refuses a record that
+    /// carries the marker rather than decide with an authority it cannot
+    /// read. The turn markers are read.
     #[test]
     fn a_record_with_an_authority_marker_is_refused() {
         let tree = Tree::new("markers");
-        for marker in ["active-directive.json", "human-turn", "engine-touch"] {
-            let rel =
-                format!("focus/spaces/default/intents/add-login-1a2b3c4d/.focus-engine/{marker}");
-            tree.write(&rel, "");
-            let refused = tree.guards().unwrap_err();
-            assert!(
-                refused.message().contains(marker)
-                    && refused.message().contains("Focus does not read that yet"),
-                "{refused}"
-            );
-            fs::remove_file(tree.0.project.join(&rel)).unwrap();
+        let engine = "focus/spaces/default/intents/add-login-1a2b3c4d/.focus-engine";
+        tree.write(&format!("{engine}/active-directive.json"), "");
+        let refused = tree.guards().unwrap_err();
+        assert!(
+            refused.message().contains("active-directive.json")
+                && refused.message().contains("Focus does not read that yet"),
+            "{refused}"
+        );
+        fs::remove_file(
+            tree.0
+                .project
+                .join(format!("{engine}/active-directive.json")),
+        )
+        .unwrap();
+        // The engine's touch alone covers nothing; a person's turn after it
+        // is a grant; an unattended driver's is not.
+        tree.write(&format!("{engine}/engine-touch"), "2026-01-01T00:00:00Z\n");
+        let guards = tree.guards().unwrap();
+        assert_eq!(guards.authority().covered, Cover::None);
+        tree.write(&format!("{engine}/human-turn"), "2026-01-01T00:00:01Z\n");
+        let later = std::time::SystemTime::now() + std::time::Duration::from_secs(5);
+        let touch = fs::File::options()
+            .write(true)
+            .open(tree.0.project.join(format!("{engine}/human-turn")))
+            .unwrap();
+        touch.set_modified(later).unwrap();
+        let guards = tree.guards().unwrap();
+        assert_eq!(guards.authority().covered, Cover::Grant);
+        assert_eq!(guards.authority().grant_source(), "turn-marker");
+        let mut unattended = tree.guards().unwrap();
+        unattended.unattended = true;
+        assert_eq!(unattended.authority().covered, Cover::None);
+        let engine_touch = fs::File::options()
+            .write(true)
+            .open(tree.0.project.join(format!("{engine}/engine-touch")))
+            .unwrap();
+        engine_touch
+            .set_modified(later + std::time::Duration::from_secs(5))
+            .unwrap();
+        assert_eq!(tree.guards().unwrap().authority().covered, Cover::None);
+        for marker in ["human-turn", "engine-touch"] {
+            fs::remove_file(tree.0.project.join(format!("{engine}/{marker}"))).unwrap();
         }
         assert!(tree.guards().is_ok());
     }

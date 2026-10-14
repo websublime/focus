@@ -92,6 +92,8 @@ focus-cli ✔ ───────────► focus-hooks ──► focus-o
     │                        ▼                  ▼                   ▼               ▼
     ├──► focus-project   focus-guards ◐    focus-sensors       focus-graph ✔   focus-workspace ✔
     │                        │                  │                   │               │
+    ├──► focus-intent ✔ ─────┴──────────────────┼───────────────────┤               │
+    │                        │                  │                   │               │
     └────────────────────────┴──────────────────┴───────────────────┴───────────────┘
                                                 │
                      focus-harness ✔    focus-markdown ✔  focus-frontmatter ✔    focus-js ✔
@@ -108,7 +110,8 @@ focus-cli ✔ ───────────► focus-hooks ──► focus-o
 | `focus-workspace` | Projeto e harness de um comando, caminhos, escrita atómica, lock do workspace, recusa de links, o scan do workspace; mais tarde, spaces e intents | Existe; settings em M2, scan em M3 |
 | `focus-markdown` | Estrutura de blocos Markdown (`markdownBlocks`, `visibleMarkdownLines`) | M2 |
 | `focus-audit` | Shards de auditoria, registo de eventos, runtime graph | Existe (M2) |
-| `focus-state` | Ficheiro de estado, máquinas de workflow, fase e stage, criação de intents | Existem os campos e as checkboxes, lidos e escritos como texto (M2, fatia 6; M3, fatia 1); o resto é M3 |
+| `focus-state` | Ficheiro de estado, máquinas de workflow, fase e stage | Existem os campos, as checkboxes e o ficheiro (M3, fatias 1 e 2); as transições são M3 |
+| `focus-intent` | Criação de intents: nomes, plano, template do estado, registo e cursores | Existe (M3, fatia 3b) |
 | `focus-guards` | Lexer de shell, integridade de runtime, fences, decisões de guard | Existe a resolução da Guard Policy, as fences e a decisão de uma fence (M3, fatia 1); o resto é M4 |
 | `focus-hooks` | Os corpos dos hooks e o dispatcher | M4 e M6 |
 | `focus-orchestrate` | `next` e `report`, diretivas, plan approval, checkpoints | M5 |
@@ -921,7 +924,7 @@ M3 está em curso. O que o plano chamava "estado e criação de intents" é, no 
 | --- | --- | --- | --- |
 | 1. Guard Policy e fences | `focus-guards`: a resolução da política de um workflow (a linha do estado, o default do scope, as camadas de memória), as linhas `Guards Off` e `Guards On`, os kill switches, o que cada política baixa, a decisão de uma fence e a autoridade de uma ação sem marcadores de hooks | Corpus | Feita |
 | 2. O ficheiro de estado como dados | `focus-state`: campos, checkboxes, listas de refs, progresso de fase; ler e escrever o ficheiro (barreira `writeStateFile`, ficheiro só de leitura); `focus engine state get`, `set`, `checkbox` e `count`, com a porta das transições e o `ERROR_LOGGED` de cada recusa | Corpus e diferencial | Feita |
-| 3. Criação de intents | `intent-create`: o registo, o cursor, o ficheiro de estado a partir do template; antes dele, o scanner do workspace que lhe classifica o projeto (`detect`) | Diferencial | Em curso: 3a (`detect`) feita |
+| 3. Criação de intents | `intent-create`: o registo, o cursor, o ficheiro de estado a partir do template; antes dele, o scanner do workspace que lhe classifica o projeto (`detect`) | Diferencial | Feita (3a `detect`, 3b `intent-create`) |
 | 4. Transições de stage | `advance`, `gate-start`, `approve`, `reject`, `revise`, `skip`, `resume`, `finalize`, `complete-workflow`, em série e sem units | Diferencial e fuzz de sequências | |
 | 5. Parar, saltar, validar | `park`, `unpark`, `jump`, `validity`, `--status` | Diferencial | |
 
@@ -951,7 +954,7 @@ Antes de mexer no ficheiro de estado, cada transição do original pergunta se p
 
 | | Original | Focus |
 | --- | --- | --- |
-| Um registo com um marcador de autoridade (`active-directive.json`, `human-turn`, `engine-touch` no diretório do engine) | Lê neles quem cobre a ação | Recusa decidir: os marcadores são escritos pelos hooks (M4) e pelo orchestrator (M5), que não existem. O teste está marcado; a verificação no diferencial entra com o comando `state` (fatia 2), que é o primeiro a decidir uma fence |
+| Um registo com um marcador de autoridade (`active-directive.json`, `human-turn`, `engine-touch` no diretório do engine) | Lê neles quem cobre a ação | Recusa decidir: os marcadores são escritos pelos hooks (M4) e pelo orchestrator (M5), que não existem. O teste está marcado; a verificação no diferencial entra com o comando `state` (fatia 2), que é o primeiro a decidir uma fence. Desde a fatia 3b os marcadores de turno são lidos, e só o `active-directive.json` recusa |
 | A frase de uma recusa nomeia o skill de entrada | `/aidlc` nos três harnesses de Focus (`$aidlc` só no Codex, que Focus não tem) | `/focus` |
 
 **O que a fatia 1 não tem.**
@@ -995,7 +998,7 @@ Antes de mexer no ficheiro de estado, cada transição do original pergunta se p
 | Um dos 29 verbos que Focus não tem | Passa-o pela fence `state-transition` (afastando-se, com `GUARD_STOOD_ASIDE`) e corre-o ou imprime o seu uso | Recusa-o pelo nome, sem consultar a fence |
 | `--project-dir` no fim, sem valor | Fica a fazer parte do nome do campo | Recusa a flag, antes de saber o registo |
 | `FOCUS_METRICS_ENDPOINT` definido numa recusa | Escreve o `ERROR_LOGGED` e envia a métrica | Não escreve a linha (a recusa é impressa na mesma) |
-| Um registo com um marcador de autoridade | Lê neles quem cobre a ação; com `active-directive.json`, guarda ao lado o registo das escritas do estado | Recusa decidir a fence (fatia 1) e, com o marcador da diretiva, recusa escrever o estado: o registo das escritas é de M5 |
+| Um registo com o marcador `active-directive.json` | Lê nele a instrução do engine e a sequência de turnos, e guarda ao lado o registo das escritas do estado | Recusa decidir a fence e recusa escrever o estado: o orchestrator que o escreve é M5. Os marcadores de turno (`human-turn`, `engine-touch`) são lidos desde a fatia 3b |
 | Sessões por processo; worktree delegada | Resolve | Recusa, como nos outros comandos |
 | `FOCUS_STATE_TRANSITION_OWNER` em Windows | Compara com o pid do pai | Recusa: Focus não lê o pid do pai aí ainda. Em Linux e macOS compara |
 
@@ -1034,5 +1037,45 @@ A criação de um intent começa por classificar o projeto: Greenfield ou Brownf
 | `detect --project-dir` num diretório sem instalação | Faz o scan do diretório e nomeia os scopes da instalação de onde o próprio script corre | Recusa: Focus não corre de lado nenhum, e o projeto nomeado tem de ter a instalação cujos scopes reporta |
 
 **O que a fatia 3a não tem.** `reclassify` (a pessoa diz que é projeto novo ou código existente), que mexe no estado e na auditoria e entra com as transições.
+
+### Fatia 3b: `intent-create`
+
+`focus engine utility intent-create` é o `handleIntentCreate` do original: a criação de uma peça de trabalho. Pela ordem do original, recusa tudo o que pode recusar antes de escrever o que quer que seja (as flags, o scope, os níveis, o tipo de projeto, a classe de review, a Guard Policy e o seu nome reformado `--change-control`, as cerimónias, o plano composto com `--skip`/`--add`/`--plan-name`, o espaço, a memória `strict` do espaço, o abaixamento de fences que é decisão da pessoa, os repos); depois, sob o lock do workspace, cunha o registo (`<YYMMDD>-<label>`, com contador quando o nome está tomado), escreve na auditoria as linhas das três stages de inicialização e a passagem para a primeira stage do plano, garante os diretórios do registo e do espaço, actualiza a cópia da memória activa (`focus/active-memory/`), faz o scan do workspace (fatia 3a), constrói o ficheiro de estado a partir do plano, escreve `project-description.json`, o marcador `engine-touch`, e por fim lista o registo em `intents.json`, aponta-lhe o cursor `active-intent` e liga-lhe a sessão quando a há (senão deixa o `creation-receipt`).
+
+**O que existe.** `focus-intent` (`names`: slug, data, uuid v7, nomes reservados; `plan`: o plano com alterações, as fases que corre, a primeira stage, a seguinte; `template`: o ficheiro de estado, a descrição numa linha, o documento colado; `record`: o registo, os cursores, a ligação da sessão; `create`: a orquestração), `focus-workspace::active_memory` (a cópia da memória), `focus-workspace::terminal` (quem está ao terminal: a marca do host no ambiente, o terminal próprio da pessoa), e em `focus-guards` a leitura dos marcadores de turno: a vez da pessoa depois do toque do engine é um grant (`turn-marker`), o contrário não cobre nada; o `active-directive.json` continua a recusar-se (M5). Um kill switch lido do ambiente pelo CLI (`FOCUS_DISABLE_*`) estava a ser procurado com o prefixo em dobro; corrigido.
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Diferencial, `utility/create/*` | {CREATE} |
+| Diferencial, `state/marker/*` | 7 verificações: 5 iguais (os marcadores de turno, nas duas ordens, com e sem `FOCUS_UNATTENDED`, e um marcador que é diretório), 2 desvios (o `active-directive.json`) |
+| Diferencial completo | {FULL} |
+| Mutações | {MUT} |
+| `cargo test` | {TESTS} testes |
+
+**Pormenores do original que ficam iguais.**
+
+- O slug é cortado a 24 caracteres e o nome do diretório leva a data UTC à frente; o mesmo label no mesmo dia leva `-2`, `-3`, …; `help` e os verbos de intent e space são nomes reservados.
+- `--guard-policy` com o próprio default do scope não é um abaixamento e fica registado como vindo do scope; um valor abaixo do default é recusado com a frase que diz ao agente para criar o trabalho e correr o setter quando a pessoa pedir, salvo com `FOCUS_SKIP_HUMAN_PRESENCE_GUARD=1` e nenhum chat registado; num terminal de um host (a marca no ambiente) a frase manda pedir no chat desse host.
+- A memória `strict` do espaço é lida duas vezes: antes de qualquer mutação e outra vez sob o lock.
+- Um projeto novo salta `reverse-engineering` e diz porquê na lista das stages saltadas; um scope de código existente que faz scan Greenfield deixa uma nota no stderr.
+- O documento colado (`<document>…</document>`) sai da linha `Project`; um caracter que uma linha não pode ter vira espaço.
+- `package.json` e companhia são lidos pelo nome, como no original: são ficheiros da pessoa, não do workspace.
+
+**Desvios deliberados.**
+
+| | Original | Focus |
+| --- | --- | --- |
+| `Source Baseline` na linha `WORKFLOW_STARTED`, e o ficheiro `baseline-<hash>.tsv` ao lado do registo | O passeio da atestação por todos os ficheiros fonte do projeto | Não escreve nenhum dos dois: é M5. O diferencial retira o campo e o ficheiro antes de comparar (`SHAPES`), e compara todo o resto da criação |
+| Um observador (`FOCUS_STOP_HOOK_PROBE`, `FOCUS_ROUTE_CHECK`) que chega à criação | Pára no `writeFileAtomic` da baseline | Pára no append da primeira linha da auditoria; os dois deixam o diretório cunhado, o clone id e o título do shard |
+| `--request <id>` | Vai buscar a pergunta do engine | Recusa: a loja de perguntas é M5 |
+| O uso de `intent-create` | Oferece `--request` | Lista as flags que tem |
+| Um projeto com o layout plano `focus-docs/` | A primeira criação migra-o para um registo | Recusa |
+| As concessões que o hook de turno humano guarda para um chat (`*-at-creation-<sessão>.json`), e um bypass de presença gravado | Gasta-as | Recusa quando há uma para a sessão (M4) |
+| Os blocos de `.gitignore` e `AGENTS.md` numa cópia em que o config nunca correu | Acrescenta-os na primeira criação | Não lhes toca: é do instalador (M6). O diferencial não compara os ficheiros da raiz; fica dito aqui |
+| `--project-dir` sem instalação, sessões por processo, worktree delegada | Resolve | Recusa, como nos outros comandos |
+
+**O que a fatia 3b não tem.** `reclassify`, `status`, os verbos `intent` (list, switch, archive, unarchive) e `space`: entram com as transições e o estado visível (fatias 4 e 5).
 
 Fora de M3 e recusados pelo nome, como `fragment-fork` ficou em M2: os subcomandos de units, bolts e swarm (`unit`, `fork`, `merge`, `fold-unit-merge`, `refresh-unit-progress`, `sync-unit-scope-stage`, `set-unit-ownership`, `set-unit-gate-rhythm`), as políticas de Construction (`set-construction-*`, `set-skeleton-stance`), as práticas (`practices-event`, `practices-promote`), `reuse-artifact`, `lookup` e `acknowledge-compaction`.

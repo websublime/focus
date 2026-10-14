@@ -123,6 +123,11 @@ DEVIATIONS = {
 
 # Differences of shape that are settled before comparing, and counted.
 SHAPES = {
+    "source-baseline":
+        "creating a piece of work records the source baseline of the project in the first row and keeps the "
+        "listing beside the record; that is the attestation's walk over every source file (M5), which focus "
+        "has not ported. The field and the listing are left out before comparing; every other field and file "
+        "of the creation is compared",
     "uncaught":
         "upstream lets a refusal thrown inside an audit verb reach the runtime, which prints a source excerpt "
         "and a stack trace around the sentence; focus prints the same sentence as {\"error\": ...}, like every "
@@ -133,6 +138,9 @@ results = {"same": 0, "deviation": 0, "DIFFERENT": 0}
 shapes = {name: 0 for name in SHAPES}
 # A timestamp at or after this instant was written during the run.
 STARTED = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(time.time() - 2))
+# The day a record minted during the run is named after.
+TODAY = time.strftime("%y%m%d", time.gmtime())
+UUID_V7 = r"[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
 
 
 class Tree:
@@ -1267,16 +1275,21 @@ def normalise_audit(text, tree, engine):
                   lambda m: "<cli> state" + (f" {m.group(1)}" if m.group(1) else ""), text)
     text = text.replace("Usage: focus engine state ", "Usage: <cli> state ")
     text = text.replace("Run focus engine state --help", "Run <cli> state --help")
+    text = text.replace("Usage: focus engine utility ", "Usage: <cli> utility ")
     # The utility tool's own name in a row's Tool or Command.
     text = re.sub(r"(?<![\w-])(?:aidlc|focus)-utility(?![\w.-])", "<cli> utility", text)
     # The fence switch is one operation, spelled for each engine's installation.
     text = re.sub(r"`bun \.claude/tools/(?:aidlc|focus)-utility\.ts config-change --(guard\.[a-z-]+) off`", r"<cli-config \1 off>", text)
     text = re.sub(r"`focus engine config set (guard\.[a-z-]+) off`", r"<cli-config \1 off>", text)
+    text = re.sub(r"`bun \.claude/tools/(?:aidlc|focus)-utility\.ts config-change --guard-policy (strict|relaxed|off)`", r"<cli-config guard-policy \1>", text)
+    text = re.sub(r"`focus engine config set guard-policy (strict|relaxed|off)`", r"<cli-config guard-policy \1>", text)
     text = text.replace("how closely AI-DLC checks", "how closely <engine> checks").replace("how closely Focus checks", "how closely <engine> checks")
     # The Command field of an error row carries the arguments the differential adds for Focus.
     text = text.replace(" --harness claude\n", "\n")
     text = STAMP.sub(lambda found: "<now>" if found.group(0) >= STARTED else found.group(0), text)
     text = re.sub(r"(could not be opened: [^\n(]*\()[^\n]*?\)(?=\"\}|\n|$)", r"\1<runtime>)", text)
+    # A record minted during the run is named after the day.
+    text = re.sub(rf"(?<![0-9a-f]){TODAY}-(?=[a-z])", "<day>-", text)
     return text
 
 
@@ -1315,10 +1328,14 @@ def workspace_files(tree, top="aidlc"):
 
 
 def minted(rel, text):
-    """A path and content with a clone identity minted during the run written as placeholders."""
+    """A path and content with what was minted during the run written as placeholders: a clone identity, a
+    record's day prefix, a record's id."""
     rel = re.sub(r"/audit/[a-z0-9][a-z0-9-]*-[0-9a-f]{12}\.md$", "/audit/<host>-<token>.md", rel)
+    rel = rel.replace(f"/intents/{TODAY}-", "/intents/<day>-")
     if rel.endswith("/.focus-clone-id") and text is not None:
         text = re.sub(r"\A[0-9a-f]{12}\n[a-z0-9][a-z0-9-]*\n\Z", "<token>\n<host>\n", text)
+    if text is not None and (rel.endswith("/intents.json") or rel.endswith("/creation-receipt")):
+        text = re.sub(UUID_V7, "<uuid>", text)
     return rel, text
 
 
@@ -1351,7 +1368,8 @@ def run_audit(engine, tree, args, env, tool="audit"):
     # A step that says where the project is says it itself.
     where = [] if "--project-dir" in args else ["--project-dir", tree.root]
     if engine == "ts":
-        full.update({f"AIDLC_{k}": v for k, v in (env or {}).items()})
+        # The one variable upstream prefixes otherwise (see names.py).
+        full.update({("AWS_AIDLC_DEFAULT_SCOPE" if k == "DEFAULT_SCOPE" else f"AIDLC_{k}"): v for k, v in (env or {}).items()})
         # The runtime tool reads the stage graph beside it, so it is run from the tree's own installation.
         script = AUDIT_TOOL if tool == "audit" else tree.path(f".claude/tools/aidlc-{tool}.ts")
         command = [BUN, script, *args, *where]
@@ -1378,7 +1396,7 @@ def audit_check(name, files, steps, env=None, links=(), hard_links=(), group="au
 
 def compare_audit(name, trees, steps, env, tool="audit"):
     ts, rs = trees
-    outcome, shaped = {}, False
+    outcome, shaped, shaped_source = {}, False, False
     started_from = None
     if RECORD and not has_links(ts.root) and name not in UNRECORDED and not name.startswith("fuzz/"):
         # An audit check starts from nothing but its files; a runtime check from an installed project.
@@ -1408,7 +1426,14 @@ def compare_audit(name, trees, steps, env, tool="audit"):
             if before.get(rel) == after.get(rel):
                 continue
             text = after.get(rel)
+            # The source baseline is the attestation's (SHAPES): its listing is not compared, nor its field.
+            if "/.focus-engine/source-review/" in rel and engine == "ts":
+                shaped_source = True
+                continue
             shown, text = minted(rel, text if text is None else normalise_audit(text, tree, engine))
+            if text is not None and "**Source Baseline**: " in text:
+                shaped_source = True
+                text = re.sub(r"^\*\*Source Baseline\*\*: [^\n]*\n", "", text, flags=re.M)
             outcome[engine][shown] = "<removed>" if text is None else text
     problems = []
     for key in sorted(set(outcome["ts"]) | set(outcome["rs"])):
@@ -1422,6 +1447,9 @@ def compare_audit(name, trees, steps, env, tool="audit"):
         if shaped:
             shapes["uncaught"] += 1
             detail += "  (upstream: uncaught)"
+        if shaped_source:
+            shapes["source-baseline"] += 1
+            detail += "  (source baseline left out)"
     elif any(re.fullmatch(pattern, name) for pattern in DEVIATIONS):
         verdict = "deviation"
         detail = next(reason for pattern, reason in DEVIATIONS.items() if re.fullmatch(pattern, name))
@@ -1760,11 +1788,10 @@ DEVIATIONS.update({
     r"state/usage/metrics_endpoint":
         "upstream sends a metric for the ERROR_LOGGED row to the configured endpoint; focus has no metrics yet "
         "and writes no row rather than leave the endpoint without what it expects (the refusal is printed either way)",
-    r"state/marker/.*":
-        "a record carrying an active-directive or turn marker: upstream reads the authority behind the action off "
-        "them and keeps the state-write record beside the first; the hooks and orchestrator that write them are M4 "
-        "and M5, so focus refuses to decide a fence with the markers there, and refuses to write the state beside "
-        "the active directive",
+    r"state/marker/active_directive.*":
+        "a record carrying an active-directive marker: upstream reads the engine's instruction and the turn "
+        "sequence off it and keeps the state-write record beside it; the orchestrator that writes it is M5, so "
+        "focus refuses to decide a fence with the marker there, and refuses to write the state beside it",
     r"state/record/(sessions_by_process|delegated_worktree)":
         "upstream walks the process tree to find which conversation is calling, and resolves a delegated worktree to "
         "the main checkout's intent; focus refuses and asks for the session",
@@ -1775,6 +1802,21 @@ DEVIATIONS.update({
     r"utility/usage/error_(logged|without_record)":
         "the refusal of an unknown verb lists each engine's own verbs; the row that records it is compared up to "
         "that text",
+    "utility/create/help":
+        "upstream's usage offers --request; focus's lists the flags it has",
+    r"utility/create/observer_(stop_hook_probe|route_check)":
+        "an observer that reaches creation is stopped at the first durable write: upstream's is the source "
+        "baseline's (the attestation's, M5), focus's the ledger's first row. Both leave the minted directory, "
+        "the clone id and the shard's title",
+    "utility/create/request_flag":
+        "an engine question's answer names its request by id; the question store is M5's, so focus refuses the "
+        "flag by name where upstream looks the question up",
+    "utility/create/flat_layout":
+        "the first creation on a project at the flat focus-docs/ layout moves that layout into its own record; "
+        "focus does not migrate yet and refuses",
+    r"utility/create/(creation_grant|presence_bypass)_on_disk":
+        "what the person said before the work existed, and a recorded presence bypass, are the human-turn hook's "
+        "records (M4); upstream spends them, focus refuses when one is there for the session",
     "utility/detect/project_dir_without_install":
         "upstream scans the directory named and reports the scopes of the install its own script runs from; focus "
         "runs from nowhere, and refuses a project that does not hold the install",
@@ -1949,6 +1991,19 @@ def state_checks():
            [["set", "Scope=x"]])
     check_("marker/turn_markers_at_the_gate", {**record, f"{RECORD_DIR}/.aidlc-engine/human-turn": "", f"{RECORD_DIR}/.aidlc-engine/engine-touch": "", **shard},
            [["set", "Scope=x"]])
+    # The person's turn after the engine's touch is a grant; the engine's after the person's covers nothing.
+    def turn_after_touch(tree):
+        os.utime(tree.path(f"{RECORD_DIR}/.aidlc-engine/engine-touch"), (1_700_000_000, 1_700_000_000))
+        os.utime(tree.path(f"{RECORD_DIR}/.aidlc-engine/human-turn"), (1_700_000_100, 1_700_000_100))
+    def touch_after_turn(tree):
+        os.utime(tree.path(f"{RECORD_DIR}/.aidlc-engine/human-turn"), (1_700_000_000, 1_700_000_000))
+        os.utime(tree.path(f"{RECORD_DIR}/.aidlc-engine/engine-touch"), (1_700_000_100, 1_700_000_100))
+    markers = {**record, f"{RECORD_DIR}/.aidlc-engine/human-turn": "", f"{RECORD_DIR}/.aidlc-engine/engine-touch": "", **shard}
+    check_("marker/turn_after_touch", markers, [["set", "Scope=x"]], edits=(turn_after_touch,))
+    check_("marker/turn_after_touch_unattended", markers, [["set", "Scope=x"]], {"UNATTENDED": "1"}, edits=(turn_after_touch,))
+    check_("marker/touch_after_turn", markers, [["set", "Scope=x"]], edits=(touch_after_turn,))
+    check_("marker/turn_marker_is_a_directory", {**record, f"{RECORD_DIR}/.aidlc-engine/human-turn/x": "", f"{RECORD_DIR}/.aidlc-engine/engine-touch": "", **shard},
+           [["set", "Scope=x"]], edits=(lambda tree: os.utime(tree.path(f"{RECORD_DIR}/.aidlc-engine/human-turn"), (1_800_000_000, 1_800_000_000)),))
 
     # Which record, and what Focus does not resolve.
     other = "aidlc/spaces/payments/intents"
@@ -2125,6 +2180,121 @@ def utility_checks():
         tree.write("real/package.json", '{"dependencies":{"react":"1"}}')
         os.symlink(tree.path("real/package.json"), tree.path("package.json"))
     check_("detect/linked_manifest_is_read", {}, both, edits=(linked_manifest,))
+
+
+def intent_create_checks():
+    """`aidlc-utility.ts intent-create`: what is refused before anything is written, and what a creation writes."""
+    check_ = lambda name, files, steps, env=None, edits=(): runtime_check(name, files, steps, env, edits, group="utility")
+    create = ["intent-create"]
+    feature = create + ["--scope", "feature", "--arguments", "Add login to the app", "--label", "add login"]
+    strict_team = {"aidlc/spaces/default/memory/team.md": "# Team\n\n## Guard Policy\n\nMode: strict\n"}
+
+    # Usage and the flags.
+    check_("create/help", {}, [create + ["--help"], create + ["-h"], create + ["--scope", "feature", "-h"]])
+    check_("create/bare", {}, [create])
+    check_("create/positional", {}, [create + ["--scope", "feature", "extra", "words"],
+                                     create + ["--arguments=deploy", "this", "and", "that", "--scope", "feature"]])
+    check_("create/intent_flag", {}, [create + ["--scope", "feature", "--intent", "x"], create + ["--scope", "feature", "--intent"]])
+    check_("create/blank_values", {}, [create + ["--scope", ""], create + ["--scope", "feature", "--label", " "],
+                                       create + ["--scope", "feature", "--depth"], create + ["--scope=feature", "--repos=", "--add", " "],
+                                       create + ["--scope", "feature", "--project-dir"]])
+    check_("create/request_flag", {}, [create + ["--request", "q-1"]])
+    check_("create/unknown_values", {}, [create + ["--scope", "nope"], create + ["--scope", "feature", "--depth", "deep"],
+                                         create + ["--scope", "feature", "--test-strategy", "lots"],
+                                         create + ["--scope", "feature", "--project-type", "green"],
+                                         create + ["--scope", "feature", "--review", "harsh"],
+                                         create + ["--scope", "feature", "--guard-policy", "loose"],
+                                         create + ["--scope", "feature", "--sensors", "maybe"],
+                                         create + ["--scope", "feature", "--plan-approval"],
+                                         create + ["--scope", "feature", "--plan-name", "My Plan"],
+                                         create + ["--scope", "feature", "--space", "nope"]])
+    check_("create/change_control_both", {}, [create + ["--scope", "feature", "--guard-policy", "relaxed", "--change-control", "off"]])
+    check_("create/plan_changes_refused", {}, [create + ["--scope", "feature", "--skip", "nope"],
+                                               create + ["--scope", "feature", "--skip", "workspace-scaffold"],
+                                               create + ["--scope", "feature", "--skip", "nfr-design", "--add", "nfr-design"],
+                                               create + ["--scope", "feature", "--skip", "reverse-engineering,nope", "--add", "market-research"],
+                                               create + ["--scope", "bugfix", "--skip", "market-research"]])
+    check_("create/reserved_label", {}, [create + ["--scope", "feature", "--label", "Help"], create + ["--scope", "feature", "--label", "Switch!"]])
+    check_("create/default_scope_configured", {}, [create + ["--arguments", "x"]], {"DEFAULT_SCOPE": "bugfix"})
+    check_("create/default_scope_unknown", {}, [create + ["--arguments", "x"]], {"DEFAULT_SCOPE": "nope"})
+    check_("create/default_scope_classic", {}, [create + ["--label", "just a label"]])
+
+    # What a creation writes.
+    check_("create/feature", {}, [feature])
+    check_("create/twice_same_label", {}, [feature, feature, create + ["--scope", "feature", "--label", "add login"]])
+    check_("create/label_from_description", {}, [create + ["--scope", "feature", "--arguments", "Add a login page to the app, with sessions"]])
+    check_("create/label_from_scope", {}, [create + ["--scope", "bugfix"]])
+    check_("create/label_odd", {}, [create + ["--scope", "feature", "--label", "  Ümlaut & 9 lives --  "], create + ["--scope", "feature", "--label", "***"],
+                                    create + ["--scope", "feature", "--label", "9 to 5"]])
+    check_("create/description_odd", {}, [create + ["--scope", "feature", "--arguments", "line one\nline two\ttab  spaced \u2028 sep"],
+                                          create + ["--scope", "feature", "--arguments", "\u0001\u0002"],
+                                          create + ["--scope", "feature", "--arguments", "quote \" and \\ backslash \u00e9 \U0001F600"]])
+    check_("create/pasted_document", {}, [create + ["--scope", "feature", "--arguments", "Build this <document>a spec\nmore</document> please"],
+                                          create + ["--scope", "feature", "--arguments", "<document>only a document</document>"],
+                                          create + ["--scope", "feature", "--arguments", "<document>no closing"],
+                                          create + ["--scope", "feature", "--arguments", "after </document> only"],
+                                          create + ["--scope", "feature", "--arguments", "</document> before <document>"]])
+    for scope in ("bugfix", "classic", "enterprise", "express", "infra", "mvp", "poc", "refactor", "security-patch", "workshop"):
+        check_(f"create/scope_{scope}", {}, [create + ["--scope", scope, "--label", scope]])
+    check_("create/levels", {}, [feature + ["--depth", "MINIMAL", "--test-strategy", "comprehensive"]])
+    check_("create/review_override", {}, [feature + ["--review", "advisory"], create + ["--scope", "feature", "--label", "two", "--review", "ADVERSARIAL"],
+                                          create + ["--scope", "feature", "--label", "three", "--review", "none"]])
+    check_("create/composed_plan", {}, [feature + ["--skip", "market-research, feasibility", "--add", "reverse-engineering", "--plan-name", "lean-login"]])
+    check_("create/composed_plan_unnamed", {}, [feature + ["--skip", "team-formation"], create + ["--scope", "bugfix", "--label", "x", "--add", "market-research", "--plan-name", "Bad Name"]])
+    check_("create/composed_plan_empties_a_phase", {}, [create + ["--scope", "bugfix", "--label", "x", "--skip", "deployment-execution,observability-setup,incident-response"]])
+    check_("create/ceremonies", {}, [feature + ["--sensors", "off", "--learnings", "OFF", "--summary-confirmation", "on", "--collaborators", "on"]])
+    check_("create/guard_policy_scope_default", {}, [feature + ["--guard-policy", "off"]])
+    check_("create/guard_policy_raised", {}, [feature + ["--guard-policy", "relaxed"], create + ["--scope", "feature", "--label", "two", "--guard-policy", "STRICT"]])
+    check_("create/guard_policy_lowered", {}, [create + ["--scope", "enterprise", "--label", "x", "--guard-policy", "off"],
+                                               create + ["--scope", "enterprise", "--label", "x", "--guard-policy", "relaxed"]])
+    check_("create/guard_policy_lowered_unattended", {}, [create + ["--scope", "enterprise", "--label", "x", "--guard-policy", "off"]], {"UNATTENDED": "1"})
+    check_("create/guard_policy_lowered_bypassed", {}, [create + ["--scope", "enterprise", "--label", "x", "--guard-policy", "off"]],
+           {"SKIP_HUMAN_PRESENCE_GUARD": "1"})
+    check_("create/guard_policy_lowered_at_a_terminal", {}, [create + ["--scope", "enterprise", "--label", "x", "--guard-policy", "off"]],
+           {"TEST_CONFIG_TTY": "1"})
+    check_("create/guard_policy_lowered_at_a_terminal_bypassed", {}, [create + ["--scope", "enterprise", "--label", "x", "--guard-policy", "off"]],
+           {"TEST_CONFIG_TTY": "1", "SKIP_HUMAN_PRESENCE_GUARD": "1"})
+    check_("create/change_control_retired", {}, [feature + ["--change-control", "relaxed"]])
+    check_("create/plan_approval_off", {}, [feature + ["--plan-approval", "off"]])
+    check_("create/plan_approval_off_unattended", {}, [feature + ["--plan-approval", "off"]], {"UNATTENDED": "1"})
+    check_("create/plan_approval_off_bypassed", {}, [feature + ["--plan-approval", "off"]], {"SKIP_HUMAN_PRESENCE_GUARD": "1"})
+    check_("create/plan_approval_off_by_scope", {}, [create + ["--scope", "bugfix", "--label", "x", "--plan-approval", "off"]])
+    check_("create/memory_strict", strict_team, [feature, create + ["--scope", "feature", "--label", "two", "--guard-policy", "relaxed"],
+                                                 create + ["--scope", "feature", "--label", "three", "--guard-policy", "strict"],
+                                                 create + ["--scope", "feature", "--label", "four", "--plan-approval", "off"]])
+    check_("create/memory_unreadable", {"aidlc/spaces/default/memory/org.md": "## Guard Policy\n\nMode: maybe\n"}, [feature])
+    check_("create/brownfield", {"src/app.py": "", "requirements.txt": ""}, [feature, create + ["--scope", "refactor", "--label", "x"]])
+    check_("create/greenfield_scan_on_incremental_scope", {}, [create + ["--scope", "refactor", "--label", "x"], create + ["--scope", "bugfix", "--label", "y"]])
+    check_("create/project_type_declared", {"src/app.py": ""}, [feature + ["--project-type", "Greenfield"], create + ["--scope", "refactor", "--label", "x", "--project-type", "greenfield"]])
+    check_("create/project_type_brownfield_without_code", {}, [feature + ["--project-type", "brownfield"], create + ["--scope", "refactor", "--label", "x", "--project-type", "BROWNFIELD"]])
+    check_("create/submodules", {".gitmodules": "[submodule \"one\"]\npath = libs/one\n[submodule \"two\"]\npath = two\n", "libs/one/.git": "gitdir: x\n"}, [feature])
+    check_("create/submodules_many", {".gitmodules": "".join(f"[submodule \"m{n}\"]\npath = m{n}\n" for n in range(7))}, [feature])
+    check_("create/repos_explicit", {"api/.git/HEAD": "", "web/.git/HEAD": ""}, [feature + ["--repos", "web, api,web"]])
+    check_("create/repos_invalid", {}, [feature + ["--repos", "a/b"], feature + ["--repos", ".."], feature + ["--repos", "ok,-bad"]])
+    check_("create/repos_discovered", {"api/.git/HEAD": "", "web/.git/HEAD": "", "docs/README.md": "", ".hidden/.git/HEAD": "", "node_modules/.git/HEAD": ""}, [feature])
+    check_("create/space_explicit", {"aidlc/spaces/payments/memory/org.md": "# Org\n"}, [feature + ["--space", "payments"], create + ["--scope", "feature", "--label", "two", "--space", "default"]])
+    check_("create/space_active", {"aidlc/active-space": "payments\n", "aidlc/spaces/payments/memory/org.md": "# Org\n"}, [feature])
+    check_("create/space_strict", {"aidlc/spaces/payments/memory/team.md": "# Team\n\n## Guard Policy\n\nMode: strict\n"},
+           [feature + ["--space", "payments", "--guard-policy", "relaxed"], feature + ["--space", "payments"]])
+    check_("create/then_state", {}, [feature, ["detect", "--json"], create + ["--scope", "bugfix", "--label", "fix it"]])
+    check_("create/session_bound", {}, [feature], {"SESSION_OVERRIDE": "sess-0001"})
+    check_("create/active_memory_current", {"aidlc/active-memory/org.md": "<!-- AI-DLC keeps this copy in step with aidlc/spaces/default/memory/org.md. Edit that file; this copy is replaced. -->\n# Org-Level Rules\n", "aidlc/active-memory/stale.md": "x\n"}, [feature])
+    def binary_memory(tree):
+        with open(tree.path("aidlc/spaces/default/memory/notes.md"), "wb") as handle:
+            handle.write(b"\xff\xfe not text")
+    check_("create/memory_binary", {}, [feature], edits=(binary_memory,))
+    check_("create/registry_malformed", {"aidlc/spaces/default/intents/intents.json": "{not a list"}, [feature])
+    check_("create/registry_existing", {"aidlc/spaces/default/intents/intents.json": '[{"uuid":"u","slug":"old","dirName":"250101-old","status":"done"}]\n'}, [feature])
+    for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
+        check_(f"create/observer_{marker.lower()}", {}, [feature], {marker: "1"})
+    check_("create/flat_layout", {"aidlc-docs/aidlc-state.md": "# State\n- **Scope**: feature\n"}, [feature])
+    check_("create/creation_grant_on_disk", {"aidlc/.aidlc-sessions/.aidlc-plan-approval/plan-approval-off-at-creation-sess-0001.json": "{}\n"},
+           [feature], {"SESSION_OVERRIDE": "sess-0001"})
+    check_("create/presence_bypass_on_disk", {"aidlc/.aidlc-sessions/.aidlc-plan-approval/presence-bypass-sess-0001": "2026-01-01T00:00:00Z\n"},
+           [create + ["--scope", "enterprise", "--label", "x", "--guard-policy", "off"]], {"SESSION_OVERRIDE": "sess-0001", "SKIP_HUMAN_PRESENCE_GUARD": "1"})
+    check_("create/record_dir_taken", {f"aidlc/spaces/default/intents/{TODAY}-add-login/.keep": ""}, [feature])
+    check_("create/memory_seed_absent", {"aidlc/spaces/default/memory/org.md": None, "aidlc/spaces/default/memory/team.md": None,
+                                         "aidlc/spaces/default/memory/project.md": None}, [feature])
 
 
 def runtime_checks():
@@ -2857,6 +3027,7 @@ try:
     runtime_checks()
     state_checks()
     utility_checks()
+    intent_create_checks()
     run_queued()
     if FUZZ:
         if not ONLY or not re.search(ONLY, "fuzz/audit"):

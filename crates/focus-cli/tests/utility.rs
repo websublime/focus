@@ -245,11 +245,11 @@ fn the_utility_names_the_verbs_it_has() {
     // and an unknown one with its 34 verbs listed; Focus lists its own.
     assert_eq!(
         refusal(&utility(&root, &[])),
-        "Usage: focus engine utility <verb>. Valid: detect, now. Run with --help for detail."
+        "Usage: focus engine utility <verb>. Valid: detect, intent-create, now. Run with --help for detail."
     );
     assert_eq!(
         refusal(&utility(&root, &["nope"])),
-        "Unknown command \"nope\". Run `focus engine utility --help` for what this tool can do.\n\nAvailable commands: detect, now\nCommon options: [--project-dir <path>] [--json]"
+        "Unknown command \"nope\". Run `focus engine utility --help` for what this tool can do.\n\nAvailable commands: detect, intent-create, now\nCommon options: [--project-dir <path>] [--json]"
     );
     // Deliberate deviation: a verb upstream has and Focus does not yet is
     // refused by name.
@@ -258,8 +258,8 @@ fn the_utility_names_the_verbs_it_has() {
         "status prints the workflow's status, and Focus does not do that yet."
     );
     assert_eq!(
-        refusal(&utility(&root, &["intent-create", "--scope", "feature"])),
-        "intent-create creates an intent record, and Focus does not do that yet."
+        refusal(&utility(&root, &["init"])),
+        "init is the retired name of intent-create, and Focus does not do that yet."
     );
     // Deliberate deviation: upstream scans whatever directory is named and
     // reports the scopes of its own install; Focus scans the project it is
@@ -276,5 +276,206 @@ fn the_utility_names_the_verbs_it_has() {
                 .ends_with(": `focus engine utility detect` scans the project it is installed in."),
         "{refused}"
     );
+    let _ = fs::remove_dir_all(root);
+}
+
+fn state(root: &Path, args: &[&str]) -> Output {
+    let mut command = Command::new(env!("CARGO_BIN_EXE_focus"));
+    command
+        .args(["engine", "state"])
+        .args(args)
+        .current_dir(root);
+    for (name, _) in std::env::vars() {
+        if name.starts_with("FOCUS_") || name == "CLAUDE_PROJECT_DIR" {
+            command.env_remove(name);
+        }
+    }
+    command.output().expect("focus runs")
+}
+
+#[test]
+fn intent_create_mints_a_record_and_selects_it() {
+    let root = project("create");
+    fs::remove_dir_all(root.join(RECORD)).unwrap();
+    fs::remove_file(root.join("focus/spaces/default/intents/active-intent")).unwrap();
+    let summary = ok(&utility(
+        &root,
+        &[
+            "intent-create",
+            "--scope",
+            "feature",
+            "--arguments",
+            "Add login to the app",
+            "--label",
+            "add login",
+        ],
+    ));
+    let intents = root.join("focus/spaces/default/intents");
+    let dir_name = fs::read_dir(&intents)
+        .unwrap()
+        .filter_map(|entry| entry.ok())
+        .map(|entry| entry.file_name().to_string_lossy().into_owned())
+        .find(|name| name.ends_with("-add-login"))
+        .expect("a record directory named after the day and the label");
+    assert_eq!(dir_name.len(), "261014-add-login".len());
+    assert_eq!(
+        summary,
+        format!(
+            "Intent created: {dir_name} (space: default)\nState initialized: feature scope, 32 stages, Standard depth\nProject type: Greenfield\nLanguages: Unknown\nFrameworks: Unknown\nBuild System: Unknown\nFirst post-init stage: intent-capture (IDEATION)\n"
+        )
+    );
+    let record = intents.join(&dir_name);
+    let state_text = fs::read_to_string(record.join("focus-state.md")).unwrap();
+    assert!(state_text.starts_with("# Focus State Tracking\n\n## Project Information\n- **Project**: Add login to the app\n- **Project Description Source**: project-description.json\n- **Project Type**: Greenfield\n- **Project Type Source**: workspace scan\n- **Scope**: feature\n- **Start Date**: "), "{state_text}");
+    assert!(
+        state_text.contains(
+            "- **Guard Policy**: off (from scope feature)\n- **Sensors**: on (from scope feature)\n"
+        ),
+        "{state_text}"
+    );
+    assert!(state_text.contains("### IDEATION PHASE\n- [-] intent-capture \u{2014} EXECUTE\n- [ ] market-research \u{2014} EXECUTE\n"), "{state_text}");
+    assert!(
+        state_text
+            .contains("- **Stages to Skip**: 2.1 (reverse-engineering \u{2014} greenfield)\n"),
+        "{state_text}"
+    );
+    assert_eq!(
+        fs::read_to_string(record.join("project-description.json")).unwrap(),
+        "\"Add login to the app\"\n"
+    );
+    assert_eq!(
+        fs::read_to_string(intents.join("active-intent")).unwrap(),
+        format!("{dir_name}\n")
+    );
+    let registry = fs::read_to_string(intents.join("intents.json")).unwrap();
+    assert!(registry.contains(&format!("\"dirName\": \"{dir_name}\",\n    \"scope\": \"feature\",\n    \"status\": \"in-flight\"")), "{registry}");
+    assert!(record.join(".focus-engine/engine-touch").is_file());
+    assert!(record.join(".focus-engine/creation-receipt").is_file());
+    for phase in [
+        "initialization",
+        "ideation",
+        "inception",
+        "construction",
+        "operation",
+        "verification",
+    ] {
+        assert!(record.join(phase).is_dir(), "{phase}");
+    }
+    assert!(root.join("focus/active-memory/org.md").is_file());
+    let ledger = fs::read_to_string(record.join("audit/laptop-abc123.md")).unwrap();
+    assert!(
+        ledger.starts_with("# Focus Audit Log\n\n## Workflow Start\n"),
+        "{ledger}"
+    );
+    assert!(ledger.contains("**Event**: WORKFLOW_STARTED\n**Scope**: feature\n**Request**: /focus Add login to the app\n"), "{ledger}");
+    assert_eq!(ledger.matches("**Event**: ").count(), 15, "{ledger}");
+    assert!(ledger.ends_with("**Event**: STAGE_STARTED\n**Stage**: intent-capture\n**Agent**: focus-product-agent\n\n---\n"), "{ledger}");
+    // The record is the active one: the state command reads it.
+    assert_eq!(ok(&state(&root, &["get", "Scope"])), "feature\n");
+    assert_eq!(ok(&state(&root, &["count", "completed"])), "3\n");
+    // The same label on the same day gets a counter.
+    let again = ok(&utility(
+        &root,
+        &["intent-create", "--scope", "bugfix", "--label", "add login"],
+    ));
+    assert!(
+        again.starts_with(&format!(
+            "Intent created: {dir_name}-2 (space: default)\nState initialized: bugfix scope, "
+        )),
+        "{again}"
+    );
+    let _ = fs::remove_dir_all(root);
+}
+
+#[test]
+fn intent_create_refuses_before_writing() {
+    let root = project("refused");
+    let intents = root.join("focus/spaces/default/intents");
+    let before: Vec<String> = fs::read_dir(&intents)
+        .unwrap()
+        .map(|entry| entry.unwrap().file_name().to_string_lossy().into_owned())
+        .collect();
+    let help = ok(&utility(&root, &["intent-create", "--help"]));
+    assert!(
+        help.starts_with("Usage: focus engine utility intent-create --scope <scope>"),
+        "{help}"
+    );
+    assert!(
+        refusal(&utility(&root, &["intent-create"]))
+            .starts_with("intent-create refused: no --scope, --arguments, or --label given.")
+    );
+    assert!(
+        refusal(&utility(
+            &root,
+            &["intent-create", "--scope", "feature", "stray"]
+        ))
+        .starts_with("intent-create does not accept positional arguments, but received \"stray\".")
+    );
+    assert_eq!(
+        refusal(&utility(
+            &root,
+            &[
+                "intent-create",
+                "--scope",
+                "feature",
+                "--label",
+                " ",
+                "--depth"
+            ]
+        )),
+        "intent-create refused: --label, --depth require a nonblank value."
+    );
+    assert!(
+        refusal(&utility(&root, &["intent-create", "--scope", "nope"]))
+            .starts_with("Unknown scope: \"nope\". Valid scopes: bugfix, classic, ")
+    );
+    assert_eq!(
+        refusal(&utility(
+            &root,
+            &[
+                "intent-create",
+                "--scope",
+                "feature",
+                "--skip",
+                "nope",
+                "--add",
+                "workspace-scaffold"
+            ]
+        )),
+        "intent-create refused: --skip names \"nope\", which is not a stage. --add names \"workspace-scaffold\", an initialization stage; those always run."
+    );
+    assert_eq!(
+        refusal(&utility(
+            &root,
+            &["intent-create", "--scope", "feature", "--label", "help"]
+        )),
+        "\"help\" is a reserved name and cannot be an intent label. Pick a label that describes the work."
+    );
+    let lowered = refusal(&utility(
+        &root,
+        &[
+            "intent-create",
+            "--scope",
+            "enterprise",
+            "--label",
+            "x",
+            "--guard-policy",
+            "off",
+        ],
+    ));
+    assert!(lowered.starts_with("Creating this intent with Guard Policy off would lower fences, which is the person's call."), "{lowered}");
+    // Deliberate deviation: an engine question's answer is the question
+    // store's (M5); upstream looks the question up, Focus refuses the flag.
+    assert!(
+        refusal(&utility(&root, &["intent-create", "--request", "q-1"]))
+            .starts_with("--request q-1 names an engine question's answer")
+    );
+    let after: Vec<String> = fs::read_dir(&intents)
+        .unwrap()
+        .map(|entry| entry.unwrap().file_name().to_string_lossy().into_owned())
+        .collect();
+    assert_eq!(before, after);
+    // Every refusal above left its row beside the active record.
+    assert_eq!(shard(&root).matches("**Event**: ERROR_LOGGED").count(), 8);
     let _ = fs::remove_dir_all(root);
 }
