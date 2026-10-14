@@ -94,8 +94,16 @@ fn shard(root: &Path) -> String {
 fn detect_scans_the_project_and_names_where_the_scopes_live() {
     let root = project("detect");
     let empty = ok(&utility(&root, &["detect"]));
-    let scopes = root.join(".claude").join("scopes").display().to_string();
-    let grid = root
+    // The project is found from the working directory, which the process
+    // reads resolved (`/private/var/…` for a macOS temp dir).
+    let real = fs::canonicalize(&root).unwrap();
+    let real = real
+        .to_str()
+        .unwrap()
+        .strip_prefix(r"\\?\")
+        .map_or_else(|| real.clone(), PathBuf::from);
+    let scopes = real.join(".claude").join("scopes").display().to_string();
+    let grid = real
         .join(".claude")
         .join("tools")
         .join("data")
