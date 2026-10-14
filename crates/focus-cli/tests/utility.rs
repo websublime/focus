@@ -95,15 +95,25 @@ fn detect_scans_the_project_and_names_where_the_scopes_live() {
     let root = project("detect");
     let empty = ok(&utility(&root, &["detect"]));
     // The project is found from the working directory, which the process
-    // reads resolved (`/private/var/…` for a macOS temp dir).
+    // reads as the system gives it: resolved on macOS (`/private/var/…` for
+    // a temp dir), in its short form on a Windows runner. Either spelling
+    // of the root is read as `<root>`.
     let real = fs::canonicalize(&root).unwrap();
     let real = real
         .to_str()
         .unwrap()
         .strip_prefix(r"\\?\")
         .map_or_else(|| real.clone(), PathBuf::from);
-    let scopes = real.join(".claude").join("scopes").display().to_string();
-    let grid = real
+    let rooted = |text: &str| {
+        text.replace(&real.display().to_string(), "<root>")
+            .replace(&root.display().to_string(), "<root>")
+    };
+    let scopes = Path::new("<root>")
+        .join(".claude")
+        .join("scopes")
+        .display()
+        .to_string();
+    let grid = Path::new("<root>")
         .join(".claude")
         .join("tools")
         .join("data")
@@ -111,7 +121,7 @@ fn detect_scans_the_project_and_names_where_the_scopes_live() {
         .display()
         .to_string();
     assert_eq!(
-        empty,
+        rooted(&empty),
         format!(
             "Project type: Greenfield\nLanguages: Unknown\nFrameworks: Unknown\nBuild system: Unknown\nScopes dir: {scopes}\nScope grid: {grid}\nProposal file: focus/spaces/default/intents/.focus-engine/composer-proposal.json\nValid scopes: bugfix, classic, enterprise, express, feature, infra, mvp, poc, refactor, security-patch, workshop\n"
         )
@@ -133,7 +143,7 @@ fn detect_scans_the_project_and_names_where_the_scopes_live() {
         scanned.starts_with("Project type: Brownfield\nLanguages: TypeScript, JavaScript\nFrameworks: Vite, React\nBuild system: pnpm (package.json)\nSubmodules: 2 declared, 1 uninitialized\nScopes dir: "),
         "{scanned}"
     );
-    let json = ok(&utility(&root, &["detect", "--json"]));
+    let json = rooted(&ok(&utility(&root, &["detect", "--json"])));
     let parsed: serde_json::Value = serde_json::from_str(&json).unwrap();
     assert_eq!(parsed["projectType"], "Brownfield");
     assert_eq!(parsed["languages"], "TypeScript, JavaScript");
