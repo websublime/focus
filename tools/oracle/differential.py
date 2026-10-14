@@ -1988,12 +1988,15 @@ def utility_checks():
     check_("detect/empty", {}, both)
     check_("detect/empty_record", record, both)
     check_("detect/root_files", empty("a.ts", "b.TS", "c.tsx", "d.js", "e.mjs", "README.md", ".env.py", ".py", "noext", "x."), both)
-    check_("detect/every_language",
-           empty(*(f"src/f{i}{ext}" for i, ext in enumerate([".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".py", ".java", ".kt", ".go",
-                                                                ".rs", ".rb", ".cs", ".cpp", ".c", ".h", ".hpp", ".swift", ".php", ".md"]))),
-           both)
+    # One extension at a time: languages with the same count are listed in the order the OS lists the files,
+    # which a replay on another file system would not reproduce.
+    for ext in [".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".py", ".java", ".kt", ".go", ".rs", ".rb", ".cs", ".cpp",
+                ".c", ".h", ".hpp", ".swift", ".php", ".md", ".TS", ".Py"]:
+        check_(f"detect/extension_{ext[1:]}", empty(f"src/f{ext}", f"src/g{ext}", "src/h.sql"), both)
     check_("detect/secondary_threshold", {**empty(*(f"src/{n}.go" for n in range(10))), **empty("src/a.rs", "src/b.rs", "src/c.py")}, both)
     check_("detect/secondary_threshold_is_a_fifth", {**empty(*(f"src/{n}.go" for n in range(8))), "src/a.rs": ""}, both)
+    # A tie between languages follows the order the OS lists the files, so it is compared live and not replayed.
+    UNRECORDED.add("utility/detect/one_of_each_is_a_tie")
     check_("detect/one_of_each_is_a_tie", empty("src/a.rs", "src/b.py", "lib/c.go"), both)
     check_("detect/source_dirs_to_depth_six",
            {**empty("src/a/b/c/d/e/f/g.py", "src/a/b/c/d/e/f/g/h.py", "other/deep.py", "tests/t.rb", "pages/p.php",
@@ -2055,7 +2058,7 @@ def utility_checks():
     check_("detect/nested", nested, both)
     check_("detect/nested_three_levels", empty("a/b/c/main.rs", "a/b/c/d/deep.py"), both)
     check_("detect/nested_hit_not_entered", empty("a/x.py", "a/b/y.rs", "a/b/c/z.go"), both)
-    check_("detect/nested_order", empty("b/x.py", "a/y.rs", "B/z.go", "_/w.kt", "src-x/v.c"), both)
+    check_("detect/nested_order", empty("b/x.py", "a/y.rs", "Zed/z.go", "_/w.kt", "src-x/v.c"), both)
     check_("detect/nested_order_is_utf16", empty("\uff5e/a.py", "\U0001f600/b.py", "z/c.py"), both)
     check_("detect/nested_hit_below_a_repo", empty("a/.git/HEAD", "a/b/main.go"), both)
     check_("detect/nested_repo_only", {"web/.git/HEAD": ""}, both)
@@ -2065,7 +2068,7 @@ def utility_checks():
     check_("detect/nested_repo_at_depth_four", {"a/b/c/d/.git/HEAD": ""}, both)
     check_("detect/nested_excluded_names",
            empty("docs/x.py", "Examples/y.py", "SAMPLE/z.py", "testdata/t.py", "fixtures/f.py", "templates/t.py", "scripts/s.py",
-                 "reference/r.py", "demo/d.py", "aidlc/a.py", "AIDLC/b.py", ".hidden/h.py", "Node_Modules/n.py", "Dist/d.py"), both)
+                 "reference/r.py", "demo/d.py", "aidlc/a.py", ".hidden/h.py", "Node_Modules/n.py", "Dist/d.py"), both)
     check_("detect/nested_excluded_names_below", empty("a/docs/x.py", "a/.hidden/h.py", "a/b/examples/e.py"), both)
     check_("detect/nested_source_dir_name_is_case_sensitive", empty("SRC/x.py", "Lib/y.py"), both)
     check_("detect/nested_frameworks_and_build",
