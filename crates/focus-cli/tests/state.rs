@@ -498,13 +498,36 @@ fn a_record_with_a_marker_is_refused() {
     assert!(state_file(&root).contains("- **Scope**: feature\n"));
     assert_eq!(ok(&state(&root, &["get", "Scope"], &[])), "feature\n");
     fs::remove_file(root.join(&engine).join("active-directive.json")).unwrap();
+    // The turn markers are read: the engine's touch after the person's
+    // turn covers nothing, and the fence, down for this scope, stands
+    // aside; a person's turn after the engine's touch is a grant.
     write(&root, &format!("{engine}/human-turn"), "");
     write(&root, &format!("{engine}/engine-touch"), "");
+    let later = std::time::SystemTime::now() + std::time::Duration::from_secs(5);
+    fs::File::options()
+        .write(true)
+        .open(root.join(&engine).join("engine-touch"))
+        .unwrap()
+        .set_modified(later)
+        .unwrap();
+    ok(&state(&root, &["set", "Scope=x"], &[]));
+    let rows = shard(&root);
     assert!(
-        refusal(&state(&root, &["set", "Scope=x"], &[]))
-            .starts_with("Stage status cannot be changed")
+        rows.contains("**Event**: GUARD_STOOD_ASIDE\n**Guard**: state-transition\n**Authority**: none\n**Grant**: none\n"),
+        "{rows}"
     );
-    assert!(state(&root, &["set", "Scope=x"], &DIRECT).status.success());
+    fs::File::options()
+        .write(true)
+        .open(root.join(&engine).join("human-turn"))
+        .unwrap()
+        .set_modified(later + std::time::Duration::from_secs(5))
+        .unwrap();
+    ok(&state(&root, &["set", "Scope=y"], &[]));
+    let rows = shard(&root);
+    assert!(
+        rows.contains("**Event**: GUARD_STOOD_ASIDE\n**Guard**: state-transition\n**Authority**: grant\n**Grant**: turn-marker\n"),
+        "{rows}"
+    );
     let _ = fs::remove_dir_all(root);
 }
 

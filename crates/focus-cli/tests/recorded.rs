@@ -201,7 +201,19 @@ fn normalise_audit(text: &str, root: &Path) -> String {
             "<cli> orchestrate report",
         )
         .replace("`focus engine log`", "<cli> log");
-    // The state tool names itself, its verbs and the orchestrator's.
+    // The state tool names itself, its verbs and the orchestrator's. A
+    // memory file copied whole may name upstream's script too.
+    text = replace_all(
+        &text,
+        r"focus-(state|orchestrate)\.ts(?: ([a-z-]+))?",
+        |found, text| {
+            let tool = group(found, text, 1);
+            match found.group(2) {
+                Some(range) => format!("<cli> {tool} {}", &text[range]),
+                None => format!("<cli> {tool}"),
+            }
+        },
+    );
     text = replace_all(
         &text,
         r"`focus engine (state|orchestrate)(?: ([^`]*))?`",
@@ -216,11 +228,17 @@ fn normalise_audit(text: &str, root: &Path) -> String {
     text = text
         .replace("Usage: focus engine state ", "Usage: <cli> state ")
         .replace("Run focus engine state --help", "Run <cli> state --help")
+        .replace("Usage: focus engine utility ", "Usage: <cli> utility ")
         .replace("how closely Focus checks", "how closely <engine> checks");
     text = replace_all(
         &text,
         r"`focus engine config set (guard\.[a-z-]+) off`",
         |found, text| format!("<cli-config {} off>", group(found, text, 1)),
+    );
+    text = replace_all(
+        &text,
+        r"`focus engine config set guard-policy (strict|relaxed|off)`",
+        |found, text| format!("<cli-config guard-policy {}>", group(found, text, 1)),
     );
     text = text.replace(" --harness claude\n", "\n");
     text = replace_all(
@@ -239,6 +257,10 @@ fn normalise_audit(text: &str, root: &Path) -> String {
     // The utility tool's own name in a row's Tool or Command.
     text = replace_all(&text, r"(?<![\w-])focus-utility(?![\w.-])", |_, _| {
         "<cli> utility".to_owned()
+    });
+    let day = today();
+    text = replace_all(&text, &format!(r"(?<![0-9a-f]){day}-(?=[a-z])"), |_, _| {
+        "<day>-".to_owned()
     });
     text = replace_all(&text, r"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ", |found, text| {
         let stamp = &text[found.range()];
@@ -285,6 +307,33 @@ fn workspace_files(root: &Path) -> BTreeMap<String, String> {
     files
 }
 
+/// The environment a check runs in: nothing of Focus's own, and no mark of
+/// the host this replay happens to run under (a refusal names the host whose
+/// terminal the command came from).
+fn clean_env(command: &mut Command) {
+    for (name, _) in std::env::vars() {
+        let upper = name.to_uppercase();
+        if name.starts_with("FOCUS_")
+            || name == "CLAUDE_PROJECT_DIR"
+            || upper == "TERM_PROGRAM"
+            || [
+                "CLAUDECODE",
+                "CLAUDE_CODE_",
+                "CODEX_",
+                "CURSOR_",
+                "KIRO_",
+                "OPENCODE",
+                "COPILOT_",
+                "VSCODE_",
+            ]
+            .iter()
+            .any(|prefix| upper.starts_with(prefix))
+        {
+            command.env_remove(name);
+        }
+    }
+}
+
 /// The recorder's `minted`: a clone identity minted during the run, written
 /// as placeholders in a shard's name and in the clone file.
 fn minted(rel: &str, text: Option<String>) -> (String, Option<String>) {
@@ -293,6 +342,7 @@ fn minted(rel: &str, text: Option<String>) -> (String, Option<String>) {
         r"/audit/[a-z0-9][a-z0-9-]*-[0-9a-f]{12}\.md$",
         |_, _| "/audit/<host>-<token>.md".to_owned(),
     );
+    let shown = shown.replace(&format!("/intents/{}-", today()), "/intents/<day>-");
     let text = match text {
         Some(text) if shown.ends_with("/.focus-clone-id") => {
             let regex = regress::Regex::new(r"^[0-9a-f]{12}\n[a-z0-9][a-z0-9-]*\n$").unwrap();
@@ -302,9 +352,22 @@ fn minted(rel: &str, text: Option<String>) -> (String, Option<String>) {
                 text
             })
         }
+        Some(text) if shown.ends_with("/intents.json") || shown.ends_with("/creation-receipt") => {
+            Some(replace_all(
+                &text,
+                r"[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}",
+                |_, _| "<uuid>".to_owned(),
+            ))
+        }
         other => other,
     };
     (shown, text)
+}
+
+/// The day a record minted during the replay is named after, `YYMMDD`.
+fn today() -> String {
+    let stamp = focus_audit::time::iso_timestamp(std::time::SystemTime::now());
+    format!("{}{}{}", &stamp[2..4], &stamp[5..7], &stamp[8..10])
 }
 
 /// Run an audit check's commands in order in `root`; the outcome in the
@@ -330,13 +393,14 @@ fn replay_audit(check: &Value, root: &Path) -> BTreeMap<String, String> {
             command.args(["--project-dir", root.to_str().unwrap()]);
         }
         command.args(["--harness", "claude"]);
-        for (name, _) in std::env::vars() {
-            if name.starts_with("FOCUS_") || name == "CLAUDE_PROJECT_DIR" {
-                command.env_remove(name);
-            }
-        }
+        clean_env(&mut command);
         for (name, value) in check["env"].as_object().unwrap() {
-            command.env(format!("FOCUS_{name}"), value.as_str().unwrap());
+            // A name given as `=NAME` is set as it is: the recorder's way of
+            // naming a terminal's host.
+            match name.strip_prefix('=') {
+                Some(raw) => command.env(raw, value.as_str().unwrap()),
+                None => command.env(format!("FOCUS_{name}"), value.as_str().unwrap()),
+            };
         }
         let output = command.current_dir(root).output().unwrap();
         exits.push(output.status.code().unwrap_or(-1).to_string());
@@ -488,13 +552,12 @@ fn replay(check: &Value, root: &Path) -> Vec<String> {
         "--harness",
         "claude",
     ]);
-    for (name, _) in std::env::vars() {
-        if name.starts_with("FOCUS_") || name == "CLAUDE_PROJECT_DIR" {
-            command.env_remove(name);
-        }
-    }
+    clean_env(&mut command);
     for (name, value) in check["env"].as_object().unwrap() {
-        command.env(format!("FOCUS_{name}"), value.as_str().unwrap());
+        match name.strip_prefix('=') {
+            Some(raw) => command.env(raw, value.as_str().unwrap()),
+            None => command.env(format!("FOCUS_{name}"), value.as_str().unwrap()),
+        };
     }
     command
         .current_dir(root)

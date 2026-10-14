@@ -1,0 +1,25 @@
+[package]
+name = "focus-intent"
+description = "Creating a piece of work: the intent record, its registry row and cursor, and the state file built from the scope's plan."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+getrandom.workspace = true
+serde_json.workspace = true
+focus-audit.workspace = true
+focus-graph.workspace = true
+focus-guards.workspace = true
+focus-js.workspace = true
+focus-state.workspace = true
+focus-workspace.workspace = true
+
+[dev-dependencies]
+focus-harness.workspace = true
+
+[lints]
+workspace = true

@@ -55,6 +55,9 @@ cp -r "$UPSTREAM/dist/claude/.claude/agents" "$UPSTREAM/dist/claude/.claude/scop
 for file in harness.json stage-graph.json scope-grid.json ars-priors.json; do
   cp "$UPSTREAM/dist/claude/.claude/tools/data/$file" "$INSTALLED/.claude/tools/data/"
 done
+# The memory seed: what intent creation restores to the default space's memory
+# tree when a copy left it out.
+cp -r "$UPSTREAM/dist/claude/.claude/tools/data/memory-seed" "$INSTALLED/.claude/tools/data/"
 cp -r "$UPSTREAM/dist/claude/aidlc" "$INSTALLED/"
 python3 -I tools/oracle/names.py tree "$FIX/core" "$FIX/golden" "$FIX/installed"
 sed -i.bak \
