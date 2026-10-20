@@ -18,17 +18,23 @@
 //! `none`, or the kill switches set, upstream owes none and the transition
 //! runs whole.
 //!
-//! The gate verbs (`gate-start`, `approve`, `reject`, `revise`) are the next
-//! slice: they read the person's reply and the sensors' verdicts.
+//! The gate verbs (`gate-start`, `approve`, `reject`, `revise`, in
+//! [`gates`]) record the person's decision at a stage's approval gate, once
+//! their presence is on the ledger ([`presence`]) and their reply reads as
+//! one ([`reply`]). `park` and `unpark` ([`park`]) stop the work and take it
+//! up again; a jump ([`jump`]) moves it to another stage.
 //!
 //! Mirrors `handleAdvance`, `handleFinalize`, `handleCompleteWorkflow`,
-//! `handleSkip`, `handleResume` and `admitStageAction` in `aidlc-state.ts`.
+//! `handleSkip`, `handleResume`, `handlePark`, `handleUnpark` and
+//! `admitStageAction` in `aidlc-state.ts`, and `aidlc-jump.ts`.
 
 pub mod admission;
 pub mod artifacts;
 pub mod events;
 pub mod gate;
 pub mod gates;
+pub mod jump;
+pub mod park;
 pub mod presence;
 pub mod registry;
 pub mod reply;

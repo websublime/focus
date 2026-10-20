@@ -12,6 +12,7 @@
 mod args;
 mod audit;
 mod graph;
+mod jump;
 mod report;
 mod runtime;
 mod state;
@@ -48,13 +49,19 @@ Commands:
   engine state set             Set fields of the state file
   engine state checkbox        Set the state of stages in Stage Progress
   engine state count           Count the stages in one state
+  engine state advance ...     Move the work through its stages (see --help)
+  engine state gate-start ...  Open a stage's approval gate; approve, reject, revise it
+  engine state park            Stop the work where it is; unpark takes it up again
+  engine jump resolve          Where a jump would land
+  engine jump execute          Move the work to another stage
   engine utility detect        Scan the workspace: project type, languages, build system
   engine utility intent-create Create a piece of work
   engine utility now           Print the engine's time
 
 Run `focus engine graph --help`, `focus engine audit --help`,
-`focus engine runtime --help`, `focus engine state --help` or
-`focus engine utility --help` for the options of each.";
+`focus engine runtime --help`, `focus engine state --help`,
+`focus engine jump --help` or `focus engine utility --help` for the options
+of each.";
 
 /// How a command failed.
 pub enum Failure {
@@ -96,15 +103,16 @@ fn main() -> ExitCode {
         Some("engine") => match args.next_positional().as_deref() {
             Some("graph") => graph::run(&mut args),
             Some("audit") => audit::run(&mut args),
+            Some("jump") => jump::run(&mut args),
             Some("runtime") => runtime::run(&mut args),
             Some("state") => state::run(&mut args),
             Some("utility") => utility::run(&mut args),
             Some(other) => Err(format!(
-                "Unknown engine command: {other}. Valid: audit, graph, runtime, state, utility"
+                "Unknown engine command: {other}. Valid: audit, graph, jump, runtime, state, utility"
             )
             .into()),
             None => Err(
-                "Usage: focus engine <command>. Valid: audit, graph, runtime, state, utility"
+                "Usage: focus engine <command>. Valid: audit, graph, jump, runtime, state, utility"
                     .into(),
             ),
         },

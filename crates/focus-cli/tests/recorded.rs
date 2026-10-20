@@ -270,10 +270,25 @@ fn normalise_audit(text: &str, root: &Path) -> String {
             None => "<cli> state".to_owned(),
         },
     );
-    // The utility tool's own name in a row's Tool or Command.
+    // The utility and jump tools' own names in a row's Tool or Command.
     text = replace_all(&text, r"(?<![\w-])focus-utility(?![\w.-])", |_, _| {
         "<cli> utility".to_owned()
     });
+    text = replace_all(&text, r"(?<![\w-])focus-jump(?![\w.-])", |_, _| {
+        "<cli> jump".to_owned()
+    });
+    // A tool named in a sentence by its command.
+    text = replace_all(
+        &text,
+        r"`focus engine ([a-z-]+)(?: ([^`]*))?`",
+        |found, text| {
+            let tool = group(found, text, 1);
+            match found.group(2) {
+                Some(range) => format!("<cli> {tool} {}", &text[range]),
+                None => format!("<cli> {tool}"),
+            }
+        },
+    );
     let day = today();
     text = replace_all(&text, &format!(r"(?<![0-9a-f]){day}-(?=[a-z])"), |_, _| {
         "<day>-".to_owned()
@@ -545,7 +560,7 @@ fn shown(expected: &Value) -> String {
 
 /// Run one check in `root`; the problems found, empty when it matches.
 fn replay(check: &Value, root: &Path) -> Vec<String> {
-    if ["audit", "runtime", "state", "utility"]
+    if ["audit", "runtime", "state", "utility", "jump"]
         .contains(&check["tool"].as_str().unwrap_or_default())
     {
         return problems_in(
@@ -621,17 +636,22 @@ fn focus_does_what_upstream_did_in_every_recorded_check() {
     let dir = fixtures().join("recorded");
     let trees: Value =
         serde_json::from_str(&fs::read_to_string(dir.join("trees.json")).unwrap()).unwrap();
-    // `FOCUS_RECORDED_ONLY=<text>` replays the checks whose name holds the
-    // text, for working on one group; the whole recording is the test.
-    let only = std::env::var("FOCUS_RECORDED_ONLY").ok();
+    // `FOCUS_RECORDED_ONLY=<text>[,<text>]` replays the checks whose name
+    // holds one of the texts, for working on a group; the whole recording
+    // is the test.
+    let only: Option<Vec<String>> = std::env::var("FOCUS_RECORDED_ONLY")
+        .ok()
+        .map(|list| list.split(',').map(str::to_owned).collect());
     let checks: Vec<Value> = fs::read_to_string(dir.join("checks.ndjson"))
         .unwrap()
         .lines()
         .filter(|line| !line.is_empty())
         .map(|line| serde_json::from_str(line).unwrap())
         .filter(|check: &Value| {
-            only.as_deref()
-                .is_none_or(|only| check["name"].as_str().unwrap().contains(only))
+            only.as_deref().is_none_or(|only| {
+                only.iter()
+                    .any(|text| check["name"].as_str().unwrap().contains(text.as_str()))
+            })
         })
         .collect();
     assert!(
@@ -834,7 +854,7 @@ fn the_recording_covers_every_verb_and_both_outcomes() {
         "{deviations} of {} recorded checks are deviations; the replay proves little",
         checks.len()
     );
-    for tool in ["graph", "audit", "runtime", "state", "utility"] {
+    for tool in ["graph", "audit", "runtime", "state", "utility", "jump"] {
         let of_tool: Vec<&Value> = checks
             .iter()
             .filter(|c| c["tool"].as_str().unwrap_or("graph") == tool)

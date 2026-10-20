@@ -822,6 +822,167 @@ pub fn resolve_artifact_instances(
     )])
 }
 
+// --- Review artifact entries --------------------------------------------------
+
+/// `ReviewArtifactEntry`, as far as a jump names it: the artifact's logical
+/// path, and its file when one place holds it.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ReviewEntry {
+    pub logical_path: String,
+    pub path: Option<PathBuf>,
+}
+
+/// The entry's path as the workspace names it (`workspaceArtifactPath`):
+/// relative to the project with forward slashes, or the logical path.
+#[must_use]
+pub fn workspace_artifact_path(project: &Path, entry: &ReviewEntry) -> String {
+    match &entry.path {
+        Some(path) => relative_to_project(project, path),
+        None => entry.logical_path.clone(),
+    }
+}
+
+/// `reviewArtifactEntries(pd, stage)`: where each declared artifact of the
+/// stage, required or optional, is or would be. `None` when no record is
+/// selected.
+#[must_use]
+pub fn review_artifact_entries(
+    wf: &Workflow,
+    stage: &Stage,
+    state: Option<&str>,
+) -> Option<Vec<ReviewEntry>> {
+    let kinds = stage::produces_kinds(stage);
+    let artifacts_for_kind = |kind: Option<&str>| -> Vec<String> {
+        filter_produces_by_kind(kinds, &stage.produces, kind)
+            .into_iter()
+            .chain(filter_produces_by_kind(
+                kinds,
+                &stage.optional_produces,
+                kind,
+            ))
+            .cloned()
+            .collect()
+    };
+    let all = artifacts_for_kind(None);
+    let entry = |logical: String, path: Option<PathBuf>| ReviewEntry {
+        logical_path: logical,
+        path,
+    };
+    if KNOWN_CODEKB_STAGES.contains(&stage.slug.as_str()) {
+        let root = wf.layout.space_dir(&wf.selection.space).join("codekb");
+        let mut repos = intent_repos(
+            &wf.layout,
+            &wf.selection.space,
+            wf.selection.intent.as_deref(),
+        );
+        if repos.is_empty()
+            && let Ok(entries) = std::fs::read_dir(&root)
+        {
+            repos = entries
+                .filter_map(std::result::Result::ok)
+                .filter(|entry| root.join(entry.file_name()).is_dir())
+                .map(|entry| entry.file_name().to_string_lossy().into_owned())
+                .collect();
+        }
+        if repos.is_empty() {
+            return Some(
+                all.iter()
+                    .map(|name| entry(format!("codekb/*/{}", artifact_filename(name)), None))
+                    .collect(),
+            );
+        }
+        return Some(
+            repos
+                .iter()
+                .flat_map(|repo| {
+                    all.iter().map(move |name| {
+                        let file = artifact_filename(name);
+                        entry(
+                            format!("codekb/{repo}/{file}"),
+                            Some(codekb_dir(wf, repo).join(file)),
+                        )
+                    })
+                })
+                .collect(),
+        );
+    }
+    let record = wf.record_dir()?;
+    let stage_level = || -> Vec<ReviewEntry> {
+        all.iter()
+            .map(|name| {
+                let file = artifact_filename(name);
+                entry(
+                    format!("{}/{}/{file}", stage.phase, stage.slug),
+                    Some(record.join(&stage.phase).join(&stage.slug).join(file)),
+                )
+            })
+            .collect()
+    };
+    if !stage::is_per_unit(stage) {
+        return Some(stage_level());
+    }
+    let stage_level_present = all.iter().any(|name| {
+        record
+            .join(&stage.phase)
+            .join(&stage.slug)
+            .join(artifact_filename(name))
+            .exists()
+    });
+    let discovered: Vec<String> = stage_unit_directories(&record, &stage.slug)
+        .into_iter()
+        .map(|(unit, _)| unit)
+        .collect();
+    let state_text = match state {
+        Some(text) => Some(text.to_owned()),
+        None => wf.read_state().ok(),
+    };
+    if let Some(text) = &state_text
+        && uses_stage_level_per_unit_artifacts(wf, get_field(text, "Scope").unwrap_or(""), text)
+        && (stage_level_present || discovered.is_empty())
+    {
+        return Some(stage_level());
+    }
+    let dag = resolve_bolt_dag(wf);
+    let units: Vec<String> = match &dag {
+        Dag::Ok { units, .. } => units.clone(),
+        _ => {
+            if stage_level_present {
+                return Some(stage_level());
+            }
+            discovered
+        }
+    };
+    if units.is_empty() {
+        return Some(
+            all.iter()
+                .map(|name| {
+                    entry(
+                        format!("construction/*/{}/{}", stage.slug, artifact_filename(name)),
+                        None,
+                    )
+                })
+                .collect(),
+        );
+    }
+    let mut entries = Vec::new();
+    for unit in &units {
+        for name in artifacts_for_kind(dag.kind_of(unit)) {
+            let file = artifact_filename(&name);
+            entries.push(entry(
+                format!("construction/{unit}/{}/{file}", stage.slug),
+                Some(
+                    record
+                        .join("construction")
+                        .join(unit)
+                        .join(&stage.slug)
+                        .join(file),
+                ),
+            ));
+        }
+    }
+    Some(entries)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

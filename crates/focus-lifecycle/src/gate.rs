@@ -515,7 +515,7 @@ pub fn decisions_accepted_open_field(wf: &Workflow, slug: &str) -> Option<(&'sta
 // --- Approves together -----------------------------------------------------------
 
 const APPROVES_TOGETHER_FIELD: &str = "Approves Together";
-const APPROVED_TOGETHER_WITH_FIELD: &str = "Approved Together With";
+pub const APPROVED_TOGETHER_WITH_FIELD: &str = "Approved Together With";
 const APPROVED_TOGETHER_ENDS: [&str; 8] = [
     "GATE_REJECTED",
     "QUESTION_ANSWERED",

@@ -466,7 +466,7 @@ def run_queued(quiet=False):
 
 
 def compare(name, trees, args, env, stdin, files):
-    if files in ("audit", "runtime", "state", "utility"):
+    if files in ("audit", "runtime", "state", "utility", "jump"):
         return compare_audit(name, trees, args, env, files)
     ts, rs = trees
     outcome = {}
@@ -1302,6 +1302,11 @@ def normalise_audit(text, tree, engine):
     text = re.sub(r"`bun \.claude/tools/(?:aidlc|focus)-utility\.ts config-change --guard-policy (strict|relaxed|off)`", r"<cli-config guard-policy \1>", text)
     text = re.sub(r"`focus engine config set guard-policy (strict|relaxed|off)`", r"<cli-config guard-policy \1>", text)
     text = text.replace("how closely AI-DLC checks", "how closely <engine> checks").replace("how closely Focus checks", "how closely <engine> checks")
+    # The jump tool's own name in a row's Tool or Command.
+    text = re.sub(r"(?<![\w-])(?:aidlc|focus)-jump(?![\w.-])", "<cli> jump", text)
+    # A tool named in a sentence, by its script upstream and by its command here.
+    text = re.sub(r"`bun \.claude/tools/(?:aidlc|focus)-([a-z-]+)\.ts(?: ([^`]*))?`", lambda m: f"<cli> {m.group(1)}" + (f" {m.group(2)}" if m.group(2) else ""), text)
+    text = re.sub(r"`focus engine ([a-z-]+)(?: ([^`]*))?`", lambda m: f"<cli> {m.group(1)}" + (f" {m.group(2)}" if m.group(2) else ""), text)
     # The Command field of an error row carries the arguments the differential adds for Focus.
     text = text.replace(" --harness claude\n", "\n")
     text = STAMP.sub(lambda found: "<now>" if found.group(0) >= STARTED else found.group(0), text)
@@ -2031,6 +2036,30 @@ DEVIATIONS.update({
     "state/skip/unit":
         "skip --unit skips one unit of work's step, which needs the unit DAG and the units' lifecycle (M4); "
         "upstream checks the Construction policy first and refuses on that; focus refuses the flag by name",
+    "state/park/team_units":
+        "with Unit Ownership team, park and unpark work on the unit this checkout claimed, read from its unit "
+        "scope stamp and checked against the claim registry and the fan-out (M4): focus refuses both by name",
+    "jump/usage/flag_without_its_value":
+        "upstream takes a trailing --project-dir with no value as an argument of the verb; focus refuses the flag",
+    r"jump/observer/(stop_hook_probe|route_check)":
+        "an observer that reaches a jump is stopped at the first durable write: upstream's is the source "
+        "baseline's snapshot (the attestation's, M5), focus's the first ledger row",
+    "jump/execute/units":
+        "execute --units moves units of work forward one at a time to a per-unit stage, with the state tool's "
+        "one-unit skip (M4): upstream runs it or refuses on its own shape; focus refuses the flag by name",
+    "jump/execute/directive_marker":
+        "a record carrying an active-directive marker: a jump reads the step the person was on off it (M5); "
+        "focus refuses to jump with the marker there",
+    "jump/execute/backward_session":
+        "with a session bound, a backward jump keeps its way back for the chat's next turn (the pending person "
+        "lines, the human-turn hook's record, M4) and leaves `notice` out of its output; focus refuses by name",
+    "jump/execute/backward_over_reviewed_stage_rows":
+        "a backward jump names the reviews it invalidates, read from the review brief's records (M5): with review "
+        "rows on the ledger for a reviewed stage behind the jump, upstream reads them and focus refuses by name; "
+        "an embedded `## Review` section is named by both",
+    "jump/reopen/by_name":
+        "reopen starts a per-unit stage again for named units with their own GATE_REJECTED rows (M4); focus "
+        "refuses by name once the usage is satisfied",
     "state/gates/sensors_on":
         "with the Sensors ceremony on and the declared artifacts on disk, opening a gate fires the stage's gate "
         "sensors through the sensor tool (M5): upstream runs them, records their findings and opens the gate; focus "
@@ -3062,6 +3091,179 @@ def gate_checks():
         check_(f"observer/{marker.lower()}_gates", created(GATE_STATE, **ic), [["gate-start", "intent-capture"], ["resume"]], {marker: "1", **quiet})
 
 
+def park_checks():
+    """`aidlc-state.ts park` and `unpark`: where the work stopped, whose stop it was, and taking it up again."""
+    check_ = lambda name, files, steps, env=None, edits=(): runtime_check(name, files, steps, env, edits, group="state")
+    direct = {"ALLOW_DIRECT_STATE_TRANSITIONS": "1"}
+    parked = ["park"]
+    reads = [["get", "Parked"], ["get", "Parked At Stage"], ["get", "Parked By"]]
+    check_("park/plain", created(), [parked] + reads + [["resume"], ["unpark"], ["get", "Parked"], ["unpark"]], direct)
+    check_("park/twice", created(), [parked, parked] + reads, direct)
+    check_("park/completed", created(CREATED_STATE.replace("- **Status**: Running", "- **Status**: Completed")), [parked, ["unpark"]], direct)
+    check_("park/archived", created(CREATED_STATE.replace("- **Status**: Running", "- **Status**: Archived")), [parked, ["unpark"]], direct)
+    check_("park/no_current_stage", created(CREATED_STATE.replace("- **Current Stage**: intent-capture\n", "- **Current Stage**: \n")), [parked], direct)
+    check_("park/no_runtime_heading", created(CREATED_STATE.replace("## Runtime State\n", "## Runtime\n")), [parked] + reads, direct)
+    check_("park/fence", created(), [parked, ["unpark"]])
+    # Whose stop: a turn on record and nothing after it, one an approval used, one the run's approvals used up.
+    spoke = CREATED_AUDIT + HUMAN(1)
+    check_("park/person_spoke", created(audit=spoke), [parked] + reads, direct)
+    check_("park/person_spoke_unattended", created(audit=spoke), [parked] + reads, {**direct, "UNATTENDED": "1"})
+    check_("park/person_spoke_command", created(audit=CREATED_AUDIT + HUMAN(1, 0, "**Reply**: command")), [parked] + reads, direct)
+    check_("park/person_spoke_question", created(audit=CREATED_AUDIT + HUMAN(1, 0, "**Reply**: question")), [parked] + reads, direct)
+    approved = lambda minute, *fields: block("GATE_APPROVED", T(minute), "**Stage**: intent-capture", *fields)
+    check_("park/turn_outlives_one_approval", created(audit=spoke + approved(2, "**User Input**: Approve")), [parked] + reads, direct)
+    check_("park/turn_used_by_two_approvals", created(audit=spoke + approved(2, "**User Input**: Approve") + approved(3, "**User Input**: Approve")), [parked] + reads, direct)
+    check_("park/turn_outlives_autonomous_approvals", created(audit=spoke + approved(2, "**User Input**: Approve", "**Autonomous**: true") + approved(3) +
+                                                              approved(4, "**User Input**: Approve", "**Approved Together With**: market-research")), [parked] + reads, direct)
+    check_("park/turn_outlives_plan_approval", created(audit=spoke + block("PLAN_APPROVAL_RECORDED", T(2), "**Plan**: x")), [parked] + reads, direct)
+    check_("park/turn_used_by_answer", created(audit=spoke + block("QUESTION_ANSWERED", T(2), "**Stage**: intent-capture", "**Details**: Chat")), [parked] + reads, direct)
+    check_("park/turn_used_by_autonomy", created(audit=spoke + block("AUTONOMY_MODE_SET", T(2), "**Mode**: autonomous")), [parked] + reads, direct)
+    check_("park/turn_then_plan_and_approval", created(audit=spoke + block("PLAN_APPROVAL_RECORDED", T(2), "**Plan**: x") + approved(3, "**User Input**: Approve")), [parked] + reads, direct)
+    check_("park/latest_turn_tied_across_shards", created(audit=spoke + approved(2, "**User Input**: Approve"), **{f"{CREATED_DIR}/audit/desktop-def456.md": TITLE + HUMAN(1)}), [parked] + reads, direct)
+    check_("park/turn_on_other_shard", created(**{f"{CREATED_DIR}/audit/desktop-def456.md": TITLE + HUMAN(1)}), [parked] + reads, direct)
+    check_("park/no_turn_at_all", created(), [parked] + reads, direct)
+    check_("park/question_turn_then_run_approval", created(audit=CREATED_AUDIT + HUMAN(1, 0, "**Reply**: question") + approved(2)), [parked] + reads, direct)
+    check_("park/question_turn_used_by_approval", created(audit=CREATED_AUDIT + HUMAN(1, 0, "**Reply**: question") + approved(2, "**User Input**: Approve")), [parked] + reads, direct)
+    check_("park/command_turn_used_by_approval", created(audit=CREATED_AUDIT + HUMAN(1, 0, "**Reply**: command") + approved(2, "**User Input**: Approve")), [parked] + reads, direct)
+    check_("park/reparked_unattended", created(CREATED_STATE.replace("- **Construction Execution**: serial\n", "- **Construction Execution**: serial\n- **Parked By**: person\n")),
+           [parked] + reads, {**direct, "UNATTENDED": "1"})
+    # The autonomous grant: the person's stop wins over it, an unattended run never parks itself.
+    autonomous = CREATED_STATE.replace("- **Construction Execution**: serial\n", "- **Construction Execution**: serial\n- **Construction Autonomy Mode**: autonomous\n")
+    check_("park/autonomous_no_reply", created(autonomous), [parked], direct)
+    check_("park/autonomous_replied", created(autonomous, spoke), [parked] + reads, direct)
+    check_("park/autonomous_unattended", created(autonomous, spoke), [parked], {**direct, "UNATTENDED": "1"})
+    check_("park/team_units", created(CREATED_STATE + "- **Unit Ownership**: team\n"), [parked, ["unpark"]], direct)
+    # unpark: the fields gone and the row written once.
+    with_fields = CREATED_STATE.replace("- **Construction Execution**: serial\n", "- **Construction Execution**: serial\n- **Parked**: 2026-01-05T10:05:00Z\n- **Parked At Stage**: intent-capture\n- **Parked By**: person\n")
+    check_("unpark/parked", created(with_fields), [["unpark"], ["get", "Parked"], ["unpark"]], direct)
+    check_("unpark/parked_empty", created(with_fields.replace("- **Parked**: 2026-01-05T10:05:00Z", "- **Parked**:  ")), [["unpark"]], direct)
+    check_("unpark/usage_ignored", created(with_fields), [["unpark", "--x", "y"]], direct)
+    for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
+        check_(f"observer/{marker.lower()}_park", created(), [parked, ["unpark"]], {marker: "1", **direct})
+
+
+def jump_checks():
+    """`aidlc-jump.ts resolve`, `execute` and `reopen`."""
+    check_ = lambda name, files, steps, env=None, edits=(): runtime_check(name, files, steps, env, edits, group="jump")
+    ic = artifact("intent-capture", "intent-statement")
+    ideation = ["intent-capture", "market-research", "feasibility", "scope-definition", "team-formation", "rough-mockups"]
+    at_feasibility = at_stage(CREATED_STATE, "feasibility", done=["intent-capture", "market-research"])
+    check_("usage/none", created(), [[]])
+    check_("usage/unknown", created(), [["nope"]])
+    check_("usage/flag_without_its_value", created(), [["resolve", "--project-dir"]])
+    check_("resolve/usage", created(), [["resolve"], ["resolve", "--stage"], ["resolve", "--stage", ""], ["resolve", "--allow-skipped"]])
+    check_("resolve/unknown", created(), [["resolve", "--stage", "nope"], ["resolve", "--phase", "nope"], ["resolve", "--stage", "feasibility", "--scope", "nope"], ["resolve", "--phase", "5"]])
+    check_("resolve/forward", created(), [["resolve", "--stage", "feasibility"], ["resolve", "--stage", "1.3"], ["resolve", "--stage", "feedback-optimization"]])
+    check_("resolve/phase", created(), [["resolve", "--phase", "inception"], ["resolve", "--phase", "2"], ["resolve", "--phase", "INCEPTION"], ["resolve", "--phase", "0"],
+                                        ["resolve", "--phase", "ideation"], ["resolve", "--phase", "operation", "--scope", "bugfix"]])
+    check_("resolve/backward", created(at_feasibility), [["resolve", "--stage", "intent-capture"], ["resolve", "--stage", "market-research"]])
+    check_("resolve/redo", created(at_feasibility), [["resolve", "--stage", "feasibility"], ["resolve", "--stage", "1.3"]])
+    check_("resolve/skipped_target", created(), [["resolve", "--stage", "reverse-engineering"], ["resolve", "--stage", "reverse-engineering", "--allow-skipped"],
+                                                 ["resolve", "--allow-skipped", "--stage", "feasibility"]])
+    check_("resolve/foreign_scope", created(), [["resolve", "--stage", "feasibility", "--scope", "bugfix"], ["resolve", "--stage", "reverse-engineering", "--scope", "bugfix"],
+                                                ["resolve", "--phase", "inception", "--scope", "poc"]])
+    suffixed = CREATED_STATE.replace("- [ ] market-research \u2014 EXECUTE", "- [ ] market-research \u2014 SKIP").replace("- [ ] reverse-engineering \u2014 SKIP", "- [ ] reverse-engineering \u2014 EXECUTE")
+    check_("resolve/suffix_override", created(suffixed), [["resolve", "--stage", "feasibility"], ["resolve", "--stage", "market-research"], ["resolve", "--stage", "reverse-engineering"],
+                                                          ["resolve", "--phase", "inception"], ["resolve", "--stage", "market-research", "--scope", "feature"], ["resolve", "--stage", "market-research", "--scope", "bugfix"]])
+    inception_off = CREATED_STATE
+    for slug in ("practices-discovery", "requirements-analysis", "user-stories", "refined-mockups", "domain-design", "units-generation", "contract-design", "delivery-planning"):
+        inception_off = inception_off.replace(f"- [ ] {slug} \u2014 EXECUTE", f"- [ ] {slug} \u2014 SKIP")
+    check_("resolve/phase_all_suffixed_skip", created(inception_off), [["resolve", "--phase", "inception"], ["resolve", "--phase", "inception", "--scope", "bugfix"]])
+    check_("resolve/no_current_stage", created(CREATED_STATE.replace("- **Current Stage**: intent-capture\n", "- **Current Stage**: \n")), [["resolve", "--stage", "feasibility"]])
+    check_("resolve/current_unknown", created(CREATED_STATE.replace("- **Current Stage**: intent-capture\n", "- **Current Stage**: nope\n")), [["resolve", "--stage", "feasibility"]])
+    check_("resolve/no_scope", created(CREATED_STATE.replace("- **Scope**: feature\n", "")), [["resolve", "--stage", "feasibility"]])
+    check_("resolve/empty_scope", created(CREATED_STATE.replace("- **Scope**: feature\n", "- **Scope**: \n")), [["resolve", "--stage", "feasibility"]])
+    check_("resolve/flag_forms", created(), [["resolve", "--stage", "--phase", "inception"], ["resolve", "--phase", "inception", "--stage"], ["--stage", "feasibility", "resolve"]])
+    check_("resolve/no_state_file", created(**{f"{CREATED_DIR}/aidlc-state.md": None}), [["resolve", "--stage", "feasibility"]])
+    # execute: forward, across a phase boundary, backward with what it invalidates, redo.
+    forward = ["execute", "--target", "feasibility", "--direction", "forward"]
+    check_("execute/usage", created(), [["execute"], ["execute", "--target"], ["execute", "--target", "feasibility"], ["execute", "--target", "feasibility", "--direction", "sideways"],
+                                        ["execute", "--target", "nope", "--direction", "forward"], ["execute", "--target", "reverse-engineering", "--direction", "forward"],
+                                        ["execute", "--target", "feasibility", "--direction", "forward", "--scope", "nope"]])
+    check_("execute/forward", created(**ic), [forward, ["resolve", "--stage", "intent-capture"]])
+    check_("execute/forward_from_awaiting", created(CREATED_STATE.replace("- [-] intent-capture", "- [?] intent-capture")), [forward])
+    check_("execute/forward_from_revising", created(CREATED_STATE.replace("- [-] intent-capture", "- [R] intent-capture")), [forward])
+    check_("execute/forward_from_pending", created(CREATED_STATE.replace("- [-] intent-capture", "- [ ] intent-capture")), [forward])
+    check_("execute/forward_over_done", created(at_stage(CREATED_STATE, "market-research", done=["intent-capture"])), [["execute", "--target", "scope-definition", "--direction", "forward"]])
+    check_("execute/forward_phase_boundary", created(**ic), [["execute", "--target", "requirements-analysis", "--direction", "forward"]])
+    check_("execute/forward_two_phases", created(**ic), [["execute", "--target", "code-generation", "--direction", "forward"]])
+    check_("execute/forward_suffix_override", created(suffixed), [forward, ["execute", "--target", "reverse-engineering", "--direction", "forward"]])
+    check_("execute/forward_foreign_scope", created(suffixed), [["execute", "--target", "scope-definition", "--direction", "forward", "--scope", "bugfix"]])
+    check_("execute/forward_to_current", created(), [["execute", "--target", "intent-capture", "--direction", "forward"]])
+    check_("execute/forward_mis_specified", created(at_feasibility), [["execute", "--target", "intent-capture", "--direction", "forward"]])
+    backward = ["execute", "--target", "intent-capture", "--direction", "backward"]
+    mr = artifact("market-research", "competitive-analysis")
+    check_("execute/backward", created(at_feasibility, **ic, **mr), [backward, ["resolve", "--stage", "feasibility"]])
+    check_("execute/backward_no_artifacts", created(at_feasibility), [backward])
+    check_("execute/backward_review_section", created(at_feasibility, **ic, **artifact("market-research", "competitive-analysis", "# MR\n\n## Review\n- R-01 New: x\n")), [backward])
+    check_("execute/backward_review_section_fenced", created(at_feasibility, **ic, **artifact("market-research", "competitive-analysis", "```\n## Review\nx\n```\n")), [backward])
+    check_("execute/backward_review_rows", created(at_feasibility, CREATED_AUDIT + block("REVIEW_COMPLETED", T(2), "**Stage**: intent-capture", "**Verdict**: READY"), **ic), [backward])
+    # A reviewed stage behind the jump: its review records are the brief's (M5), refused by name when rows are on the ledger.
+    reviewed = at_stage(CREATED_STATE, "approval-handoff", done=ideation)
+    check_("execute/backward_over_reviewed_stage", created(reviewed, **ic, **artifact("rough-mockups", "wireframes", "# W\n\n## Review\n- R-01 New: x\n")),
+           [["execute", "--target", "team-formation", "--direction", "backward"]])
+    check_("execute/backward_over_reviewed_stage_rows", created(reviewed, CREATED_AUDIT + block("REVIEW_COMPLETED", T(2), "**Stage**: rough-mockups", "**Verdict**: READY"), **ic),
+           [["execute", "--target", "team-formation", "--direction", "backward"]])
+    check_("execute/backward_mis_specified", created(), [["execute", "--target", "feasibility", "--direction", "backward"]])
+    check_("execute/backward_leaves_plan_skipped", created(at_stage(CREATED_STATE, "practices-discovery", done=ideation + ["approval-handoff"], skipped=["reverse-engineering"], phase="INCEPTION")),
+           [backward])
+    operation_off = at_stage(CREATED_STATE, "requirements-analysis", done=ideation + ["approval-handoff"], phase="INCEPTION").replace("- **Operation**: Pending", "- **Operation**: Skipped")
+    for slug in ("deployment-pipeline", "environment-provisioning", "deployment-execution", "observability-setup", "incident-response", "performance-validation", "feedback-optimization"):
+        operation_off = operation_off.replace(f"- [ ] {slug} \u2014 EXECUTE", f"- [ ] {slug} \u2014 SKIP")
+    check_("execute/backward_phase_without_execute", created(operation_off, **ic), [backward])
+    check_("execute/backward_phase_boundary", created(at_stage(CREATED_STATE, "requirements-analysis", done=ideation + ["approval-handoff"], phase="INCEPTION"), **ic),
+           [["execute", "--target", "market-research", "--direction", "backward"]])
+    operation = at_stage(CREATED_STATE, "deployment-pipeline", done=ideation + ["approval-handoff", "practices-discovery", "requirements-analysis", "user-stories", "refined-mockups",
+                                                                                 "domain-design", "units-generation", "contract-design", "delivery-planning", "functional-design",
+                                                                                 "nfr-requirements", "nfr-design", "infrastructure-design", "code-generation", "build-and-test",
+                                                                                 "ci-pipeline"], phase="OPERATION")
+    per_unit = {f"{CREATED_DIR}/construction/api/functional-design/entities.md": "# api\n", f"{CREATED_DIR}/construction/web/code-generation/code-summary.md": "# web\n",
+                f"{CREATED_DIR}/construction/web/functional-design/entities.md": "# web\n", f"{CREATED_DIR}/construction/web/functional-design/frontend-components.md": "# web\n",
+                **artifact("units-generation", "unit-of-work", phase="inception")}
+    # Units Generation off the plan: the unit directories still count when a stage-level file is not there.
+    units_off = operation.replace("- [x] units-generation \u2014 EXECUTE", "- [S] units-generation \u2014 SKIP")
+    check_("execute/backward_over_construction_dirs_without_units_generation", created(units_off, **per_unit), [["execute", "--target", "delivery-planning", "--direction", "backward"]])
+    # Both a stage-level file and unit directories, with no DAG: the stage-level file wins.
+    check_("execute/backward_over_construction_mixed", created(operation, **per_unit, **{f"{CREATED_DIR}/construction/functional-design/entities.md": "# all\n"}),
+           [["execute", "--target", "delivery-planning", "--direction", "backward"]])
+    # A DAG with unit kinds: a unit's kind picks which artifacts it produces (frontend-components for ui, not for a service).
+    kinds = "# Dependencies\n\n```yaml\nunits:\n  - name: api\n    kind: service\n  - name: web\n    kind: ui\n```\n"
+    check_("execute/backward_over_construction_kinds", created(operation, **per_unit, **{UNITS.replace(RECORD_DIR, CREATED_DIR): kinds}), [["execute", "--target", "delivery-planning", "--direction", "backward"]])
+    check_("execute/backward_to_stage_with_optional", created(at_stage(CREATED_STATE, "scope-definition", done=["intent-capture", "market-research", "feasibility"]), **artifact("feasibility", "raid-log")),
+           [["execute", "--target", "feasibility", "--direction", "backward"]])
+    check_("execute/backward_over_construction_dirs", created(operation, **per_unit), [["execute", "--target", "units-generation", "--direction", "backward"]])
+    check_("execute/backward_over_construction_dag", created(operation, **per_unit, **{UNITS.replace(RECORD_DIR, CREATED_DIR): A_UNITS}), [["execute", "--target", "units-generation", "--direction", "backward"]])
+    check_("execute/backward_over_construction_empty", created(operation), [["execute", "--target", "delivery-planning", "--direction", "backward"]])
+    check_("execute/backward_over_construction_stage_level", created(operation.replace("- [x] units-generation \u2014 EXECUTE", "- [S] units-generation \u2014 SKIP"),
+                                                                     **{f"{CREATED_DIR}/construction/functional-design/entities.md": "# all\n"}),
+           [["execute", "--target", "delivery-planning", "--direction", "backward"]])
+    brownfield = at_stage(CREATED_STATE.replace("- [ ] reverse-engineering \u2014 SKIP", "- [ ] reverse-engineering \u2014 EXECUTE"), "practices-discovery",
+                          done=ideation + ["approval-handoff", "reverse-engineering"], phase="INCEPTION")
+    codekb = {"aidlc/spaces/default/codekb/app/architecture.md": "# Known\n", "aidlc/spaces/default/codekb/app/business-overview.md": "# Known\n\n## Review\n- R-01\n"}
+    check_("execute/backward_over_codekb", created(brownfield, **codekb), [["execute", "--target", "reverse-engineering", "--direction", "backward"]])
+    check_("execute/backward_over_codekb_registered", created(brownfield, registry=CREATED_REGISTRY.replace('"status": "in-flight"', '"status": "in-flight",\n    "repos": ["app", "lib"]'), **codekb),
+           [["execute", "--target", "reverse-engineering", "--direction", "backward"]])
+    check_("execute/backward_over_codekb_duplicate_repos", created(brownfield, registry=CREATED_REGISTRY.replace('"status": "in-flight"', '"status": "in-flight",\n    "repos": ["app", "app"]'), **codekb),
+           [["execute", "--target", "reverse-engineering", "--direction", "backward"]])
+    check_("execute/backward_session", created(at_feasibility, **ic), [backward], {"SESSION_OVERRIDE": "s1"})
+    check_("execute/backward_unit_stage", created(at_feasibility + "- **Unit Stage**: market-research\n- **Active Unit**: api\n", **ic), [backward, ["resolve", "--stage", "feasibility"]])
+    check_("execute/backward_unit_stage_unknown", created(at_feasibility + "- **Unit Stage**: nope\n", **ic), [backward])
+    check_("execute/redo", created(at_feasibility, **ic), [["execute", "--target", "feasibility", "--direction", "redo"], ["resolve", "--stage", "feasibility"]])
+    check_("execute/redo_elsewhere", created(at_feasibility, **ic), [["execute", "--target", "intent-capture", "--direction", "redo"]])
+    check_("execute/answer_mode", created(audit=CREATED_AUDIT + block("DECISION_RECORDED", T(1), "**Stage**: intent-capture", "**Decision**: How would you like to answer them?",
+                                                                      "**Options**: Guide me, I'll edit the file, Chat") + block("QUESTION_ANSWERED", T(2), "**Stage**: intent-capture", "**Details**: Chat")),
+           [forward])
+    check_("execute/units", created(**ic), [["execute", "--target", "functional-design", "--direction", "forward", "--units", "api"],
+                                            ["execute", "--target", "feasibility", "--direction", "forward", "--units", ""]])
+    check_("execute/directive_marker", created(**ic, **{f"{GATE_DIR}/active-directive.json": json.dumps({"stage": "market-research"})}), [forward])
+    check_("execute/no_state_file", created(**{f"{CREATED_DIR}/aidlc-state.md": None}), [forward])
+    check_("execute/archived", created(CREATED_STATE.replace("- **Status**: Running", "- **Status**: Archived")), [forward])
+    check_("reopen/usage", created(), [["reopen"], ["reopen", "--target", "functional-design"], ["reopen", "--units", "api"]])
+    check_("reopen/by_name", created(), [["reopen", "--target", "functional-design", "--units", "api,web"], ["reopen", "--target", "intent-capture", "--units", "api", "--via", "redo"]])
+    for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
+        check_(f"observer/{marker.lower()}", created(**ic), [forward, ["resolve", "--stage", "feasibility"]], {marker: "1"})
+
+
 def transition_fuzz(count):
     """Random sequences of transitions on a created record, started at a random stage with random artifacts."""
     rng = random.Random(SEED + 3)
@@ -3118,6 +3320,39 @@ def transition_fuzz(count):
         if rng.random() < 0.2:
             env["SKIP_ARTIFACT_GUARD"] = "1"
         runtime_check(str(index), created(state, **files), steps, env, group="fuzz/transitions", tool="state")
+
+
+def jump_fuzz(count):
+    """Random jumps on a created record started at a random stage with random artifacts and suffixes."""
+    rng = random.Random(SEED + 4)
+    with open(os.path.join(DIST, ".claude", "tools", "data", "stage-graph.json"), encoding="utf-8") as handle:
+        graph = [stage for stage in json.load(handle) if stage["phase"] != "initialization"]
+    order = [stage["slug"] for stage in graph]
+    for index in range(count):
+        start = rng.randrange(0, len(order))
+        current = graph[start]
+        state = at_stage(GATE_STATE, current["slug"], done=order[:start], phase=current["phase"].upper())
+        for stage in rng.sample(graph, 3):
+            if rng.random() < 0.5:
+                flipped = "SKIP" if rng.random() < 0.5 else "EXECUTE"
+                state = re.sub(rf"(- \[.\] {re.escape(stage['slug'])} \u2014 )(EXECUTE|SKIP)", rf"\g<1>{flipped}", state)
+        if rng.random() < 0.3:
+            state = state.replace(f"- [-] {current['slug']}", f"- [{rng.choice('?Rx ')}] {current['slug']}")
+        files = {}
+        for stage in rng.sample(graph, rng.randrange(0, 6)):
+            for name in rng.sample(stage["produces"], rng.randrange(1, len(stage["produces"]) + 1)):
+                text = rng.choice(["# A\n", "# B\n\n## Review\n- R-01 New: x\n", "", "```\n## Review\n```\n"])
+                files.update(artifact(stage["slug"], name, text, phase=stage["phase"]))
+        steps = []
+        for _ in range(rng.randrange(1, 4)):
+            target = rng.choice(order)
+            if rng.random() < 0.3:
+                steps.append(["resolve", rng.choice(["--stage", "--phase"]), rng.choice([target, rng.choice(["1", "2", "3", "4", "inception", "1.2"])])])
+            else:
+                direction = rng.choice(["forward", "backward", "redo", "forward", "backward"])
+                steps.append(["execute", "--target", target, "--direction", direction])
+        steps.append(["resolve", "--stage", rng.choice(order)])
+        runtime_check(str(index), created(state, **files), steps, {}, group="fuzz/jump", tool="jump")
 
 
 def runtime_checks():
@@ -3853,6 +4088,8 @@ try:
     intent_create_checks()
     transition_checks()
     gate_checks()
+    park_checks()
+    jump_checks()
     run_queued()
     if FUZZ:
         if not ONLY or not re.search(ONLY, "fuzz/audit"):
@@ -3860,6 +4097,7 @@ try:
         audit_fuzz(FUZZ // 3)
         runtime_fuzz(FUZZ // 4)
         transition_fuzz(FUZZ // 4)
+        jump_fuzz(FUZZ // 6)
         run_queued(quiet=True)
     if MARKDOWN:
         markdown_fuzz(MARKDOWN)
