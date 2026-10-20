@@ -21,9 +21,10 @@ use focus_graph::runtime;
 use focus_graph::scopes::{self, ScopeMetadata};
 use focus_js::json;
 use focus_js::text::trim;
+use focus_lifecycle::workflow::Workflow;
 use focus_workspace::manifest::HarnessManifest;
 use focus_workspace::project;
-use focus_workspace::records::Selector;
+use focus_workspace::records::{self, Invoker, Selector};
 use focus_workspace::scan::{self, Scan};
 use serde_json::{Map, Value, json};
 
@@ -43,14 +44,16 @@ The workflow from outside: what the workspace holds, and the engine's time.
                            file and registry row (run with --help for the
                            flags)
   now                      Print the engine's time, as the ledger stamps it
+  status [--intent <record>] [--space <name>]
+                           The workflow as a person reads it: where it stands,
+                           who is on it, its settings, its progress
 
 Run with --help for this text.";
 
 /// Upstream's other verbs: what each does, for the line that refuses it.
-const NOT_PORTED: [(&str, &str); 31] = [
+const NOT_PORTED: [(&str, &str); 30] = [
     ("help", "prints upstream's help"),
     ("version", "prints the engine's version"),
-    ("status", "prints the workflow's status"),
     ("doctor", "checks the installation"),
     ("init", "is the retired name of intent-create"),
     ("intent", "lists, switches, archives and unarchives intents"),
@@ -94,7 +97,7 @@ const NOT_PORTED: [(&str, &str); 31] = [
 ];
 
 /// The verbs Focus has.
-const VERBS: [&str; 3] = ["detect", "intent-create", "now"];
+const VERBS: [&str; 4] = ["detect", "intent-create", "now", "status"];
 
 const INTENT_CREATE_USAGE: &str = "Usage: focus engine utility intent-create --scope <scope> [--arguments \"<description>\"] [--label \"<short label>\"] [--depth <level>] [--test-strategy <level>] [--review <class>] [--guard-policy <value>] [--sensors <on|off>] [--learnings <on|off>] [--summary-confirmation <on|off>] [--collaborators <on|off>] [--skip <slug,...>] [--add <slug,...>] [--repos <name,...>] [--project-type <greenfield|brownfield>] [--space <name>] [--project-dir <path>]";
 
@@ -177,11 +180,30 @@ fn answer(parsed: &Parsed, context: &Context) -> Verb {
             "{}\n",
             focus_audit::time::iso_timestamp(SystemTime::now())
         ))),
+        "status" => status(parsed, context),
         other => Err(Refusal::of(format!(
             "Unknown command \"{other}\". Run `focus engine utility --help` for what this tool can do.\n\nAvailable commands: {}\nCommon options: [--project-dir <path>] [--json]",
             VERBS.join(", ")
         ))),
     }
+}
+
+/// `handleStatus`: the workflow as a person reads it, for the active
+/// record or the one `--intent`/`--space` name.
+fn status(parsed: &Parsed, context: &Context) -> Verb {
+    let layout = context.workspace()?;
+    let invoker = Invoker::from_env();
+    let selection = records::resolve_selection(&layout, &context.selector, &invoker)?;
+    let wf = Workflow::open(layout, selection, invoker)?;
+    if !wf.state_path().exists() {
+        return Ok(Some(focus_lifecycle::status::no_workflow_text()));
+    }
+    let by_flags = parsed.valued("intent").is_some() || parsed.valued("space").is_some();
+    Ok(Some(focus_lifecycle::status::render(
+        &wf,
+        SystemTime::now(),
+        by_flags,
+    )?))
 }
 
 /// `validateIntentCreateFlagValues`, then the creation itself.

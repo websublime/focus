@@ -7,6 +7,8 @@
 //! as upstream's `undefined` does.
 
 use focus_graph::runtime::{Stage, truthy};
+use focus_graph::stage_schema::SLUG_RE;
+use focus_js::re;
 use serde_json::{Map, Value};
 
 /// `stage.name`; the slug when the node carries no name.
@@ -66,6 +68,19 @@ pub fn is_per_unit(stage: &Stage) -> bool {
 
 fn text<'a>(stage: &'a Stage, key: &str) -> Option<&'a str> {
     stage.raw.get(key).and_then(Value::as_str)
+}
+
+/// `stageLabel`: the stage's name, or its slug for a plugin's stage, or
+/// nothing when the slug is not one.
+#[must_use]
+pub fn stage_label(stage: Option<&Stage>, slug: &str) -> Option<String> {
+    if let Some(stage) = stage
+        && stage.plugin.is_none()
+    {
+        return Some(name(stage).to_owned());
+    }
+    let typed = stage.map_or(slug, |stage| stage.slug.as_str());
+    re::test(SLUG_RE, "", typed).then(|| typed.to_owned())
 }
 
 #[cfg(test)]

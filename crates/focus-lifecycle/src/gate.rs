@@ -856,7 +856,7 @@ pub fn withdraw_protected_questions(wf: &Workflow, _held: &WorkspaceLock) -> Res
         .layout
         .workspace_root()
         .join(SESSIONS_DIR)
-        .join(".focus-plan-approval");
+        .join("plan-approval");
     links::refuse_link_on_the_way(&wf.layout.project, &dir)?;
     let entries = match std::fs::read_dir(&dir) {
         Ok(entries) => entries,

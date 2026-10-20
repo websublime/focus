@@ -1609,7 +1609,9 @@ def compare_audit(name, trees, steps, env, tool="audit"):
         before = workspace_files(tree)
         exits, outs, errs = [], [], []
         for args in steps:
-            code, out, err = run_audit(engine, tree, args, env, tool)
+            # A step that names its own tool (`@state advance …`) runs that one.
+            named = bool(args) and args[0].startswith("@")
+            code, out, err = run_audit(engine, tree, args[1:] if named else args, env, args[0][1:] if named else tool)
             if engine == "ts" and code != 0:
                 sentence = uncaught(err)
                 if sentence is not None:
@@ -2060,6 +2062,13 @@ DEVIATIONS.update({
     "jump/reopen/by_name":
         "reopen starts a per-unit stage again for named units with their own GATE_REJECTED rows (M4); focus "
         "refuses by name once the usage is satisfied",
+    r"utility/status/directive_marker(_by_flags)?":
+        "a record carrying an active-directive marker: the status reads the step the engine last handed out off "
+        "it, and the guards read the authority behind the command off it (M5); focus refuses the status by name "
+        "while the marker is there, named by flags or not",
+    "utility/status/team":
+        "with Unit Ownership team the status ends with the team board, rendered by the orchestrator from the "
+        "units' claims (M4): upstream runs it and fails on the DAG it cannot read; focus refuses by name",
     "state/gates/sensors_on":
         "with the Sensors ceremony on and the declared artifacts on disk, opening a gate fires the stage's gate "
         "sensors through the sensor tool (M5): upstream runs them, records their findings and opens the gate; focus "
@@ -2612,9 +2621,9 @@ def intent_create_checks():
     for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
         check_(f"create/observer_{marker.lower()}", {}, [feature], {marker: "1"})
     check_("create/flat_layout", {"aidlc-docs/aidlc-state.md": "# State\n- **Scope**: feature\n"}, [feature])
-    check_("create/creation_grant_on_disk", {"aidlc/.aidlc-sessions/.aidlc-plan-approval/plan-approval-off-at-creation-sess-0001.json": "{}\n"},
+    check_("create/creation_grant_on_disk", {"aidlc/.aidlc-sessions/plan-approval/plan-approval-off-at-creation-sess-0001.json": "{}\n"},
            [feature], {"SESSION_OVERRIDE": "sess-0001"})
-    check_("create/presence_bypass_on_disk", {"aidlc/.aidlc-sessions/.aidlc-plan-approval/presence-bypass-sess-0001": "2026-01-01T00:00:00Z\n"},
+    check_("create/presence_bypass_on_disk", {"aidlc/.aidlc-sessions/plan-approval/presence-bypass-sess-0001": "2026-01-01T00:00:00Z\n"},
            [create + ["--scope", "enterprise", "--label", "x", "--guard-policy", "off"]], {"SESSION_OVERRIDE": "sess-0001", "SKIP_HUMAN_PRESENCE_GUARD": "1"})
     check_("create/record_dir_taken", {f"aidlc/spaces/default/intents/{TODAY}-add-login/.keep": ""}, [feature])
     check_("create/pending_person_lines", {"aidlc/.aidlc-sessions/sess-0001.person-lines": json.dumps({"work": None, "lines": [{"line": "Sensors are off for this piece of work.", "at": int(time.time() * 1000)}], "said": []}) + "\n"},
@@ -2667,6 +2676,130 @@ def at_stage(state, current, done=(), skipped=(), phase="IDEATION", next_stage=N
     if next_stage is not None:
         state = re.sub(r"- \*\*Next Stage\*\*: [^\n]*", f"- **Next Stage**: {next_stage}", state)
     return state
+
+
+def status_checks():
+    """`aidlc-utility.ts status`: the workflow as a person reads it."""
+    check_ = lambda name, files, steps, env=None, edits=(): runtime_check(name, files, steps, env, edits, group="utility")
+    ic = artifact("intent-capture", "intent-statement")
+    ideation = ["intent-capture", "market-research", "feasibility", "scope-definition", "team-formation", "rough-mockups"]
+    status = [["status"]]
+    direct = {"ALLOW_DIRECT_STATE_TRANSITIONS": "1"}
+    check_("status/no_workflow", created(**{f"{CREATED_DIR}/aidlc-state.md": None}), status)
+    check_("status/no_record", {**CLONE}, status)
+    check_("status/fresh", created(), status)
+    check_("status/by_flags", created(), [["status", "--intent", "260105-add-login"], ["status", "--space", "default"], ["status", "--intent", "nope"], ["status", "--space", "nope"]])
+    check_("status/after_advance", created(**ic), [["@state", "advance", "intent-capture"], ["status"]], direct)
+    check_("status/sparse_state", created("# State\n- **Scope**: feature\n"), status)
+    check_("status/unknown_everything", created("# State\n- **Project**: \n- **Current Stage**: nope\n- **Active Agent**: Not A Slug\n- **Last Completed Stage**: nope\n- **Next Stage**: nope\n"), status)
+    # The status line: the gate open (and since when), revising, approved and ready, parked.
+    awaiting = CREATED_STATE.replace("- [-] intent-capture — EXECUTE", "- [?] intent-capture — EXECUTE")
+    opened = CREATED_AUDIT + block("STAGE_AWAITING_APPROVAL", T(1), "**Stage**: intent-capture")
+    # The wait is measured against the clock: the replay runs later.
+    for name in ("awaiting", "awaiting_cleared", "awaiting_tied", "awaiting_recovered", "awaiting_reopened", "awaiting_after_jump", "awaiting_other_stage_rows"):
+        UNRECORDED.add(f"utility/status/{name}")
+    check_("status/awaiting", created(awaiting, opened), status)
+    check_("status/awaiting_no_row", created(awaiting), status)
+    check_("status/awaiting_cleared", created(awaiting, opened + block("GATE_REJECTED", T(2), "**Stage**: intent-capture")), status)
+    check_("status/awaiting_tied", created(awaiting, opened, **{f"{CREATED_DIR}/audit/desktop-def456.md": TITLE + block("GATE_APPROVED", T(1), "**Stage**: intent-capture")}), status)
+    check_("status/awaiting_recovered", created(awaiting, CREATED_AUDIT + block("STAGE_AWAITING_APPROVAL", T(1), "**Stage**: intent-capture", "**Recovered**: true")), status)
+    check_("status/awaiting_reopened", created(awaiting, opened + block("GATE_REJECTED", T(2), "**Stage**: intent-capture") + block("STAGE_AWAITING_APPROVAL", T(3), "**Stage**: intent-capture")), status)
+    check_("status/awaiting_after_jump", created(awaiting, opened + block("STAGE_JUMPED", T(2), "**Target**: intent-capture")), status)
+    check_("status/awaiting_other_stage_rows", created(awaiting, opened + block("GATE_APPROVED", T(2), "**Stage**: market-research") + block("STAGE_STARTED", T(2, 1), "**Stage**: intent-capture", "**Workflow**: single-stage:x")), status)
+    check_("status/awaiting_bad_timestamp", created(awaiting, CREATED_AUDIT + block("STAGE_AWAITING_APPROVAL", "yesterday", "**Stage**: intent-capture")), status)
+    check_("status/revising", created(CREATED_STATE.replace("- [-] intent-capture — EXECUTE", "- [R] intent-capture — EXECUTE").replace("- **Revision Count**: 0", "- **Revision Count**: 2")), status)
+    check_("status/revising_no_count", created(CREATED_STATE.replace("- [-] intent-capture — EXECUTE", "- [R] intent-capture — EXECUTE").replace("- **Revision Count**: 0\n", "")), status)
+    check_("status/approved_ready", created(CREATED_STATE.replace("- [-] intent-capture — EXECUTE", "- [x] intent-capture — EXECUTE")), status)
+    check_("status/completed_not_running", created(CREATED_STATE.replace("- [-] intent-capture — EXECUTE", "- [x] intent-capture — EXECUTE").replace("- **Status**: Running", "- **Status**: Completed")), status)
+    check_("status/parked", created(CREATED_STATE.replace("- **Construction Execution**: serial\n", "- **Construction Execution**: serial\n- **Parked**: 2026-01-05T10:05:00Z\n- **Parked At Stage**: intent-capture\n")), status)
+    # The plan, the project type, the depth.
+    check_("status/plan", created(CREATED_STATE.replace("- **Scope**: feature\n", "- **Scope**: feature\n- **Plan**: lean-login\n")), status)
+    check_("status/project_type", created(CREATED_STATE.replace("- **Project Type**: Greenfield", "- **Project Type**: Brownfield").replace("- **Project Type Source**: workspace scan", "- **Project Type Source**: you")), status)
+    check_("status/project_type_scanned", created(CREATED_STATE.replace("- **Project Type**: Greenfield", "- **Project Type**: brownfield"),
+                                                  CREATED_AUDIT + block("STAGE_COMPLETED", T(1), "**Stage**: reverse-engineering") + block("STAGE_COMPLETED", T(3), "**Stage**: reverse-engineering") + block("STAGE_COMPLETED", "soon", "**Stage**: reverse-engineering")), status)
+    check_("status/project_type_unknown", created(CREATED_STATE.replace("- **Project Type**: Greenfield", "- **Project Type**: Mixed")), status)
+    check_("status/depth", created(CREATED_STATE.replace("- **Depth**: Standard", "- **Depth**: Deep").replace("- **Test Strategy**: Standard", "- **Test Strategy**: Light")), status)
+    check_("status/depth_from_plan", created(CREATED_STATE.replace("- **Scope**: feature\n", "- **Scope**: feature\n- **Plan**: lean-login\n").replace("- **Test Strategy**: Standard", "- **Test Strategy**: standard")), status)
+    check_("status/no_depth", created(CREATED_STATE.replace("- **Depth**: Standard\n", "").replace("- **Test Strategy**: Standard\n", "")), status)
+    # The guard policy and the checks switched off, the ceremonies.
+    check_("status/guard_policy_strict", created(CREATED_STATE.replace("- **Guard Policy**: off (from scope feature)", "- **Guard Policy**: strict (set by you)")), status)
+    check_("status/guard_policy_memory", created(**{"aidlc/spaces/default/memory/project.md": "## Guard Policy\n\nMode: strict\n"}), status)
+    check_("status/guard_policy_unreadable", created(**{"aidlc/spaces/default/memory/project.md": "## Guard Policy\n\nMode: maybe\n"}), status)
+    check_("status/guard_policy_invalid_line", created(CREATED_STATE.replace("- **Guard Policy**: off (from scope feature)", "- **Guard Policy**: sometimes")), status)
+    check_("status/guard_policy_plan", created(CREATED_STATE.replace("- **Scope**: feature\n", "- **Scope**: feature\n- **Plan**: lean-login\n")), status)
+    strict = CREATED_STATE.replace("- **Guard Policy**: off (from scope feature)", "- **Guard Policy**: strict (set by you)")
+    check_("status/checks_off_by_you", created(strict.replace("- **Collaborators**: off (from scope feature)\n", "- **Collaborators**: off (from scope feature)\n- **Guards Off**: review-freeze, state-transition (set by you)\n")), status)
+    check_("status/checks_off_by_env", created(strict), status, {"DISABLE_REVIEW_FREEZE_HOOK": "1", "SKIP_HUMAN_PRESENCE_GUARD": "1"})
+    check_("status/checks_off_mixed", created(strict.replace("- **Collaborators**: off (from scope feature)\n", "- **Collaborators**: off (from scope feature)\n- **Guards Off**: reviewer-scope (set by you)\n")), status, {"DISABLE_PLAN_APPROVAL_GUARD": "1"})
+    check_("status/checks_off_by_policy_not_listed", created(), status)
+    check_("status/ceremony_lines", created(CREATED_STATE.replace("- **Sensors**: on (from scope feature)", "- **Sensors**: off (set by you)").replace("- **Learnings**: on (from scope feature)", "- **Learnings**: on").replace("- **Plan Approval**: on (from scope feature)", "- **Plan Approval**: off (from scope feature)")), status)
+    check_("status/ceremony_kill_switches", created(), status, {"DISABLE_SENSORS": "1", "DISABLE_LEARNINGS": "1", "DISABLE_COLLABORATORS": "1"})
+    check_("status/ceremony_malformed_lines", created(CREATED_STATE.replace("- **Sensors**: on (from scope feature)", "- **Sensors**: maybe").replace("- **Learnings**: on (from scope feature)", "- **Learnings**: ")), status)
+    check_("status/ceremony_no_lines", created(CREATED_STATE.replace("- **Sensors**: on (from scope feature)\n", "").replace("- **Plan Approval**: on (from scope feature)\n", "")), status)
+    check_("status/ceremony_scope_unknown", created(CREATED_STATE.replace("- **Scope**: feature\n", "- **Scope**: nope\n").replace("- **Sensors**: on (from scope feature)\n", "")), status)
+    check_("status/plan_approval_off_by_you", created(CREATED_STATE.replace("- **Plan Approval**: on (from scope feature)", "- **Plan Approval**: off (set by you)")), status)
+    check_("status/plan_approval_off_locked_by_memory", created(CREATED_STATE.replace("- **Plan Approval**: on (from scope feature)", "- **Plan Approval**: off (set by you)"), **{"aidlc/spaces/default/memory/team.md": "## Guard Policy\n\nMode: strict\n"}), status)
+    check_("status/plan_approval_off_memory_unreadable", created(CREATED_STATE.replace("- **Plan Approval**: on (from scope feature)", "- **Plan Approval**: off (set by you)"), **{"aidlc/spaces/default/memory/team.md": "## Guard Policy\n\nMode: nope\n"}), status)
+    check_("status/plan_approval_odd_source", created(CREATED_STATE.replace("- **Plan Approval**: on (from scope feature)", "- **Plan Approval**: on (from somewhere else)")), status)
+    check_("status/plan_approval_switch_untrusted", created(), status, {"DISABLE_PLAN_APPROVAL_GUARD": "1", "SESSION_OVERRIDE": "s1"})
+    check_("status/plan_approval_switch_with_session_recorded", created(**{"aidlc/.aidlc-sessions/.current-session": "s1\n"}), status, {"DISABLE_PLAN_APPROVAL_GUARD": "1"})
+    check_("status/plan_approval_switch_bypass_recorded", created(**{"aidlc/.aidlc-sessions/plan-approval/plan-approval-bypass-s1": "2026-01-05T10:00:00Z\n"}), status, {"DISABLE_PLAN_APPROVAL_GUARD": "1", "SESSION_OVERRIDE": "s1"})
+    check_("status/plan_approval_switch_bypass_malformed", created(**{"aidlc/.aidlc-sessions/plan-approval/plan-approval-bypass-s1": "soon\n"}), status, {"DISABLE_PLAN_APPROVAL_GUARD": "1", "SESSION_OVERRIDE": "s1"})
+    # Completion and the phase bars: skipped stages, suffixes, every box state, a unit walk.
+    bars = at_stage(CREATED_STATE, "feasibility", done=["intent-capture"], skipped=["market-research"]).replace("- [ ] scope-definition — EXECUTE", "- [?] scope-definition — EXECUTE").replace("- [ ] team-formation — EXECUTE", "- [R] team-formation — EXECUTE")
+    check_("status/bars", created(bars), status)
+    check_("status/bars_suffixes", created(bars.replace("- [ ] rough-mockups — EXECUTE", "- [ ] rough-mockups — SKIP").replace("- [ ] reverse-engineering — SKIP", "- [ ] reverse-engineering — EXECUTE")), status)
+    check_("status/bars_unknown_scope", created(CREATED_STATE.replace("- **Scope**: feature\n", "")), status)
+    check_("status/bars_scope_without_stages", created(CREATED_STATE.replace("- **Scope**: feature\n", "- **Scope**: nope\n")), status)
+    construction = at_stage(CREATED_STATE, "functional-design", done=ideation + ["approval-handoff", "practices-discovery", "requirements-analysis", "user-stories", "refined-mockups", "domain-design", "units-generation", "contract-design", "delivery-planning"], phase="CONSTRUCTION")
+    edge_block = "# Dependencies\n\n## Machine-Readable Edge Block\n\n```yaml\nunits:\n  - name: api\n    depends_on: []\n  - name: web\n    depends_on: [api]\n```\n"
+    unit_gate = lambda minute, event, unit: block(event, T(minute), "**Stage**: code-generation", "**Checkpoint**: construction-unit", f"**Unit**: {unit}")
+    check_("status/units_walk", created(construction, CREATED_AUDIT + unit_gate(1, "GATE_APPROVED", "api"), **{UNITS.replace(RECORD_DIR, CREATED_DIR): edge_block}), status)
+    check_("status/units_walk_none_done", created(construction, **{UNITS.replace(RECORD_DIR, CREATED_DIR): edge_block}), status)
+    check_("status/units_walk_all_done", created(construction, CREATED_AUDIT + unit_gate(1, "GATE_APPROVED", "api") + unit_gate(2, "GATE_APPROVED", "web"), **{UNITS.replace(RECORD_DIR, CREATED_DIR): edge_block}), status)
+    check_("status/units_walk_rejected", created(construction, CREATED_AUDIT + unit_gate(1, "GATE_APPROVED", "api") + unit_gate(2, "GATE_REJECTED", "api") + unit_gate(3, "GATE_APPROVED", "nope"), **{UNITS.replace(RECORD_DIR, CREATED_DIR): edge_block}), status)
+    check_("status/units_walk_from_runtime_graph", created(construction, **{f"{CREATED_DIR}/runtime-graph.json": json.dumps({"bolt_dag": {"units": [{"name": "api"}, {"name": "bad name"}, {"name": 3}]}})}), status)
+    check_("status/units_walk_stage_major", created(construction.replace("- **Construction Iteration**: unit-major", "- **Construction Iteration**: stage-major"), **{UNITS.replace(RECORD_DIR, CREATED_DIR): edge_block}), status)
+    check_("status/units_walk_no_dag", created(construction), status)
+    check_("status/current_step", created(construction + "- **Active Unit**: api\n- **Unit Stage**: code-generation\n"), status)
+    check_("status/current_step_same_stage", created(construction + "- **Active Unit**: api\n- **Unit Stage**: functional-design\n"), status)
+    check_("status/current_step_bad_unit", created(construction + "- **Active Unit**: bad name\n- **Unit Stage**: code-generation\n"), status)
+    check_("status/current_step_not_per_unit", created(CREATED_STATE + "- **Active Unit**: api\n- **Unit Stage**: code-generation\n"), status)
+    check_("status/directive_marker", created(**{f"{GATE_DIR}/active-directive.json": json.dumps({"stage": "market-research", "unit": "api"})}), status)
+    check_("status/directive_marker_by_flags", created(**{f"{GATE_DIR}/active-directive.json": json.dumps({"stage": "market-research"})}), [["status", "--space", "default"]])
+    check_("status/team", created(CREATED_STATE + "- **Unit Ownership**: team\n"), status)
+    # Other work open in the space.
+    other_registry = CREATED_REGISTRY.replace("]", ',\n  {\n    "uuid": "01a138fa-d37d-787d-af4a-966efbb0b6fe",\n    "slug": "add-logout",\n    "dirName": "260105-add-logout",\n    "scope": "feature",\n    "status": "in-flight"\n  },\n  {\n    "uuid": "01a138fa-d37d-787d-af4a-966efbb0b6ff",\n    "slug": "done",\n    "dirName": "260105-done",\n    "scope": "feature",\n    "status": "complete"\n  }\n]')
+    others = {"aidlc/spaces/default/intents/260105-add-logout/aidlc-state.md": "# State\n- **Status**: Running\n",
+              "aidlc/spaces/default/intents/260105-done/aidlc-state.md": "# State\n- **Status**: Running\n",
+              "aidlc/spaces/default/intents/260105-orphan/aidlc-state.md": "# State\n- **Status**: Running\n",
+              "aidlc/spaces/default/intents/260105-finished/aidlc-state.md": "# State\n- **Status**: Completed\n",
+              "aidlc/spaces/other/intents/260105-elsewhere/aidlc-state.md": "# State\n- **Status**: Running\n"}
+    check_("status/also_open", created(registry=other_registry, **others), status)
+    check_("status/also_open_one", created(registry=other_registry, **{k: v for k, v in others.items() if "logout" in k}), status)
+    check_("status/also_open_registry_malformed", created(registry="{nope", **others), status)
+    # Validity: a finished stage whose receipt no longer matches, and what depends on it.
+    receipt = lambda inputs, outputs: json.dumps({"schema": 3, "graphContract": "sha256:" + "0" * 64, "projectType": "greenfield", "inputs": inputs, "outputs": outputs}, separators=(",", ":"))
+    basis = lambda artifact, producer: {"artifact": artifact, "producer": producer, "required": True, "instanceCount": 1, "presentCount": 1, "structureHash": "sha256:" + "1" * 64, "contentHash": "sha256:" + "2" * 64}
+    at_feasibility = at_stage(CREATED_STATE, "feasibility", done=["intent-capture", "market-research"])
+    completed_with = lambda minute, stage, text: block("STAGE_COMPLETED", T(minute), f"**Stage**: {stage}", f"**Validation Basis**: {text}")
+    check_("status/validity_stale", created(at_feasibility, CREATED_AUDIT + completed_with(1, "intent-capture", receipt([], [basis("intent-statement", "intent-capture")])), **ic), status)
+    check_("status/validity_stale_propagates", created(at_feasibility, CREATED_AUDIT + completed_with(1, "intent-capture", receipt([], [basis("intent-statement", "intent-capture")])) +
+                                                        completed_with(2, "market-research", receipt([basis("intent-statement", "intent-capture")], [])), **ic, **artifact("market-research", "competitive-analysis")), status)
+    check_("status/validity_only_dependent", created(at_feasibility, CREATED_AUDIT + completed_with(2, "market-research", receipt([basis("intent-statement", "intent-capture")], [])), **ic), status)
+    check_("status/validity_older_schema", created(at_feasibility, CREATED_AUDIT + completed_with(1, "intent-capture", json.dumps({"schema": 1, "x": 1}))), status)
+    check_("status/validity_malformed", created(at_feasibility, CREATED_AUDIT + completed_with(1, "intent-capture", "{nope") + completed_with(2, "market-research", receipt([{"artifact": "a", "producer": "b"}], []))), status)
+    check_("status/validity_superseded_by_legacy", created(at_feasibility, CREATED_AUDIT + completed_with(1, "intent-capture", receipt([], [basis("intent-statement", "intent-capture")])) +
+                                                       completed_with(2, "intent-capture", json.dumps({"schema": 1})), **ic), status)
+    check_("status/validity_restarted_attempt", created(at_feasibility, CREATED_AUDIT + completed_with(1, "intent-capture", receipt([], [basis("intent-statement", "intent-capture")])) + STARTED_ROW(2, "intent-capture")), status)
+    check_("status/validity_project_type", created(at_feasibility.replace("- **Project Type**: Greenfield", "- **Project Type**: Brownfield"), CREATED_AUDIT + completed_with(1, "intent-capture", receipt([], [basis("intent-statement", "intent-capture")])), **ic), status)
+    check_("status/validity_project_type_only", created(at_feasibility.replace("- **Project Type**: Greenfield", "- **Project Type**: Brownfield"),
+                                                        CREATED_AUDIT + completed_with(1, "intent-capture", json.dumps({"schema": 3, "graphContract": "x", "projectType": "greenfield", "inputs": [], "outputs": []}))), status)
+    check_("status/validity_fresh_receipt", created(**ic), [["@state", "advance", "intent-capture"], ["status"]], direct)
+    check_("status/validity_unavailable", created(at_stage(CREATED_STATE, "requirements-analysis", done=ideation + ["approval-handoff"], phase="INCEPTION").replace("- **Scope**: feature\n", ""),
+                                                   CREATED_AUDIT + completed_with(1, "practices-discovery", receipt([], []))), status)
+    for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
+        check_(f"observer/{marker.lower()}_status", created(), status, {marker: "1"})
 
 
 def transition_checks():
@@ -2963,6 +3096,10 @@ def gate_checks():
     check_("gates/start_artifacts_flag_without_value", created(GATE_STATE, **ic), [["gate-start", "intent-capture", "--artifacts"]], quiet)
     check_("gates/start_artifacts_flag_empty", created(GATE_STATE, **ic), [["gate-start", "intent-capture", "--artifacts", ""]], quiet)
     check_("gates/start_recovered", created(GATE_STATE, **ic), [["gate-start", "intent-capture", "--recovered"], ["gate-start", "intent-capture", "--recovered", "--person-approves"]], quiet)
+    # The protected questions kept for every chat are withdrawn when a gate opens.
+    protected = {"aidlc/.aidlc-sessions/plan-approval/protected-question-s1.json": "{}\n", "aidlc/.aidlc-sessions/plan-approval/protected-question-response-s1.json": "{}\n",
+                 "aidlc/.aidlc-sessions/plan-approval/receipt-1.json": "{}\n"}
+    check_("gates/start_withdraws_protected_questions", created(GATE_STATE, **ic, **protected), [["gate-start", "intent-capture"]], quiet)
     check_("gates/approve_no_artifacts", created(awaiting, opened), [approve, ["resume"]], quiet)
     check_("gates/approve_artifact_guard_off", created(awaiting, opened), [approve, ["resume"]], {**quiet, "SKIP_ARTIFACT_GUARD": "1"})
     # Approves together: a flag whose stages come from the plan (not ported), and its field on the rows.
@@ -4090,6 +4227,7 @@ try:
     gate_checks()
     park_checks()
     jump_checks()
+    status_checks()
     run_queued()
     if FUZZ:
         if not ONLY or not re.search(ONLY, "fuzz/audit"):

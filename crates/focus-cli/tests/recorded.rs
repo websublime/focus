@@ -409,13 +409,22 @@ fn replay_audit(check: &Value, root: &Path) -> BTreeMap<String, String> {
     let (mut exits, mut outs, mut errs) = (Vec::new(), Vec::new(), Vec::new());
     for step in steps {
         let mut command = Command::new(env!("CARGO_BIN_EXE_focus"));
-        command.args(["engine", check["tool"].as_str().unwrap()]);
-        let args: Vec<String> = step
+        let mut args: Vec<String> = step
             .as_array()
             .unwrap()
             .iter()
             .map(|arg| arg.as_str().unwrap().replace("{P}", root.to_str().unwrap()))
             .collect();
+        // A step that names its own tool (`@state advance …`) runs that one.
+        let tool = match args.first().and_then(|first| first.strip_prefix('@')) {
+            Some(named) => {
+                let named = named.to_owned();
+                args.remove(0);
+                named
+            }
+            None => check["tool"].as_str().unwrap().to_owned(),
+        };
+        command.args(["engine", &tool]);
         // A step that says where the project is says it itself, as in the
         // recorder.
         let placed = args.iter().any(|arg| arg == "--project-dir");

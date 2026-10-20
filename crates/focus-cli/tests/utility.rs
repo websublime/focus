@@ -245,17 +245,17 @@ fn the_utility_names_the_verbs_it_has() {
     // and an unknown one with its 34 verbs listed; Focus lists its own.
     assert_eq!(
         refusal(&utility(&root, &[])),
-        "Usage: focus engine utility <verb>. Valid: detect, intent-create, now. Run with --help for detail."
+        "Usage: focus engine utility <verb>. Valid: detect, intent-create, now, status. Run with --help for detail."
     );
     assert_eq!(
         refusal(&utility(&root, &["nope"])),
-        "Unknown command \"nope\". Run `focus engine utility --help` for what this tool can do.\n\nAvailable commands: detect, intent-create, now\nCommon options: [--project-dir <path>] [--json]"
+        "Unknown command \"nope\". Run `focus engine utility --help` for what this tool can do.\n\nAvailable commands: detect, intent-create, now, status\nCommon options: [--project-dir <path>] [--json]"
     );
     // Deliberate deviation: a verb upstream has and Focus does not yet is
     // refused by name.
     assert_eq!(
-        refusal(&utility(&root, &["status"])),
-        "status prints the workflow's status, and Focus does not do that yet."
+        refusal(&utility(&root, &["doctor"])),
+        "doctor checks the installation, and Focus does not do that yet."
     );
     assert_eq!(
         refusal(&utility(&root, &["init"])),
@@ -479,5 +479,61 @@ fn intent_create_refuses_before_writing() {
     assert_eq!(before, after);
     // Every refusal above left its row beside the active record.
     assert_eq!(shard(&root).matches("**Event**: ERROR_LOGGED").count(), 8);
+    let _ = fs::remove_dir_all(root);
+}
+
+#[test]
+fn status_reads_the_workflow_as_a_person_does() {
+    let root = project("status");
+    // The fixture state is sparse: what it does not say reads as Unknown.
+    let sparse = ok(&utility(&root, &["status"]));
+    assert!(sparse.starts_with("Focus Workflow Status\n==============================\nProject:        Unknown\nScope:          feature\nPhase:          Unknown\nCurrent Stage:  Unknown\nStatus:         In Progress\nGuard Policy:   strict (not set)\n"), "{sparse}");
+    assert!(
+        sparse.contains("\nCompletion:     0/0 stages (0%)\n\nPhase Progress:\n\n"),
+        "{sparse}"
+    );
+    let state = "# Focus State\n\n## Workflow\n- **Project**: Add login\n- **Scope**: feature\n- **Status**: Running\n- **Lifecycle Phase**: CONSTRUCTION\n- **Current Stage**: code-generation\n- **Active Agent**: focus-developer-agent\n- **Last Completed Stage**: requirements-analysis\n- **Next Stage**: build-and-test\n- **Guard Policy**: off (from scope feature)\n\n## Stage Progress\n- [x] intent-capture \u{2014} EXECUTE\n- [x] requirements-analysis \u{2014} EXECUTE\n- [-] code-generation \u{2014} EXECUTE\n- [ ] build-and-test \u{2014} EXECUTE\n- [S] nfr-design \u{2014} SKIP: not needed\n";
+    write(&root, &format!("{RECORD}/focus-state.md"), state);
+    let status = ok(&utility(&root, &["status"]));
+    assert!(status.starts_with("Focus Workflow Status\n==============================\nProject:        Add login\nScope:          feature\nPhase:          CONSTRUCTION\nCurrent Stage:  Code Generation (3.5)\nStatus:         Running\nActive Agent:   Developer Agent\nGuard Policy:   off (from scope feature)\nSensors: on (from scope feature)\n"), "{status}");
+    assert!(status.contains("\nCompletion:     2/4 stages (50%)\n\nPhase Progress:\n  IDEATION         \u{2588} 1/1\n  INCEPTION        \u{2588} 1/1\n  CONSTRUCTION     \u{2592}\u{2591} 0/2\n\nLast Completed: Requirements Analysis\nNext Stage:     Build and Test\n"), "{status}");
+    // A gate open: whose turn it is, and since when.
+    write(
+        &root,
+        &format!("{RECORD}/focus-state.md"),
+        &state.replace("- [-] code-generation", "- [?] code-generation"),
+    );
+    write(
+        &root,
+        &format!("{RECORD}/audit/laptop-abc123.md"),
+        "# Focus Audit Log\n\n## Stage Awaiting Approval\n**Timestamp**: 2026-01-05T10:01:00Z\n**Event**: STAGE_AWAITING_APPROVAL\n**Stage**: code-generation\n\n---\n",
+    );
+    let waiting = ok(&utility(&root, &["status"]));
+    assert!(waiting.contains("Status:         Awaiting your approval on Code Generation (waiting since 2026-01-05 10:01 UTC, about "), "{waiting}");
+    // Named by flags, and a record that is not there.
+    assert!(
+        ok(&utility(
+            &root,
+            &["status", "--intent", "add-login-1a2b3c4d"]
+        ))
+        .starts_with("Focus Workflow Status")
+    );
+    assert!(
+        ok(&utility(&root, &["status", "--intent", "nope"]))
+            .starts_with("No active Focus workflow found.\n")
+    );
+    // Deliberate deviations: the team board and the directive marker are M4/M5.
+    write(
+        &root,
+        &format!("{RECORD}/focus-state.md"),
+        &format!("{state}- **Unit Ownership**: team\n"),
+    );
+    assert!(refusal(&utility(&root, &["status"])).ends_with("which Focus does not render yet."));
+    write(
+        &root,
+        &format!("{RECORD}/.focus-engine/active-directive.json"),
+        "{}\n",
+    );
+    assert!(refusal(&utility(&root, &["status"])).ends_with("Focus does not read it yet."));
     let _ = fs::remove_dir_all(root);
 }
