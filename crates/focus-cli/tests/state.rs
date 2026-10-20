@@ -876,22 +876,13 @@ fn a_gate_opens_is_rejected_revised_and_approved() {
         "# Intent\n\n```focus-decisions\ndecisions:\n  - id: D1\n    decision: Which store?\n```\n",
     );
     // Usage, and the states each verb admits.
-    assert!(
-        refusal(&state(&root, &["gate-start"], &QUIET))
-            .starts_with("Usage: focus engine state gate-start <slug>")
-    );
-    assert!(
-        refusal(&state(&root, &["approve"], &QUIET))
-            .starts_with("Usage: focus engine state approve <slug>")
-    );
-    assert!(
-        refusal(&state(&root, &["reject"], &QUIET))
-            .starts_with("Usage: focus engine state reject <slug>")
-    );
-    assert!(
-        refusal(&state(&root, &["revise"], &QUIET))
-            .starts_with("Usage: focus engine state revise <slug>")
-    );
+    for verb in ["gate-start", "approve", "reject", "revise"] {
+        let usage = refusal(&state(&root, &[verb], &QUIET));
+        assert!(
+            usage.starts_with(&format!("Usage: focus engine state {verb} <slug>")),
+            "{verb}: {usage}"
+        );
+    }
     assert_eq!(
         refusal(&state(&root, &["revise", "intent-capture"], &QUIET)),
         "Stage intent-capture is in state 'in-progress' but command requires one of: revising"
