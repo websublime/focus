@@ -4,8 +4,8 @@
 //! `set` writes fields, `checkbox` sets the box of stages in Stage Progress
 //! and `count` counts them. The transitions that move a workflow through
 //! its stages (`advance`, `finalize`, `complete-workflow`, `skip`, and
-//! `resume` to read where it stands) are `focus-lifecycle`'s; the gate
-//! verbs (`gate-start`, `approve`, `reject`, `revise`) are M3's next slice.
+//! `resume` to read where it stands) and the gate verbs (`gate-start`,
+//! `approve`, `reject`, `revise`) are `focus-lifecycle`'s.
 //!
 //! Two things stand before a write. The workflow must not be archived. And
 //! lifecycle transitions and generic state writes are engine-owned: one the
@@ -37,6 +37,7 @@ use focus_guards::fences::Fence;
 use focus_guards::workflow::Guards;
 use focus_js::json;
 use focus_js::text::{parse_int, trim};
+use focus_lifecycle::gates::{self, GateStart, Reject};
 use focus_lifecycle::transitions;
 use focus_lifecycle::workflow::Workflow;
 use focus_state::fields::{get_field, set_field};
@@ -70,15 +71,22 @@ The state file of the active record, as data.
   skip <slug> [--reason <text>] [--route]
                            Pass a stage; with --route, move on from it
   resume                   Print where the work stands
+  gate-start <slug> [--artifacts <csv>] [--recovered] [--approves-together <csv>]
+                           Open a stage's approval gate
+  approve <slug> [--user-input <text>]
+                           Record the person's approval and move on
+  reject <slug> --feedback <text>
+                           Record the person's request for changes
+  revise <slug>            Re-enter the gate after a revision
 
 A state is one of pending, in-progress, awaiting-approval, revising,
 completed, skipped. Writes are the engine's: set FOCUS_ALLOW_DIRECT_STATE_TRANSITIONS=1
 to make one by hand.";
 
-const USAGE: &str = "Usage: focus engine state <subcommand>. Valid: get, set, checkbox, count, advance, finalize, complete-workflow, skip, resume. Run with --help for detail.";
+const USAGE: &str = "Usage: focus engine state <subcommand>. Valid: get, set, checkbox, count, advance, finalize, complete-workflow, gate-start, approve, reject, revise, skip, resume. Run with --help for detail.";
 
 /// The verbs Focus has.
-const VERBS: [&str; 9] = [
+const VERBS: [&str; 13] = [
     "get",
     "set",
     "checkbox",
@@ -86,26 +94,30 @@ const VERBS: [&str; 9] = [
     "advance",
     "finalize",
     "complete-workflow",
+    "gate-start",
+    "approve",
+    "reject",
+    "revise",
     "skip",
     "resume",
 ];
 
 /// `engineOwnedTransitions`: the verbs that pass the state-transition fence.
-const ENGINE_OWNED: [&str; 6] = [
+const ENGINE_OWNED: [&str; 10] = [
     "set",
     "checkbox",
     "advance",
     "finalize",
     "complete-workflow",
+    "gate-start",
+    "approve",
+    "reject",
+    "revise",
     "skip",
 ];
 
 /// The verbs upstream has that Focus does not port, each refused by name.
-const NOT_PORTED: [(&str, &str); 24] = [
-    ("gate-start", "opens a stage's approval gate"),
-    ("approve", "records a gate's approval"),
-    ("reject", "records a gate's rejection"),
-    ("revise", "sends a stage back for revision"),
+const NOT_PORTED: [(&str, &str); 20] = [
     ("park", "parks the workflow"),
     ("unpark", "unparks the workflow"),
     (
@@ -273,6 +285,44 @@ fn flag_value<'a>(args: &'a [String], flag: &str) -> Result<Option<&'a str>, Ref
     Ok(Some(value))
 }
 
+/// `getTextFlagValue`: `--flag=<text>` (the text may start with `--`), or
+/// the separated form; not both.
+fn text_flag_value<'a>(args: &'a [String], flag: &str) -> Result<Option<&'a str>, Refusal> {
+    let prefix = format!("{flag}=");
+    if let Some(inline) = args.iter().find(|arg| arg.starts_with(&prefix)) {
+        if args.iter().any(|arg| arg == flag) {
+            return Err(Refusal::of(format!("{flag} may be specified only once.")));
+        }
+        return Ok(Some(&inline[prefix.len()..]));
+    }
+    flag_value(args, flag)
+}
+
+/// `getFlagValues`: every value of a repeated flag.
+fn flag_values(args: &[String], flag: &str) -> Result<Vec<String>, Refusal> {
+    let mut values = Vec::new();
+    let mut at = 0;
+    while at < args.len() {
+        if args[at] != flag {
+            at += 1;
+            continue;
+        }
+        let Some(value) = args.get(at + 1) else {
+            return Err(Refusal::of(format!(
+                "{flag} expects a value, got end of arguments."
+            )));
+        };
+        if value.starts_with("--") {
+            return Err(Refusal::of(format!(
+                "{flag} expects a value, got another flag: \"{value}\". Did you forget the value?"
+            )));
+        }
+        values.push(value.clone());
+        at += 2;
+    }
+    Ok(values)
+}
+
 /// The lifecycle verbs, each reading its arguments as upstream's handler
 /// does, then handed to `focus-lifecycle`.
 fn transition(record: Record, verb: &str, args: &[String]) -> Verb {
@@ -322,6 +372,81 @@ fn transition(record: Record, verb: &str, args: &[String]) -> Verb {
                 .and_then(|at| args.get(at + 1))
                 .map(String::as_str);
             transitions::complete_workflow(&wf, completed, reason, &operation)?
+        }
+        "gate-start" => {
+            let Some(slug) = args.first() else {
+                return Err(Refusal::of(
+                    "Usage: focus engine state gate-start <slug> [--artifacts <csv>] [--recovered [--person-approves]] [--override-blocking-sensors] [--user-input <choice>] [--approves-together <csv>]",
+                ));
+            };
+            let rest = &args[1..];
+            let artifacts = args
+                .iter()
+                .position(|arg| arg == "--artifacts")
+                .and_then(|at| args.get(at + 1))
+                .map(String::as_str);
+            let ask = GateStart {
+                artifacts,
+                recovered: args.iter().any(|arg| arg == "--recovered"),
+                person_approves: args.iter().any(|arg| arg == "--person-approves"),
+                override_blocking_sensors: args
+                    .iter()
+                    .any(|arg| arg == "--override-blocking-sensors"),
+                user_input: flag_value(rest, "--user-input")?,
+                approves_together: flag_value(rest, "--approves-together")?,
+                unit: flag_value(rest, "--unit")?.map(trim),
+            };
+            gates::gate_start(&wf, slug, &ask, &operation)?
+        }
+        "approve" => {
+            let Some(slug) = args.first() else {
+                return Err(Refusal::of(
+                    "Usage: focus engine state approve <slug> [--user-input <text>]",
+                ));
+            };
+            let rest = &args[1..];
+            let user_input = flag_value(rest, "--user-input")?;
+            let unit = flag_value(rest, "--unit")?.map(trim);
+            gates::approve(&wf, slug, user_input, unit, &operation)?
+        }
+        "reject" => {
+            let Some(slug) = args.first() else {
+                return Err(Refusal::of(
+                    "Usage: focus engine state reject <slug> [--user-input \"Request Changes\"] [--feedback <text>] [--reject-finding <review-artifact>#R-NN=<human reason>]... [--reopen-finding <review-artifact>#R-NN=<human reason>]...",
+                ));
+            };
+            let rest = &args[1..];
+            let feedback = match text_flag_value(rest, "--feedback")? {
+                Some(feedback) => Some(feedback),
+                None => text_flag_value(rest, "--reason")?,
+            };
+            let ask = Reject {
+                feedback,
+                reject_findings: flag_values(rest, "--reject-finding")?,
+                reopen_findings: flag_values(rest, "--reopen-finding")?,
+                unit: flag_value(rest, "--unit")?.map(trim),
+            };
+            gates::reject(&wf, slug, &ask, &operation)?
+        }
+        "revise" => {
+            let Some(slug) = args.first() else {
+                return Err(Refusal::of(
+                    "Usage: focus engine state revise <slug> [--override-blocking-sensors] [--user-input <choice>] [--approves-together <csv>]",
+                ));
+            };
+            let rest = &args[1..];
+            let ask = GateStart {
+                artifacts: None,
+                recovered: false,
+                person_approves: false,
+                override_blocking_sensors: args
+                    .iter()
+                    .any(|arg| arg == "--override-blocking-sensors"),
+                user_input: flag_value(rest, "--user-input")?,
+                approves_together: flag_value(rest, "--approves-together")?,
+                unit: flag_value(rest, "--unit")?.map(trim),
+            };
+            gates::revise(&wf, slug, &ask, &operation)?
         }
         "skip" => {
             let Some(slug) = args.first() else {

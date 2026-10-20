@@ -375,7 +375,9 @@ fn plan_approval_runtime_dir(layout: &Layout) -> std::path::PathBuf {
         .join(".focus-plan-approval")
 }
 
-fn runtime_session_segment(session: &str) -> String {
+/// `runtimeSessionSegment`: a session id as a file-name segment.
+#[must_use]
+pub fn runtime_session_segment(session: &str) -> String {
     let segment = re::replace(r"[^A-Za-z0-9._-]+", "g", session, "-");
     let segment = re::replace(r"^-+|-+$", "g", &segment, "");
     segment.chars().take(96).collect()

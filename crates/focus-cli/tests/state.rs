@@ -388,24 +388,24 @@ fn an_observer_writes_nothing() {
 }
 
 /// Deliberate deviation. Upstream's usage lists its 33 verbs and its
-/// refusal of a verb it does not know too; Focus lists the four it has, and
-/// refuses the others by name, before any fence is consulted (upstream
+/// refusal of a verb it does not know too; Focus lists the thirteen it has,
+/// and refuses the others by name, before any fence is consulted (upstream
 /// passes them through the state-transition fence first).
 #[test]
 fn the_state_command_names_the_verbs_it_has() {
     let root = project("usage");
     assert_eq!(
         refusal(&state(&root, &[], &[])),
-        "Usage: focus engine state <subcommand>. Valid: get, set, checkbox, count, advance, finalize, complete-workflow, skip, resume. Run with --help for detail."
+        "Usage: focus engine state <subcommand>. Valid: get, set, checkbox, count, advance, finalize, complete-workflow, gate-start, approve, reject, revise, skip, resume. Run with --help for detail."
     );
     assert_eq!(
         refusal(&state(&root, &["nope"], &[])),
         "Unknown subcommand: nope. Run focus engine state --help for usage."
     );
     for (verb, does) in [
-        ("gate-start", "opens a stage's approval gate"),
-        ("approve", "records a gate's approval"),
         ("park", "parks the workflow"),
+        ("unpark", "unparks the workflow"),
+        ("set-unit-ownership", "sets the units' ownership"),
         ("unit", "runs a unit of work's step"),
         ("practices-promote", "promotes a practice"),
     ] {
@@ -844,5 +844,430 @@ fn what_focus_cannot_weigh_yet_is_refused_by_name() {
         "focus engine state skip takes --route or --unit, not both."
     );
     assert_eq!(created_state(&root), CREATED);
+    let _ = fs::remove_dir_all(root);
+}
+
+/// The refusal's JSON line as a whole, for a refusal that carries guidance.
+fn refusal_json(output: &Output) -> serde_json::Value {
+    assert_eq!(output.status.code(), Some(1), "{}", text(&output.stdout));
+    serde_json::from_str(text(&output.stderr).trim_end()).unwrap()
+}
+
+const QUIET: [(&str, &str); 2] = [
+    ("FOCUS_ALLOW_DIRECT_STATE_TRANSITIONS", "1"),
+    ("FOCUS_SKIP_HUMAN_PRESENCE_GUARD", "1"),
+];
+
+#[test]
+fn a_gate_opens_is_rejected_revised_and_approved() {
+    let root = created("gate-flow", CREATED);
+    let sensors_off = CREATED.replace(
+        "- **Summary Confirmation**: off (set by a command)\n",
+        "- **Summary Confirmation**: off (set by a command)\n- **Sensors**: off (set by a command)\n- **Revision Count**: 0\n",
+    );
+    fs::write(
+        root.join(CREATED_RECORD).join("focus-state.md"),
+        &sensors_off,
+    )
+    .unwrap();
+    write(
+        &root,
+        &format!("{CREATED_RECORD}/ideation/intent-capture/intent-statement.md"),
+        "# Intent\n\n```focus-decisions\ndecisions:\n  - id: D1\n    decision: Which store?\n```\n",
+    );
+    // Usage, and the states each verb admits.
+    for verb in ["gate-start", "approve", "reject", "revise"] {
+        let usage = refusal(&state(&root, &[verb], &QUIET));
+        assert!(
+            usage.starts_with(&format!("Usage: focus engine state {verb} <slug>")),
+            "{verb}: {usage}"
+        );
+    }
+    assert_eq!(
+        refusal(&state(&root, &["revise", "intent-capture"], &QUIET)),
+        "Stage intent-capture is in state 'in-progress' but command requires one of: revising"
+    );
+    // Opened: the row carries what the gate asks with, and a second opening revalidates.
+    let opened: serde_json::Value = serde_json::from_str(&ok(&state(
+        &root,
+        &["gate-start", "intent-capture"],
+        &QUIET,
+    )))
+    .unwrap();
+    assert_eq!(opened["new_state"], "awaiting-approval");
+    let ledger = created_shard(&root);
+    assert!(
+        ledger.ends_with("**Event**: STAGE_AWAITING_APPROVAL\n**Stage**: intent-capture\n**Next Stage**: market-research\n**Brief Digest**: none\n**Sensor State**: claim-sources@focus/spaces/default/intents/260105-add-login/ideation/intent-capture/intent-statement.md=not-run; required-sections@focus/spaces/default/intents/260105-add-login/ideation/intent-capture/intent-statement.md=not-run; upstream-coverage@focus/spaces/default/intents/260105-add-login/ideation/intent-capture/intent-statement.md=not-run\n**Open Decisions**: 1\n**Decisions**: D1\n\n---\n"),
+        "{ledger}"
+    );
+    assert!(created_state(&root).contains("- [?] intent-capture"));
+    let again: serde_json::Value = serde_json::from_str(&ok(&state(
+        &root,
+        &["gate-start", "intent-capture"],
+        &QUIET,
+    )))
+    .unwrap();
+    assert_eq!(again["revalidated"], true);
+    // Rejected with feedback: revising, and the count goes up.
+    let rejected: serde_json::Value = serde_json::from_str(&ok(&state(
+        &root,
+        &["reject", "intent-capture", "--feedback", "needs more"],
+        &QUIET,
+    )))
+    .unwrap();
+    assert_eq!(rejected["revision_count"], 1);
+    let ledger = created_shard(&root);
+    assert!(
+        ledger.contains(
+            "**Event**: GATE_REJECTED\n**Stage**: intent-capture\n**Feedback**: needs more\n"
+        ),
+        "{ledger}"
+    );
+    assert!(ledger.ends_with("**Event**: STAGE_REVISING\n**Stage**: intent-capture\n**Revision count**: 1\n**Feedback**: needs more\n\n---\n"), "{ledger}");
+    assert!(created_state(&root).contains("- [R] intent-capture"));
+    assert_eq!(
+        refusal(&state(
+            &root,
+            &[
+                "reject",
+                "intent-capture",
+                "--feedback",
+                "a",
+                "--reason",
+                "b"
+            ],
+            &QUIET
+        )),
+        "Stage intent-capture is in state 'revising' but command requires one of: awaiting-approval, in-progress"
+    );
+    // Revised: awaiting again; approved: completed, and the next stage started.
+    ok(&state(&root, &["revise", "intent-capture"], &QUIET));
+    assert!(created_state(&root).contains("- [?] intent-capture"));
+    let approved: serde_json::Value = serde_json::from_str(&ok(&state(
+        &root,
+        &[
+            "approve",
+            "intent-capture",
+            "--user-input",
+            "Approve and continue",
+        ],
+        &QUIET,
+    )))
+    .unwrap();
+    assert_eq!(approved["completed"], "intent-capture");
+    assert_eq!(approved["started"], "market-research");
+    let ledger = created_shard(&root);
+    assert!(ledger.contains("**Event**: GATE_APPROVED\n**Stage**: intent-capture\n**User Input**: Approve and continue\n**Brief Digest**: none\n**Decisions Accepted Open**: D1\n"), "{ledger}");
+    assert!(
+        ledger.contains("**Details**: Stage Intent Capture & Framing approved by gate\n"),
+        "{ledger}"
+    );
+    let after = created_state(&root);
+    assert!(
+        after.contains("- [x] intent-capture \u{2014} EXECUTE\n- [-] market-research"),
+        "{after}"
+    );
+    assert!(after.contains("- **Completed**: 4\n"), "{after}");
+    let _ = fs::remove_dir_all(root);
+}
+
+/// A decision that is not the person's is refused for the agent, with the
+/// guidance upstream prints beside the sentence.
+#[test]
+fn a_gate_decision_that_is_not_the_persons_is_refused_for_the_agent() {
+    let root = created("gate-agent", CREATED);
+    let awaiting = CREATED
+        .replace(
+            "- **Summary Confirmation**: off (set by a command)\n",
+            "- **Summary Confirmation**: off (set by a command)\n- **Sensors**: off (set by a command)\n- **Revision Count**: 0\n",
+        )
+        .replace("- [-] intent-capture", "- [?] intent-capture");
+    fs::write(root.join(CREATED_RECORD).join("focus-state.md"), &awaiting).unwrap();
+    write(
+        &root,
+        &format!("{CREATED_RECORD}/ideation/intent-capture/intent-statement.md"),
+        "# Intent\n",
+    );
+    let shown = format!(
+        "{CREATED_SHARD}\n## Stage Awaiting Approval\n**Timestamp**: 2026-01-05T10:01:00Z\n**Event**: STAGE_AWAITING_APPROVAL\n**Stage**: intent-capture\n\n---\n"
+    );
+    let shard_path = root.join(CREATED_RECORD).join("audit/laptop-abc123.md");
+    fs::write(&shard_path, &shown).unwrap();
+    // The person has not replied since the gate was shown: refused with how to tell, and a
+    // turn that was only a command is named.
+    let silent = refusal_json(&state(
+        &root,
+        &["approve", "intent-capture", "--user-input", "Approve"],
+        &DIRECT,
+    ));
+    assert_eq!(silent["agent_guidance"], "question-open");
+    let sentence = silent["error"].as_str().unwrap();
+    assert!(
+        sentence.starts_with(
+            "Cannot approve \"intent-capture\" because no new human reply has been received"
+        ),
+        "{sentence}"
+    );
+    // No heartbeat at all: the hooks never ran here, and the harness's own step is given.
+    assert!(sentence.contains("because Focus's hooks are not running here, so do not ask them to answer again; do this instead: Do not run Focus's hook scripts yourself, do not offer to switch any Focus check off"), "{sentence}");
+    assert!(
+        sentence.contains("Then run `focus engine orchestrate next` and act on what it returns"),
+        "{sentence}"
+    );
+    // A heartbeat long ago: the reply may have been missed.
+    let heartbeat = format!("{CREATED_RECORD}/.focus-engine/hooks-health/record-human-turn.last");
+    write(&root, &heartbeat, "2026-01-05T10:00:00Z\n");
+    let missed = refusal(&state(
+        &root,
+        &["approve", "intent-capture", "--user-input", "Approve"],
+        &DIRECT,
+    ));
+    assert!(missed.ends_with("Your answer didn't reach Focus. Please give it once more. If it happens again, type /focus --doctor.\" Never offer to turn a check off for them."), "{missed}");
+    // A heartbeat just now: the person has not answered yet.
+    write(
+        &root,
+        &heartbeat,
+        &format!(
+            "{}\n",
+            focus_audit::time::iso_timestamp(std::time::SystemTime::now())
+        ),
+    );
+    let waiting = refusal(&state(
+        &root,
+        &["approve", "intent-capture", "--user-input", "Approve"],
+        &DIRECT,
+    ));
+    assert!(
+        waiting.ends_with(
+            "The person has not answered yet: end your turn; their next reply answers it."
+        ),
+        "{waiting}"
+    );
+    fs::remove_file(root.join(&heartbeat)).unwrap();
+    // Unattended: the switch is named instead.
+    let unattended = refusal(&state(
+        &root,
+        &["approve", "intent-capture", "--user-input", "Approve"],
+        &[
+            ("FOCUS_ALLOW_DIRECT_STATE_TRANSITIONS", "1"),
+            ("FOCUS_UNATTENDED", "1"),
+        ],
+    ));
+    assert!(unattended.contains("FOCUS_UNATTENDED=1 is set, so automated prompt submissions cannot count as a human reply."), "{unattended}");
+    let command_turn = format!(
+        "{shown}\n## Human Turn\n**Timestamp**: 2026-01-05T10:02:00Z\n**Event**: HUMAN_TURN\n**Session**: s1\n**Reply**: command\n\n---\n"
+    );
+    fs::write(&shard_path, &command_turn).unwrap();
+    let commanded = refusal(&state(
+        &root,
+        &["reject", "intent-capture", "--feedback", "more"],
+        &DIRECT,
+    ));
+    assert!(
+        commanded.contains(
+            "The person's message since then was a command to Focus, not a reply to this question"
+        ),
+        "{commanded}"
+    );
+    // With a reply since the gate was shown, the input is read: none passed (the person decided
+    // something), cancellation boilerplate, a choice the agent attributed to itself.
+    let replied = format!(
+        "{shown}\n## Human Turn\n**Timestamp**: 2026-01-05T10:02:00Z\n**Event**: HUMAN_TURN\n**Session**: s1\n\n---\n"
+    );
+    fs::write(&shard_path, &replied).unwrap();
+    let none = refusal_json(&state(&root, &["approve", "intent-capture"], &DIRECT));
+    assert_eq!(none["agent_guidance"], "person-decided");
+    assert!(
+        none["error"]
+            .as_str()
+            .unwrap()
+            .starts_with("Cannot approve \"intent-capture\" because no choice was passed"),
+        "{none}"
+    );
+    for (input, says) in [
+        (
+            "Cancelled",
+            "because the reply \"Cancelled\" is cancellation boilerplate",
+        ),
+        (
+            "Answer - conductor's default",
+            "(conductor-default: \"Answer - conductor's default\")",
+        ),
+        (
+            "The decision was made by the assistant",
+            "(model-authored-decision: \"decision was made by the assistant\")",
+        ),
+        (
+            "approved by the stop hook",
+            "(implied-confirmation: \"approved by the stop hook\")",
+        ),
+    ] {
+        let refused = refusal_json(&state(
+            &root,
+            &["approve", "intent-capture", "--user-input", input],
+            &DIRECT,
+        ));
+        assert_eq!(
+            refused["agent_guidance"], "question-open",
+            "{input}: {refused}"
+        );
+        assert!(
+            refused["error"].as_str().unwrap().contains(says),
+            "{input}: {refused}"
+        );
+    }
+    assert!(
+        refusal(&state(
+            &root,
+            &[
+                "reject",
+                "intent-capture",
+                "--feedback",
+                "the assistant rejected this"
+            ],
+            &DIRECT
+        ))
+        .contains("(model-authored-decision: \"assistant rejected this\")")
+    );
+    assert!(created_state(&root).contains("- [?] intent-capture"));
+    // The reply admits the decision.
+    ok(&state(
+        &root,
+        &["approve", "intent-capture", "--user-input", "Approve"],
+        &DIRECT,
+    ));
+    assert!(created_state(&root).contains("- [x] intent-capture"));
+    let _ = fs::remove_dir_all(root);
+}
+
+/// Deliberate deviation. The sensors a gate fires, a review's findings, the
+/// gate words and the units' gates are the sensor tool's, the review brief's,
+/// the human-turn hook's and the units' lifecycle (M4, M5): where upstream
+/// reads them, Focus refuses by name.
+#[test]
+fn what_a_gate_cannot_weigh_yet_is_refused_by_name() {
+    let root = created("gate-by-name", CREATED);
+    let state_path = root.join(CREATED_RECORD).join("focus-state.md");
+    let with = |state: &str| fs::write(&state_path, state).unwrap();
+    write(
+        &root,
+        &format!("{CREATED_RECORD}/ideation/intent-capture/intent-statement.md"),
+        "# Intent\n",
+    );
+    // Sensors on (the field absent reads as on from the scope).
+    let sensors = refusal(&state(&root, &["gate-start", "intent-capture"], &QUIET));
+    assert!(
+        sensors.starts_with("Opening the gate of \"intent-capture\" fires its gate sensors ("),
+        "{sensors}"
+    );
+    assert!(sensors.ends_with("Focus does not run sensors yet. Turn the ceremony off for this piece of work (`--sensors off` at creation, or FOCUS_DISABLE_SENSORS=1) to open the gate without them."), "{sensors}");
+    let quiet_off: Vec<(&str, &str)> = QUIET
+        .iter()
+        .copied()
+        .chain([("FOCUS_DISABLE_SENSORS", "1")])
+        .collect();
+    ok(&state(&root, &["gate-start", "intent-capture"], &quiet_off));
+    // A `## Review` section in the review artifact.
+    write(
+        &root,
+        &format!("{CREATED_RECORD}/ideation/intent-capture/intent-statement.md"),
+        "# Intent\n\n## Review\n- R-01 New: the title\n",
+    );
+    let findings = refusal(&state(
+        &root,
+        &["approve", "intent-capture", "--user-input", "Approve"],
+        &quiet_off,
+    ));
+    assert!(findings.ends_with("intent-statement.md carries a `## Review` section, whose findings the gate would record on its decision: Focus does not read review findings yet."), "{findings}");
+    assert_eq!(
+        refusal(&state(
+            &root,
+            &[
+                "reject",
+                "intent-capture",
+                "--feedback",
+                "x",
+                "--reject-finding",
+                "intent-statement#R-01=no"
+            ],
+            &quiet_off
+        )),
+        "--reject-finding and --reopen-finding record the person's decision on a review's findings, which Focus does not read yet."
+    );
+    write(
+        &root,
+        &format!("{CREATED_RECORD}/ideation/intent-capture/intent-statement.md"),
+        "# Intent\n",
+    );
+    // Gate words kept for the session.
+    write(
+        &root,
+        &format!("{CREATED_RECORD}/.focus-engine/gate-words/s1.json"),
+        "{}\n",
+    );
+    let session: Vec<(&str, &str)> = quiet_off
+        .iter()
+        .copied()
+        .chain([("FOCUS_SESSION_OVERRIDE", "s1")])
+        .collect();
+    let words = refusal(&state(
+        &root,
+        &["approve", "intent-capture", "--user-input", "Approve"],
+        &session,
+    ));
+    assert!(
+        words.ends_with("Focus does not read gate words yet."),
+        "{words}"
+    );
+    // A team's unit gate.
+    let team = created_state(&root)
+        .replace("- **Revision Count**: 0\n", "")
+        .replace(
+            "- **Summary Confirmation**: off (set by a command)\n",
+            "- **Summary Confirmation**: off (set by a command)\n- **Unit Ownership**: team\n",
+        );
+    with(&team);
+    assert_eq!(
+        refusal(&state(
+            &root,
+            &[
+                "approve",
+                "intent-capture",
+                "--unit",
+                "api",
+                "--user-input",
+                "Approve"
+            ],
+            &quiet_off
+        )),
+        "Stage \"intent-capture\" is not a per-unit Construction stage; team unit gates do not apply."
+    );
+    with(
+        &team
+            .replace("- [?] intent-capture", "- [x] intent-capture")
+            .replace("- [ ] functional-design", "- [?] functional-design"),
+    );
+    let unit = refusal(&state(
+        &root,
+        &[
+            "approve",
+            "functional-design",
+            "--unit",
+            "api",
+            "--user-input",
+            "Approve",
+        ],
+        &quiet_off,
+    ));
+    assert!(unit.ends_with("Focus does not run units yet."), "{unit}");
+    with(&team.replace("- **Unit Ownership**: team\n", ""));
+    assert_eq!(
+        refusal(&state(
+            &root,
+            &["gate-start", "intent-capture", "--unit", "api"],
+            &quiet_off
+        )),
+        "--unit gate decisions require Unit Ownership: team."
+    );
     let _ = fs::remove_dir_all(root);
 }

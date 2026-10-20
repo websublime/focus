@@ -15,6 +15,7 @@
 
 pub mod date;
 pub mod error;
+pub mod glob;
 pub mod json;
 pub mod num;
 pub mod order;
