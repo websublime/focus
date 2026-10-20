@@ -57,6 +57,9 @@ focus engine state complete-workflow feedback-optimization --reason "done"
 focus engine state gate-start intent-capture    # put a stage to the person for approval
 focus engine state approve intent-capture --user-input "Approve"
 focus engine state reject intent-capture --feedback "the title is wrong"
+focus engine state park                       # stop the work where it is; unpark takes it up
+focus engine jump resolve --stage feasibility # where a jump would land
+focus engine jump execute --target intent-capture --direction backward
 
 focus engine utility detect --json     # project type, languages, frameworks, build system
 focus engine utility intent-create --scope feature --arguments "Add login" --label "add login"
@@ -64,8 +67,8 @@ focus engine utility now
 ```
 
 `focus engine graph --help`, `focus engine audit --help`,
-`focus engine runtime --help`, `focus engine state --help` and
-`focus engine utility --help` list every verb and flag. The `audit` command is
+`focus engine runtime --help`, `focus engine state --help`, `focus engine jump
+--help` and `focus engine utility --help` list every verb and flag. The `audit` command is
 the diagnostic way into the ledger: events that carry authority (a gate
 approval, a person's turn, a unit's completion) are written only by the
 engine's own tools and hooks, and are refused there. The `runtime` command
@@ -81,8 +84,10 @@ artifacts exist, a code-producing stage left source work, the evidence the
 stage owes is there) and writes its ledger rows before the state file. A gate
 decision is the person's: it needs their turn on the ledger since the gate was
 shown, and an input that names the agent as its author is refused for the
-agent, with the guidance upstream prints beside the sentence. A write that is
-not the orchestrator's passes the state-transition fence first. The
+agent, with the guidance upstream prints beside the sentence. `park` stops the
+work where it is and records whose stop it was; the `jump` command moves it to
+another stage, skipping or resetting what lies between. A write that is not
+the orchestrator's passes the state-transition fence first. The
 `utility` command is the workflow from outside: `intent-create` starts a piece
 of work (its record, its ledger's first rows, its state file built from the
 scope's plan, its registry row), and `detect` is the scan that classifies the
@@ -114,7 +119,7 @@ focus engine graph compile --harness claude --core fixtures/upstream/core --out 
 | `focus-state` | The state file of a workflow: its bulleted fields and checkbox lines, read and written as text, and the file on disk |
 | `focus-guards` | Guard Policy, the five fences and the authority behind an action: what the guards decide before anything moves |
 | `focus-intent` | Creating a piece of work: the record's name and id, the plan it runs, the state file built from it, the registry row and the cursors |
-| `focus-lifecycle` | Moving a piece of work through its stages: the transitions and the gate verbs of the state command, the admission chain each one passes, where a stage's artifacts are, the validity receipt a completion leaves, whether the person has acted since a gate opened, and what a gate asks with |
+| `focus-lifecycle` | Moving a piece of work through its stages: the transitions, the gate verbs and the parking of the state command, the jumps, the admission chain each one passes, where a stage's artifacts are, the validity receipt a completion leaves, whether the person has acted since a gate opened, and what a gate asks with |
 | `focus-cli` | The `focus` binary (the package is named `focus`) |
 
 `fixtures/upstream/` holds the reference's Markdown, its compiled output and an

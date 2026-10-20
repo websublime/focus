@@ -153,18 +153,32 @@ impl Workflow {
     ///
     /// The row cannot be written, in which case nothing else is.
     pub fn emit(&self, held: &WorkspaceLock, event: &str, fields: &[(&str, String)]) -> Result<()> {
+        self.emit_plain(held, event, fields)
+            .map_err(|err| err.prefixed("Audit emission failed"))
+    }
+
+    /// [`Self::emit`] with the refusal as the ledger words it: for the
+    /// verbs upstream does not wrap in its own sentence.
+    ///
+    /// # Errors
+    ///
+    /// The row cannot be written.
+    pub fn emit_plain(
+        &self,
+        held: &WorkspaceLock,
+        event: &str,
+        fields: &[(&str, String)],
+    ) -> Result<()> {
         let mut set = Fields::new();
         for (name, value) in fields {
             set.set(*name, value);
         }
-        self.ledger()
-            .append(
-                held,
-                &[Entry::new(event, set)],
-                &self.selector(),
-                &self.invoker,
-            )
-            .map_err(|err| err.prefixed("Audit emission failed"))?;
+        self.ledger().append(
+            held,
+            &[Entry::new(event, set)],
+            &self.selector(),
+            &self.invoker,
+        )?;
         if GATE_WORDS_SPENT_BY.contains(&event) {
             self.clear_gate_words();
         }

@@ -396,16 +396,19 @@ fn the_state_command_names_the_verbs_it_has() {
     let root = project("usage");
     assert_eq!(
         refusal(&state(&root, &[], &[])),
-        "Usage: focus engine state <subcommand>. Valid: get, set, checkbox, count, advance, finalize, complete-workflow, gate-start, approve, reject, revise, skip, resume. Run with --help for detail."
+        "Usage: focus engine state <subcommand>. Valid: get, set, checkbox, count, advance, finalize, complete-workflow, gate-start, approve, reject, revise, skip, resume, park, unpark. Run with --help for detail."
     );
     assert_eq!(
         refusal(&state(&root, &["nope"], &[])),
         "Unknown subcommand: nope. Run focus engine state --help for usage."
     );
     for (verb, does) in [
-        ("park", "parks the workflow"),
-        ("unpark", "unparks the workflow"),
         ("set-unit-ownership", "sets the units' ownership"),
+        (
+            "acknowledge-compaction",
+            "acknowledges a context compaction",
+        ),
+        ("fork", "forks the state for a bolt"),
         ("unit", "runs a unit of work's step"),
         ("practices-promote", "promotes a practice"),
     ] {
@@ -1268,6 +1271,298 @@ fn what_a_gate_cannot_weigh_yet_is_refused_by_name() {
             &quiet_off
         )),
         "--unit gate decisions require Unit Ownership: team."
+    );
+    let _ = fs::remove_dir_all(root);
+}
+
+#[test]
+fn parking_records_whose_stop_it_was_and_unparking_clears_it() {
+    let root = created(
+        "park",
+        &CREATED.replace(
+            "## Current Status\n",
+            "## Runtime State\n- **Revision Count**: 0\n\n## Current Status\n",
+        ),
+    );
+    let shard_path = root.join(CREATED_RECORD).join("audit/laptop-abc123.md");
+    // Nobody spoke: parked by the engine, with no Parked By.
+    let parked: serde_json::Value =
+        serde_json::from_str(&ok(&state(&root, &["park"], &DIRECT))).unwrap();
+    assert_eq!(parked["parked"], true);
+    assert_eq!(parked["stage"], "intent-capture");
+    let after = created_state(&root);
+    assert!(
+        after.contains("- **Parked At Stage**: intent-capture\n"),
+        "{after}"
+    );
+    assert!(!after.contains("Parked By"), "{after}");
+    assert!(
+        created_shard(&root).contains("**Event**: WORKFLOW_PARKED\n**Stage**: intent-capture\n")
+    );
+    let unparked: serde_json::Value =
+        serde_json::from_str(&ok(&state(&root, &["unpark"], &DIRECT))).unwrap();
+    assert_eq!(unparked["was_parked"], true);
+    assert!(!created_state(&root).contains("Parked"));
+    assert!(created_shard(&root).contains("**Event**: WORKFLOW_UNPARKED\n"));
+    let again: serde_json::Value =
+        serde_json::from_str(&ok(&state(&root, &["unpark"], &DIRECT))).unwrap();
+    assert_eq!(again["was_parked"], false);
+    assert_eq!(created_shard(&root).matches("WORKFLOW_UNPARKED").count(), 1);
+    // The person spoke, and their one approval since did not use the turn up: parked by them.
+    fs::write(
+        &shard_path,
+        format!("{CREATED_SHARD}\n## Human Turn\n**Timestamp**: 2026-01-05T10:01:00Z\n**Event**: HUMAN_TURN\n**Session**: s1\n\n---\n\n## Gate Approved\n**Timestamp**: 2026-01-05T10:02:00Z\n**Event**: GATE_APPROVED\n**Stage**: intent-capture\n**User Input**: Approve\n\n---\n"),
+    )
+    .unwrap();
+    ok(&state(&root, &["park"], &DIRECT));
+    assert!(created_state(&root).contains("- **Parked By**: person\n"));
+    ok(&state(&root, &["unpark"], &DIRECT));
+    // Unattended, the turn counts for nothing.
+    assert!(
+        ok(&state(
+            &root,
+            &["park"],
+            &[
+                ("FOCUS_ALLOW_DIRECT_STATE_TRANSITIONS", "1"),
+                ("FOCUS_UNATTENDED", "1")
+            ]
+        ))
+        .contains("\"parked\":true")
+    );
+    assert!(!created_state(&root).contains("Parked By"));
+    ok(&state(&root, &["unpark"], &DIRECT));
+    // The autonomous grant: an unattended run never parks, and nobody's stop is refused.
+    let state_path = root.join(CREATED_RECORD).join("focus-state.md");
+    let autonomous = created_state(&root).replace(
+        "## Runtime State\n",
+        "## Runtime State\n- **Construction Autonomy Mode**: autonomous\n",
+    );
+    fs::write(&state_path, &autonomous).unwrap();
+    assert!(
+        refusal(&state(
+            &root,
+            &["park"],
+            &[
+                ("FOCUS_ALLOW_DIRECT_STATE_TRANSITIONS", "1"),
+                ("FOCUS_UNATTENDED", "1")
+            ]
+        ))
+        .starts_with("Refusing to park: FOCUS_UNATTENDED=1 is set")
+    );
+    ok(&state(&root, &["park"], &DIRECT));
+    fs::write(&shard_path, CREATED_SHARD).unwrap();
+    ok(&state(&root, &["unpark"], &DIRECT));
+    assert!(
+        refusal(&state(&root, &["park"], &DIRECT))
+            .starts_with("Refusing to park: Construction Autonomy Mode is autonomous and no reply")
+    );
+    // Deliberate deviation: a team's units are parked from the checkout's unit scope stamp (M4).
+    fs::write(
+        &state_path,
+        CREATED.replace(
+            "## Current Status\n",
+            "## Runtime State\n- **Unit Ownership**: team\n\n## Current Status\n",
+        ),
+    )
+    .unwrap();
+    assert!(refusal(&state(&root, &["park"], &DIRECT)).ends_with("Focus does not run units yet."));
+    assert!(
+        refusal(&state(&root, &["unpark"], &DIRECT)).ends_with("Focus does not run units yet.")
+    );
+    let _ = fs::remove_dir_all(root);
+}
+
+fn jump(root: &Path, args: &[&str], env: &[(&str, &str)]) -> Output {
+    let mut command = Command::new(env!("CARGO_BIN_EXE_focus"));
+    command
+        .args(["engine", "jump"])
+        .args(args)
+        .current_dir(root);
+    for (name, _) in std::env::vars() {
+        if name.starts_with("FOCUS_") || name == "CLAUDE_PROJECT_DIR" {
+            command.env_remove(name);
+        }
+    }
+    for (name, value) in env {
+        command.env(name, value);
+    }
+    command.output().expect("focus runs")
+}
+
+#[test]
+fn a_jump_resolves_and_moves_the_work() {
+    let root = created("jump", CREATED);
+    assert_eq!(
+        refusal(&jump(&root, &[], &[])),
+        "Unknown subcommand: undefined. Valid: resolve, execute, reopen"
+    );
+    assert!(
+        refusal(&jump(&root, &["resolve"], &[])).starts_with("Usage: resolve --stage <slug|#>")
+    );
+    let resolved: serde_json::Value =
+        serde_json::from_str(&ok(&jump(&root, &["resolve", "--stage", "1.3"], &[]))).unwrap();
+    assert_eq!(resolved["target_slug"], "feasibility");
+    assert_eq!(resolved["direction"], "forward");
+    assert_eq!(
+        resolved["affected_stages"],
+        serde_json::json!(["market-research"])
+    );
+    assert_eq!(resolved["valid"], true);
+    assert_eq!(
+        refusal(&jump(
+            &root,
+            &["resolve", "--stage", "reverse-engineering"],
+            &[]
+        )),
+        "Stage \"reverse-engineering\" is skipped for scope \"feature\". Use `next --stage reverse-engineering`, which handles a stage the plan skips."
+    );
+    let phase: serde_json::Value =
+        serde_json::from_str(&ok(&jump(&root, &["resolve", "--phase", "2"], &[]))).unwrap();
+    assert_eq!(phase["target_slug"], "practices-discovery");
+    // Forward: the stages passed over are skipped, the phase rows follow, the notice says the way back.
+    let moved: serde_json::Value = serde_json::from_str(&ok(&jump(
+        &root,
+        &[
+            "execute",
+            "--target",
+            "requirements-analysis",
+            "--direction",
+            "forward",
+        ],
+        &[],
+    )))
+    .unwrap();
+    assert_eq!(
+        moved["stages_skipped"],
+        serde_json::json!([
+            "market-research",
+            "feasibility",
+            "scope-definition",
+            "team-formation",
+            "rough-mockups",
+            "approval-handoff",
+            "practices-discovery",
+            "intent-capture"
+        ])
+    );
+    assert_eq!(
+        moved["notice"],
+        "Moved to Requirements Analysis; skipped Intent Capture & Framing, Market Research, Feasibility & Constraints, Scope Definition, Team Formation, Rough Mockups, Approval & Handoff and Practices Discovery. You can go back to Intent Capture & Framing any time."
+    );
+    let after = created_state(&root);
+    assert!(
+        after.contains("- [S] intent-capture \u{2014} EXECUTE\n- [S] market-research"),
+        "{after}"
+    );
+    assert!(after.contains("- [-] requirements-analysis"), "{after}");
+    assert!(
+        after.contains("- **Ideation**: Verified\n- **Inception**: Active"),
+        "{after}"
+    );
+    assert!(after.contains("- **Lifecycle Phase**: INCEPTION\n- **Current Stage**: requirements-analysis\n- **Next Stage**: user-stories"), "{after}");
+    let ledger = created_shard(&root);
+    assert!(ledger.contains("**Event**: STAGE_SKIPPED\n**Stage**: market-research\n**Reason**: Skipped by jump to requirements-analysis (forward)\n**Skip Kind**: jump\n"), "{ledger}");
+    assert!(ledger.contains("**Event**: PHASE_COMPLETED\n**From phase**: ideation\n**To phase**: inception\n**Stages completed**: 3\n**Details**: Phase boundary crossed via forward jump\n"), "{ledger}");
+    assert!(ledger.contains("**Event**: STAGE_JUMPED\n**Direction**: FORWARD\n**Source**: intent-capture\n**Target**: requirements-analysis\n**Scope**: feature\n**Details**: FORWARD jump from intent-capture to requirements-analysis (2.3). Scope: feature.\n"), "{ledger}");
+    assert!(ledger.ends_with("**Event**: STAGE_STARTED\n**Stage**: requirements-analysis\n**Agent**: focus-product-agent\n\n---\n"), "{ledger}");
+    // Backward: the target and what follows are reset, and the artifacts and reviews behind are named.
+    write(
+        &root,
+        &format!("{CREATED_RECORD}/ideation/intent-capture/intent-statement.md"),
+        "# Intent\n\n## Review\n- R-01 New: x\n",
+    );
+    write(
+        &root,
+        &format!("{CREATED_RECORD}/inception/requirements-analysis/requirements.md"),
+        "# R\n\n## Review\n- R-01 New: y\n",
+    );
+    let back: serde_json::Value = serde_json::from_str(&ok(&jump(
+        &root,
+        &[
+            "execute",
+            "--target",
+            "intent-capture",
+            "--direction",
+            "backward",
+        ],
+        &[],
+    )))
+    .unwrap();
+    // The skipped stages and the one in progress are reset; pending ones are left as they are.
+    assert_eq!(back["stages_reset"].as_array().unwrap().len(), 9);
+    assert_eq!(
+        back["notice"],
+        "Moved back to Intent Capture & Framing. You can return to Requirements Analysis any time."
+    );
+    let ledger = created_shard(&root);
+    // The target's declared artifacts, present or not; the existing ones behind it; the reviews behind it (the target's own section is not behind).
+    assert!(ledger.contains("**Changed Upstream Artifacts**: [\"focus/spaces/default/intents/260105-add-login/ideation/intent-capture/intent-capture-questions.md\",\"focus/spaces/default/intents/260105-add-login/ideation/intent-capture/intent-statement.md\",\"focus/spaces/default/intents/260105-add-login/ideation/intent-capture/stakeholder-map.md\"]\n**Invalidated Downstream Artifacts**: [\"focus/spaces/default/intents/260105-add-login/inception/requirements-analysis/requirements.md\"]\n**Invalidated Downstream Reviews**: [\"focus/spaces/default/intents/260105-add-login/inception/requirements-analysis/requirements.md#Review\"]\n"), "{ledger}");
+    let after = created_state(&root);
+    assert!(
+        after.contains("- [-] intent-capture \u{2014} EXECUTE\n- [ ] market-research"),
+        "{after}"
+    );
+    assert!(
+        after.contains("- **Ideation**: Active\n- **Inception**: Pending"),
+        "{after}"
+    );
+    // Deliberate deviations: units, the directive marker, a bound session and reopen are M4/M5.
+    assert!(
+        refusal(&jump(
+            &root,
+            &[
+                "execute",
+                "--target",
+                "feasibility",
+                "--direction",
+                "forward",
+                "--units",
+                "api"
+            ],
+            &[]
+        ))
+        .ends_with("Focus does not run units yet.")
+    );
+    assert!(
+        refusal(&jump(
+            &root,
+            &["reopen", "--target", "functional-design", "--units", "api"],
+            &[]
+        ))
+        .ends_with("Focus does not run units yet.")
+    );
+    assert!(
+        refusal(&jump(
+            &root,
+            &[
+                "execute",
+                "--target",
+                "feasibility",
+                "--direction",
+                "backward"
+            ],
+            &[("FOCUS_SESSION_OVERRIDE", "s1")]
+        ))
+        .contains("pending person lines")
+    );
+    write(
+        &root,
+        &format!("{CREATED_RECORD}/.focus-engine/active-directive.json"),
+        "{}\n",
+    );
+    assert!(
+        refusal(&jump(
+            &root,
+            &[
+                "execute",
+                "--target",
+                "feasibility",
+                "--direction",
+                "forward"
+            ],
+            &[]
+        ))
+        .ends_with("Focus does not read it yet.")
     );
     let _ = fs::remove_dir_all(root);
 }

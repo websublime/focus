@@ -23,7 +23,7 @@
 use std::path::Path;
 
 use focus_audit::read::block_field;
-use focus_audit::shards::{copied_blocks, shard_blocks};
+use focus_audit::shards::{ShardEvent, copied_blocks, shard_blocks};
 use focus_js::date::parse_instant;
 use focus_js::order::cmp_utf16;
 use focus_js::text::trim;
@@ -299,6 +299,119 @@ pub fn human_replied_since_gate(wf: &Workflow) -> bool {
     human_turn_state(wf, true, false) == TurnState::Acted
 }
 
+/// `requestOutlivesItsApproval`: the person's latest turn asked for what
+/// runs now, and the approvals given since are the one in that message and
+/// the run's own, which do not use it up.
+fn request_outlives_its_approval(wf: &Workflow, replies: bool) -> bool {
+    let mut unreadable = Vec::new();
+    let Ok(rows) = wf
+        .ledger()
+        .read_events(&wf.selector(), &wf.invoker, Some(&mut unreadable))
+    else {
+        return false;
+    };
+    if !unreadable.is_empty() {
+        return false;
+    }
+    let turns: Vec<&ShardEvent> = rows
+        .iter()
+        .filter(|row| row.event == "HUMAN_TURN")
+        .collect();
+    let latest_ts = turns.iter().fold(String::new(), |latest, row| {
+        if cmp_utf16(&row.timestamp, &latest).is_gt() {
+            row.timestamp.clone()
+        } else {
+            latest
+        }
+    });
+    let latest: Vec<&ShardEvent> = turns
+        .iter()
+        .copied()
+        .filter(|row| row.timestamp == latest_ts)
+        .collect();
+    let Some(first) = latest.first() else {
+        return false;
+    };
+    if latest
+        .iter()
+        .any(|row| row.shard_index != first.shard_index)
+    {
+        return false;
+    }
+    let turn = latest.iter().copied().fold(
+        *first,
+        |last, row| if row.pos > last.pos { row } else { last },
+    );
+    if !is_request_turn(&turn.event, &turn.block)
+        || (replies && !is_reply_turn(&turn.event, &turn.block))
+    {
+        return false;
+    }
+    let mut theirs: Vec<String> = Vec::new();
+    for row in &rows {
+        let after = cmp_utf16(&row.timestamp, &turn.timestamp).is_gt()
+            || (row.timestamp == turn.timestamp
+                && (row.shard_index != turn.shard_index || row.pos > turn.pos));
+        if !after {
+            continue;
+        }
+        if row.event == "GATE_APPROVED" {
+            if block_field(&row.block, "User Input").is_none()
+                || block_field(&row.block, "Autonomous") == Some("true")
+                || block_field(&row.block, crate::gate::APPROVED_TOGETHER_WITH_FIELD).is_some()
+            {
+                continue;
+            }
+            let key = format!("{}:{}", row.shard_index, row.pos);
+            if !theirs.contains(&key) {
+                theirs.push(key);
+            }
+        } else if row.event == "PLAN_APPROVAL_RECORDED" {
+            if !theirs.iter().any(|key| key == "plan") {
+                theirs.push("plan".to_owned());
+            }
+        } else if GATE_RESOLUTION_EVENTS.contains(&row.event.as_str())
+            || row.event == "QUESTION_UNANSWERED"
+            || (row.event == "AUTONOMY_MODE_SET"
+                && block_field(&row.block, "Mode") == Some("autonomous"))
+        {
+            return false;
+        }
+    }
+    theirs.is_empty() || (theirs.len() == 1 && is_reply_turn(&turn.event, &turn.block))
+}
+
+/// `personSpokeSinceGate`: a person has spoken since the last decision and
+/// a human turn is on record. With `replies`, the turn must be a reply;
+/// with `requests`, anything but a question about a switch; with
+/// `outlives_approval`, the approval given in the message and the run's own
+/// do not use it up.
+#[must_use]
+pub fn person_spoke_since_gate(
+    wf: &Workflow,
+    replies: bool,
+    requests: bool,
+    outlives_approval: bool,
+) -> bool {
+    if human_turn_state(wf, replies, requests) != TurnState::Acted
+        && !(outlives_approval && request_outlives_its_approval(wf, replies))
+    {
+        return false;
+    }
+    let Ok(rows) = wf.ledger().read_events(&wf.selector(), &wf.invoker, None) else {
+        return false;
+    };
+    rows.iter().any(|row| {
+        if replies {
+            is_reply_turn(&row.event, &row.block)
+        } else if requests {
+            is_request_turn(&row.event, &row.block)
+        } else {
+            row.event == "HUMAN_TURN"
+        }
+    })
+}
+
 /// `commandTurnHint`.
 #[must_use]
 pub fn command_turn_hint(wf: &Workflow) -> String {
@@ -422,7 +535,7 @@ const NOT_ANSWERED_YET_STEP: &str =
     "The person has not answered yet: end your turn; their next reply answers it.";
 
 /// The harness's hook-activation advice, read off its manifest.
-fn hook_activation(wf: &Workflow) -> Option<Value> {
+pub(crate) fn hook_activation(wf: &Workflow) -> Option<Value> {
     let bytes = std::fs::read(wf.layout.manifest()).ok()?;
     json::parse(&String::from_utf8_lossy(&bytes))
         .ok()?

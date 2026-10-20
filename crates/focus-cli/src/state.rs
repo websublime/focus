@@ -4,8 +4,8 @@
 //! `set` writes fields, `checkbox` sets the box of stages in Stage Progress
 //! and `count` counts them. The transitions that move a workflow through
 //! its stages (`advance`, `finalize`, `complete-workflow`, `skip`, and
-//! `resume` to read where it stands) and the gate verbs (`gate-start`,
-//! `approve`, `reject`, `revise`) are `focus-lifecycle`'s.
+//! `resume` to read where it stands), the gate verbs (`gate-start`,
+//! `approve`, `reject`, `revise`) and `park`/`unpark` are `focus-lifecycle`'s.
 //!
 //! Two things stand before a write. The workflow must not be archived. And
 //! lifecycle transitions and generic state writes are engine-owned: one the
@@ -78,15 +78,17 @@ The state file of the active record, as data.
   reject <slug> --feedback <text>
                            Record the person's request for changes
   revise <slug>            Re-enter the gate after a revision
+  park                     Stop the work where it is
+  unpark                   Take parked work up again
 
 A state is one of pending, in-progress, awaiting-approval, revising,
 completed, skipped. Writes are the engine's: set FOCUS_ALLOW_DIRECT_STATE_TRANSITIONS=1
 to make one by hand.";
 
-const USAGE: &str = "Usage: focus engine state <subcommand>. Valid: get, set, checkbox, count, advance, finalize, complete-workflow, gate-start, approve, reject, revise, skip, resume. Run with --help for detail.";
+const USAGE: &str = "Usage: focus engine state <subcommand>. Valid: get, set, checkbox, count, advance, finalize, complete-workflow, gate-start, approve, reject, revise, skip, resume, park, unpark. Run with --help for detail.";
 
 /// The verbs Focus has.
-const VERBS: [&str; 13] = [
+const VERBS: [&str; 15] = [
     "get",
     "set",
     "checkbox",
@@ -100,10 +102,12 @@ const VERBS: [&str; 13] = [
     "revise",
     "skip",
     "resume",
+    "park",
+    "unpark",
 ];
 
 /// `engineOwnedTransitions`: the verbs that pass the state-transition fence.
-const ENGINE_OWNED: [&str; 10] = [
+const ENGINE_OWNED: [&str; 11] = [
     "set",
     "checkbox",
     "advance",
@@ -114,12 +118,11 @@ const ENGINE_OWNED: [&str; 10] = [
     "reject",
     "revise",
     "skip",
+    "park",
 ];
 
 /// The verbs upstream has that Focus does not port, each refused by name.
-const NOT_PORTED: [(&str, &str); 20] = [
-    ("park", "parks the workflow"),
-    ("unpark", "unparks the workflow"),
+const NOT_PORTED: [(&str, &str); 18] = [
     (
         "set-skeleton-stance",
         "sets the Construction skeleton stance",
@@ -448,6 +451,8 @@ fn transition(record: Record, verb: &str, args: &[String]) -> Verb {
             };
             gates::revise(&wf, slug, &ask, &operation)?
         }
+        "park" => focus_lifecycle::park::park(&wf)?,
+        "unpark" => focus_lifecycle::park::unpark(&wf)?,
         "skip" => {
             let Some(slug) = args.first() else {
                 return Err(Refusal::of(
