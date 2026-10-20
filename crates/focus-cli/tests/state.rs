@@ -860,7 +860,7 @@ const QUIET: [(&str, &str); 2] = [
 
 #[test]
 fn a_gate_opens_is_rejected_revised_and_approved() {
-    let root = created("gate", CREATED);
+    let root = created("gate-flow", CREATED);
     let sensors_off = CREATED.replace(
         "- **Summary Confirmation**: off (set by a command)\n",
         "- **Summary Confirmation**: off (set by a command)\n- **Sensors**: off (set by a command)\n- **Revision Count**: 0\n",
