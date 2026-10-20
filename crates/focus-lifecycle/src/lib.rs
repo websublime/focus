@@ -27,7 +27,11 @@
 pub mod admission;
 pub mod artifacts;
 pub mod events;
+pub mod gate;
+pub mod gates;
+pub mod presence;
 pub mod registry;
+pub mod reply;
 pub mod stage;
 pub mod transitions;
 pub mod validity;

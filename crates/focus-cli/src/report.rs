@@ -27,12 +27,24 @@ use crate::Failure;
 /// Why a verb refused.
 pub struct Refusal {
     pub message: String,
+    /// `agent_guidance` on the error: a refusal for the agent, with the
+    /// question still open (`question-open`) or the person's own choice
+    /// on record (`person-decided`).
+    pub agent_guidance: Option<&'static str>,
 }
 
 impl Refusal {
     pub fn of(message: impl Into<String>) -> Self {
         Self {
             message: message.into(),
+            agent_guidance: None,
+        }
+    }
+
+    pub fn for_agent(message: impl Into<String>, guidance: &'static str) -> Self {
+        Self {
+            message: message.into(),
+            agent_guidance: Some(guidance),
         }
     }
 }
@@ -46,6 +58,15 @@ impl From<String> for Refusal {
 impl From<focus_js::EngineError> for Refusal {
     fn from(err: focus_js::EngineError) -> Self {
         Self::of(err.to_string())
+    }
+}
+
+impl From<focus_lifecycle::gates::Refused> for Refusal {
+    fn from(refused: focus_lifecycle::gates::Refused) -> Self {
+        match refused.agent_guidance() {
+            Some(guidance) => Self::for_agent(refused.message(), guidance),
+            None => Self::of(refused.message()),
+        }
     }
 }
 
@@ -91,7 +112,12 @@ impl Context {
     /// ledger.
     pub fn refuse(&self, refusal: &Refusal) -> Failure {
         self.record_error(&refusal.message);
-        eprintln!("{}", json::stringify(&json!({ "error": refusal.message })));
+        let mut printed = serde_json::Map::new();
+        printed.insert("error".to_owned(), json!(refusal.message));
+        if let Some(guidance) = refusal.agent_guidance {
+            printed.insert("agent_guidance".to_owned(), json!(guidance));
+        }
+        eprintln!("{}", json::stringify(&serde_json::Value::Object(printed)));
         Failure::Reported
     }
 

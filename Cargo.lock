@@ -165,9 +165,11 @@ version = "0.1.0"
 dependencies = [
  "focus-audit",
  "focus-graph",
+ "focus-guards",
  "focus-harness",
  "focus-intent",
  "focus-js",
+ "focus-markdown",
  "focus-state",
  "focus-workspace",
  "serde_json",

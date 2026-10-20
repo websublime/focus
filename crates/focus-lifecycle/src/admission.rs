@@ -147,25 +147,41 @@ fn ceremony_state_value(raw: Option<&str>) -> Option<&'static str> {
     }
 }
 
-/// `resolveCeremony(...).value` for `summary_confirmation`: the kill
-/// switch, else the state's line, else the scope's setting, else on.
+/// `resolveCeremony(...).value`: the kill switch `switch`, else the
+/// state's line `field`, else the scope's setting for `key`, else on.
 #[must_use]
-pub fn summary_confirmation_setting(wf: &Workflow, state: &str) -> &'static str {
-    if project_flag(&wf.layout, "DISABLE_SUMMARY_CONFIRMATION").as_deref() == Some("1") {
+pub fn ceremony_setting(
+    wf: &Workflow,
+    state: &str,
+    key: &str,
+    field: &str,
+    switch: &str,
+) -> &'static str {
+    if project_flag(&wf.layout, switch).as_deref() == Some("1") {
         return "off";
     }
-    if let Some(value) = ceremony_state_value(get_field(state, "Summary Confirmation")) {
+    if let Some(value) = ceremony_state_value(get_field(state, field)) {
         return value;
     }
     let scope = get_field(state, "Scope")
         .map(|scope| trim(scope).to_lowercase())
         .unwrap_or_default();
     match wf.install.definition(&scope) {
-        Some(definition) if definition.meta.ceremony_setting("summary_confirmation") == "off" => {
-            "off"
-        }
+        Some(definition) if definition.meta.ceremony_setting(key) == "off" => "off",
         _ => "on",
     }
+}
+
+/// The `summary_confirmation` ceremony's setting.
+#[must_use]
+pub fn summary_confirmation_setting(wf: &Workflow, state: &str) -> &'static str {
+    ceremony_setting(
+        wf,
+        state,
+        "summary_confirmation",
+        "Summary Confirmation",
+        "DISABLE_SUMMARY_CONFIRMATION",
+    )
 }
 
 /// `summaryConfirmationOwed`: whether the stage owes a summary confirmation.
@@ -334,7 +350,9 @@ pub fn verify_gate_opening_guards(wf: &Workflow, stage: &Stage, state: &str) -> 
 }
 
 /// `admitStageAction`: the chain, for a serial stage. `operation` is how
-/// the archived refusal names the command.
+/// the archived refusal names the command; `approving` is the `approve`
+/// entry point, which checks the artifacts, the summary and the pipeline
+/// before the reviewer, where a recovery checks the reviewer first.
 ///
 /// # Errors
 ///
@@ -345,6 +363,7 @@ pub fn admit(
     stage: &Stage,
     action: Action,
     operation: &str,
+    approving: bool,
 ) -> Result<()> {
     assert_not_archived(state, operation)?;
     refuse_construction(stage)?;
@@ -355,6 +374,13 @@ pub fn admit(
     let already_completed = parse_checkboxes(state)
         .iter()
         .any(|line| line.slug == stage.slug && line.state == CheckboxState::Completed);
+    if approving {
+        verify_stage_artifacts(wf, stage, Action::Complete)?;
+        verify_summary_confirmation(wf, stage, state)?;
+        verify_pipeline_link(wf, stage)?;
+        verify_reviewer(wf, stage, state, true)?;
+        return Ok(());
+    }
     verify_reviewer(wf, stage, state, !already_completed)?;
     if !already_completed {
         verify_stage_artifacts(wf, stage, Action::Complete)?;

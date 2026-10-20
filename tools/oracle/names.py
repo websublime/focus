@@ -46,6 +46,12 @@ PHRASES = (
     ("To drive AI-DLC yourself", "To drive Focus yourself"),
     ("your AI-DLC commands", "your Focus commands"),
     ("in the AI-DLC settings", "in the Focus settings"),
+    # The engine speaking of itself to the agent at a gate.
+    ("Do not run AI-DLC's hook scripts yourself", "Do not run Focus's hook scripts yourself"),
+    ("switch any AI-DLC check off", "switch any Focus check off"),
+    ("because AI-DLC's hooks are not running here", "because Focus's hooks are not running here"),
+    ("Your answer didn't reach AI-DLC.", "Your answer didn't reach Focus."),
+    ("a command to AIDLC, not a reply", "a command to Focus, not a reply"),
     # The one variable upstream prefixes otherwise. Every variable Focus reads is FOCUS_*.
     ("AWS_AIDLC_DEFAULT_SCOPE", "FOCUS_DEFAULT_SCOPE"),
 )

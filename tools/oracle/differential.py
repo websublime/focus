@@ -1280,6 +1280,9 @@ def normalise_audit(text, tree, engine):
     text = re.sub(r"(?:aidlc|focus)-(state|orchestrate)\.ts(?: ([a-z-]+))?",
                   lambda m: f"<cli> {m.group(1)}" + (f" {m.group(2)}" if m.group(2) else ""), text)
     text = re.sub(r"`focus engine (state|orchestrate)(?: ([^`]*))?`", lambda m: f"<cli> {m.group(1)}" + (f" {m.group(2)}" if m.group(2) else ""), text)
+    # The entry script naming a tool's verb in a sentence (`<next>` in a hook-activation step).
+    text = re.sub(r"`bun \.claude/tools/(?:aidlc|focus)\.ts engine (state|orchestrate|log)(?: ([^`]*))?`",
+                  lambda m: f"<cli> {m.group(1)}" + (f" {m.group(2)}" if m.group(2) else ""), text)
     # A state file that is a directory: each runtime's own words.
     text = re.sub(r"(?:EISDIR: illegal operation on a directory, read|(?:<project-dir>/)?[^\s\"]*(?:aidlc|focus)-state\.md: Is a directory \(os error 21\))",
                   "<runtime>", text)
@@ -1996,7 +1999,7 @@ DEVIATIONS.update({
         "and then runs it or prints its usage; focus refuses the verb by name, with no fence consulted, since it "
         "does not have it yet",
     r"state/usage/(none|unknown)":
-        "upstream's usage lists its 33 verbs, Focus's the nine it has",
+        "upstream's usage lists its 33 verbs, Focus's the thirteen it has",
     r"state/usage/flag_without_its_value":
         "upstream takes a trailing --project-dir with no value as part of the field; focus refuses the flag",
     r"state/usage/metrics_endpoint":
@@ -2028,6 +2031,35 @@ DEVIATIONS.update({
     "state/skip/unit":
         "skip --unit skips one unit of work's step, which needs the unit DAG and the units' lifecycle (M4); "
         "upstream checks the Construction policy first and refuses on that; focus refuses the flag by name",
+    "state/gates/sensors_on":
+        "with the Sensors ceremony on and the declared artifacts on disk, opening a gate fires the stage's gate "
+        "sensors through the sensor tool (M5): upstream runs them, records their findings and opens the gate; focus "
+        "refuses the opening by name and says how to open it without them (`--sensors off`, FOCUS_DISABLE_SENSORS)",
+    r"state/gates/(summary_owed|review_owed|review_guard_off|revision_backstop_with_reviewer)":
+        "the gate owes evidence that is an aidlc-log record (a summary confirmation, a reviewer's receipt, M5): "
+        "upstream weighs it and refuses with what is missing; focus refuses by name until it reads those records "
+        "(the kill switch opens the gate in both; upstream still weighs the receipt at the approval)",
+    r"state/gates/review_findings_(rows|section)":
+        "a review's findings follow the gate's decision (the review brief, M5): upstream reads them off the review "
+        "artifact's `## Review` section (and its review rows) and records each open one on the decision as an "
+        "accepted risk; focus refuses the decision by name while there are review rows on the ledger or the "
+        "section is there, since it does not read findings yet",
+    r"state/gates/reject_findings(_with_reviewer)?":
+        "--reject-finding and --reopen-finding name a review's finding: upstream looks it up in the review brief "
+        "and refuses one that is not current; focus refuses the flags by name",
+    "state/gates/gate_words":
+        "a gate-words record is what the human-turn hook kept of the person's own words for the session (M4): "
+        "upstream reads it onto the decision's row and spends it; focus refuses the decision while it is there",
+    "state/gates/unit_team":
+        "with Unit Ownership team, a per-unit Construction stage's gate is a unit's gate, which needs the unit DAG "
+        "and the units' lifecycle (M4): upstream looks the unit up in the DAG; focus refuses by name",
+    "state/gates/approve_usage_ledger":
+        "a completion row carries the token usage the harness hooks folded into the usage ledger; upstream reads "
+        "the ledger and adds the rollup fields; focus does not read it yet and refuses the approval while the "
+        "ledger holds usage for it, rather than write the row without",
+    "state/gates/reject_active_directive":
+        "a record carrying an active-directive marker: a gate decision reads the engine's instruction off it for "
+        "a guard-recovery answer (M5); focus refuses to decide the gate with the marker there",
     r"utility/usage/(none|unknown)":
         "upstream's refusal lists its 34 verbs (and a missing verb is \"undefined\"), Focus's the ones it has",
     r"utility/usage/[a-z-]+_not_ported":
@@ -2825,6 +2857,211 @@ def transition_checks():
         check_(f"observer/{marker.lower()}_advance", created(**ic), [["advance", "intent-capture"], ["skip", "market-research"], ["resume"]], {marker: "1", **direct})
 
 
+GATE_STATE = CREATED_STATE.replace("- **Sensors**: on (from scope feature)", "- **Sensors**: off (set by a command)")
+GATE_DIR = f"{CREATED_DIR}/.aidlc-engine"
+HUMAN = lambda minute, second=0, *fields: block("HUMAN_TURN", T(minute, second), "**Session**: s1", *fields)
+
+
+def gate_checks():
+    """`aidlc-state.ts gate-start`, `approve`, `reject` and `revise`: a stage's approval gate, what admits each
+    decision (the person's presence, the artifacts, the sensors, the review) and the rows each writes."""
+    check_ = lambda name, files, steps, env=None, edits=(): runtime_check(name, files, steps, env, edits, group="state")
+    direct = {"ALLOW_DIRECT_STATE_TRANSITIONS": "1"}
+    quiet = {**direct, "SKIP_HUMAN_PRESENCE_GUARD": "1"}
+    ic = artifact("intent-capture", "intent-statement")
+    awaiting = GATE_STATE.replace("- [-] intent-capture — EXECUTE", "- [?] intent-capture — EXECUTE")
+    revising = GATE_STATE.replace("- [-] intent-capture — EXECUTE", "- [R] intent-capture — EXECUTE")
+    opened = CREATED_AUDIT + block("STAGE_AWAITING_APPROVAL", T(1), "**Stage**: intent-capture", "**Next Stage**: market-research",
+                                   "**Brief Digest**: none", "**Sensor State**: not-run", "**Open Decisions**: 0")
+    approve = ["approve", "intent-capture", "--user-input", "Approve"]
+    reject = ["reject", "intent-capture", "--feedback", "needs more"]
+
+    # Usage, the slugs, the states each verb admits.
+    check_("gates/usage", created(GATE_STATE, **ic), [["gate-start"], ["approve"], ["reject"], ["revise"]], quiet)
+    check_("gates/unknown_stage", created(GATE_STATE, **ic), [["gate-start", "nope"], ["approve", "nope"], ["reject", "nope"], ["revise", "nope"]], quiet)
+    check_("gates/wrong_states", created(GATE_STATE, **ic), [["gate-start", "market-research"], ["approve", "intent-capture", "--user-input", "Approve"],
+                                                           reject, ["revise", "intent-capture"]], quiet)
+    check_("gates/archived", created(GATE_STATE.replace("- **Status**: Running", "- **Status**: Archived"), **ic),
+           [["gate-start", "intent-capture"], approve, reject, ["revise", "intent-capture"]], quiet)
+    check_("gates/no_scope", created(awaiting.replace("- **Scope**: feature\n", ""), opened, **ic), [approve], quiet)
+    # The whole gate: opened, shown again, approved; rejected, revised, approved; and what a replay writes once.
+    check_("gates/open_and_approve", created(GATE_STATE, **ic), [["gate-start", "intent-capture"], ["resume"], ["gate-start", "intent-capture"],
+                                                                 approve, ["resume"], approve, ["get", "Completed"]], quiet)
+    check_("gates/reject_revise_approve", created(GATE_STATE, **ic), [["gate-start", "intent-capture"], reject, ["resume"], ["get", "Revision Count"],
+                                                                      ["revise", "intent-capture"], ["resume"], ["reject", "intent-capture", "--reason", "again"],
+                                                                      ["revise", "intent-capture"], approve, ["get", "Revision Count"]], quiet)
+    check_("gates/revise_states", created(GATE_STATE, **ic), [["revise", "intent-capture"], ["gate-start", "intent-capture"], ["revise", "intent-capture"]], quiet)
+    check_("gates/reject_in_progress", created(GATE_STATE, **ic), [reject, ["resume"]], quiet)
+    check_("gates/approve_phase_boundary", created(at_stage(awaiting, "approval-handoff", done=["intent-capture", "market-research", "feasibility", "scope-definition", "team-formation", "rough-mockups"]).replace(
+        "- [-] approval-handoff", "- [?] approval-handoff"), **artifact("approval-handoff", "initiative-brief")),
+           [["approve", "approval-handoff", "--user-input", "Approve"], ["resume"]], quiet)
+    check_("gates/approve_last_stage", created(at_stage(awaiting, "feedback-optimization", done=["intent-capture", "market-research", "feasibility", "scope-definition", "team-formation", "rough-mockups"], phase="OPERATION").replace(
+        "- [-] feedback-optimization", "- [?] feedback-optimization"), **artifact("feedback-optimization", "slo-report", phase="operation")),
+           [["approve", "feedback-optimization", "--user-input", "Approve"], ["resume"], ["get", "Status"]], quiet)
+    # The person's input, read only with the presence guard on (a turn after the gate admits the decision):
+    # the choices, a rejection by choice, none, a non-answer, one the agent attributed to itself.
+    replied = opened + HUMAN(2)
+    other = f"{CREATED_DIR}/audit/desktop-def456.md"
+    check_("gates/approve_choices", created(awaiting, replied, **ic), [["approve", "intent-capture", "--user-input", "  Approve and continue  "]], direct)
+    check_("gates/approve_reject_choice", created(awaiting, replied, **ic), [["approve", "intent-capture", "--user-input", "Request Changes"], ["resume"]], direct)
+    check_("gates/approve_free_text", created(awaiting, replied, **ic), [["approve", "intent-capture", "--user-input", "yes, looks good to me"]], direct)
+    check_("gates/approve_without_input", created(awaiting, replied, **ic), [["approve", "intent-capture"], ["approve", "intent-capture", "--user-input"],
+                                                                            ["approve", "intent-capture", "--user-input", " "]], direct)
+    inputs = ["...", "Cancelled", "timed out", "No answer.", "user dismissed", "cancel the standing order",
+              "Approve (agent's default)", "Going with the conductor's default.", "Answer - conductor's default", "Approve (Recommended)",
+              "Not a human decision", "Agent-initiated this approval.", "The model generated this choice", "decision was made by the assistant",
+              "I, as the agent, am approving", "the ai chose this decision", "approved by the stop hook", "by hook trigger",
+              "`conductor's default` is what they said", "> conductor's default\nApprove", "'conductor's default' was the reply",
+              "the assistant rejected this", "Approve. Not the human's choice, but mine", "Approve \u2014 conductor default \u2014 fine",
+              # Quoted examples are masked: in code, in quotes, in a block quote, in a fence; and the same words unquoted.
+              "Approve `the agent chose this decision.`", "Approve. \"decision was made by the assistant.\" is a phrase I dislike",
+              "> decision was made by the assistant.\nApprove", "```\ndecision was made by the assistant.\n```\nApprove",
+              "Approve, the agent chose this decision.", "Approve: 'not a human decision' is what it said"]
+    for index, input_ in enumerate(inputs):
+        check_(f"gates/approve_input_{index}", created(awaiting, replied, **ic), [["approve", "intent-capture", "--user-input", input_]], direct)
+    check_("gates/approve_accept_as_is", created(awaiting, replied, **ic), [["approve", "intent-capture", "--user-input", "Accept as-is"]], direct)
+    check_("gates/approve_accept_as_is_after_three", created(awaiting.replace("- **Revision Count**: 0", "- **Revision Count**: 3"), replied, **ic),
+           [["approve", "intent-capture", "--user-input", "Accept as-is"]], direct)
+    check_("gates/approve_input_unchecked_when_presence_off", created(awaiting, opened, **ic), [["approve", "intent-capture", "--user-input", "Cancelled"]], quiet)
+    check_("gates/approve_without_input_presence_off", created(awaiting, opened, **ic), [["approve", "intent-capture"]], quiet)
+    # The gate shown on another clone, or backfilled: this shard holds no presentation to reply after.
+    check_("gates/presence_gate_shown_elsewhere", created(awaiting, CREATED_AUDIT, **ic, **{other: TITLE + block("STAGE_AWAITING_APPROVAL", T(1), "**Stage**: intent-capture") + HUMAN(2)}), [approve], direct)
+    check_("gates/presence_gate_recovered", created(awaiting, CREATED_AUDIT + block("STAGE_AWAITING_APPROVAL", T(1), "**Stage**: intent-capture", "**Recovered**: true") + HUMAN(2), **ic), [approve], direct)
+    # The artifacts: none, the guard off, declared by flag, and a directory.
+    check_("gates/start_no_artifacts", created(GATE_STATE), [["gate-start", "intent-capture"], ["resume"]], quiet)
+    check_("gates/start_artifact_guard_off", created(GATE_STATE), [["gate-start", "intent-capture"], ["resume"]], {**quiet, "SKIP_ARTIFACT_GUARD": "1"})
+    check_("gates/start_artifacts_flag", created(GATE_STATE, **ic), [["gate-start", "intent-capture", "--artifacts", "ideation/intent-capture/intent-statement.md,other.md"], ["resume"]], quiet)
+    check_("gates/start_artifacts_flag_without_value", created(GATE_STATE, **ic), [["gate-start", "intent-capture", "--artifacts"]], quiet)
+    check_("gates/start_artifacts_flag_empty", created(GATE_STATE, **ic), [["gate-start", "intent-capture", "--artifacts", ""]], quiet)
+    check_("gates/start_recovered", created(GATE_STATE, **ic), [["gate-start", "intent-capture", "--recovered"], ["gate-start", "intent-capture", "--recovered", "--person-approves"]], quiet)
+    check_("gates/approve_no_artifacts", created(awaiting, opened), [approve, ["resume"]], quiet)
+    check_("gates/approve_artifact_guard_off", created(awaiting, opened), [approve, ["resume"]], {**quiet, "SKIP_ARTIFACT_GUARD": "1"})
+    # Approves together: a flag whose stages come from the plan (not ported), and its field on the rows.
+    check_("gates/approves_together", created(GATE_STATE, **ic), [["gate-start", "intent-capture", "--approves-together", "market-research"],
+                                                                 ["gate-start", "intent-capture", "--approves-together", ""],
+                                                                 ["gate-start", "intent-capture", "--approves-together"]], quiet)
+    listed = CREATED_AUDIT + block("STAGE_AWAITING_APPROVAL", T(1), "**Stage**: intent-capture", "**Approves Together**: market-research",
+                                   "**Next Stage**: market-research", "**Brief Digest**: none", "**Sensor State**: not-run", "**Open Decisions**: 0")
+    check_("gates/approve_approved_together", created(awaiting, listed + HUMAN(2), **ic), [approve], direct)
+    check_("gates/approve_approved_together_presence_off", created(awaiting, listed, **ic), [approve], quiet)
+    covered = CREATED_AUDIT + block("STAGE_AWAITING_APPROVAL", T(1), "**Stage**: market-research", "**Approves Together**: intent-capture") + HUMAN(2) + block(
+        "GATE_APPROVED", T(3), "**Stage**: market-research", "**User Input**: Approve", "**Approves Together**: intent-capture")
+    check_("gates/approve_covered_by_another", created(awaiting, covered, **ic), [["approve", "intent-capture"]], direct)
+    # Sensors: the ceremony on (the sensor tool, not ported), off by switch, and the rows an earlier run left.
+    check_("gates/sensors_on", created(**ic), [["gate-start", "intent-capture"], ["resume"]], quiet)
+    check_("gates/sensors_on_no_artifacts", created(), [["gate-start", "intent-capture"]], {**quiet, "SKIP_ARTIFACT_GUARD": "1"})
+    check_("gates/sensors_off_by_switch", created(**ic), [["gate-start", "intent-capture"], ["resume"]], {**quiet, "DISABLE_SENSORS": "1"})
+    check_("gates/sensors_override", created(GATE_STATE, **ic), [["gate-start", "intent-capture", "--override-blocking-sensors"], ["revise", "intent-capture", "--override-blocking-sensors", "--user-input", "x"]], quiet)
+    output = f"{CREATED_DIR}/ideation/intent-capture/intent-statement.md"
+    ended = lambda kind, minute, second, sensor, *fields: block(f"SENSOR_{kind}", T(minute, second), "**Stage slug**: intent-capture", f"**Sensor ID**: {sensor}",
+                                                                 f"**Output path**: {output}", *fields)
+    rows = (ended("PASSED", 1, 2, "claim-sources", "**Findings count**: 0") + ended("FAILED", 1, 4, "required-sections", "**Findings count**: 2", "**Detail path**: x/y.md") +
+            ended("FAILED", 1, 5, "upstream-coverage") + ended("PASSED", 1, 5, "upstream-coverage", "**Findings count**: 0"))
+    check_("gates/sensor_rows", created(GATE_STATE, CREATED_AUDIT + rows, **ic), [["gate-start", "intent-capture"]], quiet)
+    check_("gates/sensor_rows_latest_wins", created(GATE_STATE, CREATED_AUDIT + ended("FAILED", 1, 9, "claim-sources", "**Findings count**: 1") + ended("PASSED", 1, 2, "claim-sources", "**Findings count**: 0"), **ic),
+           [["gate-start", "intent-capture"]], quiet)
+    check_("gates/sensor_rows_other_stage", created(GATE_STATE, CREATED_AUDIT + block("SENSOR_FAILED", T(1), "**Stage slug**: market-research", "**Sensor ID**: claim-sources", f"**Output path**: {output}", "**Findings count**: 3") +
+                                                    block("SENSOR_FAILED", T(1, 1), "**Stage slug**: intent-capture", "**Sensor ID**: claim-sources", "**Findings count**: 3"), **ic),
+           [["gate-start", "intent-capture"]], quiet)
+    check_("gates/sensor_rows_not_run", created(GATE_STATE, CREATED_AUDIT + block("SENSOR_FIRED", T(1), "**Stage**: intent-capture", "**Sensor**: claim-sources", "**Fire id**: f1"), **ic), [["gate-start", "intent-capture"]], quiet)
+    # The gate's brief, read from the review store when one is there.
+    briefs = f"{GATE_DIR}/reviews/intent-capture/stage/briefs/latest.json"
+    check_("gates/brief_digest", created(GATE_STATE, **ic, **{briefs: json.dumps({"digest": "ab" * 32, "stage": "intent-capture"})}), [["gate-start", "intent-capture"], approve], quiet)
+    check_("gates/brief_digest_not_hex", created(GATE_STATE, **ic, **{briefs: json.dumps({"digest": "abc123"})}), [["gate-start", "intent-capture"]], quiet)
+    check_("gates/brief_digest_other_stage", created(GATE_STATE, **ic, **{briefs.replace("intent-capture", "market-research"): json.dumps({"digest": "ab" * 32})}), [["gate-start", "intent-capture"]], quiet)
+    check_("gates/brief_digest_malformed", created(GATE_STATE, **ic, **{briefs: "{nope"}), [["gate-start", "intent-capture"]], quiet)
+    check_("gates/brief_digest_not_text", created(GATE_STATE, **ic, **{briefs: json.dumps({"digest": 12})}), [["gate-start", "intent-capture"]], quiet)
+    # Open decisions in the artifact: a decisions block, one that cannot be read, and duplicates.
+    decisions = "# Intent\n\n```aidlc-decisions\ndecisions:\n  - id: D1\n    decision: Which store?\n    owner: person\n  - id: D2\n    decision: When?\n    blocking: no\n```\n"
+    check_("gates/open_decisions", created(GATE_STATE, **artifact("intent-capture", "intent-statement", decisions)), [["gate-start", "intent-capture"], approve], quiet)
+    check_("gates/open_decisions_unreadable", created(GATE_STATE, **artifact("intent-capture", "intent-statement", "```aidlc-decisions\ndecisions:\n  - id: D1\n    question: a\n```\n")), [["gate-start", "intent-capture"]], quiet)
+    check_("gates/open_decisions_no_header", created(GATE_STATE, **artifact("intent-capture", "intent-statement", "```aidlc-decisions\n  - id: D1\n```\n")), [["gate-start", "intent-capture"]], quiet)
+    check_("gates/open_decisions_empty", created(GATE_STATE, **artifact("intent-capture", "intent-statement", "```aidlc-decisions\ndecisions:\n```\n")), [["gate-start", "intent-capture"]], quiet)
+    check_("gates/open_decisions_duplicate", created(GATE_STATE, **artifact("intent-capture", "intent-statement", "```aidlc-decisions\ndecisions:\n  - id: D1\n  - id: D1\n```\n\n```aidlc-decisions\ndecisions:\n  - id: D2\r\n```\n")), [["gate-start", "intent-capture"], approve], quiet)
+    check_("gates/open_decisions_two_blocks_one_unreadable", created(GATE_STATE, **artifact("intent-capture", "intent-statement", "```aidlc-decisions\ndecisions:\n  - id: D1\n```\n```aidlc-decisions\nnope\n```\n")), [["gate-start", "intent-capture"]], quiet)
+    # The evidence a decision owes to aidlc-log records (M5): refused by name where upstream weighs it.
+    check_("gates/summary_owed", created(GATE_STATE.replace("- **Summary Confirmation**: off (set by a command)", "- **Summary Confirmation**: on (from scope feature)"), **ic),
+           [["gate-start", "intent-capture"]], quiet)
+    check_("gates/review_owed", created(GATE_STATE.replace("- **Review Override**: none", "- **Review Override**: "), **ic), [["gate-start", "intent-capture"]], quiet)
+    check_("gates/review_guard_off", created(GATE_STATE.replace("- **Review Override**: none", "- **Review Override**: "), **ic), [["gate-start", "intent-capture"], approve], {**quiet, "SKIP_REVIEWER_GATE_GUARD": "1"})
+    check_("gates/review_findings_rows", created(awaiting, opened + block("REVIEW_FINDING", T(2), "**Stage**: intent-capture", "**Finding**: R-01", "**Status**: open"), **ic), [approve], quiet)
+    # The review artifact's `## Review` section: findings (not read), a heading inside a fence, an empty section.
+    check_("gates/review_findings_section", created(awaiting, opened, **artifact("intent-capture", "intent-statement", "# Intent\n\n## Review\n- R-01 open: the title\n")), [approve], quiet)
+    check_("gates/review_section_fenced", created(awaiting, opened, **artifact("intent-capture", "intent-statement", "# Intent\n\n```\n## Review\n- R-01\n```\n")), [approve], quiet)
+    check_("gates/review_section_empty", created(awaiting, opened, **artifact("intent-capture", "intent-statement", "# Intent\n\n## Review\n\n## After\ntext\n")), [approve], quiet)
+    check_("gates/reject_findings", created(awaiting, opened, **ic), [["reject", "intent-capture", "--feedback", "x", "--reject-finding", "intent-review#R-01=no"],
+                                                                     ["reject", "intent-capture", "--feedback", "x", "--reopen-finding", "intent-review#R-01=yes"]], quiet)
+    check_("gates/reject_findings_with_reviewer", created(awaiting.replace("- **Review Override**: none", "- **Review Override**: "), opened, **ic),
+           [["reject", "intent-capture", "--feedback", "x", "--reject-finding", "intent-review#R-01=no"]], quiet)
+    # Feedback: its forms and what is refused.
+    check_("gates/reject_feedback_forms", created(awaiting, opened, **ic), [["reject", "intent-capture", "--feedback=--x"], ["reject", "intent-capture", "--feedback", "a", "--reason", "b"],
+                                                                           ["reject", "intent-capture", "--feedback"], ["reject", "intent-capture", "--feedback", "--reason"],
+                                                                           ["reject", "intent-capture"], ["reject", "intent-capture", "--feedback", "  "]], quiet)
+    feedbacks = ["...", "Cancelled", "Abort!", "Reject (agent's pick)", "The assistant rejected this", "Changes \u2014 conductor's default",
+                 "I, as the conductor, have requested changes", "This rejection was entered by an AI.", "model-initiated the change-request",
+                 "Not the human's request changes", "more detail, please", "rejection confirmed by hook"]
+    for index, feedback in enumerate(feedbacks):
+        check_(f"gates/reject_feedback_{index}", created(awaiting, replied, **ic), [["reject", "intent-capture", "--feedback", feedback]], direct)
+    check_("gates/reject_self_attributed_unchecked_when_presence_off", created(awaiting, opened, **ic), [["reject", "intent-capture", "--feedback", "Reject (agent's pick)"]], quiet)
+    mr_awaiting = at_stage(GATE_STATE, "market-research", done=["intent-capture"]).replace("- [-] market-research", "- [?] market-research")
+    check_("gates/reject_findings_no_reviewer", created(mr_awaiting, **artifact("market-research", "competitive-analysis")),
+           [["reject", "market-research", "--feedback", "x", "--reject-finding", "R-01=no"]], quiet)
+    check_("gates/reject_revision_count_nan", created(awaiting.replace("- **Revision Count**: 0", "- **Revision Count**: many"), opened, **ic), [reject, ["get", "Revision Count"]], quiet)
+    check_("gates/reject_revision_count_huge", created(awaiting.replace("- **Revision Count**: 0", "- **Revision Count**: " + "9" * 400), opened, **ic), [reject, ["get", "Revision Count"]], quiet)
+    check_("gates/review_rows_no_reviewer", created(mr_awaiting, CREATED_AUDIT + block("REVIEW_COMPLETED", T(2), "**Stage**: market-research", "**Verdict**: READY"), **artifact("market-research", "competitive-analysis")),
+           [["approve", "market-research", "--user-input", "Approve"]], quiet)
+    check_("gates/reject_revision_count_missing", created(awaiting.replace("- **Revision Count**: 0\n", ""), opened, **ic), [reject, ["get", "Revision Count"]], quiet)
+    # The person's presence: the guard on, with turns before and after the gate, a command turn, and unattended.
+    check_("gates/presence_no_turn", created(awaiting, opened, **ic), [approve, reject], direct)
+    check_("gates/presence_turn_after_gate", created(awaiting, opened + HUMAN(2), **ic), [approve, ["resume"]], direct)
+    check_("gates/presence_turn_before_gate", created(awaiting, CREATED_AUDIT + HUMAN(0, 30) + block("STAGE_AWAITING_APPROVAL", T(1), "**Stage**: intent-capture", "**Next Stage**: market-research",
+                                                                                                        "**Brief Digest**: none", "**Sensor State**: not-run", "**Open Decisions**: 0"), **ic), [approve], direct)
+    check_("gates/presence_turn_consumed", created(awaiting, opened + HUMAN(2) + block("GATE_REJECTED", T(3), "**Stage**: intent-capture", "**Feedback**: x") + block("STAGE_AWAITING_APPROVAL", T(4), "**Stage**: intent-capture"), **ic), [approve], direct)
+    check_("gates/presence_command_turn", created(awaiting, opened + HUMAN(2, 0, "**Reply**: command"), **ic), [approve], direct)
+    check_("gates/presence_question_turn", created(awaiting, opened + HUMAN(2, 0, "**Reply**: question"), **ic), [approve], direct)
+    check_("gates/presence_reject", created(awaiting, opened + HUMAN(2), **ic), [reject, ["revise", "intent-capture"], approve], direct)
+    check_("gates/presence_unattended", created(awaiting, opened, **ic), [approve], {**direct, "UNATTENDED": "1"})
+    check_("gates/presence_own_terminal", created(awaiting, opened, **ic), [approve], {**direct, "TEST_CONFIG_TTY": "1"})
+    check_("gates/presence_hooks_heartbeat", created(awaiting, opened, **ic, **{f"{GATE_DIR}/hooks-health/record-human-turn.last": STARTED + "\n"}), [approve], direct)
+    # A heartbeat is recent against the clock: the replay runs later.
+    UNRECORDED.add("state/gates/presence_hooks_heartbeat")
+    check_("gates/presence_hooks_heartbeat_old", created(awaiting, opened, **ic, **{f"{GATE_DIR}/hooks-health/record-human-turn.last": T(0) + "\n"}), [approve], direct)
+    check_("gates/presence_hooks_off_step", created(awaiting, opened, **ic, **{".claude/settings.local.json": "{}\n"}), [approve], direct)
+    check_("gates/presence_recovered_person_approves", created(GATE_STATE, CREATED_AUDIT + HUMAN(1), **ic), [["gate-start", "intent-capture", "--recovered", "--person-approves"]], direct)
+    check_("gates/presence_turn_on_other_shard", created(awaiting, opened, **ic, **{other: TITLE + HUMAN(2)}), [approve], direct)
+    check_("gates/presence_tie_across_shards", created(awaiting, opened + HUMAN(2), **ic, **{other: TITLE + block("GATE_REJECTED", T(2), "**Stage**: intent-capture")}), [approve], direct)
+    check_("gates/presence_turn_used_by_answer", created(awaiting, opened + HUMAN(2) + block("QUESTION_ANSWERED", T(3), "**Stage**: intent-capture", "**Details**: Chat"), **ic), [approve], direct)
+    check_("gates/presence_turn_used_by_summary", created(awaiting, opened + HUMAN(2) + block("SUMMARY_CONFIRMATION_RECORDED", T(3), "**Stage**: intent-capture"), **ic), [approve], direct)
+    check_("gates/presence_two_turns_same_second", created(awaiting, opened + HUMAN(2) + HUMAN(2), **ic), [approve], direct)
+    check_("gates/presence_turn_no_session", created(awaiting, opened + block("HUMAN_TURN", T(2)), **ic), [approve], direct)
+    check_("gates/presence_shard_unreadable", created(awaiting, opened + HUMAN(2), **ic, **{other + "/x": ""}), [approve], direct)
+    check_("gates/presence_reject_unattended", created(awaiting, opened, **ic), [reject], {**direct, "UNATTENDED": "1"})
+    check_("gates/presence_revise_needs_no_turn", created(revising, opened + block("GATE_REJECTED", T(2), "**Stage**: intent-capture", "**Feedback**: x"), **ic), [["revise", "intent-capture"]], direct)
+    check_("gates/start_user_input", created(GATE_STATE, **ic), [["gate-start", "intent-capture", "--user-input", "Approve"], ["revise", "intent-capture", "--user-input", "x", "--approves-together", "a"]], quiet)
+    # Gate words left by the human-turn hook (M4): refused by name.
+    check_("gates/gate_words", created(awaiting, opened, **ic, **{f"{GATE_DIR}/gate-words/s1.json": json.dumps({"stage": "intent-capture", "words": "approve"})}), [approve], {**quiet, "SESSION_OVERRIDE": "s1"})
+    # A revision the backstop records: the artifact changed after the gate opened without a decision.
+    backstop = CREATED_AUDIT + block("STAGE_AWAITING_APPROVAL", T(1), "**Stage**: intent-capture") + HUMAN(2) + block("ARTIFACT_UPDATED", T(3), "**Stage**: intent-capture", "**Artifact**: intent-statement") + HUMAN(4)
+    check_("gates/revision_backstop", created(awaiting, backstop, **ic), [approve, ["get", "Revision Count"]], quiet)
+    check_("gates/revision_backstop_off", created(awaiting, backstop, **ic), [approve], {**quiet, "SKIP_REVISION_BACKSTOP": "1"})
+    check_("gates/revision_backstop_relaxed", created(awaiting.replace("- **Guard Policy**: off (from scope feature)", "- **Guard Policy**: relaxed (set by you)"), backstop, **ic), [approve], quiet)
+    check_("gates/revision_backstop_with_reviewer", created(awaiting.replace("- **Review Override**: none", "- **Review Override**: "), backstop, **ic), [approve], {**quiet, "SKIP_REVIEWER_GATE_GUARD": "1"})
+    # Units: a team gate needs the units' lifecycle (M4).
+    check_("gates/unit_without_team", created(GATE_STATE, **ic), [["gate-start", "intent-capture", "--unit", "api"], ["approve", "intent-capture", "--unit", "api", "--user-input", "Approve"]], quiet)
+    team = at_stage(GATE_STATE, "functional-design", done=["intent-capture", "market-research", "feasibility", "scope-definition", "team-formation", "rough-mockups", "approval-handoff"], phase="CONSTRUCTION") + "- **Unit Ownership**: team\n"
+    check_("gates/unit_team", created(team, **{f"{CREATED_DIR}/construction/api/functional-design/entities.md": "# E\n"}),
+           [["gate-start", "functional-design", "--unit", "api"], ["gate-start", "intent-capture", "--unit", "api"]], quiet)
+    # Usage ledger, the directive marker, the fence, a missing state file.
+    usage = {"aidlc/.aidlc-sessions/usage-ledger.json": json.dumps({"schemaVersion": 3, "cursors": {}, "workflows": {"w": {
+        "totals": {"tokens": {"input": 10, "output": 5, "cacheRead": 0, "cacheCreate5m": 0, "cacheCreate1h": 0}}, "byStage": {"intent-capture": {}}}}})}
+    check_("gates/approve_usage_ledger", created(awaiting, opened, **ic, **usage), [approve], quiet)
+    check_("gates/reject_active_directive", created(awaiting, opened, **ic, **{f"{GATE_DIR}/active-directive.json": json.dumps({"instruction": "x"})}), [reject], quiet)
+    check_("gates/fence", created(GATE_STATE, **ic), [["gate-start", "intent-capture"], approve, reject, ["revise", "intent-capture"]], {"SKIP_HUMAN_PRESENCE_GUARD": "1"})
+    check_("gates/no_state_file", created(**{f"{CREATED_DIR}/aidlc-state.md": None}), [["gate-start", "intent-capture"], approve], quiet)
+    for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
+        check_(f"observer/{marker.lower()}_gates", created(GATE_STATE, **ic), [["gate-start", "intent-capture"], ["resume"]], {marker: "1", **quiet})
+
+
 def transition_fuzz(count):
     """Random sequences of transitions on a created record, started at a random stage with random artifacts."""
     rng = random.Random(SEED + 3)
@@ -2835,7 +3072,7 @@ def transition_fuzz(count):
     for index in range(count):
         start = rng.randrange(0, len(order) - 1)
         current = graph[start]
-        state = at_stage(CREATED_STATE, current["slug"], done=order[:start], phase=current["phase"].upper())
+        state = at_stage(GATE_STATE, current["slug"], done=order[:start], phase=current["phase"].upper())
         files = {}
         # Artifacts for the stages ahead, most of them, and a few behind.
         for stage in graph[start:start + 6] + rng.sample(graph[:start], min(start, 2)):
@@ -2846,8 +3083,20 @@ def transition_fuzz(count):
         steps, cursor = [], start
         for _ in range(rng.randrange(3, 8)):
             slug = order[min(cursor, len(order) - 1)] if rng.random() < 0.7 else rng.choice(slugs)
-            kind = rng.choice(["advance", "advance", "advance", "finalize", "skip", "route", "complete", "resume", "get"])
-            if kind == "advance":
+            kind = rng.choice(["advance", "advance", "finalize", "skip", "route", "complete", "resume", "get",
+                               "gate-start", "gate-start", "approve", "approve", "reject", "revise"])
+            if kind == "gate-start":
+                steps.append(["gate-start", slug] + (["--recovered"] if rng.random() < 0.2 else []) +
+                             (["--artifacts", rng.choice(["a.md", "a.md,b.md", ""])] if rng.random() < 0.2 else []))
+            elif kind == "approve":
+                steps.append(["approve", slug] + (["--user-input", rng.choice(["Approve", "Approve and continue", "Request Changes", "...",
+                                                                               "Accept as-is", "Approve (agent's default)", " "])] if rng.random() < 0.9 else []))
+                cursor += 1
+            elif kind == "reject":
+                steps.append(["reject", slug] + rng.choice([["--feedback", "more"], ["--reason", "less"], ["--feedback=--x"], [], ["--feedback", "..."]]))
+            elif kind == "revise":
+                steps.append(["revise", slug] + (["--user-input", "x"] if rng.random() < 0.2 else []))
+            elif kind == "advance":
                 steps.append(["advance", slug] + ([rng.choice(slugs)] if rng.random() < 0.2 else []))
                 cursor += 1
             elif kind == "finalize":
@@ -2865,7 +3114,7 @@ def transition_fuzz(count):
             else:
                 steps.append(["get", rng.choice(["Current Stage", "Completed", "Status", "Next Stage"])])
         steps.append(["resume"])
-        env = {"ALLOW_DIRECT_STATE_TRANSITIONS": "1"}
+        env = {"ALLOW_DIRECT_STATE_TRANSITIONS": "1", "SKIP_HUMAN_PRESENCE_GUARD": "1"}
         if rng.random() < 0.2:
             env["SKIP_ARTIFACT_GUARD"] = "1"
         runtime_check(str(index), created(state, **files), steps, env, group="fuzz/transitions", tool="state")
@@ -3603,6 +3852,7 @@ try:
     utility_checks()
     intent_create_checks()
     transition_checks()
+    gate_checks()
     run_queued()
     if FUZZ:
         if not ONLY or not re.search(ONLY, "fuzz/audit"):

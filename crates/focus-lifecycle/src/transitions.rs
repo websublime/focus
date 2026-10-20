@@ -20,6 +20,7 @@ use focus_state::fields::{get_field, set_field, set_phase_progress};
 use focus_state::progress::{
     CheckboxState, count_checkboxes, parse_checkboxes, parse_stage_suffixes, set_checkbox,
 };
+use focus_workspace::WorkspaceLock;
 use focus_workspace::names::WORKSPACE_DIR;
 use focus_workspace::records::read_intent_registry;
 use serde_json::{Map, Value, json};
@@ -75,7 +76,7 @@ fn relative_memory_path(wf: &Workflow, stage: &Stage) -> String {
 /// fold transcripts into. Focus does not read that ledger yet: a ledger
 /// that holds usage for this stage (or any usage, for the workflow) is
 /// refused by name rather than left off the row.
-fn refuse_usage_rollup(wf: &Workflow, slug: Option<&str>) -> Result<()> {
+pub(crate) fn refuse_usage_rollup(wf: &Workflow, slug: Option<&str>) -> Result<()> {
     if focus_workspace::env::var("DISABLE_USAGE_TRACKING").as_deref() == Some("1") {
         return Ok(());
     }
@@ -153,6 +154,23 @@ pub fn advance(
 ) -> Result<Value> {
     refuse_usage_rollup(wf, Some(completed))?;
     let held = wf.lock("advancing the workflow")?;
+    advance_locked(wf, &held, completed, next, operation, None)
+}
+
+/// [`advance`] under a lock the caller holds: `approve` delegates here
+/// after closing the stage, with the warning its own receipt raised.
+///
+/// # Errors
+///
+/// As [`advance`].
+pub fn advance_locked(
+    wf: &Workflow,
+    held: &WorkspaceLock,
+    completed: &str,
+    next: Option<&str>,
+    operation: &str,
+    inherited_warning: Option<&str>,
+) -> Result<Value> {
     let mut content = wf.read_state()?;
     let completed_stage = wf.stage(completed)?;
     let (scope, definition) = wf.scope_definition(
@@ -207,7 +225,14 @@ pub fn advance(
             "timestamp": iso_timestamp(SystemTime::now()),
         }));
     }
-    admission::admit(wf, &content, completed_stage, Action::Complete, operation)?;
+    admission::admit(
+        wf,
+        &content,
+        completed_stage,
+        Action::Complete,
+        operation,
+        false,
+    )?;
 
     let crosses_phase = completed_stage.phase != next_stage.phase;
     content = set_checkbox(&content, completed, CheckboxState::Completed);
@@ -248,10 +273,12 @@ pub fn advance(
     } else {
         Vec::new()
     };
-    let warning = validation
-        .iter()
-        .find(|(name, _)| *name == validity::VALIDATION_WARNING_FIELD)
-        .map(|(_, value)| value.clone());
+    let warning = inherited_warning.map(str::to_owned).or_else(|| {
+        validation
+            .iter()
+            .find(|(name, _)| *name == validity::VALIDATION_WARNING_FIELD)
+            .map(|(_, value)| value.clone())
+    });
 
     if emits_completed {
         let mut fields = vec![("Stage", completed.to_owned())];
@@ -260,23 +287,19 @@ pub fn advance(
             "Details",
             format!("Stage {} completed", stage::name(completed_stage)),
         ));
-        wf.emit(&held, "STAGE_COMPLETED", &fields)?;
+        wf.emit(held, "STAGE_COMPLETED", &fields)?;
     }
     if crosses_phase {
         emit_phase_boundary(
             wf,
-            &held,
+            held,
             &completed_stage.phase,
             &next_stage.phase,
             completed_count,
             &scope,
         )?;
     }
-    wf.emit(
-        &held,
-        "STAGE_STARTED",
-        &stage_started_fields(wf, next_stage),
-    )?;
+    wf.emit(held, "STAGE_STARTED", &stage_started_fields(wf, next_stage))?;
     wf.write_state(&content)?;
 
     let mut out = Map::new();
@@ -316,7 +339,7 @@ fn grid_action(definition: &ScopeDefinition, slug: &str) -> Option<&'static str>
 /// The three rows of a phase boundary.
 fn emit_phase_boundary(
     wf: &Workflow,
-    held: &focus_workspace::WorkspaceLock,
+    held: &WorkspaceLock,
     from: &str,
     to: &str,
     completed_count: usize,
@@ -353,7 +376,14 @@ pub fn finalize(wf: &Workflow, completed: &str, operation: &str) -> Result<Value
     let _held = wf.lock("finalizing a stage")?;
     let mut content = wf.read_state()?;
     let completed_stage = wf.stage(completed)?;
-    admission::admit(wf, &content, completed_stage, Action::Complete, operation)?;
+    admission::admit(
+        wf,
+        &content,
+        completed_stage,
+        Action::Complete,
+        operation,
+        false,
+    )?;
     content = set_checkbox(&content, completed, CheckboxState::Completed);
     let completed_count = count_checkboxes(&content, CheckboxState::Completed);
     content = set_field(&content, "Completed", &completed_count.to_string());
@@ -434,12 +464,35 @@ pub fn complete_workflow(
     refuse_usage_rollup(wf, Some(completed))?;
     refuse_usage_rollup(wf, None)?;
     let held = wf.lock("completing the workflow")?;
+    complete_workflow_locked(wf, &held, completed, reason, operation, None)
+}
+
+/// [`complete_workflow`] under a lock the caller holds.
+///
+/// # Errors
+///
+/// As [`advance`].
+pub fn complete_workflow_locked(
+    wf: &Workflow,
+    held: &WorkspaceLock,
+    completed: &str,
+    reason: Option<&str>,
+    operation: &str,
+    inherited_warning: Option<&str>,
+) -> Result<Value> {
     let mut content = wf.read_state()?;
     let completed_stage = wf.stage(completed)?;
     let already_marked = slug_state(&content, completed) == Some(CheckboxState::Completed);
     let already_audited =
         already_marked && has_stage_audit_event(&wf.audit_text(), "STAGE_COMPLETED", completed);
-    admission::admit(wf, &content, completed_stage, Action::Complete, operation)?;
+    admission::admit(
+        wf,
+        &content,
+        completed_stage,
+        Action::Complete,
+        operation,
+        false,
+    )?;
     content = set_checkbox(&content, completed, CheckboxState::Completed);
     let completed_count = count_checkboxes(&content, CheckboxState::Completed);
     content = set_field(&content, "Completed", &completed_count.to_string());
@@ -461,10 +514,12 @@ pub fn complete_workflow(
     } else {
         Vec::new()
     };
-    let warning = validation
-        .iter()
-        .find(|(name, _)| *name == validity::VALIDATION_WARNING_FIELD)
-        .map(|(_, value)| value.clone());
+    let warning = inherited_warning.map(str::to_owned).or_else(|| {
+        validation
+            .iter()
+            .find(|(name, _)| *name == validity::VALIDATION_WARNING_FIELD)
+            .map(|(_, value)| value.clone())
+    });
     if emits_completed {
         let mut fields = vec![("Stage", completed.to_owned())];
         fields.extend(to_pairs(&validation));
@@ -472,10 +527,10 @@ pub fn complete_workflow(
             "Details",
             format!("Final stage {} completed", stage::name(completed_stage)),
         ));
-        wf.emit(&held, "STAGE_COMPLETED", &fields)?;
+        wf.emit(held, "STAGE_COMPLETED", &fields)?;
     }
     wf.emit(
-        &held,
+        held,
         "PHASE_COMPLETED",
         &[
             ("From phase", completed_stage.phase.clone()),
@@ -484,7 +539,7 @@ pub fn complete_workflow(
         ],
     )?;
     wf.emit(
-        &held,
+        held,
         "PHASE_VERIFIED",
         &[(
             "Phase boundary",
@@ -501,7 +556,7 @@ pub fn complete_workflow(
     if let Some(reason) = reason {
         fields.push(("Reason", reason.to_owned()));
     }
-    wf.emit(&held, "WORKFLOW_COMPLETED", &fields)?;
+    wf.emit(held, "WORKFLOW_COMPLETED", &fields)?;
     wf.write_state(&content)?;
     mark_complete(wf)?;
     let mut out = Map::new();
