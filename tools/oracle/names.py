@@ -52,6 +52,9 @@ PHRASES = (
     ("because AI-DLC's hooks are not running here", "because Focus's hooks are not running here"),
     ("Your answer didn't reach AI-DLC.", "Your answer didn't reach Focus."),
     ("a command to AIDLC, not a reply", "a command to Focus, not a reply"),
+    # The status as the engine heads it.
+    ("AI-DLC Workflow Status", "Focus Workflow Status"),
+    ("No active AI-DLC workflow found.", "No active Focus workflow found."),
     # The one variable upstream prefixes otherwise. Every variable Focus reads is FOCUS_*.
     ("AWS_AIDLC_DEFAULT_SCOPE", "FOCUS_DEFAULT_SCOPE"),
 )

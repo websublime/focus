@@ -372,7 +372,7 @@ fn plan_approval_runtime_dir(layout: &Layout) -> std::path::PathBuf {
     layout
         .workspace_root()
         .join(SESSIONS_DIR)
-        .join(".focus-plan-approval")
+        .join("plan-approval")
 }
 
 /// `runtimeSessionSegment`: a session id as a file-name segment.

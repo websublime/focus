@@ -25,11 +25,11 @@ use std::time::SystemTime;
 
 use focus_audit::time::iso_timestamp;
 use focus_graph::runtime::{ScopeDefinition, Stage};
-use focus_graph::stage_schema::{PHASES, SLUG_RE};
+use focus_graph::stage_schema::PHASES;
 use focus_intent::plan::{next_in_scope_stage, stages_in_scope};
 use focus_js::order::cmp_utf16;
 use focus_js::text::trim;
-use focus_js::{Result, bail, json, re};
+use focus_js::{Result, bail, json};
 use focus_state::fields::{get_field, remove_field, set_field, set_phase_progress};
 use focus_state::progress::{
     CheckboxState, count_checkboxes, parse_checkboxes, parse_stage_suffixes, set_checkbox,
@@ -38,7 +38,7 @@ use serde_json::{Map, Value, json};
 
 use crate::artifacts::{review_artifact_entries, workspace_artifact_path};
 use crate::events::answer_mode_fields;
-use crate::stage;
+use crate::stage::{self, stage_label};
 use crate::workflow::Workflow;
 
 /// `parseFlags`: `--name value` pairs; a flag with nothing after it is not
@@ -68,19 +68,6 @@ fn flag<'a>(flags: &'a [(String, String)], name: &str) -> Option<&'a str> {
         .iter()
         .find(|(known, _)| known == name)
         .map(|(_, value)| value.as_str())
-}
-
-/// `stageLabel`: the stage's name, or its slug for a plugin's stage, or
-/// nothing when the slug is not one.
-#[must_use]
-pub fn stage_label(stage: Option<&Stage>, slug: &str) -> Option<String> {
-    if let Some(stage) = stage
-        && stage.plugin.is_none()
-    {
-        return Some(stage::name(stage).to_owned());
-    }
-    let typed = stage.map_or(slug, |stage| stage.slug.as_str());
-    re::test(SLUG_RE, "", typed).then(|| typed.to_owned())
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

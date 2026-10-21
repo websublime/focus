@@ -64,6 +64,7 @@ focus engine jump execute --target intent-capture --direction backward
 focus engine utility detect --json     # project type, languages, frameworks, build system
 focus engine utility intent-create --scope feature --arguments "Add login" --label "add login"
 focus engine utility now
+focus engine utility status            # the workflow as a person reads it
 ```
 
 `focus engine graph --help`, `focus engine audit --help`,
@@ -90,8 +91,10 @@ another stage, skipping or resetting what lies between. A write that is not
 the orchestrator's passes the state-transition fence first. The
 `utility` command is the workflow from outside: `intent-create` starts a piece
 of work (its record, its ledger's first rows, its state file built from the
-scope's plan, its registry row), and `detect` is the scan that classifies the
-project for it.
+scope's plan, its registry row), `detect` is the scan that classifies the
+project for it, and `status` reads the workflow as a person does: where it
+stands, who is on it, its settings, its progress, and a finished stage whose
+inputs moved since (the validity receipts against the tree).
 
 The project is, in
 order: `--project-dir`; `FOCUS_PROJECT_DIR`; the directory the host names
