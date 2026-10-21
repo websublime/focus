@@ -1254,7 +1254,7 @@ M4 está em curso. Guards e hooks observadores são, no original, o que corre em
 | Fatia | O que traz | Como se verifica | Estado |
 | --- | --- | --- | --- |
 | 1. O lexer de shell | `focus-guards::shell`: o que um comando `Bash` pode escrever (POSIX e PowerShell), os programas que corre através dos wrappers, onde a shell pode estar quando escreve; `focus-js::path`: `resolve`, `normalize`, `isAbsolute`, `join` e `basename` do `node:path`, nos dois sabores | Corpus | Feita |
-| 2. Integridade do runtime | `runtime-integrity.ts`: o que nenhuma ferramenta pode tocar (os registos do runtime, o audit trail, os hooks), antes de qualquer fence | Corpus de pedidos de hook | Por fazer |
+| 2. Integridade do runtime | `focus-guards::integrity`: o que nenhuma ferramenta pode tocar (os registos do runtime, o audit trail, os ficheiros instalados dos hooks), antes de qualquer fence; `focus-js::path` ganha `relative` e `dirname` | Corpus de pedidos de hook | Feita |
 | 3. O dispatcher e os observadores | `focus-hooks`: um comando por hook (`focus hook <nome>`), o pedido lido do stdin, o traço de cada hook; os hooks que só registam ou recompilam: o arranque e o fim de sessão, o registo de turno humano, `write-audit-log`, `validate-state`, `sync-workflow-state`, `rebuild-stage-graph`, `log-subagent` | Corpus de pedidos de hook, diferencial | Por fazer |
 | 4. Os guards | `review-freeze`, `reviewer-scope`, `state-transition-guard` e `plan-approval-guard`, com o que leem (`guard-operation`, `question-store`, `message-store`, a fatia de `testing-posture` que a aprovação do plano consulta) | Corpus de pedidos de hook, diferencial | Por fazer |
 
@@ -1284,3 +1284,28 @@ Em `focus-js::path`: `resolve`, `normalize`, `isAbsolute`, `join` e `basename` d
 
 - Nada consome ainda o lexer: a integridade do runtime (fatia 2) e os guards (fatia 4) são os seus clientes.
 - O corpus regenerado trouxe outra vez os casos das famílias anteriores, com outro conteúdo: a geração com a mesma semente não é reprodutível de uma máquina para outra (a ordem de um `glob` entra nela). Todas passam; fica como risco pequeno, a corrigir quando se tocar no gerador.
+
+### Fatia 2: integridade do runtime
+
+`runtime-integrity.ts` (1 427 linhas) é a primeira pergunta que os hooks de `PreToolUse` fazem a uma chamada de ferramenta, antes de qualquer fence: toca em algo que só o harness escreve? Os registos do runtime (`.focus-sessions`, `.focus-plan-approval`, as palavras de um gate em `.focus-engine/gate-words`), o audit trail (`focus/spaces/<space>/intents/<registo>/audit/`, ancorado na árvore do workspace, nunca num segmento `audit` solto), e os ficheiros instalados de que a aplicação das regras depende (`hooks/`, `tools/focus*`, `bin/focus`, `hooks.json`, o `settings.json` do Claude, os agentes do Kiro, os pontos de entrada nativos). Lê a chamada por três caminhos: um comando `Bash`, pela shell (as substituições que corre, os heredocs que entrega a um interpretador ou escreve num script, as variáveis que define e expande, os scripts em disco que corre, os `-c`/`-e` dos interpretadores, os wrappers); uma ferramenta de escrita, pelos alvos; e o conteúdo escrito ou editado, por um lexer de JavaScript e Python que só resolve referências literais e estaticamente ligadas (`require`, `import`, `eval`, `Function`, `vm`, `child_process`, `Bun.spawn`, `subprocess`, `os.system`), com os parâmetros, as declarações locais e os sombreamentos que as desligam. Não é uma sandbox: o próprio original o diz; é defesa em profundidade.
+
+**O que existe.** Em `focus-guards::integrity`: `paths` (os caminhos protegidos, o caminho canónico do prefixo que existe, as raízes de instalação de cada projeto — a do harness resolvido, salvo com um link no caminho, e as convencionais —, os scripts de confiança), `shell` (a caminhada pelo comando, os heredocs e o pipeline em que correm, as atribuições literais e a expansão de cada palavra escrita contra todas elas, a leitura do audit trail que o parser partilhado não decide), `source` (o lexer e a resolução de APIs), e `mod` (a classificação `runtime`/`content`/`audit` e os dois textos de recusa). O host entra por `Integrity` (o diretório do projeto do hook, `FOCUS_HARNESS_DIR`, o binário do engine). Em `focus-js::path`, `relative` e `dirname` nos dois sabores; `relative` dobra o caso só em ASCII, como o Bun (o Node dobra tudo e compara por segmentos quando isso move um carácter).
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Corpus, `runtime_integrity` (1 794) | Uma árvore de projeto por caso (ficheiros, diretórios, links, bits de execução, um `harness.json`), o pedido do hook lido dela, e a classe e o texto da recusa: 869 permitidas, 604 `runtime`, 181 `audit`, 140 `content`. 1 131 comandos `Bash` (540 ao acaso de uma gramática própria e do lexer da fatia 1, o resto fixos: um por ramo), 392 `Write` (cada excerto de JavaScript, Python e shell escrito num script, num `.sh` e num `.py`), e `Edit`, `MultiEdit`, `NotebookEdit`, ferramentas de leitura e pedidos malformados. Iguais em todos. Um ficheiro grande de mais para ler é gerado com a mesma forma dos dois lados (um `require` de um hook e um comentário até ao tamanho) |
+| Corpus, `node_path` (+42) | `relative` e `dirname`, com os casos fixos das drives, das raízes UNC e do `İ` que o Bun não dobra |
+| Mutações | 50 em `source`, `shell`, `paths` e `mod`; 50 apanhadas, 31 delas só depois de o corpus ganhar os casos fixos. Os casos fixos apanharam também um erro do porte que a mistura ao acaso não via: o fecho de uma substituição (`)` ou o segundo backtick) era lido outra vez como texto |
+| `cargo test` | 392 testes; o corpus tem 13 571 casos. Os casos de `runtime_integrity` leem a árvore em `/tmp` e não correm em Windows, como os de `shell_targets` (R8) |
+
+**Pormenores do original que ficam iguais.**
+
+- O lexer de fonte trata os comentários, os corpos de expressões regulares e as strings como opacos, e abre um literal só quando um `import`/`require` ou um sink o consome; uma interpolação de template é código.
+- Uma palavra que a shell calcularia (`$X`, um glob, uma substituição que não é um `echo`/`printf %s` literal) é recusada quando o comando pode estar a apontar ao audit trail: nomeia um segmento `audit`, ou entra em `focus/spaces`, ou já corre lá dentro.
+- O repositório autorado do original (`scripts/package.ts` ao lado de `core/`, `harness/`, `tests/`, `docs/`) pode escrever os seus próprios hooks: a exceção fica, embora Focus não a precise.
+
+**Desvios deliberados.** Nenhum. Os nomes dos ficheiros instalados (`hooks/focus-*.ts`, `tools/focus*`) seguem o mapa de nomes; a árvore que Focus instala (M8) decide quais existem, e proteger um nome que não existe não custa nada.
+
+**Limites da fatia.** Ninguém chama ainda `integrity::violation`: os hooks de `PreToolUse` (fatias 3 e 4) são os seus clientes. O binário do engine entra como ponto de entrada protegido só quando o processo o conhece (`current_exe`); o corpus não o passa.

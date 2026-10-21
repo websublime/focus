@@ -1994,16 +1994,406 @@ NP_FIXED = [
     ("win32", "resolve", ["x", "C:", "y"]), ("win32", "resolve", ["\\x", "C:y"]), ("win32", "normalize", ["a\\..\\..\\..\\b"]), ("posix", "normalize", ["a/../../../b"]),
     ("win32", "basename", ["C:\\"]), ("win32", "basename", ["C:a"]), ("win32", "basename", ["\\\\srv\\share\\"]), ("posix", "basename", ["/a/b.txt//"]),
     ("win32", "normalize", ["\\\\.\\X\\.."]), ("win32", "normalize", ["\\\\?\\UNC\\s\\sh\\f"]), ("win32", "resolve", ["\\\\.\\PHYSICALDRIVE0"]),
+    ("win32", "relative", ["C:\\foo\\bar", "C:\\foo\\bar\\baz"]), ("win32", "relative", ["C:\\foo\\bar", "C:\\foo"]), ("win32", "relative", ["C:\\", "C:\\foo"]),
+    ("win32", "relative", ["C:\\foo\\bar", "C:\\"]), ("win32", "relative", ["C:\\a\\b", "D:\\a"]), ("win32", "relative", ["c:\\A\\b", "C:\\a\\C"]),
+    ("win32", "relative", ["\\\\s\\sh\\a", "\\\\s\\sh\\b"]), ("win32", "relative", ["C:\\İ\\x", "C:\\i̇\\y"]), ("win32", "relative", ["C:\\a", "C:\\ab"]),
+    ("posix", "relative", ["/a/b/c", "/a/d"]), ("posix", "relative", ["/", "/foo"]), ("posix", "relative", ["/foo/bar", "/"]), ("posix", "relative", ["/a", "/ab"]),
+    ("posix", "dirname", ["//a"]), ("win32", "dirname", ["\\\\s\\sh\\f"]), ("win32", "dirname", ["\\\\s\\sh"]), ("win32", "dirname", ["C:a\\b"]), ("win32", "dirname", ["C:"]),
 ]
 for flavour, op, args in NP_FIXED:
     add("node_path", flavour=flavour, op=op, args=args, cwd="/work/w")
 
 for _ in range(scale * 70):
     flavour = sh.choice(["posix", "win32"])
-    op = sh.choice(["resolve", "normalize", "isAbsolute", "join", "basename"])
-    count = sh.randrange(0, 4) if op in ("resolve", "join") else 1
+    op = sh.choice(["resolve", "normalize", "isAbsolute", "join", "basename", "dirname", "relative"])
+    count = sh.randrange(0, 4) if op in ("resolve", "join") else 2 if op == "relative" else 1
     args = [sh.choice(NP_PARTS) if sh.random() < 0.9 else char_fuzz(sh.choice(NP_PARTS), 2) for _ in range(count)]
     add("node_path", flavour=flavour, op=op, args=args, cwd=sh.choice(["/work/w", "/", "/a/b/c", "/tmp"]))
+
+# --------------------------------------------------------------------------
+# Runtime integrity (M4, slice 2): what a tool call may not touch.
+ri = random.Random(seed * 7919 + 9)
+HARNESS_JSON = json.dumps({"schemaVersion": 1, "distribution": "claude", "name": "claude", "harnessDir": ".claude"})
+RECORD = "aidlc/spaces/default/intents/260105-add-login"
+RI_PROTECTED = [".aidlc-sessions/sess.binding.json", "aidlc/.aidlc-sessions/plan-approval/bypass-x", f"{RECORD}/.aidlc-engine/gate-words/s.json",
+                f"{RECORD}/audit/laptop-abc123.md", "aidlc/spaces/default/intents/audit/x.md", "aidlc/spaces/other/intents/x/audit/y.md",
+                ".claude/hooks/aidlc-review-freeze.ts", ".claude/hooks/x.ts", ".claude/hooks", ".claude/tools/aidlc-lib.ts", ".claude/tools/aidlc.ts",
+                ".claude/tools", ".claude/settings.json", ".claude/hooks.json", ".claude/bin/aidlc", ".claude/bin", ".claude",
+                ".cursor/hooks/aidlc-x.ts", ".cursor/hooks.json", ".aidlc/tools/aidlc-utility.ts", ".kiro/agents/aidlc-x.json", ".kiro/agents",
+                ".codex/tools/aidlc-state.ts", ".github/hooks/aidlc.json", ".opencode/plugin/aidlc-opencode-adapter.ts", ".AIDLC-SESSIONS/x",
+                "AIDLC/Spaces/Default/Intents/X/Audit/y.md"]
+RI_ALLOWED = ["src/audit/x.md", "notes.md", "src/main.ts", "aidlc/spaces/default/intents/x/ideation/intent.md", f"{RECORD}/.aidlc-engine/engine-touch",
+              f"{RECORD}/aidlc-state.md", ".claude/rules/x.md", ".claude/agents/aidlc-x.md", ".claude/tools/data/x.json", ".claude/settings.local.json",
+              ".cursor/settings.json", "audit/x.md", "my-audit/y", "aidlc/spaces/default/memory/org.md", ".kiro/steering/x.md", ".claude/skills/x/SKILL.md",
+              "aidlc/spaces/default/intents/audit", "docs/aidlc-sessions.md", "hooks/aidlc-x.ts", "tools/aidlc.ts"]
+RI_HOOK_WORDS = ["hooks/aidlc-review-freeze.ts", ".claude/hooks/aidlc-state-transition-guard.ts", "./hooks/aidlc-x.ts", "hooks/aidlc-x",
+                 "aidlc-record-human-turn", "aidlc-guard-switch.ts", "./aidlc-cursor-adapter.ts", "x/aidlc-codex-adapter.ts", "hooks/aidlc_x.ts",
+                 "hooks/aidlc-x.js", "hooks/other.ts", "src/hooks/aidlc-x.ts"]
+RI_ENV = ["AIDLC_SESSION_OVERRIDE", "AIDLC_UNATTENDED", "AIDLC_SKIP_ARTIFACT_GUARD", "AIDLC_DISABLE_SENSORS", "CODEX_THREAD_ID",
+          "AIDLC_INTERNAL_HUMAN_TURN_TOKEN", "AIDLC_ALLOW_DIRECT_AUDIT_EVENTS", "aidlc_unattended", "AIDLC_UNATTENDEDX", "AIDLC_PROJECT_DIR", "FOO"]
+
+
+def ri_path():
+    return ri.choice(RI_PROTECTED + RI_ALLOWED + RI_ALLOWED)
+
+
+def ri_quote(word):
+    style = ri.random()
+    if style < 0.6:
+        return word.replace(" ", "\\ ")
+    if style < 0.8:
+        return "'" + word + "'"
+    return '"' + word + '"'
+
+
+def ri_bash():
+    w = lambda: ri_quote(ri_path())  # noqa: E731
+    h = lambda: ri.choice(RI_HOOK_WORDS)  # noqa: E731
+    e = lambda: ri.choice(RI_ENV)  # noqa: E731
+    pick = ri.choice
+    return pick([
+        lambda: f"echo x > {w()}", lambda: f"echo x >> {w()}", lambda: f"cat {w()}", lambda: f"rm -rf {w()}", lambda: f"mv {w()} {w()}",
+        lambda: f"cp {w()} {w()}", lambda: f"mkdir -p {w()}", lambda: f"touch {w()}", lambda: f"sed -i s/a/b/ {w()}", lambda: f"tee -a {w()} < x",
+        lambda: f"ls {w()}", lambda: f"rmdir {w()}", lambda: f"install -d {w()}", lambda: f"dd of={w()}", lambda: f"find {w()} -delete",
+        lambda: f"cd {ri_quote(RECORD)} && echo y >> audit/z.md", lambda: f"cd {RECORD}; cat audit/z.md", lambda: f"P={RECORD}/audit/z.md; echo >> $P",
+        lambda: f"P={RECORD}/audit/z.md; echo >> \"$P\"; P=notes.md", lambda: "cd $D && echo >> audit/x", lambda: "echo >> \"$X\"",
+        lambda: "echo >> \"$X\" # audit", lambda: f"X={RECORD}; echo >> $X/audit/y.md", lambda: f"X={RECORD}; echo >> ${{X}}/audit/y.md",
+        lambda: "echo >> aud\"\"it/x", lambda: f"cd {RECORD} && echo >> aud''it/x", lambda: "echo >> $(printf au)dit/x", lambda: "echo >> \\audit\\x",
+        lambda: "pushd aidlc/spaces/default/intents/x; echo >> audit/y; popd", lambda: f"cd ..; echo >> {RECORD}/audit/y", lambda: f"cd $HOME; echo >> {RECORD}/audit/y",
+        lambda: f"A=aidlc; B=spaces; echo >> $A/$B/default/intents/x/audit/y", lambda: "A+=/audit; echo >> $A/x", lambda: f"export R={RECORD}; echo >> $R/audit/y",
+        lambda: "echo >> src/audit/x.log", lambda: "echo >> $Y/src/audit/x", lambda: "cd src && echo >> audit/x", lambda: "echo >> audit/x",
+        lambda: f"{e()}=1 aidlc engine state get", lambda: f"export {e()}=1", lambda: f"read {e()}", lambda: f"declare -x {e()}=1", lambda: f"printf -v {e()} 1",
+        lambda: f"$env:{e()} = 1", lambda: f"${{env:{e()}}} += 1", lambda: f"setx {e()} 1", lambda: f"Set-Item env:{e()} 1", lambda: f"New-Item -Name {e()} -Path env:",
+        lambda: f"[Environment]::SetEnvironmentVariable(\"{e()}\", 1)", lambda: f"@{{ \"{e()}\" = 1 }}", lambda: f"echo {e()}=1", lambda: f"test {e()}==1",
+        lambda: f"FOO={e()}=1", lambda: f"ls --local {e()}", lambda: f"cat AppData\\Local\\{e()}", lambda: f"${{x:-read}} {e()}", lambda: f"local {e()}",
+        lambda: f"cd $(dirname {e()})", lambda: f"typeset -i {e()}=3", lambda: f"mapfile {e()} < x", lambda: f"echo ${{{e()}:=1}}",
+        lambda: f"bun {h()}", lambda: f"bun run {h()}", lambda: f"node {h()} --flag", lambda: f"node -r {h()} app.js", lambda: f"bun --preload={h()} x.ts",
+        lambda: f"bun --preload {h()} x.ts", lambda: f"node --import={h()} x", lambda: f"bun -r{h()} x", lambda: f"tsx {h()}", lambda: f"deno run {h()}",
+        lambda: f"bun --check {h()}", lambda: f"node -c {h()}", lambda: f"deno -c {h()}", lambda: f"bun -- {h()}", lambda: f"bun -e x -- {h()}",
+        lambda: f"bun --cwd x {h()}", lambda: f"node --config {h()}", lambda: "aidlc engine hook foo", lambda: "aidlc engine adapter", lambda: "aidlc engine state get",
+        lambda: "aidlc --json engine $X", lambda: "aidlc engine $(cat x)", lambda: "aidlc $X", lambda: "aidlc --project-dir x engine hook", lambda: "aidlc --project-dir engine hook",
+        lambda: "aidlc.ts engine hook", lambda: "./aidlc engine *", lambda: "aidlc --internal-aidlc-record-human-turn", lambda: "aidlc engine state --internal-aidlc-record-human-turn",
+        lambda: "C:\\\\tools\\\\aidlc.exe engine hook", lambda: "aidlcx engine hook", lambda: "AIDLC engine hook", lambda: "aidlc --quiet --yes engine adapter",
+        lambda: f"bun -e \"require('{h()}')\"", lambda: f"node --eval=\"import('{h()}')\"", lambda: f"bun -p 'require(\"{h()}\")'", lambda: f"node -pe 'require(\"{h()}\")'",
+        lambda: f"node -e 'x' {h()}", lambda: f"bun -e", lambda: f"python -c \"import subprocess; subprocess.run(['bun','{h()}'])\"", lambda: f"python3 -c 'import os; os.system(\"bun {h()}\")'",
+        lambda: f"python3 -ic \"__import__('subprocess').run(['bun','{h()}'])\"", lambda: f"python -c 'eval(\"exec(\\\"import os\\\")\")'",
+        lambda: f"sh -c 'bun {h()}'", lambda: f"bash -lc \"{e()}=1 aidlc\"", lambda: f"zsh -c 'cd {RECORD} && echo >> audit/x'", lambda: f"bash -c \"echo >> .aidlc-sessions/x\"",
+        lambda: f"bash -c 'echo .aidlc-sessions'", lambda: f"sh -c cat {h()}", lambda: f"bash -x {h()}", lambda: f"bash -s < {h()}",
+        lambda: f"eval \"bun {h()}\"", lambda: f"eval bun {h()}", lambda: f"alias r='bun {h()}'", lambda: f"alias r=\"ls\"; r", lambda: f"$(bun {h()})",
+        lambda: f"x=$(bun {h()})", lambda: f"`aidlc engine hook`", lambda: f"echo \"$(echo bun) {h()}\"", lambda: f"echo `echo .aidlc-sessions`",
+        lambda: f"cat <<EOF > run.sh\\nbun {h()}\\nEOF", lambda: f"cat <<'EOF' > run.sh\\nbun {h()}\\nEOF", lambda: f"cat <<EOF > notes.md\\nbun {h()}\\nEOF",
+        lambda: f"bash <<'EOF'\\nbun {h()}\\nEOF", lambda: f"bash <<EOF\\nbun {h()}\\nEOF", lambda: f"python3 - <<EOF\\nimport os; os.system(\"bun {h()}\")\\nEOF",
+        lambda: f"node <<EOF\\nrequire('{h()}')\\nEOF", lambda: f"cat <<-EOF > x.py\\n\\timport subprocess; subprocess.run(['bun','{h()}'])\\n\\tEOF",
+        lambda: f"cat <<EOF | bash\\nbun {h()}\\nEOF", lambda: f"cat <<EOF 3> x.sh\\nbun {h()}\\nEOF", lambda: f"bash 3<<EOF\\nbun {h()}\\nEOF",
+        lambda: f"cat <<EOF\\n{e()}=1\\nEOF", lambda: f"cat <<EOF > .aidlc-sessions/x\\nhi\\nEOF", lambda: f"echo a <<EOF; bash\\nbun {h()}\\nEOF",
+        lambda: f"cat <<EOF > a.sh && echo >> audit/x\\nhi\\nEOF", lambda: f"X=$(cat <<EOF\\nbun {h()}\\nEOF\\n)", lambda: f"cat <<EOF >> run.sh\\n$(bun {h()})\\nEOF",
+        lambda: "./run.sh", lambda: "./run.sh arg", lambda: "bash run.sh", lambda: "sh ./run.sh", lambda: "bun script.ts", lambda: "python x.py", lambda: "python3 x.py",
+        lambda: "node script.js", lambda: "bun run script.ts", lambda: "./script.ts", lambda: "./tool", lambda: "bun .claude/tools/aidlc-lib.ts x", lambda: "bun .claude/tools/aidlc-other.ts",
+        lambda: "bun .claude/tools/aidlc.ts engine hook x", lambda: "bun core/tools/aidlc-lib.ts", lambda: "bun big.ts", lambda: "bun missing.ts",
+        lambda: "sudo bun hooks/aidlc-x.ts", lambda: "env -S 'bun hooks/aidlc-x.ts'", lambda: "xargs bun hooks/aidlc-x.ts", lambda: "timeout 5 aidlc engine hook",
+        lambda: f"au\\\\\\ndit() {{ :; }}; echo >> {RECORD}/au\\\\\\ndit/x", lambda: f"echo >> {RECORD}/audit/x\\\\\\n.md", lambda: f"git add {RECORD}/audit/x.md",
+        lambda: f"cat {RECORD}/audit/x.md | grep y", lambda: f"ls {RECORD}/audit/", lambda: f"rm {RECORD}/audit/x.md", lambda: f"echo >> {RECORD}/.aidlc-engine/x",
+        lambda: f"echo {{ > x; echo }} >> {RECORD}/audit/y", lambda: f"( echo >> {RECORD}/audit/y )", lambda: f"{{ echo >> {RECORD}/audit/y; }}", lambda: f"echo ${{ echo >> {RECORD}/audit/y; }}",
+        lambda: "echo > ${X}", lambda: "echo \"${X}\" > y", lambda: "echo >> '$X'", lambda: "echo >> \"$PWD/audit/x\"", lambda: f"cd {RECORD}; echo >> \"$PWD/audit/x\"",
+        lambda: "mkdir .aidlc-sessions", lambda: "mkdir -p aidlc/spaces/default/intents/x/audit", lambda: "mkdir -p src/audit", lambda: "mkdir .claude/hooks",
+        lambda: "rm -rf .claude", lambda: "rm -r .", lambda: "rm -rf ..", lambda: "rm -rf /", lambda: "mv .claude .bak", lambda: "rm .claude/rules/x.md", lambda: "rm .claude/skills",
+        lambda: "rm -rf .cursor/hooks", lambda: "rmdir .kiro", lambda: "mv .github/hooks/aidlc.json x", lambda: "rm .opencode", lambda: "rm -rf .aidlc",
+        lambda: "ls -la", lambda: "git status", lambda: "cargo test", lambda: "echo hello", lambda: "",
+    ])()
+
+
+RI_JS = [
+    'import x from "./hooks/aidlc-x.ts";', 'import "hooks/aidlc-x";', 'import type { T } from "./hooks/aidlc-x.ts";', 'import { type T } from "./hooks/aidlc-x.ts";',
+    'import type, { y } from "./hooks/aidlc-x.ts";', 'export { a } from "./hooks/aidlc-x.ts";', 'export const a = 1;', 'const m = await import("./hooks/aidlc-x.ts");',
+    'require("hooks/aidlc-guard-switch");', 'const h = "hooks/aidlc-x.ts"; require(h);', 'const h = "hooks/aidlc-x.ts";', 'let h; h = "hooks/aidlc-x.ts"; require(h);',
+    'const { createRequire } = require("module"); createRequire(import.meta.url)("hooks/aidlc-x");', 'eval("require(\'hooks/aidlc-x\')");', 'const e = eval; e("require(\'hooks/aidlc-x\')");',
+    'new Function("a", "require(\'hooks/aidlc-x\')");', 'Function("require(\'hooks/aidlc-x\')")();', 'globalThis.eval("require(\'hooks/aidlc-x\')");',
+    'const vm = require("vm"); vm.runInThisContext("require(\'hooks/aidlc-x\')");', 'import { runInNewContext as r } from "node:vm"; r("require(\'hooks/aidlc-x\')");',
+    'const cp = require("child_process"); cp.exec("bun hooks/aidlc-x.ts");', 'import { execSync } from "node:child_process"; execSync("aidlc engine hook");',
+    'import * as cp from "child_process"; cp.spawn("bun", ["hooks/aidlc-x.ts"]);', 'Bun.spawn(["bun", "hooks/aidlc-x.ts"]);', 'Bun.spawnSync({ cmd: ["bun", "hooks/aidlc-x.ts"] });',
+    'Deno.run({ cmd: ["bun", "hooks/aidlc-x.ts"] });', 'new Deno.Command("bun", { args: ["hooks/aidlc-x.ts"] });', 'spawn("bun", ["hooks/aidlc-x.ts"]);',
+    'const { spawn } = require("child_process"); spawn("bun", ["hooks/aidlc-x.ts"]);', 'const { spawn: s } = require("child_process"); s(process.execPath, ["hooks/aidlc-x.ts"]);',
+    'const cp = require("child_process"); const cmd = "bun hooks/aidlc-x.ts"; cp.execSync(cmd);', 'const cmd = `bun hooks/aidlc-x.ts`; require("child_process").exec(cmd);',
+    'const cmd = `bun ${x}`; require("child_process").exec(cmd);', '// bun hooks/aidlc-x.ts', '/* require("hooks/aidlc-x") */', 'const s = "bun hooks/aidlc-x.ts";',
+    'const doc = { example: "bun hooks/aidlc-x.ts" };', 'console.log("hooks/aidlc-x.ts");', 'const re = /hooks\\/aidlc-x/;', 'execSync.call(null, "bun hooks/aidlc-x.ts");',
+    'execSync.apply(null, ["bun hooks/aidlc-x.ts"]);', 'const f = execSync.bind(null); f("bun hooks/aidlc-x.ts");', 'function run() { require("hooks/aidlc-x"); }',
+    'const run = () => require("hooks/aidlc-x");', 'const run = (require) => require("hooks/aidlc-x");', 'function run(require) { require("hooks/aidlc-x"); }',
+    'const require = () => {}; require("hooks/aidlc-x");', 'let eval = 1;', 'globalThis.eval = () => {}; eval("require(\'hooks/aidlc-x\')");',
+    'const cp = require("child_process"); cp.exec = () => {}; cp.exec("bun hooks/aidlc-x.ts");', 'for (const require of []) require("hooks/aidlc-x");',
+    'import("hooks/aidlc-x")', 'await import(`hooks/${x}`)', 'const p = process.env.AIDLC_SESSION_OVERRIDE;', 'process.env.AIDLC_UNATTENDED = "1";',
+    'echo "x" > .aidlc-sessions/y', 'sh -c "bun hooks/aidlc-x.ts"', 'const t = `bun hooks/aidlc-x.ts`', 'bun hooks/aidlc-x.ts', 'aidlc engine hook; const x = 1',
+    'node hooks/aidlc-x.ts', 'const bun = 1; bun hooks/aidlc-x.ts', 'class X { eval() { require("hooks/aidlc-x") } }', 'if (x) { require("hooks/aidlc-x") }',
+    'const x = (require("hooks/aidlc-x"));', 'const [a] = [require("hooks/aidlc-x")];', 'import { exec } from "child_process"\nexec("bun hooks/aidlc-x.ts")',
+    'import { exec } from "child_process";\nconst c = "bun hooks/aidlc-x.ts";\nexec(c)', 'const path = "hooks/aidlc-x.ts";\nconst m = await import(path);',
+    'import("./hooks/aidlc-x.ts").then(m => m)', 'const body = "require(\'hooks/aidlc-x\')"; eval(body);', 'eval(`require("hooks/aidlc-x")`);', 'eval(x);',
+    'subprocess.run(["bun", "hooks/aidlc-x.ts"])', 'import subprocess\nsubprocess.run(["bun", "hooks/aidlc-x.ts"])', 'import subprocess as sp\nsp.call(["aidlc", "engine", "hook"])',
+    'from subprocess import run\nrun(["bun", "hooks/aidlc-x.ts"])', 'from subprocess import run as r\nr(args=["bun", "hooks/aidlc-x.ts"])', 'import os\nos.system("bun hooks/aidlc-x.ts")',
+    'import os\nos.popen("aidlc engine adapter")', '__import__("subprocess").run(["bun", "hooks/aidlc-x.ts"])', 'exec("import os; os.system(\'bun hooks/aidlc-x.ts\')")',
+    'eval("__import__(\'os\').system(\'bun hooks/aidlc-x.ts\')")', 'import builtins\nbuiltins.exec("import os; os.system(\'aidlc engine hook\')")',
+    'def f():\n    import subprocess\n    subprocess.run(["bun", "hooks/aidlc-x.ts"])', 'def f(subprocess):\n    subprocess.run(["bun", "hooks/aidlc-x.ts"])',
+    'def f():\n    subprocess = None\n    subprocess.run(["bun", "hooks/aidlc-x.ts"])', 'class C:\n    def m(self):\n        import os\n        os.system("bun hooks/aidlc-x.ts")',
+    '# os.system("bun hooks/aidlc-x.ts")', 's = """\nbun hooks/aidlc-x.ts\n"""', "x = 'bun hooks/aidlc-x.ts'", 'import os\nos.system(cmd)', 'cmd = "bun hooks/aidlc-x.ts"\nimport os\nos.system(cmd)',
+    'if True: import os; os.system("bun hooks/aidlc-x.ts")', 'import os as o\no.system("bun hooks/aidlc-x.ts")', 'from os import system\nsystem("bun hooks/aidlc-x.ts")',
+    'from os import *\nsystem("bun hooks/aidlc-x.ts")', 'subprocess.Popen("bun hooks/aidlc-x.ts")', 'import subprocess\nsubprocess.check_output(["bun", "--", "hooks/aidlc-x.ts"])',
+    'bun hooks/aidlc-x.ts\necho done', '#!/bin/sh\nbun hooks/aidlc-x.ts', '#!/usr/bin/env bun\nrequire("hooks/aidlc-x")', '#!/usr/bin/env python3\nimport os; os.system("aidlc engine hook")',
+    'AIDLC_UNATTENDED=1 aidlc engine state get', 'export AIDLC_SESSION_OVERRIDE=x', 'echo >> aidlc/spaces/default/intents/x/audit/y.md', 'cd aidlc/spaces/default/intents/x && echo >> audit/y.md',
+    'echo hi', '', 'const x = 1;\n', 'print("hi")',
+    'const s = `${require("hooks/aidlc-x")}`;', 'const c = `bun ${x}`; require("child_process").exec(c);', 'const r = /"/; require("hooks/aidlc-x");',
+    'const r = x / 2 / 3; require("hooks/aidlc-x");', 'import { default as cp } from "node:child_process"; cp.exec("bun hooks/aidlc-x.ts");',
+    'const cp = await import("node:child_process"); cp.exec("bun hooks/aidlc-x.ts");', 'import { execSync } from "child_process"; const f = execSync.bind(null); f("bun hooks/aidlc-x.ts");',
+    'import { execSync } from "child_process"; execSync.call(null, "bun hooks/aidlc-x.ts");', 'import { execSync } from "child_process"; execSync.apply(null, ["bun hooks/aidlc-x.ts"]);',
+    'import type cp from "node:child_process"; cp.exec("bun hooks/aidlc-x.ts");', 'import cp from "node:child_process"; cp.exec("bun hooks/aidlc-x.ts");',
+    'import * as cp from "node:child_process"; cp.default.exec("bun hooks/aidlc-x.ts");', 'function require() {}\nrequire("hooks/aidlc-x");', 'let eval;\neval("require(\'hooks/aidlc-x\')");',
+    'for (const require of []) { require("hooks/aidlc-x") }', 'for (let eval of []) { eval("require(\'hooks/aidlc-x\')") }', 'while (x) { require("hooks/aidlc-x") }',
+    'function f(require) { require("hooks/aidlc-x") }', 'const f = (eval) => { eval("require(\'hooks/aidlc-x\')") };', 'const f = ({ require }) => require("hooks/aidlc-x");',
+    'const { exec: run } = require("child_process"); run("bun hooks/aidlc-x.ts");', 'const { execPath } = process; const { spawn } = require("child_process"); spawn(execPath, ["hooks/aidlc-x.ts"]);',
+    'const { spawn } = require("child_process"); spawn(process.execPath, ["hooks/aidlc-x.ts"]);', 'globalThis.require = () => {}; require("hooks/aidlc-x");', 'global.eval = 1; eval("require(\'hooks/aidlc-x\')");',
+    'const vm = require("node:vm"); new vm.Script("require(\'hooks/aidlc-x\')");', 'const { compileFunction } = require("vm"); compileFunction("require(\'hooks/aidlc-x\')");',
+    'eval("eval(\'require(\\\\\'hooks/aidlc-x\\\\\')\')");', 'const cp = require("child_process"); eval("cp.exec(\'bun hooks/aidlc-x.ts\')");', '(0, eval)("cp.exec(\'bun hooks/aidlc-x.ts\')"); const cp = require("child_process");',
+    'const cp = require("child_process"); (0, eval)("cp.exec(\'bun hooks/aidlc-x.ts\')");', 'const cp = require("child_process"); eval.call(null, "cp.exec(\'bun hooks/aidlc-x.ts\')");',
+    'new Function("cp", "cp.exec(\'bun hooks/aidlc-x.ts\')");', 'new Function("require", "require(\'hooks/aidlc-x\')");', 'new Function("x", "require(\'hooks/aidlc-x\')");',
+    'import subprocess\ndef f(subprocess):\n    subprocess.run(["bun", "hooks/aidlc-x.ts"])', 'import subprocess\ndef f():\n    subprocess = None\n    subprocess.run(["bun", "hooks/aidlc-x.ts"])',
+    'import subprocess\ndef f():\n    subprocess.run(["bun", "hooks/aidlc-x.ts"])', 'import subprocess\ndef f():\n    import subprocess\n    subprocess.run(["bun", "hooks/aidlc-x.ts"])',
+    'import subprocess\ndef f():\n    from os import system as subprocess\n    subprocess.run(["bun", "hooks/aidlc-x.ts"])', 'import subprocess\nclass C:\n    subprocess = 1\n    subprocess.run(["bun", "hooks/aidlc-x.ts"])',
+    'import subprocess\ndef f(): subprocess.run(["bun", "hooks/aidlc-x.ts"])', 'import subprocess\ndef f(): x = 1\nsubprocess.run(["bun", "hooks/aidlc-x.ts"])',
+    'import subprocess\ndef f():\n    pass\nsubprocess.run(["bun", "hooks/aidlc-x.ts"])', 'import subprocess\nif x:\n    subprocess.run(["bun", "hooks/aidlc-x.ts"])',
+    'import os\nexec("os.system(\'bun hooks/aidlc-x.ts\')")', 'exec("import os\\nos.system(\'bun hooks/aidlc-x.ts\')")', 'import os\neval("os.system(\'bun hooks/aidlc-x.ts\')")',
+    'import subprocess\nsubprocess.run(args=["bun", "hooks/aidlc-x.ts"])', 'import subprocess\nsubprocess.run(["bun", "run", "hooks/aidlc-x.ts"])', 'import subprocess\nsubprocess.run("bun hooks/aidlc-x.ts")',
+    'import subprocess\nsubprocess.run(["aidlc", "engine", "hook"])',
+    'const cp = require("child_process"); cp.exec = () => {}; cp["exec"]("bun hooks/aidlc-x.ts");', 'import type { exec } from "node:child_process"; exec("bun hooks/aidlc-x.ts");',
+    'import subprocess\ndef f():\n    subprocess.run(["bun", "hooks/aidlc-x.ts"])\n    import subprocess', 'import subprocess\nsubprocess.run(["aidlc", "engine", x])', 'import subprocess\nsubprocess.run(["aidlc", "engine", "state", "get"])',
+]
+
+
+def ri_content():
+    text = ri.choice(RI_JS)
+    if ri.random() < 0.3:
+        text = ri.choice(RI_JS) + "\n" + text
+    if ri.random() < 0.1:
+        text = char_fuzz(text, ri.randrange(1, 3))
+    return text
+
+
+RI_TARGETS = ["script.ts", "x.py", "run.sh", "notes.md", "a.js", "tool", "x.mjs", "README.txt", "doc.rst", "x.ipynb", "src/x.ts", ".claude/rules/x.md",
+              "core/hooks/aidlc-x.ts", "docs/x.ts", "tests/t.ts", ".claude/tools/aidlc-lib.ts", RECORD + "/x.ts", "big.ts"]
+
+
+def ri_files():
+    files = {}
+    if ri.random() < 0.7:
+        files[".claude/tools/data/harness.json"] = HARNESS_JSON
+    for name, text in ri.sample([
+        ("run.sh", ri.choice(["bun hooks/aidlc-x.ts", "#!/bin/sh\necho hi", "echo >> " + RECORD + "/audit/x", "AIDLC_UNATTENDED=1 aidlc"])),
+        ("script.ts", ri.choice(['import "./hooks/aidlc-x.ts";', 'console.log(1)', 'require("hooks/aidlc-x")', '// require("hooks/aidlc-x")'])),
+        ("script.js", 'require("hooks/aidlc-x")'), ("x.py", ri.choice(['import os\nos.system("bun hooks/aidlc-x.ts")', 'print(1)'])),
+        ("tool", ri.choice(["bun hooks/aidlc-x.ts", "#!/usr/bin/env bun\nrequire('hooks/aidlc-x')", "#!/usr/bin/env python3\nimport os\nos.system('aidlc engine hook')"])),
+        ("hooks/aidlc-x.ts", "export {}"), ("big.ts", "@bytes:1048577"), ("a.js", ri.choice(["/* x */", "/* require('hooks/aidlc-x') */", "// require('hooks/aidlc-x')\n", "const a = 1;"])),
+        (".claude/tools/aidlc-lib.ts", 'require("hooks/aidlc-x")'), (".claude/tools/aidlc-other.ts", 'require("hooks/aidlc-x")'),
+        ("core/tools/aidlc-lib.ts", 'require("hooks/aidlc-x")'), ("scripts/package.ts", "export {}"), ("src/x.ts", "const a = 1;"),
+        (".aidlc-sessions/x", "1"), (RECORD + "/audit/laptop-abc123.md", "# AI-DLC Audit Log\n"), ("notes.md", "bun hooks/aidlc-x.ts"),
+    ], ri.randrange(0, 7)):
+        files[name] = text
+    for name in ri.sample(["aidlc/spaces/default/intents/x/audit/", ".claude/hooks/", "src/audit/", ".cursor/", ".kiro/agents/", "sub/"], ri.randrange(0, 3)):
+        files[name] = None
+    return files
+
+
+def ri_links():
+    out = []
+    if ri.random() < 0.2:
+        out.append(ri.choice([["link", RECORD + "/audit"], ["cl", ".claude"], ["rec", RECORD], ["s", ".aidlc-sessions"], ["h", ".claude/hooks"], ["n", "notes"], ["loop", "loop"]]))
+    return out
+
+
+def ri_case(input_, files=None, links=None, exec_=None, env=None, cwd="{P}", project=""):
+    input_ = dict(input_)
+    input_.setdefault("cwd", cwd)
+    add("runtime_integrity", input=input_, files=files if files is not None else ri_files(), links=links if links is not None else ri_links(),
+        exec=exec_ if exec_ is not None else (["run.sh", "tool"] if ri.random() < 0.5 else []), env=env or {}, project=project)
+
+
+for _ in range(scale * 90):
+    command = ri_bash() if ri.random() < 0.8 else sh_command()
+    if ri.random() < 0.2:
+        command = command + ri.choice(["; ", " && ", " | ", "\n"]) + ri_bash()
+    powershell = ri.random() < 0.08
+    input_ = {"tool_name": "Bash", "tool_input": {"command": command}}
+    if powershell:
+        input_["aidlc_shell"] = "powershell"
+    ri_case(input_, cwd=ri.choice(["{P}", "{P}", "{P}/sub", "{P}/" + RECORD]), project=ri.choice(["", "", "sub"]))
+
+for _ in range(scale * 60):
+    tool = ri.choice(["Write", "Write", "Edit", "MultiEdit", "NotebookEdit", "Read", "bash"])
+    target = ri.choice(RI_TARGETS + RI_PROTECTED)
+    if tool == "Write":
+        input_ = {"tool_name": tool, "tool_input": {"file_path": target, "content": ri_content()}}
+    elif tool == "NotebookEdit":
+        input_ = {"tool_name": tool, "tool_input": {"notebook_path": target, "new_source": ri_content(), "cell_id": "c1"}}
+    elif tool == "Edit":
+        input_ = {"tool_name": tool, "tool_input": {"file_path": target, "old_string": ri.choice(["", "/* ", "// ", "const a = 1;", "x", "require"]), "new_string": ri_content()}}
+        if ri.random() < 0.3:
+            input_["tool_input"]["replace_all"] = ri.choice([True, False, "yes"])
+    elif tool == "MultiEdit":
+        edits = []
+        for _ in range(ri.randrange(0, 4)):
+            edit = {"old_string": ri.choice(["", "/* ", "// ", "const a = 1;", "x", " */"]), "new_string": ri_content()}
+            if ri.random() < 0.3:
+                edit["file_path"] = ri.choice(RI_TARGETS)
+            if ri.random() < 0.2:
+                edit = ri.choice([edit, "nope", None, {"new_string": 3}])
+            edits.append(edit)
+        input_ = {"tool_name": tool, "tool_input": {"file_path": target, "edits": edits}}
+    else:
+        input_ = {"tool_name": tool, "tool_input": {"file_path": target, "content": ri_content()}}
+    ri_case(input_, cwd=ri.choice(["{P}", "{P}", "{P}/sub"]), project=ri.choice(["", "", "sub"]))
+
+# The edges the random mix reaches rarely.
+RI_FIXED = [
+    {"tool_name": "Bash", "tool_input": {"command": 1}}, {"tool_name": "Bash", "tool_input": {}}, {"tool_name": "Bash"}, {"tool_name": "Write", "tool_input": {"file_path": ".aidlc-sessions/x"}},
+    {"tool_name": "Write", "tool_input": {"file_path": "x.ts", "content": 3}}, {"tool_name": "MultiEdit", "tool_input": {"edits": "nope", "file_path": "x.ts"}},
+    {"tool_name": "MultiEdit", "tool_input": {"edits": [{"file_path": ".claude/hooks/x", "new_string": ""}]}}, {"tool_name": "Edit", "tool_input": {"file_path": "a.js", "old_string": "/* ", "new_string": ""}},
+    {"tool_name": "Edit", "tool_input": {"file_path": "a.js", "old_string": "", "new_string": "require('hooks/aidlc-x')", "replace_all": True}},
+    {"tool_name": "Edit", "tool_input": {"file_path": "empty.js", "old_string": "", "new_string": "require('hooks/aidlc-x')"}},
+    {"tool_name": "Edit", "tool_input": {"file_path": "empty.js", "old_string": "", "new_string": "require('hooks/aidlc-x')", "replace_all": True}},
+    {"tool_name": "Write", "tool_input": {"file_path": "core/hooks/aidlc-new.ts", "content": 'import "./aidlc-record-human-turn.ts";'}},
+    {"tool_name": "Write", "tool_input": {"file_path": "docs/x.md", "content": 'require("hooks/aidlc-x")'}},
+    {"tool_name": "NotebookEdit", "tool_input": {"notebook_path": "n.md", "new_source": 'require("hooks/aidlc-x")'}},
+    {"tool_name": "Write", "tool_input": {"file_path": "run.sh", "content": "echo >> " + RECORD + "/audit/x"}},
+    {"tool_name": "Bash", "tool_input": {"command": "cat link/x; echo >> link/y.md"}}, {"tool_name": "Bash", "tool_input": {"command": "rm -rf cl"}},
+    {"tool_name": "Bash", "tool_input": {"command": "echo >> cl/hooks/aidlc-x.ts"}}, {"tool_name": "Bash", "tool_input": {"command": "echo >> rec/audit/x"}},
+    {"tool_name": "Bash", "tool_input": {"command": "echo >> s/x"}}, {"tool_name": "Bash", "tool_input": {"command": "echo >> h/x"}},
+    {"tool_name": "Bash", "tool_input": {"command": "echo >> loop/x"}}, {"tool_name": "Bash", "tool_input": {"command": "echo >> link/new/deeper.md"}},
+    {"tool_name": "Bash", "tool_input": {"command": "Set-Content -Path .aidlc-sessions\\x -Value 1"}, "aidlc_shell": "powershell"},
+    {"tool_name": "Bash", "tool_input": {"command": "sc .aidlc-sessions\\x 1"}, "aidlc_shell": "powershell"},
+    {"tool_name": "Bash", "tool_input": {"command": "Out-File -FilePath " + RECORD.replace("/", "\\") + "\\audit\\x.md"}, "aidlc_shell": "powershell"},
+    {"tool_name": "Bash", "tool_input": {"command": "Set-Content .claude\\settings.json x"}, "aidlc_shell": "posix"},
+    {"tool_name": "Bash", "tool_input": {"command": "$env:AIDLC_UNATTENDED = 1"}, "aidlc_shell": "powershell"},
+    {"tool_name": "Bash", "tool_input": {"command": "bun .claude/tools/aidlc-lib.ts"}}, {"tool_name": "Bash", "tool_input": {"command": "bun .claude/tools/aidlc-other.ts"}},
+    {"tool_name": "Bash", "tool_input": {"command": "bun core/tools/aidlc-lib.ts"}}, {"tool_name": "Bash", "tool_input": {"command": "bun big.ts"}},
+    {"tool_name": "Bash", "tool_input": {"command": "bun tool"}}, {"tool_name": "Bash", "tool_input": {"command": "./tool"}}, {"tool_name": "Bash", "tool_input": {"command": "tool"}},
+    {"tool_name": "Bash", "tool_input": {"command": "cat <<EOF > tool\nbun hooks/aidlc-x.ts\nEOF"}}, {"tool_name": "Bash", "tool_input": {"command": "cat <<EOF > run.sh\n#!/bin/bash\nbun hooks/aidlc-x.ts\nEOF"}},
+    {"tool_name": "Bash", "tool_input": {"command": "cat <<EOF > a.js\n#!/usr/bin/env python\nimport os\nos.system('bun hooks/aidlc-x.ts')\nEOF"}},
+]
+for input_ in RI_FIXED:
+    files = ri_files()
+    files.update({"a.js": "/* require('hooks/aidlc-x') */", "empty.js": "", "run.sh": "bun hooks/aidlc-x.ts", "tool": "bun hooks/aidlc-x.ts", ".claude/tools/aidlc-lib.ts": 'require("hooks/aidlc-x")',
+                  ".claude/tools/aidlc-other.ts": 'require("hooks/aidlc-x")', "core/tools/aidlc-lib.ts": 'require("hooks/aidlc-x")', "scripts/package.ts": "export {}",
+                  "big.ts": "@bytes:1048577", ".claude/tools/data/harness.json": HARNESS_JSON, "hooks/aidlc-x.ts": "export {}", "notes/x": "1"})
+    ri_case(input_, files=files, links=[["link", RECORD + "/audit"], ["cl", ".claude"], ["rec", RECORD], ["s", ".aidlc-sessions"], ["h", ".claude/hooks"], ["loop", "loop"]],
+            exec_=["tool"], cwd="{P}")
+for input_ in RI_FIXED[:6]:
+    ri_case(input_, files={".claude/tools/data/harness.json": HARNESS_JSON}, links=[], exec_=[], env={"AIDLC_HARNESS_DIR": ".cursor"}, cwd="{P}/sub", project="")
+
+# Every source snippet written to a script, and the shell lines that reach
+# one branch each, so that no branch depends on the random draw.
+RI_STANDARD_FILES = {"a.js": "/* require('hooks/aidlc-x') */", "empty.js": "", "run.sh": "bun hooks/aidlc-x.ts", "tool": "bun hooks/aidlc-x.ts",
+                     ".claude/tools/aidlc-lib.ts": 'require("hooks/aidlc-x")', ".claude/tools/aidlc-other.ts": 'require("hooks/aidlc-x")',
+                     "core/tools/aidlc-lib.ts": 'require("hooks/aidlc-x")', "scripts/package.ts": "export {}", "big.ts": "@bytes:1048577",
+                     ".claude/tools/data/harness.json": HARNESS_JSON, "hooks/aidlc-x.ts": "export {}", "x.py": "import os\nos.system('bun hooks/aidlc-x.ts')",
+                     "script.ts": 'import "./hooks/aidlc-x.ts";', "plain.sh": "echo hi", "exec-plain": "#!/bin/sh\necho hi", "src/x.ts": "const a = 1;",
+                     RECORD + "/audit/laptop-abc123.md": "# AI-DLC Audit Log\n", "config": "k=v", "real-other/hooks/x": "1", "other-tools/tools/aidlc.ts": "1"}
+def ri_python(snippet):
+    return re.match(r"(?:import os|import subprocess|from |def |class C|print\(|__import__|subprocess\.|exec\(\"import|eval\(\"__import__|import builtins|if True:|cmd = |s = \"\"\"|x = 'bun|#!/usr/bin/env python|#.*os\.system)", snippet) is not None
+
+
+for snippet in RI_JS:
+    python = ri_python(snippet)
+    target = "x.py" if python else "script.ts"
+    ri_case({"tool_name": "Write", "tool_input": {"file_path": target, "content": snippet}}, files=dict(RI_STANDARD_FILES), links=[], exec_=["tool", "exec-plain"])
+    if not python:
+        ri_case({"tool_name": "Write", "tool_input": {"file_path": "run.sh", "content": snippet}}, files=dict(RI_STANDARD_FILES), links=[], exec_=["tool"])
+RI_FIXED_BASH = [
+    "bun --check hooks/aidlc-x.ts", "node -c hooks/aidlc-x.ts", "deno -c hooks/aidlc-x.ts", "bun -e 'x' hooks/aidlc-x.ts", "bun -e x -- hooks/aidlc-x.ts",
+    "bun --check -- hooks/aidlc-x.ts", "bun big.ts", "bun .claude/tools/aidlc-lib.ts", "bun .claude/tools/aidlc-other.ts", "bun core/tools/aidlc-lib.ts",
+    "x=$(printf %s bun) ; $x hooks/aidlc-x.ts", "$(printf %s bun) hooks/aidlc-x.ts", "$(echo bun) hooks/aidlc-x.ts", "$(printf '%s' bun hooks/aidlc-x.ts)",
+    "\"$(printf %s bun hooks/aidlc-x.ts)\"", "echo \"$(printf %s .aidlc-sessions)/x\" > y", "echo x > \"$(printf %s .aidlc-sessions)/y\"", "echo x > `printf %s .aidlc-sessions`/y",
+    "bash -s < run.sh", "bash -es < run.sh", "cat run.sh | bash -s", "cat run.sh | bash", "cat run.sh | bash -", "bash <<'EOF'\nbun hooks/aidlc-x.ts\nEOF",
+    "bash <<EOF\nbun hooks/aidlc-x.ts\nEOF", "bash <<EOF\n$(bun hooks/aidlc-x.ts)\nEOF", "bash <<'EOF'\n$(bun hooks/aidlc-x.ts)\nEOF", "cat <<EOF\n$(bun hooks/aidlc-x.ts)\nEOF",
+    "cat <<EOF | bash\nbun hooks/aidlc-x.ts\nEOF", "cat <<EOF || bash\nbun hooks/aidlc-x.ts\nEOF", "cat <<EOF && bash\nbun hooks/aidlc-x.ts\nEOF", "cat <<EOF |& bash\nbun hooks/aidlc-x.ts\nEOF",
+    "cat <<EOF | tee x | bash\nbun hooks/aidlc-x.ts\nEOF", "true; cat <<EOF | bash\nbun hooks/aidlc-x.ts\nEOF", "cat <<EOF | bash; true\nbun hooks/aidlc-x.ts\nEOF",
+    "cat <<EOF 3> x.sh\nbun hooks/aidlc-x.ts\nEOF", "bash 3<<EOF\nbun hooks/aidlc-x.ts\nEOF", "bash 0<<EOF\nbun hooks/aidlc-x.ts\nEOF", "cat <<EOF > tool\nbun hooks/aidlc-x.ts\nEOF",
+    "cat <<EOF > exec-plain\nbun hooks/aidlc-x.ts\nEOF", "cat <<EOF > plain.sh\nbun hooks/aidlc-x.ts\nEOF", "cat <<EOF > newfile\nbun hooks/aidlc-x.ts\nEOF",
+    "cat <<EOF > newfile\n#!/bin/bash\nbun hooks/aidlc-x.ts\nEOF", "cat <<EOF > newfile.js\n#!/bin/sh\nbun hooks/aidlc-x.ts\nEOF", "cat <<EOF > x.py\nimport os; os.system('bun hooks/aidlc-x.ts')\nEOF",
+    "cat <<EOF > a.js\nrequire('hooks/aidlc-x')\nEOF", "cat <<EOF > notes.md\nrequire('hooks/aidlc-x')\nEOF", "cat <<-EOF > run.sh\n\tbun hooks/aidlc-x.ts\n\tEOF",
+    "cat <<\"EOF\" > run.sh\nbun hooks/aidlc-x.ts\nEOF", "cat <<EOF > run.sh\n${X}\nEOF", "cat <<EOF > run.sh\n$(echo >> .aidlc-sessions/x)\nEOF",
+    "cat <<'EOF' > run.sh\n$(echo >> .aidlc-sessions/x)\nEOF", "cat <<EOF > run.sh\n`echo >> .aidlc-sessions/x`\nEOF", "# bun hooks/aidlc-x.ts", "echo; # bun hooks/aidlc-x.ts",
+    "echo '#' bun hooks/aidlc-x.ts", "echo \"# bun hooks/aidlc-x.ts\"", "x#bun hooks/aidlc-x.ts", "echo >> " + RECORD + "/au\\\ndit/x", "echo >> " + RECORD + "/au\\\r\ndit/x",
+    "echo >> " + RECORD + "/audit/x\\\n.md", "cd " + RECORD + "; echo >> ${ x; }/audit", "echo >> ${X:-audit}/y", "echo >> ${X}/y # audit", "echo >> $X/y", "echo >> $X/audit/y",
+    "cd $X; echo >> audit/y", "cd $X; echo >> y", "cd " + RECORD + "; cd $X; echo >> audit/y", "pushd -n x; echo >> " + RECORD + "/audit/y", "cd -; echo >> audit/y",
+    "A=aidlc/spaces; A+=/default/intents/x/audit/y; echo >> $A", "A=x; A+=/audit; echo >> $A/y", "A=x; A+=$B; echo >> $A/audit/y", "A='$B'; echo >> $A/audit",
+    "A=\"$B\"; echo >> $A/audit/y", "A=au\\dit; echo >> " + RECORD + "/$A/y", "A='aud'; echo >> " + RECORD + "/${A}it/y", "export A=" + RECORD + "; echo >> $A/audit/y",
+    "declare -x A=" + RECORD + "; echo >> $A/audit/y", "local A=" + RECORD + "; echo >> $A/audit/y", "readonly A=" + RECORD + "; echo >> ${A}/audit/y", "(A=" + RECORD + "); echo >> $A/audit/y",
+    "echo >> \\audit\\x", "echo >> x\\Audit\\y", "echo >> 'a\\audit\\b'", "mkdir .aidlc-sessions", "mkdir -p " + RECORD + "/audit", "mkdir src/audit", "mkdir .claude/hooks",
+    "mkdir link/x", "eval 'bun hooks/aidlc-x.ts'", "eval bun hooks/aidlc-x.ts", "eval \"echo >> .aidlc-sessions/x\"", "alias r='bun hooks/aidlc-x.ts'", "alias r=ls r2='aidlc engine hook'",
+    "alias r", "rm -rf .claude", "rm -rf .claude/rules", "rm -rf .", "rm -rf ..", "mv .claude x", "mv .claude/hooks x", "rmdir .claude/hooks", "rm cl", "rm -rf cl/", "rm -rf h", "mv rec x",
+    "rm link/x", "rm -rf .github/hooks", "rm .github/hooks/aidlc.json", "rm -rf .opencode/plugin", "rm -rf .kiro/agents", "rm .claude/settings.json", "rm .cursor/settings.json",
+    "rm .claude/hooks.json", "rm .claude/bin", "rm .claude/bin/aidlc", "rm .claude/tools/aidlc.ts", "rm .claude/tools/data/x", "rm .claude/tools",
+    "echo >> cl/hooks/x", "echo >> cl/settings.json", "echo >> cl/rules/x.md", "echo >> h/x.ts", "echo >> rec/audit/x", "echo >> rec/x", "echo >> s/x", "echo >> link/x", "echo >> link/new/x",
+    "echo >> loop/x", "echo >> missing/.aidlc-sessions/x", "echo >> .AIDLC-sessions/x", "echo >> .aidlc-sessionsx/x", "echo >> x/.aidlc-sessions", "echo >> .aidlc-plan-approval/x",
+    "echo >> " + RECORD + "/.aidlc-engine/gate-words/x", "echo >> " + RECORD + "/.aidlc-engine/gate-words", "echo >> " + RECORD + "/.aidlc-engine/other", "echo >> " + RECORD + "/.aidlc-engine//gate-words/x",
+    "AIDLC_UNATTENDED=1", "AIDLC_UNATTENDED==1", "x=AIDLC_UNATTENDED=1", "echo AIDLC_UNATTENDED", "export AIDLC_UNATTENDED", "export FOO AIDLC_UNATTENDED", "read -r AIDLC_SESSION_OVERRIDE",
+    "printf -v AIDLC_UNATTENDED 1", "printf AIDLC_UNATTENDED", "ls --local AIDLC_UNATTENDED", "cat AppData\\Local\\AIDLC_UNATTENDED", "cat ~/local/AIDLC_UNATTENDED", "x/read AIDLC_UNATTENDED",
+    "${x:-read} AIDLC_UNATTENDED", "$env:AIDLC_UNATTENDED = 1", "$env:AIDLC_UNATTENDED=1", "${env:AIDLC_UNATTENDED} += 1", "$x = $env:AIDLC_UNATTENDED", "Set-Item env:AIDLC_UNATTENDED 1",
+    "Set-Item env:\\AIDLC_UNATTENDED 1", "x env:AIDLC_UNATTENDED", "$env:AIDLC_UNATTENDED", "New-Item -Name AIDLC_UNATTENDED -Path env:", "Rename-Item x -NewName:AIDLC_UNATTENDED",
+    "[Environment]::SetEnvironmentVariable('AIDLC_UNATTENDED', 1)", "$psi.Environment.Add(\"AIDLC_UNATTENDED\", 1)", "setx AIDLC_UNATTENDED 1", "setx.exe /M AIDLC_UNATTENDED 1",
+    "echo setx AIDLC_UNATTENDED", "@{ AIDLC_UNATTENDED = 1 }", "@{ \"AIDLC_UNATTENDED\" = 1 }", "AIDLC_UNATTENDED+=1", "AIDLC_UNATTENDED:=1", "AIDLC_UNATTENDED ??= 1",
+    "${AIDLC_UNATTENDED:=1}", "echo ${AIDLC_UNATTENDED:-1}", "aidlc_unattended=1", "AIDLC_SKIP_ARTIFACT_GUARD=1 true", "AIDLC_DISABLE_SUMMARY_CONFIRMATION=1", "AIDLC_PROJECT_DIR=x",
+    "aidlc engine hook", "aidlc engine adapter", "aidlc engine hooks", "aidlc engine", "aidlc", "aidlc engine $X", "aidlc engine 'a b'", "aidlc engine a*", "aidlc $X engine",
+    "aidlc --json engine hook", "aidlc --project-dir x engine adapter", "aidlc --project-dir engine", "aidlc --project-dir --json engine hook", "aidlc --verbose --quiet", "aidlc engine $(x)",
+    "aidlc --internal-aidlc-record-human-turn", "aidlc engine state get --internal-aidlc-record-human-turn", "aidlc.ts engine hook", "AIDLC.TS engine hook", "./aidlc", "x/aidlc engine hook",
+    "aidlc.exe engine hook", "aidlc.cmd engine adapter", "aidlc.bat engine hook", "aidlc.sh engine hook", "aidlcx engine hook", "bun hooks/aidlc-x.ts", "bun hooks/aidlc-x", "bun hooks/aidlc-x.js",
+    "bun ./hooks/aidlc-x.ts", "bun x/hooks/aidlc-x.ts", "bun hooks/aidlc_x.ts", "bun hooks/other.ts", "bun aidlc-cursor-adapter.ts", "bun x/aidlc-kiro-adapter.ts", "bun aidlc-codex-adapter.js",
+    "node -r hooks/aidlc-x app.js", "node -rhooks/aidlc-x app.js", "node --require hooks/aidlc-x app.js", "node --require=hooks/aidlc-x app.js", "node --import hooks/aidlc-x app.js",
+    "node --loader hooks/aidlc-x app.js", "node --experimental-loader=hooks/aidlc-x", "bun --preload hooks/aidlc-x x", "bun -r script.ts x", "bun -r plain.sh x", "node -r", "bun --preload",
+    "bun --cwd .claude x", "bun --config hooks/aidlc-x.ts", "bun --env-file hooks/aidlc-x.ts x", "bun --conditions x hooks/aidlc-x.ts", "bun run hooks/aidlc-x.ts", "tsx run hooks/aidlc-x.ts",
+    "node run hooks/aidlc-x.ts", "deno run -A hooks/aidlc-x.ts", "bun run", "bun -- hooks/aidlc-x.ts", "bun -- -x", "bun --", "bun --help hooks/aidlc-x.ts", "bun -e", "node -e",
+    "bun -e \"require('hooks/aidlc-x')\"", "bun -e\"require('hooks/aidlc-x')\"", "bun --eval=\"require('hooks/aidlc-x')\"", "bun --eval \"require('hooks/aidlc-x')\"", "bun --eval=",
+    "bun -p \"require('hooks/aidlc-x')\"", "bun --print \"require('hooks/aidlc-x')\"", "node -pe \"require('hooks/aidlc-x')\"", "node -ie \"require('hooks/aidlc-x')\"",
+    "node -ipe \"require('hooks/aidlc-x')\"", "node -iep \"require('hooks/aidlc-x')\"", "node -e \"x\" -e \"require('hooks/aidlc-x')\"", "node -e \"x\" hooks/aidlc-x.ts",
+    "bun -e \"echo .aidlc-sessions\"", "node -e \"'.aidlc-sessions'\"", "node -e \"'x/.aidlc-sessions/y'\"", "node -e \"'.aidlc-sessionsx'\"", "node -e '.aidlc-sessions'",
+    "python -c \"import os; os.system('bun hooks/aidlc-x.ts')\"", "python3 -c 'import os; os.system(\"bun hooks/aidlc-x.ts\")'", "python -c", "python3.12 -c \"print(1)\"", "python2 -ic x",
+    "python -uc \"import os; os.system('bun hooks/aidlc-x.ts')\"", "python -c\"import os; os.system('bun hooks/aidlc-x.ts')\"", "python x.py", "python -u x.py", "python -m x", "python -- x.py",
+    "python -c x x.py", "python -c x -- x.py", "python -- x.py extra", "python script.ts", "python run.sh", "python tool", "python plain.sh", "python missing.py",
+    "sh -c 'bun hooks/aidlc-x.ts'", "sh -c \"bun hooks/aidlc-x.ts\"", "sh -c", "sh -xc 'bun hooks/aidlc-x.ts'", "sh -cx 'bun hooks/aidlc-x.ts'", "bash -lc \"AIDLC_UNATTENDED=1 x\"",
+    "sh -c '.aidlc-sessions'", "sh -c 'echo .aidlc-sessions'", "sh run.sh", "sh -x run.sh", "sh -e run.sh arg", "sh plain.sh", "sh -- run.sh", "sh - < run.sh", "bash /dev/stdin < run.sh",
+    "bash -c 'bash -c \"bun hooks/aidlc-x.ts\"'", "sh -c \"sh -c 'sh -c \\\"bun hooks/aidlc-x.ts\\\"'\"", "./run.sh", "./plain.sh", "./tool", "./exec-plain", "./missing.sh", "run.sh",
+    "bash run.sh", "bun script.ts", "bun src/x.ts", "node a.js", "./script.ts", "bun missing.ts", "sudo bun hooks/aidlc-x.ts", "sudo -u x bun hooks/aidlc-x.ts", "env -i bun hooks/aidlc-x.ts",
+    "env -S 'bun hooks/aidlc-x.ts'", "xargs bun hooks/aidlc-x.ts", "timeout 5 aidlc engine hook", "nohup aidlc engine adapter", "command bun hooks/aidlc-x.ts", "exec bun hooks/aidlc-x.ts",
+    "if true; then bun hooks/aidlc-x.ts; fi", "for x in a; do aidlc engine hook; done", "{ bun hooks/aidlc-x.ts; }", "( aidlc engine hook )", "! bun hooks/aidlc-x.ts", "x || bun hooks/aidlc-x.ts",
+    "x | bun hooks/aidlc-x.ts", "x & bun hooks/aidlc-x.ts", "x\nbun hooks/aidlc-x.ts", "echo 'bun hooks/aidlc-x.ts'", "echo \"bun hooks/aidlc-x.ts\"", "echo bun hooks/aidlc-x.ts",
+    "cat hooks/aidlc-x.ts", "git add hooks/aidlc-x.ts", "echo $(cat <<EOF\nbun hooks/aidlc-x.ts\nEOF\n)", "x=`bun hooks/aidlc-x.ts`", "x=\"`bun hooks/aidlc-x.ts`\"", "x='`bun hooks/aidlc-x.ts`'",
+    "echo \"$(aidlc engine hook)\"", "echo '$(aidlc engine hook)'", "echo $(echo $(bun hooks/aidlc-x.ts))", "echo $(echo \"$(bun hooks/aidlc-x.ts)\")", "echo `echo \\`bun hooks/aidlc-x.ts\\``",
+    "echo $( bun hooks/aidlc-x.ts", "echo `bun hooks/aidlc-x.ts", "echo ${ bun hooks/aidlc-x.ts; }", "echo ${| bun hooks/aidlc-x.ts; }", "echo ${x} bun hooks/aidlc-x.ts", "echo {bun,hooks/aidlc-x.ts}",
+]
+RI_FIXED_BASH += [
+    "bash -s <<EOF\nbun hooks/aidlc-x.ts\nEOF", "bash -es <<EOF\nbun hooks/aidlc-x.ts\nEOF", "bash -s x <<EOF\nbun hooks/aidlc-x.ts\nEOF", "bash x <<EOF\nbun hooks/aidlc-x.ts\nEOF",
+    "bash -- <<EOF\nbun hooks/aidlc-x.ts\nEOF", "bash -- - <<EOF\nbun hooks/aidlc-x.ts\nEOF", "bash -- x <<EOF\nbun hooks/aidlc-x.ts\nEOF", "bash -c x <<EOF\nbun hooks/aidlc-x.ts\nEOF",
+    "bash --version <<EOF\nbun hooks/aidlc-x.ts\nEOF", "bash /dev/stdin <<EOF\nbun hooks/aidlc-x.ts\nEOF", "bash - <<EOF\nbun hooks/aidlc-x.ts\nEOF", "bun - <<EOF\nrequire('hooks/aidlc-x')\nEOF",
+    "bun run - <<EOF\nrequire('hooks/aidlc-x')\nEOF", "node --check <<EOF\nrequire('hooks/aidlc-x')\nEOF", "node -r x <<EOF\nrequire('hooks/aidlc-x')\nEOF", "node -rx <<EOF\nrequire('hooks/aidlc-x')\nEOF",
+    "node --cwd x <<EOF\nrequire('hooks/aidlc-x')\nEOF", "python - <<EOF\nimport os; os.system('bun hooks/aidlc-x.ts')\nEOF", "python3 -u - <<EOF\nimport os; os.system('bun hooks/aidlc-x.ts')\nEOF",
+    "python3 -c x <<EOF\nimport os; os.system('bun hooks/aidlc-x.ts')\nEOF", "cat <<EOF > config\nbun hooks/aidlc-x.ts\nEOF", "cat <<EOF > tool\n#!/bin/sh\nAIDLC_UNATTENDED=1 x\nEOF",
+    "cat <<EOF > newfile.js\n#!/bin/sh\nAIDLC_UNATTENDED=1 x\nEOF", "cat <<EOF > tool\nAIDLC_UNATTENDED=1 x\nEOF", "cat <<EOF > exec-plain\nAIDLC_UNATTENDED=1 x\nEOF", "cat <<EOF > x.py\nAIDLC_UNATTENDED=1 x\nEOF",
+    "cat <<EOF > a.js\nAIDLC_UNATTENDED=1 x\nEOF", "cat <<EOF > run.sh\nAIDLC_UNATTENDED=1 x\nEOF", "echo x # bun hooks/aidlc-x.ts; bun hooks/aidlc-x.ts", "echo x #bun hooks/aidlc-x.ts; bun hooks/aidlc-x.ts",
+    "echo x '#' bun; bun hooks/aidlc-x.ts", "echo x#; bun hooks/aidlc-x.ts", "echo x; # bun\nbun hooks/aidlc-x.ts", "pushd -n x; echo >> audit/y", "pushd x; echo >> audit/y", "cd -; echo >> audit/y",
+    "cd ~; echo >> audit/y", "cd \"$X\"; echo >> audit/y", "B=x; A='$B'; echo >> $A/audit/y", "B=x; A=\"$B\"; echo >> $A/audit/y", "B=x; A=$B; echo >> $A/audit/y", "A='x'y; echo >> $A/audit/z",
+    "A=\"x\"'y'; echo >> $A/audit/z", "A='x; echo >> $A/audit/z", "A=\"x; echo >> $A/audit/z", "A=x\\ y; echo >> $A/audit/z", "A=x; A+=\"$B\"; echo >> $A/audit/z", "A=x; A+='$'; echo >> $A/audit/z",
+    "echo >> .other/hooks/x", "echo >> real-other/hooks/x", "echo >> other-tools/tools/aidlc.ts", "rm -rf .other", "bun .other/tools/aidlc-lib.ts", "echo >> .cursor/hooks/x",
+    "echo >> link/x", "echo >> link/new/deeper", "cat link/x", "rm link/x", "echo >> rec/audit/x", "cd rec; echo >> audit/x", "cd link; echo >> x", "cd link && echo >> x", "cd rec/audit; echo >> x",
+    "cd " + RECORD + "/audit; echo >> x", "cd " + RECORD + "; cd audit; echo >> x", "cd " + RECORD + "; cd \"$(printf %s audit)\"; echo >> x", "cd aidlc; cd spaces/default/intents/x; echo >> audit/y",
+    "cd aidlc/spaces/default/intents/x/audit/..; echo >> audit/y", "cd src; cd ../" + RECORD + "; echo >> audit/y", "cd ..; echo >> " + RECORD + "/audit/y", "cd /; echo >> {P}/" + RECORD + "/audit/y",
+    "echo >> /" + RECORD + "/audit/y", "echo >> /tmp/x/" + RECORD + "/audit/y", "echo >> ./" + RECORD + "/audit/y", "echo >> " + RECORD + "/audit", "echo >> " + RECORD + "/audit/", "echo >> " + RECORD + "/auditx/y",
+    "echo >> aidlc/spaces/default/intents/audit/y", "echo >> aidlc/spaces/default/intents/audit", "echo >> aidlc/spaces/default/audit/y", "echo >> aidlc/spaces/x/y/intents/z/audit/w", "echo >> aidlc/spaces/x/intents/z/w/audit/v",
+    "echo >> aidlc//spaces/x/intents/z/audit/w", "echo >> AIDLC/spaces/x/intents/z/AUDIT/w", "echo >> aidlc\\spaces\\x\\intents\\z\\audit\\w", "echo >> 'aidlc\\spaces\\x\\intents\\z\\audit\\w'",
+]
+for command in RI_FIXED_BASH:
+    ri_case({"tool_name": "Bash", "tool_input": {"command": command}}, files=dict(RI_STANDARD_FILES), links=[["link", RECORD + "/audit"], ["cl", ".claude"], ["rec", RECORD], ["s", ".aidlc-sessions"], ["h", ".claude/hooks"], ["loop", "loop"], [".other", "real-other"]],
+            exec_=["tool", "exec-plain"], cwd="{P}")
+for command in ["echo >> .other/hooks/x", "echo >> real-other/hooks/x", "rm -rf .other", "echo >> .other/x.md", "echo >> other-tools/tools/aidlc.ts", "rm other-tools/tools", "echo >> .claude/hooks/x"]:
+    for env in [{"AIDLC_HARNESS_DIR": ".other"}, {"AIDLC_HARNESS_DIR": "other-tools"}, {}]:
+        ri_case({"tool_name": "Bash", "tool_input": {"command": command}}, files=dict(RI_STANDARD_FILES), links=[[".other", "real-other"]], exec_=[], env=env, cwd="{P}")
+        ri_case({"tool_name": "Bash", "tool_input": {"command": command}}, files=dict(RI_STANDARD_FILES), links=[], exec_=[], env=env, cwd="{P}", project="other-tools")
+for command in RI_FIXED_BASH[::5]:
+    ri_case({"tool_name": "Bash", "tool_input": {"command": command}}, files=dict(RI_STANDARD_FILES), links=[], exec_=["tool", "exec-plain"], cwd="{P}/" + RECORD)
 
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

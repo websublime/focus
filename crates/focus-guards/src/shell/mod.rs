@@ -104,7 +104,7 @@ impl Host {
         }
     }
 
-    fn flavour(&self) -> Flavour {
+    pub(crate) fn flavour(&self) -> Flavour {
         if self.windows {
             Flavour::Win32
         } else {
