@@ -12,6 +12,7 @@
 mod args;
 mod audit;
 mod graph;
+mod hook;
 mod jump;
 mod report;
 mod runtime;
@@ -57,6 +58,7 @@ Commands:
   engine utility detect        Scan the workspace: project type, languages, build system
   engine utility intent-create Create a piece of work
   engine utility now           Print the engine's time
+  engine hook <name>           Run a harness hook on the payload on stdin
 
 Run `focus engine graph --help`, `focus engine audit --help`,
 `focus engine runtime --help`, `focus engine state --help`,
@@ -69,6 +71,9 @@ pub enum Failure {
     Message(String),
     /// The command already printed everything it had to say.
     Reported,
+    /// The command already printed everything, and exits with this code (a
+    /// hook's own code).
+    Code(i32),
 }
 
 impl From<String> for Failure {
@@ -103,16 +108,17 @@ fn main() -> ExitCode {
         Some("engine") => match args.next_positional().as_deref() {
             Some("graph") => graph::run(&mut args),
             Some("audit") => audit::run(&mut args),
+            Some("hook") => hook::run(&mut args),
             Some("jump") => jump::run(&mut args),
             Some("runtime") => runtime::run(&mut args),
             Some("state") => state::run(&mut args),
             Some("utility") => utility::run(&mut args),
             Some(other) => Err(format!(
-                "Unknown engine command: {other}. Valid: audit, graph, jump, runtime, state, utility"
+                "Unknown engine command: {other}. Valid: audit, graph, hook, jump, runtime, state, utility"
             )
             .into()),
             None => Err(
-                "Usage: focus engine <command>. Valid: audit, graph, jump, runtime, state, utility"
+                "Usage: focus engine <command>. Valid: audit, graph, hook, jump, runtime, state, utility"
                     .into(),
             ),
         },
@@ -130,5 +136,6 @@ fn main() -> ExitCode {
             ExitCode::FAILURE
         }
         Err(Failure::Reported) => ExitCode::FAILURE,
+        Err(Failure::Code(code)) => ExitCode::from(u8::try_from(code).unwrap_or(1)),
     }
 }

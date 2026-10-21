@@ -29,6 +29,7 @@ focus-state = { path = "crates/focus-state" }
 focus-guards = { path = "crates/focus-guards" }
 focus-intent = { path = "crates/focus-intent" }
 focus-lifecycle = { path = "crates/focus-lifecycle" }
+focus-hooks = { path = "crates/focus-hooks" }
 focus-workspace = { path = "crates/focus-workspace" }
 
 [workspace.lints.rust]
