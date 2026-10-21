@@ -112,7 +112,7 @@ focus engine graph compile --harness claude --core fixtures/upstream/core --out 
 
 | Crate | Owns |
 | --- | --- |
-| `focus-js` | JavaScript semantics the on-disk formats depend on: whitespace, sort order and collation, `Object.keys` order, `JSON.parse`/`stringify`, number printing and rounding, ECMAScript regex, and `Date.parse` for the timestamps the engine writes |
+| `focus-js` | JavaScript semantics the on-disk formats depend on: whitespace, sort order and collation, `Object.keys` order, `JSON.parse`/`stringify`, number printing and rounding, ECMAScript regex, `Date.parse` for the timestamps the engine writes, and Node's `path` in both flavours for the paths a command names |
 | `focus-frontmatter` | The YAML-subset frontmatter readers, ported pattern for pattern |
 | `focus-harness` | What differs between Claude Code, Cursor and GitHub Copilot, as data |
 | `focus-workspace` | Which project, harness, space and intent record a command acts on, every path in them, the settings of the machine, the project and one clone, atomic writes, the workspace lock, opening a file whose path is not trusted, and the scan that tells a new project from existing code |
@@ -120,7 +120,7 @@ focus engine graph compile --harness claude --core fixtures/upstream/core --out 
 | `focus-graph` | Stage, scope, agent, sensor and rule schemas; the compile; composed scopes; graph queries; plan validation; ARS |
 | `focus-audit` | The audit ledger: the event vocabulary, how an entry is validated and written, how entries are read back, the shard each clone writes, appending to it under the lock, and a record's history from all its shards. And what a ledger reads as: the runtime graph of a workflow, its summary, the counts of a stage's diary, and the order units can be built in |
 | `focus-state` | The state file of a workflow: its bulleted fields and checkbox lines, read and written as text, and the file on disk |
-| `focus-guards` | Guard Policy, the five fences and the authority behind an action: what the guards decide before anything moves |
+| `focus-guards` | Guard Policy, the five fences and the authority behind an action: what the guards decide before anything moves. And the shell reader: what a `Bash` command may write, in POSIX shell or PowerShell, and where the shell may be when it writes |
 | `focus-intent` | Creating a piece of work: the record's name and id, the plan it runs, the state file built from it, the registry row and the cursors |
 | `focus-lifecycle` | Moving a piece of work through its stages: the transitions, the gate verbs and the parking of the state command, the jumps, the admission chain each one passes, where a stage's artifacts are, the validity receipt a completion leaves, whether the person has acted since a gate opened, and what a gate asks with |
 | `focus-cli` | The `focus` binary (the package is named `focus`) |

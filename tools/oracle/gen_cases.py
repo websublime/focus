@@ -1527,5 +1527,483 @@ for _ in range(scale * 25):
     line = gp.choice([policy_line(careful), guards_line(careful), policy_line(careful)])
     add("guards_line", line=line, fences=fences, content=state_text(careful))
 
+# --------------------------------------------------------------------------
+# The shell reader (M4): what a command may write, read as POSIX shell or as
+# PowerShell, and Node's path functions it resolves with.
+sh = random.Random(seed * 7919 + 8)
+
+SH_PATHS = ["a", "b.txt", "dir/sub", "../x", "./y", "/abs/p", "/work/q r", "a b", "é.md", "x,y", "(z)", "[w]", "{v}",
+            "C:\\win\\p", "~", "~/h", "$HOME/h", "${HOME}/h", "$PWD/p", "${PWD}", "$PWD", "$VAR/x", "*.log", "f?", "`cmd`",
+            "-", "-x", "src/", ".", "..", "dest", "dir", "build", "a:b", ",c,", "of=d", "x\\ y", "../../../../up", "/", "//n/s/t"]
+SH_DIRS = ["dest", "dir", "build", "a"]
+
+
+def sh_word(word=None):
+    """A path written with one of the shell's quotings."""
+    word = SH_PATHS[sh.randrange(len(SH_PATHS))] if word is None else word
+    style = sh.random()
+    if style < 0.5:
+        return word.replace(" ", "\\ ")
+    if style < 0.7:
+        return "'" + word.replace("'", "'\\''") + "'"
+    if style < 0.9:
+        return '"' + word.replace('"', '\\"') + '"'
+    if len(word) > 2:
+        cut = sh.randrange(1, len(word))
+        return word[:cut].replace(" ", "\\ ") + "'" + word[cut:] + "'"
+    return word
+
+
+def sh_mutator():
+    w = sh_word
+    pick = sh.choice
+    return pick([
+        lambda: f"rm {pick(['-rf', '-r', '-f', '--', '-r --', '-i'])} {w()}",
+        lambda: f"rm {w()} {w()}",
+        lambda: f"cp {w()} {w()}",
+        lambda: f"cp {pick(['-r', '-a', '-t', '--target-directory=' + w(), '-S .bak', '--suffix=.o'])} {w()} {w()}",
+        lambda: f"cp {w()} {w()} {w()}",
+        lambda: f"mv {w()} {w()}",
+        lambda: f"mv {pick(['-f', '-t', '-n', '--target-directory=' + w()])} {w()} {w()}",
+        lambda: f"install {pick(['-d', '-m 644', '-o root', '-t ' + w(), '--directory', '-m755', '-g', '--mode=600'])} {w()} {w()}",
+        lambda: f"touch {pick(['', '-a', '-d \"2020-01-01\"', '-r ' + w(), '-t 202001010000', '--date=now', '-d'])} {w()}",
+        lambda: f"tee {pick(['', '-a', '--append'])} {w()}",
+        lambda: f"truncate {pick(['-s 0', '-s0', '--size=0', '-s', '-r ' + w()])} {w()}",
+        lambda: f"unlink {w()}",
+        lambda: f"sed {pick(['-i', '-i.bak', '--in-place', '-n', '-e x -i', '-i -e', '-ie', '-l 5 -i', '--expression=s/a/b/ -i', '-f'])} {pick(['s/a/b/', chr(39) + 's/x/y/' + chr(39), ''])} {w()} {pick(['', w()])}",
+        lambda: f"perl {pick(['-pi', '-i.bak -pe', '-e', '-i', '-p -i -e', '-Mstrict -i', '-I lib -pi', '-F, -i'])} {pick([chr(39) + 's/a/b/' + chr(39), 'x', ''])} {w()}",
+        lambda: f"find {pick(['', '-H', '-L -D opt', '-D', '-O2', '-P'])} {w()} {pick(['-name x -delete', '-delete', '-fprint ' + w(), '-fprint0 ' + w(), '-fls ' + w(), '-fprintf ' + w() + ' %p', '-print', '! -name a -delete', '( -name a ) -delete'])}",
+        lambda: f"find -delete {w()}",
+        lambda: f"dd if={w()} of={w()} bs=1",
+        lambda: f"dd of={w()} if={w()}",
+        lambda: f"rsync {pick(['-a', '-av', '--remove-source-files', '--remove-source-files -a'])} {w()} {w()}",
+        lambda: f"{pick(['shred', 'rmdir', 'del', 'erase', 'rd', 'move', 'rename', 'ren'])} {pick(['', '-p', '/q', '-f'])} {w()} {pick(['', w()])}",
+        lambda: f"{pick(['remove-item', 'ri', 'cli', 'move-item', 'mi', 'rename-item', 'rni', 'clear-item'])} {pick(['-Path:' + w(), '-LiteralPath=' + w(), '--path:' + w(), '-Recurse', '-Destination:' + w(), '-NewName=' + w()])} {pick(['', w()])}",
+        lambda: f"copy-item {w()} {pick(['-Destination:' + w(), '-Destination=' + w(), w(), ''])}",
+        lambda: f"{pick(['set-content', 'add-content', 'out-file', 'tee-object', 'new-item', 'set-item', 'clear-content'])} {pick(['-Path', '-LiteralPath', '-FilePath', '-Value', '-Name', '-Variable', '-Path:', '-pa', '-Encoding', '--', '-Weird', '-Force', '-Confirm:'])} {w()} {pick(['', w(), '-Value x', '-Force', '-Variable v', '-Name ' + w()])}",
+    ])()
+
+
+def sh_plain():
+    w = sh_word
+    pick = sh.choice
+    return pick([
+        lambda: "ls -la",
+        lambda: f"cat {w()}",
+        lambda: f"grep -r x {w()}",
+        lambda: "git status",
+        lambda: f"echo {w()}",
+        lambda: "make test",
+        lambda: f"python3 {w()}",
+        lambda: "true",
+        lambda: f"{pick(['RM', 'Rm', '/bin/rm', './rm', 'rm.exe', 'C:\\\\tools\\\\rm.EXE', 'bin\\\\cp.cmd'])} {w()}",
+        lambda: f"{pick(['}', 'fi', 'done', 'esac'])}",
+        lambda: "",
+    ])()
+
+
+def sh_redirected(inner):
+    w = sh_word
+    pick = sh.choice
+    return pick([
+        lambda: f"{inner} > {w()}",
+        lambda: f"{inner} >> {w()}",
+        lambda: f"{inner} >{w()}",
+        lambda: f"{inner} 2> {w()}",
+        lambda: f"{inner} &> {w()}",
+        lambda: f"{inner} >| {w()}",
+        lambda: f"{inner} >&2",
+        lambda: f"{inner} 2>&1",
+        lambda: f"{inner} 1>&-",
+        lambda: f"{inner} >& {w()}",
+        lambda: f"{inner} >&{w()}",
+        lambda: f"{inner} < {w()}",
+        lambda: f"{inner} > /dev/null 2>&1",
+        lambda: f"{inner} 3>&1 1>&2 2>&3",
+        lambda: f"{inner} 2>{w()} >{w()}",
+        lambda: f"{inner} > {w()} 2>&1",
+        lambda: f"{inner} >",
+        lambda: f"{inner} > '{w()}",
+        lambda: f"{inner}>{w()}",
+        lambda: f"{inner} 2 > {w()}",
+        lambda: f"{inner} >> ~/{w()}",
+    ])()
+
+
+def sh_wrapped(inner):
+    w = sh_word
+    pick = sh.choice
+    return pick([
+        lambda: f"sudo {pick(['', '-u root', '-E', '--preserve-env=HOME', '-n', '--weird', '-u', '-Hn', '-S -k', '--', '-g adm -u x', '-D ' + w()])} {inner}",
+        lambda: f"env {pick(['', '-i', 'FOO=1', 'PATH=/x', '-u PATH', '--unset=PATHEXT', '--chdir=' + w(), '-C ' + w(), '-0', '-iv', '--', '-uPATH', '-S', '--split-string=' + inner, '-x', '-a name', '--default-signal'])} {inner}",
+        lambda: f"env -S {sh_word(inner)} {w()}",
+        lambda: f"env -S'{inner}'",
+        lambda: f"{pick(['PATH=/x', 'FOO=bar', 'PATHEXT=.exe', 'A=1 B=2', 'path=x'])} {inner}",
+        lambda: f"command {pick(['', '-p', '-v', '-V', '--', '-pv', '-x', '-p --'])} {inner}",
+        lambda: f"builtin {pick(['', '--', '-x'])} {inner}",
+        lambda: f"exec {pick(['', '-a name', '-c', '-cl', '-x', '-a'])} {inner}",
+        lambda: f"nohup {pick(['', '--help', '-x'])} {inner}",
+        lambda: f"nice {pick(['', '-n 5', '-5', '--adjustment=3', '-n', '--adjustment 2', '-x'])} {inner}",
+        lambda: f"ionice {pick(['-c 3', '-c3 -n7', '-t', '--class=idle', '-p 1'])} {inner}",
+        lambda: f"stdbuf {pick(['-o0', '-oL -eL', '--output=0', '-i'])} {inner}",
+        lambda: f"setsid {pick(['', '-f', '-w', '--fork', '-x'])} {inner}",
+        lambda: f"doas {pick(['', '-u x', '-n', '-C ' + w(), '-x'])} {inner}",
+        lambda: f"xargs {pick(['', '-0', '-I{}', '-n1', '--max-args=2', '-P 4', '-r', '-0rn 1', '--null', '-x', '-I', '-d \\n', '-e', '-l', '--replace=X'])} {inner}",
+        lambda: f"time {pick(['', '-p', '-f x', '-o ' + w(), '--format=x', '-v', '-x'])} {inner}",
+        lambda: f"timeout {pick(['5', '-k 3 5', '--signal=TERM 10s', '-s KILL 1', '--foreground 2', '', '-x 5', '-k'])} {inner}",
+        lambda: f"unbuffer {pick(['', '-p', '-x'])} {inner}",
+        lambda: f"{pick(['busybox', 'toybox'])} {pick(['', '-x', ''])} {inner}",
+        lambda: f"{pick(['exec', 'sudo', 'nice'])}",
+        lambda: f"sudo env -i nice -n 3 {inner}",
+    ])()
+
+
+def sh_control(inner, other):
+    pick = sh.choice
+    return pick([
+        lambda: f"if {inner}; then {other}; fi",
+        lambda: f"if true; then {inner}; else {other}; fi",
+        lambda: f"while {inner}; do {other}; done",
+        lambda: f"until false; do {inner}; done",
+        lambda: f"for x in a b; do {inner}; done",
+        lambda: f"{{ {inner}; }}",
+        lambda: f"( {inner} )",
+        lambda: f"! {inner}",
+        lambda: f"case x in a) {inner};; esac",
+        lambda: f"then {inner}",
+        lambda: f"elif {inner}; then {other}",
+        lambda: f"select x in a; do {inner}; done",
+        lambda: f"{{ FOO=1 {inner}; }}",
+    ])()
+
+
+def sh_cd():
+    w = sh_word
+    pick = sh.choice
+    return pick([
+        lambda: f"cd {w()}",
+        lambda: "cd",
+        lambda: "cd -",
+        lambda: f"cd -- {w()}",
+        lambda: f"cd 2>/dev/null {w()}",
+        lambda: f"cd {w()} 2>&1",
+        lambda: f"pushd {w()}",
+        lambda: f"pushd -n {w()}",
+        lambda: "pushd +1",
+        lambda: "pushd",
+        lambda: "popd",
+        lambda: f"chdir {w()}",
+        lambda: "cd ~",
+        lambda: "cd $HOME",
+        lambda: "cd \"$X\"",
+        lambda: f"cd -L {w()}",
+        lambda: "cd +1",
+        lambda: "cd -- -",
+        lambda: f"CD {w()}",
+        lambda: f"set-location {w()}",
+        lambda: f"sl {w()}",
+        lambda: f"cd {w()} >{w()}",
+        lambda: "cd -P",
+        lambda: f"pushd -- {w()}",
+        lambda: "pushd -1",
+        lambda: "cd ~/",
+        lambda: "cd '~'",
+    ])()
+
+
+def sh_segment(depth=0):
+    roll = sh.random()
+    if roll < 0.35:
+        inner = sh_mutator()
+    elif roll < 0.45:
+        inner = sh_plain()
+    elif roll < 0.6:
+        inner = sh_cd()
+    elif roll < 0.8 and depth < 2:
+        inner = sh_wrapped(sh_segment(depth + 1))
+    elif roll < 0.9 and depth < 2:
+        inner = sh_control(sh_segment(depth + 1), sh_segment(depth + 1))
+    else:
+        inner = sh_redirected(sh_mutator() if sh.random() < 0.5 else sh_plain())
+    if sh.random() < 0.3:
+        inner = sh_redirected(inner)
+    return inner
+
+
+def sh_command():
+    parts = [sh_segment() for _ in range(sh.choice([1, 1, 2, 2, 3, 4]))]
+    out = parts[0]
+    for part in parts[1:]:
+        out += sh.choice([" ; ", "; ", " && ", " || ", " | ", " & ", "\n", ";", "&&", "|"]) + part
+    if sh.random() < 0.08:
+        out = char_fuzz(out, sh.randrange(1, 4))
+    return out
+
+
+PS_PATHS = ["a", "b.txt", "dir\\sub", "..\\x", ".\\y", "C:\\abs\\p", "D:q", "\\\\srv\\share\\f", "a b", "é.md", "x,y",
+            "~", "~\\h", "$HOME\\h", "${HOME}/h", "$pwd\\p", "${PWD}", "$PWD/p", "$env:TEMP\\x", "$x", "$x.y", "${x}", "$(pwd)",
+            "@(a)", "(Get-Location)", "[string]'t'", "it''s", "-", "+", "--", "-x", ".", "..", "/", "dest", "dir", "build",
+            "-Path", "-Value", "a`.txt", "$null", "nul", "/dev/null", "{v}"]
+
+
+def ps_word(word=None):
+    word = PS_PATHS[sh.randrange(len(PS_PATHS))] if word is None else word
+    style = sh.random()
+    if style < 0.45:
+        return word
+    if style < 0.65:
+        return "'" + word.replace("'", "''") + "'"
+    if style < 0.8:
+        return '"' + word.replace('"', '""') + '"'
+    if style < 0.87:
+        return sh.choice(["‘", "‚"]) + word + sh.choice(["’", "‛", "‘"])
+    if style < 0.94:
+        return sh.choice(["“", "„"]) + word + sh.choice(["”", "“"])
+    return "(" + sh.choice(["'", '"']) + word + sh.choice(["'", '"']) + ")"
+
+
+def ps_param(name, value=None):
+    """A parameter written one of PowerShell's ways."""
+    dash = sh.choice(["-", "-", "-", "–", "—", "―"])
+    style = sh.random()
+    if value is None:
+        return f"{dash}{name}"
+    if style < 0.5:
+        return f"{dash}{name} {value}"
+    if style < 0.7:
+        return f"{dash}{name}:{value}"
+    if style < 0.8:
+        return f"{dash}{name}: {value}"
+    if style < 0.9:
+        return f"{dash}{name[:sh.randrange(2, len(name) + 1)]} {value}"
+    return f"{dash}{name}={value}"
+
+
+def ps_cmdlet():
+    w = ps_word
+    pick = sh.choice
+    name = pick(["Set-Content", "sc", "Add-Content", "ac", "Clear-Content", "clc", "Out-File", "Tee-Object", "tee",
+                 "New-Item", "ni", "Set-Item", "si", "set-content", "SET-CONTENT"])
+    args = []
+    for _ in range(sh.randrange(0, 4)):
+        args.append(pick([
+            lambda: ps_param("Path", w()), lambda: ps_param("LiteralPath", w()), lambda: ps_param("FilePath", w()),
+            lambda: ps_param("Value", w()), lambda: ps_param("Encoding", "utf8"), lambda: ps_param("Force"),
+            lambda: ps_param("Confirm", "$false"), lambda: ps_param("WhatIf"), lambda: ps_param("Variable", w()),
+            lambda: ps_param("Name", w()), lambda: ps_param("ItemType", "File"), lambda: ps_param("Weird", w()),
+            lambda: ps_param("ea", "0"), lambda: ps_param("Path", w() + "," + w()), lambda: w(),
+            lambda: w() + ", " + w(), lambda: w() + " ,", lambda: ", " + w(), lambda: "--", lambda: ps_param("pa", w()),
+            lambda: ps_param("Path", "(" + ps_cmdlet() + ")"), lambda: "$(" + ps_cmdlet() + ")", lambda: ps_param("Value", "@(" + w() + ")"),
+            lambda: ps_param("Path") + ":", lambda: ps_param("Force") + ": " + w(), lambda: "-`Path", lambda: ps_param("lp", w()),
+            lambda: ps_param("PSPath", w()), lambda: ps_param("NoClobber"), lambda: ps_param("Append"), lambda: ps_param("Stream", "x"),
+        ])())
+    return name + "".join(" " + arg for arg in args)
+
+
+def ps_native():
+    w = ps_word
+    pick = sh.choice
+    return pick([
+        lambda: f"rm {pick(['', '-r -fo', '-Recurse', '-Path', '-LiteralPath', '-rf'])} {w()}",
+        lambda: f"{pick(['del', 'ri', 'erase', 'rd', 'rmdir', 'Remove-Item', 'remove-item', 'cli', 'Clear-Item'])} {pick(['', '-Recurse', '-Path:', '-LiteralPath=', '-Force'])} {w()}",
+        lambda: f"{pick(['Copy-Item', 'cp', 'copy', 'cpi'])} {w()} {pick([ps_param('Destination', w()), w(), '', '-t ' + w(), '-r'])}",
+        lambda: f"{pick(['Move-Item', 'mv', 'move', 'mi'])} {pick([ps_param('Path', w()), w()])} {pick([ps_param('Destination', w()), w(), ''])}",
+        lambda: f"{pick(['Rename-Item', 'ren', 'rni'])} {w()} {pick([ps_param('NewName', w()), w()])}",
+        lambda: f"{pick(['Get-ChildItem', 'gci', 'dir', 'ls', 'Get-Item'])} {w()} | {pick(['Remove-Item', 'ri', 'rm -Force', 'Copy-Item -Destination ' + w(), 'Move-Item ' + w(), 'Set-Content -Value x', 'Set-Content ' + w(), 'Out-File ' + w(), 'rename-item -NewName ' + w(), 'Copy-Item', 'ri -Path ' + w(), 'del -LiteralPath:' + w(), 'Remove-Item -Confirm'])}",
+        lambda: f"{pick(['echo', 'Write-Output', 'cat'])} {w()} | {pick(['Out-File ' + w(), 'tee ' + w(), 'tee -Variable v', 'Tee-Object -FilePath ' + w(), 'Set-Content ' + w(), 'Add-Content -Path ' + w()])}",
+        lambda: f"{pick(['sed', 'touch', 'tee', 'dd', 'find', 'install', 'truncate'])} {pick(['-i', '-a', 'of=' + w(), '-delete', '-s 0'])} {w()}",
+        lambda: f"{pick(['Get-Content', 'cat', 'type', 'git status', 'echo'])} {w()}",
+    ])()
+
+
+def ps_redirected(inner):
+    w = ps_word
+    pick = sh.choice
+    return pick([
+        lambda: f"{inner} > {w()}",
+        lambda: f"{inner} >> {w()}",
+        lambda: f"{inner} >{w()}",
+        lambda: f"{inner} 2> {w()}",
+        lambda: f"{inner} 2>&1",
+        lambda: f"{inner} *> $null",
+        lambda: f"{inner} 6> {w()}",
+        lambda: f"{inner} > {w()} 2>&1",
+        lambda: f"{inner} 3>&2",
+        lambda: f"{inner} > \"$dir\\{w()}\"",
+        lambda: f"{inner} >",
+        lambda: f"{inner} 2>> {w()}",
+        lambda: f"{inner} < {w()}",
+        lambda: f"{inner} *>&1",
+    ])()
+
+
+def ps_statement(inner, other):
+    w = ps_word
+    pick = sh.choice
+    return pick([
+        lambda: f"$x = {inner}",
+        lambda: f"$x += {inner}",
+        lambda: f"$x.y = {inner}",
+        lambda: f"[string]$x={inner}",
+        lambda: f"$a[0] = {inner}",
+        lambda: f"${{x}} = {inner}",
+        lambda: f"$x ??= {inner}",
+        lambda: f"$x=$y={inner}",
+        lambda: f"& '{pick(['rm', 'Set-Content', 'cmd'])}' {w()}",
+        lambda: f"& $cmd {w()}",
+        lambda: f". .\\script.ps1 {w()}",
+        lambda: f"{inner}; {other}",
+        lambda: f"{inner} && {other}",
+        lambda: f"{inner} || {other}",
+        lambda: f"{inner} &",
+        lambda: f"{inner}\n{other}",
+        lambda: f"{inner} `\n  {other}",
+        lambda: f"{inner} # {other}",
+        lambda: f"<# {other} #> {inner}",
+        lambda: f"{inner} --% {other} -Path raw",
+        lambda: f"if ($x) {{ {inner} }}",
+        lambda: f"foreach ($f in gci) {{ {inner} }}",
+        lambda: f"1..3 | % {{ {inner} }}",
+        lambda: f"{inner} |\n {other}",
+        lambda: f"{inner} ; ; {other}",
+        lambda: f"{inner} 2 = {other}",
+        lambda: f"3.5 {inner}",
+        lambda: f"{inner}\r\n{other}",
+        lambda: f"{inner} `\r\n{other}",
+        lambda: f"@{{a=1}} {inner}",
+        lambda: f"{{ {inner} }}.Invoke()",
+        lambda: f"({inner})",
+        lambda: f"\"$({inner})\"",
+        lambda: f"'{inner}'",
+    ])()
+
+
+def ps_cd():
+    w = ps_word
+    pick = sh.choice
+    return pick([
+        lambda: f"cd {w()}",
+        lambda: f"Set-Location {ps_param('Path', w())}",
+        lambda: f"sl {ps_param('LiteralPath', w())}",
+        lambda: f"pushd {w()}",
+        lambda: f"Push-Location {w()}",
+        lambda: "cd ~",
+        lambda: "cd $HOME\\x",
+        lambda: "cd ${HOME}/x",
+        lambda: "cd -",
+        lambda: "cd +",
+        lambda: "cd",
+        lambda: "Set-Location",
+        lambda: "cd \\",
+        lambda: "cd C:\\x",
+        lambda: "cd ..\\y",
+        lambda: f"chdir {w()}",
+        lambda: f"cd {w()}, {w()}",
+        lambda: f"Set-Location -StackName s {w()}",
+        lambda: f"cd -PassThru {w()}",
+        lambda: "cd 'a b'",
+        lambda: "cd \"$x\\y\"",
+    ])()
+
+
+def ps_segment(depth=0):
+    roll = sh.random()
+    if roll < 0.35:
+        inner = ps_cmdlet()
+    elif roll < 0.55:
+        inner = ps_native()
+    elif roll < 0.65:
+        inner = ps_cd()
+    elif roll < 0.85 and depth < 2:
+        inner = ps_statement(ps_segment(depth + 1), ps_segment(depth + 1))
+    else:
+        inner = ps_redirected(ps_cmdlet() if sh.random() < 0.5 else ps_native())
+    if sh.random() < 0.25:
+        inner = ps_redirected(inner)
+    return inner
+
+
+def ps_command():
+    parts = [ps_segment() for _ in range(sh.choice([1, 1, 2, 2, 3]))]
+    out = parts[0]
+    for part in parts[1:]:
+        out += sh.choice(["; ", " ; ", " && ", " || ", " | ", " & ", "\n", ";", "\r\n"]) + part
+    if sh.random() < 0.08:
+        out = char_fuzz(out, sh.randrange(1, 4))
+    return out
+
+
+# Lines the random mix reaches rarely: a data-driven in-place edit, a
+# fileless cmdlet parameter attached in a POSIX reading, a quoted backtick
+# inside a group, a pipeline continued on the next line, an escaped quote in
+# a PowerShell string, the stop-parsing token, a pushd stack operand.
+SH_FIXED = [
+    ("posix", "xargs sed --in-place 's/a/b/'"), ("posix", "xargs -0 perl --in-place -pe x"), ("posix", "find . | xargs sed -i"),
+    ("posix", "tee-object -Variable:v"), ("posix", "tee-object -Variable:v f"), ("posix", "tee-object -Var v -- -Path"),
+    ("posix", "cat a | xargs -I{} find {} -fprint out"), ("posix", "pushd +2 && echo x > y"), ("posix", "cd +1; touch z"),
+    ("posix", "sed --in-place=.bak s/a/b/ f g"), ("posix", "install -d a b c"), ("posix", "cp -t d"), ("posix", "mv -- -t a b"),
+    ("powershell", "Set-Content (\"a`\"b\") x"), ("powershell", "ni (\"q`\"\") -Name f"), ("powershell", "gci x |\n Remove-Item"),
+    ("powershell", "gci x |\n\n ri -Force; ls |\r\n del"), ("powershell", "echo a | \n Out-File"), ("powershell", "sc \"it`\"s\" v"),
+    ("powershell", "rm --% -Path 'a b' c"), ("powershell", "Set-Content --% x y"), ("powershell", "$x = $y = $z = sc a b"),
+    ("powershell", "[int]$n = 3; [string]$s = Out-File f"), ("powershell", "cp a -Destination b; cp a b; cp -r a b"),
+    ("powershell", "Tee-Object -Variable v; Tee-Object -Variable:v -FilePath f; tee -Var v -- x"),
+    ("powershell", "Get-Item a | Set-Content -Value x; Get-Item a | Set-Content -Path p -Value x; dir | ni -Name n"),
+    ("powershell", "ri -Path:a,b -Force:$false c"), ("powershell", "Remove-Item -Confirm: $false d"), ("powershell", "Remove-Item -Confirm:$false -- -Path"),
+    ("powershell", "Set-Content -Path a -Path b"), ("powershell", "Out-File -FilePath a -LiteralPath b"), ("powershell", "sc -Weird x y z"),
+    ("powershell", "& { Set-Content a b }; $(ni c)"), ("powershell", "cd (Join-Path a b); Set-Location \"$env:TEMP\\x\""),
+    ("powershell", "pushd -; cd +; Set-Location -Path -"), ("powershell", "\"$(rm a)\" > b"), ("powershell", "Set-Content 'a' > b 2>&1 *>&1"),
+    ("powershell", "sc $(echo `)) x; ni (a`)) -Name n"), ("powershell", "Remove-Item { a`} } b; rm @(x`)y) z"),
+]
+for shell_, command in SH_FIXED:
+    if shell_ == "posix":
+        add("shell_invocations", command=command)
+    add("shell_targets", command=command, cwd="{P}/w", home="/home/me", shell=shell_, dirs=["d", "dest"])
+
+for _ in range(scale * 100):
+    add("shell_invocations", command=sh_command())
+
+for _ in range(scale * 130):
+    powershell = sh.random() < 0.4
+    add("shell_targets", command=ps_command() if powershell else sh_command(), cwd="{P}/w", home="/home/me",
+        shell="powershell" if powershell else "posix", dirs=sh.sample(SH_DIRS, sh.randrange(0, 3)))
+
+for _ in range(scale * 15):
+    tool = sh.choice(["Bash", "Write", "Edit", "MultiEdit", "NotebookEdit", "Read", "Glob", "bash"])
+    if tool == "Bash":
+        powershell = sh.random() < 0.3
+        value = sh.choice([{"command": ps_command() if powershell else sh_command()}, {"command": 1}, {}, None, {"cmd": "rm x"}])
+    else:
+        powershell = False
+        value = {}
+        for key in sh.sample(["file_path", "notebook_path", "path", "paths", "content", "old_string"], sh.randrange(0, 4)):
+            value[key] = sh.choice(["a", "/abs/b", "", 3, None, ["x", "", 2, "y"], "é", "C:\\w"]) if key != "paths" else sh.choice([["x", "", 2, "y"], "nope", [], None])
+        if sh.random() < 0.1:
+            value = None
+    add("write_targets", tool=tool, input=value, cwd="{P}/w", home="/home/me", shell="powershell" if powershell else "posix", dirs=[])
+
+NP_PARTS = ["", ".", "..", "a", "a/b", "/a", "//a", "///a//b/", "a/../..", "../../../x", "./", "a/.", "C:", "C:\\", "C:x", "c:\\A\\..\\b",
+            "\\\\srv\\share", "\\\\srv\\share\\f\\..\\g", "\\\\?\\C:\\x", "\\\\.\\PHYSICALDRIVE0", "//srv/share/f", "\\", "/", "D:..\\y",
+            "a\\b", "x/..\\y", "C:/x", "CON", "nul:", "a:b", "..\\..", "é/ü", "a b/c d", "\\\\\\a", "//", "a//", "C:a/b", "\\\\srv", "\\\\srv\\"]
+
+# Joins whose first part is one separator, which Node keeps from reading as
+# a UNC root, and drive-relative resolves against a drive the cwd is not on.
+NP_FIXED = [
+    ("win32", "join", ["/", "a", "b"]), ("win32", "join", ["\\", "x", "y"]), ("win32", "join", ["//", "a", "b"]), ("win32", "join", ["/", "/a", "b"]),
+    ("win32", "join", ["\\\\srv", "share", "f"]), ("win32", "join", ["//srv", "share"]), ("win32", "join", ["C:", "a"]), ("win32", "join", ["C:/", "..", ".."]),
+    ("win32", "resolve", ["C:\\w", "D:x"]), ("win32", "resolve", ["D:\\a", "d:b"]), ("win32", "resolve", ["\\\\s\\sh\\x", "\\\\S\\SH\\y"]),
+    ("win32", "resolve", ["x", "C:", "y"]), ("win32", "resolve", ["\\x", "C:y"]), ("win32", "normalize", ["a\\..\\..\\..\\b"]), ("posix", "normalize", ["a/../../../b"]),
+    ("win32", "basename", ["C:\\"]), ("win32", "basename", ["C:a"]), ("win32", "basename", ["\\\\srv\\share\\"]), ("posix", "basename", ["/a/b.txt//"]),
+    ("win32", "normalize", ["\\\\.\\X\\.."]), ("win32", "normalize", ["\\\\?\\UNC\\s\\sh\\f"]), ("win32", "resolve", ["\\\\.\\PHYSICALDRIVE0"]),
+]
+for flavour, op, args in NP_FIXED:
+    add("node_path", flavour=flavour, op=op, args=args, cwd="/work/w")
+
+for _ in range(scale * 70):
+    flavour = sh.choice(["posix", "win32"])
+    op = sh.choice(["resolve", "normalize", "isAbsolute", "join", "basename"])
+    count = sh.randrange(0, 4) if op in ("resolve", "join") else 1
+    args = [sh.choice(NP_PARTS) if sh.random() < 0.9 else char_fuzz(sh.choice(NP_PARTS), 2) for _ in range(count)]
+    add("node_path", flavour=flavour, op=op, args=args, cwd=sh.choice(["/work/w", "/", "/a/b/c", "/tmp"]))
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

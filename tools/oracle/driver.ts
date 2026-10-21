@@ -24,6 +24,8 @@ const ruleSchema = await import(tool("aidlc-rule-schema.ts"));
 const graph = await import(tool("aidlc-graph.ts"));
 const audit = await import(tool("aidlc-audit.ts"));
 const settings = await import(tool("aidlc-settings.ts"));
+const freeze = await import(resolve(upstream, "core", "hooks", "review-freeze-command.ts"));
+const nodePath = await import("node:path");
 
 // A scratch project for the cases that can only be asked by writing a file.
 // A case names it `{P}`; answers name it the same way, so they do not depend
@@ -548,6 +550,54 @@ function answer(c: Record<string, any>): unknown {
       return { unsafe: lib.hasUnsafeSingleLineCharacter(c.value) };
     case "field_args":
       return { fields: lib.parseFieldArgs(c.args) };
+    case "shell_invocations":
+      return {
+        details: freeze.shellCommandInvocationDetails(c.command),
+        invocations: freeze.shellCommandInvocations(c.command),
+        altersResolution: freeze.shellCommandAltersExecutableResolution(c.command),
+      };
+    case "shell_targets":
+    case "write_targets": {
+      // `{P}` is a scratch root spelled the same on both sides: two levels
+      // under `/`, so a `..` that climbs out of it lands in the same place,
+      // and named after the case, so a `cp` into its parent names the same
+      // child.
+      const root = `/tmp/focus-oracle-shell-${c.id}`;
+      rmSync(root, { recursive: true, force: true });
+      const cwd = c.cwd.replace("{P}", root);
+      mkdirSync(cwd, { recursive: true });
+      for (const dir of c.dirs ?? []) mkdirSync(join(cwd, dir), { recursive: true });
+      process.env.HOME = c.home;
+      const say = (path: string) => path.split(root).join("{P}");
+      try {
+        if (c.kind === "write_targets") {
+          return { targets: freeze.writeTargets(c.tool, c.input ?? undefined, cwd, c.shell).map(say) };
+        }
+        const raw: string[] = [];
+        const targets = freeze.shellWriteTargets(c.command, cwd, raw, c.shell).map(say);
+        return {
+          targets,
+          raw: raw.map(say),
+          roots: freeze.shellDirectoryRoots(c.command, cwd, c.shell).map(say),
+          changes: freeze.shellDirectoryChanges(c.command),
+        };
+      } finally {
+        rmSync(root, { recursive: true, force: true });
+      }
+    }
+    case "node_path": {
+      const flavour = c.flavour === "win32" ? nodePath.win32 : nodePath.posix;
+      const args: string[] = c.args;
+      switch (c.op) {
+        case "resolve":
+          // The working directory as the first part stands for process.cwd().
+          return { value: flavour.resolve(c.cwd, ...args) };
+        case "join":
+          return { value: flavour.join(...args) };
+        default:
+          return { value: flavour[c.op](args[0] ?? "") };
+      }
+    }
     default:
       return { unsupported: c.kind };
   }

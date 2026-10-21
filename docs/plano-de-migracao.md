@@ -114,7 +114,7 @@ focus-cli ✔ ───────────► focus-hooks ──► focus-o
 | `focus-state` | Ficheiro de estado, máquinas de workflow, fase e stage | Existem os campos, as checkboxes e o ficheiro (M3, fatias 1 e 2); as transições são M3 |
 | `focus-intent` | Criação de intents: nomes, plano, template do estado, registo e cursores | Existe (M3, fatia 3b) |
 | `focus-lifecycle` | Transições de stage: a cadeia de admissão, onde estão os artefactos de uma stage, o recibo de validade de uma conclusão, e as transições em si | Existem `advance`, `finalize`, `complete-workflow`, `skip` e `resume` (M3, fatia 4a); os verbos de gate são a fatia 4b |
-| `focus-guards` | Lexer de shell, integridade de runtime, fences, decisões de guard | Existe a resolução da Guard Policy, as fences e a decisão de uma fence (M3, fatia 1); o resto é M4 |
+| `focus-guards` | Lexer de shell, integridade de runtime, fences, decisões de guard | Existe a resolução da Guard Policy, as fences e a decisão de uma fence (M3, fatia 1) e o lexer de shell (M4, fatia 1); o resto é M4 |
 | `focus-hooks` | Os corpos dos hooks e o dispatcher | M4 e M6 |
 | `focus-orchestrate` | `next` e `report`, diretivas, plan approval, checkpoints | M5 |
 | `focus-sensors` | Dispatcher e os seis sensores | M7 |
@@ -1246,3 +1246,41 @@ O que M3 não faz, e o que acontece quando lá se chega. Tudo recusa pelo nome: 
 5. **Sessões por processo e worktrees delegadas.** Como em M2: um comando que as devia resolver recusa (o limite 3 de M1 passa para M4, com os bolts, cujas worktrees são as delegadas).
 6. **O relógio.** Os sete `status/awaiting*` e o heartbeat da presença contam-se contra o relógio real e não se gravam: verificam-se só pelo diferencial ao vivo.
 7. **Só em Unix.** O replay gravado continua a não correr em Windows (R8).
+
+## 15. Estado de M4
+
+M4 está em curso. Guards e hooks observadores são, no original, o que corre em cada evento do harness: antes de uma ferramenta (`PreToolUse`: a integridade do runtime, e os quatro guards que decidem por uma fence), depois dela (`PostToolUse`: os que só registam e recompilam), e no arranque e no fim de uma sessão. Todos leem o pedido do harness em JSON pelo stdin e respondem pelo código de saída, pelo stdout e por linhas de auditoria; é esse o critério do marco (secção 6). Entra de baixo para cima: primeiro o que os guards leem (o lexer de shell), depois a integridade do runtime, depois o dispatcher e os observadores, e por fim os guards, que são os que mais dependem do resto.
+
+| Fatia | O que traz | Como se verifica | Estado |
+| --- | --- | --- | --- |
+| 1. O lexer de shell | `focus-guards::shell`: o que um comando `Bash` pode escrever (POSIX e PowerShell), os programas que corre através dos wrappers, onde a shell pode estar quando escreve; `focus-js::path`: `resolve`, `normalize`, `isAbsolute`, `join` e `basename` do `node:path`, nos dois sabores | Corpus | Feita |
+| 2. Integridade do runtime | `runtime-integrity.ts`: o que nenhuma ferramenta pode tocar (os registos do runtime, o audit trail, os hooks), antes de qualquer fence | Corpus de pedidos de hook | Por fazer |
+| 3. O dispatcher e os observadores | `focus-hooks`: um comando por hook (`focus hook <nome>`), o pedido lido do stdin, o traço de cada hook; os hooks que só registam ou recompilam: o arranque e o fim de sessão, o registo de turno humano, `write-audit-log`, `validate-state`, `sync-workflow-state`, `rebuild-stage-graph`, `log-subagent` | Corpus de pedidos de hook, diferencial | Por fazer |
+| 4. Os guards | `review-freeze`, `reviewer-scope`, `state-transition-guard` e `plan-approval-guard`, com o que leem (`guard-operation`, `question-store`, `message-store`, a fatia de `testing-posture` que a aprovação do plano consulta) | Corpus de pedidos de hook, diferencial | Por fazer |
+
+### Fatia 1: o lexer de shell
+
+`review-freeze-command.ts` é uma folha: 2 083 linhas que só importam built-ins do Node, e que dois guards, a integridade do runtime e o guard de aprovação do plano chamam para saber o que um comando `Bash` pode escrever. Lê, não corre: não modela a ordem dos segmentos nem avalia o que a shell calcula. Uma palavra que não consegue colocar fica como candidata; um alvo relativo resolve-se de cada diretório em que um `cd` em qualquer ponto do comando pode deixar a shell (`cd .kiro && echo x > hooks/y` nomeia `hooks/y` e `.kiro/hooks/y`); um wrapper que não lê até ao fim (`sudo --weird`) nomeia o próprio diretório de trabalho. Os guards tratam uma candidata como escrita.
+
+**O que existe.** Em `focus-guards::shell`: `words` (as palavras de um segmento, com as aspas e os escapes do POSIX, e os descritores `2>&1` como sintaxe; os segmentos em `;`, `|`, `&`, `&&`, `||` e nova linha; um segmento sem as suas redireções), `invocation` (o programa que um segmento corre através de `sudo`, `env -S`, `xargs`, `timeout`, `command`, `builtin`, `busybox` e das palavras de controlo da shell; `PATH=` e `env -i` como mudança da resolução do executável; `xargs` como comando guiado por dados; a leitura de argumentos que os mutators partilham), `cmdlet` (como `Set-Content`, `Add-Content`, `Clear-Content`, `Out-File`, `Tee-Object`, `New-Item` e `Set-Item` ligam os seus parâmetros, por nome, por prefixo inequívoco, por alias ou por posição, com `--` e `-Switch:valor`; a leitura exata, com as aspas, e a leitura "desaspada" de um comando POSIX, em que todos os valores contam), `powershell` (as palavras em modo de argumento, com as aspas tipográficas, os backticks, as arrays `a, b`, os grupos `(...)`, `$(...)`, `@(...)` e `{...}` entregues como comandos próprios, `$x = comando` em cadeia, `& 'comando'`, `--%`, os comentários; os aliases; os comandos que tomam o caminho do pipeline), e `mod` (os alvos de cada mutator — `cp`, `mv`, `install` com destino diretório ou `-t`, `rm`, `tee`, `touch`, `truncate`, `sed -i`, `perl -i`, `find -delete`/`-fprint`, `dd of=`, `rsync`, os cmdlets —, as redireções do POSIX fora de aspas, os diretórios possíveis com o limite de 64 e os homes fixos, `~`, `$HOME` e `$PWD`, `/dev/null` e `nul`, e `writeTargets` para as ferramentas `Write`, `Edit`, `MultiEdit` e `NotebookEdit`). O host entra por um valor (`Host`: o diretório do processo, se é Windows, `HOME`, o perfil do utilizador), para que o corpus pergunte por qualquer host e os hooks passem o real.
+
+Em `focus-js::path`: `resolve`, `normalize`, `isAbsolute`, `join` e `basename` do `node:path`, nos sabores POSIX e Windows, como o Bun os implementa: o `lib/path.js` do Node de antes do tratamento dos nomes reservados do Windows (CVE-2024-36139; `CON:` e `./C:x` passam como estão) e com uma raiz de dispositivo (`\\.\X`, `\\?\X`) lida como raiz UNC, servidor e partilha. É o que o original corre, por isso é o que se porta. O diretório do processo entra como argumento. Um diretório de trabalho próprio de uma drive (`process.env["=C:"]`) não se modela: o Node cai no do processo sem ele.
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Corpus, `shell_invocations` (613) | Comandos gerados por uma gramática (mutators com as suas opções, wrappers encadeados, palavras de controlo, `cd` nas suas formas, redireções, as aspas dos três tipos, caminhos com `~`, `$HOME`, `$PWD`, variáveis, globs, Windows, Unicode) e 8 % deles com caracteres ao acaso: os detalhes de cada invocação, a lista sem detalhes e a mudança da resolução, iguais em todos |
+| Corpus, `shell_targets` (819) | 707 em POSIX e 323 em PowerShell, 39 deles fixos, para as linhas que a mistura ao acaso raramente alcança: os alvos, as palavras em bruto, os diretórios possíveis e as mudanças de diretório, iguais em todos. O diretório de trabalho é uma raiz de rascunho com os mesmos dois níveis e o mesmo nome dos dois lados, para que um `..` que lhe saia e um `cp` para o seu pai caiam no mesmo sítio; os diretórios que o caso nomeia existem nos dois |
+| Corpus, `write_targets` (90) | As ferramentas de escrita com os seus campos, as de leitura, `Bash` com e sem comando |
+| Corpus, `node_path` (442) | 211 em POSIX e 231 em Windows, sobre raízes de drive, UNC, de dispositivo, `..` acima da raiz, separadores dobrados, nomes reservados, e 22 fixos (`join` a começar num separador, `resolve` de uma drive que não é a do diretório). Um desvio do Node foi apanhado aqui: o Bun lê `\\.\PHYSICALDRIVE0` como raiz UNC, e o porte seguiu o Bun |
+| Mutações | 45 em `words`, `invocation`, `cmdlet`, `powershell`, `mod` e `path`; 44 apanhadas, 7 delas só depois de o corpus ganhar os casos fixos (um `sed --in-place` guiado por dados, `-Variable:v` numa leitura POSIX, um backtick dentro de um grupo e de aspas dentro de um grupo, um pipeline continuado na linha seguinte, um `join` do Windows a começar num separador). A que fica é equivalente: ler `&&` como dois `&` dá um segmento vazio, que não corre programa nenhum |
+| Unidades | Os ramos de Windows que o corpus, gravado em Linux, não alcança: os homes do PowerShell pelo perfil (`USERPROFILE`, `HOMEDRIVE`+`HOMEPATH`), `nul` como dispositivo nulo, os caminhos no sabor Windows; e as formas do `path` que o Bun responde (medidas à mão contra o Bun 1.4.2) |
+| `cargo test` | O corpus passou de 9 810 para 11 759 casos. Os casos de `shell_targets` e `write_targets` não correm em Windows: leem a raiz de rascunho em `/tmp` (R8); os de `shell_invocations` e `node_path` correm nas três plataformas |
+
+**Desvios deliberados.** Nenhum.
+
+**Limites da fatia.**
+
+- Nada consome ainda o lexer: a integridade do runtime (fatia 2) e os guards (fatia 4) são os seus clientes.
+- O corpus regenerado trouxe outra vez os casos das famílias anteriores, com outro conteúdo: a geração com a mesma semente não é reprodutível de uma máquina para outra (a ordem de um `glob` entra nela). Todas passam; fica como risco pequeno, a corrigir quando se tocar no gerador.
