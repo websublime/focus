@@ -195,7 +195,7 @@ Cada marco fecha com um critério verificável contra o oráculo.
 - Critério: para os mesmos shards, `runtime-graph.json` byte a byte igual; linhas de auditoria iguais com relógio injetado.
 - Entrou em fatias, cada uma um pull request verificado por si (secção 13).
 
-**M3. Estado e criação de intents.**
+**M3. Estado e criação de intents.** Feito. Critério cumprido: as sequências de transições, verbos de gate e saltos geradas ao acaso (`fuzz/transitions`, `fuzz/jump`) deixam o mesmo ficheiro de estado e os mesmos shards nos dois motores, a menos do mapa de nomes; ver secção 14. Entrou em oito fatias (1, 2, 3a, 3b, 4a, 4b, 5a, 5b), cada uma um pull request. O que é de units, bolts e do orquestrador recusa-se pelo nome e vai para M4 e M5 ("Limites de M3").
 - Ficheiro de estado, transições (`advance`, `approve`, `reject`, `skip`, `gate-start`, `park`), `intent-create`, `jump`, `validity`, `--status`.
 - Critério: uma sequência de comandos deixa o mesmo ficheiro de estado e os mesmos shards nos dois motores, a menos do mapa de nomes.
 
@@ -920,7 +920,7 @@ Da revisão saíram ainda verificações para o que estava certo e ninguém medi
 
 ## 14. Estado de M3
 
-M3 está em curso. O que o plano chamava "estado e criação de intents" é, no original, `aidlc-state.ts` (8 867 linhas, 33 subcomandos), `aidlc-jump.ts`, `aidlc-validity.ts` e a parte de `aidlc-utility.ts` que cria intents e mostra o estado; atrás deles, outra vez, está `aidlc-lib.ts`: a resolução da Guard Policy, as fences e a autoridade de uma ação, que as transições de stage consultam antes de mexer no ficheiro de estado. Entra de baixo para cima, como M2.
+M3 está feito. O que o plano chamava "estado e criação de intents" é, no original, `aidlc-state.ts` (8 867 linhas, 33 subcomandos), `aidlc-jump.ts`, `aidlc-validity.ts` e a parte de `aidlc-utility.ts` que cria intents e mostra o estado; atrás deles, outra vez, está `aidlc-lib.ts`: a resolução da Guard Policy, as fences e a autoridade de uma ação, que as transições de stage consultam antes de mexer no ficheiro de estado. Entrou de baixo para cima, como M2.
 
 | Fatia | O que traz | Como se verifica | Estado |
 | --- | --- | --- | --- |
@@ -1234,3 +1234,15 @@ A validade é a segunda metade de `aidlc-validity.ts`: ler os recibos de volta (
 | --- | --- | --- |
 | `Unit Ownership: team` | Acaba com o board de equipa, gerado pelo orquestrador a partir das claims das units (e falha no DAG que não lê) | Recusa pelo nome (M4) |
 | O marcador de diretiva ativa | Lê dele o passo que o engine entregou por último (só sem `--intent`/`--space`); os guards leem dele a autoridade | Recusa o status pelo nome, com ou sem flags (M5) |
+
+### Limites de M3
+
+O que M3 não faz, e o que acontece quando lá se chega. Tudo recusa pelo nome: nenhum comando ignora o que não porta.
+
+1. **Units e bolts (M4).** Dezoito verbos de `state` (`set-skeleton-stance`, `set-construction-*`, `set-unit-ownership`, `set-unit-gate-rhythm`, `refresh-unit-progress`, `sync-unit-scope-stage`, `fold-unit-merge`, `acknowledge-compaction`, `reuse-artifact`, `lookup`, `practices-event`, `practices-promote`, `fork`, `merge`, `unit`), `jump reopen` e `jump execute --units`, os gates de unit, `park` e `unpark` com `Unit Ownership: team`, o board de equipa do `status`, e uma stage de Construction em `advance`.
+2. **Evidências e marcadores (M5).** Os recibos que `aidlc-log` escreve (a confirmação do sumário, os recibos do reviewer, os handoffs de um pipeline) e que uma transição deve; os findings de uma review no gate; as palavras do gate lidas pelo hook de turno; o marcador de diretiva ativa, que `jump`, `status` e os guards leem.
+3. **Sensores (M7).** Os sensores de gate: `gate-start` com a cerimónia `sensors` ligada recusa; o diferencial e o fuzz correm com ela desligada.
+4. **O resto de `utility` (M5 e M8).** Vinte e seis verbos: intents e spaces (`intent`, `space`, `space-create`, `set-status`), o code knowledge base (`codekb-*`, `document-input`, `reclassify`), scopes e settings (`recompose`, `scope-change`, `scope-save`, `config-*`, `detect-scope`, `resolve-env-scope`, `scope-table`, `stage-table`), plugins (`select-plugins`, `plugin-*`) e `help`, `version`, `doctor`, `init`, `project-description`.
+5. **Sessões por processo e worktrees delegadas.** Como em M2: um comando que as devia resolver recusa (o limite 3 de M1 passa para M4, com os bolts, cujas worktrees são as delegadas).
+6. **O relógio.** Os sete `status/awaiting*` e o heartbeat da presença contam-se contra o relógio real e não se gravam: verificam-se só pelo diferencial ao vivo.
+7. **Só em Unix.** O replay gravado continua a não correr em Windows (R8).
