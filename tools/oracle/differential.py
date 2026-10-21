@@ -421,8 +421,10 @@ def overlay(tree, hidden=False, everything=False):
     for rel in base:
         if rel not in now:
             diff[rel] = None
-    # Stored under Focus's names, like the base the replay starts from.
-    diff = {to_focus(rel): text if text is None else to_focus(text) for rel, text in diff.items()}
+    # Stored under Focus's names, like the base the replay starts from, and
+    # with a record minted today named by its day placeholder, so the replay
+    # lays the same tree out on any other day.
+    diff = {dated(to_focus(rel)): text if text is None else to_focus(text) for rel, text in diff.items()}
     key = hashlib.sha256(json.dumps(diff, sort_keys=True).encode()).hexdigest()[:16]
     RECORDED_TREES[key] = diff
     return key
@@ -1350,11 +1352,16 @@ def workspace_files(tree, top="aidlc"):
     return files
 
 
+def dated(rel):
+    """A path with today's record-day prefix written as its placeholder."""
+    return rel.replace(f"/intents/{TODAY}-", "/intents/<day>-")
+
+
 def minted(rel, text):
     """A path and content with what was minted during the run written as placeholders: a clone identity, a
     record's day prefix, a record's id."""
     rel = re.sub(r"/audit/[a-z0-9][a-z0-9-]*-[0-9a-f]{12}\.md$", "/audit/<host>-<token>.md", rel)
-    rel = rel.replace(f"/intents/{TODAY}-", "/intents/<day>-")
+    rel = dated(rel)
     if rel.endswith("/.focus-clone-id") and text is not None:
         text = re.sub(r"\A[0-9a-f]{12}\n[a-z0-9][a-z0-9-]*\n\Z", "<token>\n<host>\n", text)
     if text is not None and (rel.endswith("/intents.json") or rel.endswith("/creation-receipt")):
@@ -1683,6 +1690,7 @@ def compare_audit(name, trees, steps, env, tool="audit"):
     if started_from is not None:
         import hashlib
         if tool == "audit":
+            started_from = {dated(rel): text for rel, text in started_from.items()}
             key = hashlib.sha256(json.dumps(started_from, sort_keys=True).encode()).hexdigest()[:16]
             RECORDED_TREES[key] = started_from
         else:
