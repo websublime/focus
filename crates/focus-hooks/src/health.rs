@@ -72,6 +72,20 @@ const fn libc_o_nofollow() -> i32 {
     }
 }
 
+/// The record upstream's path helpers name when a hook passes none: what
+/// the cursor says (`hooksHealthDir(projectDir)`); `None` when the
+/// resolution refuses, in which case upstream's `recordHookDrop` swallows
+/// the throw and nothing is written.
+#[must_use]
+pub fn cursor_selection(layout: &Layout) -> Option<Selection> {
+    focus_workspace::records::resolve_selection(
+        layout,
+        &focus_workspace::records::Selector::default(),
+        &focus_workspace::records::Invoker::default(),
+    )
+    .ok()
+}
+
 /// `recordHookDrop`: one dropped emission, as an ISO timestamp, a tab and
 /// its one-line reason, appended to `<hook>.drops`.
 pub fn record_drop(layout: &Layout, selection: &Selection, hook: &str, reason: &str) {

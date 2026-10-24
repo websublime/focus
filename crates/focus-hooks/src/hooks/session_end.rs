@@ -14,7 +14,7 @@ use focus_workspace::records::{
 
 use super::{append, dropped, is_refusal, open, refused};
 use crate::context::{Participation, participation, pinned};
-use crate::health::{hooks_health_dir, record_drop, write_status_file};
+use crate::health::{cursor_selection, hooks_health_dir, record_drop, write_status_file};
 use crate::registry::{active_intent_uuid, find_intent_by_uuid, session_intent_uuid};
 use crate::{Outcome, payload};
 
@@ -67,9 +67,7 @@ pub fn run(input: &str, layout: &Layout) -> Outcome {
                     // with no record named); a cursor that cannot be read
                     // loses the drop, as upstream's `recordHookDrop` swallows
                     // the throw.
-                    if let Ok(selection) =
-                        resolve_selection(layout, &Selector::default(), &Invoker::default())
-                    {
+                    if let Some(selection) = cursor_selection(layout) {
                         record_drop(
                             layout,
                             &selection,

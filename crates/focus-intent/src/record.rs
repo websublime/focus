@@ -19,7 +19,7 @@ use focus_audit::time::iso_timestamp;
 use focus_js::{Result, json};
 use focus_workspace::atomic::write_atomic;
 use focus_workspace::names::{
-    ACTIVE_INTENT_POINTER, ACTIVE_SPACE_POINTER, ENGINE_DIR, SESSIONS_DIR,
+    ACTIVE_INTENT_POINTER, ACTIVE_SPACE_POINTER, ENGINE_DIR, SESSIONS_DIR, STATE_FILE,
 };
 use focus_workspace::records::valid_session_id;
 use focus_workspace::{Layout, links, observer, project};
@@ -182,6 +182,41 @@ pub fn leave_creation_receipt(record_dir: &Path, uuid: &str) {
         return;
     }
     let _ = std::fs::write(target, format!("{uuid}\n"));
+}
+
+/// `consumeCreationReceipt`: take the record's creation receipt, once, and
+/// answer whether it names the record's own uuid in the registry. Opened
+/// by name, as upstream does: the receipt proves nothing on its own, the
+/// registry row it must match does.
+#[must_use]
+pub fn consume_creation_receipt(layout: &Layout, space: &str, dir_name: &str) -> bool {
+    let path = layout
+        .intents_dir(space)
+        .join(dir_name)
+        .join(ENGINE_DIR)
+        .join(CREATION_RECEIPT_FILE);
+    let Ok(raw) = std::fs::read_to_string(&path) else {
+        return false;
+    };
+    if std::fs::remove_file(&path).is_err() {
+        return false;
+    }
+    let uuid = focus_js::text::trim(&raw);
+    // `listIntents` lists only records with a state file.
+    if !layout
+        .intents_dir(space)
+        .join(dir_name)
+        .join(STATE_FILE)
+        .exists()
+    {
+        return false;
+    }
+    focus_workspace::records::read_intent_registry(layout, space)
+        .iter()
+        .any(|row| {
+            focus_workspace::records::row_names_record(row, dir_name)
+                && row.get("uuid").and_then(Value::as_str) == Some(uuid)
+        })
 }
 
 /// `selectIntentForSession`: the cursor, then the binding when a session is
@@ -359,6 +394,54 @@ mod tests {
         assert!(!is_bindable_record_name(" a"));
         assert!(!is_bindable_record_name("a\u{85}"));
         assert!(is_bindable_record_name("261014-add-login"));
+        let _ = std::fs::remove_dir_all(&layout.project);
+    }
+
+    #[test]
+    fn a_creation_receipt_is_spent_once_and_must_name_the_registered_record() {
+        let layout = layout("receipt");
+        let minted = minted(&layout);
+        let at = SystemTime::UNIX_EPOCH + std::time::Duration::from_secs(1_792_540_800);
+        register(&layout, &minted, "feature", &[], None, None, at).unwrap();
+        std::fs::write(minted.record_dir.join("focus-state.md"), "x").unwrap();
+        leave_creation_receipt(&minted.record_dir, &minted.uuid);
+        let receipt = minted
+            .record_dir
+            .join(ENGINE_DIR)
+            .join(CREATION_RECEIPT_FILE);
+        assert!(receipt.exists());
+        // Another record's name, then the record's own: the first takes
+        // nothing, the second spends the receipt.
+        assert!(!consume_creation_receipt(&layout, "default", "other"));
+        assert!(receipt.exists());
+        assert!(consume_creation_receipt(
+            &layout,
+            "default",
+            "261014-add-login"
+        ));
+        assert!(!receipt.exists());
+        assert!(!consume_creation_receipt(
+            &layout,
+            "default",
+            "261014-add-login"
+        ));
+        // A receipt that names another uuid is spent and proves nothing;
+        // one for a record with no state file proves nothing either.
+        leave_creation_receipt(&minted.record_dir, "01a137c7-0000-7bb4-836e-74d3c49202d6");
+        assert!(!consume_creation_receipt(
+            &layout,
+            "default",
+            "261014-add-login"
+        ));
+        assert!(!receipt.exists());
+        leave_creation_receipt(&minted.record_dir, &minted.uuid);
+        std::fs::remove_file(minted.record_dir.join("focus-state.md")).unwrap();
+        assert!(!consume_creation_receipt(
+            &layout,
+            "default",
+            "261014-add-login"
+        ));
+        assert!(!receipt.exists());
         let _ = std::fs::remove_dir_all(&layout.project);
     }
 }

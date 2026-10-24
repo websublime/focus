@@ -24,6 +24,7 @@
 //! their answers by the oracle corpus.
 
 pub mod authority;
+pub mod engine_command;
 pub mod fences;
 pub mod integrity;
 pub mod oracle;

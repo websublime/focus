@@ -174,6 +174,15 @@ fn started() -> &'static str {
     })
 }
 
+fn started_ms() -> u128 {
+    static STARTED_MS: std::sync::OnceLock<u128> = std::sync::OnceLock::new();
+    *STARTED_MS.get_or_init(|| {
+        (std::time::SystemTime::now() - std::time::Duration::from_secs(2))
+            .duration_since(std::time::UNIX_EPOCH)
+            .map_or(0, |elapsed| elapsed.as_millis())
+    })
+}
+
 /// The recorder's `normalise_audit`, for focus's side.
 fn normalise_audit(text: &str, root: &Path) -> String {
     let mut text = without_tree(text, root);
@@ -278,6 +287,21 @@ fn normalise_audit(text: &str, root: &Path) -> String {
     });
     text = replace_all(&text, r"(?<![\w-])focus-jump(?![\w.-])", |_, _| {
         "<cli> jump".to_owned()
+    });
+    // The runtime tool naming itself inside a hook's drop line.
+    text = replace_all(
+        &text,
+        r"(?<![\w-])focus runtime (compile|read|summary):",
+        |found, text| format!("<cli> runtime {}:", group(found, text, 1)),
+    );
+    // A handoff receipt's instant in epoch milliseconds, written during the replay.
+    text = replace_all(&text, r#""issuedAtMs":(\d{13})"#, |found, text| {
+        let millis: u128 = group(found, text, 1).parse().unwrap_or(0);
+        if millis >= started_ms() {
+            "\"issuedAtMs\":<now-ms>".to_owned()
+        } else {
+            text[found.range()].to_owned()
+        }
     });
     // A tool named in a sentence by its command.
     text = replace_all(

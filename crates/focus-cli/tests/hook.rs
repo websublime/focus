@@ -873,6 +873,307 @@ fn a_resolution_not_ported_refuses_the_hook_by_name() {
     assert!(!shard(&root).contains("**Reason**: worktree"));
 }
 
+fn ran(command: &str, out: &str) -> String {
+    payload(&format!(
+        "\"hook_event_name\":\"PostToolUse\",\"tool_name\":\"Bash\",\"tool_input\":{{\"command\":{}}},\"tool_response\":{{\"stdout\":{},\"stderr\":\"\",\"interrupted\":false}}",
+        serde_json::to_string(command).unwrap(),
+        serde_json::to_string(out).unwrap()
+    ))
+}
+
+#[test]
+fn a_transition_tool_call_recompiles_the_runtime_graph() {
+    let root = project("rebuild");
+    let graph = root.join(RECORD).join("runtime-graph.json");
+    // A read-only or chatty call, and the runtime tool itself, compile nothing.
+    for command in [
+        "echo hi",
+        "git status",
+        "focus intent create --scope feature",
+        "bun .claude/tools/focus-log.ts decision x",
+        "focus engine runtime compile",
+        "bun .claude/tools/focus-runtime.ts compile",
+        "focus state approve x && focus engine runtime compile",
+    ] {
+        quiet(&hook(
+            &root,
+            &["rebuild-stage-graph"],
+            &ran(command, ""),
+            &[],
+        ));
+        assert!(!graph.exists(), "{command}");
+    }
+    assert!(heartbeat(&root, "rebuild-stage-graph.last").is_none());
+    // A transition tool, in any spelling, with a transition row in the tail.
+    write(
+        &root,
+        SHARD,
+        "# Focus Audit Log\n\n## Workflow Start\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: WORKFLOW_STARTED\n**Scope**: feature\n\n---\n\n## Stage Start\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: STAGE_STARTED\n**Stage**: intent-capture\n**Agent**: focus-product-agent\n\n---\n",
+    );
+    for command in [
+        "bun .claude/tools/focus-state.ts approve intent-capture",
+        "focus engine state approve intent-capture",
+        "focus next --resume && focus report --result done",
+        "bun \".claude/tools/focus.ts\" engine jump execute --target x",
+        "echo 'focus state approve'",
+    ] {
+        let _ = fs::remove_file(&graph);
+        quiet(&hook(
+            &root,
+            &["rebuild-stage-graph"],
+            &ran(command, ""),
+            &[],
+        ));
+        assert!(graph.exists(), "{command}");
+        assert!(
+            read(&root, &format!("{RECORD}/runtime-graph.json")).contains("intent-capture"),
+            "{command}"
+        );
+    }
+    assert!(heartbeat(&root, "rebuild-stage-graph.last").is_some());
+    // No transition among the last three blocks: nothing compiled.
+    let chatty =
+        "\n## X\n**Timestamp**: 2026-01-05T10:01:00Z\n**Event**: DECISION_RECORDED\n\n---\n";
+    write(
+        &root,
+        SHARD,
+        &format!("{}{chatty}{chatty}{chatty}", read(&root, SHARD)),
+    );
+    fs::remove_file(&graph).unwrap();
+    quiet(&hook(
+        &root,
+        &["rebuild-stage-graph"],
+        &ran("focus state approve x", ""),
+        &[],
+    ));
+    assert!(!graph.exists());
+    // One chatty row after it leaves the transition among the last three
+    // blocks (the trailing separator closes an empty one); two push it out.
+    write(
+        &root,
+        SHARD,
+        "# Focus Audit Log\n\n## Stage Start\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: STAGE_STARTED\n**Stage**: intent-capture\n\n---\n",
+    );
+    write(&root, SHARD, &format!("{}{chatty}", read(&root, SHARD)));
+    quiet(&hook(
+        &root,
+        &["rebuild-stage-graph"],
+        &ran("focus state approve x", ""),
+        &[],
+    ));
+    assert!(graph.exists());
+    fs::remove_file(&graph).unwrap();
+    write(&root, SHARD, &format!("{}{chatty}", read(&root, SHARD)));
+    quiet(&hook(
+        &root,
+        &["rebuild-stage-graph"],
+        &ran("focus state approve x", ""),
+        &[],
+    ));
+    assert!(!graph.exists());
+    // An outsider recompiles nothing.
+    write(
+        &root,
+        SHARD,
+        "# Focus Audit Log\n\n## Stage Start\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: STAGE_STARTED\n**Stage**: intent-capture\n\n---\n",
+    );
+    write(
+        &root,
+        "focus/.focus-sessions/s1.binding.json",
+        &BINDING.replace("\"create\"", "\"worktree\""),
+    );
+    fs::remove_file(root.join("focus/spaces/default/intents/active-intent")).unwrap();
+    quiet(&hook(
+        &root,
+        &["rebuild-stage-graph"],
+        &ran("focus state approve x", ""),
+        &[],
+    ));
+    assert!(!graph.exists());
+}
+
+#[test]
+fn the_ide_mirror_recompiles_once_per_change() {
+    let root = project("rebuild-ide");
+    let graph = root.join(RECORD).join("runtime-graph.json");
+    let ide = payload(
+        "\"hook_event_name\":\"PostToolUse\",\"tool_input\":{\"source\":\"ide-audit-sync\"}",
+    );
+    write(
+        &root,
+        SHARD,
+        "# Focus Audit Log\n\n## Stage Start\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: STAGE_STARTED\n**Stage**: intent-capture\n\n---\n",
+    );
+    quiet(&hook(&root, &["rebuild-stage-graph"], &ide, &[]));
+    assert!(graph.exists());
+    assert!(heartbeat(&root, "rebuild-stage-graph.noop").is_none());
+    // The tail has not changed since: the graph is at least as new as the
+    // shards, so the next call is a no-op the front gate can read.
+    let compiled = fs::read_to_string(&graph).unwrap();
+    quiet(&hook(&root, &["rebuild-stage-graph"], &ide, &[]));
+    assert!(heartbeat(&root, "rebuild-stage-graph.noop").is_some());
+    assert_eq!(fs::read_to_string(&graph).unwrap(), compiled);
+    // Without a transition in the tail, the no-op mark too.
+    fs::remove_file(
+        root.join(RECORD)
+            .join(".focus-engine/hooks-health/rebuild-stage-graph.noop"),
+    )
+    .unwrap();
+    write(
+        &root,
+        SHARD,
+        "# Focus Audit Log\n\n## X\n**Timestamp**: 2026-01-05T10:01:00Z\n**Event**: DECISION_RECORDED\n\n---\n",
+    );
+    quiet(&hook(&root, &["rebuild-stage-graph"], &ide, &[]));
+    assert!(heartbeat(&root, "rebuild-stage-graph.noop").is_some());
+}
+
+#[test]
+fn a_creation_seen_in_the_call_binds_the_session_that_made_it() {
+    let root = project("rebuild-bind");
+    fs::remove_file(root.join("focus/.focus-sessions/s1.binding.json")).unwrap();
+    let made = "Intent created: 260105-add-login (space: default)\nState initialized: feature scope, 32 stages\n";
+    let create = "bun .claude/tools/focus-utility.ts intent-create --scope feature";
+    let binding = || fs::read_to_string(root.join("focus/.focus-sessions/s1.binding.json")).ok();
+    let stamp = || fs::read_to_string(root.join("focus/.focus-sessions/s1")).ok();
+    // Seen without the creation receipt: bound as observed, and not stamped.
+    quiet(&hook(
+        &root,
+        &["rebuild-stage-graph"],
+        &ran(create, made),
+        &[],
+    ));
+    assert!(
+        binding()
+            .unwrap()
+            .contains("\"source\":\"observed-create\""),
+        "{:?}",
+        binding()
+    );
+    assert!(stamp().is_none());
+    // With the receipt this machine's intent-create left: proven, stamped,
+    // and the receipt spent.
+    fs::remove_file(root.join("focus/.focus-sessions/s1.binding.json")).unwrap();
+    let receipt = root.join(RECORD).join(".focus-engine/creation-receipt");
+    write(
+        &root,
+        &format!("{RECORD}/.focus-engine/creation-receipt"),
+        "01a138fa-d37d-787d-af4a-966efbb0b6fd\n",
+    );
+    quiet(&hook(
+        &root,
+        &["rebuild-stage-graph"],
+        &ran(create, made),
+        &[],
+    ));
+    assert!(
+        binding().unwrap().contains("\"source\":\"create\""),
+        "{:?}",
+        binding()
+    );
+    assert_eq!(
+        stamp().as_deref(),
+        Some("01a138fa-d37d-787d-af4a-966efbb0b6fd\n")
+    );
+    assert!(!receipt.exists());
+    // A second creation in the same session hands the attribution over.
+    write(
+        &root,
+        "focus/.focus-sessions/s1",
+        "01a138fa-ffff-787d-af4a-966efbb0b6fd\n",
+    );
+    write(
+        &root,
+        &format!("{RECORD}/.focus-engine/creation-receipt"),
+        "01a138fa-d37d-787d-af4a-966efbb0b6fd\n",
+    );
+    quiet(&hook(
+        &root,
+        &["rebuild-stage-graph"],
+        &ran("focus intent create --scope feature", made),
+        &[],
+    ));
+    let handoff = read(&root, "focus/.focus-sessions/s1.handoff.json");
+    assert!(handoff.starts_with("{\"fromIntentUuid\":\"01a138fa-ffff-787d-af4a-966efbb0b6fd\",\"toIntentUuid\":\"01a138fa-d37d-787d-af4a-966efbb0b6fd\",\"issuedAtMs\":"), "{handoff}");
+    assert_eq!(
+        stamp().as_deref(),
+        Some("01a138fa-d37d-787d-af4a-966efbb0b6fd\n")
+    );
+    // Another command, another record, or no session: nothing bound.
+    fs::remove_file(root.join("focus/.focus-sessions/s1.binding.json")).unwrap();
+    quiet(&hook(
+        &root,
+        &["rebuild-stage-graph"],
+        &ran("focus status", made),
+        &[],
+    ));
+    quiet(&hook(
+        &root,
+        &["rebuild-stage-graph"],
+        &ran(create, "Intent created: 260106-other (space: default)\n"),
+        &[],
+    ));
+    quiet(&hook(
+        &root,
+        &["rebuild-stage-graph"],
+        &format!(
+            "{{\"tool_name\":\"Bash\",\"tool_input\":{{\"command\":\"{create}\"}},\"tool_response\":\"{}\"}}",
+            made.replace('\n', "\\n")
+        ),
+        &[],
+    ));
+    assert!(binding().is_none());
+}
+
+/// Deliberate deviation. A literal call of the engine's orchestrator whose
+/// output names an error directive: upstream validates the directive and
+/// relays its message to the person through the harness's own channel;
+/// Focus refuses the hook by name, before validating, since the directive is
+/// the orchestrator's (M5).
+#[test]
+fn an_error_directive_in_the_calls_output_is_refused_by_name() {
+    let root = project("rebuild-relay");
+    let directive = "{\"kind\":\"error\",\"message\":\"No workflow is active.\"}\n";
+    for command in [
+        "focus next",
+        "cd /p && bun .claude/tools/focus.ts engine orchestrate report --result done 2>&1",
+        "focus park",
+    ] {
+        assert!(
+            refusal(&hook(
+                &root,
+                &["rebuild-stage-graph"],
+                &ran(command, directive),
+                &[]
+            ))
+            .contains("names an error directive"),
+            "{command}"
+        );
+    }
+    // Not a literal call of the orchestrator, or not an error: nothing to relay.
+    quiet(&hook(
+        &root,
+        &["rebuild-stage-graph"],
+        &ran("focus next | tee log", directive),
+        &[],
+    ));
+    quiet(&hook(
+        &root,
+        &["rebuild-stage-graph"],
+        &ran("focus next", "{\"kind\":\"print\",\"message\":\"x\"}\n"),
+        &[],
+    ));
+    assert_eq!(
+        refusal(&hook(
+            &root,
+            &["rebuild-stage-graph"],
+            &payload("\"tool_name\":\"Bash\",\"tool_input\":{\"command\":5}"),
+            &[]
+        )),
+        "rebuild-stage-graph: the payload's command is not text (5).\n"
+    );
+}
+
 #[test]
 fn the_project_comes_from_the_host_before_the_flag() {
     let root = project("host");

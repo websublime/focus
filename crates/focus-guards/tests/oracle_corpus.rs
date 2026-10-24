@@ -25,6 +25,7 @@ fn every_guard_case_gets_upstreams_answer() {
 
     let (mut replayed, mut stood_aside, mut held, mut pinned, mut refused, mut shell) =
         (0, 0, 0, 0, 0, 0);
+    let (mut commands, mut fired) = (0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         let case: Value = focus_js::json::parse(line).unwrap();
@@ -41,6 +42,10 @@ fn every_guard_case_gets_upstreams_answer() {
         replayed += 1;
         shell += usize::from(kind.starts_with("shell_"));
         let out = run_case(&case);
+        if kind == "engine_command" {
+            commands += 1;
+            fired += usize::from(out["classify"] == "fire");
+        }
         if let Some(decisions) = out["decisions"].as_array() {
             stood_aside += decisions
                 .iter()
@@ -60,6 +65,10 @@ fn every_guard_case_gets_upstreams_answer() {
     }
     assert!(replayed >= 200, "too few guard cases: {replayed}");
     assert!(shell >= 500, "too few shell cases: {shell}");
+    assert!(
+        commands >= 300 && fired >= 50,
+        "too few engine command cases: {commands}, {fired} of them transition tools"
+    );
     assert!(
         stood_aside >= 100 && held >= 100 && pinned >= 20 && refused >= 10,
         "{stood_aside} {held} {pinned} {refused}"

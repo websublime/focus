@@ -150,6 +150,7 @@ results = {"same": 0, "deviation": 0, "DIFFERENT": 0}
 shapes = {name: 0 for name in SHAPES}
 # A timestamp at or after this instant was written during the run.
 STARTED = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(time.time() - 2))
+STARTED_MS = int((time.time() - 2) * 1000)
 # The day a record minted during the run is named after.
 TODAY = time.strftime("%y%m%d", time.gmtime())
 UUID_V7 = r"[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
@@ -1306,6 +1307,11 @@ def normalise_audit(text, tree, engine):
     text = text.replace("how closely AI-DLC checks", "how closely <engine> checks").replace("how closely Focus checks", "how closely <engine> checks")
     # The jump tool's own name in a row's Tool or Command.
     text = re.sub(r"(?<![\w-])(?:aidlc|focus)-jump(?![\w.-])", "<cli> jump", text)
+    # The runtime tool naming itself in the line it prints (`aidlc-runtime compile:` / `focus runtime compile:`).
+    # Inside a file the tool's name was already translated when the file was read.
+    text = re.sub(r"(?<![\w-])(?:aidlc-runtime|focus-runtime|focus runtime) (compile|read|summary):", r"<cli> runtime \1:", text)
+    # A handoff receipt's instant in epoch milliseconds, written during the run.
+    text = re.sub(r'"issuedAtMs":(\d{13})', lambda m: '"issuedAtMs":<now-ms>' if int(m.group(1)) >= STARTED_MS else m.group(0), text)
     # A tool named in a sentence, by its script upstream and by its command here.
     text = re.sub(r"`bun \.claude/tools/(?:aidlc|focus)-([a-z-]+)\.ts(?: ([^`]*))?`", lambda m: f"<cli> {m.group(1)}" + (f" {m.group(2)}" if m.group(2) else ""), text)
     text = re.sub(r"`focus engine ([a-z-]+)(?: ([^`]*))?`", lambda m: f"<cli> {m.group(1)}" + (f" {m.group(2)}" if m.group(2) else ""), text)
@@ -3088,8 +3094,9 @@ def hook_checks():
     for hook, step in (("validate-state", compact), ("session-end", lambda: ["session-end", payload(reason="exit")]),
                        ("log-subagent", lambda: ["log-subagent", payload(agent_type="x")]),
                        ("sync-workflow-state", lambda: ["sync-workflow-state", payload(tool_name="TaskUpdate", tool_input={"status": "in_progress", "activeForm": "x [market-research]"})]),
-                       ("write-audit-log", lambda: ["write-audit-log", payload(tool_name="Write", tool_input={"file_path": "{P}/" + CREATED_DIR + "/ideation/intent-capture/intent-statement.md"})])):
-        short = "sync" if hook == "sync-workflow-state" else hook
+                       ("write-audit-log", lambda: ["write-audit-log", payload(tool_name="Write", tool_input={"file_path": "{P}/" + CREATED_DIR + "/ideation/intent-capture/intent-statement.md"})]),
+                       ("rebuild-stage-graph", lambda: ["rebuild-stage-graph", payload(tool_name="Bash", tool_input={"command": "aidlc state approve x"})])):
+        short = {"sync-workflow-state": "sync", "rebuild-stage-graph": "rebuild"}.get(hook, hook)
         anonymous = json.loads(step()[1]); del anonymous["session_id"]
         check_(f"{short}/sessions_by_process", {**created(), **pids}, [[hook, json.dumps(anonymous)]])
         check_(f"{short}/sessions_by_process_unbound", {**created(), **pids}, [step()])
@@ -3232,11 +3239,86 @@ def hook_checks():
     check_("sync/active_form_falsy", joined, [task(status="in_progress", activeForm=0), task(status="in_progress", activeForm=False), task(status="in_progress", activeForm=None)])
     check_("log-subagent/message_kinds", joined, [done(agent_type="x", last_assistant_message=[]), done(agent_type="x", last_assistant_message=[["a", "b"], {"k": 1}, 2.5]), done(agent_type="x", agent_id={"k": 1}), done(agent_type="x", agent_id=False)])
 
+    # rebuild-stage-graph: which calls recompile the runtime graph, and the creation that binds a session.
+    ran = lambda command, out="", **more: ["rebuild-stage-graph", payload(hook_event_name="PostToolUse", tool_name="Bash", tool_input={"command": command}, tool_response={"stdout": out, "stderr": "", "interrupted": False}, **more)]
+    chatty = CREATED_AUDIT + block("DECISION_RECORDED", T(1), "**Decision**: x") + block("QUESTION_ANSWERED", T(2), "**Question**: y") + block("ERROR_LOGGED", T(3), "**Tool**: x")
+    for name, command in (("tool_state", "bun .claude/tools/aidlc-state.ts approve intent-capture"), ("tool_utility", "bun .claude/tools/aidlc-utility.ts status"),
+                          ("native_state", "aidlc engine state approve intent-capture"), ("native_report", "aidlc next --resume && aidlc report --result done"),
+                          ("dispatcher", 'bun "{P}/.claude/tools/aidlc.ts" engine jump execute --target x'), ("quoted_mention", "echo 'aidlc state approve'")):
+        check_(f"rebuild/fire_{name}", joined, [ran(command)])
+    check_("rebuild/fire_twice", joined, [ran("aidlc state approve x"), ran("aidlc state approve x")])
+    check_("rebuild/pass", joined, [ran("echo hi"), ran("git status"), ran("aidlc intent create --scope feature"), ran("bun .claude/tools/aidlc-log.ts decision x")])
+    check_("rebuild/reject", joined, [ran("aidlc engine runtime compile"), ran("bun .claude/tools/aidlc-runtime.ts compile"), ran("aidlc state approve x && aidlc engine runtime compile")])
+    check_("rebuild/no_transition", created(audit=chatty, **binding()), [ran("aidlc state approve x")])
+    check_("rebuild/transition_third_from_end", created(audit=CREATED_AUDIT + block("DECISION_RECORDED", T(1), "**Decision**: x") + block("QUESTION_ANSWERED", T(2), "**Question**: y"), **binding()), [ran("aidlc state approve x")])
+    check_("rebuild/transition_fourth_from_end", created(audit=chatty, **binding()), [ran("aidlc state approve x")])
+    check_("rebuild/completed", created(audit=CREATED_AUDIT + block("PHASE_COMPLETED", T(1)) + block("PHASE_VERIFIED", T(2)) + block("WORKFLOW_COMPLETED", T(3)), **binding()), [ran("aidlc state approve x")])
+    check_("rebuild/awaiting", created(audit=CREATED_AUDIT + block("STAGE_AWAITING_APPROVAL", T(1), "**Stage**: intent-capture"), **binding()), [ran("aidlc state gate-start x")])
+    check_("rebuild/event_spaced", created(audit=CREATED_AUDIT + "\n## X\n**Timestamp**: " + T(1) + "\n**Event**:  GATE_APPROVED \n\n---\n", **binding()), [ran("aidlc state approve x")])
+    check_("rebuild/event_not_alone", created(audit=CREATED_AUDIT + block("DECISION_RECORDED", T(1), "**Event**: GATE_APPROVED now"), **binding()), [ran("aidlc state approve x")])
+    check_("rebuild/crlf_audit", created(audit=CREATED_AUDIT.replace("\n", "\r\n"), **binding()), [ran("aidlc state approve x")])
+    check_("rebuild/other_shard", created(audit=chatty, **binding(), **{f"{CREATED_DIR}/audit/desktop-def456.md": TITLE + block("STAGE_STARTED", T(9), "**Stage**: market-research")}), [ran("aidlc state approve x")])
+    check_("rebuild/no_shard", created(**binding(), **{CREATED_SHARD: None}), [ran("aidlc state approve x")])
+    check_("rebuild/no_state", {**CLONE, "aidlc/spaces/default/intents/intents.json": CREATED_REGISTRY, **binding()}, [ran("aidlc state approve x")])
+    check_("rebuild/cursor_only", created(), [ran("aidlc state approve x")])
+    check_("rebuild/outsider", {**no_cursor, **binding("other-9f8e7d6c")}, [ran("aidlc state approve x")])
+    check_("rebuild/unjoined", {**no_cursor, **binding(None, "unjoined")}, [ran("aidlc state approve x")])
+    check_("rebuild/no_session", created(), [["rebuild-stage-graph", json.dumps({"tool_name": "Bash", "tool_input": {"command": "aidlc state approve x"}})]])
+    check_("rebuild/empty_payload", joined, [["rebuild-stage-graph", ""], ["rebuild-stage-graph", "[]"], ["rebuild-stage-graph", "{}"]])
+    check_("rebuild/no_command", joined, [["rebuild-stage-graph", payload(tool_name="Bash", tool_input={})], ["rebuild-stage-graph", payload(tool_name="Bash")]])
+    check_("rebuild/command_number", joined, [["rebuild-stage-graph", payload(tool_name="Bash", tool_input={"command": 5})]])
+    check_("rebuild/command_falsy", joined, [["rebuild-stage-graph", payload(tool_name="Bash", tool_input={"command": None})]])
+    ide_ran = lambda **more: ["rebuild-stage-graph", payload(hook_event_name="PostToolUse", tool_input={"source": "ide-audit-sync", **more})]
+    check_("rebuild/ide_fires", joined, [ide_ran()])
+    check_("rebuild/ide_idempotent", joined, [ide_ran(), ide_ran()])
+    check_("rebuild/ide_no_transition", created(audit=chatty, **binding()), [ide_ran()])
+    # The graph's age is set by hand, which a recording does not carry: compared live.
+    check_("rebuild/ide_stale_graph", created(**binding(), **{f"{CREATED_DIR}/runtime-graph.json": "{}"}), [ide_ran()],
+           edits=(lambda tree: os.utime(tree.path(f"{CREATED_DIR}/runtime-graph.json"), (1_600_000_000, 1_600_000_000)),))
+    UNRECORDED.add("hook/rebuild/ide_stale_graph")
+    check_("rebuild/ide_command_number", joined, [ide_ran(command=5)])
+    check_("rebuild/ide_no_shard", created(**binding(), **{CREATED_SHARD: None}), [ide_ran()])
+    # A creation observed in the call binds the session that made it.
+    receipt = {f"{CREATED_DIR}/.aidlc-engine/creation-receipt": "01a138fa-d37d-787d-af4a-966efbb0b6fd\n"}
+    made = "Intent created: 260105-add-login (space: default)\nState initialized: feature scope, 32 stages, Standard depth\n"
+    create = "bun .claude/tools/aidlc-utility.ts intent-create --scope feature --arguments x"
+    check_("rebuild/bind_created", {**created(), **receipt}, [ran(create, made)])
+    check_("rebuild/bind_observed", created(), [ran(create, made)])
+    check_("rebuild/bind_native", {**created(), **receipt}, [ran("aidlc intent create --scope feature", made)])
+    check_("rebuild/bind_migrated", {**created(), **receipt}, [ran("aidlc intent create", "Migrated flat workspace into intent: 260105-add-login (space: default)\n")])
+    check_("rebuild/bind_string_response", {**created(), **receipt}, [["rebuild-stage-graph", payload(tool_name="Bash", tool_input={"command": create}, tool_response=made)]])
+    check_("rebuild/bind_object_response", {**created(), **receipt}, [["rebuild-stage-graph", payload(tool_name="Bash", tool_input={"command": create}, tool_response={"output": made})]])
+    check_("rebuild/bind_no_response", {**created(), **receipt}, [["rebuild-stage-graph", payload(tool_name="Bash", tool_input={"command": create})]])
+    check_("rebuild/bind_other_command", {**created(), **receipt}, [ran("aidlc status", made)])
+    check_("rebuild/bind_unknown_record", {**created(), **receipt}, [ran(create, "Intent created: 260106-other (space: default)\n")])
+    check_("rebuild/bind_other_space", {**created(), **receipt}, [ran(create, "Intent created: 260105-add-login (space: payments)\n")])
+    check_("rebuild/bind_receipt_mismatch", {**created(), f"{CREATED_DIR}/.aidlc-engine/creation-receipt": "01a138fa-0000-787d-af4a-966efbb0b6fd\n"}, [ran(create, made)])
+    check_("rebuild/bind_receipt_once", {**created(), **receipt}, [ran(create, made), ran(create, made)])
+    check_("rebuild/bind_already_bound", {**created(), **receipt, **binding(source="observed-create")}, [ran(create, made)])
+    check_("rebuild/bind_already_bound_sourceless", {**created(), **receipt, "aidlc/.aidlc-sessions/s1.binding.json": '{"space":"default","intent":"260105-add-login","boundAt":"2026-01-05T10:00:00Z"}'}, [ran(create, made)])
+    check_("rebuild/bind_stamped_elsewhere", {**created(), **receipt, "aidlc/.aidlc-sessions/s1": "01a138fa-ffff-787d-af4a-966efbb0b6fd\n"}, [ran(create, made)])
+    check_("rebuild/bind_stamped_same", {**created(), **receipt, "aidlc/.aidlc-sessions/s1": "01a138fa-d37d-787d-af4a-966efbb0b6fd\n"}, [ran(create, made)])
+    other_record = {"aidlc/spaces/default/intents/other-9f8e7d6c/aidlc-state.md": CREATED_STATE,
+                    "aidlc/spaces/default/intents/intents.json": CREATED_REGISTRY.replace("]\n", ',\n  {"uuid": "01a138fa-ffff-787d-af4a-966efbb0b6fd", "slug": "other", "dirName": "other-9f8e7d6c", "scope": "feature", "status": "in-flight"}\n]\n')}
+    check_("rebuild/bind_observed_keeps_participant", {**created(), **other_record, **binding("other-9f8e7d6c", "create"), "aidlc/spaces/default/intents/active-intent": "other-9f8e7d6c\n"}, [ran(create, made)])
+    check_("rebuild/bind_observed_moves_outsider", {**created(), **other_record, **binding("other-9f8e7d6c", "worktree"), "aidlc/spaces/default/intents/active-intent": None}, [ran(create, made)])
+    check_("rebuild/bind_proven_moves_participant", {**created(), **other_record, **receipt, **binding("other-9f8e7d6c", "create"), "aidlc/spaces/default/intents/active-intent": "other-9f8e7d6c\n"}, [ran(create, made)])
+    check_("rebuild/bind_ide", {**created(), **receipt}, [["rebuild-stage-graph", payload(tool_input={"source": "ide-audit-sync"}, tool_response=made)]])
+    check_("rebuild/bind_flat_registry", {**created(registry=legacy), **receipt}, [ran(create, made)])
+    # The engine's error directive in the call's output.
+    directive = '{"kind":"error","message":"No workflow is active."}\n'
+    check_("rebuild/relay", joined, [ran("aidlc next", directive)])
+    check_("rebuild/relay_dispatcher", joined, [ran("cd {P} && bun .claude/tools/aidlc.ts engine orchestrate report --result done 2>&1", directive)])
+    check_("rebuild/relay_not_literal", joined, [ran("aidlc next | tee log", directive), ran("aidlc state approve x", directive), ran("aidlc next", '{"kind":"print","message":"x"}\n')])
+    check_("rebuild/relay_string_response", joined, [["rebuild-stage-graph", payload(tool_name="Bash", tool_input={"command": "aidlc park"}, tool_response=directive)]])
+    for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
+        check_(f"rebuild/observer_{marker.lower()}", joined, [ran("aidlc state approve x")], {marker: "1"})
+
     # The dispatcher: a hook it does not have, a name it refuses, the trace.
     check_("dispatch/unknown", created(), [["nope", "{}"]])
     check_("dispatch/unsafe_name", created(), [["../x", "{}"]])
     check_("dispatch/no_name", created(), [["", "{}"]])
-    for name in ("session-start", "record-human-turn", "rebuild-stage-graph", "guard-tool-call", "continue-workflow"):
+    for name in ("session-start", "record-human-turn", "guard-tool-call", "continue-workflow"):
         check_(f"dispatch/{name.replace('-', '_')}_not_ported", created(), [[name, payload()]])
 
 
@@ -3250,7 +3332,11 @@ DEVIATIONS.update({
         "or names one the project has no binding for, and resolves a delegated worktree to the main checkout's "
         "intent; focus refuses both by name (a hook stands outside on any other failure of the resolution, as "
         "upstream's does)",
-    r"hook/[a-z-]+/(message_object|active_form_number|file_path_number)":
+    r"hook/rebuild/(relay|relay_dispatcher|relay_string_response)":
+        "a literal call of the engine's orchestrator whose output names an error directive: upstream validates "
+        "the directive and relays its message to the person through the harness's own channel (the directive is the "
+        "orchestrator's, M5); focus refuses the hook by name, before validating",
+    r"hook/[a-z-]+/(message_object|active_form_number|file_path_number|command_number|ide_command_number)":
         "a payload field of a kind the hook does not expect: upstream falls over on it and its dispatcher prints "
         "the runtime's TypeError; focus refuses the field by name (exit 1 either way, and nothing recorded past "
         "the heartbeat by either)",

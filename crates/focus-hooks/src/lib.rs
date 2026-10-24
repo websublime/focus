@@ -8,8 +8,8 @@
 //! records what it had to drop, under the record's hooks-health directory
 //! ([`health`]).
 //!
-//! This crate holds the observers: hooks that record and keep the record in
-//! step, and decide nothing. The guards that refuse a tool call are M4's
+//! This crate holds the observers: hooks that record, keep the record in
+//! step and recompile what derives from it, and decide nothing. The guards that refuse a tool call are M4's
 //! later slices. Ported from `core/hooks/aidlc-*.ts`, and held to upstream's
 //! behaviour by the differential.
 
@@ -19,18 +19,20 @@ pub mod health;
 pub mod hooks;
 pub mod payload;
 pub mod registry;
+pub mod sessions;
 pub mod status;
 pub mod trace;
 
 use focus_workspace::Layout;
 
 /// The hooks Focus has, as `engine hook <name>` names them.
-pub const HOOKS: [&str; 5] = [
+pub const HOOKS: [&str; 6] = [
     "validate-state",
     "session-end",
     "log-subagent",
     "sync-workflow-state",
     "write-audit-log",
+    "rebuild-stage-graph",
 ];
 
 /// Upstream's other hooks, and what each does, for the refusal by name.
@@ -93,6 +95,7 @@ pub fn run(name: &str, input: &str, layout: &Layout) -> Outcome {
         "log-subagent" => hooks::log_subagent::run(input, layout),
         "sync-workflow-state" => hooks::sync_workflow_state::run(input, layout),
         "write-audit-log" => hooks::write_audit_log::run(input, layout),
+        "rebuild-stage-graph" => hooks::rebuild_stage_graph::run(input, layout),
         other => {
             let stderr = match NOT_PORTED.iter().find(|(known, _)| *known == other) {
                 Some((_, does)) => format!(

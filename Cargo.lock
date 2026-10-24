@@ -141,6 +141,7 @@ name = "focus-hooks"
 version = "0.1.0"
 dependencies = [
  "focus-audit",
+ "focus-guards",
  "focus-harness",
  "focus-intent",
  "focus-js",

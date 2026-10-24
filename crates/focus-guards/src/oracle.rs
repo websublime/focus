@@ -14,6 +14,7 @@ use serde_json::{Map, Value, json};
 
 use crate::authority::Authority;
 use crate::authority::decide_fence;
+use crate::engine_command;
 use crate::fences::{
     Fence, FenceResolution, format_guards_line, parse_guards_line, resolve_fences,
     set_guards_off_line, set_guards_on_line,
@@ -26,9 +27,10 @@ use crate::policy::{
 use crate::shell::{self, CommandShell, Host};
 
 /// The kinds of case this crate answers.
-pub const KINDS: [&str; 6] = [
+pub const KINDS: [&str; 7] = [
     "guard_policy",
     "guards_line",
+    "engine_command",
     "shell_invocations",
     "shell_targets",
     "write_targets",
@@ -239,6 +241,22 @@ pub fn run_case(case: &Value) -> Value {
                     .map(shell::ShellInvocation::to_json)
                     .collect::<Vec<Value>>(),
                 "altersResolution": shell::shell_command_alters_executable_resolution(command),
+            })
+        }
+        "engine_command" => {
+            let command = text("command");
+            let literal = engine_command::parse_literal_shell_invocation(command).map(|literal| {
+                json!({
+                    "directory": literal.directory,
+                    "command": literal.command,
+                    "argv": literal.argv,
+                    "rawWords": literal.raw_words,
+                })
+            });
+            json!({
+                "classify": engine_command::classify_runtime_compile_command(command).name(),
+                "literal": literal,
+                "verb": engine_command::literal_orchestrate_verb(command),
             })
         }
         "shell_targets" | "write_targets" => shell_case(case),
