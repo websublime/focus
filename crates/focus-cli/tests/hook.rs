@@ -811,55 +811,46 @@ fn a_record_of_a_later_milestone_refuses_the_hook_by_name() {
     );
 }
 
-/// Deliberate deviation. Upstream walks the process tree to find which
-/// conversation is calling when the payload names no session, and resolves
-/// a delegated worktree to the main checkout's intent; Focus refuses both by
-/// name. A hook stands outside on any other failure of the resolution, as
-/// upstream's does.
+/// A process map that names no ancestor of the hook is a miss: the cursor
+/// decides, as upstream's walk decides when it finds nothing. A map naming
+/// the hook's parent (what the session-start hook records for the harness)
+/// names the conversation, binding and all.
 #[test]
-fn a_resolution_not_ported_refuses_the_hook_by_name() {
-    let root = project("resolution");
+fn the_process_map_names_the_conversation_a_hook_runs_in() {
+    let root = project("ancestry");
     write(&root, "focus/.focus-sessions/pids/1.json", "{}\n");
-    assert!(
-        refusal(&hook(&root, &["validate-state"], "{}", &[]))
-            .contains("focus-sessions/pids records which process belongs to which conversation")
+    quiet(&hook(&root, &["validate-state"], "{}", &[]));
+    assert_eq!(shard(&root).matches("SESSION_COMPACTED").count(), 1);
+    // The cursor elsewhere, and this process (the hook's parent) recorded as
+    // the conversation bound to the record: the hook works on the record.
+    fs::remove_file(root.join("focus/spaces/default/intents/active-intent")).unwrap();
+    quiet(&hook(&root, &["validate-state"], "{}", &[]));
+    assert_eq!(shard(&root).matches("SESSION_COMPACTED").count(), 1);
+    let layout = focus_workspace::Layout::new(&root, focus_harness::Harness::Claude);
+    focus_workspace::ancestry::write_entry(
+        &layout,
+        std::process::id(),
+        "s1",
+        std::time::Instant::now() + std::time::Duration::from_secs(10),
+        None,
     );
-    assert!(
-        refusal(&hook(
-            &root,
-            &["log-subagent"],
-            "{\"agent_type\":\"x\"}",
-            &[]
-        ))
-        .contains("focus-sessions/pids")
-    );
-    // The payload's own session settles it, once its binding is there: a
-    // session the project has no binding for is a conversation upstream
-    // would place by the process tree.
-    quiet(&hook(&root, &["validate-state"], &payload(""), &[]));
+    quiet(&hook(&root, &["validate-state"], "{}", &[]));
+    assert_eq!(shard(&root).matches("SESSION_COMPACTED").count(), 2);
     quiet(&hook(
         &root,
         &["log-subagent"],
-        &payload("\"agent_type\":\"x\""),
+        "{\"agent_type\":\"mapped\"}",
         &[],
     ));
-    quiet(&hook(
-        &root,
-        &["session-end"],
-        &payload("\"reason\":\"bound\""),
-        &[],
-    ));
-    assert!(shard(&root).contains("SUBAGENT_COMPLETED"));
-    assert!(shard(&root).contains("**Reason**: bound\n"));
-    assert!(
-        refusal(&hook(
-            &root,
-            &["validate-state"],
-            "{\"session_id\":\"s2\"}",
-            &[]
-        ))
-        .contains("focus-sessions/pids")
-    );
+    assert!(shard(&root).contains("**Agent Type**: mapped\n"));
+}
+
+/// Deliberate deviation. Upstream resolves a delegated worktree to the main
+/// checkout's intent; Focus refuses it by name. A hook stands outside on any
+/// other failure of the resolution, as upstream's does.
+#[test]
+fn a_resolution_not_ported_refuses_the_hook_by_name() {
+    let root = project("resolution");
     write(&root, ".focus/worktree-meta.json", "{}\n");
     assert!(
         refusal(&hook(

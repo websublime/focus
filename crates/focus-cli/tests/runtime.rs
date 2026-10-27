@@ -730,20 +730,14 @@ fn a_phase_named_after_an_object_member_is_listed() {
     let _ = fs::remove_dir_all(root);
 }
 
-/// Deliberate deviation. Upstream finds the calling conversation by walking
-/// the process tree, resolves a delegated worktree to the main checkout's
-/// intent, and lets a unit claim name the audit shard. Focus has ported none
-/// of the three, and a compile refuses while the file that asks for one is
+/// Deliberate deviation. Upstream resolves a delegated worktree to the main
+/// checkout's intent, and lets a unit claim name the audit shard. Focus has
+/// ported neither, and a compile refuses while the file that asks for one is
 /// there: it reads no ledger it might have chosen wrongly and writes no
 /// graph.
 #[test]
 fn a_compile_does_not_guess_whose_record_it_is_compiling() {
     for (name, marker, says) in [
-        (
-            "sessions",
-            "focus/.focus-sessions/pids/1.json",
-            "Focus cannot yet tell which conversation is calling",
-        ),
         (
             "worktree",
             ".focus/worktree-meta.json",

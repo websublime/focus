@@ -623,11 +623,7 @@ fn run_resolve(args: &mut Args) -> Verb {
             match records::resolve_selection(&layout, &selector, &invoker) {
                 Ok(selection) => Some(selection.engine_dir(&layout).join("plan.json")),
                 // What Focus has not ported is no obstacle to printing.
-                Err(_)
-                    if to_stdout && records::not_ported(&layout, &selector, &invoker).is_some() =>
-                {
-                    None
-                }
+                Err(_) if to_stdout && records::not_ported(&layout).is_some() => None,
                 Err(refusal) => return Err(refusal.into()),
             }
         }

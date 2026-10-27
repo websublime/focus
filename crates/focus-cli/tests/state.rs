@@ -225,14 +225,14 @@ fn a_refusal_is_recorded_in_the_ledger_with_the_project_redacted() {
     );
     // The refusal of a selection Focus cannot resolve is printed alone, as
     // upstream makes it before anything records.
-    write(&root, "focus/.focus-sessions/pids/1.json", "{}\n");
+    write(&root, ".focus/worktree-meta.json", "{}\n");
     let unresolved = refusal(&state(&root, &["get", "Scope"], &[]));
     assert!(
-        unresolved.contains("cannot yet tell which conversation is calling"),
+        unresolved.contains("does not work inside delegated worktrees yet"),
         "{unresolved}"
     );
     assert_eq!(shard(&root), ledger);
-    fs::remove_dir_all(root.join("focus/.focus-sessions")).unwrap();
+    fs::remove_file(root.join(".focus/worktree-meta.json")).unwrap();
     // The row is the record's: with no state file there is none to write
     // beside, and the refusal is printed alone.
     fs::remove_file(root.join(RECORD).join("focus-state.md")).unwrap();

@@ -17,9 +17,11 @@ focus-js.workspace = true
 [target.'cfg(unix)'.dependencies]
 libc.workspace = true
 
-# A file's identity, where the standard library does not give one.
+# A file's identity, where the standard library does not give one; and the
+# process table, for which conversation a process belongs to.
 [target.'cfg(windows)'.dependencies]
 same-file.workspace = true
+sysinfo.workspace = true
 
 [lints]
 workspace = true

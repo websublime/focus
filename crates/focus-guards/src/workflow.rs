@@ -64,7 +64,7 @@ impl Guards {
         // Upstream resolves the selection for the state, and again for the
         // memory tree, taking the default space when it cannot; a selection
         // Focus does not resolve yet is refused rather than defaulted.
-        if let Some(refusal) = records::not_ported(layout, selector, invoker) {
+        if let Some(refusal) = records::not_ported(layout) {
             return Err(refusal);
         }
         let selection = records::resolve_selection(layout, selector, invoker).ok();

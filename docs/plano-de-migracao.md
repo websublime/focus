@@ -538,7 +538,7 @@ Três diferenças face ao original, todas recusas onde Focus não tem ainda o qu
 | --- | --- | --- |
 | Linha do registo que a leitura sem tipos não consegue ler (`null`, `status` que não é texto, `uuid` que não é texto numa linha casada pelo slug) | Falha com a mensagem do runtime (`TypeError`) | Falha nas mesmas condições, com uma mensagem que nomeia o ficheiro. O corpus fixa quando falha; o texto é de cada um |
 | Worktree delegada (`.focus/worktree-meta.json`) | Resolve para o intent do checkout principal | Recusa: worktrees estão adiadas |
-| Sessões registadas por processo (`focus/.focus-sessions/pids/`) sem sessão nomeada | Percorre a árvore de processos para saber que conversa chama | Recusa e pede a sessão ou `--space` e `--intent`. Só acontece depois de haver hooks de sessão, que são de M4 |
+| Sessões registadas por processo (`focus/.focus-sessions/pids/`) sem sessão nomeada | Percorre a árvore de processos para saber que conversa chama | Recusava e pedia a sessão ou `--space` e `--intent`. Fechado em M4 (fatia 3c-i): percorre a árvore, como o original |
 
 As duas últimas têm um teste marcado "Deliberate deviation". Não aparecem no diferencial porque ainda não há comando que use a seleção: entram lá com a fatia 3.
 
@@ -827,7 +827,7 @@ Desvios, os dois já declarados noutros comandos e agora também em `resolve`:
 
 | | Original | Focus |
 | --- | --- | --- |
-| `resolve` num projeto com sessões registadas por processo | Percorre a árvore de processos para saber que conversa chama, e escreve no registo dela | Recusa escrever; com `--stdout` imprime o plano, que não precisa de registo |
+| `resolve` num projeto com sessões registadas por processo | Percorre a árvore de processos para saber que conversa chama, e escreve no registo dela | (Fechado em M4, fatia 3c-i.) Recusava escrever; com `--stdout` imprimia o plano, que não precisa de registo |
 | `resolve` com uma linha do registo de intents que não se lê | Falha com o que o runtime diz do valor (`undefined is not an object`) | Diz que ficheiro e o que uma linha precisa. Os dois falham antes de imprimir |
 
 O que isto não tem: as outras primitivas com barreira no original (`writeStateFile`, `writeBufferAtomic`, `removeRecordFileNoFollow`, `clearSummaryAuthorization`, a transação da diretiva ativa) pertencem a módulos por portar e trazem a sua chamada quando entrarem. A regra fica em `CLAUDE.md`.
@@ -890,7 +890,7 @@ Focus responde por uma forma só, a de todos os timestamps que o engine escreve:
 | Uso | Lista `fragment-fork` e `fragment-merge` | Lista os verbos que tem; recusa esses dois pelo nome (vêm com bolts e worktrees) |
 | Argumento desconhecido, flag repetida, flag sem o seu valor | Ignorados (sem valor, `--project-dir` é o diretório corrente) | Recusados |
 | `FOCUS_METRICS_ENDPOINT` definido e um `MEMORY_EMPTY` a escrever | Envia a métrica | Recusa o append, e com ele o compile: não escreve evento nem grafo. Sem evento a escrever, compila |
-| Sessões registadas por processo; worktree delegada; claim de unit | Resolve cada um | Recusa, como no comando `audit` (os mesmos três desvios, pelas mesmas funções) |
+| Sessões registadas por processo; worktree delegada; claim de unit | Resolve cada um | Recusa, como no comando `audit` (os mesmos três desvios, pelas mesmas funções). As sessões por processo fecharam em M4 (fatia 3c-i) |
 | `stage-graph.json` que não tem a forma que o compile escreve: um stage que o workflow usou sem fase em texto; num resumo, uma fase que não é texto; uma linha `null`; um ficheiro que não é uma lista | Falha com o que o runtime diz do valor (`The "paths[1]" property must be of type string, got undefined`, `null is not an object (evaluating 's.enabled')`) ou, no resumo, conta o stage debaixo do valor escrito como texto (`7`) | Diz que o stage graph não é o que o compile escreveu e como o compilar de novo. O que o compile podia ter escrito lê-se como no original: um slug em duas linhas é a segunda; um stage sem fase que o workflow não usou não impede nada; num resumo, sem fase é `unknown` |
 | Fase com nome de membro de objeto (`constructor`) num resumo | Guarda as fases num objeto simples: conta o stage no valor herdado e não lista a fase | Lista-a como qualquer outra |
 | JSON que o `JSON.parse` lê e o leitor de Focus não guarda: um número que não cabe num double (`1e400`), metade de um par de substituição escrita com escape (`"\ud800"`), mais de 127 níveis | Lê | Diz que o ficheiro não é JSON que leia. Vale para todo o JSON que Focus lê e está fixado em `focus-js` |
@@ -1003,7 +1003,7 @@ Antes de mexer no ficheiro de estado, cada transição do original pergunta se p
 | `--project-dir` no fim, sem valor | Fica a fazer parte do nome do campo | Recusa a flag, antes de saber o registo |
 | `FOCUS_METRICS_ENDPOINT` definido numa recusa | Escreve o `ERROR_LOGGED` e envia a métrica | Não escreve a linha (a recusa é impressa na mesma) |
 | Um registo com o marcador `active-directive.json` | Lê nele a instrução do engine e a sequência de turnos, e guarda ao lado o registo das escritas do estado | Recusa decidir a fence e recusa escrever o estado: o orchestrator que o escreve é M5. Os marcadores de turno (`human-turn`, `engine-touch`) são lidos desde a fatia 3b |
-| Sessões por processo; worktree delegada | Resolve | Recusa, como nos outros comandos |
+| Sessões por processo; worktree delegada | Resolve | Recusa, como nos outros comandos (as sessões por processo fecharam em M4, fatia 3c-i) |
 | `FOCUS_STATE_TRANSITION_OWNER` em Windows | Compara com o pid do pai | Recusa: Focus não lê o pid do pai aí ainda. Em Linux e macOS compara |
 
 **O que a fatia 2 não tem.** O registo das escritas do estado (`state-writes.json`), que o orchestrator lê para dizer o que pôs um passo fora de data; entra com ele (M5). O lock é o do workspace, não um por intent (decisão 3, R5).
@@ -1079,7 +1079,7 @@ A criação de um intent começa por classificar o projeto: Greenfield ou Brownf
 | As concessões que o hook de turno humano guarda para um chat (`*-at-creation-<sessão>.json`), e um bypass de presença gravado | Gasta-as | Recusa quando há uma para a sessão (M4) |
 | As linhas que um chat ainda deve à pessoa (`<sessão>.person-lines`) | Passam para o trabalho criado | Ficam onde estão (M4) |
 | Os blocos de `.gitignore` e `AGENTS.md` numa cópia em que o config nunca correu | Acrescenta-os na primeira criação | Não lhes toca: é do instalador (M6). O diferencial não compara os ficheiros da raiz; fica dito aqui |
-| `--project-dir` sem instalação, sessões por processo, worktree delegada | Resolve | Recusa, como nos outros comandos |
+| `--project-dir` sem instalação, sessões por processo, worktree delegada | Resolve | Recusa, como nos outros comandos (as sessões por processo fecharam em M4, fatia 3c-i) |
 
 **O que a fatia 3b não tem.** `reclassify`, `status`, os verbos `intent` (list, switch, archive, unarchive) e `space`: entram com as transições e o estado visível (fatias 4 e 5).
 
@@ -1243,7 +1243,7 @@ O que M3 não faz, e o que acontece quando lá se chega. Tudo recusa pelo nome: 
 2. **Evidências e marcadores (M5).** Os recibos que `aidlc-log` escreve (a confirmação do sumário, os recibos do reviewer, os handoffs de um pipeline) e que uma transição deve; os findings de uma review no gate; as palavras do gate lidas pelo hook de turno; o marcador de diretiva ativa, que `jump`, `status` e os guards leem.
 3. **Sensores (M7).** Os sensores de gate: `gate-start` com a cerimónia `sensors` ligada recusa; o diferencial e o fuzz correm com ela desligada.
 4. **O resto de `utility` (M5 e M8).** Vinte e seis verbos: intents e spaces (`intent`, `space`, `space-create`, `set-status`), o code knowledge base (`codekb-*`, `document-input`, `reclassify`), scopes e settings (`recompose`, `scope-change`, `scope-save`, `config-*`, `detect-scope`, `resolve-env-scope`, `scope-table`, `stage-table`), plugins (`select-plugins`, `plugin-*`) e `help`, `version`, `doctor`, `init`, `project-description`.
-5. **Sessões por processo e worktrees delegadas.** Como em M2: um comando que as devia resolver recusa (o limite 3 de M1 passa para M4, com os bolts, cujas worktrees são as delegadas).
+5. **Sessões por processo e worktrees delegadas.** Como em M2: um comando que as devia resolver recusa (o limite 3 de M1 passa para M4, com os bolts, cujas worktrees são as delegadas). As sessões por processo fecharam em M4 (fatia 3c-i).
 6. **O relógio.** Os sete `status/awaiting*` e o heartbeat da presença contam-se contra o relógio real e não se gravam: verificam-se só pelo diferencial ao vivo.
 7. **Só em Unix.** O replay gravado continua a não correr em Windows (R8).
 
@@ -1257,7 +1257,8 @@ M4 está em curso. Guards e hooks observadores são, no original, o que corre em
 | 2. Integridade do runtime | `focus-guards::integrity`: o que nenhuma ferramenta pode tocar (os registos do runtime, o audit trail, os ficheiros instalados dos hooks), antes de qualquer fence; `focus-js::path` ganha `relative` e `dirname` | Corpus de pedidos de hook | Feita |
 | 3a. O dispatcher e os observadores | `focus-hooks`: o comando `focus engine hook <nome>`, o pedido lido do stdin, o traço de cada hook, o contexto de um hook (em que workflow dispara, se esta conversa o integrou), a pulsação e as quedas de cada um; os hooks que só registam: `validate-state`, `session-end`, `log-subagent`, `sync-workflow-state`, `write-audit-log` | Diferencial | Feita |
 | 3b. A recompilação e a ligação observada | `rebuild-stage-graph` (o runtime graph recompilado depois de cada ferramenta de transição; uma criação vista na saída da chamada liga a sessão que a fez); `focus-guards::engine_command` (as invocações do engine lidas de um comando de shell: a grafia canónica, o portão da recompilação, a invocação literal e o verbo do orquestrador) | Corpus (`engine_command`), diferencial | Feita |
-| 3c. O arranque de sessão | `session-start`: a ligação da conversa ao registo e o seu carimbo, a oferta de religar, o contexto entregue ao harness; com o que lê (`focus-includes`: a cópia da memória ativa e os blocos de raiz; `rules-held`; os switches gravados; o ponteiro do transcript) | Diferencial | Por fazer |
+| 3c-i. Sessões por processo | `focus-workspace::ancestry`: o mapa de processos de uma conversa (`.focus-sessions/pids/<pid>`), escrito pelo arranque de sessão e lido por cada comando a que ninguém nomeou a sessão; a recusa de um override exportado que discorda da conversa dona | Diferencial (o processo do próprio diferencial no mapa) | Feita |
+| 3c-ii. O arranque de sessão | `session-start`: a ligação da conversa ao registo e o seu carimbo, o mapa de processos, a oferta de religar, o contexto entregue ao harness; com o que lê (a cópia da memória ativa e os blocos de raiz; `rules-held`; os switches gravados; o ponteiro do transcript) | Diferencial | Por fazer |
 | 4. Os guards e o turno humano | `review-freeze`, `reviewer-scope`, `state-transition-guard` e `plan-approval-guard`, com o que leem (`guard-operation`, `question-store`, `message-store`, a fatia de `testing-posture` que a aprovação do plano consulta); `record-human-turn`, que escreve nessas mesmas lojas (as palavras de um gate, a resposta a uma pergunta protegida, o switch de uma fence) e por isso entra com elas | Corpus de pedidos de hook, diferencial | Por fazer |
 
 ### Fatia 1: o lexer de shell
@@ -1345,7 +1346,7 @@ Antes de escrever, cada hook pergunta em que workflow dispara e se esta conversa
 | Um nome que não é nome de hook (`../x`, vazio) | O dispatcher procura o ficheiro e recusa à sua maneira (`unknown verb`, saída 2) | Recusa o nome antes de procurar (saída 1) |
 | Um hook que esta fatia não traz | Corre | Recusa pelo nome, dizendo o que o hook faz (saída 1) |
 | Um registo de um marco posterior ao lado do hook: as regras entregues à conversa (`<id>.rules-held.json`), o marcador de diretiva, um claim de unit, o livro de subagentes em curso, as autorizações de resumo | Lê-o ou limpa-o e continua | Recusa o hook pelo nome enquanto lá estiver (M4/M5), e não regista nada |
-| Sessões por processo, sem sessão no pedido ou com uma que não tem ligação; um worktree delegado | Anda pela árvore de processos para saber que conversa chama; resolve o worktree para o intent do checkout principal | Recusa pelo nome (`session-end` e `log-subagent`, que no original levam o registo explícito aos helpers, fixam a sessão do pedido e não recusam). Qualquer outra falha da resolução deixa o hook de fora, como no original |
+| Um worktree delegado | Resolve o worktree para o intent do checkout principal | Recusa pelo nome. Qualquer outra falha da resolução deixa o hook de fora, como no original. (As sessões por processo, que esta fatia também recusava, fecharam na 3c-i) |
 | Um campo do pedido de outro tipo (`activeForm: 5`, `file_path: true`, `last_assistant_message: {}`) | Cai com o `TypeError` do runtime, que o dispatcher imprime | Recusa o campo pelo nome. Saída 1 nos dois, nada registado por nenhum |
 
 **Limites da fatia.**
@@ -1386,4 +1387,24 @@ Antes de escrever, cada hook pergunta em que workflow dispara e se esta conversa
 | `command` de outro tipo no pedido | Cai no `TypeError` da linha de depuração | Recusa o campo pelo nome |
 
 **Limites da fatia.** O processo filho da recompilação é o próprio binário (`current_exe`), sem o `timeout` de 15 minutos do original. `record-human-turn` passou para a fatia 4: escreve nas lojas que os guards leem (as palavras de um gate, a resposta a uma pergunta protegida, o switch tipado de uma fence) e não faz sentido sem elas.
+
+
+### Fatia 3c-i: sessões por processo
+
+Um harness corre os comandos do engine a partir de uma shell que ele próprio lança, e não lhe dá o id da sessão. O arranque de sessão regista por isso o processo do harness e cada um dos seus antepassados como da conversa (`focus/.focus-sessions/pids/<pid>`, com a hora de arranque do processo, para que um pid reutilizado não passe por dono), e um comando a que ninguém nomeou a sessão sobe pelos seus antepassados até ao primeiro registado (`resolveSessionIdFromAncestry`). Um override exportado para o ambiente (`FOCUS_SESSION_OVERRIDE` sem a marca `payload`) que discorde da conversa dona é recusado (`SessionResolutionConflictError`): é um guarda contra um export velho, não uma fronteira de segurança. Até aqui Focus recusava pelo nome sempre que o mapa existia; agora percorre-o, e todos os comandos e hooks herdam isso pela resolução.
+
+**O que existe.** Em `focus-workspace::ancestry`: a identidade de um processo (pai e hora de arranque: `/proc/<pid>/stat` em Linux e `ps -o ppid=,lstart=` em macOS, como o original os lê; em Windows a tabela de processos por `sysinfo`, ao segundo), os registos do mapa e a sua leitura, `write_ancestry` (o slot do pai reformado antes de ser lido, para que uma sessão velha não volte quando a leitura recupera; o GC dos registos de processos que já não existem ou cujo pid mudou de dono), `resolve` (a caminhada com o orçamento de 50 ms e a memória de uma falha por um segundo), e `write_atomic_unsynced` para estes registos, que o original também não leva ao disco. Em `records::resolve_selection`, `invoking_session_id`: o override entregue pelo hook, depois a árvore. `not_ported` fica só com o worktree delegado.
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Diferencial, `*/sessions_by_process*` | 40 verificações, 40 iguais, 0 desvios: um mapa que não nomeia nenhum antepassado (o cursor decide), e o processo do próprio diferencial registado como da conversa `s1` — o pai dos dois engines, com a hora de arranque como os dois a leem em Linux —, com e sem ligação, em `graph resolve` (a escrita do plano vai para o registo da ligação, não para o do cursor), `audit append`, `runtime compile` e `summary`, `state get`, e em cada um dos seis hooks sem sessão no pedido; o override exportado que discorda (a mesma frase de recusa), o entregue pelo payload e o igual. Ficam ao vivo: o pid é o desta corrida |
+| Unidades | `ancestry`: os registos lidos como escritos ou nada, a ordem das horas em Windows, e a caminhada no próprio processo de teste (o pai registado, uma hora de outro processo, um registo reformado, o GC); `records` e `context`: a conversa encontrada pela árvore, o override exportado recusado, o do payload e a sessão nomeada a ganhar |
+| Testes do CLI | `graph resolve` pelo pai registado; o hook de compactação pelo pai registado com o cursor noutro lado |
+| `cargo test` | 443 testes. Diferencial completo: 2 605 verificações, 2 431 iguais, 174 desvios, 0 diferentes; 2 555 gravadas sobre 730 árvores |
+
+**Desvios que fecham.** Os de `sessions_by_process` em `verbs/resolve_writes`, `audit/append`, `state/record`, `runtime/*` e `hook/*`, e os testes marcados que os acompanhavam (secções 13 e 14, e as fatias 3a e 3b desta).
+
+**Limites da fatia.** Em Windows a hora de arranque lê-se ao segundo: um pai nascido no mesmo segundo que o filho não se verifica (o original lê o relógio de 100 ns do kernel e nunca encontra esse caso), e a caminhada fica por aí; o comando cai então no cursor, como com o mapa vazio. A fronteira de segurança não muda: o mapa é estado por utilizador. O orçamento de 50 ms é o do original; num host carregado a caminhada falha fechada, como lá. Ninguém escreve ainda o mapa num projeto real: é o arranque de sessão (3c-ii).
 
