@@ -7,7 +7,7 @@ use std::path::{Path, PathBuf};
 use focus_js::{Result, bail};
 use focus_workspace::atomic::write_atomic;
 use focus_workspace::links::refuse_link_in_chain;
-use focus_workspace::names::{ENGINE_DIR, SESSIONS_DIR, WORKSPACE_DIR};
+use focus_workspace::names::{ENGINE_DIR, WORKSPACE_DIR};
 use focus_workspace::observer;
 use focus_workspace::records::Selection;
 use focus_workspace::{Layout, env};
@@ -75,26 +75,6 @@ pub fn refuse_directive_marker(layout: &Layout, selection: &Selection, hook: &st
         bail!(
             "{} is the orchestrator's directive marker, which {hook} keeps in step with the state: Focus does not read it yet.",
             marker.display()
-        );
-    }
-    Ok(())
-}
-
-/// The rules-delivery record a conversation keeps (`aidlc-rules-held.ts`,
-/// M5): a hook that would clear it refuses by name while it is there.
-///
-/// # Errors
-///
-/// The record exists.
-pub fn refuse_rules_delivery(layout: &Layout, session_id: &str) -> Result<()> {
-    let record = layout
-        .workspace_root()
-        .join(SESSIONS_DIR)
-        .join(format!("{session_id}.rules-held.json"));
-    if record.exists() {
-        bail!(
-            "{} records the rules handed to this conversation, which a compaction forgets: Focus does not keep that record yet.",
-            record.display()
         );
     }
     Ok(())
@@ -234,7 +214,6 @@ mod tests {
         let tree = Tree::new("later");
         let selection = tree.selection();
         assert!(refuse_directive_marker(&tree.0, &selection, "a test").is_ok());
-        assert!(refuse_rules_delivery(&tree.0, "s1").is_ok());
         assert!(refuse_subagent_ledger(&tree.0).is_ok());
         assert!(refuse_summary_authorization(&tree.0, &selection).is_ok());
 
@@ -251,16 +230,6 @@ mod tests {
             ),
             "{err}"
         );
-
-        tree.write("focus/.focus-sessions/s1.rules-held.json", "{}");
-        let err = refuse_rules_delivery(&tree.0, "s1")
-            .unwrap_err()
-            .to_string();
-        assert!(
-            err.contains("s1.rules-held.json records the rules handed to this conversation"),
-            "{err}"
-        );
-        assert!(refuse_rules_delivery(&tree.0, "s2").is_ok());
 
         tree.write("focus/.focus-subagent-inflight", "{}");
         let err = refuse_subagent_ledger(&tree.0).unwrap_err().to_string();

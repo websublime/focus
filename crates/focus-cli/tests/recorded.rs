@@ -349,8 +349,13 @@ fn workspace_files(root: &Path) -> BTreeMap<String, String> {
                 .to_string_lossy()
                 .into_owned();
             let name = path.file_name().unwrap().to_string_lossy().into_owned();
+            // The process map (`.focus-sessions/pids/<pid>`) names this
+            // host's own processes, the engine's ancestors at recording time:
+            // the differential compares it live and records none of it.
             if path.is_dir() {
-                walk(root, &path, files);
+                if name != "pids" || !rel.contains(".focus-sessions") {
+                    walk(root, &path, files);
+                }
             } else if !name.starts_with(".focus-lock") {
                 files.insert(
                     rel,

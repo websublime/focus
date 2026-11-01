@@ -11,8 +11,9 @@ use focus_workspace::Layout;
 use focus_workspace::records::valid_session_id;
 
 use super::{append, dropped, is_refusal, open, refused};
-use crate::engine::{refuse_directive_marker, refuse_rules_delivery, write_engine_file_no_follow};
+use crate::engine::{refuse_directive_marker, write_engine_file_no_follow};
 use crate::health::{hooks_health_dir, write_status_file};
+use crate::rules_held::clear_rules_delivered;
 use crate::{Outcome, context, payload};
 
 pub fn run(input: &str, layout: &Layout) -> Outcome {
@@ -20,10 +21,8 @@ pub fn run(input: &str, layout: &Layout) -> Outcome {
     let session = payload::session_id(parsed.as_ref());
     // The compacted chat no longer holds the rule text it was handed,
     // whatever workflow it works on.
-    if let Some(session) = session.as_deref().and_then(|id| valid_session_id(Some(id)))
-        && let Err(err) = refuse_rules_delivery(layout, session)
-    {
-        return refused(&err);
+    if let Some(session) = session.as_deref().and_then(|id| valid_session_id(Some(id))) {
+        clear_rules_delivered(layout, session);
     }
     // A compaction in a conversation that has not joined the selected
     // workflow leaves that workflow's heartbeat, breadcrumb and ledger alone.

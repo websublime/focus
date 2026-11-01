@@ -131,7 +131,9 @@ pub fn drift(layout: &Layout, space: &str) -> Vec<String> {
 /// left as it was, and nothing is written through a link.
 pub fn refresh(layout: &Layout, space: &str) -> bool {
     let drifted = drift(layout, space);
-    if drifted.is_empty() {
+    // `writeFileAtomic` starts at the observer barrier: an observer's start
+    // leaves the copy as it found it, and reports nothing changed.
+    if drifted.is_empty() || crate::observer::refuse_write("writeFileAtomic").is_err() {
         return false;
     }
     let copy = copy_dir(layout);
@@ -157,6 +159,55 @@ pub fn refresh(layout: &Layout, space: &str) -> bool {
         changed |= done;
     }
     changed
+}
+
+/// What `inlineMemoryFiles` answers: the files as inline blocks, their
+/// project-relative paths, and the bytes of text they hold.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Inlined {
+    pub parts: Vec<String>,
+    pub inlined: Vec<String>,
+    pub bytes: usize,
+}
+
+/// Inline text past this size would sit in every chat; the reference form
+/// is written instead.
+const INLINE_MAX_BYTES: usize = 64 * 1024;
+
+/// `inlineMemoryFiles`: the memory files of `space` as
+/// `<memory-file path="...">` blocks, with the project-relative path of
+/// each; `None` when the text cannot be put in a chat (a file that is not
+/// UTF-8, a memory too large, or no file at all). `only` limits it to those
+/// files, by their path under `memory/`.
+#[must_use]
+pub fn inline_memory_files(
+    layout: &Layout,
+    space: &str,
+    only: Option<&[String]>,
+) -> Option<Inlined> {
+    let rel = space_memory_rel(space);
+    let memory_dir = layout.memory_dir(space);
+    let mut inlined = Inlined {
+        parts: Vec::new(),
+        inlined: Vec::new(),
+        bytes: 0,
+    };
+    for file in memory_layer_files(&memory_dir)
+        .into_iter()
+        .filter(|name| only.is_none_or(|only| only.contains(name)))
+    {
+        let text = utf8_text(&memory_dir.join(&file))?;
+        inlined.bytes += text.len();
+        if inlined.bytes > INLINE_MAX_BYTES {
+            return None;
+        }
+        let newline = if text.ends_with('\n') { "" } else { "\n" };
+        inlined.parts.push(format!(
+            "<memory-file path=\"{rel}/{file}\">\n{text}{newline}</memory-file>\n"
+        ));
+        inlined.inlined.push(format!("{rel}/{file}"));
+    }
+    (!inlined.inlined.is_empty()).then_some(inlined)
 }
 
 #[cfg(test)]
@@ -230,6 +281,47 @@ mod tests {
                 .unwrap()
                 .ends_with("# Org 2\n")
         );
+        let _ = std::fs::remove_dir_all(&layout.project);
+    }
+
+    #[test]
+    fn the_memory_is_inlined_as_blocks_or_not_at_all() {
+        let layout = layout("inline");
+        let memory = layout.memory_dir("default");
+        assert_eq!(inline_memory_files(&layout, "default", None), None);
+        write(&memory.join("org.md"), b"# Org\n");
+        write(&memory.join("phases/ideation.md"), b"# Ideation");
+        let all = inline_memory_files(&layout, "default", None).unwrap();
+        assert_eq!(
+            all.parts,
+            [
+                "<memory-file path=\"focus/spaces/default/memory/org.md\">\n# Org\n</memory-file>\n",
+                "<memory-file path=\"focus/spaces/default/memory/phases/ideation.md\">\n# Ideation\n</memory-file>\n"
+            ]
+        );
+        assert_eq!(
+            all.inlined,
+            [
+                "focus/spaces/default/memory/org.md",
+                "focus/spaces/default/memory/phases/ideation.md"
+            ]
+        );
+        assert_eq!(all.bytes, 6 + 10);
+        let some = inline_memory_files(&layout, "default", Some(&["org.md".to_owned()])).unwrap();
+        assert_eq!(some.inlined, ["focus/spaces/default/memory/org.md"]);
+        assert_eq!(
+            inline_memory_files(&layout, "default", Some(&["none.md".to_owned()])),
+            None
+        );
+        // A file that is not UTF-8, or a memory past the inline cap: nothing.
+        write(&memory.join("binary.md"), b"\xff\xfe");
+        assert_eq!(inline_memory_files(&layout, "default", None), None);
+        std::fs::remove_file(memory.join("binary.md")).unwrap();
+        write(
+            &memory.join("big.md"),
+            "x".repeat(INLINE_MAX_BYTES).as_bytes(),
+        );
+        assert_eq!(inline_memory_files(&layout, "default", None), None);
         let _ = std::fs::remove_dir_all(&layout.project);
     }
 

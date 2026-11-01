@@ -2,7 +2,7 @@
 """Run upstream's engine and focus on the same project trees and compare.
 
     differential.py <upstream checkout with dist/ built> [focus binary]
-                    [--fuzz N] [--seed S] [--only PATTERN] [--record DIR] [--explain]
+                    [--fuzz N] [--seed S] [--only PATTERN] [--record DIR] [--explain] [--show]
                     [--markdown N]
 
 Every check builds a Claude Code project from upstream's own distribution,
@@ -45,8 +45,8 @@ What is normalised before comparing, besides the map, and nothing else:
   - for the audit command, the shape of a refusal upstream lets reach its
     runtime (see SHAPES).
 """
-import json
 import hashlib
+import json
 import os
 import random
 import re
@@ -75,6 +75,9 @@ def option(name, default=None):
 
 
 RECORD = option("--record")
+# --show prints what upstream wrote to stdout in full for every check that is the same, to read what a check
+# covers rather than trust its name.
+SHOW = "--show" in argv and not argv.remove("--show")
 FUZZ = int(option("--fuzz", "0"))
 MARKDOWN = int(option("--markdown", "0"))
 SEED = int(option("--seed", "1"))
@@ -1292,7 +1295,7 @@ def normalise_audit(text, tree, engine):
     # (A file's text has already been through the name map, so the tool is named either way.)
     text = re.sub(r"(?:aidlc|focus)-(state|orchestrate)\.ts(?: ([a-z-]+))?",
                   lambda m: f"<cli> {m.group(1)}" + (f" {m.group(2)}" if m.group(2) else ""), text)
-    text = re.sub(r"`focus engine (state|orchestrate)(?: ([^`]*))?`", lambda m: f"<cli> {m.group(1)}" + (f" {m.group(2)}" if m.group(2) else ""), text)
+    text = re.sub(r"`(?:aidlc|focus) engine (state|orchestrate)(?: ([^`]*))?`", lambda m: f"<cli> {m.group(1)}" + (f" {m.group(2)}" if m.group(2) else ""), text)
     # The entry script naming a tool's verb in a sentence (`<next>` in a hook-activation step).
     text = re.sub(r"`bun \.claude/tools/(?:aidlc|focus)\.ts engine (state|orchestrate|log)(?: ([^`]*))?`",
                   lambda m: f"<cli> {m.group(1)}" + (f" {m.group(2)}" if m.group(2) else ""), text)
@@ -1324,7 +1327,7 @@ def normalise_audit(text, tree, engine):
     text = re.sub(r'"issuedAtMs":(\d{13})', lambda m: '"issuedAtMs":<now-ms>' if int(m.group(1)) >= STARTED_MS else m.group(0), text)
     # A tool named in a sentence, by its script upstream and by its command here.
     text = re.sub(r"`bun \.claude/tools/(?:aidlc|focus)-([a-z-]+)\.ts(?: ([^`]*))?`", lambda m: f"<cli> {m.group(1)}" + (f" {m.group(2)}" if m.group(2) else ""), text)
-    text = re.sub(r"`focus engine ([a-z-]+)(?: ([^`]*))?`", lambda m: f"<cli> {m.group(1)}" + (f" {m.group(2)}" if m.group(2) else ""), text)
+    text = re.sub(r"`(?:aidlc|focus) engine ([a-z-]+)(?: ([^`]*))?`", lambda m: f"<cli> {m.group(1)}" + (f" {m.group(2)}" if m.group(2) else ""), text)
     # The Command field of an error row carries the arguments the differential adds for Focus.
     text = text.replace(" --harness claude\n", "\n")
     text = STAMP.sub(lambda found: "<now>" if found.group(0) >= STARTED else found.group(0), text)
@@ -1365,8 +1368,25 @@ def workspace_files(tree, top="aidlc"):
                 files[rel] = "<not a file>"
             else:
                 with open(path, "rb") as handle:
-                    files[rel] = say(handle.read().decode("utf-8", errors="replace"))
+                    text = handle.read().decode("utf-8", errors="replace")
+                if name.endswith(".rules-held.json"):
+                    text = own_hashes(tree, text)
+                files[rel] = say(text)
     return files
+
+
+def own_hashes(tree, text):
+    """A rules record hashes the memory files as each engine ships them, which differ by the engine's name in
+    their text: a hash that is the tree's own file's is shown as `<sha256>`, and one that is not stays."""
+    def own(found):
+        path = os.path.join(tree.root, found.group(1))
+        try:
+            with open(path, "rb") as handle:
+                digest = hashlib.sha256(handle.read()).hexdigest()
+        except OSError:
+            return found.group(0)
+        return f'"{found.group(1)}":"<sha256>"' if digest == found.group(2) else found.group(0)
+    return re.sub(r'"([^"]+\.md)":"([0-9a-f]{64})"', own, text)
 
 
 def my_pid_entry(session="s1"):
@@ -1703,6 +1723,9 @@ def compare_audit(name, trees, steps, env, tool="audit"):
         verdict = "same"
         said = (outcome["ts"]["stderr"] or outcome["ts"]["stdout"]).strip().split("\n")[0][:110]
         detail = f"exit {outcome['ts']['exit'][:40]}" + (f": {said}" if said else "")
+        if SHOW:
+            detail += "\n" + "\n".join(f"           | {line}" for line in outcome["ts"]["stdout"].split("\n"))
+            detail += "\n           wrote: " + ", ".join(sorted(key for key in outcome["ts"] if "/" in key))
         if shaped:
             shapes["uncaught"] += 1
             detail += "  (upstream: uncaught)"
@@ -1736,7 +1759,9 @@ def compare_audit(name, trees, steps, env, tool="audit"):
             "env": {key_: to_focus(value) for key_, value in (env or {}).items()},
             "stdin": None, "writes": True,
             "deviation": detail if verdict == "deviation" else None,
-            "expect": {key_: compact(value) for key_, value in outcome["ts"].items()},
+            # The process map names the host's own processes (the engines' ancestors): the same for both engines
+            # live, and nothing a replay under another process tree could reproduce.
+            "expect": {key_: compact(value) for key_, value in outcome["ts"].items() if "/pids/" not in key_},
         }
     return verdict, name, detail
 
@@ -3334,19 +3359,121 @@ def hook_checks():
     for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
         check_(f"rebuild/observer_{marker.lower()}", joined, [ran("aidlc state approve x")], {marker: "1"})
 
+    # session-start: the session identity, the binding, the event and the context handed to the model.
+    # A fresh distribution tree: config never ran, so the engine would add its part of the root files; the hook
+    # checks run as a configured project, which records that config did.
+    configured = {".claude/tools/data/aidlc-manifest.json": '{"schemaVersion": 1}\n'}
+    start = lambda **fields: ["session-start", payload(hook_event_name="SessionStart", **fields)]
+    begun = {**joined, **configured}
+    check_("session-start/startup", begun, [start(source="startup")])
+    check_("session-start/resume", begun, [start(source="resume")])
+    check_("session-start/clear", begun, [start(source="clear")])
+    check_("session-start/compact", begun, [start(source="compact")])
+    check_("session-start/unknown_source", begun, [start(source="weird")])
+    check_("session-start/no_source", begun, [start()])
+    check_("session-start/source_number", begun, [start(source=0), start(source=7)])
+    check_("session-start/empty_payload", begun, [["session-start", ""]])
+    check_("session-start/not_json", begun, [["session-start", "{nope"]])
+    check_("session-start/not_object", begun, [["session-start", "[1]"]])
+    check_("session-start/no_session", begun, [["session-start", json.dumps({"source": "startup"})]])
+    check_("session-start/invalid_session", begun, [["session-start", json.dumps({"session_id": "../x", "source": "startup"})]])
+    check_("session-start/transcript", begun, [start(source="startup", transcript_path="/tmp/t.jsonl")])
+    check_("session-start/transcript_settings_refused", {**begun, "aidlc.settings.local.json": '{"flags": {}}\n'}, [start(source="startup", transcript_path="/tmp/t.jsonl")], {"DISABLE_PLAN_APPROVAL_GUARD": "1"})
+    check_("session-start/transcript_tracking_off", {**begun, "aidlc.settings.local.json": '{"schemaVersion": 1, "flags": {"schemaVersion": 1, "bypasses": ["AIDLC_DISABLE_USAGE_TRACKING"]}}\n'}, [start(source="startup", transcript_path="/tmp/t.jsonl")])
+    check_("session-start/twice", begun, [start(source="startup"), start(source="resume")])
+    check_("session-start/cursor_only", {**created(), **configured}, [start(source="startup")])
+    check_("session-start/cold", {**CLONE, **configured}, [start(source="startup")])
+    check_("session-start/cold_no_session", {**CLONE, **configured}, [["session-start", json.dumps({"source": "startup"})]])
+    check_("session-start/no_state", {**CLONE, **configured, "aidlc/spaces/default/intents/intents.json": CREATED_REGISTRY, **binding()}, [start(source="startup")])
+    check_("session-start/unjoined_lone_record", {**no_cursor, **configured}, [start(source="startup")])
+    check_("session-start/rejoin_offer", {**no_cursor, **configured, **binding(source="worktree")}, [start(source="startup")])
+    check_("session-start/rejoin_offer_other_space", {**no_cursor, **configured, "aidlc/active-space": "payments\n", "aidlc/spaces/payments/intents/intents.json": "[]\n", **binding(source="worktree")}, [start(source="startup")])
+    check_("session-start/rejoin_probe", {**no_cursor, **configured, **binding(source="worktree")}, [start(source="resume", rebind_check=True), start(source="resume", rebind_check=True)])
+    check_("session-start/bound_elsewhere", {**no_cursor, **configured, **binding("other-9f8e7d6c")}, [start(source="startup")])
+    check_("session-start/bound_unjoined", {**no_cursor, **configured, **binding(None, "unjoined")}, [start(source="startup")])
+    check_("session-start/bound_none_cold", {**CLONE, **configured, **binding(None, "none")}, [start(source="startup")])
+    check_("session-start/stamped_resume", {**no_cursor, **configured, "aidlc/.aidlc-sessions/s1": "01a138fa-d37d-787d-af4a-966efbb0b6fd\n"}, [start(source="resume")])
+    check_("session-start/stamped_startup", {**no_cursor, **configured, "aidlc/.aidlc-sessions/s1": "01a138fa-d37d-787d-af4a-966efbb0b6fd\n"}, [start(source="startup")])
+    check_("session-start/stamped_unknown_resume", {**created(), **configured, "aidlc/.aidlc-sessions/s1": "01a138fa-0000-787d-af4a-966efbb0b6fd\n"}, [start(source="resume")])
+    other = {"aidlc/spaces/default/intents/other-9f8e7d6c/aidlc-state.md": CREATED_STATE,
+             "aidlc/spaces/default/intents/intents.json": CREATED_REGISTRY.replace("]\n", ',\n  {"uuid": "01a138fa-ffff-787d-af4a-966efbb0b6fd", "slug": "other", "dirName": "other-9f8e7d6c", "scope": "feature", "status": "in-flight"}\n]\n')}
+    drifted = {**created(), **configured, **other, "aidlc/spaces/default/intents/active-intent": "other-9f8e7d6c\n", **binding()}
+    check_("session-start/rebind_offer", drifted, [start(source="resume")])
+    check_("session-start/rebind_offer_once", drifted, [start(source="resume"), start(source="resume")])
+    check_("session-start/rebind_offer_probe", drifted, [start(source="resume", rebind_check=True), start(source="resume", rebind_check=True)])
+    check_("session-start/rebind_offer_stamp_only", {**created(), **configured, **other, "aidlc/spaces/default/intents/active-intent": "other-9f8e7d6c\n", "aidlc/.aidlc-sessions/s1": "01a138fa-d37d-787d-af4a-966efbb0b6fd\n"}, [start(source="resume")])
+    check_("session-start/rebind_cleared", {**begun, "aidlc/.aidlc-sessions/s1.rebind-offer": "x\n"}, [start(source="resume")])
+    check_("session-start/rebind_cleared_startup", {**no_cursor, **configured, "aidlc/.aidlc-sessions/s1.rebind-offer": "x\n"}, [start(source="startup")])
+    check_("session-start/flat_registry", {**created(registry=legacy), **configured, **binding()}, [start(source="startup"), start(source="resume")])
+    check_("session-start/binding_sourceless", {**created(), **configured, "aidlc/.aidlc-sessions/s1.binding.json": '{"space":"default","intent":"260105-add-login","boundAt":"2026-01-05T10:00:00Z"}'}, [start(source="startup")])
+    check_("session-start/sources", {**begun, **{f"aidlc/.aidlc-sessions/s{n}.binding.json": json.dumps({"space": "default", "intent": "260105-add-login", "boundAt": "2026-01-05T10:00:00Z", "source": src}) for n, src in enumerate(("migration", "switch", "stamp"), start=2)}},
+           [["session-start", json.dumps({"session_id": f"s{n}", "source": "startup"})] for n in (2, 3, 4)])
+    check_("session-start/presence_bypass", begun, [start(source="startup")], {"SKIP_HUMAN_PRESENCE_GUARD": "1"})
+    check_("session-start/presence_bypass_settings", {**begun, "aidlc.settings.local.json": '{"schemaVersion": 1, "flags": {"schemaVersion": 1, "bypasses": ["AIDLC_SKIP_HUMAN_PRESENCE_GUARD"]}}\n',
+           "aidlc/.aidlc-sessions/recorded-switches.json": '{"version": 1, "switches": [{"name": "AIDLC_SKIP_HUMAN_PRESENCE_GUARD", "target": "local", "since": "2026-01-05T10:00:00Z", "how": "other"}]}\n'}, [start(source="startup")])
+    # A switch nobody recorded is dated by its settings file's modification time, which is the run's.
+    check_("session-start/switch_off_unrecorded", {**begun, "aidlc.settings.local.json": '{"schemaVersion": 1, "flags": {"schemaVersion": 1, "bypasses": ["AIDLC_SKIP_HUMAN_PRESENCE_GUARD"]}}\n'}, [start(source="startup")])
+    UNRECORDED.add("hook/session-start/switch_off_unrecorded")
+    check_("session-start/plan_approval_bypass", begun, [start(source="startup")], {"DISABLE_PLAN_APPROVAL_GUARD": "1"})
+    check_("session-start/plan_approval_bypass_cleared", {**begun, "aidlc/.aidlc-sessions/plan-approval/plan-approval-bypass-s1": "2026-01-05T10:00:00Z\n"}, [start(source="startup")])
+    check_("session-start/unit_line", created(CREATED_STATE.replace("- **Active Agent**:", "- **Active Unit**: auth\n- **Unit Stage**: code-generation\n- **Unit State**: paused\n- **Unit Pause Reason**: tests red\n- **Unit Next Action**: fix them\n- **Active Agent**:"), **binding(), **configured), [start(source="startup")])
+    check_("session-start/unit_line_in_unit_stages", created(at_stage(CREATED_STATE, "functional-design").replace("- **Active Agent**:", "- **Active Unit**: auth\n- **Unit Stage**: code-generation\n- **Active Agent**:"), **binding(), **configured), [start(source="startup")])
+    check_("session-start/unit_line_team", created(at_stage(CREATED_STATE, "functional-design").replace("- **Active Agent**:", "- **Active Unit**: auth\n- **Unit Stage**: code-generation\n- **Unit Ownership**: team\n- **Active Agent**:"), **binding(), **configured), [start(source="startup")])
+    check_("session-start/unit_line_bad_name", created(CREATED_STATE.replace("- **Active Agent**:", "- **Active Unit**: ../x\n- **Unit Stage**: code-generation\n- **Active Agent**:"), **binding(), **configured), [start(source="startup")])
+    check_("session-start/sparse_state", created("# AI-DLC State Tracking\n", **binding(), **configured), [start(source="startup")])
+    check_("session-start/recovery_note", {**begun, f"{CREATED_DIR}/.aidlc-engine/recovery.md": "# x\n"}, [start(source="startup")])
+    check_("session-start/drift_note", {**begun, ".claude/aidlc-common/stages/ideation/my-stage.md": "---\nslug: my-stage\n---\n", ".claude/aidlc-common/stages/construction/other.md": "x"}, [start(source="startup")])
+    check_("session-start/memory_copy_current", begun, [start(source="startup"), start(source="startup")])
+    check_("session-start/memory_copy_stale", {**begun, "aidlc/active-memory/team.md": "stale\n", "aidlc/active-memory/gone.md": "x\n"}, [start(source="resume")])
+    small = {f"aidlc/spaces/default/memory/{rel}": f"# {rel}\n\nShort.\n" for rel in ("org.md", "team.md", "project.md", "phases/ideation.md", "phases/inception.md", "phases/construction.md", "phases/operation.md")}
+    check_("session-start/memory_inline", {**begun, **small}, [start(source="startup"), start(source="resume")])
+    check_("session-start/memory_inline_one_stale", {**begun, **small, "aidlc/active-memory/team.md": "stale\n"}, [start(source="resume")])
+    check_("session-start/memory_inline_cold", {**CLONE, **configured, **small}, [start(source="startup")])
+    check_("session-start/memory_handoff_by_name", {**begun, "aidlc/spaces/default/memory/org.md": "# Org\n" + "x" * 9000}, [start(source="startup")])
+    check_("session-start/memory_not_utf8", {**begun}, [start(source="startup")], edits=(lambda tree: open(tree.path("aidlc/spaces/default/memory/team.md"), "wb").write(b"\xff\xfe bad"),))
+    check_("session-start/switch_off_recorded", {**begun, "aidlc.settings.local.json": '{"schemaVersion": 1, "flags": {"schemaVersion": 1, "bypasses": ["AIDLC_DISABLE_REVIEW_FREEZE_HOOK"]}}\n',
+           "aidlc/.aidlc-sessions/recorded-switches.json": '{"version": 1, "switches": [{"name": "AIDLC_DISABLE_REVIEW_FREEZE_HOOK", "target": "local", "since": "2026-01-05T10:00:00Z", "how": "chat", "words": "turn  the \\"freeze\\" off\\nplease"}]}\n'}, [start(source="startup")])
+    check_("session-start/switch_off_other", {**begun, "aidlc.settings.json": '{"schemaVersion": 1, "flags": {"schemaVersion": 1, "bypasses": ["AIDLC_SKIP_HUMAN_PRESENCE_GUARD", "AIDLC_DISABLE_USAGE_TRACKING"]}}\n',
+           "aidlc/.aidlc-sessions/recorded-switches.json": '{"version": 1, "switches": [{"name": "AIDLC_SKIP_HUMAN_PRESENCE_GUARD", "target": "project", "since": "nope", "how": "other"}]}\n'}, [start(source="startup")])
+    check_("session-start/switch_off_env_wins", {**begun, "aidlc.settings.local.json": '{"schemaVersion": 1, "flags": {"schemaVersion": 1, "bypasses": ["AIDLC_DISABLE_REVIEW_FREEZE_HOOK"]}}\n'}, [start(source="startup")], {"DISABLE_REVIEW_FREEZE_HOOK": ""})
+    check_("session-start/switch_off_record_malformed", {**begun, "aidlc.settings.local.json": '{"schemaVersion": 1, "flags": {"schemaVersion": 1, "bypasses": ["AIDLC_DISABLE_REVIEW_FREEZE_HOOK"]}}\n',
+           "aidlc/.aidlc-sessions/recorded-switches.json": '{"version": 2}'}, [start(source="startup")])
+    UNRECORDED.add("hook/session-start/switch_off_record_malformed")
+    check_("session-start/switch_off_cold", {**CLONE, **configured, "aidlc.settings.local.json": '{"schemaVersion": 1, "flags": {"schemaVersion": 1, "bypasses": ["AIDLC_DISABLE_REVIEW_FREEZE_HOOK"]}}\n',
+           "aidlc/.aidlc-sessions/recorded-switches.json": '{"version": 1, "switches": [{"name": "AIDLC_DISABLE_REVIEW_FREEZE_HOOK", "target": "local", "since": "2026-01-05T10:00:00Z", "how": "other"}]}\n'}, [start(source="startup")])
+    check_("session-start/root_blocks_unconfigured", joined, [start(source="startup")])
+    check_("session-start/anchor", begun, [start(source="startup")], {"SESSION_ANCHOR": "1"})
+    check_("session-start/unit_scope_stamp", {**begun, "aidlc/.aidlc-unit-scope.json": '{"version": 1}'}, [start(source="startup")])
+    check_("session-start/rules_held_previous", {**begun, "aidlc/.aidlc-sessions/s1.rules-held.json": '{"v":1,"harness":"claude","source":"startup","at":"x","space":"default","refresh":"at-load","files":{}}\n',
+           "aidlc/.aidlc-sessions/s1.rules-delivered.json": '{"v":2,"last":"b","full":{"bundle":"b","at":"x"}}\n'}, [start(source="startup"), start(source="resume")])
+    check_("session-start/no_shard", {**begun, CREATED_SHARD: None}, [start(source="startup")])
+    for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
+        check_(f"session-start/observer_{marker.lower()}", begun, [start(source="startup")], {marker: "1"})
+    # validate-state no longer refuses the rules record: a compaction forgets the full text handed to the thread.
+    check_("validate-state/rules_delivered", {**joined, "aidlc/.aidlc-sessions/s1.rules-delivered.json": '{"v":2,"last":"b","full":{"bundle":"b","at":"x"},"persona":{"sha256":"p","at":"x"}}\n'}, [compact()])
+    check_("validate-state/rules_delivered_malformed", {**joined, "aidlc/.aidlc-sessions/s1.rules-delivered.json": '{"v":1}\n'}, [compact()])
+
     # The dispatcher: a hook it does not have, a name it refuses, the trace.
     check_("dispatch/unknown", created(), [["nope", "{}"]])
     check_("dispatch/unsafe_name", created(), [["../x", "{}"]])
     check_("dispatch/no_name", created(), [["", "{}"]])
-    for name in ("session-start", "record-human-turn", "guard-tool-call", "continue-workflow"):
+    for name in ("record-human-turn", "guard-tool-call", "continue-workflow"):
         check_(f"dispatch/{name.replace('-', '_')}_not_ported", created(), [[name, payload()]])
 
 
 DEVIATIONS.update({
-    r"hook/[a-z-]+/(rules_held|directive_marker|unit_scope_stamp|inflight_ledger|authorization_registry)":
-        "a record of a later milestone beside the hook's own: the rules handed to a conversation, the orchestrator's "
-        "directive marker, a unit claim, the ledger of background subagents, the summary authorizations (M4/M5); "
-        "upstream reads or clears it and goes on; focus refuses the hook by name while it is there",
+    r"hook/[a-z-]+/(directive_marker|unit_scope_stamp|inflight_ledger|authorization_registry)":
+        "a record of a later milestone beside the hook's own: the orchestrator's directive marker, a unit claim, "
+        "the ledger of background subagents, the summary authorizations (M4/M5); upstream reads or clears it and "
+        "goes on; focus refuses the hook by name while it is there",
+    "hook/session-start/root_blocks_unconfigured":
+        "a distribution tree config never ran in: upstream adds the engine's part of the team's root files "
+        "(.gitignore) at session start and tells the chat its include was re-pointed; focus refuses by name until "
+        "the distribution's merge (M8) is ported",
+    "hook/session-start/anchor":
+        "FOCUS_SESSION_ANCHOR=1 opts into the commit-provenance sweep, which reads the attestation's receipts and "
+        "writes SOURCE_COMMITTED rows (M5); upstream runs it after the session row; focus refuses by name after "
+        "the same row",
     r"hook/[a-z-]+/delegated_worktree":
         "upstream resolves a delegated worktree to the main checkout's intent; focus refuses it by name (a hook "
         "stands outside on any other failure of the resolution, as upstream's does)",

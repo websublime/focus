@@ -19,14 +19,17 @@ pub mod health;
 pub mod hooks;
 pub mod payload;
 pub mod registry;
+pub mod rules_held;
 pub mod sessions;
 pub mod status;
+pub mod switches;
 pub mod trace;
 
 use focus_workspace::Layout;
 
 /// The hooks Focus has, as `engine hook <name>` names them.
-pub const HOOKS: [&str; 6] = [
+pub const HOOKS: [&str; 7] = [
+    "session-start",
     "validate-state",
     "session-end",
     "log-subagent",
@@ -36,18 +39,10 @@ pub const HOOKS: [&str; 6] = [
 ];
 
 /// Upstream's other hooks, and what each does, for the refusal by name.
-pub const NOT_PORTED: [(&str, &str); 11] = [
-    (
-        "session-start",
-        "binds the conversation to a record and offers a resume",
-    ),
+pub const NOT_PORTED: [(&str, &str); 9] = [
     (
         "record-human-turn",
         "records the person's turn and the words of a gate",
-    ),
-    (
-        "rebuild-stage-graph",
-        "recompiles the stage graph after a change",
     ),
     (
         "guard-tool-call",
@@ -90,6 +85,7 @@ impl Outcome {
 #[must_use]
 pub fn run(name: &str, input: &str, layout: &Layout) -> Outcome {
     match name {
+        "session-start" => hooks::session_start::run(input, layout),
         "validate-state" => hooks::validate_state::run(input, layout),
         "session-end" => hooks::session_end::run(input, layout),
         "log-subagent" => hooks::log_subagent::run(input, layout),
