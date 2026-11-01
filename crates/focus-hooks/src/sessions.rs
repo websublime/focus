@@ -420,7 +420,7 @@ mod tests {
         assert_eq!(tree.read(".current-session").as_deref(), Some("s1\n"));
         assert_eq!(read_rebind_offer(&tree.0, "s1"), None);
         write_rebind_offer(&tree.0, "s1", "");
-        assert_eq!(read_rebind_offer(&tree.0, "s1"), None);
+        assert!(tree.read("s1.rebind-offer").is_none());
         write_rebind_offer(&tree.0, "s1", "rebind:default:a:b");
         assert_eq!(
             read_rebind_offer(&tree.0, "s1").as_deref(),

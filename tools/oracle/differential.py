@@ -3388,6 +3388,9 @@ def hook_checks():
     check_("session-start/unjoined_lone_record", {**no_cursor, **configured}, [start(source="startup")])
     check_("session-start/rejoin_offer", {**no_cursor, **configured, **binding(source="worktree")}, [start(source="startup")])
     check_("session-start/rejoin_offer_other_space", {**no_cursor, **configured, "aidlc/active-space": "payments\n", "aidlc/spaces/payments/intents/intents.json": "[]\n", **binding(source="worktree")}, [start(source="startup")])
+    check_("session-start/rejoin_probe_not_true", {**no_cursor, **configured, **binding(source="worktree")}, [start(source="resume", rebind_check=False), start(source="resume", rebind_check="yes")])
+    # A probe that already made this offer (the binding still names the record) says nothing.
+    check_("session-start/rejoin_probe_offered", {**no_cursor, **configured, **binding(source="worktree"), "aidlc/.aidlc-sessions/s1.rebind-offer": "rejoin:default/260105-add-login\n"}, [start(source="resume", rebind_check=True)])
     check_("session-start/rejoin_probe", {**no_cursor, **configured, **binding(source="worktree")}, [start(source="resume", rebind_check=True), start(source="resume", rebind_check=True)])
     check_("session-start/bound_elsewhere", {**no_cursor, **configured, **binding("other-9f8e7d6c")}, [start(source="startup")])
     check_("session-start/bound_unjoined", {**no_cursor, **configured, **binding(None, "unjoined")}, [start(source="startup")])
@@ -3402,6 +3405,8 @@ def hook_checks():
     check_("session-start/rebind_offer_once", drifted, [start(source="resume"), start(source="resume")])
     check_("session-start/rebind_offer_probe", drifted, [start(source="resume", rebind_check=True), start(source="resume", rebind_check=True)])
     check_("session-start/rebind_offer_stamp_only", {**created(), **configured, **other, "aidlc/spaces/default/intents/active-intent": "other-9f8e7d6c\n", "aidlc/.aidlc-sessions/s1": "01a138fa-d37d-787d-af4a-966efbb0b6fd\n"}, [start(source="resume")])
+    flat_other = CREATED_REGISTRY.replace('    "uuid": "01a138fa-d37d-787d-af4a-966efbb0b6fd",\n', "").replace("]\n", ',\n  {"uuid": "01a138fa-ffff-787d-af4a-966efbb0b6fd", "slug": "other", "dirName": "other-9f8e7d6c", "scope": "feature", "status": "in-flight"}\n]\n')
+    check_("session-start/rebind_stamp_with_flat_binding", {**created(registry=flat_other), **configured, **other, **binding(), "aidlc/.aidlc-sessions/s1": "01a138fa-ffff-787d-af4a-966efbb0b6fd\n"}, [start(source="resume")])
     check_("session-start/rebind_cleared", {**begun, "aidlc/.aidlc-sessions/s1.rebind-offer": "x\n"}, [start(source="resume")])
     check_("session-start/rebind_cleared_startup", {**no_cursor, **configured, "aidlc/.aidlc-sessions/s1.rebind-offer": "x\n"}, [start(source="startup")])
     check_("session-start/flat_registry", {**created(registry=legacy), **configured, **binding()}, [start(source="startup"), start(source="resume")])
@@ -3437,8 +3442,10 @@ def hook_checks():
            "aidlc/.aidlc-sessions/recorded-switches.json": '{"version": 1, "switches": [{"name": "AIDLC_SKIP_HUMAN_PRESENCE_GUARD", "target": "project", "since": "nope", "how": "other"}]}\n'}, [start(source="startup")])
     check_("session-start/switch_off_env_wins", {**begun, "aidlc.settings.local.json": '{"schemaVersion": 1, "flags": {"schemaVersion": 1, "bypasses": ["AIDLC_DISABLE_REVIEW_FREEZE_HOOK"]}}\n'}, [start(source="startup")], {"DISABLE_REVIEW_FREEZE_HOOK": ""})
     check_("session-start/switch_off_record_malformed", {**begun, "aidlc.settings.local.json": '{"schemaVersion": 1, "flags": {"schemaVersion": 1, "bypasses": ["AIDLC_DISABLE_REVIEW_FREEZE_HOOK"]}}\n',
-           "aidlc/.aidlc-sessions/recorded-switches.json": '{"version": 2}'}, [start(source="startup")])
+           "aidlc/.aidlc-sessions/recorded-switches.json": '{"version": 2, "switches": [{"name": "AIDLC_DISABLE_REVIEW_FREEZE_HOOK", "target": "local", "since": "2026-01-05T10:00:00Z", "how": "other"}]}'}, [start(source="startup")])
     UNRECORDED.add("hook/session-start/switch_off_record_malformed")
+    check_("session-start/switch_off_probe", {**CLONE, **configured, **binding(None, "none"), "aidlc.settings.local.json": '{"schemaVersion": 1, "flags": {"schemaVersion": 1, "bypasses": ["AIDLC_DISABLE_REVIEW_FREEZE_HOOK"]}}\n',
+           "aidlc/.aidlc-sessions/recorded-switches.json": '{"version": 1, "switches": [{"name": "AIDLC_DISABLE_REVIEW_FREEZE_HOOK", "target": "local", "since": "2026-01-05T10:00:00Z", "how": "other"}]}\n'}, [start(source="resume", rebind_check=True)])
     check_("session-start/switch_off_cold", {**CLONE, **configured, "aidlc.settings.local.json": '{"schemaVersion": 1, "flags": {"schemaVersion": 1, "bypasses": ["AIDLC_DISABLE_REVIEW_FREEZE_HOOK"]}}\n',
            "aidlc/.aidlc-sessions/recorded-switches.json": '{"version": 1, "switches": [{"name": "AIDLC_DISABLE_REVIEW_FREEZE_HOOK", "target": "local", "since": "2026-01-05T10:00:00Z", "how": "other"}]}\n'}, [start(source="startup")])
     check_("session-start/root_blocks_unconfigured", joined, [start(source="startup")])
@@ -3448,7 +3455,7 @@ def hook_checks():
            "aidlc/.aidlc-sessions/s1.rules-delivered.json": '{"v":2,"last":"b","full":{"bundle":"b","at":"x"}}\n'}, [start(source="startup"), start(source="resume")])
     check_("session-start/no_shard", {**begun, CREATED_SHARD: None}, [start(source="startup")])
     for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
-        check_(f"session-start/observer_{marker.lower()}", begun, [start(source="startup")], {marker: "1"})
+        check_(f"session-start/observer_{marker.lower()}", begun, [start(source="startup")], {marker: "1", "SKIP_HUMAN_PRESENCE_GUARD": "1"})
     # validate-state no longer refuses the rules record: a compaction forgets the full text handed to the thread.
     check_("validate-state/rules_delivered", {**joined, "aidlc/.aidlc-sessions/s1.rules-delivered.json": '{"v":2,"last":"b","full":{"bundle":"b","at":"x"},"persona":{"sha256":"p","at":"x"}}\n'}, [compact()])
     check_("validate-state/rules_delivered_malformed", {**joined, "aidlc/.aidlc-sessions/s1.rules-delivered.json": '{"v":1}\n'}, [compact()])

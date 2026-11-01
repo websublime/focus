@@ -1492,9 +1492,13 @@ fn an_observer_starts_a_session_without_writing() {
             &root,
             &["session-start"],
             &start("startup"),
-            &[(marker, "1")],
+            &[(marker, "1"), ("FOCUS_SKIP_HUMAN_PRESENCE_GUARD", "1")],
         ));
         assert!(context.starts_with("FOCUS WORKFLOW ACTIVE\n"), "{context}");
+        assert!(
+            sessions(&root, "plan-approval/presence-bypass-s1").is_none(),
+            "{marker}"
+        );
         assert!(sessions(&root, "s1.rules-held.json").is_none(), "{marker}");
         assert!(!root.join("focus/active-memory").exists(), "{marker}");
         assert_eq!(shard(&root), "# Focus Audit Log\n", "{marker}");

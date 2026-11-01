@@ -407,8 +407,15 @@ mod tests {
         );
         // A record of another version, an entry with a bad date, one set
         // some other way: the switch is still off, worded without the words.
-        tree.write(RECORD, r#"{"version": 2}"#);
-        assert_eq!(switches_off_lines(&tree.0).len(), 1);
+        tree.write(
+            RECORD,
+            r#"{"version": 2, "switches": [{"name": "FOCUS_DISABLE_REVIEW_FREEZE_HOOK", "target": "local", "since": "2026-01-05T10:00:00Z", "how": "chat", "words": "ignored"}]}"#,
+        );
+        let dated_by_file = &switches_off_lines(&tree.0)[0];
+        assert!(
+            !dated_by_file.contains("2026-01-05") && !dated_by_file.contains("ignored"),
+            "{dated_by_file}"
+        );
         tree.write(
             RECORD,
             r#"{"version": 1, "switches": [{"name": "FOCUS_DISABLE_REVIEW_FREEZE_HOOK", "target": "local", "since": "nope", "how": "other", "words": "ignored"}]}"#,
