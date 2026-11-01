@@ -33,6 +33,21 @@ static SEQUENCE: AtomicU64 = AtomicU64::new(0);
 ///
 /// Any I/O failure. The temporary file is removed; the target is untouched.
 pub fn write_atomic(path: &Path, data: &[u8]) -> io::Result<()> {
+    write_atomic_with(path, data, true)
+}
+
+/// [`write_atomic`] without the flush to disk: for a per-user runtime
+/// record whose loss costs nothing and whose writer runs on a budget (the
+/// process map), where upstream's write never reaches the disk either.
+///
+/// # Errors
+///
+/// As [`write_atomic`].
+pub fn write_atomic_unsynced(path: &Path, data: &[u8]) -> io::Result<()> {
+    write_atomic_with(path, data, false)
+}
+
+fn write_atomic_with(path: &Path, data: &[u8], sync: bool) -> io::Result<()> {
     let tmp = loop {
         let candidate = temp_sibling(path);
         match OpenOptions::new()
@@ -41,7 +56,9 @@ pub fn write_atomic(path: &Path, data: &[u8]) -> io::Result<()> {
             .open(&candidate)
         {
             Ok(mut file) => {
-                let written = file.write_all(data).and_then(|()| file.sync_all());
+                let written = file
+                    .write_all(data)
+                    .and_then(|()| if sync { file.sync_all() } else { Ok(()) });
                 if let Err(err) = written {
                     let _ = fs::remove_file(&candidate);
                     return Err(err);

@@ -456,33 +456,83 @@ fn resolve_is_gated_and_prints_a_plan() {
     let _ = fs::remove_dir_all(root);
 }
 
-/// Deliberate deviation. Upstream finds the calling conversation by walking
-/// the process tree and writes the plan into its record. Focus has not ported
-/// that: it refuses to write, and still prints the plan with `--stdout`,
-/// which needs no record.
+/// The calling conversation is found by walking the process tree: the
+/// session-start hook records the harness and its ancestors, and a command
+/// run from one of them (here, from this test process) works on the record
+/// that conversation is bound to, whatever the shared cursor says.
 #[test]
-fn resolve_does_not_guess_which_conversation_is_calling() {
+fn resolve_finds_the_calling_conversation_through_the_process_tree() {
     let root = installed("resolve-sessions");
-    fs::create_dir_all(root.join("focus/.focus-sessions/pids")).unwrap();
+    let intents = root.join("focus/spaces/default/intents");
+    for record in ["add-login-1a2b3c4d", "fix-logout-9f8e7d6c"] {
+        fs::create_dir_all(intents.join(record)).unwrap();
+        fs::write(intents.join(record).join("focus-state.md"), "# State\n").unwrap();
+    }
+    fs::write(intents.join("active-intent"), "fix-logout-9f8e7d6c\n").unwrap();
+    fs::create_dir_all(root.join("focus/.focus-sessions")).unwrap();
+    fs::write(
+        root.join("focus/.focus-sessions/s1.binding.json"),
+        "{\"space\":\"default\",\"intent\":\"add-login-1a2b3c4d\",\"boundAt\":\"2026-01-05T10:00:00Z\",\"source\":\"create\"}",
+    )
+    .unwrap();
+    let layout = focus_workspace::Layout::new(&root, focus_harness::Harness::Claude);
     let gate = [("FOCUS_GRAPH_RESOLVE", "1")];
-    let refused = focus_in(&root, &["engine", "graph", "resolve", "bugfix"], &gate);
-    assert_eq!(refused.status.code(), Some(1));
+    // With nothing recorded, the cursor decides.
+    fs::create_dir_all(root.join("focus/.focus-sessions/pids")).unwrap();
+    let by_cursor = focus_in(&root, &["engine", "graph", "resolve", "bugfix"], &gate);
+    assert!(by_cursor.status.success(), "{}", text(&by_cursor.stderr));
     assert!(
-        text(&refused.stderr).contains("cannot yet tell which conversation is calling"),
-        "{}",
-        text(&refused.stderr)
-    );
-    assert!(
-        !root
-            .join("focus/spaces/default/intents/.focus-engine")
+        intents
+            .join("fix-logout-9f8e7d6c/.focus-engine/plan.json")
             .exists()
     );
-    let printed = focus_in(
+    // This process recorded as the conversation's (what the session-start
+    // hook does for the harness and its ancestors): the command it runs is
+    // the conversation's, and works on its record.
+    focus_workspace::ancestry::write_entry(
+        &layout,
+        std::process::id(),
+        "s1",
+        std::time::Instant::now() + std::time::Duration::from_secs(10),
+        None,
+    );
+    let me = focus_workspace::ancestry::read_entry(&layout, std::process::id())
+        .expect("this process is mapped");
+    assert_eq!(me.session_id.as_deref(), Some("s1"));
+    let by_session = focus_in(&root, &["engine", "graph", "resolve", "bugfix"], &gate);
+    assert!(by_session.status.success(), "{}", text(&by_session.stderr));
+    assert!(
+        intents
+            .join("add-login-1a2b3c4d/.focus-engine/plan.json")
+            .exists()
+    );
+    // An override exported into the environment that disagrees with the
+    // owning conversation is refused; one a hook handed down wins.
+    let stale = focus_in(
+        &root,
+        &["engine", "graph", "resolve", "bugfix"],
+        &[
+            ("FOCUS_GRAPH_RESOLVE", "1"),
+            ("FOCUS_SESSION_OVERRIDE", "s2"),
+        ],
+    );
+    assert_eq!(stale.status.code(), Some(1));
+    assert!(
+        text(&stale.stderr)
+            .contains("Session override \"s2\" conflicts with the owning conversation \"s1\""),
+        "{}",
+        text(&stale.stderr)
+    );
+    let handed = focus_in(
         &root,
         &["engine", "graph", "resolve", "bugfix", "--stdout"],
-        &gate,
+        &[
+            ("FOCUS_GRAPH_RESOLVE", "1"),
+            ("FOCUS_SESSION_OVERRIDE", "s2"),
+            ("FOCUS_SESSION_OVERRIDE_SOURCE", "payload"),
+        ],
     );
-    assert!(printed.status.success(), "{}", text(&printed.stderr));
+    assert!(handed.status.success(), "{}", text(&handed.stderr));
     let _ = fs::remove_dir_all(root);
 }
 

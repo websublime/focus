@@ -345,11 +345,18 @@ mod tests {
     #[test]
     fn a_resolution_not_ported_is_refused_and_any_other_failure_stands_outside() {
         let tree = Tree::new("resolution");
-        tree.write("focus/.focus-sessions/pids/1.json", "{}");
+        tree.write(".focus/worktree-meta.json", "{}");
         let err = enter(&tree.0, None).unwrap_err().to_string();
-        assert!(
-            err.contains("records which process belongs to which conversation"),
-            "{err}"
+        assert!(err.contains("marks this checkout as a worktree"), "{err}");
+        std::fs::remove_file(tree.0.project.join(".focus/worktree-meta.json")).unwrap();
+        // A process map that names no ancestor of this one is a miss: the
+        // record resolves as without the map, and nothing is refused.
+        tree.write("focus/.focus-sessions/pids/1.json", "{}");
+        let entered = enter(&tree.0, None).unwrap();
+        assert_eq!(entered.participation, Participation::Outsider);
+        assert_eq!(
+            entered.selection.as_ref().and_then(|s| s.intent.as_deref()),
+            Some("260105-add-login")
         );
         // The payload's bound session settles it.
         tree.bind("create");

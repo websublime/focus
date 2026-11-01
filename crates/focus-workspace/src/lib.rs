@@ -22,6 +22,7 @@
 //! from where the executable sits.
 
 pub mod active_memory;
+pub mod ancestry;
 pub mod atomic;
 pub mod env;
 pub mod files;

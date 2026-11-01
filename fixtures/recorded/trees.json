@@ -45,6 +45,9 @@
   "focus/spaces/default/intents/active-intent": "260105-add-login\n",
   "focus/spaces/default/intents/intents.json": "[\n  {\n    \"uuid\": \"01a138fa-d37d-787d-af4a-966efbb0b6fd\",\n    \"slug\": \"add-login\",\n    \"dirName\": \"260105-add-login\",\n    \"scope\": \"feature\",\n    \"status\": \"in-flight\"\n  }\n]\n"
  },
+ "057e00060a49839f": {
+  "focus/.focus-sessions/sess-0001.person-lines": "{\"work\": null, \"lines\": [{\"line\": \"Sensors are off for this piece of work.\", \"at\": 1793143057511}], \"said\": []}\n"
+ },
  "067cef004bf1c8d5": {
   "focus/.focus-clone-id": "abc123\nlaptop\n",
   "focus/spaces/default/intents/active-intent": "add-login-1a2b3c4d\n",
@@ -5603,9 +5606,6 @@
   "focus/spaces/default/intents/add-login-1a2b3c4d/audit/laptop-abc123.md": "# Focus Audit Log\n\n## Workflow_Started\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: WORKFLOW_STARTED\n**Scope**: bugfix\n\n---\n\n## Stage_Started\n**Timestamp**: 2026-01-05T10:01:00Z\n**Event**: STAGE_STARTED\n**Stage**: intent-capture\n**Agent**: someone-else\n\n---\n\n## Stage_Completed\n**Timestamp**: 2026-01-05T10:05:00Z\n**Event**: STAGE_COMPLETED\n**Stage**: intent-capture\n\n---\n\n## Stage_Started\n**Timestamp**: 2026-01-05T10:06:00Z\n**Event**: STAGE_STARTED\n**Stage**: requirements-analysis\n\n---\n\n## Stage_Completed\n**Timestamp**: 2026-01-05T10:09:00Z\n**Event**: STAGE_COMPLETED\n**Stage**: requirements-analysis\n\n---\n\n## Stage_Started\n**Timestamp**: 2026-01-05T10:10:00Z\n**Event**: STAGE_STARTED\n**Stage**: code-generation\n\n---\n\n## Sensor_Fired\n**Timestamp**: 2026-01-05T10:02:00Z\n**Event**: SENSOR_FIRED\n**Stage slug**: intent-capture\n**Sensor ID**: linter\n**Fire id**: aaaaaaaa\n\n---\n\n## Sensor_Passed\n**Timestamp**: 2026-01-05T10:02:05Z\n**Event**: SENSOR_PASSED\n**Fire id**: aaaaaaaa\n\n---\n\n## Sensor_Failed\n**Timestamp**: 2026-01-05T10:02:05Z\n**Event**: SENSOR_FAILED\n**Fire id**: aaaaaaaa\n**Detail path**: where\n\n---\n\n## Sensor_Fired\n**Timestamp**: 2026-01-05T10:02:01Z\n**Event**: SENSOR_FIRED\n**Stage slug**: intent-capture\n**Sensor ID**: linter\n**Fire id**: bbbbbbbb\n\n---\n\n## Sensor_Failed\n**Timestamp**: 2026-01-05T10:02:06Z\n**Event**: SENSOR_FAILED\n**Fire id**: bbbbbbbb\n**Detail path**: where\n\n---\n\n## Sensor_Budget_Override\n**Timestamp**: 2026-01-05T10:02:06Z\n**Event**: SENSOR_BUDGET_OVERRIDE\n**Fire id**: bbbbbbbb\n\n---\n",
   "focus/spaces/default/intents/add-login-1a2b3c4d/focus-state.md": "# AI-DLC State\n\n- **Scope**: feature\n- **Status**: In Progress\n",
   "focus/spaces/default/intents/add-login-1a2b3c4d/inception/units-generation/unit-of-work-dependency.md": "# Dependencies\n\n```yaml\nunits:\n  - name: api\n    depends_on: [nobody]\n  - name: auth\n    kind: service\n    depends_on: []\n  - name: web\n    depends_on:\n      - api\n```\n"
- },
- "fedc0c292cffcc66": {
-  "focus/.focus-sessions/sess-0001.person-lines": "{\"work\": null, \"lines\": [{\"line\": \"Sensors are off for this piece of work.\", \"at\": 1792850032014}], \"said\": []}\n"
  },
  "ff3bf1c60d3a8a57": {
   "focus/.focus-clone-id": "abc123\nlaptop\n",

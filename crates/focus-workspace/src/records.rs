@@ -388,11 +388,11 @@ fn is_path(value: &str) -> bool {
 }
 
 /// Why this project's selection cannot be settled yet, when the reason is
-/// something Focus has not ported: a delegated worktree, or sessions recorded
-/// by process with no session named. Upstream settles both. A caller that
-/// can do without the selection may carry on where this answers.
+/// something Focus has not ported: a delegated worktree. Upstream settles
+/// it. A caller that can do without the selection may carry on where this
+/// answers.
 #[must_use]
-pub fn not_ported(layout: &Layout, selector: &Selector, invoker: &Invoker) -> Option<EngineError> {
+pub fn not_ported(layout: &Layout) -> Option<EngineError> {
     let worktree_meta = layout.project.join(WORKTREE_META);
     if worktree_meta.exists() {
         return Some(EngineError::new(format!(
@@ -400,20 +400,31 @@ pub fn not_ported(layout: &Layout, selector: &Selector, invoker: &Invoker) -> Op
             worktree_meta.display()
         )));
     }
-    let named = valid_session_id(selector.session_id.as_deref());
-    let handed_down = valid_session_id(invoker.session_override.as_deref());
-    let pid_map = layout.workspace_root().join(SESSIONS_DIR).join("pids");
-    if named.is_none() && !(handed_down.is_some() && invoker.from_payload) && pid_map.exists() {
-        // Upstream would walk the process tree to find which recorded
-        // conversation is calling, and refuse an exported override that
-        // disagrees with it. Guessing here could act on another
-        // conversation's intent.
-        return Some(EngineError::new(format!(
-            "{} records which process belongs to which conversation, and Focus cannot yet tell which conversation is calling. Name the session, or pass --space and --intent.",
-            pid_map.display()
-        )));
-    }
     None
+}
+
+/// `resolveInvokingSessionId`: the session of the conversation that invoked
+/// this process, when the caller named none: the override a hook handed
+/// down first, then the process ancestry.
+///
+/// # Errors
+///
+/// The override was exported into the environment (not handed down from a
+/// hook's payload) and disagrees with the conversation the ancestry names:
+/// a footgun guard against a stale export, as upstream's
+/// `SessionResolutionConflictError`.
+pub fn invoking_session_id(layout: &Layout, invoker: &Invoker) -> Result<Option<String>> {
+    let handed_down = valid_session_id(invoker.session_override.as_deref()).map(str::to_owned);
+    let ancestry = crate::ancestry::resolve(layout);
+    if let (Some(exported), Some(owner)) = (&handed_down, &ancestry)
+        && exported != owner
+        && !invoker.from_payload
+    {
+        bail!(
+            "Session override \"{exported}\" conflicts with the owning conversation \"{owner}\". Work from the owning conversation, or rebind this session with the intent/space switch verbs."
+        );
+    }
+    Ok(handed_down.or(ancestry))
 }
 
 /// Settle the space and the intent a command acts on.
@@ -434,13 +445,16 @@ pub fn resolve_selection(
     if let Some(intent) = selector.intent.as_deref().filter(|intent| is_path(intent)) {
         bail!("\"{intent}\" is not an intent name: it is a path.");
     }
-    if let Some(refusal) = not_ported(layout, selector, invoker) {
+    if let Some(refusal) = not_ported(layout) {
         return Err(refusal);
     }
-    let named = valid_session_id(selector.session_id.as_deref());
-    let handed_down = valid_session_id(invoker.session_override.as_deref());
-    let session_id = named.or(handed_down);
-    let binding = session_id.and_then(|id| read_session_binding(layout, id));
+    let session_id = match valid_session_id(selector.session_id.as_deref()) {
+        Some(named) => Some(named.to_owned()),
+        None => invoking_session_id(layout, invoker)?,
+    };
+    let binding = session_id
+        .as_deref()
+        .and_then(|id| read_session_binding(layout, id));
 
     let space = match (&selector.space, &binding) {
         (Some(space), _) => space.clone(),
@@ -455,7 +469,7 @@ pub fn resolve_selection(
     Ok(Selection {
         space,
         intent,
-        session_id: session_id.map(str::to_owned),
+        session_id,
         binding,
     })
 }
@@ -642,27 +656,75 @@ mod tests {
         assert_eq!(handed.space, "payments");
     }
 
-    /// Deliberate deviation. Upstream walks the process tree to find the
-    /// calling conversation, and resolves a delegated worktree to its parent's
-    /// intent. Neither is ported, and both are refused rather than skipped.
+    /// The calling conversation is found through the process tree when the
+    /// caller names none; a record that names another process, or none, is
+    /// a miss and the cursor decides.
     #[test]
-    fn unported_ways_of_naming_the_caller_are_refused() {
-        let tree = Tree::new("unported");
+    fn the_calling_conversation_is_found_through_the_process_tree() {
+        let tree = Tree::new("ancestry");
+        tree.record("payments", "pay-1a2b3c4d");
+        tree.write(
+            "focus/.focus-sessions/s1.binding.json",
+            "{\"space\":\"payments\",\"intent\":\"pay-1a2b3c4d\",\"boundAt\":\"2026-01-05T10:00:00Z\",\"source\":\"create\"}",
+        );
         tree.write("focus/.focus-sessions/pids/123", "{}");
-        let refused = tree.select(&Selector::default()).unwrap_err();
+        let unmapped = tree.select(&Selector::default()).unwrap();
+        assert_eq!(unmapped.session_id, None);
+        // The walk starts above this process: its parent is the harness.
+        crate::ancestry::write_entry(
+            &tree.0,
+            crate::ancestry::parent_pid().unwrap(),
+            "s1",
+            std::time::Instant::now() + std::time::Duration::from_secs(10),
+            None,
+        );
+        let mapped = tree.select(&Selector::default()).unwrap();
+        assert_eq!(mapped.session_id.as_deref(), Some("s1"));
+        assert_eq!(mapped.space, "payments");
+        // An exported override that disagrees is refused; one a hook handed
+        // down from its payload, and a named session, win.
+        let exported = Invoker {
+            session_override: Some("s2".to_owned()),
+            from_payload: false,
+        };
+        let refused = resolve_selection(&tree.0, &Selector::default(), &exported).unwrap_err();
         assert!(
             refused
                 .message()
-                .contains("cannot yet tell which conversation is calling"),
+                .contains("Session override \"s2\" conflicts with the owning conversation \"s1\""),
             "{refused}"
         );
-        // Naming the session is enough to go on.
+        let handed = Invoker {
+            session_override: Some("s2".to_owned()),
+            from_payload: true,
+        };
+        assert_eq!(
+            resolve_selection(&tree.0, &Selector::default(), &handed)
+                .unwrap()
+                .session_id
+                .as_deref(),
+            Some("s2")
+        );
         let named = Selector {
-            session_id: Some("s1".to_owned()),
+            session_id: Some("s3".to_owned()),
             ..Selector::default()
         };
-        assert!(tree.select(&named).is_ok());
+        assert_eq!(
+            tree.select(&named).unwrap().session_id.as_deref(),
+            Some("s3")
+        );
+        let same = Invoker {
+            session_override: Some("s1".to_owned()),
+            from_payload: false,
+        };
+        assert!(resolve_selection(&tree.0, &Selector::default(), &same).is_ok());
+    }
 
+    /// Deliberate deviation. Upstream resolves a delegated worktree to its
+    /// parent's intent; Focus has not ported that, and refuses rather than
+    /// skips.
+    #[test]
+    fn a_delegated_worktree_is_refused() {
         let tree = Tree::new("worktree");
         tree.write(".focus/worktree-meta.json", "{}");
         let refused = tree.select(&Selector::default()).unwrap_err();

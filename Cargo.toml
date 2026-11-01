@@ -18,6 +18,7 @@ pulldown-cmark = { version = "0.13", default-features = false }
 regress = "0.12"
 same-file = "1"
 sha2 = "0.10"
+sysinfo = { version = "0.33", default-features = false, features = ["system"] }
 serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
 focus-js = { path = "crates/focus-js" }
 focus-frontmatter = { path = "crates/focus-frontmatter" }

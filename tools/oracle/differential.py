@@ -473,7 +473,7 @@ def compare(name, trees, args, env, stdin, files):
         return compare_audit(name, trees, args, env, files)
     ts, rs = trees
     outcome = {}
-    started_from = overlay(ts) if RECORD and not has_links(ts.root) else None
+    started_from = overlay(ts) if RECORD and not has_links(ts.root) and name not in UNRECORDED else None
     for engine, tree in (("ts", ts), ("rs", rs)):
         code, out, err = run(engine, tree, args, env, stdin)
         say = to_focus if engine == "ts" else (lambda text: text)
@@ -974,10 +974,20 @@ def verbs():
     alone("resolve_writes/stdout_writes_nothing", ["resolve", "bugfix", "--stdout"], RESOLVE, state(one))
     alone("resolve_writes/registry_unreadable_row", ["resolve", "bugfix", "--stdout"], RESOLVE, state(one), state(two),
           lambda t: t.write("aidlc/spaces/default/intents/intents.json", '[{"slug": "add-login"}]\n'))
-    alone("resolve_writes/sessions_by_process", ["resolve", "bugfix"], RESOLVE, state(one),
+    # The process map: an entry naming no ancestor is a miss; one naming this process (the engine's parent) is
+    # the conversation, whose binding then names the record. The entry carries this run's pid: compared live.
+    alone("resolve_writes/sessions_by_process_unmapped", ["resolve", "bugfix"], RESOLVE, state(one),
           lambda t: t.write("aidlc/.aidlc-sessions/pids/1.json", "{}\n"))
-    alone("resolve_writes/sessions_by_process_stdout", ["resolve", "bugfix", "--stdout"], RESOLVE, state(one),
-          lambda t: t.write("aidlc/.aidlc-sessions/pids/1.json", "{}\n"))
+    mapped = lambda t: [t.write(rel, text) for rel, text in my_pid_entry().items()]
+    bound = lambda t: t.write("aidlc/.aidlc-sessions/s1.binding.json",
+                              '{"space":"default","intent":"%s","boundAt":"2026-01-05T10:00:00Z","source":"create"}' % one)
+    alone("resolve_writes/sessions_by_process", ["resolve", "bugfix"], RESOLVE, state(one), state(two), cursor(two), mapped, bound)
+    alone("resolve_writes/sessions_by_process_stdout", ["resolve", "bugfix", "--stdout"], RESOLVE, state(one), state(two), cursor(two), mapped, bound)
+    alone("resolve_writes/sessions_by_process_unbound", ["resolve", "bugfix"], RESOLVE, state(one), state(two), cursor(two), mapped)
+    alone("resolve_writes/sessions_by_process_stale_override", ["resolve", "bugfix"], {**RESOLVE, "SESSION_OVERRIDE": "s2"}, state(one), mapped, bound)
+    alone("resolve_writes/sessions_by_process_payload_override", ["resolve", "bugfix"], {**RESOLVE, "SESSION_OVERRIDE": "s2", "SESSION_OVERRIDE_SOURCE": "payload"}, state(one), mapped, bound)
+    alone("resolve_writes/sessions_by_process_same_override", ["resolve", "bugfix"], {**RESOLVE, "SESSION_OVERRIDE": "s1"}, state(one), state(two), cursor(two), mapped, bound)
+    UNRECORDED.update(f"verbs/resolve_writes/sessions_by_process{suffix}" for suffix in ("", "_stdout", "_unbound", "_stale_override", "_payload_override", "_same_override"))
     # An observer changes nothing: each durable write refuses.
     for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
         probe = {marker: "1"}
@@ -1357,6 +1367,15 @@ def workspace_files(tree, top="aidlc"):
                 with open(path, "rb") as handle:
                     files[rel] = say(handle.read().decode("utf-8", errors="replace"))
     return files
+
+
+def my_pid_entry(session="s1"):
+    """The process map naming this process (the engines' parent) as `session`'s, with its start time as both
+    engines read it on Linux (`/proc/<pid>/stat`, the 22nd field)."""
+    with open("/proc/self/stat", encoding="utf-8") as handle:
+        raw = handle.read()
+    fields = raw[raw.rindex(")") + 1:].split()
+    return {f"aidlc/.aidlc-sessions/pids/{os.getpid()}": json.dumps({"sessionId": session, "startTime": fields[19]}) + "\n"}
 
 
 def dated(rel):
@@ -1777,15 +1796,9 @@ DEVIATIONS.update({
     "audit/append/delegated_worktree":
         "upstream resolves a delegated worktree to the main checkout's intent; focus does not work with "
         "worktrees yet and refuses while the marker exists",
-    "verbs/resolve_writes/sessions_by_process":
-        "upstream walks the process tree to find which conversation is calling, and writes the plan into its "
-        "record; focus refuses to write, and still prints the plan with --stdout, which needs no record",
     "verbs/resolve_writes/registry_unreadable_row":
         "with a registry row it cannot read, upstream fails with what its runtime says about the value; focus "
         "says which file and what a row needs. Both fail before printing, --stdout or not",
-    "audit/append/sessions_by_process":
-        "upstream walks the process tree to find which conversation is calling; focus refuses and asks for the "
-        "session, or for --space and --intent",
 })
 
 
@@ -1865,7 +1878,11 @@ def audit_checks():
     check_("append/metrics_endpoint", RECORD_FILES, [APPEND], env={"METRICS_ENDPOINT": "http://127.0.0.1:9/"})
     check_("append/unit_claim", {**RECORD_FILES, "aidlc/.aidlc-unit-scope.json": "{}\n"}, [APPEND])
     check_("append/delegated_worktree", {**RECORD_FILES, ".aidlc/worktree-meta.json": "{}\n"}, [APPEND])
-    check_("append/sessions_by_process", {**RECORD_FILES, "aidlc/.aidlc-sessions/pids/1.json": "{}\n"}, [APPEND])
+    check_("append/sessions_by_process_unmapped", {**RECORD_FILES, "aidlc/.aidlc-sessions/pids/1.json": "{}\n"}, [APPEND])
+    check_("append/sessions_by_process", {**RECORD_FILES, **my_pid_entry(),
+           "aidlc/spaces/default/intents/fix-logout-9f8e7d6c/aidlc-state.md": "# State\n",
+           "aidlc/.aidlc-sessions/s1.binding.json": '{"space":"default","intent":"fix-logout-9f8e7d6c","boundAt":"2026-01-05T10:00:00Z","source":"create"}'}, [APPEND])
+    UNRECORDED.add("audit/append/sessions_by_process")
 
     # append-batch.
     two = BATCH(ROW("ERROR_LOGGED", Tool="x"), ROW("STAGE_STARTED", Stage="code-generation"))
@@ -2040,7 +2057,7 @@ DEVIATIONS.update({
         "a record carrying an active-directive marker: upstream reads the engine's instruction and the turn "
         "sequence off it and keeps the state-write record beside it; the orchestrator that writes it is M5, so "
         "focus refuses to decide a fence with the marker there, and refuses to write the state beside it",
-    r"state/record/(sessions_by_process|delegated_worktree)":
+    r"state/record/delegated_worktree":
         "upstream walks the process tree to find which conversation is calling, and resolves a delegated worktree to "
         "the main checkout's intent; focus refuses and asks for the session",
     r"state/advance/(summary_owed|review_owed|review_owed_advisory_cap|pipeline_owed)":
@@ -2178,9 +2195,6 @@ DEVIATIONS.update({
     "runtime/compile/metrics_endpoint":
         "upstream sends a metric for the MEMORY_EMPTY event to the configured endpoint; focus has no metrics yet "
         "and refuses the append, and with it the compile, instead of leaving the endpoint without what it expects",
-    r"runtime/(compile|read|summary)/sessions_by_process":
-        "upstream walks the process tree to find which conversation is calling; focus refuses and asks for the "
-        "session",
     "runtime/compile/delegated_worktree":
         "upstream resolves a delegated worktree to the main checkout's intent; focus does not work with "
         "worktrees yet and refuses while the marker exists",
@@ -2342,7 +2356,10 @@ def state_checks():
     other = "aidlc/spaces/payments/intents"
     check_("record/other_space", {**CLONE, "aidlc/active-space": "payments\n", f"{other}/aidlc-state.md": STATE_FULL}, [["get", "Scope"], ["set", "Scope=x"], ["get", "Scope"]], direct)
     check_("record/two_records_no_cursor", {**CLONE, f"{RECORD_DIR}/aidlc-state.md": STATE_FULL, "aidlc/spaces/default/intents/fix-logout-9f8e7d6c/aidlc-state.md": STATE_FULL}, [["get", "Scope"]])
-    check_("record/sessions_by_process", {**record, "aidlc/.aidlc-sessions/pids/1.json": "{}\n"}, [["get", "Scope"]])
+    check_("record/sessions_by_process_unmapped", {**record, "aidlc/.aidlc-sessions/pids/1.json": "{}\n"}, [["get", "Scope"]])
+    check_("record/sessions_by_process", {**record, **my_pid_entry(), "aidlc/spaces/default/intents/fix-logout-9f8e7d6c/aidlc-state.md": "# State\n- **Scope**: theirs\n",
+           "aidlc/.aidlc-sessions/s1.binding.json": '{"space":"default","intent":"fix-logout-9f8e7d6c","boundAt":"2026-01-05T10:00:00Z","source":"create"}'}, [["get", "Scope"]])
+    UNRECORDED.add("state/record/sessions_by_process")
     check_("record/delegated_worktree", {**record, ".aidlc/worktree-meta.json": "{}\n"}, [["get", "Scope"]])
     check_("record/unit_claim", {**record, "aidlc/.aidlc-unit-scope.json": "{}\n", **shard}, [["get", "Scope"], ["set", "Scope=x"]], direct)
     check_("record/state_is_a_directory", {**RECORD_FILES, f"{RECORD_DIR}/aidlc-state.md": None, f"{RECORD_DIR}/aidlc-state.md/x": "x"},
@@ -3098,9 +3115,12 @@ def hook_checks():
                        ("rebuild-stage-graph", lambda: ["rebuild-stage-graph", payload(tool_name="Bash", tool_input={"command": "aidlc state approve x"})])):
         short = {"sync-workflow-state": "sync", "rebuild-stage-graph": "rebuild"}.get(hook, hook)
         anonymous = json.loads(step()[1]); del anonymous["session_id"]
-        check_(f"{short}/sessions_by_process", {**created(), **pids}, [[hook, json.dumps(anonymous)]])
+        check_(f"{short}/sessions_by_process_unmapped", {**created(), **pids}, [[hook, json.dumps(anonymous)]])
         check_(f"{short}/sessions_by_process_unbound", {**created(), **pids}, [step()])
         check_(f"{short}/sessions_by_process_bound", {**joined, **pids}, [step()])
+        # This process mapped as the conversation's: a payload with no session still finds it, and its binding.
+        check_(f"{short}/sessions_by_process", {**no_cursor, **binding(), **my_pid_entry()}, [[hook, json.dumps(anonymous)]])
+        UNRECORDED.add(f"hook/{short}/sessions_by_process")
         check_(f"{short}/delegated_worktree", {**joined, **worktree}, [step()])
 
     # session-end: whose session, and where its end goes.
@@ -3327,11 +3347,9 @@ DEVIATIONS.update({
         "a record of a later milestone beside the hook's own: the rules handed to a conversation, the orchestrator's "
         "directive marker, a unit claim, the ledger of background subagents, the summary authorizations (M4/M5); "
         "upstream reads or clears it and goes on; focus refuses the hook by name while it is there",
-    r"hook/[a-z-]+/(sessions_by_process|sessions_by_process_unbound|delegated_worktree)":
-        "upstream walks the process tree to find which conversation is calling when the payload names no session, "
-        "or names one the project has no binding for, and resolves a delegated worktree to the main checkout's "
-        "intent; focus refuses both by name (a hook stands outside on any other failure of the resolution, as "
-        "upstream's does)",
+    r"hook/[a-z-]+/delegated_worktree":
+        "upstream resolves a delegated worktree to the main checkout's intent; focus refuses it by name (a hook "
+        "stands outside on any other failure of the resolution, as upstream's does)",
     r"hook/rebuild/(relay|relay_dispatcher|relay_string_response)":
         "a literal call of the engine's orchestrator whose output names an error directive: upstream validates "
         "the directive and relays its message to the person through the harness's own channel (the directive is the "
@@ -4110,9 +4128,15 @@ def runtime_checks():
     check_("compile/metrics_endpoint_nothing_to_send", {**record, SHARD: A_WORKFLOW}, [["compile"]],
            {"METRICS_ENDPOINT": "http://127.0.0.1:9/x"})
     pids = {"aidlc/.aidlc-sessions/pids/1.json": "{}\n"}
-    check_("compile/sessions_by_process", {**record, SHARD: A_WORKFLOW, **pids}, [["compile"]])
-    check_("read/sessions_by_process", {**record, **pids}, [["read", "x"]])
-    check_("summary/sessions_by_process", {**record, **pids}, [["summary"]])
+    check_("compile/sessions_by_process_unmapped", {**record, SHARD: A_WORKFLOW, **pids}, [["compile"]])
+    check_("read/sessions_by_process_unmapped", {**record, **pids}, [["read", "x"]])
+    check_("summary/sessions_by_process_unmapped", {**record, **pids}, [["summary"]])
+    theirs = {**my_pid_entry(), "aidlc/spaces/default/intents/fix-logout-9f8e7d6c/aidlc-state.md": "# State\n",
+              "aidlc/spaces/default/intents/fix-logout-9f8e7d6c/audit/laptop-abc123.md": A_WORKFLOW,
+              "aidlc/.aidlc-sessions/s1.binding.json": '{"space":"default","intent":"fix-logout-9f8e7d6c","boundAt":"2026-01-05T10:00:00Z","source":"create"}'}
+    check_("compile/sessions_by_process", {**record, SHARD: A_WORKFLOW, **theirs}, [["compile"]])
+    check_("summary/sessions_by_process", {**record, **theirs}, [["compile"], ["summary"]])
+    UNRECORDED.update(("runtime/compile/sessions_by_process", "runtime/summary/sessions_by_process"))
     check_("compile/delegated_worktree", {**record, SHARD: A_WORKFLOW, ".aidlc/worktree-meta.json": "{}\n"},
            [["compile"]])
     check_("compile/unit_claim", {**record, SHARD: A_WORKFLOW, "aidlc/.aidlc-unit-scope.json": "{}\n"}, [["compile"]])
