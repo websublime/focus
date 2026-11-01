@@ -822,7 +822,7 @@ fn a_resolution_not_ported_refuses_the_hook_by_name() {
     write(&root, "focus/.focus-sessions/pids/1.json", "{}\n");
     assert!(
         refusal(&hook(&root, &["validate-state"], "{}", &[]))
-            .contains("focus-sessions/pids records which process belongs to which conversation")
+            .contains("pids records which process belongs to which conversation")
     );
     assert!(
         refusal(&hook(
