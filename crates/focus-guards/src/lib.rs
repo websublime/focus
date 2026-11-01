@@ -27,6 +27,7 @@ pub mod authority;
 pub mod fences;
 pub mod oracle;
 pub mod policy;
+pub mod shell;
 pub mod workflow;
 
 pub use authority::{Authority, Decision, FenceDecision};

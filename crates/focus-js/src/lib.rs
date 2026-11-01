@@ -18,7 +18,9 @@ pub mod error;
 pub mod glob;
 pub mod json;
 pub mod num;
+pub mod oracle;
 pub mod order;
+pub mod path;
 pub mod re;
 pub mod text;
 
