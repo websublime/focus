@@ -198,11 +198,12 @@ mod tests {
         let written =
             write_engine_file_no_follow(&tree.0, &tree.selection(), "recovery.md", "# Crumb\n")
                 .unwrap();
+        // The path comes back through the record's real path (`/private/var`
+        // for a macOS temp dir).
         assert_eq!(
             written,
-            tree.0
-                .project
-                .join(RECORD)
+            std::fs::canonicalize(tree.0.project.join(RECORD))
+                .unwrap()
                 .join(".focus-engine/recovery.md")
         );
         assert_eq!(std::fs::read_to_string(&written).unwrap(), "# Crumb\n");
