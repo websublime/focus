@@ -831,7 +831,7 @@ fn a_resolution_not_ported_refuses_the_hook_by_name() {
             "{\"agent_type\":\"x\"}",
             &[]
         ))
-        .contains("focus-sessions/pids")
+        .contains("pids records which process belongs to which conversation")
     );
     // The payload's own session settles it, once its binding is there: a
     // session the project has no binding for is a conversation upstream
@@ -858,7 +858,7 @@ fn a_resolution_not_ported_refuses_the_hook_by_name() {
             "{\"session_id\":\"s2\"}",
             &[]
         ))
-        .contains("focus-sessions/pids")
+        .contains("pids records which process belongs to which conversation")
     );
     write(&root, ".focus/worktree-meta.json", "{}\n");
     assert!(
