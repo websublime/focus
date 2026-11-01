@@ -3436,6 +3436,8 @@ def hook_checks():
     check_("session-start/memory_inline_cold", {**CLONE, **configured, **small}, [start(source="startup")])
     check_("session-start/memory_handoff_by_name", {**begun, "aidlc/spaces/default/memory/org.md": "# Org\n" + "x" * 9000}, [start(source="startup")])
     check_("session-start/memory_not_utf8", {**begun}, [start(source="startup")], edits=(lambda tree: open(tree.path("aidlc/spaces/default/memory/team.md"), "wb").write(b"\xff\xfe bad"),))
+    # A recorded tree is text: a file that is not UTF-8 stays a live check.
+    UNRECORDED.add("hook/session-start/memory_not_utf8")
     check_("session-start/switch_off_recorded", {**begun, "aidlc.settings.local.json": '{"schemaVersion": 1, "flags": {"schemaVersion": 1, "bypasses": ["AIDLC_DISABLE_REVIEW_FREEZE_HOOK"]}}\n',
            "aidlc/.aidlc-sessions/recorded-switches.json": '{"version": 1, "switches": [{"name": "AIDLC_DISABLE_REVIEW_FREEZE_HOOK", "target": "local", "since": "2026-01-05T10:00:00Z", "how": "chat", "words": "turn  the \\"freeze\\" off\\nplease"}]}\n'}, [start(source="startup")])
     check_("session-start/switch_off_other", {**begun, "aidlc.settings.json": '{"schemaVersion": 1, "flags": {"schemaVersion": 1, "bypasses": ["AIDLC_SKIP_HUMAN_PRESENCE_GUARD", "AIDLC_DISABLE_USAGE_TRACKING"]}}\n',
