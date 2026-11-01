@@ -427,6 +427,15 @@ fn replay_audit(check: &Value, root: &Path) -> BTreeMap<String, String> {
             None => check["tool"].as_str().unwrap().to_owned(),
         };
         command.args(["engine", &tool]);
+        // A hook step is the hook's name and the host's payload, which it
+        // reads on stdin.
+        let stdin = if tool == "hook" {
+            let payload = args.get(1).cloned().unwrap_or_default();
+            args.truncate(1);
+            Some(payload)
+        } else {
+            None
+        };
         // A step that says where the project is says it itself, as in the
         // recorder.
         let placed = args.iter().any(|arg| arg == "--project-dir");
@@ -444,7 +453,26 @@ fn replay_audit(check: &Value, root: &Path) -> BTreeMap<String, String> {
                 None => command.env(format!("FOCUS_{name}"), value.as_str().unwrap()),
             };
         }
-        let output = command.current_dir(root).output().unwrap();
+        let output = match stdin {
+            None => command.current_dir(root).output().unwrap(),
+            Some(payload) => {
+                let mut child = command
+                    .current_dir(root)
+                    .stdin(std::process::Stdio::piped())
+                    .stdout(std::process::Stdio::piped())
+                    .stderr(std::process::Stdio::piped())
+                    .spawn()
+                    .unwrap();
+                use std::io::Write;
+                child
+                    .stdin
+                    .take()
+                    .unwrap()
+                    .write_all(payload.as_bytes())
+                    .unwrap();
+                child.wait_with_output().unwrap()
+            }
+        };
         exits.push(output.status.code().unwrap_or(-1).to_string());
         outs.push(normalise_audit(
             &String::from_utf8_lossy(&output.stdout),
@@ -571,7 +599,7 @@ fn shown(expected: &Value) -> String {
 
 /// Run one check in `root`; the problems found, empty when it matches.
 fn replay(check: &Value, root: &Path) -> Vec<String> {
-    if ["audit", "runtime", "state", "utility", "jump"]
+    if ["audit", "runtime", "state", "utility", "jump", "hook"]
         .contains(&check["tool"].as_str().unwrap_or_default())
     {
         return problems_in(
@@ -856,6 +884,47 @@ fn the_recording_covers_every_verb_and_both_outcomes() {
             });
         assert!(ran, "no recorded success for utility {verb}");
     }
+    // Each hook has a recorded run that wrote into the record, and one that
+    // stood aside and wrote nothing but its heartbeat.
+    for hook in [
+        "validate-state",
+        "session-end",
+        "log-subagent",
+        "sync-workflow-state",
+        "write-audit-log",
+    ] {
+        let runs: Vec<&Value> = checks
+            .iter()
+            .filter(|c| c["tool"] == "hook" && c["deviation"].is_null())
+            .filter(|c| {
+                c["steps"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .all(|step| step[0] == hook)
+            })
+            .filter(|c| {
+                c["expect"]["exit"]
+                    .as_str()
+                    .unwrap()
+                    .split(',')
+                    .all(|exit| exit == "0")
+            })
+            .collect();
+        let wrote = |c: &&Value| {
+            c["expect"].as_object().unwrap().keys().any(|key| {
+                key.ends_with("/audit/laptop-abc123.md") || key.ends_with("/focus-state.md")
+            })
+        };
+        assert!(
+            runs.iter().any(wrote),
+            "no recorded run of {hook} wrote into the record"
+        );
+        assert!(
+            runs.iter().any(|c| !wrote(c)),
+            "no recorded run of {hook} stood aside"
+        );
+    }
     // A deviation is recorded and not replayed, so a recording made mostly
     // of them would prove little: they stay under a tenth of it, and for
     // each command what is replayed is at least twice what is not.
@@ -865,7 +934,9 @@ fn the_recording_covers_every_verb_and_both_outcomes() {
         "{deviations} of {} recorded checks are deviations; the replay proves little",
         checks.len()
     );
-    for tool in ["graph", "audit", "runtime", "state", "utility", "jump"] {
+    for tool in [
+        "graph", "audit", "runtime", "state", "utility", "jump", "hook",
+    ] {
         let of_tool: Vec<&Value> = checks
             .iter()
             .filter(|c| c["tool"].as_str().unwrap_or("graph") == tool)

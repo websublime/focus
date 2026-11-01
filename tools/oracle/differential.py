@@ -468,7 +468,7 @@ def run_queued(quiet=False):
 
 
 def compare(name, trees, args, env, stdin, files):
-    if files in ("audit", "runtime", "state", "utility", "jump"):
+    if files in ("audit", "runtime", "state", "utility", "jump", "hook"):
         return compare_audit(name, trees, args, env, files)
     ts, rs = trees
     outcome = {}
@@ -1339,8 +1339,9 @@ def workspace_files(tree, top="aidlc"):
         for name in names:
             path = os.path.join(folder, name)
             rel = say(os.path.relpath(path, tree.root))
-            # Focus's lock is a file in the workspace; upstream's is a directory elsewhere.
-            if os.path.basename(rel).startswith(".focus-lock"):
+            # Focus's lock is a file in the workspace; upstream's is a directory elsewhere, and the mutex it takes
+            # around that directory's recovery leaves an empty `<lock>.gate-mutex` file behind.
+            if os.path.basename(rel).startswith(".focus-lock") or rel.endswith(".gate-mutex"):
                 continue
             if os.path.islink(path):
                 files[rel] = "<link>"
@@ -1405,18 +1406,27 @@ def run_audit(engine, tree, args, env, tool="audit"):
     full.update(raw)
     # `{P}` in an argument is the project's own location.
     args = [arg.replace("{P}", tree.root) for arg in args]
+    # A hook step is the hook's name and the host's payload, which it reads on stdin.
+    stdin = None
+    if tool == "hook":
+        args, stdin = args[:1], (args[1] if len(args) > 1 else "")
     # A step that says where the project is says it itself.
     where = [] if "--project-dir" in args else ["--project-dir", tree.root]
     if engine == "ts":
         # The one variable upstream prefixes otherwise (see names.py).
         full.update({("AWS_AIDLC_DEFAULT_SCOPE" if k == "DEFAULT_SCOPE" else f"AIDLC_{k}"): v for k, v in (env or {}).items()})
-        # The runtime tool reads the stage graph beside it, so it is run from the tree's own installation.
-        script = AUDIT_TOOL if tool == "audit" else tree.path(f".claude/tools/aidlc-{tool}.ts")
-        command = [BUN, script, *args, *where]
+        if tool == "hook":
+            # The dispatcher finds the hook beside itself, and the hook its project above it.
+            command = [BUN, tree.path(".claude/tools/aidlc.ts"), "engine", "hook", *args]
+        else:
+            # The runtime tool reads the stage graph beside it, so it is run from the tree's own installation.
+            script = AUDIT_TOOL if tool == "audit" else tree.path(f".claude/tools/aidlc-{tool}.ts")
+            command = [BUN, script, *args, *where]
     else:
         full.update({f"FOCUS_{k}": to_focus(v) for k, v in (env or {}).items()})
         command = [FOCUS, "engine", tool, *map(to_focus, args), *where, "--harness", "claude"]
-    done = subprocess.run(command, cwd=tree.root, env=full, capture_output=True, text=True, timeout=120)
+        stdin = stdin if stdin is None else to_focus(stdin)
+    done = subprocess.run(command, cwd=tree.root, env=full, input=stdin, capture_output=True, text=True, timeout=120)
     return done.returncode, done.stdout, done.stderr
 
 
@@ -3032,6 +3042,225 @@ GATE_DIR = f"{CREATED_DIR}/.aidlc-engine"
 HUMAN = lambda minute, second=0, *fields: block("HUMAN_TURN", T(minute, second), "**Session**: s1", *fields)
 
 
+
+# --------------------------------------------------------------------------
+# The hooks (M4): each one on the host's payload, in a record this conversation has joined or not.
+
+def hook_checks():
+    """`aidlc.ts engine hook <name>` for the observers Focus has: what each records, where, and when it stands aside."""
+    check_ = lambda name, files, steps, env=None, edits=(): runtime_check(name, files, steps, env, edits, group="hook")
+    binding = lambda intent="260105-add-login", source="create", space="default": {
+        "aidlc/.aidlc-sessions/s1.binding.json": json.dumps({"space": space, "intent": intent, "boundAt": "2026-01-05T10:00:00Z", "source": source})}
+    payload = lambda **fields: json.dumps({"session_id": "s1", **fields})
+    joined = created(**binding())
+    no_cursor = {**created(**binding()), "aidlc/spaces/default/intents/active-intent": None}
+    engine = f"{CREATED_DIR}/.aidlc-engine"
+
+    # validate-state: the breadcrumb, the heartbeat and the row.
+    compact = lambda **fields: ["validate-state", payload(hook_event_name="PreCompact", **fields)]
+    check_("validate-state/joined", joined, [compact()])
+    check_("validate-state/cursor_only", created(), [compact()])
+    check_("validate-state/no_session", created(), [["validate-state", json.dumps({"hook_event_name": "PreCompact"})]])
+    check_("validate-state/empty_payload", created(), [["validate-state", ""]])
+    check_("validate-state/not_json", created(), [["validate-state", "{nope"]])
+    check_("validate-state/session_id_alt", created(), [["validate-state", json.dumps({"sessionId": "s1"})]])
+    check_("validate-state/invalid_session", created(), [["validate-state", json.dumps({"session_id": "../x"})]])
+    check_("validate-state/outsider", {**no_cursor, **binding("other-9f8e7d6c")}, [compact()])
+    check_("validate-state/unjoined", {**no_cursor, **binding(None, "unjoined")}, [compact()])
+    check_("validate-state/untrusted_source", no_cursor | binding(source="worktree"), [compact()])
+    for source in ("migration", "switch", "space-switch-cursor", "cursor", "stamp"):
+        check_(f"validate-state/bound_by_{source}", no_cursor | binding(source=source), [compact()])
+    check_("validate-state/bound_elsewhere_cursor_here", {**created(), **binding("other-9f8e7d6c", "worktree")}, [compact()])
+    check_("validate-state/no_state", {**CLONE, "aidlc/spaces/default/intents/intents.json": CREATED_REGISTRY}, [compact()])
+    check_("validate-state/missing_sections", created(CREATED_STATE.replace("## Stage Progress", "## Progress").replace("## Current Status", "## Status")), [compact()])
+    check_("validate-state/missing_one_section", created(CREATED_STATE.replace("## Current Status", "## Status")), [compact()])
+    check_("validate-state/no_shard", created(**{CREATED_SHARD: None}), [compact()])
+    check_("validate-state/twice", joined, [compact(), compact()])
+    check_("validate-state/rules_held", {**joined, "aidlc/.aidlc-sessions/s1.rules-held.json": '{"v": 2}'}, [compact()])
+    check_("validate-state/directive_marker", {**joined, f"{engine}/active-directive.json": '{"stage": "intent-capture"}'}, [compact()])
+    check_("validate-state/engine_dir_linked", joined, [compact()], edits=(lambda tree: os.symlink(tree.path("elsewhere"), tree.path(engine)),))
+    check_("validate-state/unit_scope_stamp", {**joined, "aidlc/.aidlc-unit-scope.json": '{"version": 1}'}, [compact()])
+    for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
+        check_(f"validate-state/observer_{marker.lower()}", joined, [compact()], {marker: "1"})
+    # The resolutions Focus has not ported: a hook with no session of its own, and one whose binding settles it.
+    pids = {"aidlc/.aidlc-sessions/pids/1.json": "{}\n"}
+    worktree = {".aidlc/worktree-meta.json": "{}\n"}
+    for hook, step in (("validate-state", compact), ("session-end", lambda: ["session-end", payload(reason="exit")]),
+                       ("log-subagent", lambda: ["log-subagent", payload(agent_type="x")]),
+                       ("sync-workflow-state", lambda: ["sync-workflow-state", payload(tool_name="TaskUpdate", tool_input={"status": "in_progress", "activeForm": "x [market-research]"})]),
+                       ("write-audit-log", lambda: ["write-audit-log", payload(tool_name="Write", tool_input={"file_path": "{P}/" + CREATED_DIR + "/ideation/intent-capture/intent-statement.md"})])):
+        short = "sync" if hook == "sync-workflow-state" else hook
+        anonymous = json.loads(step()[1]); del anonymous["session_id"]
+        check_(f"{short}/sessions_by_process", {**created(), **pids}, [[hook, json.dumps(anonymous)]])
+        check_(f"{short}/sessions_by_process_unbound", {**created(), **pids}, [step()])
+        check_(f"{short}/sessions_by_process_bound", {**joined, **pids}, [step()])
+        check_(f"{short}/delegated_worktree", {**joined, **worktree}, [step()])
+
+    # session-end: whose session, and where its end goes.
+    end = lambda **fields: ["session-end", payload(**fields)]
+    check_("session-end/joined", joined, [end(reason="exit")])
+    check_("session-end/reasons", joined, [end(reason=reason) for reason in ("clear", "", 0, 7, True, False, None, {"a": 1}, ["x", "y"])])
+    check_("session-end/no_reason", joined, [end()])
+    check_("session-end/no_session", created(), [["session-end", json.dumps({"reason": "exit"})]])
+    check_("session-end/empty_payload", created(), [["session-end", ""]])
+    check_("session-end/not_json", created(), [["session-end", "nope"]])
+    check_("session-end/not_object", created(), [["session-end", "[1]"]])
+    check_("session-end/invalid_session", created(), [["session-end", json.dumps({"session_id": "x/y", "reason": "exit"})]])
+    check_("session-end/bound_to_none", {**no_cursor, **binding(None, "none")}, [end(reason="exit")])
+    check_("session-end/bound_unjoined", {**no_cursor, **binding(None, "unjoined")}, [end(reason="exit")])
+    check_("session-end/bound_elsewhere", {**no_cursor, **binding("other-9f8e7d6c", "create")}, [end(reason="exit")])
+    check_("session-end/bound_untrusted", {**no_cursor, **binding(source="cursor")}, [end(reason="exit")])
+    check_("session-end/bound_worktree_source", {**no_cursor, **binding(source="worktree")}, [end(reason="exit")])
+    check_("session-end/stamped", {**no_cursor, "aidlc/.aidlc-sessions/s1": "01a138fa-d37d-787d-af4a-966efbb0b6fd\n"}, [end(reason="exit")])
+    check_("session-end/stamped_cursor", {**created(), "aidlc/.aidlc-sessions/s1": "01a138fa-d37d-787d-af4a-966efbb0b6fd\n"}, [end(reason="exit")])
+    check_("session-end/stamped_unknown", {**created(), "aidlc/.aidlc-sessions/s1": "01a138fa-0000-787d-af4a-966efbb0b6fd\n"}, [end(reason="exit")])
+    check_("session-end/stamped_blank", {**created(), "aidlc/.aidlc-sessions/s1": "  \n"}, [end(reason="exit")])
+    check_("session-end/session_without_binding_uuid_backed", created(), [end(reason="exit")])
+    legacy = CREATED_REGISTRY.replace('    "uuid": "01a138fa-d37d-787d-af4a-966efbb0b6fd",\n', "")
+    check_("session-end/session_without_binding_flat", created(registry=legacy), [end(reason="exit")])
+    check_("session-end/no_session_flat", created(registry=legacy), [["session-end", json.dumps({"reason": "exit"})]])
+    check_("session-end/no_state", {**CLONE, "aidlc/spaces/default/intents/intents.json": CREATED_REGISTRY, **binding()}, [end(reason="exit")])
+    check_("session-end/no_shard", created(**binding(), **{CREATED_SHARD: None}), [end(reason="exit")])
+    check_("session-end/other_space", {**created(), "aidlc/active-space": "payments\n", "aidlc/spaces/payments/intents/intents.json": "[]\n", **binding(space="default")}, [end(reason="exit")])
+    check_("session-end/unit_scope_stamp", {**joined, "aidlc/.aidlc-unit-scope.json": '{"version": 1}'}, [end(reason="exit")])
+
+    # log-subagent: the completion row, when the workflow runs.
+    done = lambda **fields: ["log-subagent", payload(hook_event_name="SubagentStop", **fields)]
+    check_("log-subagent/plain", joined, [done(agent_type="aidlc-product-agent", agent_id="a1", last_assistant_message="Done.")])
+    check_("log-subagent/minimal", joined, [done()])
+    check_("log-subagent/blank_type", joined, [done(agent_type="  ", agent_id="", last_assistant_message="")])
+    check_("log-subagent/long_message", joined, [done(agent_type="x", last_assistant_message="é" * 150 + "😀" * 40 + "tail")])
+    check_("log-subagent/odd_values", joined, [done(agent_type=3, agent_id=7, last_assistant_message=["a", None, 2])])
+    check_("log-subagent/multiline", joined, [done(agent_type="x", last_assistant_message="one\\ntwo\\n")])
+    check_("log-subagent/cursor_only", created(), [done(agent_type="x")])
+    check_("log-subagent/no_session", created(), [["log-subagent", json.dumps({"agent_type": "x"})]])
+    check_("log-subagent/empty_payload", created(), [["log-subagent", ""]])
+    check_("log-subagent/not_object", created(), [["log-subagent", "3"]])
+    check_("log-subagent/invalid_session", created(), [["log-subagent", json.dumps({"session_id": "a/b", "agent_type": "x"})]])
+    check_("log-subagent/not_running", created(CREATED_STATE.replace("- **Status**: Running", "- **Status**: Completed"), **binding()), [done(agent_type="x")])
+    check_("log-subagent/no_state", {**CLONE, "aidlc/spaces/default/intents/intents.json": CREATED_REGISTRY, **binding()}, [done(agent_type="x")])
+    check_("log-subagent/outsider", {**no_cursor, **binding("other-9f8e7d6c")}, [done(agent_type="x")])
+    check_("log-subagent/inflight_ledger", {**joined, "aidlc/.aidlc-subagent-inflight": '{"version": 1, "entries": []}'}, [done(agent_type="x")])
+    check_("log-subagent/no_shard", created(**binding(), **{CREATED_SHARD: None}), [done(agent_type="x")])
+
+    # sync-workflow-state: the task list, and the audit tail.
+    task = lambda **fields: ["sync-workflow-state", payload(hook_event_name="PostToolUse", tool_name="TaskUpdate", tool_input=fields)]
+    check_("sync/in_progress", joined, [task(status="in_progress", activeForm="Researching [market-research]"), ["@state", "get", "Current Stage"], ["@state", "get", "Status"]])
+    check_("sync/same_stage", joined, [task(status="in_progress", activeForm="Capturing [intent-capture]")])
+    check_("sync/other_status", joined, [task(status="completed", activeForm="Researching [market-research]")])
+    check_("sync/no_slug", joined, [task(status="in_progress", activeForm="Researching")])
+    check_("sync/bad_slug", joined, [task(status="in_progress", activeForm="x [Market-Research]")])
+    check_("sync/unknown_stage", joined, [task(status="in_progress", activeForm="x [not-a-stage]")])
+    check_("sync/no_active_form", joined, [task(status="in_progress")])
+    check_("sync/no_tool_input", joined, [["sync-workflow-state", payload(tool_name="TaskUpdate")]])
+    check_("sync/cursor_only", created(), [task(status="in_progress", activeForm="x [market-research]"), ["@state", "get", "Current Stage"]])
+    check_("sync/outsider", {**no_cursor, **binding("other-9f8e7d6c")}, [task(status="in_progress", activeForm="x [market-research]")])
+    check_("sync/no_state", {**CLONE, "aidlc/spaces/default/intents/intents.json": CREATED_REGISTRY, **binding()}, [task(status="in_progress", activeForm="x [market-research]")])
+    check_("sync/empty_payload", joined, [["sync-workflow-state", ""]])
+    check_("sync/not_object", joined, [["sync-workflow-state", '"x"']])
+    check_("sync/directive_marker", {**joined, f"{engine}/active-directive.json": '{"stage": "intent-capture"}'}, [task(status="in_progress", activeForm="x [market-research]")])
+    check_("sync/completed_stage", created(at_stage(CREATED_STATE, "market-research", done=("intent-capture",)), **binding()),
+           [task(status="in_progress", activeForm="x [intent-capture]"), ["@state", "get", "Current Stage"]])
+    ide = lambda: ["sync-workflow-state", payload(hook_event_name="PostToolUse", tool_input={"source": "ide-audit-sync"})]
+    check_("sync/ide_in_step", joined, [ide()])
+    check_("sync/ide_forward", created(audit=CREATED_AUDIT + block("STAGE_STARTED", T(1), "**Stage**: market-research", "**Agent**: x"), **binding()), [ide(), ["@state", "get", "Current Stage"]])
+    check_("sync/ide_single_stage_ignored", created(audit=CREATED_AUDIT + block("STAGE_STARTED", T(1), "**Stage**: market-research", "**Workflow**: single-stage:market-research"), **binding()), [ide()])
+    check_("sync/ide_backward", created(at_stage(CREATED_STATE, "market-research", done=("intent-capture",)), **binding()), [ide(), ["@state", "get", "Current Stage"]])
+    check_("sync/ide_not_running", created(CREATED_STATE.replace("- **Status**: Running", "- **Status**: Parked"), CREATED_AUDIT + block("STAGE_STARTED", T(1), "**Stage**: market-research"), **binding()), [ide()])
+    check_("sync/ide_no_current", created(CREATED_STATE.replace("- **Current Stage**: intent-capture\\n", "- **Current Stage**: none\\n"), CREATED_AUDIT + block("STAGE_STARTED", T(1), "**Stage**: market-research"), **binding()), [ide()])
+    check_("sync/ide_no_audit_slug", created(audit=TITLE + WORKFLOW, **binding()), [ide()])
+    check_("sync/ide_bad_slug", created(audit=CREATED_AUDIT + block("STAGE_STARTED", T(1), "**Stage**: Not-A-Slug"), **binding()), [ide()])
+    check_("sync/ide_unknown_stage", created(audit=CREATED_AUDIT + block("STAGE_STARTED", T(1), "**Stage**: not-a-stage"), **binding()), [ide()])
+    check_("sync/ide_other_shard", created(**binding(), **{f"{CREATED_DIR}/audit/desktop-def456.md": TITLE + block("STAGE_STARTED", T(1), "**Stage**: market-research")}), [ide(), ["@state", "get", "Current Stage"]])
+    for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
+        check_(f"sync/observer_{marker.lower()}", joined, [task(status="in_progress", activeForm="x [market-research]")], {marker: "1"})
+
+    # write-audit-log: which writes are the record's artifacts.
+    doc = f"{CREATED_DIR}/ideation/intent-capture/intent-statement.md"
+    wrote = lambda tool="Write", path=None, **more: ["write-audit-log", payload(hook_event_name="PostToolUse", tool_name=tool, tool_input={"file_path": "{P}/" + (path or doc), **more})]
+    with_doc = {**joined, doc: "# Intent\\n"}
+    check_("write-audit-log/written", with_doc, [wrote()])
+    check_("write-audit-log/edited", with_doc, [wrote("Edit")])
+    check_("write-audit-log/other_tool", with_doc, [wrote("NotebookEdit")])
+    check_("write-audit-log/missing_file", joined, [wrote()])
+    # The record directory itself: created or updated by how long after its birth it was last written, which a
+    # replay's own tree decides anew, so it is compared live and not recorded.
+    check_("write-audit-log/record_root_itself", joined, [["write-audit-log", payload(tool_name="Write", tool_input={"file_path": "{P}/" + CREATED_DIR})]])
+    UNRECORDED.add("hook/write-audit-log/record_root_itself")
+    check_("write-audit-log/outside_record", {**joined, "src/main.ts": "x"}, [wrote(path="src/main.ts")])
+    check_("write-audit-log/other_record", {**joined, "aidlc/spaces/default/intents/other-9f8e7d6c/x.md": "x"}, [wrote(path="aidlc/spaces/default/intents/other-9f8e7d6c/x.md")])
+    check_("write-audit-log/codekb", {**joined, "aidlc/spaces/default/codekb/repo/summary.md": "x"}, [wrote(path="aidlc/spaces/default/codekb/repo/summary.md")])
+    check_("write-audit-log/codekb_root_itself", joined, [wrote(path="aidlc/spaces/default/codekb")])
+    check_("write-audit-log/audit_shard", joined, [wrote(path=CREATED_SHARD)])
+    check_("write-audit-log/audit_md", {**joined, f"{CREATED_DIR}/audit.md": "x"}, [wrote(path=f"{CREATED_DIR}/audit.md")])
+    check_("write-audit-log/audit_sibling", {**joined, f"{CREATED_DIR}/audit/notes.txt": "x"}, [wrote(path=f"{CREATED_DIR}/audit/notes.txt")])
+    check_("write-audit-log/relative", with_doc, [["write-audit-log", payload(tool_name="Write", tool_input={"file_path": doc})]])
+    check_("write-audit-log/backslashes", with_doc, [["write-audit-log", payload(tool_name="Write", tool_input={"file_path": "{P}/" + doc.replace("/", "\\\\")})]])
+    check_("write-audit-log/no_file_path", joined, [["write-audit-log", payload(tool_name="Write", tool_input={})]])
+    check_("write-audit-log/no_tool_input", joined, [["write-audit-log", payload(tool_name="Write")]])
+    check_("write-audit-log/empty_payload", joined, [["write-audit-log", ""]])
+    check_("write-audit-log/not_object", joined, [["write-audit-log", "null"]])
+    check_("write-audit-log/no_shard", {**with_doc, CREATED_SHARD: None}, [wrote()])
+    check_("write-audit-log/no_state", {**CLONE, "aidlc/spaces/default/intents/intents.json": CREATED_REGISTRY, **binding(), doc: "x"}, [wrote()])
+    check_("write-audit-log/cursor_only", {**created(), doc: "x"}, [wrote()])
+    check_("write-audit-log/outsider", {**no_cursor, **binding("other-9f8e7d6c"), doc: "x"}, [wrote()])
+    check_("write-audit-log/authorization_registry", {**with_doc, f"{engine}/summary-authorization/x.json": "{}"}, [wrote()])
+    check_("write-audit-log/authorization_registry_empty", with_doc, [wrote()], edits=(lambda tree: os.makedirs(tree.path(f"{engine}/summary-authorization")),))
+    check_("write-audit-log/deep", {**joined, f"{CREATED_DIR}/construction/u1/code-generation/notes.md": "x"}, [wrote(path=f"{CREATED_DIR}/construction/u1/code-generation/notes.md")])
+    check_("write-audit-log/twice", with_doc, [wrote(), wrote("Edit")])
+    for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
+        check_(f"write-audit-log/observer_{marker.lower()}", with_doc, [wrote()], {marker: "1"})
+
+    # Payload fields of the wrong kind.
+    check_("validate-state/session_id_number", created(), [["validate-state", json.dumps({"session_id": 5})]])
+    check_("validate-state/session_id_null_then_alt", no_cursor, [["validate-state", json.dumps({"session_id": None, "sessionId": "s1"})]])
+    check_("validate-state/session_id_number_then_alt", no_cursor, [["validate-state", json.dumps({"session_id": 5, "sessionId": "s1"})]])
+    check_("session-end/session_id_number", created(), [["session-end", json.dumps({"session_id": 5, "reason": "exit"})]])
+    check_("session-end/session_id_empty", created(), [["session-end", json.dumps({"session_id": "", "reason": "exit"})]])
+    check_("log-subagent/message_object", joined, [done(agent_type="x", last_assistant_message={"a": 1})])
+    check_("log-subagent/session_id_number", joined, [["log-subagent", json.dumps({"session_id": 5, "agent_type": "x"})]])
+    check_("sync/other_tool", joined, [["sync-workflow-state", payload(tool_name="Write", tool_input={"status": "in_progress", "activeForm": "x [market-research]"})]])
+    check_("sync/active_form_number", joined, [task(status="in_progress", activeForm=5)])
+    check_("sync/tool_input_string", joined, [["sync-workflow-state", payload(tool_name="TaskUpdate", tool_input="x")]])
+    check_("sync/ide_source_other", joined, [["sync-workflow-state", payload(tool_input={"source": "other"})]])
+    check_("write-audit-log/file_path_number", joined, [["write-audit-log", payload(tool_name="Write", tool_input={"file_path": 5})]])
+    check_("write-audit-log/trailing_slash", with_doc, [["write-audit-log", payload(tool_name="Write", tool_input={"file_path": "{P}/" + doc + "/"})]])
+    check_("write-audit-log/dotted", with_doc, [["write-audit-log", payload(tool_name="Write", tool_input={"file_path": "{P}/" + CREATED_DIR + "/ideation/../ideation/intent-capture/intent-statement.md"})]])
+    check_("write-audit-log/directory", joined, [wrote(path=f"{CREATED_DIR}/ideation")])
+    check_("write-audit-log/no_tool_name", with_doc, [["write-audit-log", payload(tool_input={"file_path": "{P}/" + doc})]])
+    check_("write-audit-log/file_path_falsy", with_doc, [["write-audit-log", payload(tool_name="Write", tool_input={"file_path": 0})], ["write-audit-log", payload(tool_name="Write", tool_input={"file_path": False})], ["write-audit-log", payload(tool_name="Write", tool_input={"file_path": None})]])
+    check_("sync/active_form_falsy", joined, [task(status="in_progress", activeForm=0), task(status="in_progress", activeForm=False), task(status="in_progress", activeForm=None)])
+    check_("log-subagent/message_kinds", joined, [done(agent_type="x", last_assistant_message=[]), done(agent_type="x", last_assistant_message=[["a", "b"], {"k": 1}, 2.5]), done(agent_type="x", agent_id={"k": 1}), done(agent_type="x", agent_id=False)])
+
+    # The dispatcher: a hook it does not have, a name it refuses, the trace.
+    check_("dispatch/unknown", created(), [["nope", "{}"]])
+    check_("dispatch/unsafe_name", created(), [["../x", "{}"]])
+    check_("dispatch/no_name", created(), [["", "{}"]])
+    for name in ("session-start", "record-human-turn", "rebuild-stage-graph", "guard-tool-call", "continue-workflow"):
+        check_(f"dispatch/{name.replace('-', '_')}_not_ported", created(), [[name, payload()]])
+
+
+DEVIATIONS.update({
+    r"hook/[a-z-]+/(rules_held|directive_marker|unit_scope_stamp|inflight_ledger|authorization_registry)":
+        "a record of a later milestone beside the hook's own: the rules handed to a conversation, the orchestrator's "
+        "directive marker, a unit claim, the ledger of background subagents, the summary authorizations (M4/M5); "
+        "upstream reads or clears it and goes on; focus refuses the hook by name while it is there",
+    r"hook/[a-z-]+/(sessions_by_process|sessions_by_process_unbound|delegated_worktree)":
+        "upstream walks the process tree to find which conversation is calling when the payload names no session, "
+        "or names one the project has no binding for, and resolves a delegated worktree to the main checkout's "
+        "intent; focus refuses both by name (a hook stands outside on any other failure of the resolution, as "
+        "upstream's does)",
+    r"hook/[a-z-]+/(message_object|active_form_number|file_path_number)":
+        "a payload field of a kind the hook does not expect: upstream falls over on it and its dispatcher prints "
+        "the runtime's TypeError; focus refuses the field by name (exit 1 either way, and nothing recorded past "
+        "the heartbeat by either)",
+    r"hook/dispatch/[a-z_]+_not_ported":
+        "a hook Focus does not run yet: upstream runs it; focus refuses it by name",
+    r"hook/dispatch/(unknown|unsafe_name|no_name)":
+        "upstream's dispatcher words the refusal of a hook it cannot find its own way, and reaches the file system "
+        "for it; focus refuses the name before looking",
+})
+
 def gate_checks():
     """`aidlc-state.ts gate-start`, `approve`, `reject` and `revise`: a stage's approval gate, what admits each
     decision (the person's presence, the artifacts, the sensors, the review) and the rows each writes."""
@@ -4236,6 +4465,7 @@ try:
     park_checks()
     jump_checks()
     status_checks()
+    hook_checks()
     run_queued()
     if FUZZ:
         if not ONLY or not re.search(ONLY, "fuzz/audit"):

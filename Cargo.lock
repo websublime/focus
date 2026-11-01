@@ -76,6 +76,7 @@ dependencies = [
  "focus-graph",
  "focus-guards",
  "focus-harness",
+ "focus-hooks",
  "focus-intent",
  "focus-js",
  "focus-lifecycle",
@@ -134,6 +135,20 @@ dependencies = [
 [[package]]
 name = "focus-harness"
 version = "0.1.0"
+
+[[package]]
+name = "focus-hooks"
+version = "0.1.0"
+dependencies = [
+ "focus-audit",
+ "focus-harness",
+ "focus-intent",
+ "focus-js",
+ "focus-lifecycle",
+ "focus-state",
+ "focus-workspace",
+ "serde_json",
+]
 
 [[package]]
 name = "focus-intent"

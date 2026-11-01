@@ -65,11 +65,14 @@ focus engine utility detect --json     # project type, languages, frameworks, bu
 focus engine utility intent-create --scope feature --arguments "Add login" --label "add login"
 focus engine utility now
 focus engine utility status            # the workflow as a person reads it
+
+echo '{"session_id":"s1","reason":"exit"}' | focus engine hook session-end   # a harness hook, on the host's payload
 ```
 
 `focus engine graph --help`, `focus engine audit --help`,
 `focus engine runtime --help`, `focus engine state --help`, `focus engine jump
---help` and `focus engine utility --help` list every verb and flag. The `audit` command is
+--help`, `focus engine utility --help` and `focus engine hook --help` list every
+verb and flag. The `audit` command is
 the diagnostic way into the ledger: events that carry authority (a gate
 approval, a person's turn, a unit's completion) are written only by the
 engine's own tools and hooks, and are refused there. The `runtime` command
@@ -122,6 +125,7 @@ focus engine graph compile --harness claude --core fixtures/upstream/core --out 
 | `focus-state` | The state file of a workflow: its bulleted fields and checkbox lines, read and written as text, and the file on disk |
 | `focus-guards` | Guard Policy, the five fences and the authority behind an action: what the guards decide before anything moves. And what the hooks read before any fence: the shell reader (what a `Bash` command may write, in POSIX shell or PowerShell, and where the shell may be when it writes) and runtime integrity (whether a tool call touches a runtime record, the audit trail, an installed enforcement file or a hook, directly or through a script) |
 | `focus-intent` | Creating a piece of work: the record's name and id, the plan it runs, the state file built from it, the registry row and the cursors |
+| `focus-hooks` | The bodies of the harness hooks (`focus engine hook <name>`): which workflow a hook fires in and whether this conversation has joined it, the heartbeat and the drops each hook leaves, and the observers: the compaction breadcrumb, a session's end, a subagent's completion, the task list and the IDE mirror moving the stage, a write into the record as its artifact |
 | `focus-lifecycle` | Moving a piece of work through its stages: the transitions, the gate verbs and the parking of the state command, the jumps, the admission chain each one passes, where a stage's artifacts are, the validity receipt a completion leaves, whether the person has acted since a gate opened, and what a gate asks with |
 | `focus-cli` | The `focus` binary (the package is named `focus`) |
 
