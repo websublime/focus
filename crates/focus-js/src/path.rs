@@ -44,7 +44,9 @@ impl Flavour {
         }
     }
 
-    fn separator(self) -> &'static str {
+    /// The separator the flavour writes.
+    #[must_use]
+    pub fn separator(self) -> &'static str {
         match self {
             Self::Posix => "/",
             Self::Win32 => "\\",
@@ -272,7 +274,7 @@ fn win32_resolve(cwd: &str, parts: &[&str]) -> String {
             // The drive's own working directory is not modelled: the
             // process's stands in, or the drive's root when it is elsewhere.
             if cwd.len() >= 2
-                && cwd[..2].to_lowercase() != resolved_device.to_lowercase()
+                && !cwd[..2].eq_ignore_ascii_case(&resolved_device)
                 && cwd.as_bytes().get(2) == Some(&b'\\')
             {
                 owned = format!("{resolved_device}\\");
@@ -290,7 +292,7 @@ fn win32_resolve(cwd: &str, parts: &[&str]) -> String {
         let (root_end, device, is_absolute) = win32_root(path);
         if !device.is_empty() {
             if !resolved_device.is_empty() {
-                if device.to_lowercase() != resolved_device.to_lowercase() {
+                if !device.eq_ignore_ascii_case(&resolved_device) {
                     i -= 1;
                     continue;
                 }
@@ -540,6 +542,275 @@ pub fn basename(flavour: Flavour, path: &str) -> String {
     }
 }
 
+/// `path.dirname`.
+#[must_use]
+pub fn dirname(flavour: Flavour, path: &str) -> String {
+    let bytes = path.as_bytes();
+    let len = bytes.len();
+    if len == 0 {
+        return ".".to_owned();
+    }
+    match flavour {
+        Flavour::Posix => {
+            let has_root = bytes[0] == b'/';
+            let mut end: Option<usize> = None;
+            let mut matched_slash = true;
+            let mut i = len;
+            while i > 1 {
+                i -= 1;
+                if bytes[i] == b'/' {
+                    if !matched_slash {
+                        end = Some(i);
+                        break;
+                    }
+                } else {
+                    matched_slash = false;
+                }
+            }
+            match end {
+                None => if has_root { "/" } else { "." }.to_owned(),
+                Some(1) if has_root => "//".to_owned(),
+                Some(end) => path[..end].to_owned(),
+            }
+        }
+        Flavour::Win32 => {
+            let code = bytes[0];
+            if len == 1 {
+                return if flavour.is_separator(code) {
+                    path.to_owned()
+                } else {
+                    ".".to_owned()
+                };
+            }
+            let mut root_end: Option<usize> = None;
+            let mut offset = 0;
+            if flavour.is_separator(code) {
+                root_end = Some(1);
+                offset = 1;
+                if flavour.is_separator(bytes[1]) {
+                    let mut j = 2;
+                    let mut last = j;
+                    while j < len && !flavour.is_separator(bytes[j]) {
+                        j += 1;
+                    }
+                    if j < len && j != last {
+                        last = j;
+                        while j < len && flavour.is_separator(bytes[j]) {
+                            j += 1;
+                        }
+                        if j < len && j != last {
+                            last = j;
+                            while j < len && !flavour.is_separator(bytes[j]) {
+                                j += 1;
+                            }
+                            if j == len {
+                                // A UNC root alone.
+                                return path.to_owned();
+                            }
+                            if j != last {
+                                // Offset by 1 to include the separator after
+                                // the UNC root, a "normal root" on top of it.
+                                root_end = Some(j + 1);
+                                offset = j + 1;
+                            }
+                        }
+                    }
+                }
+            } else if is_device_root(code) && bytes[1] == b':' {
+                let at = if len > 2 && flavour.is_separator(bytes[2]) {
+                    3
+                } else {
+                    2
+                };
+                root_end = Some(at);
+                offset = at;
+            }
+            let mut end: Option<usize> = None;
+            let mut matched_slash = true;
+            let mut i = len;
+            while i > offset {
+                i -= 1;
+                if flavour.is_separator(bytes[i]) {
+                    if !matched_slash {
+                        end = Some(i);
+                        break;
+                    }
+                } else {
+                    matched_slash = false;
+                }
+            }
+            let end = match (end, root_end) {
+                (Some(end), _) => end,
+                (None, None) => return ".".to_owned(),
+                (None, Some(root_end)) => root_end,
+            };
+            path[..end].to_owned()
+        }
+    }
+}
+
+/// `path.relative(from, to)` with `cwd` standing in for `process.cwd()`.
+#[must_use]
+pub fn relative(flavour: Flavour, cwd: &str, from: &str, to: &str) -> String {
+    if from == to {
+        return String::new();
+    }
+    match flavour {
+        Flavour::Posix => posix_relative(cwd, from, to),
+        Flavour::Win32 => win32_relative(cwd, from, to),
+    }
+}
+
+fn posix_relative(cwd: &str, from: &str, to: &str) -> String {
+    let from = posix_resolve(cwd, &[from]);
+    let to = posix_resolve(cwd, &[to]);
+    if from == to {
+        return String::new();
+    }
+    let (from_bytes, to_bytes) = (from.as_bytes(), to.as_bytes());
+    let from_start = 1;
+    let from_end = from_bytes.len();
+    let from_len = from_end - from_start;
+    let to_start = 1;
+    let to_len = to_bytes.len() - to_start;
+    let length = from_len.min(to_len);
+    let mut last_common_sep: Option<usize> = None;
+    let mut i = 0;
+    while i < length {
+        let from_code = from_bytes[from_start + i];
+        if from_code != to_bytes[to_start + i] {
+            break;
+        } else if from_code == b'/' {
+            last_common_sep = Some(i);
+        }
+        i += 1;
+    }
+    if i == length {
+        if to_len > length {
+            if to_bytes[to_start + i] == b'/' {
+                return to[to_start + i + 1..].to_owned();
+            }
+            if i == 0 {
+                return to[to_start + i..].to_owned();
+            }
+        } else if from_len > length {
+            if from_bytes[from_start + i] == b'/' {
+                last_common_sep = Some(i);
+            } else if i == 0 {
+                last_common_sep = Some(0);
+            }
+        }
+    }
+    let mut out = String::new();
+    let mut i = from_start + last_common_sep.map_or(0, |at| at + 1);
+    while i <= from_end {
+        if i == from_end || from_bytes[i] == b'/' {
+            out.push_str(if out.is_empty() { ".." } else { "/.." });
+        }
+        i += 1;
+    }
+    // `to.slice(toStart + lastCommonSep)`: the whole of `to` when no
+    // separator was common.
+    let tail_from = match last_common_sep {
+        Some(at) => to_start + at,
+        None => to_start - 1,
+    };
+    format!("{out}{}", &to[tail_from..])
+}
+
+fn win32_relative(cwd: &str, from: &str, to: &str) -> String {
+    let from_orig = win32_resolve(cwd, &[from]);
+    let to_orig = win32_resolve(cwd, &[to]);
+    if from_orig == to_orig {
+        return String::new();
+    }
+    // Bun compares the two paths with ASCII case folded, where Node folds
+    // every character (and re-compares by segment when that moves one).
+    let from_lower = from_orig.to_ascii_lowercase();
+    let to_lower = to_orig.to_ascii_lowercase();
+    if from_lower == to_lower {
+        return String::new();
+    }
+    let to_o: Vec<char> = to_orig.chars().collect();
+    let (from, to): (Vec<char>, Vec<char>) =
+        (from_lower.chars().collect(), to_lower.chars().collect());
+    let mut from_start = 0;
+    while from_start < from.len() && from[from_start] == '\\' {
+        from_start += 1;
+    }
+    let mut from_end = from.len();
+    while from_end > from_start + 1 && from[from_end - 1] == '\\' {
+        from_end -= 1;
+    }
+    let from_len = from_end - from_start;
+    let mut to_start = 0;
+    while to_start < to.len() && to[to_start] == '\\' {
+        to_start += 1;
+    }
+    let mut to_end = to.len();
+    while to_end > to_start + 1 && to[to_end - 1] == '\\' {
+        to_end -= 1;
+    }
+    let to_len = to_end - to_start;
+    let length = from_len.min(to_len);
+    let mut last_common_sep: Option<usize> = None;
+    let mut i = 0;
+    while i < length {
+        let from_code = from[from_start + i];
+        if from_code != to[to_start + i] {
+            break;
+        } else if from_code == '\\' {
+            last_common_sep = Some(i);
+        }
+        i += 1;
+    }
+    let text = |chars: &[char], from: usize, to: usize| -> String {
+        chars[from.min(chars.len())..to.min(chars.len()).max(from.min(chars.len()))]
+            .iter()
+            .collect()
+    };
+    if i != length {
+        if last_common_sep.is_none() {
+            return to_orig;
+        }
+    } else {
+        if to_len > length {
+            if to[to_start + i] == '\\' {
+                return text(&to_o, to_start + i + 1, to_o.len());
+            }
+            if i == 2 {
+                return text(&to_o, to_start + i, to_o.len());
+            }
+        }
+        if from_len > length {
+            if from[from_start + i] == '\\' {
+                last_common_sep = Some(i);
+            } else if i == 2 {
+                last_common_sep = Some(3);
+            }
+        }
+        if last_common_sep.is_none() {
+            last_common_sep = Some(0);
+        }
+    }
+    let mut out = String::new();
+    let mut i = from_start + last_common_sep.map_or(0, |at| at + 1);
+    while i <= from_end {
+        if i == from_end || from[i] == '\\' {
+            out.push_str(if out.is_empty() { ".." } else { "\\.." });
+        }
+        i += 1;
+    }
+    let mut to_start = to_start + last_common_sep.unwrap_or(0);
+    if !out.is_empty() {
+        return format!("{out}{}", text(&to_o, to_start, to_end));
+    }
+    if to_o.get(to_start) == Some(&'\\') {
+        to_start += 1;
+    }
+    text(&to_o, to_start, to_end)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -560,6 +831,17 @@ mod tests {
         assert_eq!(basename(Flavour::Posix, "//"), "");
         assert!(is_absolute(Flavour::Posix, "/x"));
         assert!(!is_absolute(Flavour::Posix, "x"));
+        assert_eq!(relative(Flavour::Posix, "/w", "/a/b/c", "/a/d"), "../../d");
+        assert_eq!(relative(Flavour::Posix, "/w", "/a/b", "/a/b/c"), "c");
+        assert_eq!(relative(Flavour::Posix, "/w", "/a/b/c", "/a/b"), "..");
+        assert_eq!(relative(Flavour::Posix, "/w", "/", "/foo"), "foo");
+        assert_eq!(relative(Flavour::Posix, "/w", "/foo/bar", "/"), "../..");
+        assert_eq!(relative(Flavour::Posix, "/w", "x", "x/y"), "y");
+        assert_eq!(relative(Flavour::Posix, "/w", "/a", "/ab"), "../ab");
+        assert_eq!(dirname(Flavour::Posix, "/a/b/c"), "/a/b");
+        assert_eq!(dirname(Flavour::Posix, "/a"), "/");
+        assert_eq!(dirname(Flavour::Posix, "a"), ".");
+        assert_eq!(dirname(Flavour::Posix, "//a"), "//");
     }
 
     #[test]
@@ -602,5 +884,30 @@ mod tests {
         assert!(is_absolute(Flavour::Win32, "C:\\"));
         assert!(!is_absolute(Flavour::Win32, "C:"));
         assert!(is_absolute(Flavour::Win32, "/x"));
+        assert_eq!(
+            relative(Flavour::Win32, "C:\\w", "C:\\foo\\bar", "C:\\foo\\bar\\baz"),
+            "baz"
+        );
+        assert_eq!(
+            relative(Flavour::Win32, "C:\\w", "C:\\foo\\bar", "C:\\foo"),
+            ".."
+        );
+        assert_eq!(relative(Flavour::Win32, "C:\\w", "C:\\", "C:\\foo"), "foo");
+        assert_eq!(
+            relative(Flavour::Win32, "C:\\w", "C:\\foo\\bar", "C:\\"),
+            "..\\.."
+        );
+        assert_eq!(
+            relative(Flavour::Win32, "C:\\w", "C:\\a\\b", "D:\\a"),
+            "D:\\a"
+        );
+        assert_eq!(
+            relative(Flavour::Win32, "C:\\w", "c:\\A\\b", "C:\\a\\C"),
+            "..\\C"
+        );
+        assert_eq!(dirname(Flavour::Win32, "C:\\a\\b"), "C:\\a");
+        assert_eq!(dirname(Flavour::Win32, "C:\\a"), "C:\\");
+        assert_eq!(dirname(Flavour::Win32, "\\\\s\\sh\\f"), "\\\\s\\sh\\");
+        assert_eq!(dirname(Flavour::Win32, "\\\\s\\sh"), "\\\\s\\sh");
     }
 }

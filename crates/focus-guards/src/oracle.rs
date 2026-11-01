@@ -18,6 +18,7 @@ use crate::fences::{
     Fence, FenceResolution, format_guards_line, parse_guards_line, resolve_fences,
     set_guards_off_line, set_guards_on_line,
 };
+use crate::integrity::{self, Integrity};
 use crate::policy::{
     self, GuardPolicy, Resolution, format_guard_policy, parse_state_line, set_guard_policy_line,
     source_label,
@@ -25,12 +26,13 @@ use crate::policy::{
 use crate::shell::{self, CommandShell, Host};
 
 /// The kinds of case this crate answers.
-pub const KINDS: [&str; 5] = [
+pub const KINDS: [&str; 6] = [
     "guard_policy",
     "guards_line",
     "shell_invocations",
     "shell_targets",
     "write_targets",
+    "runtime_integrity",
 ];
 
 fn resolution_json(resolution: &Resolution) -> Value {
@@ -240,6 +242,7 @@ pub fn run_case(case: &Value) -> Value {
             })
         }
         "shell_targets" | "write_targets" => shell_case(case),
+        "runtime_integrity" => integrity_case(case),
         other => json!({ "unsupported": other }),
     }
 }
@@ -297,4 +300,81 @@ fn shell_case(case: &Value) -> Value {
         let _ = std::fs::remove_dir_all(&root);
     }
     out
+}
+
+/// A `runtime_integrity` case: a project tree laid out under a scratch root
+/// spelled as upstream's driver spells its own, the hook payload read from
+/// it, and the refusal class and text answered with the root written back
+/// as `{P}`.
+fn integrity_case(case: &Value) -> Value {
+    let text = |key: &str| case.get(key).and_then(Value::as_str).unwrap_or_default();
+    let root = format!("/tmp/focus-oracle-integrity-{}", text("id"));
+    let _ = std::fs::remove_dir_all(&root);
+    let _ = std::fs::create_dir_all(&root);
+    for (rel, content) in case["files"].as_object().into_iter().flatten() {
+        let path = format!("{root}/{rel}");
+        match content.as_str() {
+            None => {
+                let _ = std::fs::create_dir_all(&path);
+            }
+            Some(_) if rel.ends_with('/') => {
+                let _ = std::fs::create_dir_all(&path);
+            }
+            Some(text) => {
+                if let Some(parent) = std::path::Path::new(&path).parent() {
+                    let _ = std::fs::create_dir_all(parent);
+                }
+                // A file too large to read: a hook require, then a comment
+                // padded to the size, so that reading it would refuse.
+                let bytes: Vec<u8> = match text
+                    .strip_prefix("@bytes:")
+                    .and_then(|n| n.parse::<usize>().ok())
+                {
+                    Some(size) => {
+                        let mut bytes = b"require(\"hooks/focus-x\")\n//".to_vec();
+                        bytes.resize(size, b'x');
+                        bytes
+                    }
+                    None => text.as_bytes().to_vec(),
+                };
+                let _ = std::fs::write(&path, bytes);
+            }
+        }
+    }
+    for link in case["links"].as_array().into_iter().flatten() {
+        if let (Some(rel), Some(target)) = (link[0].as_str(), link[1].as_str()) {
+            let path = format!("{root}/{rel}");
+            if let Some(parent) = std::path::Path::new(&path).parent() {
+                let _ = std::fs::create_dir_all(parent);
+            }
+            #[cfg(unix)]
+            let _ = std::os::unix::fs::symlink(target, &path);
+            #[cfg(not(unix))]
+            let _ = (target, path);
+        }
+    }
+    #[cfg(unix)]
+    for rel in case["exec"].as_array().into_iter().flatten() {
+        use std::os::unix::fs::PermissionsExt;
+        let path = format!("{root}/{}", rel.as_str().unwrap_or_default());
+        let _ = std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o755));
+    }
+    let project = focus_js::path::join(focus_js::path::Flavour::Posix, &[&root, text("project")]);
+    let mut host = Integrity::posix(&root, &project, "/home/me");
+    host.harness_dir = case["env"]["FOCUS_HARNESS_DIR"].as_str().map(str::to_owned);
+    let mut input = case["input"].clone();
+    if let Some(cwd) = input
+        .get("cwd")
+        .and_then(Value::as_str)
+        .map(|cwd| cwd.replace("{P}", &root))
+    {
+        input["cwd"] = Value::String(cwd);
+    }
+    let violation = integrity::violation(&host, &input);
+    let _ = std::fs::remove_dir_all(&root);
+    json!({
+        "kind": violation.map(integrity::Violation::name),
+        "refused": violation.is_some(),
+        "stderr": violation.map_or_else(String::new, |violation| violation.refusal().replace(&root, "{P}")),
+    })
 }

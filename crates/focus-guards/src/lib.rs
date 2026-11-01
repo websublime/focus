@@ -25,6 +25,7 @@
 
 pub mod authority;
 pub mod fences;
+pub mod integrity;
 pub mod oracle;
 pub mod policy;
 pub mod shell;

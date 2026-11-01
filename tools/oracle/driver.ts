@@ -6,7 +6,7 @@
 // `focus dev oracle` prints for the same case (the `oracle` module of the crate
 // that owns the kind). The two outputs are compared as text, so key order is
 // part of the answer.
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { referee, second } from "./referee/referee.ts";
@@ -25,6 +25,7 @@ const graph = await import(tool("aidlc-graph.ts"));
 const audit = await import(tool("aidlc-audit.ts"));
 const settings = await import(tool("aidlc-settings.ts"));
 const freeze = await import(resolve(upstream, "core", "hooks", "review-freeze-command.ts"));
+const integrity = await import(resolve(upstream, "core", "hooks", "runtime-integrity.ts"));
 const nodePath = await import("node:path");
 
 // A scratch project for the cases that can only be asked by writing a file.
@@ -585,6 +586,54 @@ function answer(c: Record<string, any>): unknown {
         rmSync(root, { recursive: true, force: true });
       }
     }
+    case "runtime_integrity": {
+      // A project tree under a scratch root spelled as focus's replay spells
+      // its own, laid out from the case: files (`@bytes:N` is a refusable
+      // script of N bytes, null a directory), links and executable bits.
+      const root = `/tmp/focus-oracle-integrity-${c.id}`;
+      rmSync(root, { recursive: true, force: true });
+      mkdirSync(root, { recursive: true });
+      for (const [rel, text] of Object.entries(c.files as Record<string, string | null>)) {
+        const path = join(root, rel);
+        if (text === null || rel.endsWith("/")) {
+          mkdirSync(path, { recursive: true });
+          continue;
+        }
+        mkdirSync(dirname(path), { recursive: true });
+        // A file too large to read: a hook require, then a comment padded
+        // to the size, so that reading it would refuse.
+        const sized = /^@bytes:(\d+)$/.exec(text);
+        const head = 'require("hooks/aidlc-x")\n//';
+        writeFileSync(path, sized ? head + "x".repeat(Number(sized[1]) - head.length) : text);
+      }
+      for (const [rel, target] of c.links as Array<[string, string]>) {
+        mkdirSync(dirname(join(root, rel)), { recursive: true });
+        symlinkSync(target, join(root, rel));
+      }
+      for (const rel of c.exec as string[]) {
+        try { chmodSync(join(root, rel), 0o755); } catch { /* absent */ }
+      }
+      const saved = { ...process.env };
+      delete process.env.AIDLC_HARNESS_DIR;
+      delete process.env.AIDLC_RUNTIME_PROJECT_DIR;
+      process.env.AIDLC_PROJECT_DIR = join(root, c.project);
+      for (const [name, value] of Object.entries(c.env as Record<string, string>)) process.env[name] = value;
+      const input = { ...c.input, cwd: String(c.input.cwd).replace("{P}", root) };
+      const say = (text: string) => text.split(root).join("{P}");
+      let stderr = "";
+      const write = process.stderr.write;
+      process.stderr.write = ((chunk: string | Uint8Array) => { stderr += String(chunk); return true; }) as typeof process.stderr.write;
+      try {
+        const kind = integrity.runtimeIntegrityViolationKind(input);
+        const refused = integrity.refuseRuntimeIntegrityViolation(input);
+        return { kind, refused, stderr: say(stderr) };
+      } finally {
+        process.stderr.write = write;
+        for (const name of Object.keys(process.env)) if (!(name in saved)) delete process.env[name];
+        Object.assign(process.env, saved);
+        rmSync(root, { recursive: true, force: true });
+      }
+    }
     case "node_path": {
       const flavour = c.flavour === "win32" ? nodePath.win32 : nodePath.posix;
       const args: string[] = c.args;
@@ -594,6 +643,10 @@ function answer(c: Record<string, any>): unknown {
           return { value: flavour.resolve(c.cwd, ...args) };
         case "join":
           return { value: flavour.join(...args) };
+        case "relative":
+          // Both sides resolve against process.cwd(): the case's cwd is
+          // prefixed to a relative part so the answer does not depend on it.
+          return { value: flavour.relative(...(args.slice(0, 2).map((arg) => flavour.resolve(c.cwd, arg)) as [string, string])) };
         default:
           return { value: flavour[c.op](args[0] ?? "") };
       }

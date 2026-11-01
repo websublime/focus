@@ -6,7 +6,7 @@
 
 use serde_json::{Value, json};
 
-use crate::path::{Flavour, basename, is_absolute, join, normalize, resolve};
+use crate::path::{Flavour, basename, dirname, is_absolute, join, normalize, relative, resolve};
 
 /// The kinds of case this crate answers.
 pub const KINDS: [&str; 1] = ["node_path"];
@@ -35,6 +35,13 @@ pub fn run_case(case: &Value) -> Value {
                 "normalize" => json!(normalize(flavour, first)),
                 "isAbsolute" => json!(is_absolute(flavour, first)),
                 "basename" => json!(basename(flavour, first)),
+                "dirname" => json!(dirname(flavour, first)),
+                "relative" => json!(relative(
+                    flavour,
+                    text("cwd"),
+                    first,
+                    args.get(1).copied().unwrap_or_default()
+                )),
                 other => json!({ "unsupported": other }),
             };
             json!({ "value": value })
