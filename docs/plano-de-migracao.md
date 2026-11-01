@@ -115,7 +115,7 @@ focus-cli ✔ ───────────► focus-hooks ──► focus-o
 | `focus-intent` | Criação de intents: nomes, plano, template do estado, registo e cursores | Existe (M3, fatia 3b) |
 | `focus-lifecycle` | Transições de stage: a cadeia de admissão, onde estão os artefactos de uma stage, o recibo de validade de uma conclusão, e as transições em si | Existem `advance`, `finalize`, `complete-workflow`, `skip` e `resume` (M3, fatia 4a); os verbos de gate são a fatia 4b |
 | `focus-guards` | Lexer de shell, integridade de runtime, fences, decisões de guard | Existe a resolução da Guard Policy, as fences e a decisão de uma fence (M3, fatia 1) e o lexer de shell (M4, fatia 1); o resto é M4 |
-| `focus-hooks` | Os corpos dos hooks e o dispatcher | Existem o dispatcher, o contexto de um hook e os cinco observadores (M4, fatia 3a); o resto é M4 e M6 |
+| `focus-hooks` | Os corpos dos hooks e o dispatcher | Existem o dispatcher, o contexto de um hook, os cinco observadores (M4, fatia 3a) e a recompilação (fatia 3b); o resto é M4 e M6 |
 | `focus-orchestrate` | `next` e `report`, diretivas, plan approval, checkpoints | M5 |
 | `focus-sensors` | Dispatcher e os seis sensores | M7 |
 | `focus-project` | Projeção de `core/` para a árvore de cada harness, configuração, doctor | M8 |
@@ -1256,8 +1256,9 @@ M4 está em curso. Guards e hooks observadores são, no original, o que corre em
 | 1. O lexer de shell | `focus-guards::shell`: o que um comando `Bash` pode escrever (POSIX e PowerShell), os programas que corre através dos wrappers, onde a shell pode estar quando escreve; `focus-js::path`: `resolve`, `normalize`, `isAbsolute`, `join` e `basename` do `node:path`, nos dois sabores | Corpus | Feita |
 | 2. Integridade do runtime | `focus-guards::integrity`: o que nenhuma ferramenta pode tocar (os registos do runtime, o audit trail, os ficheiros instalados dos hooks), antes de qualquer fence; `focus-js::path` ganha `relative` e `dirname` | Corpus de pedidos de hook | Feita |
 | 3a. O dispatcher e os observadores | `focus-hooks`: o comando `focus engine hook <nome>`, o pedido lido do stdin, o traço de cada hook, o contexto de um hook (em que workflow dispara, se esta conversa o integrou), a pulsação e as quedas de cada um; os hooks que só registam: `validate-state`, `session-end`, `log-subagent`, `sync-workflow-state`, `write-audit-log` | Diferencial | Feita |
-| 3b. O arranque de sessão e o turno humano | `session-start` (a ligação da conversa ao registo, o resumo), `record-human-turn` (o turno da pessoa e as palavras de um gate, num processo filho), `rebuild-stage-graph` | Diferencial | Por fazer |
-| 4. Os guards | `review-freeze`, `reviewer-scope`, `state-transition-guard` e `plan-approval-guard`, com o que leem (`guard-operation`, `question-store`, `message-store`, a fatia de `testing-posture` que a aprovação do plano consulta) | Corpus de pedidos de hook, diferencial | Por fazer |
+| 3b. A recompilação e a ligação observada | `rebuild-stage-graph` (o runtime graph recompilado depois de cada ferramenta de transição; uma criação vista na saída da chamada liga a sessão que a fez); `focus-guards::engine_command` (as invocações do engine lidas de um comando de shell: a grafia canónica, o portão da recompilação, a invocação literal e o verbo do orquestrador) | Corpus (`engine_command`), diferencial | Feita |
+| 3c. O arranque de sessão | `session-start`: a ligação da conversa ao registo e o seu carimbo, a oferta de religar, o contexto entregue ao harness; com o que lê (`focus-includes`: a cópia da memória ativa e os blocos de raiz; `rules-held`; os switches gravados; o ponteiro do transcript) | Diferencial | Por fazer |
+| 4. Os guards e o turno humano | `review-freeze`, `reviewer-scope`, `state-transition-guard` e `plan-approval-guard`, com o que leem (`guard-operation`, `question-store`, `message-store`, a fatia de `testing-posture` que a aprovação do plano consulta); `record-human-turn`, que escreve nessas mesmas lojas (as palavras de um gate, a resposta a uma pergunta protegida, o switch de uma fence) e por isso entra com elas | Corpus de pedidos de hook, diferencial | Por fazer |
 
 ### Fatia 1: o lexer de shell
 
@@ -1349,7 +1350,40 @@ Antes de escrever, cada hook pergunta em que workflow dispara e se esta conversa
 
 **Limites da fatia.**
 
-- `session-start`, `record-human-turn` e `rebuild-stage-graph` são a fatia 3b: o primeiro escreve a ligação, o carimbo, o mapa de processos e o resumo que entrega ao harness; o segundo corre num processo filho e lê as palavras de um gate; o terceiro recompila o grafo.
+- `rebuild-stage-graph` é a fatia 3b; `session-start` a 3c (escreve a ligação, o carimbo, o mapa de processos e o resumo que entrega ao harness, e lê a cópia da memória ativa e as regras entregues); `record-human-turn` entra com os guards (fatia 4), porque escreve nas lojas que eles leem.
 - O log de depuração lê a flag do ambiente e o marcador do workspace; o original lê também o `settings.json` do projeto (`resolveProjectFlag`). Entra quando os guards (fatia 4) a precisarem.
 - `set-status` deixa a preservação do cursor de uma Construction unit-major por fazer, por ler o marcador de diretiva (M5).
+
+
+### Fatia 3b: a recompilação e a ligação observada
+
+`rebuild-stage-graph` dispara depois de cada chamada `Bash` do agente e recompila o runtime graph quando a chamada foi uma ferramenta de transição e o audit trail acabou numa linha de transição. Filtra barato pelo comando (`classifyRuntimeCompileCommand`: as ferramentas `state`, `jump`, `bolt`, `unit`, `utility` pelo script ou pela gramática nativa, `report` pelo orquestrador, e nunca a própria `runtime`, que o faria recompilar em ciclo); lê os três últimos blocos de todos os shards do registo que esta conversa integrou (uma aprovação escreve até três linhas numa chamada; um fim de workflow cinco, e `WORKFLOW_COMPLETED` está no conjunto por isso); e corre `focus engine runtime compile` como processo próprio, com a sessão do pedido passada por `FOCUS_SESSION_OVERRIDE`, registando uma saída não-zero como queda. No modo do IDE (`source: ide-audit-sync`) não há comando: o portão é só a cauda, com a marca `.noop` para o front gate e o guarda de idempotência pela data do grafo contra a do shard mais novo. Antes de tudo isso, duas coisas que não precisam de workflow: uma criação vista na saída da chamada (`Intent created: <registo> (space: <space>)`) liga a sessão que a fez — provada pelo recibo de criação que o `intent-create` desta máquina deixou e gasta uma vez (`create`), ou só observada (`observed-create`, que não move uma sessão participante noutro registo nem carimba); uma segunda criação deixa o recibo de passagem (`<id>.handoff.json`) para o Stop hook — e a diretiva de erro do engine na saída de uma chamada literal ao orquestrador seria entregue à pessoa pelo canal do harness.
+
+**O que existe.** Em `focus-guards::engine_command`: `canonical_engine_command`, `classify_runtime_compile_command`, `parse_literal_shell_invocation` (a gramática literal de um comando: um só, com um `cd <absoluto> &&` opcional antes e um `2>&1` opcional depois, sem expansões nem operadores), `engine_invocation_from_words` (a ferramenta do engine atrás dos wrappers transparentes `env`, `command`, `exec` e das atribuições, com os flags globais retirados e o `--project-dir` lido), `literal_orchestrate_verb`, `shell_tool_response_text`. Em `focus-hooks`: `hooks::rebuild_stage_graph`, `sessions` (o carimbo de uma sessão e o recibo de passagem), `registry::intent_uuid_of`, `health::cursor_selection` (o registo que os helpers do original nomeiam quando o hook não passa nenhum); em `focus-intent::record`, `consume_creation_receipt`. O diferencial normaliza o nome da ferramenta `runtime` dentro de uma queda e o instante de um recibo de passagem.
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Corpus, `engine_command` (453) | 93 fixos (cada grafia do dispatcher e das ferramentas, cada wrapper, cada prelúdio `cd`, cada operador que recusa a leitura literal, os flags globais com e sem valor) e 360 gerados: a classe da recompilação, a invocação literal com as suas palavras e o verbo do orquestrador, iguais em todos |
+| Diferencial, `hook/rebuild/*` | 65 verificações: 58 iguais, 7 desvios, 0 diferentes. Cada classe de comando nas duas grafias, uma menção entre aspas, duas vezes; a transição no terceiro bloco a contar do fim e no quarto, o fim do workflow, o gate aberto, o campo com espaços, o campo dentro de uma linha, o trail em CRLF, outro shard, sem shard, sem estado; participante pelo cursor, de fora, `unjoined` (os helpers seguem o cursor, como no original), sem sessão, o pedido vazio, sem comando, comando de outro tipo; o modo do IDE: dispara, idempotente, sem transição, grafo mais antigo que o shard; a ligação observada: provada, só observada, nativa, migrada, resposta em texto e em objeto, sem resposta, outro comando, registo desconhecido, outro space, recibo de outro uuid, recibo gasto à segunda, já ligada (com e sem fonte), carimbo noutro registo (o recibo de passagem) e no mesmo, participante noutro registo que a observação não move e a prova move, de fora que a observação move, pelo IDE, registo plano; a diretiva de erro, pelo dispatcher e em texto, e as chamadas que não são literais ou não são erro |
+| Testes do CLI | +4 (19): a recompilação por classe de comando e pela cauda, o espelho do IDE uma vez por mudança, a ligação observada e provada com a passagem, o desvio da diretiva |
+| Unidades | +5 em `engine_command`, +2 em `sessions`, +1 em `record` (o recibo) |
+| Mutações | 44 em `engine_command`, no hook, em `sessions` e no recibo; 44 apanhadas (a leitura literal e a classificação pelo corpus; o hook pelos testes do CLI) |
+| `cargo test` | 438 testes; o corpus tem 14 024 casos. Diferencial completo: 2 590 verificações, 2 401 iguais, 189 desvios, 0 diferentes; 2 556 gravadas sobre 730 árvores (`rebuild/ide_stale_graph` fica ao vivo: a idade do grafo é posta à mão, o que a gravação não leva) |
+
+**Pormenores do original que ficam iguais.**
+
+- O separador final do shard fecha um bloco vazio, que conta entre os três últimos: uma transição seguida de duas linhas quaisquer já não dispara.
+- Um `tool_response` que não é texto nem traz `stdout` não é lido para a diretiva, mas é lido, como JSON, para a criação.
+- A queda da recompilação vai para o registo do cursor, não para o da sessão: é onde o `--doctor` a lê.
+
+**Desvios deliberados.** Cada um tem um teste marcado, uma entrada em `DEVIATIONS` e uma linha aqui; os dos registos de marcos posteriores e das resoluções não portadas são os da fatia 3a, que este hook partilha.
+
+| | Original | Focus |
+| --- | --- | --- |
+| Uma chamada literal ao orquestrador cuja saída nomeia uma diretiva de erro | Valida a diretiva e entrega a mensagem à pessoa pelo canal do harness (`systemMessage`), com uma nota para o modelo | Recusa o hook pelo nome antes de validar: a diretiva é do orquestrador (M5) |
+| `command` de outro tipo no pedido | Cai no `TypeError` da linha de depuração | Recusa o campo pelo nome |
+
+**Limites da fatia.** O processo filho da recompilação é o próprio binário (`current_exe`), sem o `timeout` de 15 minutos do original. `record-human-turn` passou para a fatia 4: escreve nas lojas que os guards leem (as palavras de um gate, a resposta a uma pergunta protegida, o switch tipado de uma fence) e não faz sentido sem elas.
 

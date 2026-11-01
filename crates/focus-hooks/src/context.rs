@@ -26,6 +26,12 @@ const TRUSTED_BINDING_SOURCES: [&str; 6] = [
     "stamp",
 ];
 
+/// `isTrustedBindingSource`.
+#[must_use]
+pub fn is_trusted_binding_source(source: &str) -> bool {
+    TRUSTED_BINDING_SOURCES.contains(&source)
+}
+
 /// `WorkflowParticipation`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Participation {

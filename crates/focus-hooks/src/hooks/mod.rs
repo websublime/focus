@@ -2,6 +2,7 @@
 //! [`Outcome`](crate::Outcome).
 
 pub mod log_subagent;
+pub mod rebuild_stage_graph;
 pub mod session_end;
 pub mod sync_workflow_state;
 pub mod validate_state;

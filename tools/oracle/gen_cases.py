@@ -2012,6 +2012,105 @@ for _ in range(scale * 70):
 
 # --------------------------------------------------------------------------
 # Runtime integrity (M4, slice 2): what a tool call may not touch.
+# --------------------------------------------------------------------------
+# engine_command: the engine's own invocations as the recompile hook and the relay read them off a shell command.
+
+ec = random.Random(seed * 7919 + 10)
+EC_HARNESS = [".claude", ".kiro", ".codex", ".aidlc", ".cursor", ".gemini", ".claude2"]
+EC_TOOLS = ["aidlc-state", "aidlc-jump", "aidlc-bolt", "aidlc-unit", "aidlc-utility", "aidlc-orchestrate", "aidlc-runtime",
+            "aidlc-log", "aidlc-worktree", "aidlc", "aidlc-swarm", "aidlcx", "x"]
+EC_NOUNS = ["state", "state", "jump", "bolt", "unit", "recompose", "status", "doctor", "version", "help", "scope", "config", "report", "report",
+            "orchestrate", "orchestrate", "next", "next", "next", "runtime", "swarm", "intent", "space", "workspace", "sensor", "gen",
+            "continue", "park", "utility"]
+EC_VERBS = ["approve", "advance", "report", "compile", "change", "set", "next", "resolve", "execute", "create", "help", "--resume",
+            "--status", "--json", "list", ""]
+EC_GLOBALS = ["--json", "--quiet", "--no-color", "--yes", "--offline", "--verbose", "--project-dir", "--project-dir=/p",
+              "--aidlc-attempt-id", "--aidlc-attempt-id=a1", "--", "-x", "--phase", "ideation"]
+EC_PATH_PREFIX = ["", "./", "/p/", "\\srv\\share\\", "C:/p/", "\"/p q/", "'/p q/", "$HOME/", "~/", "../", "a/b/"]
+EC_WRAP = ["", "env ", "env -- ", "env -i ", "env X=1 Y=2 ", "command ", "command -- ", "command -v ", "exec ", "exec -a x ", "X=1 ", "X=1 Y=2 ",
+           "sudo ", "sh -c ", "node ", "bash "]
+EC_PRELUDE = ["", "cd /p && ", "cd -- /p && ", "cd /p q && ", "cd 'C:\\p' && ", "cd \\\\srv\\share && ", "cd rel && ", "cd ~ && ", "pushd /p && ",
+              "cd /p; ", "cd /p || "]
+EC_TAIL = ["", " 2>&1", " 2>&1 ", " | cat", " && echo done", " > out", " ;", " &", " #c", " $(x)", " `x`", " \\\n x"]
+
+
+def ec_dispatcher():
+    harness = ec.choice(EC_HARNESS)
+    prefix = ec.choice(EC_PATH_PREFIX)
+    quoted = ec.choice(["", "\"", "'"])
+    sep = ec.choice(["/", "/", "\\"])
+    name = ec.choice(["aidlc.ts", "aidlc.ts", "aidlc", "aidlc.js", "aidlc-state.ts"])
+    path = f"{prefix}{harness}{sep}tools{sep}{name}"
+    if quoted:
+        path = f"{quoted}{path}{quoted}"
+    bun = ec.choice(["bun", "bun", "/usr/bin/bun", "bunx", "BUN", "bun\t"])
+    return f"{bun} {path}"
+
+
+def ec_tool():
+    harness = ec.choice(EC_HARNESS)
+    tool = ec.choice(EC_TOOLS)
+    sep = ec.choice(["/", "/", "\\"])
+    return f"{ec.choice(['bun ', 'bun ', 'node ', '', '/opt/bun '])}{ec.choice(EC_PATH_PREFIX)}{harness}{sep}tools{sep}{tool}.ts"
+
+
+def ec_native():
+    return ec.choice(["aidlc"] * 7 + ["/usr/local/bin/aidlc", "./aidlc", "aidlc.exe", "aidlcx", "AIDLC"])
+
+
+def ec_args():
+    words = []
+    if ec.random() < 0.5:
+        words.append("engine")
+    words.append(ec.choice(EC_NOUNS))
+    for _ in range(ec.randrange(0, 4)):
+        words.append(ec.choice(EC_VERBS + EC_VERBS + EC_GLOBALS + ["a", "intent-capture", "\"two words\"", "'q'", "x=y"]))
+    return " ".join(w for w in words if w)
+
+
+def ec_pick(options, plain):
+    """One of `options`, the empty one with probability `plain`."""
+    return "" if ec.random() < plain else ec.choice(options)
+
+
+def ec_command():
+    head = ec.choice([ec_dispatcher(), ec_dispatcher(), ec_tool(), ec_tool(), ec_native(), ec_native(), ec_native(), "echo", "ls -la", "git status"])
+    text = f"{ec_pick(EC_PRELUDE, 0.6)}{ec_pick(EC_WRAP, 0.6)}{head} {ec_args()}{ec_pick(EC_TAIL, 0.6)}"
+    if ec.random() < 0.15:
+        text = text.replace(" ", ec.choice(["  ", "\t", " "]), 1)
+    if ec.random() < 0.1:
+        text = ec.choice(["", " ", "\n", "x\0y", "aidlc 'unterminated", 'aidlc "a$b"', "aidlc a\\ b", "aidlc (x)", "aidlc *"])
+    return text
+
+
+EC_FIXED = [
+    "bun .claude/tools/aidlc.ts engine state approve x", "bun '/p q/.claude/tools/aidlc.ts' engine orchestrate help",
+    'bun "/p/.kiro\\tools\\aidlc.ts" engine runtime compile', "bun .claude/tools/aidlc.ts engine state advance && bun .claude/tools/aidlc-runtime.ts compile",
+    "aidlc engine runtime compile", "echo 'aidlc engine runtime compile'", "aidlc state approve; aidlc engine runtime compile",
+    "bun .claude/tools/aidlc-utility.ts status", "bun .claude/tools/aidlc-orchestrate.ts report --result done", "bun .claude/tools/aidlc-orchestrate.ts next",
+    "aidlc next --resume && aidlc report", "aidlc next report", "aidlc engine orchestrate report", "aidlc scope change", "aidlc config set x y",
+    "aidlc config get x", "aidlc intent create", "aidlc workspace status", "aidlc unit", "aidlc recompose", "aidlcx state", "xaidlc state",
+    "cd /p && aidlc next", "cd -- /p && bun .claude/tools/aidlc.ts engine orchestrate continue 2>&1", "cd rel && aidlc next",
+    "cd /p && cd /q && aidlc next", "env X=1 aidlc report", "env -i aidlc park", "env -- aidlc next", "command aidlc next", "command -v aidlc next",
+    "exec -- aidlc next", "exec -x aidlc next", "X=1 bun .claude/tools/aidlc-orchestrate.ts next", "node .claude/tools/aidlc.ts engine orchestrate next",
+    "bun .gemini/tools/aidlc.ts engine orchestrate next", "bun aidlc.ts engine orchestrate next", "aidlc.ts engine orchestrate next",
+    "aidlc --project-dir /p next", "aidlc --project-dir", "aidlc --project-dir=/p engine orchestrate next --aidlc-attempt-id a1",
+    "aidlc engine orchestrate next --aidlc-attempt-id", "aidlc orchestrate --json next", "aidlc -- next", "aidlc next -- --json",
+    "bun .claude/tools/aidlc-orchestrate.ts --json next", "bun .claude/tools/aidlc-orchestrate.ts --project-dir /p next",
+    "aidlc next | cat", "aidlc next > out", "aidlc next; echo", "aidlc 'next'", 'aidlc "next"', 'aidlc "ne\\"xt"', "aidlc ne\\xt", "aidlc ~/x",
+    "aidlc x~", "aidlc $(x)", "aidlc `x`", "aidlc #x", "aidlc next\n", "aidlc\tnext", "  aidlc next  ", "aidlc next 2>&1", "aidlc next 2>&1 2>&1",
+    "aidlc next\t2>&1", "", "   ", "cd /p &&", "&& aidlc next", "cd /p && && aidlc next", "cd '/p q' && aidlc next", "cd \"C:\\p\" && aidlc next",
+    "cd 'C:/p' && aidlc next", "cd '\\\\srv\\share' && aidlc next", "cd '\\\\srv' && aidlc next", "cd /p -- && aidlc next", "cd -- -- /p && aidlc next",
+    "bun .claude/tools/aidlc.ts engine", "bun .claude/tools/aidlc.ts", "aidlc", "aidlc engine", "aidlc engine orchestrate",
+    "aidlc orchestrate next", "aidlc continue", "aidlc park", "aidlc swarm x", "aidlc bolt create", "bun .claude/tools/aidlc-swarm.ts next",
+    "bun .claude/tools/aidlc-state.ts next", "bun .claude/tools/aidlc-jump.ts resolve", "sudo aidlc next", "sh -c 'aidlc next'", "bash aidlc next",
+]
+for command in EC_FIXED:
+    add("engine_command", command=command)
+for _ in range(scale * 60):
+    add("engine_command", command=ec_command())
+
+
 ri = random.Random(seed * 7919 + 9)
 HARNESS_JSON = json.dumps({"schemaVersion": 1, "distribution": "claude", "name": "claude", "harnessDir": ".claude"})
 RECORD = "aidlc/spaces/default/intents/260105-add-login"

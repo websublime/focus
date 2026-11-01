@@ -551,6 +551,12 @@ function answer(c: Record<string, any>): unknown {
       return { unsafe: lib.hasUnsafeSingleLineCharacter(c.value) };
     case "field_args":
       return { fields: lib.parseFieldArgs(c.args) };
+    case "engine_command":
+      return {
+        classify: lib.classifyRuntimeCompileCommand(c.command),
+        literal: lib.parseLiteralShellInvocation(c.command),
+        verb: lib.literalOrchestrateVerb(c.command),
+      };
     case "shell_invocations":
       return {
         details: freeze.shellCommandInvocationDetails(c.command),

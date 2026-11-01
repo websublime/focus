@@ -65,6 +65,22 @@ pub fn find_intent_by_uuid(layout: &Layout, uuid: &str) -> Option<Found> {
     None
 }
 
+/// `listIntents(space).find(dirName)?.uuid`: the registry uuid of a record
+/// that exists in the space.
+#[must_use]
+pub fn intent_uuid_of(layout: &Layout, space: &str, dir_name: &str) -> Option<String> {
+    if !list_intent_dirs(layout, space)
+        .iter()
+        .any(|dir| dir == dir_name)
+    {
+        return None;
+    }
+    read_intent_registry(layout, space)
+        .into_iter()
+        .find(|row| row_names_record(row, dir_name))
+        .and_then(|row| row.get("uuid").and_then(Value::as_str).map(str::to_owned))
+}
+
 /// `activeIntentUuid`: the uuid of the active intent of `space` (the active
 /// space when none), from its registry row.
 #[must_use]
