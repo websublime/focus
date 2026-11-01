@@ -263,11 +263,11 @@ fn win32_resolve(cwd: &str, parts: &[&str]) -> String {
                         .first()
                         .is_some_and(|b| flavour.is_separator(*b)))
             {
-                return if cfg!(windows) {
-                    cwd.to_owned()
-                } else {
-                    cwd.replace('/', "\\")
-                };
+                // `process.cwd()` as the Windows flavour returns it: on
+                // Windows it already has backslashes, elsewhere Bun's answer
+                // has the POSIX separators turned, so the one rule serves
+                // both hosts (and the corpus, recorded on one).
+                return cwd.replace('/', "\\");
             }
             cwd
         } else {
