@@ -61,6 +61,8 @@ fn materialise(overlay: &Value, root: &Path, empty: bool) {
         copy_dir(&fixtures().join("upstream/installed/claude"), root);
     }
     for (rel, content) in overlay.as_object().unwrap() {
+        // A record the recording minted is stored by its day placeholder.
+        let rel = rel.replace("/intents/<day>-", &format!("/intents/{}-", today()));
         let path = root.join(rel);
         match content.as_str() {
             Some(text) => {
