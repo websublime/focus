@@ -2274,7 +2274,7 @@ fn the_fence_stands_aside_when_it_is_lowered_for_this_work() {
     assert!(
         said.contains("Your team set Guard Policy to strict in ")
             && said.contains(
-                "memory/team.md, so the state-transition check stays on for everyone on this repo."
+                "team.md, so the state-transition check stays on for everyone on this repo."
             ),
         "{said}"
     );
