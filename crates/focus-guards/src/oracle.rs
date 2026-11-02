@@ -26,9 +26,10 @@ use crate::policy::{
 };
 use crate::reviewer_scope;
 use crate::shell::{self, CommandShell, Host};
+use crate::state_transition;
 
 /// The kinds of case this crate answers.
-pub const KINDS: [&str; 9] = [
+pub const KINDS: [&str; 10] = [
     "guard_policy",
     "guards_line",
     "engine_command",
@@ -38,6 +39,7 @@ pub const KINDS: [&str; 9] = [
     "runtime_integrity",
     "reviewer_scope",
     "reviewer_dispatch",
+    "state_transition",
 ];
 
 fn resolution_json(resolution: &Resolution) -> Value {
@@ -265,6 +267,17 @@ pub fn run_case(case: &Value) -> Value {
         "shell_targets" | "write_targets" => shell_case(case),
         "runtime_integrity" => integrity_case(case),
         "reviewer_scope" => reviewer_scope_case(case),
+        "state_transition" => {
+            let command = case
+                .get("command")
+                .and_then(Value::as_str)
+                .unwrap_or_default();
+            json!({
+                "direct": state_transition::direct_state_transition(command),
+                "boundary": state_transition::is_lifecycle_boundary_command(command),
+                "delegated": state_transition::delegated_lifecycle_command(command),
+            })
+        }
         "reviewer_dispatch" => {
             let record = reviewer_scope::parse_dispatch_record(
                 case.get("raw").and_then(Value::as_str).unwrap_or_default(),

@@ -238,6 +238,13 @@ pub fn find(pattern: &str, flags: &'static str, text: &str) -> Option<Match> {
     compile(pattern, flags).find(text)
 }
 
+/// `[...text.matchAll(/pattern/flags)]` for a global regex: every match, in
+/// order; an empty match advances past one code point, as the iterator does.
+#[must_use]
+pub fn find_all(pattern: &str, flags: &'static str, text: &str) -> Vec<Match> {
+    compile(pattern, flags).find_iter(text).collect()
+}
+
 /// `/pattern/flags.test(text)`.
 #[must_use]
 pub fn test(pattern: &str, flags: &'static str, text: &str) -> bool {

@@ -2725,5 +2725,461 @@ RS_RECORDS = ['{"reviewer": "aidlc-architecture-reviewer-agent", "stage": "nfr-d
 for raw in RS_RECORDS:
     add("reviewer_dispatch", raw=raw)
 
+
+# The state-transition guard's three readers of a shell command: direct
+# transitions, lifecycle boundaries and what a delegated agent may not run.
+st = random.Random(seed * 7919 + 13)
+ST_STATE_VERBS = ["set", "checkbox", "advance", "finalize", "complete-workflow", "gate-start", "approve", "reject", "revise", "skip", "park",
+                  "refresh-unit-progress", "fold-unit-merge", "set-skeleton-stance", "sync-unit-scope-stage", "unit", "acknowledge-compaction",
+                  "reuse-artifact", "practices-event", "fork", "merge", "unpark", "get", "count", "resume", "lookup", "init", "set-status", "status", "x"]
+ST_SCRIPTS = {
+    "aidlc-state.ts": ST_STATE_VERBS,
+    "aidlc-orchestrate.ts": ["next", "continue", "report", "park", "wait", "team-board", "help"],
+    "aidlc-jump.ts": ["execute", "reopen", "resolve", "x"],
+    "aidlc-unit.ts": ["adopt", "claim", "release", "participate", "publish", "pin", "gate", "land", "status", "merge-status"],
+    "aidlc-bolt.ts": ["start", "complete", "fail", "abort", "set-autonomy", "checkpoint", "swarm-checkpoint", "dispatch-event", "hold-merge", "release-merge", "list"],
+    "aidlc-swarm.ts": ["prepare", "check", "finalize", "status"],
+    "aidlc-log.ts": ["decision", "answer", "review", "link", "answers"],
+    "aidlc-learnings.ts": ["persist", "surface"],
+    "aidlc-runtime.ts": ["fragment-fork", "fragment-merge", "read", "summary", "compile"],
+    "aidlc-testing-posture.ts": ["begin", "fingerprint", "resolve", "render", "verify", "brief", "reply", "restore", "x"],
+    "aidlc-worktree.ts": ["purge", "list", "create"],
+    "aidlc-audit.ts": ["audit-fork", "audit-merge", "history", "fork"],
+    "aidlc-plugin.ts": ["sync", "list"],
+    "aidlc-machine-config.ts": ["get", "set", ""],
+    "aidlc-utility.ts": ["scope-change", "scope-save", "config-change", "recompose", "intent-create", "state-init", "space-create", "reclassify",
+                         "select-plugins", "plugin-sync", "upgrade", "claim", "release", "participate", "set-status", "status", "help", "intent", "space"],
+    "aidlc-graph.ts": ["topo", "export"],
+    "other.ts": ["x"],
+}
+ST_DISPATCH_WORDS = ["next", "continue", "report", "park", "--resume", "--scope", "--claim", "--release", "scope-change", "scope-save", "config-change",
+                     "compose", "recompose", "init", "scope change", "scope save", "scope x", "orchestrate next", "orchestrate wait", "intent create",
+                     "intent list", "intent switch a", "intent switch", "intent switch a b", "intent archive a", "intent archive --json", "intent unarchive a",
+                     "intent add-repo r", "intent rename a", "intent show", "intent help", "intent --json", "intent --all", "intent x", "intent x --flag",
+                     "intent x y", "space create a", "space create", "space switch a", "space switch a b", "space list", "space x", "space-create a",
+                     "space-create", "space-create a b", "jump execute", "jump resolve", "config set a b", "config global", "config get a",
+                     "workspace reclassify", "workspace status", "plugin select", "plugin select a", "plugin select --json", "plugin sync", "plugin list",
+                     "unit adopt", "unit status", "bolt start", "swarm prepare", "log decision", "learnings persist", "runtime fragment-fork",
+                     "testing-posture begin", "testing-posture brief", "worktree purge", "audit fork", "audit history", "state approve", "state set x",
+                     "state init", "state set-status", "state get", "state unpark", "status", "help", "", "x y"]
+ST_GLOBALS = ["--json", "--quiet", "--no-color", "--yes", "--offline", "--verbose", "--project-dir /p", "--project-dir=/p", "--other"]
+ST_NAMESPACE = ["", "", "engine ", "system ", "engines "]
+ST_DISPATCHER = ["aidlc", "aidlc", "./aidlc", "/usr/local/bin/aidlc", "aidlc.exe", ".claude/bin/aidlc", "bun .claude/tools/aidlc.ts", "bun aidlc.ts",
+                 "bun run .claude/tools/aidlc.ts", "bun --cwd /p aidlc.ts", "bun -e aidlc.ts", "bunx aidlc", "aidlcx", "xaidlc", 'bun "/p q/aidlc.ts"',
+                 "bun '/p q/aidlc.ts'", "bun.exe aidlc.ts", "AIDLC", "bun .claude\\tools\\aidlc.ts", "/usr/bin/bun .claude/tools/aidlc.ts"]
+ST_BUN = ["bun", "bun", "bun run", "bun --cwd /p", "bun -r x", "bun --preload x", "bun --define a=b", "bun --config=x", "bun --", "bun run --", "bun -e",
+          "bun --print", "bun --quiet", "/usr/bin/bun", "bun.exe", "node", "", "bun --cwd"]
+ST_SCRIPT_PATH = ["{s}", ".claude/tools/{s}", "./{s}", "/p/.claude/tools/{s}", '".claude/tools/{s}"', "'.claude/tools/{s}'", ".kiro\\tools\\{s}",
+                  "~/x/{s}", "$HOME/{s}", "x{s}", "{s}x"]
+ST_WRAP = ["", "", "", "time ", "time -p ", "time -f %e ", "time -o out ", "time -f ", "command ", "command -p ", "command -v ", "command -V ", "command -- ",
+           "command -x ", "exec ", "exec -c ", "exec -a name ", "exec -l ", "exec -x ", "exec -a ", "exec -- ", "env ", "env -i ", "env -u X ", "env --unset=X ",
+           "env -C /p ", "env -S ", "env -S 'bun x.ts' ", "env '-Sbun aidlc-state.ts approve' ", "env --split-string='aidlc next' ", "env -S '$X' ",
+           "env -0 ", "env --null ", "env --help ", "env -P /p ", "env --debug ", "env --block-signal=INT ", "env -v ", "env -Z ", "env - ", "env X=1 ",
+           "env X=1 -- ", "nice ", "nice -n 5 ", "nice -n ", "nice -n x ", "nice -5 ", "nice --5 ", "nice --adjustment=3 ", "nice --adjustment 3 ", "nice -x ",
+           "nice --help ", "nohup ", "nohup -- ", "nohup -x ", "nohup --version ", "sudo ", "X=1 ", "X=1 Y=2 ", "if ", "! ", "while ", "then ", "do ", "else ",
+           "elif ", "until ", "2>/dev/null ", "> out ", "< in ", "2>&1 ", ">out ", "2> err ", "command 2>/dev/null ", "env > out -i ", "exec 3>&1 ",
+           "time -f %e 2>err ", "eval ", "eval -- ", "sh -c ", "bash -c ", "zsh -lc ", "bash -lc ", "sh -o x -c ", "bash --rcfile r -c ", "sh -x ", "dash -c ",
+           "ksh -c ", "ash -c ", "fish -c ", "sh -- ", "sh -c -- ", "sh.exe -c ", "bash -ec ", "bash -", "exec sh -c ", "command exec env nice nohup "]
+ST_SEP = [" && ", " || ", "; ", " | ", "\n", " & ", " |& ", " ;; ", " ( ", " { ", " } ", " ) ", "\n\n", " &&\n", " \\\n ", " # c\n"]
+ST_PRELUDE = ["", "", "cd /p && ", "echo hi; ", "X=1\n", "X='aidlc next'\n", "CMD=aidlc\n", "CMD='bun aidlc-state.ts'\n", "V=\"a b\"\n", "X=1 Y=2\n",
+              "X=$(echo 1)\n", "X=1; Y=2; ", "export X=1\n", "set -e\n", "ls # aidlc next\n", "# aidlc next\n", "true &&\n", "echo \"$(aidlc next)\"; ",
+              "echo '$(aidlc next)'; ", "f() { aidlc next; }\n", "function f { aidlc next; }\n", "function f() { aidlc next; }\n", "f () {\n aidlc next\n}\n",
+              "f() { echo x; }; ", "cat <<EOF\naidlc next\nEOF\n", "cat <<'EOF'\n$(aidlc next)\nEOF\n", "cat <<EOF\n$(aidlc next)\nEOF\n",
+              "cat <<-EOF\n\t$(aidlc next)\n\tEOF\n", "cat <<\"EOF\"\n`aidlc next`\nEOF\n", "cat <<EOF\n`aidlc next`\nEOF\n", "cat <<EOF\naidlc next\n",
+              "cat <<EOF <<X\na\nEOF\n$(aidlc next)\nX\n", "echo `aidlc next`; ", "echo $(aidlc next); ", "echo \"$(echo $(aidlc next))\"; ",
+              "echo ${X:-aidlc next}; ", "echo ${X} ", "echo $X; "]
+ST_TAIL = ["", "", " 2>&1", " | cat", " > out", " &", " #c", " \\\n x", " $(x)", " `x`", " \"$(aidlc next)\"", " '$(aidlc next)'", " ; aidlc next",
+           " && bun aidlc-state.ts approve", " | aidlc approve", " || aidlc engine state set x", "\naidlc next", "\n$CMD next", "\n$X", "\n${CMD} next",
+           "\n\"$CMD\" next", "\n$CMD", "\neval \"$X\"", "\neval $X", "\neval aidlc next", "\neval 'aidlc next'", "\neval -- aidlc next", "\neval \\$X",
+           "\neval 'echo `x`'", "\nsh -c \"$X\"", "\nsh -c $X", "\nsh -c '$X'", "\nsh -c 'aidlc next'", "\nsh -c \"aidlc next\"", "\nsh -c 'aidlc $V'",
+           "\nsh -c -- 'aidlc next'", "\nbash -lc 'aidlc next'", "\nbash -o pipefail -c 'aidlc next'", "\nsh -x 'aidlc next'", "\nsh 'aidlc next'",
+           "\n$(aidlc next)", "\n`aidlc next`", "\n\"`aidlc next`\"", "\n'`aidlc next`'", "\nx=$(aidlc next)", "\nx=`aidlc next`", "\nx=$(aidlc next) y", "\n{ aidlc next; }",
+           "\n( aidlc next )", "\nif aidlc next; then echo; fi", "\n! aidlc next", "\nfoo=bar aidlc next", "\n[ -f x ] && aidlc next", "\necho aidlc next",
+           "\necho 'aidlc engine state approve'", "\n'aidlc' next", "\n\"aidlc\" 'next'", "\naidlc ne\\xt", "\naidlc $'next'", "\naidlc $\"next\"",
+           "\naidlc\tnext", "\n aidlc  next ", "\naidlc\\\n next", "\naidlc next\\", "\n\u00e9 aidlc next", "\n\U0001F600 aidlc next", "\necho \U0001F600; aidlc next",
+           "\necho '\U0001F600'; aidlc next", "\nf() { \U0001F600; }; aidlc next", "\nf() { x; }\U0001F600 aidlc next", "\ncat <<E\n\U0001F600\nE\naidlc next",
+           "\necho \"\U0001F600 $(aidlc next)\"", "\necho \"\U0001F600\" $(aidlc next)", "\necho `\U0001F600` $(aidlc next)", "\necho \"\U0001F600\"; aidlc approve"]
+
+
+def st_script_call():
+    script = st.choice(list(ST_SCRIPTS))
+    verb = st.choice(ST_SCRIPTS[script] + ["", "--help"])
+    bun = st.choice(ST_BUN)
+    path = st.choice(ST_SCRIPT_PATH).format(s=script)
+    words = [bun, path]
+    for _ in range(st.randrange(0, 3)):
+        words.append(st.choice(ST_GLOBALS + ["--stage x", "--result done", "--", "a", "--k=v", "--stage"]))
+    if st.random() < 0.3:
+        words.insert(2 + st.randrange(0, len(words) - 1), verb)
+    else:
+        words.append(verb)
+    return " ".join(w for w in words if w)
+
+
+def st_dispatcher_call():
+    head = st.choice(ST_DISPATCHER)
+    words = [head]
+    for _ in range(st.randrange(0, 3)):
+        words.append(st.choice(ST_GLOBALS))
+    words.append(st.choice(ST_NAMESPACE) + st.choice(ST_DISPATCH_WORDS))
+    for _ in range(st.randrange(0, 2)):
+        words.append(st.choice(ST_GLOBALS + ["--stage x", "--", "a"]))
+    return " ".join(w for w in words if w)
+
+
+def st_native_state():
+    return f"{st.choice(ST_DISPATCHER)} {st.choice(['engine ', 'engine ', '', 'system '])}{st.choice(['state', 'orchestrate', 'jump', 'unit'])} {st.choice(ST_STATE_VERBS + ['report', 'park', 'execute', 'reopen', 'next'])}"
+
+
+def st_head():
+    return st.choice([st_script_call(), st_script_call(), st_dispatcher_call(), st_dispatcher_call(), st_native_state(), st_native_state(),
+                      "echo x", "ls -la", "git status", "cat f", "$CMD next", "${CMD} next", "\"$CMD\" next", "$X", "$(cmd) next", "`cmd` next", "a$X next"])
+
+
+def st_segment(depth=0):
+    text = st.choice(ST_WRAP) + st_head()
+    if depth < 3 and st.random() < 0.35:
+        inner = st_segment(depth + 1)
+        text = st.choice([
+            f"{text}{st.choice(ST_SEP)}{inner}",
+            f"sh -c '{inner}'",
+            f"sh -c \"{inner}\"",
+            f"eval '{inner}'",
+            f"eval \"{inner}\"",
+            f"eval {inner}",
+            f"echo $({inner})",
+            f"echo `{inner}`",
+            f"echo \"$({inner})\"",
+            f"x=$({inner})",
+            f"cat <<EOF\n$({inner})\nEOF",
+            f"cat <<'EOF'\n$({inner})\nEOF",
+            f"f() {{ {inner}; }}",
+            f"{{ {inner}; }}",
+            f"( {inner} )",
+            f"if {inner}; then :; fi",
+            f"env -S '{inner}'",
+            f"time {inner}",
+            f"nohup {inner} &",
+            f"X='{inner}'\n$X",
+            f"X='{inner}'\nsh -c \"$X\"",
+            f"X='{inner}'\neval \"$X\"",
+            f"X=\"{inner}\"\n$X",
+        ])
+    return text
+
+
+def st_command():
+    text = f"{st.choice(ST_PRELUDE)}{st_segment()}{st.choice(ST_TAIL)}"
+    if st.random() < 0.1:
+        text = text.replace(" ", st.choice(["  ", "\t", " \\\n ", "\r\n", "\n"]), 1)
+    if st.random() < 0.05:
+        text = st.choice(["", " ", "\n", "\x00", "aidlc 'unterminated", 'aidlc "a$b', "aidlc `x", "aidlc $(x", "f() {", "cat <<EOF", "'", "\"", "\\", "eval", "sh -c", "env -S"])
+    return text
+
+
+ST_FIXED = [
+    "bun aidlc-state.ts approve", "bun .claude/tools/aidlc-state.ts set x", "bun run aidlc-state.ts advance", "bun aidlc-state.ts get", "bun aidlc-state.ts unpark",
+    "bun aidlc-state.ts --project-dir /p approve", "bun aidlc-state.ts --stage x approve", "bun aidlc-state.ts --stage=x approve", "bun aidlc-state.ts -- approve",
+    "bun aidlc-state.ts --json approve", "bun aidlc-state.ts approve --stage x", "aidlc engine state approve", "aidlc engine state get", "./aidlc engine state set x",
+    "aidlc.exe engine state skip", "aidlc state approve", "aidlc engine state  approve", "aidlc\tengine state approve", "/p/aidlc engine state park",
+    '"/p q/aidlc" engine state park', "'/p/aidlc.exe' engine state park", "aidlc system state approve", "aidlc engine state approvex", "aidlc engine state approve-x",
+    "aidlc engine orchestrate report", "aidlc engine orchestrate park", "aidlc engine jump execute", "aidlc engine jump reopen", "aidlc engine jump resolve",
+    "bun aidlc-orchestrate.ts report --stage x", "bun aidlc-orchestrate.ts next", "bun aidlc-orchestrate.ts park", "bun aidlc-jump.ts execute", "bun aidlc-jump.ts reopen",
+    "aidlc next", "aidlc report", "aidlc --resume", "aidlc --scope", "aidlc --claim", "aidlc --json next", "aidlc --quiet --yes park", "aidlc --other next",
+    "aidlc -- next", "aidlc --project-dir /p next", "aidlc --project-dir=/p next", "aidlc engine next", "aidlc system continue", "aidlc engines next",
+    "aidlc plugin select", "aidlc plugin select a", "aidlc plugin select --json", "aidlc plugin select -- a", "aidlc plugin sync", "aidlc plugin list",
+    "aidlc intent create", "aidlc intent create --help", "aidlc intent switch a", "aidlc intent switch", "aidlc intent switch a b", "aidlc intent archive a",
+    "aidlc intent archive --json", "aidlc intent archive", "aidlc intent unarchive a", "aidlc intent list", "aidlc intent add-repo r", "aidlc intent rename a",
+    "aidlc intent show", "aidlc intent birth", "aidlc intent help", "aidlc intent -h", "aidlc intent --json", "aidlc intent --all", "aidlc intent x",
+    "aidlc intent x --flag", "aidlc intent x y", "aidlc intent x y --flag", "aidlc space create a", "aidlc space create", "aidlc space create a b",
+    "aidlc space switch a", "aidlc space switch", "aidlc space list", "aidlc space x", "aidlc space x y", "aidlc space --all", "aidlc space-create a",
+    "aidlc space-create", "aidlc space-create a b", "aidlc space-create a --help", "aidlc intent", "aidlc space", "aidlc", "aidlc engine", "aidlc engine state",
+    "aidlc state init", "aidlc state set-status", "aidlc state status", "aidlc state set-skeleton-stance", "aidlc engine state fold-unit-merge",
+    "bun aidlc-utility.ts scope-change", "bun aidlc-utility.ts --json scope-change", "bun aidlc-utility.ts select-plugins", "bun aidlc-utility.ts select-plugins a",
+    "bun aidlc-utility.ts select-plugins --json", "bun aidlc-utility.ts intent create", "bun aidlc-utility.ts intent switch a", "bun aidlc-utility.ts intent list",
+    "bun aidlc-utility.ts space-create a", "bun aidlc-utility.ts space-create", "bun aidlc-utility.ts status", "bun aidlc-utility.ts --stage x upgrade",
+    "bun aidlc-utility.ts --stage=x upgrade", "bun aidlc-utility.ts -- upgrade", "bun aidlc-utility.ts upgrade --stage x",
+    "bun aidlc-testing-posture.ts begin", "bun aidlc-testing-posture.ts --stage x begin", "bun aidlc-testing-posture.ts brief begin", "bun aidlc-testing-posture.ts begin brief",
+    "bun aidlc-testing-posture.ts x begin", "bun aidlc-testing-posture.ts fingerprint", "bun aidlc-testing-posture.ts resolve", "bun aidlc-testing-posture.ts",
+    "bun aidlc-machine-config.ts", "bun aidlc-machine-config.ts get", "bun .claude/tools/aidlc-machine-config.ts set x y", "aidlc-machine-config.ts",
+    "bun aidlc-audit.ts audit-fork", "bun aidlc-audit.ts fork", "aidlc audit fork", "aidlc audit audit-fork", "bun aidlc-plugin.ts sync", "aidlc plugin sync",
+    "bun aidlc-worktree.ts purge", "bun aidlc-worktree.ts create", "bun aidlc-graph.ts topo", "bun other.ts approve", "bun aidlc-state.tsx approve",
+    "bun xaidlc-state.ts approve", "bun ./aidlc-state.ts approve", "bun /p/.claude/tools/aidlc-state.ts approve", "bun .kiro\\tools\\aidlc-state.ts approve",
+    "bun 'a b/aidlc-state.ts' approve", 'bun "a b/aidlc-state.ts" approve', "bun -e aidlc-state.ts approve", "bun --print aidlc-state.ts approve",
+    "bun --cwd /p aidlc-state.ts approve", "bun --cwd=/p aidlc-state.ts approve", "bun --cwd aidlc-state.ts approve", "bun -r x aidlc-state.ts approve",
+    "bun --quiet aidlc-state.ts approve", "bun -- aidlc-state.ts approve", "bun run -- aidlc-state.ts approve", "bun run --cwd /p aidlc-state.ts approve",
+    "bun run", "bun", "bun.exe aidlc-state.ts approve", "/usr/bin/bun aidlc-state.ts approve", "node aidlc-state.ts approve", "aidlc-state.ts approve",
+    "./aidlc-state.ts approve", "time bun aidlc-state.ts approve", "time -p aidlc next", "time -f %e aidlc next", "time -f %e -o out aidlc next", "time -f",
+    "time -o", "time X=1 aidlc next", "time 2>err aidlc next", "command aidlc next", "command -p aidlc next", "command -pp aidlc next", "command -v aidlc next",
+    "command -pv aidlc next", "command -V aidlc", "command -- aidlc next", "command -x aidlc next", "command 2>err aidlc next", "command X=1 aidlc next",
+    "exec aidlc next", "exec -c aidlc next", "exec -cl aidlc next", "exec -a name aidlc next", "exec -a name", "exec -a", "exec -x aidlc next", "exec -- aidlc next",
+    "exec 3>&1 aidlc next", "exec X=1 aidlc next", "env aidlc next", "env -i aidlc next", "env X=1 aidlc next", "env X=1 Y=2 aidlc next", "env -- aidlc next",
+    "env -u X aidlc next", "env -uX aidlc next", "env --unset=X aidlc next", "env --unset X aidlc next", "env -u", "env -C /p aidlc next", "env -C/p aidlc next",
+    "env --chdir=/p aidlc next", "env --chdir /p aidlc next", "env -P /p aidlc next", "env -P", "env -S aidlc next", "env -S 'aidlc next'", "env '-Saidlc next'",
+    "env -S'aidlc next'", "env --split-string='aidlc next'", "env --split-string 'aidlc next'", "env -S 'aidlc $X'", "env -S 'aidlc `x`'", "env -S 'aidlc #x'",
+    "env -S 'aidlc \\x'", "env -S", "env -S ''", "env -0 aidlc next", "env --null aidlc next", "env --help aidlc next", "env --version", "env --debug aidlc next",
+    "env --list-signal-handling aidlc next", "env --block-signal=INT aidlc next", "env --block-signal aidlc next", "env --default-signal aidlc next",
+    "env --ignore-signal aidlc next", "env --ignore-environment aidlc next", "env -v aidlc next", "env -iv aidlc next", "env -vi aidlc next", "env - aidlc next",
+    "env -Z aidlc next", "env --other aidlc next", "env -i -- aidlc next", "env 2>err aidlc next", "env X=1 2>err -i aidlc next", "env", "env -i", "env X=1",
+    "nice aidlc next", "nice -n 5 aidlc next", "nice -n -5 aidlc next", "nice -n +5 aidlc next", "nice -n x aidlc next", "nice -n", "nice -n5 aidlc next",
+    "nice -5 aidlc next", "nice --5 aidlc next", "nice -n+5 aidlc next", "nice --adjustment=3 aidlc next", "nice --adjustment 3 aidlc next", "nice --adjustment aidlc next",
+    "nice -x aidlc next", "nice --help", "nice --version aidlc next", "nice -- aidlc next", "nice 2>err aidlc next", "nice", "nohup aidlc next", "nohup -- aidlc next",
+    "nohup -x aidlc next", "nohup --help", "nohup --version", "nohup", "nohup aidlc next &", "nohup bun aidlc-state.ts approve > /dev/null 2>&1 &",
+    "sudo aidlc next", "sudo -u x aidlc next", "X=1 aidlc next", "X=1 Y=2 aidlc next", "X=1 2>err aidlc next", "2>err X=1 aidlc next", "if aidlc next; then :; fi",
+    "! aidlc next", "while aidlc next; do :; done", "until aidlc next; do :; done", "if true; then aidlc next; fi", "if true; then\n aidlc next\nfi",
+    "if true\nthen aidlc next\nfi", "else aidlc next", "elif aidlc next", "do aidlc next", "> out aidlc next", "< in aidlc next", ">out aidlc next", "2>&1 aidlc next",
+    "2> err aidlc next", ">> out aidlc next", "<<< x aidlc next", "<> f aidlc next", "3>&- aidlc next", "&> out aidlc next", "X=1 > out Y=2 aidlc next",
+    "eval aidlc next", "eval 'aidlc next'", "eval \"aidlc next\"", "eval -- aidlc next", "eval -- 'aidlc next'", "eval", "eval ''", "eval $X", "eval \"$X\"",
+    "eval '$X'", "eval \\$X", "eval 'echo `x`'", "eval 'echo \\x'", "eval \"echo \\$x\"", "eval 'echo x'", "eval echo x", "X='aidlc next'\neval \"$X\"",
+    "X='aidlc next'\neval $X", "X='aidlc next'; eval \"$X\"", "X='aidlc next' && eval \"$X\"", "X='aidlc next' eval \"$X\"", "X=\"aidlc next\"\neval \"$X\"",
+    "X='aidlc'\neval \"$X next\"", "X='echo'\neval \"$X\"", "X='ls'\neval \"$X\"", "eval \"$(aidlc next)\"", "eval `aidlc next`", "eval \"$X\" 2>&1",
+    "sh -c 'aidlc next'", "sh -c \"aidlc next\"", "sh -c aidlc next", "bash -c 'aidlc next'", "zsh -c 'aidlc next'", "ksh -c 'aidlc next'", "ash -c 'aidlc next'",
+    "dash -c 'aidlc next'", "fish -c 'aidlc next'", "sh.exe -c 'aidlc next'", "bash.exe -c 'aidlc next'", "/bin/sh -c 'aidlc next'", "sh -lc 'aidlc next'",
+    "sh -cl 'aidlc next'", "bash -ec 'aidlc next'", "bash -xc 'aidlc next'", "sh -c -- 'aidlc next'", "sh -- -c 'aidlc next'", "sh -x 'aidlc next'", "sh 'aidlc next'",
+    "sh -o pipefail -c 'aidlc next'", "sh -o -c 'aidlc next'", "bash --rcfile r -c 'aidlc next'", "bash --init-file r -c 'aidlc next'", "bash --norc -c 'aidlc next'",
+    "bash -O x -c 'aidlc next'", "bash +O x -c 'aidlc next'", "bash +o x -c 'aidlc next'", "sh -c", "sh -c ''", "sh -c $X", "sh -c \"$X\"", "sh -c '$X'",
+    "sh -c 'aidlc $X'", "sh -c \"aidlc $X\"", "sh -c 'echo $X'", "sh -c 'aidlc \\$X'", "X='aidlc next'\nsh -c \"$X\"", "X='aidlc next'\nsh -c $X",
+    "X='aidlc next'\nsh -c '$X'", "X='aidlc next'; sh -c \"$X\"", "X='ls'\nsh -c \"$X\"", "X='echo $Y'\nsh -c \"$X\"", "X='aidlc next'\nsh -c \"${X}\"",
+    "X='aidlc next'\nsh -c \"$X\" 2>&1", "sh -c 'sh -c \"aidlc next\"'", "sh -c \"sh -c 'aidlc next'\"", "sh -c 'echo `aidlc next`'", "sh -c 'echo $(aidlc next)'",
+    "sh -c 'f() { aidlc next; }'", "sh -c 'cat <<E\naidlc next\nE'", "sh -c 'X=1 aidlc next'", "sh -c 'env aidlc next'", "sh -c 'eval aidlc next'",
+    "sh -c 'eval \"$X\"'", "echo x | sh", "echo 'aidlc next' | sh", "sh < script", "sh script", "sh -c 'echo' 'aidlc next'", "sh -c 'echo' aidlc next",
+    "$CMD next", "${CMD} next", "\"$CMD\" next", "'$CMD' next", "$CMD", "$X", "${X}", "$1 next", "$CMD$X next", "a$X next", "$(cmd) next", "`cmd` next",
+    "CMD=aidlc\n$CMD next", "CMD=aidlc; $CMD next", "CMD=aidlc && $CMD next", "CMD=aidlc || $CMD next", "CMD=aidlc | $CMD next", "CMD=aidlc\n${CMD} next",
+    "CMD=aidlc\n\"$CMD\" next", "CMD='aidlc'\n$CMD next", "CMD=\"aidlc\"\n$CMD next", "CMD='bun aidlc-state.ts'\n$CMD approve", "CMD='bun aidlc-state.ts'\n\"$CMD\" approve",
+    "CMD=''\n$CMD next", "CMD='a b'\n$CMD next", "CMD=aidlc X=1\n$CMD next", "CMD=aidlc echo\n$CMD next", "CMD=aidlc\nCMD=ls\n$CMD next", "CMD=ls\nCMD=aidlc\n$CMD next",
+    "CMD=aidlc\n$CMD2 next", "CMD=aidlc\n$CMD $X", "CMD=aidlc\n$CMD next $X", "CMD=$(x)\n$CMD next", "CMD=`x`\n$CMD next", "CMD=$X\n$CMD next",
+    "CMD=aidlc\nX=1 $CMD next", "CMD=aidlc\nenv $CMD next", "CMD=aidlc\ntime $CMD next", "CMD=aidlc\neval $CMD next", "CMD=aidlc\nsh -c \"$CMD next\"",
+    "CMD=aidlc\necho $($CMD next)", "CMD=aidlc\nf() { $CMD next; }", "CMD=aidlc\n{ $CMD next; }", "CMD=aidlc\n( $CMD next )", "export CMD=aidlc\n$CMD next",
+    "local CMD=aidlc\n$CMD next", "CMD=aidlc; export CMD\n$CMD next", "readonly CMD=aidlc\n$CMD next", "CMD=aidlc\n\n$CMD next", "CMD=aidlc # c\n$CMD next",
+    "CMD=aidlc\n# $CMD next", "CMD=aidlc\n$CMD next # c", "CMD=aidlc\n$CMD next #c", "CMD=aidlc\n$CMD next#c", "CMD=aidlc;#c\n$CMD next", "CMD=aidlc\n$CMD ne\\xt",
+    "echo $(aidlc next)", "echo `aidlc next`", "echo \"$(aidlc next)\"", "echo '$(aidlc next)'", "echo '`aidlc next`'", "echo \"`aidlc next`\"", "echo \\$(aidlc next)",
+    "echo `$(bun aidlc-state.ts approve x)`", "echo `$(aidlc engine state approve x)`", "echo \"`$(aidlc engine state approve x)`\"", "echo `$(aidlc engine orchestrate report)`",
+    "echo `(aidlc engine state approve x)`", "echo `; aidlc engine state approve x`", "echo `a; bun aidlc-state.ts approve x`", "echo \"`a; bun aidlc-state.ts approve x`\"",
+    "echo \"\\$(aidlc engine state approve x)\"", "echo \"\\$(bun aidlc-state.ts approve x)\"", "echo \"a\\\\$(aidlc engine state approve x)\"", "echo \"\\$(aidlc engine orchestrate report)\"",
+    "aidlc intent switch -- --json", "aidlc intent switch a -- --json", "aidlc space create a -- --quiet", "aidlc space-create a -- --yes", "aidlc -- --json next", "aidlc intent -- --json",
+    "echo \\`aidlc next\\`", "echo $(echo $(aidlc next))", "echo $(echo `aidlc next`)", "echo `echo $(aidlc next)`", "echo $(aidlc next", "echo `aidlc next",
+    "echo $(echo ')' aidlc next)", "echo $(echo \")\"; aidlc next)", "echo $(echo \\); aidlc next)", "echo $(echo '(' ; aidlc next)", "echo $((1+2)); aidlc next",
+    "echo $((1+2)) aidlc next", "x=$(aidlc next)", "x=`aidlc next`", "x=$(aidlc next) y", "x=\"$(aidlc next)\"", "x='$(aidlc next)'", "x=$(aidlc next); echo $x",
+    "echo ${X:-aidlc next}", "echo ${X:-aidlc; next}", "echo ${X}; aidlc next", "echo ${X aidlc next", "echo ${X:-$(aidlc next)}", "echo ${#X}; aidlc next",
+    "echo $X; aidlc next", "echo $(aidlc next) 2>&1", "echo \"$(echo \"$(aidlc next)\")\"", "echo \"$(echo \\\"$(aidlc next)\\\")\"", "echo \"\\$(aidlc next)\"",
+    "echo \"a\\\\$(aidlc next)\"", "echo 'a'$(aidlc next)", "echo 'a\\'$(aidlc next)", "echo \"a\\\"$(aidlc next)\"", "echo \"a\\\"\" $(aidlc next)",
+    "echo `echo \\`aidlc next\\``", "echo `aidlc \\` next`", "echo `aidlc 'next'`", "echo `aidlc \"next\"`", "echo `aidlc ')' next`", "echo $(aidlc ')' next)",
+    "echo $(aidlc ') next)", "echo $(aidlc \") next)", "echo $(aidlc '\\' next)", "echo $(aidlc \"\\\\\" next)", "echo $(aidlc \\) next)", "echo $(aidlc \\\\) next",
+    "echo $(aidlc `)` next)", "echo $(aidlc $(x) next)", "echo $(aidlc (x) next)", "echo $(aidlc ((x)) next)",
+    "f() { aidlc next; }", "f() { aidlc next; }; f", "f() { aidlc next; }\nf", "function f { aidlc next; }", "function f() { aidlc next; }", "function f () { aidlc next; }",
+    "f () { aidlc next; }", "f ( ) { aidlc next; }", "f()\n{\n aidlc next\n}", "f() {\n aidlc next\n}\naidlc approve", "f() { aidlc next; }; aidlc approve",
+    "f() { aidlc next; } ; aidlc approve", "f() { aidlc next; }\n\naidlc approve", "f() { echo '}'; aidlc next; }", "f() { echo \"}\"; aidlc next; }",
+    "f() { echo \\}; aidlc next; }", "f() { echo '{'; aidlc next; }", "f() { { aidlc next; }; }", "f() { aidlc next", "f() { aidlc next; }}", "f() { aidlc next; } }",
+    "f() { aidlc next; }\n}", "x; f() { aidlc next; }", "x;f() { aidlc next; }", "x && f() { aidlc next; }", "x | f() { aidlc next; }", "echo f() { aidlc next; }",
+    "f() { aidlc next; }; g() { aidlc approve; }", "f() { aidlc next; } g() { aidlc approve; }", "f() { g() { aidlc next; }; }", "function { aidlc next; }",
+    "function f { aidlc next; }\nfunction g { aidlc approve; }", "f(){ aidlc next; }", "f ()\n{\n aidlc next\n}", "function  f  { aidlc next; }", "function\tf { aidlc next; }",
+    "f() { aidlc next; }; $(aidlc approve)", "f() { $(aidlc next); }", "f() { echo \"$(aidlc next)\"; }", "f() { eval 'aidlc next'; }", "f() { sh -c 'aidlc next'; }",
+    "f() { cat <<E\naidlc next\nE\n}", "f() { \"$(aidlc next)\"; }", "f() { aidlc next; }\u00e9 aidlc approve", "f() { aidlc next; }\n\u00e9 aidlc approve",
+    "f() { '\u00e9'; }; aidlc approve", "\u00e9() { aidlc next; }", "f\u00e9() { aidlc next; }", "f() { aidlc next; } \U0001F600", "\U0001F600; f() { aidlc next; }",
+    "echo \U0001F600; f() { aidlc next; }; aidlc approve", "echo \U0001F600\U0001F600; f() { aidlc next; }; aidlc approve", "f() { echo \U0001F600; aidlc next; }; aidlc approve",
+    "f() { echo \U0001F600; }; aidlc approve", "f() { echo \U0001F600\U0001F600\U0001F600; }; aidlc approve", "f() { echo '\U0001F600'; }; aidlc approve",
+    "f() { echo \U0001F600; }\naidlc approve", "f() { echo \U0001F600; }; g() { aidlc approve; }", "f() { echo \U0001F600; }; echo $(aidlc approve)",
+    "echo \U0001F600 $(aidlc next)", "echo \"\U0001F600\" $(aidlc next)", "echo \"\U0001F600 $(aidlc next)\"", "echo '\U0001F600' $(aidlc next)", "echo \U0001F600; aidlc next",
+    "echo \U0001F600\U0001F600 `aidlc next`", "echo `\U0001F600` $(aidlc next)", "echo `echo \U0001F600` `aidlc next`", "echo $(echo \U0001F600) $(aidlc next)",
+    "echo \"\U0001F600\"; aidlc approve", "echo '\U0001F600'; aidlc approve", "echo \U0001F600; aidlc approve", "echo \"\U0001F600;\" aidlc approve", "echo '\U0001F600|' aidlc approve",
+    "echo \"\U0001F600\n\" aidlc approve", "echo \"a\nb\U0001F600\"; aidlc approve", "echo \"\U0001F600\n$(aidlc next)\"", "echo \"$(aidlc next)\U0001F600\"",
+    "cat <<E\n\U0001F600\nE\naidlc approve", "cat <<E\n\U0001F600 $(aidlc next)\nE", "cat <<'E'\n\U0001F600 $(aidlc next)\nE", "cat <<E\n\U0001F600\n$(aidlc next)\nE",
+    "cat <<EOF\naidlc next\nEOF", "cat <<EOF\naidlc next\nEOF\naidlc approve", "cat <<EOF\n$(aidlc next)\nEOF", "cat <<'EOF'\n$(aidlc next)\nEOF", "cat <<\"EOF\"\n$(aidlc next)\nEOF",
+    "cat <<-EOF\n\t$(aidlc next)\n\tEOF", "cat <<-EOF\n\t$(aidlc next)\nEOF\naidlc approve", "cat <<-'EOF'\n\t$(aidlc next)\n\tEOF", "cat <<EOF\n`aidlc next`\nEOF",
+    "cat <<EOF\naidlc next", "cat <<EOF\n$(aidlc next)", "cat <<EOF\n$(aidlc next)\nEOF ", "cat <<EOF\n$(aidlc next)\n EOF\nEOF", "cat <<EOF\n$(aidlc next)\nEOFX\nEOF",
+    "cat << EOF\n$(aidlc next)\nEOF", "cat <<  EOF\n$(aidlc next)\nEOF", "cat <<EOF <<X\na\nEOF\n$(aidlc next)\nX", "cat <<EOF <<'X'\na\nEOF\n$(aidlc next)\nX",
+    "cat <<'EOF' <<X\n$(aidlc approve)\nEOF\n$(aidlc next)\nX", "cat <<EOF; aidlc approve\nx\nEOF", "cat <<EOF | aidlc approve\nx\nEOF", "cat <<EOF\nx\nEOF\n$(aidlc next)",
+    "cat <<EOF\n$(echo $(aidlc next))\nEOF", "cat <<EOF\n$(echo '$(aidlc next)')\nEOF", "cat <<EOF\n\"$(aidlc next)\"\nEOF", "cat <<EOF\n'$(aidlc next)'\nEOF",
+    "cat <<EOF\n\\$(aidlc next)\nEOF", "cat <<EOF\n$(aidlc next\nEOF", "cat <<EOF\n$(aidlc ')' next)\nEOF", "cat <<EOF\naidlc $(next)\nEOF", "cat <<EOF\nf() { aidlc next; }\nEOF",
+    "cat <<E1\n$(cat <<E2\n$(aidlc next)\nE2\n)\nE1", "cat <<1EOF\n$(aidlc next)\n1EOF", "cat <<_E\n$(aidlc next)\n_E", "cat <<E-X\n$(aidlc next)\nE-X", "cat <<'E X'\n$(aidlc next)\nE X",
+    "cat <<\"E X\"\n$(aidlc next)\nE X", "cat <<E\n\n$(aidlc next)\nE", "echo <<E aidlc approve\nx\nE", "x <<E\naidlc approve\nE\naidlc next", "<<E cat\n$(aidlc next)\nE",
+    "cat <<<x; aidlc approve", "cat <<< $(aidlc next)", "cat <<<\"$(aidlc next)\"", "cat <<E\r\n$(aidlc next)\r\nE", "cat <<E\n$(aidlc next)\r\nE\r\n",
+    "{ aidlc next; }", "( aidlc next )", "(aidlc next)", "{aidlc next; }", "{ aidlc next }", "x; { aidlc next; }", "x || ( aidlc next )", "(( aidlc next ))",
+    "[ -f x ] && aidlc next", "[[ -f x ]] && aidlc next", "test -f x && aidlc next", "true; aidlc next", "true & aidlc next", "true |& aidlc next", "true |aidlc next",
+    "true| aidlc next", "true ;; aidlc next", "true &&& aidlc next", "true ||| aidlc next", "true;;aidlc next", "true&aidlc next", "x #; aidlc next", "x # aidlc next\naidlc approve",
+    "x #aidlc next", "x#aidlc next", "x # aidlc next", "x;# aidlc next", "x;#aidlc next\naidlc approve", "x &# aidlc next", "x (# aidlc next", "x {# aidlc next", "x }# aidlc next",
+    "x )# aidlc next", "# aidlc next", "#aidlc next", " # aidlc next", "\t# aidlc next", "#\naidlc next", "# x\n# y\naidlc next", "x # 'aidlc next\naidlc approve",
+    "echo 'x # aidlc next'", "echo \"x # aidlc next\"", "echo x\\# aidlc next", "echo x# aidlc next", "echo x #aidlc next", "x$# aidlc next", "x${#X} aidlc next",
+    "echo 'a;b' aidlc next", "echo 'a' ; aidlc next", "echo \"a;b\"; aidlc next", "echo \"a|b\" | aidlc next", "echo 'a\nb'; aidlc next", "echo 'a\nb'\naidlc next",
+    "echo \"a\nb\"\naidlc approve", "echo 'a;\nb; aidlc next'", "echo 'a\n'; aidlc approve", "echo 'a\\'; aidlc next", "echo \"a\\\"; aidlc next\"", "echo \"a\\\\\"; aidlc next",
+    "echo 'a\\\\'; aidlc next", "echo \"a\\\\\\\"; aidlc next\"", "echo \"$(echo ')')\"; aidlc approve", "echo \"$(echo ')'\"; aidlc approve", "echo \"$(\"; aidlc approve",
+    "echo \"\\$(x; aidlc approve)\"", "echo \"$(x; aidlc approve)\"", "echo \"$(x)\"; aidlc approve", "echo \"$(x) ; aidlc approve\"", "echo \"$(x); aidlc approve\"",
+    "echo \"$(echo $(x); aidlc approve)\"", "echo \"$(echo $(x)); aidlc approve\"", "echo '$(x); aidlc approve'", "echo `x; aidlc approve`", "echo \"`x; aidlc approve`\"",
+    "echo 'unterminated; aidlc approve", "echo \"unterminated; aidlc approve", "echo `unterminated; aidlc approve", "echo 'a' 'b; aidlc approve", "echo 'a'; aidlc approve'",
+    "echo \"a\"; aidlc approve\"", "echo 'a\"b'; aidlc approve", "echo \"a'b\"; aidlc approve", "echo \"a`b\"; aidlc approve", "echo 'a`b'; aidlc approve",
+    "echo `a'b`; aidlc approve", "echo `a\"b`; aidlc approve", "echo 'a\\'b'; aidlc approve", "echo $'a\\'b'; aidlc approve", "echo $'aidlc'; aidlc approve", "echo $\"a\"; aidlc approve",
+    "'aidlc' next", "\"aidlc\" next", "'aidlc' 'next'", "\"aidlc\" \"next\"", "aidlc 'ne'xt", "aidlc ne'x't", "aidlc \"next\"", "aidlc ne\\xt",
+    "aidlc $'next'", "aidlc $\"next\"", "aidlc $next", "aidlc ${next}", "aidlc 'next", "aidlc \"next", "aidlc next'", "aidlc next\"", "aidlc 'a b' next", "aidlc\\ next",
+    "aidlc\tnext", "aidlc\nnext", "aidlc\\\nnext", "aidlc \\\n next", "aidlc\\\n next", "aidlc\\\n\\\n next", " aidlc next ", "  aidlc  next  ", "aidlc next\\",
+    "aidlc next \\", "aidlc\u00a0next", "aidlc\u2003next", "aidlc\ufeffnext", "aidlc\u200bnext", "aidlc\u00e9 next", "\u00e9 aidlc next", "\u00e9; aidlc next",
+    "aidlc next\u00e9", "aidlc nex\u00e9t", "\U0001F600 aidlc next", "\U0001F600; aidlc next", "aidlc \U0001F600 next", "aidlc next \U0001F600", "'\U0001F600' aidlc next",
+    "'\U0001F600'; aidlc next", "\"\U0001F600\"; aidlc next", "`\U0001F600`; aidlc next", "$(\U0001F600); aidlc next", "x=\U0001F600; aidlc next", "x=\U0001F600\naidlc next",
+    "x='\U0001F600'\n$x next", "x=\U0001F600 aidlc next", "echo \U0001F600 | aidlc next", "echo \U0001F600 && aidlc next", "echo \U0001F600\naidlc next", "echo \U0001F600 \\\n aidlc next",
+    "echo \U0001F600 #\naidlc next", "echo '\U0001F600' # aidlc next", "echo '\U0001F600\n'; aidlc next", "echo \"\U0001F600\n\"; aidlc approve", "echo \"\U0001F600\n;\"; aidlc approve",
+    "echo \"\U0001F600\U0001F600\n;\" aidlc approve", "echo \"\U0001F600\n\" ; aidlc approve", "echo \"\U0001F600\n\"; aidlc approve ; x",
+    "echo \"a\U0001F600\n;\"; aidlc approve", "echo \"\U0001F600\U0001F600\U0001F600\n\";aidlc approve", "echo \"\U0001F600\n\";aidlc approve;", "echo \"\U0001F600\";aidlc approve",
+    "echo \"\n\U0001F600\";aidlc approve", "echo \"\n\U0001F600\" ; aidlc approve", "echo \"x\n\U0001F600\"; aidlc approve", "echo \"\n\" \U0001F600; aidlc approve",
+    "echo \U0001F600; echo \"\n\"; aidlc approve", "echo \"\U0001F600\" \"\n\"; aidlc approve", "echo \"\U0001F600\n\" `aidlc next`", "echo \"\U0001F600\n\" $(aidlc next)",
+    "echo \"\n\U0001F600\" `aidlc next`", "echo `\U0001F600\n`; aidlc approve", "echo `\n\U0001F600`; aidlc approve", "echo '\n\U0001F600'; aidlc approve",
+    "echo '\U0001F600\n'; aidlc approve", "echo '\U0001F600\n;' aidlc approve", "echo \"$(aidlc next)\" \U0001F600", "echo \"\U0001F600$(aidlc next)\"",
+    "echo \"a\U0001F600$(aidlc next)\"", "echo \"\U0001F600$(aidlc next)\" ; x", "echo \"\U0001F600\" \"$(aidlc next)\"", "echo \U0001F600\"$(aidlc next)\"",
+    "echo \"\U0001F600\"\"$(aidlc next)\"", "echo \"\U0001F600\"'$(aidlc next)'", "echo '\U0001F600'\"$(aidlc next)\"", "echo \"\U0001F600\\\"$(aidlc next)\"",
+    "echo \"\U0001F600\\$(aidlc next)\"", "echo \"\U0001F600\" \\$(aidlc next)", "echo \"\U0001F600\" $(aidlc next) \U0001F600", "echo $(aidlc next) \"\U0001F600\"",
+    "echo $(\U0001F600 aidlc next)", "echo $(\U0001F600; aidlc next)", "echo $(echo \U0001F600; aidlc next)", "echo `\U0001F600; aidlc next`", "echo $(echo '\U0001F600'; aidlc next)",
+    "echo $(echo \"\U0001F600\"; aidlc next)", "echo $(echo \U0001F600) $(aidlc approve)", "echo `echo \U0001F600` $(aidlc approve)", "echo \"\U0001F600\" `echo x` $(aidlc approve)",
+    "echo \"$(echo \U0001F600)\" $(aidlc approve)", "echo \"$(echo \U0001F600) $(aidlc approve)\"", "echo \"\U0001F600 $(echo x) $(aidlc approve)\"",
+    "echo \"\U0001F600 `echo x` `aidlc approve`\"", "echo \"\U0001F600\" ; echo `aidlc approve`", "echo \"\U0001F600\" ; echo $(aidlc approve) ; x",
+    "echo \"\U0001F600\" ; echo \"$(aidlc approve)\"", "echo \"\U0001F600\" \"$(echo \"$(aidlc approve)\")\"", "echo \"\U0001F600\" $(echo $(aidlc approve))",
+    "x=\"\U0001F600\" $(aidlc approve)", "x=\"\U0001F600\"; echo $(aidlc approve)", "x=\"\U0001F600\"; $(aidlc approve)", "x=\"\U0001F600\"\n$(aidlc approve)",
+    "x=\U0001F600; $(aidlc approve)", "\U0001F600=x; $(aidlc approve)", "echo \"\U0001F600\" $(aidlc approve) \"$(aidlc next)\"", "echo \"\U0001F600\" `aidlc approve` `aidlc next`",
+    "echo \"\U0001F600\" $(aidlc approve) `aidlc next`", "echo \"\U0001F600\" `aidlc approve` $(aidlc next)", "echo $(aidlc approve) \"\U0001F600\" `aidlc next`",
+    "echo `aidlc approve` \"\U0001F600\" $(aidlc next)", "echo $(echo \U0001F600 $(aidlc approve)) `aidlc next`", "echo $(\U0001F600) $(aidlc approve) `aidlc next`",
+    "echo `\U0001F600` $(aidlc approve) `aidlc next`", "echo \"$(\U0001F600)\" $(aidlc approve)", "echo \"`\U0001F600`\" $(aidlc approve)", "echo '`\U0001F600`' $(aidlc approve)",
+    "echo \\\U0001F600 $(aidlc approve)", "echo \\\U0001F600; aidlc approve", "echo \"\\\U0001F600\"; aidlc approve", "echo \"\\\U0001F600$(aidlc approve)\"",
+    "echo '\\\U0001F600'; aidlc approve", "echo `\\\U0001F600`; aidlc approve", "echo $(\\\U0001F600); aidlc approve", "echo \"$(\\\U0001F600)\"; aidlc approve",
+    "echo \"\U0001F600\\\"\"; aidlc approve", "echo \"\U0001F600\\\\\"; aidlc approve", "echo \"\U0001F600\\\\\\\"\"; aidlc approve", "echo '\U0001F600\\'; aidlc approve",
+    "echo `\U0001F600\\``; aidlc approve", "echo \"\U0001F600\" \\\n aidlc approve", "echo \U0001F600 \\\n; aidlc approve", "echo \"\U0001F600\" ${X}; aidlc approve",
+    "echo \"\U0001F600\" ${X; aidlc approve", "echo \"\U0001F600\" ${X}} aidlc approve", "echo ${\U0001F600}; aidlc approve", "echo ${X:-\U0001F600}; aidlc approve",
+    "echo ${X:-\U0001F600;} aidlc approve", "echo \"${X:-\U0001F600}\"; aidlc approve", "echo \"\U0001F600\" # x\naidlc approve", "echo \"\U0001F600\" #x; aidlc approve",
+    "echo \U0001F600 # x\n# y\naidlc approve", "echo \U0001F600 #\n\naidlc approve", "echo '\U0001F600' #\n\U0001F600 aidlc approve", "echo \U0001F600;#\naidlc approve",
+    "echo \"\U0001F600\";#\naidlc approve", "echo \U0001F600 #", "echo \U0001F600 # aidlc approve", "echo \"\U0001F600 # aidlc approve\"", "echo \"\U0001F600\" \"# aidlc approve\"",
+    "echo \"\U0001F600\"\"# aidlc approve\"", "echo \"\U0001F600\"# aidlc approve", "echo \"\U0001F600\" #", "echo \"\U0001F600\"\n#\naidlc approve", "echo \"\U0001F600\\\n\"; aidlc approve",
+    "echo \U0001F600\\\naidlc approve", "echo \U0001F600 \\\n aidlc approve", "echo \"\U0001F600\" \\\n aidlc approve", "echo \U0001F600\\\n; aidlc approve", "\\\U0001F600 aidlc approve",
+    "\\\U0001F600; aidlc approve", "\\\U0001F600\naidlc approve", "\\\U0001F600 && aidlc approve", "\\\U0001F600 | aidlc approve", "\\\U0001F600 & aidlc approve",
+    "a\\\U0001F600 aidlc approve", "a\\\U0001F600; aidlc approve", "a\\\U0001F600\naidlc approve", "'\U0001F600' \\\U0001F600; aidlc approve", "\"\U0001F600\" \\\U0001F600; aidlc approve",
+    "\"\\\U0001F600\" \\\U0001F600; aidlc approve", "\\\U0001F600 \"\U0001F600\"; aidlc approve", "\\\U0001F600 '\U0001F600'; aidlc approve", "\\\U0001F600\\\U0001F600; aidlc approve",
+    "\\\U0001F600 \\\U0001F600; aidlc approve", "\\\U0001F600 \\\U0001F600 \\\U0001F600; aidlc approve", "x \\\U0001F600; aidlc approve", "x \\\U0001F600 $(aidlc approve)",
+    "x \\\U0001F600 `aidlc approve`", "x \\\U0001F600 \"$(aidlc approve)\"", "x \\\U0001F600 '$(aidlc approve)'", "x \\\U0001F600 # aidlc approve", "x \\\U0001F600 #\naidlc approve",
+    "x \\\U0001F600 ${X}; aidlc approve", "x \\\U0001F600 ${X; aidlc approve", "x=\\\U0001F600; aidlc approve", "x=\\\U0001F600\naidlc approve", "x=\\\U0001F600 aidlc approve",
+    "\\\U0001F600=x aidlc approve", "f() { \\\U0001F600; }; aidlc approve", "f() { \\\U0001F600; aidlc next; }", "cat <<E\n\\\U0001F600\nE\naidlc approve", "cat <<E\n\\\U0001F600 $(aidlc approve)\nE",
+    "eval \\\U0001F600 aidlc approve", "eval '\\\U0001F600 aidlc approve'", "eval \"\\\U0001F600 aidlc approve\"", "sh -c '\\\U0001F600 aidlc approve'", "sh -c \"\\\U0001F600 aidlc approve\"",
+    "sh -c '\U0001F600; aidlc approve'", "sh -c \"\U0001F600; aidlc approve\"", "sh -c \"echo \U0001F600; aidlc approve\"", "sh -c 'echo \"\U0001F600\"; aidlc approve'",
+    "sh -c 'echo \"\U0001F600\n\"; aidlc approve'", "eval 'echo \"\U0001F600\n\"; aidlc approve'", "eval \"echo '\U0001F600'; aidlc approve\"", "eval \"echo \\\"\U0001F600\\\"; aidlc approve\"",
+    "env -S '\U0001F600 aidlc approve'", "env -S 'echo \U0001F600; aidlc approve'", "env -S '\\\U0001F600 aidlc approve'", "env -S'\U0001F600' aidlc approve", "env '-S\U0001F600' aidlc approve",
+    "env -S'aidlc approve' \U0001F600", "env -S\U0001F600 aidlc approve", "X=\U0001F600 env -S 'aidlc approve'", "time \U0001F600 aidlc approve", "time -f \U0001F600 aidlc approve",
+    "command \U0001F600 aidlc approve", "exec -a \U0001F600 aidlc approve", "nice -n \U0001F600 aidlc approve", "nohup \U0001F600 aidlc approve", "\U0001F600=1 aidlc approve",
+    "\U0001F600 \U0001F600 \U0001F600 aidlc approve", "\U0001F600\U0001F600\U0001F600 aidlc approve", "\U0001F600\U0001F600\U0001F600; aidlc approve", "\U0001F600\U0001F600\U0001F600\naidlc approve",
+    "\U0001F600\U0001F600\U0001F600 $(aidlc approve)", "\U0001F600\U0001F600\U0001F600 `aidlc approve`", "\U0001F600\U0001F600\U0001F600 \"$(aidlc approve)\"",
+    "\U0001F600\U0001F600\U0001F600 '$(aidlc approve)'", "\U0001F600 \"$(aidlc approve)\"", "\U0001F600 '$(aidlc approve)'", "\U0001F600 `aidlc approve`", "\U0001F600 $(aidlc approve)",
+    "\U0001F600$(aidlc approve)", "\U0001F600`aidlc approve`", "\U0001F600\"$(aidlc approve)\"", "\U0001F600'$(aidlc approve)'", "\"\U0001F600\"$(aidlc approve)",
+    "'\U0001F600'$(aidlc approve)", "`\U0001F600`$(aidlc approve)", "$(\U0001F600)$(aidlc approve)", "$(\U0001F600) $(aidlc approve)", "\"$(\U0001F600)\" $(aidlc approve)",
+    "x=$(\U0001F600) $(aidlc approve)", "x=$(\U0001F600); $(aidlc approve)", "x=$(\U0001F600)\n$(aidlc approve)", "x=`\U0001F600`; $(aidlc approve)", "x=\"$(\U0001F600)\"; $(aidlc approve)",
+    "x='$(\U0001F600)'; $(aidlc approve)", "x=\"`\U0001F600`\"; $(aidlc approve)", "x='`\U0001F600`'; $(aidlc approve)", "echo $(echo $(\U0001F600)) $(aidlc approve)",
+    "echo $(echo `\U0001F600`) $(aidlc approve)", "echo `echo $(\U0001F600)` $(aidlc approve)", "echo \"$(echo \"\U0001F600\")\" $(aidlc approve)", "echo \"$(echo '\U0001F600')\" $(aidlc approve)",
+    "echo \"$(echo `\U0001F600`)\" $(aidlc approve)", "echo \"$(\U0001F600 $(aidlc approve))\"", "echo \"$(\U0001F600; $(aidlc approve))\"", "echo \"$(echo \U0001F600; aidlc approve)\"",
+    "echo \"$(echo \"\U0001F600\"; aidlc approve)\"", "echo \"$(echo '\U0001F600'; aidlc approve)\"", "echo \"$(echo `\U0001F600`; aidlc approve)\"", "echo \"`echo \U0001F600; aidlc approve`\"",
+    "echo \"`echo \"\U0001F600\"; aidlc approve`\"", "echo \"`echo '\U0001F600'; aidlc approve`\"", "echo `echo \"\U0001F600\"; aidlc approve`", "echo `echo '\U0001F600'; aidlc approve`",
+    "echo `echo \\\"\U0001F600\\\"; aidlc approve`", "echo `echo \\\U0001F600; aidlc approve`", "echo `\\\U0001F600 aidlc approve`", "echo $(\\\U0001F600 aidlc approve)",
+    "echo \"$(\\\U0001F600 aidlc approve)\"", "echo \"`\\\U0001F600 aidlc approve`\"", "echo '$(\\\U0001F600 aidlc approve)'", "echo '`\\\U0001F600 aidlc approve`'",
+    "aidlc next\n\U0001F600", "aidlc next \U0001F600 \U0001F600", "aidlc next; \U0001F600", "aidlc next && \U0001F600", "aidlc next | \U0001F600", "aidlc approve \"\U0001F600\"",
+    "aidlc approve '\U0001F600'", "aidlc approve `\U0001F600`", "aidlc approve $(\U0001F600)", "aidlc approve \"$(\U0001F600)\"", "aidlc approve ${\U0001F600}", "aidlc approve \\\U0001F600",
+    "aidlc approve # \U0001F600", "aidlc approve #\U0001F600", "aidlc approve\n# \U0001F600", "aidlc approve <<E\n\U0001F600\nE", "aidlc approve <<'E'\n\U0001F600\nE",
+    "aidlc approve <<E\n$(\U0001F600)\nE", "aidlc approve <<E\n`\U0001F600`\nE", "aidlc approve <<-E\n\t\U0001F600\n\tE", "aidlc approve <<E\n\U0001F600\nE\n\U0001F600",
+    "aidlc approve <<E\n\U0001F600\nE\n$(\U0001F600)", "aidlc approve <<E\n\U0001F600\nE\n`\U0001F600`", "aidlc approve <<E\n\U0001F600\nE\n\"$(\U0001F600)\"",
+    "\U0001F600 <<E\n$(aidlc approve)\nE", "\U0001F600 <<'E'\n$(aidlc approve)\nE", "\U0001F600 <<E\n`aidlc approve`\nE", "\U0001F600 <<-E\n\t$(aidlc approve)\n\tE",
+    "\U0001F600 <<E\n$(aidlc approve)\nE\naidlc next", "\U0001F600 <<E\n\U0001F600\nE\n$(aidlc approve)", "\U0001F600 <<E\n\U0001F600\nE\n`aidlc approve`",
+    "echo \U0001F600 <<E\n$(aidlc approve)\nE", "echo \"\U0001F600\" <<E\n$(aidlc approve)\nE", "echo '\U0001F600' <<E\n$(aidlc approve)\nE", "echo `\U0001F600` <<E\n$(aidlc approve)\nE",
+    "echo $(\U0001F600) <<E\n$(aidlc approve)\nE", "cat <<\U0001F600\n$(aidlc approve)\n\U0001F600", "cat <<'\U0001F600'\n$(aidlc approve)\n\U0001F600", "cat <<\"\U0001F600\"\n$(aidlc approve)\n\U0001F600",
+    "cat <<E\U0001F600\n$(aidlc approve)\nE\U0001F600", "cat <<'E\U0001F600'\n$(aidlc approve)\nE\U0001F600", "cat <<E\n\U0001F600\n$(aidlc approve)\nE",
+    "cat <<E\n\U0001F600 \U0001F600\n$(aidlc approve)\nE", "cat <<E\n\U0001F600\n\U0001F600\n$(aidlc approve)\nE", "cat <<E\n$(aidlc approve)\n\U0001F600\nE",
+    "cat <<E\n$(aidlc approve) \U0001F600\nE", "cat <<E\n\U0001F600 $(aidlc approve) \U0001F600\nE", "cat <<E\n\"\U0001F600\" $(aidlc approve)\nE", "cat <<E\n'\U0001F600' $(aidlc approve)\nE",
+    "cat <<E\n`\U0001F600` $(aidlc approve)\nE", "cat <<E\n$(\U0001F600) $(aidlc approve)\nE", "cat <<E\n\\\U0001F600 $(aidlc approve)\nE", "cat <<E\n\U0001F600\\ $(aidlc approve)\nE",
+    "cat <<E\n\U0001F600\\\n$(aidlc approve)\nE", "cat <<E\n\U0001F600\n\\\n$(aidlc approve)\nE", "cat <<E\n\U0001F600 \"$(aidlc approve)\"\nE", "cat <<E\n\U0001F600 '$(aidlc approve)'\nE",
+    "cat <<E\n\U0001F600 \"$(\U0001F600 aidlc approve)\"\nE", "cat <<E\n\U0001F600 $(\U0001F600 aidlc approve)\nE", "cat <<E\n\U0001F600 `\U0001F600 aidlc approve`\nE",
+    "cat <<E\n\U0001F600 $(echo \U0001F600; aidlc approve)\nE", "cat <<E\n\U0001F600 $(echo \"\U0001F600\"; aidlc approve)\nE", "cat <<E\n\U0001F600 `echo \U0001F600; aidlc approve`\nE",
+    "cat <<E\n\U0001F600 $(echo $(\U0001F600); aidlc approve)\nE", "cat <<E\n\U0001F600 $(echo `\U0001F600`; aidlc approve)\nE", "cat <<E\n\U0001F600 $(echo '\U0001F600'; aidlc approve)\nE",
+    "cat <<E\n\U0001F600 $(f() { \U0001F600; }; aidlc approve)\nE", "cat <<E\n\U0001F600 $(X=\U0001F600; aidlc approve)\nE", "cat <<E\n\U0001F600 $(X=\U0001F600 aidlc approve)\nE",
+    "cat <<E\n\U0001F600 $(\U0001F600=1 aidlc approve)\nE", "cat <<E\n\U0001F600 $(time \U0001F600 aidlc approve)\nE", "cat <<E\n\U0001F600 $(env -S '\U0001F600 aidlc approve')\nE",
+    "cat <<E\n\U0001F600 $(eval '\U0001F600 aidlc approve')\nE", "cat <<E\n\U0001F600 $(sh -c '\U0001F600 aidlc approve')\nE", "cat <<E\n\U0001F600 $(cat <<X\n\U0001F600 $(aidlc approve)\nX\n)\nE",
+    "cat <<E\n\U0001F600 $(cat <<'X'\n\U0001F600 $(aidlc approve)\nX\n)\nE", "cat <<E\n\U0001F600 $(cat <<X\n\U0001F600\nX\n$(aidlc approve))\nE",
+    "\U0001F600() { aidlc next; }", "\U0001F600() { aidlc next; }; aidlc approve", "\U0001F600 () { aidlc next; }; aidlc approve", "function \U0001F600 { aidlc next; }; aidlc approve",
+    "f\U0001F600() { aidlc next; }; aidlc approve", "\U0001F600f() { aidlc next; }; aidlc approve", "f() { aidlc next; }\U0001F600; aidlc approve", "f() { aidlc next; } \U0001F600; aidlc approve",
+    "f() { aidlc next; }; \U0001F600 aidlc approve", "f() { aidlc next; }; \U0001F600; aidlc approve", "f() { aidlc next; }\n\U0001F600 aidlc approve", "f() { aidlc next; }\n\U0001F600; aidlc approve",
+    "f() { \U0001F600 aidlc next; }; aidlc approve", "f() { \U0001F600; aidlc next; }; aidlc approve", "f() { aidlc next; \U0001F600; }; aidlc approve", "f() { aidlc next \U0001F600; }; aidlc approve",
+    "f() { echo \U0001F600; aidlc next; }; aidlc approve", "f() { echo \"\U0001F600\"; aidlc next; }; aidlc approve", "f() { echo '\U0001F600'; aidlc next; }; aidlc approve",
+    "f() { echo `\U0001F600`; aidlc next; }; aidlc approve", "f() { echo $(\U0001F600); aidlc next; }; aidlc approve", "f() { echo \"$(\U0001F600)\"; aidlc next; }; aidlc approve",
+    "f() { echo \\\U0001F600; aidlc next; }; aidlc approve", "f() { echo \U0001F600\U0001F600; aidlc next; }; aidlc approve", "f() { echo \U0001F600 \U0001F600; aidlc next; }; aidlc approve",
+    "f() { echo \U0001F600; }; g() { aidlc next; }; aidlc approve", "f() { echo \U0001F600; }; g() { echo \U0001F600; aidlc next; }; aidlc approve",
+    "f() { echo \U0001F600; }\ng() { aidlc next; }\naidlc approve", "f() { echo \U0001F600; } ; g() { aidlc next; } ; aidlc approve", "f() { echo \U0001F600; }; aidlc approve; g() { aidlc next; }",
+    "f() { echo \U0001F600; }; $(aidlc approve)", "f() { echo \U0001F600; }; `aidlc approve`", "f() { echo \U0001F600; }; \"$(aidlc approve)\"", "f() { echo \U0001F600; }; echo $(aidlc approve)",
+    "f() { echo \U0001F600; }; echo `aidlc approve`", "f() { echo \U0001F600; }; echo \"$(aidlc approve)\"", "f() { echo \U0001F600; }; echo '$(aidlc approve)'",
+    "f() { echo \U0001F600; }; X='aidlc approve'; $X", "f() { echo \U0001F600; }; X='aidlc approve'; eval \"$X\"", "f() { echo \U0001F600; }; X='aidlc approve'; sh -c \"$X\"",
+    "f() { echo \U0001F600; }; eval 'aidlc approve'", "f() { echo \U0001F600; }; sh -c 'aidlc approve'", "f() { echo \U0001F600; }; env -S 'aidlc approve'",
+    "f() { echo \U0001F600; }; time aidlc approve", "f() { echo \U0001F600; }; cat <<E\n$(aidlc approve)\nE", "f() { echo \U0001F600; }; cat <<'E'\n$(aidlc approve)\nE",
+    "f() { echo \U0001F600; }; { aidlc approve; }", "f() { echo \U0001F600; }; ( aidlc approve )", "f() { echo \U0001F600; }; if aidlc approve; then :; fi",
+    "f() { echo \U0001F600; }; ! aidlc approve", "f() { echo \U0001F600; }; X=1 aidlc approve", "f() { echo \U0001F600; }; \U0001F600 aidlc approve", "f() { echo \U0001F600; }; \U0001F600; aidlc approve",
+    "f() { echo \U0001F600; }; echo \U0001F600; aidlc approve", "f() { echo \U0001F600; }; echo \"\U0001F600\"; aidlc approve", "f() { echo \U0001F600; }; echo '\U0001F600'; aidlc approve",
+    "f() { echo \U0001F600; }; echo \"\U0001F600\n\"; aidlc approve", "f() { echo \U0001F600; }; echo \"\U0001F600\n\" $(aidlc approve)", "f() { echo \U0001F600; }; echo \"\U0001F600$(aidlc approve)\"",
+    "f() { echo \U0001F600; }; echo \"\U0001F600\" $(aidlc approve)", "f() { echo \U0001F600; }; echo `\U0001F600` $(aidlc approve)", "f() { echo \U0001F600; }; echo $(\U0001F600) $(aidlc approve)",
+    "f() { echo \U0001F600; }; f() { echo \U0001F600; }; aidlc approve", "f() { echo \U0001F600; }; f() { aidlc next; }; aidlc approve", "f() { echo \U0001F600; }; f() { echo \U0001F600; aidlc next; }; aidlc approve",
+    "f() { echo \U0001F600\U0001F600; }; f() { echo \U0001F600; }; aidlc approve", "f() { echo \U0001F600; }; f() { echo \U0001F600\U0001F600; }; aidlc approve",
+    "f() { echo \U0001F600; }; echo \U0001F600; f() { echo \U0001F600; }; aidlc approve", "f() { echo \U0001F600; }; echo \"\U0001F600\"; f() { echo \U0001F600; }; aidlc approve",
+    "f() { echo \U0001F600; }; echo \"\U0001F600\n\"; f() { echo \U0001F600; }; aidlc approve", "f() { echo \U0001F600; }\nf() { echo \U0001F600; }\naidlc approve",
+    "f() { echo \U0001F600; }\n\nf() { echo \U0001F600; }\n\naidlc approve", "f() {\n echo \U0001F600\n}\nf() {\n echo \U0001F600\n}\naidlc approve",
+    "function f {\n echo \U0001F600\n}\nfunction g {\n echo \U0001F600\n}\naidlc approve", "f() { echo \U0001F600; }; g() { echo \U0001F600; }; h() { echo \U0001F600; }; aidlc approve",
+    "f() { echo \U0001F600; }; g() { echo \U0001F600; }; h() { aidlc next; }; aidlc approve", "f() { echo \U0001F600; }; g() { echo \U0001F600; }; h() { echo \U0001F600; aidlc next; }; aidlc approve",
+    "f() { echo \U0001F600; }; g() { echo \U0001F600; }; h() { echo \U0001F600; }; i() { aidlc next; }; aidlc approve",
+    "f() { echo \U0001F600; }; g() { echo \U0001F600; }; h() { echo \U0001F600; }; i() { echo \U0001F600; aidlc next; }; aidlc approve",
+    "f() { echo \U0001F600\U0001F600\U0001F600\U0001F600; }; g() { aidlc next; }; aidlc approve", "f() { echo \U0001F600\U0001F600\U0001F600\U0001F600; }; g() { echo \U0001F600; aidlc next; }; aidlc approve",
+    "f() { echo \U0001F600\U0001F600\U0001F600\U0001F600; }; echo \U0001F600; g() { aidlc next; }; aidlc approve", "f() { echo \U0001F600; }; echo \U0001F600\U0001F600\U0001F600\U0001F600; g() { aidlc next; }; aidlc approve",
+    "f() { echo \U0001F600; }; echo \U0001F600\U0001F600\U0001F600\U0001F600; g() { echo \U0001F600; aidlc next; }; aidlc approve",
+    "echo \U0001F600\U0001F600\U0001F600\U0001F600; f() { aidlc next; }; aidlc approve", "echo \U0001F600\U0001F600\U0001F600\U0001F600; f() { echo \U0001F600; aidlc next; }; aidlc approve",
+    "echo \U0001F600\U0001F600\U0001F600\U0001F600; f() { echo \U0001F600; }; aidlc approve", "echo \U0001F600\U0001F600\U0001F600\U0001F600; f() { echo \U0001F600; }; g() { aidlc next; }; aidlc approve",
+    "echo \U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600; f() { aidlc next; }; aidlc approve",
+    "echo \U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600; f() { echo x; }; aidlc approve",
+    "echo \U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600; f() { echo x; }; g() { aidlc next; }; aidlc approve",
+    "echo \U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600; f() { echo x; }; g() { echo y; }; aidlc approve",
+    "echo \U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600; f() { echo x; }; g() { echo y; }; h() { aidlc next; }; aidlc approve",
+    "echo \U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600; f() { echo x; }; g() { aidlc next; }; aidlc approve",
+    "echo \U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600; f() { echo x; }; aidlc approve",
+    "echo \U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600; aidlc approve",
+    "echo \U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600 $(aidlc approve)",
+    "echo \U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600 `aidlc approve`",
+    "echo \U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600 \"$(aidlc approve)\"",
+    "echo \"\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\n\"; aidlc approve",
+    "echo \"\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\n;\" aidlc approve",
+]
+for command in ST_FIXED:
+    add("state_transition", command=command)
+# Every table entry once, as a script verb and as a dispatcher route, so a verb dropped from a table is seen.
+for script, verbs in ST_SCRIPTS.items():
+    for verb in verbs:
+        add("state_transition", command=f"bun .claude/tools/{script} {verb}")
+for words in ST_DISPATCH_WORDS:
+    add("state_transition", command=f"aidlc {words}")
+    add("state_transition", command=f"aidlc engine {words}")
+for verb in ST_STATE_VERBS:
+    add("state_transition", command=f"aidlc state {verb}")
+for _ in range(scale * 150):
+    add("state_transition", command=st_command())
+
+
+ST_DIRECT_HEAD = ["bun aidlc-state.ts", "bun .claude/tools/aidlc-state.ts", "bun run aidlc-state.ts", "bun '/p q/aidlc-state.ts'", 'bun "/p/aidlc-state.ts"',
+                  "/usr/bin/bun aidlc-state.ts", "bun.exe aidlc-state.ts", "bun .kiro\\tools\\aidlc-state.ts", "bun x/aidlc-state.ts", "bun xaidlc-state.ts",
+                  "bun aidlc-state.tsx", "bun -e aidlc-state.ts", "bun --cwd /p aidlc-state.ts", "node aidlc-state.ts", "aidlc-state.ts", "bunx aidlc-state.ts",
+                  "aidlc engine state", "./aidlc engine state", "/usr/local/bin/aidlc engine state", "aidlc.exe engine state", '"/p q/aidlc" engine state',
+                  "'/p/aidlc.exe' engine state", "aidlc state", "aidlc system state", "aidlc engine  state", "aidlc\tengine\tstate", "xaidlc engine state",
+                  "aidlcx engine state", "aidlc engine statex", "aidlc --json engine state", "aidlc engine --json state", "aidlc engine state --json",
+                  "bun aidlc.ts engine state", "bun .claude/tools/aidlc.ts engine state", "bun aidlc.ts state", "bun aidlc-orchestrate.ts", "aidlc engine orchestrate",
+                  "aidlc orchestrate", "bun aidlc-jump.ts", "aidlc engine jump", "aidlc jump", "bun .claude/tools/aidlc-orchestrate.ts", "./aidlc engine jump"]
+ST_DIRECT_VERB = ST_STATE_VERBS + ["report", "park", "execute", "reopen", "next", "resolve", "wait", "approve x", "approve --stage x", "--stage x approve",
+                                   "approve;", "approve&&", "approvex", "approve-x", "approve_x", "Approve", "APPROVE", "approve\n", "approve\t", " approve"]
+ST_DIRECT_PRE = ["", "", "", "cd /p && ", "X=1 ", "X=1 Y=2 ", "env ", "env -i ", "env X=1 ", "command ", "exec ", "time ", "nice ", "nohup ", "sudo ", "if ", "! ",
+                 "echo x; ", "echo x && ", "echo x || ", "echo x | ", "echo x & ", "echo x\n", "(", "{ ", "( ", "echo '", 'echo "', "echo `", "echo $(", "echo \"$(",
+                 "echo '$(", "x=$(", "x=`", "f() { ", "function f { ", "cat <<E\n", "cat <<'E'\n", "cat <<E\n$(", "cat <<'E'\n$(", "# ", "x # ", "eval ", "eval '",
+                 "sh -c '", 'sh -c "', "sh -c ", "env -S '", "X='", 'X="', "2>&1 ", "> out ", "\t", "  ", "\n", "\\\n", "\u00e9 ", "\U0001F600 ", "echo \U0001F600; ",
+                 "echo '\U0001F600'; ", "echo \"\U0001F600\"; ", "f() { \U0001F600; }; ", "cat <<E\n\U0001F600\nE\n", "echo \"\U0001F600\n\"; ", "echo \"\U0001F600\" $("]
+ST_DIRECT_POST = ["", "", "", " --stage x", " --result done", " x", " 2>&1", " | cat", " > out", " &", " ;", " # c", "\n", " && echo", "'", '"', "`", ")", "\"", "')",
+                  "\")", "; }", "; }; f", "\nE", "\nE\n", ")\nE", "'\n$X", "\"\n$X", "'\neval \"$X\"", "'\nsh -c \"$X\"", "' x", " \U0001F600", "; \U0001F600",
+                  " \"\U0001F600\"", "' \U0001F600", ") \U0001F600", "; }; aidlc approve", "'; aidlc approve", "\"; aidlc approve", "); aidlc approve", ")\nE\naidlc approve"]
+
+
+def st_direct():
+    return f"{st.choice(ST_DIRECT_PRE)}{st.choice(ST_DIRECT_HEAD)} {st.choice(ST_DIRECT_VERB)}{st.choice(ST_DIRECT_POST)}"
+
+
+for _ in range(scale * 80):
+    add("state_transition", command=st_direct())
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

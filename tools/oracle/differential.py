@@ -3569,6 +3569,56 @@ def hook_checks():
     for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
         check_(f"reviewer-scope/observer_{marker.lower()}", reviewing, [scope(file_path="{D}/construction/U02/design.md")], {marker: "1"})
 
+    # state-transition-guard: the direct transitions, the delegated agent's commands, the fence.
+    AGENT = "aidlc-product-agent"
+    guard = lambda command, agent=None, tool="Bash", **more: ["state-transition-guard", payload(hook_event_name="PreToolUse", tool_name=tool, tool_input={"command": command.replace("{D}", "{P}/" + CREATED_DIR)} if tool == "Bash" else more.pop("tool_input"), **({"agent_type": agent} if agent is not None else {}), **more)]
+    strict_state = CREATED_STATE.replace("- **Guard Policy**: off (from scope feature)", "- **Guard Policy**: strict (set by you)")
+    strict = {**created(strict_state), **binding()}
+    speaking = {**created(CREATED_STATE.replace("off (from scope feature)", "relaxed (set by you)") + "- **Guards Off**: state-transition (set by you)\n"), **binding()}
+    check_("state-transition-guard/direct_strict", strict, [guard("bun .claude/tools/aidlc-state.ts approve intent-capture"), guard("bun .claude/tools/aidlc-state.ts set 'Scope=x'"), guard("cd {P} && bun .claude/tools/aidlc-state.ts checkbox intent-capture=completed")])
+    check_("state-transition-guard/direct_native", strict, [guard("aidlc engine state approve intent-capture"), guard("./aidlc engine state skip x"), guard("bun .claude/tools/aidlc.ts engine state park")])
+    check_("state-transition-guard/direct_reads", strict, [guard("bun .claude/tools/aidlc-state.ts get Scope"), guard("aidlc engine state count completed"), guard("bun .claude/tools/aidlc-state.ts resume")])
+    check_("state-transition-guard/direct_in_prose", strict, [guard("echo 'bun aidlc-state.ts approve x'"), guard("cat <<EOF\nbun aidlc-state.ts approve x\nEOF"), guard("f() { bun aidlc-state.ts approve x; }")])
+    check_("state-transition-guard/direct_policy_off", joined, [guard("bun .claude/tools/aidlc-state.ts approve intent-capture")])
+    check_("state-transition-guard/direct_relaxed_switch_off", speaking, [guard("bun .claude/tools/aidlc-state.ts approve intent-capture")])
+    check_("state-transition-guard/direct_strict_switch_off", {**created(strict_state + "- **Guards Off**: state-transition (set by you)\n"), **binding()}, [guard("aidlc engine state advance")])
+    check_("state-transition-guard/direct_memory_strict", {**joined, "aidlc/spaces/default/memory/team.md": "# Team\n\n## Guard Policy\n\nMode: strict\n"}, [guard("bun .claude/tools/aidlc-state.ts approve intent-capture")])
+    check_("state-transition-guard/direct_policy_unreadable_state", {**created(CREATED_STATE.replace("off (from scope feature)", "sometimes")), **binding()}, [guard("bun .claude/tools/aidlc-state.ts approve intent-capture")])
+    check_("state-transition-guard/direct_policy_unreadable_memory", {**joined, "aidlc/spaces/default/memory/org.md": "## Guard Policy\n\nMode: maybe\n"}, [guard("bun .claude/tools/aidlc-state.ts approve intent-capture")])
+    check_("state-transition-guard/direct_outsider", {**no_cursor, **binding("other-9f8e7d6c")}, [guard("bun .claude/tools/aidlc-state.ts approve intent-capture")])
+    check_("state-transition-guard/direct_unjoined", {**no_cursor, **binding(None, "unjoined")}, [guard("bun .claude/tools/aidlc-state.ts approve intent-capture")])
+    check_("state-transition-guard/direct_cursor_only", created(strict_state), [guard("bun .claude/tools/aidlc-state.ts approve intent-capture")])
+    check_("state-transition-guard/direct_no_state", {**CLONE, "aidlc/spaces/default/intents/intents.json": CREATED_REGISTRY, **binding()}, [guard("bun .claude/tools/aidlc-state.ts approve intent-capture")])
+    check_("state-transition-guard/direct_cold", CLONE, [guard("bun .claude/tools/aidlc-state.ts approve intent-capture")])
+    check_("state-transition-guard/direct_subagent_strict", strict, [guard("bun .claude/tools/aidlc-state.ts approve intent-capture", AGENT)])
+    check_("state-transition-guard/direct_subagent_type", strict, [["state-transition-guard", payload(hook_event_name="PreToolUse", tool_name="Bash", tool_input={"command": "aidlc engine state approve x", "subagent_type": " aidlc-product-agent "})]])
+    check_("state-transition-guard/direct_subagent_policy_off", joined, [guard("bun .claude/tools/aidlc-state.ts approve intent-capture", AGENT)])
+    check_("state-transition-guard/direct_subagent_outsider", {**no_cursor, **binding("other-9f8e7d6c")}, [guard("bun .claude/tools/aidlc-state.ts approve intent-capture", AGENT)])
+    check_("state-transition-guard/direct_blank_agent", strict, [guard("bun .claude/tools/aidlc-state.ts approve intent-capture", "  ")])
+    check_("state-transition-guard/delegated_script", strict, [guard("bun .claude/tools/aidlc-orchestrate.ts next", AGENT), guard("bun .claude/tools/aidlc-orchestrate.ts report --stage x --result completed", AGENT), guard("bun .claude/tools/aidlc-jump.ts execute --stage x", AGENT), guard("bun .claude/tools/aidlc-state.ts unpark", AGENT)])
+    check_("state-transition-guard/delegated_dispatcher", strict, [guard("aidlc next", AGENT), guard("aidlc intent switch other", AGENT), guard("aidlc engine orchestrate park", AGENT), guard("aidlc --json space-create x", AGENT)])
+    check_("state-transition-guard/delegated_utility", strict, [guard("bun .claude/tools/aidlc-utility.ts scope-change --guard-policy off", AGENT), guard("bun .claude/tools/aidlc-utility.ts select-plugins", AGENT)])
+    check_("state-transition-guard/delegated_nested", strict, [guard("echo $(aidlc next)", AGENT), guard("sh -c 'aidlc report'", AGENT), guard("X='aidlc next'\neval \"$X\"", AGENT), guard("env -S 'aidlc next'", AGENT)])
+    check_("state-transition-guard/delegated_dynamic", strict, [guard("$CMD next", AGENT), guard("sh -c \"$X\"", AGENT), guard("eval \"$X\"", AGENT), guard("env -S '$X'", AGENT)])
+    check_("state-transition-guard/delegated_allowed", strict, [guard("bun .claude/tools/aidlc-state.ts get Scope", AGENT), guard("bun .claude/tools/aidlc-orchestrate.ts wait", AGENT), guard("aidlc intent list", AGENT), guard("ls -la && git status", AGENT), guard("bun .claude/tools/aidlc-machine-config.ts get x", AGENT)])
+    check_("state-transition-guard/delegated_main_session", strict, [guard("bun .claude/tools/aidlc-orchestrate.ts next"), guard("aidlc next")])
+    check_("state-transition-guard/delegated_policy_off", joined, [guard("bun .claude/tools/aidlc-orchestrate.ts next", AGENT)])
+    check_("state-transition-guard/delegated_relaxed_switch_off", speaking, [guard("aidlc next", AGENT)])
+    check_("state-transition-guard/delegated_outsider", {**no_cursor, **binding("other-9f8e7d6c")}, [guard("bun .claude/tools/aidlc-orchestrate.ts next", AGENT)])
+    check_("state-transition-guard/delegated_memory_strict", {**joined, "aidlc/spaces/default/memory/team.md": "# Team\n\n## Guard Policy\n\nMode: strict\n"}, [guard("aidlc next", AGENT)])
+    check_("state-transition-guard/delegated_no_shard", {**speaking, CREATED_SHARD: None}, [guard("aidlc next", AGENT)])
+    check_("state-transition-guard/direct_no_shard", {**speaking, CREATED_SHARD: None}, [guard("aidlc engine state approve x")])
+    check_("state-transition-guard/other_tool", strict, [guard("", tool="Write", tool_input={"file_path": "{P}/README.md"}), guard("", tool="Task", tool_input={"prompt": "bun aidlc-state.ts approve x"}), guard("", tool="Task", agent=AGENT, tool_input={"command": "bun aidlc-state.ts approve x && aidlc next"})])
+    check_("state-transition-guard/no_tool_input", strict, [["state-transition-guard", payload(hook_event_name="PreToolUse", tool_name="Bash")]])
+    check_("state-transition-guard/malformed", strict, [["state-transition-guard", "{nope"], ["state-transition-guard", ""], ["state-transition-guard", "[1]"], ["state-transition-guard", "null"]])
+    check_("state-transition-guard/integrity_hook_write", joined, [guard("echo x > {P}/.claude/hooks/aidlc-x.ts"), guard("", tool="Write", tool_input={"file_path": "{P}/aidlc/.aidlc-sessions/s1.binding.json", "content": "{}"}), guard("bun .claude/hooks/aidlc-review-freeze.ts")])
+    check_("state-transition-guard/integrity_audit_write", joined, [guard("echo x >> {D}/audit/laptop-abc123.md")])
+    check_("state-transition-guard/integrity_before_fence", joined, [guard("bun .claude/tools/aidlc-state.ts approve x > {P}/.claude/hooks/aidlc-x.ts")])
+    check_("state-transition-guard/directive_marker_direct", {**strict, f"{engine}/active-directive.json": '{"stage": "intent-capture"}'}, [guard("bun .claude/tools/aidlc-state.ts approve intent-capture")])
+    check_("state-transition-guard/directive_marker_delegated", {**strict, f"{engine}/active-directive.json": '{"stage": "intent-capture"}'}, [guard("aidlc next", AGENT)])
+    for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
+        check_(f"state-transition-guard/observer_{marker.lower()}", speaking, [guard("bun .claude/tools/aidlc-state.ts approve intent-capture"), guard("aidlc next", AGENT)], {marker: "1"})
+
     # The dispatcher: a hook it does not have, a name it refuses, the trace.
     check_("dispatch/unknown", created(), [["nope", "{}"]])
     check_("dispatch/unsafe_name", created(), [["../x", "{}"]])

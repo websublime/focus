@@ -232,6 +232,42 @@ impl Guards {
     }
 }
 
+/// `fenceSwitchSentence`: how the person turns `fence`'s check off, or why
+/// they cannot. `guards` is the record's `Guards::read`, which may itself
+/// have failed: a policy that cannot be read never advertises a switch that
+/// may be held strict.
+#[must_use]
+pub fn fence_switch_sentence(fence: Fence, guards: &Result<Guards>) -> String {
+    let fence = fence.name();
+    match guards.as_ref().map(|guards| guards.policy(false)) {
+        Ok(Ok(policy)) => match policy.memory_strict {
+            None => format!(
+                "If the person meant to do this now, offer to turn the {fence} check off for this piece of work. When they say so, run `focus engine config set guard.{fence} off` yourself and tell them in one line that it is off for this piece of work, comes back on for the next one, and that they can ask you to turn it back on."
+            ),
+            Some(strict) => format!(
+                "Your team set Guard Policy to strict in {}, so the {fence} check stays on for everyone on this repo. Changing that line there changes it.",
+                strict.path.display()
+            ),
+        },
+        _ => {
+            // Name the repair that works: a bad state line is rewritten by
+            // the typed switch (which reads it tolerantly); a bad memory
+            // line is fixed in its file.
+            let state_line_only = guards
+                .as_ref()
+                .is_ok_and(|guards| guards.policy(true).is_ok());
+            format!(
+                "Guard Policy (how closely Focus checks changes to what you approved) could not be read, so the {fence} check cannot be turned off from chat. {}",
+                if state_line_only {
+                    "Do you want me to set it again, to strict, relaxed or off, and then try again?"
+                } else {
+                    "A Guard Policy line in this space's org.md, team.md or project.md cannot be read: correct it there (Mode: strict, relaxed or off), then try again."
+                }
+            )
+        }
+    }
+}
+
 fn read_text(path: &Path) -> Option<String> {
     fs::read(path)
         .ok()

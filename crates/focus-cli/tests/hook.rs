@@ -2086,3 +2086,531 @@ fn a_claimed_checkouts_write_bound_is_refused_by_name() {
         "{said}"
     );
 }
+
+const STRICT_STATE_LINE: &str = "- **Scope**: feature\n- **Guard Policy**: strict (set by you)\n";
+
+fn bash(root: &Path, agent: Option<&str>, command: &str) -> String {
+    scope(
+        root,
+        "Bash",
+        agent,
+        &format!("\"command\":{}", serde_json_string(command)),
+    )
+}
+
+fn strict(name: &str) -> Project {
+    let root = project(name);
+    write(
+        &root,
+        &format!("{RECORD}/focus-state.md"),
+        &STATE.replace("- **Scope**: feature\n", STRICT_STATE_LINE),
+    );
+    root
+}
+
+fn denied(output: &Output) -> String {
+    assert_eq!(output.status.code(), Some(2), "{}", text(&output.stderr));
+    let reason = text(&output.stderr);
+    let stdout = text(&output.stdout);
+    assert!(
+        stdout.starts_with(
+            "{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":"
+        ),
+        "{stdout}"
+    );
+    reason
+}
+
+#[test]
+fn a_direct_state_transition_is_refused_at_the_fence() {
+    let root = strict("transition-direct");
+    for command in [
+        "bun .claude/tools/focus-state.ts approve intent-capture",
+        "cd /p && bun focus-state.ts approve x",
+        "focus engine state approve x",
+        "./focus.exe engine state approve",
+        "bun .claude/tools/focus.ts engine state approve",
+        "echo \"$(bun focus-state.ts approve x)\"",
+    ] {
+        let said = denied(&hook(
+            &root,
+            &["state-transition-guard"],
+            &bash(&root, None, command),
+            &[],
+        ));
+        assert!(
+            said.starts_with("Stage status cannot be changed with `focus engine state approve` because that bypasses the workflow's completion and approval checks. Use `focus engine orchestrate report` --stage <slug> --result <awaiting-approval|approved|rejected|revised|completed|skipped>; use `focus engine orchestrate park` to pause, and next/jump to move through the workflow. If the person meant to do this now, offer to turn the state-transition check off for this piece of work. When they say so, run `focus engine config set guard.state-transition off` yourself"),
+            "{command}: {said}"
+        );
+    }
+    // A delegated agent is refused the same transition, without the offer
+    // to switch the check off.
+    let said = denied(&hook(
+        &root,
+        &["state-transition-guard"],
+        &bash(
+            &root,
+            Some("focus-product-agent"),
+            "bun focus-state.ts skip x",
+        ),
+        &[],
+    ));
+    assert!(
+        said.ends_with("next/jump to move through the workflow. \n"),
+        "{said}"
+    );
+    assert!(said.contains("`focus engine state skip`"), "{said}");
+    // Reads, prose, heredocs, function bodies and other tools pass.
+    for command in [
+        "bun focus-state.ts get Scope",
+        "focus engine state count completed",
+        "bun focus-state.ts resume",
+        "echo 'bun focus-state.ts approve x'",
+        "cat <<EOF\nbun focus-state.ts approve x\nEOF",
+        "f() { bun focus-state.ts approve x; }",
+        "ls -la",
+    ] {
+        quiet(&hook(
+            &root,
+            &["state-transition-guard"],
+            &bash(&root, None, command),
+            &[],
+        ));
+    }
+    quiet(&hook(
+        &root,
+        &["state-transition-guard"],
+        &scope(&root, "Write", None, "\"file_path\":\"{D}/notes.md\""),
+        &[],
+    ));
+    // Only a shell runs a command: another tool's `command` field is text.
+    quiet(&hook(
+        &root,
+        &["state-transition-guard"],
+        &scope(
+            &root,
+            "Task",
+            Some("focus-product-agent"),
+            "\"command\":\"bun focus-state.ts approve x && focus next\"",
+        ),
+        &[],
+    ));
+    for stdin in ["{nope", "", "[1]", "null"] {
+        quiet(&hook(&root, &["state-transition-guard"], stdin, &[]));
+    }
+    quiet(&hook(
+        &root,
+        &["state-transition-guard"],
+        &payload("\"hook_event_name\":\"PreToolUse\",\"tool_name\":\"Bash\""),
+        &[],
+    ));
+    assert_eq!(shard(&root), "# Focus Audit Log\n");
+}
+
+#[test]
+fn the_fence_stands_aside_when_it_is_lowered_for_this_work() {
+    // Guard Policy off: a silent pass with the row. (The test tree carries
+    // no scope mapping, so the scope's own default is read as strict.)
+    let root = project("transition-off");
+    write(
+        &root,
+        &format!("{RECORD}/focus-state.md"),
+        &STATE.replace(
+            "- **Scope**: feature\n",
+            "- **Scope**: feature\n- **Guard Policy**: off (set by you)\n",
+        ),
+    );
+    let output = hook(
+        &root,
+        &["state-transition-guard"],
+        &bash(&root, None, "bun focus-state.ts approve x"),
+        &[],
+    );
+    quiet(&output);
+    let rows = shard(&root);
+    assert!(
+        rows.contains("**Event**: GUARD_STOOD_ASIDE\n**Guard**: state-transition\n**Authority**: none\n**Grant**: none\n**Actor**: main\n**Tool**: Bash\n**Details**: focus-state approve\n\n---\n"),
+        "{rows}"
+    );
+    // Relaxed with the switch off: the fence speaks as it stands aside.
+    write(
+        &root,
+        &format!("{RECORD}/focus-state.md"),
+        &STATE.replace(
+            "- **Scope**: feature\n",
+            "- **Scope**: feature\n- **Guard Policy**: relaxed (set by you)\n- **Guards Off**: state-transition (set by you)\n",
+        ),
+    );
+    let output = hook(
+        &root,
+        &["state-transition-guard"],
+        &bash(&root, Some("focus-product-agent"), "focus next"),
+        &[],
+    );
+    assert!(output.status.success());
+    assert_eq!(
+        text(&output.stdout),
+        "{\"systemMessage\":\"Continuing past the state-transition check because it is off for this piece of work (set by you). Recorded in the audit trail: focus next\"}\n"
+    );
+    assert!(output.stderr.is_empty());
+    assert!(
+        shard(&root).contains("**Tool**: Bash\n**Details**: focus next\n"),
+        "{}",
+        shard(&root)
+    );
+    // The team's memory holds the policy strict: the fence stays up and the
+    // refusal says where.
+    write(
+        &root,
+        "focus/spaces/default/memory/team.md",
+        "# Team\n\n## Guard Policy\n\nMode: strict\n",
+    );
+    let said = denied(&hook(
+        &root,
+        &["state-transition-guard"],
+        &bash(&root, None, "bun focus-state.ts approve x"),
+        &[],
+    ));
+    assert!(
+        said.contains("Your team set Guard Policy to strict in ")
+            && said.contains(
+                "memory/team.md, so the state-transition check stays on for everyone on this repo."
+            ),
+        "{said}"
+    );
+    // An observer: the fence stands aside without a row.
+    let root = project("transition-observer");
+    write(
+        &root,
+        &format!("{RECORD}/focus-state.md"),
+        &STATE.replace(
+            "- **Scope**: feature\n",
+            "- **Scope**: feature\n- **Guard Policy**: off (set by you)\n",
+        ),
+    );
+    let before = shard(&root);
+    quiet(&hook(
+        &root,
+        &["state-transition-guard"],
+        &bash(&root, None, "bun focus-state.ts approve x"),
+        &[("FOCUS_STOP_HOOK_PROBE", "1")],
+    ));
+    assert_eq!(shard(&root), before);
+}
+
+#[test]
+fn an_unreadable_policy_keeps_the_fence_up_and_names_the_repair() {
+    let root = project("transition-unreadable");
+    write(
+        &root,
+        &format!("{RECORD}/focus-state.md"),
+        &STATE.replace(
+            "- **Scope**: feature\n",
+            "- **Scope**: feature\n- **Guard Policy**: sometimes\n",
+        ),
+    );
+    let said = denied(&hook(
+        &root,
+        &["state-transition-guard"],
+        &bash(&root, None, "bun focus-state.ts approve x"),
+        &[],
+    ));
+    assert!(
+        said.ends_with("Guard Policy (how closely Focus checks changes to what you approved) could not be read, so the state-transition check cannot be turned off from chat. Do you want me to set it again, to strict, relaxed or off, and then try again?\n"),
+        "{said}"
+    );
+    write(&root, &format!("{RECORD}/focus-state.md"), STATE);
+    write(
+        &root,
+        "focus/spaces/default/memory/org.md",
+        "## Guard Policy\n\nMode: maybe\n",
+    );
+    let said = denied(&hook(
+        &root,
+        &["state-transition-guard"],
+        &bash(&root, None, "bun focus-state.ts approve x"),
+        &[],
+    ));
+    assert!(
+        said.ends_with("A Guard Policy line in this space's org.md, team.md or project.md cannot be read: correct it there (Mode: strict, relaxed or off), then try again.\n"),
+        "{said}"
+    );
+}
+
+#[test]
+fn a_main_session_outside_the_workflow_is_left_to_the_state_tool() {
+    let root = strict("transition-outside");
+    fs::remove_file(root.join("focus/spaces/default/intents/active-intent")).unwrap();
+    write(
+        &root,
+        "focus/.focus-sessions/s1.binding.json",
+        &BINDING.replace("260105-add-login", "other-9f8e7d6c"),
+    );
+    // The state tool's own check will read the same policy and say the same
+    // words, so the hook does not stop the main session with an offer.
+    quiet(&hook(
+        &root,
+        &["state-transition-guard"],
+        &bash(&root, None, "bun focus-state.ts approve x"),
+        &[],
+    ));
+    // A delegated agent outside the workflow is still refused: the lowered
+    // fence, had there been one, belongs to the workflow that lowered it.
+    let said = denied(&hook(
+        &root,
+        &["state-transition-guard"],
+        &bash(
+            &root,
+            Some("focus-product-agent"),
+            "bun focus-state.ts approve x",
+        ),
+        &[],
+    ));
+    assert!(said.starts_with("Stage status cannot be changed"), "{said}");
+    let said = denied(&hook(
+        &root,
+        &["state-transition-guard"],
+        &bash(&root, Some("focus-product-agent"), "focus next"),
+        &[],
+    ));
+    assert!(said.starts_with("Delegated agent"), "{said}");
+    // A lowered fence belongs to the workflow that lowered it: Guard Policy
+    // off in the record does not let an outsider's delegated agent through.
+    write(
+        &root,
+        &format!("{RECORD}/focus-state.md"),
+        &STATE.replace(
+            "- **Scope**: feature\n",
+            "- **Scope**: feature\n- **Guard Policy**: off (set by you)\n",
+        ),
+    );
+    let said = denied(&hook(
+        &root,
+        &["state-transition-guard"],
+        &bash(&root, Some("focus-product-agent"), "focus next"),
+        &[],
+    ));
+    assert!(said.starts_with("Delegated agent"), "{said}");
+    assert_eq!(shard(&root), "# Focus Audit Log\n");
+    // No record at all: the fence is up, and the switch sentence names the
+    // repair from an unreadable policy.
+    let root = Project(
+        std::env::temp_dir().join(format!("focus-hook-{}-transition-cold", std::process::id())),
+    );
+    let _ = fs::remove_dir_all(&*root);
+    copy_dir(
+        &Path::new(env!("CARGO_MANIFEST_DIR")).join("../../fixtures/upstream/installed/claude"),
+        &root,
+    );
+    let said = denied(&hook(
+        &root,
+        &["state-transition-guard"],
+        &bash(&root, None, "focus engine state approve x"),
+        &[],
+    ));
+    assert!(said.starts_with("Stage status cannot be changed"), "{said}");
+}
+
+#[test]
+fn a_delegated_agent_may_not_change_status_or_routing() {
+    let root = strict("transition-delegated");
+    let agent = Some("focus-product-agent");
+    for (command, named) in [
+        (
+            "bun .claude/tools/focus-orchestrate.ts next",
+            "focus-orchestrate.ts next",
+        ),
+        (
+            "bun focus-orchestrate.ts report --stage x --result completed",
+            "focus-orchestrate.ts report",
+        ),
+        (
+            "bun focus-jump.ts execute --stage x",
+            "focus-jump.ts execute",
+        ),
+        ("bun focus-state.ts unpark", "focus-state.ts unpark"),
+        ("focus next", "focus next"),
+        (
+            "focus engine orchestrate park",
+            "focus engine orchestrate park",
+        ),
+        ("focus intent switch other", "focus intent switch"),
+        (
+            "bun focus-utility.ts scope-change --guard-policy off",
+            "focus-utility.ts scope-change",
+        ),
+        (
+            "bun focus-machine-config.ts get x",
+            "focus-machine-config.ts",
+        ),
+        ("echo $(focus next)", "focus next"),
+        ("sh -c 'focus report'", "focus report"),
+        ("X='focus next'\nsh -c \"$X\"", "focus next"),
+        ("env -S 'focus next'", "focus next"),
+        ("$CMD next", "dynamic executable beyond guard inspection"),
+        (
+            "sh -c \"$X\"",
+            "dynamic shell command beyond guard inspection",
+        ),
+        (
+            "eval \"$X\"",
+            "dynamic eval shell command beyond guard inspection",
+        ),
+        ("env -S '$X'", "execution wrapper beyond guard inspection"),
+    ] {
+        let said = denied(&hook(
+            &root,
+            &["state-transition-guard"],
+            &bash(&root, agent, command),
+            &[],
+        ));
+        assert_eq!(
+            said,
+            format!(
+                "Delegated agent \"focus-product-agent\" cannot run {named} because only the main workflow session can change stage status or routing. Return the artifact, contribution, or review verdict to the main session without parking, resuming, reporting, routing, or presenting an approval question.\n"
+            ),
+            "{command}"
+        );
+    }
+    // The agent named by the call's subagent_type, trimmed.
+    let said = denied(&hook(
+        &root,
+        &["state-transition-guard"],
+        &payload(
+            "\"hook_event_name\":\"PreToolUse\",\"tool_name\":\"Bash\",\"tool_input\":{\"command\":\"focus next\",\"subagent_type\":\" focus-product-agent \"}",
+        ),
+        &[],
+    ));
+    assert!(
+        said.starts_with("Delegated agent \"focus-product-agent\" cannot run focus next"),
+        "{said}"
+    );
+    // What a delegated agent may run, and what the main session may route.
+    for command in [
+        "bun focus-state.ts get Scope",
+        "bun focus-orchestrate.ts wait",
+        "focus intent list",
+        "focus plugin select",
+        "bun focus-utility.ts select-plugins",
+        "ls -la && git status",
+        "echo 'focus next'",
+        "cat <<'EOF'\n$(focus next)\nEOF",
+    ] {
+        quiet(&hook(
+            &root,
+            &["state-transition-guard"],
+            &bash(&root, agent, command),
+            &[],
+        ));
+    }
+    quiet(&hook(
+        &root,
+        &["state-transition-guard"],
+        &bash(&root, None, "bun focus-orchestrate.ts next"),
+        &[],
+    ));
+    quiet(&hook(
+        &root,
+        &["state-transition-guard"],
+        &bash(&root, Some("  "), "focus next"),
+        &[],
+    ));
+    assert_eq!(shard(&root), "# Focus Audit Log\n");
+}
+
+#[test]
+fn the_harness_boundary_is_held_before_the_fence_is_read() {
+    // Guard Policy off would lower the fence; the boundary consults nothing.
+    let root = project("transition-integrity");
+    // A shell's targets are read with the host's path semantics, and the
+    // POSIX reading is the one the corpus compares with upstream.
+    if cfg!(windows) {
+        let said = denied(&hook(
+            &root,
+            &["state-transition-guard"],
+            &scope(
+                &root,
+                "Write",
+                None,
+                "\"file_path\":\"focus/.focus-sessions/s1.binding.json\",\"content\":\"{}\"",
+            ),
+            &[],
+        ));
+        assert!(
+            said.starts_with("FOCUS runtime records and hooks belong to the harness:"),
+            "{said}"
+        );
+        return;
+    }
+    let said = denied(&hook(
+        &root,
+        &["state-transition-guard"],
+        &bash(
+            &root,
+            None,
+            "bun focus-state.ts approve x > .claude/hooks/focus-x.ts",
+        ),
+        &[],
+    ));
+    assert_eq!(
+        said,
+        format!("{}\n", focus_guards::integrity::RUNTIME_INTEGRITY_REFUSAL)
+    );
+    let said = denied(&hook(
+        &root,
+        &["state-transition-guard"],
+        &bash(&root, None, "echo x >> {D}/audit/laptop-abc123.md"),
+        &[],
+    ));
+    assert!(
+        said.starts_with("The audit trail under focus/spaces/<space>/intents/<intent>/audit/ is written only by the framework's own tools:"),
+        "{said}"
+    );
+    // The boundary holds for every tool, not only Bash.
+    let said = denied(&hook(
+        &root,
+        &["state-transition-guard"],
+        &scope(
+            &root,
+            "Write",
+            None,
+            "\"file_path\":\"focus/.focus-sessions/s1.binding.json\",\"content\":\"{}\"",
+        ),
+        &[],
+    ));
+    assert!(
+        said.starts_with("FOCUS runtime records and hooks belong to the harness:"),
+        "{said}"
+    );
+    assert_eq!(shard(&root), "# Focus Audit Log\n");
+}
+
+/// Deliberate deviation. The orchestrator's directive marker says whose
+/// authority the agent acts under (M5); upstream reads it into the fence
+/// decision, and Focus refuses the hook by name while the marker is there.
+#[test]
+fn a_directive_marker_refuses_the_transition_guard_by_name() {
+    let root = strict("transition-marker");
+    write(
+        &root,
+        &format!("{RECORD}/.focus-engine/active-directive.json"),
+        "{\"stage\": \"intent-capture\"}",
+    );
+    for (agent, command) in [
+        (None, "bun focus-state.ts approve x"),
+        (Some("focus-product-agent"), "focus next"),
+    ] {
+        let said = refusal(&hook(
+            &root,
+            &["state-transition-guard"],
+            &bash(&root, agent, command),
+            &[],
+        ));
+        assert!(
+            said.contains(
+                "active-directive.json records the authority behind what the agent is doing"
+            ),
+            "{said}"
+        );
+    }
+}

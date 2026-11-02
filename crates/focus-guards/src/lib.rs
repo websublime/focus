@@ -31,6 +31,7 @@ pub mod oracle;
 pub mod policy;
 pub mod reviewer_scope;
 pub mod shell;
+pub mod state_transition;
 pub mod workflow;
 
 pub use authority::{Authority, Decision, FenceDecision};

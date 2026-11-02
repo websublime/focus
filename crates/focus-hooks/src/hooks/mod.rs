@@ -7,6 +7,7 @@ pub mod review_freeze;
 pub mod reviewer_scope;
 pub mod session_end;
 pub mod session_start;
+pub mod state_transition_guard;
 pub mod sync_workflow_state;
 pub mod validate_state;
 pub mod write_audit_log;
