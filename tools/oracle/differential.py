@@ -3548,6 +3548,8 @@ def hook_checks():
     check_("reviewer-scope/no_record_advisory", {**created(construction), **binding()}, [scope(file_path="{D}/construction/U02/design.md"), scope(file_path="{D}/construction/U02/design.md")])
     check_("reviewer-scope/malformed_record", {**reviewing, f"{engine}/reviewer-dispatch.json": '{"reviewer": "r"}'}, [scope(file_path="{D}/construction/U02/design.md")])
     check_("reviewer-scope/stale_record", reviewing, [scope(file_path="{D}/construction/U02/design.md")], edits=(lambda tree: os.utime(tree.path(f"{engine}/reviewer-dispatch.json"), (0, 0)),))
+    # The record's age is its modification time, which a replayed tree does not carry.
+    UNRECORDED.add("hook/reviewer-scope/stale_record")
     check_("reviewer-scope/off_switch", reviewing, [scope(file_path="{D}/construction/U02/design.md")], {"DISABLE_REVIEWER_SCOPE_HOOK": "1"})
     check_("reviewer-scope/off_switch_zero", reviewing, [scope(file_path="{D}/construction/U02/design.md")], {"DISABLE_REVIEWER_SCOPE_HOOK": "0"})
     check_("reviewer-scope/off_switch_settings", {**reviewing, "aidlc.settings.local.json": '{"schemaVersion": 1, "flags": {"schemaVersion": 1, "bypasses": ["AIDLC_DISABLE_REVIEWER_SCOPE_HOOK"]}}\n'}, [scope(file_path="{D}/construction/U02/design.md")])

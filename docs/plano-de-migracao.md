@@ -1486,6 +1486,7 @@ Um revisor despachado para uma unit não lê o `construction/<outra>/` das outra
 | Diferencial, `hook/*` | 382 verificações, 0 diferentes |
 | Testes do CLI | O revisor preso à sua unit (cada forma de recusa, a decisão `deny`, a linha no ledger, o isento), o que o deixa passar (interruptor, settings, a fence de lado com a sua linha e linha de ledger, `off` em silêncio, `relaxed` de pé, registo malformado, órfão apagado, sem registo, pedidos malformados), e o desvio do claim |
 | Mutação | Matcher: 26 mutantes contra o corpus, 25 apanhados (13 só depois dos casos fixos) e 1 equivalente (o filtro de wildcard em `pattern_limits_to_current_unit`: um segmento com wildcard nunca chega lá, porque o julgamento do caminho o bloqueia antes). Hook: 13 mutantes, 12 apanhados e 1 equivalente (a lista de ferramentas: o matcher não lê nada de uma ferramenta fora dela) |
+| `cargo test` | 473 testes. Diferencial completo: 2 748 verificações, 2 562 iguais, 186 desvios, 0 diferentes; 2 694 gravadas sobre 793 árvores (o registo órfão fica ao vivo: a sua idade é a hora de modificação, que uma árvore gravada não leva) |
 
 **Desvios deliberados.** Com teste marcado, `DEVIATIONS` e esta linha.
 
