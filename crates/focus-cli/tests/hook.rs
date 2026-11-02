@@ -43,10 +43,27 @@ fn read(root: &Path, rel: &str) -> String {
     fs::read_to_string(root.join(rel)).unwrap_or_else(|err| panic!("{rel}: {err}"))
 }
 
+/// A test's project tree, removed when the test ends.
+struct Project(PathBuf);
+
+impl std::ops::Deref for Project {
+    type Target = Path;
+
+    fn deref(&self) -> &Path {
+        &self.0
+    }
+}
+
+impl Drop for Project {
+    fn drop(&mut self) {
+        let _ = fs::remove_dir_all(&self.0);
+    }
+}
+
 /// An installed Claude Code project with one created record: its state,
 /// its registry row, the cursor, this clone's identity and an audit shard;
 /// conversation `s1` is bound to it by its creation.
-fn project(name: &str) -> PathBuf {
+fn project(name: &str) -> Project {
     let root = std::env::temp_dir().join(format!("focus-hook-{}-{name}", std::process::id()));
     let _ = fs::remove_dir_all(&root);
     let fixtures = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../fixtures/upstream");
@@ -61,7 +78,7 @@ fn project(name: &str) -> PathBuf {
     write(&root, "focus/.focus-clone-id", "abc123\nlaptop\n");
     write(&root, "focus/.focus-sessions/s1.binding.json", BINDING);
     write(&root, SHARD, "# Focus Audit Log\n");
-    root
+    Project(root)
 }
 
 fn hook(root: &Path, args: &[&str], stdin: &str, env: &[(&str, &str)]) -> Output {
@@ -816,7 +833,7 @@ fn the_process_map_names_the_conversation_a_hook_runs_in() {
     fs::remove_file(root.join("focus/spaces/default/intents/active-intent")).unwrap();
     quiet(&hook(&root, &["validate-state"], "{}", &[]));
     assert_eq!(shard(&root).matches("SESSION_COMPACTED").count(), 1);
-    let layout = focus_workspace::Layout::new(&root, focus_harness::Harness::Claude);
+    let layout = focus_workspace::Layout::new(root.to_path_buf(), focus_harness::Harness::Claude);
     focus_workspace::ancestry::write_entry(
         &layout,
         std::process::id(),
