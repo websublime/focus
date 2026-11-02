@@ -38,11 +38,12 @@ fn every_guard_case_gets_upstreams_answer() {
         // where the directories it names exist: on Windows there is no such
         // root, and a destination that is a directory would not be one. An
         // integrity case lays its project tree there too, and reads paths
-        // as the host does, so its answers are the POSIX host's.
+        // as the host does, so its answers are the POSIX host's; so does the
+        // reviewer scope, whose `toPosix` and `path.resolve` are the host's.
         if cfg!(windows)
             && matches!(
                 kind,
-                "shell_targets" | "write_targets" | "runtime_integrity"
+                "shell_targets" | "write_targets" | "runtime_integrity" | "reviewer_scope"
             )
         {
             continue;
@@ -83,7 +84,7 @@ fn every_guard_case_gets_upstreams_answer() {
         "too few engine command cases: {commands}, {fired} of them transition tools"
     );
     assert!(
-        scoped >= 500 && blocked >= 100 && defaulted >= 30,
+        cfg!(windows) || (scoped >= 500 && blocked >= 100 && defaulted >= 30),
         "too few reviewer scope cases: {scoped}, {blocked} blocked, {defaulted} on an implied root"
     );
     assert!(
