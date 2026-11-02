@@ -2494,5 +2494,225 @@ for command in ["echo >> .other/hooks/x", "echo >> real-other/hooks/x", "rm -rf 
 for command in RI_FIXED_BASH[::5]:
     ri_case({"tool_name": "Bash", "tool_input": {"command": command}}, files=dict(RI_STANDARD_FILES), links=[], exec_=["tool", "exec-plain"], cwd="{P}/" + RECORD)
 
+# --- reviewer_scope: the per-unit reviewer read-scope matcher -----------------
+#
+# A dispatch for one unit, a record root at `/p/r` (the parent of the dispatch
+# file's engine directory), a cwd, and one tool call whose strings may name the
+# current unit, a sibling, a wildcard over units, an exempt file, or nothing in
+# construction/ at all; and shell commands with the searches the matcher reads.
+rs = random.Random(seed * 7919 + 9)
+RS_ROOT = "/p/r"
+RS_UNITS = ["U01", "u02", "auth", "Payment-Api", "x y", "ünit"]
+RS_FILES = ["design.md", "functional-design/functional-spec.md", "nfr-design/security-design.md", "notes/README.md", "a.txt", "src/main.rs", ""]
+RS_CONSTRUCTION = ["construction", "Construction", "CONSTRUCTION", "constr*", "c?nstruction", "con[s]truction", "{construction,other}", "*", "c*", "constructio", "construction2", "x*y"]
+RS_OUTSIDE = ["README.md", "ideation/intent-capture/intent-statement.md", "inception/domain-design/components.md", "src/lib.rs", ".", "..", "../..", "/etc/hosts", "/p", "/p/r", "/p/r/ideation", "/p/q/construction/U01/design.md", "C:\\p\\construction\\U01\\d.md", "construction.md", "constructions/U01/x", "a/construction", "~/construction/U01"]
+
+
+def rs_unit_segment(unit):
+    return rs.choice([unit, unit, unit.lower(), unit.upper(), rs.choice(RS_UNITS), rs.choice(RS_UNITS), "*", "U0?", "{U01,u02}", "[Uu]01", "", ".", "..", "sib ling"])
+
+
+def rs_construction_path(unit, absolute=None):
+    comps = []
+    if absolute is None:
+        absolute = rs.random() < 0.4
+    head = rs.choice([RS_ROOT, RS_ROOT + "/", "/p/r/./", "/p/r/x/..", "/other/construction/..", "/p"]) if absolute else rs.choice(["", "./", "../", "../../", "r/", "./x/../", "a/../"])
+    comps.append(rs.choice(RS_CONSTRUCTION))
+    seg = rs_unit_segment(unit)
+    if seg != "":
+        comps.append(seg)
+    if rs.random() < 0.3:
+        comps.append(rs.choice(["..", ".", rs.choice(RS_UNITS), "../" + rs.choice(RS_UNITS)]))
+    tail = rs.choice(RS_FILES)
+    if tail:
+        comps.append(tail)
+    text = (head.rstrip("/") + "/" if head else "") + "/".join(comps)
+    if rs.random() < 0.1:
+        text = text.replace("/", "\\", rs.randrange(1, 3))
+    if rs.random() < 0.05:
+        text = text + "/"
+    return text
+
+
+def rs_path(unit):
+    r = rs.random()
+    if r < 0.6:
+        return rs_construction_path(unit)
+    if r < 0.9:
+        return rs.choice(RS_OUTSIDE)
+    return rs.choice(["", " ", "/", "//", "construction", "construction/", "/construction", "./construction/./", "CONSTRUCTION/"])
+
+
+def rs_exempt(unit):
+    out = []
+    for _ in range(rs.choice([0, 0, 1, 1, 2, 3])):
+        out.append(rs.choice([rs_construction_path(unit), rs_construction_path(unit, absolute=True), rs.choice(RS_OUTSIDE), "construction/" + rs.choice(RS_UNITS) + "/" + rs.choice(RS_FILES[:3])]))
+    return out
+
+
+RS_SEARCH_OPTS = ["-r", "-R", "-rn", "-n", "-i", "-e", "-f", "-f-", "-e-x", "--recursive", "--include=*.md", "--include", "-d", "-d recurse", "--directories=recurse", "--", "-nefoo", "-A", "-A2", "-A 2", "--max-count=1", "--exclude-from", "--exclude-from=x"]
+RS_RG_OPTS = ["-n", "-i", "-g", "-g=*.md", "--glob", "--glob=construction/U01/**", "--iglob", "--files", "-f", "-f-", "-e", "-e x", "--type", "-tmd", "-t md", "--", "-rn", "--max-depth", "--max-depth=1", "-g", "--replace", "-rfoo"]
+
+
+def rs_command(unit):
+    def operand():
+        return rs.choice([rs_path(unit), rs_path(unit), rs.choice(RS_UNITS), "pattern", "'quoted construction/" + rs.choice(RS_UNITS) + "/x'", '"dq construction/' + rs.choice(RS_UNITS) + '"', "-", "construction\\/" + rs.choice(RS_UNITS), "$VAR/construction/U01", "x\\ y"])
+    def segment():
+        kind = rs.choice(["grep", "egrep", "fgrep", "rg", "ripgrep", "find", "ls", "cat", "less", "head", "tail", "cd", "cd", "echo", "sed", "git", "/usr/bin/grep", "./rg", "awk", "python3"])
+        words = [kind]
+        n = rs.choice([0, 1, 1, 2, 2, 3, 4])
+        for _ in range(n):
+            if kind in ("grep", "egrep", "fgrep", "/usr/bin/grep") and rs.random() < 0.5:
+                words.append(rs.choice(RS_SEARCH_OPTS))
+            elif kind in ("rg", "ripgrep", "./rg") and rs.random() < 0.5:
+                words.append(rs.choice(RS_RG_OPTS))
+            elif kind == "find" and rs.random() < 0.3:
+                words.append(rs.choice(["-name", "x", "!", "(", ")", "-type", "f", "-print"]))
+            elif rs.random() < 0.2:
+                words.append(rs.choice(["-l", "-la", "--help", "-", "--", "-n1"]))
+            else:
+                words.append(operand())
+        return " ".join(words)
+    parts = [segment() for _ in range(rs.choice([1, 1, 1, 2, 2, 3]))]
+    out = parts[0]
+    for part in parts[1:]:
+        out += rs.choice([" | ", " || ", " && ", "; ", " & ", "|", ";", " ( ", " ) "]) + part
+    if rs.random() < 0.05:
+        out = char_fuzz(out, rs.randrange(1, 3))
+    return out
+
+
+def rs_tool_input(tool, unit):
+    if tool == "Bash":
+        return rs.choice([{"command": rs_command(unit)}, {"command": rs_command(unit)}, {"command": ""}, {"command": 3}, {}])
+    if tool in ("Read", "NotebookRead", "Edit", "MultiEdit", "Write", "NotebookEdit"):
+        value = {}
+        for key in rs.sample(["file_path", "notebook_path", "path", "paths", "content"], rs.randrange(0, 3)):
+            value[key] = rs.choice([rs_path(unit), 3, None, ""]) if key != "paths" else rs.choice([[rs_path(unit), rs_path(unit)], [rs_path(unit), 2, ""], "nope", []])
+        return value
+    if tool == "LS":
+        return rs.choice([{"path": rs_path(unit)}, {}, {"path": ""}])
+    if tool == "Glob":
+        return {k: v for k, v in [("pattern", rs.choice([rs_path(unit), "**/*.md", "construction/" + unit + "/**", "construction/*/design.md", "*.rs", ""])), ("path", rs.choice([rs_path(unit), None, None, RS_ROOT, "/p/r/construction/" + unit]))] if v is not None}
+    if tool == "Grep":
+        return {k: v for k, v in [("pattern", rs.choice(["construction/U01", "TODO", "x"])), ("glob", rs.choice([None, None, rs_path(unit), "*.md", "construction/" + unit + "/**"])), ("path", rs.choice([rs_path(unit), None, None, RS_ROOT, "/p/r/construction/" + unit, "."]))] if v is not None}
+    return {"x": 1}
+
+
+RS_CWDS = [RS_ROOT, RS_ROOT + "/construction/{U}", RS_ROOT + "/construction/U01", "/p", "/tmp/x", "/", None, "", "/p/r/ideation"]
+for _ in range(scale * 120):
+    unit = rs.choice(RS_UNITS)
+    tool = rs.choice(["Bash", "Bash", "Read", "NotebookRead", "Edit", "MultiEdit", "Write", "NotebookEdit", "LS", "Glob", "Glob", "Grep", "Grep", "Task", "bash"])
+    cwd = rs.choice(RS_CWDS)
+    if cwd is not None:
+        cwd = cwd.replace("{U}", unit)
+    context = {}
+    if rs.random() < 0.9:
+        context["record_root"] = rs.choice([RS_ROOT, RS_ROOT, RS_ROOT + "/", "/p/r/./", "/p/r/x/.."])
+    if cwd is not None:
+        context["cwd"] = cwd
+    add("reviewer_scope", tool=tool, input=rs_tool_input(tool, unit), unit=unit, exempt=rs_exempt(unit), context=context)
+
+# The cases the random draw rarely makes: an exempt file read lexically and resolved, an exempt entry
+# with a wildcard, a wildcard segment in a glob that would otherwise constrain the search, escapes
+# inside double quotes, `||` against `|`, the pipe feeding a filter, and the search options' values.
+RS_FIXED = [
+    ("Read", {"file_path": "construction/U02/design.md"}, ["construction/U02/design.md"]),
+    ("Read", {"file_path": "/p/r/construction/U02/design.md"}, ["construction/U02/design.md"]),
+    ("Read", {"file_path": "/p/r/construction/U02/design.md"}, ["/p/r/construction/U02/design.md"]),
+    ("Read", {"file_path": "../U02/design.md"}, ["/p/r/construction/U02/design.md"]),
+    ("Read", {"file_path": "construction/U02/other.md"}, ["construction/U02/design.md"]),
+    ("Read", {"file_path": "construction/*/design.md"}, ["construction/*/design.md"]),
+    ("Read", {"file_path": "construction/U0?/design.md"}, ["construction/U0?/design.md"]),
+    ("LS", {"path": "/p/r/construction/U02"}, ["/p/r/construction/U02/design.md"]),
+    ("Glob", {"pattern": "construction/U01/**/*.md"}, []),
+    ("Glob", {"pattern": "construction/U0?/**/*.md"}, []),
+    ("Glob", {"pattern": "construction/U02/**/*.md"}, ["construction/U02/x.md"]),
+    ("Grep", {"pattern": "x", "glob": "construction/U01/*.md"}, []),
+    ("Grep", {"pattern": "x", "glob": "construction/*/*.md"}, []),
+    ("Bash", {"command": 'cat "construction/U\\"02/design.md"'}, []),
+    ("Bash", {"command": 'cat "construction/U02\\/design.md"'}, []),
+    ("Bash", {"command": "cat 'construction/U02/design.md'"}, []),
+    ("Bash", {"command": "cat construction/U\\ 02/design.md"}, []),
+    ("Bash", {"command": "cat x || grep -r TODO"}, []),
+    ("Bash", {"command": "cat x | grep -r TODO"}, []),
+    ("Bash", {"command": "cat x | grep TODO"}, []),
+    ("Bash", {"command": "cat x | rg TODO"}, []),
+    ("Bash", {"command": "cat x | rg --files"}, []),
+    ("Bash", {"command": "cat x | rg -f - "}, []),
+    ("Bash", {"command": "cat x | rg -f patterns.txt"}, []),
+    ("Bash", {"command": "cat x && grep TODO"}, []),
+    ("Bash", {"command": "cat x ; rg TODO"}, []),
+    ("Bash", {"command": "grep -d recurse TODO"}, []),
+    ("Bash", {"command": "grep -d skip TODO"}, []),
+    ("Bash", {"command": "grep --directories=recurse TODO"}, []),
+    ("Bash", {"command": "grep -e TODO -e FIXME"}, []),
+    ("Bash", {"command": "grep -e TODO construction/U02"}, []),
+    ("Bash", {"command": "grep TODO construction/U02"}, []),
+    ("Bash", {"command": "grep -nefoo construction/U02"}, []),
+    ("Bash", {"command": "grep -A2 TODO construction/U02"}, []),
+    ("Bash", {"command": "grep -A 2 TODO construction/U02"}, []),
+    ("Bash", {"command": "grep --include=*.md -r TODO"}, []),
+    ("Bash", {"command": "grep --include *.md -r TODO construction/U02"}, []),
+    ("Bash", {"command": "rg -g construction/U01/** TODO"}, []),
+    ("Bash", {"command": "rg -g construction/U02/** TODO"}, []),
+    ("Bash", {"command": "rg --glob=construction/U01/** TODO"}, []),
+    ("Bash", {"command": "rg -gconstruction/U01/** TODO"}, []),
+    ("Bash", {"command": "rg --files construction/U02"}, []),
+    ("Bash", {"command": "rg --files"}, []),
+    ("Bash", {"command": "rg -tmd TODO"}, []),
+    ("Bash", {"command": "rg -t md TODO construction/U02"}, []),
+    ("Bash", {"command": "rg TODO -- construction/U02"}, []),
+    ("Bash", {"command": "rg -- -x construction/U02"}, []),
+    ("Bash", {"command": "find"}, []),
+    ("Bash", {"command": "find -name x"}, []),
+    ("Bash", {"command": "find construction/U02 -name x"}, []),
+    ("Bash", {"command": "find . -name x"}, []),
+    ("Bash", {"command": "ls"}, []),
+    ("Bash", {"command": "ls -la"}, []),
+    ("Bash", {"command": "ls construction/U02"}, []),
+    ("Bash", {"command": "cd construction/U02 && ls"}, []),
+    ("Bash", {"command": "cd - && cat construction/U02/x"}, []),
+    ("Bash", {"command": "cd -P construction/U02 && ls"}, []),
+    ("Bash", {"command": "cd .. && ls construction"}, []),
+    ("Bash", {"command": "cd ../U02 && ls"}, []),
+    ("Bash", {"command": "echo construction/U02/x"}, []),
+    ("Bash", {"command": "echo .. ; echo -"}, []),
+    ("Bash", {"command": "git log -- construction/U02"}, []),
+    ("Bash", {"command": "sed -n 1p construction/U02/x"}, []),
+    ("Bash", {"command": "cat $(ls construction/U02)"}, []),
+    ("Bash", {"command": "( cat construction/U02/x )"}, []),
+    ("Bash", {"command": "cat construction/U02/x & ls"}, []),
+    ("Bash", {"command": "cat CONSTRUCTION/u02/X"}, []),
+    ("Bash", {"command": "cat constr*/U02/x"}, []),
+    ("Bash", {"command": "cat c*/U02/x"}, []),
+    ("Bash", {"command": "cat */U02/x"}, []),
+    ("Bash", {"command": "cat x*y/U02/x"}, []),
+    ("Bash", {"command": "cat con[s]truction/U02/x"}, []),
+    ("Bash", {"command": "cat {construction,other}/U02/x"}, []),
+    ("Bash", {"command": "cat construction/../U02/x"}, []),
+    ("Bash", {"command": "cat construction/U01/../U02/x"}, []),
+    ("Bash", {"command": "cat construction/U01/./x"}, []),
+    ("Bash", {"command": "cat construction//U02/x"}, []),
+    ("Bash", {"command": "cat construction/"}, []),
+    ("Bash", {"command": "cat construction"}, []),
+    ("Bash", {"command": "cat /p/r/construction"}, []),
+    ("Bash", {"command": "ls /p/r"}, []),
+    ("Bash", {"command": "ls /p"}, []),
+    ("Bash", {"command": "cat /p/r/x"}, []),
+]
+for tool, value, exempt in RS_FIXED:
+    for cwd in ("/p/r/construction/U01", "/p/r", "/tmp/x"):
+        add("reviewer_scope", tool=tool, input=value, unit="U01", exempt=exempt, context={"record_root": RS_ROOT, "cwd": cwd})
+    add("reviewer_scope", tool=tool, input=value, unit="U01", exempt=exempt, context={})
+
+RS_RECORDS = ['{"reviewer": "aidlc-architecture-reviewer-agent", "stage": "nfr-design", "unit": "U01", "exempt": ["a", "b"]}',
+              '{"reviewer": "r", "stage": "", "unit": "u", "exempt": []}', '{"reviewer": "", "stage": "s", "unit": "u", "exempt": []}',
+              '{"reviewer": "r", "stage": "s", "unit": "", "exempt": []}', '{"reviewer": "r", "unit": "u", "exempt": []}', '{"reviewer": "r", "stage": "s", "unit": "u"}',
+              '{"reviewer": "r", "stage": "s", "unit": "u", "exempt": ["a", 1]}', '{"reviewer": "r", "stage": "s", "unit": "u", "exempt": "a"}', '{"reviewer": 1, "stage": "s", "unit": "u", "exempt": []}',
+              '[]', 'null', '"x"', '{nope', '', '{"reviewer": "r", "stage": "s", "unit": "u", "exempt": [], "extra": true}', '{"reviewer": "r", "stage": 2, "unit": "u", "exempt": []}']
+for raw in RS_RECORDS:
+    add("reviewer_dispatch", raw=raw)
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

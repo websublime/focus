@@ -3521,16 +3521,62 @@ def hook_checks():
     for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
         check_(f"review-freeze/observer_{marker.lower()}", joined, [freeze()], {marker: "1"})
 
+    # reviewer-scope: the dispatched reviewer's read bound.
+    REVIEWER = "aidlc-architecture-reviewer-agent"
+    dispatch = lambda unit="U01", exempt=(), reviewer=REVIEWER, stage="nfr-design": {f"{engine}/reviewer-dispatch.json": json.dumps({"reviewer": reviewer, "stage": stage, "unit": unit, "exempt": list(exempt)})}
+    ideation = ["intent-capture", "market-research", "feasibility", "scope-definition", "team-formation", "rough-mockups"]
+    construction = at_stage(CREATED_STATE, "nfr-design", done=ideation + ["approval-handoff", "practices-discovery", "requirements-analysis", "user-stories", "refined-mockups", "domain-design", "units-generation", "contract-design", "delivery-planning", "functional-design", "nfr-requirements"], phase="CONSTRUCTION")
+    reviewing = {**created(construction), **binding(), **dispatch()}
+    scope = lambda tool="Read", agent=REVIEWER, **input: ["reviewer-scope", payload(hook_event_name="PreToolUse", tool_name=tool, tool_input={k: (v.replace("{D}", "{P}/" + CREATED_DIR) if isinstance(v, str) else v) for k, v in input.items()}, **({"agent_type": agent} if agent is not None else {}))]
+    check_("reviewer-scope/own_unit", reviewing, [scope(file_path="{D}/construction/U01/nfr-design/security-design.md"), scope("Grep", pattern="x", path="{D}/construction/U01"), scope("Bash", command="cat {D}/construction/U01/design.md")])
+    check_("reviewer-scope/sibling_unit", reviewing, [scope(file_path="{D}/construction/U02/nfr-design/security-design.md")])
+    check_("reviewer-scope/sibling_relative", reviewing, [scope(file_path="construction/U02/design.md")])
+    check_("reviewer-scope/sibling_shell", reviewing, [scope("Bash", command="cat {D}/construction/U02/design.md")])
+    check_("reviewer-scope/sibling_shell_cd", reviewing, [scope("Bash", command="cd {D}/construction && cat U02/design.md")])
+    check_("reviewer-scope/sweep_glob", reviewing, [scope("Glob", pattern="construction/*/design.md")])
+    check_("reviewer-scope/sweep_grep_pathless", reviewing, [["reviewer-scope", payload(hook_event_name="PreToolUse", tool_name="Grep", tool_input={"pattern": "x"}, agent_type=REVIEWER, cwd="{P}/" + CREATED_DIR)]])
+    check_("reviewer-scope/sweep_rg_default_root", reviewing, [["reviewer-scope", payload(hook_event_name="PreToolUse", tool_name="Bash", tool_input={"command": "rg TODO"}, agent_type=REVIEWER, cwd="{P}/" + CREATED_DIR)]])
+    check_("reviewer-scope/grep_inside_unit_cwd", reviewing, [["reviewer-scope", payload(hook_event_name="PreToolUse", tool_name="Bash", tool_input={"command": "grep -r TODO ."}, agent_type=REVIEWER, cwd="{P}/" + CREATED_DIR + "/construction/U01")]])
+    check_("reviewer-scope/exempt_file", {**reviewing, **dispatch(exempt=["{P}/" + CREATED_DIR + "/construction/U02/nfr-design/security-design.md"])}, [scope(file_path="{D}/construction/U02/nfr-design/security-design.md"), scope("LS", path="{D}/construction/U02/nfr-design")])
+    check_("reviewer-scope/exempt_suffix", {**reviewing, **dispatch(exempt=["construction/U02/x.md"])}, [scope(file_path="{D}/construction/U02/x.md"), scope(file_path="{D}/construction/U02/y.md")])
+    check_("reviewer-scope/outside_construction", reviewing, [scope(file_path="{D}/inception/domain-design/components.md"), scope("Bash", command="ls {D}/inception"), scope("LS", path="{D}")])
+    check_("reviewer-scope/other_agent", reviewing, [scope(agent="aidlc-product-agent", file_path="{D}/construction/U02/design.md"), scope(agent=None, file_path="{D}/construction/U02/design.md")])
+    check_("reviewer-scope/scoped_registration", reviewing, [["reviewer-scope", payload(hook_event_name="PreToolUse", tool_name="Read", tool_input={"file_path": "{P}/" + CREATED_DIR + "/construction/U02/design.md"}, scoped_registration=True)],
+                                                            ["reviewer-scope", payload(hook_event_name="PreToolUse", tool_name="Read", tool_input={"file_path": "{P}/" + CREATED_DIR + "/construction/U02/design.md"}, scoped_registration="yes")]])
+    check_("reviewer-scope/other_tool", reviewing, [scope("Task", file_path="{D}/construction/U02/design.md"), scope("WebFetch", url="x")])
+    check_("reviewer-scope/no_record", {**created(construction), **binding()}, [scope(file_path="{D}/construction/U02/design.md")])
+    check_("reviewer-scope/no_record_advisory", {**created(construction), **binding()}, [scope(file_path="{D}/construction/U02/design.md"), scope(file_path="{D}/construction/U02/design.md")])
+    check_("reviewer-scope/malformed_record", {**reviewing, f"{engine}/reviewer-dispatch.json": '{"reviewer": "r"}'}, [scope(file_path="{D}/construction/U02/design.md")])
+    check_("reviewer-scope/stale_record", reviewing, [scope(file_path="{D}/construction/U02/design.md")], edits=(lambda tree: os.utime(tree.path(f"{engine}/reviewer-dispatch.json"), (0, 0)),))
+    check_("reviewer-scope/off_switch", reviewing, [scope(file_path="{D}/construction/U02/design.md")], {"DISABLE_REVIEWER_SCOPE_HOOK": "1"})
+    check_("reviewer-scope/off_switch_zero", reviewing, [scope(file_path="{D}/construction/U02/design.md")], {"DISABLE_REVIEWER_SCOPE_HOOK": "0"})
+    check_("reviewer-scope/off_switch_settings", {**reviewing, "aidlc.settings.local.json": '{"schemaVersion": 1, "flags": {"schemaVersion": 1, "bypasses": ["AIDLC_DISABLE_REVIEWER_SCOPE_HOOK"]}}\n'}, [scope(file_path="{D}/construction/U02/design.md")])
+    check_("reviewer-scope/settings_refused", {**reviewing, "aidlc.settings.local.json": '{"flags": {}}\n'}, [scope(file_path="{D}/construction/U02/design.md")])
+    check_("reviewer-scope/policy_off", {**created(construction.replace("- **Guard Policy**: off (from scope feature)", "- **Guard Policy**: off (set by a command)")), **binding(), **dispatch()}, [scope(file_path="{D}/construction/U02/design.md")])
+    check_("reviewer-scope/policy_relaxed", {**created(construction.replace("- **Guard Policy**: off (from scope feature)", "- **Guard Policy**: relaxed (set by a command)")), **binding(), **dispatch()}, [scope(file_path="{D}/construction/U02/design.md")])
+    check_("reviewer-scope/policy_strict_switch_off", {**created(construction.replace("- **Guard Policy**: off (from scope feature)", "- **Guard Policy**: strict (set by a command)\n- **Guards Off**: reviewer-scope")), **binding(), **dispatch()}, [scope(file_path="{D}/construction/U02/design.md")])
+    check_("reviewer-scope/policy_strict", {**created(construction.replace("- **Guard Policy**: off (from scope feature)", "- **Guard Policy**: strict (set by a command)")), **binding(), **dispatch()}, [scope(file_path="{D}/construction/U02/design.md"), scope("Bash", command="rg x construction/U0?")])
+    check_("reviewer-scope/outsider", {**no_cursor, **binding("other-9f8e7d6c"), **dispatch()}, [scope(file_path="{D}/construction/U02/design.md")])
+    check_("reviewer-scope/no_shard", {**reviewing, CREATED_SHARD: None}, [scope(file_path="{D}/construction/U02/design.md")], )
+    check_("reviewer-scope/cold", CLONE, [scope(file_path="{D}/construction/U02/design.md")])
+    check_("reviewer-scope/malformed", reviewing, [["reviewer-scope", "{nope"], ["reviewer-scope", ""], ["reviewer-scope", "[1]"]])
+    check_("reviewer-scope/unit_scope_stamp_team", {**created(construction.replace("- **Active Agent**:", "- **Unit Ownership**: team\n- **Active Agent**:")), **binding(), **dispatch(), "aidlc/.aidlc-unit-scope.json": '{"version": 1, "space": "default", "intent_uuid": "01a138fa-d37d-787d-af4a-966efbb0b6fd", "intent_id8": "01a138fa", "unit": "U01", "claimed_at": "2026-01-05T10:00:00Z"}'}, [scope("Write", file_path="{D}/construction/U02/design.md")])
+    check_("reviewer-scope/unit_scope_stamp", {**reviewing, "aidlc/.aidlc-unit-scope.json": '{"version": 1}'}, [scope(file_path="{D}/construction/U02/design.md")])
+    check_("reviewer-scope/directive_marker", {**created(construction), **binding(), f"{engine}/active-directive.json": '{"stage": "nfr-design", "unit": "U01"}'}, [scope(file_path="{D}/construction/U02/design.md")])
+    check_("reviewer-scope/directive_marker_dispatched", {**reviewing, f"{engine}/active-directive.json": '{"stage": "nfr-design"}'}, [scope(file_path="{D}/construction/U02/design.md")])
+    for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
+        check_(f"reviewer-scope/observer_{marker.lower()}", reviewing, [scope(file_path="{D}/construction/U02/design.md")], {marker: "1"})
+
     # The dispatcher: a hook it does not have, a name it refuses, the trace.
     check_("dispatch/unknown", created(), [["nope", "{}"]])
     check_("dispatch/unsafe_name", created(), [["../x", "{}"]])
     check_("dispatch/no_name", created(), [["", "{}"]])
-    for name in ("record-human-turn", "guard-tool-call", "continue-workflow", "reviewer-scope"):
+    for name in ("record-human-turn", "guard-tool-call", "continue-workflow"):
         check_(f"dispatch/{name.replace('-', '_')}_not_ported", created(), [[name, payload()]])
 
 
 DEVIATIONS.update({
-    r"hook/[a-z-]+/(directive_marker|unit_scope_stamp|inflight_ledger|authorization_registry)":
+    r"hook/[a-z-]+/(directive_marker|unit_scope_stamp|inflight_ledger|authorization_registry)(_[a-z_]+)?":
         "a record of a later milestone beside the hook's own: the orchestrator's directive marker, a unit claim, "
         "the ledger of background subagents, the summary authorizations (M4/M5); upstream reads or clears it and "
         "goes on; focus refuses the hook by name while it is there",

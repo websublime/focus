@@ -26,6 +26,7 @@ const audit = await import(tool("aidlc-audit.ts"));
 const settings = await import(tool("aidlc-settings.ts"));
 const freeze = await import(resolve(upstream, "core", "hooks", "review-freeze-command.ts"));
 const integrity = await import(resolve(upstream, "core", "hooks", "runtime-integrity.ts"));
+const reviewerScope = await import(resolve(upstream, "core", "hooks", "aidlc-reviewer-scope.ts"));
 const nodePath = await import("node:path");
 
 // A scratch project for the cases that can only be asked by writing a file.
@@ -592,6 +593,24 @@ function answer(c: Record<string, any>): unknown {
         rmSync(root, { recursive: true, force: true });
       }
     }
+    case "reviewer_scope": {
+      // The matcher is pure over its arguments; the record root and the cwd
+      // are absolute, so `path.resolve` never reads this process's cwd.
+      const verdict = reviewerScope.evaluateReviewerScope(
+        c.tool,
+        c.input ?? undefined,
+        { unit: c.unit, exempt: c.exempt },
+        { recordRoot: c.context.record_root, cwd: c.context.cwd },
+      );
+      return {
+        verdict,
+        reason: verdict.block
+          ? reviewerScope.blockReason(verdict.target ?? "", { reviewer: "r", stage: "s", unit: c.unit, exempt: c.exempt }, verdict.defaulted)
+          : null,
+      };
+    }
+    case "reviewer_dispatch":
+      return { record: reviewerScope.parseDispatchRecord(c.raw) };
     case "runtime_integrity": {
       // A project tree under a scratch root spelled as focus's replay spells
       // its own, laid out from the case: files (`@bytes:N` is a refusable

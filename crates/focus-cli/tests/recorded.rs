@@ -511,12 +511,9 @@ fn replay_audit(check: &Value, root: &Path) -> BTreeMap<String, String> {
                     .spawn()
                     .unwrap();
                 use std::io::Write;
-                child
-                    .stdin
-                    .take()
-                    .unwrap()
-                    .write_all(payload.as_bytes())
-                    .unwrap();
+                // A hook that answers before reading its payload leaves the
+                // pipe closed; what it printed is still the answer.
+                let _ = child.stdin.take().unwrap().write_all(payload.as_bytes());
                 child.wait_with_output().unwrap()
             }
         };

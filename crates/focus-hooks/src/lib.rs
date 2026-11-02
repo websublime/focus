@@ -28,7 +28,7 @@ pub mod trace;
 use focus_workspace::Layout;
 
 /// The hooks Focus has, as `engine hook <name>` names them.
-pub const HOOKS: [&str; 8] = [
+pub const HOOKS: [&str; 9] = [
     "session-start",
     "validate-state",
     "session-end",
@@ -37,10 +37,11 @@ pub const HOOKS: [&str; 8] = [
     "write-audit-log",
     "rebuild-stage-graph",
     "review-freeze",
+    "reviewer-scope",
 ];
 
 /// Upstream's other hooks, and what each does, for the refusal by name.
-pub const NOT_PORTED: [(&str, &str); 8] = [
+pub const NOT_PORTED: [(&str, &str); 7] = [
     (
         "record-human-turn",
         "records the person's turn and the words of a gate",
@@ -53,7 +54,6 @@ pub const NOT_PORTED: [(&str, &str); 8] = [
         "plan-approval-guard",
         "holds code until its plan is approved",
     ),
-    ("reviewer-scope", "keeps a reviewer to its scope"),
     (
         "state-transition-guard",
         "keeps the state file to the engine's steps",
@@ -93,6 +93,7 @@ pub fn run(name: &str, input: &str, layout: &Layout) -> Outcome {
         "write-audit-log" => hooks::write_audit_log::run(input, layout),
         "rebuild-stage-graph" => hooks::rebuild_stage_graph::run(input, layout),
         "review-freeze" => hooks::review_freeze::run(input, layout),
+        "reviewer-scope" => hooks::reviewer_scope::run(input, layout),
         other => {
             let stderr = match NOT_PORTED.iter().find(|(known, _)| *known == other) {
                 Some((_, does)) => format!(

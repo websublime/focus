@@ -1732,3 +1732,357 @@ fn a_write_that_reaches_the_receipt_scan_is_refused_by_name() {
         &[],
     ));
 }
+
+const CONSTRUCTION_STATE: &str = "# Focus State Tracking\n\n## Project Information\n- **Scope**: feature\n- **Guard Policy**: strict (set by a command)\n- **Active Agent**: focus-architecture-agent\n\n## Stage Progress\n\n### CONSTRUCTION PHASE\n- [-] nfr-design \u{2014} EXECUTE\n\n## Current Status\n- **Lifecycle Phase**: CONSTRUCTION\n- **Current Stage**: nfr-design\n- **Status**: Running\n- **Last Updated**: 2026-01-05T10:00:00Z\n";
+const REVIEWER: &str = "focus-architecture-reviewer-agent";
+
+fn scope(root: &Path, tool: &str, agent: Option<&str>, input: &str) -> String {
+    let agent = agent.map_or(String::new(), |agent| {
+        format!(",\"agent_type\":\"{agent}\"")
+    });
+    payload(&format!(
+        "\"hook_event_name\":\"PreToolUse\",\"tool_name\":\"{tool}\",\"tool_input\":{{{}}}{agent}",
+        input.replace(
+            "{D}",
+            &format!("{}/{RECORD}", root.to_str().unwrap().replace('\\', "/"))
+        )
+    ))
+}
+
+fn dispatched(name: &str, exempt: &str) -> Project {
+    let root = project(name);
+    write(
+        &root,
+        &format!("{RECORD}/focus-state.md"),
+        CONSTRUCTION_STATE,
+    );
+    write(
+        &root,
+        &format!("{RECORD}/.focus-engine/reviewer-dispatch.json"),
+        &format!(
+            "{{\"reviewer\":\"{REVIEWER}\",\"stage\":\"nfr-design\",\"unit\":\"U01\",\"exempt\":[{exempt}]}}"
+        ),
+    );
+    root
+}
+
+#[test]
+fn a_dispatched_reviewer_is_held_to_its_unit() {
+    let root = dispatched("scope-held", "");
+    // Its own unit, the record outside construction/, another agent, a tool
+    // the bound does not read: all pass.
+    quiet(&hook(
+        &root,
+        &["reviewer-scope"],
+        &scope(
+            &root,
+            "Read",
+            Some(REVIEWER),
+            "\"file_path\":\"{D}/construction/U01/nfr-design/security-design.md\"",
+        ),
+        &[],
+    ));
+    quiet(&hook(
+        &root,
+        &["reviewer-scope"],
+        &scope(
+            &root,
+            "Bash",
+            Some(REVIEWER),
+            "\"command\":\"grep -r TODO {D}/construction/U01\"",
+        ),
+        &[],
+    ));
+    quiet(&hook(
+        &root,
+        &["reviewer-scope"],
+        &scope(
+            &root,
+            "Read",
+            Some(REVIEWER),
+            "\"file_path\":\"{D}/inception/domain-design/components.md\"",
+        ),
+        &[],
+    ));
+    quiet(&hook(
+        &root,
+        &["reviewer-scope"],
+        &scope(
+            &root,
+            "Read",
+            Some("focus-product-agent"),
+            "\"file_path\":\"{D}/construction/U02/design.md\"",
+        ),
+        &[],
+    ));
+    quiet(&hook(
+        &root,
+        &["reviewer-scope"],
+        &scope(
+            &root,
+            "Read",
+            None,
+            "\"file_path\":\"{D}/construction/U02/design.md\"",
+        ),
+        &[],
+    ));
+    quiet(&hook(
+        &root,
+        &["reviewer-scope"],
+        &scope(
+            &root,
+            "Task",
+            Some(REVIEWER),
+            "\"file_path\":\"{D}/construction/U02/design.md\"",
+        ),
+        &[],
+    ));
+    assert!(heartbeat(&root, "reviewer-scope.last").is_some());
+    // A sibling unit, by path, by relative path, by a shell that walks into
+    // construction/, by a glob over units, by a search with no root: refused
+    // with the reason on stderr, the deny decision on stdout, and a row.
+    let sibling = hook(
+        &root,
+        &["reviewer-scope"],
+        &scope(
+            &root,
+            "Read",
+            Some(REVIEWER),
+            "\"file_path\":\"{D}/construction/U02/design.md\"",
+        ),
+        &[],
+    );
+    assert_eq!(sibling.status.code(), Some(2));
+    let reason = text(&sibling.stderr);
+    assert!(reason.starts_with("This review cannot open \""), "{reason}");
+    assert!(reason.contains("construction/U02/design.md\" because it belongs to another unit; the current review covers U01. Use the files supplied with the review"), "{reason}");
+    assert_eq!(
+        text(&sibling.stdout),
+        format!(
+            "{{\"hookSpecificOutput\":{{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":{}}}}}\n",
+            serde_json_string(reason.trim_end())
+        )
+    );
+    assert!(
+        shard(&root).contains("**Event**: REVIEWER_SCOPE_BLOCKED\n**Tool**: Read\n**Target**: "),
+        "{}",
+        shard(&root)
+    );
+    assert!(
+        shard(&root).contains("\n**Stage**: nfr-design\n**Unit**: U01\n"),
+        "{}",
+        shard(&root)
+    );
+    for (tool, input) in [
+        ("Read", "\"file_path\":\"construction/U02/design.md\""),
+        (
+            "Bash",
+            "\"command\":\"cd {D}/construction && cat U02/design.md\"",
+        ),
+        ("Glob", "\"pattern\":\"construction/*/design.md\""),
+        ("Bash", "\"command\":\"rg TODO\""),
+    ] {
+        let refused = hook(
+            &root,
+            &["reviewer-scope"],
+            &scope(&root, tool, Some(REVIEWER), input),
+            &[],
+        );
+        assert_eq!(refused.status.code(), Some(2), "{tool} {input}");
+    }
+    let implied = hook(
+        &root,
+        &["reviewer-scope"],
+        &scope(&root, "Bash", Some(REVIEWER), "\"command\":\"rg TODO\""),
+        &[],
+    );
+    assert!(text(&implied.stderr).contains("This review cannot open \".\" (this command names no path, so \".\" is the implicit recursive search root it falls back to"), "{}", text(&implied.stderr));
+    // An exempt file is the one sibling file the review may open; its parent
+    // directory is still a sibling browse.
+    let root = dispatched(
+        "scope-exempt",
+        &format!(
+            "\"{}/{RECORD}/construction/U02/nfr-design/security-design.md\"",
+            root.to_str().unwrap().replace('\\', "/")
+        ),
+    );
+    quiet(&hook(
+        &root,
+        &["reviewer-scope"],
+        &scope(
+            &root,
+            "Read",
+            Some(REVIEWER),
+            "\"file_path\":\"{D}/construction/U02/nfr-design/security-design.md\"",
+        ),
+        &[],
+    ));
+    assert_eq!(
+        hook(
+            &root,
+            &["reviewer-scope"],
+            &scope(
+                &root,
+                "LS",
+                Some(REVIEWER),
+                "\"path\":\"{D}/construction/U02/nfr-design\""
+            ),
+            &[]
+        )
+        .status
+        .code(),
+        Some(2)
+    );
+}
+
+fn serde_json_string(text: &str) -> String {
+    serde_json::to_string(text).unwrap()
+}
+
+#[test]
+fn the_reviewer_scope_fails_open_without_its_evidence() {
+    let root = dispatched("scope-open", "");
+    let sibling = scope(
+        &root,
+        "Read",
+        Some(REVIEWER),
+        "\"file_path\":\"{D}/construction/U02/design.md\"",
+    );
+    // The off switch, by environment (only `1`) or settings.
+    quiet(&hook(
+        &root,
+        &["reviewer-scope"],
+        &sibling,
+        &[("FOCUS_DISABLE_REVIEWER_SCOPE_HOOK", "1")],
+    ));
+    assert_eq!(
+        hook(
+            &root,
+            &["reviewer-scope"],
+            &sibling,
+            &[("FOCUS_DISABLE_REVIEWER_SCOPE_HOOK", "0")]
+        )
+        .status
+        .code(),
+        Some(2)
+    );
+    write(
+        &root,
+        "focus.settings.local.json",
+        "{\"schemaVersion\": 1, \"flags\": {\"schemaVersion\": 1, \"bypasses\": [\"FOCUS_DISABLE_REVIEWER_SCOPE_HOOK\"]}}\n",
+    );
+    quiet(&hook(&root, &["reviewer-scope"], &sibling, &[]));
+    write(&root, "focus.settings.local.json", "{\"flags\": {}}\n");
+    assert!(refusal(&hook(&root, &["reviewer-scope"], &sibling, &[])).starts_with("focus: "));
+    fs::remove_file(root.join("focus.settings.local.json")).unwrap();
+    // A fence lowered for this piece of work stands aside: one line to the
+    // person and a row, and the call goes on.
+    write(
+        &root,
+        &format!("{RECORD}/focus-state.md"),
+        &CONSTRUCTION_STATE.replace(
+            "strict (set by a command)",
+            "strict (set by a command)\n- **Guards Off**: reviewer-scope (set by you)",
+        ),
+    );
+    let aside = hook(&root, &["reviewer-scope"], &sibling, &[]);
+    assert!(aside.status.success(), "{}", text(&aside.stderr));
+    assert!(text(&aside.stdout).starts_with("{\"systemMessage\":\"Continuing past the reviewer-scope check because it is off for this piece of work (set by you). Recorded in the audit trail: "), "{}", text(&aside.stdout));
+    assert!(shard(&root).contains("**Event**: GUARD_STOOD_ASIDE\n**Guard**: reviewer-scope\n**Authority**: none\n**Grant**: none\n**Actor**: subagent\n**Stage**: nfr-design\n**Tool**: Read\n**Details**: "), "{}", shard(&root));
+    // Under Guard Policy off the pass is silent; relaxed keeps this fence up.
+    write(
+        &root,
+        &format!("{RECORD}/focus-state.md"),
+        &CONSTRUCTION_STATE.replace("strict (set by a command)", "off (set by a command)"),
+    );
+    quiet(&hook(&root, &["reviewer-scope"], &sibling, &[]));
+    write(
+        &root,
+        &format!("{RECORD}/focus-state.md"),
+        &CONSTRUCTION_STATE.replace("strict (set by a command)", "relaxed (set by a command)"),
+    );
+    assert_eq!(
+        hook(&root, &["reviewer-scope"], &sibling, &[])
+            .status
+            .code(),
+        Some(2)
+    );
+    write(
+        &root,
+        &format!("{RECORD}/focus-state.md"),
+        CONSTRUCTION_STATE,
+    );
+    // A malformed record, a stale one (janitored), no record: nothing holds.
+    let record = root.join(format!("{RECORD}/.focus-engine/reviewer-dispatch.json"));
+    write(
+        &root,
+        &format!("{RECORD}/.focus-engine/reviewer-dispatch.json"),
+        "{\"reviewer\": \"r\"}",
+    );
+    quiet(&hook(&root, &["reviewer-scope"], &sibling, &[]));
+    write(
+        &root,
+        &format!("{RECORD}/.focus-engine/reviewer-dispatch.json"),
+        &format!(
+            "{{\"reviewer\":\"{REVIEWER}\",\"stage\":\"nfr-design\",\"unit\":\"U01\",\"exempt\":[]}}"
+        ),
+    );
+    fs::File::options()
+        .write(true)
+        .open(&record)
+        .unwrap()
+        .set_modified(std::time::SystemTime::UNIX_EPOCH)
+        .unwrap();
+    quiet(&hook(&root, &["reviewer-scope"], &sibling, &[]));
+    assert!(!record.exists());
+    let drops = read(
+        &root,
+        &format!("{RECORD}/.focus-engine/hooks-health/reviewer-scope.drops"),
+    );
+    assert!(
+        drops.contains("reviewer dispatch record is malformed; enforcement skipped")
+            && drops.contains("ignoring an orphaned reviewer dispatch record"),
+        "{drops}"
+    );
+    quiet(&hook(&root, &["reviewer-scope"], &sibling, &[]));
+    // Malformed payloads fail open.
+    for stdin in ["{nope", "", "[1]"] {
+        quiet(&hook(&root, &["reviewer-scope"], stdin, &[]));
+    }
+}
+
+/// Deliberate deviation. A team-owned workflow's unit scope stamp bounds a
+/// claimed checkout's writes to its Unit (the units, M4); Focus refuses by
+/// name where upstream applies the bound.
+#[test]
+fn a_claimed_checkouts_write_bound_is_refused_by_name() {
+    let root = dispatched("scope-claim", "");
+    write(
+        &root,
+        &format!("{RECORD}/focus-state.md"),
+        &CONSTRUCTION_STATE.replace(
+            "- **Active Agent**:",
+            "- **Unit Ownership**: team\n- **Active Agent**:",
+        ),
+    );
+    write(
+        &root,
+        "focus/.focus-unit-scope.json",
+        "{\"version\": 1, \"space\": \"default\", \"intent_uuid\": \"01a138fa-d37d-787d-af4a-966efbb0b6fd\", \"intent_id8\": \"01a138fa\", \"unit\": \"U01\", \"claimed_at\": \"2026-01-05T10:00:00Z\"}",
+    );
+    let said = refusal(&hook(
+        &root,
+        &["reviewer-scope"],
+        &scope(
+            &root,
+            "Write",
+            Some("focus-architecture-agent"),
+            "\"file_path\":\"{D}/construction/U02/design.md\"",
+        ),
+        &[],
+    ));
+    assert!(
+        said.contains("focus-unit-scope.json records the Unit this checkout claimed"),
+        "{said}"
+    );
+}

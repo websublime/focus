@@ -27,6 +27,13 @@ pub fn is_js_whitespace(c: char) -> bool {
     )
 }
 
+/// `String.prototype.toLowerCase`: the default Unicode lowercase mapping,
+/// which Rust's `to_lowercase` follows (the final-sigma rule included).
+#[must_use]
+pub fn to_lower_case(s: &str) -> String {
+    s.to_lowercase()
+}
+
 /// `String.prototype.trim`.
 #[must_use]
 pub fn trim(s: &str) -> &str {
