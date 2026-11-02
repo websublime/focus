@@ -27,9 +27,10 @@ use crate::policy::{
 use crate::reviewer_scope;
 use crate::shell::{self, CommandShell, Host};
 use crate::state_transition;
+use crate::typed_switch::{self, TypedSwitchRequest};
 
 /// The kinds of case this crate answers.
-pub const KINDS: [&str; 10] = [
+pub const KINDS: [&str; 12] = [
     "guard_policy",
     "guards_line",
     "engine_command",
@@ -40,6 +41,8 @@ pub const KINDS: [&str; 10] = [
     "reviewer_scope",
     "reviewer_dispatch",
     "state_transition",
+    "typed_switch",
+    "kiro_args",
 ];
 
 fn resolution_json(resolution: &Resolution) -> Value {
@@ -267,6 +270,20 @@ pub fn run_case(case: &Value) -> Value {
         "shell_targets" | "write_targets" => shell_case(case),
         "runtime_integrity" => integrity_case(case),
         "reviewer_scope" => reviewer_scope_case(case),
+        "typed_switch" => {
+            let prompt = case
+                .get("prompt")
+                .and_then(Value::as_str)
+                .unwrap_or_default();
+            let words_answer = case.get("words_answer") == Some(&Value::Bool(true));
+            typed_switch_json(&typed_switch::parse_typed_guard_switch_request(
+                prompt,
+                words_answer,
+            ))
+        }
+        "kiro_args" => json!(typed_switch::split_kiro_command_args(
+            case.get("raw").and_then(Value::as_str).unwrap_or_default()
+        )),
         "state_transition" => {
             let command = case
                 .get("command")
@@ -463,4 +480,69 @@ fn integrity_case(case: &Value) -> Value {
         "refused": violation.is_some(),
         "stderr": violation.map_or_else(String::new, |violation| violation.refusal().replace(&root, "{P}")),
     })
+}
+
+/// The request as upstream's object serialises: the six fields always,
+/// then each optional field only when it is set.
+fn typed_switch_json(request: &TypedSwitchRequest) -> Value {
+    let mut out = serde_json::Map::new();
+    out.insert(
+        "switches".into(),
+        json!(
+            request
+                .switches
+                .iter()
+                .map(|s| json!({"key": s.key, "value": s.value}))
+                .collect::<Vec<_>>()
+        ),
+    );
+    out.insert(
+        "settings".into(),
+        json!(
+            request
+                .settings
+                .iter()
+                .map(|s| json!({"key": s.key, "value": s.value}))
+                .collect::<Vec<_>>()
+        ),
+    );
+    out.insert("space".into(), json!(request.space));
+    out.insert("intent".into(), json!(request.intent));
+    out.insert("scope".into(), json!(request.scope));
+    out.insert("error".into(), json!(request.error));
+    if request.new_work_plan_approval_off {
+        out.insert("newWorkPlanApprovalOff".into(), json!(true));
+    }
+    if let Some(policy) = &request.new_work_guard_policy {
+        out.insert("newWorkGuardPolicy".into(), json!(policy));
+    }
+    if !request.new_work_ceremonies.is_empty() {
+        let mut ceremonies = serde_json::Map::new();
+        for (key, value) in &request.new_work_ceremonies {
+            ceremonies.insert(key.clone(), json!(value));
+        }
+        out.insert("newWorkCeremonies".into(), Value::Object(ceremonies));
+    }
+    if !request.new_work_fences_off.is_empty() {
+        out.insert(
+            "newWorkFencesOff".into(),
+            json!(
+                request
+                    .new_work_fences_off
+                    .iter()
+                    .map(|f| f.name())
+                    .collect::<Vec<_>>()
+            ),
+        );
+    }
+    if request.asked {
+        out.insert("asked".into(), json!(true));
+    }
+    if let Some(words) = &request.words {
+        out.insert("words".into(), json!(words));
+    }
+    if let Some(unread) = &request.unread {
+        out.insert("unread".into(), json!(unread));
+    }
+    Value::Object(out)
 }

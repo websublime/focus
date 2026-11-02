@@ -189,15 +189,15 @@ fn a_name_that_is_not_a_hook_name_is_refused_before_looking() {
 fn a_hook_not_ported_is_refused_by_name() {
     let root = project("not-ported");
     assert_eq!(
-        refusal(&hook(&root, &["record-human-turn"], &payload(""), &[])),
-        "focus engine hook record-human-turn: records the person's turn and the words of a gate, and Focus does not run that hook yet.\n"
-    );
-    assert_eq!(
         refusal(&hook(&root, &["guard-tool-call"], &payload(""), &[])),
         "focus engine hook guard-tool-call: runs the PreToolUse guards in one process, and Focus does not run that hook yet.\n"
     );
+    assert_eq!(
+        refusal(&hook(&root, &["plan-approval-guard"], &payload(""), &[])),
+        "focus engine hook plan-approval-guard: holds code until its plan is approved, and Focus does not run that hook yet.\n"
+    );
     assert_eq!(shard(&root), "# Focus Audit Log\n");
-    assert!(heartbeat(&root, "record-human-turn.last").is_none());
+    assert!(heartbeat(&root, "guard-tool-call.last").is_none());
 }
 
 #[test]
@@ -2613,4 +2613,661 @@ fn a_directive_marker_refuses_the_transition_guard_by_name() {
             "{said}"
         );
     }
+}
+
+fn prompt(text: &str) -> String {
+    payload(&format!(
+        "\"hook_event_name\":\"UserPromptSubmit\",\"prompt\":{}",
+        serde_json_string(text)
+    ))
+}
+
+fn picker(question: &str, answer: &str, options: &[&str]) -> String {
+    let options: Vec<String> = options
+        .iter()
+        .map(|label| format!("{{\"label\":{}}}", serde_json_string(label)))
+        .collect();
+    payload(&format!(
+        "\"hook_event_name\":\"PostToolUse\",\"tool_name\":\"AskUserQuestion\",\"tool_input\":{{\"questions\":[{{\"question\":{q},\"options\":[{o}]}}]}},\"tool_response\":{{\"answers\":{{{q}:{a}}}}}",
+        q = serde_json_string(question),
+        o = options.join(","),
+        a = serde_json_string(answer),
+    ))
+}
+
+fn messages(root: &Path) -> Vec<(String, String)> {
+    let dir = root.join("focus/.focus-sessions/messages");
+    let mut found: Vec<(String, String)> = fs::read_dir(dir)
+        .map(|entries| {
+            entries
+                .flatten()
+                .map(|entry| {
+                    (
+                        entry.file_name().to_string_lossy().into_owned(),
+                        fs::read_to_string(entry.path()).unwrap(),
+                    )
+                })
+                .collect()
+        })
+        .unwrap_or_default();
+    found.sort();
+    found
+}
+
+fn gate_words(root: &Path) -> Option<String> {
+    fs::read_to_string(root.join(format!("{RECORD}/.focus-engine/gate-words/s1.json"))).ok()
+}
+
+#[test]
+fn a_typed_prompt_mints_the_turn_and_keeps_the_words() {
+    let root = project("turn-typed");
+    quiet(&hook(
+        &root,
+        &["record-human-turn"],
+        &prompt("use postgres please"),
+        &[],
+    ));
+    let rows = shard(&root);
+    let turn = rows
+        .split("\n---\n")
+        .find(|block| block.contains("**Event**: HUMAN_TURN"))
+        .expect("a HUMAN_TURN row");
+    assert!(
+        turn.contains("**Session**: s1\n**Origin**: person\n**Source**: typed\n**Message Id**: "),
+        "{turn}"
+    );
+    assert!(!turn.contains("**Reply**:"), "{turn}");
+    let id = turn.split("**Message Id**: ").nth(1).unwrap().trim();
+    assert_eq!(id.len(), 8, "{id}");
+    // The message record, named by the row.
+    let stored = messages(&root);
+    assert_eq!(stored.len(), 1);
+    assert_eq!(stored[0].0, format!("{id}.json"));
+    let record: serde_json::Value = serde_json::from_str(&stored[0].1).unwrap();
+    assert_eq!(record["session"], "s1");
+    assert_eq!(record["source"], "prompt");
+    assert_eq!(record["text"], "use postgres please");
+    assert_eq!(record["words"], "use postgres please");
+    assert_eq!(record["picker"], serde_json::Value::Null);
+    assert_eq!(record["id"], id);
+    assert!(record.get("cut").is_none());
+    assert_eq!(
+        record["route"],
+        serde_json::json!({"scope": null, "newIntent": false, "skip": [], "add": [], "projectType": null})
+    );
+    // The words kept for a gate, indexed by the shard's size after the row.
+    let words: serde_json::Value = serde_json::from_str(&gate_words(&root).unwrap()).unwrap();
+    assert_eq!(words["version"], 1);
+    assert_eq!(words["session"], "s1");
+    assert_eq!(words["shard"], SHARD);
+    assert_eq!(words["dropped"], 0);
+    assert_eq!(words["messages"][0]["text"], "use postgres please");
+    let offset = words["messages"][0]["offset"].as_u64().unwrap();
+    assert!(offset > 0 && offset <= rows.len() as u64, "{offset}");
+    // The marker and the heartbeat.
+    assert!(
+        root.join(format!("{RECORD}/.focus-engine/human-turn"))
+            .exists()
+    );
+    assert!(heartbeat(&root, "record-human-turn.last").is_some());
+    // A second turn appends to the words; the cap keeps eight.
+    for n in 0..9 {
+        quiet(&hook(
+            &root,
+            &["record-human-turn"],
+            &prompt(&format!("message {n}")),
+            &[],
+        ));
+    }
+    let words: serde_json::Value = serde_json::from_str(&gate_words(&root).unwrap()).unwrap();
+    assert_eq!(words["messages"].as_array().unwrap().len(), 8);
+    assert_eq!(words["messages"][7]["text"], "message 8");
+    assert!(words["dropped"].as_u64().unwrap() > 0);
+    assert_eq!(messages(&root).len(), 10);
+    assert_eq!(shard(&root).matches("**Event**: HUMAN_TURN").count(), 10);
+}
+
+#[test]
+fn a_command_prompt_and_a_switch_question_are_marked_as_no_reply() {
+    let root = project("turn-command");
+    for (text, mark) in [
+        ("/focus", "command"),
+        ("$focus", "command"),
+        ("/focus-runner go", "command"),
+        ("skip plan approval?", "question"),
+        ("guard policy relaxed?", "question"),
+    ] {
+        quiet(&hook(&root, &["record-human-turn"], &prompt(text), &[]));
+        let rows = shard(&root);
+        let turn = rows.split("\n---\n").last_mut_block();
+        assert!(
+            turn.contains(&format!("**Source**: typed\n**Reply**: {mark}\n")),
+            "{text}: {turn}"
+        );
+    }
+    // None of them is kept as the person's words at a gate.
+    assert!(gate_words(&root).is_none());
+    // A slash in the person's own words is not a command.
+    quiet(&hook(
+        &root,
+        &["record-human-turn"],
+        &prompt("/api/users returns 500"),
+        &[],
+    ));
+    assert!(
+        gate_words(&root)
+            .unwrap()
+            .contains("/api/users returns 500")
+    );
+}
+
+trait LastBlock {
+    fn last_mut_block(self) -> String;
+}
+
+impl<'a, I: Iterator<Item = &'a str>> LastBlock for I {
+    fn last_mut_block(self) -> String {
+        let blocks: Vec<&str> = self.collect();
+        // The shard ends with a separator, so the last block with an event.
+        blocks
+            .iter()
+            .rev()
+            .find(|block| block.contains("**Event**: "))
+            .map(|block| (*block).to_owned())
+            .unwrap_or_default()
+    }
+}
+
+#[test]
+fn a_picker_reply_is_recorded_with_its_picks() {
+    let root = project("turn-picker");
+    quiet(&hook(
+        &root,
+        &["record-human-turn"],
+        &picker(
+            "Approve the plan?",
+            "Approve",
+            &["Approve", "Request Changes"],
+        ),
+        &[],
+    ));
+    let rows = shard(&root);
+    assert!(
+        rows.contains(
+            "**Origin**: person\n**Source**: picker\n**Picked**: [\"Approve\"]\n**Message Id**: "
+        ),
+        "{rows}"
+    );
+    assert!(
+        rows.contains("**Event**: QUESTION_REPLIED\n**Session**: s1\n**Question**: Approve the plan?\n**Reply**: Approve\n"),
+        "{rows}"
+    );
+    // A gate pick is the person's exact words.
+    assert!(gate_words(&root).unwrap().contains("\"text\":\"Approve\""));
+    let stored = messages(&root);
+    let record: serde_json::Value = serde_json::from_str(&stored[0].1).unwrap();
+    assert_eq!(record["source"], "picker");
+    assert_eq!(record["text"], "Approve");
+    assert_eq!(
+        record["picker"],
+        serde_json::json!([{"question": "Approve the plan?", "reply": "Approve"}])
+    );
+    // A label picked from a question that is not a gate is the conductor's
+    // wording, not kept; free text typed into the picker is.
+    let root = project("turn-picker-label");
+    quiet(&hook(
+        &root,
+        &["record-human-turn"],
+        &picker("Which database?", "Postgres", &["Postgres", "MySQL"]),
+        &[],
+    ));
+    assert!(gate_words(&root).is_none());
+    quiet(&hook(
+        &root,
+        &["record-human-turn"],
+        &picker("Which database?", "use oauth", &["Postgres", "MySQL"]),
+        &[],
+    ));
+    assert!(
+        gate_words(&root)
+            .unwrap()
+            .contains("\"text\":\"use oauth\"")
+    );
+    // An empty box: no turn, no answer, the row that spends an earlier
+    // turn, and the notice for the agent.
+    let root = project("turn-picker-empty");
+    let output = hook(
+        &root,
+        &["record-human-turn"],
+        &payload(
+            "\"hook_event_name\":\"PostToolUse\",\"tool_name\":\"AskUserQuestion\",\"tool_input\":{\"questions\":[{\"question\":\"Q\"}]},\"tool_response\":{\"answers\":{}}",
+        ),
+        &[],
+    );
+    assert!(output.status.success());
+    assert!(
+        text(&output.stdout).starts_with("{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"The question box closed with no answer"),
+        "{}",
+        text(&output.stdout)
+    );
+    assert!(shard(&root).contains("**Event**: QUESTION_UNANSWERED\n**Session**: s1\n"));
+    assert!(!shard(&root).contains("HUMAN_TURN"));
+    assert!(messages(&root).is_empty());
+}
+
+#[test]
+fn a_hosts_own_turn_carries_no_authority() {
+    let root = project("turn-host");
+    // The host's fixed sentence counts only on a host that hands over its
+    // transcript (Claude Code), when the transcript has no row for it.
+    quiet(&hook(
+        &root,
+        &["record-human-turn"],
+        &payload(&format!(
+            "\"hook_event_name\":\"UserPromptSubmit\",\"prompt\":{},\"transcript_path\":\"nope.jsonl\"",
+            serde_json_string("<task-notification>\nsomething finished\n</task-notification>")
+        )),
+        &[],
+    ));
+    let rows = shard(&root);
+    assert!(
+        rows.contains("**Event**: HOST_TURN\n**Session**: s1\n**Origin**: host\n**Reason**: claude task notification\n**Source**: template\n"),
+        "{rows}"
+    );
+    assert!(!rows.contains("HUMAN_TURN"));
+    assert!(messages(&root).is_empty());
+    assert!(gate_words(&root).is_none());
+    assert!(
+        !root
+            .join(format!("{RECORD}/.focus-engine/human-turn"))
+            .exists()
+    );
+    // An adapter's own word on the turn, and Claude Code's transcript.
+    quiet(&hook(
+        &root,
+        &["record-human-turn"],
+        &payload(
+            "\"hook_event_name\":\"UserPromptSubmit\",\"prompt\":\"use postgres\",\"origin\":{\"kind\":\"host\",\"reason\":\" kiro workflow brief \",\"source\":\"record\"}",
+        ),
+        &[],
+    ));
+    assert!(shard(&root).contains("**Reason**: kiro workflow brief\n**Source**: record\n"));
+    write(
+        &root,
+        "chat.jsonl",
+        "{\"type\":\"user\",\"promptId\":\"p1\",\"promptSource\":\"system\",\"turnOrigin\":\"task_notification\",\"message\":{\"content\":[{\"type\":\"text\",\"text\":\"use postgres\"}]}}\n",
+    );
+    let transcript = root.join("chat.jsonl");
+    quiet(&hook(
+        &root,
+        &["record-human-turn"],
+        &payload(&format!(
+            "\"hook_event_name\":\"UserPromptSubmit\",\"prompt\":\"use postgres\",\"prompt_id\":\"p1\",\"transcript_path\":{}",
+            serde_json_string(transcript.to_str().unwrap())
+        )),
+        &[],
+    ));
+    assert!(shard(&root).contains("**Reason**: task_notification\n**Source**: record\n"));
+    // Another prompt id has no row: the person's turn.
+    quiet(&hook(
+        &root,
+        &["record-human-turn"],
+        &payload(&format!(
+            "\"hook_event_name\":\"UserPromptSubmit\",\"prompt\":\"use postgres\",\"prompt_id\":\"p2\",\"transcript_path\":{}",
+            serde_json_string(transcript.to_str().unwrap())
+        )),
+        &[],
+    ));
+    assert_eq!(shard(&root).matches("**Event**: HUMAN_TURN").count(), 1);
+    // Without a transcript the host's sentence is not consulted: the turn
+    // is the person's.
+    quiet(&hook(
+        &root,
+        &["record-human-turn"],
+        &prompt("<task-notification>\nsomething finished\n</task-notification>"),
+        &[],
+    ));
+    assert_eq!(shard(&root).matches("**Event**: HUMAN_TURN").count(), 2);
+    assert_eq!(shard(&root).matches("**Event**: HOST_TURN").count(), 3);
+    // A host's turn before the work exists leaves no row and no heartbeat.
+    let root = project("turn-host-no-state");
+    fs::remove_file(root.join(format!("{RECORD}/focus-state.md"))).unwrap();
+    quiet(&hook(
+        &root,
+        &["record-human-turn"],
+        &payload(
+            "\"hook_event_name\":\"UserPromptSubmit\",\"prompt\":\"use postgres\",\"origin\":{\"kind\":\"host\",\"reason\":\"x\",\"source\":\"record\"}",
+        ),
+        &[],
+    ));
+    assert_eq!(shard(&root), "# Focus Audit Log\n");
+    assert!(heartbeat(&root, "record-human-turn.last").is_none());
+}
+
+#[test]
+fn an_unattended_driver_withholds_the_turn() {
+    let root = project("turn-unattended");
+    quiet(&hook(
+        &root,
+        &["record-human-turn"],
+        &prompt("use postgres"),
+        &[("FOCUS_UNATTENDED", "1")],
+    ));
+    assert_eq!(shard(&root), "# Focus Audit Log\n");
+    assert!(messages(&root).is_empty());
+    assert!(gate_words(&root).is_none());
+    // The conversational marker and the heartbeat are still written.
+    assert!(
+        root.join(format!("{RECORD}/.focus-engine/human-turn"))
+            .exists()
+    );
+    assert!(heartbeat(&root, "record-human-turn.last").is_some());
+    // A typed switch under it is said to have been withheld.
+    let output = hook(
+        &root,
+        &["record-human-turn"],
+        &prompt("skip plan approval"),
+        &[("FOCUS_UNATTENDED", "1")],
+    );
+    assert!(output.status.success());
+    assert!(
+        text(&output.stdout).contains("FOCUS Guard Policy: the typed switch was not applied because FOCUS_UNATTENDED=1 withholds human authority on this driver"),
+        "{}",
+        text(&output.stdout)
+    );
+}
+
+#[test]
+fn a_conversation_outside_the_workflow_mints_nothing() {
+    let root = project("turn-outside");
+    fs::remove_file(root.join("focus/spaces/default/intents/active-intent")).unwrap();
+    write(
+        &root,
+        "focus/.focus-sessions/s1.binding.json",
+        &BINDING.replace("260105-add-login", "other-9f8e7d6c"),
+    );
+    quiet(&hook(
+        &root,
+        &["record-human-turn"],
+        &prompt("use postgres"),
+        &[],
+    ));
+    assert_eq!(shard(&root), "# Focus Audit Log\n");
+    assert!(messages(&root).is_empty());
+    let output = hook(
+        &root,
+        &["record-human-turn"],
+        &prompt("skip plan approval"),
+        &[],
+    );
+    assert!(output.status.success());
+    assert!(
+        text(&output.stdout).contains("the typed switch was not applied because this conversation has not joined the selected workflow"),
+        "{}",
+        text(&output.stdout)
+    );
+    // A cold workspace: the message is kept before any work exists, and the
+    // heartbeat lands where doctor looks then.
+    let root =
+        Project(std::env::temp_dir().join(format!("focus-hook-{}-turn-cold", std::process::id())));
+    let _ = fs::remove_dir_all(&*root);
+    copy_dir(
+        &Path::new(env!("CARGO_MANIFEST_DIR")).join("../../fixtures/upstream/installed/claude"),
+        &root,
+    );
+    quiet(&hook(
+        &root,
+        &["record-human-turn"],
+        &prompt("use postgres"),
+        &[],
+    ));
+    assert_eq!(messages(&root).len(), 1);
+    assert!(
+        root.join("focus/spaces/default/intents/.focus-engine/hooks-health/record-human-turn.last")
+            .exists()
+    );
+    // A prompt-submit payload that names a tool is not a typed prompt: the
+    // turn is recorded with no source and no words.
+    let root = project("turn-tool-named");
+    quiet(&hook(
+        &root,
+        &["record-human-turn"],
+        &payload(
+            "\"hook_event_name\":\"UserPromptSubmit\",\"tool_name\":\"Edit\",\"prompt\":\"use postgres\"",
+        ),
+        &[],
+    ));
+    assert!(
+        shard(&root)
+            .contains("**Event**: HUMAN_TURN\n**Session**: s1\n**Origin**: person\n\n---\n"),
+        "{}",
+        shard(&root)
+    );
+    assert!(messages(&root).is_empty());
+    assert!(gate_words(&root).is_none());
+    // Malformed payloads still record presence, without identity.
+    let root = project("turn-malformed");
+    for stdin in ["{nope", "", "[1]"] {
+        quiet(&hook(&root, &["record-human-turn"], stdin, &[]));
+    }
+    assert_eq!(
+        shard(&root)
+            .matches("**Event**: HUMAN_TURN\n**Origin**: person\n\n---\n")
+            .count(),
+        3
+    );
+    assert!(messages(&root).is_empty());
+}
+
+#[test]
+fn a_long_prompt_is_cut_in_the_record_and_dropped_from_the_gate_words() {
+    let root = project("turn-long");
+    // Exactly the limit is kept whole; one more is cut.
+    quiet(&hook(
+        &root,
+        &["record-human-turn"],
+        &prompt(&"y".repeat(8000)),
+        &[],
+    ));
+    let record: serde_json::Value = serde_json::from_str(&messages(&root)[0].1).unwrap();
+    assert!(record.get("cut").is_none(), "{record}");
+    assert_eq!(record["words"].as_str().unwrap().len(), 8000);
+    fs::remove_dir_all(root.join("focus/.focus-sessions/messages")).unwrap();
+    let long: String = "x".repeat(8100);
+    quiet(&hook(&root, &["record-human-turn"], &prompt(&long), &[]));
+    let record: serde_json::Value = serde_json::from_str(&messages(&root)[0].1).unwrap();
+    assert_eq!(record["cut"], true);
+    assert_eq!(record["text"].as_str().unwrap().len(), 8000);
+    assert_eq!(record["words"].as_str().unwrap().len(), 8000);
+    // The 8 000-character message was kept; the longer one was dropped,
+    // and the drop is marked after it.
+    let words: serde_json::Value = serde_json::from_str(&gate_words(&root).unwrap()).unwrap();
+    assert_eq!(words["messages"].as_array().unwrap().len(), 1);
+    assert!(words["dropped"].as_u64().unwrap() > words["messages"][0]["offset"].as_u64().unwrap());
+    // An old message record is pruned by the next write; a foreign file is
+    // left alone.
+    write(
+        &root,
+        "focus/.focus-sessions/messages/0000aaaa.json",
+        "{\"session\":\"s1\",\"at\":\"2020-01-01T00:00:00Z\",\"source\":\"prompt\",\"text\":\"old\",\"picker\":null,\"words\":\"old\",\"settings\":[],\"route\":{\"scope\":null,\"newIntent\":false,\"skip\":[],\"add\":[],\"projectType\":null},\"applied\":[],\"id\":\"0000aaaa\"}\n",
+    );
+    write(
+        &root,
+        "focus/.focus-sessions/messages/not-a-record.json",
+        "{}",
+    );
+    quiet(&hook(&root, &["record-human-turn"], &prompt("short"), &[]));
+    let names: Vec<String> = messages(&root).into_iter().map(|(name, _)| name).collect();
+    assert!(!names.contains(&"0000aaaa.json".to_owned()), "{names:?}");
+    assert!(names.contains(&"not-a-record.json".to_owned()));
+    assert_eq!(names.len(), 3);
+    // A new prompt spends a one-shot handoff left from an earlier turn; a
+    // picker reply is not a new prompt.
+    write(&root, "focus/.focus-sessions/s1.handoff.json", "{}");
+    quiet(&hook(
+        &root,
+        &["record-human-turn"],
+        &picker("Q", "a", &["a", "b"]),
+        &[],
+    ));
+    assert!(root.join("focus/.focus-sessions/s1.handoff.json").exists());
+    quiet(&hook(&root, &["record-human-turn"], &prompt("next"), &[]));
+    assert!(!root.join("focus/.focus-sessions/s1.handoff.json").exists());
+}
+
+#[test]
+fn a_retired_policy_field_is_renamed_on_the_persons_turn() {
+    let root = project("turn-retired");
+    write(
+        &root,
+        &format!("{RECORD}/focus-state.md"),
+        &STATE.replace(
+            "- **Scope**: feature\n",
+            "- **Scope**: feature\n- **Change Control**: relaxed (set by you)\n",
+        ),
+    );
+    let output = hook(&root, &["record-human-turn"], &prompt("use postgres"), &[]);
+    assert!(output.status.success());
+    assert!(
+        text(&output.stdout).contains("FOCUS Guard Policy migration: kept relaxed and renamed the active intent's retired Change Control field to Guard Policy."),
+        "{}",
+        text(&output.stdout)
+    );
+    let state = read(&root, &format!("{RECORD}/focus-state.md"));
+    assert!(
+        state.contains("- **Guard Policy**: relaxed (set by you)\n"),
+        "{state}"
+    );
+    assert!(!state.contains("Change Control"), "{state}");
+    // A strict retired line is not renamed: strict is the default, and the
+    // rename would claim a switch.
+    let root = project("turn-retired-strict");
+    write(
+        &root,
+        &format!("{RECORD}/focus-state.md"),
+        &STATE.replace(
+            "- **Scope**: feature\n",
+            "- **Scope**: feature\n- **Change Control**: strict (set by you)\n",
+        ),
+    );
+    quiet(&hook(
+        &root,
+        &["record-human-turn"],
+        &prompt("use postgres"),
+        &[],
+    ));
+    assert!(read(&root, &format!("{RECORD}/focus-state.md")).contains("Change Control"));
+}
+
+/// Deliberate deviation. What this slice leaves for later is refused by
+/// name before anything is written: a typed guard switch (the config
+/// setter's), a `/focus` line with words (the orchestrator's parser), the
+/// break-glass phrase and the plan approval records (4e), the directive
+/// marker's asks and a review awaiting its verdict (M5), the lines queued
+/// for the person.
+#[test]
+fn what_the_turn_does_not_read_yet_is_refused_by_name() {
+    let root = project("turn-later");
+    for (text, said) in [
+        ("skip plan approval", "the prompt is a typed guard switch"),
+        (
+            "/focus --guard-policy off",
+            "the prompt is a typed guard switch",
+        ),
+        (
+            "/focus next",
+            "the prompt is a `focus` line with words after the entry",
+        ),
+        (
+            "Override Plan Approval: the reviewer is away",
+            "the prompt is the plan approval override phrase",
+        ),
+    ] {
+        let said_back = refusal(&hook(&root, &["record-human-turn"], &prompt(text), &[]));
+        assert!(
+            said_back.starts_with(said) || said_back.contains(&said.replace("`focus`", "`/focus`")),
+            "{text}: {said_back}"
+        );
+    }
+    assert_eq!(shard(&root), "# Focus Audit Log\n");
+    assert!(messages(&root).is_empty());
+    for (rel, content, said) in [
+        (
+            "focus/.focus-sessions/s1.person-lines",
+            "{}",
+            "holds the lines queued for the person",
+        ),
+        (
+            "focus/.focus-sessions/plan-approval/challenge-s1.json",
+            "{}",
+            "is the plan approval challenge this chat must answer",
+        ),
+        (
+            "focus/.focus-sessions/plan-approval/protected-question-s2.json",
+            "{}",
+            "is a protected question a chat asked",
+        ),
+    ] {
+        let root = project("turn-later-record");
+        write(&root, rel, content);
+        let said_back = refusal(&hook(
+            &root,
+            &["record-human-turn"],
+            &prompt("use postgres"),
+            &[],
+        ));
+        assert!(said_back.contains(said), "{rel}: {said_back}");
+        assert_eq!(shard(&root), "# Focus Audit Log\n");
+    }
+    let root = project("turn-later-marker");
+    write(
+        &root,
+        &format!("{RECORD}/.focus-engine/active-directive.json"),
+        "{\"version\": 2, \"kind\": \"ask\"}",
+    );
+    assert!(
+        refusal(&hook(
+            &root,
+            &["record-human-turn"],
+            &prompt("use postgres"),
+            &[]
+        ))
+        .contains("is the orchestrator's directive marker, whose asks")
+    );
+    // A review request with no verdict, at a stage whose class reviews.
+    let root = project("turn-later-review");
+    write(
+        &root,
+        &format!("{RECORD}/focus-state.md"),
+        &STATE.replace(
+            "- **Scope**: feature\n",
+            "- **Scope**: feature\n- **Review Override**: advisory\n",
+        ),
+    );
+    write(
+        &root,
+        SHARD,
+        &format!(
+            "# Focus Audit Log\n{}",
+            REVIEW_ROWS.split("\n## Review Completed").next().unwrap()
+        ),
+    );
+    let said = refusal(&hook(
+        &root,
+        &["record-human-turn"],
+        &prompt("use postgres"),
+        &[],
+    ));
+    assert!(
+        said.contains("holds a review request for \"intent-capture\" with no verdict"),
+        "{said}"
+    );
+    // The same request with its verdict, or answered by a picker, passes.
+    write(&root, SHARD, &format!("# Focus Audit Log\n{REVIEW_ROWS}"));
+    quiet(&hook(
+        &root,
+        &["record-human-turn"],
+        &prompt("use postgres"),
+        &[],
+    ));
 }

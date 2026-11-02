@@ -32,6 +32,7 @@ pub mod policy;
 pub mod reviewer_scope;
 pub mod shell;
 pub mod state_transition;
+pub mod typed_switch;
 pub mod workflow;
 
 pub use authority::{Authority, Decision, FenceDecision};

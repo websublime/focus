@@ -612,6 +612,31 @@ function answer(c: Record<string, any>): unknown {
     }
     case "reviewer_dispatch":
       return { record: reviewerScope.parseDispatchRecord(c.raw) };
+    case "host_envelope":
+      return lib.hostEnvelopeTurnText(c.prompt);
+    case "host_template":
+      return lib.hostTemplateOrigin(c.prompt, lib.CLAUDE_HOST_TEMPLATES);
+    case "supplied_origin":
+      return lib.suppliedTurnOrigin(c.origin);
+    case "picker_empty":
+      return lib.emptyPickerResult(c.response);
+    case "transcript_origin": {
+      // The transcript the case describes, under this process's scratch root; `{P}` names it.
+      const root = mkdtempSync(join(scratch, "transcript-"));
+      try {
+        const path = join(root, c.file);
+        mkdirSync(dirname(path), { recursive: true });
+        if (typeof c.rows === "string") writeFileSync(path, c.rows);
+        const transcript = typeof c.transcript_path === "string" ? c.transcript_path.replace("{P}", root) : c.transcript_path;
+        return lib.claudeTranscriptOrigin(transcript, c.prompt_id, c.prompt);
+      } finally {
+        rmSync(root, { recursive: true, force: true });
+      }
+    }
+    case "typed_switch":
+      return lib.parseTypedGuardSwitchRequest(c.prompt, c.words_answer ? { wordsAnswer: true } : {});
+    case "kiro_args":
+      return lib.splitKiroCommandArgs(c.raw);
     case "state_transition":
       // The three readers of a shell command the state-transition guard
       // decides from; all pure.

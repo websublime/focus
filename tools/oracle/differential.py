@@ -127,6 +127,11 @@ DEVIATIONS = {
 
 # Differences of shape that are settled before comparing, and counted.
 SHAPES = {
+    "gate-words-offset":
+        "the gate-words record indexes the audit shard by byte offset, and upstream's shard header is one byte "
+        "longer than focus's (\"# AI-DLC Audit Log\" is the one phrase of the name map whose length changes), so "
+        "every offset upstream writes is one more. Upstream's offsets are read one byte back before comparing; "
+        "the messages, the session and the shard are compared as they are",
     "source-baseline":
         "creating a piece of work records the source baseline of the project in the first row and keeps the "
         "listing beside the record; that is the attestation's walk over every source file (M5), which focus "
@@ -1426,6 +1431,43 @@ def minted(rel, text):
     return rel, text
 
 
+MESSAGE_FILE = re.compile(r"/\.focus-sessions/messages/([0-9a-f]{8})\.json$")
+
+
+def placeholder_messages(files):
+    """The message records minted during a run, numbered in the order the ledger names them (the `Message Id`
+    of each HUMAN_TURN row, in order; a record no row names after those, by its `at` and id), and their ids
+    written as placeholders wherever they appear: the file's name, its `id` field, and the row's field."""
+    minted_ids = []
+    for key, text in files.items():
+        found = MESSAGE_FILE.search(key)
+        if found and isinstance(text, str) and text not in ("<removed>", "<absent>"):
+            try:
+                at = json.loads(text).get("at", "")
+            except (ValueError, AttributeError):
+                at = ""
+            minted_ids.append((at, found.group(1)))
+    if not minted_ids:
+        return files
+    named = [found for _, found in sorted(minted_ids)]
+    in_rows = []
+    for key in sorted(files):
+        if "/audit/" in key and isinstance(files[key], str):
+            for found in re.findall(r"\*\*Message Id\*\*: ([0-9a-f]{8})\n", files[key]):
+                if found in named and found not in in_rows:
+                    in_rows.append(found)
+    ordered = in_rows + [found for found in named if found not in in_rows]
+    names = {found: f"<message-{n}>" for n, found in enumerate(ordered, start=1)}
+    out = {}
+    for key, text in files.items():
+        for found, name in names.items():
+            key = key.replace(f"/messages/{found}.json", f"/messages/{name}.json")
+            if isinstance(text, str):
+                text = text.replace(f'"id":"{found}"', f'"id":"{name}"').replace(f"**Message Id**: {found}\n", f"**Message Id**: {name}\n")
+        out[key] = text
+    return out
+
+
 def audit_pair(name, files, links=(), hard_links=()):
     """Two empty projects holding `files` ({path: text}, upstream's names), `links` and `hard_links`
     (each a (path, target))."""
@@ -1673,6 +1715,7 @@ def verify_validation_bases(tree, engine, rel, text):
 def compare_audit(name, trees, steps, env, tool="audit"):
     ts, rs = trees
     outcome, shaped, shaped_source, shaped_ask, shaped_basis = {}, False, False, False, False
+    shaped_offsets = False
     started_from = None
     if RECORD and not has_links(ts.root) and name not in UNRECORDED and not name.startswith("fuzz/"):
         # An audit check starts from nothing but its files; a runtime check from an installed project.
@@ -1717,6 +1760,11 @@ def compare_audit(name, trees, steps, env, tool="audit"):
             if text is not None and "/audit/" in rel:
                 text, seen = verify_validation_bases(tree, engine, rel, text)
                 shaped_basis |= seen and engine == "ts"
+            # The gate-words record indexes the shard by byte offset, and upstream's shard header is one byte
+            # longer than Focus's (SHAPES: gate-words-offset).
+            if text is not None and "/.focus-engine/gate-words/" in rel and engine == "ts":
+                shaped_offsets = True
+                text = re.sub(r'"(offset|dropped)":([1-9]\d*)', lambda m: f'"{m.group(1)}":{int(m.group(2)) - 1}', text)
             shown, text = minted(rel, text if text is None else normalise_audit(text, tree, engine))
             if text is not None and "**Source Baseline**: " in text:
                 shaped_source = True
@@ -1725,6 +1773,8 @@ def compare_audit(name, trees, steps, env, tool="audit"):
                 shaped_ask = True
                 text = ASK_FIELD.sub("", text)
             outcome[engine][shown] = "<removed>" if text is None else text
+    for engine in ("ts", "rs"):
+        outcome[engine] = placeholder_messages(outcome[engine])
     problems = []
     shaped_budget = False
     for key in sorted(set(outcome["ts"]) | set(outcome["rs"])):
@@ -1757,6 +1807,9 @@ def compare_audit(name, trees, steps, env, tool="audit"):
         if shaped_budget:
             shapes["process-map-budget"] += 1
             detail += "  (a process-map slot missed its budget)"
+        if shaped_offsets:
+            shapes["gate-words-offset"] += 1
+            detail += "  (shard offsets read one byte back)"
     elif any(re.fullmatch(pattern, name) for pattern in DEVIATIONS):
         verdict = "deviation"
         detail = next(reason for pattern, reason in DEVIATIONS.items() if re.fullmatch(pattern, name))
@@ -3619,11 +3672,109 @@ def hook_checks():
     for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
         check_(f"state-transition-guard/observer_{marker.lower()}", speaking, [guard("bun .claude/tools/aidlc-state.ts approve intent-capture"), guard("aidlc next", AGENT)], {marker: "1"})
 
+    # record-human-turn: the person's turn on the ledger, the message record, the words kept for a gate.
+    turn = lambda prompt, **more: ["record-human-turn", payload(hook_event_name="UserPromptSubmit", prompt=prompt, **more)]
+    pick = lambda question, answer, options=("Approve", "Request Changes"), **more: ["record-human-turn", payload(
+        hook_event_name="PostToolUse", tool_name="AskUserQuestion",
+        tool_input={"questions": [{"question": question, "options": [{"label": o} for o in options], **more}]},
+        tool_response={"answers": {question: answer}})]
+    check_("record-human-turn/typed", joined, [turn("use postgres please")])
+    check_("record-human-turn/typed_twice", joined, [turn("use postgres"), turn("  and redis  ")])
+    check_("record-human-turn/typed_outsider", {**no_cursor, **binding("other-9f8e7d6c")}, [turn("use postgres")])
+    check_("record-human-turn/typed_unjoined", {**no_cursor, **binding(None, "unjoined")}, [turn("use postgres")])
+    check_("record-human-turn/typed_cursor_only", created(), [turn("use postgres")])
+    check_("record-human-turn/typed_cold", CLONE, [turn("use postgres")])
+    check_("record-human-turn/typed_no_state", {**CLONE, "aidlc/spaces/default/intents/intents.json": CREATED_REGISTRY, **binding()}, [turn("use postgres")])
+    check_("record-human-turn/typed_no_session", joined, [["record-human-turn", json.dumps({"hook_event_name": "UserPromptSubmit", "prompt": "use postgres"})]])
+    check_("record-human-turn/typed_bad_session", joined, [["record-human-turn", json.dumps({"session_id": "../x", "hook_event_name": "UserPromptSubmit", "prompt": "use postgres"})]])
+    check_("record-human-turn/typed_user_prompt_key", joined, [["record-human-turn", payload(hook_event_name="UserPromptSubmit", user_prompt="use postgres")], ["record-human-turn", payload(hook_event_name="UserPromptSubmit", message="and redis")]])
+    check_("record-human-turn/typed_empty_prompt", joined, [turn(""), turn("   ")])
+    check_("record-human-turn/typed_json_scalar", joined, [turn("1"), turn("true"), turn('"quoted"'), turn('{"answer": "two"}'), turn("[\"three\"]")])
+    check_("record-human-turn/typed_envelope", joined, [turn("memory\n[CURRENT USER REQUEST -- respond to this]\nuse postgres"), turn("a\n[CURRENT USER REQUEST — respond to this]\r\nb\n[CURRENT USER REQUEST -- respond to this]\nc")])
+    check_("record-human-turn/command_prompt", joined, [turn("/aidlc"), turn("$aidlc"), turn("/aidlc-runner go"), turn("/AIDLC")])
+    check_("record-human-turn/slash_words", joined, [turn("/api/users returns 500"), turn("aidlc on the login page")])
+    check_("record-human-turn/entry_words", joined, [turn("/aidlc next"), turn("/aidlc use postgres")])
+    check_("record-human-turn/switch_question", joined, [turn("skip plan approval?"), turn("guard policy relaxed?")])
+    check_("record-human-turn/typed_switch", joined, [turn("skip plan approval")])
+    check_("record-human-turn/typed_switch_flag", joined, [turn("/aidlc --guard-policy off")])
+    check_("record-human-turn/typed_switch_outsider", {**no_cursor, **binding("other-9f8e7d6c")}, [turn("skip plan approval")])
+    check_("record-human-turn/typed_switch_unattended", joined, [turn("skip plan approval")], {"UNATTENDED": "1"})
+    check_("record-human-turn/unattended", joined, [turn("use postgres")], {"UNATTENDED": "1"})
+    check_("record-human-turn/unattended_picker", joined, [pick("Approve the plan?", "Approve")], {"UNATTENDED": "1"})
+    check_("record-human-turn/override_phrase", joined, [turn("Override Plan Approval: the reviewer is away")])
+    check_("record-human-turn/picker_gate", joined, [pick("Approve the plan?", "Approve")])
+    check_("record-human-turn/picker_gate_recommended", joined, [pick("Approve the plan?", "Request Changes (Recommended)", options=("Approve", "Request Changes (Recommended)"))])
+    check_("record-human-turn/picker_free_text", joined, [pick("Which database?", "use oauth", options=("Postgres", "MySQL"))])
+    check_("record-human-turn/picker_label", joined, [pick("Which database?", "Postgres", options=("Postgres", "MySQL"))])
+    check_("record-human-turn/picker_accept_as_is", joined, [pick("Approve?", "Accept as-is", options=("Approve", "Request Changes", "Accept as-is"))])
+    check_("record-human-turn/picker_multi", joined, [["record-human-turn", payload(hook_event_name="PostToolUse", tool_name="AskUserQuestion",
+        tool_input={"questions": [{"question": "Pick", "multiSelect": True, "options": [{"label": "a"}, {"label": "b"}]}]}, tool_response={"answers": {"Pick": ["a", "b"]}})]])
+    check_("record-human-turn/picker_several_questions", joined, [["record-human-turn", payload(hook_event_name="PostToolUse", tool_name="AskUserQuestion",
+        tool_input={"questions": [{"question": "One", "options": ["a", "b"]}, {"question": "Two", "options": ["c"]}]}, tool_response={"answers": {"One": "a", "Two": "c"}})]])
+    check_("record-human-turn/picker_blank_question", joined, [["record-human-turn", payload(hook_event_name="PostToolUse", tool_name="AskUserQuestion",
+        tool_input={"questions": [{"question": "One", "options": ["a"]}, {"question": "Two", "options": ["c"]}]}, tool_response={"answers": {"One": "a", "Extra": "z"}})]])
+    check_("record-human-turn/picker_codex", joined, [["record-human-turn", payload(hook_event_name="PostToolUse", tool_name="request_user_input",
+        tool_input={"questions": [{"id": "q1", "question": "Approve the plan?", "options": [{"label": "Approve"}, {"label": "Request Changes"}]}]},
+        picker_reply={"answers": {"q1": {"answers": ["Approve"]}}}, tool_response="{}")]])
+    check_("record-human-turn/picker_string_response", joined, [["record-human-turn", payload(hook_event_name="PostToolUse", tool_name="AskUserQuestion",
+        tool_input={"questions": [{"question": "Q", "options": ["a"]}]}, tool_response=json.dumps({"answers": {"Q": "a"}}))]])
+    check_("record-human-turn/picker_empty", joined, [["record-human-turn", payload(hook_event_name="PostToolUse", tool_name="AskUserQuestion", tool_input={"questions": [{"question": "Q", "options": ["a"]}]}, tool_response={"answers": {}})]])
+    check_("record-human-turn/picker_empty_string", joined, [["record-human-turn", payload(hook_event_name="PostToolUse", tool_name="AskUserQuestion", tool_input={"questions": [{"question": "Q"}]}, tool_response='{"answers":{}}')]])
+    check_("record-human-turn/picker_null_response", joined, [["record-human-turn", payload(hook_event_name="PostToolUse", tool_name="AskUserQuestion", tool_input={"questions": [{"question": "Q"}]}, tool_response=None)]])
+    check_("record-human-turn/picker_cancelled", joined, [pick("Q", "Cancelled", options=("a", "b"))])
+    check_("record-human-turn/picker_no_input", joined, [["record-human-turn", payload(hook_event_name="PostToolUse", tool_name="AskUserQuestion", tool_response={"answers": {"Q": "a"}})]])
+    check_("record-human-turn/other_event", joined, [["record-human-turn", payload(hook_event_name="PostToolUse", tool_name="Edit")], ["record-human-turn", payload(hook_event_name="Stop")]])
+    check_("record-human-turn/malformed", joined, [["record-human-turn", "{nope"], ["record-human-turn", ""], ["record-human-turn", "[1]"], ["record-human-turn", "null"]])
+    check_("record-human-turn/malformed_cold", CLONE, [["record-human-turn", "{nope"]])
+    check_("record-human-turn/host_notification", joined, [turn("<task-notification>\nsomething finished\n</task-notification>")])
+    check_("record-human-turn/host_notification_not_whole", joined, [turn("<task-notification>\nx\n</task-notification> and more")])
+    check_("record-human-turn/host_origin_supplied", joined, [turn("use postgres", origin={"kind": "host", "reason": "  kiro workflow brief  ", "source": "record"})])
+    check_("record-human-turn/host_origin_long_reason", joined, [turn("use postgres", origin={"kind": "host", "reason": "r" * 300, "source": "template"})])
+    check_("record-human-turn/origin_malformed", joined, [turn("use postgres", origin={"kind": "host", "reason": "", "source": "record"}), turn("and redis", origin={"kind": "host", "reason": "x", "source": "other"}), turn("and more", origin="host")])
+    check_("record-human-turn/person_origin_supplied", joined, [turn("use postgres", origin={"kind": "person", "source": "record"})])
+    check_("record-human-turn/host_origin_no_state", {**CLONE, "aidlc/spaces/default/intents/intents.json": CREATED_REGISTRY, **binding()}, [turn("use postgres", origin={"kind": "host", "reason": "x", "source": "record"})])
+    transcript = lambda rows: "\n".join(json.dumps(row) for row in rows) + "\n"
+    system_row = {"type": "user", "promptId": "p1", "promptSource": "system", "turnOrigin": "task_notification", "message": {"role": "user", "content": [{"type": "text", "text": "use postgres"}]}}
+    human_row = {"type": "user", "promptId": "p1", "turnOrigin": "human", "message": {"role": "user", "content": "use postgres"}}
+    check_("record-human-turn/transcript_host", {**joined, "p/chat.jsonl": transcript([human_row, system_row])}, [turn("use postgres", transcript_path="{P}/p/chat.jsonl", prompt_id="p1")])
+    check_("record-human-turn/transcript_person", {**joined, "p/chat.jsonl": transcript([system_row, human_row])}, [turn("use postgres", transcript_path="{P}/p/chat.jsonl", prompt_id="p1")])
+    check_("record-human-turn/transcript_other_prompt", {**joined, "p/chat.jsonl": transcript([system_row])}, [turn("use postgres", transcript_path="{P}/p/chat.jsonl", prompt_id="p2"), turn("and redis", transcript_path="{P}/p/chat.jsonl", prompt_id="p1")])
+    check_("record-human-turn/transcript_no_id", {**joined, "p/chat.jsonl": transcript([{**system_row, "promptId": "zz"}])}, [turn("use postgres", transcript_path="{P}/p/chat.jsonl")])
+    check_("record-human-turn/transcript_origin_kind", {**joined, "p/chat.jsonl": transcript([{"type": "user", "origin": {"kind": "task-notification"}, "content": "use postgres"}])}, [turn("use postgres", transcript_path="{P}/p/chat.jsonl")])
+    check_("record-human-turn/transcript_missing", joined, [turn("use postgres", transcript_path="{P}/p/nope.jsonl", prompt_id="p1"), turn("and redis", transcript_path="{P}/p/chat.txt", prompt_id="p1")])
+    check_("record-human-turn/transcript_malformed", {**joined, "p/chat.jsonl": "{nope\n\n" + json.dumps(system_row) + "\n"}, [turn("use postgres", transcript_path="{P}/p/chat.jsonl", prompt_id="p1")])
+    check_("record-human-turn/transcript_supplied_wins", {**joined, "p/chat.jsonl": transcript([system_row])}, [turn("use postgres", transcript_path="{P}/p/chat.jsonl", prompt_id="p1", origin={"kind": "person"})])
+    check_("record-human-turn/long_prompt", joined, [turn("x" * 8100)])
+    check_("record-human-turn/long_prompt_exact", joined, [turn("y" * 8000), turn("z" * 8001)])
+    check_("record-human-turn/gate_words_cap", joined, [turn(f"message {n}") for n in range(10)])
+    check_("record-human-turn/gate_words_other_shard", {**joined, f"{engine}/gate-words/s1.json": json.dumps({"version": 1, "session": "s1", "shard": "other/audit/x.md", "dropped": 0, "messages": [{"offset": 1, "text": "old"}]})}, [turn("use postgres")])
+    # (The prior record's offsets are 0: upstream's are read one byte back before comparing, as SHAPES says.)
+    check_("record-human-turn/gate_words_same_shard", {**joined, f"{engine}/gate-words/s1.json": json.dumps({"version": 1, "session": "s1", "shard": CREATED_SHARD, "dropped": 0, "messages": [{"offset": 0, "text": "old"}]})}, [turn("use postgres")])
+    check_("record-human-turn/message_prune_old", {**joined, "aidlc/.aidlc-sessions/messages/0000aaaa.json": json.dumps({"session": "s1", "at": "2020-01-01T00:00:00Z", "source": "prompt", "text": "old", "picker": None, "words": "old", "settings": [], "route": {"scope": None, "newIntent": False, "skip": [], "add": [], "projectType": None}, "applied": [], "id": "0000aaaa"}) + "\n", "aidlc/.aidlc-sessions/messages/not-a-record.json": "{}", "aidlc/.aidlc-sessions/messages/0000bbbb.json": "{nope"}, [turn("use postgres")])
+    check_("record-human-turn/retired_field", {**joined, f"{CREATED_DIR}/aidlc-state.md": CREATED_STATE.replace("- **Guard Policy**: off (from scope feature)", "- **Change Control**: relaxed (set by you)")}, [turn("use postgres")])
+    check_("record-human-turn/retired_field_strict", {**joined, f"{CREATED_DIR}/aidlc-state.md": CREATED_STATE.replace("- **Guard Policy**: off (from scope feature)", "- **Change Control**: strict (set by you)")}, [turn("use postgres")])
+    check_("record-human-turn/retired_field_picker", {**joined, f"{CREATED_DIR}/aidlc-state.md": CREATED_STATE.replace("- **Guard Policy**: off (from scope feature)", "- **Change Control**: off (set by you)")}, [pick("Q", "a", options=("a", "b"))])
+    check_("record-human-turn/handoff_cleared", {**joined, "aidlc/.aidlc-sessions/s1.handoff.json": '{"from": "x"}'}, [turn("use postgres")])
+    check_("record-human-turn/handoff_kept_by_picker", {**joined, "aidlc/.aidlc-sessions/s1.handoff.json": '{"from": "x"}'}, [pick("Q", "a", options=("a", "b"))])
+    check_("record-human-turn/person_lines", {**joined, "aidlc/.aidlc-sessions/s1.person-lines": '{"work": "x", "lines": [], "said": []}'}, [turn("use postgres")])
+    check_("record-human-turn/plan_challenge", {**joined, "aidlc/.aidlc-sessions/plan-approval/challenge-s1.json": '{"version": 1}'}, [turn("use postgres")])
+    check_("record-human-turn/protected_question", {**joined, "aidlc/.aidlc-sessions/plan-approval/protected-question-s2.json": '{"version": 1}'}, [turn("use postgres")])
+    check_("record-human-turn/directive_marker", {**joined, f"{engine}/active-directive.json": '{"version": 2, "kind": "ask"}'}, [turn("use postgres")])
+    check_("record-human-turn/open_review", {**joined, CREATED_SHARD: CREATED_AUDIT + block("REVIEW_REQUESTED", T(2), "**Stage**: intent-capture", "**Reviewer**: aidlc-product-lead-agent", "**Iteration**: 1")}, [turn("use postgres")])
+    check_("record-human-turn/open_review_completed", {**joined, CREATED_SHARD: CREATED_AUDIT + block("REVIEW_REQUESTED", T(2), "**Stage**: intent-capture", "**Reviewer**: aidlc-product-lead-agent", "**Iteration**: 1") + block("REVIEW_COMPLETED", T(3), "**Stage**: intent-capture", "**Reviewer**: aidlc-product-lead-agent", "**Iteration**: 1", "**Verdict**: READY")}, [turn("use postgres")])
+    check_("record-human-turn/open_review_reviewed", {**joined, f"{CREATED_DIR}/aidlc-state.md": CREATED_STATE.replace("- **Review Override**: none", "- **Review Override**: advisory"), CREATED_SHARD: CREATED_AUDIT + block("REVIEW_REQUESTED", T(2), "**Stage**: intent-capture", "**Reviewer**: aidlc-product-lead-agent", "**Iteration**: 1")}, [turn("use postgres")])
+    check_("record-human-turn/open_review_reviewed_done", {**joined, f"{CREATED_DIR}/aidlc-state.md": CREATED_STATE.replace("- **Review Override**: none", "- **Review Override**: advisory"), CREATED_SHARD: CREATED_AUDIT + block("REVIEW_REQUESTED", T(2), "**Stage**: intent-capture", "**Reviewer**: aidlc-product-lead-agent", "**Iteration**: 1") + block("REVIEW_COMPLETED", T(3), "**Stage**: intent-capture", "**Reviewer**: aidlc-product-lead-agent", "**Iteration**: 1", "**Verdict**: READY")}, [turn("use postgres")])
+    check_("record-human-turn/open_review_reviewed_passed", {**joined, f"{CREATED_DIR}/aidlc-state.md": CREATED_STATE.replace("- **Review Override**: none", "- **Review Override**: advisory"), CREATED_SHARD: CREATED_AUDIT + block("REVIEW_REQUESTED", T(2), "**Stage**: intent-capture", "**Reviewer**: aidlc-product-lead-agent", "**Iteration**: 1") + block("DECISION_RECORDED", T(3), "**Stage**: intent-capture", "**Decision**: x")}, [turn("use postgres")])
+    check_("record-human-turn/open_review_picker", {**joined, CREATED_SHARD: CREATED_AUDIT + block("REVIEW_REQUESTED", T(2), "**Stage**: intent-capture", "**Reviewer**: aidlc-product-lead-agent", "**Iteration**: 1")}, [pick("Q", "a", options=("a", "b"))])
+    check_("record-human-turn/no_shard", {**joined, CREATED_SHARD: None}, [turn("use postgres")])
+    for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
+        check_(f"record-human-turn/observer_{marker.lower()}", joined, [turn("use postgres"), pick("Q", "a", options=("a", "b"))], {marker: "1"})
+
     # The dispatcher: a hook it does not have, a name it refuses, the trace.
     check_("dispatch/unknown", created(), [["nope", "{}"]])
     check_("dispatch/unsafe_name", created(), [["../x", "{}"]])
     check_("dispatch/no_name", created(), [["", "{}"]])
-    for name in ("record-human-turn", "guard-tool-call", "continue-workflow"):
+    for name in ("guard-tool-call", "continue-workflow"):
         check_(f"dispatch/{name.replace('-', '_')}_not_ported", created(), [[name, payload()]])
 
 
@@ -3632,6 +3783,23 @@ DEVIATIONS.update({
         "a record of a later milestone beside the hook's own: the orchestrator's directive marker, a unit claim, "
         "the ledger of background subagents, the summary authorizations (M4/M5); upstream reads or clears it and "
         "goes on; focus refuses the hook by name while it is there",
+    "hook/record-human-turn/entry_words":
+        "a `/focus` line with words after the entry: upstream reads it with the orchestrator's own flag parser "
+        "(the settings, the route, the person's words after them: M5) for the message record and the reply; "
+        "focus refuses the turn by name (exit 1) while it does not read `/focus` lines typed in chat",
+    r"hook/record-human-turn/typed_switch(_flag)?":
+        "a typed guard switch (the plain words, or a `/focus` line with a setting flag): upstream applies it to "
+        "the piece of work this chat has open through the config setter, records the message with the lines it "
+        "said, and queues them for the person (the setter is the utility's config-change, not ported); focus "
+        "refuses the turn by name (exit 1)",
+    "hook/record-human-turn/override_phrase":
+        "the plan approval break-glass line: upstream records the override request for the answer to pair with "
+        "(plan approval, 4e); focus refuses the turn by name (exit 1)",
+    r"hook/record-human-turn/(person_lines|plan_challenge|protected_question|open_review_reviewed)":
+        "a record of a later slice beside the turn's own: the lines queued for the person, this chat's plan "
+        "approval challenge, a protected question any chat asked (4e), a review request with no verdict at a stage "
+        "whose class reviews (the receipts, M5); upstream carries, answers or notes it and goes on; focus refuses "
+        "the turn by name while it is there",
     r"hook/review-freeze/review_rows(_[a-z_]+)?":
         "a write to the output document of an open reviewer-bearing stage whose ledger holds a review row: upstream "
         "weighs the review receipt scan (the attempt window, the source bindings, the Unit claims: the attestation, "

@@ -28,6 +28,8 @@ fn every_guard_case_gets_upstreams_answer() {
     let (mut commands, mut fired) = (0, 0);
     let (mut scoped, mut blocked, mut defaulted) = (0, 0, 0);
     let (mut transitions, mut direct, mut boundary, mut delegated) = (0, 0, 0, 0);
+    let (mut typed, mut switched, mut unreadable, mut asked, mut worded, mut split) =
+        (0, 0, 0, 0, 0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         let case: Value = focus_js::json::parse(line).unwrap();
@@ -60,6 +62,16 @@ fn every_guard_case_gets_upstreams_answer() {
             scoped += 1;
             blocked += usize::from(out["verdict"]["block"] == true);
             defaulted += usize::from(out["verdict"]["defaulted"] == true);
+        }
+        if kind == "typed_switch" {
+            typed += 1;
+            switched += usize::from(out["switches"].as_array().is_some_and(|s| !s.is_empty()));
+            unreadable += usize::from(!out["error"].is_null());
+            asked += usize::from(out["asked"] == true);
+            worded += usize::from(!out["words"].is_null());
+        }
+        if kind == "kiro_args" {
+            split += 1;
         }
         if kind == "state_transition" {
             transitions += 1;
@@ -97,6 +109,15 @@ fn every_guard_case_gets_upstreams_answer() {
     assert!(
         transitions >= 2000 && direct >= 100 && boundary >= 90 && delegated >= 1000,
         "too few state transition cases: {transitions}, {direct} direct, {boundary} at a boundary, {delegated} delegated"
+    );
+    assert!(
+        typed >= 1000
+            && switched >= 150
+            && unreadable >= 15
+            && asked >= 15
+            && worded >= 250
+            && split >= 300,
+        "too few typed switch cases: {typed}, {switched} switches, {unreadable} unreadable, {asked} asked, {worded} with words; {split} word splits"
     );
     assert!(
         stood_aside >= 100 && held >= 100 && pinned >= 20 && refused >= 10,

@@ -17,6 +17,8 @@ pub mod context;
 pub mod engine;
 pub mod health;
 pub mod hooks;
+pub mod messages;
+pub mod oracle;
 pub mod payload;
 pub mod registry;
 pub mod rules_held;
@@ -24,11 +26,12 @@ pub mod sessions;
 pub mod status;
 pub mod switches;
 pub mod trace;
+pub mod turn;
 
 use focus_workspace::Layout;
 
 /// The hooks Focus has, as `engine hook <name>` names them.
-pub const HOOKS: [&str; 10] = [
+pub const HOOKS: [&str; 11] = [
     "session-start",
     "validate-state",
     "session-end",
@@ -39,14 +42,11 @@ pub const HOOKS: [&str; 10] = [
     "review-freeze",
     "reviewer-scope",
     "state-transition-guard",
+    "record-human-turn",
 ];
 
 /// Upstream's other hooks, and what each does, for the refusal by name.
-pub const NOT_PORTED: [(&str, &str); 6] = [
-    (
-        "record-human-turn",
-        "records the person's turn and the words of a gate",
-    ),
+pub const NOT_PORTED: [(&str, &str); 5] = [
     (
         "guard-tool-call",
         "runs the PreToolUse guards in one process",
@@ -92,6 +92,7 @@ pub fn run(name: &str, input: &str, layout: &Layout) -> Outcome {
         "review-freeze" => hooks::review_freeze::run(input, layout),
         "reviewer-scope" => hooks::reviewer_scope::run(input, layout),
         "state-transition-guard" => hooks::state_transition_guard::run(input, layout),
+        "record-human-turn" => hooks::record_human_turn::run(input, layout),
         other => {
             let stderr = match NOT_PORTED.iter().find(|(known, _)| *known == other) {
                 Some((_, does)) => format!(

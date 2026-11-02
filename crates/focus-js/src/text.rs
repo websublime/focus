@@ -109,6 +109,25 @@ pub fn describe(v: &serde_json::Value) -> &'static str {
     }
 }
 
+/// `s.length`: the text's length in UTF-16 code units.
+#[must_use]
+pub fn len_utf16(s: &str) -> usize {
+    s.encode_utf16().count()
+}
+
+/// `s.slice(start, end)` in UTF-16 code units, clamped to the text. A cut
+/// through a surrogate pair drops the half that would be left alone, which
+/// JavaScript would keep as a lone surrogate.
+#[must_use]
+pub fn slice_utf16(s: &str, start: usize, end: usize) -> String {
+    let units: Vec<u16> = s.encode_utf16().collect();
+    let end = end.min(units.len());
+    let start = start.min(end);
+    char::decode_utf16(units[start..end].iter().copied())
+        .flatten()
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
