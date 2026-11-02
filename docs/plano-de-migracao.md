@@ -1481,11 +1481,11 @@ Um revisor despachado para uma unit não lê o `construction/<outra>/` das outra
 
 | Verificação | Resultado |
 | --- | --- |
-| Corpus, `reviewer_scope` | 720 casos (179 bloqueiam, 51 numa raiz implícita), todos iguais ao original: as dez ferramentas e duas que não leem, caminhos com `construction` em várias grafias e globs, a unit despachada, vizinhas, `..`, isentos por sufixo e por caminho, raízes de pesquisa, comandos de shell com `grep`/`rg`/`find`/`ls`/`cat`/`cd` e pipes, aspas e escapes; `reviewer_dispatch`: 17 registos, válidos e cada forma inválida |
+| Corpus, `reviewer_scope` | 1 096 casos (720 ao acaso e 376 fixos: os que a mutação pediu), todos iguais ao original: as dez ferramentas e duas que não leem, caminhos com `construction` em várias grafias e globs, a unit despachada, vizinhas, `..`, isentos por sufixo e por caminho, raízes de pesquisa, comandos de shell com `grep`/`rg`/`find`/`ls`/`cat`/`cd` e pipes, aspas e escapes; `reviewer_dispatch`: 17 registos, válidos e cada forma inválida |
 | Diferencial, `hook/reviewer-scope/*` | 37 verificações, 33 iguais, 4 desvios, 0 diferentes: a própria unit, uma vizinha (por caminho, relativo, shell, `cd`), um glob sobre units, um `Grep` sem raiz, um `rg` sem operando, um `grep -r .` dentro da unit, um ficheiro isento e o seu diretório, um sufixo isento, fora de `construction/`, outro agente e nenhum, `scoped_registration`, outra ferramenta, sem registo (e a advertência), registo malformado e velho, o interruptor (`1`, `0`, settings, settings recusadas), as políticas `off`, `relaxed`, `strict` e `strict` com o switch, uma conversa de fora, sem shard, a frio, pedidos malformados, os observadores |
 | Diferencial, `hook/*` | 382 verificações, 0 diferentes |
 | Testes do CLI | O revisor preso à sua unit (cada forma de recusa, a decisão `deny`, a linha no ledger, o isento), o que o deixa passar (interruptor, settings, a fence de lado com a sua linha e linha de ledger, `off` em silêncio, `relaxed` de pé, registo malformado, órfão apagado, sem registo, pedidos malformados), e o desvio do claim |
-| Mutação | Ver o registo da fatia |
+| Mutação | Matcher: 26 mutantes contra o corpus, 25 apanhados (13 só depois dos casos fixos) e 1 equivalente (o filtro de wildcard em `pattern_limits_to_current_unit`: um segmento com wildcard nunca chega lá, porque o julgamento do caminho o bloqueia antes). Hook: 13 mutantes, 12 apanhados e 1 equivalente (a lista de ferramentas: o matcher não lê nada de uma ferramenta fora dela) |
 
 **Desvios deliberados.** Com teste marcado, `DEVIATIONS` e esta linha.
 
