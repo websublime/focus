@@ -14814,279 +14814,323 @@
 {"id": "reviewer_scope-14813", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x || grep -r TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
 {"id": "reviewer_scope-14814", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x || grep -r TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
 {"id": "reviewer_scope-14815", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x || grep -r TODO"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14816", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | grep -r TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14817", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | grep -r TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14818", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | grep -r TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14819", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | grep -r TODO"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14820", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | grep TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14821", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | grep TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14822", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | grep TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14823", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | grep TODO"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14824", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14825", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14826", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14827", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg TODO"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14828", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg --files"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14829", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg --files"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14830", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg --files"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14831", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg --files"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14832", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg -f - "}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14833", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg -f - "}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14834", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg -f - "}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14835", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg -f - "}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14836", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg -f patterns.txt"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14837", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg -f patterns.txt"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14838", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg -f patterns.txt"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14839", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg -f patterns.txt"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14840", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x && grep TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14841", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x && grep TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14842", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x && grep TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14843", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x && grep TODO"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14844", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x ; rg TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14845", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x ; rg TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14846", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x ; rg TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14847", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x ; rg TODO"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14848", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -d recurse TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14849", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -d recurse TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14850", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -d recurse TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14851", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -d recurse TODO"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14852", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -d skip TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14853", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -d skip TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14854", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -d skip TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14855", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -d skip TODO"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14856", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep --directories=recurse TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14857", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep --directories=recurse TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14858", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep --directories=recurse TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14859", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep --directories=recurse TODO"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14860", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -e TODO -e FIXME"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14861", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -e TODO -e FIXME"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14862", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -e TODO -e FIXME"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14863", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -e TODO -e FIXME"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14864", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -e TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14865", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -e TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14866", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -e TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14867", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -e TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14868", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14869", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14870", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14871", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14872", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -nefoo construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14873", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -nefoo construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14874", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -nefoo construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14875", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -nefoo construction/U02"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14876", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -A2 TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14877", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -A2 TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14878", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -A2 TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14879", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -A2 TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14880", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -A 2 TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14881", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -A 2 TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14882", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -A 2 TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14883", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -A 2 TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14884", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep --include=*.md -r TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14885", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep --include=*.md -r TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14886", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep --include=*.md -r TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14887", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep --include=*.md -r TODO"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14888", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep --include *.md -r TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14889", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep --include *.md -r TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14890", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep --include *.md -r TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14891", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep --include *.md -r TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14892", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -g construction/U01/** TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14893", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -g construction/U01/** TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14894", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -g construction/U01/** TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14895", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -g construction/U01/** TODO"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14896", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -g construction/U02/** TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14897", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -g construction/U02/** TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14898", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -g construction/U02/** TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14899", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -g construction/U02/** TODO"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14900", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg --glob=construction/U01/** TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14901", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg --glob=construction/U01/** TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14902", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg --glob=construction/U01/** TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14903", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg --glob=construction/U01/** TODO"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14904", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -gconstruction/U01/** TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14905", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -gconstruction/U01/** TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14906", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -gconstruction/U01/** TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14907", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -gconstruction/U01/** TODO"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14908", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg --files construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14909", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg --files construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14910", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg --files construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14911", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg --files construction/U02"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14912", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg --files"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14913", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg --files"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14914", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg --files"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14915", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg --files"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14916", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -tmd TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14917", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -tmd TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14918", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -tmd TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14919", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -tmd TODO"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14920", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -t md TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14921", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -t md TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14922", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -t md TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14923", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -t md TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14924", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg TODO -- construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14925", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg TODO -- construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14926", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg TODO -- construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14927", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg TODO -- construction/U02"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14928", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -- -x construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14929", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -- -x construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14930", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -- -x construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14931", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -- -x construction/U02"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14932", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14933", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14934", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14935", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14936", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find -name x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14937", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find -name x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14938", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find -name x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14939", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find -name x"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14940", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find construction/U02 -name x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14941", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find construction/U02 -name x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14942", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find construction/U02 -name x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14943", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find construction/U02 -name x"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14944", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find . -name x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14945", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find . -name x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14946", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find . -name x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14947", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find . -name x"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14948", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14949", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14950", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14951", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14952", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls -la"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14953", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls -la"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14954", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls -la"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14955", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls -la"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14956", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14957", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14958", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14959", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls construction/U02"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14960", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd construction/U02 && ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14961", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd construction/U02 && ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14962", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd construction/U02 && ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14963", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd construction/U02 && ls"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14964", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd - && cat construction/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14965", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd - && cat construction/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14966", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd - && cat construction/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14967", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd - && cat construction/U02/x"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14968", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd -P construction/U02 && ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14969", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd -P construction/U02 && ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14970", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd -P construction/U02 && ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14971", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd -P construction/U02 && ls"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14972", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd .. && ls construction"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14973", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd .. && ls construction"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14974", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd .. && ls construction"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14975", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd .. && ls construction"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14976", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd ../U02 && ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14977", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd ../U02 && ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14978", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd ../U02 && ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14979", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd ../U02 && ls"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14980", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "echo construction/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14981", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "echo construction/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14982", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "echo construction/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14983", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "echo construction/U02/x"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14984", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "echo .. ; echo -"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14985", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "echo .. ; echo -"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14986", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "echo .. ; echo -"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14987", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "echo .. ; echo -"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14988", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "git log -- construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14989", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "git log -- construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14990", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "git log -- construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14991", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "git log -- construction/U02"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14992", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "sed -n 1p construction/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14993", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "sed -n 1p construction/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14994", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "sed -n 1p construction/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14995", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "sed -n 1p construction/U02/x"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-14996", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat $(ls construction/U02)"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-14997", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat $(ls construction/U02)"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-14998", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat $(ls construction/U02)"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-14999", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat $(ls construction/U02)"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-15000", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "( cat construction/U02/x )"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-15001", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "( cat construction/U02/x )"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-15002", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "( cat construction/U02/x )"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-15003", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "( cat construction/U02/x )"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-15004", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/U02/x & ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-15005", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/U02/x & ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-15006", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/U02/x & ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-15007", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/U02/x & ls"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-15008", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat CONSTRUCTION/u02/X"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-15009", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat CONSTRUCTION/u02/X"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-15010", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat CONSTRUCTION/u02/X"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-15011", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat CONSTRUCTION/u02/X"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-15012", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat constr*/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-15013", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat constr*/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-15014", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat constr*/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-15015", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat constr*/U02/x"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-15016", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat c*/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-15017", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat c*/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-15018", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat c*/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-15019", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat c*/U02/x"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-15020", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat */U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-15021", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat */U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-15022", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat */U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-15023", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat */U02/x"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-15024", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x*y/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-15025", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x*y/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-15026", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x*y/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-15027", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x*y/U02/x"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-15028", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat con[s]truction/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-15029", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat con[s]truction/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-15030", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat con[s]truction/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-15031", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat con[s]truction/U02/x"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-15032", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat {construction,other}/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-15033", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat {construction,other}/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-15034", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat {construction,other}/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-15035", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat {construction,other}/U02/x"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-15036", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/../U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-15037", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/../U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-15038", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/../U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-15039", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/../U02/x"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-15040", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/U01/../U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-15041", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/U01/../U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-15042", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/U01/../U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-15043", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/U01/../U02/x"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-15044", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/U01/./x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-15045", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/U01/./x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-15046", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/U01/./x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-15047", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/U01/./x"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-15048", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction//U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-15049", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction//U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-15050", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction//U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-15051", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction//U02/x"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-15052", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-15053", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-15054", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-15055", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-15056", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-15057", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-15058", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-15059", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-15060", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat /p/r/construction"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-15061", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat /p/r/construction"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-15062", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat /p/r/construction"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-15063", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat /p/r/construction"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-15064", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls /p/r"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-15065", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls /p/r"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-15066", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls /p/r"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-15067", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls /p/r"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-15068", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls /p"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-15069", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls /p"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-15070", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls /p"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-15071", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls /p"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_scope-15072", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat /p/r/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
-{"id": "reviewer_scope-15073", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat /p/r/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
-{"id": "reviewer_scope-15074", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat /p/r/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
-{"id": "reviewer_scope-15075", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat /p/r/x"}, "unit": "U01", "exempt": [], "context": {}}
-{"id": "reviewer_dispatch-15076", "kind": "reviewer_dispatch", "raw": "{\"reviewer\": \"focus-architecture-reviewer-agent\", \"stage\": \"nfr-design\", \"unit\": \"U01\", \"exempt\": [\"a\", \"b\"]}"}
-{"id": "reviewer_dispatch-15077", "kind": "reviewer_dispatch", "raw": "{\"reviewer\": \"r\", \"stage\": \"\", \"unit\": \"u\", \"exempt\": []}"}
-{"id": "reviewer_dispatch-15078", "kind": "reviewer_dispatch", "raw": "{\"reviewer\": \"\", \"stage\": \"s\", \"unit\": \"u\", \"exempt\": []}"}
-{"id": "reviewer_dispatch-15079", "kind": "reviewer_dispatch", "raw": "{\"reviewer\": \"r\", \"stage\": \"s\", \"unit\": \"\", \"exempt\": []}"}
-{"id": "reviewer_dispatch-15080", "kind": "reviewer_dispatch", "raw": "{\"reviewer\": \"r\", \"unit\": \"u\", \"exempt\": []}"}
-{"id": "reviewer_dispatch-15081", "kind": "reviewer_dispatch", "raw": "{\"reviewer\": \"r\", \"stage\": \"s\", \"unit\": \"u\"}"}
-{"id": "reviewer_dispatch-15082", "kind": "reviewer_dispatch", "raw": "{\"reviewer\": \"r\", \"stage\": \"s\", \"unit\": \"u\", \"exempt\": [\"a\", 1]}"}
-{"id": "reviewer_dispatch-15083", "kind": "reviewer_dispatch", "raw": "{\"reviewer\": \"r\", \"stage\": \"s\", \"unit\": \"u\", \"exempt\": \"a\"}"}
-{"id": "reviewer_dispatch-15084", "kind": "reviewer_dispatch", "raw": "{\"reviewer\": 1, \"stage\": \"s\", \"unit\": \"u\", \"exempt\": []}"}
-{"id": "reviewer_dispatch-15085", "kind": "reviewer_dispatch", "raw": "[]"}
-{"id": "reviewer_dispatch-15086", "kind": "reviewer_dispatch", "raw": "null"}
-{"id": "reviewer_dispatch-15087", "kind": "reviewer_dispatch", "raw": "\"x\""}
-{"id": "reviewer_dispatch-15088", "kind": "reviewer_dispatch", "raw": "{nope"}
-{"id": "reviewer_dispatch-15089", "kind": "reviewer_dispatch", "raw": ""}
-{"id": "reviewer_dispatch-15090", "kind": "reviewer_dispatch", "raw": "{\"reviewer\": \"r\", \"stage\": \"s\", \"unit\": \"u\", \"exempt\": [], \"extra\": true}"}
-{"id": "reviewer_dispatch-15091", "kind": "reviewer_dispatch", "raw": "{\"reviewer\": \"r\", \"stage\": 2, \"unit\": \"u\", \"exempt\": []}"}
+{"id": "reviewer_scope-14816", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x || grep TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14817", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x || grep TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14818", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x || grep TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14819", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x || grep TODO"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14820", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | grep -d skip TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14821", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | grep -d skip TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14822", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | grep -d skip TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14823", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | grep -d skip TODO"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14824", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | grep -d recurse TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14825", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | grep -d recurse TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14826", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | grep -d recurse TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14827", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | grep -d recurse TODO"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14828", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd construction/U01 && cat ../U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14829", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd construction/U01 && cat ../U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14830", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd construction/U01 && cat ../U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14831", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd construction/U01 && cat ../U02/x"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14832", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd construction/U01; cd ..; cat U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14833", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd construction/U01; cd ..; cat U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14834", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd construction/U01; cd ..; cat U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14835", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd construction/U01; cd ..; cat U02/x"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14836", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd construction/U01/sub && cat ../../U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14837", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd construction/U01/sub && cat ../../U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14838", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd construction/U01/sub && cat ../../U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14839", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd construction/U01/sub && cat ../../U02/x"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14840", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd construction/U01/sub; cd deeper; ls ../../../U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14841", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd construction/U01/sub; cd deeper; ls ../../../U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14842", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd construction/U01/sub; cd deeper; ls ../../../U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14843", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd construction/U01/sub; cd deeper; ls ../../../U02"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14844", "kind": "reviewer_scope", "tool": "Read", "input": {"file_path": "../U02/design.md"}, "unit": "U01", "exempt": ["../U02/design.md"], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14845", "kind": "reviewer_scope", "tool": "Read", "input": {"file_path": "../U02/design.md"}, "unit": "U01", "exempt": ["../U02/design.md"], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14846", "kind": "reviewer_scope", "tool": "Read", "input": {"file_path": "../U02/design.md"}, "unit": "U01", "exempt": ["../U02/design.md"], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14847", "kind": "reviewer_scope", "tool": "Read", "input": {"file_path": "../U02/design.md"}, "unit": "U01", "exempt": ["../U02/design.md"], "context": {}}
+{"id": "reviewer_scope-14848", "kind": "reviewer_scope", "tool": "Read", "input": {"file_path": "/p/r/construction/U02/design.md"}, "unit": "U01", "exempt": ["../U02/design.md"], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14849", "kind": "reviewer_scope", "tool": "Read", "input": {"file_path": "/p/r/construction/U02/design.md"}, "unit": "U01", "exempt": ["../U02/design.md"], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14850", "kind": "reviewer_scope", "tool": "Read", "input": {"file_path": "/p/r/construction/U02/design.md"}, "unit": "U01", "exempt": ["../U02/design.md"], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14851", "kind": "reviewer_scope", "tool": "Read", "input": {"file_path": "/p/r/construction/U02/design.md"}, "unit": "U01", "exempt": ["../U02/design.md"], "context": {}}
+{"id": "reviewer_scope-14852", "kind": "reviewer_scope", "tool": "Grep", "input": {"pattern": "x", "glob": "construction/*/x.md"}, "unit": "U01", "exempt": ["construction/*/x.md"], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14853", "kind": "reviewer_scope", "tool": "Grep", "input": {"pattern": "x", "glob": "construction/*/x.md"}, "unit": "U01", "exempt": ["construction/*/x.md"], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14854", "kind": "reviewer_scope", "tool": "Grep", "input": {"pattern": "x", "glob": "construction/*/x.md"}, "unit": "U01", "exempt": ["construction/*/x.md"], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14855", "kind": "reviewer_scope", "tool": "Grep", "input": {"pattern": "x", "glob": "construction/*/x.md"}, "unit": "U01", "exempt": ["construction/*/x.md"], "context": {}}
+{"id": "reviewer_scope-14856", "kind": "reviewer_scope", "tool": "Glob", "input": {"pattern": "construction/*/x.md"}, "unit": "U01", "exempt": ["construction/*/x.md"], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14857", "kind": "reviewer_scope", "tool": "Glob", "input": {"pattern": "construction/*/x.md"}, "unit": "U01", "exempt": ["construction/*/x.md"], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14858", "kind": "reviewer_scope", "tool": "Glob", "input": {"pattern": "construction/*/x.md"}, "unit": "U01", "exempt": ["construction/*/x.md"], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14859", "kind": "reviewer_scope", "tool": "Glob", "input": {"pattern": "construction/*/x.md"}, "unit": "U01", "exempt": ["construction/*/x.md"], "context": {}}
+{"id": "reviewer_scope-14860", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | grep -r TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14861", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | grep -r TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14862", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | grep -r TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14863", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | grep -r TODO"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14864", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | grep TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14865", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | grep TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14866", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | grep TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14867", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | grep TODO"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14868", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14869", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14870", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14871", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg TODO"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14872", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg --files"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14873", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg --files"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14874", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg --files"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14875", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg --files"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14876", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg -f - "}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14877", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg -f - "}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14878", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg -f - "}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14879", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg -f - "}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14880", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg -f patterns.txt"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14881", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg -f patterns.txt"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14882", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg -f patterns.txt"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14883", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x | rg -f patterns.txt"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14884", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x && grep TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14885", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x && grep TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14886", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x && grep TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14887", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x && grep TODO"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14888", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x ; rg TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14889", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x ; rg TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14890", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x ; rg TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14891", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x ; rg TODO"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14892", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -d recurse TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14893", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -d recurse TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14894", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -d recurse TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14895", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -d recurse TODO"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14896", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -d skip TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14897", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -d skip TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14898", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -d skip TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14899", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -d skip TODO"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14900", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep --directories=recurse TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14901", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep --directories=recurse TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14902", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep --directories=recurse TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14903", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep --directories=recurse TODO"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14904", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -e TODO -e FIXME"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14905", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -e TODO -e FIXME"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14906", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -e TODO -e FIXME"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14907", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -e TODO -e FIXME"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14908", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -e TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14909", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -e TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14910", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -e TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14911", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -e TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14912", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14913", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14914", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14915", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14916", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -nefoo construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14917", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -nefoo construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14918", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -nefoo construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14919", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -nefoo construction/U02"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14920", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -A2 TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14921", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -A2 TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14922", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -A2 TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14923", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -A2 TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14924", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -A 2 TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14925", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -A 2 TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14926", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -A 2 TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14927", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep -A 2 TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14928", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep --include=*.md -r TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14929", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep --include=*.md -r TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14930", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep --include=*.md -r TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14931", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep --include=*.md -r TODO"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14932", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep --include *.md -r TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14933", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep --include *.md -r TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14934", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep --include *.md -r TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14935", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "grep --include *.md -r TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14936", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -g construction/U01/** TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14937", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -g construction/U01/** TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14938", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -g construction/U01/** TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14939", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -g construction/U01/** TODO"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14940", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -g construction/U02/** TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14941", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -g construction/U02/** TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14942", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -g construction/U02/** TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14943", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -g construction/U02/** TODO"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14944", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg --glob=construction/U01/** TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14945", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg --glob=construction/U01/** TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14946", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg --glob=construction/U01/** TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14947", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg --glob=construction/U01/** TODO"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14948", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -gconstruction/U01/** TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14949", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -gconstruction/U01/** TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14950", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -gconstruction/U01/** TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14951", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -gconstruction/U01/** TODO"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14952", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg --files construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14953", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg --files construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14954", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg --files construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14955", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg --files construction/U02"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14956", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg --files"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14957", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg --files"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14958", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg --files"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14959", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg --files"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14960", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -tmd TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14961", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -tmd TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14962", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -tmd TODO"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14963", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -tmd TODO"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14964", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -t md TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14965", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -t md TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14966", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -t md TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14967", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -t md TODO construction/U02"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14968", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg TODO -- construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14969", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg TODO -- construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14970", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg TODO -- construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14971", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg TODO -- construction/U02"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14972", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -- -x construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14973", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -- -x construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14974", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -- -x construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14975", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "rg -- -x construction/U02"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14976", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14977", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14978", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14979", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14980", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find -name x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14981", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find -name x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14982", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find -name x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14983", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find -name x"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14984", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find construction/U02 -name x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14985", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find construction/U02 -name x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14986", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find construction/U02 -name x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14987", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find construction/U02 -name x"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14988", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find . -name x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14989", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find . -name x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14990", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find . -name x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14991", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "find . -name x"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14992", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14993", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14994", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14995", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-14996", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls -la"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-14997", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls -la"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-14998", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls -la"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-14999", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls -la"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15000", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15001", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15002", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15003", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls construction/U02"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15004", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd construction/U02 && ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15005", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd construction/U02 && ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15006", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd construction/U02 && ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15007", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd construction/U02 && ls"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15008", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd - && cat construction/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15009", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd - && cat construction/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15010", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd - && cat construction/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15011", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd - && cat construction/U02/x"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15012", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd -P construction/U02 && ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15013", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd -P construction/U02 && ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15014", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd -P construction/U02 && ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15015", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd -P construction/U02 && ls"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15016", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd .. && ls construction"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15017", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd .. && ls construction"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15018", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd .. && ls construction"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15019", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd .. && ls construction"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15020", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd ../U02 && ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15021", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd ../U02 && ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15022", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd ../U02 && ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15023", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cd ../U02 && ls"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15024", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "echo construction/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15025", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "echo construction/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15026", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "echo construction/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15027", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "echo construction/U02/x"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15028", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "echo .. ; echo -"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15029", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "echo .. ; echo -"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15030", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "echo .. ; echo -"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15031", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "echo .. ; echo -"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15032", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "git log -- construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15033", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "git log -- construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15034", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "git log -- construction/U02"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15035", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "git log -- construction/U02"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15036", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "sed -n 1p construction/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15037", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "sed -n 1p construction/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15038", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "sed -n 1p construction/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15039", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "sed -n 1p construction/U02/x"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15040", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat $(ls construction/U02)"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15041", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat $(ls construction/U02)"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15042", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat $(ls construction/U02)"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15043", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat $(ls construction/U02)"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15044", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "( cat construction/U02/x )"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15045", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "( cat construction/U02/x )"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15046", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "( cat construction/U02/x )"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15047", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "( cat construction/U02/x )"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15048", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/U02/x & ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15049", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/U02/x & ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15050", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/U02/x & ls"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15051", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/U02/x & ls"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15052", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat CONSTRUCTION/u02/X"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15053", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat CONSTRUCTION/u02/X"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15054", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat CONSTRUCTION/u02/X"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15055", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat CONSTRUCTION/u02/X"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15056", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat constr*/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15057", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat constr*/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15058", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat constr*/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15059", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat constr*/U02/x"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15060", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat c*/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15061", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat c*/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15062", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat c*/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15063", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat c*/U02/x"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15064", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat */U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15065", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat */U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15066", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat */U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15067", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat */U02/x"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15068", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x*y/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15069", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x*y/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15070", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x*y/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15071", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat x*y/U02/x"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15072", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat con[s]truction/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15073", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat con[s]truction/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15074", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat con[s]truction/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15075", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat con[s]truction/U02/x"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15076", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat {construction,other}/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15077", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat {construction,other}/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15078", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat {construction,other}/U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15079", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat {construction,other}/U02/x"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15080", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/../U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15081", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/../U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15082", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/../U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15083", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/../U02/x"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15084", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/U01/../U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15085", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/U01/../U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15086", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/U01/../U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15087", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/U01/../U02/x"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15088", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/U01/./x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15089", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/U01/./x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15090", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/U01/./x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15091", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/U01/./x"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15092", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction//U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15093", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction//U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15094", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction//U02/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15095", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction//U02/x"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15096", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15097", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15098", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15099", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction/"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15100", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15101", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15102", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15103", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat construction"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15104", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat /p/r/construction"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15105", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat /p/r/construction"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15106", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat /p/r/construction"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15107", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat /p/r/construction"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15108", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls /p/r"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15109", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls /p/r"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15110", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls /p/r"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15111", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls /p/r"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15112", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls /p"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15113", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls /p"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15114", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls /p"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15115", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "ls /p"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_scope-15116", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat /p/r/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r/construction/U01"}}
+{"id": "reviewer_scope-15117", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat /p/r/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/p/r"}}
+{"id": "reviewer_scope-15118", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat /p/r/x"}, "unit": "U01", "exempt": [], "context": {"record_root": "/p/r", "cwd": "/tmp/x"}}
+{"id": "reviewer_scope-15119", "kind": "reviewer_scope", "tool": "Bash", "input": {"command": "cat /p/r/x"}, "unit": "U01", "exempt": [], "context": {}}
+{"id": "reviewer_dispatch-15120", "kind": "reviewer_dispatch", "raw": "{\"reviewer\": \"focus-architecture-reviewer-agent\", \"stage\": \"nfr-design\", \"unit\": \"U01\", \"exempt\": [\"a\", \"b\"]}"}
+{"id": "reviewer_dispatch-15121", "kind": "reviewer_dispatch", "raw": "{\"reviewer\": \"r\", \"stage\": \"\", \"unit\": \"u\", \"exempt\": []}"}
+{"id": "reviewer_dispatch-15122", "kind": "reviewer_dispatch", "raw": "{\"reviewer\": \"\", \"stage\": \"s\", \"unit\": \"u\", \"exempt\": []}"}
+{"id": "reviewer_dispatch-15123", "kind": "reviewer_dispatch", "raw": "{\"reviewer\": \"r\", \"stage\": \"s\", \"unit\": \"\", \"exempt\": []}"}
+{"id": "reviewer_dispatch-15124", "kind": "reviewer_dispatch", "raw": "{\"reviewer\": \"r\", \"unit\": \"u\", \"exempt\": []}"}
+{"id": "reviewer_dispatch-15125", "kind": "reviewer_dispatch", "raw": "{\"reviewer\": \"r\", \"stage\": \"s\", \"unit\": \"u\"}"}
+{"id": "reviewer_dispatch-15126", "kind": "reviewer_dispatch", "raw": "{\"reviewer\": \"r\", \"stage\": \"s\", \"unit\": \"u\", \"exempt\": [\"a\", 1]}"}
+{"id": "reviewer_dispatch-15127", "kind": "reviewer_dispatch", "raw": "{\"reviewer\": \"r\", \"stage\": \"s\", \"unit\": \"u\", \"exempt\": \"a\"}"}
+{"id": "reviewer_dispatch-15128", "kind": "reviewer_dispatch", "raw": "{\"reviewer\": 1, \"stage\": \"s\", \"unit\": \"u\", \"exempt\": []}"}
+{"id": "reviewer_dispatch-15129", "kind": "reviewer_dispatch", "raw": "[]"}
+{"id": "reviewer_dispatch-15130", "kind": "reviewer_dispatch", "raw": "null"}
+{"id": "reviewer_dispatch-15131", "kind": "reviewer_dispatch", "raw": "\"x\""}
+{"id": "reviewer_dispatch-15132", "kind": "reviewer_dispatch", "raw": "{nope"}
+{"id": "reviewer_dispatch-15133", "kind": "reviewer_dispatch", "raw": ""}
+{"id": "reviewer_dispatch-15134", "kind": "reviewer_dispatch", "raw": "{\"reviewer\": \"r\", \"stage\": \"s\", \"unit\": \"u\", \"exempt\": [], \"extra\": true}"}
+{"id": "reviewer_dispatch-15135", "kind": "reviewer_dispatch", "raw": "{\"reviewer\": \"r\", \"stage\": 2, \"unit\": \"u\", \"exempt\": []}"}
