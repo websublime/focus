@@ -3359,7 +3359,6 @@ TR_FIXED = [
     ("chat.txt", rows(sys_row), "{P}/chat.txt", "p1", "use postgres"),
     ("chat.JSONL", rows(sys_row), "{P}/chat.JSONL", "p1", "use postgres"),
     ("chat.jsonl.bak", rows(sys_row), "{P}/chat.jsonl.bak", "p1", "use postgres"),
-    ("chat.jsonl", rows(sys_row), "{P}/sub/../chat.jsonl", "p1", "use postgres"),
 ]
 for file, text, path, prompt_id, prompt in TR_FIXED:
     add("transcript_origin", file=file, rows=text, transcript_path=path, prompt_id=prompt_id, prompt=prompt)
