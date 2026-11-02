@@ -24,10 +24,11 @@ use crate::policy::{
     self, GuardPolicy, Resolution, format_guard_policy, parse_state_line, set_guard_policy_line,
     source_label,
 };
+use crate::reviewer_scope;
 use crate::shell::{self, CommandShell, Host};
 
 /// The kinds of case this crate answers.
-pub const KINDS: [&str; 7] = [
+pub const KINDS: [&str; 9] = [
     "guard_policy",
     "guards_line",
     "engine_command",
@@ -35,6 +36,8 @@ pub const KINDS: [&str; 7] = [
     "shell_targets",
     "write_targets",
     "runtime_integrity",
+    "reviewer_scope",
+    "reviewer_dispatch",
 ];
 
 fn resolution_json(resolution: &Resolution) -> Value {
@@ -261,8 +264,60 @@ pub fn run_case(case: &Value) -> Value {
         }
         "shell_targets" | "write_targets" => shell_case(case),
         "runtime_integrity" => integrity_case(case),
+        "reviewer_scope" => reviewer_scope_case(case),
+        "reviewer_dispatch" => {
+            let record = reviewer_scope::parse_dispatch_record(
+                case.get("raw").and_then(Value::as_str).unwrap_or_default(),
+            );
+            json!({
+                "record": record.map(|record| json!({
+                    "reviewer": record.reviewer, "stage": record.stage, "unit": record.unit, "exempt": record.exempt,
+                })),
+            })
+        }
         other => json!({ "unsupported": other }),
     }
+}
+
+/// A `reviewer_scope` case: the matcher's verdict over one tool call, in
+/// the shape upstream's object takes (`target` only on a block, `defaulted`
+/// only when marked), and the refusal it would print.
+fn reviewer_scope_case(case: &Value) -> Value {
+    let text = |key: &str| case.get(key).and_then(Value::as_str).unwrap_or_default();
+    let exempt: Vec<String> = case["exempt"]
+        .as_array()
+        .into_iter()
+        .flatten()
+        .filter_map(Value::as_str)
+        .map(str::to_owned)
+        .collect();
+    let context = reviewer_scope::ScopeContext {
+        record_root: case["context"]["record_root"].as_str().map(str::to_owned),
+        cwd: case["context"]["cwd"].as_str().map(str::to_owned),
+    };
+    let verdict = reviewer_scope::evaluate_reviewer_scope(
+        text("tool"),
+        case.get("input").and_then(Value::as_object),
+        text("unit"),
+        &exempt,
+        &context,
+    );
+    let mut out = Map::new();
+    out.insert("block".to_owned(), json!(verdict.block));
+    if let Some(target) = &verdict.target {
+        out.insert("target".to_owned(), json!(target));
+    }
+    if verdict.defaulted {
+        out.insert("defaulted".to_owned(), json!(true));
+    }
+    let reason = verdict.block.then(|| {
+        reviewer_scope::block_reason(
+            verdict.target.as_deref().unwrap_or(""),
+            text("unit"),
+            verdict.defaulted,
+        )
+    });
+    json!({ "verdict": Value::Object(out), "reason": reason })
 }
 
 /// The scratch root a shell case's `{P}` stands for, spelled as upstream's

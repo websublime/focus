@@ -80,6 +80,24 @@ pub fn run(args: &mut Args) -> Result<(), Failure> {
     trace::trace("hook-run-end", &[("code", json!(outcome.code))]);
     let _ = std::io::stdout().write_all(outcome.stdout.as_bytes());
     let _ = std::io::stderr().write_all(outcome.stderr.as_bytes());
+    // `runHookModule`: a refusal (exit 2 with its reason on stderr) that
+    // answered nothing on stdout is also handed to the host as its deny
+    // decision, built from that reason.
+    let reason = focus_js::text::trim(&outcome.stderr);
+    if outcome.code == 2 && !reason.is_empty() && outcome.stdout.is_empty() {
+        let decision = json!({
+            "hookSpecificOutput": {
+                "hookEventName": "PreToolUse",
+                "permissionDecision": "deny",
+                "permissionDecisionReason": reason,
+            }
+        });
+        let _ = writeln!(
+            std::io::stdout(),
+            "{}",
+            focus_js::json::stringify(&decision)
+        );
+    }
     if outcome.code == 0 {
         Ok(())
     } else {

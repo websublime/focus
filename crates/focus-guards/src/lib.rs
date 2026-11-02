@@ -29,6 +29,7 @@ pub mod fences;
 pub mod integrity;
 pub mod oracle;
 pub mod policy;
+pub mod reviewer_scope;
 pub mod shell;
 pub mod workflow;
 

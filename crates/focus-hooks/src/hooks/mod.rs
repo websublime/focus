@@ -4,6 +4,7 @@
 pub mod log_subagent;
 pub mod rebuild_stage_graph;
 pub mod review_freeze;
+pub mod reviewer_scope;
 pub mod session_end;
 pub mod session_start;
 pub mod sync_workflow_state;
@@ -58,6 +59,55 @@ pub(crate) fn open(
     invoker: &Invoker,
 ) -> Result<Workflow, EngineError> {
     Workflow::open(layout.clone(), selection.clone(), invoker.clone())
+}
+
+/// `writeGuardStoodAside`: the one line the person hears when a fence
+/// stands aside, as Claude Code shows it (`systemMessage`) or as the plain
+/// line other hosts read; nothing under Guard Policy off.
+pub(crate) fn stood_aside_output(
+    layout: &Layout,
+    decided: &focus_guards::FenceDecision,
+    detail: &str,
+) -> String {
+    if !decided.speaks() {
+        return String::new();
+    }
+    let line = decided.stood_aside_line(Some(detail), true);
+    if layout.harness == focus_harness::Harness::Claude {
+        format!(
+            "{}\n",
+            focus_js::json::stringify(&serde_json::json!({ "systemMessage": line }))
+        )
+    } else {
+        format!("{line}\n")
+    }
+}
+
+/// `recordGuardStoodAside`: one `GUARD_STOOD_ASIDE` row, when this clone's
+/// shard exists. Best effort.
+pub(crate) fn record_stood_aside(
+    wf: &Workflow,
+    decided: &focus_guards::FenceDecision,
+    stage: Option<&str>,
+    tool: &str,
+    details: &str,
+) {
+    let shard = wf.ledger().audit_file(&wf.selector(), &wf.invoker);
+    if !shard.is_ok_and(|shard| shard.exists()) {
+        return;
+    }
+    let mut fields: Vec<(&str, String)> = vec![
+        ("Guard", decided.fence.name().to_owned()),
+        ("Authority", decided.authority.covered.as_str().to_owned()),
+        ("Grant", decided.authority.grant_source().to_owned()),
+        ("Actor", decided.authority.actor.as_str().to_owned()),
+    ];
+    if let Some(stage) = stage {
+        fields.push(("Stage", stage.to_owned()));
+    }
+    fields.push(("Tool", tool.to_owned()));
+    fields.push(("Details", details.to_owned()));
+    let _ = append(wf, "GUARD_STOOD_ASIDE", &fields);
 }
 
 /// `appendAuditEntry`: one row under the audit lock.
