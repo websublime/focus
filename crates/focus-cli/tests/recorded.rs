@@ -557,7 +557,74 @@ fn replay_audit(check: &Value, root: &Path) -> BTreeMap<String, String> {
         let (shown, text) = minted(rel, text);
         actual.insert(shown, text.unwrap_or_else(|| "<removed>".to_owned()));
     }
-    actual
+    placeholder_messages(actual)
+}
+
+/// The recorder's `placeholder_messages`: the message records minted during
+/// a run, numbered in the order the ledger names them (the `Message Id` of
+/// each HUMAN_TURN row, in order; a record no row names after those, by its
+/// `at` and id), and their ids written as placeholders wherever they appear.
+fn placeholder_messages(files: BTreeMap<String, String>) -> BTreeMap<String, String> {
+    let file_re = regress::Regex::new(r"/\.focus-sessions/messages/([0-9a-f]{8})\.json$").unwrap();
+    let mut minted_ids: Vec<(String, String)> = Vec::new();
+    for (key, text) in &files {
+        if let Some(found) = file_re.find(key)
+            && text != "<removed>"
+        {
+            let id = key[found.group(1).unwrap()].to_owned();
+            let at = focus_js::json::parse(text)
+                .ok()
+                .and_then(|value| value.get("at").and_then(Value::as_str).map(str::to_owned))
+                .unwrap_or_default();
+            minted_ids.push((at, id));
+        }
+    }
+    if minted_ids.is_empty() {
+        return files;
+    }
+    minted_ids.sort();
+    let named: Vec<String> = minted_ids.into_iter().map(|(_, id)| id).collect();
+    let row_re = regress::Regex::new(r"\*\*Message Id\*\*: ([0-9a-f]{8})\n").unwrap();
+    let mut ordered: Vec<String> = Vec::new();
+    for (key, text) in &files {
+        if !key.contains("/audit/") {
+            continue;
+        }
+        for found in row_re.find_iter(text) {
+            let id = text[found.group(1).unwrap()].to_owned();
+            if named.contains(&id) && !ordered.contains(&id) {
+                ordered.push(id);
+            }
+        }
+    }
+    for id in &named {
+        if !ordered.contains(id) {
+            ordered.push(id.clone());
+        }
+    }
+    let names: Vec<(String, String)> = ordered
+        .into_iter()
+        .enumerate()
+        .map(|(n, id)| (id, format!("<message-{}>", n + 1)))
+        .collect();
+    files
+        .into_iter()
+        .map(|(mut key, mut text)| {
+            for (id, name) in &names {
+                key = key.replace(
+                    &format!("/messages/{id}.json"),
+                    &format!("/messages/{name}.json"),
+                );
+                text = text
+                    .replace(&format!("\"id\":\"{id}\""), &format!("\"id\":\"{name}\""))
+                    .replace(
+                        &format!("**Message Id**: {id}\n"),
+                        &format!("**Message Id**: {name}\n"),
+                    );
+            }
+            (key, text)
+        })
+        .collect()
 }
 
 fn problems_in(

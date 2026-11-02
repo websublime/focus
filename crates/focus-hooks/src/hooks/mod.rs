@@ -3,6 +3,7 @@
 
 pub mod log_subagent;
 pub mod rebuild_stage_graph;
+pub mod record_human_turn;
 pub mod review_freeze;
 pub mod reviewer_scope;
 pub mod session_end;

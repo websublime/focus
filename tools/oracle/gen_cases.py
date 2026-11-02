@@ -3181,5 +3181,187 @@ def st_direct():
 for _ in range(scale * 80):
     add("state_transition", command=st_direct())
 
+
+# The switch a person types in chat (parseTypedGuardSwitchRequest) and Kiro's word splitter (splitKiroCommandArgs).
+ts = random.Random(seed * 7919 + 17)
+TS_PLAIN = ["skip plan approval", "Skip the plan approvals", "please skip plan approval", "stop plan approval", "drop plan approval", "disable plan approval",
+            "turn off plan approval", "switch off plan-approval", "no more plan approvals", "no plan approval", "turn plan approval off", "switch the plan approvals off",
+            "plan approval off", "plan-approvals off", "don't ask me to approve plans", "do not ask to approve the plan", "stop asking me to approve each code plan",
+            "dont ask to approve every plan", "skip plan approval for this work", "skip plan approval on the rest of this piece of work", "skip plan approval for this task, please",
+            "skip plan approval please", "skip plan approval for this thing", "skip plan approval now", "guard policy relaxed", "guard-policy off", "change control relaxed",
+            "change-control off", "Guard Policy Relaxed", "guard policy strict", "guard policy on", "guard policy relaxed now", "guard policy  relaxed", "plan approval",
+            "approve the plan", "skip the plan", "no", "", "   ", "aidlc", "aidlc on the login page", "aidlcx next", "/aidlcx next", "the aidlc tool", "hello"]
+TS_FLAGS = ["--guard-policy off", "--guard-policy relaxed", "--guard-policy strict", "--guard-policy on", "--guard-policy OFF", "--GUARD-POLICY off", "--change-control relaxed",
+            "--change-control off", "--plan-approval off", "--plan-approval on", "--guard.plan-approval off", "--guard.plan-approval on", "--guard.review-freeze off",
+            "--guard.review-freeze on", "--guard.state-transition off", "--guard.reviewer-scope off", "--guard.human-presence off", "--guard.nope off",
+            "--summary-confirmation off", "--summary-confirmation on", "--sensors off", "--sensors on", "--learnings off", "--learnings on", "--depth minimal", "--depth",
+            "--test-strategy tdd", "--review none", "--skip x", "--add y", "--project-type brownfield", "--collaborators on", "--space s", "--intent i", "--scope bugfix",
+            "--nope", "--nope value", "--help", "--json", "--", "--guard-policy", "--guard-policy ''", '--guard-policy ""', "--guard-policy --plan-approval off",
+            "--plan-approval", "--sensors", "--space", "--scope", "--skip"]
+TS_WORDS = ["", "", "approve the plan", "add the export", "1", "use postgres", "add a --help flag to the reverser", "fix --nope now", "x", "the plan is fine -- really"]
+TS_ENTRY = ["/aidlc", "/aidlc", "$aidlc", "aidlc", "/AIDLC", "/Aidlc", " /aidlc", "/aidlc-runner", "/aidlcx", "x /aidlc"]
+TS_TAIL = ["", "", "", ".", "?", "!", "...", ",", ";", ":", " ?", "?!"]
+TS_COMMANDS = ["next", "report --stage x", "intent switch a", "intent create a --guard-policy off", "space create s --plan-approval off", "space-create s --guard-policy off",
+               "intent --guard-policy off", "space list --plan-approval off", "config set guard-policy off", "config set guard-policy", "config set", "config set x y z",
+               "config set change-control relaxed", "config set guard.review-freeze off", "config set plan-approval off", "config set depth minimal", "config set --guard-policy off",
+               "CONFIG SET guard-policy off", "config set guard-policy off extra", "config set guard-policy off --space s", "status", "park"]
+
+
+def ts_prompt():
+    kind = ts.random()
+    if kind < 0.25:
+        return ts.choice(TS_PLAIN) + ts.choice(TS_TAIL)
+    if kind < 0.35:
+        return f"{ts.choice(TS_ENTRY)} {ts.choice(TS_COMMANDS)}{ts.choice(TS_TAIL)}"
+    parts = [ts.choice(TS_ENTRY)]
+    for _ in range(ts.randrange(0, 4)):
+        parts.append(ts.choice(TS_FLAGS))
+    if ts.random() < 0.3:
+        parts.append("--")
+    words = ts.choice(TS_WORDS)
+    if words:
+        parts.append(words)
+    if ts.random() < 0.2:
+        parts.append(ts.choice(TS_FLAGS))
+    text = " ".join(parts) + ts.choice(TS_TAIL)
+    if ts.random() < 0.1:
+        text = text.replace(" ", ts.choice(["  ", "\t", "\n", " "]), 1)
+    if ts.random() < 0.08:
+        text = text.replace("off", ts.choice(['"off"', "'off'", "of\\f", "off\\ x", "o'ff"]), 1)
+    return text
+
+
+for _ in range(scale * 120):
+    add("typed_switch", prompt=ts_prompt(), words_answer=ts.random() < 0.3)
+TS_FIXED = ["/aidlc --space a --space b --guard-policy off", "/aidlc --intent a --intent b --plan-approval off", "/aidlc --scope x --scope y --guard-policy off",
+            "/aidlc --plan-approval off --plan-approval on", "/aidlc --summary-confirmation off --summary-confirmation on", "/aidlc --guard.review-freeze off --guard.review-freeze on",
+            "/aidlc --plan-approval on --plan-approval off", "/aidlc --guard-policy off --guard-policy strict", "/aidlc --guard-policy strict --guard-policy off",
+            "/aidlc config set guard-policy", "/aidlc config set", "/aidlc config set guard-policy off x", "/aidlc --guard.plan-approval off add the export",
+            "/aidlc --plan-approval off --guard.plan-approval on add x", "/aidlc --nope --plan-approval off", "/aidlc --nope v --nope w --plan-approval off"]
+for prompt in TS_FIXED:
+    for words_answer in (False, True):
+        add("typed_switch", prompt=prompt, words_answer=words_answer)
+for prompt in TS_PLAIN + [f"/aidlc {c}" for c in TS_COMMANDS] + [f"/aidlc {f}" for f in TS_FLAGS] + [f"/aidlc {f} add the export" for f in TS_FLAGS] + [f"/aidlc {f} -- add the export" for f in TS_FLAGS]:
+    for words_answer in (False, True):
+        add("typed_switch", prompt=prompt, words_answer=words_answer)
+
+B = "\\"
+Q = '"'
+KA_FIXED = ["", " ", "a b  c", "a 'b c' d", 'a "b c" d', "a 'b", 'a "b', f"a{B} b", f"a{B};b", f"a{B}'b", f"a{B}{Q}b", f"'a{B}'b'", f"{Q}a{B}{Q}b{Q}", f"'a{B}{Q}b'",
+            f"a{B}x", f"a{B}{B}b", f"C:{B}Users{B}x y", f"C:{B}x{B} y", f"'C:{B}x'", f"x{B} y C:{B}z", "users' files", "it's fine", "'it's' fine", "rock 'n' roll", "a' b",
+            "a 'b' 'c", "'a'b", "a'b'c", "''", '""', "'", '"', f"--output a{B} b --export", f"--output 'a{B}' --export", f"--output 'a{B}'b'", f"--output a{B} b",
+            f"--output 'a{B}' x", f"--output {Q}a{B}{Q} --output", f"--export a{B} b --export", B, f"a{B}", f"a {B}", f"{B} a", f"{B}{B}", "a\tb", "a\nb", "a b", "a b",
+            "é 'café' été's", "l'été", "\U0001F600 '\U0001F600' \U0001F600's", "\U0001F600'\U0001F600", "a'\U0001F600", "\U0001F600'a", f"{B}\U0001F600",
+            f"'{B}\U0001F600'", f"--output {B}\U0001F600 --export", "x; y", f"x{B}; y", "'x; y'", "a=b c", "--k=v w", f"{Q}a b{Q} 'c d' e{B} f g", "'a' 'b'", "'a''b'",
+            f"'a'{Q}b{Q}", f"a{Q}b{Q}c", f"{Q}{Q} ''", "''a", f"a{Q}{Q}"]
+
+
+def ka_raw():
+    pieces = ["a", "bc", "--output", "--export", "'", '"', "\\", " ", "  ", ";", "'s", "n'", "C:", "\\x", "it's", "\u00e9", "\U0001F600", "\t", "--k", "=v"]
+    return "".join(ts.choice(pieces) for _ in range(ts.randrange(1, 9)))
+
+
+for raw in KA_FIXED:
+    add("kiro_args", raw=raw)
+for _ in range(scale * 60):
+    add("kiro_args", raw=ka_raw())
+
+
+# The readers of a prompt-submit payload that aidlc-lib exports: the host envelope, the host's fixed sentences, an
+# adapter's word on the turn, an empty question box, and Claude Code's transcript.
+tr = random.Random(seed * 7919 + 19)
+HEADERS = ["[CURRENT USER REQUEST -- respond to this]\n", "[CURRENT USER REQUEST — respond to this]\r\n", "[CURRENT USER REQUEST -- respond to this]\r\n",
+           "[CURRENT USER REQUEST - respond to this]\n", "[current user request -- respond to this]\n", "[CURRENT USER REQUEST -- respond to this]", " [CURRENT USER REQUEST -- respond to this]\n"]
+for prompt in ["", "hello", "a\n" + HEADERS[0] + "b", HEADERS[0] + "b", "a" + HEADERS[0], HEADERS[0], "a\n" + HEADERS[1] + "b\n" + HEADERS[0] + "c", HEADERS[3] + "x",
+               HEADERS[4] + "x", HEADERS[5] + "x", HEADERS[6] + "x", "\U0001F600 " + HEADERS[0] + "\U0001F600", HEADERS[0] + HEADERS[0], "x\n" + HEADERS[2] + "\n\ny"]:
+    add("host_envelope", prompt=prompt)
+for _ in range(scale * 10):
+    parts = [tr.choice(["a", "b\n", "memory\n", "\U0001F600", "", "Approve Plan\n"]) + tr.choice(HEADERS + ["", ""]) for _ in range(tr.randrange(1, 5))]
+    add("host_envelope", prompt="".join(parts) + tr.choice(["", "the turn", "x\ny"]))
+
+NOTICE = "<task-notification>\nsomething finished\n</task-notification>"
+for prompt in ["", " ", NOTICE, NOTICE + "\n", "\n" + NOTICE, "  " + NOTICE + "  ", NOTICE.replace("\n", "\r\n"), NOTICE + " x", "x " + NOTICE,
+               "<task-notification></task-notification>", "<task-notification>\n</task-notification>", "<task-notification>\n\n</task-notification>",
+               "<task-notification>\nx\n</task-notification>\n<task-notification>\ny\n</task-notification>", "<Task-Notification>\nx\n</Task-Notification>",
+               "<task-notification>\nx\n</task-notification", "<original_user_request>\nVerbatim user messages that led to this workflow, oldest first.", "[SYSTEM] Sub-agent synthesis: x",
+               "use postgres", "<task-notification>\n\U0001F600\n</task-notification>"]:
+    add("host_template", prompt=prompt)
+
+for origin in [None, "host", 1, [], {}, {"kind": "person"}, {"kind": "person", "source": "record"}, {"kind": "person", "source": "template"}, {"kind": "person", "source": 1},
+               {"kind": "host"}, {"kind": "host", "reason": "x"}, {"kind": "host", "reason": "x", "source": "record"}, {"kind": "host", "reason": " x ", "source": "template"},
+               {"kind": "host", "reason": "", "source": "record"}, {"kind": "host", "reason": "   ", "source": "record"}, {"kind": "host", "reason": 1, "source": "record"},
+               {"kind": "host", "reason": "x", "source": "other"}, {"kind": "host", "reason": "x", "source": None}, {"kind": "Host", "reason": "x", "source": "record"},
+               {"kind": "host", "reason": "r" * 250, "source": "record"}, {"kind": "host", "reason": " " + "r" * 199 + "x ", "source": "record"}, {"kind": "host", "reason": "\U0001F600" * 150, "source": "record"},
+               {"kind": "host", "reason": "x", "source": "record", "extra": 1}, {"kind": None}, {"source": "record"}]:
+    add("supplied_origin", origin=origin)
+
+for response in [None, "", "x", "{}", '{"answers":{}}', '{"answers": {}}', '{"answers":{}} ', '{"answers":{},"x":1}', '{"answers":[]}', '{"answers":null}', '{"answers":{"a":1}}',
+                 "[]", "null", "1", "{nope", {}, {"answers": {}}, {"answers": {"a": "b"}}, {"answers": []}, {"answers": None}, {"answers": {}, "x": 1}, {"x": {}}, [], [{"answers": {}}], 1, True]:
+    add("picker_empty", response=response)
+
+def row(**fields):
+    return json.dumps(fields)
+def rows(*entries):
+    return "\n".join(entries) + "\n"
+U = {"type": "user"}
+sys_row = row(type="user", promptId="p1", promptSource="system", turnOrigin="task_notification", message={"role": "user", "content": [{"type": "text", "text": "use postgres"}]})
+hum_row = row(type="user", promptId="p1", turnOrigin="human", message={"role": "user", "content": "use postgres"})
+TR_FIXED = [
+    ("chat.jsonl", rows(hum_row, sys_row), "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", rows(sys_row, hum_row), "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", rows(sys_row), "{P}/chat.jsonl", "p2", "use postgres"),
+    ("chat.jsonl", rows(sys_row), "{P}/chat.jsonl", None, "use postgres"),
+    ("chat.jsonl", rows(sys_row), "{P}/chat.jsonl", "", "use postgres"),
+    ("chat.jsonl", rows(sys_row), "{P}/chat.jsonl", " p1 ", "use postgres"),
+    ("chat.jsonl", rows(sys_row), "{P}/chat.jsonl", 1, "use postgres"),
+    ("chat.jsonl", rows(sys_row), "{P}/chat.jsonl", "p1", " use postgres "),
+    ("chat.jsonl", rows(sys_row), "{P}/chat.jsonl", "p1", "use postgres!"),
+    ("chat.jsonl", rows(sys_row), "{P}/chat.jsonl", "p1", ""),
+    ("chat.jsonl", rows(sys_row), "{P}/chat.jsonl", "p1", "   "),
+    ("chat.jsonl", rows(sys_row), "{P}/chat.txt", "p1", "use postgres"),
+    ("chat.jsonl", rows(sys_row), "{P}/nope.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", rows(sys_row), None, "p1", "use postgres"),
+    ("chat.jsonl", rows(sys_row), 1, "p1", "use postgres"),
+    ("chat.jsonl", rows(sys_row), "{P}", "p1", "use postgres"),
+    ("chat.jsonl", "", "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", "{nope\n", "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", "{nope\n\n" + sys_row + "\n", "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", "[1]\nnull\n\"x\"\n" + sys_row, "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", sys_row, "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", rows(row(type="assistant", promptId="p1", promptSource="system", message={"content": "use postgres"})), "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", rows(row(type="user", promptId="p1", origin={"kind": "task-notification"}, content="use postgres")), "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", rows(row(type="user", promptId="p1", origin={"kind": "other"}, content="use postgres")), "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", rows(row(type="user", promptId="p1", origin="task-notification", content="use postgres")), "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", rows(row(type="user", promptId="p1", turnOrigin="sdk", content="use postgres")), "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", rows(row(type="user", promptId="p1", turnOrigin="task_notification", content="use postgres")), "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", rows(row(type="user", promptId="p1", promptSource="system", content="use postgres")), "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", rows(row(type="user", promptId="p1", promptSource="system", origin={"kind": "x"}, content="use postgres")), "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", rows(row(type="user", promptId="p1", promptSource="system", turnOrigin=1, origin={"kind": "task-notification"}, content="use postgres")), "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", rows(row(type="user", promptId="p1", promptSource="user", content="use postgres")), "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", rows(row(type="user", promptId="p1", content="use postgres")), "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", rows(row(type="user", promptId="p1", message={"content": [{"type": "text", "text": "use "}, {"type": "text", "text": "postgres"}]})), "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", rows(row(type="user", promptId="p1", message={"content": [{"type": "image"}, {"type": "text", "text": "use postgres"}]})), "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", rows(row(type="user", promptId="p1", message={"content": [{"type": "text", "text": 1}]})), "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", rows(row(type="user", promptId="p1", message={"content": 1})), "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", rows(row(type="user", promptId="p1", message="use postgres")), "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", rows(row(type="user", promptId="p1", message=None, content="use postgres")), "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", rows(row(type="user", promptId="p1", message={"content": " use postgres\n"})), "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", rows(row(type="user", promptId="p1", promptSource="system", content="use postgres"), row(type="user", promptId="p1", content="use postgres")), "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", rows(row(type="user", promptId="p1", content="use postgres"), row(type="user", promptId="p1", promptSource="system", content="use postgres")), "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", rows(row(type="user", promptId="p1", promptSource="system", content="use postgres"), row(type="user", promptId="p2", content="use postgres")), "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", rows(row(type="user", promptId=1, promptSource="system", content="use postgres")), "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", rows(row(type="user", promptId=1, promptSource="system", content="use postgres")), "{P}/chat.jsonl", None, "use postgres"),
+    ("chat.jsonl", rows(row(type="user", promptId="p1", promptSource="system", content="\U0001F600 use postgres")), "{P}/chat.jsonl", "p1", "\U0001F600 use postgres"),
+    ("chat.jsonl", "x" * 2000000 + "\n" + sys_row + "\n", "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", sys_row + "\n" + "x" * 2000000 + "\n", "{P}/chat.jsonl", "p1", "use postgres"),
+    ("chat.jsonl", "\n".join([row(type="user", promptId="p1", content=f"m{n}") for n in range(3000)] + [sys_row]) + "\n", "{P}/chat.jsonl", "p1", "use postgres"),
+    ("sub/dir/chat.jsonl", rows(sys_row), "{P}/sub/dir/chat.jsonl", "p1", "use postgres"),
+    ("chat.txt", rows(sys_row), "{P}/chat.txt", "p1", "use postgres"),
+    ("chat.JSONL", rows(sys_row), "{P}/chat.JSONL", "p1", "use postgres"),
+    ("chat.jsonl.bak", rows(sys_row), "{P}/chat.jsonl.bak", "p1", "use postgres"),
+]
+for file, text, path, prompt_id, prompt in TR_FIXED:
+    add("transcript_origin", file=file, rows=text, transcript_path=path, prompt_id=prompt_id, prompt=prompt)
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

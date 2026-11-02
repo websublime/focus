@@ -204,6 +204,7 @@ dependencies = [
  "focus-lifecycle",
  "focus-state",
  "focus-workspace",
+ "getrandom",
  "serde_json",
  "sha2",
 ]
