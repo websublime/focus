@@ -376,7 +376,7 @@ fn workspace_files(root: &Path) -> BTreeMap<String, String> {
 fn own_hashes(root: &Path, text: &str) -> String {
     replace_all(text, r#""([^"]+\.md)":"([0-9a-f]{64})""#, |found, text| {
         let rel = group(found, text, 1);
-        let digest = fs::read(root.join(&rel))
+        let digest = fs::read(root.join(rel))
             .map(|bytes| format!("{:x}", Sha256::digest(&bytes)))
             .unwrap_or_default();
         if digest == group(found, text, 2) {
