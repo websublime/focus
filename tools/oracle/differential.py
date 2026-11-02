@@ -141,6 +141,11 @@ SHAPES = {
         "line: the remedies the conductor may offer, read off the review attempt and kept with the refusal's "
         "streak under the engine directory (M5). Focus prints the sentence. The ask line and the streak record "
         "are left out before comparing; the sentence, the error row and everything else are compared",
+    "process-map-budget":
+        "the session start writes the process map (its ancestors' pids, with each one's start time) within a 50 ms "
+        "budget and retires a slot to null before it reads the process; under load one engine misses the budget "
+        "and leaves a null or an unwritten slot where the other wrote the entry. The map is compared live only; "
+        "an entry one engine did not reach in time is left out before comparing, and everything else is compared",
     "validation-basis":
         "a completion row carries the validity receipt: per artifact, a hash of the files it resolved to and a "
         "hash of their contents, both taken over paths that carry the workspace directory's name (aidlc/ there, "
@@ -492,9 +497,14 @@ def compare(name, trees, args, env, stdin, files):
             for rel, text in snapshot(tree).items():
                 outcome[engine][rel] = "<absent>" if text is None else text
     problems = []
+    shaped_budget = False
     for key in sorted(set(outcome["ts"]) | set(outcome["rs"])):
         left, right = outcome["ts"].get(key, "<absent>"), outcome["rs"].get(key, "<absent>")
         if left != right:
+            unreached = ("<absent>", '{"sessionId":null,"startTime":null}\n')
+            if "/.focus-sessions/pids/" in key and (left in unreached or right in unreached):
+                shaped_budget = True
+                continue
             problems.append(f"{key}: {first_difference(left, right)}")
     if not problems:
         verdict = "same"
@@ -1716,9 +1726,14 @@ def compare_audit(name, trees, steps, env, tool="audit"):
                 text = ASK_FIELD.sub("", text)
             outcome[engine][shown] = "<removed>" if text is None else text
     problems = []
+    shaped_budget = False
     for key in sorted(set(outcome["ts"]) | set(outcome["rs"])):
         left, right = outcome["ts"].get(key, "<absent>"), outcome["rs"].get(key, "<absent>")
         if left != right:
+            unreached = ("<absent>", '{"sessionId":null,"startTime":null}\n')
+            if "/.focus-sessions/pids/" in key and (left in unreached or right in unreached):
+                shaped_budget = True
+                continue
             problems.append(f"{key}: {first_difference(left, right)}")
     if not problems:
         verdict = "same"
@@ -1739,6 +1754,9 @@ def compare_audit(name, trees, steps, env, tool="audit"):
         if shaped_basis:
             shapes["validation-basis"] += 1
             detail += "  (receipt hashes verified)"
+        if shaped_budget:
+            shapes["process-map-budget"] += 1
+            detail += "  (a process-map slot missed its budget)"
     elif any(re.fullmatch(pattern, name) for pattern in DEVIATIONS):
         verdict = "deviation"
         detail = next(reason for pattern, reason in DEVIATIONS.items() if re.fullmatch(pattern, name))
@@ -3463,11 +3481,51 @@ def hook_checks():
     check_("validate-state/rules_delivered", {**joined, "aidlc/.aidlc-sessions/s1.rules-delivered.json": '{"v":2,"last":"b","full":{"bundle":"b","at":"x"},"persona":{"sha256":"p","at":"x"}}\n'}, [compact()])
     check_("validate-state/rules_delivered_malformed", {**joined, "aidlc/.aidlc-sessions/s1.rules-delivered.json": '{"v":1}\n'}, [compact()])
 
+    # review-freeze: which writes reach the review receipt scan.
+    freeze = lambda tool="Write", path=None, **more: ["review-freeze", payload(hook_event_name="PreToolUse", tool_name=tool, tool_input={"file_path": "{P}/" + (path or doc), **more})]
+    shell = lambda command: ["review-freeze", payload(hook_event_name="PreToolUse", tool_name="Bash", tool_input={"command": command.replace("{D}", "{P}/" + CREATED_DIR)})]
+    reviewed = {**joined, CREATED_SHARD: CREATED_AUDIT + block("REVIEW_REQUESTED", T(2), "**Stage**: intent-capture", "**Reviewer**: aidlc-product-lead-agent", "**Iteration**: 1")
+                + block("REVIEW_COMPLETED", T(3), "**Stage**: intent-capture", "**Reviewer**: aidlc-product-lead-agent", "**Iteration**: 1", "**Verdict**: READY")}
+    check_("review-freeze/read_tool", reviewed, [["review-freeze", payload(hook_event_name="PreToolUse", tool_name="Read", tool_input={"file_path": "{P}/" + doc})]])
+    check_("review-freeze/unrelated_write", reviewed, [freeze(path="README.md")])
+    check_("review-freeze/other_stage_artifact", reviewed, [freeze(path=f"{CREATED_DIR}/ideation/market-research/competitive-analysis.md")])
+    check_("review-freeze/artifact_no_review_rows", joined, [freeze(), freeze("Edit"), freeze("MultiEdit"), freeze("NotebookEdit", path=f"{CREATED_DIR}/ideation/intent-capture/stakeholder-map.md")])
+    check_("review-freeze/questions_file", reviewed, [freeze(path=f"{CREATED_DIR}/ideation/intent-capture/intent-capture-questions.md")])
+    check_("review-freeze/completed_stage", {**reviewed, f"{CREATED_DIR}/aidlc-state.md": at_stage(CREATED_STATE, "market-research", done=["intent-capture"])}, [freeze()])
+    check_("review-freeze/skipped_stage", {**reviewed, f"{CREATED_DIR}/aidlc-state.md": at_stage(CREATED_STATE, "market-research", skipped=["intent-capture"])}, [freeze()])
+    check_("review-freeze/review_rows", reviewed, [freeze()])
+    check_("review-freeze/review_rows_edit", reviewed, [freeze("Edit", path=f"{CREATED_DIR}/ideation/intent-capture/stakeholder-map.md")])
+    check_("review-freeze/review_rows_request_only", {**joined, CREATED_SHARD: CREATED_AUDIT + block("REVIEW_REQUESTED", T(2), "**Stage**: intent-capture", "**Reviewer**: aidlc-product-lead-agent", "**Iteration**: 1")}, [freeze()])
+    # Rows of another stage, and rows of a stage with no reviewer, hold no receipt for the write.
+    other_rows = CREATED_AUDIT + block("REVIEW_COMPLETED", T(2), "**Stage**: market-research", "**Verdict**: READY")
+    check_("review-freeze/other_stage_rows", {**joined, CREATED_SHARD: other_rows}, [freeze()])
+    check_("review-freeze/no_reviewer_stage_rows", {**joined, CREATED_SHARD: other_rows}, [freeze(path=f"{CREATED_DIR}/ideation/market-research/competitive-analysis.md")])
+    check_("review-freeze/review_rows_switch_zero", reviewed, [freeze()], {"DISABLE_REVIEW_FREEZE_HOOK": "0"})
+    # No target: decided before the ledger, the state or the graph is read (no drop for a missing state).
+    check_("review-freeze/read_tool_no_state", {**CLONE, "aidlc/spaces/default/intents/intents.json": CREATED_REGISTRY, **binding(), CREATED_SHARD: reviewed[CREATED_SHARD]}, [["review-freeze", payload(hook_event_name="PreToolUse", tool_name="Read", tool_input={"file_path": "{P}/" + doc})]])
+    check_("review-freeze/review_rows_shell", reviewed, [shell("echo x > {D}/ideation/intent-capture/intent-statement.md")])
+    check_("review-freeze/shell_read_only", reviewed, [shell("cat {D}/ideation/intent-capture/intent-statement.md")])
+    check_("review-freeze/shell_other_target", reviewed, [shell("echo x > {D}/ideation/intent-capture/notes.md")])
+    check_("review-freeze/review_rows_subagent", reviewed, [["review-freeze", payload(hook_event_name="PreToolUse", tool_name="Write", agent_type="aidlc-product-agent", tool_input={"file_path": "{P}/" + doc})]])
+    check_("review-freeze/off_switch", reviewed, [freeze()], {"DISABLE_REVIEW_FREEZE_HOOK": "1"})
+    check_("review-freeze/off_switch_settings", {**reviewed, "aidlc.settings.local.json": '{"schemaVersion": 1, "flags": {"schemaVersion": 1, "bypasses": ["AIDLC_DISABLE_REVIEW_FREEZE_HOOK"]}}\n'}, [freeze()])
+    check_("review-freeze/settings_refused", {**reviewed, "aidlc.settings.local.json": '{"flags": {}}\n'}, [freeze()])
+    check_("review-freeze/outsider", {**no_cursor, **binding("other-9f8e7d6c"), CREATED_SHARD: reviewed[CREATED_SHARD]}, [freeze()])
+    check_("review-freeze/unjoined", {**no_cursor, **binding(None, "unjoined"), CREATED_SHARD: reviewed[CREATED_SHARD]}, [freeze()])
+    check_("review-freeze/no_ledger", {**joined, CREATED_SHARD: None}, [freeze()])
+    check_("review-freeze/no_state", {**CLONE, "aidlc/spaces/default/intents/intents.json": CREATED_REGISTRY, **binding(), CREATED_SHARD: reviewed[CREATED_SHARD]}, [freeze()])
+    check_("review-freeze/cold", CLONE, [freeze(path="README.md"), freeze()])
+    check_("review-freeze/malformed", reviewed, [["review-freeze", "{nope"], ["review-freeze", ""], ["review-freeze", "[1]"]])
+    check_("review-freeze/no_tool_input", reviewed, [["review-freeze", payload(hook_event_name="PreToolUse", tool_name="Write")]])
+    check_("review-freeze/directive_marker", {**reviewed, f"{engine}/active-directive.json": '{"stage": "intent-capture"}'}, [freeze()])
+    for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
+        check_(f"review-freeze/observer_{marker.lower()}", joined, [freeze()], {marker: "1"})
+
     # The dispatcher: a hook it does not have, a name it refuses, the trace.
     check_("dispatch/unknown", created(), [["nope", "{}"]])
     check_("dispatch/unsafe_name", created(), [["../x", "{}"]])
     check_("dispatch/no_name", created(), [["", "{}"]])
-    for name in ("record-human-turn", "guard-tool-call", "continue-workflow"):
+    for name in ("record-human-turn", "guard-tool-call", "continue-workflow", "reviewer-scope"):
         check_(f"dispatch/{name.replace('-', '_')}_not_ported", created(), [[name, payload()]])
 
 
@@ -3476,6 +3534,12 @@ DEVIATIONS.update({
         "a record of a later milestone beside the hook's own: the orchestrator's directive marker, a unit claim, "
         "the ledger of background subagents, the summary authorizations (M4/M5); upstream reads or clears it and "
         "goes on; focus refuses the hook by name while it is there",
+    r"hook/review-freeze/review_rows(_[a-z_]+)?":
+        "a write to the output document of an open reviewer-bearing stage whose ledger holds a review row: upstream "
+        "weighs the review receipt scan (the attempt window, the source bindings, the Unit claims: the attestation, "
+        "M5) and freezes the document when a fresh terminal review covers it, with a REVIEW_FREEZE_BLOCKED row and "
+        "the recovery ask on stderr (exit 2), or passes the write when none does; focus refuses the write by name "
+        "(exit 1) while it does not weigh receipts",
     "hook/session-start/root_blocks_unconfigured":
         "a distribution tree config never ran in: upstream adds the engine's part of the team's root files "
         "(.gitignore) at session start and tells the chat its include was re-pointed; focus refuses by name until "
