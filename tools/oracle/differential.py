@@ -369,8 +369,9 @@ JOBS = []
 # distribution, which refresh.sh vendors as fixtures/upstream/installed/claude.
 BASE_DIRS = (".claude/aidlc-common/stages", ".claude/agents", ".claude/scopes", ".claude/sensors",
              ".claude/tools/data/memory-seed", "aidlc")
-BASE_FILES = tuple(f".claude/tools/data/{name}"
-                   for name in ("harness.json", "stage-graph.json", "scope-grid.json", "ars-priors.json"))
+# The include stub (`.claude/rules/aidlc.md`) names the memory files the session start hashes into the rules record.
+BASE_FILES = (*(f".claude/tools/data/{name}" for name in ("harness.json", "stage-graph.json", "scope-grid.json", "ars-priors.json")),
+              ".claude/rules/aidlc.md")
 RECORDED_TREES = {}
 RECORDED_CHECKS = {}
 LARGE = 3000

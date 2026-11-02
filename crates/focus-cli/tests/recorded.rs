@@ -357,16 +357,34 @@ fn workspace_files(root: &Path) -> BTreeMap<String, String> {
                     walk(root, &path, files);
                 }
             } else if !name.starts_with(".focus-lock") {
-                files.insert(
-                    rel,
-                    String::from_utf8_lossy(&fs::read(&path).unwrap()).into_owned(),
-                );
+                let mut text = String::from_utf8_lossy(&fs::read(&path).unwrap()).into_owned();
+                if name.ends_with(".rules-held.json") {
+                    text = own_hashes(root, &text);
+                }
+                files.insert(rel, text);
             }
         }
     }
     let mut files = BTreeMap::new();
     walk(root, &root.join("focus"), &mut files);
     files
+}
+
+/// A rules record hashes the memory files as each engine ships them, which
+/// differ by the engine's name in their text: the recorder shows a hash
+/// that is the tree's own file's as `<sha256>`, and the replay does the same.
+fn own_hashes(root: &Path, text: &str) -> String {
+    replace_all(text, r#""([^"]+\.md)":"([0-9a-f]{64})""#, |found, text| {
+        let rel = group(found, text, 1);
+        let digest = fs::read(root.join(&rel))
+            .map(|bytes| format!("{:x}", Sha256::digest(&bytes)))
+            .unwrap_or_default();
+        if digest == group(found, text, 2) {
+            format!("\"{rel}\":\"<sha256>\"")
+        } else {
+            text[found.range()].to_owned()
+        }
+    })
 }
 
 /// The environment a check runs in: nothing of Focus's own, and no mark of
