@@ -19,6 +19,7 @@ regress = "0.12"
 same-file = "1"
 sha2 = "0.10"
 sysinfo = { version = "0.33", default-features = false, features = ["system"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
 serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
 focus-js = { path = "crates/focus-js" }
 focus-frontmatter = { path = "crates/focus-frontmatter" }

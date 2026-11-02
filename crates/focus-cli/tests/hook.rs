@@ -172,15 +172,15 @@ fn a_name_that_is_not_a_hook_name_is_refused_before_looking() {
 fn a_hook_not_ported_is_refused_by_name() {
     let root = project("not-ported");
     assert_eq!(
-        refusal(&hook(&root, &["session-start"], &payload(""), &[])),
-        "focus engine hook session-start: binds the conversation to a record and offers a resume, and Focus does not run that hook yet.\n"
+        refusal(&hook(&root, &["record-human-turn"], &payload(""), &[])),
+        "focus engine hook record-human-turn: records the person's turn and the words of a gate, and Focus does not run that hook yet.\n"
     );
     assert_eq!(
         refusal(&hook(&root, &["guard-tool-call"], &payload(""), &[])),
         "focus engine hook guard-tool-call: runs the PreToolUse guards in one process, and Focus does not run that hook yet.\n"
     );
     assert_eq!(shard(&root), "# Focus Audit Log\n");
-    assert!(heartbeat(&root, "session-start.last").is_none());
+    assert!(heartbeat(&root, "record-human-turn.last").is_none());
 }
 
 #[test]
@@ -728,16 +728,6 @@ fn a_payload_field_of_the_wrong_kind_is_refused_by_name() {
 fn a_record_of_a_later_milestone_refuses_the_hook_by_name() {
     let root = project("later");
     let engine = format!("{RECORD}/.focus-engine");
-    write(
-        &root,
-        "focus/.focus-sessions/s1.rules-held.json",
-        "{\"v\":2}",
-    );
-    assert!(
-        refusal(&hook(&root, &["validate-state"], &payload(""), &[]))
-            .contains("s1.rules-held.json records the rules handed to this conversation")
-    );
-    fs::remove_file(root.join("focus/.focus-sessions/s1.rules-held.json")).unwrap();
 
     write(
         &root,
@@ -1184,4 +1174,377 @@ fn the_project_comes_from_the_host_before_the_flag() {
     let lines = fs::read_to_string(&traced[0]).unwrap();
     assert!(lines.contains("\"phase\":\"hook-run-begin\""), "{lines}");
     assert!(lines.contains("\"phase\":\"hook-run-end\""), "{lines}");
+}
+
+/// The context the session start hands the model, parsed.
+fn handed(output: &Output) -> String {
+    assert!(output.status.success(), "{}", text(&output.stderr));
+    assert!(output.stderr.is_empty(), "{}", text(&output.stderr));
+    let line = text(&output.stdout);
+    let (head, tail) = line
+        .split_once("\",\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"")
+        .unwrap_or_else(|| panic!("a context line: {line}"));
+    let context = head.strip_prefix("{\"additionalContext\":\"").unwrap();
+    // The same text twice: once for the host's banner, once for the model.
+    assert!(tail.starts_with(context), "{line}");
+    context.replace("\\n", "\n").replace("\\\"", "\"")
+}
+
+fn start(source: &str) -> String {
+    payload(&format!(
+        "\"source\":\"{source}\",\"transcript_path\":\"/tmp/t.jsonl\",\"hook_event_name\":\"SessionStart\""
+    ))
+}
+
+fn sessions(root: &Path, rel: &str) -> Option<String> {
+    fs::read_to_string(root.join("focus/.focus-sessions").join(rel)).ok()
+}
+
+#[test]
+fn a_session_start_binds_the_conversation_and_hands_over_the_work() {
+    let root = project("start");
+    // The host's include stub names the method files it imports.
+    write(
+        &root,
+        ".claude/rules/focus.md",
+        "@../../focus/active-memory/org.md\n@../../focus/active-memory/team.md\n",
+    );
+    let output = hook(&root, &["session-start"], &start("startup"), &[]);
+    let context = handed(&output);
+    assert!(context.starts_with("FOCUS WORKFLOW ACTIVE\nScope: feature\nRuntime Session: s1\nLifecycle Phase: IDEATION\nCurrent Stage: intent-capture\nStatus: Running\nActive Agent: focus-product-agent\nLast Completed: none\nNext Action: resume current stage\nA BARE /focus re-entry carries on with this work"), "{context}");
+    assert!(context.contains("Focus answers with one line, \"Focus is carrying on with <stage>.\" It is from Focus, not the person"), "{context}");
+    assert!(
+        context.contains("Follow the focus skill's \"When Focus carries on by itself\" steps"),
+        "{context}"
+    );
+    // The method files were copied for this space after the host read its
+    // includes, and the chat is told where they are (too long to inline).
+    assert!(context.ends_with("The method files this chat's instructions import (focus/active-memory/) were written for space `default` just now, after the instructions were read: org.md, team.md, project.md, phases/ideation.md, phases/inception.md, phases/construction.md, phases/operation.md. Read them from that folder before acting on AI-DLC work or on a question about the team's practices."), "{context}");
+    assert!(read(&root, "focus/active-memory/org.md").starts_with(
+        "<!-- Focus keeps this copy in step with focus/spaces/default/memory/org.md."
+    ));
+    // The session's records: the live conversation, its stamp, the transcript
+    // pointers, the rules it was handed, and the row.
+    assert_eq!(sessions(&root, ".current-session").as_deref(), Some("s1\n"));
+    assert_eq!(
+        sessions(&root, "s1").as_deref(),
+        Some("01a138fa-d37d-787d-af4a-966efbb0b6fd\n")
+    );
+    assert_eq!(
+        sessions(&root, "s1.transcript").as_deref(),
+        Some("/tmp/t.jsonl")
+    );
+    assert_eq!(
+        sessions(&root, "current.transcript").as_deref(),
+        Some("/tmp/t.jsonl")
+    );
+    let held = sessions(&root, "s1.rules-held.json").unwrap();
+    assert!(
+        held.starts_with("{\"v\":1,\"harness\":\"claude\",\"source\":\"startup\",\"at\":\""),
+        "{held}"
+    );
+    assert!(
+        held.contains(
+            "\"refresh\":\"at-load\",\"files\":{\"focus/spaces/default/memory/org.md\":\""
+        ),
+        "{held}"
+    );
+    assert!(
+        held.contains("\"focus/spaces/default/memory/team.md\":\""),
+        "{held}"
+    );
+    assert!(!held.contains("project.md"), "{held}");
+    // The copy the stub imports was written by this start, after the host
+    // read it: the chat holds an older text, or none.
+    assert!(held.ends_with("\"stale\":true}\n"), "{held}");
+    assert!(
+        shard(&root).starts_with("# Focus Audit Log\n\n## Session Start\n**Timestamp**: 20"),
+        "{}",
+        shard(&root)
+    );
+    assert!(
+        shard(&root)
+            .ends_with("**Event**: SESSION_STARTED\n**Source**: startup\n**Session**: s1\n\n---\n")
+    );
+    assert!(heartbeat(&root, "session-start.last").is_some());
+    // A resume of the same conversation records that, and the copy being
+    // current, says nothing more about the method files.
+    let resumed = handed(&hook(&root, &["session-start"], &start("resume"), &[]));
+    assert!(!resumed.contains("The method files"), "{resumed}");
+    assert!(
+        shard(&root).contains("**Event**: SESSION_RESUMED\n**Source**: resume\n**Session**: s1\n")
+    );
+    // A resumed chat holds what it held: stale stays stale until a start
+    // that reads the files afresh finds the copy current.
+    assert!(
+        sessions(&root, "s1.rules-held.json")
+            .unwrap()
+            .contains("\"stale\":true")
+    );
+    handed(&hook(&root, &["session-start"], &start("clear"), &[]));
+    assert!(
+        !sessions(&root, "s1.rules-held.json")
+            .unwrap()
+            .contains("\"stale\"")
+    );
+    // A source the engine does not know leaves the rules record stale: the
+    // chat may hold an older text.
+    handed(&hook(&root, &["session-start"], &start("weird"), &[]));
+    assert!(
+        sessions(&root, "s1.rules-held.json")
+            .unwrap()
+            .contains("\"stale\":true")
+    );
+}
+
+#[test]
+fn a_cold_start_names_the_session_and_binds_it_to_the_space() {
+    let root = project("cold");
+    fs::remove_dir_all(root.join("focus/spaces/default/intents")).unwrap();
+    fs::remove_file(root.join("focus/.focus-sessions/s1.binding.json")).unwrap();
+    // Small method files are handed over as text.
+    let memory = root.join("focus/spaces/default/memory");
+    fs::remove_dir_all(memory.join("phases")).unwrap();
+    for name in ["org.md", "team.md", "project.md"] {
+        write(
+            &root,
+            &format!("focus/spaces/default/memory/{name}"),
+            &format!("# {name}\n"),
+        );
+    }
+    let context = handed(&hook(&root, &["session-start"], &start("startup"), &[]));
+    assert!(context.starts_with("FOCUS Runtime Session: s1\nUse this exact value for any Plan Approval --session argument in this conversation. It goes only on a command that asks for --session, never on next.\n\nThe method files this chat's instructions import (focus/active-memory/) were written for space `default` just now, after the instructions were read. This is their text now:\n\n<memory-file path=\"focus/spaces/default/memory/org.md\">\n# org.md\n</memory-file>\n"), "{context}");
+    assert!(context.contains("<memory-file path=\"focus/spaces/default/memory/project.md\">\n# project.md\n</memory-file>\n"), "{context}");
+    assert_eq!(
+        sessions(&root, "s1.binding.json")
+            .map(|text| text.split("\"boundAt\"").next().unwrap().to_owned())
+            .as_deref(),
+        Some("{\"space\":\"default\",\"intent\":null,")
+    );
+    assert!(sessions(&root, "s1").is_none());
+    // Without a session there is no conversation to bind or to address:
+    // nothing is written and nothing said. A payload that is not JSON is a
+    // start with no session.
+    fs::remove_file(root.join("focus/.focus-sessions/current.transcript")).unwrap();
+    for stdin in ["{\"source\":\"startup\"}", "{nope", ""] {
+        quiet(&hook(&root, &["session-start"], stdin, &[]));
+    }
+    assert!(sessions(&root, "current.transcript").is_none());
+}
+
+#[test]
+fn a_resume_elsewhere_offers_the_rebind_once() {
+    let root = project("rebind");
+    write(
+        &root,
+        "focus/spaces/default/intents/other-9f8e7d6c/focus-state.md",
+        STATE,
+    );
+    write(&root, "focus/spaces/default/intents/intents.json", &REGISTRY.replace("]\n", ",\n  {\"uuid\": \"01a138fa-ffff-787d-af4a-966efbb0b6fd\", \"slug\": \"other\", \"dirName\": \"other-9f8e7d6c\", \"scope\": \"feature\", \"status\": \"in-flight\"}\n]\n"));
+    write(
+        &root,
+        "focus/spaces/default/intents/active-intent",
+        "other-9f8e7d6c\n",
+    );
+    // A probe (`rebind_check`) only asks: it writes nothing and prints the
+    // offer alone; the next probe, having offered, prints nothing.
+    let probe = payload("\"source\":\"resume\",\"rebind_check\":true");
+    let asked = handed(&hook(&root, &["session-start"], &probe, &[]));
+    assert!(asked.starts_with("FOCUS Runtime Session: s1\nINTENT REBIND OFFER: This conversation is bound to add-login, but the shared cursor names other. Move the shared cursor back to add-login? [Y/n] - on Yes, run `/focus intent 260105-add-login`; on No, keep working add-login through this session binding. This changes only machine-local navigation."), "{asked}");
+    assert_eq!(
+        sessions(&root, "s1.rebind-offer").as_deref(),
+        Some("default/260105-add-login->default/other-9f8e7d6c\n")
+    );
+    assert_eq!(shard(&root), "# Focus Audit Log\n");
+    let output = hook(&root, &["session-start"], &probe, &[]);
+    assert!(output.status.success());
+    assert!(output.stdout.is_empty(), "{}", text(&output.stdout));
+    // A resume makes the same offer once, at the head of the active context,
+    // and records the session; a later resume does not repeat it.
+    fs::remove_file(root.join("focus/.focus-sessions/s1.rebind-offer")).unwrap();
+    let resumed = handed(&hook(&root, &["session-start"], &start("resume"), &[]));
+    assert!(resumed.starts_with("FOCUS WORKFLOW ACTIVE\nINTENT REBIND OFFER: This conversation is bound to add-login, but the shared cursor names other."), "{resumed}");
+    assert!(shard(&root).contains("**Event**: SESSION_RESUMED\n"));
+    let again = handed(&hook(&root, &["session-start"], &start("resume"), &[]));
+    assert!(!again.contains("INTENT REBIND OFFER"), "{again}");
+    // A startup clears any offer and stamps the record the session works.
+    write(&root, "focus/.focus-sessions/s1.rebind-offer", "x\n");
+    handed(&hook(&root, &["session-start"], &start("startup"), &[]));
+    assert!(sessions(&root, "s1.rebind-offer").is_none());
+    assert_eq!(
+        sessions(&root, "s1").as_deref(),
+        Some("01a138fa-d37d-787d-af4a-966efbb0b6fd\n")
+    );
+}
+
+#[test]
+fn an_unbound_conversation_is_offered_the_record_it_last_worked() {
+    let root = project("rejoin");
+    fs::remove_file(root.join("focus/.focus-sessions/s1.binding.json")).unwrap();
+    fs::remove_file(root.join("focus/spaces/default/intents/active-intent")).unwrap();
+    write(
+        &root,
+        "focus/.focus-sessions/s1.binding.json",
+        &BINDING.replace("create", "worktree"),
+    );
+    let context = handed(&hook(&root, &["session-start"], &start("startup"), &[]));
+    assert!(context.contains("\nINTENT REBIND OFFER: This conversation was working add-login, but it has not joined that workflow on this machine. Rejoin add-login? [Y/n] - on Yes, run `/focus intent 260105-add-login`; on No, continue without a workflow.\n"), "{context}");
+    assert!(
+        context.starts_with("FOCUS Runtime Session: s1\n"),
+        "{context}"
+    );
+    assert_eq!(shard(&root), "# Focus Audit Log\n");
+}
+
+#[test]
+fn the_context_carries_the_unit_the_recovery_note_the_drift_and_the_switches() {
+    let root = project("notes");
+    write(&root, &format!("{RECORD}/focus-state.md"), &STATE.replace("- **Active Agent**:", "- **Active Unit**: auth\n- **Unit Stage**: code-generation\n- **Unit State**: paused\n- **Unit Pause Reason**: tests red\n- **Unit Next Action**: fix them\n- **Active Agent**:"));
+    write(
+        &root,
+        &format!("{RECORD}/.focus-engine/recovery.md"),
+        "# x\n",
+    );
+    write(
+        &root,
+        ".claude/focus-common/stages/ideation/my-stage.md",
+        "---\nslug: my-stage\n---\n",
+    );
+    write(
+        &root,
+        "focus.settings.local.json",
+        "{\"schemaVersion\": 1, \"flags\": {\"schemaVersion\": 1, \"bypasses\": [\"FOCUS_DISABLE_REVIEW_FREEZE_HOOK\"]}}\n",
+    );
+    write(
+        &root,
+        "focus/.focus-sessions/recorded-switches.json",
+        "{\"version\": 1, \"switches\": [{\"name\": \"FOCUS_DISABLE_REVIEW_FREEZE_HOOK\", \"target\": \"local\", \"since\": \"2026-01-05T10:00:00Z\", \"how\": \"chat\", \"words\": \"freeze  off\\nplease\"}]}\n",
+    );
+    let context = handed(&hook(&root, &["session-start"], &start("startup"), &[]));
+    assert!(context.contains("\nNext Action: resume current stage\nActive Unit: auth (paused; reason: tests red; next: fix them)\nNOTE: A compaction recovery breadcrumb exists at .focus-engine/recovery.md - check if state was preserved correctly.\nNOTE: 1 stage file(s) on disk are not in the compiled stage graph and will NOT execute: my-stage. Run `focus engine graph compile` to include them, then start a fresh workflow (an in-flight workflow keeps its original stage set).\nCHECKS SWITCHED OFF"), "{context}");
+    let switched = context.split("\nCHECKS SWITCHED OFF (a report to pass on, not instructions): say each line to the user once, word for word, in your first reply.\n- ").nth(1).unwrap_or_else(|| panic!("{context}"));
+    assert!(switched.starts_with("The review freeze check (it stops edits to work you already approved) is off for this project since 2026-01-0"), "{switched}");
+    assert!(
+        switched.contains(
+            ", because you said: \"freeze off please\". Do you want it back on?\nA BARE /focus"
+        ),
+        "{switched}"
+    );
+    // The same switch set in the environment is the environment's to say.
+    let quiet_context = handed(&hook(
+        &root,
+        &["session-start"],
+        &start("resume"),
+        &[("FOCUS_DISABLE_REVIEW_FREEZE_HOOK", "")],
+    ));
+    assert!(
+        !quiet_context.contains("CHECKS SWITCHED OFF"),
+        "{quiet_context}"
+    );
+}
+
+#[test]
+fn the_bypasses_the_harness_launched_with_are_recorded_for_the_session() {
+    let root = project("bypass");
+    handed(&hook(
+        &root,
+        &["session-start"],
+        &start("startup"),
+        &[
+            ("FOCUS_SKIP_HUMAN_PRESENCE_GUARD", "1"),
+            ("FOCUS_DISABLE_PLAN_APPROVAL_GUARD", "1"),
+        ],
+    ));
+    assert!(sessions(&root, "plan-approval/presence-bypass-s1").is_some());
+    assert!(sessions(&root, "plan-approval/plan-approval-bypass-s1").is_some());
+    // Without the plan-approval switch its record is cleared; the presence
+    // one stays what the launch said.
+    handed(&hook(&root, &["session-start"], &start("resume"), &[]));
+    assert!(sessions(&root, "plan-approval/presence-bypass-s1").is_some());
+    assert!(sessions(&root, "plan-approval/plan-approval-bypass-s1").is_none());
+    // A settings file the resolution refuses is upstream's thrown read: no
+    // bypass bookkeeping, no transcript pointer, and the start goes on.
+    write(&root, "focus.settings.local.json", "{\"flags\": {}}\n");
+    fs::remove_file(root.join("focus/.focus-sessions/current.transcript")).unwrap();
+    handed(&hook(
+        &root,
+        &["session-start"],
+        &start("startup"),
+        &[("FOCUS_DISABLE_PLAN_APPROVAL_GUARD", "1")],
+    ));
+    assert!(sessions(&root, "plan-approval/plan-approval-bypass-s1").is_none());
+    assert!(sessions(&root, "current.transcript").is_none());
+    // The usage kill switch in a settings file stops the pointers too.
+    write(
+        &root,
+        "focus.settings.local.json",
+        "{\"schemaVersion\": 1, \"flags\": {\"schemaVersion\": 1, \"bypasses\": [\"FOCUS_DISABLE_USAGE_TRACKING\"]}}\n",
+    );
+    handed(&hook(&root, &["session-start"], &start("startup"), &[]));
+    assert!(sessions(&root, "current.transcript").is_none());
+}
+
+#[test]
+fn an_observer_starts_a_session_without_writing() {
+    let root = project("observer");
+    for marker in ["FOCUS_STOP_HOOK_PROBE", "FOCUS_ROUTE_CHECK"] {
+        let context = handed(&hook(
+            &root,
+            &["session-start"],
+            &start("startup"),
+            &[(marker, "1"), ("FOCUS_SKIP_HUMAN_PRESENCE_GUARD", "1")],
+        ));
+        assert!(context.starts_with("FOCUS WORKFLOW ACTIVE\n"), "{context}");
+        assert!(
+            sessions(&root, "plan-approval/presence-bypass-s1").is_none(),
+            "{marker}"
+        );
+        assert!(sessions(&root, "s1.rules-held.json").is_none(), "{marker}");
+        assert!(!root.join("focus/active-memory").exists(), "{marker}");
+        assert_eq!(shard(&root), "# Focus Audit Log\n", "{marker}");
+    }
+}
+
+/// Deliberate deviation. Upstream adds the engine's part of the team's root
+/// files where config never ran (`addRootBlocks`), runs the commit anchor
+/// sweep under `FOCUS_SESSION_ANCHOR=1`, and reads a unit claim as the
+/// binding's source; Focus refuses each by name until its milestone.
+#[test]
+fn a_session_start_of_a_later_milestone_is_refused_by_name() {
+    let root = project("start-later");
+    write(
+        &root,
+        ".claude/tools/data/focus-projection.json",
+        "{\"harnessDir\": \".claude\", \"distribution\": \"claude\", \"rootIntegrations\": [{\"path\": \".gitignore\", \"policy\": \"managed-block\"}]}\n",
+    );
+    let said = refusal(&hook(&root, &["session-start"], &start("startup"), &[]));
+    assert!(said.contains("focus-projection.json names the root files the engine adds its part to (.gitignore, AGENTS.md) when config never ran here, and no "), "{said}");
+    assert!(said.contains("focus-manifest.json records that it did: Focus does not write the distribution's root blocks yet. Run the harness's config step, or add the install manifest.\n"), "{said}");
+    assert_eq!(shard(&root), "# Focus Audit Log\n");
+    // The install manifest says config ran.
+    write(
+        &root,
+        ".claude/tools/data/focus-manifest.json",
+        "{\"schemaVersion\": 1}\n",
+    );
+    handed(&hook(&root, &["session-start"], &start("startup"), &[]));
+
+    let said = refusal(&hook(
+        &root,
+        &["session-start"],
+        &start("resume"),
+        &[("FOCUS_SESSION_ANCHOR", "1")],
+    ));
+    assert_eq!(
+        said,
+        "FOCUS_SESSION_ANCHOR=1 asks the session start to anchor recent commits in the audit trail, which reads the attestation's receipts: Focus does not run the anchor sweep yet. Unset it.\n"
+    );
+    // The refusal comes after the session row, as upstream's sweep does.
+    assert!(shard(&root).contains("**Event**: SESSION_RESUMED\n"));
+
+    write(&root, "focus/.focus-unit-scope.json", "{\"version\": 1}");
+    assert!(
+        refusal(&hook(&root, &["session-start"], &start("startup"), &[]))
+            .contains("focus-unit-scope.json")
+    );
 }

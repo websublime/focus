@@ -52,6 +52,11 @@ PHRASES = (
     ("because AI-DLC's hooks are not running here", "because Focus's hooks are not running here"),
     ("Your answer didn't reach AI-DLC.", "Your answer didn't reach Focus."),
     ("a command to AIDLC, not a reply", "a command to Focus, not a reply"),
+    # The engine's own line when it carries on, and how the session start names it.
+    ("AI-DLC is carrying on with", "Focus is carrying on with"),
+    ("AI-DLC answers with one line", "Focus answers with one line"),
+    ("It is from AI-DLC, not the person", "It is from Focus, not the person"),
+    ("When AI-DLC carries on by itself", "When Focus carries on by itself"),
     # The status as the engine heads it.
     ("AI-DLC Workflow Status", "Focus Workflow Status"),
     ("No active AI-DLC workflow found.", "No active Focus workflow found."),
