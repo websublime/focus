@@ -29,7 +29,7 @@ use focus_workspace::records::{self, Invoker, Selector};
 use focus_workspace::settings::Places;
 use focus_workspace::{Layout, env};
 
-use crate::authority::{Authority, Cover, FenceDecision, GrantSource, decide_fence};
+use crate::authority::{Actor, Authority, Cover, FenceDecision, GrantSource, decide_fence};
 use crate::fences::{Fence, FenceResolution, resolve_fences};
 use crate::policy::{self, Declaration, GuardPolicy, Resolution};
 
@@ -166,10 +166,37 @@ impl Guards {
         authority
     }
 
+    /// `authorityFor` with the actor a hook's payload names: a dispatched
+    /// agent (`agent_type`, or the dispatch's `subagent_type`) inherits the
+    /// authority stamped on it at dispatch, never a person's turn; without a
+    /// stamp (Focus reads no dispatch ledger yet: a record that has one is
+    /// refused before this) nothing covers its action.
+    #[must_use]
+    pub fn authority_of(&self, actor: Actor) -> Authority {
+        if actor == Actor::Subagent {
+            return Authority {
+                actor,
+                ..Authority::without_markers(self.unattended)
+            };
+        }
+        self.authority()
+    }
+
+    /// `decideFence` for a hook: [`Self::decide`] with the actor its payload
+    /// names.
+    #[must_use]
+    pub fn decide_for(&self, fence: Fence, actor: Actor) -> FenceDecision {
+        self.decide_with(fence, self.authority_of(actor))
+    }
+
     /// `decideFence`: the whole decision for one fence. An unreadable policy
     /// is the strictest policy, so the fence stays up.
     #[must_use]
     pub fn decide(&self, fence: Fence) -> FenceDecision {
+        self.decide_with(fence, self.authority())
+    }
+
+    fn decide_with(&self, fence: Fence, authority: Authority) -> FenceDecision {
         let policy = self.policy(true).unwrap_or_else(|_| Resolution {
             value: GuardPolicy::Strict,
             source: "not set".to_owned(),
@@ -186,7 +213,22 @@ impl Guards {
             .iter()
             .find(|resolved| resolved.fence == fence)
             .expect("every fence is resolved");
-        decide_fence(&policy, resolved, self.authority())
+        decide_fence(&policy, resolved, authority)
+    }
+
+    /// `authorityActorFrom`: who a hook's payload says is acting. The
+    /// unattended driver is the environment's word (`FOCUS_UNATTENDED=1`).
+    #[must_use]
+    pub fn actor_from(agent_type: Option<&str>, subagent_type: Option<&str>) -> Actor {
+        let named =
+            |value: Option<&str>| value.is_some_and(|text| !focus_js::text::trim(text).is_empty());
+        if named(agent_type) || named(subagent_type) {
+            Actor::Subagent
+        } else if env::var("UNATTENDED").as_deref() == Some("1") {
+            Actor::Unattended
+        } else {
+            Actor::Main
+        }
     }
 }
 
@@ -473,6 +515,20 @@ mod tests {
         let guards = tree.guards().unwrap();
         assert_eq!(guards.authority().covered, Cover::Grant);
         assert_eq!(guards.authority().grant_source(), "turn-marker");
+        // A dispatched agent inherits no person's turn: without a dispatch
+        // stamp nothing covers it. The main loop's actor is the person's.
+        let dispatched = guards.authority_of(Actor::Subagent);
+        assert_eq!(
+            (dispatched.covered, dispatched.actor),
+            (Cover::None, Actor::Subagent)
+        );
+        assert_eq!(guards.authority_of(Actor::Main), guards.authority());
+        assert_eq!(
+            Guards::actor_from(Some("focus-product-agent"), None),
+            Actor::Subagent
+        );
+        assert_eq!(Guards::actor_from(Some("  "), Some("x")), Actor::Subagent);
+        assert_eq!(Guards::actor_from(None, Some(" ")), Actor::Main);
         let mut unattended = tree.guards().unwrap();
         unattended.unattended = true;
         assert_eq!(unattended.authority().covered, Cover::None);

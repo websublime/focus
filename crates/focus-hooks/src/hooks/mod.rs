@@ -3,6 +3,7 @@
 
 pub mod log_subagent;
 pub mod rebuild_stage_graph;
+pub mod review_freeze;
 pub mod session_end;
 pub mod session_start;
 pub mod sync_workflow_state;

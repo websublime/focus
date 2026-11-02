@@ -1548,3 +1548,170 @@ fn a_session_start_of_a_later_milestone_is_refused_by_name() {
             .contains("focus-unit-scope.json")
     );
 }
+
+const REVIEW_ROWS: &str = "\n## Review Requested\n**Timestamp**: 2026-01-05T10:02:00Z\n**Event**: REVIEW_REQUESTED\n**Stage**: intent-capture\n**Reviewer**: focus-product-lead-agent\n**Iteration**: 1\n\n---\n\n## Review Completed\n**Timestamp**: 2026-01-05T10:03:00Z\n**Event**: REVIEW_COMPLETED\n**Stage**: intent-capture\n**Reviewer**: focus-product-lead-agent\n**Iteration**: 1\n**Verdict**: READY\n\n---\n";
+
+fn freeze(root: &Path, tool: &str, rel: &str) -> String {
+    payload(&format!(
+        "\"hook_event_name\":\"PreToolUse\",\"tool_name\":\"{tool}\",\"tool_input\":{{\"file_path\":\"{}/{rel}\"}}",
+        root.to_str().unwrap().replace('\\', "/")
+    ))
+}
+
+#[test]
+fn the_review_freeze_passes_every_write_that_reaches_no_receipt() {
+    let root = project("freeze-pass");
+    let doc = format!("{RECORD}/ideation/intent-capture/intent-statement.md");
+    // A read, a write elsewhere, another stage's document, the summary
+    // stage's own questions file: none reaches the receipt scan.
+    quiet(&hook(
+        &root,
+        &["review-freeze"],
+        &freeze(&root, "Read", &doc),
+        &[],
+    ));
+    quiet(&hook(
+        &root,
+        &["review-freeze"],
+        &freeze(&root, "Write", "README.md"),
+        &[],
+    ));
+    quiet(&hook(
+        &root,
+        &["review-freeze"],
+        &freeze(
+            &root,
+            "Write",
+            &format!("{RECORD}/ideation/market-research/competitive-analysis.md"),
+        ),
+        &[],
+    ));
+    write(&root, SHARD, &format!("# Focus Audit Log\n{REVIEW_ROWS}"));
+    quiet(&hook(
+        &root,
+        &["review-freeze"],
+        &freeze(
+            &root,
+            "Write",
+            &format!("{RECORD}/ideation/intent-capture/intent-capture-questions.md"),
+        ),
+        &[],
+    ));
+    // The stage's document with no review row in the ledger holds no
+    // receipt; neither does a completed stage's.
+    write(&root, SHARD, "# Focus Audit Log\n");
+    quiet(&hook(
+        &root,
+        &["review-freeze"],
+        &freeze(&root, "Write", &doc),
+        &[],
+    ));
+    quiet(&hook(
+        &root,
+        &["review-freeze"],
+        &freeze(&root, "Edit", &doc),
+        &[],
+    ));
+    write(&root, SHARD, &format!("# Focus Audit Log\n{REVIEW_ROWS}"));
+    write(
+        &root,
+        &format!("{RECORD}/focus-state.md"),
+        &STATE.replace("- [-] intent-capture", "- [x] intent-capture"),
+    );
+    quiet(&hook(
+        &root,
+        &["review-freeze"],
+        &freeze(&root, "Write", &doc),
+        &[],
+    ));
+    assert!(heartbeat(&root, "review-freeze.last").is_some());
+    // Malformed payloads and a missing tool input fail open.
+    for stdin in ["{nope", "", "[1]", &payload("\"tool_name\":\"Write\"")] {
+        quiet(&hook(&root, &["review-freeze"], stdin, &[]));
+    }
+}
+
+/// Deliberate deviation. Upstream weighs the review receipt scan and freezes
+/// the document under a fresh terminal review (exit 2, a
+/// REVIEW_FREEZE_BLOCKED row); Focus refuses the write by name while it does
+/// not weigh receipts.
+#[test]
+fn a_write_that_reaches_the_receipt_scan_is_refused_by_name() {
+    let root = project("freeze-rows");
+    let doc = format!("{RECORD}/ideation/intent-capture/intent-statement.md");
+    write(&root, SHARD, &format!("# Focus Audit Log\n{REVIEW_ROWS}"));
+    let said = refusal(&hook(
+        &root,
+        &["review-freeze"],
+        &freeze(&root, "Write", &doc),
+        &[],
+    ));
+    assert!(said.starts_with("\""), "{said}");
+    assert!(said.contains("intent-statement.md\" is the output document of \"intent-capture\", whose ledger holds a review request and a completed review: whether a fresh terminal review still covers it is the review receipt scan's answer, and Focus does not weigh review receipts yet."), "{said}");
+    // A shell redirection into the document reaches it the same way.
+    let shell = payload(&format!(
+        "\"hook_event_name\":\"PreToolUse\",\"tool_name\":\"Bash\",\"tool_input\":{{\"command\":\"echo x > {}/{doc}\"}}",
+        root.to_str().unwrap().replace('\\', "/")
+    ));
+    assert!(
+        refusal(&hook(&root, &["review-freeze"], &shell, &[]))
+            .contains("Focus does not weigh review receipts yet")
+    );
+    assert_eq!(
+        read(&root, SHARD),
+        format!("# Focus Audit Log\n{REVIEW_ROWS}")
+    );
+    // The off switch, in the environment or a settings file, ends the check
+    // before it (any other value is not the switch); a conversation outside
+    // the workflow is not held to it.
+    quiet(&hook(
+        &root,
+        &["review-freeze"],
+        &freeze(&root, "Write", &doc),
+        &[("FOCUS_DISABLE_REVIEW_FREEZE_HOOK", "1")],
+    ));
+    assert!(
+        refusal(&hook(
+            &root,
+            &["review-freeze"],
+            &freeze(&root, "Write", &doc),
+            &[("FOCUS_DISABLE_REVIEW_FREEZE_HOOK", "0")],
+        ))
+        .contains("Focus does not weigh review receipts yet")
+    );
+    write(
+        &root,
+        "focus.settings.local.json",
+        "{\"schemaVersion\": 1, \"flags\": {\"schemaVersion\": 1, \"bypasses\": [\"FOCUS_DISABLE_REVIEW_FREEZE_HOOK\"]}}\n",
+    );
+    quiet(&hook(
+        &root,
+        &["review-freeze"],
+        &freeze(&root, "Write", &doc),
+        &[],
+    ));
+    // A settings file the resolution refuses is upstream's thrown read.
+    write(&root, "focus.settings.local.json", "{\"flags\": {}}\n");
+    assert!(
+        refusal(&hook(
+            &root,
+            &["review-freeze"],
+            &freeze(&root, "Write", &doc),
+            &[]
+        ))
+        .starts_with("focus: ")
+    );
+    fs::remove_file(root.join("focus.settings.local.json")).unwrap();
+    write(
+        &root,
+        "focus/.focus-sessions/s1.binding.json",
+        &BINDING.replace("260105-add-login", "other-9f8e7d6c"),
+    );
+    fs::remove_file(root.join("focus/spaces/default/intents/active-intent")).unwrap();
+    quiet(&hook(
+        &root,
+        &["review-freeze"],
+        &freeze(&root, "Write", &doc),
+        &[],
+    ));
+}

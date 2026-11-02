@@ -642,13 +642,17 @@ pub fn open_gate_approves_together(wf: &Workflow, slug: &str) -> Vec<String> {
 // --- The revision backstop ---------------------------------------------------------
 
 /// `producesArtifactFile`: whether a written file is one the stage produces.
-fn produces_artifact_file(stage: &Stage, file: &str, recorded_repos: &[String]) -> bool {
-    if stage.produces.is_empty() {
+pub fn produces_artifact_file(stage: &Stage, file: &str, recorded_repos: &[String]) -> bool {
+    produces_file(&stage.slug, &stage.produces, file, recorded_repos)
+}
+
+fn produces_file(slug: &str, produces: &[String], file: &str, recorded_repos: &[String]) -> bool {
+    if produces.is_empty() {
         return false;
     }
     let norm = file.replace('\\', "/");
-    if KNOWN_CODEKB_STAGES.contains(&stage.slug.as_str()) {
-        return stage.produces.iter().any(|name| {
+    if KNOWN_CODEKB_STAGES.contains(&slug) {
+        return produces.iter().any(|name| {
             let filename = format!("/{}", artifact_filename(name));
             let Some(idx) = norm.rfind(&filename) else {
                 return false;
@@ -668,10 +672,69 @@ fn produces_artifact_file(stage: &Stage, file: &str, recorded_repos: &[String]) 
                 && (recorded_repos.is_empty() || recorded_repos.iter().any(|r| r == repo))
         });
     }
-    stage
+    produces
+        .iter()
+        .any(|name| norm.ends_with(&format!("/{slug}/{}", artifact_filename(name))))
+}
+
+/// `producesArtifactUnit`: `None` when the file is not one of the stage's
+/// declared or optional artifacts; otherwise the unit a per-unit path names
+/// (`…/construction/<unit>/<slug>/<file>`), `Some(None)` for a stage-level
+/// artifact or an ambiguous per-unit path.
+#[must_use]
+pub fn produces_artifact_unit(
+    stage: &Stage,
+    file: &str,
+    recorded_repos: &[String],
+    produces: &[String],
+) -> Option<Option<String>> {
+    if !produces_file(&stage.slug, produces, file, recorded_repos) {
+        return None;
+    }
+    if !stage::is_per_unit(stage) {
+        return Some(None);
+    }
+    let norm = file.replace('\\', "/");
+    for name in produces {
+        let suffix = format!("/{}/{}", stage.slug, artifact_filename(name));
+        let Some(parent) = norm.strip_suffix(&suffix) else {
+            continue;
+        };
+        const MARKER: &str = "/construction/";
+        let Some(idx) = parent.rfind(MARKER) else {
+            return Some(None);
+        };
+        let unit = &parent[idx + MARKER.len()..];
+        return Some((!unit.is_empty() && !unit.contains('/')).then(|| unit.to_owned()));
+    }
+    Some(None)
+}
+
+/// `summaryOwnedReviewInput`: a summary stage's questions file, whose
+/// confirmation answers do not change the reviewed input.
+fn summary_owned_review_input(stage: &Stage, artifact: &str) -> bool {
+    stage::summary_confirmation(stage).is_some()
+        && artifact.ends_with("-questions")
+        && stage.raw.get("review_artifact").and_then(Value::as_str) != Some(artifact)
+}
+
+/// `reviewedArtifactUnit`: [`produces_artifact_unit`] over the artifacts a
+/// review covers: the stage's declared and optional ones, less a summary
+/// stage's own questions file.
+#[must_use]
+pub fn reviewed_artifact_unit(
+    stage: &Stage,
+    file: &str,
+    recorded_repos: &[String],
+) -> Option<Option<String>> {
+    let reviewed: Vec<String> = stage
         .produces
         .iter()
-        .any(|name| norm.ends_with(&format!("/{}/{}", stage.slug, artifact_filename(name))))
+        .chain(stage.optional_produces.iter())
+        .filter(|name| !summary_owned_review_input(stage, name))
+        .cloned()
+        .collect();
+    produces_artifact_unit(stage, file, recorded_repos, &reviewed)
 }
 
 /// `unrecordedRevisionSinceGateOpen`: the person revised the stage's
@@ -949,5 +1012,91 @@ mod tests {
             "focus/spaces/default/codekb/a/b/architecture.md",
             &[]
         ));
+    }
+
+    #[test]
+    fn a_reviewed_artifact_names_its_unit_or_none() {
+        let stages = focus_graph::runtime::load_from_value(&serde_json::json!([
+            {"slug": "intent-capture", "phase": "ideation", "produces": ["intent-statement", "intent-capture-questions"], "optional_produces": ["stakeholder-map"], "summary_confirmation": "required", "review_artifact": "intent-statement"},
+            {"slug": "functional-design", "phase": "construction", "for_each": "unit-of-work", "produces": ["functional-spec", "traceability"]},
+        ]));
+        let (capture, design) = (&stages[0], &stages[1]);
+        // A stage-level artifact, declared or optional: `Some(None)`; a file
+        // that is not one: `None`; the summary stage's own questions file is
+        // not reviewed input.
+        assert_eq!(
+            reviewed_artifact_unit(
+                capture,
+                "/p/ideation/intent-capture/intent-statement.md",
+                &[]
+            ),
+            Some(None)
+        );
+        assert_eq!(
+            reviewed_artifact_unit(
+                capture,
+                "/p/ideation/intent-capture/stakeholder-map.md",
+                &[]
+            ),
+            Some(None)
+        );
+        assert_eq!(
+            reviewed_artifact_unit(
+                capture,
+                "/p/ideation/intent-capture/intent-capture-questions.md",
+                &[]
+            ),
+            None
+        );
+        assert_eq!(
+            reviewed_artifact_unit(capture, "/p/ideation/other/intent-statement.md", &[]),
+            None
+        );
+        // A stage that does not run per unit names no unit, whatever the path.
+        assert_eq!(
+            reviewed_artifact_unit(
+                capture,
+                "/p/construction/auth/intent-capture/intent-statement.md",
+                &[]
+            ),
+            Some(None)
+        );
+        // A per-unit path names its unit; an ambiguous one names none.
+        assert_eq!(
+            reviewed_artifact_unit(
+                design,
+                "/p/construction/auth/functional-design/functional-spec.md",
+                &[]
+            ),
+            Some(Some("auth".to_owned()))
+        );
+        assert_eq!(
+            reviewed_artifact_unit(
+                design,
+                "C:\\p\\construction\\auth\\functional-design\\traceability.json",
+                &[]
+            ),
+            Some(Some("auth".to_owned()))
+        );
+        assert_eq!(
+            reviewed_artifact_unit(design, "/p/functional-design/functional-spec.md", &[]),
+            Some(None)
+        );
+        assert_eq!(
+            reviewed_artifact_unit(
+                design,
+                "/p/construction/a/b/functional-design/functional-spec.md",
+                &[]
+            ),
+            Some(None)
+        );
+        assert_eq!(
+            reviewed_artifact_unit(
+                design,
+                "/p/construction//functional-design/functional-spec.md",
+                &[]
+            ),
+            Some(None)
+        );
     }
 }
