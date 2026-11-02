@@ -27,6 +27,7 @@ const settings = await import(tool("aidlc-settings.ts"));
 const freeze = await import(resolve(upstream, "core", "hooks", "review-freeze-command.ts"));
 const integrity = await import(resolve(upstream, "core", "hooks", "runtime-integrity.ts"));
 const reviewerScope = await import(resolve(upstream, "core", "hooks", "aidlc-reviewer-scope.ts"));
+const stateGuard = await import(resolve(upstream, "core", "hooks", "aidlc-state-transition-guard.ts"));
 const nodePath = await import("node:path");
 
 // A scratch project for the cases that can only be asked by writing a file.
@@ -611,6 +612,14 @@ function answer(c: Record<string, any>): unknown {
     }
     case "reviewer_dispatch":
       return { record: reviewerScope.parseDispatchRecord(c.raw) };
+    case "state_transition":
+      // The three readers of a shell command the state-transition guard
+      // decides from; all pure.
+      return {
+        direct: stateGuard.directStateTransition(c.command),
+        boundary: stateGuard.isLifecycleBoundaryCommand(c.command),
+        delegated: stateGuard.delegatedLifecycleCommand(c.command),
+      };
     case "runtime_integrity": {
       // A project tree under a scratch root spelled as focus's replay spells
       // its own, laid out from the case: files (`@bytes:N` is a refusable

@@ -552,35 +552,12 @@ fn record_stood_aside(record: &Record, decided: &focus_guards::FenceDecision, de
     );
 }
 
-/// `fenceSwitchSentence` for the state-transition fence: how the person
-/// turns the check off, or why they cannot.
+/// `fenceSwitchSentence` for the state-transition fence.
 fn fence_switch_sentence(record: &Record) -> String {
-    let fence = Fence::StateTransition.name();
-    let guards = Guards::read(&record.layout, &Selector::default(), &record.invoker);
-    match guards.as_ref().map(|guards| guards.policy(false)) {
-        Ok(Ok(policy)) => match policy.memory_strict {
-            None => format!(
-                "If the person meant to do this now, offer to turn the {fence} check off for this piece of work. When they say so, run `focus engine config set guard.{fence} off` yourself and tell them in one line that it is off for this piece of work, comes back on for the next one, and that they can ask you to turn it back on."
-            ),
-            Some(strict) => format!(
-                "Your team set Guard Policy to strict in {}, so the {fence} check stays on for everyone on this repo. Changing that line there changes it.",
-                strict.path.display()
-            ),
-        },
-        _ => {
-            let state_line_only = guards
-                .as_ref()
-                .is_ok_and(|guards| guards.policy(true).is_ok());
-            format!(
-                "Guard Policy (how closely Focus checks changes to what you approved) could not be read, so the {fence} check cannot be turned off from chat. {}",
-                if state_line_only {
-                    "Do you want me to set it again, to strict, relaxed or off, and then try again?"
-                } else {
-                    "A Guard Policy line in this space's org.md, team.md or project.md cannot be read: correct it there (Mode: strict, relaxed or off), then try again."
-                }
-            )
-        }
-    }
+    focus_guards::workflow::fence_switch_sentence(
+        Fence::StateTransition,
+        &Guards::read(&record.layout, &Selector::default(), &record.invoker),
+    )
 }
 
 #[cfg(unix)]

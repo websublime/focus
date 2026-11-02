@@ -28,7 +28,7 @@ pub mod trace;
 use focus_workspace::Layout;
 
 /// The hooks Focus has, as `engine hook <name>` names them.
-pub const HOOKS: [&str; 9] = [
+pub const HOOKS: [&str; 10] = [
     "session-start",
     "validate-state",
     "session-end",
@@ -38,10 +38,11 @@ pub const HOOKS: [&str; 9] = [
     "rebuild-stage-graph",
     "review-freeze",
     "reviewer-scope",
+    "state-transition-guard",
 ];
 
 /// Upstream's other hooks, and what each does, for the refusal by name.
-pub const NOT_PORTED: [(&str, &str); 7] = [
+pub const NOT_PORTED: [(&str, &str); 6] = [
     (
         "record-human-turn",
         "records the person's turn and the words of a gate",
@@ -53,10 +54,6 @@ pub const NOT_PORTED: [(&str, &str); 7] = [
     (
         "plan-approval-guard",
         "holds code until its plan is approved",
-    ),
-    (
-        "state-transition-guard",
-        "keeps the state file to the engine's steps",
     ),
     ("continue-workflow", "decides whether a turn may end"),
     ("deliver-stage-rules", "hands a subagent its stage's rules"),
@@ -94,6 +91,7 @@ pub fn run(name: &str, input: &str, layout: &Layout) -> Outcome {
         "rebuild-stage-graph" => hooks::rebuild_stage_graph::run(input, layout),
         "review-freeze" => hooks::review_freeze::run(input, layout),
         "reviewer-scope" => hooks::reviewer_scope::run(input, layout),
+        "state-transition-guard" => hooks::state_transition_guard::run(input, layout),
         other => {
             let stderr = match NOT_PORTED.iter().find(|(known, _)| *known == other) {
                 Some((_, does)) => format!(

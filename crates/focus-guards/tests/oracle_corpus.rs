@@ -27,6 +27,7 @@ fn every_guard_case_gets_upstreams_answer() {
         (0, 0, 0, 0, 0, 0);
     let (mut commands, mut fired) = (0, 0);
     let (mut scoped, mut blocked, mut defaulted) = (0, 0, 0);
+    let (mut transitions, mut direct, mut boundary, mut delegated) = (0, 0, 0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         let case: Value = focus_js::json::parse(line).unwrap();
@@ -60,6 +61,12 @@ fn every_guard_case_gets_upstreams_answer() {
             blocked += usize::from(out["verdict"]["block"] == true);
             defaulted += usize::from(out["verdict"]["defaulted"] == true);
         }
+        if kind == "state_transition" {
+            transitions += 1;
+            direct += usize::from(!out["direct"].is_null());
+            boundary += usize::from(out["boundary"] == true);
+            delegated += usize::from(!out["delegated"].is_null());
+        }
         if let Some(decisions) = out["decisions"].as_array() {
             stood_aside += decisions
                 .iter()
@@ -86,6 +93,10 @@ fn every_guard_case_gets_upstreams_answer() {
     assert!(
         cfg!(windows) || (scoped >= 500 && blocked >= 100 && defaulted >= 30),
         "too few reviewer scope cases: {scoped}, {blocked} blocked, {defaulted} on an implied root"
+    );
+    assert!(
+        transitions >= 2000 && direct >= 100 && boundary >= 90 && delegated >= 1000,
+        "too few state transition cases: {transitions}, {direct} direct, {boundary} at a boundary, {delegated} delegated"
     );
     assert!(
         stood_aside >= 100 && held >= 100 && pinned >= 20 && refused >= 10,
