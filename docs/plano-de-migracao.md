@@ -1461,6 +1461,7 @@ O hook recusa a escrita que anularia um recibo terminal de revisão fresco: o do
 | Unidades | `gate`: o matcher dos documentos revistos (declarado, opcional, o ficheiro de perguntas, a unit de um caminho e a ambiguidade, um stage que não corre por unit); `workflow`: a autoridade de um agente despachado e quem o pedido nomeia |
 | Testes do CLI | Cada escrita que não alcança recibo passa; a que alcança é recusada pelo nome (ferramenta e shell), com o interruptor (e um valor que não é o interruptor), o ficheiro de settings recusado e a conversa de fora |
 | Mutação | 13 mutantes em `review_freeze` e `gate`: 12 apanhados (5 depois de verificações que a primeira corrida pediu) e 1 equivalente (a saída antecipada sem alvos: sem alvos nada mais se lê que deixe rasto, porque uma seleção sem ficheiro de estado não tem shards) |
+| `cargo test` | 469 testes. Diferencial completo: 2 712 verificações, 2 529 iguais, 183 desvios, 0 diferentes; 2 659 gravadas sobre 776 árvores |
 
 **Desvios deliberados.** Com teste marcado, `DEVIATIONS` e esta linha.
 
