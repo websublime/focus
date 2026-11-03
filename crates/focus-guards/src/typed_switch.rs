@@ -720,6 +720,21 @@ mod tests {
         assert_eq!(entry_words("/FOCUS"), Some(String::new()));
         assert_eq!(entry_words("/focus-runner go"), None);
         assert_eq!(entry_words("focus on it"), None);
+        // The bare entry stays, as upstream's `aidlc …` does: a sentence
+        // that begins with the English word reads as a command line with
+        // words and no flags, which is no switch, no command prompt and
+        // no `/focus` line, so the hook records it as the person's words.
+        let prose = "focus on the login page, not the settings";
+        let request = parse_typed_guard_switch_request(prose, false);
+        assert!(request.switches.is_empty() && request.error.is_none());
+        assert_eq!(
+            request.words.as_deref(),
+            Some("on the login page, not the settings")
+        );
+        assert!(!is_typed_guard_switch_prompt(prose));
+        assert!(!is_typed_guard_switch_question(prose));
+        assert!(!is_command_prompt(prose));
+        assert!(is_typed_guard_switch_prompt("focus --guard-policy relaxed"));
     }
 
     #[test]

@@ -1202,26 +1202,6 @@ fn what_a_gate_cannot_weigh_yet_is_refused_by_name() {
         &format!("{CREATED_RECORD}/ideation/intent-capture/intent-statement.md"),
         "# Intent\n",
     );
-    // Gate words kept for the session.
-    write(
-        &root,
-        &format!("{CREATED_RECORD}/.focus-engine/gate-words/s1.json"),
-        "{}\n",
-    );
-    let session: Vec<(&str, &str)> = quiet_off
-        .iter()
-        .copied()
-        .chain([("FOCUS_SESSION_OVERRIDE", "s1")])
-        .collect();
-    let words = refusal(&state(
-        &root,
-        &["approve", "intent-capture", "--user-input", "Approve"],
-        &session,
-    ));
-    assert!(
-        words.ends_with("Focus does not read gate words yet."),
-        "{words}"
-    );
     // A team's unit gate.
     let team = created_state(&root)
         .replace("- **Revision Count**: 0\n", "")
@@ -1565,4 +1545,231 @@ fn a_jump_resolves_and_moves_the_work() {
         .ends_with("Focus does not read it yet.")
     );
     let _ = fs::remove_dir_all(root);
+}
+
+/// The words the human-turn hook kept for the chat, read at the gate: the
+/// person's exact pick decides against a report of the other choice, their
+/// words ride on the receipt, and their own feedback replaces the
+/// conductor's.
+#[test]
+fn the_persons_own_words_at_the_gate_decide_and_are_recorded() {
+    let root = created("gate-words", CREATED);
+    write(
+        &root,
+        &format!("{CREATED_RECORD}/ideation/intent-capture/intent-statement.md"),
+        "# Intent\n",
+    );
+    // The presence guard stays on: the pick is read only where a person
+    // answers the gate, so the shard carries their turns after it opened.
+    let quiet_off: Vec<(&str, &str)> = DIRECT
+        .iter()
+        .copied()
+        .chain([
+            ("FOCUS_DISABLE_SENSORS", "1"),
+            ("FOCUS_SESSION_OVERRIDE", "s1"),
+        ])
+        .collect();
+    ok(&state(&root, &["gate-start", "intent-capture"], &quiet_off));
+    let turn = |root: &Path| {
+        let dir = root.join(CREATED_RECORD).join("audit");
+        let path = fs::read_dir(&dir)
+            .unwrap()
+            .flatten()
+            .map(|entry| entry.path())
+            .find(|path| path.extension().is_some_and(|ext| ext == "md"))
+            .unwrap();
+        let mut rows = fs::read_to_string(&path).unwrap();
+        rows.push_str("\n## Human Turn\n**Timestamp**: 2099-01-01T00:00:00Z\n**Event**: HUMAN_TURN\n**Session**: s1\n**Origin**: person\n**Source**: typed\n\n---\n");
+        fs::write(&path, rows).unwrap();
+    };
+    turn(&root);
+    let shard_rel = {
+        let dir = root.join(CREATED_RECORD).join("audit");
+        let name = fs::read_dir(&dir)
+            .unwrap()
+            .flatten()
+            .map(|entry| entry.file_name().to_string_lossy().into_owned())
+            .find(|name| name.ends_with(".md"))
+            .unwrap();
+        format!("{CREATED_RECORD}/audit/{name}")
+    };
+    let record = |messages: &[&str]| {
+        let messages: Vec<String> = messages
+            .iter()
+            .enumerate()
+            .map(|(n, text)| {
+                format!(
+                    "{{\"offset\":{},\"text\":{}}}",
+                    100_000 + n,
+                    serde_json::to_string(text).unwrap()
+                )
+            })
+            .collect();
+        write(
+            &root,
+            &format!("{CREATED_RECORD}/.focus-engine/gate-words/s1.json"),
+            &format!(
+                "{{\"version\":1,\"session\":\"s1\",\"shard\":{},\"dropped\":0,\"messages\":[{}]}}\n",
+                serde_json::to_string(&shard_rel).unwrap(),
+                messages.join(",")
+            ),
+        );
+    };
+    // Their latest message picked Request Changes: an approval is refused.
+    record(&["looks fine", "2"]);
+    let said = refusal(&state(
+        &root,
+        &["approve", "intent-capture", "--user-input", "Approve"],
+        &quiet_off,
+    ));
+    assert!(
+        said.starts_with("The person picked Request Changes at the \"intent-capture\" gate. Report that, or ask them if you read their words differently."),
+        "{said}"
+    );
+    // Their words are the feedback; the conductor's text, when it says
+    // something else, is kept beside them.
+    record(&["Request Changes", "the login flow must use oauth"]);
+    let output = state(
+        &root,
+        &["reject", "intent-capture", "--feedback", "use oauth"],
+        &quiet_off,
+    );
+    let out: serde_json::Value = serde_json::from_str(&ok(&output)).unwrap();
+    assert_eq!(out["feedback"], "the login flow must use oauth");
+    assert_eq!(out["feedback_source"], "person");
+    let rows = created_shard(&root);
+    assert!(
+        rows.contains("**Event**: GATE_REJECTED\n**Stage**: intent-capture\n**Feedback**: the login flow must use oauth\n**Conductor Summary**: use oauth\n"),
+        "{rows}"
+    );
+    assert!(rows.contains("**Event**: STAGE_REVISING\n**Stage**: intent-capture\n**Revision count**: 1\n**Feedback**: the login flow must use oauth\n"), "{rows}");
+    // Shown again, their pick of Approve rides on the receipt as their words.
+    ok(&state(&root, &["revise", "intent-capture"], &quiet_off));
+    turn(&root);
+    record(&["Approve"]);
+    let said = refusal(&state(
+        &root,
+        &["reject", "intent-capture", "--feedback", "needs more"],
+        &quiet_off,
+    ));
+    assert!(
+        said.starts_with(
+            "Refusing to reject \"intent-capture\": the person picked Approve at this gate."
+        ),
+        "{said}"
+    );
+    ok(&state(
+        &root,
+        &["approve", "intent-capture", "--user-input", "yes"],
+        &quiet_off,
+    ));
+    let rows = created_shard(&root);
+    assert!(
+        rows.contains("**Event**: GATE_APPROVED\n**Stage**: intent-capture\n**User Input**: Approve\n**Person Reply**: Approve\n"),
+        "{rows}"
+    );
+    // A record of another chat, another shard, or one the hook could not
+    // keep whole, reads as no words.
+    let root = created("gate-words-none", CREATED);
+    write(
+        &root,
+        &format!("{CREATED_RECORD}/ideation/intent-capture/intent-statement.md"),
+        "# Intent\n",
+    );
+    ok(&state(&root, &["gate-start", "intent-capture"], &quiet_off));
+    turn(&root);
+    for text in [
+        "{\"version\":1,\"session\":\"s2\",\"shard\":\"x\",\"dropped\":0,\"messages\":[{\"offset\":100000,\"text\":\"2\"}]}",
+        "{\"version\":1,\"session\":\"s1\",\"shard\":\"other/audit/x.md\",\"dropped\":0,\"messages\":[{\"offset\":100000,\"text\":\"2\"}]}",
+        "{nope",
+    ] {
+        write(
+            &root,
+            &format!("{CREATED_RECORD}/.focus-engine/gate-words/s1.json"),
+            text,
+        );
+        let said = refusal(&state(&root, &["reject", "intent-capture"], &quiet_off));
+        assert!(said.starts_with("Refusing to reject \"intent-capture\": Request Changes requires nonblank revision feedback"), "{text}: {said}");
+    }
+    // Accept as-is is their pick only once the revision cap offers it, and
+    // then it names the approval whatever the conductor typed.
+    let record = |root: &Path, messages: &[&str]| {
+        let shard_rel = {
+            let dir = root.join(CREATED_RECORD).join("audit");
+            let name = fs::read_dir(&dir)
+                .unwrap()
+                .flatten()
+                .map(|entry| entry.file_name().to_string_lossy().into_owned())
+                .find(|name| name.ends_with(".md"))
+                .unwrap();
+            format!("{CREATED_RECORD}/audit/{name}")
+        };
+        let messages: Vec<String> = messages
+            .iter()
+            .enumerate()
+            .map(|(n, text)| {
+                format!(
+                    "{{\"offset\":{},\"text\":{}}}",
+                    100_000 + n,
+                    serde_json::to_string(text).unwrap()
+                )
+            })
+            .collect();
+        write(
+            root,
+            &format!("{CREATED_RECORD}/.focus-engine/gate-words/s1.json"),
+            &format!(
+                "{{\"version\":1,\"session\":\"s1\",\"shard\":{},\"dropped\":0,\"messages\":[{}]}}\n",
+                serde_json::to_string(&shard_rel).unwrap(),
+                messages.join(",")
+            ),
+        );
+    };
+    record(&root, &["Accept as-is"]);
+    ok(&state(
+        &root,
+        &["approve", "intent-capture", "--user-input", "Approve"],
+        &quiet_off,
+    ));
+    let rows = created_shard(&root);
+    assert!(
+        rows.contains("**Event**: GATE_APPROVED\n**Stage**: intent-capture\n**User Input**: Approve\n**Person Reply**: Accept as-is\n"),
+        "{rows}"
+    );
+    let root = created(
+        "gate-words-capped",
+        &CREATED.replace(
+            "## Current Status\n",
+            "## Runtime State\n- **Revision Count**: 3\n\n## Current Status\n",
+        ),
+    );
+    write(
+        &root,
+        &format!("{CREATED_RECORD}/ideation/intent-capture/intent-statement.md"),
+        "# Intent\n",
+    );
+    ok(&state(&root, &["gate-start", "intent-capture"], &quiet_off));
+    turn(&root);
+    record(&root, &["3"]);
+    let said = refusal(&state(
+        &root,
+        &["reject", "intent-capture", "--feedback", "needs more"],
+        &quiet_off,
+    ));
+    assert!(
+        said.starts_with(
+            "Refusing to reject \"intent-capture\": the person picked Accept as-is at this gate."
+        ),
+        "{said}"
+    );
+    ok(&state(
+        &root,
+        &["approve", "intent-capture", "--user-input", "yes"],
+        &quiet_off,
+    ));
+    let rows = created_shard(&root);
+    assert!(
+        rows.contains("**Event**: GATE_APPROVED\n**Stage**: intent-capture\n**User Input**: Accept as-is\n**Person Reply**: 3\n"),
+        "{rows}"
+    );
 }

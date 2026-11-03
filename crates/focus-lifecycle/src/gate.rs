@@ -844,21 +844,6 @@ pub fn unrecorded_revision_since_gate_open(wf: &Workflow, stage: &Stage) -> bool
 
 // --- What a gate refuses by name --------------------------------------------------
 
-/// The gate words the human-turn hook kept for this session (M4).
-///
-/// # Errors
-///
-/// A record is there.
-pub fn refuse_gate_words(wf: &Workflow) -> Result<()> {
-    if let Some(path) = crate::presence::gate_words_record(wf) {
-        bail!(
-            "{} holds the words the person typed at this gate, which the human-turn hook keeps and the decision reads: Focus does not read gate words yet.",
-            path.display()
-        );
-    }
-    Ok(())
-}
-
 /// The review findings a gate would record on its decision row (M5): a
 /// stage with a reviewer whose ledger holds review rows, or whose review
 /// artifact carries a `## Review` section.

@@ -2223,9 +2223,6 @@ DEVIATIONS.update({
     r"state/gates/reject_findings(_with_reviewer)?":
         "--reject-finding and --reopen-finding name a review's finding: upstream looks it up in the review brief "
         "and refuses one that is not current; focus refuses the flags by name",
-    "state/gates/gate_words":
-        "a gate-words record is what the human-turn hook kept of the person's own words for the session (M4): "
-        "upstream reads it onto the decision's row and spends it; focus refuses the decision while it is there",
     "state/gates/unit_team":
         "with Unit Ownership team, a per-unit Construction stage's gate is a unit's gate, which needs the unit DAG "
         "and the units' lifecycle (M4): upstream looks the unit up in the DAG; focus refuses by name",
@@ -4012,8 +4009,53 @@ def gate_checks():
     check_("gates/presence_reject_unattended", created(awaiting, opened, **ic), [reject], {**direct, "UNATTENDED": "1"})
     check_("gates/presence_revise_needs_no_turn", created(revising, opened + block("GATE_REJECTED", T(2), "**Stage**: intent-capture", "**Feedback**: x"), **ic), [["revise", "intent-capture"]], direct)
     check_("gates/start_user_input", created(GATE_STATE, **ic), [["gate-start", "intent-capture", "--user-input", "Approve"], ["revise", "intent-capture", "--user-input", "x", "--approves-together", "a"]], quiet)
-    # Gate words left by the human-turn hook (M4): refused by name.
-    check_("gates/gate_words", created(awaiting, opened, **ic, **{f"{GATE_DIR}/gate-words/s1.json": json.dumps({"stage": "intent-capture", "words": "approve"})}), [approve], {**quiet, "SESSION_OVERRIDE": "s1"})
+    # The words the human-turn hook kept for the chat: the person's exact pick decides, their words ride on the row.
+    words = lambda *texts, session="s1", shard=CREATED_SHARD, dropped=0, offset=100000: {f"{GATE_DIR}/gate-words/{session}.json": json.dumps(
+        {"version": 1, "session": "s1", "shard": shard, "dropped": dropped, "messages": [{"offset": offset + n, "text": text} for n, text in enumerate(texts)]})}
+    # The presence guard stays on: the pick is read only where a person answers the gate.
+    spoken = {**direct, "SESSION_OVERRIDE": "s1"}
+    gate_turns = opened + HUMAN(2) + HUMAN(3)
+    check_("gates/gate_words_malformed", created(awaiting, opened, **ic, **{f"{GATE_DIR}/gate-words/s1.json": json.dumps({"stage": "intent-capture", "words": "approve"})}), [approve], spoken)
+    check_("gates/gate_words_approve", created(awaiting, gate_turns, **ic, **words("looks good", "Approve")), [approve], spoken)
+    check_("gates/gate_words_approve_pick", created(awaiting, gate_turns, **ic, **words("1")), [["approve", "intent-capture", "--user-input", "yes"]], spoken)
+    check_("gates/gate_words_approve_picks_changes", created(awaiting, gate_turns, **ic, **words("looks good", "2")), [approve], spoken)
+    check_("gates/gate_words_approve_picks_changes_text", created(awaiting, gate_turns, **ic, **words("Request Changes (Recommended)")), [approve], spoken)
+    check_("gates/gate_words_approve_cancelled", created(awaiting, gate_turns, **ic, **words("Cancelled")), [approve], spoken)
+    check_("gates/gate_words_approve_cancelled_then", created(awaiting, gate_turns, **ic, **words("Approve", "Cancelled")), [approve], spoken)
+    check_("gates/gate_words_reject", created(awaiting, gate_turns, **ic, **words("Request Changes", "the login flow must use oauth")), [["reject", "intent-capture", "--feedback", "use oauth"]], spoken)
+    check_("gates/gate_words_reject_same", created(awaiting, gate_turns, **ic, **words("the  login flow\nmust use oauth")), [["reject", "intent-capture", "--feedback", "the login flow must use oauth "]], spoken)
+    check_("gates/gate_words_reject_pick_only", created(awaiting, gate_turns, **ic, **words("2")), [["reject", "intent-capture", "--feedback", "needs more"]], spoken)
+    check_("gates/gate_words_reject_pick_only_no_feedback", created(awaiting, gate_turns, **ic, **words("Request Changes")), [["reject", "intent-capture"]], spoken)
+    check_("gates/gate_words_reject_no_feedback", created(awaiting, gate_turns, **ic, **words("use oauth")), [["reject", "intent-capture"]], spoken)
+    check_("gates/gate_words_reject_picks_approve", created(awaiting, gate_turns, **ic, **words("fine", "Approve")), [reject], spoken)
+    check_("gates/gate_words_reject_picks_accept", created(awaiting.replace("- **Revision Count**: 0", "- **Revision Count**: 3"), gate_turns, **ic, **words("Accept as-is")), [reject], spoken)
+    check_("gates/gate_words_reject_accept_not_offered", created(awaiting, gate_turns, **ic, **words("Accept as-is")), [reject], spoken)
+    check_("gates/gate_words_dropped", created(awaiting, gate_turns, **ic, **words("2", dropped=100000)), [approve], spoken)
+    check_("gates/gate_words_dropped_before", created(awaiting, gate_turns, **ic, **words("2", dropped=1)), [approve], spoken)
+    check_("gates/gate_words_before_presentation", created(awaiting, gate_turns, **ic, **words("2", offset=1)), [approve], spoken)
+    check_("gates/gate_words_other_shard", created(awaiting, gate_turns, **ic, **words("2", shard="other/audit/x.md")), [approve], spoken)
+    check_("gates/gate_words_other_session", created(awaiting, gate_turns, **ic, **words("2", session="s2")), [approve], spoken)
+    check_("gates/gate_words_no_session", created(awaiting, gate_turns, **ic, **words("2")), [approve], quiet)
+    check_("gates/gate_words_after_decision", created(awaiting, gate_turns + block("GATE_APPROVED", T(4), "**Stage**: intent-capture", "**User Input**: Approve"), **ic, **words("2")), [approve], spoken)
+    check_("gates/gate_words_answered_question", created(awaiting, opened + HUMAN(2) + block("QUESTION_ANSWERED", T(3), "**Stage**: intent-capture") + HUMAN(4), **ic, **words("2", "Approve")), [approve], spoken)
+    check_("gates/gate_words_other_stage", created(awaiting, gate_turns, **ic, **words("2")), [["approve", "market-research", "--user-input", "Approve"]], spoken)
+    check_("gates/gate_words_bad_record", created(awaiting, gate_turns, **ic, **{f"{GATE_DIR}/gate-words/s1.json": json.dumps({"version": 2, "session": "s1", "shard": CREATED_SHARD, "dropped": 0, "messages": [{"offset": 100000, "text": "2"}]})}), [approve], spoken)
+    check_("gates/gate_words_bad_offset", created(awaiting, gate_turns, **ic, **{f"{GATE_DIR}/gate-words/s1.json": json.dumps({"version": 1, "session": "s1", "shard": CREATED_SHARD, "dropped": 0, "messages": [{"offset": 1.5, "text": "2"}]})}), [approve], spoken)
+    # Accept as-is is their pick only once the revision cap offers it; the pick names the approval whatever the conductor typed.
+    capped = awaiting.replace("- **Revision Count**: 0", "- **Revision Count**: 3")
+    check_("gates/gate_words_approve_accept_pick", created(capped, gate_turns, **ic, **words("3")), [["approve", "intent-capture", "--user-input", "yes"]], spoken)
+    check_("gates/gate_words_approve_accept_not_offered", created(awaiting, gate_turns, **ic, **words("Accept as-is")), [approve], spoken)
+    # A gate shown again after a revision counts from its latest showing: words typed before it are not at this gate.
+    rejected = opened + HUMAN(2) + block("GATE_REJECTED", T(3), "**Stage**: intent-capture", "**Feedback**: x") + block("STAGE_REVISING", T(3), "**Stage**: intent-capture", "**Revision count**: 1", "**Feedback**: x")
+    reshown = block("STAGE_AWAITING_APPROVAL", T(4), "**Stage**: intent-capture", "**Next Stage**: market-research", "**Brief Digest**: none", "**Sensor State**: not-run", "**Open Decisions**: 0")
+    before_reshown = len(rejected.encode("utf-8")) - 2  # under both headers (gate-words-offset): after the first showing, before the second
+    check_("gates/gate_words_reentered", created(awaiting.replace("- **Revision Count**: 0", "- **Revision Count**: 1"), rejected + reshown + HUMAN(5), **ic, **words("2", offset=before_reshown)), [approve], spoken)
+    check_("gates/gate_words_reentered_after", created(awaiting.replace("- **Revision Count**: 0", "- **Revision Count**: 1"), rejected + reshown + HUMAN(5), **ic, **words("2")), [approve], spoken)
+    # A stage approved under another's cover carries that gate's words, not words typed at its own earlier showing.
+    covered_shown = CREATED_AUDIT + block("STAGE_AWAITING_APPROVAL", T(1), "**Stage**: intent-capture") + block("STAGE_AWAITING_APPROVAL", T(1), "**Stage**: market-research", "**Approves Together**: intent-capture") + HUMAN(2) + block(
+        "GATE_APPROVED", T(3), "**Stage**: market-research", "**User Input**: Approve", "**Approves Together**: intent-capture")
+    check_("gates/gate_words_covered", created(awaiting, covered_shown, **ic, **words("2")), [["approve", "intent-capture"]], spoken)
+    check_("gates/gate_words_covered_words", created(awaiting, covered_shown, **ic, **words("fine by me")), [approve], spoken)
     # A revision the backstop records: the artifact changed after the gate opened without a decision.
     backstop = CREATED_AUDIT + block("STAGE_AWAITING_APPROVAL", T(1), "**Stage**: intent-capture") + HUMAN(2) + block("ARTIFACT_UPDATED", T(3), "**Stage**: intent-capture", "**Artifact**: intent-statement") + HUMAN(4)
     check_("gates/revision_backstop", created(awaiting, backstop, **ic), [approve, ["get", "Revision Count"]], quiet)

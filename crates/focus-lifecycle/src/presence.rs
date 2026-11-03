@@ -759,27 +759,181 @@ pub fn unattended_human_presence_hint(wf: &Workflow) -> String {
     format!(" {missed} {NO_CHECK_OFF_OFFER}")
 }
 
-/// Where a gate-words record would be for the session, when one is there:
-/// the human-turn hook's record of what the person typed (M4), which Focus
-/// does not read.
-#[must_use]
-pub fn gate_words_record(wf: &Workflow) -> Option<std::path::PathBuf> {
-    let session = wf
-        .selection
-        .session_id
-        .as_deref()
-        .or(wf.invoker.session_override.as_deref())?;
-    valid_session_id(Some(session))?;
+/// `GATE_WORDS_MAX_FILE_BYTES`: a ceiling against a corrupt or foreign
+/// record.
+const GATE_WORDS_MAX_FILE_BYTES: u64 = 256 * 1024;
+
+/// The gate-words record the human-turn hook keeps for a chat: what the
+/// person typed there, indexed by the shard's size after each turn's row.
+struct GateWordsRecord {
+    /// The project-relative audit shard the offsets index.
+    shard: String,
+    /// The largest offset of a message that was not kept, or 0.
+    dropped: u64,
+    messages: Vec<(u64, String)>,
+}
+
+/// `resolveInvokingSessionId`: the chat this command runs for, as the
+/// selection resolved it from the environment (no command names a session
+/// at a gate).
+fn invoking_session(wf: &Workflow) -> Option<&str> {
+    valid_session_id(wf.selection.session_id.as_deref())
+}
+
+/// `gateWordsPath`: where the session's gate-words record is, whether or
+/// not one is there.
+fn gate_words_path(wf: &Workflow) -> Option<std::path::PathBuf> {
+    let session = invoking_session(wf)?;
     let segment = focus_intent::create::runtime_session_segment(session);
     if segment.is_empty() {
         return None;
     }
-    let path = wf
-        .selection
-        .engine_dir(&wf.layout)
-        .join("gate-words")
-        .join(format!("{segment}.json"));
-    path.exists().then_some(path)
+    Some(
+        wf.selection
+            .engine_dir(&wf.layout)
+            .join("gate-words")
+            .join(format!("{segment}.json")),
+    )
+}
+
+/// `readGateWords`: the session's record, when it is one of ours.
+fn read_gate_words(wf: &Workflow) -> Option<GateWordsRecord> {
+    let session = invoking_session(wf)?;
+    let path = gate_words_path(wf)?;
+    if !path.exists() {
+        return None;
+    }
+    let bytes = focus_workspace::files::read_regular(&path, "gate words").ok()?;
+    if bytes.len() as u64 > GATE_WORDS_MAX_FILE_BYTES {
+        return None;
+    }
+    let value = json::parse(&String::from_utf8_lossy(&bytes)).ok()?;
+    let record = value.as_object()?;
+    if record.get("version") != Some(&Value::from(1))
+        || record.get("session").and_then(Value::as_str) != Some(session)
+    {
+        return None;
+    }
+    let shard = record.get("shard")?.as_str()?.to_owned();
+    let dropped = safe_integer(record.get("dropped")?)?;
+    let messages = record
+        .get("messages")?
+        .as_array()?
+        .iter()
+        .map(|message| {
+            let message = message.as_object()?;
+            Some((
+                safe_integer(message.get("offset")?)?,
+                message.get("text")?.as_str()?.to_owned(),
+            ))
+        })
+        .collect::<Option<Vec<_>>>()?;
+    Some(GateWordsRecord {
+        shard,
+        dropped,
+        messages,
+    })
+}
+
+/// `Number.isSafeInteger` for an offset: a whole number of bytes.
+fn safe_integer(value: &Value) -> Option<u64> {
+    let number = value.as_f64()?;
+    (number.fract() == 0.0 && number.abs() <= 9_007_199_254_740_991.0 && number >= 0.0)
+        .then_some(number as u64)
+}
+
+/// `gateWordsSincePresentation`: the messages this chat's person typed
+/// since the stage's latest presentation, in order; `None` when there are
+/// none, the record is another shard's, or a message typed since was not
+/// kept (the words kept are not everything the person said).
+#[must_use]
+pub fn gate_words_since_presentation(wf: &Workflow, stage: &str) -> Option<Vec<String>> {
+    let record = read_gate_words(wf)?;
+    if record.messages.is_empty() {
+        return None;
+    }
+    let shard = wf.ledger().audit_file(&wf.selector(), &wf.invoker).ok()?;
+    let relative = shard
+        .strip_prefix(&wf.layout.project)
+        .ok()?
+        .to_string_lossy()
+        .replace('\\', "/");
+    if relative != record.shard {
+        return None;
+    }
+    let content = String::from_utf8_lossy(&read_append_only(&shard)?).into_owned();
+    let from = gate_presentation_start(&content, stage, false)?;
+    let floor = from as u64;
+    if record.dropped > floor {
+        return None;
+    }
+    let words: Vec<String> = record
+        .messages
+        .into_iter()
+        .filter(|(offset, _)| *offset > floor)
+        .map(|(_, text)| text)
+        .collect();
+    (!words.is_empty()).then_some(words)
+}
+
+/// `personsLatestGatePick`: the option the person's latest message at the
+/// gate picked exactly ("2", "Request Changes"), or `None` for anything
+/// else. Approve and Request Changes are always the gate's first two
+/// options; Accept as-is is offered third once the revision cap is reached.
+#[must_use]
+pub fn persons_latest_gate_pick(
+    wf: &Workflow,
+    stage: &str,
+    accept_as_is: bool,
+) -> Option<&'static str> {
+    let words: Vec<String> = gate_words_since_presentation(wf, stage)
+        .unwrap_or_default()
+        .into_iter()
+        .filter(|text| !crate::reply::is_non_answer(Some(text)))
+        .collect();
+    let labels: &[&str] = if accept_as_is {
+        &[
+            "Approve",
+            "Request Changes",
+            crate::reply::ACCEPT_AS_IS_CHOICE,
+        ]
+    } else {
+        &crate::reply::APPROVAL_GATE_LABELS
+    };
+    match crate::reply::exact_option_pick(words.last().map(String::as_str), labels)? {
+        0 => Some("Approve"),
+        1 => Some("Request Changes"),
+        2 => Some(crate::reply::ACCEPT_AS_IS_CHOICE),
+        _ => None,
+    }
+}
+
+/// `personsGateWords`: every message this chat's person typed since the
+/// gate was presented, verbatim, joined by line breaks, for the record.
+/// Host-made cancellation text is left out; nothing else is judged.
+#[must_use]
+pub fn persons_gate_words(wf: &Workflow, stage: &str) -> Option<String> {
+    let words: Vec<String> = gate_words_since_presentation(wf, stage)?
+        .into_iter()
+        .filter(|text| !crate::reply::is_non_answer(Some(text)))
+        .collect();
+    (!words.is_empty()).then(|| words.join("\n"))
+}
+
+/// `personsGateFeedback`: what the person asked to change, in their own
+/// words: every message since the presentation, leaving out one that is
+/// only an option pick, which says nothing about what to change.
+#[must_use]
+pub fn persons_gate_feedback(wf: &Workflow, stage: &str) -> Option<String> {
+    let said: Vec<String> = gate_words_since_presentation(wf, stage)?
+        .into_iter()
+        .filter(|text| {
+            !crate::reply::is_non_answer(Some(text))
+                && crate::reply::exact_option_pick(Some(text), &crate::reply::APPROVAL_GATE_LABELS)
+                    .is_none()
+        })
+        .collect();
+    (!said.is_empty()).then(|| said.join("\n"))
 }
 
 /// The workspace directory's name, for messages that name the tree.
@@ -907,6 +1061,16 @@ mod tests {
 
     /// An installed project with one record and two shards, opened as a workflow.
     fn workflow(name: &str, mine: &str, theirs: &str) -> (Workflow, std::path::PathBuf) {
+        workflow_for(name, mine, theirs, None)
+    }
+
+    /// The same, opened for one chat.
+    fn workflow_for(
+        name: &str,
+        mine: &str,
+        theirs: &str,
+        session: Option<&str>,
+    ) -> (Workflow, std::path::PathBuf) {
         use focus_harness::Harness;
         use focus_workspace::Layout;
         use focus_workspace::records::{Invoker, Selection};
@@ -938,7 +1102,7 @@ mod tests {
         let selection = Selection {
             space: "default".to_owned(),
             intent: Some("260105-add-login".to_owned()),
-            session_id: None,
+            session_id: session.map(str::to_owned),
             binding: None,
         };
         (
@@ -1000,6 +1164,233 @@ mod tests {
         std::fs::rename(record.join("audit"), root.join("audit-elsewhere")).unwrap();
         std::os::unix::fs::symlink(root.join("audit-elsewhere"), record.join("audit")).unwrap();
         assert_eq!(human_turn_state(&wf, true, false), TurnState::None);
+        let _ = std::fs::remove_dir_all(root);
+    }
+
+    const MY_SHARD: &str = "focus/spaces/default/intents/260105-add-login/audit/laptop-abc123.md";
+
+    /// A gate shown on my shard, then the given messages typed there, one
+    /// `HUMAN_TURN` row each: the shard's text and the offsets a record
+    /// would index them by (the shard's size after each row).
+    fn gate_shard(texts: &[&str]) -> (String, Vec<u64>) {
+        let mut content = format!(
+            "# Log\n{}{}",
+            block("STAGE_STARTED", "2026-01-01T00:00:00Z", &[("Stage", "a")]),
+            block(
+                "STAGE_AWAITING_APPROVAL",
+                "2026-01-01T00:00:01Z",
+                &[("Stage", "a")]
+            )
+        );
+        let mut offsets = Vec::new();
+        for (n, _) in texts.iter().enumerate() {
+            content.push_str(&block(
+                "HUMAN_TURN",
+                &format!("2026-01-01T00:00:0{}Z", n + 2),
+                &[("Session", "s1"), ("Reply", "yes")],
+            ));
+            offsets.push(content.len() as u64);
+        }
+        (content, offsets)
+    }
+
+    fn write_record(root: &Path, segment: &str, record: &Value) {
+        let dir =
+            root.join("focus/spaces/default/intents/260105-add-login/.focus-engine/gate-words");
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(
+            dir.join(format!("{segment}.json")),
+            serde_json::to_string(record).unwrap(),
+        )
+        .unwrap();
+    }
+
+    fn record(shard: &str, dropped: u64, messages: &[(u64, &str)]) -> Value {
+        serde_json::json!({
+            "version": 1,
+            "session": "s1",
+            "shard": shard,
+            "dropped": dropped,
+            "messages": messages
+                .iter()
+                .map(|(offset, text)| serde_json::json!({"offset": offset, "text": text}))
+                .collect::<Vec<_>>(),
+        })
+    }
+
+    /// The person's words since the presentation are read from this chat's
+    /// record, in order; a pick is told from feedback; a non-answer and an
+    /// exact pick are left out of the feedback; words typed before the
+    /// showing are not at the gate.
+    #[test]
+    fn the_persons_words_at_the_gate_are_read_from_the_chats_record() {
+        let texts = ["Looks wrong", "Cancelled.", "Fix the title", "2"];
+        let (mine, offsets) = gate_shard(&texts);
+        let (wf, root) = workflow_for("gate-words", &mine, "# Log\n", Some("s1"));
+        let messages: Vec<(u64, &str)> = offsets.iter().copied().zip(texts).collect();
+        write_record(&root, "s1", &record(MY_SHARD, 0, &messages));
+        assert_eq!(
+            gate_words_since_presentation(&wf, "a").as_deref(),
+            Some(&["Looks wrong", "Cancelled.", "Fix the title", "2"].map(str::to_owned)[..])
+        );
+        assert_eq!(
+            persons_latest_gate_pick(&wf, "a", false),
+            Some("Request Changes")
+        );
+        assert_eq!(
+            persons_gate_words(&wf, "a").as_deref(),
+            Some("Looks wrong\nFix the title\n2")
+        );
+        assert_eq!(
+            persons_gate_feedback(&wf, "a").as_deref(),
+            Some("Looks wrong\nFix the title")
+        );
+        // A gate shown again after a revision counts from its latest
+        // showing: a message typed between the two showings is not at it.
+        let reshown = format!(
+            "{mine}{}{}{}",
+            block("GATE_REJECTED", "2026-01-01T00:00:07Z", &[("Stage", "a")]),
+            block("STAGE_REVISING", "2026-01-01T00:00:07Z", &[("Stage", "a")]),
+            block(
+                "STAGE_AWAITING_APPROVAL",
+                "2026-01-01T00:00:08Z",
+                &[("Stage", "a")]
+            )
+        );
+        let (again, root_again) =
+            workflow_for("gate-words-reshown", &reshown, "# Log\n", Some("s1"));
+        write_record(
+            &root_again,
+            "s1",
+            &record(MY_SHARD, 0, &[(offsets[3], "2")]),
+        );
+        assert!(gate_words_since_presentation(&again, "a").is_none());
+        write_record(
+            &root_again,
+            "s1",
+            &record(
+                MY_SHARD,
+                0,
+                &[(offsets[3], "2"), (reshown.len() as u64, "1")],
+            ),
+        );
+        assert_eq!(
+            persons_latest_gate_pick(&again, "a", false),
+            Some("Approve")
+        );
+        let _ = std::fs::remove_dir_all(root_again);
+        // Another stage was not presented; a message at the showing's own
+        // offset was typed before it.
+        assert!(gate_words_since_presentation(&wf, "b").is_none());
+        let floor = gate_presentation_start(&mine, "a", false).unwrap() as u64;
+        write_record(
+            &root,
+            "s1",
+            &record(MY_SHARD, 0, &[(floor, "before"), (offsets[0], "after")]),
+        );
+        assert_eq!(persons_gate_words(&wf, "a").as_deref(), Some("after"));
+        // The last message decides the pick; a non-answer after it does not.
+        write_record(
+            &root,
+            "s1",
+            &record(MY_SHARD, 0, &[(offsets[0], "1"), (offsets[1], "timed out")]),
+        );
+        assert_eq!(persons_latest_gate_pick(&wf, "a", false), Some("Approve"));
+        assert!(persons_gate_feedback(&wf, "a").is_none());
+        // Accept as-is is an option only once offered.
+        write_record(&root, "s1", &record(MY_SHARD, 0, &[(offsets[0], "3")]));
+        assert_eq!(persons_latest_gate_pick(&wf, "a", false), None);
+        assert_eq!(
+            persons_latest_gate_pick(&wf, "a", true),
+            Some(crate::reply::ACCEPT_AS_IS_CHOICE)
+        );
+        assert_eq!(persons_gate_feedback(&wf, "a").as_deref(), Some("3"));
+        let _ = std::fs::remove_dir_all(root);
+    }
+
+    /// A record that is not this chat's, this shard's, or whole is no
+    /// record: words were said that were not kept, another shard's offsets
+    /// index nothing here, and a malformed field fails closed.
+    #[test]
+    fn a_gate_words_record_that_cannot_be_trusted_is_not_read() {
+        let (mine, offsets) = gate_shard(&["Fix it"]);
+        let (wf, root) = workflow_for("gate-words-untrusted", &mine, "# Log\n", Some("s1"));
+        let good = record(MY_SHARD, 0, &[(offsets[0], "Fix it")]);
+        write_record(&root, "s1", &good);
+        assert_eq!(persons_gate_words(&wf, "a").as_deref(), Some("Fix it"));
+        let floor = gate_presentation_start(&mine, "a", false).unwrap() as u64;
+        // A message since the showing was dropped; one before it is no loss.
+        write_record(
+            &root,
+            "s1",
+            &record(MY_SHARD, floor + 1, &[(offsets[0], "Fix it")]),
+        );
+        assert!(persons_gate_words(&wf, "a").is_none());
+        write_record(
+            &root,
+            "s1",
+            &record(MY_SHARD, floor, &[(offsets[0], "Fix it")]),
+        );
+        assert_eq!(persons_gate_words(&wf, "a").as_deref(), Some("Fix it"));
+        // Another shard, another session, another version, no messages.
+        let other_shard = MY_SHARD.replace("laptop-abc123", "desktop-def456");
+        write_record(
+            &root,
+            "s1",
+            &record(&other_shard, 0, &[(offsets[0], "Fix it")]),
+        );
+        assert!(persons_gate_words(&wf, "a").is_none());
+        let mut other_session = good.clone();
+        other_session["session"] = Value::from("s2");
+        write_record(&root, "s1", &other_session);
+        assert!(persons_gate_words(&wf, "a").is_none());
+        let mut other_version = good.clone();
+        other_version["version"] = Value::from(2);
+        write_record(&root, "s1", &other_version);
+        assert!(persons_gate_words(&wf, "a").is_none());
+        write_record(&root, "s1", &record(MY_SHARD, 0, &[]));
+        assert!(persons_gate_words(&wf, "a").is_none());
+        // Offsets and `dropped` are whole non-negative safe integers.
+        for bad in [
+            Value::from(1.5),
+            Value::from(-1),
+            Value::from("12"),
+            Value::from(9_007_199_254_740_992_u64),
+        ] {
+            let mut broken = good.clone();
+            broken["messages"][0]["offset"] = bad.clone();
+            write_record(&root, "s1", &broken);
+            assert!(persons_gate_words(&wf, "a").is_none(), "offset {bad}");
+            let mut broken = good.clone();
+            broken["dropped"] = bad.clone();
+            write_record(&root, "s1", &broken);
+            assert!(persons_gate_words(&wf, "a").is_none(), "dropped {bad}");
+        }
+        let mut no_text = good.clone();
+        no_text["messages"][0]["text"] = Value::from(7);
+        write_record(&root, "s1", &no_text);
+        assert!(persons_gate_words(&wf, "a").is_none());
+        // Not JSON, not an object, over the ceiling.
+        let path = gate_words_path(&wf).unwrap();
+        std::fs::write(&path, "{").unwrap();
+        assert!(persons_gate_words(&wf, "a").is_none());
+        std::fs::write(&path, "[]").unwrap();
+        assert!(persons_gate_words(&wf, "a").is_none());
+        let mut huge = good.clone();
+        huge["pad"] = Value::from("x".repeat(GATE_WORDS_MAX_FILE_BYTES as usize));
+        write_record(&root, "s1", &huge);
+        assert!(persons_gate_words(&wf, "a").is_none());
+        // Without a chat there is no record to read, and the record's name
+        // is the chat's segment.
+        write_record(&root, "s1", &good);
+        let (alone, _) = workflow_for("gate-words-alone", &mine, "# Log\n", None);
+        assert!(gate_words_path(&alone).is_none());
+        assert!(persons_gate_words(&alone, "a").is_none());
+        assert!(
+            gate_words_path(&wf)
+                .unwrap()
+                .ends_with(".focus-engine/gate-words/s1.json")
+        );
         let _ = std::fs::remove_dir_all(root);
     }
 }
