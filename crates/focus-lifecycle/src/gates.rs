@@ -95,6 +95,18 @@ macro_rules! refuse {
     };
 }
 
+/// `PERSONS_WORDS_FIELD`: the person's own words at a gate they answered,
+/// on the receipt beside the choice the conductor reported.
+const PERSONS_WORDS_FIELD: &str = "Person Reply";
+/// `CONDUCTOR_SUMMARY_FIELD`: the conductor's own feedback text, kept when
+/// the person's recorded words became the Feedback and the two differ.
+const CONDUCTOR_SUMMARY_FIELD: &str = "Conductor Summary";
+
+/// `normalizeGuardRecoveryText`: whitespace runs as one space, trimmed.
+fn normalize_text(text: &str) -> String {
+    trim(&focus_js::re::replace(r"\s+", "g", text, " ")).to_owned()
+}
+
 fn for_agent(message: String, person_decided: bool) -> Refused {
     Refused::ForAgent {
         message,
@@ -380,11 +392,25 @@ fn verify_approval_decision(
                 false,
             ));
         }
-        // The person's exact pick is in the gate words (M4), refused above
-        // when on disk; with none, the input names the approval.
-        approval_input = Some(
-            reply::stage_gate_approval(approval_input.as_deref(), revision_count >= 3.0).to_owned(),
-        );
+        // The conductor read the person's reply and reports the approval it
+        // made; a latest message that is exactly Request Changes is their
+        // pick, and their exact pick names which approval it is.
+        let pick = presence::persons_latest_gate_pick(wf, slug, revision_count >= 3.0);
+        if pick == Some("Request Changes") {
+            return Err(for_agent(
+                format!(
+                    "The person picked Request Changes at the \"{slug}\" gate. Report that, or ask them if you read their words differently."
+                ),
+                true,
+            ));
+        }
+        approval_input = Some(pick.map_or_else(
+            || {
+                reply::stage_gate_approval(approval_input.as_deref(), revision_count >= 3.0)
+                    .to_owned()
+            },
+            str::to_owned,
+        ));
     }
     if !presence_off && together.is_none() {
         let replied_since_decision = presence::human_replied_since_gate(wf);
@@ -460,7 +486,6 @@ pub fn approve(
     refuse_team_gate(&preflight, stage, unit)?;
     validate_slug_in_state(&preflight, slug, &[CheckboxState::AwaitingApproval])?;
     admission::refuse_construction(stage)?;
-    gate::refuse_gate_words(wf)?;
     verify_approval_decision(wf, &preflight, stage, user_input)?;
     admission::verify_stage_artifacts(wf, stage, Action::Complete)?;
     admission::verify_summary_confirmation(wf, stage, &preflight)?;
@@ -569,9 +594,21 @@ pub fn approve(
     if let Some(input) = &decision.approval_input {
         gate_fields.push(("User Input", input.clone()));
     }
+    // The person's own words at the gate they answered ride on the receipt
+    // beside the choice the conductor reported.
     match &decision.together {
-        Some(first) => gate_fields.push(gate::approved_together_with_field(first)),
-        None => gate_fields.extend(gate::approves_together_fields(&listed_together)),
+        Some(first) => {
+            gate_fields.push(gate::approved_together_with_field(first));
+            if let Some(words) = presence::persons_gate_words(wf, first) {
+                gate_fields.push((PERSONS_WORDS_FIELD, words));
+            }
+        }
+        None => {
+            if let Some(words) = presence::persons_gate_words(wf, slug) {
+                gate_fields.push((PERSONS_WORDS_FIELD, words));
+            }
+            gate_fields.extend(gate::approves_together_fields(&listed_together));
+        }
     }
     gate_fields.push(gate::brief_digest_field(wf, stage));
     if let Some(accepted) = gate::decisions_accepted_open_field(wf, slug) {
@@ -626,7 +663,29 @@ pub fn reject(wf: &Workflow, slug: &str, ask: &Reject<'_>, _operation: &str) -> 
     )?;
     admission::refuse_construction(stage)?;
     refuse_directive_marker(wf)?;
-    gate::refuse_gate_words(wf)?;
+    // The person's exact pick at this gate decides against a rejection.
+    let reject_pick =
+        presence::persons_latest_gate_pick(wf, slug, revision_count_of(&content) >= 3.0);
+    if let Some(pick) = reject_pick.filter(|pick| *pick != "Request Changes") {
+        return Err(for_agent(
+            format!(
+                "Refusing to reject \"{slug}\": the person picked {pick} at this gate. Report that, or ask them if you read their words differently."
+            ),
+            true,
+        ));
+    }
+    // The person's own words: when this chat's human-turn hook recorded what
+    // they typed after the stage's latest presentation, those words are the
+    // feedback, and the conductor's text, when it says something else, is
+    // kept beside them as the Conductor Summary.
+    let persons_words = presence::persons_gate_feedback(wf, slug);
+    let conductor_summary = match (&persons_words, feedback) {
+        (Some(words), Some(conductor)) if normalize_text(conductor) != normalize_text(words) => {
+            Some(conductor.to_owned())
+        }
+        _ => None,
+    };
+    let feedback = persons_words.as_deref().or(feedback);
     let Some(feedback) = feedback else {
         return Err(for_agent(
             format!(
@@ -686,14 +745,14 @@ pub fn reject(wf: &Workflow, slug: &str, ask: &Reject<'_>, _operation: &str) -> 
     content = set_checkbox(&content, slug, CheckboxState::Revising);
     let timestamp = iso_timestamp(SystemTime::now());
     content = set_field(&content, "Last Updated", &timestamp);
-    wf.emit(
-        &_held,
-        "GATE_REJECTED",
-        &[
-            ("Stage", slug.to_owned()),
-            ("Feedback", feedback.to_owned()),
-        ],
-    )?;
+    let mut rejected_fields = vec![
+        ("Stage", slug.to_owned()),
+        ("Feedback", feedback.to_owned()),
+    ];
+    if let Some(summary) = conductor_summary {
+        rejected_fields.push((CONDUCTOR_SUMMARY_FIELD, summary));
+    }
+    wf.emit(&_held, "GATE_REJECTED", &rejected_fields)?;
     wf.emit(
         &_held,
         "STAGE_REVISING",
@@ -704,10 +763,17 @@ pub fn reject(wf: &Workflow, slug: &str, ask: &Reject<'_>, _operation: &str) -> 
         ],
     )?;
     wf.write_state(&content)?;
-    Ok(json!({
+    let mut out = json!({
         "slug": slug,
         "new_state": "revising",
         "revision_count": focus_js::num::from_str(&revision_count),
         "timestamp": timestamp,
-    }))
+    });
+    // The JSON names the feedback only when it is the person's recorded
+    // words, so `report` can hand the revision exactly what they said.
+    if let Some(words) = persons_words {
+        out["feedback"] = json!(words);
+        out["feedback_source"] = json!("person");
+    }
+    Ok(out)
 }
