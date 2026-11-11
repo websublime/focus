@@ -28,6 +28,9 @@ const freeze = await import(resolve(upstream, "core", "hooks", "review-freeze-co
 const integrity = await import(resolve(upstream, "core", "hooks", "runtime-integrity.ts"));
 const reviewerScope = await import(resolve(upstream, "core", "hooks", "aidlc-reviewer-scope.ts"));
 const stateGuard = await import(resolve(upstream, "core", "hooks", "aidlc-state-transition-guard.ts"));
+const planGuard = await import(resolve(upstream, "core", "hooks", "aidlc-plan-approval-guard.ts"));
+const guardOperation = await import(tool("aidlc-guard-operation.ts"));
+const posture = await import(tool("aidlc-testing-posture.ts"));
 const nodePath = await import("node:path");
 
 // A scratch project for the cases that can only be asked by writing a file.
@@ -710,6 +713,82 @@ function answer(c: Record<string, any>): unknown {
           return { value: flavour[c.op](args[0] ?? "") };
       }
     }
+    case "guard_operation": {
+      // The recovery operations: each reader by name. Rendering is asked
+      // with its mode, harness directory and shell explicit, so the answer
+      // does not depend on where upstream runs from.
+      const operation = c.operation;
+      switch (c.op) {
+        case "parse":
+          return guardOperation.isGuardRecoveryOperation(operation);
+        case "invocation":
+          return guardOperation.isGuardRecoveryOperation(operation) ? guardOperation.guardOperationInvocation(operation) : null;
+        case "render":
+          if (!guardOperation.isGuardRecoveryOperation(operation)) return null;
+          try {
+            return guardOperation.renderGuardOperation(operation, { mode: c.mode, harnessDir: c.harness, shell: c.shell });
+          } catch (err) {
+            return { error: message(err) };
+          }
+        case "matches_command":
+          return guardOperation.guardOperationMatchesCommand(operation, c.command);
+        case "matches_remedy":
+          return guardOperation.guardOperationMatchesRemedy(operation, c.remedy, c.stage, c.unit ?? undefined);
+        case "same":
+          return guardOperation.sameGuardOperation(c.left, c.right);
+        case "continuation":
+          return guardOperation.parseGuardRestartContinuationCommand(c.command, c.harness == null ? {} : { harnessDir: c.harness });
+        case "engine_invocation":
+          return guardOperation.isGuardRecoveryEngineInvocation(c.args);
+        case "matches_engine_args":
+          return guardOperation.guardOperationMatchesEngineArgs(operation, c.args);
+        case "wording": {
+          const wording = guardOperation.GUARD_REMEDY_WORDING[c.remedy];
+          if (!wording) return null;
+          return wording({
+            code: c.code, stage: c.stage, target: c.target, unit: c.unit ?? undefined, fence: c.fence ?? undefined,
+            sourceUnbindable: c.source_unbindable ?? false, everyUnit: c.every_unit ?? false,
+          });
+        }
+        default:
+          return { unsupported: c.op };
+      }
+    }
+    case "plan_dispatch":
+      return planGuard.evaluatePlanApprovalDispatch(c.tool, c.subagent, c.prompt, { currentStage: c.current_stage, units: c.units });
+    case "plan_reason": {
+      // A refusal names the engine's commands in the install's spelling:
+      // from the source tree, `bun <harness>/tools/aidlc-<tool>.ts`. Focus
+      // has one spelling, `focus engine <tool>`; upstream's is translated to
+      // its native form here, as names.py translates its name, so the
+      // sentences compare.
+      const native = (text: string) => text.replace(/bun \.[A-Za-z0-9_.-]+\/tools\/aidlc-([a-z-]+)\.ts/g, "aidlc engine $1");
+      switch (c.op) {
+        case "appendix":
+          return native(planGuard.appendixBlockReason(c.mentioned));
+        case "block":
+          return native(planGuard.blockReason(c.mentioned, c.detail ?? null, c.targets ?? null));
+        case "handoff":
+          return native(planGuard.handoffBlockReason(c.mentioned, c.cause, c.targets ?? null));
+        case "mutation":
+          return native(planGuard.mutationBlockReason(c.unit ?? null, c.opaque ?? false, c.detail ?? null));
+        case "receipt":
+          return planGuard.receiptDetail(c.evidence, c.mentioned);
+        default:
+          return { unsupported: c.op };
+      }
+    }
+    case "contract_markers":
+      return posture.promptTestingContractMarkers(c.text);
+    case "questions_file":
+      return {
+        approved: posture.questionsFileApproved(c.body),
+        pending: posture.questionsFileHasPendingPlanApproval(c.body),
+        fingerprint: posture.questionsFileApprovalFingerprint(c.body),
+        planned_source: posture.questionsFilePlannedSource(c.body),
+      };
+    case "review_appendix":
+      return posture.planReviewAppendix(c.plan);
     default:
       return { unsupported: c.kind };
   }

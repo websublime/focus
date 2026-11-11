@@ -30,6 +30,11 @@ fn every_guard_case_gets_upstreams_answer() {
     let (mut transitions, mut direct, mut boundary, mut delegated) = (0, 0, 0, 0);
     let (mut typed, mut switched, mut unreadable, mut asked, mut worded, mut split) =
         (0, 0, 0, 0, 0, 0);
+    let (mut operations, mut rendered, mut matched, mut continued, mut admitted, mut remedies) =
+        (0, 0, 0, 0, 0, 0);
+    let (mut dispatches, mut dispatch_blocked, mut defective, mut appendix) = (0, 0, 0, 0);
+    let (mut reasons, mut questions, mut approved, mut pending, mut plans, mut appended) =
+        (0, 0, 0, 0, 0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         let case: Value = focus_js::json::parse(line).unwrap();
@@ -79,6 +84,31 @@ fn every_guard_case_gets_upstreams_answer() {
             boundary += usize::from(out["boundary"] == true);
             delegated += usize::from(!out["delegated"].is_null());
         }
+        if kind == "guard_operation" {
+            operations += 1;
+            let op = case["op"].as_str().unwrap_or_default();
+            rendered += usize::from(op == "render" && out.is_string());
+            matched += usize::from(op == "matches_command" && out == true);
+            continued += usize::from(op == "continuation" && out.is_object());
+            admitted += usize::from(op == "engine_invocation" && out == true);
+            remedies += usize::from(op == "wording" && out.is_object());
+        }
+        if kind == "plan_dispatch" {
+            dispatches += 1;
+            dispatch_blocked += usize::from(out["block"] == true);
+            defective += usize::from(!out["handoff"].is_null());
+            appendix += usize::from(out["appendixInBrief"] == true);
+        }
+        reasons += usize::from(kind == "plan_reason" || kind == "contract_markers");
+        if kind == "questions_file" {
+            questions += 1;
+            approved += usize::from(out["approved"] == true);
+            pending += usize::from(out["pending"] == true);
+        }
+        if kind == "review_appendix" {
+            plans += 1;
+            appended += usize::from(out.as_str().is_some_and(|text| !text.is_empty()));
+        }
         if let Some(decisions) = out["decisions"].as_array() {
             stood_aside += decisions
                 .iter()
@@ -118,6 +148,28 @@ fn every_guard_case_gets_upstreams_answer() {
             && worded >= 250
             && split >= 300,
         "too few typed switch cases: {typed}, {switched} switches, {unreadable} unreadable, {asked} asked, {worded} with words; {split} word splits"
+    );
+    assert!(
+        operations >= 1500
+            && rendered >= 80
+            && matched >= 100
+            && continued >= 8
+            && admitted >= 15
+            && remedies >= 60,
+        "too few guard operation cases: {operations}, {rendered} rendered, {matched} commands matched, {continued} continuations, {admitted} admitted, {remedies} worded"
+    );
+    assert!(
+        dispatches >= 400 && dispatch_blocked >= 100 && defective >= 80 && appendix >= 3,
+        "too few plan dispatch cases: {dispatches}, {dispatch_blocked} blocked, {defective} defective handoffs, {appendix} quoting the appendix"
+    );
+    assert!(
+        reasons >= 700
+            && questions >= 300
+            && approved >= 30
+            && pending >= 10
+            && plans >= 300
+            && appended >= 100,
+        "too few posture cases: {reasons} reasons and markers, {questions} questions files ({approved} approved, {pending} pending), {plans} plans ({appended} with an appendix)"
     );
     assert!(
         stood_aside >= 100 && held >= 100 && pinned >= 20 && refused >= 10,
