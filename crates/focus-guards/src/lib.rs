@@ -24,12 +24,14 @@
 //! their answers by the oracle corpus.
 
 pub mod authority;
+pub mod dispatcher;
 pub mod engine_command;
 pub mod fences;
 pub mod guard_operation;
 pub mod integrity;
 pub mod oracle;
 pub mod plan_approval;
+pub mod plan_wait;
 pub mod policy;
 pub mod posture;
 pub mod reviewer_scope;
