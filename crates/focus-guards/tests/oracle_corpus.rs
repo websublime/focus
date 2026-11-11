@@ -35,6 +35,9 @@ fn every_guard_case_gets_upstreams_answer() {
     let (mut dispatches, mut dispatch_blocked, mut defective, mut appendix) = (0, 0, 0, 0);
     let (mut reasons, mut questions, mut approved, mut pending, mut plans, mut appended) =
         (0, 0, 0, 0, 0, 0);
+    let (mut routes, mut delegated, mut helpers, mut helper_may) = (0, 0, 0, 0);
+    let (mut waits, mut prerequisite, mut directed, mut repo, mut diagnostic) = (0, 0, 0, 0, 0);
+    let (mut lines, mut plain, mut faithful, mut dynamic) = (0, 0, 0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         let case: Value = focus_js::json::parse(line).unwrap();
@@ -105,6 +108,30 @@ fn every_guard_case_gets_upstreams_answer() {
             approved += usize::from(out["approved"] == true);
             pending += usize::from(out["pending"] == true);
         }
+        if kind == "engine_route" {
+            routes += 1;
+            delegated += usize::from(out.is_object());
+        }
+        if kind == "every_helper" {
+            helpers += 1;
+            helper_may += usize::from(out == true);
+        }
+        if matches!(
+            kind,
+            "plan_prerequisite" | "engine_directed" | "read_only_diagnostic"
+        ) {
+            waits += 1;
+            prerequisite += usize::from(kind == "plan_prerequisite" && out == true);
+            directed += usize::from(out["directed"] == true);
+            repo += usize::from(out["repo"] == true);
+            diagnostic += usize::from(out["diagnostic"] == true || out["tool"] == true);
+        }
+        if kind == "plain_powershell" {
+            lines += 1;
+            plain += usize::from(out["plain"].is_object());
+            faithful += usize::from(out["reading"].is_string());
+        }
+        dynamic += usize::from(kind == "dynamic_evaluation" && out == true);
         if kind == "review_appendix" {
             plans += 1;
             appended += usize::from(out.as_str().is_some_and(|text| !text.is_empty()));
@@ -170,6 +197,18 @@ fn every_guard_case_gets_upstreams_answer() {
             && plans >= 300
             && appended >= 100,
         "too few posture cases: {reasons} reasons and markers, {questions} questions files ({approved} approved, {pending} pending), {plans} plans ({appended} with an appendix)"
+    );
+    assert!(
+        routes >= 1000 && delegated >= 500 && helpers >= 1000 && helper_may >= 250,
+        "too few dispatcher cases: {routes} routes, {delegated} delegated; {helpers} helper lines, {helper_may} admitted"
+    );
+    assert!(
+        waits >= 1100 && prerequisite >= 100 && directed >= 80 && repo >= 6 && diagnostic >= 90,
+        "too few plan-wait cases: {waits}, {prerequisite} prerequisites, {directed} engine-directed, {repo} repo changes, {diagnostic} diagnostics"
+    );
+    assert!(
+        lines >= 600 && plain >= 200 && faithful >= 120 && dynamic >= 80,
+        "too few command-line cases: {lines} PowerShell lines, {plain} plain, {faithful} read as POSIX; {dynamic} dynamic"
     );
     assert!(
         stood_aside >= 100 && held >= 100 && pinned >= 20 && refused >= 10,

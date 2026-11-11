@@ -3915,6 +3915,13 @@ for template in ED_TEMPLATES:
                 for word in template.split(" ")]
         add("engine_directed", args=args, asked=rng.random() < 0.6)
 
+for prefix in [["engine"], ["engine", "utility"], ["utility"], []]:
+    for verb in ["add-repo", "remove-repo"]:
+        for asked in [True, False]:
+            add("engine_directed", args=prefix + ["intent", verb, "api"], asked=asked)
+        add("engine_directed", args=prefix + ["intent", verb], asked=True)
+        add("engine_directed", args=prefix + ["intent", verb, "api", "--x"], asked=True)
+
 RD_HEADS = ["status", "--status", "version", "--version", "help", "--help", "doctor", "--doctor", "engine", "now", "next", "Status", ""]
 for head in RD_HEADS:
     for tail in [[], ["now"], ["now", "x"], ["doctor"], ["--export"], ["status"], ["version", "x"], ["x"]]:
