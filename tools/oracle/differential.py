@@ -2283,9 +2283,6 @@ DEVIATIONS.update({
     "runtime/compile/workspace_is_a_link":
         "with the workspace directory a link, upstream leaves out the shards behind it and writes an empty graph "
         "through the link; focus takes no lock and writes nothing through a link",
-    "runtime/compile/project_path_with_a_backslash":
-        "with a backslash in the project's path, upstream's shard reader takes it for a separator, finds no shard "
-        "and compiles an empty graph; focus reads the ledger",
     "runtime/compile/metrics_endpoint":
         "upstream sends a metric for the MEMORY_EMPTY event to the configured endpoint; focus has no metrics yet "
         "and refuses the append, and with it the compile, instead of leaving the endpoint without what it expects",
@@ -3861,6 +3858,22 @@ def hook_checks():
     check_("plan-approval-guard/unit_scope_stamp", {**building, "aidlc/.aidlc-unit-scope.json": '{"version": 1}'}, [source])
     for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
         check_(f"plan-approval-guard/observer_{marker.lower()}", building, [source], {marker: "1"})
+    # The edges a mutation sweep asked for.
+    check_("plan-approval-guard/write_naming_the_developer", building, [plan(file_path="{P}/../outside.md", subagent_type=DEVELOPER), plan(file_path="{P}/src/app.ts", subagent_type=DEVELOPER)])
+    check_("plan-approval-guard/write_with_markers_other_stage", {**created(building_state.replace("- **Current Stage**: code-generation", "- **Current Stage**: build-and-test")), **binding()},
+           [plan(file_path="{P}/src/app.ts", prompt="AIDLC-UNIT: auth"), plan("Task", subagent_type=DEVELOPER, prompt="x", description="AIDLC-UNIT: auth"),
+            plan("Task", subagent_type=DEVELOPER, prompt="AIDLC-TESTING-CONTRACT: sha256:" + "a" * 64), plan("Task", subagent_type=DEVELOPER, prompt="x AIDLC-UNIT: auth")])
+    check_("plan-approval-guard/shell_write_of_the_diary", building, [run("echo x >> {D}/construction/code-generation/memory.md"), run("echo x > {P}/aidlc/spaces/default/intents/.aidlc-engine/composer-proposal.json")])
+    check_("plan-approval-guard/write_source_memory_unreadable", {**created(lowered_state), **binding(), "aidlc/spaces/default/memory/org.md": "## Guard Policy\n\nMode: maybe\n"}, [source])
+    # A recorded tree holds files: a state that is a folder stays a live check.
+    UNRECORDED.update({"hook/plan-approval-guard/state_is_directory", "hook/plan-approval-guard/state_is_directory_policy_off"})
+    check_("plan-approval-guard/state_is_directory", building, [source],
+           edits=(lambda tree: (os.remove(tree.path(f"{CREATED_DIR}/aidlc-state.md")), os.makedirs(tree.path(f"{CREATED_DIR}/aidlc-state.md"))),))
+    check_("plan-approval-guard/state_is_directory_policy_off", {**created(lowered_state), **binding()}, [source],
+           edits=(lambda tree: (os.remove(tree.path(f"{CREATED_DIR}/aidlc-state.md")), os.makedirs(tree.path(f"{CREATED_DIR}/aidlc-state.md"))),))
+    check_("plan-approval-guard/off_switch_no_tool", building, [["plan-approval-guard", payload(hook_event_name="PreToolUse")]], off)
+    check_("plan-approval-guard/off_switch_guard_named_by_another_row", {**building, CREATED_SHARD: CREATED_AUDIT + block("ERROR_LOGGED", T(2), "**Guard**: plan-approval-guard", "**Tool**: Write")}, [source], off)
+    check_("plan-approval-guard/off_switch_already_said_crlf", {**building, CREATED_SHARD: (CREATED_AUDIT + block("GUARD_DISABLED", T(2), "**Guard**: plan-approval-guard", "**Tool**: Write")).replace("\n", "\r\n")}, [source], off)
     # The adapter's shell, read by the freeze as well.
     check_("review-freeze/review_rows_powershell", reviewed, [["review-freeze", payload(hook_event_name="PreToolUse", tool_name="Bash", tool_input={"command": "Set-Content -Path " + doc.replace("/", "\\") + " -Value x"}, aidlc_shell="powershell")]])
     check_("review-freeze/powershell_other_target", reviewed, [["review-freeze", payload(hook_event_name="PreToolUse", tool_name="Bash", tool_input={"command": "Set-Content -Path notes.md -Value x"}, aidlc_shell="powershell")]])

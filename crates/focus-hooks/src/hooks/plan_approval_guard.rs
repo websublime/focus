@@ -164,9 +164,9 @@ pub fn run(input: &str, layout: &Layout) -> Outcome {
     if SAFE_READ_TOOLS.contains(&tool.as_str()) {
         return Outcome::exit(0);
     }
-    let mutation_capable = tool == "Bash"
-        || WRITE_TOOLS.contains(&tool.as_str())
-        || (!DISPATCH_TOOLS.contains(&tool.as_str()) && !tool.is_empty());
+    // Any tool with a name that is not a dispatch could change something:
+    // the shell and the file tools among them.
+    let mutation_capable = !DISPATCH_TOOLS.contains(&tool.as_str()) && !tool.is_empty();
     if !guarded_dispatch && !mutation_capable {
         return Outcome::exit(0);
     }
@@ -375,10 +375,10 @@ fn evaluate(
     // A file-tool write of the composer's proposal alone, of a person's
     // answer text, or of the stage's own diary passes in every Plan Approval
     // state. A shell write, or one that also names another file, does not.
+    // (A call with no target that is not opaque has passed above.)
     let every = |judge: &dyn Fn(&str) -> bool| {
         WRITE_TOOLS.contains(&call.tool)
             && !mutation.opaque_shell
-            && !mutation.targets.is_empty()
             && mutation.targets.iter().all(|target| judge(target))
     };
     if every(&|target| project.is_composer_proposal_target(target))
@@ -443,4 +443,21 @@ fn record_guard_disabled(wf: &Workflow, tool: &str) {
 fn one_sentence(text: &str) -> String {
     let plain = focus_js::re::replace(r"[\u0000-\u001f\u007f-\u009f\u2028\u2029]+", "g", text, " ");
     format!("{}.", trim(&plain).trim_end_matches('.'))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::one_sentence;
+
+    #[test]
+    fn a_refusal_is_one_plain_sentence() {
+        assert_eq!(one_sentence("as it is."), "as it is.");
+        assert_eq!(one_sentence("  no stop  "), "no stop.");
+        assert_eq!(one_sentence("three stops..."), "three stops.");
+        // A reason that quotes a path or a command stays on the one line.
+        assert_eq!(
+            one_sentence("read\r\nfailed:\u{2028}x\u{9f}\ty"),
+            "read failed: x y."
+        );
+    }
 }
