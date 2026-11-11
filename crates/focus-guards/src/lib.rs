@@ -26,9 +26,12 @@
 pub mod authority;
 pub mod engine_command;
 pub mod fences;
+pub mod guard_operation;
 pub mod integrity;
 pub mod oracle;
+pub mod plan_approval;
 pub mod policy;
+pub mod posture;
 pub mod reviewer_scope;
 pub mod shell;
 pub mod state_transition;

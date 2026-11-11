@@ -19,18 +19,21 @@ use crate::fences::{
     Fence, FenceResolution, format_guards_line, parse_guards_line, resolve_fences,
     set_guards_off_line, set_guards_on_line,
 };
+use crate::guard_operation::{self, RemedyWordingContext, RenderMode, RenderShell};
 use crate::integrity::{self, Integrity};
+use crate::plan_approval::{self, HandoffDefect, UnitEvidence};
 use crate::policy::{
     self, GuardPolicy, Resolution, format_guard_policy, parse_state_line, set_guard_policy_line,
     source_label,
 };
+use crate::posture;
 use crate::reviewer_scope;
 use crate::shell::{self, CommandShell, Host};
 use crate::state_transition;
 use crate::typed_switch::{self, TypedSwitchRequest};
 
 /// The kinds of case this crate answers.
-pub const KINDS: [&str; 12] = [
+pub const KINDS: [&str; 18] = [
     "guard_policy",
     "guards_line",
     "engine_command",
@@ -43,6 +46,12 @@ pub const KINDS: [&str; 12] = [
     "state_transition",
     "typed_switch",
     "kiro_args",
+    "guard_operation",
+    "plan_dispatch",
+    "plan_reason",
+    "contract_markers",
+    "questions_file",
+    "review_appendix",
 ];
 
 fn resolution_json(resolution: &Resolution) -> Value {
@@ -305,6 +314,35 @@ pub fn run_case(case: &Value) -> Value {
                 })),
             })
         }
+        "guard_operation" => guard_operation_case(case),
+        "plan_dispatch" => {
+            let units: Vec<UnitEvidence> = case["units"]
+                .as_array()
+                .into_iter()
+                .flatten()
+                .map(evidence_of)
+                .collect();
+            verdict_json(&plan_approval::evaluate_plan_approval_dispatch(
+                text("tool"),
+                text("subagent"),
+                text("prompt"),
+                text("current_stage"),
+                &units,
+            ))
+        }
+        "plan_reason" => plan_reason_case(case),
+        "contract_markers" => json!(posture::prompt_testing_contract_markers(text("text"))),
+        "questions_file" => {
+            let body = text("body");
+            let latest = posture::latest_plan_approval(body);
+            json!({
+                "approved": posture::questions_file_approved(body),
+                "pending": posture::questions_file_has_pending_plan_approval(body),
+                "fingerprint": latest.fingerprint,
+                "planned_source": latest.planned_source,
+            })
+        }
+        "review_appendix" => json!(posture::plan_review_appendix(text("plan"))),
         other => json!({ "unsupported": other }),
     }
 }
@@ -545,4 +583,175 @@ fn typed_switch_json(request: &TypedSwitchRequest) -> Value {
         out.insert("unread".into(), json!(unread));
     }
     Value::Object(out)
+}
+
+fn strings_of(value: &Value) -> Vec<String> {
+    value
+        .as_array()
+        .into_iter()
+        .flatten()
+        .filter_map(Value::as_str)
+        .map(str::to_owned)
+        .collect()
+}
+
+/// A case's per-target evidence, as the hook would gather it.
+fn evidence_of(value: &Value) -> UnitEvidence {
+    let flag = |key: &str| value[key].as_bool().unwrap_or(false);
+    UnitEvidence {
+        unit: value["unit"].as_str().map(str::to_owned),
+        plan_exists: flag("planExists"),
+        instructions_exist: flag("instructionsExist"),
+        approved: flag("approved"),
+        contract_valid: flag("contractValid"),
+        fingerprint_valid: flag("fingerprintValid"),
+        receipt_valid: flag("receiptValid"),
+        contract_hash: value["contractHash"].as_str().map(str::to_owned),
+        reason: value["reason"].as_str().map(str::to_owned),
+        review_appendix: value["reviewAppendix"].as_str().map(str::to_owned),
+    }
+}
+
+/// A verdict with upstream's keys, the optional ones only when set.
+fn verdict_json(verdict: &plan_approval::PlanApprovalVerdict) -> Value {
+    let mut out = Map::new();
+    out.insert("block".into(), json!(verdict.block));
+    out.insert("mentioned".into(), json!(verdict.mentioned));
+    if verdict.appendix_in_brief {
+        out.insert("appendixInBrief".into(), json!(true));
+    }
+    if let Some(handoff) = verdict.handoff {
+        out.insert("handoff".into(), json!(handoff.name()));
+    }
+    Value::Object(out)
+}
+
+/// A `plan_reason` case: one of the guard's refusals, named by `op`.
+fn plan_reason_case(case: &Value) -> Value {
+    let text = |key: &str| case.get(key).and_then(Value::as_str).unwrap_or_default();
+    let mentioned = strings_of(&case["mentioned"]);
+    let targets: Option<Vec<Option<String>>> = case["targets"].as_array().map(|targets| {
+        targets
+            .iter()
+            .map(|target| target.as_str().map(str::to_owned))
+            .collect()
+    });
+    let detail = case["detail"].as_str();
+    match text("op") {
+        "appendix" => json!(plan_approval::appendix_block_reason(&mentioned)),
+        "block" => json!(plan_approval::block_reason(
+            &mentioned,
+            detail,
+            targets.as_deref()
+        )),
+        "handoff" => match HandoffDefect::parse(text("cause")) {
+            Some(cause) => json!(plan_approval::handoff_block_reason(
+                &mentioned,
+                cause,
+                targets.as_deref()
+            )),
+            None => Value::Null,
+        },
+        "mutation" => json!(plan_approval::mutation_block_reason(
+            case["unit"].as_str(),
+            case["opaque"].as_bool().unwrap_or(false),
+            detail
+        )),
+        "receipt" => {
+            let evidence: Vec<UnitEvidence> = case["evidence"]
+                .as_array()
+                .into_iter()
+                .flatten()
+                .map(evidence_of)
+                .collect();
+            json!(plan_approval::receipt_detail(&evidence, &mentioned))
+        }
+        other => json!({ "unsupported": other }),
+    }
+}
+
+/// A `guard_operation` case: one of the module's readers, named by `op`.
+fn guard_operation_case(case: &Value) -> Value {
+    let text = |key: &str| case.get(key).and_then(Value::as_str).unwrap_or_default();
+    let operation = || {
+        case.get("operation")
+            .and_then(guard_operation::parse_operation)
+    };
+    let mode = if text("mode") == "source" {
+        RenderMode::Source
+    } else {
+        RenderMode::Native
+    };
+    let shell = if text("shell") == "powershell" {
+        RenderShell::PowerShell
+    } else {
+        RenderShell::Posix
+    };
+    match text("op") {
+        "parse" => json!(operation().is_some()),
+        "invocation" => operation().map_or(Value::Null, |operation| {
+            let invocation = guard_operation::invocation(&operation);
+            let mut out = Map::new();
+            out.insert("route".into(), json!(invocation.route));
+            out.insert("args".into(), json!(invocation.args));
+            if let Some(source) = invocation.source {
+                out.insert(
+                    "source".into(),
+                    json!({"route": source.route, "args": source.args}),
+                );
+            }
+            Value::Object(out)
+        }),
+        "render" => operation().map_or(Value::Null, |operation| {
+            match guard_operation::render(&operation, mode, text("harness"), shell) {
+                Ok(command) => json!(command),
+                Err(error) => json!({ "error": error }),
+            }
+        }),
+        "matches_command" => json!(operation().is_some_and(|operation| {
+            guard_operation::matches_command(&operation, text("command"))
+        })),
+        "matches_remedy" => json!(operation().is_some_and(|operation| {
+            guard_operation::matches_remedy(
+                &operation,
+                text("remedy"),
+                text("stage"),
+                case["unit"].as_str(),
+            )
+        })),
+        "same" => json!(guard_operation::same(case.get("left"), case.get("right"))),
+        "continuation" => json!(
+            guard_operation::parse_guard_restart_continuation_command(
+                text("command"),
+                case["harness"].as_str()
+            )
+            .map(|found| json!({
+                "operation": {"kind": "restart-stage", "stage": found.stage},
+                "direction": found.direction.name(),
+                "scope": found.scope,
+            }))
+        ),
+        "engine_invocation" => json!(guard_operation::is_guard_recovery_engine_invocation(
+            &strings_of(&case["args"])
+        )),
+        "matches_engine_args" => json!(operation().is_some_and(|operation| {
+            guard_operation::matches_engine_args(&operation, &strings_of(&case["args"]))
+        })),
+        "wording" => {
+            let context = RemedyWordingContext {
+                code: text("code"),
+                stage: text("stage"),
+                target: text("target"),
+                unit: case["unit"].as_str(),
+                fence: case["fence"].as_str().and_then(Fence::parse),
+                source_unbindable: case["source_unbindable"].as_bool().unwrap_or(false),
+                every_unit: case["every_unit"].as_bool().unwrap_or(false),
+            };
+            match guard_operation::remedy_wording(text("remedy"), &context) {
+                Some((label, description)) => json!({"label": label, "description": description}),
+                None => Value::Null,
+            }
+        }
+        other => json!({ "unsupported": other }),
+    }
 }

@@ -3363,5 +3363,356 @@ TR_FIXED = [
 for file, text, path, prompt_id, prompt in TR_FIXED:
     add("transcript_origin", file=file, rows=text, transcript_path=path, prompt_id=prompt_id, prompt=prompt)
 
+# --- The Plan Approval guard's pure readers (M4, slice 4e-i) ---------------------
+#
+# guard_operation: a guard's recovery operations, rendered, matched and worded.
+# plan_dispatch: a developer handoff judged against the evidence gathered per target.
+# plan_reason: the refusals the guard prints, with their briefs.
+# contract_markers, questions_file, review_appendix: what the guard reads of
+# the Testing Posture contract (the handoff's contract lines, the questions
+# file's Plan Approval answer, the plan's terminal review appendix).
+
+GO_FENCES = ["plan-approval", "review-freeze", "state-transition", "reviewer-scope"]
+GO_IDENTS = ["a", "code-generation", "auth", "x.y", "a_b", "9", "A-Z", "unit-1", "s" * 256, "s" * 257, "", "-a", ".a",
+             "a b", "a/b", "ünit", "a\tb", "CodeGen"]
+GO_KINDS = ["restart-stage", "abort-bolt", "lower-fence", "record-unit-completion", "reopen-unit", "review-advisory"]
+
+
+def go_ident():
+    return rng.choice(GO_IDENTS)
+
+
+def go_operation(valid=True):
+    kind = rng.choice(GO_KINDS)
+    ident = (lambda: rng.choice(GO_IDENTS[:8])) if valid else go_ident
+    if kind == "restart-stage":
+        op = {"kind": kind, "stage": ident()}
+    elif kind == "abort-bolt":
+        op = {"kind": kind, "unit": ident(), "slug": ident()}
+    elif kind == "lower-fence":
+        op = {"kind": kind, "fence": rng.choice(GO_FENCES if valid else GO_FENCES + ["human-presence", "", "guard.plan-approval", 1])}
+    elif kind == "review-advisory":
+        op = {"kind": kind}
+    else:
+        op = {"kind": kind, "stage": ident(), "unit": ident()}
+    if not valid and rng.random() < 0.3:
+        choice = rng.random()
+        if choice < 0.3:
+            op["extra"] = 1
+        elif choice < 0.6 and len(op) > 1:
+            op.pop(rng.choice([k for k in op if k != "kind"]))
+        elif choice < 0.8:
+            op["kind"] = rng.choice(["restart", "lower_fence", "", 1, None])
+        else:
+            op = rng.choice([None, [], "restart-stage", 1, {"kind": kind, "stage": 1}])
+    return op
+
+
+def go_render(op, mode, harness, shell):
+    # The rendering as upstream spells it, for commands that must match exactly.
+    if not isinstance(op, dict) or op.get("kind") not in GO_KINDS:
+        return "x"
+
+    def q(w):
+        w = re.sub(r"[\x00-\x1f\x7f]", "?", str(w))
+        if re.fullmatch(r"[A-Za-z0-9_./:@%+=,-]+", w):
+            return w
+        return "'" + (w.replace("'", "''") if shell == "powershell" else w.replace("'", "'\"'\"'")) + "'"
+
+    k = op["kind"]
+    if k == "restart-stage":
+        route, args, source = "orchestrate", ["next", "--stage", op.get("stage", "")], None
+    elif k == "abort-bolt":
+        route, args, source = "bolt", ["abort", "--name", op.get("unit", ""), "--slug", op.get("slug", ""), "--reason", "stale review recovery exhausted", "--discard"], None
+    elif k == "lower-fence":
+        key = f"guard.{op.get('fence', '')}"
+        route, args, source = "config", ["set", key, "off"], ("utility", ["config-change", f"--{key}", "off"])
+    elif k == "record-unit-completion":
+        route, args, source = "state", ["unit", "complete", "--stage", op.get("stage", ""), "--unit", op.get("unit", "")], None
+    elif k == "reopen-unit":
+        route, args, source = "jump", ["reopen", "--target", op.get("stage", ""), "--units", op.get("unit", "")], None
+    else:
+        route, args, source = "config", ["set", "review", "advisory"], ("utility", ["config-change", "--review", "advisory"])
+    if mode == "source" and source:
+        route, args = source
+    prefix = f"aidlc engine {q(route)}" if mode == "native" else f"bun {q(f'{harness}/tools/aidlc-{route}.ts')}"
+    return f"{prefix} " + " ".join(q(a) for a in args)
+
+
+GO_REMEDIES = ["present-approval-gate", "request-review", "start-recovery-review", "apply-repairs-then-request", "record-verdict",
+               "retry-pending", "request-changes", "finish-revision", "redo-jump", "restore-or-jump", "restart-stage", "redo-unit-step",
+               "reopen-unit-step", "review-advisory-gate", "change-scope", "restore-scope", "abort-bolt", "record-unit-completion",
+               "repair-source-boundary", "reconfirm-summary", "unset-unattended", "lower-fence", "nope", "restart_stage", ""]
+GO_OWN_REMEDIES = {"restart-stage": ["restart-stage", "redo-jump", "restore-or-jump"], "abort-bolt": ["abort-bolt"], "lower-fence": ["lower-fence"],
+                   "record-unit-completion": ["record-unit-completion"], "reopen-unit": ["reopen-unit-step"], "review-advisory": ["review-advisory-gate"]}
+
+for _ in range(scale * 40):
+    op = go_operation(valid=rng.random() < 0.7)
+    add("guard_operation", op="parse", operation=op)
+    add("guard_operation", op="invocation", operation=op)
+for _ in range(scale * 40):
+    op = go_operation(valid=rng.random() < 0.85)
+    mode, shell = rng.choice(["native", "source"]), rng.choice(["posix", "powershell"])
+    harness = rng.choice([".claude", ".cursor", ".aidlc", ".a-b_c.d", "claude", ".", "./x", "", ".claude/x"])
+    add("guard_operation", op="render", operation=op, mode=mode, harness=harness, shell=shell)
+for _ in range(scale * 50):
+    op = go_operation(valid=rng.random() < 0.85)
+    mode, shell = rng.choice(["native", "source"]), rng.choice(["posix", "powershell"])
+    harness = rng.choice([".claude", ".cursor", ".aidlc", ".a-b_c.d"])
+    command = go_render(op, mode, harness, shell)
+    edit = rng.random()
+    if edit < 0.15:
+        command += rng.choice([" ", " && echo", " --x", "\n", ";"])
+    elif edit < 0.3:
+        command = rng.choice(["cd x && ", "sudo ", " ", "bun ", "aidlc "]) + command
+    elif edit < 0.4:
+        command = command.replace("aidlc engine", "aidlc.exe engine").replace("aidlc-", "aidlc_")
+    elif edit < 0.5:
+        command = command.upper() if rng.random() < 0.5 else command.replace("'", '"')
+    add("guard_operation", op="matches_command", operation=op, command=command)
+for _ in range(scale * 40):
+    op = go_operation(valid=rng.random() < 0.85)
+    stage = rng.choice(GO_IDENTS[:8])
+    unit = rng.choice(GO_IDENTS[:8] + [None])
+    if isinstance(op, dict) and rng.random() < 0.5:
+        stage = op.get("stage", stage)
+        unit = op.get("unit", unit)
+    remedy = rng.choice(GO_OWN_REMEDIES.get(op.get("kind"), GO_REMEDIES) if isinstance(op, dict) and rng.random() < 0.5 else GO_REMEDIES)
+    add("guard_operation", op="matches_remedy", operation=op, remedy=remedy, stage=stage, unit=unit)
+for _ in range(scale * 30):
+    left = go_operation(valid=rng.random() < 0.8)
+    right = left if rng.random() < 0.4 else go_operation(valid=rng.random() < 0.8)
+    if isinstance(right, dict) and rng.random() < 0.2:
+        right = {**right, "extra": 1}
+    case = {}
+    if rng.random() < 0.9:
+        case["left"] = left
+    if rng.random() < 0.9:
+        case["right"] = right
+    add("guard_operation", op="same", **case)
+GO_CONTINUATIONS = [
+    "aidlc engine jump execute --target {s} --direction {d} --scope {c}",
+    "aidlc.exe engine jump execute --target {s} --direction {d} --scope {c}",
+    "bun {h}/tools/aidlc-jump.ts execute --target {s} --direction {d} --scope {c}",
+    "bun {h}/tools/aidlc-jump.ts  execute --target {s} --direction {d} --scope {c}",
+    "aidlc engine jump execute --target {s} --direction {d} --scope {c} ",
+    "aidlc engine jump execute --target {s} --direction {d} --scope {c} --x",
+    "aidlc engine jump execute --target {s} --scope {c} --direction {d}",
+    "aidlc engine jump reopen --target {s} --direction {d} --scope {c}",
+    "aidlc jump execute --target {s} --direction {d} --scope {c}",
+    "cd x && aidlc engine jump execute --target {s} --direction {d} --scope {c}",
+    "aidlc engine jump execute --target {s} --direction {d} --scope {c} | cat",
+    "bun {h}/tools/aidlc.ts engine jump execute --target {s} --direction {d} --scope {c}",
+    "",
+    "aidlc",
+]
+for _ in range(scale * 30):
+    harness = rng.choice([".claude", ".cursor", None])
+    ident = (lambda: rng.choice(GO_IDENTS[:8])) if rng.random() < 0.7 else go_ident
+    command = rng.choice(GO_CONTINUATIONS).format(
+        s=ident(), d=rng.choice(["redo", "backward", "redo", "backward", "forward", "Redo", ""]), c=ident(),
+        h=rng.choice([".claude", ".cursor", ".x"]))
+    add("guard_operation", op="continuation", command=command, harness=harness)
+GO_ENGINE_ARGS = [
+    ["engine", "config", "set", "guard.{f}", "off"],
+    ["engine", "config", "set", "guard.{f}", "on"],
+    ["engine", "config", "set", "guard.{f}", "off", "--yes"],
+    ["engine", "config", "set", "{f}", "off"],
+    ["engine", "utility", "config-change", "--guard.{f}", "off"],
+    ["engine", "utility", "config-change", "--guard.{f}", "on"],
+    ["engine", "utility", "config-change", "--guard-policy", "off"],
+    ["engine", "bolt", "abort", "--name", "{u}", "--slug", "{s}", "--reason", "stale review recovery exhausted", "--discard"],
+    ["engine", "bolt", "abort", "--name", "{u}", "--slug", "{s}", "--reason", "stale review recovery exhausted", "--keep"],
+    ["engine", "bolt", "abort", "--name", "{u}", "--slug", "{s}", "--reason", "stale review recovery exhausted", "--discard", "--x"],
+    ["engine", "bolt", "abort", "--name", "{u}", "--slug", "{s}", "--reason", "other", "--discard"],
+    ["engine", "bolt", "abort", "--slug", "{s}", "--name", "{u}", "--reason", "stale review recovery exhausted", "--discard"],
+    ["engine", "bolt", "abort", "--name", "{u}", "--slug", "{s}", "--discard"],
+    ["engine", "orchestrate", "next", "--stage", "{s}"],
+    ["engine", "state", "unit", "complete", "--stage", "{s}", "--unit", "{u}"],
+    ["engine", "jump", "reopen", "--target", "{s}", "--units", "{u}"],
+    ["engine", "config", "set", "review", "advisory"],
+    ["engine", "utility", "config-change", "--review", "advisory"],
+    ["config", "set", "guard.{f}", "off"],
+    ["engine"],
+    [],
+]
+for _ in range(scale * 40):
+    fence, unit, stage = rng.choice(GO_FENCES * 3 + ["human-presence", "x"]), rng.choice(GO_IDENTS[:8] * 3 + GO_IDENTS), rng.choice(GO_IDENTS[:8] * 3 + GO_IDENTS)
+    args = [a.format(f=fence, u=unit, s=stage) for a in rng.choice(GO_ENGINE_ARGS)]
+    add("guard_operation", op="engine_invocation", args=args)
+    spelled = rng.choice([{"kind": "lower-fence", "fence": fence}, {"kind": "abort-bolt", "unit": unit, "slug": stage}, {"kind": "restart-stage", "stage": stage},
+                          {"kind": "record-unit-completion", "stage": stage, "unit": unit}, {"kind": "reopen-unit", "stage": stage, "unit": unit}, {"kind": "review-advisory"}])
+    add("guard_operation", op="matches_engine_args", operation=spelled if rng.random() < 0.6 else go_operation(valid=rng.random() < 0.85), args=args)
+for _ in range(scale * 30):
+    add("guard_operation", op="wording", remedy=rng.choice(GO_REMEDIES),
+        code=rng.choice(["UNIT_COMPLETION_MISSING", "REVIEW_STALE", "X", ""]), stage=rng.choice(["Code Generation", "Build", "s"]),
+        target=rng.choice(["the plan", "Code Generation for beta", "it's work"]), unit=rng.choice([None, "beta", "a b"]),
+        fence=rng.choice([None] + GO_FENCES), source_unbindable=rng.random() < 0.3, every_unit=rng.random() < 0.4)
+
+PD_HASH = ["sha256:" + "a" * 64, "sha256:" + "b" * 64, "sha256:" + "0" * 64]
+
+
+def pd_evidence(unit, strong=True):
+    hash_ = rng.choice(PD_HASH + [None]) if not strong or rng.random() < 0.2 else PD_HASH[0]
+    flags = {k: (True if strong and rng.random() < 0.85 else rng.random() < 0.5) for k in
+             ["planExists", "instructionsExist", "approved", "contractValid", "fingerprintValid", "receiptValid"]}
+    ev = {"unit": unit, **flags, "contractHash": hash_}
+    if rng.random() < 0.3:
+        ev["reason"] = rng.choice(["the plan moved after approval.", "stale receipt", "", "ended attempt..."])
+    if rng.random() < 0.3:
+        ev["reviewAppendix"] = rng.choice(["## Review\n\nLooks fine\n", "## Review\n", "\n## Review\n\n- one\n- two\n", "## Review: x\nbody\n", "Review\nno heading\n", ""])
+    return ev
+
+
+def pd_prompt(units, evidence=()):
+    lines = []
+    if rng.random() < 0.6:
+        # One target, as a brief names it, with that target's contract and perhaps its appendix quoted.
+        target = rng.choice(list(evidence)) if evidence else None
+        if target is None or target["unit"] is None:
+            lines.append("AIDLC-STAGE: " + rng.choice(["code-generation", "Code Generation"]))
+        else:
+            lines.append("AIDLC-UNIT: " + target["unit"])
+        if target is not None and rng.random() < 0.8:
+            lines.append("AIDLC-TESTING-CONTRACT: " + (target.get("contractHash") or rng.choice(PD_HASH)))
+        if target is not None and target.get("reviewAppendix") and rng.random() < 0.6:
+            appendix = target["reviewAppendix"]
+            lines.append(rng.choice([appendix, re.sub(r"\s+", " ", appendix).strip(), "The review: " + appendix.replace("## Review", "").strip(), appendix.upper()]))
+    for _ in range(rng.randrange(0, 4)):
+        pick = rng.random()
+        if pick < 0.35:
+            lines.append(rng.choice(["", " ", "\t"]) + "AIDLC-UNIT" + rng.choice(["", " "]) + ":" + rng.choice(["", " ", "  "]) + rng.choice([u for u in units if u] + ["ghost", "", " "]) + rng.choice(["", " "]))
+        elif pick < 0.6:
+            lines.append(rng.choice(["", "  "]) + "AIDLC-STAGE: " + rng.choice(["code-generation", "Code Generation", "code generation", "build", "", " "]))
+        elif pick < 0.85:
+            lines.append("AIDLC-TESTING-CONTRACT: " + rng.choice(PD_HASH + ["sha256:xyz", ""]))
+        else:
+            lines.append(rng.choice(["Looks fine", "The review said: Looks fine", "- one\n- two", "body", "aidlc-unit: a", "AIDLC-UNIT: a; AIDLC-UNIT: b"]))
+    rng.shuffle(lines)
+    return rng.choice(["\n", "\r\n"]).join(lines) + rng.choice(["", "\n"])
+
+
+for _ in range(scale * 80):
+    names = rng.sample(["auth", "api", "web", "a b", "x.y"], rng.randrange(0, 4))
+    units = [pd_evidence(None, strong=rng.random() < 0.7)] + [pd_evidence(name, strong=rng.random() < 0.7) for name in names]
+    if rng.random() < 0.1:
+        units = units[1:]
+    add("plan_dispatch", tool=rng.choice(["Task"] * 5 + ["Agent"] * 2 + ["Bash", "Write", ""]),
+        subagent=rng.choice(["aidlc-developer-agent"] * 6 + ["aidlc-reviewer-agent", ""]),
+        prompt=pd_prompt(names + [None], units), current_stage=rng.choice(["code-generation"] * 4 + ["Code Generation", " code-generation ", "build", ""]),
+        units=units)
+
+PR_MENTIONED = [[], ["stage:code-generation"], ["auth"], ["a b"], ["auth", "api"], ["auth", "stage:code-generation"], ["it's"], [""]]
+PR_TARGETS = [None, [], [None], ["auth"], ["a b", None], ["x", "y"], [""]]
+PR_DETAIL = [None, "", "the plan moved after approval.", "stale receipt...", "ended attempt"]
+for _ in range(scale * 25):
+    mentioned = rng.choice(PR_MENTIONED)
+    targets = rng.choice(PR_TARGETS)
+    add("plan_reason", op="appendix", mentioned=mentioned)
+    add("plan_reason", op="block", mentioned=mentioned, detail=rng.choice(PR_DETAIL), targets=targets)
+    add("plan_reason", op="handoff", mentioned=mentioned, cause=rng.choice(["targets", "unknown-target", "contract"]), targets=targets)
+    add("plan_reason", op="mutation", unit=rng.choice([None, "auth", "a b"]), opaque=rng.random() < 0.5, detail=rng.choice(PR_DETAIL))
+    evidence = [pd_evidence(u, strong=rng.random() < 0.3) for u in [None, "auth", "api"]]
+    for ev in evidence:
+        if rng.random() < 0.5:
+            ev["reason"] = rng.choice(["the plan moved after approval.", "stale receipt", ""])
+    add("plan_reason", op="receipt", evidence=evidence, mentioned=mentioned)
+
+CM_LINES = ["AIDLC-TESTING-CONTRACT: {h}", "  AIDLC-TESTING-CONTRACT:{h}  ", "AIDLC-TESTING-CONTRACT : {h}", "AIDLC-TESTING-CONTRACT: {h} x",
+            "aidlc-testing-contract: {h}", "AIDLC-TESTING-CONTRACT: sha256:{short}", "AIDLC-TESTING-CONTRACT: {H}", "text", "", "AIDLC-TESTING-CONTRACT:"]
+for _ in range(scale * 30):
+    lines = []
+    for _ in range(rng.randrange(0, 6)):
+        h = rng.choice(PD_HASH)
+        lines.append(rng.choice(CM_LINES).format(h=h, H=h.upper(), short="a" * 63))
+    add("contract_markers", text=rng.choice(["\n", "\r\n"]).join(lines))
+
+QF_HEADINGS = ["## Plan Approval", "## Q1: Plan Approval", "## 2. Plan Approval", "## Question 3 - Plan Approval", "## Plan Approval?",
+               "## **Plan Approval**", "## _Plan Approval_:", "### Plan Approval", "# Plan Approval", "## plan approval", "## Plan  Approval",
+               "## Approve the plan", "## Q1", "## 2.", "## Question 3:", "## Notes", "### Notes", "## Q2: Scope", "#### Deep", "##Plan Approval",
+               "## Plan Approval ##", "## *Plan Approval*"]
+QF_ANSWERS = ["[Answer]: Approve Plan", "[Answer]: \"Approve Plan\"", "[Answer]: a) Approve Plan", "[Answer]: B. 'Approve Plan'",
+              "[Answer]: approve plan", "[Answer]: Plan approval off", "[Answer]: Request Changes", "[Answer]: ___", "[Answer]:", "[Answer]: _",
+              "[Answer]:   Approve Plan  ", "[Answer]: Approve Plan!", "[answer]: Approve Plan", " [Answer]: Approve Plan", "[Answer] Approve Plan"]
+QF_TAGS = ["[Approval Fingerprint]: sha256:v3:" + "a" * 64, "[Approval Fingerprint]: sha256:v2:" + "b" * 64, "[Approval Fingerprint]: sha256:" + "c" * 64,
+           "[Approval Fingerprint]:", "[Approval Fingerprint]: sha256:v4:" + "a" * 64, "[Planned Source]: " + "d" * 40, "[Planned Source]: " + "e" * 64,
+           "[Planned Source]: unbindable", "[Planned Source]:", "[Planned Source]: x"]
+QF_OTHER = ["body text", "- \"Approve Plan\": proceed", "", "```\n[Answer]: Approve Plan\n```", "<!-- [Answer]: Approve Plan -->", "<div>\n[Answer]: Approve Plan\n</div>",
+            "    [Answer]: Approve Plan", "**Plan Approval**", "Plan Approval", "2.", "> [Answer]: Approve Plan"]
+for _ in range(scale * 60):
+    lines = []
+    for _ in range(rng.randrange(1, 12)):
+        pick = rng.random()
+        if pick < 0.3:
+            lines.append(rng.choice(QF_HEADINGS))
+        elif pick < 0.55:
+            lines.append(rng.choice(QF_ANSWERS))
+        elif pick < 0.75:
+            lines.append(rng.choice(QF_TAGS))
+        else:
+            lines.append(rng.choice(QF_OTHER))
+    body = rng.choice(["\n", "\n\n", "\r\n"]).join(lines) + rng.choice(["", "\n"])
+    if rng.random() < 0.1:
+        body = "﻿" + body
+    add("questions_file", body=body)
+# Written by hand: the section's edges the generated files reach too rarely.
+QF_FP = "[Approval Fingerprint]: sha256:v3:"
+for body in [
+    "## Plan Approval\n\n### Q2: Next\n\n[Answer]: Approve Plan\n",
+    "## Plan Approval\n\n### 2.\n\n[Answer]: Approve Plan\n",
+    "## Plan Approval\n\n### Notes\n\n[Answer]: Approve Plan\n",
+    "## Plan Approval\n\n[Answer]: ___\n\n### Notes\n\n[Answer]: Approve Plan\n",
+    "## Plan Approval\n\n[Answer]: Approve Plan\n\n### Notes\n\n[Answer]: ___\n",
+    "## Plan Approval\n\n" + QF_FP + "a" * 64 + "\n\n### Notes\n\n" + QF_FP + "b" * 64 + "\n[Answer]: Approve Plan\n",
+    "## Plan Approval\n\n[Planned Source]: unbindable\n\n### Notes\n\n[Planned Source]: " + "d" * 40 + "\n[Answer]: Approve Plan\n",
+    "## Plan Approval\n\n### Notes\n\n" + QF_FP + "b" * 64 + "\n[Planned Source]: unbindable\n[Answer]: Approve Plan\n",
+    "#### Plan Approval\n\n## 2.\nPlan Approval\n\n### Notes\n\n[Answer]: Approve Plan\n",
+    "## 2.\nPlan Approval\n\n[Answer]: ___\n\n### Notes\n\n[Answer]: Approve Plan\n",
+    "## 2.\n\n**Plan Approval**\n[Answer]: Approve Plan\n",
+    "## 2.\nNot it\nPlan Approval\n[Answer]: Approve Plan\n",
+    "## **\n[Answer]: Approve Plan\n",
+    "## ****\n[Answer]: Approve Plan\n",
+    "## __Plan Approval__\n[Answer]: Approve Plan\n",
+    "## *Plan Approval*:\n[Answer]: Approve Plan\n",
+    "## Plan Approval\n[Answer]: Approve Plan\n## Plan Approval\n[Answer]: ___\n",
+    "## Q1: Plan Approval\n[Answer]: ___\n## Q2: Plan Approval\n[Answer]: Approve Plan\n## Q3: Scope\n[Answer]: x\n",
+]:
+    add("questions_file", body=body)
+
+RA_PARTS = ["# Plan", "## Steps", "### Detail", "body text", "", "## Review", "## Review  ", "## Review ##", "##  Review", "## Reviewed", "Review\n---",
+            "Review\n===", "<h2>Rendered</h2>", "<h1>Top</h1>", "<div>\n## Review\n</div>", "<!-- ## Review -->", "<!-- <h1>x</h1> -->",
+            "<script><h2>s</h2></script>", "```\n## Review\n```", "> ## Review", "- ## Review", "text\n## Review", "verdict", "- one\n- two",
+            "<H2 class=\"x\">y</H2>", "<h2/>", "<h20>no</h20>"]
+for _ in range(scale * 60):
+    parts = [rng.choice(RA_PARTS) for _ in range(rng.randrange(1, 9))]
+    if rng.random() < 0.5:
+        parts.append("## Review")
+        parts.extend(rng.choice(RA_PARTS[3:5] + ["verdict", "### Finding", "- one\n- two"]) for _ in range(rng.randrange(0, 3)))
+    sep = rng.choice(["\n\n", "\n", "\r\n\r\n", "\n\n\n", "\n  \n"])
+    plan = sep.join(parts) + rng.choice(["", "\n", "\n\n", "\r\n"])
+    add("review_appendix", plan=plan)
+for plan in [
+    "# Plan\n\n## Review\n\n<!-- <h1>x</h1> -->\n",
+    "# Plan\n\n## Review\n\n<!-- <h1>x</h1>\n",
+    "# Plan\n\n## Review\n\n<h20>no</h20>\n",
+    "# Plan\n\n## Review\n\n<div><h20>no</h20></div>\n",
+    "# Plan\n\n## Review\n\n<div><h2x>no</h2x></div>\n",
+    "# Plan\n\n## Review\n\n<div>\n<h1 >yes</h1>\n</div>\n",
+    "# Plan\n\n## Review\n\n<div><h2/></div>\n",
+    "# Plan\n\n## Review\n\n<h2>yes</h2>\n",
+    "# Plan\n\n## Review\n\n<h1/>\n",
+    "# Plan\n\n## Review\n\n<H1 id=\"x\">y</H1>\n",
+    "# Plan\n\n## Review\n\n<script>\n<h1>x</h1>\n</script>\n",
+    "# Plan\n\n## Review\n\n<textarea><h2>x</h2></textarea>\n",
+    "# Plan\n\n## Review\n\n<div><h2>x</h2></div>\n",
+    "# Plan\n\n## Review\n\nB\n--\n",
+    "# Plan\n\n## Review\n\nB\n==\n",
+    "# Plan\n\n## Review\n\n# B\n",
+    "# Plan\n\n## Review\n\n### B\n",
+    "## Review\n\n## Review\n",
+    "## Review\n\ntext\n\n## Review\n",
+]:
+    add("review_appendix", plan=plan)
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")
