@@ -5,11 +5,16 @@
 //! a scope default and memory declarations; `guards_line` cases parse and
 //! write the state lines the guards read; `shell_invocations`,
 //! `shell_targets` and `write_targets` cases read a command line as the
-//! shell reader does.
+//! shell reader does; `mutation_intent` and `mutation_target` cases read a
+//! tool call, and the files it names, in a project laid out under a
+//! scratch root.
 
 use std::path::Path;
 
 use focus_graph::guard_memory::Declaration;
+use focus_harness::Harness;
+use focus_workspace::Layout;
+use focus_workspace::records::{Invoker, Selector, resolve_selection};
 use serde_json::{Map, Value, json};
 
 use crate::authority::Authority;
@@ -22,6 +27,7 @@ use crate::fences::{
 };
 use crate::guard_operation::{self, RemedyWordingContext, RenderMode, RenderShell};
 use crate::integrity::{self, Integrity};
+use crate::mutation_intent::{PlanWait, Project, code_generation_gate_held};
 use crate::plan_approval::{self, HandoffDefect, UnitEvidence};
 use crate::plan_wait;
 use crate::policy::{
@@ -35,7 +41,7 @@ use crate::state_transition;
 use crate::typed_switch::{self, TypedSwitchRequest};
 
 /// The kinds of case this crate answers.
-pub const KINDS: [&str; 25] = [
+pub const KINDS: [&str; 27] = [
     "guard_policy",
     "guards_line",
     "engine_command",
@@ -61,6 +67,8 @@ pub const KINDS: [&str; 25] = [
     "read_only_diagnostic",
     "plain_powershell",
     "dynamic_evaluation",
+    "mutation_intent",
+    "mutation_target",
 ];
 
 fn resolution_json(resolution: &Resolution) -> Value {
@@ -394,8 +402,125 @@ pub fn run_case(case: &Value) -> Value {
             "reading": plan_wait::power_shell_reading(text("command")),
         }),
         "dynamic_evaluation" => json!(plan_wait::shell_uses_dynamic_evaluation(text("command"))),
+        "mutation_intent" | "mutation_target" => mutation_case(case),
         other => json!({ "unsupported": other }),
     }
+}
+
+/// A `mutation_intent` or `mutation_target` case: a project laid out under
+/// a scratch root spelled as upstream's driver spells its own (files, links
+/// and second names for a file), with the hook's process in the root.
+///
+/// What the ledger says of the person is not this crate's to read: the
+/// case says it, upstream's answer says what upstream read in the same
+/// tree, and the two are compared with the rest.
+fn mutation_case(case: &Value) -> Value {
+    let text = |key: &str| case.get(key).and_then(Value::as_str).unwrap_or_default();
+    // Neither engine's name is in the root: a command that may run the
+    // engine is told by that name anywhere on its line.
+    let root = format!("/tmp/oracle-{}", text("id"));
+    let _ = std::fs::remove_dir_all(&root);
+    let _ = std::fs::create_dir_all(&root);
+    let at = |rel: &str| format!("{root}/{rel}");
+    let with_parent = |path: &str| {
+        if let Some(parent) = Path::new(path).parent() {
+            let _ = std::fs::create_dir_all(parent);
+        }
+    };
+    for (rel, content) in case["files"].as_object().into_iter().flatten() {
+        let path = at(rel);
+        match content.as_str() {
+            None => {
+                let _ = std::fs::create_dir_all(&path);
+            }
+            Some(text) => {
+                with_parent(&path);
+                let _ = std::fs::write(&path, text);
+            }
+        }
+    }
+    for link in case["links"].as_array().into_iter().flatten() {
+        if let (Some(rel), Some(target)) = (link[0].as_str(), link[1].as_str()) {
+            let path = at(rel);
+            with_parent(&path);
+            #[cfg(unix)]
+            let _ = std::os::unix::fs::symlink(target, &path);
+            #[cfg(not(unix))]
+            let _ = (target, path);
+        }
+    }
+    for name in case["names"].as_array().into_iter().flatten() {
+        if let (Some(rel), Some(existing)) = (name[0].as_str(), name[1].as_str()) {
+            let path = at(rel);
+            with_parent(&path);
+            let _ = std::fs::hard_link(at(existing), &path);
+        }
+    }
+    let flavour = focus_js::path::Flavour::Posix;
+    let project_dir = focus_js::path::join(flavour, &[&root, text("project")]);
+    let host = Host::posix(&root, "/home/me");
+    let layout = Layout::new(&project_dir, Harness::Claude);
+    let said = |path: std::path::PathBuf| path.to_string_lossy().into_owned();
+    let spaces_root = said(layout.workspace_root().join("spaces"));
+    let docs_root = resolve_selection(&layout, &Selector::default(), &Invoker::default())
+        .ok()
+        .map(|selection| said(selection.docs_root(&layout)));
+    let composer_proposal = said(layout.composer_proposal(&layout.active_space()));
+    let project = Project {
+        host: &host,
+        dir: &project_dir,
+        harness_dir: text("harness"),
+        spaces_root: &spaces_root,
+        docs_root: docs_root.as_deref(),
+        composer_proposal: &composer_proposal,
+    };
+    let here = |written: &str| written.replace("{P}", &root);
+    let out = if text("kind") == "mutation_target" {
+        let judged: Vec<Value> = case["targets"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter_map(Value::as_str)
+            .map(|written| {
+                let target = here(written);
+                json!({
+                    "outside": project.is_outside(&target),
+                    "output": project.is_stage_record_output(&target),
+                    "answer": project.is_answer_text_target(&target),
+                    "diary": project.is_stage_diary_target(&target),
+                    "composer": project.is_composer_proposal_target(&target),
+                })
+            })
+            .collect();
+        Value::Array(judged)
+    } else {
+        let person = &case["person"];
+        let says = |key: &str| person[key] == true;
+        let (spoke, asked, last_step) = (says("spoke"), says("asked"), says("lastStep"));
+        let wait = PlanWait {
+            project,
+            gate_held: code_generation_gate_held(text("state")),
+            person_spoke: &|| spoke,
+            person_asked: &|| asked,
+            last_step_admits: &|| last_step,
+        };
+        let input: Option<Value> = (!case["input"].is_null())
+            .then(|| serde_json::from_str(&here(&case["input"].to_string())).unwrap_or_default());
+        let intent = wait.mutation_intent(
+            text("tool"),
+            input.as_ref().and_then(Value::as_object),
+            &here(text("cwd")),
+            case["hint"] == true,
+        );
+        let answer = json!({
+            "intent": intent.to_json(),
+            "gateHeld": wait.gate_held,
+            "person": { "spoke": spoke, "asked": asked, "lastStep": last_step },
+        });
+        serde_json::from_str(&answer.to_string().replace(&root, "{P}")).unwrap_or_default()
+    };
+    let _ = std::fs::remove_dir_all(&root);
+    out
 }
 
 /// A `reviewer_scope` case: the matcher's verdict over one tool call, in

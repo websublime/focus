@@ -212,7 +212,9 @@ impl Project<'_> {
         loop {
             match std::fs::symlink_metadata(&cursor) {
                 Ok(_) => break,
-                Err(error) if is_no_entry(&error) => {}
+                // A path through a file is a failure, not an absence, as
+                // Bun's `lstat` has it.
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
                 Err(_) => return false,
             }
             let parent = dirname(self.flavour(), &cursor);
@@ -327,15 +329,6 @@ impl Project<'_> {
         }
         std::fs::symlink_metadata(&absolute).is_ok_and(|meta| meta.is_file())
     }
-}
-
-/// `lstat` with `throwIfNoEntry: false`: the errors that read as nothing
-/// there.
-fn is_no_entry(error: &std::io::Error) -> bool {
-    matches!(
-        error.kind(),
-        std::io::ErrorKind::NotFound | std::io::ErrorKind::NotADirectory
-    )
 }
 
 /// `realpathSync`, spelled as a person reads it: Windows reports a

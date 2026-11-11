@@ -3997,5 +3997,268 @@ DE_PARTS = ["echo", "a", "$HOME", "\\$HOME", "'$HOME'", "\"$HOME\"", "\"a\"", "'
 for _ in range(scale * 40):
     add("dynamic_evaluation", command=" ".join(rng.choice(DE_PARTS) for _ in range(rng.randrange(0, 6))))
 
+# What a tool call would change while a plan waits (aidlc-plan-approval-guard.ts,
+# `mutationIntent` and the predicates of a write target), asked in a project
+# laid out under a scratch root `{P}`. The project is `{P}/p`; the hook's
+# process is in `{P}`. A tree may carry a piece of work with a person's turn on
+# record: what upstream reads of the person there is part of its answer, the
+# case says the same, and focus's replay is handed what the case says.
+mi = random.Random(seed * 7919 + 23)
+MI_INTENTS = "p/aidlc/spaces/default/intents"
+MI_RECORD = MI_INTENTS + "/260105-add-login"
+MI_TOOLS = ["aidlc.ts", "aidlc-utility.ts", "aidlc-graph.ts", "aidlc-doctor.ts", "aidlc-state.ts", "aidlc-orchestrate.ts", "aidlc-sensor.ts"]
+
+
+def mi_state(stage, box, parked):
+    lines = ["# AI-DLC State Tracking", "", "## Current Status", "- **Current Stage**: " + stage]
+    if parked is not None:
+        lines.append("- **Parked**: " + parked)
+    lines += ["", "## Stage Progress", "- [" + box + "] code-generation — EXECUTE", "- [x] build — EXECUTE", ""]
+    return "\n".join(lines)
+
+
+def mi_turn(reply):
+    return ("# AI-DLC Audit Log\n\n## Human_Turn\n**Timestamp**: 2026-01-05T10:01:00Z\n**Event**: HUMAN_TURN\n**Session**: s1\n"
+            + ("**Reply**: " + reply + "\n" if reply else "") + "\n---\n\n")
+
+
+def mi_tree(record, state, layout="plain"):
+    files = {"p/src/a.txt": "a\n", "p/a.txt": "a\n", "out": None}
+    links = []
+    tools = "p/.claude/tools/"
+    if layout == "harness-link":
+        # The harness folder is a link: the tools are real files reached through it.
+        tools = "real/tools/"
+        links.append(["p/.claude", "../real"])
+    for name in MI_TOOLS:
+        files[tools + name] = "export {}\n"
+    files[tools + "sub/aidlc-graph.ts"] = "export {}\n"
+    if layout == "plain":
+        links += [["p/lt", ".claude/tools"], ["p/.claude/tools/aidlc-linked.ts", "aidlc-graph.ts"], ["plink", "p"]]
+    if record != "none":
+        files[MI_RECORD + "/aidlc-state.md"] = state
+    if record == "turn":
+        files[MI_RECORD + "/audit/laptop-abc123.md"] = mi_turn(None)
+    if record == "question":
+        files[MI_RECORD + "/audit/laptop-abc123.md"] = mi_turn("question")
+    return files, links
+
+
+def mi_case(tool, input_, hint=False, cwd="{P}/p", record=None, layout="plain", gate=None, unattended=None):
+    record = record if record is not None else mi.choice(["none", "none", "state", "turn", "turn", "turn", "question"])
+    stage, box = gate if gate is not None else (mi.choice(["code-generation", "code-generation", "Code Generation", "build", ""]),
+                                                 mi.choice(["?", "?", "-", "x", " "]))
+    parked = mi.choice([None, None, "", "2026-01-05T10:02:00Z", "no"])
+    unattended = unattended if unattended is not None else mi.random() < 0.2
+    state = mi_state(stage, box, parked)
+    files, links = mi_tree(record, state, layout)
+    spoke = record == "turn"
+    add("mutation_intent", tool=tool, input=input_, hint=hint, cwd=cwd, state=state, files=files, links=links, names=[], project="p",
+        harness=".claude", unattended=unattended,
+        person={"spoke": spoke, "asked": spoke and not unattended, "lastStep": record != "none" and bool((parked or "").strip())})
+
+
+MI_READS = [
+    "cat a.txt", "ls -la", "grep -r x src", "echo hi", "echo hi > out.txt", "echo hi > {P}/out/x", "echo hi >> src/a.txt", "sort a.txt",
+    "sort -o b.txt a.txt", "sort --output=b.txt a.txt", "sort --output b.txt a.txt", "sort -u a.txt", "uniq a.txt", "uniq a.txt b.txt",
+    "uniq -c a.txt", "uniq -c a.txt b.txt", "uniq", "wc -l a.txt", "/bin/cat a.txt", "CAT a.txt", "cat.exe a.txt", "which bun", "[ -f a.txt ]",
+    "stat a.txt | head -1", "cat a.txt | tee b.txt", "cat a.txt | sort -o b.txt", "env cat a.txt", "xargs cat", "time ls",
+]
+MI_GIT = [
+    "git status", "git -C src log", "git -C", "git branch", "git branch --show-current", "git branch -D x --show-current", "git diff --output=x",
+    "git diff --output x", "git log --oneline", "git commit -m x", "git --git-dir=.git status", "git --git-dir .git show", "git",
+    "git --namespace n push", "git -c a=b status", "git '' status", "git ls-files", "git rev-parse HEAD", "git grep x", "git push", "git stash",
+    "git --work-tree=. diff", "git --work-tree . --namespace n grep x", "GIT status", "git.exe status", "git --no-pager log",
+]
+MI_CD = [
+    "cd {P}/p", "cd -- {P}/p", "cd {P}/p/src", "cd src", "cd {P}/p/.", "cd {P}/p/..", "cd {P}/p/*", "cd {P}/p x", "env cd {P}/p", "cd",
+    "cd {P}/p/", "cd {P}//p", "cd {P}/p && ls", "cd {P}/p/src && cat a.txt", "cd {P}/missing", "cd {P}/p\u000b", "cd '{P}/p'",
+    "command cd {P}/p", "cd {P}/out", "cd {P}/plink", "cd --", "cd -- {P}/p x", "cd {P}/p[", "cd {P}/{p}", "cd {P}/p?", "CD {P}/p",
+    "cd {P}/p \\\n", "cd {P}/p/src/..", "cd -P {P}/p", "cd {P}/p; cat a.txt", "ls && cd {P}/p",
+]
+MI_NATIVE = [
+    "aidlc status", "aidlc --status", "aidlc version", "aidlc help", "aidlc doctor", "aidlc doctor --export", "aidlc engine now",
+    "aidlc engine now x", "aidlc engine orchestrate next", "aidlc engine orchestrate report --stage code-generation --result approved",
+    "aidlc engine orchestrate report --stage build --result approved", "aidlc park", "aidlc park --reason x", "aidlc engine orchestrate park",
+    "aidlc engine log decision --stage code-generation --checkpoint plan-approval", "aidlc engine log decision --stage code-generation",
+    "aidlc engine log answer --stage code-generation", "aidlc engine log review --stage code-generation", "aidlc engine testing-posture begin",
+    "aidlc engine config set guard.review-freeze on", "aidlc engine config set guard.review-freeze off", "aidlc engine config set guard-policy strict",
+    "aidlc engine config set guard-policy relaxed", "aidlc engine config set guard-policy off", "aidlc engine config set plan-approval on",
+    "aidlc engine config set plan-approval off", "aidlc engine config set guard.plan-approval off", "aidlc engine config set guard.plan-approval on",
+    "aidlc engine config set summary-confirmation off", "aidlc engine config set summary-confirmation on",
+    "aidlc engine config set guard.state-transition on", "aidlc engine config set guard.state-transition off",
+    "aidlc engine config set guard.reviewer-scope off", "aidlc engine config set guard.reviewer-scope on",
+    "aidlc engine config set guard.human-presence off", "aidlc engine config set depth standard", "aidlc engine config set depth",
+    "aidlc engine config set guard.review-freeze on x", "aidlc engine config set guard.review-freeze ON", "aidlc engine config set guard-policy on",
+    "aidlc engine config get guard.review-freeze on", "aidlc config flags --clear-bypass AIDLC_DISABLE_SENSORS",
+    "aidlc config flags --bypass AIDLC_DISABLE_SENSORS", "aidlc config flags --bypass AIDLC_DISABLE_SENSORS --clear-bypass AIDLC_DISABLE_LEARNINGS",
+    "aidlc config flags --clear-bypass AIDLC_DISABLE_LEARNINGS --bypass AIDLC_DISABLE_SENSORS", "aidlc config flags --clear-bypass NOPE",
+    "aidlc config flags --bypass NOPE", "aidlc config flags --clear-bypass", "aidlc config flags --bypass", "aidlc config flags",
+    "aidlc config flags --json", "aidlc config flags --clear-bypass AIDLC_DISABLE_SENSORS --project-dir {P}/p --json --local",
+    "aidlc config flags --clear-bypass AIDLC_DISABLE_SENSORS --project-dir {P}/out", "aidlc config flags --clear-bypass AIDLC_DISABLE_SENSORS --project-dir",
+    "aidlc config flags --clear-bypass AIDLC_DISABLE_SENSORS --project-dir {P}/p/src/..", "aidlc config flags --clear-bypass AIDLC_DISABLE_SENSORS --project-dir p",
+    "aidlc config flags --clear-bypass AIDLC_DISABLE_SENSORS --project-dir {P}/plink", "aidlc config flags --clear-bypass AIDLC_DISABLE_SENSORS --project-dir {P}/missing",
+    "aidlc config flags --clear-bypass AIDLC_DISABLE_SENSORS --force", "aidlc config flags --clear-bypass AIDLC_DISABLE_SENSORS --yes --quiet --no-color --verbose --global --project",
+    "aidlc config flags --project-dir {P}/p", "aidlc config flags --bypass AIDLC_SKIP_ARTIFACT_GUARD --yes", "aidlc config flags --bypass AIDLC_UNATTENDED",
+    "aidlc config set x", "aidlc config", "aidlc engine config flags --clear-bypass AIDLC_DISABLE_SENSORS", "aidlc engine graph topo",
+    "aidlc engine sensor fire x", "aidlc engine sensor list", "aidlc engine state approve", "aidlc engine state get x", "aidlc engine review-brief review",
+    "aidlc engine jump execute --target a", "aidlc engine recompose --skip a", "aidlc engine scope change --scope feature",
+    "aidlc engine config set depth standard --review advisory", "aidlc engine intent create --scope x", "aidlc engine intent add-repo api",
+    "aidlc engine utility intent remove-repo api", "aidlc engine workspace reclassify", "aidlc engine status", "aidlc engine orchestrate help",
+    "aidlc engine orchestrate report --result resumed", "aidlc engine swarm prepare --units a,b", "aidlc engine bolt start", "aidlc", "aidlc engine",
+    "AIDLC.EXE status", "aidlc.exe engine now", "Aidlc status", "aidlc.cmd status", "aidlc.ps1 status", "./aidlc status", "/usr/local/bin/aidlc status",
+    "env aidlc status", "sudo aidlc status", "X=1 aidlc status", "PATH=x aidlc status", "xargs aidlc status", "command aidlc status",
+    "time aidlc status", "nohup aidlc status", "env -C src aidlc status", "aidlc status > out.txt", "aidlc status | cat", "aidlc status && aidlc engine now",
+    "aidlc status; rm a.txt", "aidlc engine graph topo --project-dir {P}/out",
+]
+MI_BUN = [
+    "bun .claude/tools/aidlc.ts status", "bun run .claude/tools/aidlc.ts engine now", "bun .claude/tools/aidlc.ts engine orchestrate next",
+    "bun .claude/tools/aidlc.ts engine state approve", "bun .claude/tools/aidlc.ts park", "bun .claude/tools/aidlc.ts doctor",
+    "bun .claude/tools/aidlc.ts engine graph topo", "bun .claude/tools/aidlc.ts engine config set guard.review-freeze off",
+    "bun .claude/tools/aidlc.ts", "bun .claude/tools/aidlc-graph.ts topo", "bun .claude/tools/aidlc-graph.ts build",
+    "bun .claude/tools/aidlc-utility.ts status", "bun .claude/tools/aidlc-utility.ts version", "bun .claude/tools/aidlc-utility.ts now",
+    "bun .claude/tools/aidlc-utility.ts now x", "bun .claude/tools/aidlc-utility.ts intent add-repo api", "bun .claude/tools/aidlc-utility.ts detect",
+    "bun .claude/tools/aidlc-utility.ts state-init", "bun .claude/tools/aidlc-doctor.ts doctor", "bun .claude/tools/aidlc-doctor.ts doctor --export",
+    "bun .claude/tools/aidlc-doctor.ts", "bun .claude/tools/aidlc-doctor.ts status", "bun .claude/tools/aidlc-state.ts approve",
+    "bun .claude/tools/aidlc-state.ts get x", "bun .claude/tools/aidlc-orchestrate.ts next", "bun .claude/tools/aidlc-orchestrate.ts report --result resumed",
+    "bun .claude/tools/aidlc-sensor.ts list", "bun -r x .claude/tools/aidlc-graph.ts topo", "bun --preload=x .claude/tools/aidlc-graph.ts topo",
+    "bun --require=x .claude/tools/aidlc-graph.ts topo", "bun .claude/tools/aidlc-graph.ts topo --require x", "bun .claude/tools/aidlc-graph.ts topo --preload",
+    "bun {P}/p/.claude/tools/aidlc-graph.ts topo", "bun lt/aidlc-graph.ts topo", "bun .claude/tools/aidlc-linked.ts topo",
+    "bun .claude/tools/aidlc-missing.ts topo", "bun .claude/tools/other.ts", "bun .claude/tools/sub/aidlc-graph.ts topo",
+    "bun ../p/.claude/tools/aidlc-graph.ts topo", "bun ./.claude/tools/aidlc-graph.ts topo", "bun .claude/tools/../tools/aidlc-graph.ts topo",
+    "bun {P}/plink/.claude/tools/aidlc-graph.ts topo", "BUN.EXE .claude/tools/aidlc-graph.ts topo", "bun.exe .claude/tools/aidlc-graph.ts topo",
+    "Bun .claude/tools/aidlc.ts status", "/usr/bin/bun .claude/tools/aidlc-graph.ts topo", "/usr/bin/bun .claude/tools/aidlc.ts status",
+    "env bun .claude/tools/aidlc-graph.ts topo", "X=1 bun .claude/tools/aidlc-graph.ts topo", "PATH=x bun .claude/tools/aidlc-graph.ts topo",
+    "xargs bun .claude/tools/aidlc-graph.ts topo", "bun", "bun -e 'x'", "bun test", "bun run build", "bun run", "bun run run .claude/tools/aidlc.ts status",
+    "bun --watch .claude/tools/aidlc-graph.ts topo", "bun .claude/tools/Aidlc-graph.ts topo", "bun .claude/tools/aidlc-.ts topo",
+    "bun .claude/tools/aidlc-graph.ts", "bun .claude/tools/aidlc-graph.ts topo > out.txt", "bun .claude/tools/aidlc-graph.tsx topo",
+    "bun '' .claude/tools/aidlc-graph.ts topo", "bun .claude/tools/aidlc-graph.ts topo && bun .claude/tools/aidlc-state.ts approve",
+    "node .claude/tools/aidlc-graph.ts topo", "bunx .claude/tools/aidlc-graph.ts topo",
+]
+MI_WRITES = [
+    "rm a.txt", "rm *.txt", "rm $X", "cp a.txt b.txt", "touch {P}/out/x", "touch x", "sed -i s/a/b/ a.txt", "tee b.txt", "mv a.txt b.txt", "mkdir d",
+    "npm test", "node -e 'x'", "node x.js", "python3 -c x", "python3 x.py", "sh run.sh", "./run.sh", "bash -c 'ls'", "eval ls", "source x", ". x",
+    "x.sh", "run.bat", "tool.PS1", "dd if=a of=b", "truncate -s 0 a.txt", "install a b", "perl -pi -e s/a/b/ a.txt", "perl x.pl", "unlink a.txt",
+    "exec ls", "busybox ls", "deno eval x", "ruby -e x", "php -r x", "ls > $X", "rm -- a.txt", "rm a?.txt", "rm `x`", "RM a.txt", "/bin/rm a.txt",
+    "env rm a.txt", "rm", "touch", "cp a.txt {P}/out/b.txt", "mv {P}/out/a {P}/out/b", "tee {P}/out/x < a.txt", "python3 -m http.server",
+    "node --print x", "bun -p x", "ruby x.rb -c", "zsh", "pwsh -File x.ps1", "cmd /c dir", "fish -c ls", "ksh x", "dash x",
+]
+MI_DYNAMIC = [
+    "echo $HOME", "echo `ls`", "cat <(ls)", "echo $(aidlc status)", "echo '$HOME'", "echo \"$AIDLC\"", "echo $x aidlcx", "echo $x my-aidlc run",
+    "PATH=x ls", "export PATH=x; ls", "ls\r", "ls \\\n -la", "echo a \\> b", "ls\u00a0-la", "cat a.txt\u000c", "echo a \\; b", "echo a \\& b",
+    "echo \\| b", "echo a \\< b", "echo a\\ b", "ls\t-la", "ls\n-la", "echo \u2028", "echo '\\>'", "echo \"a\\\nb\"", "",  " ", "#", "ls # aidlc",
+]
+MI_POWERSHELL = [
+    "Get-Content a.txt", "get-content a.txt", "Get-ChildItem", "gc a.txt", "Get-Content a.txt | Select-Object -First 1", "Set-Location {P}/p",
+    "sl {P}/p", "sl -Path {P}/p", "Set-Location -LiteralPath {P}/p", "Set-Location -literalpath {P}/p x", "chdir {P}/p", "cd {P}/p",
+    "cd -Path {P}/p", "Set-Location {P}/p/src", "C:\\Tools\\cat.exe a", ".\\aidlc.cmd status", "aidlc.cmd status", "aidlc.cmd engine now",
+    "aidlc.cmd engine log decision --stage code-generation --checkpoint plan-approval", "aidlc.cmd engine config set guard.review-freeze on",
+    "aidlc.cmd status 'a\"b'", "aidlc.cmd status ''", "aidlc.cmd status 'a&b'", "aidlc.cmd status 'a|b'", "aidlc.cmd status 'a b'",
+    "aidlc.cmd engine state approve", "AIDLC.CMD status", "& aidlc status", "aidlc status", "aidlc engine orchestrate next", "aidlc.exe status",
+    "AIDLC status", "aidlc park", "aidlc.cmd park", "Get-Content $x", "git status 2>$null", "git status", "bun .claude/tools/aidlc-graph.ts topo",
+    "bun .claude\\tools\\aidlc-graph.ts topo", "Get-Content a.txt > b.txt", "Write-Output hi", "Test-Path a.txt", "Select-String x a.txt",
+    "C:\\Tools\\Get-Content.exe a", "./Get-Content a.txt", "Get-Content.exe a.txt", "env Get-Content a.txt", "Remove-Item a.txt",
+    "Set-Content a.txt x", "rm a.txt", "D:\\aidlc.cmd status", ".claude\\tools\\aidlc.cmd status", "./aidlc status", "./aidlc.cmd status", "sl",
+    "Set-Location", "Set-Location -Path", "sl {P}/p x", "sort a.txt", "cat a.txt", "ls ; Get-Content a.txt", "Get-Content a.txt ; rm a.txt",
+    "aidlc.cmd status ; Get-ChildItem", "Format-List", "Measure-Object", "Resolve-Path a.txt", "Out-String", "out-file b.txt", "SL {P}/p",
+    "set-location '{P}/p'", "& 'Get-Content' a.txt", "Get-Content 'a b.txt'", "aidlc.cmd config flags --clear-bypass AIDLC_DISABLE_SENSORS",
+]
+MI_CWDS = ["{P}/p", "{P}/p", "{P}/p", "{P}/p/src", "{P}"]
+
+for pool in [MI_READS, MI_GIT, MI_CD, MI_NATIVE, MI_BUN, MI_WRITES, MI_DYNAMIC]:
+    for command in pool:
+        mi_case("Bash", {"command": command}, record="none", gate=("code-generation", "?"), unattended=False)
+        for _ in range(max(1, scale // 3)):
+            mi_case("Bash", {"command": command}, hint=mi.random() < 0.08, cwd=mi.choice(MI_CWDS))
+for command in MI_NATIVE + MI_BUN:
+    # The person has spoken: with the work parked, and with an unattended driver.
+    mi_case("Bash", {"command": command}, record="turn", gate=(mi.choice(["code-generation", "build"]), mi.choice(["?", "-"])), unattended=False)
+    mi_case("Bash", {"command": command}, record="turn", unattended=True)
+for command in MI_BUN:
+    mi_case("Bash", {"command": command}, layout=mi.choice(["harness-link", "bare"]))
+    mi_case("Bash", {"command": command}, cwd="{P}/p/.claude/tools")
+for command in MI_POWERSHELL:
+    mi_case("Bash", {"command": command}, hint=True, record="none", gate=("code-generation", "?"), unattended=False)
+    for _ in range(max(1, scale // 3)):
+        mi_case("Bash", {"command": command}, hint=mi.random() < 0.8, cwd=mi.choice(MI_CWDS))
+for _ in range(scale * 60):
+    pools = [MI_READS, MI_GIT, MI_CD, MI_NATIVE, MI_BUN, MI_WRITES, MI_DYNAMIC]
+    command = mi.choice(mi.choice(pools))
+    for _ in range(mi.randrange(1, 3)):
+        command += mi.choice([" && ", "; ", " | ", " || ", "\n", " & "]) + mi.choice(mi.choice(pools))
+    mi_case("Bash", {"command": command}, hint=mi.random() < 0.05, cwd=mi.choice(MI_CWDS))
+for tool, input_ in [
+    ("Write", {"file_path": "{P}/p/src/x.ts", "content": "x"}), ("Write", {"file_path": "src/x.ts"}), ("Edit", {"file_path": "/abs/x"}),
+    ("MultiEdit", {"file_path": "a", "path": "b", "paths": ["c", "", 1, None, "{P}/out/d"]}), ("NotebookEdit", {"notebook_path": "n.ipynb"}),
+    ("NotebookEdit", {"notebook_path": "n.ipynb", "file_path": "f", "path": "p"}), ("Write", {}), ("Write", None), ("Write", {"file_path": ""}),
+    ("Write", {"file_path": 3}), ("Write", {"paths": "x"}), ("Write", {"paths": []}), ("Read", {"file_path": "a"}), ("Task", {"prompt": "x"}),
+    ("Bash", {}), ("Bash", None), ("Bash", {"command": 3}), ("Bash", {"command": None}), ("bash", {"command": "ls"}), ("write", {"file_path": "a"}),
+    ("Write", {"file_path": "../x"}), ("Write", {"file_path": "~/x"}), ("Write", {"file_path": "a/../b/./c"}), ("Edit", {"file_path": "{P}/p/a.txt"}),
+    ("Bash", {"command": "ls", "file_path": "a"}), ("", {"file_path": "a"}), ("WebFetch", {"url": "x"}),
+]:
+    for cwd in ["{P}/p", "{P}/p/src", "{P}"]:
+        mi_case(tool, input_, cwd=cwd, hint=mi.random() < 0.2)
+
+# Where a write target lies: outside the project, a stage's own record output,
+# a person's answer text, the stage's diary, the composer's proposal.
+MT_ENGINE = MI_INTENTS + "/.aidlc-engine"
+MT_TARGETS = [
+    "{P}/p/src/a.txt", "{P}/p/src/new.txt", "{P}/p/src/new/deep.txt", "{P}/out/x", "{P}/out", "{P}", "{P}/p", "{P}/p/", "/nonexistent-aidlc-oracle/x",
+    "{P}/inlink/x", "{P}/inlink", "{P}/dangling/x", "{P}/dangling", "{P}/p/outlink/x", "{P}/p/outlink", "{P}/p/lnk/a.txt", "{P}/p/../out/x",
+    "{P}/p/src/../../out/x", "src/a.txt", "p/src/a.txt", "out/x", "{P}/pp/x", "{P}/p/src/a.txt/x", "{P}/out/a.txt/x", "",
+] + ["{P}/" + rel for rel in [
+    MI_RECORD + "/construction/code-generation/memory.md", MI_RECORD + "/construction/code-generation/other.md",
+    MI_RECORD + "/construction/code-generation/sub/memory.md", MI_RECORD + "/construction/code-generation",
+    MI_RECORD + "/construction/build/memory.md", MI_RECORD + "/aidlc-state.md", MI_RECORD + "/sub/aidlc-state.md", MI_RECORD + "/audit/x.md",
+    MI_RECORD + "/x/audit", MI_RECORD + "/auditx/y.md", MI_RECORD + "/.aidlc-engine/answer-text/a.txt",
+    MI_RECORD + "/.aidlc-engine/answer-text/sub/b.txt", MI_RECORD + "/.aidlc-engine/answer-text", MI_RECORD + "/.aidlc-engine/answer-text/new.txt",
+    MI_RECORD + "/.aidlc-engine/other/a.txt", MI_RECORD + "/.aidlc-engine/answer-textx/a.txt", MI_RECORD + "/inception/req.md",
+    MI_RECORD + "/inception/new.md", MI_RECORD, MI_INTENTS + "/intents.json", MI_INTENTS + "/x/intents.json", MT_ENGINE + "/composer-proposal.json",
+    MT_ENGINE + "/composer-proposal.json/x", MT_ENGINE + "/other.json", MT_ENGINE + "/answer-text/a.txt", MI_INTENTS + "/construction/code-generation/memory.md",
+    MI_INTENTS + "/other/construction/code-generation/memory.md", "p/aidlc/spaces", "p/aidlc/spaces/x", "p/aidlc/spaces/..x", "p/aidlc/spaces/..",
+    "p/aidlc/x.md", "p/aidlc/spaces/other/intents/r/construction/code-generation/memory.md", "p/aidlc/spaces/default/memory/team.md",
+    MI_RECORD + "/construction/code-generation/../code-generation/memory.md", MI_RECORD + "/construction//code-generation/memory.md",
+    MI_RECORD + "/CONSTRUCTION/code-generation/Memory.MD",
+]]
+MT_DIARY = MI_RECORD + "/construction/code-generation/memory.md"
+MT_ANSWER = MI_RECORD + "/.aidlc-engine/answer-text/a.txt"
+MT_PROPOSAL = MT_ENGINE + "/composer-proposal.json"
+
+
+def mt_case(record=True, present=(), links=(), names=(), extra=None, intents=True):
+    files = {"p/src/a.txt": "a\n", "out/a.txt": "a\n"}
+    if intents:
+        files[MI_INTENTS] = None
+    if record:
+        files[MI_RECORD + "/aidlc-state.md"] = mi_state("code-generation", "?", None)
+        files[MI_RECORD + "/inception/req.md"] = "r\n"
+    for rel in present:
+        files[rel] = "x\n"
+    files.update(extra or {})
+    add("mutation_target", targets=MT_TARGETS, files=files, links=[list(link) for link in links], names=[list(name) for name in names],
+        project="p", harness=".claude")
+
+
+MT_OUTSIDE_LINKS = [("inlink", "p/src"), ("dangling", "nowhere"), ("p/outlink", "../out"), ("p/lnk", "src")]
+for record in [True, False]:
+    mt_case(record)
+    mt_case(record, links=MT_OUTSIDE_LINKS)
+    mt_case(record, present=[MT_DIARY, MT_ANSWER, MT_PROPOSAL, MI_INTENTS + "/construction/code-generation/memory.md", MT_ENGINE + "/answer-text/a.txt"],
+            links=MT_OUTSIDE_LINKS)
+# A second name for the file, and a link in its place or on the way to it.
+mt_case(names=[(MT_DIARY, "p/src/a.txt"), (MT_ANSWER, "p/src/a.txt"), (MT_PROPOSAL, "p/src/a.txt"), (MI_RECORD + "/inception/new.md", "out/a.txt")])
+mt_case(links=[(MT_DIARY, "../../inception/req.md"), (MT_ANSWER, "../../inception/req.md"), (MT_PROPOSAL, "nowhere")])
+mt_case(links=[(MI_RECORD + "/construction", "inception"), (MI_RECORD + "/.aidlc-engine", "inception"), (MT_ENGINE, "../../../../../out")])
+mt_case(links=[(MI_RECORD + "/construction/code-generation", "../inception"), (MI_RECORD + "/.aidlc-engine/answer-text", "../inception")])
+mt_case(record=False, links=[("p/aidlc", "../out")], intents=False)
+mt_case(record=False, links=[("p/aidlc/spaces", "../../out"), ("inlink", "p")], intents=False)
+mt_case(extra={MT_DIARY: None, MT_ANSWER: None, MT_PROPOSAL: None})
+# A file where a folder is expected: the path goes through it.
+mt_case(extra={MI_RECORD + "/construction": "x\n", MI_RECORD + "/.aidlc-engine": "x\n", MT_ENGINE: "x\n"})
+# Two records and no cursor: no piece of work is selected.
+mt_case(extra={MI_INTENTS + "/260106-other/aidlc-state.md": mi_state("build", "-", None)}, present=[MT_DIARY, MT_ANSWER])
+mt_case(extra={MI_INTENTS + "/260106-other/aidlc-state.md": mi_state("build", "-", None), MI_INTENTS + "/active-intent": "260105-add-login\n"},
+        present=[MT_DIARY, MT_ANSWER])
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

@@ -113,16 +113,14 @@ pub fn hard_links(meta: &Metadata) -> u64 {
 
 /// Nothing at `path`, or a regular file with one name: what a write may
 /// replace without reaching another file. `lstat` with `throwIfNoEntry:
-/// false`: a path that is not there reads as nothing, any other failure
-/// as not this.
+/// false` as Bun answers it: a name that is not there reads as nothing,
+/// and every other failure as not this, a path that goes through a file
+/// among them.
 #[must_use]
 pub fn absent_or_plain_file(path: &Path) -> bool {
     match std::fs::symlink_metadata(path) {
         Ok(meta) => meta.is_file() && hard_links(&meta) == 1,
-        Err(error) => matches!(
-            error.kind(),
-            std::io::ErrorKind::NotFound | std::io::ErrorKind::NotADirectory
-        ),
+        Err(error) => error.kind() == std::io::ErrorKind::NotFound,
     }
 }
 

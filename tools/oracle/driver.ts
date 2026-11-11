@@ -6,7 +6,7 @@
 // `focus dev oracle` prints for the same case (the `oracle` module of the crate
 // that owns the kind). The two outputs are compared as text, so key order is
 // part of the answer.
-import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, utimesSync, writeFileSync } from "node:fs";
+import { chmodSync, linkSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { referee, second } from "./referee/referee.ts";
@@ -37,6 +37,8 @@ const planGuard = await import(resolve(upstream, "core", "hooks", "aidlc-plan-ap
 const PLAN_GUARD_PRIVATE = [
   "everyHelperMayRun", "isPlanApprovalPrerequisite", "engineDirectedWhilePlanWaits", "intentRepoChangeAdmitted",
   "isReadOnlyDiagnostic", "isReadOnlyToolDiagnostic", "plainPowerShell", "powerShellReading", "shellUsesDynamicEvaluation",
+  "mutationIntent", "codeGenerationGateHeld", "lastStepAdmitsPersonsMoves", "isOutsideProject", "isStageRecordOutput",
+  "isAnswerTextTarget", "isStageDiaryTarget", "isComposerProposalTarget",
 ];
 const planGuardShim = resolve(upstream, "core", "hooks", "aidlc-plan-approval-guard.focus-oracle.ts");
 writeFileSync(
@@ -66,7 +68,7 @@ const message = (err: unknown) =>
     "$1<runtime>",
   );
 
-function answer(c: Record<string, any>): unknown {
+async function answer(c: Record<string, any>): Promise<unknown> {
   switch (c.kind) {
     case "stage": {
       let parsed: Record<string, unknown>;
@@ -849,6 +851,82 @@ function answer(c: Record<string, any>): unknown {
       };
     case "dynamic_evaluation":
       return planGuardPrivate.shellUsesDynamicEvaluation(c.command);
+    case "mutation_intent":
+    case "mutation_target": {
+      // A project under a scratch root spelled as focus's replay spells its
+      // own: files (null a directory), links, and second names for a file.
+      // The hook's process is in the root, its project and harness are the
+      // case's, and nothing else of this process's environment reaches it.
+      // Neither engine's name is in the root: a command that may run the
+      // engine is told by that name anywhere on its line.
+      const root = `/tmp/oracle-${c.id}`;
+      rmSync(root, { recursive: true, force: true });
+      mkdirSync(root, { recursive: true });
+      for (const [rel, text] of Object.entries(c.files as Record<string, string | null>)) {
+        const path = join(root, rel);
+        if (text === null) {
+          mkdirSync(path, { recursive: true });
+          continue;
+        }
+        mkdirSync(dirname(path), { recursive: true });
+        writeFileSync(path, text);
+      }
+      for (const [rel, target] of c.links as Array<[string, string]>) {
+        mkdirSync(dirname(join(root, rel)), { recursive: true });
+        symlinkSync(target, join(root, rel));
+      }
+      for (const [rel, existing] of c.names as Array<[string, string]>) {
+        mkdirSync(dirname(join(root, rel)), { recursive: true });
+        linkSync(join(root, existing), join(root, rel));
+      }
+      const project = join(root, c.project);
+      const saved = { ...process.env };
+      for (const name of Object.keys(process.env)) {
+        if (name.startsWith("AIDLC_") || name === "CLAUDE_PROJECT_DIR") delete process.env[name];
+      }
+      process.env.AIDLC_PROJECT_DIR = project;
+      process.env.AIDLC_HARNESS_DIR = c.harness;
+      if (c.unattended) process.env.AIDLC_UNATTENDED = "1";
+      process.env.HOME = "/home/me";
+      const here = process.cwd();
+      process.chdir(root);
+      const at = (text: string) => text.split("{P}").join(root);
+      const say = (value: unknown) => JSON.parse(JSON.stringify(value).split(root).join("{P}"));
+      try {
+        if (c.kind === "mutation_target") {
+          return (c.targets as string[]).map((written) => {
+            const target = at(written);
+            return {
+              outside: planGuardPrivate.isOutsideProject(project, target),
+              output: planGuardPrivate.isStageRecordOutput(project, target),
+              answer: planGuardPrivate.isAnswerTextTarget(project, target),
+              diary: planGuardPrivate.isStageDiaryTarget(project, target),
+              composer: planGuardPrivate.isComposerProposalTarget(project, target),
+            };
+          });
+        }
+        const input = c.input === null ? undefined : JSON.parse(at(JSON.stringify(c.input)));
+        const intent = await planGuardPrivate.mutationIntent(project, c.tool, input, at(c.cwd), c.state, null, c.hint);
+        // A swarm's units are read against the active directive (M5).
+        delete intent.swarmUnits;
+        return say({
+          intent,
+          gateHeld: planGuardPrivate.codeGenerationGateHeld(c.state),
+          // What upstream reads of the person in this tree: the case says
+          // the same, and focus's replay is handed what the case says.
+          person: {
+            spoke: lib.personSpokeSinceGate(project, { requests: true }),
+            asked: lib.personAskedSinceGate(project),
+            lastStep: planGuardPrivate.lastStepAdmitsPersonsMoves(project),
+          },
+        });
+      } finally {
+        process.chdir(here);
+        for (const name of Object.keys(process.env)) if (!(name in saved)) delete process.env[name];
+        Object.assign(process.env, saved);
+        rmSync(root, { recursive: true, force: true });
+      }
+    }
     default:
       return { unsupported: c.kind };
   }
@@ -858,6 +936,6 @@ const out: string[] = [];
 for (const line of readFileSync(casesPath, "utf-8").split("\n")) {
   if (line === "") continue;
   const c = JSON.parse(line);
-  out.push(JSON.stringify({ id: c.id, out: answer(c) }));
+  out.push(JSON.stringify({ id: c.id, out: await answer(c) }));
 }
 process.stdout.write(out.join("\n") + "\n");
