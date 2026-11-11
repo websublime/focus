@@ -181,6 +181,7 @@ dependencies = [
  "focus-graph",
  "focus-harness",
  "focus-js",
+ "focus-markdown",
  "focus-state",
  "focus-workspace",
  "serde_json",
