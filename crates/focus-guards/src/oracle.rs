@@ -417,8 +417,15 @@ pub fn run_case(case: &Value) -> Value {
 fn mutation_case(case: &Value) -> Value {
     let text = |key: &str| case.get(key).and_then(Value::as_str).unwrap_or_default();
     // Neither engine's name is in the root: a command that may run the
-    // engine is told by that name anywhere on its line.
-    let root = format!("/tmp/oracle-{}", text("id"));
+    // engine is told by that name anywhere on its line. The root is under
+    // `/tmp` as the host really has it: where `/tmp` is itself a link, a
+    // project's real path would differ from its written one all the way
+    // up, which on upstream's host it does not.
+    let tmp = std::fs::canonicalize("/tmp").map_or_else(
+        |_| "/tmp".to_owned(),
+        |real| real.to_string_lossy().into_owned(),
+    );
+    let root = format!("{tmp}/oracle-{}", text("id"));
     let _ = std::fs::remove_dir_all(&root);
     let _ = std::fs::create_dir_all(&root);
     let at = |rel: &str| format!("{root}/{rel}");
@@ -517,7 +524,12 @@ fn mutation_case(case: &Value) -> Value {
             "gateHeld": wait.gate_held,
             "person": { "spoke": spoke, "asked": asked, "lastStep": last_step },
         });
-        serde_json::from_str(&answer.to_string().replace(&root, "{P}")).unwrap_or_default()
+        // What climbed out of the root is said under `/tmp`, as written.
+        let said = answer
+            .to_string()
+            .replace(&root, "{P}")
+            .replace(&format!("{tmp}/"), "/tmp/");
+        serde_json::from_str(&said).unwrap_or_default()
     };
     let _ = std::fs::remove_dir_all(&root);
     out

@@ -253,7 +253,7 @@ fn every_guard_case_gets_upstreams_answer() {
         cfg!(windows)
             || (judged >= 1300
                 && outside >= 240
-                && output >= 240
+                && output >= 220
                 && answer >= 28
                 && diary >= 22
                 && proposal >= 12),

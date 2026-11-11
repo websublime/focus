@@ -4269,8 +4269,8 @@ MT_TARGETS = [
     MI_INTENTS + "/other/construction/code-generation/memory.md", "p/aidlc/spaces", "p/aidlc/spaces/x", "p/aidlc/spaces/..x", "p/aidlc/spaces/..",
     "p/aidlc/x.md", "p/aidlc/spaces/other/intents/r/construction/code-generation/memory.md", "p/aidlc/spaces/default/memory/team.md",
     MI_RECORD + "/construction/code-generation/../code-generation/memory.md", MI_RECORD + "/construction//code-generation/memory.md",
-    MI_RECORD + "/CONSTRUCTION/code-generation/Memory.MD",
 ]]
+# No target differs from a file in the tree by case alone: whether the two are one file is the host's filesystem's to say.
 MT_THROUGH_LINK = [target.replace("{P}/p/", "{P}/plink/") for target in MT_TARGETS if target.startswith("{P}/p/")] + ["{P}/plink", "{P}/toplink/x"]
 MT_DIARY = MI_RECORD + "/construction/code-generation/memory.md"
 MT_ANSWER = MI_RECORD + "/.aidlc-engine/answer-text/a.txt"
