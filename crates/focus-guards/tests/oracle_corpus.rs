@@ -241,22 +241,22 @@ fn every_guard_case_gets_upstreams_answer() {
     );
     assert!(
         cfg!(windows)
-            || (intents >= 2000
-                && opaque >= 1000
-                && clear >= 700
-                && engine >= 1000
-                && unread >= 300
-                && spoken >= 700),
+            || (intents >= 2400
+                && opaque >= 1400
+                && clear >= 800
+                && engine >= 1300
+                && unread >= 400
+                && spoken >= 900),
         "too few mutation cases: {intents}, {opaque} opaque, {clear} read whole and clear, {engine} running the engine, {unread} not read whole, {spoken} with the person on record"
     );
     assert!(
         cfg!(windows)
-            || (judged >= 900
-                && outside >= 150
-                && output >= 150
-                && answer >= 20
-                && diary >= 12
-                && proposal >= 8),
+            || (judged >= 1300
+                && outside >= 240
+                && output >= 240
+                && answer >= 28
+                && diary >= 22
+                && proposal >= 12),
         "too few write targets: {judged}, {outside} outside the project, {output} record outputs, {answer} answer texts, {diary} diaries, {proposal} proposals"
     );
     assert!(
