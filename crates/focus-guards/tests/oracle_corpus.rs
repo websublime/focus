@@ -35,7 +35,7 @@ fn every_guard_case_gets_upstreams_answer() {
     let (mut dispatches, mut dispatch_blocked, mut defective, mut appendix) = (0, 0, 0, 0);
     let (mut reasons, mut questions, mut approved, mut pending, mut plans, mut appended) =
         (0, 0, 0, 0, 0, 0);
-    let (mut routes, mut delegated, mut helpers, mut helper_may) = (0, 0, 0, 0);
+    let (mut routes, mut routed, mut helpers, mut helper_may) = (0, 0, 0, 0);
     let (mut waits, mut prerequisite, mut directed, mut repo, mut diagnostic) = (0, 0, 0, 0, 0);
     let (mut lines, mut plain, mut faithful, mut dynamic) = (0, 0, 0, 0);
     let mut differing = Vec::new();
@@ -110,7 +110,7 @@ fn every_guard_case_gets_upstreams_answer() {
         }
         if kind == "engine_route" {
             routes += 1;
-            delegated += usize::from(out.is_object());
+            routed += usize::from(out.is_object());
         }
         if kind == "every_helper" {
             helpers += 1;
@@ -199,8 +199,8 @@ fn every_guard_case_gets_upstreams_answer() {
         "too few posture cases: {reasons} reasons and markers, {questions} questions files ({approved} approved, {pending} pending), {plans} plans ({appended} with an appendix)"
     );
     assert!(
-        routes >= 1000 && delegated >= 500 && helpers >= 1000 && helper_may >= 250,
-        "too few dispatcher cases: {routes} routes, {delegated} delegated; {helpers} helper lines, {helper_may} admitted"
+        routes >= 1000 && routed >= 500 && helpers >= 1000 && helper_may >= 250,
+        "too few dispatcher cases: {routes} routes, {routed} delegated; {helpers} helper lines, {helper_may} admitted"
     );
     assert!(
         waits >= 1100 && prerequisite >= 100 && directed >= 80 && repo >= 6 && diagnostic >= 90,
