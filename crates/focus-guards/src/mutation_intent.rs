@@ -174,13 +174,13 @@ impl Project<'_> {
         relative(self.flavour(), &self.host.cwd, from, to)
     }
 
-    /// `isWithinDir`.
+    /// `isWithinDir`: `path` is `dir` or under it. The way from one to the
+    /// other does not start over at a root and does not climb.
     fn within(&self, path: &str, dir: &str) -> bool {
         let rel = self.rel(dir, path);
-        rel.is_empty()
-            || (!is_absolute(self.flavour(), &rel)
-                && rel != ".."
-                && !rel.starts_with(&format!("..{}", self.flavour().separator())))
+        !is_absolute(self.flavour(), &rel)
+            && rel != ".."
+            && !rel.starts_with(&format!("..{}", self.flavour().separator()))
     }
 
     /// The way from the project down to `target` goes through no link:
@@ -271,7 +271,7 @@ impl Project<'_> {
     /// builds nothing.
     #[must_use]
     pub fn is_answer_text_target(&self, target: &str) -> bool {
-        let Some(record) = self.docs_root.filter(|record| !record.is_empty()) else {
+        let Some(record) = self.docs_root else {
             return false;
         };
         let folder = join(self.flavour(), &[record, ENGINE_DIR, ANSWER_TEXT]);
@@ -477,15 +477,15 @@ impl PlanWait<'_> {
     }
 
     /// `chatSwitchChangeAdmitted`: a check for this piece of work turned
-    /// off or back on with `engine config set`, and nothing else. Plan
-    /// approval itself is admitted beside the other prerequisites.
+    /// off or back on with `engine config set`, and nothing else. Upstream
+    /// leaves plan approval out here because it is admitted beside the
+    /// other prerequisites: on the same values, and off for a person who
+    /// spoke, which a person who asked has. Leaving it in changes nothing.
     fn chat_switch_change_admitted(&self, args: &[String]) -> bool {
         args.len() == 5
             && args[0] == "engine"
             && args[1] == "config"
             && args[2] == "set"
-            && args[3] != "plan-approval"
-            && args[3] != "guard.plan-approval"
             && self.person_check_switch_allowed(&args[3], &args[4])
     }
 
@@ -553,7 +553,9 @@ impl PlanWait<'_> {
         if self.is_native_prerequisite(name, args, engine_paths) {
             return direct;
         }
-        if normalized_command_name(project.flavour(), name) != "bun" {
+        // Bun by name, run directly. The Bun running the hook, named by its
+        // absolute path, is not something Focus's hook has.
+        if !["bun", "bun.exe"].contains(&to_lower_case(name).as_str()) || !direct {
             return false;
         }
         if args.iter().any(|arg| {
@@ -566,44 +568,29 @@ impl PlanWait<'_> {
             return false;
         }
         let script_index = usize::from(args.first().map(String::as_str) == Some("run"));
+        // An empty script, and one outside the tools directory, are the
+        // trusted-file check's to refuse.
         let Some(script) = args
             .get(script_index)
-            .filter(|script| !script.is_empty() && !script.starts_with('-'))
+            .filter(|script| !script.starts_with('-'))
         else {
             return false;
         };
-        let absolute = project.abs(&[cwd, script]);
-        let tools = project.abs(&[project.dir, project.harness_dir, "tools"]);
-        let file = basename(project.flavour(), &absolute);
-        let unified = file == "focus.ts";
-        let stem = if unified {
-            None
+        let file = basename(project.flavour(), &project.abs(&[cwd, script]));
+        let tool_args = &args[script_index + 1..];
+        let admitted = if file == "focus.ts" {
+            // The unified entry point dispatches both planning and mutation
+            // routes: it gets the native planning exceptions only (the
+            // read-only diagnostics are among what the wait admits).
+            self.admits(&as_engine_route(tool_args))
         } else {
             re::find(r"^focus-([A-Za-z0-9._-]+)\.ts$", "", &file)
-                .and_then(|found| re::group(&file, &found, 1).map(str::to_owned))
-        };
-        if !project
-            .rel(&tools, &dirname(project.flavour(), &absolute))
-            .is_empty()
-            || (!unified && stem.is_none())
-        {
-            return false;
-        }
-        // Bun by name, run directly. The Bun running the hook, named by its
-        // absolute path, is not something Focus's hook has.
-        if !["bun", "bun.exe"].contains(&to_lower_case(name).as_str()) || !direct {
-            return false;
-        }
-        let tool_args = &args[script_index + 1..];
-        let admitted = match &stem {
-            // The unified entry point dispatches both planning and mutation
-            // routes: it gets the native planning exceptions only.
-            None => self.admits(&as_engine_route(tool_args)) || is_read_only_diagnostic(tool_args),
-            Some(stem) => {
-                let mut route = vec!["engine".to_owned(), stem.clone()];
-                route.extend(tool_args.iter().cloned());
-                self.admits(&route) || is_read_only_tool_diagnostic(stem, tool_args)
-            }
+                .and_then(|found| re::group(&file, &found, 1))
+                .is_some_and(|stem| {
+                    let mut route = vec!["engine".to_owned(), stem.to_owned()];
+                    route.extend(tool_args.iter().cloned());
+                    self.admits(&route) || is_read_only_tool_diagnostic(stem, tool_args)
+                })
         };
         admitted && project.is_trusted_tool_file(cwd, script)
     }
@@ -626,14 +613,14 @@ impl PlanWait<'_> {
         let unwrapped = invocation.launchers.is_empty()
             && !invocation.data_driven
             && !invocation.executable_resolution_changed;
-        if dialect.paths_as_written
-            && executable.contains(['\\', '/'])
-            && !self.is_native_prerequisite(executable, &invocation.args, true)
-        {
+        // A path names only the installed engine, which is the
+        // distribution's to recognise: no path is admitted.
+        if dialect.paths_as_written && executable.contains(['\\', '/']) {
             return true;
         }
-        let set_location = dialect.power_shell && POWERSHELL_SET_LOCATION.contains(&name.as_str());
-        if name == "cd" || set_location {
+        // Outside PowerShell its names for a directory change are no `cd`:
+        // they are refused here as any command not known would be below.
+        if name == "cd" || POWERSHELL_SET_LOCATION.contains(&name.as_str()) {
             // The shared lexer is not a full shell parser: no exception
             // where its whitespace or continuation decoding differs.
             if unread_whitespace(raw_command) || raw_command.contains("\\\n") {
@@ -656,7 +643,6 @@ impl PlanWait<'_> {
             let target = args.first().map_or("", String::as_str);
             if !direct
                 || args.len() != 1
-                || target.is_empty()
                 || !is_absolute(flavour, target)
                 || target.contains(['*', '?', '[', ']', '{', '}'])
                 || target
@@ -863,5 +849,147 @@ impl MutationIntent {
             out.insert("readable".to_owned(), json!(false));
         }
         Value::Object(out)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn never() -> bool {
+        false
+    }
+
+    fn wait<'a>(host: &'a Host, dir: &'a str) -> PlanWait<'a> {
+        PlanWait {
+            project: Project {
+                host,
+                dir,
+                harness_dir: ".claude",
+                spaces_root: "focus/spaces",
+                docs_root: None,
+                composer_proposal: "focus/spaces/default/intents/.focus-engine/composer-proposal.json",
+            },
+            gate_held: false,
+            person_spoke: &never,
+            person_asked: &never,
+            last_step_admits: &never,
+        }
+    }
+
+    fn opaque(wait: &PlanWait<'_>, command: &str, power_shell_hint: bool) -> bool {
+        let input = json!({ "command": command });
+        wait.mutation_intent(
+            "Bash",
+            input.as_object(),
+            wait.project.dir,
+            power_shell_hint,
+        )
+        .opaque_shell
+    }
+
+    fn windows_host() -> Host {
+        Host {
+            cwd: r"C:\work".to_owned(),
+            windows: true,
+            home: None,
+            os_home: r"C:\Users\me".to_owned(),
+            user_profile: None,
+            home_drive: None,
+            home_path: None,
+        }
+    }
+
+    #[test]
+    fn on_a_windows_host_the_cmd_launcher_names_the_engine() {
+        let host = windows_host();
+        let wait = wait(&host, r"C:\work");
+        assert!(!opaque(&wait, "focus.cmd status", false));
+        assert!(!opaque(&wait, "FOCUS.CMD engine now", false));
+        // cmd.exe reads the launcher's arguments again: an empty one, and
+        // one it would expand, are not handed to it.
+        assert!(opaque(&wait, "focus.cmd status ''", false));
+        assert!(opaque(&wait, "focus.cmd status 'a%b'", false));
+        // What the wait does not admit is not admitted through it either.
+        assert!(opaque(&wait, "focus.cmd engine state approve", false));
+
+        // Elsewhere the launcher is a file like any other.
+        let host = Host::posix("/work", "/home/me");
+        assert!(opaque(&wait_at(&host), "focus.cmd status", false));
+        assert!(!opaque(&wait_at(&host), "focus status", false));
+    }
+
+    fn wait_at(host: &Host) -> PlanWait<'_> {
+        wait(host, "/work")
+    }
+
+    #[test]
+    fn on_windows_another_drive_is_not_under_a_folder() {
+        let host = windows_host();
+        let project = wait(&host, r"C:\work").project;
+        assert!(project.within(r"C:\work", r"C:\work"));
+        assert!(project.within(r"C:\work\a\b", r"C:\work"));
+        assert!(!project.within(r"C:\other", r"C:\work"));
+        assert!(!project.within(r"C:\", r"C:\work"));
+        // The way there starts over at another root.
+        assert!(!project.within(r"D:\work\a", r"C:\work"));
+    }
+
+    /// Deliberate deviation: upstream admits an installed tool script run by
+    /// the Bun that runs its hook, named by that Bun's absolute path
+    /// (`isThisBun`). Focus's hook is not run by a Bun, so Bun is admitted
+    /// by name only.
+    #[cfg(unix)]
+    #[test]
+    fn a_bun_named_by_an_absolute_path_is_not_the_engines() {
+        let root = std::env::temp_dir().join(format!("focus-mutation-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&root);
+        std::fs::create_dir_all(root.join(".claude/tools")).unwrap();
+        std::fs::write(root.join(".claude/tools/focus-graph.ts"), "export {}\n").unwrap();
+        let dir = std::fs::canonicalize(&root)
+            .unwrap()
+            .to_string_lossy()
+            .into_owned();
+        let host = Host::posix(&dir, "/home/me");
+        let wait = wait(&host, &dir);
+
+        assert!(!opaque(
+            &wait,
+            "bun .claude/tools/focus-graph.ts topo",
+            false
+        ));
+        let this = std::env::current_exe().unwrap();
+        for bun in ["/usr/local/bin/bun", &this.to_string_lossy()] {
+            assert!(opaque(
+                &wait,
+                &format!("{bun} .claude/tools/focus-graph.ts topo"),
+                false
+            ));
+        }
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    /// Deliberate deviation: where a path names the engine (a PowerShell
+    /// command, a Windows host), upstream admits the absolute path of the
+    /// installed launcher or active executable (`installedEngine`). That is
+    /// the distribution's to recognise and is not ported: a path is refused,
+    /// and the engine is admitted by name.
+    #[test]
+    fn a_path_to_the_installed_engine_is_not_admitted() {
+        let host = Host::posix("/work", "/home/me");
+        let in_power_shell = wait_at(&host);
+        assert!(!opaque(&in_power_shell, "focus.exe status", true));
+        assert!(!opaque(&in_power_shell, "focus.cmd status", true));
+        assert!(opaque(&in_power_shell, r"C:\Tools\focus.exe status", true));
+        assert!(opaque(&in_power_shell, r".\focus.cmd status", true));
+
+        let host = windows_host();
+        let on_windows = wait(&host, r"C:\work");
+        assert!(!opaque(&on_windows, "focus.exe status", false));
+        assert!(opaque(
+            &on_windows,
+            r"'C:\Program Files\focus\focus.exe' status",
+            false
+        ));
     }
 }

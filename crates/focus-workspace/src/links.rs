@@ -128,9 +128,9 @@ pub fn refuse_link_in_chain(anchor: &Path, rel: &Path) -> Result<()> {
 /// `rel` is read as upstream reads it, before anything settles it: both
 /// slash families part it, on every host, so a POSIX name cannot hide a
 /// component from a Windows walk; a root (a leading slash, a drive) or a
-/// `..` anywhere leaves the anchor and is refused; `.` and an empty part
-/// are stepped over. A component that does not exist cannot redirect
-/// anything.
+/// `..` anywhere leaves the anchor and is refused; an empty part is
+/// stepped over, and `.` names the folder it is in. A component that does
+/// not exist cannot redirect anything.
 #[must_use]
 pub fn chain_is_link_free(anchor: &Path, rel: &str) -> bool {
     let mut chars = rel.chars();
@@ -144,7 +144,7 @@ pub fn chain_is_link_free(anchor: &Path, rel: &str) -> bool {
     }
     let parts: Vec<&str> = rel
         .split(['/', '\\'])
-        .filter(|part| !part.is_empty() && *part != ".")
+        .filter(|part| !part.is_empty())
         .collect();
     if parts.contains(&"..") {
         return false;
@@ -162,6 +162,45 @@ pub fn chain_is_link_free(anchor: &Path, rel: &str) -> bool {
 #[cfg(all(test, unix))]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_chain_is_read_as_written_and_refused_at_the_first_link() {
+        let dir = std::env::temp_dir().join(format!("focus-chain-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(dir.join("real/sub")).unwrap();
+        std::fs::write(dir.join("real/sub/f"), "x").unwrap();
+        std::os::unix::fs::symlink("real", dir.join("link")).unwrap();
+        std::os::unix::fs::symlink("f", dir.join("real/sub/leaf")).unwrap();
+
+        for free in [
+            "",
+            "real/sub/f",
+            "real/missing/x",
+            "./real//sub/.",
+            // Not a drive: a name with a colon in it.
+            "1:real",
+        ] {
+            assert!(chain_is_link_free(&dir, free), "{free}");
+        }
+        for refused in [
+            // A link on the way, the file itself, and one behind the other
+            // slash family.
+            "link/sub/f",
+            "real/sub/leaf",
+            r"link\sub",
+            // A root or a drive starts over somewhere else.
+            "/real",
+            r"\real",
+            "C:real",
+            // A climb leaves the anchor, wherever it lands.
+            "..",
+            "real/../real",
+            r"real\..\real",
+        ] {
+            assert!(!chain_is_link_free(&dir, refused), "{refused}");
+        }
+        let _ = std::fs::remove_dir_all(&dir);
+    }
 
     #[test]
     fn a_link_on_the_way_is_refused_and_named_by_engine_directory() {

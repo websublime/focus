@@ -4009,11 +4009,11 @@ MI_RECORD = MI_INTENTS + "/260105-add-login"
 MI_TOOLS = ["aidlc.ts", "aidlc-utility.ts", "aidlc-graph.ts", "aidlc-doctor.ts", "aidlc-state.ts", "aidlc-orchestrate.ts", "aidlc-sensor.ts"]
 
 
-def mi_state(stage, box, parked):
+def mi_state(stage, box, parked, other="x"):
     lines = ["# AI-DLC State Tracking", "", "## Current Status", "- **Current Stage**: " + stage]
     if parked is not None:
         lines.append("- **Parked**: " + parked)
-    lines += ["", "## Stage Progress", "- [" + box + "] code-generation — EXECUTE", "- [x] build — EXECUTE", ""]
+    lines += ["", "## Stage Progress", "- [" + box + "] code-generation — EXECUTE", "- [" + other + "] build — EXECUTE", ""]
     return "\n".join(lines)
 
 
@@ -4031,9 +4031,16 @@ def mi_tree(record, state, layout="plain"):
         tools = "real/tools/"
         links.append(["p/.claude", "../real"])
     for name in MI_TOOLS:
-        files[tools + name] = "export {}\n"
+        # A tool that is not there, and a folder where a tool is expected.
+        files[tools + name] = None if layout == "tool-folders" else "export {}\n"
+    if layout == "no-tools":
+        files = {"p/src/a.txt": "a\n", "p/a.txt": "a\n", "out": None, "p/.claude/tools": None}
     files[tools + "sub/aidlc-graph.ts"] = "export {}\n"
-    if layout == "plain":
+    if layout == "odd":
+        # Names beside a tool's, and folders whose names a shell would expand.
+        files.update({tools + "aidlc-graph.tsx": "export {}\n", tools + "xaidlc-graph.ts": "export {}\n", "q[x]": None, "q{x}": None,
+                      "q*": None, "q?": None})
+    if layout in ("plain", "project-link"):
         links += [["p/lt", ".claude/tools"], ["p/.claude/tools/aidlc-linked.ts", "aidlc-graph.ts"], ["plink", "p"]]
     if record != "none":
         files[MI_RECORD + "/aidlc-state.md"] = state
@@ -4044,17 +4051,18 @@ def mi_tree(record, state, layout="plain"):
     return files, links
 
 
-def mi_case(tool, input_, hint=False, cwd="{P}/p", record=None, layout="plain", gate=None, unattended=None):
+def mi_case(tool, input_, hint=False, cwd="{P}/p", record=None, layout="plain", gate=None, unattended=None, other="x"):
     record = record if record is not None else mi.choice(["none", "none", "state", "turn", "turn", "turn", "question"])
     stage, box = gate if gate is not None else (mi.choice(["code-generation", "code-generation", "Code Generation", "build", ""]),
                                                  mi.choice(["?", "?", "-", "x", " "]))
     parked = mi.choice([None, None, "", "2026-01-05T10:02:00Z", "no"])
     unattended = unattended if unattended is not None else mi.random() < 0.2
-    state = mi_state(stage, box, parked)
+    state = mi_state(stage, box, parked, other)
     files, links = mi_tree(record, state, layout)
     spoke = record == "turn"
-    add("mutation_intent", tool=tool, input=input_, hint=hint, cwd=cwd, state=state, files=files, links=links, names=[], project="p",
-        harness=".claude", unattended=unattended,
+    # The project named through a link to it: its real path is another.
+    add("mutation_intent", tool=tool, input=input_, hint=hint, cwd=cwd, state=state, files=files, links=links, names=[],
+        project="plink" if layout == "project-link" else "p", harness=".claude", unattended=unattended,
         person={"spoke": spoke, "asked": spoke and not unattended, "lastStep": record != "none" and bool((parked or "").strip())})
 
 
@@ -4199,6 +4207,48 @@ for tool, input_ in [
     for cwd in ["{P}/p", "{P}/p/src", "{P}"]:
         mi_case(tool, input_, cwd=cwd, hint=mi.random() < 0.2)
 
+# The edges a mutation sweep asked for.
+for stage, box, other in [("code-generation", "-", "?"), ("code-generation", "x", "?"), ("build", "?", "?"), ("code-generation", "?", "?")]:
+    mi_case("Bash", {"command": "aidlc engine orchestrate report --stage code-generation --result approved"}, gate=(stage, box), other=other)
+for command in [
+    "git diff -o x", "git status -o", "git -o status", "sort -o", "aidlc x flags --clear-bypass AIDLC_DISABLE_SENSORS",
+    "aidlc engine flags --clear-bypass AIDLC_DISABLE_SENSORS", "aidlc x config set guard.review-freeze on",
+    "aidlc engine config unset guard.review-freeze on", "aidlc engine x set guard.review-freeze on",
+    "aidlc engine config set guard.review-freeze on --json", "aidlc engine config set plan-approval strict",
+    "aidlc engine config set guard-policy strict extra",
+]:
+    for record in ["none", "turn"]:
+        mi_case("Bash", {"command": command}, record=record, gate=("code-generation", "?"), unattended=False)
+for command in MI_BUN:
+    for layout in ["no-tools", "tool-folders", "project-link"]:
+        mi_case("Bash", {"command": command}, layout=layout, record="none", gate=("code-generation", "?"), unattended=False)
+    mi_case("Bash", {"command": command.replace(".claude/tools/", "{P}/plink/.claude/tools/")}, layout="project-link", cwd="{P}/plink")
+for command, layout, cwd, hint in [
+    ("bun .claude/tools/aidlc-graph.ts topo -r x", "plain", "{P}/p", False), ("bun .claude/tools/aidlc-graph.ts topo --require=x", "plain", "{P}/p", False),
+    ("bun .claude/tools/aidlc-graph.ts topo --preload=x", "plain", "{P}/p", False), ("bun -/../.claude/tools/aidlc-graph.ts topo", "plain", "{P}/p", False),
+    ("bun .claude/tools/xaidlc-graph.ts topo", "odd", "{P}/p", False), ("bun .claude/tools/aidlc-graph.tsx topo", "odd", "{P}/p", False),
+    ("bun aidlc-graph.ts topo", "plain", "{P}/p/.claude/tools", False), ("bun ./aidlc.ts status", "plain", "{P}/p/.claude/tools", False),
+    ("bun ../.claude/tools/aidlc-graph.ts topo", "plain", "{P}/p/src", False), ("bun '' topo", "plain", "{P}/p/.claude/tools/aidlc-graph.ts", False),
+    ("bun '' status", "plain", "{P}/p/.claude/tools/aidlc.ts", False), ("bun '' topo", "tool-folders", "{P}/p/.claude/tools/aidlc-graph.ts", False),
+    ("./cat a.txt", "plain", "{P}/p", True), ("bin/git status", "plain", "{P}/p", True), ("cd.exe {P}/p", "plain", "{P}/p", True),
+    ("SL.EXE {P}/p", "plain", "{P}/p", True), ("Set-Location.exe {P}/p", "plain", "{P}/p", True), ("rm src\\a.txt", "plain", "{P}/p", True),
+    ("tee src\\b.txt", "plain", "{P}/p", True), ("sl {P}/p\r", "plain", "{P}/p", True), ("sl\u000b{P}/p", "plain", "{P}/p", True),
+    ("sl {P}/p \u000c", "plain", "{P}/p", True), ("sl\t{P}/p", "plain", "{P}/p", True), ("cd -Path {P}/p", "plain", "{P}/p", False),
+    ("cd -literalpath {P}/p", "plain", "{P}/p", False), ("cd p", "plain", "{P}/p", False), ("cd \\\n{P}/p", "plain", "{P}/p", False),
+    ("cd {P}/p\\\n", "plain", "{P}/p", False), ("cd ''", "plain", "{P}/p", False), ("cd ''", "plain", "{P}", False),
+    ("sl {P}/p", "plain", "{P}/p", False), ("chdir {P}/p", "plain", "{P}/p", False), ("set-location {P}/p", "plain", "{P}/p", False),
+    ("cd '{P}/q[x]'", "odd", "{P}/q[x]", False), ("cd '{P}/q{x}'", "odd", "{P}/q{x}", False), ("cd '{P}/q*'", "odd", "{P}/q*", False),
+    ("cd '{P}/q?'", "odd", "{P}/q?", False), ("cd {P}/out", "odd", "{P}/out", False), ("cd {P}/missing", "plain", "{P}/missing", False),
+    ("cd {P}/p/a.txt", "plain", "{P}/p/a.txt", False), ("cd {P}/p/src", "project-link", "{P}/plink/src", False),
+    ("cd {P}/plink/src", "project-link", "{P}/plink/src", False), ("rm a.txt *.md", "plain", "{P}/p", False), ("rm a.txt b?.txt", "plain", "{P}/p", False),
+    ("rm a.txt '$x'", "plain", "{P}/p", False), ("rm a.txt '`x`'", "plain", "{P}/p", False), ("rm a.txt 'b c.txt'", "plain", "{P}/p", False),
+]:
+    mi_case("Bash", {"command": command}, hint=hint, layout=layout, cwd=cwd, record="none", gate=("code-generation", "?"), unattended=False)
+for command in ["cd {P}/plink", "cd {P}/p", "aidlc config flags --clear-bypass AIDLC_DISABLE_SENSORS --project-dir {P}/plink",
+                "aidlc config flags --clear-bypass AIDLC_DISABLE_SENSORS --project-dir {P}/p", "touch {P}/plink/x", "touch {P}/p/x"]:
+    for cwd in ["{P}/plink", "{P}/p"]:
+        mi_case("Bash", {"command": command}, layout="project-link", cwd=cwd)
+
 # Where a write target lies: outside the project, a stage's own record output,
 # a person's answer text, the stage's diary, the composer's proposal.
 MT_ENGINE = MI_INTENTS + "/.aidlc-engine"
@@ -4220,12 +4270,13 @@ MT_TARGETS = [
     MI_RECORD + "/construction/code-generation/../code-generation/memory.md", MI_RECORD + "/construction//code-generation/memory.md",
     MI_RECORD + "/CONSTRUCTION/code-generation/Memory.MD",
 ]]
+MT_THROUGH_LINK = [target.replace("{P}/p/", "{P}/plink/") for target in MT_TARGETS if target.startswith("{P}/p/")] + ["{P}/plink", "{P}/toplink/x"]
 MT_DIARY = MI_RECORD + "/construction/code-generation/memory.md"
 MT_ANSWER = MI_RECORD + "/.aidlc-engine/answer-text/a.txt"
 MT_PROPOSAL = MT_ENGINE + "/composer-proposal.json"
 
 
-def mt_case(record=True, present=(), links=(), names=(), extra=None, intents=True):
+def mt_case(record=True, present=(), links=(), names=(), extra=None, intents=True, project="p"):
     files = {"p/src/a.txt": "a\n", "out/a.txt": "a\n"}
     if intents:
         files[MI_INTENTS] = None
@@ -4235,8 +4286,8 @@ def mt_case(record=True, present=(), links=(), names=(), extra=None, intents=Tru
     for rel in present:
         files[rel] = "x\n"
     files.update(extra or {})
-    add("mutation_target", targets=MT_TARGETS, files=files, links=[list(link) for link in links], names=[list(name) for name in names],
-        project="p", harness=".claude")
+    add("mutation_target", targets=MT_TARGETS + (MT_THROUGH_LINK if project != "p" else []), files=files,
+        links=[list(link) for link in links], names=[list(name) for name in names], project=project, harness=".claude")
 
 
 MT_OUTSIDE_LINKS = [("inlink", "p/src"), ("dangling", "nowhere"), ("p/outlink", "../out"), ("p/lnk", "src")]
@@ -4255,6 +4306,12 @@ mt_case(record=False, links=[("p/aidlc/spaces", "../../out"), ("inlink", "p")], 
 mt_case(extra={MT_DIARY: None, MT_ANSWER: None, MT_PROPOSAL: None})
 # A file where a folder is expected: the path goes through it.
 mt_case(extra={MI_RECORD + "/construction": "x\n", MI_RECORD + "/.aidlc-engine": "x\n", MT_ENGINE: "x\n"})
+# The project named through a link to it; no records folder at all; a link under the answer-text folder.
+for record in [True, False]:
+    mt_case(record, links=[("plink", "p"), ("toplink", "p/src")] + MT_OUTSIDE_LINKS, project="plink",
+            present=[MT_DIARY, MT_ANSWER, MT_PROPOSAL] if record else [])
+mt_case(record=False, intents=False)
+mt_case(links=[(MI_RECORD + "/.aidlc-engine/answer-text/sub", "../../inception"), (MI_RECORD + "/construction/code-generation/sub", "../../inception")])
 # Two records and no cursor: no piece of work is selected.
 mt_case(extra={MI_INTENTS + "/260106-other/aidlc-state.md": mi_state("build", "-", None)}, present=[MT_DIARY, MT_ANSWER])
 mt_case(extra={MI_INTENTS + "/260106-other/aidlc-state.md": mi_state("build", "-", None), MI_INTENTS + "/active-intent": "260105-add-login\n"},

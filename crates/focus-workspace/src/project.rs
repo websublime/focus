@@ -303,6 +303,24 @@ pub fn is_space_name(name: &str) -> bool {
 mod tests {
     use super::*;
 
+    #[test]
+    fn a_lower_case_drive_letter_is_upper_cased() {
+        for (written, normal) in [
+            (r"c:\x", r"C:\x"),
+            ("c:/x", "C:/x"),
+            ("c:", "C:"),
+            // Not a drive: no separator after the colon, already upper
+            // case, not at the start, not a letter.
+            ("c:x", "c:x"),
+            (r"C:\x", r"C:\x"),
+            ("/c:/x", "/c:/x"),
+            (r"é:\x", r"é:\x"),
+            ("", ""),
+        ] {
+            assert_eq!(normalize_drive_letter(written), normal, "{written}");
+        }
+    }
+
     struct Tree(PathBuf);
 
     impl Tree {

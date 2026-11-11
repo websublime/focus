@@ -318,6 +318,38 @@ pub fn open_to_append(path: &Path) -> std::io::Result<File> {
 mod tests {
     use super::*;
 
+    #[cfg(unix)]
+    #[test]
+    fn a_folder_is_itself_and_a_plain_file_has_one_name() {
+        let dir = scratch("identity");
+        std::fs::create_dir_all(dir.join("a")).unwrap();
+        std::fs::create_dir_all(dir.join("b")).unwrap();
+        std::fs::write(dir.join("f"), "x").unwrap();
+        std::fs::write(dir.join("twice"), "x").unwrap();
+        std::fs::hard_link(dir.join("twice"), dir.join("again")).unwrap();
+        std::os::unix::fs::symlink("a", dir.join("to-a")).unwrap();
+        std::os::unix::fs::symlink("f", dir.join("to-f")).unwrap();
+
+        assert!(same_directory(&dir.join("a"), &dir.join("a")));
+        assert!(same_directory(&dir.join("a"), &dir.join("b/../a")));
+        assert!(!same_directory(&dir.join("a"), &dir.join("b")));
+        // A link to the folder is not the folder, and a file is no folder.
+        assert!(!same_directory(&dir.join("to-a"), &dir.join("a")));
+        assert!(!same_directory(&dir.join("a"), &dir.join("to-a")));
+        assert!(!same_directory(&dir.join("f"), &dir.join("f")));
+        assert!(!same_directory(&dir.join("missing"), &dir.join("missing")));
+
+        assert!(absent_or_plain_file(&dir.join("missing")));
+        assert!(absent_or_plain_file(&dir.join("a/missing")));
+        assert!(absent_or_plain_file(&dir.join("f")));
+        assert!(!absent_or_plain_file(&dir.join("twice")));
+        assert!(!absent_or_plain_file(&dir.join("a")));
+        assert!(!absent_or_plain_file(&dir.join("to-f")));
+        // A path through a file is a failure, not an absence.
+        assert!(!absent_or_plain_file(&dir.join("f/x")));
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
     fn scratch(name: &str) -> std::path::PathBuf {
         let dir = std::env::temp_dir().join(format!("focus-files-{}-{name}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
