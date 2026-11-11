@@ -2,6 +2,7 @@
 //! [`Outcome`](crate::Outcome).
 
 pub mod log_subagent;
+pub mod plan_approval_guard;
 pub mod rebuild_stage_graph;
 pub mod record_human_turn;
 pub mod review_freeze;

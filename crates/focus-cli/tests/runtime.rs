@@ -786,10 +786,11 @@ fn a_compile_writes_nothing_through_a_workspace_that_is_a_link() {
     let _ = fs::remove_dir_all(root);
 }
 
-/// Deliberate deviation. With a backslash in the project's path, upstream's
-/// shard reader takes it for a separator, finds no shard and compiles a
-/// graph with no stages. To Focus, where a backslash is no separator, it is
-/// a character of the name, and the ledger is read.
+/// Where a backslash is no separator, it is a character of the project's
+/// name, and the ledger is read. Once a deviation: under Bun 1.4.2
+/// upstream's shard reader took it for a separator, found no shard and
+/// compiled a graph with no stages. Since Bun 1.4.4 upstream reads the
+/// ledger too, and the differential compares the two.
 #[cfg(unix)]
 #[test]
 fn a_backslash_in_the_projects_path_is_a_character_of_it() {

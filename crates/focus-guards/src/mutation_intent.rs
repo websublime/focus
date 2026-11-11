@@ -477,15 +477,18 @@ impl PlanWait<'_> {
     }
 
     /// `chatSwitchChangeAdmitted`: a check for this piece of work turned
-    /// off or back on with `engine config set`, and nothing else. Upstream
-    /// leaves plan approval out here because it is admitted beside the
-    /// other prerequisites: on the same values, and off for a person who
-    /// spoke, which a person who asked has. Leaving it in changes nothing.
+    /// off or back on with `engine config set`, and nothing else. Plan
+    /// approval itself is admitted beside the other prerequisites, once a
+    /// person has spoken: a person who asked for something in the message
+    /// that also approved a gate has asked, and has not spoken since, so
+    /// it is left out here.
     fn chat_switch_change_admitted(&self, args: &[String]) -> bool {
         args.len() == 5
             && args[0] == "engine"
             && args[1] == "config"
             && args[2] == "set"
+            && args[3] != "plan-approval"
+            && args[3] != "guard.plan-approval"
             && self.person_check_switch_allowed(&args[3], &args[4])
     }
 

@@ -249,6 +249,28 @@ pub fn next_on_its_own() -> String {
     format!("`focus engine orchestrate next` {AS_ITS_OWN_COMMAND}")
 }
 
+/// `authorityRemedy` with no standing approval to speak of: what is stale,
+/// and the fresh `next` that issues the current step again. Where the
+/// person's approval stands, and the open plan question's own answers, are
+/// read from the engine's last step (M5).
+#[must_use]
+pub fn authority_remedy(reason: &str) -> String {
+    format!(
+        "{reason}. Run {}, and follow the step it prints.",
+        next_on_its_own()
+    )
+}
+
+/// `authorityBlockReason`: the refusal of a call whose Plan Approval
+/// authority is missing or stale.
+#[must_use]
+pub fn authority_block_reason(reason: &str) -> String {
+    format!(
+        "Code generation cannot start because its Plan Approval authority is ambiguous or stale. {}",
+        authority_remedy(reason)
+    )
+}
+
 /// The Code Generation targets the current step builds (`None`: the
 /// zero-Unit stage-level work).
 pub type BriefTargets = [Option<String>];

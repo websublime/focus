@@ -4048,6 +4048,10 @@ def mi_tree(record, state, layout="plain"):
         files[MI_RECORD + "/audit/laptop-abc123.md"] = mi_turn(None)
     if record == "question":
         files[MI_RECORD + "/audit/laptop-abc123.md"] = mi_turn("question")
+    if record == "used":
+        # The message that asked also approved a gate: the person has asked, and has not spoken since.
+        files[MI_RECORD + "/audit/laptop-abc123.md"] = mi_turn(None) + (
+            "## Gate_Approved\n**Timestamp**: 2026-01-05T10:02:00Z\n**Event**: GATE_APPROVED\n**Stage**: build\n\n---\n\n")
     return files, links
 
 
@@ -4060,10 +4064,11 @@ def mi_case(tool, input_, hint=False, cwd="{P}/p", record=None, layout="plain", 
     state = mi_state(stage, box, parked, other)
     files, links = mi_tree(record, state, layout)
     spoke = record == "turn"
+    asked = record in ("turn", "used") and not unattended
     # The project named through a link to it: its real path is another.
     add("mutation_intent", tool=tool, input=input_, hint=hint, cwd=cwd, state=state, files=files, links=links, names=[],
         project="plink" if layout == "project-link" else "p", harness=".claude", unattended=unattended,
-        person={"spoke": spoke, "asked": spoke and not unattended, "lastStep": record != "none" and bool((parked or "").strip())})
+        person={"spoke": spoke, "asked": asked, "lastStep": record != "none" and bool((parked or "").strip())})
 
 
 MI_READS = [
@@ -4219,6 +4224,10 @@ for command in [
 ]:
     for record in ["none", "turn"]:
         mi_case("Bash", {"command": command}, record=record, gate=("code-generation", "?"), unattended=False)
+for command in MI_NATIVE:
+    if " config " in command or " intent " in command or " jump " in command:
+        mi_case("Bash", {"command": command}, record="used", gate=("code-generation", "?"), unattended=False)
+        mi_case("Bash", {"command": command}, record="used", unattended=True)
 for command in MI_BUN:
     for layout in ["no-tools", "tool-folders", "project-link"]:
         mi_case("Bash", {"command": command}, layout=layout, record="none", gate=("code-generation", "?"), unattended=False)

@@ -63,11 +63,12 @@ fn a_long_document_is_read_to_its_end() {
     assert_eq!(structure.lines[238].invisible.len(), 2);
 }
 
-/// Deliberate deviation (markdown/commonmark): a paragraph followed by a
-/// line of hyphens is a setext heading, whatever its text looks like.
-/// Upstream's probe lands in what reads like a definition's label, renders
-/// nowhere, and the two lines come out as a definition and a rule; it also
-/// lists `ANSWER` as a defined label. The referee reads a heading.
+/// A paragraph followed by a line of hyphens is a setext heading, whatever
+/// its text looks like. Once a deviation: under Bun 1.4.2 upstream's probe
+/// landed in what reads like a definition's label, rendered nowhere, and
+/// the two lines came out as a definition and a rule, with `ANSWER` listed
+/// as a defined label. Since Bun 1.4.4 upstream reads a heading, as Focus
+/// and the referee do.
 #[test]
 fn a_heading_whose_text_reads_like_a_label_is_a_heading() {
     let structure = read("> [Answer]:\n> ---");
@@ -75,25 +76,26 @@ fn a_heading_whose_text_reads_like_a_label_is_a_heading() {
     assert!(structure.definitions.is_empty() && structure.labels.is_empty());
 }
 
-/// Deliberate deviation (markdown/commonmark): `<!` followed by a letter
-/// opens an HTML block (CommonMark 0.31, start condition 4). Upstream's
-/// renderer follows an older text that wanted the letter in upper case, so
-/// it reads a paragraph holding a tag, and the line stays visible. The
-/// referee reads an HTML block.
+/// `<!` followed by a letter opens an HTML block (CommonMark 0.31, start
+/// condition 4). Once a deviation: the renderer of Bun 1.4.2 followed an
+/// older text that wanted the letter in upper case, so upstream read a
+/// paragraph holding a tag, and the line stayed visible. Since Bun 1.4.4
+/// upstream reads an HTML block, as Focus and the referee do.
 #[test]
 fn a_declaration_in_lower_case_is_an_html_block() {
     let document = "<!x y>\nstill text\n";
     assert_eq!(kinds(document), [HtmlFlow, Paragraph, Blank]);
     assert_eq!(read(document).lines[0].html_kind, Some(4));
-    // Upstream: `<!x y>`.
+    // Upstream under Bun 1.4.2: `<!x y>`.
     assert_eq!(visible(document), ["", "still text", ""]);
 }
 
-/// Deliberate deviation (markdown/commonmark): a link destination in angle
-/// brackets cannot hold `<`, so this is no definition and `[Answer]` no
-/// link. Upstream's renderer accepts it, reads a definition and lists
-/// `ANSWER` as defined. Focus and the referee read a paragraph, with the
-/// comment in it cut from what is visible.
+/// A link destination in angle brackets cannot hold `<`, so this is no
+/// definition and `[Answer]` no link: a paragraph, with the comment in it
+/// cut from what is visible. Once a deviation: the renderer of Bun 1.4.2
+/// accepted it, and upstream read a definition and listed `ANSWER` as
+/// defined. Since Bun 1.4.4 upstream reads a paragraph, as Focus and the
+/// referee do.
 #[test]
 fn a_destination_with_an_angle_bracket_in_it_defines_nothing() {
     let document = "[Answer]: <!--<!---->\n\n[Answer]";
@@ -101,7 +103,7 @@ fn a_destination_with_an_angle_bracket_in_it_defines_nothing() {
     assert_eq!(kinds(document), [Paragraph, Blank, Paragraph]);
     assert!(structure.definitions.is_empty() && structure.labels.is_empty());
     assert_eq!(structure.lines[0].invisible[0].kind, SpanKind::HtmlComment);
-    // Upstream: the whole line.
+    // Upstream under Bun 1.4.2: the whole line.
     assert_eq!(visible(document)[0], "[Answer]: ");
 }
 
@@ -135,13 +137,15 @@ fn a_code_span_opened_after_an_escaped_backtick_is_a_code_span() {
     assert_eq!(visible(document), ["a \\` b ", "", ""]);
 }
 
-/// Deliberate deviation (markdown/commonmark): a tag indented four columns
-/// under a paragraph is a tag in that paragraph. Upstream renders the line
-/// with a no-break space in place of its last column of indentation, to stop
-/// its renderer opening an HTML block there, and then probes that line: the
-/// probe no longer lands inside the tag and the tag is not recorded. A span
-/// that carries on onto such a line is reported one column short for the
-/// same reason (`repair column` in the rule).
+/// A tag indented four columns under a paragraph is a tag in that
+/// paragraph. Upstream renders the line with a no-break space in place of
+/// its last column of indentation, to stop its renderer opening an HTML
+/// block there, and then probes that line. Once a deviation on these two
+/// documents: under Bun 1.4.2 the probe no longer landed inside the tag and
+/// the tag was not recorded, and a span carried on onto such a line was
+/// reported one column short (`repair column` in the rule, which still
+/// judges the lines where the two differ). Since Bun 1.4.4 upstream records
+/// both where Focus does.
 #[test]
 fn a_tag_indented_under_a_paragraph_is_recorded_where_it_is() {
     let structure = read("para\n    <div>\nmore");
@@ -149,10 +153,10 @@ fn a_tag_indented_under_a_paragraph_is_recorded_where_it_is() {
         kinds("para\n    <div>\nmore"),
         [Paragraph, Paragraph, Paragraph]
     );
-    // Upstream: no span.
+    // Upstream under Bun 1.4.2: no span.
     let tag = structure.lines[1].invisible[0];
     assert_eq!((tag.start, tag.end, tag.kind), (4, 9, SpanKind::HtmlText));
-    // Upstream: the span starts at column 3 on the second line.
+    // Upstream under Bun 1.4.2: the span starts at column 3 on the second line.
     let carried = read("para `x\n    <h2> a` b").lines[1].invisible[0];
     assert_eq!((carried.start, carried.end), (4, 11));
 }

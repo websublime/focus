@@ -31,7 +31,7 @@ pub mod turn;
 use focus_workspace::Layout;
 
 /// The hooks Focus has, as `engine hook <name>` names them.
-pub const HOOKS: [&str; 11] = [
+pub const HOOKS: [&str; 12] = [
     "session-start",
     "validate-state",
     "session-end",
@@ -43,17 +43,14 @@ pub const HOOKS: [&str; 11] = [
     "reviewer-scope",
     "state-transition-guard",
     "record-human-turn",
+    "plan-approval-guard",
 ];
 
 /// Upstream's other hooks, and what each does, for the refusal by name.
-pub const NOT_PORTED: [(&str, &str); 5] = [
+pub const NOT_PORTED: [(&str, &str); 4] = [
     (
         "guard-tool-call",
         "runs the PreToolUse guards in one process",
-    ),
-    (
-        "plan-approval-guard",
-        "holds code until its plan is approved",
     ),
     ("continue-workflow", "decides whether a turn may end"),
     ("deliver-stage-rules", "hands a subagent its stage's rules"),
@@ -93,6 +90,7 @@ pub fn run(name: &str, input: &str, layout: &Layout) -> Outcome {
         "reviewer-scope" => hooks::reviewer_scope::run(input, layout),
         "state-transition-guard" => hooks::state_transition_guard::run(input, layout),
         "record-human-turn" => hooks::record_human_turn::run(input, layout),
+        "plan-approval-guard" => hooks::plan_approval_guard::run(input, layout),
         other => {
             let stderr = match NOT_PORTED.iter().find(|(known, _)| *known == other) {
                 Some((_, does)) => format!(

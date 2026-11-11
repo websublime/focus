@@ -113,9 +113,6 @@ DEVIATIONS = {
         "a code span that opens after an escaped backtick and closes two lines down hides the `Mode:` line "
         "between; upstream's analysis does not record the span and reads the line, focus reads what CommonMark "
         "renders (markdown/commonmark)",
-    r"verbs/memory_lowercase_declaration/grid_.*":
-        "`<!` and a letter open an HTML block that runs to the next `>` (CommonMark 0.31), and the `Mode:` line "
-        "is inside it; upstream's renderer wants the letter in upper case and reads the line (markdown/commonmark)",
     r"verbs/memory_past_budget/grid_.*":
         "upstream stops analysing a document after 256 renders and reads the rest as text, so a `Mode:` line "
         "inside a comment declares a policy when enough of the file comes before it; focus reads the end of a "
@@ -1307,6 +1304,9 @@ def normalise_audit(text, tree, engine):
         suffix = " report" if tool == "orchestrate" else ""
         text = text.replace(f"aidlc-{tool}.ts{suffix}", f"<cli> {tool}{suffix}")
         text = text.replace(f"`focus engine {tool}{suffix}`", f"<cli> {tool}{suffix}")
+    # A tool's script named whole in a sentence (the `next` a refusal tells the agent to run).
+    text = re.sub(r"`bun \.claude/tools/aidlc-(state|orchestrate)\.ts(?: ([^`]*))?`",
+                  lambda m: f"<cli> {m.group(1)}" + (f" {m.group(2)}" if m.group(2) else ""), text)
     # The state tool names itself, its verbs and the orchestrator's in each engine's own spelling.
     # (A file's text has already been through the name map, so the tool is named either way.)
     text = re.sub(r"(?:aidlc|focus)-(state|orchestrate)\.ts(?: ([a-z-]+))?",
@@ -2283,9 +2283,6 @@ DEVIATIONS.update({
     "runtime/compile/workspace_is_a_link":
         "with the workspace directory a link, upstream leaves out the shards behind it and writes an empty graph "
         "through the link; focus takes no lock and writes nothing through a link",
-    "runtime/compile/project_path_with_a_backslash":
-        "with a backslash in the project's path, upstream's shard reader takes it for a separator, finds no shard "
-        "and compiles an empty graph; focus reads the ledger",
     "runtime/compile/metrics_endpoint":
         "upstream sends a metric for the MEMORY_EMPTY event to the configured endpoint; focus has no metrics yet "
         "and refuses the append, and with it the compile, instead of leaving the endpoint without what it expects",
@@ -3767,6 +3764,120 @@ def hook_checks():
     for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
         check_(f"record-human-turn/observer_{marker.lower()}", joined, [turn("use postgres"), pick("Q", "a", options=("a", "b"))], {marker: "1"})
 
+    # plan-approval-guard: what waits for the plan at Code Generation, what never does, and the refusal while the
+    # engine's step is not there to read.
+    DEVELOPER = "aidlc-developer-agent"
+    before_code = ideation + ["approval-handoff", "practices-discovery", "requirements-analysis", "user-stories", "refined-mockups", "domain-design", "units-generation", "contract-design", "delivery-planning", "functional-design", "nfr-requirements", "nfr-design", "infrastructure-design"]
+    lowered_state = at_stage(CREATED_STATE, "code-generation", done=before_code, phase="CONSTRUCTION")
+    building_state = lowered_state.replace("- **Guard Policy**: off (from scope feature)", "- **Guard Policy**: strict (set by you)")
+    building = {**created(building_state), **binding()}
+    plan = lambda tool="Write", more=None, **input: ["plan-approval-guard", payload(hook_event_name="PreToolUse", tool_name=tool, tool_input={k: (v.replace("{D}", "{P}/" + CREATED_DIR) if isinstance(v, str) else v) for k, v in input.items()}, **(more or {}))]
+    run = lambda command, **more: ["plan-approval-guard", payload(hook_event_name="PreToolUse", tool_name="Bash", tool_input={"command": command.replace("{D}", "{P}/" + CREATED_DIR)}, **more)]
+    source = plan(file_path="{P}/src/app.ts")
+    check_("plan-approval-guard/write_source", building, [source, plan("Edit", file_path="src/app.ts"), plan("MultiEdit", file_path="{P}/src/a.ts"), plan("NotebookEdit", notebook_path="{P}/n.ipynb")])
+    check_("plan-approval-guard/write_source_policy_off", {**created(lowered_state), **binding()}, [source, run("rm -rf src")])
+    check_("plan-approval-guard/write_source_relaxed", {**created(lowered_state.replace("off (from scope feature)", "relaxed (set by you)")), **binding()}, [source])
+    check_("plan-approval-guard/write_source_switch_off", {**created(building_state + "- **Guards Off**: plan-approval (set by you)\n"), **binding()}, [source])
+    check_("plan-approval-guard/write_source_plan_approval_off", {**created(building_state.replace("- **Plan Approval**: on (from scope feature)", "- **Plan Approval**: off (set by you)")), **binding()}, [source])
+    check_("plan-approval-guard/write_source_memory_strict", {**created(lowered_state), **binding(), "aidlc/spaces/default/memory/team.md": "# Team\n\n## Guard Policy\n\nMode: strict\n"}, [source])
+    check_("plan-approval-guard/write_source_policy_unreadable", {**created(lowered_state.replace("off (from scope feature)", "sometimes")), **binding()}, [source])
+    check_("plan-approval-guard/write_source_subagent", building, [plan(file_path="{P}/src/app.ts", more={"agent_type": DEVELOPER})])
+    check_("plan-approval-guard/write_outside", building, [plan(file_path="{P}/../outside.md"), plan(file_path="/tmp/outside-of-the-project.md"), plan("MultiEdit", file_path="{P}/../a.md", paths=["/tmp/outside-b.md"])])
+    check_("plan-approval-guard/write_outside_and_inside", building, [plan("MultiEdit", file_path="{P}/../a.md", paths=["{P}/src/b.ts"])])
+    check_("plan-approval-guard/write_no_target", building, [plan(), plan(file_path=""), plan(content="x")])
+    check_("plan-approval-guard/write_engine_records", building, [plan(file_path="{D}/construction/code-generation/memory.md"), plan(file_path="{D}/.aidlc-engine/answer-text/a.txt"),
+                                                                  plan(file_path="{P}/aidlc/spaces/default/intents/.aidlc-engine/composer-proposal.json")])
+    check_("plan-approval-guard/write_record_other", building, [plan(file_path="{D}/construction/code-generation/code-generation-plan.md"), plan(file_path="{D}/aidlc-state.md"), plan(file_path="{D}/construction/build-and-test/memory.md"),
+                                                                plan(file_path="{D}/.aidlc-engine/other/a.txt")])
+    check_("plan-approval-guard/write_diary_and_source", building, [plan("MultiEdit", file_path="{D}/construction/code-generation/memory.md", paths=["{P}/src/a.ts"])])
+    check_("plan-approval-guard/write_diary_linked", building, [plan(file_path="{D}/construction/code-generation/memory.md")],
+           edits=(lambda tree: (os.makedirs(tree.path(f"{CREATED_DIR}/construction"), exist_ok=True), os.symlink(tree.path("elsewhere"), tree.path(f"{CREATED_DIR}/construction/code-generation"))),))
+    check_("plan-approval-guard/read_tools", building, [plan("Read", file_path="{P}/src/app.ts"), plan("Grep", pattern="x"), plan("AskUserQuestion"), plan("TodoRead"), plan("WebFetch", url="x")])
+    check_("plan-approval-guard/unknown_tool", building, [plan("TodoWrite", todos=[]), plan("mcp__x__write", path="a")])
+    check_("plan-approval-guard/no_tool", building, [["plan-approval-guard", payload(hook_event_name="PreToolUse")], ["plan-approval-guard", payload(hook_event_name="PreToolUse", tool_name="Write")]])
+    check_("plan-approval-guard/other_dispatch", building, [plan("Task", subagent_type="aidlc-product-agent", prompt="x"), plan("Task", prompt="x"), plan("Agent", subagent_type=" " + DEVELOPER)])
+    check_("plan-approval-guard/dispatch_developer", building, [plan("Task", subagent_type=DEVELOPER, prompt="Build it"), plan("Agent", subagent_type=DEVELOPER, prompt="AIDLC-UNIT: auth\nBuild it")])
+    check_("plan-approval-guard/dispatch_developer_policy_off", {**created(lowered_state), **binding()}, [plan("Task", subagent_type=DEVELOPER, prompt="Build it")])
+    check_("plan-approval-guard/dispatch_developer_other_stage", {**created(building_state.replace("- **Current Stage**: code-generation", "- **Current Stage**: build-and-test")), **binding()},
+           [plan("Task", subagent_type=DEVELOPER, prompt="Build it"), plan("Task", subagent_type=DEVELOPER, prompt="AIDLC-UNIT: auth"), plan("Task", subagent_type=DEVELOPER, description="AIDLC-STAGE: Code Generation"),
+            plan("Task", subagent_type=DEVELOPER, prompt="x", description="AIDLC-TESTING-CONTRACT: abc")])
+    check_("plan-approval-guard/other_stage", {**created(CREATED_STATE.replace("off (from scope feature)", "strict (set by you)")), **binding()}, [source, run("rm -rf src"), plan("TodoWrite", todos=[])])
+    check_("plan-approval-guard/stage_spelled", {**created(building_state.replace("- **Current Stage**: code-generation", "- **Current Stage**:  Code  Generation ")), **binding()}, [source])
+    check_("plan-approval-guard/shell_reads", building, [run("cat README.md"), run("ls -la && git status"), run("npm test"), run("grep -r TODO src | head -3"), run("git diff --stat; git log -1")])
+    check_("plan-approval-guard/shell_writes", building, [run("echo x > src/a.ts"), run("rm -rf src"), run("cp a.ts b.ts"), run("sed -i s/a/b/ src/a.ts"), run("cat a.ts | tee b.ts")])
+    check_("plan-approval-guard/shell_writes_outside", building, [run("echo x > {P}/../out.txt"), run("touch /tmp/outside-of-the-project"), run("echo x > a.ts", cwd="{P}/..")])
+    check_("plan-approval-guard/shell_unreadable", building, [run("echo $HOME"), run("ls\r"), run("sh build.sh"), run("node -e 'x'"), run("sort -o a b"), run("echo a \\> b"), run("./run.sh")])
+    check_("plan-approval-guard/shell_engine_admitted", building, [run("aidlc engine orchestrate next"), run("aidlc status"), run("aidlc engine now"), run("aidlc engine graph topo"), run("aidlc doctor"),
+                                                                  run("aidlc engine log decision --stage code-generation --checkpoint plan-approval --note x"), run("aidlc engine config set guard.review-freeze on"),
+                                                                  run("aidlc config flags --clear-bypass AIDLC_DISABLE_SENSORS --project-dir {P}"), run("cd {P} && aidlc status")])
+    check_("plan-approval-guard/shell_engine_refused", building, [run("aidlc engine state approve code-generation"), run("aidlc engine bolt start"), run("env aidlc status"), run("aidlc engine jump execute --target build-and-test"),
+                                                                 run("cd {P}/src && aidlc status"), run("aidlc status > out.txt"), run("aidlc config flags --clear-bypass AIDLC_DISABLE_SENSORS --project-dir {P}/..")])
+    asked_for = [run("aidlc engine config set guard.review-freeze off"), run("aidlc config flags --bypass AIDLC_DISABLE_SENSORS"), run("aidlc engine intent add-repo api"), run("aidlc engine config set plan-approval off"),
+                 run("aidlc engine jump execute --target build-and-test")]
+    spoken = {**building, CREATED_SHARD: CREATED_AUDIT + HUMAN(1)}
+    parked_state = building_state.replace("## Runtime State\n", "## Runtime State\n- **Parked**: 2026-01-05T10:02:00Z\n")
+    check_("plan-approval-guard/person_silent", building, asked_for)
+    check_("plan-approval-guard/person_spoke", spoken, asked_for)
+    check_("plan-approval-guard/person_spoke_parked", {**created(parked_state, CREATED_AUDIT + HUMAN(1)), **binding()}, asked_for + [run("aidlc engine recompose --skip ci-pipeline"), run("aidlc engine scope change --scope bugfix")])
+    check_("plan-approval-guard/person_silent_parked", {**created(parked_state), **binding()}, asked_for)
+    check_("plan-approval-guard/person_asked_a_question", {**building, CREATED_SHARD: CREATED_AUDIT + HUMAN(1, 0, "**Reply**: question")}, asked_for)
+    check_("plan-approval-guard/person_turn_used", {**building, CREATED_SHARD: CREATED_AUDIT + HUMAN(1) + block("GATE_APPROVED", T(2), "**Stage**: infrastructure-design")}, asked_for)
+    check_("plan-approval-guard/person_unattended", spoken, asked_for, {"UNATTENDED": "1"})
+    gate = [run("aidlc engine orchestrate report --stage code-generation --result approved"), run("aidlc engine orchestrate report --stage code-generation --result rejected")]
+    check_("plan-approval-guard/gate_closed", building, gate)
+    check_("plan-approval-guard/gate_open", {**created(building_state.replace("- [-] code-generation ", "- [?] code-generation ")), **binding()}, gate)
+    check_("plan-approval-guard/powershell", building, [run("Get-Content a.txt", aidlc_shell="powershell"), run("aidlc.cmd status", aidlc_shell="powershell"), run("Remove-Item a.txt", aidlc_shell="powershell"),
+                                                        run("Set-Content -Path src\\a.ts -Value x", aidlc_shell="powershell"), run("C:\\Tools\\aidlc.exe status", aidlc_shell="powershell"), run("aidlc.cmd status"),
+                                                        run("Get-Content $x", aidlc_shell="powershell"), run("aidlc.cmd status", aidlc_shell="posix")])
+    check_("plan-approval-guard/tool_script", building, [run("bun .claude/tools/aidlc-utility.ts status"), run("bun .claude/tools/aidlc.ts status"), run("bun .claude/tools/aidlc-graph.ts topo")])
+    check_("plan-approval-guard/tool_script_refused", building, [run("bun .claude/tools/aidlc-state.ts approve code-generation"), run("bun -r x .claude/tools/aidlc-utility.ts status"), run("bun src/aidlc-utility.ts status")])
+    check_("plan-approval-guard/integrity", building, [run("echo x >> {D}/audit/laptop-abc123.md"), plan(file_path="{D}/audit/laptop-abc123.md")])
+    off = {"DISABLE_PLAN_APPROVAL_GUARD": "1"}
+    check_("plan-approval-guard/off_switch", building, [source, plan(file_path="{P}/src/b.ts"), run("rm -rf src"), plan("Task", subagent_type=DEVELOPER, prompt="Build it")], off)
+    check_("plan-approval-guard/off_switch_zero", building, [source], {"DISABLE_PLAN_APPROVAL_GUARD": "0"})
+    check_("plan-approval-guard/off_switch_settings", {**building, "aidlc.settings.local.json": '{"schemaVersion": 1, "flags": {"schemaVersion": 1, "bypasses": ["AIDLC_DISABLE_PLAN_APPROVAL_GUARD"]}}\n'}, [source, source])
+    check_("plan-approval-guard/off_switch_already_said", {**building, CREATED_SHARD: CREATED_AUDIT + block("GUARD_DISABLED", T(2), "**Guard**: plan-approval-guard", "**Tool**: Write")}, [source], off)
+    check_("plan-approval-guard/off_switch_said_by_another", {**building, CREATED_SHARD: CREATED_AUDIT + block("GUARD_DISABLED", T(2), "**Guard**: review-freeze", "**Tool**: Write")}, [source], off)
+    check_("plan-approval-guard/off_switch_said_before_a_row", {**building, CREATED_SHARD: CREATED_AUDIT + block("GUARD_DISABLED", T(2), "**Guard**: plan-approval-guard", "**Tool**: Write") + HUMAN(3)}, [source], off)
+    check_("plan-approval-guard/off_switch_other_stage", joined, [source, plan("Read", file_path="x"), ["plan-approval-guard", payload(hook_event_name="PreToolUse")]], off)
+    check_("plan-approval-guard/off_switch_no_shard", {**building, CREATED_SHARD: None}, [source], off)
+    check_("plan-approval-guard/off_switch_no_state", {**CLONE, "aidlc/spaces/default/intents/intents.json": CREATED_REGISTRY, **binding()}, [source], off)
+    check_("plan-approval-guard/off_switch_outsider", {**building, "aidlc/spaces/default/intents/active-intent": None, **binding("other-9f8e7d6c")}, [source], off)
+    check_("plan-approval-guard/settings_refused", {**building, "aidlc.settings.local.json": '{"flags": {}}\n'}, [source])
+    check_("plan-approval-guard/outsider", {**building, "aidlc/spaces/default/intents/active-intent": None, **binding("other-9f8e7d6c")}, [source, run("rm -rf src"), plan("Task", subagent_type=DEVELOPER, prompt="Build it"), plan("Task", subagent_type="aidlc-product-agent")])
+    check_("plan-approval-guard/unjoined", {**building, "aidlc/spaces/default/intents/active-intent": None, **binding(None, "unjoined")}, [source, plan("Agent", subagent_type=DEVELOPER)])
+    check_("plan-approval-guard/cursor_only", created(building_state), [source])
+    check_("plan-approval-guard/no_session", building, [["plan-approval-guard", json.dumps({"hook_event_name": "PreToolUse", "tool_name": "Write", "tool_input": {"file_path": "{P}/src/app.ts"}})]])
+    check_("plan-approval-guard/no_state", {**CLONE, "aidlc/spaces/default/intents/intents.json": CREATED_REGISTRY, **binding()}, [source, plan("Task", subagent_type=DEVELOPER, prompt="AIDLC-UNIT: auth")])
+    check_("plan-approval-guard/cold", CLONE, [source, run("rm -rf src")])
+    check_("plan-approval-guard/no_shard", {**building, CREATED_SHARD: None}, [source])
+    check_("plan-approval-guard/malformed", building, [["plan-approval-guard", "{nope"], ["plan-approval-guard", ""], ["plan-approval-guard", "[1]"]])
+    check_("plan-approval-guard/registry_malformed", {**building, "aidlc/spaces/default/intents/intents.json": "{nope"}, [source])
+    check_("plan-approval-guard/directive_marker", {**building, f"{engine}/active-directive.json": '{"version": 2, "stage": "code-generation"}'}, [source])
+    check_("plan-approval-guard/directive_marker_passing", {**building, f"{engine}/active-directive.json": '{"version": 2, "stage": "code-generation"}'}, [plan("Read", file_path="x"), plan("Task", prompt="x")])
+    check_("plan-approval-guard/unit_scope_stamp", {**building, "aidlc/.aidlc-unit-scope.json": '{"version": 1}'}, [source])
+    for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
+        check_(f"plan-approval-guard/observer_{marker.lower()}", building, [source], {marker: "1"})
+    # The edges a mutation sweep asked for.
+    check_("plan-approval-guard/write_naming_the_developer", building, [plan(file_path="{P}/../outside.md", subagent_type=DEVELOPER), plan(file_path="{P}/src/app.ts", subagent_type=DEVELOPER)])
+    check_("plan-approval-guard/write_with_markers_other_stage", {**created(building_state.replace("- **Current Stage**: code-generation", "- **Current Stage**: build-and-test")), **binding()},
+           [plan(file_path="{P}/src/app.ts", prompt="AIDLC-UNIT: auth"), plan("Task", subagent_type=DEVELOPER, prompt="x", description="AIDLC-UNIT: auth"),
+            plan("Task", subagent_type=DEVELOPER, prompt="AIDLC-TESTING-CONTRACT: sha256:" + "a" * 64), plan("Task", subagent_type=DEVELOPER, prompt="x AIDLC-UNIT: auth")])
+    check_("plan-approval-guard/shell_write_of_the_diary", building, [run("echo x >> {D}/construction/code-generation/memory.md"), run("echo x > {P}/aidlc/spaces/default/intents/.aidlc-engine/composer-proposal.json")])
+    check_("plan-approval-guard/write_source_memory_unreadable", {**created(lowered_state), **binding(), "aidlc/spaces/default/memory/org.md": "## Guard Policy\n\nMode: maybe\n"}, [source])
+    # A recorded tree holds files: a state that is a folder stays a live check.
+    UNRECORDED.update({"hook/plan-approval-guard/state_is_directory", "hook/plan-approval-guard/state_is_directory_policy_off"})
+    check_("plan-approval-guard/state_is_directory", building, [source],
+           edits=(lambda tree: (os.remove(tree.path(f"{CREATED_DIR}/aidlc-state.md")), os.makedirs(tree.path(f"{CREATED_DIR}/aidlc-state.md"))),))
+    check_("plan-approval-guard/state_is_directory_policy_off", {**created(lowered_state), **binding()}, [source],
+           edits=(lambda tree: (os.remove(tree.path(f"{CREATED_DIR}/aidlc-state.md")), os.makedirs(tree.path(f"{CREATED_DIR}/aidlc-state.md"))),))
+    check_("plan-approval-guard/off_switch_no_tool", building, [["plan-approval-guard", payload(hook_event_name="PreToolUse")]], off)
+    check_("plan-approval-guard/off_switch_guard_named_by_another_row", {**building, CREATED_SHARD: CREATED_AUDIT + block("ERROR_LOGGED", T(2), "**Guard**: plan-approval-guard", "**Tool**: Write")}, [source], off)
+    check_("plan-approval-guard/off_switch_already_said_crlf", {**building, CREATED_SHARD: (CREATED_AUDIT + block("GUARD_DISABLED", T(2), "**Guard**: plan-approval-guard", "**Tool**: Write")).replace("\n", "\r\n")}, [source], off)
+    # The adapter's shell, read by the freeze as well.
+    check_("review-freeze/review_rows_powershell", reviewed, [["review-freeze", payload(hook_event_name="PreToolUse", tool_name="Bash", tool_input={"command": "Set-Content -Path " + doc.replace("/", "\\") + " -Value x"}, aidlc_shell="powershell")]])
+    check_("review-freeze/powershell_other_target", reviewed, [["review-freeze", payload(hook_event_name="PreToolUse", tool_name="Bash", tool_input={"command": "Set-Content -Path notes.md -Value x"}, aidlc_shell="powershell")]])
+
     # The dispatcher: a hook it does not have, a name it refuses, the trace.
     check_("dispatch/unknown", created(), [["nope", "{}"]])
     check_("dispatch/unsafe_name", created(), [["../x", "{}"]])
@@ -3822,6 +3933,12 @@ DEVIATIONS.update({
         "a payload field of a kind the hook does not expect: upstream falls over on it and its dispatcher prints "
         "the runtime's TypeError; focus refuses the field by name (exit 1 either way, and nothing recorded past "
         "the heartbeat by either)",
+    "hook/plan-approval-guard/tool_script":
+        "one of the engine's installed tool scripts run by Bun (by name, or by the absolute path of the Bun that runs "
+        "upstream's hook), doing what a waiting plan admits: upstream admits it as it admits the engine by name, "
+        "and by the absolute path of its installed launcher or active executable. A Focus install has no tool "
+        "scripts, its hook is not run by a Bun, and the install's layout is the distribution's (M8): focus admits "
+        "the engine by name, and the command waits for the engine's step like any command it cannot see into",
     r"hook/dispatch/[a-z_]+_not_ported":
         "a hook Focus does not run yet: upstream runs it; focus refuses it by name",
     r"hook/dispatch/(unknown|unsafe_name|no_name)":
