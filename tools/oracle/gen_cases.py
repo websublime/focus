@@ -4039,7 +4039,7 @@ def mi_tree(record, state, layout="plain"):
     if layout == "odd":
         # Names beside a tool's, and folders whose names a shell would expand.
         files.update({tools + "aidlc-graph.tsx": "export {}\n", tools + "xaidlc-graph.ts": "export {}\n", "q[x]": None, "q{x}": None,
-                      "q*": None, "q?": None})
+                      "q*": None, "q?": None, "p\n": None})
     if layout in ("plain", "project-link"):
         links += [["p/lt", ".claude/tools"], ["p/.claude/tools/aidlc-linked.ts", "aidlc-graph.ts"], ["plink", "p"]]
     if record != "none":
@@ -4241,6 +4241,7 @@ for command, layout, cwd, hint in [
     ("cd '{P}/q?'", "odd", "{P}/q?", False), ("cd {P}/out", "odd", "{P}/out", False), ("cd {P}/missing", "plain", "{P}/missing", False),
     ("cd {P}/p/a.txt", "plain", "{P}/p/a.txt", False), ("cd {P}/p/src", "project-link", "{P}/plink/src", False),
     ("cd {P}/plink/src", "project-link", "{P}/plink/src", False), ("rm a.txt *.md", "plain", "{P}/p", False), ("rm a.txt b?.txt", "plain", "{P}/p", False),
+    ("bun .. topo", "plain", "{P}/p/.claude/tools/aidlc-graph.ts/x", False), ("cd {P}/p\\\n", "odd", "{P}/p\n", False),
     ("rm a.txt '$x'", "plain", "{P}/p", False), ("rm a.txt '`x`'", "plain", "{P}/p", False), ("rm a.txt 'b c.txt'", "plain", "{P}/p", False),
 ]:
     mi_case("Bash", {"command": command}, hint=hint, layout=layout, cwd=cwd, record="none", gate=("code-generation", "?"), unattended=False)
