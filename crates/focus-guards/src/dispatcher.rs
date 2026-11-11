@@ -708,10 +708,16 @@ mod tests {
             "focus-graph.ts",
             "topo --project-dir /x --yes",
         );
-        is(
-            "engine graph topo --project-dir x",
-            "focus-graph.ts",
-            "topo --project-dir /cwd/x",
+        // A relative directory is resolved as the host resolves it.
+        assert_eq!(
+            resolved("engine graph topo --project-dir x"),
+            Some((
+                "focus-graph.ts".to_owned(),
+                format!(
+                    "topo --project-dir {}",
+                    resolve(Flavour::host(), "/cwd", &["x"])
+                )
+            ))
         );
         is(
             "engine log answer --json -- --project-dir y --json",
