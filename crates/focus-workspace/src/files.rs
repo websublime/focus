@@ -62,6 +62,70 @@ fn refused_a_link(error: &std::io::Error) -> bool {
     }
 }
 
+/// `sameDirectoryIdentity`: both paths are directories, neither a link, and
+/// the same one: by inode and device, or by what Windows keeps for them.
+#[must_use]
+pub fn same_directory(left: &Path, right: &Path) -> bool {
+    let (Ok(actual), Ok(expected)) = (
+        std::fs::symlink_metadata(left),
+        std::fs::symlink_metadata(right),
+    ) else {
+        return false;
+    };
+    if !actual.is_dir() || !expected.is_dir() {
+        return false;
+    }
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::MetadataExt;
+        actual.ino() != 0 && (actual.ino(), actual.dev()) == (expected.ino(), expected.dev())
+    }
+    #[cfg(windows)]
+    {
+        match (
+            same_file::Handle::from_path(left),
+            same_file::Handle::from_path(right),
+        ) {
+            (Ok(actual), Ok(expected)) => actual == expected,
+            _ => false,
+        }
+    }
+    #[cfg(not(any(unix, windows)))]
+    {
+        left == right
+    }
+}
+
+/// How many names a file has (`nlink`); one where the host does not say.
+#[must_use]
+pub fn hard_links(meta: &Metadata) -> u64 {
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::MetadataExt;
+        meta.nlink()
+    }
+    #[cfg(not(unix))]
+    {
+        let _ = meta;
+        1
+    }
+}
+
+/// Nothing at `path`, or a regular file with one name: what a write may
+/// replace without reaching another file. `lstat` with `throwIfNoEntry:
+/// false`: a path that is not there reads as nothing, any other failure
+/// as not this.
+#[must_use]
+pub fn absent_or_plain_file(path: &Path) -> bool {
+    match std::fs::symlink_metadata(path) {
+        Ok(meta) => meta.is_file() && hard_links(&meta) == 1,
+        Err(error) => matches!(
+            error.kind(),
+            std::io::ErrorKind::NotFound | std::io::ErrorKind::NotADirectory
+        ),
+    }
+}
+
 /// Whether `path`, followed to the file it names, is the file `opened` is.
 #[must_use]
 pub fn names_the_same_file(opened: &File, path: &Path) -> bool {

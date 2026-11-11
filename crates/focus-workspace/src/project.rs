@@ -67,6 +67,19 @@ pub fn settled(path: &Path) -> PathBuf {
     settled
 }
 
+/// `normalizeDriveLetter`: a lower-case drive letter upper-cased, so two
+/// spellings of one Windows path compare equal.
+#[must_use]
+pub fn normalize_drive_letter(path: &str) -> String {
+    let mut chars = path.chars();
+    match (chars.next(), chars.next(), chars.next()) {
+        (Some(drive), Some(':'), None | Some('\\' | '/')) if drive.is_ascii_lowercase() => {
+            format!("{}{}", drive.to_ascii_uppercase(), &path[1..])
+        }
+        _ => path.to_owned(),
+    }
+}
+
 /// `path.join(base, ...parts)`: the parts put after `base` one by one and
 /// the whole settled by reading it. Unlike [`Path::join`], a part that looks
 /// absolute does not start over: it goes under what came before, as in

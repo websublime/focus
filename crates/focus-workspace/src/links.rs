@@ -122,6 +122,43 @@ pub fn refuse_link_in_chain(anchor: &Path, rel: &Path) -> Result<()> {
     );
 }
 
+/// `assertNoSymlinkInChainOrThrow`, asked as a question and with `rel` as
+/// text: whether the way from `anchor` down to `rel` is free of links.
+///
+/// `rel` is read as upstream reads it, before anything settles it: both
+/// slash families part it, on every host, so a POSIX name cannot hide a
+/// component from a Windows walk; a root (a leading slash, a drive) or a
+/// `..` anywhere leaves the anchor and is refused; `.` and an empty part
+/// are stepped over. A component that does not exist cannot redirect
+/// anything.
+#[must_use]
+pub fn chain_is_link_free(anchor: &Path, rel: &str) -> bool {
+    let mut chars = rel.chars();
+    let rooted = match (chars.next(), chars.next()) {
+        (Some('/' | '\\'), _) => true,
+        (Some(drive), Some(':')) => drive.is_ascii_alphabetic(),
+        _ => false,
+    };
+    if rooted {
+        return false;
+    }
+    let parts: Vec<&str> = rel
+        .split(['/', '\\'])
+        .filter(|part| !part.is_empty() && *part != ".")
+        .collect();
+    if parts.contains(&"..") {
+        return false;
+    }
+    let mut current = anchor.to_path_buf();
+    for part in parts {
+        current.push(part);
+        if std::fs::symlink_metadata(&current).is_ok_and(|meta| meta.file_type().is_symlink()) {
+            return false;
+        }
+    }
+    true
+}
+
 #[cfg(all(test, unix))]
 mod tests {
     use super::*;
