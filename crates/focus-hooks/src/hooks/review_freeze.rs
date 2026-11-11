@@ -96,7 +96,7 @@ pub fn run(input: &str, layout: &Layout) -> Outcome {
         str::to_owned,
     );
     // Set by the adapter that ran the tool, outside the agent's input.
-    let shell = if parsed.get("aidlc_shell").and_then(Value::as_str) == Some("powershell") {
+    let shell = if parsed.get("focus_shell").and_then(Value::as_str) == Some("powershell") {
         CommandShell::PowerShell
     } else {
         CommandShell::Posix
