@@ -193,8 +193,8 @@ fn a_hook_not_ported_is_refused_by_name() {
         "focus engine hook guard-tool-call: runs the PreToolUse guards in one process, and Focus does not run that hook yet.\n"
     );
     assert_eq!(
-        refusal(&hook(&root, &["plan-approval-guard"], &payload(""), &[])),
-        "focus engine hook plan-approval-guard: holds code until its plan is approved, and Focus does not run that hook yet.\n"
+        refusal(&hook(&root, &["continue-workflow"], &payload(""), &[])),
+        "focus engine hook continue-workflow: decides whether a turn may end, and Focus does not run that hook yet.\n"
     );
     assert_eq!(shard(&root), "# Focus Audit Log\n");
     assert!(heartbeat(&root, "guard-tool-call.last").is_none());
@@ -3268,6 +3268,289 @@ fn what_the_turn_does_not_read_yet_is_refused_by_name() {
         &root,
         &["record-human-turn"],
         &prompt("use postgres"),
+        &[],
+    ));
+}
+
+const NO_STEP: &str = "the current state has no matching v2 code-generation active directive. Run `focus engine orchestrate next` exactly as written, as a command of its own (no `cd` before it, no pipe or second command after it), and follow the step it prints.";
+
+/// A project whose current stage is Code Generation, under a strict Guard
+/// Policy.
+fn building(name: &str) -> Project {
+    let root = project(name);
+    write(
+        &root,
+        &format!("{RECORD}/focus-state.md"),
+        &STATE
+            .replace("- **Scope**: feature\n", STRICT_STATE_LINE)
+            .replace(
+                "- **Current Stage**: intent-capture",
+                "- **Current Stage**: code-generation",
+            ),
+    );
+    root
+}
+
+fn call(tool: &str, input: &str) -> String {
+    payload(&format!(
+        "\"hook_event_name\":\"PreToolUse\",\"tool_name\":\"{tool}\",\"tool_input\":{{{input}}}"
+    ))
+}
+
+fn guard(root: &Path, stdin: &str, env: &[(&str, &str)]) -> Output {
+    hook(root, &["plan-approval-guard"], stdin, env)
+}
+
+#[test]
+fn code_waits_for_the_engines_step_at_code_generation() {
+    let root = building("plan-waits");
+    let source = call("Write", "\"file_path\":\"src/app.ts\"");
+    // A write of the project's source, a shell write, a command that cannot
+    // be seen into, the developer's dispatch: each waits, and says so in
+    // the ledger.
+    for stdin in [
+        source.clone(),
+        call("Bash", "\"command\":\"echo x > src/a.ts\""),
+        call("Bash", "\"command\":\"sh build.sh\""),
+        call(
+            "Bash",
+            "\"command\":\"focus engine state approve code-generation\"",
+        ),
+        call("TodoWrite", "\"todos\":[]"),
+        call(
+            "Task",
+            "\"subagent_type\":\"focus-developer-agent\",\"prompt\":\"Build it\"",
+        ),
+    ] {
+        assert_eq!(
+            denied(&guard(&root, &stdin, &[])),
+            format!(
+                "Code generation cannot start because its Plan Approval authority is ambiguous or stale. {NO_STEP}\n"
+            ),
+            "{stdin}"
+        );
+    }
+    let rows = shard(&root);
+    assert_eq!(rows.matches("**Event**: PLAN_APPROVAL_BLOCKED").count(), 6);
+    assert!(
+        rows.contains("**Tool**: Write\n**Target**: \n**Stage**: code-generation\n**Unit**: (missing marker)\n"),
+        "{rows}"
+    );
+    assert!(
+        rows.contains("**Tool**: Task\n**Target**: focus-developer-agent\n"),
+        "{rows}"
+    );
+    assert!(heartbeat(&root, "plan-approval-guard.last").is_some());
+
+    // What the plan never governs passes, and leaves no row: a read, a
+    // command read whole that writes nothing, the engine's own steps towards
+    // the approval, a write outside the project, the stage's own diary, a
+    // person's answer text, the composer's proposal, another agent.
+    for stdin in [
+        call("Read", "\"file_path\":\"src/app.ts\""),
+        call("Bash", "\"command\":\"ls -la && git status\""),
+        call("Bash", "\"command\":\"npm test\""),
+        call("Bash", "\"command\":\"focus engine orchestrate next\""),
+        call("Bash", "\"command\":\"focus status\""),
+        call("Write", "\"file_path\":\"../outside.md\""),
+        call(
+            "Write",
+            &format!("\"file_path\":\"{RECORD}/construction/code-generation/memory.md\""),
+        ),
+        call(
+            "Write",
+            &format!("\"file_path\":\"{RECORD}/.focus-engine/answer-text/a.txt\""),
+        ),
+        call(
+            "Write",
+            "\"file_path\":\"focus/spaces/default/intents/.focus-engine/composer-proposal.json\"",
+        ),
+        call("Task", "\"subagent_type\":\"focus-product-agent\""),
+    ] {
+        quiet(&guard(&root, &stdin, &[]));
+    }
+    assert_eq!(shard(&root), rows);
+
+    // A lowered fence does not supply the missing step: the same refusal in
+    // its other words, and no row.
+    write(
+        &root,
+        &format!("{RECORD}/focus-state.md"),
+        &STATE
+            .replace(
+                "- **Scope**: feature\n",
+                "- **Scope**: feature\n- **Guard Policy**: relaxed (set by you)\n",
+            )
+            .replace(
+                "- **Current Stage**: intent-capture",
+                "- **Current Stage**: code-generation",
+            ),
+    );
+    assert_eq!(
+        denied(&guard(&root, &source, &[])),
+        format!(
+            "Code Generation cannot start: {NO_STEP} The plan-approval setting is unchanged.\n"
+        )
+    );
+    assert_eq!(shard(&root), rows);
+
+    // Another stage is not this guard's, and neither is a conversation that
+    // has not joined the work, which may still not dispatch its developer.
+    let root = strict("plan-other-stage");
+    quiet(&guard(&root, &source, &[]));
+    let root = building("plan-outsider");
+    write(
+        &root,
+        "focus/.focus-sessions/s1.binding.json",
+        &BINDING.replace("260105-add-login", "other-9f8e7d6c"),
+    );
+    fs::remove_file(root.join("focus/spaces/default/intents/active-intent")).unwrap();
+    quiet(&guard(&root, &source, &[]));
+    assert_eq!(
+        denied(&guard(
+            &root,
+            &call("Task", "\"subagent_type\":\"focus-developer-agent\""),
+            &[]
+        )),
+        "AI-DLC: this conversation has not joined the selected workflow, so it cannot dispatch that workflow's developer. Run `focus engine orchestrate next` exactly as written, as a command of its own (no `cd` before it, no pipe or second command after it): it asks the person which piece of work this conversation is for. Dispatch again once it has joined.\n"
+    );
+    assert_eq!(shard(&root), "# Focus Audit Log\n");
+}
+
+#[test]
+fn a_person_who_spoke_opens_what_they_asked_for_while_the_plan_waits() {
+    let root = building("plan-person");
+    let lower = call(
+        "Bash",
+        "\"command\":\"focus config flags --bypass FOCUS_DISABLE_SENSORS\"",
+    );
+    let raise = call(
+        "Bash",
+        "\"command\":\"focus config flags --clear-bypass FOCUS_DISABLE_SENSORS\"",
+    );
+    // Turning a check back on never waits; turning one off is the person's
+    // call.
+    quiet(&guard(&root, &raise, &[]));
+    denied(&guard(&root, &lower, &[]));
+    write(
+        &root,
+        SHARD,
+        "# Focus Audit Log\n\n## Human_Turn\n**Timestamp**: 2026-01-05T10:01:00Z\n**Event**: HUMAN_TURN\n**Session**: s1\n\n---\n",
+    );
+    quiet(&guard(&root, &lower, &[]));
+    // An unattended driver has no person behind it.
+    denied(&guard(&root, &lower, &[("FOCUS_UNATTENDED", "1")]));
+}
+
+#[test]
+fn the_off_switch_says_once_that_the_guard_is_off() {
+    let root = building("plan-off");
+    let off = [("FOCUS_DISABLE_PLAN_APPROVAL_GUARD", "1")];
+    let source = call("Write", "\"file_path\":\"src/app.ts\"");
+    quiet(&guard(&root, &source, &off));
+    let said = shard(&root);
+    assert!(
+        said.ends_with(
+            "**Event**: GUARD_DISABLED\n**Guard**: plan-approval-guard\n**Tool**: Write\n\n---\n"
+        ),
+        "{said}"
+    );
+    // Consecutive calls say nothing more; any other value is not the switch.
+    quiet(&guard(&root, &source, &off));
+    quiet(&guard(
+        &root,
+        &call("Bash", "\"command\":\"rm -rf src\""),
+        &off,
+    ));
+    assert_eq!(shard(&root), said);
+    denied(&guard(
+        &root,
+        &source,
+        &[("FOCUS_DISABLE_PLAN_APPROVAL_GUARD", "0")],
+    ));
+    // The heartbeat still says the host ran the hook.
+    assert!(heartbeat(&root, "plan-approval-guard.last").is_some());
+}
+
+/// Deliberate deviation. Upstream admits one of its installed tool scripts
+/// run by Bun, doing what a waiting plan admits, as it admits the engine by
+/// name. A Focus install has no tool scripts: the command waits for the
+/// engine's step like any command that cannot be seen into, and the engine
+/// is admitted by name.
+#[test]
+fn a_tool_script_run_by_bun_waits_like_any_command() {
+    let root = building("plan-tool-script");
+    denied(&guard(
+        &root,
+        &call(
+            "Bash",
+            "\"command\":\"bun .claude/tools/focus-utility.ts status\"",
+        ),
+        &[],
+    ));
+    quiet(&guard(
+        &root,
+        &call("Bash", "\"command\":\"focus status\""),
+        &[],
+    ));
+}
+
+/// Deliberate deviation. Upstream decides from the engine's last step, read
+/// off the active-directive marker (M5); Focus refuses by name while one
+/// is there, where the call would reach that decision.
+#[test]
+fn a_directive_marker_refuses_the_plan_guard_by_name() {
+    let root = building("plan-marker");
+    write(
+        &root,
+        &format!("{RECORD}/.focus-engine/active-directive.json"),
+        "{\"version\": 2, \"stage\": \"code-generation\"}",
+    );
+    let said = refusal(&guard(
+        &root,
+        &call("Write", "\"file_path\":\"src/app.ts\""),
+        &[],
+    ));
+    assert!(
+        said.contains("is the orchestrator's directive marker, which plan-approval-guard keeps in step with the state: Focus does not read it yet."),
+        "{said}"
+    );
+    // A call the guard lets through before it reads the state does not
+    // reach the marker.
+    quiet(&guard(
+        &root,
+        &call("Read", "\"file_path\":\"src/app.ts\""),
+        &[],
+    ));
+}
+
+#[test]
+fn the_adapters_shell_is_read_under_focuss_name() {
+    let root = project("freeze-powershell");
+    let doc = format!("{RECORD}/ideation/intent-capture/intent-statement.md").replace('/', "\\\\");
+    write(&root, SHARD, &format!("# Focus Audit Log\n{REVIEW_ROWS}"));
+    let written = |key: &str| {
+        payload(&format!(
+            "\"hook_event_name\":\"PreToolUse\",\"tool_name\":\"Bash\",\"tool_input\":{{\"command\":\"Set-Content -Path {doc} -Value x\"}},\"{key}\":\"powershell\""
+        ))
+    };
+    // The command is PowerShell's when the adapter says so, and the write
+    // reaches the frozen document.
+    assert!(
+        refusal(&hook(
+            &root,
+            &["review-freeze"],
+            &written("focus_shell"),
+            &[]
+        ))
+        .contains("Focus does not weigh review receipts yet")
+    );
+    // Upstream's name for the key is not one Focus reads: the same line is
+    // then a POSIX command, whose backslashes are escapes.
+    quiet(&hook(
+        &root,
+        &["review-freeze"],
+        &written("aidlc_shell"),
         &[],
     ));
 }

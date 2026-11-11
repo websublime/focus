@@ -441,6 +441,6 @@ fn record_guard_disabled(wf: &Workflow, tool: &str) {
 /// The refusal as one plain sentence: some hosts show it to the person as
 /// written. Control characters become a space, and it ends in one full stop.
 fn one_sentence(text: &str) -> String {
-    let plain = focus_js::re::replace(r"[\u0000-\u001f\u007f-\u009f  ]+", "g", text, " ");
+    let plain = focus_js::re::replace(r"[\u0000-\u001f\u007f-\u009f\u2028\u2029]+", "g", text, " ");
     format!("{}.", trim(&plain).trim_end_matches('.'))
 }

@@ -731,15 +731,15 @@ A regra também ficou mais apertada com a revisão: uma linha que o original nã
 | --- | --- | --- |
 | Linha onde não cabe uma sonda (um marcador de lista sozinho, um `>` sozinho) | Fica `unknown` | Todas as linhas são colocadas; não há esse tipo |
 | Documento longo | Pára ao fim de 256 renders e lê o resto como texto. Sessenta tabelas pequenas bastam; um `Mode: strict` dentro de um comentário, depois delas, passa a declarar uma Guard Policy | Lê o fim de um documento como lê o início |
-| `> [Answer]:` seguido de `> ---` | Definição e regra, e `ANSWER` na lista de rótulos definidos | Título setext, como no CommonMark |
-| `<!x y>` (declaração com letra minúscula) | Parágrafo com uma etiqueta; a linha fica visível, e o que vier a seguir até ao próximo `>` também | Bloco HTML (CommonMark 0.31, condição 4) |
-| `[Answer]: <!--<!---->` | Definição | Parágrafo: um destino entre `<>` não pode conter `<` |
+| `> [Answer]:` seguido de `> ---` | Definição e regra, e `ANSWER` na lista de rótulos definidos (Bun 1.4.2; desde 1.4.4 lê como Focus) | Título setext, como no CommonMark |
+| `<!x y>` (declaração com letra minúscula) | Parágrafo com uma etiqueta; a linha fica visível, e o que vier a seguir até ao próximo `>` também (Bun 1.4.2; desde 1.4.4 lê como Focus) | Bloco HTML (CommonMark 0.31, condição 4) |
+| `[Answer]: <!--<!---->` | Definição (Bun 1.4.2; desde 1.4.4 lê como Focus) | Parágrafo: um destino entre `<>` não pode conter `<` |
 | Span de código que fecha no início de uma linha | Acaba o span uma linha antes; a última fica visível | O span cobre a linha onde fecha |
 | Span aberto depois de uma crase escapada | Não regista o span; as linhas que cobre ficam visíveis | A crase escapada é texto e o span começa na seguinte |
-| Etiqueta indentada quatro colunas sob um parágrafo | Não a regista, e dá um span que continue para essa linha uma coluna antes | Regista-a onde está |
+| Etiqueta indentada quatro colunas sob um parágrafo | Não a regista, e dá um span que continue para essa linha uma coluna antes (Bun 1.4.2; nos dois documentos do teste, desde 1.4.4 lê como Focus) | Regista-a onde está |
 | Linha só com um espaço que não é espaço nem tabulação (um espaço não separável) | Em branco | Parágrafo: para o CommonMark é texto |
 
-Em todos, o árbitro lê como Focus. Os três que mudam o que `validate-grid` decide (o documento longo, a crase escapada e a declaração em minúsculas) estão também no diferencial, com nome, e em testes de `guard_memory.rs`.
+Em todos, o árbitro lê como Focus. Os três que mudam o que `validate-grid` decide (o documento longo, a crase escapada e a declaração em minúsculas) estão também no diferencial, com nome, e em testes de `guard_memory.rs`. Quatro destes desvios eram do renderer de Markdown do Bun 1.4.2, por onde o original lê: com o Bun 1.4.4 o original passou a ler como Focus (as linhas marcadas acima), os testes deixaram de estar marcados como desvio, e a declaração em minúsculas saiu de `DEVIATIONS` na fatia 4e-ii-c, quando as árvores do diferencial foram regravadas e as suas verificações (`verbs/memory_lowercase_declaration`) passaram a comparar igual.
 
 Um limite, que não é escolha: em cantos de tabelas o `pulldown-cmark` lê diferente do GFM (uma linha de cabeçalho sem `|` sobre um delimitador com `|`; um delimitador que começa como item de lista; uma linha indentada depois de uma tabela), e lê de outra maneira HTML inline que atravessa linhas dentro de contentores. Aí o original e o árbitro têm razão. `tests/deviations.rs` fixa o que Focus faz hoje, para que uma versão nova do parser que o mude apareça, e o fuzz recusa uma subida.
 

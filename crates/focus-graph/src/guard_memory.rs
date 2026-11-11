@@ -331,14 +331,14 @@ mod tests {
         assert_eq!(declared(&format!("{tables}{section}")).unwrap(), []);
     }
 
-    /// Deliberate deviation: upstream reads this `Mode:` line and Focus does
-    /// not. `<!` followed by a letter opens an HTML block that runs to the
-    /// first line with a `>` in it (CommonMark 0.31, start condition 4), so
-    /// the line after it is inside the block. Upstream's renderer follows a
-    /// text of the specification that wanted the letter in upper case, and
-    /// reads a paragraph. Declared in `tools/oracle/differential.py`
-    /// (`verbs/memory_lowercase_declaration`) and in the plan
-    /// (markdown/commonmark).
+    /// `<!` followed by a letter opens an HTML block that runs to the first
+    /// line with a `>` in it (CommonMark 0.31, start condition 4), so the
+    /// line after it is inside the block and declares nothing. Once a
+    /// deviation: the renderer of Bun 1.4.2 followed a text of the
+    /// specification that wanted the letter in upper case, and upstream read
+    /// the `Mode:` line. Since Bun 1.4.4 upstream reads the block too, and
+    /// the differential compares the two
+    /// (`verbs/memory_lowercase_declaration`).
     #[test]
     fn a_declaration_in_lower_case_hides_what_follows_it() {
         assert_eq!(

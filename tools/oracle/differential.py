@@ -113,9 +113,6 @@ DEVIATIONS = {
         "a code span that opens after an escaped backtick and closes two lines down hides the `Mode:` line "
         "between; upstream's analysis does not record the span and reads the line, focus reads what CommonMark "
         "renders (markdown/commonmark)",
-    r"verbs/memory_lowercase_declaration/grid_.*":
-        "`<!` and a letter open an HTML block that runs to the next `>` (CommonMark 0.31), and the `Mode:` line "
-        "is inside it; upstream's renderer wants the letter in upper case and reads the line (markdown/commonmark)",
     r"verbs/memory_past_budget/grid_.*":
         "upstream stops analysing a document after 256 renders and reads the rest as text, so a `Mode:` line "
         "inside a comment declares a policy when enough of the file comes before it; focus reads the end of a "
