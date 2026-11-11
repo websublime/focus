@@ -3777,7 +3777,7 @@ ER_FIRST = ["status", "recompose", "now", "statusline", "adapter", "help", "--he
             "--version", "--resume", "--scope", "__sensor-script", "__sensor-script-file", "nope", "top", "hook", "unit", "doctor", "version",
             "config", "park", "next", ""]
 ER_SENSORS = ["claim-sources", "linter", "required-sections", "traceability", "type-check", "upstream-coverage", "nope", ""]
-ER_WORKSPACE = ["list", "switch", "create", "archive", "unarchive", "add-repo", "remove-repo", "help", "-h", "--json", "--all", "rename", "show",
+ER_WORKSPACE = ["list", "switch", "create", "archive", "unarchive", "add-repo", "remove-repo", "help", "-h", "--help", "--json", "--all", "rename", "show",
                 "birth", "my-intent", "--x", "space-create"]
 ER_CONFIG_KEYS = ["depth", "test-strategy", "review", "guard-policy", "change-control", "sensors", "learnings", "collaborators",
                   "summary-confirmation", "plan-approval", "guard.plan-approval", "guard.review-freeze", "guard.state-transition",
@@ -3787,8 +3787,9 @@ ER_CONFIG_KEYS = ["depth", "test-strategy", "review", "guard-policy", "change-co
 def er_both(args):
     # A relative --project-dir is resolved against the dispatcher's working
     # directory, which is the host's: those lines are left to the unit tests.
-    if any(arg == "--project-dir" and index + 1 < len(args) and not args[index + 1].startswith(("/", "--")) and args[index + 1] != ""
-           for index, arg in enumerate(args)):
+    before_literal = args[:args.index("--")] if "--" in args else args
+    if any(arg == "--project-dir" and index + 1 < len(before_literal) and not before_literal[index + 1].startswith(("/", "--"))
+           and before_literal[index + 1] != "" for index, arg in enumerate(before_literal)):
         return
     add("engine_route", args=args)
     add("every_helper", args=args)
@@ -3830,6 +3831,16 @@ for verb in ["select", "sync", "list", "validate", "build", "help", "-h", "--hel
 for tail in [["runners"], ["runners", "--check"], ["runners", "--check", "x"], ["runners", "x"], ["runner-list"], ["runner-scopes", "a"],
              ["stage-table"], ["scope-table", "--json"], ["nope"], []]:
     er_both(["engine", "gen"] + tail)
+# Written by hand: the edges the sweeps above reach too rarely.
+for args in [
+    ["engine", "space", "list", "--all"], ["engine", "intent", "list", "--all"], ["engine", "space", "list", "--all", "x"],
+    ["engine", "intent", "list", "x", "--all"], ["engine", "graph", "topo", "--project-dir", ""], ["engine", "graph", "topo", "--project-dir", "", "x"],
+    ["engine", "log", "answer", "--", "a", "--project-dir", "/oracle/y"], ["engine", "log", "answer", "--", "--project-dir"],
+    ["engine", "log", "answer", "--", "--project-dir=/oracle/y", "--json"], ["engine", "utility", "--project-dir", "/oracle/other", "status"],
+    ["engine", "utility", "--project-dir", "/oracle/other", "config-change"], ["engine", "utility", "status", "--project-dir", "/oracle/other"],
+    ["engine", "doctor", "--project-dir", "/oracle/other", "doctor"], ["engine", "attest", "--project-dir", "/oracle/other", "resolve", "x"],
+]:
+    er_both(args)
 for _ in range(scale * 60):
     noun = rng.choice(list(ER_ROUTES) + list(ER_HELPERS) + ER_FIRST)
     args = ["engine", noun]
@@ -3887,6 +3898,20 @@ for template in PP_TEMPLATES:
         add("plan_prerequisite", args=pp_fill(template), gate_held=rng.random() < 0.5, spoke=rng.random() < 0.5)
 add("plan_prerequisite", args=["engine", "bolt", "abort", "--name", "u", "--slug", "s", "--reason", "stale review recovery exhausted", "--discard"],
     gate_held=False, spoke=False)
+# A flag's last value decides, and one occurrence without a value voids them all.
+PP_REPORT = ["engine", "orchestrate", "report"]
+for tail in [
+    ["--stage", "code-generation", "--result", "approved"], ["--stage", "code-generation", "--result", "rejected"],
+    ["--stage", "code-generation", "--result", "revised"], ["--stage", "", "--stage", "code-generation", "--result", "approved"],
+    ["--stage", "--x", "--stage", "code-generation", "--result", "rejected"], ["--stage", "build", "--stage", "code-generation", "--result", "approved"],
+    ["--stage", "code-generation", "--stage", "build", "--result", "approved"], ["--stage", "code-generation", "--result", "approved", "--result"],
+    ["--result", "approved", "--stage", "code-generation", "--stage"], ["--stage", "code-generation", "--result", "", "--result", "rejected"],
+]:
+    for gate_held in [True, False]:
+        add("plan_prerequisite", args=PP_REPORT + tail, gate_held=gate_held, spoke=False)
+for tail in [["--action", "", "--action", "ask"], ["--action", "--x", "--action", "ask"], ["--action", "verify", "--action", "ask"],
+             ["--action", "ask", "--action", "verify"], ["--action", "ask", "--action"]]:
+    add("plan_prerequisite", args=["engine", "bolt", "checkpoint"] + tail, gate_held=False, spoke=False)
 for noun, verbs in ER_ROUTES.items():
     for verb in verbs:
         add("plan_prerequisite", args=["engine", noun, verb], gate_held=rng.random() < 0.5, spoke=rng.random() < 0.5)

@@ -44,8 +44,6 @@ enum Kind {
     Map(&'static str, &'static [(&'static str, &'static str)]),
     /// `<tool> <rest>`, whatever follows the noun.
     Tool(&'static str),
-    /// A hook, the status line or an adapter: the dispatcher's own.
-    Own,
     /// The workspace nouns (`intent`, `space`).
     Workspace,
     Config,
@@ -304,11 +302,9 @@ const ROUTES: &[(&str, Kind)] = &[
         "sensor-upstream-coverage",
         Kind::Tool("focus-sensor-upstream-coverage.ts"),
     ),
-    ("hook", Kind::Own),
-    // The noun `top` is the group of what resolves on the first word alone;
-    // its last two routes are the dispatcher's own, so `engine top …` is one
-    // of them.
-    ("top", Kind::Own),
+    // `hook`, and `top` (the group of what resolves on the first word
+    // alone, whose last routes are the status line and the adapters), are
+    // the dispatcher's own: no row, so they resolve to nothing.
 ];
 
 /// The engine namespace's first-word routes that delegate (`status`,
@@ -343,17 +339,6 @@ const SENSOR_SCRIPTS: [(&str, &str); 6] = [
 ];
 
 const RESERVED_FUTURE: [&str; 3] = ["rename", "show", "birth"];
-const INTENT_VERBS: [&str; 7] = [
-    "list",
-    "switch",
-    "create",
-    "archive",
-    "unarchive",
-    "add-repo",
-    "remove-repo",
-];
-const SPACE_VERBS: [&str; 3] = ["list", "switch", "create"];
-
 fn delegate(tool: &str, args: Vec<String>) -> Option<Delegate> {
     Some(Delegate {
         tool: tool.to_owned(),
@@ -419,12 +404,9 @@ fn workspace(argv: &[String]) -> Option<Delegate> {
         }
         _ => {}
     }
-    if (noun == "intent" && INTENT_VERBS.contains(&verb))
-        || (noun == "space" && SPACE_VERBS.contains(&verb))
-    {
-        return None;
-    }
-    // A bare name selects the record of that name.
+    // Every verb of the noun was answered above (upstream keeps an error
+    // for one that was not, which none reaches): a bare name selects the
+    // record of that name.
     delegate(UTILITY, with_head(&[noun, verb], &[]))
 }
 
@@ -477,11 +459,12 @@ fn generate(argv: &[String]) -> Option<Delegate> {
     }
 }
 
-/// `resolveAlias`, for the engine namespace.
+/// `resolveAlias`, for the engine namespace. `__sensor-script-file` and
+/// `--version` are the dispatcher's own and name no route, so they resolve
+/// to nothing with every other unknown word.
 fn alias(argv: &[String]) -> Option<Option<Delegate>> {
     let tail = |head: &[&str], tool: &str| Some(delegate(tool, with_head(head, rest(argv, 1))));
     match argv[0].as_str() {
-        "__sensor-script-file" => Some(None),
         "__sensor-script" => {
             let id = argv.get(1).map_or("", String::as_str);
             Some(
@@ -495,7 +478,6 @@ fn alias(argv: &[String]) -> Option<Option<Delegate>> {
         "--claim" => tail(&["claim"], UTILITY),
         "--release" => tail(&["release"], UTILITY),
         "--doctor" => tail(&["doctor"], "focus-doctor.ts"),
-        "--version" => Some(None),
         "--resume" => tail(&["next", "--resume"], ORCHESTRATE),
         "--scope" => tail(&["next", "--scope"], ORCHESTRATE),
         _ => None,
@@ -505,9 +487,8 @@ fn alias(argv: &[String]) -> Option<Option<Delegate>> {
 /// `resolveEngine`: the words after `engine`.
 fn engine(argv: &[String]) -> Option<Delegate> {
     let head = argv.first().map(String::as_str)?;
-    if matches!(head, "--help" | "-h" | "help") {
-        return None;
-    }
+    // Help (`--help`, `-h`, `help`) is the dispatcher's own, and names no
+    // route below.
     if let Some(aliased) = alias(argv) {
         return aliased;
     }
@@ -522,7 +503,6 @@ fn engine(argv: &[String]) -> Option<Delegate> {
         for route in &routes {
             match route {
                 Kind::Tool(tool) => return delegate(tool, rest(argv, 1).to_vec()),
-                Kind::Own => return None,
                 Kind::Passthrough(tool, verbs) => {
                     if let Some(verb) = verb.filter(|verb| verbs.contains(verb)) {
                         return delegate(tool, with_head(&[verb], rest(argv, 2)));

@@ -154,6 +154,8 @@ pub fn last_flag_value<'a>(args: &'a [String], flag: &str) -> Option<&'a str> {
                 return None;
             }
             value = Some(candidate.as_str());
+            // The value is skipped as upstream skips it; it cannot be the
+            // flag itself, which opens with `--`.
             index += 1;
         }
         index += 1;
@@ -584,7 +586,8 @@ pub fn plain_power_shell(command: &str) -> Option<PlainPowerShell> {
             continue;
         }
         if ch == ';' || ch == '|' {
-            if chars.get(i + 1) == Some(&'|') || !finish(&mut words, &mut commands, &mut call) {
+            // `||` ends here too: its second bar finds no command before it.
+            if !finish(&mut words, &mut commands, &mut call) {
                 return None;
             }
             joins.push(ch);
@@ -680,6 +683,8 @@ pub fn power_shell_reading(command: &str) -> Option<String> {
     let plain = plain_power_shell(command)?;
     let invocations: Vec<ShellInvocationDetails> =
         shell_command_invocation_details(&plain.rendering);
+    // The launchers, the executable and the arguments each tell a wrapper
+    // on their own; upstream asks all three.
     let faithful = invocations.len() == plain.commands.len()
         && invocations
             .iter()
