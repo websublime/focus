@@ -3714,5 +3714,256 @@ for plan in [
 ]:
     add("review_appendix", plan=plan)
 
+# --- What runs while a plan waits (M4, slice 4e-ii-a) ----------------------------
+#
+# engine_route: the dispatcher's engine namespace, a command to the tool and
+# arguments it runs as. every_helper: what every helper may run, judged by that
+# tool and verb. plan_prerequisite, engine_directed, read_only_diagnostic: the
+# engine commands the Plan Approval guard admits before the person approved.
+# plain_powershell, dynamic_evaluation: how the guard reads a command line.
+# All but engine_route are private to the hook: the driver asks them through
+# an export shim over the hook's own source.
+
+ER_ROUTES = {
+    "top": ["status", "recompose", "now", "statusline", "adapter"],
+    "state": ["get", "set", "set-skeleton-stance", "set-construction-iteration", "set-construction-checkpoints", "set-construction-execution", "set-construction-verification-command", "checkbox", "count", "advance", "finalize", "complete-workflow", "gate-start", "approve", "reject", "revise", "skip", "resume", "acknowledge-compaction", "reuse-artifact", "lookup", "practices-event", "practices-promote", "set-unit-ownership", "set-unit-gate-rhythm", "refresh-unit-progress", "sync-unit-scope-stage", "fold-unit-merge", "fork", "merge", "park", "unpark", "unit", "set-status", "init"],
+    "audit": ["append", "append-batch", "append-raw", "history", "fork", "merge"],
+    "graph": ["artifacts", "producers", "consumers", "topo", "cycles", "scope", "validate-scope", "validate-grid", "ars", "compile", "resolve", "export"],
+    "runtime": ["compile", "read", "summary", "fragment-fork", "fragment-merge"],
+    "sensor": ["list", "describe", "fire"],
+    "swarm": ["prepare", "check", "finalize"],
+    "bolt": ["start", "complete", "fail", "abort", "set-autonomy", "checkpoint", "swarm-checkpoint", "dispatch-event", "hold-merge", "release-merge"],
+    "worktree": ["create", "merge", "discard", "restore", "purge", "list", "verify", "info"],
+    "jump": ["resolve", "execute", "reopen"],
+    "log": ["decision", "answer", "answers", "review", "link"],
+    "learnings": ["surface", "persist"],
+    "testing-posture": ["resolve", "render", "fingerprint", "verify", "begin", "brief", "reply", "restore"],
+    "validate": ["outputs"],
+    "intent": ["list", "switch", "<name>", "create", "archive", "unarchive", "add-repo", "remove-repo"],
+    "space": ["list", "switch", "<name>", "create"],
+    "scope": ["change", "save", "detect", "resolve-env"],
+    "config": ["depth", "test-strategy", "review", "guard-policy", "change-control", "sensors", "learnings", "collaborators", "summary-confirmation", "plan-approval", "guard.plan-approval", "guard.review-freeze", "guard.state-transition", "guard.reviewer-scope", "get", "list"],
+    "plugin": ["select", "sync", "list", "validate", "build"],
+    "knowledge": ["onboard", "sync", "list", "show", "associate", "dissociate", "rebind", "summarize", "help"],
+    "gen": ["runners", "runners --check", "runner-list", "runner-scopes", "stage-table", "scope-table"],
+    "workspace": ["detect", "reclassify", "codekb", "codekb-scope-diff", "codekb-snapshot", "codekb-publish", "project-description", "document-input"],
+    "review-brief": ["review", "context", "summary"],
+    "orchestrate": ["next", "continue", "report", "park", "wait", "team-board", "help"],
+    "sensor-claim-sources": ["<args>"],
+    "sensor-linter": ["<args>"],
+    "sensor-required-sections": ["<args>"],
+    "sensor-traceability": ["<args>"],
+    "sensor-type-check": ["<args>"],
+    "sensor-upstream-coverage": ["<args>"],
+    "hook": ["<name>"],
+}
+ER_VERBS = sorted({verb for verbs in ER_ROUTES.values() for verb in verbs})
+ER_HELPERS = {
+    "utility": ["help", "version", "now", "status", "detect", "project-description", "codekb-path", "codekb-scope-diff", "codekb-snapshot",
+                "codekb-publish", "plugin-list", "plugin-validate", "config-get", "config-list", "resolve-env-scope", "scope-table",
+                "stage-table", "select-plugins", "document-input", "config-change", "intent-create", "state-init", "claim", "intent"],
+    "state": ["get", "count", "resume", "lookup"], "orchestrate": ["wait", "team-board"], "jump": ["resolve"],
+    "unit": ["merge-status", "status", "claim"], "log": ["answers"], "learnings": ["surface"], "runtime": ["read", "summary"],
+    "testing-posture": ["resolve", "render", "verify", "reply", "brief"], "worktree": ["list", "verify", "info"], "audit": ["history"],
+    "plugin": ["list"], "graph": ["artifacts", "producers", "consumers", "topo", "cycles", "scope", "validate-scope", "validate-grid", "ars", "export"],
+    "sensor": ["list", "describe", "fire"], "validate": ["outputs"], "review-brief": ["review", "context", "summary"],
+    "attest": ["resolve", "record"], "knowledge": ["list", "show"], "doctor": ["doctor"], "machine-config": ["global"],
+}
+ER_TAILS = [[], ["x"], ["--json"], ["--stage", "code-generation"], ["--project-dir", "/oracle/other"], ["--project-dir", "/oracle/other", "x"],
+            ["--", "literal", "--project-dir", "y"], ["--yes", "--", "--json"], ["--project-dir=/oracle/x"], ["--project-dir"],
+            ["--project-dir", "--json"], ["--project-dir", "/a", "--project-dir", "/b"], ["--verbose", "a b"], ["--unit", "auth", "--quiet"],
+            ["--help"], ["", "x"], ["--intent", "a"], ["--space=b"], ["a", "--", "b"], ["--no-color", "--offline"]]
+ER_FIRST = ["status", "recompose", "now", "statusline", "adapter", "help", "--help", "-h", "--status", "--claim", "--release", "--doctor",
+            "--version", "--resume", "--scope", "__sensor-script", "__sensor-script-file", "nope", "top", "hook", "unit", "doctor", "version",
+            "config", "park", "next", ""]
+ER_SENSORS = ["claim-sources", "linter", "required-sections", "traceability", "type-check", "upstream-coverage", "nope", ""]
+ER_WORKSPACE = ["list", "switch", "create", "archive", "unarchive", "add-repo", "remove-repo", "help", "-h", "--json", "--all", "rename", "show",
+                "birth", "my-intent", "--x", "space-create"]
+ER_CONFIG_KEYS = ["depth", "test-strategy", "review", "guard-policy", "change-control", "sensors", "learnings", "collaborators",
+                  "summary-confirmation", "plan-approval", "guard.plan-approval", "guard.review-freeze", "guard.state-transition",
+                  "guard.reviewer-scope", "guard.human-presence", "nope", ""]
+
+
+def er_both(args):
+    # A relative --project-dir is resolved against the dispatcher's working
+    # directory, which is the host's: those lines are left to the unit tests.
+    if any(arg == "--project-dir" and index + 1 < len(args) and not args[index + 1].startswith(("/", "--")) and args[index + 1] != ""
+           for index, arg in enumerate(args)):
+        return
+    add("engine_route", args=args)
+    add("every_helper", args=args)
+
+
+for noun, verbs in ER_ROUTES.items():
+    for verb in verbs:
+        er_both(["engine", noun, verb])
+        er_both(["engine", noun, verb] + rng.choice(ER_TAILS[1:]))
+    er_both(["engine", noun])
+    er_both(["engine", noun, rng.choice(["nope", "", "--help", "help", "-h"])])
+for stem, verbs in ER_HELPERS.items():
+    for verb in verbs:
+        er_both(["engine", stem, verb])
+        er_both(["engine", stem, verb] + rng.choice(ER_TAILS[1:]))
+for first in ER_FIRST:
+    er_both(["engine", first])
+    er_both(["engine", first] + rng.choice(ER_TAILS[1:]))
+    # A line that does not open with `engine` is not the engine namespace:
+    # only the helper rule is asked, which admits none.
+    add("every_helper", args=[first, "graph", "topo"])
+for sensor in ER_SENSORS:
+    er_both(["engine", "__sensor-script", sensor, "a"])
+    er_both(["engine", "__sensor-script-file", sensor, "a"])
+for noun in ["intent", "space"]:
+    for verb in ER_WORKSPACE:
+        er_both(["engine", noun, verb])
+        er_both(["engine", noun, verb, rng.choice(["a", "--x", "b c", ""])])
+        er_both(["engine", noun, verb, "a", rng.choice(["--reason", "--json", "--all", "x"]), "y"])
+for key in ER_CONFIG_KEYS:
+    er_both(["engine", "config", "set", key])
+    er_both(["engine", "config", "set", key, rng.choice(["off", "on", "standard", ""])])
+    er_both(["engine", "config", "set", key, "off", "--depth", "standard"])
+for verb in ["get", "list", "help", "--help", "-h", "nope"]:
+    er_both(["engine", "config", verb, "depth"])
+for verb in ["select", "sync", "list", "validate", "build", "help", "-h", "--help", "nope"]:
+    er_both(["engine", "plugin", verb])
+    er_both(["engine", "plugin", verb, "a"])
+for tail in [["runners"], ["runners", "--check"], ["runners", "--check", "x"], ["runners", "x"], ["runner-list"], ["runner-scopes", "a"],
+             ["stage-table"], ["scope-table", "--json"], ["nope"], []]:
+    er_both(["engine", "gen"] + tail)
+for _ in range(scale * 60):
+    noun = rng.choice(list(ER_ROUTES) + list(ER_HELPERS) + ER_FIRST)
+    args = ["engine", noun]
+    if rng.random() < 0.9:
+        args.append(rng.choice(ER_ROUTES.get(noun, []) + ER_HELPERS.get(noun, []) + [rng.choice(ER_VERBS)]))
+    for _ in range(rng.randrange(0, 3)):
+        args += rng.choice(ER_TAILS)
+    if rng.random() < 0.15:
+        args.insert(rng.randrange(0, len(args) + 1), rng.choice(["--json", "--yes", "--quiet", "--project-dir", "--"]))
+    er_both(args)
+
+PP_TEMPLATES = [
+    "engine orchestrate {v}", "engine orchestrate report --stage {s} --result {r}", "engine orchestrate report --result {r} --stage {s} --stage {s}",
+    "engine orchestrate report --skeleton-stance {k}", "engine orchestrate report --skeleton-stance {k} --result {r}",
+    "engine orchestrate report --skeleton-stance {k} --stage {s}", "engine orchestrate report --skeleton-stance", "engine state unpark",
+    "engine state unit {u}", "engine state unit {u} --unit auth", "engine state {c}", "engine bolt set-autonomy --mode x",
+    "engine bolt {b}", "engine bolt {b} --action {a}", "engine bolt {b} --action", "engine bolt {b} --action {a} --action {a}",
+    "engine bolt {b} --action --x", "engine testing-posture {t}", "engine runtime {m}", "engine log answers", "engine audit {h}",
+    "engine config set {p} {o}", "engine config set {p} {o} x", "engine config set {p}", "engine log {l} --stage {s} --checkpoint {k2}",
+    "engine log {l} --checkpoint {k2}", "engine log {l} --stage {s}", "engine log {l} --checkpoint {k2} --stage {s} --checkpoint {k2}",
+    "engine config set guard.{f} {o}", "engine utility config-change --guard.{f} {o}",
+    "engine bolt abort --name u --slug s --reason stale-review --discard", "{v} orchestrate next", "engine", "engine {v}",
+]
+PP_VALUES = {
+    "v": ["next", "continue", "park", "report", "wait", "help", "team-board"],
+    "s": ["code-generation", "build", "Code Generation", "--x", ""],
+    "r": ["approved", "rejected", "revised", "completed", "awaiting-approval", "resumed", ""],
+    "k": ["on", "off", "scope-dependent", "maybe", ""],
+    "u": ["start", "pause", "resume", "complete", "abandon", ""],
+    "c": ["set-construction-checkpoints", "set-construction-execution", "set-construction-iteration", "set-construction-verification-command",
+          "set-skeleton-stance", "approve", "get"],
+    "b": ["checkpoint", "swarm-checkpoint", "start", "complete"],
+    "a": ["status", "ask", "approve", "reject", "verify", "run", ""],
+    "t": ["resolve", "render", "fingerprint", "verify", "reply", "restore", "begin", "brief"],
+    "m": ["summary", "read", "compile"],
+    "h": ["history", "append"],
+    "p": ["plan-approval", "guard.plan-approval", "guard.review-freeze", "depth", "guard-policy"],
+    "o": ["on", "off", "relaxed", ""],
+    "l": ["decision", "answer", "answers", "review"],
+    "k2": ["plan-approval", "guard-recovery", "other", ""],
+    "f": ["plan-approval", "review-freeze", "state-transition", "reviewer-scope", "human-presence"],
+}
+
+
+def pp_fill(template):
+    # One word per placeholder: an empty value stays a word of its own.
+    return [PP_VALUES[word[1:-1]][rng.randrange(len(PP_VALUES[word[1:-1]]))] if word.startswith("{") and word.endswith("}") and word[1:-1] in PP_VALUES
+            else "guard." + rng.choice(PP_VALUES["f"]) if word == "guard.{f}"
+            else "--guard." + rng.choice(PP_VALUES["f"]) if word == "--guard.{f}"
+            else word for word in template.split(" ")]
+
+
+for template in PP_TEMPLATES:
+    for _ in range(scale * 2):
+        add("plan_prerequisite", args=pp_fill(template), gate_held=rng.random() < 0.5, spoke=rng.random() < 0.5)
+add("plan_prerequisite", args=["engine", "bolt", "abort", "--name", "u", "--slug", "s", "--reason", "stale review recovery exhausted", "--discard"],
+    gate_held=False, spoke=False)
+for noun, verbs in ER_ROUTES.items():
+    for verb in verbs:
+        add("plan_prerequisite", args=["engine", noun, verb], gate_held=rng.random() < 0.5, spoke=rng.random() < 0.5)
+        add("engine_directed", args=["engine", noun, verb], asked=True)
+    add("engine_directed", args=["engine", noun], asked=rng.random() < 0.5)
+
+ED_TEMPLATES = [
+    "engine review-brief {rb}", "engine log {l} --stage {s}", "engine log {l} --stage {s} --checkpoint {k2}", "engine log {l} --stage {s} --checkpoint={k2}",
+    "engine log {l} --stage {s} --stage {s}", "engine log {l}", "engine status", "engine status --json", "engine orchestrate help",
+    "engine orchestrate report --result {r}", "engine orchestrate report --result {r} --stage {s}", "engine orchestrate report --result resumed --result {r}",
+    "engine jump {j} --target a", "engine recompose", "engine recompose --skip a", "engine recompose --skip a --add b --reason c",
+    "engine recompose --skip=a --reason", "engine recompose --force", "engine recompose --skip a extra", "engine recompose --skip",
+    "engine scope change --scope feature", "engine scope change --scope feature --depth standard --review advisory",
+    "engine scope change --scope=feature --sensors=off", "engine scope change --scope feature --guard-policy off", "engine scope save --scope x",
+    "engine scope change", "engine config set {g} standard", "engine config set {g} standard --depth x --review=y",
+    "engine config set {g} standard --guard-policy off", "engine config set {g}", "engine config get {g}", "engine intent create --scope x",
+    "engine intent {i} api", "engine utility intent {i} api", "engine intent {i} api x", "engine intent {i}", "engine utility intent {i} api x",
+    "utility intent {i} api", "engine workspace {w}", "engine log review --stage {s}", "status", "engine",
+]
+ED_VALUES = {**PP_VALUES, "rb": ["review", "context", "summary", "nope"], "j": ["execute", "reopen", "resolve"],
+             "g": ["depth", "test-strategy", "review", "sensors", "learnings", "collaborators", "guard-policy", "plan-approval", "change-control"],
+             "i": ["add-repo", "remove-repo", "archive", "create", "switch"], "w": ["reclassify", "codekb-scope-diff", "detect", "codekb"]}
+for template in ED_TEMPLATES:
+    for _ in range(scale):
+        args = [ED_VALUES[word[1:-1]][rng.randrange(len(ED_VALUES[word[1:-1]]))] if word.startswith("{") and word.endswith("}") else word
+                for word in template.split(" ")]
+        add("engine_directed", args=args, asked=rng.random() < 0.6)
+
+RD_HEADS = ["status", "--status", "version", "--version", "help", "--help", "doctor", "--doctor", "engine", "now", "next", "Status", ""]
+for head in RD_HEADS:
+    for tail in [[], ["now"], ["now", "x"], ["doctor"], ["--export"], ["status"], ["version", "x"], ["x"]]:
+        add("read_only_diagnostic", args=[head] + tail, stem=rng.choice(["doctor", "utility", "state", ""]))
+        add("read_only_diagnostic", args=tail, stem=rng.choice(["doctor", "utility"]))
+
+PS_WORDS = ["git", "status", "Get-Content", "get-content", "a.txt", "-First", "1", "Select-Object", "'a b'", "\"a b\"", "''", "\"\"", "'it''s'",
+            "\"$x\"", "\"a`n\"", "$env:X", "@args", "(1)", "{x}", "# c", "-x.y", "--x.y", "-x", "a\\b", "a\\", "C:\\Tools\\x.exe", ".\\tool.ps1",
+            "a/b", "a,b", "a%b", "a^b", "a!b", "a[0]", "a=b", "A=b", "é", "a\u2014b", "\u2018q\u2019", "a\tb", "a\u00a0b", "env", "sudo", "command",
+            "time", "if", "exec", "cd", "Set-Location", "aidlc", "aidlc.cmd", "engine", "orchestrate", "next", "Write-Output", "x\"y", "a'b", "a&b",
+            "bun", "rm", "-rf", "out.txt", "~", "*.md", "a:b", "a+b", "a@b", "1", "-", "--"]
+PS_JOINS = [" ; ", "; ", " | ", "|", " || ", " && ", " & ", ";;", " ;", "  "]
+PS_REDIRECTS = [" 2>$null", " >$null", " 2>&1", " *>$null", " 3>> $null", " > out.txt", " 2>$NULL", " 1>$null", " >>$null", " 2>&1 | ", " 7>$null",
+                " >$nullx", " 2>&2", ">$null"]
+PS_PLAIN_FIRST = ["git", "Get-Content", "get-childitem", "Select-Object", "Write-Output", "aidlc", "aidlc.cmd", "bun", "rm", "env", "sudo",
+                  "command", "time", "exec", "cd", "Set-Location", "C:\\Tools\\x.exe", ".\\tool.ps1", "a/b", "if", "'my tool'", "\"my tool\""]
+PS_PLAIN_WORDS = ["status", "a.txt", "-First", "1", "'a b'", "\"a b\"", "''", "a\\b", "a\\", "--x.y", "-x", "a/b", "a:b", "a+b", "a@b", "é", "engine",
+                  "orchestrate", "next", "-rf", "out.txt", "~", "-", "--", "x\"y", "'it works'", "a_b", "a.b.c", "-x.y", "A=b"]
+for _ in range(scale * 120):
+    plain = rng.random() < 0.6
+    parts = []
+    for index in range(rng.randrange(1, 4)):
+        if plain:
+            words = [rng.choice(PS_PLAIN_FIRST)] + [rng.choice(PS_PLAIN_WORDS) for _ in range(rng.randrange(0, 4))]
+        else:
+            words = [rng.choice(PS_WORDS) for _ in range(rng.randrange(1, 5))]
+        text = " ".join(words)
+        if rng.random() < (0.5 if plain and words[0][0] in "'\"" else 0.2):
+            text = "& " + text
+        if rng.random() < 0.25:
+            text += rng.choice(PS_REDIRECTS[:5] if plain else PS_REDIRECTS)
+        parts.append(text)
+    command = parts[0]
+    for part in parts[1:]:
+        command += rng.choice(PS_JOINS[:4] if plain else PS_JOINS) + part
+    if rng.random() < 0.05:
+        command = rng.choice([" ", "&", "& ", ";", "|"]) + command
+    add("plain_powershell", command=command)
+for command in ["", " ", "git status", "& git status", "& 'C:\\Program Files\\Git\\git.exe' status", "& \"C:\\x y\\git.exe\" status 2>$null",
+                "Get-Content a.txt | Select-Object -First 1", "aidlc.cmd engine orchestrate next", "Get-ChildItem 'a\\' ; git log",
+                "git commit -m 'it works'", "git commit -m \"it works\"", "tool 'a\\'", "Get-Content 'a\\'", "tool ''", "Get-Content ''",
+                "a ;", "a |", "| a", "a ; ; b", "& & a", "a & b", "&a", "a 2>$null b", "2>$null a", "a>$null", "a 2>&1;b", "a  b   c", "'a' b",
+                "& 'a' b", "& '' b", "a=b c", "& a=b c", "1a b", "-a b", "a.b c", "a:b c", "a/b c", "a\\b c", "a\\ c"]:
+    add("plain_powershell", command=command)
+
+DE_PARTS = ["echo", "a", "$HOME", "\\$HOME", "'$HOME'", "\"$HOME\"", "\"a\"", "'a'", "`ls`", "'`ls`'", "\\`", "$(ls)", "<(ls)", ">(cat)", "< (x)", "> (x)",
+            "a>b", "a<b", "\\", "'", "\"", "it's", "\"it's $x\"", "'a'\"$b\"", "\\'$x", "'\\'$x'", "é", "a\\", "<", ">", "(", "\"<(\"", "'>('"]
+for _ in range(scale * 40):
+    add("dynamic_evaluation", command=" ".join(rng.choice(DE_PARTS) for _ in range(rng.randrange(0, 6))))
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

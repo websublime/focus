@@ -14,6 +14,7 @@ use serde_json::{Map, Value, json};
 
 use crate::authority::Authority;
 use crate::authority::decide_fence;
+use crate::dispatcher::resolve_engine_action;
 use crate::engine_command;
 use crate::fences::{
     Fence, FenceResolution, format_guards_line, parse_guards_line, resolve_fences,
@@ -22,6 +23,7 @@ use crate::fences::{
 use crate::guard_operation::{self, RemedyWordingContext, RenderMode, RenderShell};
 use crate::integrity::{self, Integrity};
 use crate::plan_approval::{self, HandoffDefect, UnitEvidence};
+use crate::plan_wait;
 use crate::policy::{
     self, GuardPolicy, Resolution, format_guard_policy, parse_state_line, set_guard_policy_line,
     source_label,
@@ -33,7 +35,7 @@ use crate::state_transition;
 use crate::typed_switch::{self, TypedSwitchRequest};
 
 /// The kinds of case this crate answers.
-pub const KINDS: [&str; 18] = [
+pub const KINDS: [&str; 25] = [
     "guard_policy",
     "guards_line",
     "engine_command",
@@ -52,6 +54,13 @@ pub const KINDS: [&str; 18] = [
     "contract_markers",
     "questions_file",
     "review_appendix",
+    "engine_route",
+    "every_helper",
+    "plan_prerequisite",
+    "engine_directed",
+    "read_only_diagnostic",
+    "plain_powershell",
+    "dynamic_evaluation",
 ];
 
 fn resolution_json(resolution: &Resolution) -> Value {
@@ -343,6 +352,48 @@ pub fn run_case(case: &Value) -> Value {
             })
         }
         "review_appendix" => json!(posture::plan_review_appendix(text("plan"))),
+        "engine_route" => {
+            match resolve_engine_action(&strings_of(&case["args"]), ORACLE_PROJECT, ORACLE_PROJECT)
+            {
+                Some(found) => json!({"tool": found.tool, "args": found.args}),
+                None => Value::Null,
+            }
+        }
+        "every_helper" => json!(plan_wait::every_helper_may_run(
+            &strings_of(&case["args"]),
+            ".claude",
+            ORACLE_PROJECT,
+            ORACLE_PROJECT,
+        )),
+        "plan_prerequisite" => {
+            let spoke = case["spoke"].as_bool().unwrap_or(false);
+            json!(plan_wait::is_plan_approval_prerequisite(
+                &strings_of(&case["args"]),
+                case["gate_held"].as_bool().unwrap_or(false),
+                &mut || spoke,
+            ))
+        }
+        "engine_directed" => {
+            let asked = case["asked"].as_bool().unwrap_or(false);
+            let args = strings_of(&case["args"]);
+            json!({
+                "directed": plan_wait::engine_directed_while_plan_waits(&args, &mut || asked),
+                "repo": plan_wait::intent_repo_change_admitted(&args, &mut || asked),
+            })
+        }
+        "read_only_diagnostic" => {
+            let args = strings_of(&case["args"]);
+            json!({
+                "diagnostic": plan_wait::is_read_only_diagnostic(&args),
+                "tool": plan_wait::is_read_only_tool_diagnostic(text("stem"), &args),
+            })
+        }
+        "plain_powershell" => json!({
+            "plain": plan_wait::plain_power_shell(text("command"))
+                .map(|plain| json!({"commands": plain.commands, "rendering": plain.rendering})),
+            "reading": plan_wait::power_shell_reading(text("command")),
+        }),
+        "dynamic_evaluation" => json!(plan_wait::shell_uses_dynamic_evaluation(text("command"))),
         other => json!({ "unsupported": other }),
     }
 }
@@ -584,6 +635,10 @@ fn typed_switch_json(request: &TypedSwitchRequest) -> Value {
     }
     Value::Object(out)
 }
+
+/// The project the dispatcher is asked from in a case: upstream's driver
+/// pins the same directory in its environment.
+const ORACLE_PROJECT: &str = "/oracle/project";
 
 fn strings_of(value: &Value) -> Vec<String> {
     value
