@@ -432,6 +432,8 @@ pub fn is_guard_recovery_engine_invocation(args: &[String]) -> bool {
     }
     let second = args.get(1).map(String::as_str);
     let switchable = |name: &str| Fence::parse(name).filter(|fence| fence.is_switchable());
+    // The abort's own length guards the two words read here; the exact
+    // comparison below is what refuses a longer or shorter line.
     let operation = if second == Some("bolt") && args.len() == 10 {
         GuardRecoveryOperation::AbortBolt {
             unit: args[4].clone(),
@@ -769,6 +771,18 @@ mod tests {
         assert!(matches_command(
             &quoted,
             "focus engine orchestrate next --stage a"
+        ));
+        // An operation built in code is matched in either shell's quoting.
+        let apostrophe = GuardRecoveryOperation::RestartStage {
+            stage: "it's".into(),
+        };
+        assert!(matches_command(
+            &apostrophe,
+            "focus engine orchestrate next --stage 'it''s'"
+        ));
+        assert!(matches_command(
+            &apostrophe,
+            "focus engine orchestrate next --stage 'it'\"'\"'s'"
         ));
     }
 
