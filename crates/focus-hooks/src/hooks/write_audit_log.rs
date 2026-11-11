@@ -16,18 +16,7 @@ use crate::engine::refuse_summary_authorization;
 use crate::health::{debug, hooks_health_dir, write_status_file};
 use crate::{Outcome, context, payload};
 
-/// `normalizeDriveLetter`: a lower-case drive letter upper-cased.
-#[must_use]
-pub fn normalize_drive_letter(path: &str) -> String {
-    if re::test(r"^[a-z]:(?:[\\/]|$)", "", path) {
-        let mut out = String::new();
-        out.push_str(&path[..1].to_uppercase());
-        out.push_str(&path[1..]);
-        out
-    } else {
-        path.to_owned()
-    }
-}
+pub use focus_workspace::project::normalize_drive_letter;
 
 fn slashed(path: &Path) -> String {
     normalize_drive_letter(&path.to_string_lossy().replace('\\', "/"))

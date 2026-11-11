@@ -590,19 +590,8 @@ fn plain_project_file(project: &Path, rel: &str) -> bool {
     }
     match std::fs::symlink_metadata(project.join(rel)) {
         Err(_) => true,
-        Ok(meta) => meta.is_file() && hard_links(&meta) == 1,
+        Ok(meta) => meta.is_file() && focus_workspace::files::hard_links(&meta) == 1,
     }
-}
-
-#[cfg(unix)]
-fn hard_links(meta: &std::fs::Metadata) -> u64 {
-    use std::os::unix::fs::MetadataExt;
-    meta.nlink()
-}
-
-#[cfg(not(unix))]
-fn hard_links(_meta: &std::fs::Metadata) -> u64 {
-    1
 }
 
 /// `hooksOffAgentStep`: what the agent does when this harness's hooks are

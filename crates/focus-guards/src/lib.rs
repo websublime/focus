@@ -29,6 +29,7 @@ pub mod engine_command;
 pub mod fences;
 pub mod guard_operation;
 pub mod integrity;
+pub mod mutation_intent;
 pub mod oracle;
 pub mod plan_approval;
 pub mod plan_wait;

@@ -14,6 +14,7 @@
 //! `plain_powershell`, `dynamic_evaluation`), asked through an export shim
 //! over the hook's own source: the functions are upstream's, unmodified.
 
+use focus_js::path::{Flavour, basename};
 use focus_js::re;
 use focus_js::text::to_lower_case;
 
@@ -135,9 +136,8 @@ fn tail(args: &[String], from: usize) -> &[String] {
 /// `normalizedCommandName`: a command's base name, lower-cased, without
 /// `.exe`.
 #[must_use]
-pub fn normalized_command_name(name: &str) -> String {
-    let base = name.rsplit('/').next().unwrap_or("");
-    let lower = to_lower_case(base);
+pub fn normalized_command_name(flavour: Flavour, name: &str) -> String {
+    let lower = to_lower_case(&basename(flavour, name));
     lower.strip_suffix(".exe").unwrap_or(&lower).to_owned()
 }
 
@@ -904,7 +904,19 @@ mod tests {
         assert!(!may("graph topo"));
         assert_eq!(last_flag_value(&words("--a 1 --a 2"), "--a"), Some("2"));
         assert_eq!(last_flag_value(&words("--a 1 --a --b"), "--a"), None);
-        assert_eq!(normalized_command_name("/usr/bin/Bun.EXE"), "bun");
+        assert_eq!(
+            normalized_command_name(Flavour::Posix, "/usr/bin/Bun.EXE"),
+            "bun"
+        );
+        assert_eq!(normalized_command_name(Flavour::Posix, "bin/cat/"), "cat");
+        assert_eq!(
+            normalized_command_name(Flavour::Win32, r"C:\x\Cat.exe"),
+            "cat"
+        );
+        assert_eq!(
+            normalized_command_name(Flavour::Posix, r"C:\x\cat.exe"),
+            r"c:\x\cat"
+        );
     }
 
     #[test]

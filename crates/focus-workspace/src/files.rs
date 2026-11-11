@@ -62,6 +62,68 @@ fn refused_a_link(error: &std::io::Error) -> bool {
     }
 }
 
+/// `sameDirectoryIdentity`: both paths are directories, neither a link, and
+/// the same one: by inode and device, or by what Windows keeps for them.
+#[must_use]
+pub fn same_directory(left: &Path, right: &Path) -> bool {
+    let (Ok(actual), Ok(expected)) = (
+        std::fs::symlink_metadata(left),
+        std::fs::symlink_metadata(right),
+    ) else {
+        return false;
+    };
+    if !actual.is_dir() || !expected.is_dir() {
+        return false;
+    }
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::MetadataExt;
+        actual.ino() != 0 && (actual.ino(), actual.dev()) == (expected.ino(), expected.dev())
+    }
+    #[cfg(windows)]
+    {
+        match (
+            same_file::Handle::from_path(left),
+            same_file::Handle::from_path(right),
+        ) {
+            (Ok(actual), Ok(expected)) => actual == expected,
+            _ => false,
+        }
+    }
+    #[cfg(not(any(unix, windows)))]
+    {
+        left == right
+    }
+}
+
+/// How many names a file has (`nlink`); one where the host does not say.
+#[must_use]
+pub fn hard_links(meta: &Metadata) -> u64 {
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::MetadataExt;
+        meta.nlink()
+    }
+    #[cfg(not(unix))]
+    {
+        let _ = meta;
+        1
+    }
+}
+
+/// Nothing at `path`, or a regular file with one name: what a write may
+/// replace without reaching another file. `lstat` with `throwIfNoEntry:
+/// false` as Bun answers it: a name that is not there reads as nothing,
+/// and every other failure as not this, a path that goes through a file
+/// among them.
+#[must_use]
+pub fn absent_or_plain_file(path: &Path) -> bool {
+    match std::fs::symlink_metadata(path) {
+        Ok(meta) => meta.is_file() && hard_links(&meta) == 1,
+        Err(error) => error.kind() == std::io::ErrorKind::NotFound,
+    }
+}
+
 /// Whether `path`, followed to the file it names, is the file `opened` is.
 #[must_use]
 pub fn names_the_same_file(opened: &File, path: &Path) -> bool {
@@ -255,6 +317,38 @@ pub fn open_to_append(path: &Path) -> std::io::Result<File> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[cfg(unix)]
+    #[test]
+    fn a_folder_is_itself_and_a_plain_file_has_one_name() {
+        let dir = scratch("identity");
+        std::fs::create_dir_all(dir.join("a")).unwrap();
+        std::fs::create_dir_all(dir.join("b")).unwrap();
+        std::fs::write(dir.join("f"), "x").unwrap();
+        std::fs::write(dir.join("twice"), "x").unwrap();
+        std::fs::hard_link(dir.join("twice"), dir.join("again")).unwrap();
+        std::os::unix::fs::symlink("a", dir.join("to-a")).unwrap();
+        std::os::unix::fs::symlink("f", dir.join("to-f")).unwrap();
+
+        assert!(same_directory(&dir.join("a"), &dir.join("a")));
+        assert!(same_directory(&dir.join("a"), &dir.join("b/../a")));
+        assert!(!same_directory(&dir.join("a"), &dir.join("b")));
+        // A link to the folder is not the folder, and a file is no folder.
+        assert!(!same_directory(&dir.join("to-a"), &dir.join("a")));
+        assert!(!same_directory(&dir.join("a"), &dir.join("to-a")));
+        assert!(!same_directory(&dir.join("f"), &dir.join("f")));
+        assert!(!same_directory(&dir.join("missing"), &dir.join("missing")));
+
+        assert!(absent_or_plain_file(&dir.join("missing")));
+        assert!(absent_or_plain_file(&dir.join("a/missing")));
+        assert!(absent_or_plain_file(&dir.join("f")));
+        assert!(!absent_or_plain_file(&dir.join("twice")));
+        assert!(!absent_or_plain_file(&dir.join("a")));
+        assert!(!absent_or_plain_file(&dir.join("to-f")));
+        // A path through a file is a failure, not an absence.
+        assert!(!absent_or_plain_file(&dir.join("f/x")));
+        let _ = std::fs::remove_dir_all(&dir);
+    }
 
     fn scratch(name: &str) -> std::path::PathBuf {
         let dir = std::env::temp_dir().join(format!("focus-files-{}-{name}", std::process::id()));

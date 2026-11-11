@@ -38,6 +38,10 @@ fn every_guard_case_gets_upstreams_answer() {
     let (mut routes, mut routed, mut helpers, mut helper_may) = (0, 0, 0, 0);
     let (mut waits, mut prerequisite, mut directed, mut repo, mut diagnostic) = (0, 0, 0, 0, 0);
     let (mut lines, mut plain, mut faithful, mut dynamic) = (0, 0, 0, 0);
+    let (mut intents, mut opaque, mut clear, mut engine, mut unread, mut spoken) =
+        (0, 0, 0, 0, 0, 0);
+    let (mut judged, mut outside, mut output, mut answer, mut diary, mut proposal) =
+        (0, 0, 0, 0, 0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         let case: Value = focus_js::json::parse(line).unwrap();
@@ -50,11 +54,17 @@ fn every_guard_case_gets_upstreams_answer() {
         // root, and a destination that is a directory would not be one. An
         // integrity case lays its project tree there too, and reads paths
         // as the host does, so its answers are the POSIX host's; so does the
-        // reviewer scope, whose `toPosix` and `path.resolve` are the host's.
+        // reviewer scope, whose `toPosix` and `path.resolve` are the host's,
+        // and a mutation case, whose project is laid out there with links.
         if cfg!(windows)
             && matches!(
                 kind,
-                "shell_targets" | "write_targets" | "runtime_integrity" | "reviewer_scope"
+                "shell_targets"
+                    | "write_targets"
+                    | "runtime_integrity"
+                    | "reviewer_scope"
+                    | "mutation_intent"
+                    | "mutation_target"
             )
         {
             continue;
@@ -111,6 +121,29 @@ fn every_guard_case_gets_upstreams_answer() {
         if kind == "engine_route" {
             routes += 1;
             routed += usize::from(out.is_object());
+        }
+        if kind == "mutation_intent" {
+            let intent = &out["intent"];
+            intents += 1;
+            opaque += usize::from(intent["opaqueShell"] == true);
+            clear +=
+                usize::from(intent["opaqueShell"] == false && intent["shellCommand"].is_string());
+            engine += usize::from(intent["runsFocus"] == true);
+            unread += usize::from(intent["readable"] == false);
+            spoken += usize::from(out["person"]["spoke"] == true);
+        }
+        for target in out
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter(|_| kind == "mutation_target")
+        {
+            judged += 1;
+            outside += usize::from(target["outside"] == true);
+            output += usize::from(target["output"] == true);
+            answer += usize::from(target["answer"] == true);
+            diary += usize::from(target["diary"] == true);
+            proposal += usize::from(target["composer"] == true);
         }
         if kind == "every_helper" {
             helpers += 1;
@@ -205,6 +238,26 @@ fn every_guard_case_gets_upstreams_answer() {
     assert!(
         waits >= 1100 && prerequisite >= 100 && directed >= 80 && repo >= 6 && diagnostic >= 90,
         "too few plan-wait cases: {waits}, {prerequisite} prerequisites, {directed} engine-directed, {repo} repo changes, {diagnostic} diagnostics"
+    );
+    assert!(
+        cfg!(windows)
+            || (intents >= 2400
+                && opaque >= 1400
+                && clear >= 800
+                && engine >= 1300
+                && unread >= 400
+                && spoken >= 900),
+        "too few mutation cases: {intents}, {opaque} opaque, {clear} read whole and clear, {engine} running the engine, {unread} not read whole, {spoken} with the person on record"
+    );
+    assert!(
+        cfg!(windows)
+            || (judged >= 1300
+                && outside >= 240
+                && output >= 220
+                && answer >= 28
+                && diary >= 22
+                && proposal >= 12),
+        "too few write targets: {judged}, {outside} outside the project, {output} record outputs, {answer} answer texts, {diary} diaries, {proposal} proposals"
     );
     assert!(
         lines >= 600 && plain >= 200 && faithful >= 120 && dynamic >= 80,
