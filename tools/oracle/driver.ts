@@ -29,6 +29,23 @@ const integrity = await import(resolve(upstream, "core", "hooks", "runtime-integ
 const reviewerScope = await import(resolve(upstream, "core", "hooks", "aidlc-reviewer-scope.ts"));
 const stateGuard = await import(resolve(upstream, "core", "hooks", "aidlc-state-transition-guard.ts"));
 const planGuard = await import(resolve(upstream, "core", "hooks", "aidlc-plan-approval-guard.ts"));
+// The Plan Approval guard's readers of a command are private to the hook.
+// They are asked through a copy of the hook's own source with an export list
+// appended: the functions are upstream's, unmodified. The copy sits beside
+// the original, where its relative imports resolve, for as long as this
+// process runs.
+const PLAN_GUARD_PRIVATE = [
+  "everyHelperMayRun", "isPlanApprovalPrerequisite", "engineDirectedWhilePlanWaits", "intentRepoChangeAdmitted",
+  "isReadOnlyDiagnostic", "isReadOnlyToolDiagnostic", "plainPowerShell", "powerShellReading", "shellUsesDynamicEvaluation",
+];
+const planGuardShim = resolve(upstream, "core", "hooks", "aidlc-plan-approval-guard.focus-oracle.ts");
+writeFileSync(
+  planGuardShim,
+  `${readFileSync(resolve(upstream, "core", "hooks", "aidlc-plan-approval-guard.ts"), "utf-8")}\nexport { ${PLAN_GUARD_PRIVATE.join(", ")} };\n`,
+);
+process.on("exit", () => rmSync(planGuardShim, { force: true }));
+const planGuardPrivate = await import(planGuardShim);
+const dispatcher = await import(tool("aidlc.ts"));
 const guardOperation = await import(tool("aidlc-guard-operation.ts"));
 const posture = await import(tool("aidlc-testing-posture.ts"));
 const nodePath = await import("node:path");
@@ -789,6 +806,49 @@ function answer(c: Record<string, any>): unknown {
       };
     case "review_appendix":
       return posture.planReviewAppendix(c.plan);
+    case "engine_route": {
+      // The dispatcher pins its own project ahead of a literal tail; it reads
+      // that project from its environment, set here so the answer does not
+      // depend on where this runs.
+      const before = process.env.AIDLC_PROJECT_DIR;
+      process.env.AIDLC_PROJECT_DIR = "/oracle/project";
+      try {
+        const action = dispatcher.resolveAction([...c.args], false);
+        return action.type === "delegate" ? { tool: action.tool, args: action.args } : null;
+      } finally {
+        if (before === undefined) delete process.env.AIDLC_PROJECT_DIR;
+        else process.env.AIDLC_PROJECT_DIR = before;
+      }
+    }
+    case "every_helper": {
+      const before = process.env.AIDLC_PROJECT_DIR;
+      process.env.AIDLC_PROJECT_DIR = "/oracle/project";
+      try {
+        return planGuardPrivate.everyHelperMayRun(c.args);
+      } finally {
+        if (before === undefined) delete process.env.AIDLC_PROJECT_DIR;
+        else process.env.AIDLC_PROJECT_DIR = before;
+      }
+    }
+    case "plan_prerequisite":
+      return planGuardPrivate.isPlanApprovalPrerequisite(c.args, c.gate_held ?? false, () => c.spoke ?? false);
+    case "engine_directed":
+      return {
+        directed: planGuardPrivate.engineDirectedWhilePlanWaits(c.args, () => c.asked ?? false),
+        repo: planGuardPrivate.intentRepoChangeAdmitted(c.args, () => c.asked ?? false),
+      };
+    case "read_only_diagnostic":
+      return {
+        diagnostic: planGuardPrivate.isReadOnlyDiagnostic(c.args),
+        tool: planGuardPrivate.isReadOnlyToolDiagnostic(c.stem, c.args),
+      };
+    case "plain_powershell":
+      return {
+        plain: planGuardPrivate.plainPowerShell(c.command),
+        reading: planGuardPrivate.powerShellReading(c.command, freeze.shellCommandInvocationDetails),
+      };
+    case "dynamic_evaluation":
+      return planGuardPrivate.shellUsesDynamicEvaluation(c.command);
     default:
       return { unsupported: c.kind };
   }
