@@ -2326,6 +2326,11 @@ DEVIATIONS.update({
         "a member repository that is a delegated worktree is read through that worktree's own boundary (the code "
         "paths of its unit of work); focus does not read that boundary yet and refuses the row whose baseline it "
         "would be",
+    r"jump/execute/source_repos_refused_\w+":
+        "a registry row whose `repos` is not a list of names: upstream takes what is there and falls over where it "
+        "first joins a path, with the runtime's TypeError (or, with an empty name, lists the whole project, engine "
+        "and harness included, as that member); focus refuses the row by name (exit 1 either way where upstream "
+        "falls over, and the jump's error row written by both)",
     "jump/reopen/by_name":
         "reopen starts a per-unit stage again for named units with their own GATE_REJECTED rows (M4); focus "
         "refuses by name once the usage is satisfied",
@@ -2884,6 +2889,7 @@ def intent_create_checks():
     check_("create/source_repos", members, [feature + ["--repos", "web,api"]])
     check_("create/source_repos_one", members, [feature + ["--repos", "web"]])
     check_("create/source_repos_unbindable", {**members, "api/.aidlc-source-paths.json": "{"}, [feature + ["--repos", "web,api"]])
+    check_("create/source_dotnet_outputs", {"App.csproj": "<Project />\n", "Program.cs": "class P {}\n", "bin/Debug/app.dll": "b\n", "obj/project.assets.json": "{}\n"}, [feature])
     check_("create/delegated_worktree", {**source, ".aidlc/worktree-meta.json": "{}\n"}, [feature])
     check_("create/source_embedded_unresolved", {"vendor/lib/.git/HEAD": "ref: refs/heads/gone\n", "vendor/lib/.git/config": "[core]\n", "vendor/lib/x.c": "x\n"}, [feature])
     check_("create/registry_existing", {"aidlc/spaces/default/intents/intents.json": '[{"uuid":"u","slug":"old","dirName":"250101-old","status":"done"}]\n'}, [feature])
@@ -3238,6 +3244,9 @@ def transition_checks():
     check_("advance/into_code_stage", created(**ic, **source), into_code, direct)
     check_("advance/into_code_stage_unreadable", created(**ic, **source, **{".aidlc-source-paths.json": "{"}), into_code, direct)
     check_("advance/into_code_stage_unbindable", created(**ic, **source, **unbindable), into_code, direct)
+    answered = CREATED_AUDIT + block("DECISION_RECORDED", T(1), "**Stage**: intent-capture", "**Decision**: How would you like to answer them?",
+                                     "**Options**: Guide me, I'll edit the file, Chat") + block("QUESTION_ANSWERED", T(2), "**Stage**: intent-capture", "**Details**: Chat")
+    check_("advance/into_code_stage_answer_mode", created(audit=answered, **ic, **source), into_code, direct)
     with open(os.path.join(DIST, ".claude", "tools", "data", "stage-graph.json"), encoding="utf-8") as handle:
         order = [stage["slug"] for stage in json.load(handle)]
     before_code = at_stage(CREATED_STATE, "infrastructure-design", done=order[:order.index("infrastructure-design")], phase="CONSTRUCTION")
@@ -4530,6 +4539,17 @@ def jump_checks():
     review = f"{CREATED_DIR}/.aidlc-engine/source-review"
     check_("execute/source_snapshot_behind_link", created(**source, **{"elsewhere/keep": ""}), [forward],
            edits=(lambda tree: (os.makedirs(os.path.dirname(tree.path(review))), os.symlink(tree.path("elsewhere"), tree.path(review))),))
+    check_("execute/source_snapshot_behind_dangling_link", created(**source), [forward],
+           edits=(lambda tree: (os.makedirs(os.path.dirname(tree.path(review))), os.symlink(tree.path("nowhere"), tree.path(review))),))
+    # A row whose `repos` is not a list of names (refused by focus, by name), and names that are no directory of
+    # the project, which the listing's writer refuses in both.
+    for label, listed in (("not_a_name", '["app", 7]'), ("null_name", '[null]'), ("a_list_inside", '[["app"]]'), ("not_a_list", '"app"'), ("empty_name", '[""]')):
+        check_(f"execute/source_repos_refused_{label}", created(registry=with_repos("app").replace('["app"]', listed), **members), [forward])
+    check_("execute/source_repos_null", created(registry=with_repos("app").replace('["app"]', "null"), **members), [forward])
+    check_("execute/source_repos_dots", created(registry=with_repos(".."), **members), [forward])
+    check_("execute/source_repos_nested", created(registry=with_repos("app/sub"), **members, **{"app/sub/c.ts": "c\n"}), [forward])
+    dotnet = {"App.csproj": "<Project />\n", "Program.cs": "class P {}\n", "bin/Debug/app.dll": "b\n", "obj/project.assets.json": "{}\n"}
+    check_("execute/source_dotnet_outputs", created(**dotnet), [forward])
     check_("execute/source_snapshot_stage_behind_link", created(**source, **{"elsewhere/keep": "", f"{review}/keep": ""}), [forward],
            edits=(lambda tree: os.symlink(tree.path("elsewhere"), tree.path(f"{review}/code-generation")),))
     backward = ["execute", "--target", "intent-capture", "--direction", "backward"]

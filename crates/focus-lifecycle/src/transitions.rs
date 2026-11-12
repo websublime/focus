@@ -145,7 +145,11 @@ fn stage_started_fields(wf: &Workflow, next: &Stage) -> Result<Vec<(&'static str
 ///
 /// The listing cannot be kept (see `focus_evidence::source::snapshot`).
 pub fn source_baseline(wf: &Workflow, stage_slug: &str) -> Result<String> {
-    let repos = snapshot::intent_repos(&wf.layout, &wf.selection);
+    let repos = crate::registry::source_repos(
+        &wf.layout,
+        &wf.selection.space,
+        wf.selection.intent.as_deref(),
+    )?;
     snapshot::baseline_field(
         &wf.layout,
         &wf.selection,

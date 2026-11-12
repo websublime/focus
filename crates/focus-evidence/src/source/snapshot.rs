@@ -9,13 +9,22 @@
 //! later reading can say which paths moved, and not only that something
 //! did (`sourceBaselineAuditFields`, `writeBaselineSourceSnapshot`,
 //! `aidlc-lib.ts` L25 555).
+//!
+//! # Tests that another test covers
+//!
+//! Two questions of the writer change no answer when taken out, and are
+//! kept where upstream has them. The record's directory is made before
+//! anything else, and no row reaches the writer without a record there
+//! already. The snapshot's place is checked for a link twice, before its
+//! directory is made and after: nothing but another process can put a link
+//! there in between, and the first check is the one that keeps the
+//! directory from being made through a link.
 
 use std::path::Path;
 
 use focus_js::{EngineError, Result, bail, re};
-use focus_workspace::records::{Selection, read_intent_registry, row_names_record};
+use focus_workspace::records::Selection;
 use focus_workspace::{Layout, atomic, links, observer};
-use serde_json::Value;
 
 use super::listing::{self, Listing};
 use super::walk::{self, Options, Stop};
@@ -27,28 +36,6 @@ pub const BASELINE_FIELD: &str = "Source Baseline";
 pub const UNBINDABLE: &str = "unbindable";
 /// The directory of the snapshots, under the engine's directory of a record.
 const SNAPSHOT_DIR: &str = "source-review";
-
-/// `intentRepos`: the member repositories of the selected piece of work,
-/// as its row of the registry lists them; none for a project that is one
-/// repository, or when no piece of work is selected.
-#[must_use]
-pub fn intent_repos(layout: &Layout, selection: &Selection) -> Vec<String> {
-    let Some(dir_name) = selection.intent.as_deref() else {
-        return Vec::new();
-    };
-    read_intent_registry(layout, &selection.space)
-        .iter()
-        .find(|row| row_names_record(row, dir_name))
-        .and_then(|row| row.get("repos"))
-        .and_then(Value::as_array)
-        .map(|repos| {
-            repos
-                .iter()
-                .filter_map(|name| name.as_str().map(str::to_owned))
-                .collect()
-        })
-        .unwrap_or_default()
-}
 
 /// `writeSourceSnapshot`: `serialized` at `path`, which lies under
 /// `record_root` and is never written through a link. A file already there
@@ -126,9 +113,9 @@ pub fn write_baseline(
 ///
 /// A project whose source cannot be read into a listing is `unbindable`
 /// when it is a git checkout, and starts from an empty listing when it is
-/// not. `repos` are the member repositories of the piece of work (see
-/// [`intent_repos`]; a creation gives its own, since its row is listed
-/// last).
+/// not. `repos` are the member repositories of the piece of work, as its
+/// row of the registry lists them (a creation gives its own, since its row
+/// is listed last).
 ///
 /// # Errors
 ///
