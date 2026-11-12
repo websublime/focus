@@ -116,7 +116,8 @@ focus-cli ✔ ───────────► focus-hooks ──► focus-o
 | `focus-lifecycle` | Transições de stage: a cadeia de admissão, onde estão os artefactos de uma stage, o recibo de validade de uma conclusão, e as transições em si | Existem `advance`, `finalize`, `complete-workflow`, `skip` e `resume` (M3, fatia 4a); os verbos de gate são a fatia 4b |
 | `focus-guards` | Lexer de shell, integridade de runtime, fences, decisões de guard | Existe (M3, fatia 1; M4): a Guard Policy e as fences, o lexer de shell, a integridade do runtime, e os leitores dos quatro guards. A avaliação de uma aprovação e os recibos são M5 |
 | `focus-hooks` | Os corpos dos hooks e o dispatcher | Existe (M4): o dispatcher, o contexto de um hook, os observadores, o arranque de sessão, o turno humano, os quatro guards e o grupo que os corre num processo. `continue-workflow`, `deliver-stage-rules` e a status line são M6 |
-| `focus-evidence` | A identidade da fonte, as linhas de `log`, os recibos de revisão e de sumário, o brief de revisão | M5: existe desde a fatia 1a, com a listagem de fonte (não está no diagrama) |
+| `focus-evidence` | A identidade da fonte, os recibos de revisão e de sumário lidos, o brief de revisão | M5: existe desde a fatia 1a, com a listagem de fonte (não está no diagrama) |
+| `focus-log` | O comando `log`: as perguntas, as respostas, os handoffs e as revisões escritos na auditoria | M5: existe desde a fatia 2a (não está no diagrama) |
 | `focus-orchestrate` | `next` e `report`, diretivas, plan approval, checkpoints | M5 |
 | `focus-sensors` | Dispatcher e os seis sensores | M7 |
 | `focus-project` | Projeção de `core/` para a árvore de cada harness, configuração, doctor | M8 |
@@ -151,7 +152,8 @@ Atribuição feita pelo cabeçalho de cada ficheiro e pelo grafo de imports. É 
 | `focus-guards` | `hooks/review-freeze-command` (2 083), `hooks/runtime-integrity` (1 427), `guard-switch` (1 464), `guard-operation` (468), `question-store` (412), `message-store` (246), `reply-reader` (119), `guard-fences` (55) | M4 |
 | `focus-guards` | `testing-posture` (5 453), `plan-approval-ask` (2 196) | M4, M5 |
 | `focus-hooks` | `plan-approval-guard` (2 793), `state-transition-guard` (1 275), `reviewer-scope` (1 161), `record-human-turn` (934), `session-start` (658), `review-freeze` (447), `rebuild-stage-graph` (355), `write-audit-log` (243), `sync-workflow-state` (147), `session-end` (130), `validate-state` (122), `log-subagent` (113), `hook-trace` (66) | M4 |
-| `focus-evidence` | `log` (4 486), `review-brief` (2 365) | M5 |
+| `focus-evidence` | `review-brief` (2 365) | M5 |
+| `focus-log` | `log` (4 486) | M5 |
 | `focus-orchestrate` | `orchestrate` (16 133), `directive` (2 976), `construction-checkpoints` (1 618), `bolt` (1 511), `learnings` (1 252), `rules-held` (595), `includes` (481), `inline-context` (398), `steering` (128) | M5 |
 | `focus-hooks` | `continue-workflow` (2 191), `statusline` (746), `deliver-stage-rules` (412) | M6 |
 | `focus-harness` | `aidlc-cursor-adapter` (3 028), `aidlc-copilot-adapter` (2 304) | M6 |
@@ -1743,9 +1745,10 @@ O marco entra de baixo para cima, como M2 a M4: primeiro a evidência que as tra
 
 ### Crates
 
-Dois crates novos. `focus-evidence` existe desde a fatia 1a; `focus-orchestrate` confirma-se na fatia que o criar:
+Três crates novos. `focus-evidence` existe desde a fatia 1a e `focus-log` desde a 2a; `focus-orchestrate` confirma-se na fatia que o criar:
 
-- **`focus-evidence`**: a identidade da fonte, as linhas de `log`, os recibos pesados e o brief de revisão. Fica abaixo de `focus-lifecycle`, porque as transições, os hooks e o orchestrator leem todos a mesma evidência.
+- **`focus-evidence`**: a identidade da fonte, os recibos pesados e o brief de revisão. Fica abaixo de `focus-lifecycle`, porque as transições, os hooks e o orchestrator leem todos a mesma evidência.
+- **`focus-log`**: o comando `log`, que escreve as linhas que essa evidência lê. Fica acima de `focus-lifecycle`. O plano punha `log` em `focus-evidence`; lido o código, não cabe lá: quem escreve uma pergunta precisa do que é do lifecycle (o marcador de uma confirmação que a pessoa não deu, as perguntas protegidas que uma pergunta nova retira, a confirmação de sumário devida) e, com `--message`, do armazém de mensagens que o turno humano escreve. Quem lê as linhas para as pesar (fatia 3) não precisa de nada disso e fica em baixo.
 - **`focus-orchestrate`**: as diretivas, `next`, `report`, `continue`, `park`, `wait`, a Construction em série.
 
 O leitor do marcador tem de ficar onde `focus-guards` o alcança (os guards leem dele a autoridade de uma ação, e ficam abaixo de `focus-lifecycle`): em `focus-state`, que já tem a recusa de um registo com marcador. Quem o escreve é `focus-orchestrate`.
@@ -1936,13 +1939,52 @@ A fatia 1d recusou a linha onde os repositórios são andados como fonte e deixo
 
 | Fatia | O que traz | Recusa pelo nome até à fatia que o traz | Como se verifica | Estado |
 | --- | --- | --- | --- | --- |
-| 2a. O comando e `decision` | `focus engine log`: `--project-dir`, o parser de flags, a recusa de valores partidos (`refuseSplitValues`: uma palavra fora de qualquer flag, um fragmento que começa por `--`, as aspas simples do Command Prompt), o erro que fica na auditoria; um workspace sem trabalho selecionado. `decision`: a linha `DECISION_RECORDED` (stage, decision, options, rationale, `--single`), a frase que diz que a pessoa já confirmou (`impliedConfirmationMarker`), `--message` com a prova da mensagem (`proveMessage`: existe, traz palavras da pessoa, não está gasta, veio deste chat), as perguntas protegidas retiradas | `--checkpoint verification-command` e `construction-policy` (fatia 5), `plan-approval` e `--batch-file` (fatia 11), `--unit` (fatia 5) | Diferencial (`log/decision/*`, um grupo novo com a sua ferramenta); corpus para a recusa de valores partidos e para o marcador de confirmação, que são funções puras | Por fazer |
+| 2a. O comando e `decision` | `focus engine log`: `--project-dir`, o parser de flags, a recusa de valores partidos (`refuseSplitValues`: uma palavra fora de qualquer flag, um fragmento que começa por `--`, as aspas simples do Command Prompt), o erro que fica na auditoria; um workspace sem trabalho selecionado. `decision`: a linha `DECISION_RECORDED` (stage, decision, options, rationale, `--single`), a frase que diz que a pessoa já confirmou (`impliedConfirmationMarker`), `--message` com a prova da mensagem (`proveMessage`: existe, traz palavras da pessoa, não está gasta, veio deste chat), as perguntas protegidas retiradas | `--checkpoint verification-command` e `construction-policy` (fatia 5), `plan-approval` e `--batch-file` (fatia 11), `--unit` (fatia 5) | Diferencial (`log/decision/*`, um grupo novo com a sua ferramenta); corpus para a recusa de valores partidos e para o marcador de confirmação, que são funções puras | Feito, menos `--message`, que é o pull request seguinte (2a-ii) |
 | 2b. `answers` e `answer` | `answers` (só leitura: as perguntas de uma stage e as respostas que têm); `answer`: `QUESTION_ANSWERED`, `--details` e `--details-file`, `--on-instruction`, `--message` e a mensagem herdada da pergunta, a dica de uma mensagem que chegou antes da pergunta | As respostas às perguntas do engine (`PLAN_APPROVAL_RECORDED`, `PLAN_APPROVAL_OVERRIDDEN`, `--units`, `--reason`, `--park`: fatia 11; `VERIFICATION_COMMAND_RECORDED` e `CONSTRUCTION_POLICY_RECORDED`: fatia 5) | Diferencial | Por fazer |
 | 2c. O checkpoint de sumário | `--checkpoint summary-confirmation --questions-file` em `decision` e em `answer`: a evidência da pergunta (`summaryQuestionEvidence`), a decisão pendente (`pendingSummaryDecision`), `SUMMARY_CONFIRMATION_RECORDED`, e a recusa de uma pergunta ou resposta de sumário sem o checkpoint, com os comandos certos (`refusePlainSummaryConfirmation`) | | Diferencial. É o que a fatia 3 pesa (`checkSummaryConfirmationEvidence`) | Por fazer |
 | 2d. `link` | `PIPELINE_LINK_COMPLETED`: o handoff de um elo de um pipeline, com o artefacto e o repositório | | Diferencial | Por fazer |
 | 2e. `review` | `REVIEW_REQUESTED` e `REVIEW_COMPLETED`: o revisor de uma stage, a iteração, o veredicto e o ficheiro da revisão (os títulos despromovidos), o orçamento de revisões e a recuperação quando se esgota, o veredicto pendente; o `Source Fingerprint` de um pedido e o snapshot do workspace atrás dele (`workspaceSourceState`, `writeWorkspaceSourceSnapshot`, o que a fatia 1d deixou para aqui) | `--unit` e o registo de uma worktree de swarm | Diferencial. Lida, pode ter de se partir outra vez: o pedido e a conclusão são metades com a sua contabilidade | Por fazer |
 
 O que Focus já tem e estas fatias usam: o armazém de mensagens que o turno humano escreve (`focus-hooks::messages`; falta ler de volta), `summary_confirmation_owed`, as perguntas protegidas retiradas num gate (`withdraw_protected_questions`), a vida dos hooks (`hook_liveness`) e a sessão de quem chama.
+
+### Fatia 2a: o comando e `decision`
+
+**Decisão de âmbito.** A pergunta de uma stage, inteira, menos a prova de uma mensagem (`--message`), que é o pull request a seguir para cada um ser verificado sozinho. O que o engine emparelha com um registo seu é recusado pelo nome até à fatia que traz o registo: o checkpoint de sumário (2c), o comando de verificação e a política de Construction e uma pergunta sobre uma unit (5), o Plan Approval e o seu lote (11). Os outros quatro verbos do comando recusam pelo nome.
+
+**O que existe.** O crate `focus-log` e o comando `focus engine log`. `flags` tem o parser (`parseFlags`: um flag sem valor no fim, ou seguido de outro flag, é recusado; quatro flags não levam valor) e `refuse_split_values` (`refuseSplitValues`): `decision` só lê os seus flags, e por isso uma palavra fora de qualquer flag desaparecia e o registo ficava com um valor cortado. Um valor chega partido quando não foi passado como um só argumento, ou quando o PowerShell lhe tirou as aspas de dentro. A recusa anda sobre os argumentos crus (com o par `--project-dir`), nomeia o flag que as palavras seguiram de facto, distingue um flag que o verbo não lê, uma palavra que não é de flag nenhum e as aspas simples que o Command Prompt deixa nas palavras, e diz como passar o valor. `decision` escreve `DECISION_RECORDED` (`Stage`, `Decision`, e `Options`, `Rationale` e `Workflow` quando os há), recusa uma pergunta cujo texto diz que a pessoa já confirmou (`implied_confirmation_marker`, em `focus-lifecycle::reply`: a confirmação atribuída ao hook, ou a pessoa que "implicitamente" concordou; uma frase entre aspas é uma pergunta como outra), e retira as perguntas protegidas do chat que pergunta: o que `--session` nomeia, o que a árvore de processos diz, ou as de todos quando não se sabe.
+
+Sem trabalho selecionado nada é escrito: a linha cairia na raiz dos registos do space, onde nunca vive uma auditoria.
+
+**O que o diferencial encontrou.** A primeira corrida do grupo novo deu 30 checks iguais em 44; dos catorze diferentes, doze eram o que esta fatia recusa pelo nome, e dois não:
+
+| Achado | Consequência |
+| --- | --- |
+| A pasta das perguntas protegidas atrás de um link: o original recusa com a frase da cadeia de links (`… is a symlink, and no path component may be a symlink here`), e Focus dizia a outra, a de um link no caminho. O defeito estava em `main` desde M4, em `gate-start`, sem check que o visse | `withdraw_protected_questions` usa a recusa da cadeia. Um check novo em `gates` compara-o |
+| O marcador de autoatribuição cortava a frase do texto original com as posições medidas no texto mascarado. O original mascara cada unidade UTF-16 com um espaço; Focus mascarava cada carácter, e media em bytes: com um carácter não ASCII entre aspas antes da frase, a frase saía deslocada, e o corte podia cair a meio de um carácter (um pânico, num `reject` com feedback da pessoa). Também em `main` desde M4 | A máscara passa a ter um espaço por unidade, e a frase é cortada do original pelas unidades que a máscara conta. Dois passos de um check de `log` têm aspas com acentos e emoji antes da frase |
+| Com `--unit`, o original grava a pergunta com a unit e a tentativa do claim, sem validar nada num trabalho que não tem units | Focus recusa o flag pelo nome (desvio): units são a fatia 5 |
+| O subcomando é sempre o primeiro argumento depois de tirado `--project-dir`: uma palavra antes dele faz dela o subcomando, e a recusa de valores partidos não chega a correr | Três passos escritos para a recusa nunca lá chegavam (davam "Unknown subcommand", igual nos dois). A mutação mostrou-o; foram trocados por passos que chegam |
+| O diferencial acrescenta `--project-dir` no fim de cada passo: nenhum passo acabava nas palavras soltas de um valor | Um check cujos passos nomeiam o projeto primeiro, para nada vir depois |
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Diferencial, `log` | @@LOG@@ |
+| Diferencial, tudo | @@TOTAL@@ |
+| Repetição da gravação | @@REPLAY@@ |
+| Testes | 2 de CLI marcados (os verbos e as perguntas que não estão portados, com a frase de cada um e nada gravado; as duas escolhas do sumário reconhecidas com maiúsculas, o decorador e a pontuação) e 1 unitário (o que não é flag nem valor fica à parte, por ordem: nenhum verbo portado o lê) |
+| Mutação | 60 mutantes (`flags`, `decision`, o comando, o marcador e a retirada das perguntas protegidas): 47 apanhados à primeira e 13 depois de checks e testes escritos para eles (a sessão dita pela árvore de processos, um nome de sessão que não dá nome de ficheiro com ficheiros desse nome lá, uma frase que atravessa aspas, as palavras no fim dos argumentos, duas palavras soltas). Nenhum equivalente |
+| `cargo test` | @@TESTS@@ |
+
+**Desvios deliberados.** Cinco, cada um com a entrada em `DEVIATIONS` e nos dois testes marcados de `focus-cli/tests/log.rs`.
+
+| Desvio | Original | Focus |
+| --- | --- | --- |
+| `answer`, `answers`, `link`, `review` | Corre cada um | Recusa pelo nome até às fatias 2b a 2e |
+| `--checkpoint summary-confirmation`, `verification-command`, `construction-policy`, `plan-approval` | Lê os flags que cada um pede e grava a pergunta com o seu registo | Recusa o checkpoint pelo nome (fatias 2c, 5 e 11) |
+| `--unit` e `--batch-file` | Grava a unit com o seu claim; recusa o lote pela sua forma | Recusa os dois flags pelo nome (fatias 5 e 11) |
+| `--message` | Prova a mensagem contra o armazém | Recusa o flag pelo nome até ao pull request seguinte |
+| Uma pergunta simples com as duas escolhas do sumário, numa stage que deve uma confirmação de sumário | Recusa com os dois comandos que gravam um sumário | Recusa pelo nome: esses comandos são a fatia 2c |
 
 ### A jornada
 

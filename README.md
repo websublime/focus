@@ -27,8 +27,9 @@ event of a conversation: the observers, the session start, the person's turn
 and the four checks before a tool call. What those checks read off the
 engine's last step (its directive, an approval and its receipts) belongs to
 the orchestrator, and is refused by name until it is written. Of the
-orchestrator's milestone (M5) the first slice is in: the identity of a
-project's source, and the baseline a row that opens work on it carries. The plan for
+orchestrator's milestone (M5) the first slices are in: the identity of a
+project's source, the baseline a row that opens work on it carries, and the
+questions the agent asks, recorded (`log decision`). The plan for
 the rest, module by module, is in
 [`docs/plano-de-migracao.md`](docs/plano-de-migracao.md) (Portuguese).
 
@@ -67,6 +68,7 @@ focus engine state reject intent-capture --feedback "the title is wrong"
 focus engine state park                       # stop the work where it is; unpark takes it up
 focus engine jump resolve --stage feasibility # where a jump would land
 focus engine jump execute --target intent-capture --direction backward
+focus engine log decision --stage intent-capture --decision "Which database?" --options "Postgres,SQLite"
 
 focus engine utility detect --json     # project type, languages, frameworks, build system
 focus engine utility intent-create --scope feature --arguments "Add login" --label "add login"
@@ -78,7 +80,8 @@ echo '{"session_id":"s1","reason":"exit"}' | focus engine hook session-end   # a
 
 `focus engine graph --help`, `focus engine audit --help`,
 `focus engine runtime --help`, `focus engine state --help`, `focus engine jump
---help`, `focus engine utility --help` and `focus engine hook --help` list every
+--help`, `focus engine log --help`, `focus engine utility --help` and
+`focus engine hook --help` list every
 verb and flag. The `audit` command is
 the diagnostic way into the ledger: events that carry authority (a gate
 approval, a person's turn, a unit's completion) are written only by the
@@ -135,6 +138,7 @@ focus engine graph compile --harness claude --core fixtures/upstream/core --out 
 | `focus-intent` | Creating a piece of work: the record's name and id, the plan it runs, the state file built from it, the registry row and the cursors |
 | `focus-hooks` | The bodies of the harness hooks (`focus engine hook <name>`): which workflow a hook fires in and whether this conversation has joined it, the heartbeat and the drops each hook leaves, and the observers: the compaction breadcrumb, a session's end, a subagent's completion, the task list and the IDE mirror moving the stage, a write into the record as its artifact, the runtime graph recompiled after a transition and a creation binding the session that made it; the session start: the conversation bound to its record and stamped, the process map, the active-memory copy kept for the harness's includes and handed to the chat, the rules the chat holds, the rebind offer, the switched-off checks said once, and the context the model is handed; the person's turn (the `HUMAN_TURN` row and what a gate later reads of it); and the guards: the review freeze, the reviewer's read scope, the state-transition fence and the Plan Approval guard, each refusing with the host's own deny decision or standing aside with one line and one ledger row, and the one registration (`guard-tool-call`) that runs the four in one process, each for the tools its own row matched |
 | `focus-lifecycle` | Moving a piece of work through its stages: the transitions, the gate verbs and the parking of the state command, the jumps, the admission chain each one passes, where a stage's artifacts are, the validity receipt a completion leaves, whether the person has acted since a gate opened, and what a gate asks with |
+| `focus-log` | The interactions of a piece of work written to its ledger (`focus engine log`). So far the questions the agent asks: what is refused before a question is recorded (a value that reached the engine in pieces, the person's confirmation claimed by the question itself), and the row. |
 | `focus-cli` | The `focus` binary (the package is named `focus`) |
 
 `fixtures/upstream/` holds the reference's Markdown, its compiled output and an

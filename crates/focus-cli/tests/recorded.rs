@@ -1017,6 +1017,24 @@ fn the_recording_covers_every_verb_and_both_outcomes() {
         assert!(exits("0"), "no recorded success for state {verb}");
         assert!(exits("1"), "no recorded failure for state {verb}");
     }
+    for verb in ["decision"] {
+        let exits = |code: &str| {
+            checks
+                .iter()
+                .filter(|c| c["tool"] == "log" && c["deviation"].is_null())
+                .any(|c| {
+                    let codes = c["expect"]["exit"].as_str().unwrap().split(',');
+                    c["steps"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .zip(codes)
+                        .any(|(step, exit)| step[0] == verb && exit == code)
+                })
+        };
+        assert!(exits("0"), "no recorded success for log {verb}");
+        assert!(exits("1"), "no recorded failure for log {verb}");
+    }
     for verb in ["detect", "now"] {
         let ran = checks
             .iter()
