@@ -373,10 +373,22 @@ fn resolve_uncached(layout: &Layout, budget: Duration) -> Option<String> {
     None
 }
 
-/// This process's parent pid.
+/// This process's parent pid (`process.ppid`).
+///
+/// Where the system hands it over it costs nothing, as upstream's does. It
+/// must not cost a `ps`: the walk's budget is already running when this is
+/// asked, and on a loaded macOS host one `ps` can spend all of it, which
+/// turned a recorded conversation into a silent miss.
 #[must_use]
 pub fn parent_pid() -> Option<u32> {
-    identity(std::process::id(), Instant::now() + BUDGET).map(|me| me.ppid)
+    #[cfg(unix)]
+    {
+        Some(std::os::unix::process::parent_id())
+    }
+    #[cfg(not(unix))]
+    {
+        identity(std::process::id(), Instant::now() + BUDGET).map(|me| me.ppid)
+    }
 }
 
 /// `processIdentity`: a process's parent and start time, on this platform.

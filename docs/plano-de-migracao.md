@@ -456,7 +456,6 @@ A decisão 3 dizia "cargo toma posse". Li-a como: nada de compatibilidade com o 
 1. **`.gitignore` do lock.** `focus/.focus-lock` não deve ser commitado. O instalador (M8) é quem escreve o `.gitignore` do projeto; até lá, quem usar Focus num projeto real acrescenta a linha à mão.
 2. **Peso das fixtures (R10).** 19 MB no repositório, ou diferencial gravado fora dele.
 3. **O nome do método na prosa.** O Markdown reutilizado diz "AI-DLC" quando fala do método (por exemplo, "AI-DLC workflow"). Não mexi: é o nome de uma metodologia, não um identificador, e trocá-lo por substituição de texto estraga a gramática ("an AI-DLC" passaria a "an Focus"). Se o queres fora, é uma edição de conteúdo à mão, que cabe em M8 com o resto do Markdown.
-4. **Um teste instável em macOS (2026-11-12).** `resolve_finds_the_calling_conversation_through_the_process_tree` (`crates/focus-cli/tests/cli.rs`) falhou uma vez no CI de macOS do pull request #38 e passou na repetição, sem o código ter mudado: o comando caiu para o cursor partilhado em vez de encontrar a conversa pela árvore de processos. A causa não está confirmada. A hipótese é o orçamento de tempo com que `focus-workspace::ancestry` lê a árvore, esgotado num runner sob carga. `main` tem de estar sempre verde: investiga-se antes de a fatia 1b fechar.
 
 ## 12. Como correr
 
@@ -1800,6 +1799,10 @@ O que fica para o passeio: o original lê uma entrada gravada sobre fins de linh
 | Testes unitários | 3: duas entradas ausentes são iguais (nenhuma listagem compara uma, por isso o corpus não o diz), uma chave posta outra vez mantém o lugar, e uma listagem lê-se como foi escrita |
 | Mutação | 58 mutantes em `listing`: 54 apanhados pelo corpus, 1 pelo teste unitário, e 3 equivalentes anotados (que espaço separa o modo do objeto, quando nenhum dos dois leva espaços; que NUL separa o repo do caminho, quando um segundo é recusado onde quer que caia; e tomar por objeto uma entrada que não tem forma nenhuma, quando o outro lado só é igual se a tiver) |
 | `cargo test` | 559 testes; corpus de 32 819 casos (1 129 novos), todos iguais; os 31 690 anteriores iguais byte a byte |
+
+### Correção: o pai de um processo, sem `ps`
+
+`resolve_finds_the_calling_conversation_through_the_process_tree` falhou uma vez no CI de macOS do pull request #38 e passou na repetição, sem o código ter mudado: o comando caiu para o cursor partilhado em vez de encontrar a conversa pela árvore de processos. A causa era de Focus, não do teste. O passeio pela árvore tem um orçamento de 50 ms (o do original), e Focus, fora de Linux, perguntava o seu próprio pai com um `ps` depois de o orçamento já estar a contar; num runner sob carga esse `ps` gastava-o todo e a conversa registada passava por não existir. O original lê `process.ppid`, que não custa nada. `ancestry::parent_pid` passa a ler o pai do sistema em Unix (`std::os::unix::process::parent_id`), e o trace dos hooks, que em macOS escrevia `0` como pai, escreve o pai. Em Linux nada muda: o pai já vinha de `/proc`. Em Windows o pai continua a vir da identidade do processo, que lá é uma leitura e não um subprocesso.
 
 ### A jornada
 

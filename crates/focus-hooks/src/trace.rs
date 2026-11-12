@@ -111,16 +111,15 @@ fn open_private(path: &Path) -> std::io::Result<std::fs::File> {
         .open(path)
 }
 
-/// The parent's pid, where the kernel publishes it; `0` elsewhere (the
-/// trace is diagnostics, and the engine forbids unsafe code).
+/// The parent's pid (`process.ppid`), where the system hands it over; `0`
+/// elsewhere (the trace is diagnostics, and the engine forbids unsafe code).
 fn parent_pid() -> u32 {
-    std::fs::read_to_string("/proc/self/status")
-        .ok()
-        .and_then(|status| {
-            status
-                .lines()
-                .find_map(|line| line.strip_prefix("PPid:"))
-                .and_then(|value| value.trim().parse().ok())
-        })
-        .unwrap_or(0)
+    #[cfg(unix)]
+    {
+        std::os::unix::process::parent_id()
+    }
+    #[cfg(not(unix))]
+    {
+        0
+    }
 }
