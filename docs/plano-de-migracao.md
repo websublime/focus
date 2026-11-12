@@ -1756,7 +1756,7 @@ Os intervalos de linhas são de `aidlc-orchestrate.ts` no pin, salvo indicação
 
 | Fatia | O que traz | Levanta | Como se verifica | Estado |
 | --- | --- | --- | --- | --- |
-| 1. A identidade da fonte | O passeio pelos ficheiros fonte do projeto, a sua impressão digital, o snapshot `baseline-<hash>.tsv` e o campo `Source Baseline`; o snapshot de fonte de uma unit (`workspaceSourceState`, `readUnitSourceSnapshot` e o que está entre eles em `aidlc-lib.ts`) | `SHAPES["source-baseline"]` (criação e saltos passam a comparar o campo e a listagem); o baseline de uma stage que produz código nas transições; o desvio dos observadores na criação | Corpus sobre árvores de scratch (o que conta como fonte, o que se ignora, a ordem, o hash); diferencial | Em curso: partida em quatro, 1a feita (abaixo) |
+| 1. A identidade da fonte | O passeio pelos ficheiros fonte do projeto, a sua impressão digital, o snapshot `baseline-<hash>.tsv` e o campo `Source Baseline`; o snapshot de fonte de uma unit (`workspaceSourceState`, `readUnitSourceSnapshot` e o que está entre eles em `aidlc-lib.ts`) | `SHAPES["source-baseline"]` (criação e saltos passam a comparar o campo e a listagem); o baseline de uma stage que produz código nas transições; o desvio dos observadores na criação | Corpus sobre árvores de scratch (o que conta como fonte, o que se ignora, a ordem, o hash); diferencial | Em curso: partida em quatro, 1a e 1b feitas (abaixo) |
 | 2. `log` | `focus engine log decision`, `answer`, `answers`, `link` e `review`: as linhas `DECISION_RECORDED`, `QUESTION_ANSWERED`, `SUMMARY_CONFIRMATION_RECORDED`, `REVIEW_REQUESTED` e `REVIEW_COMPLETED`, os handoffs de um pipeline; o registo de mensagens lido (`aidlc-log.ts`, 4 486; `message-store`, 246) | Nada sozinho: é quem escreve o que a fatia 3 pesa. A escolha de uma pergunta de recuperação gravada por `log` fica para a fatia 4 | Diferencial (`log/*`) | Por fazer |
 | 3. Os recibos pesados | `freshReviewReceipts` (1 066) e `checkSummaryConfirmationEvidence` (647), os handoffs devidos por um pipeline, os pares pedido e conclusão de uma revisão; `review-brief` (2 365: `review`, `summary`, `context`) e os findings que um gate grava na decisão | As recusas pelo nome de `state` (`advance` e os gates com sumário, revisão ou pipeline devidos), de `review-freeze` e do grupo (`review_rows`), do salto para trás com linhas de revisão, e do turno humano com um pedido de revisão sem veredicto. Sem units: a dimensão por unit chega com a fatia 5 | Diferencial; corpus para os leitores puros (a tabela de findings, a secção `## Review`) | Por fazer |
 | 4. A pergunta de recuperação | `evaluateGuardRefusal` e `guardAttemptState`: depois da frase de um guard, a pergunta com os remédios que o condutor pode oferecer, e a série da recusa em `.focus-engine/guard-refusals/`; a escolha gravada | `SHAPES["guard-ask"]` | Diferencial | Por fazer |
@@ -1776,11 +1776,11 @@ A tabela acima dava esta fatia como uma região contígua e pequena. Lida, não 
 | Fatia | O que traz | Como se verifica | Estado |
 | --- | --- | --- | --- |
 | 1a. A listagem | O registo por caminho de uma árvore de fonte e o texto em que se guarda | Corpus | Feito |
-| 1b. O passeio de uma árvore simples | Ficheiros, pastas, links e ficheiros especiais; o que fica fora pelo nome; os limites; os fins de linha; a impressão digital | Corpus sobre árvores de scratch | Por fazer |
-| 1c. O que o git diz | O registo de caminhos de fonte, os repositórios embebidos, os gitlinks, o `HEAD`; o contexto de uma worktree recusa pelo nome | Corpus sobre árvores de scratch com um repositório | Por fazer |
+| 1b. O passeio | Ficheiros, pastas, links e ficheiros especiais; o que fica fora pelo nome; o registry do projeto; os limites; os fins de linha; a impressão digital; um projeto que é um teto sobre vários repositórios | Corpus sobre árvores de scratch | Feito |
+| 1c. O que o git diz | Um repositório embebido na árvore, listado como gitlink para o commit que o seu `HEAD` nomeia (a leitura de um repositório sem correr git) | Corpus sobre árvores de scratch com um repositório | Por fazer |
 | 1d. Os snapshots e o campo | `baseline-<hash>.tsv` e o snapshot do workspace, escritos e lidos; `Source Baseline` na criação, nos saltos e nas transições | Diferencial: `SHAPES["source-baseline"]` sai | Por fazer |
 
-A fronteira entre 1b e 1c decide-se ao ler o resto do passeio: o que aqui está é a divisão pelo que cada parte precisa para ser comparada, não pelo que a função separa.
+A fronteira entre 1b e 1c ficou onde a leitura do resto do passeio a pôs: o registry é um ficheiro do projeto, não do git, e entrou com o passeio; do git o passeio só precisa do `HEAD` de um repositório embebido, que é a 1c.
 
 ### Fatia 1a: a listagem de fonte
 
@@ -1799,6 +1799,43 @@ O que fica para o passeio: o original lê uma entrada gravada sobre fins de linh
 | Testes unitários | 3: duas entradas ausentes são iguais (nenhuma listagem compara uma, por isso o corpus não o diz), uma chave posta outra vez mantém o lugar, e uma listagem lê-se como foi escrita |
 | Mutação | 58 mutantes em `listing`: 54 apanhados pelo corpus, 1 pelo teste unitário, e 3 equivalentes anotados (que espaço separa o modo do objeto, quando nenhum dos dois leva espaços; que NUL separa o repo do caminho, quando um segundo é recusado onde quer que caia; e tomar por objeto uma entrada que não tem forma nenhuma, quando o outro lado só é igual se a tiver) |
 | `cargo test` | 559 testes; corpus de 32 819 casos (1 129 novos), todos iguais; os 31 690 anteriores iguais byte a byte |
+
+### Fatia 1b: o passeio
+
+**Decisão de âmbito.** O passeio inteiro, menos duas coisas que recusa pelo nome onde as leria: o contexto de uma worktree delegada (adiada) e um repositório git embebido na árvore, cujo `HEAD` é a 1c. O que o original recolhe para o índice de um snapshot (pathspecs, caminhos de snapshot, links para fora) serve só a Construction em paralelo e não se recolhe.
+
+**O que existe.** Em `focus-evidence`, `source::walk`: `identity` (`filesystemSourceIdentity`: o que os ficheiros de uma raiz são) e `workspace_source` (`walkWorkspaceSource`: o mesmo sobre um projeto que é um repositório, ou um teto sobre vários). O passeio decide pelo nome, nunca perguntando ao git, o que fica fora: as pastas que nunca são fonte, os ficheiros que um sistema operativo, uma corrida de coverage ou um editor deixam, as pastas de output (sempre; e, ao lado de um ficheiro de projeto .NET ou do manifesto de um gestor de pacotes, as que esse preenche), o workspace e as árvores de harness que se anunciam, os settings do engine na raiz, e o diretório do engine de um registo onde quer que haja um workspace. O registry do projeto (`.focus-source-paths.json`) nomeia as exceções: caminhos que são fonte seja qual for o nome ou o conteúdo, e caminhos que não são. Um link é seguido um salto de cada vez; o que está fora do projeto só entra se ler como fonte ou como texto. `source::raw` guarda os hashes que este processo tirou das duas maneiras (sobre os bytes crus e sobre o texto com cada CRLF lido como LF), para um valor gravado antes dessa leitura continuar a bater; `listing::entries_equal` passa a usá-lo.
+
+Uma falha traz o código, a frase e o caminho do original (`Stop::Failed`); o que não está portado é outro valor (`Stop::NotPorted`), para o comando recusar em vez de responder por uma árvore que não leu.
+
+**O nome do engine dentro de um hash.** A impressão digital é tirada sobre linhas, e o nome do engine entra nelas por três sítios: os dois rótulos sob os quais se tira o hash, a linha do próprio ficheiro de registry, e, no valor do passeio anterior, as linhas dos settings do engine. Uma impressão digital de Focus nunca é igual à do original para a mesma árvore. Para a comparação não ficar por fazer, os nomes são uma opção do passeio (`Names`, com os de Focus por omissão), o caso do corpus dá os do original em pedaços, e os dois motores andam sobre a mesma árvore com os mesmos nomes: o que se compara é o hash exato. Onde o nome fica noutro caminho andado (os settings de um membro de um teto), a impressão digital compara-se como `<named>` e as linhas da listagem comparam-se na mesma.
+
+**O que o corpus encontrou.** O passeio saiu igual à primeira em 459 de 468 árvores. Das nove diferenças, sete eram da comparação e não do passeio, e duas eram de um `.git` abaixo da raiz, que é da 1c.
+
+| Achado | Consequência |
+| --- | --- |
+| Um ficheiro alcançado por um link é listado pelo seu caminho real: um ficheiro que o nome deixa fora (`.coverage`) aparece na listagem se um link, ou o registry, o alcançar | Portado assim. A ordem das linhas da listagem depende então de nomes que ficam entre `.aidlc-…` e `.focus-…`: as linhas comparam-se numa ordem que não depende do nome do engine (a ordem em que um snapshot se escreve é dos casos de 1a) |
+| Um LF a seguir a um CR faz parte do fim de linha e não é contado; um LF sozinho também não conta como carácter imprimível | A fronteira entre texto e binário (um carácter de controlo por cada 128 imprimíveis) tem um caso de cada lado, com e sem LF |
+| Um link para fora do projeto pode levar a qualquer sítio do host: um caso que apontava para a pasta temporária inteira parava no limite de dez mil ficheiros de fora | O caso saiu: uma árvore de teste não depende do host |
+| Um `.git` abaixo da raiz faz da pasta à volta um repositório embebido | Fica para 1c: nesta fatia o corpus só tem `.git` na raiz |
+| Em macOS, quatro árvores davam outra resposta: tinham nomes que só diferem em maiúsculas (`Thumbs.db` e `thumbs.db`, um ficheiro `MAKEFILE` e um link `Makefile`, um repositório `Api` onde existe `api`), que um sistema de ficheiros que ignora a caixa guarda como um só | O defeito era das árvores, não do passeio. Esses nomes ficam cada um na sua árvore, e o teste do corpus recusa uma árvore em que dois nomes só difiram na caixa |
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Corpus, `source_walk` | 502 árvores, todas iguais: 411 lidas até ao fim (398 com a impressão digital exata, 13 como `<named>`; 133 com o valor do passeio anterior; 37 com o valor sobre bytes crus) e 91 em que o passeio pára, com o código, a frase e o caminho do original (40 por um registry inválido, 21 por um caminho registado dentro do que fica fora, 15 por um limite, 12 por links que saem e voltam, dão a volta ou não levam a nada, 3 por uma raiz que não se lê). 192 com links, 148 com registry, 26 sobre um teto, 29 como o passeio era antes de os outputs de .NET saírem da fronteira |
+| Testes unitários | 3: a impressão digital sob os nomes de Focus, calculada à mão (o desvio abaixo); um limite é um inteiro positivo sem zero à esquerda; o que não está portado recusa pelo nome |
+| Mutação | 223 mutantes em `walk`: 195 apanhados pelo corpus (153 nas duas primeiras passagens; os outros depois de 36 árvores escritas para as arestas: um caminho registado que sai e volta visto só num dos sítios, a forma exata do diretório do engine de um registo, o registry no tamanho-limite, um NUL numa linha longa, a amostra de 8 KiB, um ficheiro de fora com nome de fonte e conteúdo binário, a mesma pasta alcançada como dois sítios registados, uma árvore de fora alcançada duas vezes, um membro que é um link partido, os settings na raiz de um teto e na de um membro) e 28 equivalentes, anotados no topo do módulo: perguntas que o original faz duas vezes (um salto para fora visto em três sítios, um registry que é um link e não é um ficheiro regular, um manifest acima do tamanho duas vezes) e quatro que só são equivalentes enquanto não se leem repositórios embebidos (o que uma segunda visita a uma pasta grava), a rever na 1c |
+| `cargo test` | 562 testes; corpus de 33 321 casos (502 novos), todos iguais; os 32 819 anteriores iguais byte a byte |
+
+**O que fica por comparar.** Os limites que pedem dez mil ficheiros ou gigabytes (250 000 ficheiros, 4 GiB, 10 000 ficheiros e 64 MiB de fora, 256 MiB do passeio anterior) estão lidos do original e não comparados: só os quatro que uma variável baixa têm casos. Em Windows os casos de árvore não correm (links, modos e named pipes não se montam lá), como os de `mutation_intent`.
+
+**Desvio deliberado.** Um, com o teste marcado em `walk`; a entrada em `SHAPES` vem com 1d, quando um comando mostrar um valor.
+
+| Desvio | Original | Focus |
+| --- | --- | --- |
+| Os nomes dentro da impressão digital | `aidlc-filesystem-source-v2`, `aidlc-workspace-source-v2`, `.aidlc-source-paths.json` | `focus-filesystem-source-v2`, `focus-workspace-source-v2`, `.focus-source-paths.json`: a impressão digital de uma árvore difere por construção, como os hashes do recibo de validade (secção 14) |
 
 ### Correção: o pai de um processo, sem `ps`
 

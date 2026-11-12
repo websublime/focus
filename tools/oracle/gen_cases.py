@@ -4516,5 +4516,461 @@ for _ in range(10 * scale):
     add("source_listing", before=before, after=after)
     add("source_listing", before=after, after=before + ([[sl_key(), sl_entry()]] if rng.random() < 0.3 else []))
 
+# --- The source walk (focus-evidence) ---------------------------------------
+#
+# A project laid out under a scratch root and walked: what is source, what is
+# left out by name, what a link leads to, what the registry adds and removes,
+# where the walk stops. No walked path or file content holds an engine's name
+# unless the case is about that: the fingerprint is taken over them.
+
+# The names that carry an engine's, in pieces: upstream's are part of what it hashes, and the answer of the other
+# engine is taken under the same ones. A path names the registry file as `{R}`.
+SW_NAMES_OF = [["ai", "dlc-filesystem-source-v2"], ["ai", "dlc-workspace-source-v2"], [".ai", "dlc-source-paths.json"]]
+SW_REGISTRY = "p/{R}"
+SW_MANIFEST = '{"name": "claude"}\n'
+
+
+def sw(files=None, hexes=None, execs=(), links=(), fifos=(), repos=(), dotnet=True, env=None, project="p"):
+    add("source_walk", files=files or {}, hex=hexes or {}, exec=list(execs), links=[list(link) for link in links],
+        fifos=list(fifos), repos=list(repos), dotnet=dotnet, env=env or {}, project=project, names=SW_NAMES_OF)
+
+
+def sw_hex(text):
+    return text.encode("latin-1").hex()
+
+
+def sw_registry(paths=None, exclude=None, **more):
+    body = {"version": 1}
+    if paths is not None:
+        body["paths"] = paths
+    if exclude is not None:
+        body["exclude"] = exclude
+    body.update(more)
+    return json.dumps(body)
+
+
+SW_PLAIN = {
+    "p/src/main.ts": "export const a = 1;\n",
+    "p/src/util/strings.ts": "export const b = 'x';\n",
+    "p/README.md": "# Notes\n",
+    "p/Makefile": "all:\n\techo ok\n",
+    "p/LICENSE": "MIT\n",
+    "p/empty.txt": "",
+    "p/docs/guide.md": "one\ntwo\n",
+}
+sw()
+sw({"p": None})
+sw(SW_PLAIN)
+sw(SW_PLAIN, execs=["p/src/main.ts", "p/Makefile"])
+sw({"p/a": "1", "p/B": "2", "p/a.b": "3", "p/a-b": "4", "p/a_b": "5", "p/Z/z": "6", "p/é.ts": "7", "p/😀.ts": "8", "p/\uffee": "9",
+    "p/ b": "10", "p/b ": "11", "p/a\tb.ts": "12", "p/dir/a\nb": "13", "p/x\\y": "14"})
+# Line endings: CRLF text is read as LF text; a lone CR, a NUL, or too many control characters are not text.
+SW_ENDINGS = {
+    "p/crlf.txt": sw_hex("one\r\ntwo\r\n"),
+    "p/lf.txt": sw_hex("one\ntwo\n"),
+    "p/mixed.txt": sw_hex("one\r\ntwo\nthree\r\n"),
+    "p/lonecr.txt": sw_hex("one\rtwo\r\n"),
+    "p/endcr.txt": sw_hex("one\r\ntwo\r"),
+    "p/nul.bin": sw_hex("a\x00b\r\n"),
+    "p/controls.bin": sw_hex("\x01\x02\x03\r\n"),
+    "p/fewcontrols.txt": sw_hex("x" * 300 + "\x01\x02\r\n"),
+    "p/manycontrols.txt": sw_hex("x" * 300 + "\x01\x02\x03\r\n"),
+    "p/eofmark.txt": sw_hex("x" * 130 + "\x01\r\n\x1a"),
+    "p/eofmark2.txt": sw_hex("x" * 130 + "\x01\x02\r\n\x1a"),
+    "p/onlycrlf.txt": sw_hex("\r\n"),
+    "p/del.txt": sw_hex("x" * 130 + "\x7f\x7f\r\n"),
+    "p/tabs.txt": sw_hex("a\tb\x08\x1b\x0c\r\n"),
+    "p/high.bin": bytes(range(128, 256)).hex() + sw_hex("\r\n"),
+    "p/big.txt": sw_hex(("line of text\r\n" * 6000)),
+    "p/bigcr.txt": sw_hex("y" * 65535 + "\r\n" + "tail\r\n"),
+    "p/bigcr2.txt": sw_hex("y" * 65534 + "\r\n" + "tail\r\n"),
+    "p/bigend.txt": sw_hex("y" * 65535 + "\r"),
+    "p/bigbad.txt": sw_hex("y" * 65535 + "\rz\r\n"),
+}
+sw(hexes=SW_ENDINGS)
+sw(hexes=SW_ENDINGS, env={"AIDLC_TEST_RAW_LINE_ENDINGS": "1"})
+sw(hexes=SW_ENDINGS, env={"AIDLC_TEST_RAW_LINE_ENDINGS": "0"})
+for name, content in SW_ENDINGS.items():
+    sw({"p/keep.ts": "k\n"}, hexes={name: content}, execs=[name] if rng.random() < 0.3 else [])
+
+# What is left out by name: directories that are never source, wherever they are; files an operating system, a
+# coverage run or an editor leaves; and the same names where they are something else.
+SW_HARD_DIRS = [".cache", ".codegraph", ".git", ".gradle", ".idea", ".mypy_cache", ".next", ".nuxt", ".pytest_cache", ".ruff_cache",
+                ".tox", ".venv", ".vs", "DerivedData", "__pycache__", "node_modules", "venv"]
+SW_HARD_FILES = [".DS_Store", ".coverage", ".coverage.host.1", "Thumbs.db", "desktop.ini", "a.swp", "a.swo", "a.swm", "a.swn",
+                 "a.swq", "a.swl", "a.sw", "notes~", "~", "a.swp.ts", ".coverage2", "thumbs.db", "Desktop.ini", ".coveragerc"]
+# (A `.git` below the root makes the directory around it an embedded repository: the next slice's.)
+tree = dict(SW_PLAIN)
+for name in SW_HARD_DIRS:
+    tree[f"p/{name}/inside.ts"] = "x\n"
+    if name != ".git":
+        tree[f"p/src/{name}/deep/inside.ts"] = "x\n"
+sw(tree)
+for name in SW_HARD_DIRS:
+    sw({"p/keep.ts": "k\n", f"p/{name}": "a file with that name\n", f"p/sub/{name}x/x.ts": "x\n",
+        **({} if name == ".git" else {f"p/sub/{name}/x.ts": "x\n"})})
+# (No two names of a tree differ only by case: a case-insensitive filesystem holds them as one. The names that are
+# another's in another case are in the trees of one file each, below.)
+tree, taken = dict(SW_PLAIN), set()
+for name in SW_HARD_FILES:
+    if name.lower() in taken:
+        continue
+    taken.add(name.lower())
+    tree[f"p/{name}"] = "x\n"
+    tree[f"p/src/{name}"] = "y\n"
+sw(tree)
+sw(tree, execs=["p/.DS_Store", "p/src/a.swp"])
+for name in SW_HARD_FILES:
+    sw({"p/keep.ts": "k\n", f"p/{name}": "x\n"})
+    sw({"p/keep.ts": "k\n", f"p/{name}/inside.ts": "x\n"})
+# `__pycache__`: flat compiled files are what the earlier walk recorded; anything else in it is not reproduced.
+sw({"p/app.py": "x\n", "p/__pycache__/app.cpython-312.pyc": "c\n", "p/__pycache__/b.pyc": "d\n", "p/z.py": "z\n"})
+sw({"p/app.py": "x\n", "p/__pycache__/app.pyc": "c\n", "p/pkg/__pycache__/m.pyc": "d\n", "p/pkg/m.py": "m\n"}, execs=["p/pkg/__pycache__/m.pyc"])
+sw({"p/app.py": "x\n", "p/__pycache__/sub/app.pyc": "c\n"})
+sw({"p/app.py": "x\n", "p/__pycache__": None})
+sw({"p/app.py": "x\n", "p/real/app.pyc": "c\n"}, links=[("p/__pycache__", "real")])
+sw({"p/app.py": "x\n", "p/__pycache__/app.pyc": "c\n"}, links=[("p/__pycache__/l.pyc", "app.pyc")])
+sw({"p/app.py": "x\n", "p/__pycache__/app.pyc": "c\n", "p/.DS_Store": "d\n"}, env={"AIDLC_TEST_SOURCE_LEGACY_MAX_FILES": "1"})
+sw({"p/app.py": "x\n", "p/__pycache__/app.pyc": "c\n", "p/.DS_Store": "d\n"}, env={"AIDLC_TEST_SOURCE_LEGACY_MAX_FILES": "2"})
+# Names that commonly hold generated output: outside wherever they are, files with those names are not.
+SW_CONDITIONAL = ["build", "coverage", "dist", "logs", "target", "tmp"]
+tree = dict(SW_PLAIN)
+for name in SW_CONDITIONAL:
+    tree[f"p/{name}/out.js"] = "x\n"
+    tree[f"p/src/{name}/out.js"] = "y\n"
+    tree[f"p/pkg/{name}"] = "a file\n"
+    tree[f"p/pkg2/{name}s/x.ts"] = "x\n"
+sw(tree)
+# Beside a .NET project file, and beside the manifest a package manager reads.
+for project_file in ["App.csproj", "App.fsproj", "App.vbproj", "APP.CSPROJ", "App.csproj.user", "App.proj", "csproj"]:
+    sw({f"p/svc/{project_file}": "<Project/>\n", "p/svc/bin/app.dll": "b\n", "p/svc/obj/x.o": "o\n", "p/svc/out/pub.dll": "p\n",
+        "p/svc/Program.cs": "class P {}\n", "p/web/bin/www": "#!/usr/bin/env node\n", "p/web/out/adapter.ts": "x\n", "p/web/obj/a.ts": "x\n"})
+    sw({f"p/svc/{project_file}": "<Project/>\n", "p/svc/bin/app.dll": "b\n", "p/svc/obj/x.o": "o\n", "p/svc/Program.cs": "class P {}\n"},
+       dotnet=False)
+sw({"p/App.csproj": "<Project/>\n", "p/bin/a.dll": "b\n", "p/bin/b.dll": "c\n", "p/obj/x.o": "o\n"}, dotnet=False,
+   env={"AIDLC_TEST_SOURCE_LEGACY_MAX_FILES": "2"})
+sw({"p/App.csproj": "<Project/>\n", "p/bin/a.dll": "b\n", "p/bin/b.dll": "c\n", "p/obj/x.o": "o\n"}, dotnet=False,
+   env={"AIDLC_TEST_SOURCE_LEGACY_MAX_FILES": "3"})
+sw({"p/App.csproj": "<Project/>\n", "p/real/a.dll": "b\n"}, links=[("p/bin", "real")])
+sw({"p/App.csproj": "<Project/>\n", "p/real/a.dll": "b\n"}, links=[("p/bin", "real")], dotnet=False)
+SW_MANIFESTS = [("composer.json", ["vendor"]), ("go.mod", ["vendor"]), ("Podfile", ["Pods"]), ("mix.exs", ["deps", "_build"]),
+                ("pubspec.yaml", [".dart_tool"]), ("bower.json", ["bower_components"]), ("Gemfile", [".bundle"]),
+                ("stack.yaml", [".stack-work"])]
+SW_OWNED = sorted({owned for _, dirs in SW_MANIFESTS for owned in dirs})
+for manifest, _ in SW_MANIFESTS + [("Composer.json", []), ("go.sum", []), ("podfile", [])]:
+    tree = {f"p/pkg/{manifest}": "{}\n", "p/pkg/main.go": "package main\n"}
+    for owned in SW_OWNED:
+        tree[f"p/pkg/{owned}/dep/x.go"] = "x\n"
+        tree[f"p/other/{owned}/dep/x.go"] = "y\n"
+    sw(tree)
+# The framework's own: the workspace, its hidden directory, the harness trees that announce themselves, the
+# engine's settings files at the root, and the engine's directory of a record wherever a workspace is found.
+SW_SHELL = {
+    "p/aidlc/spaces/default/intents/r/aidlc-state.md": "# State\n",
+    "p/.aidlc/x.json": "{}\n",
+    "p/.claude/tools/data/harness.json": SW_MANIFEST,
+    "p/.claude/skills/s.md": "s\n",
+    "p/.cursor/tools/data/harness.json": '{"name": "  "}\n',
+    "p/.cursor/rules/r.md": "r\n",
+    "p/.kiro/steering/k.md": "k\n",
+    "p/.other/tools/data/harness.json": '{"name": "other"}\n',
+    "p/.other/x.ts": "x\n",
+    "p/.Upper/tools/data/harness.json": '{"name": "upper"}\n',
+    "p/..dots/tools/data/harness.json": '{"name": "dots"}\n',
+    "p/.sp ace/tools/data/harness.json": '{"name": "space"}\n',
+    "p/nodot/tools/data/harness.json": '{"name": "nodot"}\n',
+    "p/.badjson/tools/data/harness.json": "{name}\n",
+    "p/.noname/tools/data/harness.json": '{"title": "x"}\n',
+    "p/.numname/tools/data/harness.json": '{"name": 5}\n',
+    "p/.arr/tools/data/harness.json": '["name"]\n',
+    "p/aidlc.settings.json": "{}\n",
+    "p/aidlc.settings.local.json": "{}\n",
+    "p/src/main.ts": "x\n",
+}
+sw(SW_SHELL)
+sw({**SW_SHELL, "p/.big/tools/data/harness.json": '{"name": "big", "pad": "' + "x" * 66000 + '"}\n', "p/.big/x.ts": "x\n"})
+sw({"p/src/main.ts": "x\n", "p/real/tools/data/harness.json": SW_MANIFEST, "p/real/x.ts": "x\n"}, links=[("p/.linked", "real")])
+sw({"p/src/main.ts": "x\n", "p/.h/tools/data/x.json": SW_MANIFEST, "p/.h/x.ts": "x\n"}, links=[("p/.h/tools/data/harness.json", "x.json")])
+sw({"p/src/main.ts": "x\n", "p/.h/tools/data/harness.json/x": "x\n", "p/.h/x.ts": "x\n"})
+sw({"p/src/main.ts": "x\n", "p/aidlc": "a file named like the workspace\n", "p/.aidlc": "and like its hidden directory\n"})
+sw({"p/src/main.ts": "x\n", "p/w/aidlc/spaces/s/intents/r/.aidlc-engine/cache.json": "{}\n",
+    "p/w/aidlc/spaces/s/intents/r/.aidlc-sensors/x.json": "{}\n", "p/w/aidlc/spaces/s/intents/r/notes.md": "n\n",
+    "p/w/aidlc/spaces/s/intents/r/deep/.aidlc-engine/x.json": "{}\n", "p/w/aidlc/spaces/s/other/r/.aidlc-engine/x.json": "{}\n",
+    "p/w/aidlc/spaces/s/intents/.aidlc-engine/x.json": "{}\n", "p/w/x/spaces/s/intents/r/.aidlc-engine/x.json": "{}\n"})
+sw({"p/src/main.ts": "x\n", "p/sub/aidlc.settings.json": "{}\n", "p/sub/z.ts": "z\n", "p/sub2/aidlc.settings.local.json": "{}\n"})
+
+# The registry: paths that are source whatever they look like, and paths that are not.
+SW_REGISTERED = {
+    "p/src/main.ts": "x\n",
+    "p/build/keep.bin": "k\n",
+    "p/build/drop.bin": "d\n",
+    "p/build/gen/deep.ts": "g\n",
+    "p/dist/bundle.js": "b\n",
+    "p/assets/logo.png": "png\n",
+    "p/assets/raw/a.dat": "a\n",
+    "p/cachedir/idx/1": "1\n",
+    "p/cachedir/idx/2": "2\n",
+    "p/cachedir/keep.ts": "k\n",
+    "p/notes~": "n\n",
+    "p/.DS_Store": "d\n",
+}
+SW_REGISTRIES = [
+    sw_registry(),
+    sw_registry([]),
+    sw_registry(["build/keep.bin"]),
+    sw_registry(["build"]),
+    sw_registry(["build/gen", "dist/"]),
+    sw_registry(["./build/keep.bin", "build\\gen\\deep.ts", "dist///"]),
+    sw_registry(["notes~", ".DS_Store"]),
+    sw_registry(["nowhere/x.bin", "build/nothing"]),
+    sw_registry(["assets"], ["assets/raw"]),
+    sw_registry(["assets/raw/a.dat"], ["assets"]),
+    sw_registry(None, ["cachedir/idx"]),
+    sw_registry(None, ["cachedir"]),
+    sw_registry(["cachedir/keep.ts"], ["cachedir"]),
+    sw_registry(["cachedir/idx/1"], ["cachedir", "assets/logo.png"]),
+    sw_registry(None, ["src/main.ts", "nowhere"]),
+    sw_registry(["build/keep.bin", "build/keep.bin", "build"], ["dist", "dist"]),
+    sw_registry(None, None, paths_extra=["x"]),
+    '{"version": 1.0, "paths": ["build/keep.bin"]}',
+    '{"version": 1, "paths": null, "exclude": null}',
+    '{"paths": ["build/keep.bin"]}',
+    '{"version": 2, "paths": []}',
+    '{"version": "1", "paths": []}',
+    '{"version": 1, "paths": "build"}',
+    '{"version": 1, "paths": ["build", 5]}',
+    '{"version": 1, "exclude": {"a": 1}}',
+    '{"version": 1, "paths": [null]}',
+    "null", "5", "[]", '"text"', "", "{", "\ufeff" + sw_registry([]), "{}\n{}",
+    sw_registry(["../x"]), sw_registry(["/abs/x"]), sw_registry(["a//b"]), sw_registry(["."]), sw_registry(["./"]), sw_registry([""]),
+    sw_registry(["C:/x"]), sw_registry(["c:\\x"]), sw_registry(["a/./b"]), sw_registry(["a/../b"]), sw_registry(["//x"]),
+    sw_registry(["a\u0000b"]), sw_registry(["x" * 4097]), sw_registry(["x" * 4096]), sw_registry(["build/keep.bin", "../x"]),
+    sw_registry(None, ["../x"]), sw_registry(["../y"], ["../x"]), sw_registry(None, ["/abs"]), sw_registry(None, ["a//b"]),
+    sw_registry(["aidlc/x"]), sw_registry([".aidlc/x"]), sw_registry([".claude/x"]), sw_registry([".kiro/x"]), sw_registry([".codex"]),
+    sw_registry([".cursor/rules"]), sw_registry(["src/node_modules/x"]), sw_registry([".git/config"]), sw_registry(["a/__pycache__"]),
+    sw_registry(["w/aidlc/spaces/s/intents/r/.aidlc-engine/x"]),
+    sw_registry(None, [".claude", "node_modules"]), sw_registry([".Claude/x", "Node_modules/x"]),
+    sw_registry(["build/keep.bin"] * 10001), sw_registry(["build/keep.bin"] * 10000),
+]
+for registry in SW_REGISTRIES:
+    sw({**SW_REGISTERED, SW_REGISTRY: registry})
+sw({**SW_REGISTERED, SW_REGISTRY: sw_registry([".h/x.ts"]), "p/.h/tools/data/harness.json": SW_MANIFEST, "p/.h/x.ts": "x\n"})
+sw({**SW_REGISTERED, SW_REGISTRY: None})
+sw({**SW_REGISTERED, "p/reg.json": sw_registry(["build/keep.bin"])}, links=[(SW_REGISTRY, "reg.json")])
+sw({**SW_REGISTERED, SW_REGISTRY: sw_registry(["build/keep.bin"], padding="x" * (1024 * 1024))})
+sw({**SW_REGISTERED, SW_REGISTRY: sw_registry(["build/keep.bin"], padding="x" * (1024 * 1024 - 60))})
+# A registered path through links: inside, out and back, dangling, looping; and into what is left out.
+SW_LINKED = {"p/src/main.ts": "x\n", "p/real/data/a.bin": "a\n", "p/build/keep.bin": "k\n", "out/ext/b.bin": "b\n", "out/back.txt": "o\n"}
+for paths, links in [
+    (["alias/data/a.bin"], [("p/alias", "real")]),
+    (["alias/a.bin"], [("p/alias", "real/data")]),
+    (["alias"], [("p/alias", "build")]),
+    (["alias/keep.bin"], [("p/alias", "build")]),
+    (["ext/b.bin"], [("p/ext", "../out/ext")]),
+    (["ext"], [("p/ext", "../out/ext")]),
+    (["round/src/main.ts"], [("p/round", "../out/in"), ("out/in", "../p")]),
+    (["gone/x"], [("p/gone", "nowhere")]),
+    (["gone"], [("p/gone", "nowhere")]),
+    (["loop/x"], [("p/loop", "loop2"), ("p/loop2", "loop")]),
+    (["self"], [("p/self", "self")]),
+    (["alias/x.ts"], [("p/alias", "node_modules"), ("p/node_modules/x.ts", "../src/main.ts")]),
+    (["alias/x"], [("p/alias", "aidlc")]),
+    (["real/data/nothing/deeper"], []),
+    (["real/data/a.bin/under"], []),
+    (["chain/a.bin"], [("p/chain", "chain2"), ("p/chain2", "real/data")]),
+]:
+    sw({**SW_LINKED, SW_REGISTRY: sw_registry(paths), "p/aidlc/x": "x\n"}, links=links)
+
+# Links: where each leads, and what is there.
+SW_LINKS_BASE = {"p/src/main.ts": "x\n", "p/src/lib/a.ts": "a\n", "p/data.bin": "\x00\x01", "out/ext.ts": "e\n", "out/blob": "\x00b",
+                 "out/notes": "plain text\n", "out/tree/x.ts": "x\n", "out/tree/y.dat": "\x00y", "out/tree/z": "text\n",
+                 "out/tree/sub/Makefile": "all:\n", "out/tree/node_modules/m.js": "m\n", "out/tree/build/o.js": "o\n"}
+for links in [
+    [("p/l", "src/main.ts")],
+    [("p/l", "src")],
+    [("p/l", "src/lib"), ("p/m", "src/lib")],
+    [("p/l", "./src/../src/main.ts")],
+    [("p/src/up", "..")],
+    [("p/src/self", ".")],
+    [("p/l", "nowhere")],
+    [("p/l", "../nowhere/x")],
+    [("p/a", "b"), ("p/b", "a")],
+    [("p/a", "a")],
+    [("p/a", "b"), ("p/b", "c"), ("p/c", "src/main.ts")],
+    [("p/a", "b"), ("p/b", "c"), ("p/c", "nowhere")],
+    [("p/l", "../out/ext.ts")],
+    [("p/l", "../out/blob")],
+    [("p/l", "../out/notes")],
+    [("p/l", "../out/tree")],
+    [("p/l", "../out/tree"), ("p/m", "../out/tree")],
+    [("p/l", "../out/tree"), ("out/tree/back", "../../p/src")],
+    [("p/l", "../out/hop"), ("out/hop", "../p/src/main.ts")],
+    [("p/l", "../out/hop"), ("out/hop", "../p/src")],
+    [("p/l", "data.bin")],
+    [("p/src/l", "../data.bin"), ("p/z", "src")],
+    [("p/l", "/nowhere/abs")],
+    [("p/build", "src")],
+    [("p/node_modules", "src")],
+    [("p/.git", "src")],
+    [("p/l", "src/main.ts"), ("p/k", "l")],
+    [("p/z", "src"), ("p/src/lib/zz", "../../src")],
+    [("p/l", "..")],
+    [("p/l", "../p")],
+]:
+    sw(SW_LINKS_BASE, links=links)
+sw(SW_LINKS_BASE, links=[("p/l", "../out/tree")], execs=["out/tree/x.ts", "out/tree/z"])
+sw({"p/a.ts": "x\n"}, links=[(f"p/l{n}", "a.ts") for n in range(5)], env={"AIDLC_TEST_SOURCE_MAX_SYMLINKS": "4"})
+sw({"p/a.ts": "x\n"}, links=[(f"p/l{n}", "a.ts") for n in range(5)], env={"AIDLC_TEST_SOURCE_MAX_SYMLINKS": "5"})
+# Named pipes: in the tree, and where a link leads.
+sw({"p/a.ts": "x\n"}, fifos=["p/pipe", "p/sub/pipe2"])
+sw({"p/a.ts": "x\n"}, fifos=["p/pipe", "out/pipe"], links=[("p/l", "pipe"), ("p/m", "../out/pipe")])
+sw({"p/a.ts": "x\n"}, fifos=["p/build/pipe", "p/node_modules/pipe", "p/.DS_Store"])
+
+# The limits, each one under and over; and values that are not a limit.
+SW_MANY = {f"p/d{n}/f{m}.ts": "x\n" for n in range(3) for m in range(3)}
+for name, values in [("AIDLC_TEST_SOURCE_MAX_ENTRIES", ["1", "3", "11", "12", "13", "0", "01", "abc", "1e3", " 5", "-1", "5.0", ""]),
+                     ("AIDLC_TEST_SOURCE_MAX_DIRECTORIES", ["1", "3", "4", "5", "0", "x"])]:
+    for value in values:
+        sw(SW_MANY, env={name: value})
+        sw({**SW_MANY, "p/.claude/tools/data/harness.json": SW_MANIFEST}, env={name: value})
+sw(SW_MANY, env={"AIDLC_TEST_SOURCE_MAX_ENTRIES": "99999999999999999999999"})
+sw(SW_MANY, repos=["d0"], env={"AIDLC_TEST_SOURCE_MAX_ENTRIES": "2"})
+sw(SW_MANY, repos=["d0"], env={"AIDLC_TEST_SOURCE_MAX_ENTRIES": "3"})
+sw(SW_MANY, repos=["d0"], env={"AIDLC_TEST_SOURCE_MAX_ENTRIES": "6"})
+sw(project="nowhere")
+sw({"p": "a file\n"})
+
+# A roof over several repositories: every directory at the top is someone else's.
+SW_ROOF = {
+    "p/roof.md": "r\n",
+    "p/Makefile": "all:\n",
+    "p/api/src/a.ts": "a\n",
+    "p/api/aidlc/x.md": "inside a member, this is source\n",
+    "p/api/.claude/tools/data/harness.json": SW_MANIFEST,
+    "p/web/src/w.ts": "w\n",
+    "p/web/build/o.js": "o\n",
+    "p/stray/s.ts": "s\n",
+    "p/aidlc/spaces/default/intents/r/aidlc-state.md": "# State\n",
+    "p/.claude/tools/data/harness.json": SW_MANIFEST,
+}
+for repos in [["api"], ["api", "web"], ["web", "api"], ["api", "missing"], ["missing"], ["stray", "api", "web"], ["web", "Zeta"]]:
+    sw(SW_ROOF, repos=repos)
+sw({k: v for k, v in SW_ROOF.items() if "aidlc/x.md" not in k}, repos=["api", "web"])
+sw({k: v for k, v in SW_ROOF.items() if "aidlc/x.md" not in k}, repos=["api", "web"], links=[("p/linked", "stray"), ("p/broken", "nowhere"),
+                                                                                             ("p/tofile", "roof.md")])
+sw({**SW_ROOF, "p/web/{R}": "{"}, repos=["api", "web"])
+sw({**SW_ROOF, "p/{R}": "{"}, repos=["api", "web"])
+sw({**SW_ROOF, "p/{R}": sw_registry(["stray/s.ts"])}, repos=["api", "web"])
+sw({**SW_ROOF, "p/web/{R}": sw_registry(["build/o.js"])}, repos=["api", "web"])
+sw({k: v for k, v in SW_ROOF.items() if "aidlc/x.md" not in k}, repos=["api", "web"], hexes={"p/web/crlf.txt": sw_hex("a\r\nb\r\n")})
+sw({"p/api/App.csproj": "<P/>\n", "p/api/bin/a.dll": "b\n", "p/api/.DS_Store": "d\n", "p/web/w.ts": "w\n", "p/.DS_Store": "d\n"},
+   repos=["api", "web"])
+sw({"p/api/App.csproj": "<P/>\n", "p/api/bin/a.dll": "b\n", "p/api/.DS_Store": "d\n", "p/web/w.ts": "w\n"}, repos=["api", "web"], dotnet=False)
+
+# Trees drawn at random from everything above.
+SW_NAMES = ["a.ts", "b.py", "c", "d.bin", "Makefile", "e.md", ".hidden", "f.json", "g.sh", "h.txt"]
+SW_DIRS = ["src", "lib", "pkg", "docs", "build", "node_modules", "dist", "x", "y", ".venv", "tmp", "bin", "vendor"]
+for _ in range(25 * scale):
+    files, hexes, execs, links = {}, {}, [], []
+    for _ in range(rng.randint(1, 14)):
+        depth = rng.randint(0, 3)
+        rel = "/".join(["p"] + [rng.choice(SW_DIRS) for _ in range(depth)] + [rng.choice(SW_NAMES + SW_HARD_FILES[:6] + ["go.mod", "App.csproj"])])
+        if any(rel.startswith(other + "/") or other.startswith(rel + "/") for other in list(files) + list(hexes)):
+            continue
+        if rng.random() < 0.25:
+            hexes[rel] = sw_hex(rng.choice(["a\r\nb\r\n", "a\rb", "\x00\r\n", "x\n", ""]))
+            files.pop(rel, None)
+        else:
+            files[rel] = rng.choice(["x\n", "y\n", "", "#!/bin/sh\n", "\x00"])
+            hexes.pop(rel, None)
+        if rng.random() < 0.15:
+            execs.append(rel)
+    taken = set(files) | set(hexes)
+    dirs = sorted({rel.rsplit("/", 1)[0] for rel in taken})
+    for _ in range(rng.randint(0, 3)):
+        at = rng.choice(dirs) + "/" + rng.choice(["ln", "lm", "build", "lz"])
+        if at in taken or any(other.startswith(at + "/") for other in taken) or any(at == link for link, _ in links):
+            continue
+        target = rng.choice(sorted(taken) + dirs + ["nowhere"])
+        depth = at.count("/")
+        links.append((at, "../" * (depth - 1) + target[2:] if target != "nowhere" and target != "p" else ("." if target == "p" else target)))
+    if rng.random() < 0.3:
+        files[SW_REGISTRY] = sw_registry(
+            [rel[2:] for rel in rng.sample(sorted(taken), min(len(taken), rng.randint(0, 3)))] or None,
+            [rng.choice(dirs)[2:] or "x" for _ in range(rng.randint(0, 2))] or None)
+    sw(files, hexes=hexes, execs=execs, links=links, dotnet=rng.random() < 0.85)
+
+# Edges the mutants found unguarded.
+# A registered path that leaves the project and comes back, where only one of the three places a hop is seen says so:
+# the link's text leads out lexically and its real target is inside; the link itself sits in a directory that is
+# really outside.
+sw({**SW_LINKED, SW_REGISTRY: sw_registry(["l3"])}, links=[("p/l3", "../out/hopdir/main.ts"), ("out/hopdir", "../p/src")])
+sw({**SW_LINKED, SW_REGISTRY: sw_registry(["l4"])}, links=[("p/l4", "ext/lnk"), ("p/ext", "../out/ext"), ("out/ext/lnk", "../../p/src/main.ts")])
+sw({**SW_LINKED, SW_REGISTRY: sw_registry(["l5/back/src/main.ts"]), "out/ext/sub/x": "x\n"},
+   links=[("p/l5", "ext/sub"), ("p/ext", "../out/ext"), ("out/ext/sub/back", "../../../p")])
+# The engine's directory of a record is told by the whole shape of the path above it.
+sw({"p/src/main.ts": "x\n", "p/w/aidlc/other/s/intents/r/.aidlc-engine/x.json": "{}\n",
+    "p/w/aidlc/spaces/.aidlc-engine/intents/r/x.json": "{}\n", "p/w/aidlc/spaces/s/.aidlc-engine/intents/x.json": "{}\n",
+    "p/w/aidlc/spaces/s/intents/.aidlc-sensors/x.json": "{}\n"})
+# Inside a member repository nothing is the framework's: a harness tree there can be registered.
+sw({k: v for k, v in SW_ROOF.items() if "aidlc/x.md" not in k} | {"p/api/{R}": sw_registry([".claude/tools/data/harness.json", "build/x"])},
+   repos=["api", "web"])
+# The registry at exactly the size it may have, and one byte over.
+for over in [0, 1]:
+    body = sw_registry(["build/keep.bin"], padding="")
+    sw({**SW_REGISTERED, SW_REGISTRY: sw_registry(["build/keep.bin"], padding="x" * (1024 * 1024 + over - len(body)))})
+# Text that is not: a NUL in a long line; one control character against a hundred and twenty-seven or -eight others.
+sw(hexes={"p/nul-long.txt": sw_hex("x" * 300 + "\x00\r\n"), "p/c127.txt": sw_hex("x" * 127 + "\x01\r\n"),
+          "p/c128.txt": sw_hex("x" * 128 + "\x01\r\n"), "p/c126nl.txt": sw_hex("x" * 126 + "\n\x01\r\n")})
+# Outside the project only what reads as text is taken, by its first eight kibibytes.
+sw({"p/a.ts": "x\n", "out/tree/w.dat": "y\x00", "out/tree/far.dat": "x" * 8192 + "\x00", "out/tree/near.dat": "x" * 8191 + "\x00",
+    "out/tree/none": "", "out/tree/bin.ts": "\x00"}, links=[("p/l", "../out/tree"), ("p/one", "../out/tree/w.dat"), ("p/two", "../out/tree/far.dat")])
+
+# Edges the second sweep found unguarded.
+# A registered path is a path, not a prefix of a name; and so is an excluded one.
+sw({"p/src/main.ts": "x\n", "p/buildx/keep": "k\n", SW_REGISTRY: sw_registry(["buildx/keep"])}, links=[("p/build", "src")])
+sw({**SW_REGISTERED, SW_REGISTRY: sw_registry(None, ["cached", "asset"])})
+# Outside the project, what a file is named can make it source whatever it holds; so can the name of a link to it.
+SW_OUTSIDE = {"p/a.ts": "x\n", "out/tree/bin.ts": "\x00", "out/tree/Dockerfile": "\x00", "out/tree/MAKEFILE": "\x00", "out/tree/X.TS": "\x00",
+              "out/tree/Dockerfile.prod": "\x00", "out/tree/dockerfiles": "\x00", "out/tree/xMakefile": "\x00", "out/tree/a.tsx.bak": "\x00",
+              "out/tree/w.dat": "y\x00", "out/tree/z": "text\n"}
+sw(SW_OUTSIDE, links=[("p/l", "../out/tree")])
+sw(SW_OUTSIDE, links=[("p/l", "../out/tree"), ("out/tree/lbin", "w.dat"), ("out/tree/lsrc.ts", "w.dat"), ("out/tree/ltxt", "z"),
+                      ("out/tree/Justfile", "w.dat")])
+sw({**SW_OUTSIDE, "out/tree/__pycache__/a.pyc": "c\n", "out/tree/.DS_Store": "d\n"}, links=[("p/l", "../out/tree")])
+sw({"p/build/keep.bin": "k\n", "p/build/__pycache__/a.pyc": "c\n", "p/build/.DS_Store": "d\n", SW_REGISTRY: sw_registry(["build/keep.bin"])})
+# The same directory reached as two registered places is walked for each.
+sw({"p/real/a.bin": "a\n", "p/real/b.bin": "b\n", "p/real/c.bin": "c\n", SW_REGISTRY: sw_registry(["dist/a.bin", "tmp/b.bin"])},
+   links=[("p/dist", "real"), ("p/tmp", "real")])
+# A tree outside reached twice is walked once.
+SW_TWICE = {"p/a.ts": "x\n", "out/tree/x.ts": "x\n", "out/tree/sub/y.ts": "y\n", "out/tree/sub/z.ts": "z\n"}
+for budget in ["8", "9", "10", "12"]:
+    sw(SW_TWICE, links=[("p/l", "../out/tree"), ("p/m", "../out/tree")], env={"AIDLC_TEST_SOURCE_MAX_ENTRIES": budget})
+for budget in ["3", "4", "5"]:
+    sw(SW_TWICE, links=[("p/l", "../out/tree"), ("p/m", "../out/tree")], env={"AIDLC_TEST_SOURCE_MAX_DIRECTORIES": budget})
+# Under a roof: a member's name below the top is a name like any other; a member that is a broken link; the roof's
+# own settings and what only the earlier walk recorded there; a member's settings, which are its source.
+SW_ROOF2 = {k: v for k, v in SW_ROOF.items() if "aidlc/x.md" not in k}
+sw({**SW_ROOF2, "p/stray/api/x.ts": "x\n", "p/stray/web/y.ts": "y\n", "p/{R}": sw_registry(["stray/api/x.ts"])}, repos=["api", "web"])
+sw(SW_ROOF2, repos=["api", "gone"], links=[("p/gone", "nowhere")])
+sw({**SW_ROOF2, "p/aidlc.settings.json": "{}\n"}, repos=["api", "web"])
+sw({**SW_ROOF2, "p/.DS_Store": "d\n"}, repos=["api", "web"])
+sw({**SW_ROOF2, "p/web/aidlc.settings.json": "{}\n"}, repos=["api", "web"])
+sw({**SW_MANY, "p/d0/extra.ts": "x\n"}, repos=["d0"], env={"AIDLC_TEST_SOURCE_MAX_ENTRIES": "3"})
+# A file where the path of a record's engine directory would be; a file named like a .NET output.
+sw({"p/src/main.ts": "x\n", "p/w2/aidlc/spaces/s/intents/.aidlc-engine": "a file\n", "p/svc2/App.csproj": "<P/>\n", "p/svc2/obj": "a file\n"})
+# A link that the registry excludes, or that is named like generated output, with a registered path below it.
+sw({**SW_LINKED, SW_REGISTRY: sw_registry(["alias/data/a.bin"], ["alias"]), "p/real/data/other.bin": "o\n"}, links=[("p/alias", "real")])
+sw({**SW_LINKED, SW_REGISTRY: sw_registry(["dist/data/a.bin"]), "p/real/data/other.bin": "o\n"}, links=[("p/dist", "real")])
+sw({"p/src/main.ts": "x\n", "p/src/lib/a.ts": "a\n", "p/build/keep.bin": "k\n", SW_REGISTRY: sw_registry(["build/lnk/lib/a.ts"])},
+   links=[("p/build/lnk", "../src")])
+# A named pipe inside a directory first reached through a link.
+sw({"p/zdir/a.ts": "x\n"}, fifos=["p/zdir/pipe"], links=[("p/a", "zdir")])
+# A registered path outside the project is still registered by the name it was written with.
+sw({"p/src/main.ts": "x\n", "out/ext/.DS_Store": "d\n", "out/ext/b.bin": "\x00", SW_REGISTRY: sw_registry(["ext/.DS_Store", "ext/b.bin"])},
+   links=[("p/ext", "../out/ext")])
+# A line feed after a carriage return is part of the line ending; one alone is not counted either way.
+sw(hexes={"p/c127nl.txt": sw_hex("x" * 127 + "\n\x01\r\n"), "p/c128nl.txt": sw_hex("x" * 128 + "\n\x01\r\n")})
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

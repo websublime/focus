@@ -73,3 +73,6 @@ pub const LOCK_FILE: &str = ".focus-lock";
 
 /// Who holds the lock, for the message a waiting process prints.
 pub const LOCK_OWNER_FILE: &str = ".focus-lock.owner";
+
+/// `KNOWN_HARNESS_DIRS`: the harness directories the detectors know.
+pub const KNOWN_HARNESS_DIRS: [&str; 5] = [".claude", ".kiro", ".codex", ".focus", ".cursor"];

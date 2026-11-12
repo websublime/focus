@@ -47,6 +47,14 @@ writeFileSync(
 );
 process.on("exit", () => rmSync(planGuardShim, { force: true }));
 const planGuardPrivate = await import(planGuardShim);
+// The source walk is private to the library. It is asked the same way: a
+// copy of the library's own source with an export list appended.
+const libShim = tool("aidlc-lib.focus-oracle.ts");
+// (`rawFingerprintForm` and `lastWorkspaceSourceFailure` are asked of the copy too: what a walk remembers is the
+// module's own.)
+writeFileSync(libShim, `${readFileSync(tool("aidlc-lib.ts"), "utf-8")}\nexport { walkWorkspaceSource };\n`);
+process.on("exit", () => rmSync(libShim, { force: true }));
+const libPrivate = await import(libShim);
 const dispatcher = await import(tool("aidlc.ts"));
 const guardOperation = await import(tool("aidlc-guard-operation.ts"));
 const posture = await import(tool("aidlc-testing-posture.ts"));
@@ -158,6 +166,81 @@ async function answer(c: Record<string, any>): Promise<unknown> {
         changed: lib.sourceListingChangedPaths(before, after),
         keys: lib.renderSourcePathKeys([...before.keys(), ...after.keys()]),
       };
+    }
+    case "source_walk": {
+      // A project under a scratch root: files (null a directory), files
+      // given as hex, executables, links and named pipes. The walk is asked
+      // for the project as one repository or as a roof over the named ones.
+      const root = `/tmp/oracle-${c.id}`;
+      rmSync(root, { recursive: true, force: true });
+      mkdirSync(root, { recursive: true });
+      // A path of the case names the registry file as `{R}`, and so do the
+      // answers: the file's own row is then the same row under either name.
+      const registry = ".aidlc-source-paths.json";
+      const written = (rel: string) => rel.split("{R}").join(registry);
+      const shown = (text: string) => text.split(registry).join("{R}");
+      const place = (rel: string) => {
+        const path = join(root, written(rel));
+        mkdirSync(dirname(path), { recursive: true });
+        return path;
+      };
+      for (const [rel, text] of Object.entries(c.files as Record<string, string | null>)) {
+        if (text === null) mkdirSync(join(root, written(rel)), { recursive: true });
+        else {
+          writeFileSync(place(rel), text);
+          chmodSync(join(root, written(rel)), 0o644);
+        }
+      }
+      for (const [rel, hex] of Object.entries(c.hex as Record<string, string>)) {
+        writeFileSync(place(rel), Buffer.from(hex, "hex"));
+        chmodSync(join(root, written(rel)), 0o644);
+      }
+      for (const rel of c.exec as string[]) chmodSync(join(root, written(rel)), 0o755);
+      for (const [rel, target] of c.links as Array<[string, string]>) symlinkSync(target, place(rel));
+      for (const rel of c.fifos as string[]) Bun.spawnSync(["mkfifo", "-m", "644", place(rel)]);
+      const set = Object.entries(c.env as Record<string, string>);
+      for (const [name, value] of set) process.env[name] = value;
+      try {
+        const walked = libPrivate.walkWorkspaceSource(join(root, c.project), c.repos, c.dotnet);
+        if (walked === null) {
+          const failure = libPrivate.lastWorkspaceSourceFailure();
+          return {
+            failure: failure === null ? null : {
+              code: failure.code,
+              // What the system said is the host's, not the walk's.
+              detail: shown(failure.detail.split(": ")[0]),
+              path: failure.path === undefined ? null : shown(failure.path),
+              repo: failure.repo ?? null,
+            },
+          };
+        }
+        // A fingerprint is taken over the paths: one that holds the engine's
+        // name differs between the engines by construction. The earlier
+        // walk's also takes in the files left out by name since, and the
+        // engine's settings files are among them.
+        const named = [...walked.state.listing.keys()].some((key: string) => /aidlc/i.test(shown(key)));
+        const legacyNamed = named ||
+          [...Object.keys(c.files), ...Object.keys(c.hex)].some((rel) => /aidlc/i.test(rel.slice(rel.lastIndexOf("/") + 1)));
+        // The rows in an order that does not depend on the engine's name
+        // (the order a snapshot is written in is the listing cases').
+        const neutral = (row: string) => row.replace(/aidlc/gi, "\u0001");
+        const rows = shown(libPrivate.serializeSourceListing(walked.state.listing) as string).split("\n").filter((row) => row !== "")
+          .sort((a, b) => (neutral(a) < neutral(b) ? -1 : neutral(a) > neutral(b) ? 1 : 0));
+        return {
+          fingerprint: named ? "<named>" : walked.state.fingerprint,
+          legacy: walked.legacy === null ? null : legacyNamed ? "<named>" : walked.legacy,
+          // The fingerprint as it was before line endings were read as LF,
+          // when this walk read a file whose raw bytes differ from its text.
+          raw: ((raw: string | null) => (raw === null ? null : named ? "<named>" : raw))(
+            libPrivate.rawFingerprintForm(walked.state.fingerprint),
+          ),
+          dotnet: walked.dotnetOutputSeen,
+          rows,
+        };
+      } finally {
+        for (const [name] of set) delete process.env[name];
+        rmSync(root, { recursive: true, force: true });
+      }
     }
     case "progress":
       return {

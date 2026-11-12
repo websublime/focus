@@ -25,6 +25,7 @@ fn every_evidence_case_gets_upstreams_answer() {
 
     let (mut read, mut listings, mut refused, mut thrown) = (0, 0, 0, 0);
     let (mut pairs, mut unwritten, mut changed, mut unchanged) = (0, 0, 0, 0);
+    let (mut walked, mut stopped, mut exact, mut earlier, mut raw) = (0, 0, 0, 0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         // Parsed as upstream's driver parses it, so nested objects are in the
@@ -34,8 +35,28 @@ fn every_evidence_case_gets_upstreams_answer() {
         if !KINDS.contains(&kind) {
             continue;
         }
+        if kind == "source_walk" {
+            assert_eq!(
+                names_apart_by_case(&case),
+                None,
+                "{}: two names of a tree differ only by case, and a case-insensitive filesystem holds them as one",
+                case["id"]
+            );
+        }
+        // A walk needs the tree it walks: links, modes and named pipes, laid
+        // out under `/tmp`. On Windows there is no such tree to lay out.
+        if kind == "source_walk" && cfg!(windows) {
+            continue;
+        }
         let out = run_case(&case);
-        if kind == "source_listing_parse" {
+        if kind == "source_walk" {
+            walked += 1;
+            stopped += usize::from(out.get("failure").is_some());
+            let hash = |key: &str| out[key].as_str().is_some_and(|value| value.len() == 64);
+            exact += usize::from(hash("fingerprint"));
+            earlier += usize::from(hash("legacy"));
+            raw += usize::from(hash("raw"));
+        } else if kind == "source_listing_parse" {
             read += 1;
             listings += usize::from(out["size"].as_u64().is_some_and(|size| size > 1));
             refused += usize::from(out.get("listing").is_some_and(Value::is_null));
@@ -67,6 +88,11 @@ fn every_evidence_case_gets_upstreams_answer() {
         "{unwritten} {changed} {unchanged}"
     );
     assert!(
+        cfg!(windows)
+            || (walked >= 500 && stopped >= 80 && exact >= 380 && earlier >= 120 && raw >= 30),
+        "{walked} {stopped} {exact} {earlier} {raw}"
+    );
+    assert!(
         differing.is_empty(),
         "{} evidence cases differ from upstream; first:\n{}",
         differing.len(),
@@ -77,4 +103,46 @@ fn every_evidence_case_gets_upstreams_answer() {
             .collect::<Vec<_>>()
             .join("\n")
     );
+}
+
+/// Two paths of a walk case's tree that differ only by case, if any: on a
+/// filesystem that ignores case they are one file, and the tree laid out
+/// there is not the one upstream answered for.
+fn names_apart_by_case(case: &Value) -> Option<(String, String)> {
+    let mut paths: Vec<&str> = Vec::new();
+    for kind in ["files", "hex"] {
+        paths.extend(
+            case[kind]
+                .as_object()
+                .into_iter()
+                .flatten()
+                .map(|(rel, _)| rel.as_str()),
+        );
+    }
+    paths.extend(
+        case["links"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter_map(|link| link[0].as_str()),
+    );
+    paths.extend(
+        case["fifos"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter_map(Value::as_str),
+    );
+    let mut seen: std::collections::HashMap<String, &str> = std::collections::HashMap::new();
+    for path in paths {
+        for (end, _) in path.match_indices('/').chain([(path.len(), "")]) {
+            let prefix = &path[..end];
+            if let Some(other) = seen.insert(prefix.to_lowercase(), prefix)
+                && other != prefix
+            {
+                return Some((other.to_owned(), prefix.to_owned()));
+            }
+        }
+    }
+    None
 }

@@ -257,10 +257,8 @@ pub fn sha256(serialized: &str) -> String {
 /// `sourceListingEntriesEqual`: whether two entries say the path held the
 /// same thing. Two entries with modes are equal only when identical; an
 /// entry without a mode equals one with the same object id.
-///
-/// Upstream also reads an entry recorded over raw line endings as the file
-/// read with them settled, from what the walk of this process remembers;
-/// that memory arrives with the walk.
+/// An entry recorded over raw line endings of a file this process read is
+/// that file ([`super::raw`]).
 #[must_use]
 pub fn entries_equal(left: Option<&str>, right: Option<&str>) -> bool {
     if left == right {
@@ -269,6 +267,9 @@ pub fn entries_equal(left: Option<&str>, right: Option<&str>) -> bool {
     let (Some(left), Some(right)) = (left, right) else {
         return false;
     };
+    if super::raw::current_form(left) == super::raw::current_form(right) {
+        return true;
+    }
     let (left_modern, right_modern) = (modern(left), modern(right));
     if left_modern.is_some() && right_modern.is_some() {
         return false;
