@@ -865,6 +865,8 @@ pub fn oracle(args: &mut Args) -> Result<(), String> {
             focus_guards::oracle::run_case(&case)
         } else if focus_hooks::oracle::KINDS.contains(&kind) {
             focus_hooks::oracle::run_case(&case)
+        } else if focus_evidence::oracle::KINDS.contains(&kind) {
+            focus_evidence::oracle::run_case(&case)
         } else if focus_js::oracle::KINDS.contains(&kind) {
             focus_js::oracle::run_case(&case)
         } else {

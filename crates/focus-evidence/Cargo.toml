@@ -1,0 +1,21 @@
+[package]
+name = "focus-evidence"
+description = "What a decision is weighed against: the identity of the project's source, and the receipts the ledger keeps about it."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+serde_json.workspace = true
+sha2.workspace = true
+focus-js.workspace = true
+focus-workspace.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true
+
+[lints]
+workspace = true

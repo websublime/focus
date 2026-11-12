@@ -68,6 +68,14 @@ const message = (err: unknown) =>
     "$1<runtime>",
   );
 
+function writtenListing(listing: Map<string, string>): unknown {
+  try {
+    return { text: lib.serializeSourceListing(listing) };
+  } catch (err) {
+    return { error: (err as Error).message };
+  }
+}
+
 async function answer(c: Record<string, any>): Promise<unknown> {
   switch (c.kind) {
     case "stage": {
@@ -130,6 +138,27 @@ async function answer(c: Record<string, any>): Promise<unknown> {
     }
     case "bolt_dag":
       return lib.parseBoltDag(c.body);
+    case "source_listing_parse": {
+      const sha = lib.sourceListingSha256(c.text);
+      let parsed;
+      try {
+        parsed = lib.parseSourceListing(c.text);
+      } catch (err) {
+        return { error: (err as Error).message, sha };
+      }
+      if (parsed === null) return { listing: null, sha };
+      return { listing: writtenListing(parsed), size: parsed.size, sha };
+    }
+    case "source_listing": {
+      const before = new Map<string, string>(c.before);
+      const after = new Map<string, string>(c.after);
+      return {
+        before: writtenListing(before),
+        after: writtenListing(after),
+        changed: lib.sourceListingChangedPaths(before, after),
+        keys: lib.renderSourcePathKeys([...before.keys(), ...after.keys()]),
+      };
+    }
     case "progress":
       return {
         checkboxes: lib.parseCheckboxes(c.content),

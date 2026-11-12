@@ -116,7 +116,7 @@ focus-cli ✔ ───────────► focus-hooks ──► focus-o
 | `focus-lifecycle` | Transições de stage: a cadeia de admissão, onde estão os artefactos de uma stage, o recibo de validade de uma conclusão, e as transições em si | Existem `advance`, `finalize`, `complete-workflow`, `skip` e `resume` (M3, fatia 4a); os verbos de gate são a fatia 4b |
 | `focus-guards` | Lexer de shell, integridade de runtime, fences, decisões de guard | Existe (M3, fatia 1; M4): a Guard Policy e as fences, o lexer de shell, a integridade do runtime, e os leitores dos quatro guards. A avaliação de uma aprovação e os recibos são M5 |
 | `focus-hooks` | Os corpos dos hooks e o dispatcher | Existe (M4): o dispatcher, o contexto de um hook, os observadores, o arranque de sessão, o turno humano, os quatro guards e o grupo que os corre num processo. `continue-workflow`, `deliver-stage-rules` e a status line são M6 |
-| `focus-evidence` | A identidade da fonte, as linhas de `log`, os recibos de revisão e de sumário, o brief de revisão | M5 (proposto na secção 16; não está no diagrama) |
+| `focus-evidence` | A identidade da fonte, as linhas de `log`, os recibos de revisão e de sumário, o brief de revisão | M5: existe desde a fatia 1a, com a listagem de fonte (não está no diagrama) |
 | `focus-orchestrate` | `next` e `report`, diretivas, plan approval, checkpoints | M5 |
 | `focus-sensors` | Dispatcher e os seis sensores | M7 |
 | `focus-project` | Projeção de `core/` para a árvore de cada harness, configuração, doctor | M8 |
@@ -1743,7 +1743,7 @@ O marco entra de baixo para cima, como M2 a M4: primeiro a evidência que as tra
 
 ### Crates
 
-Dois crates novos, a confirmar na fatia que cria cada um:
+Dois crates novos. `focus-evidence` existe desde a fatia 1a; `focus-orchestrate` confirma-se na fatia que o criar:
 
 - **`focus-evidence`**: a identidade da fonte, as linhas de `log`, os recibos pesados e o brief de revisão. Fica abaixo de `focus-lifecycle`, porque as transições, os hooks e o orchestrator leem todos a mesma evidência.
 - **`focus-orchestrate`**: as diretivas, `next`, `report`, `continue`, `park`, `wait`, a Construction em série.
@@ -1756,7 +1756,7 @@ Os intervalos de linhas são de `aidlc-orchestrate.ts` no pin, salvo indicação
 
 | Fatia | O que traz | Levanta | Como se verifica | Estado |
 | --- | --- | --- | --- | --- |
-| 1. A identidade da fonte | O passeio pelos ficheiros fonte do projeto, a sua impressão digital, o snapshot `baseline-<hash>.tsv` e o campo `Source Baseline`; o snapshot de fonte de uma unit (`workspaceSourceState`, `readUnitSourceSnapshot` e o que está entre eles em `aidlc-lib.ts`) | `SHAPES["source-baseline"]` (criação e saltos passam a comparar o campo e a listagem); o baseline de uma stage que produz código nas transições; o desvio dos observadores na criação | Corpus sobre árvores de scratch (o que conta como fonte, o que se ignora, a ordem, o hash); diferencial | Por fazer |
+| 1. A identidade da fonte | O passeio pelos ficheiros fonte do projeto, a sua impressão digital, o snapshot `baseline-<hash>.tsv` e o campo `Source Baseline`; o snapshot de fonte de uma unit (`workspaceSourceState`, `readUnitSourceSnapshot` e o que está entre eles em `aidlc-lib.ts`) | `SHAPES["source-baseline"]` (criação e saltos passam a comparar o campo e a listagem); o baseline de uma stage que produz código nas transições; o desvio dos observadores na criação | Corpus sobre árvores de scratch (o que conta como fonte, o que se ignora, a ordem, o hash); diferencial | Em curso: partida em quatro, 1a feita (abaixo) |
 | 2. `log` | `focus engine log decision`, `answer`, `answers`, `link` e `review`: as linhas `DECISION_RECORDED`, `QUESTION_ANSWERED`, `SUMMARY_CONFIRMATION_RECORDED`, `REVIEW_REQUESTED` e `REVIEW_COMPLETED`, os handoffs de um pipeline; o registo de mensagens lido (`aidlc-log.ts`, 4 486; `message-store`, 246) | Nada sozinho: é quem escreve o que a fatia 3 pesa. A escolha de uma pergunta de recuperação gravada por `log` fica para a fatia 4 | Diferencial (`log/*`) | Por fazer |
 | 3. Os recibos pesados | `freshReviewReceipts` (1 066) e `checkSummaryConfirmationEvidence` (647), os handoffs devidos por um pipeline, os pares pedido e conclusão de uma revisão; `review-brief` (2 365: `review`, `summary`, `context`) e os findings que um gate grava na decisão | As recusas pelo nome de `state` (`advance` e os gates com sumário, revisão ou pipeline devidos), de `review-freeze` e do grupo (`review_rows`), do salto para trás com linhas de revisão, e do turno humano com um pedido de revisão sem veredicto. Sem units: a dimensão por unit chega com a fatia 5 | Diferencial; corpus para os leitores puros (a tabela de findings, a secção `## Review`) | Por fazer |
 | 4. A pergunta de recuperação | `evaluateGuardRefusal` e `guardAttemptState`: depois da frase de um guard, a pergunta com os remédios que o condutor pode oferecer, e a série da recusa em `.focus-engine/guard-refusals/`; a escolha gravada | `SHAPES["guard-ask"]` | Diferencial | Por fazer |
@@ -1768,6 +1768,37 @@ Os intervalos de linhas são de `aidlc-orchestrate.ts` no pin, salvo indicação
 | 10. Construction em série | O passeio unit a unit (`unit-major`, L11 312 a 12 153: o passo, o redo, o reopen, o salto em frente), as waves por stage (`stage-major`, L9 604 a 10 546), o gate e a stance do skeleton, a autonomia, a forma que um checkpoint dá à diretiva, os gates de bookkeeping. O swarm (L9 014 a 9 548) responde sempre que não | A jornada atravessa Construction com o Plan Approval desligado | Diferencial; a jornada | Por fazer |
 | 11. Testing posture e Plan Approval | O contrato de testes (`testing-posture`, 5 453: `resolve`, `render`, `fingerprint`, `verify`, `begin`, `brief`, `reply`, `restore`), a pergunta que o engine guarda (`plan-approval-ask`, 2 196: o ask, o recibo, `PLAN_APPROVAL_RECORDED`), a resposta lida pelo turno humano, e a avaliação da aprovação no guard (`evaluateCodeGenerationApproval`) | A recusa pelo nome de `plan-approval-guard` com marcador, e as do turno humano (`plan_challenge`, `protected_question`) | Corpus (o contrato e a impressão digital); diferencial; a jornada com o Plan Approval ligado | Por fazer |
 | 12. Learnings e a jornada completa | `learnings surface` e `persist` (1 252); os onze scopes do original, do primeiro pedido a `done`, em greenfield e em brownfield, gravados | Fecha o marco | A jornada: a mesma sequência de diretivas, o mesmo estado e as mesmas linhas de auditoria | Por fazer |
+
+### Fatia 1: a identidade da fonte, partida em quatro
+
+A tabela acima dava esta fatia como uma região contígua e pequena. Lida, não é. O passeio é `filesystemSourceIdentity` (`aidlc-lib.ts`, L23 035 a 23 998): perto de mil linhas numa só função, com o registo dos caminhos de fonte, as pastas do harness, os modos de seguir um link, os outputs de .NET, a impressão digital como era antes de cada mudança de fronteira, e os fins de linha crus. Por baixo dele está a leitura de um repositório git sem correr git (o `HEAD`, os gitlinks, os repositórios embebidos, os objetos soltos e empacotados: L22 390 a 23 030). Com a listagem e os snapshots são cerca de três mil linhas. A fatia parte-se assim:
+
+| Fatia | O que traz | Como se verifica | Estado |
+| --- | --- | --- | --- |
+| 1a. A listagem | O registo por caminho de uma árvore de fonte e o texto em que se guarda | Corpus | Feito |
+| 1b. O passeio de uma árvore simples | Ficheiros, pastas, links e ficheiros especiais; o que fica fora pelo nome; os limites; os fins de linha; a impressão digital | Corpus sobre árvores de scratch | Por fazer |
+| 1c. O que o git diz | O registo de caminhos de fonte, os repositórios embebidos, os gitlinks, o `HEAD`; o contexto de uma worktree recusa pelo nome | Corpus sobre árvores de scratch com um repositório | Por fazer |
+| 1d. Os snapshots e o campo | `baseline-<hash>.tsv` e o snapshot do workspace, escritos e lidos; `Source Baseline` na criação, nos saltos e nas transições | Diferencial: `SHAPES["source-baseline"]` sai | Por fazer |
+
+A fronteira entre 1b e 1c decide-se ao ler o resto do passeio: o que aqui está é a divisão pelo que cada parte precisa para ser comparada, não pelo que a função separa.
+
+### Fatia 1a: a listagem de fonte
+
+**O que existe.** O crate `focus-evidence`, com `source::listing`: `Listing` (as entradas pela ordem em que os caminhos foram postos, como o `Map` do original, porque o erro de escrita nomeia a primeira entrada má), `path_key` e `split_path_key` (a chave `<repo>\0<caminho>`), `serialize` e `parse` (o texto de um snapshot: uma linha por caminho, separada por tabs, ordenada pela chave em unidades UTF-16, com `\`, tab e os dois fins de linha escapados), `sha256` (o hash por que um snapshot é endereçado e verificado), `entries_equal` (duas entradas com modo só são iguais se forem idênticas; uma entrada sem modo é igual a outra com o mesmo objeto), `render_path_keys` e `changed_paths`. `is_valid_repo_name` desce de `focus-intent` para `focus-workspace::project`, onde os dois crates o alcançam.
+
+O que fica para o passeio: o original lê uma entrada gravada sobre fins de linha crus como o ficheiro lido com eles assentes, a partir do que o passeio deste processo lembra (`currentFingerprintForm`). Sem passeio não há memória, e a comparação é a mesma.
+
+**O que o corpus encontrou.** Nada que diferisse: os 1 129 casos saíram iguais à primeira. Uma coisa que a leitura sozinha não dava por certa: um caminho com um NUL dentro de um snapshot faz o original lançar ("Source path keys cannot contain NUL bytes"), onde qualquer outro defeito responde "não é uma listagem". `parse` devolve os dois separados.
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Corpus, `source_listing_parse` | 624 textos, todos iguais: 160 listagens (de uma a doze linhas, com e sem modo, em qualquer ordem), 460 que não o são (a última linha sem fim de linha, uma linha vazia, um CR antes de cada LF, o mesmo caminho duas vezes, um repo que não é um nome, um modo ou um objeto com a forma errada, um escape que o escritor não escreve, campos a mais e a menos, e 240 textos estragados carácter a carácter) e 4 em que o original lança |
+| Corpus, `source_listing` | 505 pares de listagens dadas como entradas, todos iguais: 273 listagens que o escritor recusa (uma chave sem NUL, com dois, com um repo que não é um nome ou sem caminho; uma entrada com dois espaços, um tab, maiúsculas, um espaço a mais), com o erro a nomear a primeira; 396 pares com caminhos mudados e 109 sem nenhum (um modo ganho ou perdido não é uma mudança, um modo trocado é) |
+| Testes unitários | 3: duas entradas ausentes são iguais (nenhuma listagem compara uma, por isso o corpus não o diz), uma chave posta outra vez mantém o lugar, e uma listagem lê-se como foi escrita |
+| Mutação | 58 mutantes em `listing`: 54 apanhados pelo corpus, 1 pelo teste unitário, e 3 equivalentes anotados (que espaço separa o modo do objeto, quando nenhum dos dois leva espaços; que NUL separa o repo do caminho, quando um segundo é recusado onde quer que caia; e tomar por objeto uma entrada que não tem forma nenhuma, quando o outro lado só é igual se a tiver) |
+| `cargo test` | 559 testes; corpus de 32 819 casos (1 129 novos), todos iguais; os 31 690 anteriores iguais byte a byte |
 
 ### A jornada
 
