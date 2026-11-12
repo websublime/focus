@@ -519,7 +519,7 @@ def run_queued(quiet=False):
 
 
 def compare(name, trees, args, env, stdin, files):
-    if files in ("audit", "runtime", "state", "utility", "jump", "hook"):
+    if files in ("audit", "runtime", "state", "utility", "jump", "log", "hook"):
         return compare_audit(name, trees, args, env, files)
     ts, rs = trees
     outcome = {}
@@ -2336,6 +2336,24 @@ DEVIATIONS.update({
         "first joins a path, with the runtime's TypeError (or, with an empty name, lists the whole project, engine "
         "and harness included, as that member); focus refuses the row by name (exit 1 either way where upstream "
         "falls over, and the jump's error row written by both)",
+    r"log/usage/(answer|answers|link|review)_not_ported":
+        "the verbs of the log tool that focus has not ported (M5, slices 2b to 2e): upstream runs them; focus "
+        "refuses each by name",
+    r"log/decision/checkpoint_\w+_not_ported":
+        "a question the engine pairs with a record of its own: a stage's summary confirmation (slice 2c), the "
+        "verification command and the policy of Construction (slice 5), Plan Approval (slice 11). Upstream reads "
+        "the flags each needs and records it; focus refuses the checkpoint by name",
+    r"log/decision/(unit|batch_file)_not_ported":
+        "a question about one unit of work, and the Plan Approval questions of several at once: upstream records "
+        "the unit with its claim (or refuses the batch on its own shape); focus refuses both flags by name, since "
+        "it runs no units yet",
+    "log/decision/message_not_ported":
+        "a question logged after the person already replied names the message that answered it: upstream proves "
+        "the message against its store; focus refuses the flag by name until it reads the store here",
+    "log/decision/summary_options_owed_not_ported":
+        "a plain question offering the summary's two choices, for a stage that owes a summary confirmation: "
+        "upstream refuses it with the two commands that record a summary; those are slice 2c, and focus refuses "
+        "it by name",
     "jump/reopen/by_name":
         "reopen starts a per-unit stage again for named units with their own GATE_REJECTED rows (M4); focus "
         "refuses by name once the usage is satisfied",
@@ -4246,6 +4264,8 @@ def gate_checks():
     protected = {"aidlc/.aidlc-sessions/plan-approval/protected-question-s1.json": "{}\n", "aidlc/.aidlc-sessions/plan-approval/protected-question-response-s1.json": "{}\n",
                  "aidlc/.aidlc-sessions/plan-approval/receipt-1.json": "{}\n"}
     check_("gates/start_withdraws_protected_questions", created(GATE_STATE, **ic, **protected), [["gate-start", "intent-capture"]], quiet)
+    check_("gates/start_withdraws_behind_link", created(GATE_STATE, **ic, **{"elsewhere/protected-question-s1.json": "{}\n"}), [["gate-start", "intent-capture"]], quiet,
+           edits=(lambda tree: (os.makedirs(tree.path("aidlc/.aidlc-sessions")), os.symlink(tree.path("elsewhere"), tree.path("aidlc/.aidlc-sessions/plan-approval"))),))
     check_("gates/approve_no_artifacts", created(awaiting, opened), [approve, ["resume"]], quiet)
     check_("gates/approve_artifact_guard_off", created(awaiting, opened), [approve, ["resume"]], {**quiet, "SKIP_ARTIFACT_GUARD": "1"})
     # Approves together: a flag whose stages come from the plan (not ported), and its field on the rows.
@@ -4475,6 +4495,90 @@ def park_checks():
     check_("unpark/usage_ignored", created(with_fields), [["unpark", "--x", "y"]], direct)
     for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
         check_(f"observer/{marker.lower()}_park", created(), [parked, ["unpark"]], {marker: "1", **direct})
+
+
+def log_checks():
+    """`aidlc-log.ts decision`: a question the agent asks, what is refused before it is recorded, and the row."""
+    check_ = lambda name, files, steps, env=None, edits=(): runtime_check(name, files, steps, env, edits, group="log")
+    ask = ["decision", "--stage", "intent-capture", "--decision", "Which database?"]
+    owing = CREATED_STATE.replace("- **Summary Confirmation**: off (set by a command)", "- **Summary Confirmation**: on (from scope feature)")
+
+    # The command: no verb, one it does not have, the verbs Focus has not ported, and no piece of work to record in.
+    check_("usage/none", created(), [[]])
+    check_("usage/unknown", created(), [["nope"], ["Decision", "--stage", "x"]])
+    check_("usage/no_workflow", CLONE, [ask, ["nope"]])
+    check_("usage/no_state_file", created(**{f"{CREATED_DIR}/aidlc-state.md": None}), [ask])
+    for verb in ("answer", "answers", "link", "review"):
+        check_(f"usage/{verb}_not_ported", created(), [[verb, "--stage", "intent-capture"]])
+
+    # The flags: one with no value, one followed by another flag, the two a question needs, and an empty value.
+    check_("decision/flags", created(), [["decision", "--stage"], ["decision", "--stage", "intent-capture", "--decision"], ["decision", "--stage", "--decision", "x"],
+                                         ["decision"], ["decision", "--stage", "intent-capture"], ["decision", "--decision", "x"],
+                                         ["decision", "--stage", "", "--decision", "x"], ["decision", "--stage", "intent-capture", "--decision", ""]])
+    # A value that reached the engine in pieces: a word no flag owns, words after a value, a fragment that starts
+    # with dashes, Command Prompt's single quotes, and a flag the verb does not read.
+    check_("decision/split_values", created(), [
+        ask + ["extra"], ["stray", *ask], ["decision", "--stage", "intent-capture", "--decision", "Chose", "Option", "A", "for", "auth"],
+        ["decision", "--stage", "intent-capture", "extra", "--decision", "Which", "one"],
+        ["decision", "--stage", "intent-capture", "--decision", "Run todo", "--help", "first"],
+        ["decision", "--stage", "intent-capture", "--decision", "'Chose", "Option", "A'"],
+        ["decision", "--stage", "intent-capture", "--decision", "'Chose", "Option", "A"],
+        ["decision", "--stage", "intent-capture", "--answer", "yes"], ["decision", "--details", "x", "--stage", "intent-capture"],
+        ["decision", "--single", "word", "--stage", "intent-capture", "--decision", "x"],
+        ["decision", "decision", "--stage", "intent-capture", "--decision", "x"],
+        ["--stage", "intent-capture", "words", "decision", "--decision", "x"]])
+    check_("decision/split_after_project_dir", created(), [["--project-dir", "{P}", "tail", *ask], ["decision", "--project-dir", "--stage", "intent-capture", "--decision", "x"]])
+
+    # The row: the question alone, with its options and rationale, for a single stage, twice, for a stage that is
+    # none of the graph's, and with the flags a plain question does not read.
+    check_("decision/plain", created(), [ask])
+    check_("decision/whole", created(), [ask + ["--options", "Postgres,SQLite", "--rationale", "Both fit"], ask + ["--single"], ask])
+    check_("decision/empty_options", created(), [ask + ["--options", "", "--rationale", ""]])
+    check_("decision/unknown_stage", created(), [["decision", "--stage", "nope", "--decision", "Which?"]])
+    check_("decision/flag_twice", created(), [["decision", "--stage", "nope", "--stage", "intent-capture", "--decision", "a", "--decision", "b"]])
+    check_("decision/unread_flags", created(), [ask + ["--questions-file", "q.md", "--exact-option-labels", "true", "--hash-option-labels", "true", "--stage-level", "--field", "f", "--value", "v"]])
+    check_("decision/multiline", created(), [["decision", "--stage", "intent-capture", "--decision", "First line\nSecond **Event**: X\n---\n## Heading", "--options", "a\nb"]])
+    check_("decision/observer", created(), [ask], {"STOP_HOOK_PROBE": "1"})
+    check_("decision/project_dir_first", created(), [["--project-dir", "{P}", *ask]])
+
+    # The checkpoints: one the verb does not know, the learnings question, and the four Focus has not ported.
+    check_("decision/checkpoint_unknown", created(), [ask + ["--checkpoint", "nope"], ask + ["--checkpoint", "learnings"], ask + ["--checkpoint", "guard-recovery"], ask + ["--checkpoint", ""]])
+    for checkpoint in ("summary-confirmation", "verification-command", "construction-policy", "plan-approval"):
+        check_(f"decision/checkpoint_{checkpoint.replace('-', '_')}_not_ported", created(), [ask + ["--checkpoint", checkpoint]])
+    check_("decision/unit_not_ported", created(), [ask + ["--unit", "api"]])
+    check_("decision/unit_empty", created(), [ask + ["--unit", ""]])
+    check_("decision/batch_file_not_ported", created(), [ask + ["--batch-file", "b.json"]])
+    check_("decision/message_not_ported", created(), [ask + ["--message", "m-1"]])
+
+    # A question that offers the summary's two choices: an ordinary one where no summary is owed, refused where it is.
+    summary = ["decision", "--stage", "intent-capture", "--decision", "Does this look right?", "--options", "Looks correct, Request changes."]
+    check_("decision/summary_options_not_owed", created(), [summary])
+    check_("decision/summary_options_owed_not_ported", created(owing), [summary, summary[:-1] + ["LOOKS CORRECT!, request changes (Recommended), "]])
+    check_("decision/summary_options_other", created(owing), [summary[:-1] + ["Looks correct,Other"], summary[:-1] + ["Looks correct"], summary[:-1] + ["Looks correct,Request changes,Looks correct"],
+                                                              summary[:-1] + ["Looks correct?,Request changes"]])
+    check_("decision/summary_options_unknown_stage", created(owing), [["decision", "--stage", "nope", "--decision", "x", "--options", "Looks correct,Request changes"]])
+    check_("decision/summary_options_guard_off", created(owing), [summary], {"SKIP_SUMMARY_CONFIRMATION_GUARD": "1"})
+
+    # The person's confirmation credited to the hook, or implied: refused; quoted, a question like any other.
+    said = lambda text: ["decision", "--stage", "intent-capture", "--decision", text]
+    check_("decision/implied_confirmation", created(), [said("Continue with X (user implicitly confirmed by hook trigger)"), said("Proceed? Approval from the stop hook."),
+                                                        said("The Person tacitly agreed, continue?"), said("confirmed by   the Stop-Hook"), said("human implicit consents")])
+    check_("decision/implied_confirmation_quoted", created(), [said('Should the banner say "confirmed by the hook"?'), said("Is `user implicitly confirmed` the right label?"),
+                                                               said("orders are implicitly confirmed after 48 hours: keep?")])
+    check_("decision/implied_confirmation_after_quote", created(), [said('“é” — then: user implicitly approved'), said("'😀 it' (user tacitly agrees) 😀 confirmed by hook")])
+    check_("decision/implied_confirmation_guard_off", created(), [said("user implicitly confirmed")], {"SKIP_HUMAN_PRESENCE_GUARD": "1"})
+
+    # A new question retires the consent kept for the chat that asks it: the one named, every one when none is, and
+    # nothing for a name that leaves no file name.
+    kept = {"aidlc/.aidlc-sessions/plan-approval/protected-question-s1.json": "{}\n", "aidlc/.aidlc-sessions/plan-approval/protected-question-response-s1.json": "{}\n",
+            "aidlc/.aidlc-sessions/plan-approval/protected-question-s2.json": "{}\n", "aidlc/.aidlc-sessions/plan-approval/receipt-1.json": "{}\n"}
+    check_("decision/withdraws_named_session", created(**kept), [ask + ["--session", " s1 "]])
+    check_("decision/withdraws_every_session", created(**kept), [ask])
+    check_("decision/withdraws_no_session_name", created(**kept), [ask + ["--session", "///"]])
+    check_("decision/withdraws_blank_session", created(**kept), [ask + ["--session", "  "]])
+    check_("decision/withdraws_odd_session", created(**kept, **{"aidlc/.aidlc-sessions/plan-approval/protected-question-a-b.json": "{}\n"}), [ask + ["--session", "/a b/"]])
+    check_("decision/withdraws_behind_link", created(**{"elsewhere/protected-question-s1.json": "{}\n"}), [ask],
+           edits=(lambda tree: (os.makedirs(tree.path("aidlc/.aidlc-sessions")), os.symlink(tree.path("elsewhere"), tree.path("aidlc/.aidlc-sessions/plan-approval"))),))
 
 
 def jump_checks():
@@ -5477,6 +5581,7 @@ try:
     gate_checks()
     park_checks()
     jump_checks()
+    log_checks()
     status_checks()
     hook_checks()
     run_queued()

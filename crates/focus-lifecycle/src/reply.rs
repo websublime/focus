@@ -137,10 +137,19 @@ pub struct SelfAttribution {
 /// `maskQuotedDecisionExamples`: code, quotes and block quotes blanked out,
 /// so a quoted example is not read as the text's own claim.
 fn mask_quoted(text: &str) -> String {
+    // One space for each UTF-16 unit, as upstream's pattern without the
+    // unicode flag replaces them: what follows keeps its distance from the
+    // start of the text, in the units a pattern counts.
     let mask = |value: &str| -> String {
         value
             .chars()
-            .map(|c| if c == '\n' { '\n' } else { ' ' })
+            .map(|c| {
+                if c == '\n' {
+                    "\n".to_owned()
+                } else {
+                    " ".repeat(c.len_utf16())
+                }
+            })
             .collect()
     };
     let mut out = text.to_owned();
@@ -164,6 +173,48 @@ fn mask_quoted(text: &str) -> String {
         out = masked;
     }
     out
+}
+
+/// The part of `original` a match covers in its masked copy. The two hold
+/// the same UTF-16 units and not the same bytes: a masked character is as
+/// many spaces as it has units.
+fn unmasked<'a>(original: &'a str, masked: &str, range: std::ops::Range<usize>) -> &'a str {
+    let units = |text: &str| text.encode_utf16().count();
+    let (start, end) = (units(&masked[..range.start]), units(&masked[..range.end]));
+    let mut seen = 0;
+    let mut from = original.len();
+    let mut to = original.len();
+    for (at, c) in original.char_indices() {
+        if seen == start {
+            from = at;
+        }
+        if seen == end {
+            to = at;
+            break;
+        }
+        seen += c.len_utf16();
+    }
+    &original[from.min(to)..to]
+}
+
+/// The agent's question has none of the person's words in it, so there the
+/// claim that the person implicitly agreed is refused too.
+const PERSON_IMPLIED: &str = r"\b(?:user|person|human)\s+(?:implicit(?:ly)?|tacit(?:ly)?)\s+(?:confirm(?:ed|s)?|approv(?:ed|es)?|consent(?:ed|s)?|agree[sd]?)\b";
+
+/// `impliedConfirmationMarker`: the one thing a question's text is read
+/// for, the person's confirmation credited to the hook or implied. A quoted
+/// example is masked, so a question that mentions the phrase is a question.
+#[must_use]
+pub fn implied_confirmation_marker(text: Option<&str>) -> Option<SelfAttribution> {
+    let original = text.unwrap_or("");
+    let candidate = mask_quoted(original);
+    [IMPLIED_CONFIRMATION, PERSON_IMPLIED]
+        .iter()
+        .find_map(|pattern| re::find(pattern, "i", &candidate))
+        .map(|found| SelfAttribution {
+            category: "implied-confirmation",
+            phrase: unmasked(original, &candidate, found.range()).to_owned(),
+        })
 }
 
 const IMPLIED_CONFIRMATION: &str = r"\b(?:confirm(?:ed|ation|s)?|approv(?:ed|al)|consent(?:ed)?)\s+(?:by|from)\s+(?:the\s+)?(?:stop[\s-]+)?hook\b|\bby\s+(?:the\s+)?(?:stop[\s-]+)?hook[\s-]+trigger\b";
@@ -242,7 +293,7 @@ pub fn self_attributed_decision_marker(
         if let Some(found) = re::find(pattern, "i", &candidate) {
             return Some(SelfAttribution {
                 category,
-                phrase: original[found.range()].to_owned(),
+                phrase: unmasked(original, &candidate, found.range()).to_owned(),
             });
         }
     }
