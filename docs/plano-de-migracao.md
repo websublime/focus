@@ -1969,12 +1969,12 @@ Sem trabalho selecionado nada é escrito: a linha cairia na raiz dos registos do
 
 | Verificação | Resultado |
 | --- | --- |
-| Diferencial, `log` | @@LOG@@ |
-| Diferencial, tudo | @@TOTAL@@ |
-| Repetição da gravação | @@REPLAY@@ |
+| Diferencial, `log` | 46 checks: 34 iguais (o comando sem verbo, com um que não tem e sem trabalho selecionado; os flags; os valores partidos, em vinte e dois passos; a linha simples, inteira, duas vezes, com valores vazios, com uma stage que não é do grafo, com um flag dado duas vezes, com várias linhas; um observador; os checkpoints que o verbo não conhece; as duas escolhas do sumário onde nada é devido; a confirmação implícita, entre aspas, depois de aspas, com o guard desligado; as perguntas protegidas de uma sessão, de todas, de um nome que não dá ficheiro, da sessão de quem chama, e atrás de um link) e 12 desvios declarados |
+| Diferencial, tudo | 4 315 checks com `--fuzz 600`: 4 095 iguais, 220 desvios declarados, nenhum diferente |
+| Repetição da gravação | 3 052 checks sobre 937 árvores, todos iguais. A repetição não conhecia a ferramenta `log` e passou a conhecer; a gravação tem de ter `decision` a acabar bem e a recusar |
 | Testes | 2 de CLI marcados (os verbos e as perguntas que não estão portados, com a frase de cada um e nada gravado; as duas escolhas do sumário reconhecidas com maiúsculas, o decorador e a pontuação) e 1 unitário (o que não é flag nem valor fica à parte, por ordem: nenhum verbo portado o lê) |
 | Mutação | 60 mutantes (`flags`, `decision`, o comando, o marcador e a retirada das perguntas protegidas): 47 apanhados à primeira e 13 depois de checks e testes escritos para eles (a sessão dita pela árvore de processos, um nome de sessão que não dá nome de ficheiro com ficheiros desse nome lá, uma frase que atravessa aspas, as palavras no fim dos argumentos, duas palavras soltas). Nenhum equivalente |
-| `cargo test` | @@TESTS@@ |
+| `cargo test` | 570 testes |
 
 **Desvios deliberados.** Cinco, cada um com a entrada em `DEVIATIONS` e nos dois testes marcados de `focus-cli/tests/log.rs`.
 
