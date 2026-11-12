@@ -13,8 +13,7 @@ use focus_js::re;
 
 use crate::shell::words::shell_command_segments;
 
-/// `KNOWN_HARNESS_DIRS`: the harness directories the detectors know.
-pub const KNOWN_HARNESS_DIRS: [&str; 5] = [".claude", ".kiro", ".codex", ".focus", ".cursor"];
+pub use focus_workspace::names::KNOWN_HARNESS_DIRS;
 
 const HARNESS_PATTERN: &str = r"\.claude|\.kiro|\.codex|\.focus|\.cursor";
 const DISPATCHER_PATH: &str =

@@ -25,6 +25,7 @@ fn every_evidence_case_gets_upstreams_answer() {
 
     let (mut read, mut listings, mut refused, mut thrown) = (0, 0, 0, 0);
     let (mut pairs, mut unwritten, mut changed, mut unchanged) = (0, 0, 0, 0);
+    let (mut walked, mut stopped, mut exact, mut earlier, mut raw) = (0, 0, 0, 0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         // Parsed as upstream's driver parses it, so nested objects are in the
@@ -34,8 +35,20 @@ fn every_evidence_case_gets_upstreams_answer() {
         if !KINDS.contains(&kind) {
             continue;
         }
+        // A walk needs the tree it walks: links, modes and named pipes, laid
+        // out under `/tmp`. On Windows there is no such tree to lay out.
+        if kind == "source_walk" && cfg!(windows) {
+            continue;
+        }
         let out = run_case(&case);
-        if kind == "source_listing_parse" {
+        if kind == "source_walk" {
+            walked += 1;
+            stopped += usize::from(out.get("failure").is_some());
+            let hash = |key: &str| out[key].as_str().is_some_and(|value| value.len() == 64);
+            exact += usize::from(hash("fingerprint"));
+            earlier += usize::from(hash("legacy"));
+            raw += usize::from(hash("raw"));
+        } else if kind == "source_listing_parse" {
             read += 1;
             listings += usize::from(out["size"].as_u64().is_some_and(|size| size > 1));
             refused += usize::from(out.get("listing").is_some_and(Value::is_null));
@@ -65,6 +78,11 @@ fn every_evidence_case_gets_upstreams_answer() {
     assert!(
         unwritten >= 100 && changed >= 300 && unchanged >= 30,
         "{unwritten} {changed} {unchanged}"
+    );
+    assert!(
+        cfg!(windows)
+            || (walked >= 500 && stopped >= 80 && exact >= 380 && earlier >= 120 && raw >= 30),
+        "{walked} {stopped} {exact} {earlier} {raw}"
     );
     assert!(
         differing.is_empty(),
