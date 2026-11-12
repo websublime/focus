@@ -11,6 +11,14 @@
 //! shards with the same instant have no order, so an answer that could be
 //! one of several questions' is shown as ambiguous instead of being given
 //! to whichever shard's name sorts first.
+//!
+//! # Tests that another test covers
+//!
+//! Two questions upstream asks change no answer here. Two rows are in one
+//! scope when their stage and their scope are the same, and every row read
+//! is of the one stage asked for. And a row is never asked whether it is
+//! before itself, so a row of a shard is before another by a smaller
+//! position or by one no greater alike.
 
 use std::collections::HashMap;
 
@@ -112,9 +120,10 @@ pub fn answers(layout: &Layout, invoker: &Invoker, args: &[String]) -> Result<Va
     let rows: Vec<Row> = Ledger::new(layout, Machine::this())
         .active_history(invoker)?
         .into_iter()
+        // The history holds the notes too; a note is neither a question
+        // nor an answer, so it takes no part below.
         .filter(|row| {
-            row.note.is_none()
-                && block_field(&row.block, "Stage") == Some(stage)
+            block_field(&row.block, "Stage") == Some(stage)
                 && block_field(&row.block, "Checkpoint").is_none()
                 && unit.is_none_or(|unit| block_field(&row.block, "Unit") == Some(unit))
         })

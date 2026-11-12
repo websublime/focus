@@ -4705,7 +4705,17 @@ def log_checks():
     check_("answers/question_tied_with_the_answer", told(Q(1, "Which database?"), A(2, "Both"), **other(Q(2, "Which cache?"))), [read])
     check_("answers/open_in_the_ledgers_order", told(Q(3, "Third?"), Q(1, "First?"), **other(Q(2, "Second?"), Q(1, "Also first?"))), [read])
     check_("answers/continued_across_shards", told(Q(1, "Which database?"), A(2, "Postgres"), **other(A(3, "and Redis"), A(2, "tied"))), [read])
+    check_("answers/scope_fields_in_order", told(Q(1, "Both?", "**Workflow**: single-stage:intent-capture", "**Attempt Generation**: 2", "**Unit**: api"),
+                                                 A(2, "x", "**Workflow**: single-stage:intent-capture", "**Unit**: api")), [read])
+    # What ends an exchange: a question between it and the answer, even one a cancellation already spent; a
+    # question tied with the answer; an answer tied with the one that closed it.
+    check_("answers/not_continued_over_a_cancelled_question", told(Q(1, "Which database?"), A(2, "Postgres"), Q(3, "Which cache?"), A(4, "Cancelled"), A(5, "Redis")), [read])
+    check_("answers/not_continued_with_a_tied_question", told(Q(1, "Which database?"), A(2, "Postgres"), A(3, "more"), **other(Q(3, "Which cache?"))), [read])
+    check_("answers/not_continued_by_a_tied_answer", told(A(2, "in the file before its question"), Q(1, "Which database?"), **other(A(2, "Postgres"))), [read])
+    check_("answers/continued_once_of_two_tied", told(Q(1, "Which database?"), A(2, "Postgres"), A(3, "laptop's"), **other(A(3, "desktop's"))), [read])
     # A shard whose rows are out of the order of their instants: every answer has another before it.
+    check_("answers/out_of_order_in_two_scopes", told(Q(1, "For api?", "**Unit**: api"), Q(1, "For web?", "**Unit**: web"), A(7, "api says", "**Unit**: api"),
+                                                      A(5, "web says", "**Unit**: web")), [read])
     check_("answers/cycle", told(Q(1, "Which database?"), A(7, "first in the file"), A(5, "second in the file"), **other(A(6, "between them"))), [read])
     check_("answers/cycle_with_a_cancellation", told(Q(1, "Which database?"), A(7, "Cancelled"), A(5, "second in the file"), **other(A(6, "between them"))), [read])
 
