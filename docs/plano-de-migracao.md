@@ -456,6 +456,7 @@ A decisão 3 dizia "cargo toma posse". Li-a como: nada de compatibilidade com o 
 1. **`.gitignore` do lock.** `focus/.focus-lock` não deve ser commitado. O instalador (M8) é quem escreve o `.gitignore` do projeto; até lá, quem usar Focus num projeto real acrescenta a linha à mão.
 2. **Peso das fixtures (R10).** 19 MB no repositório, ou diferencial gravado fora dele.
 3. **O nome do método na prosa.** O Markdown reutilizado diz "AI-DLC" quando fala do método (por exemplo, "AI-DLC workflow"). Não mexi: é o nome de uma metodologia, não um identificador, e trocá-lo por substituição de texto estraga a gramática ("an AI-DLC" passaria a "an Focus"). Se o queres fora, é uma edição de conteúdo à mão, que cabe em M8 com o resto do Markdown.
+4. **Um teste instável em macOS (2026-11-12).** `resolve_finds_the_calling_conversation_through_the_process_tree` (`crates/focus-cli/tests/cli.rs`) falhou uma vez no CI de macOS do pull request #38 e passou na repetição, sem o código ter mudado: o comando caiu para o cursor partilhado em vez de encontrar a conversa pela árvore de processos. A causa não está confirmada. A hipótese é o orçamento de tempo com que `focus-workspace::ancestry` lê a árvore, esgotado num runner sob carga. `main` tem de estar sempre verde: investiga-se antes de a fatia 1b fechar.
 
 ## 12. Como correr
 
