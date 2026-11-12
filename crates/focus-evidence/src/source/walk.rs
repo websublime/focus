@@ -13,9 +13,8 @@
 //! it. A project names its own exceptions in a registry file it commits:
 //! paths that are source whatever they look like, and paths that are not.
 //!
-//! What this port leaves out, each refused by name where it would be read:
-//! the context of a delegated worktree, and a git repository embedded in
-//! the tree (its `HEAD` is the next slice). The paths the walk collects for
+//! What this port leaves out, refused by name where it would be read: the
+//! context of a delegated worktree. The paths the walk collects for
 //! a snapshot index (pathspecs, snapshot paths) serve parallel Construction
 //! only, which is deferred, and are not collected.
 //!
@@ -73,6 +72,7 @@ use focus_workspace::names::{
 use serde_json::Value;
 use sha2::{Digest, Sha256};
 
+use super::git;
 use super::listing::Listing;
 use super::raw;
 
@@ -1446,10 +1446,17 @@ impl Walk<'_> {
                 }
                 let nested_git_repo = child.join(".git").exists();
                 if nested_git_repo && frame.snapshot_eligible {
-                    // Listed as a gitlink to the commit its `HEAD` names.
-                    return Err(Stop::NotPorted(
-                        "a git repository embedded in the source tree",
-                    ));
+                    // An embedded repository is one entry: a gitlink to the
+                    // commit it is on. Its files are walked all the same.
+                    let Some(oid) = git::head_oid(&child) else {
+                        return failed(
+                            "walk-failed",
+                            "the embedded git repository has no resolvable HEAD commit",
+                            &child_rel,
+                        );
+                    };
+                    self.listing
+                        .set(child_listing_rel.as_str(), entry_of("160000", &oid));
                 }
                 let below = Frame {
                     rel: child_rel,
