@@ -53,36 +53,14 @@ pub fn update_intent_status(
 
 /// `intentRepos`: the repositories the record's row lists; none when it
 /// lists none or has no row.
-#[must_use]
-pub fn intent_repos(layout: &Layout, space: &str, dir_name: Option<&str>) -> Vec<String> {
-    let Some(dir_name) = dir_name else {
-        return Vec::new();
-    };
-    read_intent_registry(layout, space)
-        .iter()
-        .find(|row| row_names_record(row, dir_name))
-        .and_then(|row| row.get("repos"))
-        .and_then(Value::as_array)
-        .map(|repos| {
-            repos
-                .iter()
-                .filter_map(Value::as_str)
-                .map(str::to_owned)
-                .collect()
-        })
-        .unwrap_or_default()
-}
-
-/// `intentRepos` for a reader that walks them as source: the same list,
-/// and a row whose `repos` is not one is refused.
 ///
 /// # Errors
 ///
-/// The row's `repos` is not a list of names. Upstream takes whatever is
-/// there and falls over where it first joins a path, with what its runtime
-/// says of the value; an empty name it reads as the project itself, engine
-/// and harness included. Focus refuses the row by name.
-pub fn source_repos(layout: &Layout, space: &str, dir_name: Option<&str>) -> Result<Vec<String>> {
+/// The row's `repos` is not a list of text. Upstream takes whatever is
+/// there, and what happens depends on who reads it: most readers fall over
+/// where they first use a name, with what the runtime says of the value.
+/// Focus refuses the row by name, whoever reads it.
+pub fn intent_repos(layout: &Layout, space: &str, dir_name: Option<&str>) -> Result<Vec<String>> {
     let Some(dir_name) = dir_name else {
         return Ok(Vec::new());
     };
@@ -95,20 +73,34 @@ pub fn source_repos(layout: &Layout, space: &str, dir_name: Option<&str>) -> Res
         None | Some(Value::Null) => Some(Vec::new()),
         Some(Value::Array(repos)) => repos
             .iter()
-            .map(|name| {
-                name.as_str()
-                    .filter(|name| !name.is_empty())
-                    .map(str::to_owned)
-            })
+            .map(|name| name.as_str().map(str::to_owned))
             .collect(),
         Some(_) => None,
     };
-    names.ok_or_else(|| {
-        focus_js::EngineError::new(format!(
-            "{} lists the repositories of {dir_name} as something that is not a list of names, so the source of that work cannot be told. Fix the row's `repos`: a list of the member repositories' directory names, or nothing for a project that is one repository.",
-            layout.intents_dir(space).join("intents.json").display()
-        ))
-    })
+    names.ok_or_else(|| not_names(layout, space, dir_name))
+}
+
+fn not_names(layout: &Layout, space: &str, dir_name: &str) -> focus_js::EngineError {
+    focus_js::EngineError::new(format!(
+        "{} lists the repositories of {dir_name} as something that is not a list of names. Fix the row's `repos`: a list of the member repositories' directory names, or nothing for a project that is one repository.",
+        layout.intents_dir(space).join("intents.json").display()
+    ))
+}
+
+/// `intentRepos` for a reader that walks the repositories as source.
+///
+/// # Errors
+///
+/// As [`intent_repos`]; and a name is empty, which upstream reads as the
+/// project itself, engine and harness included.
+pub fn source_repos(layout: &Layout, space: &str, dir_name: Option<&str>) -> Result<Vec<String>> {
+    let repos = intent_repos(layout, space, dir_name)?;
+    match dir_name {
+        Some(dir_name) if repos.iter().any(String::is_empty) => {
+            Err(not_names(layout, space, dir_name))
+        }
+        _ => Ok(repos),
+    }
 }
 
 #[cfg(test)]
@@ -134,20 +126,19 @@ mod tests {
         let text = std::fs::read_to_string(intents.join("intents.json")).unwrap();
         assert!(text.contains("\"status\": \"complete\""), "{text}");
         assert!(text.contains("\"status\": \"done\""), "{text}");
-        assert_eq!(
-            intent_repos(&layout, "default", Some("250101-old")),
-            ["api"]
-        );
-        assert!(intent_repos(&layout, "default", Some("261014-add-login")).is_empty());
-        assert!(intent_repos(&layout, "default", None).is_empty());
+        let repos = |dir_name| intent_repos(&layout, "default", dir_name).unwrap();
+        assert_eq!(repos(Some("250101-old")), ["api"]);
+        assert!(repos(Some("261014-add-login")).is_empty());
+        assert!(repos(None).is_empty());
         let _ = std::fs::remove_dir_all(&root);
     }
 
     /// Deliberate deviation: a row whose `repos` is not a list of names.
-    /// Upstream falls over on it where it first joins a path (what its
-    /// runtime says of the value), and reads an empty name as the project
-    /// itself. A reader that walks the repositories as source refuses the
-    /// row by name.
+    /// Upstream takes what is there, and most readers fall over where they
+    /// first use a name (what the runtime says of the value); an empty name
+    /// is the project itself to a reader that walks the repositories as
+    /// source. Focus refuses the row by name: what is not text for every
+    /// reader, an empty name for the one that walks.
     #[test]
     fn repositories_that_are_not_a_list_of_names_are_refused() {
         let root =
@@ -164,19 +155,28 @@ mod tests {
                 ),
             )
             .unwrap();
-            source_repos(&layout, "default", Some("261014-add-login"))
+            (
+                intent_repos(&layout, "default", Some("261014-add-login")),
+                source_repos(&layout, "default", Some("261014-add-login")),
+            )
         };
-        assert_eq!(
-            listed(",\"repos\":[\"app\",\"api\"]").unwrap(),
-            ["app", "api"]
+        let refusal = format!(
+            "{} lists the repositories of 261014-add-login as something that is not a list of names. Fix the row's `repos`: a list of the member repositories' directory names, or nothing for a project that is one repository.",
+            intents.join("intents.json").display()
         );
-        assert!(listed("").unwrap().is_empty());
-        assert!(listed(",\"repos\":null").unwrap().is_empty());
-        assert!(listed(",\"repos\":[]").unwrap().is_empty());
+        for (repos, names) in [
+            (",\"repos\":[\"app\",\"api\"]", vec!["app", "api"]),
+            ("", vec![]),
+            (",\"repos\":null", vec![]),
+            (",\"repos\":[]", vec![]),
+        ] {
+            let (read, walked) = listed(repos);
+            assert_eq!(read.unwrap(), names, "{repos}");
+            assert_eq!(walked.unwrap(), names, "{repos}");
+        }
         for repos in [
             "[\"app\",7]",
             "[null]",
-            "[\"app\",\"\"]",
             "[[\"app\"]]",
             "\"app\"",
             "\"\"",
@@ -184,21 +184,17 @@ mod tests {
             "{}",
             "false",
         ] {
-            let refusal = listed(&format!(",\"repos\":{repos}"))
-                .unwrap_err()
-                .to_string();
-            assert_eq!(
-                refusal,
-                format!(
-                    "{} lists the repositories of 261014-add-login as something that is not a list of names, so the source of that work cannot be told. Fix the row's `repos`: a list of the member repositories' directory names, or nothing for a project that is one repository.",
-                    intents.join("intents.json").display()
-                ),
-                "{repos}"
-            );
+            let (read, walked) = listed(&format!(",\"repos\":{repos}"));
+            assert_eq!(read.unwrap_err().to_string(), refusal, "{repos}");
+            assert_eq!(walked.unwrap_err().to_string(), refusal, "{repos}");
         }
-        assert!(source_repos(&layout, "default", None).unwrap().is_empty());
+        // An empty name is one a reader may pass over; a walk would take it for the project.
+        let (read, walked) = listed(",\"repos\":[\"app\",\"\"]");
+        assert_eq!(read.unwrap(), ["app", ""]);
+        assert_eq!(walked.unwrap_err().to_string(), refusal);
+        assert!(intent_repos(&layout, "default", None).unwrap().is_empty());
         assert!(
-            source_repos(&layout, "default", Some("nope"))
+            intent_repos(&layout, "default", Some("nope"))
                 .unwrap()
                 .is_empty()
         );

@@ -491,7 +491,7 @@ pub fn approve(
     admission::verify_summary_confirmation(wf, stage, &preflight)?;
     let preflight_backstop = !revision_backstop_disabled(wf)
         && !guard_policy_accepts_changes(wf, &preflight)
-        && gate::unrecorded_revision_since_gate_open(wf, stage);
+        && gate::unrecorded_revision_since_gate_open(wf, stage)?;
     if preflight_backstop {
         gate::refuse_gate_sensors(wf, stage, &preflight, None, true)?;
     }
@@ -520,7 +520,7 @@ pub fn approve(
     };
     let backstop_now = !revision_backstop_disabled(wf)
         && !guard_policy_accepts_changes(wf, &content)
-        && gate::unrecorded_revision_since_gate_open(wf, stage);
+        && gate::unrecorded_revision_since_gate_open(wf, stage)?;
     if backstop_now && !preflight_backstop {
         refuse!(
             "Refusing to approve \"{slug}\": revision evidence changed during the gate preflight. Retry the approval so revised bytes can be checked before re-entry."

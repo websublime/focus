@@ -1569,6 +1569,45 @@ fn a_jump_resolves_and_moves_the_work() {
     let _ = fs::remove_dir_all(root);
 }
 
+/// Deliberate deviation. A registry row whose `repos` is not a list of
+/// names: upstream falls over on it with what its runtime says of the
+/// value, and takes an empty name for the project itself. A jump walks the
+/// repositories as source: it refuses the row, and moves nothing.
+#[test]
+fn a_jump_refuses_repositories_that_are_not_names() {
+    for (name, repos) in [
+        ("number", "[\"app\", 7]"),
+        ("text", "\"app\""),
+        ("empty", "[\"app\", \"\"]"),
+    ] {
+        let root = created(&format!("jump-repos-{name}"), CREATED);
+        write(
+            &root,
+            "focus/spaces/default/intents/intents.json",
+            &format!(
+                "[\n  {{\n    \"uuid\": \"01a138fa-d37d-787d-af4a-966efbb0b6fd\",\n    \"slug\": \"add-login\",\n    \"dirName\": \"260105-add-login\",\n    \"scope\": \"feature\",\n    \"status\": \"in-flight\",\n    \"repos\": {repos}\n  }}\n]\n"
+            ),
+        );
+        let said = refusal(&jump(
+            &root,
+            &[
+                "execute",
+                "--target",
+                "feasibility",
+                "--direction",
+                "forward",
+            ],
+            &[],
+        ));
+        assert!(
+            said.ends_with("intents.json lists the repositories of 260105-add-login as something that is not a list of names. Fix the row's `repos`: a list of the member repositories' directory names, or nothing for a project that is one repository."),
+            "{repos}: {said}"
+        );
+        assert_eq!(created_state(&root), CREATED, "{repos}");
+        let _ = fs::remove_dir_all(root);
+    }
+}
+
 /// The words the human-turn hook kept for the chat, read at the gate: the
 /// person's exact pick decides against a report of the other choice, their
 /// words ride on the receipt, and their own feedback replaces the
