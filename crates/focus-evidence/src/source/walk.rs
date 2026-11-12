@@ -13,9 +13,8 @@
 //! it. A project names its own exceptions in a registry file it commits:
 //! paths that are source whatever they look like, and paths that are not.
 //!
-//! What this port leaves out, each refused by name where it would be read:
-//! the context of a delegated worktree, and a git repository embedded in
-//! the tree (its `HEAD` is the next slice). The paths the walk collects for
+//! What this port leaves out, refused by name where it would be read: the
+//! context of a delegated worktree. The paths the walk collects for
 //! a snapshot index (pathspecs, snapshot paths) serve parallel Construction
 //! only, which is deferred, and are not collected.
 //!
@@ -44,18 +43,13 @@
 //!   as text with or without the question.
 //! - Once the earlier walk's value is given up, nothing more is added to
 //!   it, counted or not.
-//! - A path the registry excludes and everything under it are excluded by
-//!   the same prefix, so a directory under one is walked the same by
-//!   either branch; a file with a registered path under it cannot exist (the
-//!   registered path fails to resolve first), so a file that is only on the
-//!   way to one is never reached.
+//! - A file with a registered path under it cannot exist (the registered
+//!   path fails to resolve first), so a file that is only on the way to
+//!   one is never reached.
 //! - A registered path that resolves outside the root, or to the root
 //!   itself, adds a name no entry of the walk has.
-//!
-//! One group holds only until embedded repositories are read: a directory
-//! is visited a second time under the same key only when the first visit
-//! was inside a repository of its own, so until then what is recorded on a
-//! second visit, and whether there is one, cannot be told apart.
+//! - A directory already visited for everything is not visited again, so
+//!   what a later visit would store about it is never read.
 
 use std::collections::{HashMap, HashSet};
 use std::fs::{self, File, Metadata};
@@ -73,6 +67,7 @@ use focus_workspace::names::{
 use serde_json::Value;
 use sha2::{Digest, Sha256};
 
+use super::git;
 use super::listing::Listing;
 use super::raw;
 
@@ -1446,10 +1441,17 @@ impl Walk<'_> {
                 }
                 let nested_git_repo = child.join(".git").exists();
                 if nested_git_repo && frame.snapshot_eligible {
-                    // Listed as a gitlink to the commit its `HEAD` names.
-                    return Err(Stop::NotPorted(
-                        "a git repository embedded in the source tree",
-                    ));
+                    // An embedded repository is one entry: a gitlink to the
+                    // commit it is on. Its files are walked all the same.
+                    let Some(oid) = git::head_oid(&child) else {
+                        return failed(
+                            "walk-failed",
+                            "the embedded git repository has no resolvable HEAD commit",
+                            &child_rel,
+                        );
+                    };
+                    self.listing
+                        .set(child_listing_rel.as_str(), entry_of("160000", &oid));
                 }
                 let below = Frame {
                     rel: child_rel,
@@ -1909,20 +1911,10 @@ mod tests {
         );
     }
 
-    /// What is not read yet is refused by name, never walked as if it were
+    /// What is not read is refused by name, never walked as if it were
     /// something else.
     #[test]
     fn what_is_not_ported_is_refused_by_name() {
-        let root = scratch("embedded");
-        fs::create_dir_all(root.join("vendor/lib/.git")).unwrap();
-        fs::write(root.join("vendor/lib/x.c"), "x\n").unwrap();
-        assert_eq!(
-            workspace_source(&root, &[], true, &options()),
-            Err(Stop::NotPorted(
-                "a git repository embedded in the source tree"
-            ))
-        );
-        let _ = fs::remove_dir_all(&root);
         let root = scratch("worktree");
         fs::create_dir_all(root.join(".focus")).unwrap();
         fs::write(root.join(WORKTREE_META), "{}").unwrap();

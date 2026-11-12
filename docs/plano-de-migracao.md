@@ -338,7 +338,7 @@ Os quatro primeiros foram reproduzidos nos dois motores. O quinto deixou de exis
 - **Projeto e harness.** O projeto é `--project-dir`, senão `FOCUS_PROJECT_DIR`, senão o que o host indicar (`CLAUDE_PROJECT_DIR`), senão o diretório mais próximo, de onde o comando corre para cima, com um harness instalado. O harness é `--harness`, senão `FOCUS_HARNESS`, senão o único instalado; com vários instalados, Focus pede que se diga qual.
 - **Todos os verbos de `graph`**: `topo`, `cycles`, `scope`, `artifacts`, `producers`, `consumers`, `validate-scope`, `validate-grid`, `ars`, `resolve`, `export`.
 - **Distribuição.** `dist-workspace.toml` e o workflow de release gerado pelo `cargo-dist` 0.32 para cinco alvos (Linux x86-64 e arm64, macOS x86-64 e arm64, Windows x86-64), com instaladores shell e PowerShell. Um CI próprio corre lints e testes nas três plataformas. O pacote do binário passou a chamar-se `focus` para os artefactos saírem com esse nome.
-- Dependências externas diretas: `serde`, `serde_json` e `regress`; em testes, `sha2`.
+- Dependências externas diretas: `serde`, `serde_json` e `regress`; em testes, `sha2`. (Desde M5: `sha2` e `flate2` em `focus-evidence`, secção 16.)
 
 ### Verificado
 
@@ -1756,7 +1756,7 @@ Os intervalos de linhas são de `aidlc-orchestrate.ts` no pin, salvo indicação
 
 | Fatia | O que traz | Levanta | Como se verifica | Estado |
 | --- | --- | --- | --- | --- |
-| 1. A identidade da fonte | O passeio pelos ficheiros fonte do projeto, a sua impressão digital, o snapshot `baseline-<hash>.tsv` e o campo `Source Baseline`; o snapshot de fonte de uma unit (`workspaceSourceState`, `readUnitSourceSnapshot` e o que está entre eles em `aidlc-lib.ts`) | `SHAPES["source-baseline"]` (criação e saltos passam a comparar o campo e a listagem); o baseline de uma stage que produz código nas transições; o desvio dos observadores na criação | Corpus sobre árvores de scratch (o que conta como fonte, o que se ignora, a ordem, o hash); diferencial | Em curso: partida em quatro, 1a e 1b feitas (abaixo) |
+| 1. A identidade da fonte | O passeio pelos ficheiros fonte do projeto, a sua impressão digital, o snapshot `baseline-<hash>.tsv` e o campo `Source Baseline`; o snapshot de fonte de uma unit (`workspaceSourceState`, `readUnitSourceSnapshot` e o que está entre eles em `aidlc-lib.ts`) | `SHAPES["source-baseline"]` (criação e saltos passam a comparar o campo e a listagem); o baseline de uma stage que produz código nas transições; o desvio dos observadores na criação | Corpus sobre árvores de scratch (o que conta como fonte, o que se ignora, a ordem, o hash); diferencial | Em curso: partida em quatro, 1a a 1c feitas (abaixo) |
 | 2. `log` | `focus engine log decision`, `answer`, `answers`, `link` e `review`: as linhas `DECISION_RECORDED`, `QUESTION_ANSWERED`, `SUMMARY_CONFIRMATION_RECORDED`, `REVIEW_REQUESTED` e `REVIEW_COMPLETED`, os handoffs de um pipeline; o registo de mensagens lido (`aidlc-log.ts`, 4 486; `message-store`, 246) | Nada sozinho: é quem escreve o que a fatia 3 pesa. A escolha de uma pergunta de recuperação gravada por `log` fica para a fatia 4 | Diferencial (`log/*`) | Por fazer |
 | 3. Os recibos pesados | `freshReviewReceipts` (1 066) e `checkSummaryConfirmationEvidence` (647), os handoffs devidos por um pipeline, os pares pedido e conclusão de uma revisão; `review-brief` (2 365: `review`, `summary`, `context`) e os findings que um gate grava na decisão | As recusas pelo nome de `state` (`advance` e os gates com sumário, revisão ou pipeline devidos), de `review-freeze` e do grupo (`review_rows`), do salto para trás com linhas de revisão, e do turno humano com um pedido de revisão sem veredicto. Sem units: a dimensão por unit chega com a fatia 5 | Diferencial; corpus para os leitores puros (a tabela de findings, a secção `## Review`) | Por fazer |
 | 4. A pergunta de recuperação | `evaluateGuardRefusal` e `guardAttemptState`: depois da frase de um guard, a pergunta com os remédios que o condutor pode oferecer, e a série da recusa em `.focus-engine/guard-refusals/`; a escolha gravada | `SHAPES["guard-ask"]` | Diferencial | Por fazer |
@@ -1777,7 +1777,7 @@ A tabela acima dava esta fatia como uma região contígua e pequena. Lida, não 
 | --- | --- | --- | --- |
 | 1a. A listagem | O registo por caminho de uma árvore de fonte e o texto em que se guarda | Corpus | Feito |
 | 1b. O passeio | Ficheiros, pastas, links e ficheiros especiais; o que fica fora pelo nome; o registry do projeto; os limites; os fins de linha; a impressão digital; um projeto que é um teto sobre vários repositórios | Corpus sobre árvores de scratch | Feito |
-| 1c. O que o git diz | Um repositório embebido na árvore, listado como gitlink para o commit que o seu `HEAD` nomeia (a leitura de um repositório sem correr git) | Corpus sobre árvores de scratch com um repositório | Por fazer |
+| 1c. O que o git diz | Um repositório embebido na árvore, listado como gitlink para o commit que o seu `HEAD` nomeia (a leitura de um repositório sem correr git) | Corpus sobre árvores de scratch com um repositório | Feito |
 | 1d. Os snapshots e o campo | `baseline-<hash>.tsv` e o snapshot do workspace, escritos e lidos; `Source Baseline` na criação, nos saltos e nas transições | Diferencial: `SHAPES["source-baseline"]` sai | Por fazer |
 
 A fronteira entre 1b e 1c ficou onde a leitura do resto do passeio a pôs: o registry é um ficheiro do projeto, não do git, e entrou com o passeio; do git o passeio só precisa do `HEAD` de um repositório embebido, que é a 1c.
@@ -1802,7 +1802,7 @@ O que fica para o passeio: o original lê uma entrada gravada sobre fins de linh
 
 ### Fatia 1b: o passeio
 
-**Decisão de âmbito.** O passeio inteiro, menos duas coisas que recusa pelo nome onde as leria: o contexto de uma worktree delegada (adiada) e um repositório git embebido na árvore, cujo `HEAD` é a 1c. O que o original recolhe para o índice de um snapshot (pathspecs, caminhos de snapshot, links para fora) serve só a Construction em paralelo e não se recolhe.
+**Decisão de âmbito.** O passeio inteiro, menos duas coisas que recusa pelo nome onde as leria: o contexto de uma worktree delegada (adiada) e um repositório git embebido na árvore, cujo `HEAD` é a 1c (e que com ela deixou de ser recusado). O que o original recolhe para o índice de um snapshot (pathspecs, caminhos de snapshot, links para fora) serve só a Construction em paralelo e não se recolhe.
 
 **O que existe.** Em `focus-evidence`, `source::walk`: `identity` (`filesystemSourceIdentity`: o que os ficheiros de uma raiz são) e `workspace_source` (`walkWorkspaceSource`: o mesmo sobre um projeto que é um repositório, ou um teto sobre vários). O passeio decide pelo nome, nunca perguntando ao git, o que fica fora: as pastas que nunca são fonte, os ficheiros que um sistema operativo, uma corrida de coverage ou um editor deixam, as pastas de output (sempre; e, ao lado de um ficheiro de projeto .NET ou do manifesto de um gestor de pacotes, as que esse preenche), o workspace e as árvores de harness que se anunciam, os settings do engine na raiz, e o diretório do engine de um registo onde quer que haja um workspace. O registry do projeto (`.focus-source-paths.json`) nomeia as exceções: caminhos que são fonte seja qual for o nome ou o conteúdo, e caminhos que não são. Um link é seguido um salto de cada vez; o que está fora do projeto só entra se ler como fonte ou como texto. `source::raw` guarda os hashes que este processo tirou das duas maneiras (sobre os bytes crus e sobre o texto com cada CRLF lido como LF), para um valor gravado antes dessa leitura continuar a bater; `listing::entries_equal` passa a usá-lo.
 
@@ -1836,6 +1836,27 @@ Uma falha traz o código, a frase e o caminho do original (`Stop::Failed`); o qu
 | Desvio | Original | Focus |
 | --- | --- | --- |
 | Os nomes dentro da impressão digital | `aidlc-filesystem-source-v2`, `aidlc-workspace-source-v2`, `.aidlc-source-paths.json` | `focus-filesystem-source-v2`, `focus-workspace-source-v2`, `.focus-source-paths.json`: a impressão digital de uma árvore difere por construção, como os hashes do recibo de validade (secção 14) |
+
+### Fatia 1c: o commit de um repositório embebido
+
+**O que existe.** Em `focus-evidence`, `source::git`: `head_oid` (`gitHeadOid`), o commit em que um repositório está, lido dos seus ficheiros sem correr git. Lê o `HEAD`; segue a referência que ele nomeia pelas referências soltas (que podem nomear outra, até oito saltos) e por `packed-refs`; lê do `config` o tamanho de um id (SHA-1 ou SHA-256, e recusa um formato de repositório que esta leitura não cobre); e só aceita o id se o armazém de objetos tiver um commit com ele, solto ou num pack (os índices nas duas versões, os offsets grandes, e uma alteração seguida até ao objeto de que é alteração, por offset ou por id). O repositório pode ser uma pasta `.git` ou um ficheiro que aponta para ela, pode partilhar referências e objetos com outras worktrees (`commondir`) e pode pedir objetos emprestados (`alternates`, até sessenta e quatro armazéns). Toda a leitura tem limite, e toda a dúvida é a resposta "nenhum": o passeio então não consegue ligar a fonte, que é a leitura segura de um repositório que não percebe.
+
+No passeio, uma pasta com `.git` é uma entrada só, um gitlink (`160000`) para esse commit, e os seus ficheiros são andados na mesma. A recusa pelo nome de 1b sai; fica a da worktree delegada.
+
+**Uma dependência nova.** `flate2`, para descomprimir um objeto solto (zlib). A descompressão é feita pela interface de baixo nível, para um stream cortado ser um erro como é no original: a de alto nível devolvia o que tivesse lido até aí.
+
+**O que o corpus encontrou.** Nada que diferisse: as 297 árvores da primeira corrida saíram iguais, e as 71 escritas depois da mutação também.
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Corpus, `source_walk` com um repositório | 368 árvores, todas iguais: 123 com o gitlink na listagem, 9 em que o repositório não é listado (alcançado por um link, debaixo de um nome que fica fora, fora do projeto) e 236 em que o `HEAD` não se resolve num commit. 120 com packs. Cada forma de `HEAD`, cada nome que é e não é o de uma referência, cada defeito de um objeto solto (o tipo, o tamanho declarado, o cabeçalho com 128 e 129 bytes, um stream cortado, lixo depois do stream), cada forma do `config`, o repositório atrás de um ficheiro, de `commondir` e de `alternates`, e nos packs: o objeto abaixo e acima de todos os de um índice, um índice em que não se pode confiar antes de um bom, o offset antes do décimo segundo byte e no fim do pack, uma cadeia de alterações com 64 e 65 de fundo |
+| Testes unitários | 1: a descompressão pára no seu limite e no fim do stream (o corpus não leva um objeto de 64 MiB) |
+| Mutação | 137 mutantes (128 em `git`, 9 em `walk`): 120 apanhados pelo corpus (81 na primeira passagem; os outros depois das 71 árvores) e 17 equivalentes, anotados no topo do módulo: perguntas que o original faz duas vezes (o tamanho de um ficheiro antes e depois de o abrir, um objeto antes do décimo segundo byte recusado onde se lê) e ciclos que acabam tanto pelo que já foi visto como pela profundidade. Dos quatro mutantes de 1b que só eram equivalentes sem repositórios embebidos, três passaram a ser apanhados (uma pasta de um repositório alcançada outra vez por um link é andada pelo que a primeira visita não pôde listar, e por mais nada) e um é equivalente de vez |
+| `cargo test` | 563 testes; corpus de 33 689 casos (368 novos), todos iguais; os 33 321 anteriores iguais byte a byte |
+
+**O que fica por comparar.** Os limites de tamanho (16 MiB de um objeto solto, 64 MiB descomprimidos, 128 MiB de um índice e 256 MiB de todos, 16 MiB de `packed-refs`, 256 índices) estão lidos do original. Um objeto é o que os seus bytes dizem: nem o original nem Focus verificam que o conteúdo bate com o id sob que está guardado, e o corpus usa isso para montar os repositórios à mão.
 
 ### Correção: o pai de um processo, sem `ps`
 

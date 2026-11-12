@@ -11,6 +11,7 @@ publish.workspace = true
 [dependencies]
 serde_json.workspace = true
 sha2.workspace = true
+flate2.workspace = true
 focus-js.workspace = true
 focus-workspace.workspace = true
 

@@ -26,6 +26,7 @@ fn every_evidence_case_gets_upstreams_answer() {
     let (mut read, mut listings, mut refused, mut thrown) = (0, 0, 0, 0);
     let (mut pairs, mut unwritten, mut changed, mut unchanged) = (0, 0, 0, 0);
     let (mut walked, mut stopped, mut exact, mut earlier, mut raw) = (0, 0, 0, 0, 0);
+    let (mut embedded, mut unresolved) = (0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         // Parsed as upstream's driver parses it, so nested objects are in the
@@ -56,6 +57,15 @@ fn every_evidence_case_gets_upstreams_answer() {
             exact += usize::from(hash("fingerprint"));
             earlier += usize::from(hash("legacy"));
             raw += usize::from(hash("raw"));
+            embedded += usize::from(out["rows"].as_array().is_some_and(|rows| {
+                rows.iter()
+                    .any(|row| row.as_str().is_some_and(|row| row.contains("\t160000\t")))
+            }));
+            unresolved += usize::from(
+                out["failure"]["detail"]
+                    .as_str()
+                    .is_some_and(|detail| detail.contains("embedded git repository")),
+            );
         } else if kind == "source_listing_parse" {
             read += 1;
             listings += usize::from(out["size"].as_u64().is_some_and(|size| size > 1));
@@ -89,8 +99,12 @@ fn every_evidence_case_gets_upstreams_answer() {
     );
     assert!(
         cfg!(windows)
-            || (walked >= 500 && stopped >= 80 && exact >= 380 && earlier >= 120 && raw >= 30),
+            || (walked >= 850 && stopped >= 300 && exact >= 500 && earlier >= 120 && raw >= 30),
         "{walked} {stopped} {exact} {earlier} {raw}"
+    );
+    assert!(
+        cfg!(windows) || (embedded >= 120 && unresolved >= 200),
+        "{embedded} {unresolved}"
     );
     assert!(
         differing.is_empty(),
