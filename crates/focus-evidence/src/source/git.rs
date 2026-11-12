@@ -12,6 +12,29 @@
 //! nowhere, a reference that is not a reference's name, an object that is
 //! not a commit. The caller then cannot bind the source, which is the
 //! safe reading of a repository it does not understand.
+//!
+//! # Tests that another test covers
+//!
+//! As in the walk, upstream asks some questions twice and the port keeps
+//! each where upstream has it:
+//!
+//! - A pointer file's size is tested before it is opened and again after;
+//!   a `.git` that is neither a directory nor a file is not a regular file
+//!   to read; an object header that starts with its end has no type.
+//! - Only `commit`, in lower case, is a commit: whatever else a header or
+//!   a pack says the object is, the answer is the same "not a commit".
+//! - An object before a pack's twelfth byte is refused where it is read,
+//!   so the base of a change is not tested apart.
+//! - A reference's name with an empty part, `.` or `..` fails the test of
+//!   its parts; SHA-256 ids are only ever set by an extension, which
+//!   already needs the newer format.
+//! - A reference that names itself, and an object that is a change of
+//!   itself, are ended by what was already seen, and would be by the depth
+//!   each is followed to. An object id taken from `HEAD` or from a pack is
+//!   an object id.
+//! - The name of an index is tested to its end, but nothing would be read
+//!   under a longer one: the pack beside it would have no name to be found
+//!   by.
 
 use std::collections::HashSet;
 use std::fs::{self, File};
@@ -730,4 +753,41 @@ pub fn head_oid(worktree: &Path) -> Option<String> {
     let object_dirs = object_directories(&common)?;
     (object_type_by_oid(&object_dirs, &oid, &mut HashSet::new(), 0)? == ObjectType::Commit)
         .then_some(oid)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// A stored (uncompressed) zlib stream of `data`.
+    fn stored(data: &[u8]) -> Vec<u8> {
+        let mut out = vec![0x78, 0x01, 0x01];
+        let len = u16::try_from(data.len()).unwrap();
+        out.extend(len.to_le_bytes());
+        out.extend((!len).to_le_bytes());
+        out.extend(data);
+        let (mut a, mut b) = (1_u32, 0_u32);
+        for byte in data {
+            a = (a + u32::from(*byte)) % 65_521;
+            b = (b + a) % 65_521;
+        }
+        out.extend(((b << 16) | a).to_be_bytes());
+        out
+    }
+
+    /// The corpus cannot hold an object of sixty-four mebibytes: the limit
+    /// is asked here with a small one.
+    #[test]
+    fn inflation_stops_at_its_limit_and_at_the_end_of_the_stream() {
+        let data = vec![b'x'; 300];
+        let stream = stored(&data);
+        assert_eq!(inflate(&stream, 300), Some(data.clone()));
+        assert_eq!(inflate(&stream, 299), None);
+        // What follows the stream is not read; a stream cut short is none.
+        let mut followed = stream.clone();
+        followed.extend(b"more");
+        assert_eq!(inflate(&followed, 300), Some(data));
+        assert_eq!(inflate(&stream[..stream.len() - 1], 300), None);
+        assert_eq!(inflate(&[], 300), None);
+    }
 }

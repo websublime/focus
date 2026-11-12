@@ -43,18 +43,13 @@
 //!   as text with or without the question.
 //! - Once the earlier walk's value is given up, nothing more is added to
 //!   it, counted or not.
-//! - A path the registry excludes and everything under it are excluded by
-//!   the same prefix, so a directory under one is walked the same by
-//!   either branch; a file with a registered path under it cannot exist (the
-//!   registered path fails to resolve first), so a file that is only on the
-//!   way to one is never reached.
+//! - A file with a registered path under it cannot exist (the registered
+//!   path fails to resolve first), so a file that is only on the way to
+//!   one is never reached.
 //! - A registered path that resolves outside the root, or to the root
 //!   itself, adds a name no entry of the walk has.
-//!
-//! One group holds only until embedded repositories are read: a directory
-//! is visited a second time under the same key only when the first visit
-//! was inside a repository of its own, so until then what is recorded on a
-//! second visit, and whether there is one, cannot be told apart.
+//! - A directory already visited for everything is not visited again, so
+//!   what a later visit would store about it is never read.
 
 use std::collections::{HashMap, HashSet};
 use std::fs::{self, File, Metadata};
@@ -1916,20 +1911,10 @@ mod tests {
         );
     }
 
-    /// What is not read yet is refused by name, never walked as if it were
+    /// What is not read is refused by name, never walked as if it were
     /// something else.
     #[test]
     fn what_is_not_ported_is_refused_by_name() {
-        let root = scratch("embedded");
-        fs::create_dir_all(root.join("vendor/lib/.git")).unwrap();
-        fs::write(root.join("vendor/lib/x.c"), "x\n").unwrap();
-        assert_eq!(
-            workspace_source(&root, &[], true, &options()),
-            Err(Stop::NotPorted(
-                "a git repository embedded in the source tree"
-            ))
-        );
-        let _ = fs::remove_dir_all(&root);
         let root = scratch("worktree");
         fs::create_dir_all(root.join(".focus")).unwrap();
         fs::write(root.join(WORKTREE_META), "{}").unwrap();
