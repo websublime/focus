@@ -186,6 +186,7 @@ name = "focus-evidence"
 version = "0.1.0"
 dependencies = [
  "flate2",
+ "focus-harness",
  "focus-js",
  "focus-workspace",
  "serde_json",

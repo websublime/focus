@@ -152,7 +152,91 @@ pub fn baseline_field(
         Err(Stop::Failed(_)) if has_git_checkout => Ok(UNBINDABLE.to_owned()),
         Err(Stop::Failed(_)) => write_baseline(layout, selection, stage_slug, &Listing::new()),
         Err(Stop::NotPorted(what)) => bail!(
-            "The project holds {what}, and Focus does not read a source boundary through it yet: the {BASELINE_FIELD} of this row cannot be taken."
+            "The source of this piece of work is behind {what}, and Focus does not read that yet: the {BASELINE_FIELD} of this row cannot be taken."
         ),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::fs;
+
+    use focus_harness::Harness;
+
+    use super::*;
+    use crate::source::walk::{Budgets, Names};
+
+    fn layout(name: &str) -> Layout {
+        let dir =
+            std::env::temp_dir().join(format!("source-snapshot-{name}-{}", std::process::id()));
+        let _ = fs::remove_dir_all(&dir);
+        fs::create_dir_all(&dir).unwrap();
+        Layout::new(fs::canonicalize(&dir).unwrap(), Harness::Claude)
+    }
+
+    fn selection(intent: Option<&str>) -> Selection {
+        Selection {
+            space: "default".to_owned(),
+            intent: intent.map(str::to_owned),
+            session_id: None,
+            binding: None,
+        }
+    }
+
+    fn options() -> Options {
+        Options {
+            budgets: Budgets::from(|_| None),
+            raw_line_endings: false,
+            names: Names::default(),
+        }
+    }
+
+    /// No command reaches these: a row that carries a baseline belongs to a
+    /// piece of work, and its stage is one of the graph's.
+    #[test]
+    fn a_baseline_needs_a_record_and_a_stage_name() {
+        let layout = layout("needs");
+        let refusal = "Cannot write source baseline without a valid active record and stage slug";
+        for (intent, stage) in [
+            (None, "code-generation"),
+            (Some("260105-add-login"), "Code"),
+            (Some("260105-add-login"), ""),
+            (Some("260105-add-login"), "code/generation"),
+            (Some("260105-add-login"), "1-code"),
+        ] {
+            let answer = write_baseline(&layout, &selection(intent), stage, &Listing::new());
+            assert_eq!(
+                answer.unwrap_err().to_string(),
+                refusal,
+                "{intent:?} {stage}"
+            );
+        }
+        assert!(!layout.project.join("focus").exists());
+        let _ = fs::remove_dir_all(&layout.project);
+    }
+
+    /// Deliberate deviation: a member repository that is a delegated
+    /// worktree is read by upstream through the worktree's own boundary.
+    /// Focus does not read that boundary yet, and refuses the row whose
+    /// baseline it would be instead of answering with another listing.
+    #[test]
+    fn a_delegated_worktree_among_the_repositories_is_refused_by_name() {
+        let layout = layout("worktree");
+        fs::create_dir_all(layout.project.join("app/.focus")).unwrap();
+        fs::write(layout.project.join("app/a.ts"), "a\n").unwrap();
+        fs::write(layout.project.join("app/.focus/worktree-meta.json"), "{}\n").unwrap();
+        let answer = baseline_field(
+            &layout,
+            &selection(Some("260105-add-login")),
+            "code-generation",
+            &["app".to_owned()],
+            &options(),
+        );
+        assert_eq!(
+            answer.unwrap_err().to_string(),
+            "The source of this piece of work is behind a delegated worktree's source boundary, and Focus does not read that yet: the Source Baseline of this row cannot be taken."
+        );
+        assert!(!layout.project.join("focus").exists());
+        let _ = fs::remove_dir_all(&layout.project);
     }
 }

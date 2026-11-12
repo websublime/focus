@@ -1,0 +1,24 @@
+# AI-DLC: local working files
+focus/active-space
+focus/spaces/*/intents/active-intent
+focus/.focus-clone-id
+focus.settings.local.json
+focus/.focus-unit-scope.json
+focus/.focus-unit-parked
+focus/.focus-claim-generations.json
+focus/.focus-unit-participant
+focus/.focus-claim-registry.json
+focus/.focus-unit-releases/
+focus/.focus-unit-merges/
+focus/.focus-active-space-*.tmp
+focus/active-memory/
+focus/.focus-sessions/
+focus/spaces/*/intents/.focus-*
+**/focus/spaces/*/intents/**/.focus-engine/
+**/focus/spaces/*/intents/**/.focus-sensors/
+focus/spaces/*/knowledge/documentkb/.journal/
+focus/spaces/*/knowledge/.sources.local.json
+focus/spaces/*/intents/*/runtime-graph.json
+focus/spaces/*/intents/*/.focus-*
+focus/diagnostics/
+.claude/settings.local.json

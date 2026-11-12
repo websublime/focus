@@ -408,8 +408,11 @@ JOBS = []
 BASE_DIRS = (".claude/aidlc-common/stages", ".claude/agents", ".claude/scopes", ".claude/sensors",
              ".claude/tools/data/memory-seed", "aidlc")
 # The include stub (`.claude/rules/aidlc.md`) names the memory files the session start hashes into the rules record.
+# The two files the distribution lays at the project's root are source like any other: a baseline lists them.
 BASE_FILES = (*(f".claude/tools/data/{name}" for name in ("harness.json", "stage-graph.json", "scope-grid.json", "ars-priors.json")),
-              ".claude/rules/aidlc.md")
+              ".claude/rules/aidlc.md", ".gitignore", ".mcp.json")
+# The tools whose verbs read the project beyond the engine's own files.
+WHOLE_PROJECT = ("utility", "jump", "state")
 RECORDED_TREES = {}
 RECORDED_CHECKS = {}
 LARGE = 3000
@@ -1840,8 +1843,9 @@ def compare_audit(name, trees, steps, env, tool="audit"):
     shaped_offsets = shaped_thrown = False
     started_from = None
     if RECORD and not has_links(ts.root) and name not in UNRECORDED and not name.startswith("fuzz/"):
-        # An audit check starts from nothing but its files; a runtime check from an installed project.
-        started_from = workspace_files(ts, "") if tool == "audit" else overlay(ts, hidden=True, everything=tool == "utility")
+        # An audit check starts from nothing but its files; a runtime check from an installed project, kept whole
+        # where the verb reads the whole project (the utility's scan, and the source a baseline lists).
+        started_from = workspace_files(ts, "") if tool == "audit" else overlay(ts, hidden=True, everything=tool in WHOLE_PROJECT)
     for engine, tree in (("ts", ts), ("rs", rs)):
         say = to_focus if engine == "ts" else (lambda text: text)
         before = workspace_files(tree)
@@ -2315,6 +2319,13 @@ DEVIATIONS.update({
         "a backward jump names the reviews it invalidates, read from the review brief's records (M5): with review "
         "rows on the ledger for a reviewed stage behind the jump, upstream reads them and focus refuses by name; "
         "an embedded `## Review` section is named by both",
+    r"(jump/execute|utility/create)/delegated_worktree":
+        "upstream runs inside a worktree an engine created for one unit of work, resolving it to the main checkout's "
+        "piece of work; focus refuses the checkout by name (worktrees come with parallel Construction, deferred)",
+    "jump/execute/source_repos_delegated_worktree":
+        "a member repository that is a delegated worktree is read through that worktree's own boundary (the code "
+        "paths of its unit of work); focus does not read that boundary yet and refuses the row whose baseline it "
+        "would be",
     "jump/reopen/by_name":
         "reopen starts a per-unit stage again for named units with their own GATE_REJECTED rows (M4); focus "
         "refuses by name once the usage is satisfied",
@@ -2869,6 +2880,11 @@ def intent_create_checks():
     check_("create/source_registry", {**source, "build/keep.bin": "k\n", ".aidlc-source-paths.json": '{"version":1,"paths":["build/keep.bin"],"exclude":["docs"]}\n'}, [feature])
     check_("create/source_unreadable", {**source, ".aidlc-source-paths.json": "{"}, [feature])
     check_("create/source_unbindable", {**source, ".aidlc-source-paths.json": "{", ".git/HEAD": "ref: refs/heads/main\n"}, [feature])
+    members = {"api/.git/HEAD": "", "web/.git/HEAD": "", "api/a.ts": "a\n", "web/b.ts": "b\n", "top.txt": "t\n"}
+    check_("create/source_repos", members, [feature + ["--repos", "web,api"]])
+    check_("create/source_repos_one", members, [feature + ["--repos", "web"]])
+    check_("create/source_repos_unbindable", {**members, "api/.aidlc-source-paths.json": "{"}, [feature + ["--repos", "web,api"]])
+    check_("create/delegated_worktree", {**source, ".aidlc/worktree-meta.json": "{}\n"}, [feature])
     check_("create/source_embedded_unresolved", {"vendor/lib/.git/HEAD": "ref: refs/heads/gone\n", "vendor/lib/.git/config": "[core]\n", "vendor/lib/x.c": "x\n"}, [feature])
     check_("create/registry_existing", {"aidlc/spaces/default/intents/intents.json": '[{"uuid":"u","slug":"old","dirName":"250101-old","status":"done"}]\n'}, [feature])
     for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
@@ -4492,8 +4508,30 @@ def jump_checks():
     check_("execute/source_unreadable", created(**source, **{registry_file: "{"}), [forward])
     check_("execute/source_unbindable", created(**source, **{registry_file: "{", ".git/HEAD": "ref: refs/heads/main\n"}), [forward])
     check_("execute/source_embedded_unresolved", created(**{"vendor/lib/.git/HEAD": "ref: refs/heads/gone\n", "vendor/lib/.git/config": "[core]\n", "vendor/lib/x.c": "x\n"}), [forward])
+    check_("execute/delegated_worktree", created(**source, **{".aidlc/worktree-meta.json": "{}\n"}), [forward])
+    check_("execute/source_repos_delegated_worktree", created(registry=CREATED_REGISTRY.replace('"status": "in-flight"', '"status": "in-flight",\n    "repos": ["app"]'),
+                                                              **{"app/a.ts": "a\n", "app/.aidlc/worktree-meta.json": "{}\n"}), [forward])
     check_("execute/source_snapshot_taken", created(**{registry_file: "{", empty_baseline: "another listing\n"}), [forward])
     check_("execute/source_snapshot_kept", created(**{registry_file: "{", empty_baseline: ""}), [forward])
+    # The member repositories of the piece of work are the source, as its own row of the registry lists them (and
+    # not the first row's); a checkout among them is what makes an unreadable source unbindable, and the project's
+    # own is not; and the snapshot's place is never reached through a link.
+    def with_repos(*names, registry=CREATED_REGISTRY):
+        listed = ", ".join(f'"{name}"' for name in names)
+        return registry.replace('"status": "in-flight"', f'"status": "in-flight",\n    "repos": [{listed}]')
+    members = {"app/a.ts": "a\n", "lib/b.ts": "b\n", "top.txt": "t\n"}
+    other_first = with_repos("app").replace("[\n", '[\n  {\n    "uuid": "01a138fa-d37d-787d-af4a-966efbb0b6f0",\n    "slug": "other",\n    "dirName": "260101-other",\n'
+                                            '    "scope": "feature",\n    "status": "in-flight",\n    "repos": ["lib"]\n  },\n', 1)
+    check_("execute/source_repos", created(registry=with_repos("app", "lib"), **members), [forward])
+    check_("execute/source_repos_own_row", created(registry=other_first, **members), [forward])
+    check_("execute/source_repos_one_absent", created(registry=with_repos("app", "gone"), **members), [forward])
+    check_("execute/source_repos_unreadable", created(registry=with_repos("app", "lib"), **members, **{f"app/{registry_file}": "{", ".git/HEAD": "ref: refs/heads/main\n"}), [forward])
+    check_("execute/source_repos_unbindable", created(registry=with_repos("app", "lib"), **members, **{f"app/{registry_file}": "{", "lib/.git/HEAD": "ref: refs/heads/main\n"}), [forward])
+    review = f"{CREATED_DIR}/.aidlc-engine/source-review"
+    check_("execute/source_snapshot_behind_link", created(**source, **{"elsewhere/keep": ""}), [forward],
+           edits=(lambda tree: (os.makedirs(os.path.dirname(tree.path(review))), os.symlink(tree.path("elsewhere"), tree.path(review))),))
+    check_("execute/source_snapshot_stage_behind_link", created(**source, **{"elsewhere/keep": "", f"{review}/keep": ""}), [forward],
+           edits=(lambda tree: os.symlink(tree.path("elsewhere"), tree.path(f"{review}/code-generation")),))
     backward = ["execute", "--target", "intent-capture", "--direction", "backward"]
     mr = artifact("market-research", "competitive-analysis")
     check_("execute/backward", created(at_feasibility, **ic, **mr), [backward, ["resolve", "--stage", "feasibility"]])
