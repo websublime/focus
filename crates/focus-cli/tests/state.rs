@@ -1444,7 +1444,29 @@ fn a_jump_resolves_and_moves_the_work() {
     assert!(ledger.contains("**Event**: STAGE_SKIPPED\n**Stage**: market-research\n**Reason**: Skipped by jump to requirements-analysis (forward)\n**Skip Kind**: jump\n"), "{ledger}");
     assert!(ledger.contains("**Event**: PHASE_COMPLETED\n**From phase**: ideation\n**To phase**: inception\n**Stages completed**: 3\n**Details**: Phase boundary crossed via forward jump\n"), "{ledger}");
     assert!(ledger.contains("**Event**: STAGE_JUMPED\n**Direction**: FORWARD\n**Source**: intent-capture\n**Target**: requirements-analysis\n**Scope**: feature\n**Details**: FORWARD jump from intent-capture to requirements-analysis (2.3). Scope: feature.\n"), "{ledger}");
-    assert!(ledger.ends_with("**Event**: STAGE_STARTED\n**Stage**: requirements-analysis\n**Agent**: focus-product-agent\n\n---\n"), "{ledger}");
+    // Both rows of the jump carry the source baseline, and its listing is kept beside the record under its hash.
+    let baseline = ledger
+        .rsplit("**Source Baseline**: ")
+        .next()
+        .and_then(|rest| rest.strip_suffix("\n\n---\n"))
+        .unwrap()
+        .to_owned();
+    assert!(ledger.ends_with(&format!("**Event**: STAGE_STARTED\n**Stage**: requirements-analysis\n**Agent**: focus-product-agent\n**Source Baseline**: {baseline}\n\n---\n")), "{ledger}");
+    assert!(
+        ledger.contains(&format!(
+            "(2.3). Scope: feature.\n**Source Baseline**: {baseline}\n\n---\n"
+        )),
+        "{ledger}"
+    );
+    let hash = baseline.strip_prefix("sha256:").unwrap();
+    assert_eq!(hash.len(), 64, "{baseline}");
+    assert!(
+        root.join(CREATED_RECORD)
+            .join(".focus-engine/source-review/code-generation")
+            .join(format!("baseline-{}.tsv", &hash[..12]))
+            .is_file(),
+        "{baseline}"
+    );
     // Backward: the target and what follows are reset, and the artifacts and reviews behind are named.
     write(
         &root,
