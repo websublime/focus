@@ -1818,6 +1818,7 @@ Uma falha traz o código, a frase e o caminho do original (`Stop::Failed`); o qu
 | Um LF a seguir a um CR faz parte do fim de linha e não é contado; um LF sozinho também não conta como carácter imprimível | A fronteira entre texto e binário (um carácter de controlo por cada 128 imprimíveis) tem um caso de cada lado, com e sem LF |
 | Um link para fora do projeto pode levar a qualquer sítio do host: um caso que apontava para a pasta temporária inteira parava no limite de dez mil ficheiros de fora | O caso saiu: uma árvore de teste não depende do host |
 | Um `.git` abaixo da raiz faz da pasta à volta um repositório embebido | Fica para 1c: nesta fatia o corpus só tem `.git` na raiz |
+| Em macOS, quatro árvores davam outra resposta: tinham nomes que só diferem em maiúsculas (`Thumbs.db` e `thumbs.db`, um ficheiro `MAKEFILE` e um link `Makefile`, um repositório `Api` onde existe `api`), que um sistema de ficheiros que ignora a caixa guarda como um só | O defeito era das árvores, não do passeio. Esses nomes ficam cada um na sua árvore, e o teste do corpus recusa uma árvore em que dois nomes só difiram na caixa |
 
 **Verificado.**
 
