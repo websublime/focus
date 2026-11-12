@@ -860,6 +860,9 @@ pub fn review_artifact_entries(
     stage: &Stage,
     state: Option<&str>,
 ) -> Result<Option<Vec<ReviewEntry>>> {
+    // Read where upstream reads it, for a stage of the code knowledge
+    // base alone. The one caller, a jump, has read the same row for its
+    // baseline by then, so a row that is refused never gets here.
     let listed = if KNOWN_CODEKB_STAGES.contains(&stage.slug.as_str()) {
         intent_repos(
             &wf.layout,

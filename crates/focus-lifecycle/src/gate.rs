@@ -744,9 +744,6 @@ pub fn reviewed_artifact_unit(
 ///
 /// The row's `repos` is not a list of names.
 pub fn unrecorded_revision_since_gate_open(wf: &Workflow, stage: &Stage) -> Result<bool> {
-    if wf.audit_text().is_empty() {
-        return Ok(false);
-    }
     let repos = intent_repos(
         &wf.layout,
         &wf.selection.space,

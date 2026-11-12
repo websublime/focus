@@ -1897,10 +1897,32 @@ Quem chama: a criação, na linha `WORKFLOW_STARTED`, com os repositórios que a
 | Desvio | Original | Focus |
 | --- | --- | --- |
 | Um repositório membro que é uma worktree delegada (`jump/execute/source_repos_delegated_worktree`) | Lê a fonte pela fronteira da worktree e escreve a baseline | Recusa a linha pelo nome: "…Focus does not read that yet: the Source Baseline of this row cannot be taken." As worktrees vêm com Construction em paralelo, adiada |
-| Um `repos` do registry que não é uma lista de nomes (`jump/execute/source_repos_refused_*`, cinco formas) | Cai no `TypeError` do runtime onde primeiro junta um caminho; com um nome vazio, lista o projeto inteiro como esse membro | Recusa a linha pelo nome: "…lists the repositories of <registo> as something that is not a list of names, so the source of that work cannot be told. Fix the row's `repos`…" |
+| Um `repos` do registry que não é uma lista de nomes (`jump/execute/source_repos_refused_*`, cinco formas) | Cai no `TypeError` do runtime onde primeiro junta um caminho; com um nome vazio, lista o projeto inteiro como esse membro | Recusa a linha pelo nome: "…lists the repositories of <registo> as something that is not a list of names. Fix the row's `repos`…" |
 | A criação e o salto dentro de uma worktree delegada (`utility/create/delegated_worktree`, `jump/execute/delegated_worktree`) | Resolve a worktree para o trabalho do checkout principal e corre | Recusa o checkout pelo nome, como `audit`, `state`, `runtime` e os hooks |
 
-**O que fica por fazer.** A recusa de `repos` vale para quem anda os repositórios como fonte. Os outros leitores da mesma lista, que são de M3 e M4 (`registry::intent_repos`: o nome e as pastas do code knowledge base, `workspace_has_work`, a revisão não registada de um gate, `review-freeze`), continuam a deixar de fora o que não é texto. O que o original faz em cada um desses comandos com uma lista assim não está comparado. É o pull request a seguir a este, antes da fatia 2: um check por comando, e a mesma recusa ou a mesma resposta conforme o que o original fizer.
+**O que ficou por fazer, e está feito a seguir.** A recusa de `repos` valia só para quem anda os repositórios como fonte. Os outros leitores da mesma lista, de M3 e M4, continuavam a deixar de fora o que não fosse texto: é a correção abaixo.
+
+### Correção: um `repos` que não é uma lista de nomes, em todos os leitores
+
+A fatia 1d recusou a linha onde os repositórios são andados como fonte e deixou escrito que os outros leitores ficavam por comparar. Comparados:
+
+| Leitor | O que o original faz com `["app", 7]`, `[null]`, `[["app"]]` ou `"app"` | Focus antes | Focus agora |
+| --- | --- | --- | --- |
+| As pastas do code knowledge base (`advance` em `reverse-engineering`) | Cai onde junta o caminho de cada pasta, com o `TypeError` do runtime (`The "paths[4]" property must be of type string, got number`; `….map is not a function`) | Deixava de fora o que não era texto e seguia: uma resposta que o original não dá | Recusa a linha pelo nome |
+| A revisão não registada de um gate (`approve` com a política `strict`) | Segue: só procura nomes na lista, e para uma stage que não é do code knowledge base nem isso | Seguia | Recusa a linha pelo nome |
+| `review-freeze` | Atrás do desvio dos recibos de revisão (fatia 3): não comparável ainda | Seguia | Recusa, como o resto do hook recusa o que não lê |
+| `workspace_has_work` (uma stage que produz código) | Não alcançável por um comando: as stages de Construction são recusadas até à fatia 5 | Seguia | Recusa (o teste unitário de `registry`) |
+| O baseline de um salto para trás sobre o code knowledge base | O baseline lê a linha primeiro: é o desvio da 1d | | |
+
+**Decisão.** Uma regra só, para todos os leitores: `registry::intent_repos` devolve um erro para um `repos` que não seja uma lista de texto, e `source_repos` (o do passeio) recusa além disso um nome vazio. É um desvio declarado também onde o original segue (o gate): lá o original só não cai porque não usa os nomes, e o que faria com eles numa stage do code knowledge base é o que o runtime fizer de um número num `Set`. Focus não porta essas coerções e por isso recusa, em vez de responder por uma lista que não leu. Um nome vazio continua a ser o que cada leitor do original faz dele: o code knowledge base deixa-o de fora (igual nos dois, `advance/repos_empty_name`).
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Diferencial | 12 checks novos. Iguais, 4: o backstop sob `strict` sem e com repositórios membros (não havia nenhum check que lá chegasse: com a política `off` o backstop não corre), e um nome vazio nos dois leitores. Desvios declarados, 8: as quatro formas no code knowledge base e no gate |
+| Testes | O teste marcado de `registry` (as oito formas recusadas pelos dois leitores, o nome vazio só pelo do passeio, `null` e a falta do campo como nenhum); um teste de CLI marcado: um salto recusa a linha e não move nada |
+| Mutação | 9 mutantes: 7 apanhados (6 pelo teste de `registry`; o leitor do passeio trocado pelo outro só depois do teste de CLI, que o diferencial não vê por ser um desvio) e 2 que levaram a código mais simples ou a uma nota: a saída antecipada do backstop com o ledger vazio era redundante e saiu; ler a lista só para uma stage do code knowledge base é onde o original a lê, e o único chamador já leu a mesma linha |
 
 ### Correção: o pai de um processo, sem `ps`
 
