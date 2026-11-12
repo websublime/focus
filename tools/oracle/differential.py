@@ -136,11 +136,6 @@ SHAPES = {
         "longer than focus's (\"# AI-DLC Audit Log\" is the one phrase of the name map whose length changes), so "
         "every offset upstream writes is one more. Upstream's offsets are read one byte back before comparing; "
         "the messages, the session and the shard are compared as they are",
-    "source-baseline":
-        "creating a piece of work records the source baseline of the project in the first row and keeps the "
-        "listing beside the record; that is the attestation's walk over every source file (M5), which focus "
-        "has not ported. The field and the listing are left out before comparing; every other field and file "
-        "of the creation is compared",
     "uncaught":
         "upstream lets a refusal thrown inside an audit verb reach the runtime, which prints a source excerpt "
         "and a stack trace around the sentence; focus prints the same sentence as {\"error\": ...}, like every "
@@ -1409,8 +1404,79 @@ def workspace_files(tree, top="aidlc"):
                     text = handle.read().decode("utf-8", errors="replace")
                 if name.endswith(".rules-held.json"):
                     text = own_hashes(tree, text)
+                if BASELINE_SNAPSHOT.search(rel):
+                    rel, text = own_baseline(tree, rel, path, say)
+                    files[rel] = text
+                    continue
                 files[rel] = say(text)
     return files
+
+
+# A source baseline is the hash of the project's source listing, kept beside the record under that hash. The listing
+# names every source file with the hash of its content, and a tree's files carry the engine's name in their paths and
+# text, so the two engines' hashes differ by construction. Each engine's are recomputed here from its own tree: a
+# snapshot whose bytes hash to the name it is kept under is `baseline-<verified>.tsv`, a row whose hash is the hash
+# of the tree's own file (or of where its own link points) reads `<own>`, and a row's field naming a verified snapshot
+# reads `sha256:<verified>`. One that does not match stays as it is, and shows.
+BASELINE_SNAPSHOT = re.compile(r"/source-review/[a-z][a-z0-9-]*/baseline-([0-9a-f]{12})\.tsv$")
+BASELINE_ROW = re.compile(r"^([^\t\\]*)\t([^\t\\]+)\t(100644|100755|120000)\t([0-9a-f]{64})$")
+
+
+def own_baseline(tree, rel, path, say):
+    with open(path, "rb") as handle:
+        raw = handle.read()
+    digest = hashlib.sha256(raw).hexdigest()
+    if digest[:12] != BASELINE_SNAPSHOT.search(rel).group(1):
+        return rel, say(raw.decode("utf-8", errors="replace"))
+    if not hasattr(tree, "baselines"):
+        tree.baselines = set()
+    tree.baselines.add(digest)
+
+    def own(row):
+        found = BASELINE_ROW.match(row)
+        if found is None:
+            return row
+        repo, name, mode, sha = found.groups()
+        target = os.path.join(tree.root, repo, name) if repo else os.path.join(tree.root, name)
+        try:
+            if mode == "120000":
+                held = [os.readlink(target).encode("utf-8")]
+            else:
+                with open(target, "rb") as handle:
+                    content = handle.read()
+                held = [content, content.replace(b"\r\n", b"\n")]
+        except OSError:
+            return row
+        # The file as it is now, or as it was when the command started: a command can change a source file after
+        # it has taken the baseline (creation adds its block to `.gitignore`).
+        hashes = {hashlib.sha256(one).hexdigest() for one in held} | getattr(tree, "source_before", {}).get(target, set())
+        return f"{repo}\t{name}\t{mode}\t<own>" if sha in hashes else row
+
+    rows = [say(own(row)) for row in raw.decode("utf-8", errors="replace").split("\n") if row]
+    # In an order that does not depend on the engine's name.
+    rows.sort(key=lambda row: re.sub("focus", "\x01", row, flags=re.I))
+    return BASELINE_SNAPSHOT.sub(lambda m: m.group(0).replace(m.group(1), "<verified>"), rel), "".join(row + "\n" for row in rows)
+
+
+def source_hashes(tree):
+    """The hashes of every file of a tree outside the workspace and the harness, raw and with each CRLF as LF."""
+    hashes = {}
+    for folder, dirs, names in os.walk(tree.root):
+        if folder == tree.root:
+            dirs[:] = [name for name in dirs if name not in ("aidlc", "focus", "node_modules") and not name.startswith(".")]
+        for name in names:
+            path = os.path.join(folder, name)
+            if os.path.isfile(path) and not os.path.islink(path):
+                with open(path, "rb") as handle:
+                    content = handle.read()
+                hashes[path] = {hashlib.sha256(content).hexdigest(), hashlib.sha256(content.replace(b"\r\n", b"\n")).hexdigest()}
+    return hashes
+
+
+def verified_baselines(tree, text):
+    known = getattr(tree, "baselines", set())
+    return re.sub(r"(\*\*Source Baseline\*\*: sha256:)([0-9a-f]{64})",
+                  lambda m: m.group(1) + ("<verified>" if m.group(2) in known else m.group(2)), text)
 
 
 def own_hashes(tree, text):
@@ -1736,7 +1802,7 @@ def verify_validation_bases(tree, engine, rel, text):
 
 def compare_audit(name, trees, steps, env, tool="audit"):
     ts, rs = trees
-    outcome, shaped, shaped_source, shaped_ask, shaped_basis = {}, False, False, False, False
+    outcome, shaped, shaped_ask, shaped_basis = {}, False, False, False
     shaped_offsets = shaped_thrown = False
     started_from = None
     if RECORD and not has_links(ts.root) and name not in UNRECORDED and not name.startswith("fuzz/"):
@@ -1745,6 +1811,7 @@ def compare_audit(name, trees, steps, env, tool="audit"):
     for engine, tree in (("ts", ts), ("rs", rs)):
         say = to_focus if engine == "ts" else (lambda text: text)
         before = workspace_files(tree)
+        tree.source_before = source_hashes(tree)
         exits, outs, errs = [], [], []
         for args in steps:
             # A step that names its own tool (`@state advance …`) runs that one.
@@ -1774,10 +1841,6 @@ def compare_audit(name, trees, steps, env, tool="audit"):
             if before.get(rel) == after.get(rel):
                 continue
             text = after.get(rel)
-            # The source baseline is the attestation's (SHAPES): its listing is not compared, nor its field.
-            if "/.focus-engine/source-review/" in rel and engine == "ts":
-                shaped_source = True
-                continue
             # The guard-recovery streak is the recovery machinery's (SHAPES).
             if "/.focus-engine/guard-refusals/" in rel and engine == "ts":
                 shaped_ask = True
@@ -1791,9 +1854,8 @@ def compare_audit(name, trees, steps, env, tool="audit"):
                 shaped_offsets = True
                 text = re.sub(r'"(offset|dropped)":([1-9]\d*)', lambda m: f'"{m.group(1)}":{int(m.group(2)) - 1}', text)
             shown, text = minted(rel, text if text is None else normalise_audit(text, tree, engine))
-            if text is not None and "**Source Baseline**: " in text:
-                shaped_source = True
-                text = re.sub(r"^\*\*Source Baseline\*\*: [^\n]*\n", "", text, flags=re.M)
+            if text is not None and "**Source Baseline**: sha256:" in text:
+                text = verified_baselines(tree, text)
             if text is not None and engine == "ts" and ASK_FIELD.search(text):
                 shaped_ask = True
                 text = ASK_FIELD.sub("", text)
@@ -1820,9 +1882,6 @@ def compare_audit(name, trees, steps, env, tool="audit"):
         if shaped:
             shapes["uncaught"] += 1
             detail += "  (upstream: uncaught)"
-        if shaped_source:
-            shapes["source-baseline"] += 1
-            detail += "  (source baseline left out)"
         if shaped_ask:
             shapes["guard-ask"] += 1
             detail += "  (guard ask left out)"
