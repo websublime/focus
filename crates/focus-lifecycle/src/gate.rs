@@ -739,17 +739,21 @@ pub fn reviewed_artifact_unit(
 
 /// `unrecordedRevisionSinceGateOpen`: the person revised the stage's
 /// artifact at an open gate and no reject was recorded.
-#[must_use]
-pub fn unrecorded_revision_since_gate_open(wf: &Workflow, stage: &Stage) -> bool {
-    let audit = wf.audit_text();
-    if audit.is_empty() {
-        return false;
-    }
+///
+/// # Errors
+///
+/// The row's `repos` is not a list of names.
+pub fn unrecorded_revision_since_gate_open(wf: &Workflow, stage: &Stage) -> Result<bool> {
     let repos = intent_repos(
         &wf.layout,
         &wf.selection.space,
         wf.selection.intent.as_deref(),
-    );
+    )?;
+    Ok(unrecorded_revision(wf, stage, &repos))
+}
+
+fn unrecorded_revision(wf: &Workflow, stage: &Stage, repos: &[String]) -> bool {
+    let audit = wf.audit_text();
     const RELEVANT: [&str; 6] = [
         "STAGE_AWAITING_APPROVAL",
         "STAGE_STARTED",
@@ -823,7 +827,7 @@ pub fn unrecorded_revision_since_gate_open(wf: &Workflow, stage: &Stage) -> bool
             && (event.event == "ARTIFACT_CREATED" || event.event == "ARTIFACT_UPDATED")
             && file
                 .as_deref()
-                .is_some_and(|file| produces_artifact_file(stage, file, &repos))
+                .is_some_and(|file| produces_artifact_file(stage, file, repos))
         {
             wrote_before_human = true;
         }
@@ -838,7 +842,7 @@ pub fn unrecorded_revision_since_gate_open(wf: &Workflow, stage: &Stage) -> bool
         (event.event == "ARTIFACT_CREATED" || event.event == "ARTIFACT_UPDATED")
             && file
                 .as_deref()
-                .is_some_and(|file| produces_artifact_file(stage, file, &repos))
+                .is_some_and(|file| produces_artifact_file(stage, file, repos))
     })
 }
 

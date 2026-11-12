@@ -480,22 +480,26 @@ fn sorted_unique(mut paths: Vec<String>) -> Vec<String> {
 }
 
 /// `stageArtifactPaths`.
-fn stage_artifact_paths(wf: &Workflow, stage: &Stage, content: &str) -> Vec<String> {
-    let entries = review_artifact_entries(wf, stage, Some(content)).unwrap_or_default();
-    sorted_unique(
+fn stage_artifact_paths(wf: &Workflow, stage: &Stage, content: &str) -> Result<Vec<String>> {
+    let entries = review_artifact_entries(wf, stage, Some(content))?.unwrap_or_default();
+    Ok(sorted_unique(
         entries
             .iter()
             .map(|entry| workspace_artifact_path(&wf.layout.project, entry))
             .collect(),
-    )
+    ))
 }
 
 /// `existingStageArtifactPaths`.
-fn existing_stage_artifact_paths(wf: &Workflow, stage: &Stage, content: &str) -> Vec<String> {
-    stage_artifact_paths(wf, stage, content)
+fn existing_stage_artifact_paths(
+    wf: &Workflow,
+    stage: &Stage,
+    content: &str,
+) -> Result<Vec<String>> {
+    Ok(stage_artifact_paths(wf, stage, content)?
         .into_iter()
         .filter(|path| resolve_project_path(&wf.layout.project, path).exists())
-        .collect()
+        .collect())
 }
 
 fn resolve_project_path(project: &Path, path: &str) -> std::path::PathBuf {
@@ -525,7 +529,7 @@ fn stage_review_paths(wf: &Workflow, stage: &Stage, content: &str) -> Result<Vec
         );
     }
     let mut paths = Vec::new();
-    for path in existing_stage_artifact_paths(wf, stage, content) {
+    for path in existing_stage_artifact_paths(wf, stage, content)? {
         let full = resolve_project_path(&wf.layout.project, &path);
         let has_section = std::fs::read_to_string(&full).ok().is_some_and(|text| {
             focus_markdown::visible_lines(&text, focus_markdown::Visible::default())
@@ -645,7 +649,7 @@ pub fn execute(wf: &Workflow, args: &[String]) -> Result<Value> {
     // stage start repeats the same authority.
     let baseline = source_baseline(wf, "code-generation")?;
     let changed_upstream = if backward {
-        stage_artifact_paths(wf, target, &content)
+        stage_artifact_paths(wf, target, &content)?
     } else {
         Vec::new()
     };
@@ -659,12 +663,11 @@ pub fn execute(wf: &Workflow, args: &[String]) -> Result<Value> {
     } else {
         Vec::new()
     };
-    let invalidated_artifacts = sorted_unique(
-        downstream
-            .iter()
-            .flat_map(|stage| existing_stage_artifact_paths(wf, stage, &content))
-            .collect(),
-    );
+    let mut invalidated_artifacts = Vec::new();
+    for stage in &downstream {
+        invalidated_artifacts.extend(existing_stage_artifact_paths(wf, stage, &content)?);
+    }
+    let invalidated_artifacts = sorted_unique(invalidated_artifacts);
     let mut invalidated_reviews = Vec::new();
     for stage in &downstream {
         invalidated_reviews.extend(stage_review_paths(wf, stage, &content)?);

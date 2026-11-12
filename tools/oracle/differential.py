@@ -2326,6 +2326,11 @@ DEVIATIONS.update({
         "a member repository that is a delegated worktree is read through that worktree's own boundary (the code "
         "paths of its unit of work); focus does not read that boundary yet and refuses the row whose baseline it "
         "would be",
+    r"state/(advance/repos|gates/revision_backstop_repos)_(not_a_name|null_name|a_list_inside|not_a_list)":
+        "a registry row whose `repos` is not a list of text: upstream takes what is there, so a reader that joins a "
+        "path with a name falls over with the runtime's TypeError (the stores of the code knowledge base), and one "
+        "that only looks names up in the list goes on (the revision backstop); focus refuses the row by name, "
+        "whoever reads it",
     r"jump/execute/source_repos_refused_\w+":
         "a registry row whose `repos` is not a list of names: upstream takes what is there and falls over where it "
         "first joins a path, with the runtime's TypeError (or, with an empty name, lists the whole project, engine "
@@ -2934,6 +2939,10 @@ def created(state=CREATED_STATE, audit=CREATED_AUDIT, registry=CREATED_REGISTRY,
     return files
 
 
+# What a registry row may hold as `repos` that is not a list of text, and an empty name, which is text.
+NOT_NAMES = (("not_a_name", '["app", 7]'), ("null_name", '[null]'), ("a_list_inside", '[["app"]]'), ("not_a_list", '"app"'), ("empty_name", '["app", ""]'))
+
+
 def artifact(stage, name, text="# Written\n", phase="ideation"):
     return {f"{CREATED_DIR}/{phase}/{stage}/{name}.md": text}
 
@@ -3155,6 +3164,10 @@ def transition_checks():
            {**direct, "DISABLE_ENSEMBLE_EVIDENCE": "1"})
     check_("advance/codekb_incomplete", created(pipeline, registry=with_repo, **{k: v for k, v in codekb.items() if "architecture" not in k}),
            [["advance", "reverse-engineering"]], {**direct, "DISABLE_ENSEMBLE_EVIDENCE": "1"})
+    # A row whose `repos` is not a list of text, read for the stores of the code knowledge base.
+    for label, listed in NOT_NAMES:
+        check_(f"advance/repos_{label}", created(pipeline, registry=CREATED_REGISTRY.replace('"status": "in-flight"', '"status": "in-flight",\n    "repos": ' + listed), **codekb), [["advance", "reverse-engineering"]],
+               {**direct, "DISABLE_ENSEMBLE_EVIDENCE": "1"})
     check_("advance/construction", created(at_stage(CREATED_STATE, "functional-design", done=ideation + ["approval-handoff"], phase="CONSTRUCTION"),
                                            **{f"{CREATED_DIR}/construction/api/functional-design/entities.md": "# E\n"}),
            [["advance", "functional-design"]], direct)
@@ -4387,6 +4400,13 @@ def gate_checks():
     # A revision the backstop records: the artifact changed after the gate opened without a decision.
     backstop = CREATED_AUDIT + block("STAGE_AWAITING_APPROVAL", T(1), "**Stage**: intent-capture") + HUMAN(2) + block("ARTIFACT_UPDATED", T(3), "**Stage**: intent-capture", "**Artifact**: intent-statement") + HUMAN(4)
     check_("gates/revision_backstop", created(awaiting, backstop, **ic), [approve, ["get", "Revision Count"]], quiet)
+    # Under a strict policy the backstop runs: nothing to record here, with and without member repositories; and a
+    # row whose `repos` is not a list of text, which the backstop only looks names up in.
+    strict = awaiting.replace("- **Guard Policy**: off (from scope feature)", "- **Guard Policy**: strict (set by you)")
+    check_("gates/revision_backstop_strict", created(strict, backstop, **ic), [approve, ["get", "Revision Count"]], quiet)
+    check_("gates/revision_backstop_strict_repos", created(strict, backstop, registry=CREATED_REGISTRY.replace('"status": "in-flight"', '"status": "in-flight",\n    "repos": ["app"]'), **ic), [approve, ["get", "Revision Count"]], quiet)
+    for label, listed in NOT_NAMES:
+        check_(f"gates/revision_backstop_repos_{label}", created(strict, backstop, registry=CREATED_REGISTRY.replace('"status": "in-flight"', '"status": "in-flight",\n    "repos": ' + listed), **ic), [approve, ["get", "Revision Count"]], quiet)
     check_("gates/revision_backstop_off", created(awaiting, backstop, **ic), [approve], {**quiet, "SKIP_REVISION_BACKSTOP": "1"})
     check_("gates/revision_backstop_relaxed", created(awaiting.replace("- **Guard Policy**: off (from scope feature)", "- **Guard Policy**: relaxed (set by you)"), backstop, **ic), [approve], quiet)
     check_("gates/revision_backstop_with_reviewer", created(awaiting.replace("- **Review Override**: none", "- **Review Override**: "), backstop, **ic), [approve], {**quiet, "SKIP_REVIEWER_GATE_GUARD": "1"})

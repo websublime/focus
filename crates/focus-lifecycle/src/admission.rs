@@ -126,7 +126,7 @@ pub fn verify_stage_artifacts(wf: &Workflow, stage: &Stage, action: Action) -> R
             }
         )));
     }
-    if stage::workspace_requires(stage) && !workspace_has_work(wf) {
+    if stage::workspace_requires(stage) && !workspace_has_work(wf)? {
         // REQUIRED_SOURCE_WORK_MISSING
         return Err(guard_refusal(format!(
             "{}: it is a code-producing stage (workspace_requires) but no source work is evident outside the focus/ workspace tree. In a git workspace this means no uncommitted change and no code in the last commit; otherwise no source file exists. Planning docs alone do not satisfy {} - write the code to the workspace (a source change not committed yet counts, as does code in the last commit), or the person can choose Request Changes and say what is missing.",
@@ -447,11 +447,11 @@ mod tests {
     fn a_code_producing_stage_needs_source_work() {
         let (wf, root) = workflow("source", STATE);
         // What the distribution lays at the project's root is a file like any other, and counts.
-        assert!(workspace_has_work(&wf));
+        assert!(workspace_has_work(&wf).unwrap());
         std::fs::remove_file(root.join(".mcp.json")).unwrap();
-        assert!(workspace_has_work(&wf));
+        assert!(workspace_has_work(&wf).unwrap());
         std::fs::remove_file(root.join(".gitignore")).unwrap();
-        assert!(!workspace_has_work(&wf));
+        assert!(!workspace_has_work(&wf).unwrap());
         // No artifacts declared: the stage passes on them; the source work is what is missing.
         let stage = stage_of(
             json!({"slug": "builder", "phase": "ideation", "name": "Builder", "workspace_requires": true, "produces": []}),
