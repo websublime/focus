@@ -358,3 +358,40 @@ pub fn prune_expired(layout: &Layout) {
         remove_record(layout, &id);
     }
 }
+
+#[cfg(test)]
+mod read_tests {
+    use super::*;
+
+    /// The store is listed oldest first, with ties by id. The one reader so
+    /// far takes the chats of the list as a set, so no command shows the
+    /// order yet.
+    #[test]
+    fn the_store_is_listed_oldest_first() {
+        let root = std::env::temp_dir().join(format!("focus-messages-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&root);
+        let layout = Layout::new(root.clone(), focus_harness::Harness::Claude);
+        let dir = root.join(messages_rel(None));
+        std::fs::create_dir_all(&dir).unwrap();
+        for (id, at) in [
+            ("0000cccc", "2026-01-05T10:05:00Z"),
+            ("0000aaaa", "2026-01-05T10:06:00Z"),
+            ("0000bbbb", "2026-01-05T10:05:00Z"),
+        ] {
+            std::fs::write(
+                dir.join(format!("{id}.json")),
+                format!(
+                    "{{\"session\":null,\"at\":\"{at}\",\"source\":\"prompt\",\"text\":\"t\",\"picker\":null,\"words\":\"t\",\"settings\":[],\"route\":{{\"scope\":null,\"newIntent\":false,\"skip\":[],\"add\":[],\"projectType\":null}},\"applied\":[],\"id\":\"{id}\"}}\n"
+                ),
+            )
+            .unwrap();
+        }
+        std::fs::write(dir.join("notes.txt"), "x").unwrap();
+        let listed: Vec<String> = list_messages(&layout)
+            .into_iter()
+            .map(|message| message.id)
+            .collect();
+        assert_eq!(listed, ["0000bbbb", "0000cccc", "0000aaaa"]);
+        let _ = std::fs::remove_dir_all(root);
+    }
+}

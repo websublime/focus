@@ -4581,6 +4581,10 @@ def log_checks():
                                                             **sent("0000aaaa")), [named("0000aaaa")])
     check_("decision/message_spent_latest_of_two", created(audit=spent("GATE_APPROVED", 6) + block("GATE_REJECTED", T(4), "**Stage**: intent-capture"), **sent("0000aaaa")),
            [named("0000aaaa")])
+    check_("decision/message_spent_latest_last", created(audit=spent("GATE_REJECTED", 4) + block("GATE_APPROVED", T(6), "**Stage**: intent-capture"), **sent("0000aaaa")),
+           [named("0000aaaa")])
+    check_("decision/message_marked_on_another_row", created(audit=CREATED_AUDIT + block("QUESTION_ANSWERED", T(5), "**Stage**: intent-capture", "**Message Id**: 0000aaaa", "**Reply**: command"),
+                                                             **sent("0000aaaa")), [named("0000aaaa")])
     # The chat: the one the command serves, another, and none the engine can tell.
     mine = {**my_pid_entry("s1"), "aidlc/.aidlc-sessions/s1.binding.json": '{"space":"default","intent":"260105-add-login","boundAt":"2026-01-05T10:00:00Z","source":"create"}'}
     check_("decision/message_this_chat", created(**sent("0000aaaa"), **sent("0000bbbb", session="s2"), **mine), [named("0000aaaa")])
@@ -4591,6 +4595,7 @@ def log_checks():
     check_("decision/message_two_chats_one_terminal", created(**sent("0000aaaa"), **sent("0000bbbb", session=None)), [named("0000aaaa")])
     check_("decision/message_two_chats_one_spent", created(audit=spent("GATE_APPROVED", 4), **sent("0000aaaa"), **sent("0000bbbb", session="s2", at=T(3))), [named("0000aaaa"), named("0000bbbb")])
     check_("decision/message_other_chat_spoke_since", created(audit=spent("GATE_APPROVED", 4), **sent("0000aaaa", at=T(4)), **sent("0000bbbb", session="s2", at=T(3))), [named("0000aaaa")])
+    check_("decision/message_other_chat_at_the_spending_second", created(audit=spent("GATE_APPROVED", 4), **sent("0000aaaa"), **sent("0000bbbb", session="s2", at=T(4))), [named("0000aaaa")])
     check_("decision/message_same_chat_twice", created(**sent("0000aaaa"), **sent("0000bbbb", at=T(6))), [named("0000aaaa"), named("0000bbbb")])
     # A record that is not one of the store's stands for nothing.
     for label, more in (("other_id", {"id": "0000bbbb"}), ("bad_at", {"at": "yesterday"}), ("bad_source", {"source": "voice"}), ("cut_false", {"cut": False}), ("cut", {"cut": True}),
@@ -4601,6 +4606,13 @@ def log_checks():
                         ("bad_skip", {"route": {"scope": None, "newIntent": False, "skip": [1], "add": [], "projectType": None}}), ("bad_applied", {"applied": "x"}),
                         ("bad_text", {"text": 7}), ("bad_session", {"session": 7}), ("bad_words", {"words": 7})):
         check_(f"decision/message_record_{label}", created(**sent("0000aaaa", **more)), [named("0000aaaa")])
+    whole = json.loads(list(sent("0000aaaa").values())[0])
+    for label, record in (("bad_words_alone", {**whole, "words": 7}), ("no_words_key", {k: v for k, v in whole.items() if k != "words"}),
+                          ("bad_scope", {**whole, "route": {**whole["route"], "scope": 7}}), ("bad_new_intent", {**whole, "route": {**whole["route"], "newIntent": "no"}}),
+                          ("bad_add", {**whole, "route": {**whole["route"], "add": [1]}}), ("no_scope_key", {**whole, "route": {k: v for k, v in whole["route"].items() if k != "scope"}}),
+                          ("too_large", {**whole, "text": "x" * 300000})):
+        check_(f"decision/message_record_{label}", created(**{"aidlc/.aidlc-sessions/messages/0000aaaa.json": json.dumps(record) + "\n"}), [named("0000aaaa")])
+    check_("decision/message_record_named_like_no_id", created(**{"aidlc/.aidlc-sessions/messages/m-1.json": json.dumps({**whole, "id": "m-1"}) + "\n"}), [named("m-1")])
     check_("decision/message_record_not_json", created(**{"aidlc/.aidlc-sessions/messages/0000aaaa.json": "{nope"}), [named("0000aaaa")])
     check_("decision/message_record_a_list", created(**{"aidlc/.aidlc-sessions/messages/0000aaaa.json": "[]\n"}), [named("0000aaaa")])
     check_("decision/message_record_linked", created(**{"elsewhere/0000aaaa.json": list(sent("0000aaaa").values())[0]}), [named("0000aaaa")],
