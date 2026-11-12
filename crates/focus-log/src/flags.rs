@@ -257,3 +257,26 @@ pub fn refuse_split_values(interaction: Interaction, raw: &[String]) -> Result<(
         how_to_pass("Chose \\\"Option A\\\" for auth")
     );
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn args(words: &[&str]) -> Vec<String> {
+        words.iter().map(|word| (*word).to_owned()).collect()
+    }
+
+    /// What is no flag and no flag's value is kept apart, in order. No verb
+    /// ported so far reads it, so no command shows it.
+    #[test]
+    fn a_word_that_is_no_flags_value_is_positional() {
+        let (positional, flags) = parse(&args(&[
+            "first", "--stage", "one", "second", "--single", "third", "--stage", "two",
+        ]))
+        .unwrap();
+        assert_eq!(positional, ["first", "second", "third"]);
+        assert_eq!(flags.get("stage"), Some("two"));
+        assert_eq!(flags.get("single"), Some("true"));
+        assert_eq!(flags.get("nope"), None);
+    }
+}

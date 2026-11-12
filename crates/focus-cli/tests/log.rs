@@ -155,6 +155,30 @@ fn the_questions_that_are_not_ported_are_refused_by_name() {
     ] {
         assert_eq!(refusal(&root, &asking(&more)), said, "{more:?}");
     }
+    // The summary's two choices are known however they are capitalised,
+    // decorated or ended.
+    let owed = "\"intent-capture\" owes a consolidated summary confirmation, and this question offers its two choices: it is recorded with `--checkpoint summary-confirmation --questions-file <path>`, and Focus does not record summary confirmations yet.";
+    for options in [
+        "LOOKS CORRECT!, request changes (Recommended), ",
+        "Looks correct.,Request changes!!",
+        " ,Request changes,,Looks correct",
+    ] {
+        assert_eq!(
+            refusal(&root, &asking(&["--options", options])),
+            owed,
+            "{options}"
+        );
+    }
+    // Any other pair, one choice alone and three of them are ordinary questions.
+    for options in [
+        "Looks correct,Other",
+        "Looks correct",
+        "Looks correct?,Request changes",
+        "Looks correct,Request changes,Looks correct",
+    ] {
+        let output = log(&root, &asking(&["--options", options]));
+        assert_eq!(output.status.code(), Some(0), "{options}");
+    }
     // A question with other options is an ordinary one, and is recorded.
     let output = log(&root, &asking(&["--options", "Postgres,SQLite"]));
     assert_eq!(

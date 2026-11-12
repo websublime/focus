@@ -4526,7 +4526,12 @@ def log_checks():
         ["decision", "--stage", "intent-capture", "--answer", "yes"], ["decision", "--details", "x", "--stage", "intent-capture"],
         ["decision", "--single", "word", "--stage", "intent-capture", "--decision", "x"],
         ["decision", "decision", "--stage", "intent-capture", "--decision", "x"],
-        ["--stage", "intent-capture", "words", "decision", "--decision", "x"]])
+        ["--stage", "intent-capture", "words", "decision", "--decision", "x"],
+        ["--stage", "intent-capture", "words", "decision", "more", "--decision", "x"],
+        ["stray", "words", *ask], ["decision", "--stage", "intent-capture", "--decision", "Chose", "Option", "A'"]])
+    # The same, with nothing after the words: the step names the project itself, first, so nothing is added after it.
+    check_("decision/split_values_at_the_end", created(), [["--project-dir", "{P}", "decision", "--stage", "intent-capture", "--decision", "Chose", "Option", "A"],
+                                                           ["--project-dir", "{P}", *ask, "decision"], ["--project-dir", "{P}", *ask, "extra"]])
     check_("decision/split_after_project_dir", created(), [["--project-dir", "{P}", "tail", *ask], ["decision", "--project-dir", "--stage", "intent-capture", "--decision", "x"]])
 
     # The row: the question alone, with its options and rationale, for a single stage, twice, for a stage that is
@@ -4562,7 +4567,8 @@ def log_checks():
     # The person's confirmation credited to the hook, or implied: refused; quoted, a question like any other.
     said = lambda text: ["decision", "--stage", "intent-capture", "--decision", text]
     check_("decision/implied_confirmation", created(), [said("Continue with X (user implicitly confirmed by hook trigger)"), said("Proceed? Approval from the stop hook."),
-                                                        said("The Person tacitly agreed, continue?"), said("confirmed by   the Stop-Hook"), said("human implicit consents")])
+                                                        said("The Person tacitly agreed, continue?"), said("confirmed by   the Stop-Hook"), said("human implicit consents"),
+                                                        said('Go on: approval from "the" hook'), said("APPROVED BY HOOK")])
     check_("decision/implied_confirmation_quoted", created(), [said('Should the banner say "confirmed by the hook"?'), said("Is `user implicitly confirmed` the right label?"),
                                                                said("orders are implicitly confirmed after 48 hours: keep?")])
     check_("decision/implied_confirmation_after_quote", created(), [said('“é” — then: user implicitly approved'), said("'😀 it' (user tacitly agrees) 😀 confirmed by hook")])
@@ -4574,7 +4580,12 @@ def log_checks():
             "aidlc/.aidlc-sessions/plan-approval/protected-question-s2.json": "{}\n", "aidlc/.aidlc-sessions/plan-approval/receipt-1.json": "{}\n"}
     check_("decision/withdraws_named_session", created(**kept), [ask + ["--session", " s1 "]])
     check_("decision/withdraws_every_session", created(**kept), [ask])
-    check_("decision/withdraws_no_session_name", created(**kept), [ask + ["--session", "///"]])
+    check_("decision/withdraws_no_session_name", created(**kept, **{"aidlc/.aidlc-sessions/plan-approval/protected-question-.json": "{}\n",
+                                                                    "aidlc/.aidlc-sessions/plan-approval/protected-question-response-.json": "{}\n"}), [ask + ["--session", "///"]])
+    # The chat that asks, told from the process that runs the command.
+    check_("decision/withdraws_calling_session", created(**kept, **my_pid_entry("s1"),
+                                                           **{"aidlc/.aidlc-sessions/s1.binding.json": '{"space":"default","intent":"260105-add-login","boundAt":"2026-01-05T10:00:00Z","source":"create"}'}), [ask])
+    UNRECORDED.add("log/decision/withdraws_calling_session")
     check_("decision/withdraws_blank_session", created(**kept), [ask + ["--session", "  "]])
     check_("decision/withdraws_odd_session", created(**kept, **{"aidlc/.aidlc-sessions/plan-approval/protected-question-a-b.json": "{}\n"}), [ask + ["--session", "/a b/"]])
     check_("decision/withdraws_behind_link", created(**{"elsewhere/protected-question-s1.json": "{}\n"}), [ask],
