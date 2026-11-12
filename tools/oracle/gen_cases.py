@@ -4972,5 +4972,377 @@ sw({"p/src/main.ts": "x\n", "out/ext/.DS_Store": "d\n", "out/ext/b.bin": "\x00",
 # A line feed after a carriage return is part of the line ending; one alone is not counted either way.
 sw(hexes={"p/c127nl.txt": sw_hex("x" * 127 + "\n\x01\r\n"), "p/c128nl.txt": sw_hex("x" * 128 + "\n\x01\r\n")})
 
+# --- A git repository embedded in the source tree ----------------------------
+#
+# Listed as one entry, a gitlink to the commit its HEAD names, which the walk reads from the repository's files:
+# HEAD, loose and packed references, the config, and the object store (loose objects and packs). An object here
+# is whatever its bytes say; nothing checks them against the id they are stored under.
+import zlib
+
+SW_C1, SW_C2, SW_B1, SW_T1 = "1f" * 20, "2e" * 20, "3d" * 20, "4c" * 20
+SW_C64 = "5b" * 32
+SW_CONFIG = "[core]\n\trepositoryformatversion = 0\n\tbare = false\n"
+
+
+def sw_object(kind="commit", body=b"tree x\n", size=None, level=0):
+    size = len(body) if size is None else size
+    return zlib.compress(kind.encode() + b" " + str(size).encode() + b"\x00" + body, level).hex()
+
+
+def sw_repo(at="p/vendor/lib", head="ref: refs/heads/main\n", refs=None, packed=None, objects=None, config=SW_CONFIG, more=None,
+            more_hex=None, git=".git"):
+    """The files of a repository at `at` (text and hex), with one source file beside it."""
+    base = f"{at}/{git}"
+    files = {"p/src/main.ts": "x\n", f"{at}/x.c": "int x;\n", f"{base}/objects": None}
+    hexes = {}
+    if head is not None:
+        files[f"{base}/HEAD"] = head
+    if config is not None:
+        files[f"{base}/config"] = config
+    for name, value in ({"refs/heads/main": SW_C1 + "\n"} if refs is None else refs).items():
+        files[f"{base}/{name}"] = value
+    if packed is not None:
+        files[f"{base}/packed-refs"] = packed
+    for oid, data in ({SW_C1: sw_object()} if objects is None else objects).items():
+        hexes[f"{base}/objects/{oid[:2]}/{oid[2:]}"] = data
+    files.update(more or {})
+    hexes.update(more_hex or {})
+    return files, hexes
+
+
+def sw_git(links=(), **repo):
+    files, hexes = sw_repo(**repo)
+    sw(files, hexes=hexes, links=links)
+
+
+sw_git()
+sw_git(head=SW_C1 + "\n")
+sw_git(head=SW_C1.upper() + "\n")
+sw_git(head=SW_C1)
+sw_git(head=SW_C1 + "\r\n")
+for head in [None, "", "\n", SW_C1 + "\n\n", SW_C1 + "\n" + SW_C1 + "\n", "ref: main\n", "ref:refs/heads/main\n", "ref: refs/heads/main",
+             "ref: refs/heads/main\r\n", "ref:  refs/heads/main\n", "refs/heads/main\n", SW_C1[:39] + "\n", SW_C1 + "0\n", " " + SW_C1 + "\n",
+             "ref: refs/heads/gone\n", "ref: refs/heads/main\n" + "#" * 8200, "Ref: refs/heads/main\n", SW_C2 + "\n", SW_B1 + "\n"]:
+    sw_git(head=head)
+# What is and is not the name of a reference.
+for name in ["refs/heads/a..b", "refs/heads/.hidden", "refs/heads/x.lock", "refs/heads/a b", "refs/heads/a~1", "refs/heads/a^", "refs/heads/a:b",
+             "refs/heads/a?", "refs/heads/a*", "refs/heads/a[", "refs/heads/a\\b", "refs/heads/a]", "refs//x", "refs/heads/x/", "refs/heads/@{x",
+             "refs/heads/x.", "refs/heads/é", "refs/heads/a.b", "refs/heads/a\tb", "refs/heads/a\x7fb", "refs/x", "refs/", "heads/main",
+             "refs/heads/a/./b", "refs/heads/x.lock/y", "refs/heads/a@b", "refs/heads/{x}", "REFS/heads/main", "refs/heads/deep/er/name"]:
+    sw_git(head=f"ref: {name}\n", refs={}, packed=f"{SW_C1} {name}\n")
+# A reference that names another, and where a reference is looked for.
+sw_git(refs={"refs/heads/main": "ref: refs/heads/other\n", "refs/heads/other": SW_C1 + "\n"})
+sw_git(refs={"refs/heads/main": "ref: refs/heads/main\n"})
+sw_git(refs={"refs/heads/main": "ref: refs/heads/other\n", "refs/heads/other": "ref: refs/heads/main\n"})
+sw_git(refs={"refs/heads/main": "ref: refs/heads/other\n"}, packed=f"{SW_C1} refs/heads/other\n")
+sw_git(refs={"refs/heads/main": "garbage\n"}, packed=f"{SW_C1} refs/heads/main\n")
+sw_git(refs={"refs/heads/main": ""}, packed=f"{SW_C1} refs/heads/main\n")
+sw_git(refs={"refs/heads/main/sub": SW_C1 + "\n"}, packed=f"{SW_C1} refs/heads/main\n")
+for hops in [7, 8, 9, 10]:
+    chain = {f"refs/heads/h{n}": f"ref: refs/heads/h{n + 1}\n" for n in range(hops)}
+    chain[f"refs/heads/h{hops}"] = SW_C1 + "\n"
+    sw_git(head="ref: refs/heads/h0\n", refs=chain)
+for packed in [f"{SW_C1} refs/heads/main\n", f"# pack-refs with: peeled fully-peeled sorted\n{SW_C2} refs/heads/a\n^{SW_C1}\n{SW_C1} refs/heads/main\n",
+               f"{SW_C1} refs/heads/main\r\n", f"{SW_C1.upper()} refs/heads/main\n", f"{SW_C1} refs/heads/main", f"{SW_C1}  refs/heads/main\n",
+               f"{SW_C1} refs/heads/mainx\n", f"{SW_C2} refs/heads/main\n{SW_C1} refs/heads/main\n", f"short refs/heads/main\n{SW_C1} refs/heads/main\n",
+               f"{SW_C1}\trefs/heads/main\n", f"^{SW_C1} refs/heads/main\n", "", f"{SW_C1} refs/heads/main extra\n", f"refs/heads/main {SW_C1}\n"]:
+    sw_git(refs={}, packed=packed)
+sw_git(refs={}, packed=None)
+sw_git(head="ref: refs/bisect/bad\n", refs={"refs/bisect/bad": SW_C1 + "\n"})
+# What the object under the id is.
+SW_OBJECTS = [
+    sw_object("tree"), sw_object("blob"), sw_object("tag"), sw_object("commit", b""), sw_object("commit", b"x" * 300, level=9),
+    sw_object("commit", size=6), sw_object("commit", size=8), sw_object("Commit"), sw_object("commit ", b"x"), sw_object("commits"),
+    zlib.compress(b"commit 7", 0).hex(), zlib.compress(b"\x00commit 7", 0).hex(), zlib.compress(b"commit 007\x00tree x\n", 0).hex(),
+    zlib.compress(b"commit +7\x00tree x\n", 0).hex(), zlib.compress(b"commit 7 \x00tree x\n", 0).hex(), zlib.compress(b"x" * 129 + b"\x00", 0).hex(),
+    zlib.compress(b"commit 9" + b"9" * 30 + b"\x00tree x\n", 0).hex(), zlib.compress(bytes(b | 0x80 for b in b"commit 7") + b"\x00tree x\n", 0).hex(),
+    sw_object()[:-8], sw_object()[:10], sw_object() + "00ff00", sw_object()[:-2] + "00", "", "00", "789c", (b"commit 7\x00tree x\n").hex(),
+    zlib.compress(b"commit 7\x00tree x\n", 0).hex()[4:], zlib.compress(b"commit 0\x00", 0).hex(), zlib.compress(b"commit 1\x00", 0).hex(),
+]
+for data in SW_OBJECTS:
+    sw_git(objects={SW_C1: data})
+sw_git(objects={})
+sw_git(objects={}, more={"p/vendor/lib/.git/objects/1f/" + SW_C1[2:] + "/x": "a directory where the object would be\n"})
+sw_git(objects={SW_C2: sw_object()}, links=[("p/vendor/lib/.git/objects/1f/" + SW_C1[2:], "../2e/" + SW_C2[2:])])
+# Where the repository is: a directory, a file that points at one, a directory shared by several worktrees, and the
+# object stores it borrows from.
+files, hexes = sw_repo(git="real")
+for pointer in ["gitdir: real\n", "gitdir: ./real\n", "gitdir: real", "gitdir: real\r\n", "gitdir: nowhere\n", "gitdir:real\n", "real\n", "", "gitdir: \n",
+                "gitdir: real\nmore\n", "gitdir: real/HEAD\n", "gitdir: ../lib/real\n", "Gitdir: real\n", "gitdir: " + "x" * 8200 + "\n"]:
+    sw({**files, "p/vendor/lib/.git": pointer}, hexes=hexes)
+sw(files, hexes=hexes, links=[("p/vendor/lib/.git", "real")])
+sw({**files, "p/vendor/lib/.git": "gitdir: lnk\n"}, hexes=hexes, links=[("p/vendor/lib/lnk", "real")])
+sw({**files, "p/vendor/lib/.git": None}, hexes=hexes)
+for commondir in ["../common\n", "../common", "../nowhere\n", "", "\n", "../common\nx\n", "../common/HEAD\n"]:
+    files, hexes = sw_repo(refs={}, objects={}, config=None, more={"p/vendor/lib/.git/commondir": commondir, "p/vendor/lib/common/config": SW_CONFIG,
+                                                                   "p/vendor/lib/common/refs/heads/main": SW_C1 + "\n",
+                                                                   "p/vendor/lib/common/objects": None},
+                           more_hex={"p/vendor/lib/common/objects/1f/" + SW_C1[2:]: sw_object()})
+    sw(files, hexes=hexes)
+sw_git(more={"p/vendor/lib/.git/commondir/x": "a directory\n"})
+sw_git(head="ref: refs/worktree/w\n", refs={"refs/worktree/w": SW_C1 + "\n"}, more={"p/vendor/lib/.git/commondir": "../common\n",
+       "p/vendor/lib/common/config": SW_CONFIG, "p/vendor/lib/common/objects": None, "p/vendor/lib/common/refs/worktree/w": SW_C2 + "\n"},
+       objects={}, more_hex={"p/vendor/lib/common/objects/1f/" + SW_C1[2:]: sw_object(), "p/vendor/lib/common/objects/2e/" + SW_C2[2:]: sw_object("blob")})
+SW_ALT = "p/vendor/alt/objects/1f/" + SW_C1[2:]
+for alternates in ["../../../alt/objects\n", "../../../alt/objects", "../../../alt/objects\r\n\r\n", "# borrowed\n../../../alt/objects\n", "../../../nowhere\n",
+                   "../../../alt/objects\n../../../alt/objects\n", "../../../alt\n", "\n\n", "../../../alt/objects\n../../../alt2/objects\n", "x" * 4097 + "\n",
+                   "\n".join(["../../../alt/objects"] * 65) + "\n", "\n".join(["../../../alt/objects"] * 64) + "\n"]:
+    sw_git(objects={}, more={"p/vendor/lib/.git/objects/info/alternates": alternates, "p/vendor/alt2/objects/info/alternates": "../../alt/objects\n"},
+           more_hex={SW_ALT: sw_object()})
+sw_git(objects={}, more={"p/vendor/lib/.git/objects/info/alternates/x": "a directory\n"}, more_hex={SW_ALT: sw_object()})
+sw_git(objects={}, more={"p/vendor/lib/.git/objects/info/alternates": "../../../alt/objects\n", "p/vendor/alt/objects/info/alternates": "../../lib/.git/objects\n"},
+       more_hex={SW_ALT: sw_object()})
+sw_git(objects={SW_C1: sw_object("blob")}, more={"p/vendor/lib/.git/objects/info/alternates": "../../../alt/objects\n"}, more_hex={SW_ALT: sw_object()})
+files, hexes = sw_repo()
+del files["p/vendor/lib/.git/objects"]
+sw(files, hexes={})
+sw({k: v for k, v in files.items()}, hexes={}, links=[("p/vendor/lib/.git/objects", "../../alt/objects")])
+# What the config says an object id is.
+for config in [None, "", "[core]\n", "[core]\n\trepositoryformatversion = 1\n", "[core]\n\trepositoryformatversion = 2\n", "[core]\n\trepositoryformatversion = 01\n",
+               "[core]\n\trepositoryformatversion = \"0\"\n", "[core]\n\trepositoryformatversion = x\n", "[core]\n\trepositoryformatversion\n",
+               "[core]\n\trepositoryformatversion = 0\n\trepositoryformatversion = 1\n", "[core]\n\trepositoryformatversion = 0\n\trepositoryformatversion = 0\n",
+               "[CORE]\n\tRepositoryFormatVersion = 0\n", "; comment\n# another\n[core]\n\tbare = false\n", "[core]\n\tbare\n", "[other]\n\tbare\n",
+               "[core \"sub\"]\n\tbare\n", "[ core ]\n\trepositoryformatversion = 1\n[extensions]\n\tobjectformat = sha1\n",
+               "[core]\n\trepositoryformatversion = 0\n[extensions]\n\tobjectformat = sha1\n", "[core]\n\trepositoryformatversion = 1\n[extensions]\n\tnoop = 1\n",
+               "[core]\n\trepositoryformatversion = 1\n[extensions]\n\tunknown = 1\n", "[core]\n\trepositoryformatversion = 1\n[extensions]\n\trefstorage = files\n",
+               "[core]\n\trepositoryformatversion = 1\n[extensions]\n\trefstorage = reftable\n", "[core]\n\trepositoryformatversion = 1\n[extensions]\n\tobjectformat = md5\n",
+               "[core]\n\trepositoryformatversion = 1\n[extensions]\n\tobjectformat = sha1\n\tobjectformat = sha256\n",
+               "[core]\n\trepositoryformatversion = 1\n[extensions]\n\tobjectFormat = \"SHA1\"\n\tworktreeConfig = true\n\tpartialClone = origin\n",
+               "[core]\r\n\trepositoryformatversion = 0\r\n", "[remote \"origin\"]\n\turl = x\n[core]\n\trepositoryformatversion = 0\n",
+               "[core]\n\trepositoryformatversion = 0\n[extensions \"x\"]\n\tunknown = 1\n", "[core]\n\t1bad = x\n", "[core] bare = false\n",
+               "[core]\n\trepositoryformatversion = 1 ; trailing\n", "[core]\n\trepositoryformatversion=0\n", "x" * (1024 * 1024 + 1)]:
+    sw_git(config=config)
+SW_CONFIG64 = "[core]\n\trepositoryformatversion = 1\n[extensions]\n\tobjectformat = sha256\n"
+sw_git(config=SW_CONFIG64, refs={"refs/heads/main": SW_C64 + "\n"}, objects={SW_C64: sw_object()})
+sw_git(config=SW_CONFIG64)
+sw_git(config=SW_CONFIG, refs={"refs/heads/main": SW_C64 + "\n"}, objects={SW_C64: sw_object()})
+sw_git(config="[core]\n\trepositoryformatversion = 0\n[extensions]\n\tobjectformat = sha256\n", refs={"refs/heads/main": SW_C64 + "\n"}, objects={SW_C64: sw_object()})
+
+
+# Packs: the index (either version) says where an object is, and the first bytes there say what it is, or which
+# object it is a change of.
+def sw_index(entries, version=2, magic=b"\xfftOc", width=20, short=0):
+    entries = sorted(entries)
+    fan, table = [0] * 256, b""
+    for oid, _ in entries:
+        fan[int(oid[:2], 16)] += 1
+    total = 0
+    for count in fan:
+        total += count
+        table += total.to_bytes(4, "big")
+    if version == 1:
+        body = table + b"".join(offset.to_bytes(4, "big") + bytes.fromhex(oid) for oid, offset in entries)
+    else:
+        large, offsets = [], b""
+        for _, offset in entries:
+            if offset >= 0x80000000:
+                offsets += (0x80000000 | len(large)).to_bytes(4, "big")
+                large.append(offset)
+            else:
+                offsets += offset.to_bytes(4, "big")
+        body = (magic + version.to_bytes(4, "big") + table + b"".join(bytes.fromhex(oid) for oid, _ in entries) + b"\x00" * 4 * len(entries)
+                + offsets + b"".join(offset.to_bytes(8, "big") for offset in large))
+    body += b"\x00" * (2 * width)
+    return body[:len(body) - short].hex()
+
+
+def sw_pack(objects, magic=b"PACK", version=2):
+    data, offsets = magic + version.to_bytes(4, "big") + len(objects).to_bytes(4, "big"), []
+    for raw in objects:
+        offsets.append(len(data))
+        data += raw
+    return (data + b"\x00" * 20).hex(), offsets
+
+
+def sw_packed(objects, entries_of, name="pack-aa", index=None, **pack):
+    """A repository whose objects are in one pack: `entries_of(offsets)` gives the index's entries."""
+    data, offsets = sw_pack(objects, **pack)
+    base = "p/vendor/lib/.git/objects/pack/"
+    return {base + name + ".pack": data, base + name + ".idx": (index or sw_index)(entries_of(offsets))}
+
+
+SW_COMMIT, SW_BLOB = bytes([0x15]) + b"zzzzz", bytes([0x35]) + b"zzzzz"
+SW_PACKS = [
+    ([SW_COMMIT], lambda at: [(SW_C1, at[0])]),
+    ([SW_BLOB, SW_COMMIT], lambda at: [(SW_B1, at[0]), (SW_C1, at[1])]),
+    ([SW_BLOB], lambda at: [(SW_C1, at[0])]),
+    ([bytes([0x25]) + b"z"], lambda at: [(SW_C1, at[0])]),
+    ([bytes([0x45]) + b"z"], lambda at: [(SW_C1, at[0])]),
+    ([bytes([0x55]) + b"z"], lambda at: [(SW_C1, at[0])]),
+    ([bytes([0x05]) + b"z"], lambda at: [(SW_C1, at[0])]),
+    ([bytes([0x95, 0x81, 0x01]) + b"z"], lambda at: [(SW_C1, at[0])]),
+    ([bytes([0x95] + [0x81] * 100)], lambda at: [(SW_C1, at[0])]),
+    ([SW_COMMIT, bytes([0x61, 6]) + b"d"], lambda at: [(SW_C2, at[0]), (SW_C1, at[1])]),
+    ([SW_BLOB, bytes([0x61, 6]) + b"d"], lambda at: [(SW_C2, at[0]), (SW_C1, at[1])]),
+    ([SW_COMMIT, bytes([0x61, 5]) + b"d"], lambda at: [(SW_C2, at[0]), (SW_C1, at[1])]),
+    ([SW_COMMIT, bytes([0x61, 0]) + b"d"], lambda at: [(SW_C2, at[0]), (SW_C1, at[1])]),
+    ([SW_COMMIT, bytes([0x61, 30]) + b"d"], lambda at: [(SW_C2, at[0]), (SW_C1, at[1])]),
+    ([SW_COMMIT, b"x" * 200, bytes([0x61, 0x80, 78]) + b"d"], lambda at: [(SW_C2, at[0]), (SW_C1, at[2])]),
+    ([SW_COMMIT, bytes([0x61, 6]) + b"d", bytes([0x61, 3]) + b"d"], lambda at: [(SW_C2, at[0]), (SW_B1, at[1]), (SW_C1, at[2])]),
+    ([SW_COMMIT, bytes([0x61])], lambda at: [(SW_C2, at[0]), (SW_C1, at[1])]),
+    ([SW_COMMIT, bytes([0x71]) + bytes.fromhex(SW_C2) + b"d"], lambda at: [(SW_C2, at[0]), (SW_C1, at[1])]),
+    ([SW_BLOB, bytes([0x71]) + bytes.fromhex(SW_C2) + b"d"], lambda at: [(SW_C2, at[0]), (SW_C1, at[1])]),
+    ([bytes([0x71]) + bytes.fromhex(SW_C1) + b"d"], lambda at: [(SW_C1, at[0])]),
+    ([bytes([0x71]) + bytes.fromhex(SW_C2) + b"d"], lambda at: [(SW_C1, at[0])]),
+    ([bytes([0x71]) + bytes.fromhex(SW_C2)[:10]], lambda at: [(SW_C1, at[0])]),
+    ([SW_COMMIT], lambda at: [(SW_C1, 11)]),
+    ([SW_COMMIT], lambda at: [(SW_C1, 12)]),
+    ([SW_COMMIT], lambda at: [(SW_C1, 5000)]),
+    ([SW_COMMIT], lambda at: [(SW_C1, 0x80000000 + 12)]),
+    ([SW_COMMIT], lambda at: [(SW_C2, at[0])]),
+    ([SW_COMMIT], lambda at: [(SW_C2, 0), (SW_C1, at[0]), (SW_B1, 0), (SW_T1, 0)]),
+    ([SW_COMMIT], lambda at: []),
+]
+for objects, entries_of in SW_PACKS:
+    for index in [sw_index, lambda entries: sw_index(entries, version=1)]:
+        sw_git(objects={}, more_hex=sw_packed(objects, entries_of, index=index))
+for index in [lambda e: sw_index(e, version=3), lambda e: sw_index(e, magic=b"\xfftOd"), lambda e: sw_index(e, short=41), lambda e: sw_index(e, short=1),
+              lambda e: sw_index(e, version=1, short=1), lambda e: sw_index(e)[:2046], lambda e: sw_index(e)[:2064], lambda e: "", lambda e: sw_index(e) + "00"]:
+    sw_git(objects={}, more_hex=sw_packed([SW_COMMIT], lambda at: [(SW_C1, at[0])], index=index))
+for pack in [{"magic": b"PACX"}, {"version": 3}, {"version": 4}, {"version": 1}]:
+    sw_git(objects={}, more_hex=sw_packed([SW_COMMIT], lambda at: [(SW_C1, at[0])], **pack))
+# The pack beside an index is missing; a name that is not an index's; two packs; a loose object answers first.
+found = sw_packed([SW_COMMIT], lambda at: [(SW_C1, at[0])])
+sw_git(objects={}, more_hex={k: v for k, v in found.items() if k.endswith(".idx")})
+sw_git(objects={}, more_hex={k.replace("pack-aa", "pack-AA"): v for k, v in found.items()})
+sw_git(objects={}, more_hex={k.replace("pack-aa", "other-aa"): v for k, v in found.items()})
+sw_git(objects={}, more_hex={k.replace("pack-aa.idx", "pack-aa.idx.tmp"): v for k, v in found.items()})
+sw_git(objects={}, more_hex={**sw_packed([SW_BLOB], lambda at: [(SW_B1, at[0])], name="pack-00"), **found})
+sw_git(objects={}, more_hex={**sw_packed([SW_BLOB], lambda at: [(SW_C1, at[0])], name="pack-00"), **found})
+sw_git(objects={}, more_hex={**sw_packed([SW_COMMIT], lambda at: [(SW_C1, at[0])], name="pack-00", index=lambda e: ""), **found})
+sw_git(objects={SW_C1: sw_object("blob")}, more_hex=found)
+sw_git(objects={SW_C1: ""}, more_hex=found)
+sw_git(objects={SW_C2: sw_object()}, more_hex=sw_packed([bytes([0x71]) + bytes.fromhex(SW_C2) + b"d"], lambda at: [(SW_C1, at[0])]))
+sw_git(objects={}, more_hex=found, more={"p/vendor/lib/.git/objects/info/alternates": "../../../alt/objects\n"})
+sw_git(objects={}, more={"p/vendor/lib/.git/objects/info/alternates": "../../../alt/objects\n", "p/vendor/alt/objects": None},
+       more_hex={k.replace("lib/.git", "alt"): v for k, v in found.items()})
+# Where a repository is in the tree: two of them; one inside another; one reached by a link; one under a name that is
+# left out; one outside the project; and a directory of one reached again by a link, which is then walked for what
+# the first visit could not list.
+files, hexes = sw_repo()
+files2, hexes2 = sw_repo(at="p/vendor/other", objects={SW_C1: sw_object("blob")})
+sw({**files, **{k: v for k, v in files2.items() if "other" in k}}, hexes={**hexes, **{k: v for k, v in hexes2.items() if "other" in k}})
+files2, hexes2 = sw_repo(at="p/vendor/other", refs={"refs/heads/main": SW_C2 + "\n"}, objects={SW_C2: sw_object()})
+sw({**files, **files2}, hexes={**hexes, **hexes2})
+inner, inner_hex = sw_repo(at="p/vendor/lib/sub/inner", refs={"refs/heads/main": SW_C2 + "\n"}, objects={SW_C2: sw_object()})
+sw({**files, **inner}, hexes={**hexes, **inner_hex})
+sw({**files, **inner}, hexes={**hexes, **inner_hex}, links=[("p/zlink", "vendor/lib/sub")])
+sw({**files, **inner}, hexes={**hexes, **inner_hex}, links=[("p/alink", "vendor/lib/sub")])
+sw({**files, **inner}, hexes={**hexes, **inner_hex}, links=[("p/zlink", "vendor/lib/sub"), ("p/zzlink", "vendor/lib/sub")])
+sw({**files, **inner, "p/vendor/lib/sub/y.c": "y\n"}, hexes={**hexes, **inner_hex}, links=[("p/zlink", "vendor/lib")])
+sw(files, hexes=hexes, links=[("p/alink", "vendor/lib")])
+sw(files, hexes=hexes, links=[("p/zlink", "vendor/lib")])
+sw(files, hexes=hexes, links=[("p/zlink", "vendor")])
+for at in ["p/build/lib", "p/node_modules/lib", "p/build", "out/lib"]:
+    files2, hexes2 = sw_repo(at=at)
+    sw(files2, hexes=hexes2, links=[("p/l", "../out/lib")] if at.startswith("out") else [])
+files2, hexes2 = sw_repo(at="p/build/lib")
+sw({**files2, SW_REGISTRY: sw_registry(["build/lib/x.c"])}, hexes=hexes2)
+sw({**files2, SW_REGISTRY: sw_registry(["build"])}, hexes=hexes2)
+sw({**files, SW_REGISTRY: sw_registry(None, ["vendor"])}, hexes=hexes)
+sw({**files, SW_REGISTRY: sw_registry(["vendor/lib/x.c"], ["vendor"])}, hexes=hexes)
+sw({**files, SW_REGISTRY: sw_registry(["vendor/lib/x.c"], ["vendor/lib"])}, hexes=hexes)
+files2, hexes2 = sw_repo(at="p/api/vendor/lib")
+sw({**files2, "p/web/w.ts": "w\n"}, hexes=hexes2, repos=["api", "web"])
+files2, hexes2 = sw_repo(at="p/api")
+sw({**files2, "p/web/w.ts": "w\n"}, hexes=hexes2, repos=["api", "web"])
+files2, hexes2 = sw_repo(at="p")
+sw(files2, hexes=hexes2)
+
+# Edges the sweep over the repository reader found unguarded.
+SW_GIT = "p/vendor/lib/.git/"
+# A pointer file is a regular file of at most its size, whatever it would say otherwise.
+for name, content in [("HEAD", "ref: refs/heads/main\n"), ("config", SW_CONFIG), ("refs/heads/main", SW_C1 + "\n")]:
+    files, hexes = sw_repo()
+    del files[SW_GIT + name]
+    sw({**files, SW_GIT + name + ".real": content}, hexes=hexes, links=[(SW_GIT + name, name.rsplit("/", 1)[-1] + ".real")])
+sw_git(refs={}, packed=None, links=[(SW_GIT + "packed-refs", "packed.real")], more={SW_GIT + "packed.real": f"{SW_C1} refs/heads/main\n"})
+for length in [8192, 8193]:
+    name = "refs/heads/" + "x" * (length - len("ref: refs/heads/\n"))
+    sw_git(head=f"ref: {name}\n", refs={}, packed=f"{SW_C1} {name}\n")
+# An empty pointer points nowhere, not at the place it is read from; a line break inside one is not part of a name.
+sw_git(more={SW_GIT + "commondir": "\n"})
+sw_git(more={SW_GIT + "commondir": ""})
+files, hexes = sw_repo(git="here")
+sw({k.replace("/here/", "/"): v for k, v in files.items() if not k.endswith("/here/objects")} | {"p/vendor/lib/.git": "gitdir: \n", "p/vendor/lib/objects": None},
+   hexes={k.replace("/here/", "/"): v for k, v in hexes.items()})
+for odd in ["re\nal", "re\ral"]:
+    files, hexes = sw_repo(git=odd)
+    sw({**files, "p/vendor/lib/.git": f"gitdir: {odd}\n"}, hexes=hexes)
+# A shared directory, an object store and a borrowed store are directories, not links to one.
+files, hexes = sw_repo(refs={}, objects={}, config=None, more={SW_GIT + "commondir": "../clink\n", "p/vendor/lib/common/config": SW_CONFIG,
+                                                               "p/vendor/lib/common/refs/heads/main": SW_C1 + "\n", "p/vendor/lib/common/objects": None},
+                       more_hex={"p/vendor/lib/common/objects/1f/" + SW_C1[2:]: sw_object()})
+sw(files, hexes=hexes, links=[("p/vendor/lib/clink", "common")])
+files, hexes = sw_repo()
+del files[SW_GIT + "objects"]
+sw(files, hexes={SW_ALT: sw_object()}, links=[(SW_GIT + "objects", "../../alt/objects")])
+sw_git(more={SW_GIT + "objects/info/alternates/x": "a directory\n"})
+sw_git(more={SW_GIT + "objects/info/alternates": "#alt\n", SW_GIT + "objects/#alt": None})
+sw_git(objects={}, more={SW_GIT + "objects/info/alternates": "../../../alt/objects\n"}, more_hex={SW_ALT: sw_object()}, links=[])
+for line in ["./" * 2038 + "../../../alt/objects", "./" * 2037 + ".//" + "../../../alt/objects"]:
+    assert len(line) in (4096, 4097)
+    sw_git(objects={}, more={SW_GIT + "objects/info/alternates": line + "\n"}, more_hex={SW_ALT: sw_object()})
+# Sixty-four stores are read; a sixty-fifth is one too many.
+for stores in [63, 64]:
+    more = {f"p/vendor/alt{n}/objects": None for n in range(stores)}
+    more[SW_GIT + "objects/info/alternates"] = "".join(f"../../../alt{n}/objects\n" for n in range(stores))
+    sw_git(objects={}, more=more, more_hex={f"p/vendor/alt{stores - 1}/objects/1f/" + SW_C1[2:]: sw_object()})
+# The header of a loose object: its length, and what stands before and between its two parts.
+for header in [b"commit " + b"0" * 120 + b"7", b"commit " + b"0" * 121 + b"7", b"xcommit 7", b"commit7", b" commit 7"]:
+    sw_git(objects={SW_C1: zlib.compress(header + b"\x00tree x\n", 0).hex()})
+
+
+def sw_index_large(entries):
+    """A version-two index whose every offset is in the table of large ones."""
+    entries = sorted(entries)
+    table = b"".join((sum(1 for oid, _ in entries if int(oid[:2], 16) <= n)).to_bytes(4, "big") for n in range(256))
+    return (b"\xfftOc" + (2).to_bytes(4, "big") + table + b"".join(bytes.fromhex(oid) for oid, _ in entries) + b"\x00" * 4 * len(entries)
+            + b"".join((0x80000000 | n).to_bytes(4, "big") for n in range(len(entries)))
+            + b"".join(offset.to_bytes(8, "big") for _, offset in entries) + b"\x00" * 40).hex()
+
+
+SW_LOW = "00" * 20
+SW_ONE = lambda at: [(SW_C1, at[0])]
+sw_git(objects={}, more_hex=sw_packed([SW_COMMIT], SW_ONE, index=sw_index_large))
+sw_git(objects={}, more_hex=sw_packed([SW_COMMIT], SW_ONE, index=lambda e: sw_index(e, short=40)))
+sw_git(objects={}, more_hex={k.replace("pack-aa", "xpack-aa"): v for k, v in found.items()})
+for version in [1, 2]:
+    index = lambda e, version=version: sw_index(e, version=version)
+    good = sw_packed([SW_COMMIT], SW_ONE, index=index)
+    # An index that cannot be trusted ends the reading of its store, even with a good one after it.
+    for bad in [lambda e: sw_index(e, version=1, short=1), lambda e: sw_index(e, version=3), lambda e: sw_index(e, short=41)]:
+        sw_git(objects={}, more_hex={**sw_packed([SW_COMMIT], SW_ONE, name="pack-00", index=bad), **good})
+    # An index that does not have the object, below it or above it, leaves it to the next.
+    sw_git(objects={}, more_hex={**sw_packed([SW_BLOB], lambda at: [(SW_LOW, at[0])], name="pack-00", index=index), **good})
+    sw_git(objects={}, more_hex={**sw_packed([SW_BLOB], lambda at: [(SW_B1, at[0])], name="pack-00", index=index), **good})
+    sw_git(objects={}, more_hex={**sw_packed([SW_BLOB], lambda at: [(SW_LOW, at[0]), (SW_B1, at[0])], name="pack-00", index=index), **good})
+    # The index and the pack are files, not links to one.
+    for which in [".idx", ".pack"]:
+        moved = {k.replace("objects/pack/", "objects/kept/") if k.endswith(which) else k: v for k, v in good.items()}
+        sw_git(objects={}, more_hex=moved, links=[(SW_GIT + "objects/pack/pack-aa" + which, "../kept/pack-aa" + which)])
+    # An object is after the pack's twelve bytes and before its end, and so is the object a change is a change of.
+    sixteen = [b"x"] * 16
+    sw_git(objects={}, more_hex=sw_packed(sixteen, lambda at: [(SW_C1, 11)], index=index))
+    sw_git(objects={}, more_hex=sw_packed(sixteen + [bytes([0x61, 17])], lambda at: [(SW_C1, at[16])], index=index))
+    sw_git(objects={}, more_hex=sw_packed([SW_COMMIT], lambda at: [(SW_C1, at[0] + len(SW_COMMIT) + 20)], index=index))
+    sw_git(objects={}, more_hex=sw_packed([SW_COMMIT], lambda at: [(SW_C1, at[0] + len(SW_COMMIT) + 19)], index=index))
+    # A change of a change of a change: sixty-four deep at most.
+    for depth in [62, 63, 64, 65, 70]:
+        chain = [SW_COMMIT, bytes([0x61, 6])] + [bytes([0x61, 2])] * (depth - 1)
+        sw_git(objects={}, more_hex=sw_packed(chain, lambda at: [(SW_C1, at[-1])], index=index))
+# The config: a note inside a section; a section in capitals; the object format said twice.
+for config in ["[core]\n; note\n\trepositoryformatversion = 0\n", "[core]\n# note\n\trepositoryformatversion = 0\n", "[CORE]\n\trepositoryformatversion = 2\n",
+               "[Extensions]\n\tunknown = 1\n", "[core]\n\trepositoryformatversion = 1\n[extensions]\n\tobjectformat = sha256\n\tobjectformat = sha1\n",
+               "[core]\n\trepositoryformatversion = 1\n[extensions]\n\tobjectformat = sha1\n\tobjectformat = sha1\n"]:
+    sw_git(config=config)
+# In packed-refs a note is skipped, whatever it looks like.
+sw_git(refs={}, packed=f"#x refs/heads/main\n{SW_C1} refs/heads/main\n")
+sw_git(refs={}, packed=f"^x refs/heads/main\n{SW_C1} refs/heads/main\n")
+# A directory of a repository reached again by a link is walked for what the first visit could not list, and for
+# nothing else: its files and what the earlier walk recorded there are not taken twice.
+sw({**files, **inner, "p/vendor/lib/sub/y.c": "y\n", "p/vendor/lib/sub/__pycache__/y.pyc": "c\n", "p/vendor/lib/sub/.DS_Store": "d\n"},
+   hexes={**hexes, **inner_hex}, links=[("p/zlink", "vendor/lib/sub")])
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")
