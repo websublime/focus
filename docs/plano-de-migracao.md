@@ -1079,8 +1079,8 @@ A criação de um intent começa por classificar o projeto: Greenfield ou Brownf
 
 | | Original | Focus |
 | --- | --- | --- |
-| `Source Baseline` na linha `WORKFLOW_STARTED`, e o ficheiro `baseline-<hash>.tsv` ao lado do registo | O passeio da atestação por todos os ficheiros fonte do projeto | Não escreve nenhum dos dois: é M5. O diferencial retira o campo e o ficheiro antes de comparar (`SHAPES`), e compara todo o resto da criação |
-| Um observador (`FOCUS_STOP_HOOK_PROBE`, `FOCUS_ROUTE_CHECK`) que chega à criação | Pára no `writeFileAtomic` da baseline | Pára no append da primeira linha da auditoria; os dois deixam o diretório cunhado, o clone id e o título do shard |
+| `Source Baseline` na linha `WORKFLOW_STARTED`, e o ficheiro `baseline-<hash>.tsv` ao lado do registo | O passeio da atestação por todos os ficheiros fonte do projeto | Não escreve nenhum dos dois: é M5. O diferencial retira o campo e o ficheiro antes de comparar (`SHAPES`), e compara todo o resto da criação. Levantado em M5 (fatia 1d) |
+| Um observador (`FOCUS_STOP_HOOK_PROBE`, `FOCUS_ROUTE_CHECK`) que chega à criação | Pára no `writeFileAtomic` da baseline | Pára no append da primeira linha da auditoria; os dois deixam o diretório cunhado, o clone id e o título do shard. Levantado em M5 (fatia 1d): Focus escreve a baseline e pára no mesmo sítio |
 | `--request <id>` | Vai buscar a pergunta do engine | Recusa: a loja de perguntas é M5 |
 | O uso de `intent-create` | Oferece `--request` | Lista as flags que tem |
 | Um projeto com o layout plano `focus-docs/` | A primeira criação migra-o para um registo | Recusa |
@@ -1205,7 +1205,7 @@ Fora de M3 e recusados pelo nome, como `fragment-fork` ficou em M2: os subcomand
 | | Original | Focus |
 | --- | --- | --- |
 | `park`/`unpark` com `Unit Ownership: team` | Lê o carimbo de scope de unit do checkout e verifica-o contra o registo de claims e o fan-out | Recusa pelo nome (M4) |
-| O baseline de fonte nas linhas `STAGE_JUMPED` e `STAGE_STARTED` de um salto | Escreve o snapshot da atestação e o campo `Source Baseline` | Não escreve nenhum (M5; `SHAPES`, como na criação); um observador pára na primeira linha da auditoria, não no snapshot |
+| O baseline de fonte nas linhas `STAGE_JUMPED` e `STAGE_STARTED` de um salto | Escreve o snapshot da atestação e o campo `Source Baseline` | Não escreve nenhum (M5; `SHAPES`, como na criação); um observador pára na primeira linha da auditoria, não no snapshot. Levantado em M5 (fatia 1d): o campo e o snapshot são escritos e comparados |
 | `execute --units`, `reopen` | Movem units uma a uma | Recusam-se pelo nome (M4), `reopen` depois de satisfeito o uso |
 | Um salto para trás com uma sessão ligada | Guarda o aviso do caminho de volta nas linhas pendentes do chat (hook de turno) e omite `notice` | Recusa pelo nome (M4) |
 | O marcador de diretiva ativa | Lê dele o passo em que a pessoa estava | Recusa o salto pelo nome (M5) |

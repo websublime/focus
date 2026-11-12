@@ -2302,9 +2302,6 @@ DEVIATIONS.update({
         "scope stamp and checked against the claim registry and the fan-out (M4): focus refuses both by name",
     "jump/usage/flag_without_its_value":
         "upstream takes a trailing --project-dir with no value as an argument of the verb; focus refuses the flag",
-    r"jump/observer/(stop_hook_probe|route_check)":
-        "an observer that reaches a jump is stopped at the first durable write: upstream's is the source "
-        "baseline's snapshot (the attestation's, M5), focus's the first ledger row",
     "jump/execute/units":
         "execute --units moves units of work forward one at a time to a per-unit stage, with the state tool's "
         "one-unit skip (M4): upstream runs it or refuses on its own shape; focus refuses the flag by name",
@@ -2363,10 +2360,6 @@ DEVIATIONS.update({
         "that text",
     "utility/create/help":
         "upstream's usage offers --request; focus's lists the flags it has",
-    r"utility/create/observer_(stop_hook_probe|route_check)":
-        "an observer that reaches creation is stopped at the first durable write: upstream's is the source "
-        "baseline's (the attestation's, M5), focus's the ledger's first row. Both leave the minted directory, "
-        "the clone id and the shard's title",
     "utility/create/request_flag":
         "an engine question's answer names its request by id; the question store is M5's, so focus refuses the "
         "flag by name where upstream looks the question up",
@@ -3221,6 +3214,21 @@ def transition_checks():
     check_("complete/registry_malformed", created(registry="{not a list", **ic), [["complete-workflow", "intent-capture"]], direct)
 
     # skip: plain, routed, and what a replay writes once.
+    # A stage that produces code starts from a source baseline, kept beside the record under the stage's own name:
+    # reached by an advance, and by a skip of the stage before it.
+    source = {"src/main.ts": "export const a = 1;\n", "src/crlf.txt": "a\r\nb\r\n", "build/out.js": "o\n", "docs/guide.md": "# g\n"}
+    unbindable = {".aidlc-source-paths.json": "{", ".git/HEAD": "ref: refs/heads/main\n"}
+    into_code = [["advance", "intent-capture", "code-generation"], ["resume"]]
+    check_("advance/into_code_stage", created(**ic, **source), into_code, direct)
+    check_("advance/into_code_stage_unreadable", created(**ic, **source, **{".aidlc-source-paths.json": "{"}), into_code, direct)
+    check_("advance/into_code_stage_unbindable", created(**ic, **source, **unbindable), into_code, direct)
+    with open(os.path.join(DIST, ".claude", "tools", "data", "stage-graph.json"), encoding="utf-8") as handle:
+        order = [stage["slug"] for stage in json.load(handle)]
+    before_code = at_stage(CREATED_STATE, "infrastructure-design", done=order[:order.index("infrastructure-design")], phase="CONSTRUCTION")
+    routed = ["skip", "infrastructure-design", "--route", "--reason", "not needed"]
+    check_("skip/into_code_stage", created(before_code, **source), [routed, ["resume"]], direct)
+    check_("skip/into_code_stage_unbindable", created(before_code, **source, **unbindable), [routed], direct)
+    check_("skip/before_code_stage_unrouted", created(before_code, **source), [["skip", "infrastructure-design"], ["resume"]], direct)
     check_("skip/usage", created(), [["skip"]], direct)
     check_("skip/unknown_stage", created(), [["skip", "nope"], ["skip", "--route"]], direct)
     check_("skip/plain", created(), [["skip", "market-research"], ["skip", "feasibility", "--reason", "  not needed  "], ["skip", "intent-capture"],
