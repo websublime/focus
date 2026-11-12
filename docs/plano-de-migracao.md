@@ -2,7 +2,7 @@
 
 O projeto chamava-se Sulca até 2026-10-09; o workspace, os crates e o binário passaram a `focus`.
 
-Estado em 2026-11-12, com os marcos M0 a M4 fechados (secção 15 para o último). Referência: `awslabs/aidlc-workflows` no commit `2a555f7` (v2.11.0, licença MIT-0). Focus é um fork congelado nesse commit; o que o original publicar depois não é seguido.
+Estado em 2026-11-12, com os marcos M0 a M4 fechados (secção 15 para o último) e M5 partido em fatias (secção 16). Referência: `awslabs/aidlc-workflows` no commit `2a555f7` (v2.11.0, licença MIT-0). Focus é um fork congelado nesse commit; o que o original publicar depois não é seguido.
 
 ## 1. Resumo
 
@@ -116,6 +116,7 @@ focus-cli ✔ ───────────► focus-hooks ──► focus-o
 | `focus-lifecycle` | Transições de stage: a cadeia de admissão, onde estão os artefactos de uma stage, o recibo de validade de uma conclusão, e as transições em si | Existem `advance`, `finalize`, `complete-workflow`, `skip` e `resume` (M3, fatia 4a); os verbos de gate são a fatia 4b |
 | `focus-guards` | Lexer de shell, integridade de runtime, fences, decisões de guard | Existe (M3, fatia 1; M4): a Guard Policy e as fences, o lexer de shell, a integridade do runtime, e os leitores dos quatro guards. A avaliação de uma aprovação e os recibos são M5 |
 | `focus-hooks` | Os corpos dos hooks e o dispatcher | Existe (M4): o dispatcher, o contexto de um hook, os observadores, o arranque de sessão, o turno humano, os quatro guards e o grupo que os corre num processo. `continue-workflow`, `deliver-stage-rules` e a status line são M6 |
+| `focus-evidence` | A identidade da fonte, as linhas de `log`, os recibos de revisão e de sumário, o brief de revisão | M5 (proposto na secção 16; não está no diagrama) |
 | `focus-orchestrate` | `next` e `report`, diretivas, plan approval, checkpoints | M5 |
 | `focus-sensors` | Dispatcher e os seis sensores | M7 |
 | `focus-project` | Projeção de `core/` para a árvore de cada harness, configuração, doctor | M8 |
@@ -150,7 +151,8 @@ Atribuição feita pelo cabeçalho de cada ficheiro e pelo grafo de imports. É 
 | `focus-guards` | `hooks/review-freeze-command` (2 083), `hooks/runtime-integrity` (1 427), `guard-switch` (1 464), `guard-operation` (468), `question-store` (412), `message-store` (246), `reply-reader` (119), `guard-fences` (55) | M4 |
 | `focus-guards` | `testing-posture` (5 453), `plan-approval-ask` (2 196) | M4, M5 |
 | `focus-hooks` | `plan-approval-guard` (2 793), `state-transition-guard` (1 275), `reviewer-scope` (1 161), `record-human-turn` (934), `session-start` (658), `review-freeze` (447), `rebuild-stage-graph` (355), `write-audit-log` (243), `sync-workflow-state` (147), `session-end` (130), `validate-state` (122), `log-subagent` (113), `hook-trace` (66) | M4 |
-| `focus-orchestrate` | `orchestrate` (16 133), `log` (4 486), `unit` (3 769), `directive` (2 976), `review-brief` (2 365), `construction-checkpoints` (1 618), `bolt` (1 511), `learnings` (1 252), `rules-held` (595), `includes` (481), `inline-context` (398), `steering` (128) | M5 |
+| `focus-evidence` | `log` (4 486), `review-brief` (2 365) | M5 |
+| `focus-orchestrate` | `orchestrate` (16 133), `unit` (3 769), `directive` (2 976), `construction-checkpoints` (1 618), `bolt` (1 511), `learnings` (1 252), `rules-held` (595), `includes` (481), `inline-context` (398), `steering` (128) | M5 |
 | `focus-hooks` | `continue-workflow` (2 191), `statusline` (746), `deliver-stage-rules` (412) | M6 |
 | `focus-harness` | `aidlc-cursor-adapter` (3 028), `aidlc-copilot-adapter` (2 304) | M6 |
 | `focus-cli` | `aidlc` (3 735), `command` (670), `completions` (316), `color` (72), `version` (4) | M6 |
@@ -207,6 +209,7 @@ Cada marco fecha com um critério verificável contra o oráculo.
 **M5. Orchestrator.**
 - `next` e `report`, diretivas, plan approval, testing posture, review brief, checkpoints de Construction em série.
 - Critério: uma jornada completa produz a mesma sequência de diretivas JSON.
+- Partido em doze fatias, com as decisões de âmbito e a forma de medir o critério: secção 16.
 
 **M6. Adapters e ciclo de conversa.**
 - Adapters de Cursor e Copilot, hook `Stop` (`continue-workflow`), `deliver-stage-rules`, status line, tabela de rotas do CLI.
@@ -221,7 +224,7 @@ Cada marco fecha com um critério verificável contra o oráculo.
 - Ferramentas de plugin (`create`, `build`, `validate`, `test`, `emit`). A seleção de plugins no compile já existe desde M1.
 - Critério: a árvore gerada equivale à do packager original para os três harnesses; um workflow corre de ponta a ponta em cada host.
 
-Tamanho: M5 é o maior bloco (35 712 linhas atribuídas a `focus-orchestrate`, mais a fatia de `lib` e parte de `utility`). As 21 335 de `focus-project` são um limite superior largo: grande parte de `init` trata dos sete harnesses e da instalação nativa. M0 cobriu, pela minha soma dos intervalos de linhas portados, cerca de 3 000 linhas de TypeScript, e M1 cerca de 2 700; não há um mapa função a função que o confirme. Não dou estimativa em tempo: os dois marcos feitos são os mais autocontidos, e a partir de M2 o código lê e escreve estado partilhado.
+Tamanho: M5 é o maior bloco (35 712 linhas atribuídas a `focus-orchestrate` e `focus-evidence`, mais a fatia de `lib` e parte de `utility`). As 21 335 de `focus-project` são um limite superior largo: grande parte de `init` trata dos sete harnesses e da instalação nativa. M0 cobriu, pela minha soma dos intervalos de linhas portados, cerca de 3 000 linhas de TypeScript, e M1 cerca de 2 700; não há um mapa função a função que o confirme. Não dou estimativa em tempo: os dois marcos feitos são os mais autocontidos, e a partir de M2 o código lê e escreve estado partilhado.
 
 ## 7. Verificação
 
@@ -448,6 +451,7 @@ A decisão 3 dizia "cargo toma posse". Li-a como: nada de compatibilidade com o 
 1. **`.gitignore` do lock.** `focus/.focus-lock` não deve ser commitado. O instalador (M8) é quem escreve o `.gitignore` do projeto; até lá, quem usar Focus num projeto real acrescenta a linha à mão.
 2. **Peso das fixtures (R10).** 19 MB no repositório, ou diferencial gravado fora dele.
 3. **O nome do método na prosa.** O Markdown reutilizado diz "AI-DLC" quando fala do método (por exemplo, "AI-DLC workflow"). Não mexi: é o nome de uma metodologia, não um identificador, e trocá-lo por substituição de texto estraga a gramática ("an AI-DLC" passaria a "an Focus"). Se o queres fora, é uma edição de conteúdo à mão, que cabe em M8 com o resto do Markdown.
+4. **`Unit Ownership: team` (2026-11-12).** As claims de `unit` (3 769 linhas: um registo atómico sobre refs de git, com um remote), o board de equipa e o progresso derivado das units servem várias pessoas em vários checkouts. O mapa da secção 5 tem `unit` em âmbito; proponho adiá-lo com a Construction em paralelo, de que é a mesma família, e que a jornada sem modelo do próprio original deixa de fora. Enquanto não disseres, não se porta nem se retira: recusa pelo nome, e a fatia fica no fim de M5 se a quiseres dentro.
 
 ## 12. Como correr
 
@@ -1239,7 +1243,7 @@ A validade é a segunda metade de `aidlc-validity.ts`: ler os recibos de volta (
 
 O que M3 não faz, e o que acontece quando lá se chega. Tudo recusa pelo nome: nenhum comando ignora o que não porta.
 
-1. **Units e bolts (M4).** Dezoito verbos de `state` (`set-skeleton-stance`, `set-construction-*`, `set-unit-ownership`, `set-unit-gate-rhythm`, `refresh-unit-progress`, `sync-unit-scope-stage`, `fold-unit-merge`, `acknowledge-compaction`, `reuse-artifact`, `lookup`, `practices-event`, `practices-promote`, `fork`, `merge`, `unit`), `jump reopen` e `jump execute --units`, os gates de unit, `park` e `unpark` com `Unit Ownership: team`, o board de equipa do `status`, e uma stage de Construction em `advance`.
+1. **Units e bolts (M5, fatia 5; o que é de equipa, decisão em aberto 4).** Dezoito verbos de `state` (`set-skeleton-stance`, `set-construction-*`, `set-unit-ownership`, `set-unit-gate-rhythm`, `refresh-unit-progress`, `sync-unit-scope-stage`, `fold-unit-merge`, `acknowledge-compaction`, `reuse-artifact`, `lookup`, `practices-event`, `practices-promote`, `fork`, `merge`, `unit`), `jump reopen` e `jump execute --units`, os gates de unit, `park` e `unpark` com `Unit Ownership: team`, o board de equipa do `status`, e uma stage de Construction em `advance`.
 2. **Evidências e marcadores (M5).** Os recibos que `aidlc-log` escreve (a confirmação do sumário, os recibos do reviewer, os handoffs de um pipeline) e que uma transição deve; os findings de uma review no gate; o marcador de diretiva ativa, que `jump`, `status` e os guards leem.
 3. **Sensores (M7).** Os sensores de gate: `gate-start` com a cerimónia `sensors` ligada recusa; o diferencial e o fuzz correm com ela desligada.
 4. **O resto de `utility` (M5 e M8).** Vinte e seis verbos: intents e spaces (`intent`, `space`, `space-create`, `set-status`), o code knowledge base (`codekb-*`, `document-input`, `reclassify`), scopes e settings (`recompose`, `scope-change`, `scope-save`, `config-*`, `detect-scope`, `resolve-env-scope`, `scope-table`, `stage-table`), plugins (`select-plugins`, `plugin-*`) e `help`, `version`, `doctor`, `init`, `project-description`.
@@ -1439,7 +1443,7 @@ O arranque de sessão (`SessionStart` em Claude Code; o prompt hook de Cursor e 
 | | Original | Focus |
 | --- | --- | --- |
 | Uma árvore da distribuição em que `config` nunca correu (`focus-projection.json` com `rootIntegrations`, sem `focus-manifest.json`) | `addRootBlocks` acrescenta a parte do engine aos ficheiros de raiz da equipa (`.gitignore`, `AGENTS.md`) e diz ao chat que os includes foram reapontados | Recusa pelo nome até à fusão da distribuição (M8); o manifesto de instalação, que `config` escreve, fecha a recusa |
-| `FOCUS_SESSION_ANCHOR=1` | Depois da linha da sessão, percorre os commits recentes e escreve `SOURCE_COMMITTED` (a atestação, M5) | Recusa pelo nome depois da mesma linha |
+| `FOCUS_SESSION_ANCHOR=1` | Depois da linha da sessão, percorre os commits recentes e escreve `SOURCE_COMMITTED` (`attest`, adiado) | Recusa pelo nome depois da mesma linha |
 | Um claim de unit (`.focus-unit-scope.json`) como origem da ligação | Lê-o | Recusa pelo nome (M4, units) |
 
 **O que o diferencial deixa ao vivo.** O mapa de processos (`.focus-sessions/pids/<pid>`) nomeia os processos deste host: compara-se ao vivo e não se grava nem se relê (`workspace_files` do replay salta-o); um switch que ninguém gravou leva a hora de modificação do ficheiro de settings, que é a da corrida; um ficheiro de memória que não é UTF-8 não cabe numa árvore gravada, que é texto. O registo de regras guarda o hash de cada ficheiro de memória, e esses ficheiros diferem entre os engines pelo nome no texto: um hash que é o do ficheiro da própria árvore mostra-se `<sha256>`, no diferencial e no replay; a árvore base das fixtures passa a ter o stub `rules/focus.md` que os nomeia.
@@ -1713,3 +1717,72 @@ Os dois recusam o que o original admitiria: a chamada espera pela diretiva em ve
 | Mutação | 33 mutantes no grupo, no dispatcher e na condição da decisão: 32 apanhados pelos testes, 1 equivalente retirado do código (uma razão vazia já não acrescenta nada ao que se junta). O diferencial sozinho apanha 29 dos 32, depois de sete verificações escritas para as arestas; os três que não vê ficam só nos testes: a ordem dos dois últimos membros (a recusa do `review-freeze` é de M5, e Focus recusa-o pelo nome), o que um membro diga no stderr deixando passar a chamada (nenhum membro o faz), e o nome do harness (o diferencial corre Focus como Claude Code; os outros harnesses são de M6) |
 
 **Desvios deliberados.** Nenhum novo. `guard-tool-call/directive_marker` e `guard-tool-call/review_rows` são os desvios dos membros (o marcador de diretiva, as linhas de revisão: M5), vistos através do grupo; `dispatch/guard_tool_call_not_ported` deixou de existir.
+
+## 16. Estado de M5
+
+M5 está partido em fatias; nenhuma está feita. O orchestrator é o que responde a "o que se faz a seguir?": `next` lê o estado e o grafo e emite uma diretiva em JSON, o condutor (o agente) faz o que ela diz, e `report` grava a transição. À volta dele está o que as diretivas pesam e que os marcos anteriores recusam pelo nome: os recibos de revisão e de sumário, o marcador da diretiva ativa, as units, o Plan Approval. O critério do marco (secção 6) é uma jornada completa dar a mesma sequência de diretivas nos dois motores.
+
+O marco entra de baixo para cima, como M2 a M4: primeiro a evidência que as transições e os guards já esperam (fatias 1 a 4), depois as units (5), o marcador (6), o orchestrator em si (7 a 10), o Plan Approval (11) e a jornada inteira (12). Cada fatia é um ou mais pull requests, verificada sozinha, e pode partir-se ao chegar lá, como a 4e de M4 se partiu em quatro.
+
+### Decisões de âmbito
+
+| | Decisão | Porquê |
+| --- | --- | --- |
+| 1 | **Solo e em série.** `invoke-swarm` nunca é emitida; um estado que peça Construction em paralelo recusa pelo nome | `swarm`, `swarm-checkpoints` e `worktree` estão adiados (secção 5). Um workflow novo nasce com `Construction Execution: serial` e `Construction Iteration: unit-major` |
+| 2 | **O marcador é publicado como em Claude Code** (`generic-committed`). As tentativas seguidas de Copilot (`--aidlc-attempt-id`, `copilot-committed`, a pergunta de resume preservada) entram com o adapter, em M6; a aprovação de plano de Kiro legado recusa pelo nome | Os adapters são M6; Kiro está adiado |
+| 3 | **`Unit Ownership: team` fica em aberto** (decisão em aberto 4, secção 11): as claims de `unit` (3 769 linhas, um registo atómico sobre refs de git com um remote), o board de equipa e o progresso derivado das units. Até ser decidido continua a recusar pelo nome | É trabalho de várias pessoas em vários checkouts, da mesma família que a Construction em paralelo; a jornada sem modelo do próprio original (`tests/harness/scope-run.ts`) declara os gates de units de equipa e os checkpoints de swarm fora do que conduz |
+| 4 | **Os sensores de gate continuam em M7.** `report` abre um gate com a cerimónia `sensors` desligada, como `gate-start` desde M3 | Sem alteração |
+| 5 | **O que `next` encaminha para módulos adiados recusa pelo nome**: os comandos de DocumentKB, de plugins (M8), de custos | "Input que não está portado é recusado, nunca ignorado" |
+| 6 | **O code knowledge base entra** (`codekb-path`, `codekb-snapshot`, `codekb-publish`, `codekb-scope-diff`, `document-input`, `reclassify`), com a fatia que primeiro o precisa | Uma jornada brownfield passa por reverse engineering, que os usa |
+
+`SOURCE_COMMITTED` (`FOCUS_SESSION_ANCHOR=1` no arranque de sessão) estava anotado como M5 e não é: quem o escreve é `attest`, adiado. Continua recusado pelo nome.
+
+### Crates
+
+Dois crates novos, a confirmar na fatia que cria cada um:
+
+- **`focus-evidence`**: a identidade da fonte, as linhas de `log`, os recibos pesados e o brief de revisão. Fica abaixo de `focus-lifecycle`, porque as transições, os hooks e o orchestrator leem todos a mesma evidência.
+- **`focus-orchestrate`**: as diretivas, `next`, `report`, `continue`, `park`, `wait`, a Construction em série.
+
+O leitor do marcador tem de ficar onde `focus-guards` o alcança (os guards leem dele a autoridade de uma ação, e ficam abaixo de `focus-lifecycle`): em `focus-state`, que já tem a recusa de um registo com marcador. Quem o escreve é `focus-orchestrate`.
+
+### Fatias
+
+Os intervalos de linhas são de `aidlc-orchestrate.ts` no pin, salvo indicação; servem para dar a ordem de grandeza, não são um mapa função a função.
+
+| Fatia | O que traz | Levanta | Como se verifica | Estado |
+| --- | --- | --- | --- | --- |
+| 1. A identidade da fonte | O passeio pelos ficheiros fonte do projeto, a sua impressão digital, o snapshot `baseline-<hash>.tsv` e o campo `Source Baseline`; o snapshot de fonte de uma unit (`workspaceSourceState`, `readUnitSourceSnapshot` e o que está entre eles em `aidlc-lib.ts`) | `SHAPES["source-baseline"]` (criação e saltos passam a comparar o campo e a listagem); o baseline de uma stage que produz código nas transições; o desvio dos observadores na criação | Corpus sobre árvores de scratch (o que conta como fonte, o que se ignora, a ordem, o hash); diferencial | Por fazer |
+| 2. `log` | `focus engine log decision`, `answer`, `answers`, `link` e `review`: as linhas `DECISION_RECORDED`, `QUESTION_ANSWERED`, `SUMMARY_CONFIRMATION_RECORDED`, `REVIEW_REQUESTED` e `REVIEW_COMPLETED`, os handoffs de um pipeline; o registo de mensagens lido (`aidlc-log.ts`, 4 486; `message-store`, 246) | Nada sozinho: é quem escreve o que a fatia 3 pesa. A escolha de uma pergunta de recuperação gravada por `log` fica para a fatia 4 | Diferencial (`log/*`) | Por fazer |
+| 3. Os recibos pesados | `freshReviewReceipts` (1 066) e `checkSummaryConfirmationEvidence` (647), os handoffs devidos por um pipeline, os pares pedido e conclusão de uma revisão; `review-brief` (2 365: `review`, `summary`, `context`) e os findings que um gate grava na decisão | As recusas pelo nome de `state` (`advance` e os gates com sumário, revisão ou pipeline devidos), de `review-freeze` e do grupo (`review_rows`), do salto para trás com linhas de revisão, e do turno humano com um pedido de revisão sem veredicto. Sem units: a dimensão por unit chega com a fatia 5 | Diferencial; corpus para os leitores puros (a tabela de findings, a secção `## Review`) | Por fazer |
+| 4. A pergunta de recuperação | `evaluateGuardRefusal` e `guardAttemptState`: depois da frase de um guard, a pergunta com os remédios que o condutor pode oferecer, e a série da recusa em `.focus-engine/guard-refusals/`; a escolha gravada | `SHAPES["guard-ask"]` | Diferencial | Por fazer |
+| 5. Units em série | As units como dados (o bloco de units, o DAG, os lotes de um bolt) e como transições: os verbos de `state` que M3 recusa (`set-skeleton-stance`, `set-construction-*`, `set-unit-gate-rhythm`, `sync-unit-scope-stage`, `acknowledge-compaction`, `reuse-artifact`, `lookup`, `practices-event`, `practices-promote`, `unit`), `jump reopen` e `execute --units`, `skip --unit`, uma stage de Construction em `advance`; `bolt` sem worktree (`start`, `complete`, `fail`, `abort`, `set-autonomy`, `checkpoint`; 1 511; `swarm-checkpoint`, `dispatch-event`, `hold-merge` e `release-merge` recusam pelo nome) e os checkpoints de Construction (`construction-checkpoints`, 1 618: a evidência, as decisões, o comando de verificação) | O limite 1 de M3, menos o que é de equipa ou de worktree (`set-unit-ownership`, `refresh-unit-progress`, `fold-unit-merge`, `fork`, `merge`); os recibos por unit da fatia 3 | Diferencial; o fuzz de transições ganha units | Por fazer |
+| 6. As diretivas e o marcador | `focus-orchestrate::directive` (os onze tipos de diretiva, `validateDirective`, as notas para o agente; `aidlc-directive.ts`, 2 976) e o marcador `active-directive.json`: escrever, ler, limpar, refrescar, pôr fora de data, o lock, e `state-writes.json` ao lado | As recusas pelo nome de um registo com marcador: `state`, `status`, `jump`, os hooks (`directive_marker`), e as admissões que os guards leem dele (as respostas da pergunta de recuperação, a continuação de um restart, o último passo do engine); o cursor que `set-status` preserva | Corpus (`validateDirective` sobre diretivas geradas, boas e estragadas; o parser do marcador); diferencial sobre árvores cujo marcador é o que o original escreveu | Por fazer |
+| 7. `next` num trabalho que existe | O parser de flags (`parseNextFlags`, L3 867 a 4 281), a rota principal para um workflow em curso (a parte de `routeNext`, L7 138 a 9 014, que não cria nem pergunta), a diretiva de uma stage (`buildRunStageDirective` e os resolvedores de caminhos, L5 297 a 6 333; a narração; `inline-context`, `includes`, `rules-held`, `steering`) e a emissão (L981 a 1 900 e 6 333 a 7 073: o limite de tamanho, a entrega em partes por `load-steering` e `continue`, as linhas devidas à pessoa, o aviso de saúde dos hooks); `parked`, `done`, `print`, `error` | As linhas da pessoa (`person-lines`) no turno humano e no salto para trás | Corpus (o parser de flags; a diretiva de uma stage como função do estado e do grafo); diferencial (`orchestrate/next/*`); a jornada começa aqui e compara até onde Focus ainda recusa | Por fazer |
+| 8. `report`, `park` e `wait` | O despacho de `report` por stage (L12 868 a 15 358): a evidência de conclusão, `--stage`, o report de um resume, a stance do skeleton, `--single`; `park`; `wait` (L15 774 a 15 972) | A frente da jornada passa a avançar stages | Diferencial (`orchestrate/report/*`); a jornada | Por fazer |
+| 9. A porta da frente | `next` num workspace sem trabalho ou com um pedido novo (L2 184 a 3 160 e 4 304 a 5 007): o print de criação, a confirmação do scope, o tipo de projeto, a escolha de um intent, o encaminhamento de trabalho novo, o pedido guardado; a loja de perguntas (`question-store`, 412); o composer (a oferta, o despacho, `saveComposedScope`, `recompose`, `scope-change`, `scope-save`); os settings pelo `next` (`guard-switch`, 1 464: `config set`, `get`, `list`; `recorded-switches`, 403) e o code knowledge base | `--request <id>` na criação; o switch escrito aplicado e as concessões `*-at-creation-*` do turno humano; `saveComposedScope` (limite 5 de M1); os verbos de `utility` que a porta corre | Diferencial; a jornada parte do primeiro pedido | Por fazer |
+| 10. Construction em série | O passeio unit a unit (`unit-major`, L11 312 a 12 153: o passo, o redo, o reopen, o salto em frente), as waves por stage (`stage-major`, L9 604 a 10 546), o gate e a stance do skeleton, a autonomia, a forma que um checkpoint dá à diretiva, os gates de bookkeeping. O swarm (L9 014 a 9 548) responde sempre que não | A jornada atravessa Construction com o Plan Approval desligado | Diferencial; a jornada | Por fazer |
+| 11. Testing posture e Plan Approval | O contrato de testes (`testing-posture`, 5 453: `resolve`, `render`, `fingerprint`, `verify`, `begin`, `brief`, `reply`, `restore`), a pergunta que o engine guarda (`plan-approval-ask`, 2 196: o ask, o recibo, `PLAN_APPROVAL_RECORDED`), a resposta lida pelo turno humano, e a avaliação da aprovação no guard (`evaluateCodeGenerationApproval`) | A recusa pelo nome de `plan-approval-guard` com marcador, e as do turno humano (`plan_challenge`, `protected_question`) | Corpus (o contrato e a impressão digital); diferencial; a jornada com o Plan Approval ligado | Por fazer |
+| 12. Learnings e a jornada completa | `learnings surface` e `persist` (1 252); os onze scopes do original, do primeiro pedido a `done`, em greenfield e em brownfield, gravados | Fecha o marco | A jornada: a mesma sequência de diretivas, o mesmo estado e as mesmas linhas de auditoria | Por fazer |
+
+### A jornada
+
+O original tem uma jornada sem modelo, `tests/harness/scope-run.ts` (1 798 linhas), em três papéis separados: um host que corre o CLI como o skill o corre e dispara os hooks que o harness dispararia; um agente de substituição que faz o que cada diretiva pede (escreve artefactos pequenos, corre os comandos que a diretiva nomeia tal como estão, e acaba o turno em cada pergunta ou gate); e um guião da pessoa, o único que responde, pelo hook do turno humano. O diferencial ganha o mesmo (`tools/oracle/journey.py`), agnóstico do motor: cada lado é conduzido nos seus próprios nomes, e o que o original diz é traduzido por `names.py`, como em tudo o resto.
+
+A jornada existe a partir da fatia 7 e mede uma coisa: **até onde os dois motores dizem o mesmo**. Onde Focus ainda recusa pelo nome, a comparação pára e diz em que passo; cada fatia seguinte empurra essa frente, e o marco fecha quando chega a `done` em todos os scopes. As árvores de cada passo são gravadas e repetidas em `cargo test`, como as do diferencial.
+
+Dois limites conhecidos. O agente de substituição do original dispara `continue-workflow` e `deliver-stage-rules`, que são de M6: em M5 a jornada dispara, nos dois lados, só os hooks que Focus tem. E o que é aleatório numa diretiva (os ids de pergunta, os tokens de entrega das regras, os ids de tentativa) não se pode semear no original: compara-se pela posição em que cada id aparece pela primeira vez, não pelo valor.
+
+### Riscos próprios de M5
+
+| Risco | Mitigação |
+| --- | --- |
+| `routeNext` é uma função de 1 876 linhas com sessenta e seis `if` de topo: a ordem das perguntas é comportamento | Portada na ordem do original; o fuzz ganha combinações de flags de `next` sobre estados gerados |
+| As diretivas levam prosa (a narração, as mensagens, as notas para o agente) com invocações do engine dentro | `names.py` traduz as do original; cada normalizador novo é declarado e contado, como os de M4 |
+| `next` e `report` compõem as outras ferramentas por subprocesso e repetem o stderr delas tal como veio | Em Focus são chamadas de função: o texto repetido tem de sair igual, incluindo o formato do erro de cada ferramenta. O diferencial compara a mensagem inteira |
+| Tempo: as perguntas expiram, `wait` espera | Relógio injetado (regra 7); o que só o relógio real decide compara-se ao vivo e não se grava, como os `status/awaiting*` |
+| O peso das fixtures (R10) cresce com uma árvore por passo de jornada | Decide-se na fatia 7 com números: gravar todos os passos, ou só os que mudam de tipo de diretiva |
+
+### O que M4 não levantou
+
+A secção 14 marca como M4 o que depende de units; M4 fechou sem units, que são da fatia 5 deste marco. Mantêm-se recusados pelo nome até lá: os verbos de units de `state`, `skip --unit`, `jump reopen` e `execute --units`, e uma stage de Construction em `advance`. O que é de equipa (`park` e `unpark` com `Unit Ownership: team`, o gate de uma unit de equipa, o board no `status`) espera pela decisão em aberto 4. As concessões que o turno humano guarda para um chat antes de o trabalho existir e as linhas devidas à pessoa, também marcadas M4, são da porta da frente (fatia 9) e da emissão (fatia 7).
