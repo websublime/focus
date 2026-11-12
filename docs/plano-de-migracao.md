@@ -1996,11 +1996,11 @@ Sem trabalho selecionado nada é escrito: a linha cairia na raiz dos registos do
 | Verificação | Resultado |
 | --- | --- |
 | Diferencial, `log/decision/message*` | 61 checks, todos iguais: a mensagem aceite, com e sem a linha do turno, do terminal; um id que não é de registo nenhum, em seis formas; sem palavras; o turno marcado como comando, como pergunta e de outra forma, numa linha de outra mensagem e numa linha que não é um turno; gasta por cada um dos oito eventos, pela última de duas linhas em qualquer ordem, e não por respostas; o empate ao segundo; o chat do comando, outro, o terminal; dois chats, um deles o terminal, um deles antes da decisão, um deles no segundo da decisão; e vinte e seis formas de um ficheiro que não é um registo do armazém (cada campo com o tipo errado ou em falta, acima do tamanho, atrás de um link, com um nome que não é um id) |
-| Diferencial, tudo | @@TOTAL@@ |
-| Repetição da gravação | @@REPLAY@@ |
+| Diferencial, tudo | 4 375 checks com `--fuzz 600`: 4 156 iguais, 219 desvios declarados, nenhum diferente |
+| Repetição da gravação | 3 108 checks sobre 993 árvores, todos iguais |
 | Testes unitários | 1: o armazém lista-se do mais antigo para o mais novo, com o id a desempatar (o único leitor de hoje toma os chats da lista como um conjunto) |
 | Mutação | 50 mutantes (a prova, os leitores do armazém, o campo na linha): 47 apanhados (36 à primeira, 11 depois dos checks e do teste escritos para eles) e 3 equivalentes, anotados no módulo: a última recusa nunca é alcançada (a mensagem nomeada é ela própria uma das contadas, salvo se for mais antiga do que a última decisão, e então já foi recusada como gasta; é assim no original); de duas linhas com o mesmo instante qualquer uma é a última; e o id escrito na linha é o do registo provado, que é o id por que foi lido |
-| `cargo test` | @@TESTS@@ |
+| `cargo test` | 571 testes |
 
 ### A jornada
 
