@@ -253,6 +253,7 @@ name = "focus-intent"
 version = "0.1.0"
 dependencies = [
  "focus-audit",
+ "focus-evidence",
  "focus-graph",
  "focus-guards",
  "focus-harness",
@@ -277,6 +278,7 @@ name = "focus-lifecycle"
 version = "0.1.0"
 dependencies = [
  "focus-audit",
+ "focus-evidence",
  "focus-graph",
  "focus-guards",
  "focus-harness",
