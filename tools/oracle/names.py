@@ -60,6 +60,7 @@ PHRASES = (
     # The engine speaking of itself where it refuses to record an interaction.
     ("The single quotes reached AI-DLC as part of the words", "The single quotes reached Focus as part of the words"),
     ("AI-DLC's carrying-on line is not their answer", "Focus's carrying-on line is not their answer"),
+    ("a command to AIDLC, or a message with no words", "a command to Focus, or a message with no words"),
     # The status as the engine heads it.
     ("AI-DLC Workflow Status", "Focus Workflow Status"),
     ("No active AI-DLC workflow found.", "No active Focus workflow found."),

@@ -10,6 +10,8 @@ publish.workspace = true
 
 [dependencies]
 serde_json.workspace = true
+focus-audit.workspace = true
+focus-hooks.workspace = true
 focus-js.workspace = true
 focus-lifecycle.workspace = true
 focus-workspace.workspace = true

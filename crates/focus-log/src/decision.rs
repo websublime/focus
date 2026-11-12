@@ -3,7 +3,8 @@
 //! that follows has something to answer (`handleDecision` in
 //! `aidlc-log.ts`).
 //!
-//! What is ported is the question of a stage. The questions the engine
+//! What is ported is the question of a stage, with the message that
+//! already answered it when it names one. The questions the engine
 //! pairs with a record of its own are refused by name until the slice that
 //! brings the record: a stage's summary confirmation (slice 2c), the
 //! verification command and the policy of Construction, and a question
@@ -16,6 +17,7 @@ use focus_lifecycle::{admission, gate, presence, reply};
 use serde_json::{Value, json};
 
 use crate::flags::{self, Flags};
+use crate::message::{self, What};
 
 /// `unknownCheckpointMessage`.
 fn unknown_checkpoint(checkpoint: &str) -> String {
@@ -136,10 +138,13 @@ pub fn decision(open: &dyn Fn() -> Result<Workflow>, args: &[String]) -> Result<
     if flags.get("single") == Some("true") {
         fields.push(("Workflow", format!("single-stage:{stage}")));
     }
-    if flags.get("message").is_some() {
-        bail!(
-            "--message names the message of the person that answered a question logged after it, and Focus does not read the message store here yet."
-        );
+    // A question logged after the person already replied names the message
+    // that answered it; its answers inherit the id.
+    if let Some(id) = flags.get("message") {
+        match message::prove(&wf, id, What::Decision) {
+            Ok(proved) => fields.push(("Message Id", proved.id)),
+            Err(refusal) => bail!("{refusal}"),
+        }
     }
     // A new question retires the consent kept for the chat that asks it.
     let session = flags
