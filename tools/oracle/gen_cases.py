@@ -4609,8 +4609,13 @@ sw(tree)
 for name in SW_HARD_DIRS:
     sw({"p/keep.ts": "k\n", f"p/{name}": "a file with that name\n", f"p/sub/{name}x/x.ts": "x\n",
         **({} if name == ".git" else {f"p/sub/{name}/x.ts": "x\n"})})
-tree = dict(SW_PLAIN)
+# (No two names of a tree differ only by case: a case-insensitive filesystem holds them as one. The names that are
+# another's in another case are in the trees of one file each, below.)
+tree, taken = dict(SW_PLAIN), set()
 for name in SW_HARD_FILES:
+    if name.lower() in taken:
+        continue
+    taken.add(name.lower())
     tree[f"p/{name}"] = "x\n"
     tree[f"p/src/{name}"] = "y\n"
 sw(tree)
@@ -4848,7 +4853,7 @@ SW_ROOF = {
     "p/aidlc/spaces/default/intents/r/aidlc-state.md": "# State\n",
     "p/.claude/tools/data/harness.json": SW_MANIFEST,
 }
-for repos in [["api"], ["api", "web"], ["web", "api"], ["api", "missing"], ["missing"], ["stray", "api", "web"], ["web", "Api"]]:
+for repos in [["api"], ["api", "web"], ["web", "api"], ["api", "missing"], ["missing"], ["stray", "api", "web"], ["web", "Zeta"]]:
     sw(SW_ROOF, repos=repos)
 sw({k: v for k, v in SW_ROOF.items() if "aidlc/x.md" not in k}, repos=["api", "web"])
 sw({k: v for k, v in SW_ROOF.items() if "aidlc/x.md" not in k}, repos=["api", "web"], links=[("p/linked", "stray"), ("p/broken", "nowhere"),
@@ -4931,7 +4936,7 @@ SW_OUTSIDE = {"p/a.ts": "x\n", "out/tree/bin.ts": "\x00", "out/tree/Dockerfile":
               "out/tree/w.dat": "y\x00", "out/tree/z": "text\n"}
 sw(SW_OUTSIDE, links=[("p/l", "../out/tree")])
 sw(SW_OUTSIDE, links=[("p/l", "../out/tree"), ("out/tree/lbin", "w.dat"), ("out/tree/lsrc.ts", "w.dat"), ("out/tree/ltxt", "z"),
-                      ("out/tree/Makefile", "w.dat")])
+                      ("out/tree/Justfile", "w.dat")])
 sw({**SW_OUTSIDE, "out/tree/__pycache__/a.pyc": "c\n", "out/tree/.DS_Store": "d\n"}, links=[("p/l", "../out/tree")])
 sw({"p/build/keep.bin": "k\n", "p/build/__pycache__/a.pyc": "c\n", "p/build/.DS_Store": "d\n", SW_REGISTRY: sw_registry(["build/keep.bin"])})
 # The same directory reached as two registered places is walked for each.

@@ -36,6 +36,14 @@ fn every_evidence_case_gets_upstreams_answer() {
         if !KINDS.contains(&kind) {
             continue;
         }
+        if kind == "source_walk" {
+            assert_eq!(
+                names_apart_by_case(&case),
+                None,
+                "{}: two names of a tree differ only by case, and a case-insensitive filesystem holds them as one",
+                case["id"]
+            );
+        }
         // A walk needs the tree it walks: links, modes and named pipes, laid
         // out under `/tmp`. On Windows there is no such tree to lay out.
         if kind == "source_walk" && cfg!(windows) {
@@ -109,4 +117,46 @@ fn every_evidence_case_gets_upstreams_answer() {
             .collect::<Vec<_>>()
             .join("\n")
     );
+}
+
+/// Two paths of a walk case's tree that differ only by case, if any: on a
+/// filesystem that ignores case they are one file, and the tree laid out
+/// there is not the one upstream answered for.
+fn names_apart_by_case(case: &Value) -> Option<(String, String)> {
+    let mut paths: Vec<&str> = Vec::new();
+    for kind in ["files", "hex"] {
+        paths.extend(
+            case[kind]
+                .as_object()
+                .into_iter()
+                .flatten()
+                .map(|(rel, _)| rel.as_str()),
+        );
+    }
+    paths.extend(
+        case["links"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter_map(|link| link[0].as_str()),
+    );
+    paths.extend(
+        case["fifos"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter_map(Value::as_str),
+    );
+    let mut seen: std::collections::HashMap<String, &str> = std::collections::HashMap::new();
+    for path in paths {
+        for (end, _) in path.match_indices('/').chain([(path.len(), "")]) {
+            let prefix = &path[..end];
+            if let Some(other) = seen.insert(prefix.to_lowercase(), prefix)
+                && other != prefix
+            {
+                return Some((other.to_owned(), prefix.to_owned()));
+            }
+        }
+    }
+    None
 }
