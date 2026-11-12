@@ -20,7 +20,9 @@ Usage: focus engine log <verb> [--project-dir <dir>]
 The interactions of the active record's work, written to its ledger.
 
   decision --stage <slug> --decision <text> [--options <a,b>] [--rationale <text>] [--single]
-                           A question the agent asks the person
+           [--message <id>] [--session <id>]
+                           A question the agent asks the person; --message names the
+                           message of theirs that already answered it
   answer, answers, link, review
                            Not ported yet
 ";
