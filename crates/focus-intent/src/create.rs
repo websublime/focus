@@ -278,11 +278,7 @@ fn resolve_repo_set(layout: &Layout, explicit: Option<&str>) -> Result<Vec<Strin
     Ok(discover_sibling_repos(&layout.project))
 }
 
-/// `isValidRepoName`: one path segment, neither `.` nor `..`.
-#[must_use]
-pub fn is_valid_repo_name(name: &str) -> bool {
-    re::test(r"^[A-Za-z0-9][A-Za-z0-9._-]*$", "", name) && name != "." && name != ".."
-}
+pub use focus_workspace::project::is_valid_repo_name;
 
 /// `discoverSiblingRepos`.
 fn discover_sibling_repos(project: &Path) -> Vec<String> {

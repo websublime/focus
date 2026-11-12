@@ -299,6 +299,12 @@ pub fn is_space_name(name: &str) -> bool {
     re::test(r"^[a-z][a-z0-9-]*$", "", name)
 }
 
+/// `isValidRepoName`: one path segment, neither `.` nor `..`.
+#[must_use]
+pub fn is_valid_repo_name(name: &str) -> bool {
+    re::test(r"^[A-Za-z0-9][A-Za-z0-9._-]*$", "", name) && name != "." && name != ".."
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

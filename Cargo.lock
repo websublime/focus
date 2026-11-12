@@ -127,6 +127,7 @@ name = "focus"
 version = "0.1.0"
 dependencies = [
  "focus-audit",
+ "focus-evidence",
  "focus-graph",
  "focus-guards",
  "focus-harness",
@@ -152,6 +153,16 @@ dependencies = [
  "gethostname",
  "getrandom",
  "serde_json",
+]
+
+[[package]]
+name = "focus-evidence"
+version = "0.1.0"
+dependencies = [
+ "focus-js",
+ "focus-workspace",
+ "serde_json",
+ "sha2",
 ]
 
 [[package]]

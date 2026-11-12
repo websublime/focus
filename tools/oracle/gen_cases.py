@@ -4327,5 +4327,194 @@ mt_case(extra={MI_INTENTS + "/260106-other/aidlc-state.md": mi_state("build", "-
 mt_case(extra={MI_INTENTS + "/260106-other/aidlc-state.md": mi_state("build", "-", None), MI_INTENTS + "/active-intent": "260105-add-login\n"},
         present=[MT_DIARY, MT_ANSWER])
 
+# --- Source listings (focus-evidence) ---------------------------------------
+#
+# The text a source snapshot holds, read and written: rows that are a listing
+# and rows that are not, listings given as pairs with keys and entries of
+# every shape, and what changed between two of them.
+
+SL_HEX = "0123456789abcdef"
+
+
+def sl_oid(width=None):
+    return "".join(rng.choice(SL_HEX) for _ in range(width or rng.choice([40, 40, 64])))
+
+
+SL_MODES = ["100644", "100755", "120000", "160000", "000000"]
+SL_BAD_MODES = ["10064", "1006444", "10064a", "１００６４４", "", " 00644", "+00644"]
+SL_REPOS = ["", "", "", "api", "web-app", "a.b", "A_1"]
+SL_BAD_REPOS = [".", "..", "-x", "a/b", "a b", "é", "a\\b"]
+SL_PATHS = [
+    "src/a.ts", "README.md", "a\tb", "a\nb", "a\rb", "a\\b", "a\\tb", "dir/ünï.rs", "😀/x", "\uffee", "\ufb01le", " ",
+    "src/A.ts", "src/a.ts ", "x/" + "y/" * 6 + "z", ".git", "..", "a\u2028b", "Z", "z", "é", "e\u0301",
+]
+
+
+def sl_bad_oid():
+    return rng.choice([
+        sl_oid(39), sl_oid(41), sl_oid(63), sl_oid(65), sl_oid(40).upper(), "g" + sl_oid(39), "", sl_oid(40) + " ",
+        " " + sl_oid(40), sl_oid(20) + " " + sl_oid(19),
+    ])
+
+
+def sl_encode(value):
+    return value.replace("\\", "\\\\").replace("\t", "\\t").replace("\n", "\\n").replace("\r", "\\r")
+
+
+def sl_row(repo=None, path=None, mode=True, oid=None):
+    repo = rng.choice(SL_REPOS) if repo is None else repo
+    path = rng.choice(SL_PATHS) if path is None else path
+    fields = [sl_encode(repo), sl_encode(path)]
+    if mode is True:
+        fields.append(rng.choice(SL_MODES))
+    elif mode:
+        fields.append(mode)
+    fields.append(sl_oid() if oid is None else oid)
+    return "\t".join(fields)
+
+
+def sl_rows(count, legacy=0.2):
+    seen, rows = set(), []
+    while len(rows) < count:
+        repo, path = rng.choice(SL_REPOS), rng.choice(SL_PATHS)
+        if (repo, path) in seen:
+            continue
+        seen.add((repo, path))
+        rows.append(sl_row(repo, path, mode=rng.random() >= legacy))
+    return rows
+
+
+def sl_text(rows):
+    return "".join(row + "\n" for row in rows)
+
+
+add("source_listing_parse", text="")
+add("source_listing_parse", text="\n")
+for count in [1, 1, 2, 3, 5, 8, 13]:
+    for legacy in [0.0, 0.2, 1.0]:
+        rows = sl_rows(count, legacy)
+        add("source_listing_parse", text=sl_text(rows))
+        add("source_listing_parse", text=sl_text(sorted(rows)))
+        # The last row without its line feed, an empty row, a carriage return before each line feed.
+        add("source_listing_parse", text=sl_text(rows)[:-1])
+        add("source_listing_parse", text=sl_text(rows) + "\n")
+        add("source_listing_parse", text="\n" + sl_text(rows))
+        add("source_listing_parse", text=sl_text(rows).replace("\n", "\r\n"))
+        # The same path twice: with the same entry, and with another.
+        add("source_listing_parse", text=sl_text(rows + [rows[0]]))
+        add("source_listing_parse", text=sl_text(rows + [rows[0].rsplit("\t", 1)[0] + "\t" + sl_oid()]))
+# One row that is not a row of a listing, alone and among good ones.
+SL_FAULTS = (
+    [sl_row(repo=repo) for repo in SL_BAD_REPOS]
+    + [sl_row(mode=mode) for mode in SL_BAD_MODES]
+    + [sl_row(oid=sl_bad_oid()) for _ in range(12)]
+    + [sl_row(mode=False, oid=sl_bad_oid()) for _ in range(8)]
+    + [
+        sl_row(path=""),
+        sl_row(repo="api", path=""),
+        "\t".join(["", "a"]),
+        "\t".join(["a"]),
+        "",
+        sl_row() + "\t",
+        sl_row() + "\t" + sl_oid(),
+        "\t" + sl_row(),
+        "api\tsrc/a\tb\t100644\t" + sl_oid(),
+        "\\x\ta\t100644\t" + sl_oid(),
+        "\ta\\x\t100644\t" + sl_oid(),
+        "\ta\\\t100644\t" + sl_oid(),
+        "api\\\ta\t100644\t" + sl_oid(),
+        "\ta\\\\\t100644\t" + sl_oid(),
+        "\ta\\\\\\\t100644\t" + sl_oid(),
+        "\ta\\\\t\t100644\t" + sl_oid(),
+        "\ta\\T\t100644\t" + sl_oid(),
+        "\ta\\0b\t100644\t" + sl_oid(),
+        "\ta\x00b\t100644\t" + sl_oid(),
+        "\t\x00\t" + sl_oid(),
+        "a\x00\tb\t100644\t" + sl_oid(),
+        "\x00\tb\t100644\t" + sl_oid(),
+        "\ta b\t100644 " + sl_oid(),
+        "\ta\t100644\t" + sl_oid() + "\r",
+        " \ta\t100644\t" + sl_oid(),
+        "\ta\t100644\t" + sl_oid(40) + sl_oid(24),
+        "\ta\t" + sl_oid(40) + "\t" + sl_oid(40),
+        "\ta\t\t" + sl_oid(40),
+    ]
+)
+for fault in SL_FAULTS:
+    add("source_listing_parse", text=fault + "\n")
+    good = sl_rows(3)
+    at = rng.randrange(4)
+    add("source_listing_parse", text=sl_text(good[:at] + [fault] + good[at:]))
+for _ in range(40 * scale):
+    add("source_listing_parse", text=char_fuzz(sl_text(sl_rows(rng.randint(1, 4))), rng.randint(1, 3)))
+
+
+def sl_key(wild=0.0):
+    if rng.random() < wild:
+        return rng.choice([
+            "src/a.ts", "\x00", "api\x00", "\x00a\x00b", "api\x00src\x00a", ".\x00a", "..\x00a", "a b\x00c", "-x\x00a", "",
+            "é\x00a", "a/b\x00c",
+        ])
+    return rng.choice(SL_REPOS) + "\x00" + rng.choice(SL_PATHS)
+
+
+def sl_entry(wild=0.0, oid=None):
+    oid = oid or sl_oid()
+    if rng.random() < wild:
+        return rng.choice([
+            "100644  " + oid, "100644\t" + oid, "100644 " + oid.upper(), oid + " ", " " + oid, "", "100644", "10064 " + oid,
+            "100644 " + oid + " ", sl_bad_oid(), "１００６４４ " + oid, "100644 " + oid[:-1],
+        ])
+    return rng.choice(SL_MODES) + " " + oid if rng.random() < 0.75 else oid
+
+
+def sl_pairs(count, wild=0.0):
+    return [[sl_key(wild), sl_entry(wild)] for _ in range(count)]
+
+
+add("source_listing", before=[], after=[])
+for _ in range(30 * scale):
+    before = sl_pairs(rng.randint(0, 7))
+    after = []
+    for key, entry in before:
+        oid = entry.split(" ")[-1]
+        roll = rng.random()
+        if roll < 0.2:
+            continue
+        if roll < 0.45:
+            after.append([key, entry])
+        elif roll < 0.6:
+            # The same content: under another mode, with a mode gained or lost.
+            after.append([key, rng.choice(SL_MODES) + " " + oid])
+        elif roll < 0.75:
+            after.append([key, oid])
+        else:
+            after.append([key, sl_entry()])
+    after += sl_pairs(rng.randint(0, 3))
+    rng.shuffle(after)
+    add("source_listing", before=before, after=after)
+# Keys and entries that are not ones: the first the writer meets is the one it names.
+for _ in range(30 * scale):
+    add("source_listing", before=sl_pairs(rng.randint(1, 5), wild=0.3), after=sl_pairs(rng.randint(0, 5), wild=0.3))
+# A key given twice keeps its first place and its last entry.
+for _ in range(4 * scale):
+    pairs = sl_pairs(4)
+    add("source_listing", before=pairs + [[pairs[0][0], sl_entry()]], after=[[pairs[1][0], sl_entry(wild=1.0)]] + pairs)
+# Listings of every size, in any order; and two listings that say the same in different words.
+for _ in range(15 * scale):
+    rows = sl_rows(rng.randint(1, 12), rng.random())
+    rng.shuffle(rows)
+    add("source_listing_parse", text=sl_text(rows))
+for _ in range(10 * scale):
+    before = [[rng.choice(SL_REPOS) + "\x00" + path, sl_entry()] for path in rng.sample(SL_PATHS, rng.randint(1, 6))]
+    after = []
+    for key, entry in before:
+        oid = entry.split(" ")[-1]
+        # A mode gained or lost is the same content; a mode changed is not, and is rare here.
+        after.append([key, entry if rng.random() < 0.5 else (oid if " " in entry else rng.choice(SL_MODES) + " " + oid)])
+    rng.shuffle(after)
+    add("source_listing", before=before, after=after)
+    add("source_listing", before=after, after=before + ([[sl_key(), sl_entry()]] if rng.random() < 0.3 else []))
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")
