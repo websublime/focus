@@ -752,8 +752,10 @@ fn shown(expected: &Value) -> String {
 
 /// Run one check in `root`; the problems found, empty when it matches.
 fn replay(check: &Value, root: &Path) -> Vec<String> {
-    if ["audit", "runtime", "state", "utility", "jump", "hook"]
-        .contains(&check["tool"].as_str().unwrap_or_default())
+    if [
+        "audit", "runtime", "state", "utility", "jump", "log", "hook",
+    ]
+    .contains(&check["tool"].as_str().unwrap_or_default())
     {
         return problems_in(
             check["expect"].as_object().unwrap(),
@@ -999,11 +1001,17 @@ fn the_recording_covers_every_verb_and_both_outcomes() {
         assert!(exits("0"), "no recorded success for runtime {verb}");
         assert!(exits("1"), "no recorded failure for runtime {verb}");
     }
-    for verb in ["get", "set", "checkbox", "count"] {
+    for (tool, verb) in [
+        ("state", "get"),
+        ("state", "set"),
+        ("state", "checkbox"),
+        ("state", "count"),
+        ("log", "decision"),
+    ] {
         let exits = |code: &str| {
             checks
                 .iter()
-                .filter(|c| c["tool"] == "state" && c["deviation"].is_null())
+                .filter(|c| c["tool"] == tool && c["deviation"].is_null())
                 .any(|c| {
                     let codes = c["expect"]["exit"].as_str().unwrap().split(',');
                     c["steps"]
@@ -1014,8 +1022,8 @@ fn the_recording_covers_every_verb_and_both_outcomes() {
                         .any(|(step, exit)| step[0] == verb && exit == code)
                 })
         };
-        assert!(exits("0"), "no recorded success for state {verb}");
-        assert!(exits("1"), "no recorded failure for state {verb}");
+        assert!(exits("0"), "no recorded success for {tool} {verb}");
+        assert!(exits("1"), "no recorded failure for {tool} {verb}");
     }
     for verb in ["detect", "now"] {
         let ran = checks
@@ -1088,7 +1096,7 @@ fn the_recording_covers_every_verb_and_both_outcomes() {
         checks.len()
     );
     for tool in [
-        "graph", "audit", "runtime", "state", "utility", "jump", "hook",
+        "graph", "audit", "runtime", "state", "utility", "jump", "log", "hook",
     ] {
         let of_tool: Vec<&Value> = checks
             .iter()

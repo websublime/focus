@@ -161,6 +161,7 @@ dependencies = [
  "focus-intent",
  "focus-js",
  "focus-lifecycle",
+ "focus-log",
  "focus-markdown",
  "focus-state",
  "focus-workspace",
@@ -290,6 +291,16 @@ dependencies = [
  "focus-workspace",
  "serde_json",
  "sha2",
+]
+
+[[package]]
+name = "focus-log"
+version = "0.1.0"
+dependencies = [
+ "focus-js",
+ "focus-lifecycle",
+ "focus-workspace",
+ "serde_json",
 ]
 
 [[package]]

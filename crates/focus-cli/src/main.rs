@@ -14,6 +14,7 @@ mod audit;
 mod graph;
 mod hook;
 mod jump;
+mod log;
 mod report;
 mod runtime;
 mod state;
@@ -110,15 +111,16 @@ fn main() -> ExitCode {
             Some("audit") => audit::run(&mut args),
             Some("hook") => hook::run(&mut args),
             Some("jump") => jump::run(&mut args),
+            Some("log") => log::run(&mut args),
             Some("runtime") => runtime::run(&mut args),
             Some("state") => state::run(&mut args),
             Some("utility") => utility::run(&mut args),
             Some(other) => Err(format!(
-                "Unknown engine command: {other}. Valid: audit, graph, hook, jump, runtime, state, utility"
+                "Unknown engine command: {other}. Valid: audit, graph, hook, jump, log, runtime, state, utility"
             )
             .into()),
             None => Err(
-                "Usage: focus engine <command>. Valid: audit, graph, hook, jump, runtime, state, utility"
+                "Usage: focus engine <command>. Valid: audit, graph, hook, jump, log, runtime, state, utility"
                     .into(),
             ),
         },

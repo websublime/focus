@@ -897,6 +897,20 @@ pub fn refuse_review_findings(wf: &Workflow, stage: &Stage) -> Result<()> {
     Ok(())
 }
 
+/// Where the protected questions are kept, which is never reached through a
+/// link (`assertNoSymlinkInChainOrThrow` over the directory's path in the
+/// project).
+fn protected_questions_dir(wf: &Workflow) -> Result<PathBuf> {
+    let dir = wf
+        .layout
+        .workspace_root()
+        .join(SESSIONS_DIR)
+        .join("plan-approval");
+    let rel = dir.strip_prefix(&wf.layout.project).unwrap_or(&dir);
+    links::refuse_link_in_chain(&wf.layout.project, rel)?;
+    Ok(dir)
+}
+
 /// `withdrawProtectedQuestions(pd, "*")`: the protected questions kept for
 /// every session are removed when a gate opens.
 ///
@@ -904,12 +918,7 @@ pub fn refuse_review_findings(wf: &Workflow, stage: &Stage) -> Result<()> {
 ///
 /// The directory sits behind a link, or a file cannot be removed.
 pub fn withdraw_protected_questions(wf: &Workflow, _held: &WorkspaceLock) -> Result<()> {
-    let dir = wf
-        .layout
-        .workspace_root()
-        .join(SESSIONS_DIR)
-        .join("plan-approval");
-    links::refuse_link_on_the_way(&wf.layout.project, &dir)?;
+    let dir = protected_questions_dir(wf)?;
     let entries = match std::fs::read_dir(&dir) {
         Ok(entries) => entries,
         Err(err) if err.kind() == std::io::ErrorKind::NotFound => return Ok(()),
@@ -923,6 +932,41 @@ pub fn withdraw_protected_questions(wf: &Workflow, _held: &WorkspaceLock) -> Res
             && err.kind() != std::io::ErrorKind::NotFound
         {
             bail!("{}: {err}", entry.path().display());
+        }
+    }
+    Ok(())
+}
+
+/// `withdrawProtectedQuestions(pd, session)`: a new question retires the
+/// consent kept for the chat that asks it, and for every chat when the
+/// chat cannot be told (`*`). A session whose name leaves nothing to name a
+/// file by has none.
+///
+/// # Errors
+///
+/// As [`withdraw_protected_questions`].
+pub fn withdraw_protected_questions_of(
+    wf: &Workflow,
+    held: &WorkspaceLock,
+    session: &str,
+) -> Result<()> {
+    if session == "*" {
+        return withdraw_protected_questions(wf, held);
+    }
+    let dir = protected_questions_dir(wf)?;
+    let segment = focus_intent::create::runtime_session_segment(session);
+    if segment.is_empty() {
+        return Ok(());
+    }
+    for name in [
+        format!("protected-question-{segment}.json"),
+        format!("protected-question-response-{segment}.json"),
+    ] {
+        let path = dir.join(name);
+        if let Err(err) = std::fs::remove_file(&path)
+            && err.kind() != std::io::ErrorKind::NotFound
+        {
+            bail!("{}: {err}", path.display());
         }
     }
     Ok(())

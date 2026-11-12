@@ -30,6 +30,7 @@ focus-audit = { path = "crates/focus-audit" }
 focus-markdown = { path = "crates/focus-markdown" }
 focus-state = { path = "crates/focus-state" }
 focus-evidence = { path = "crates/focus-evidence" }
+focus-log = { path = "crates/focus-log" }
 focus-guards = { path = "crates/focus-guards" }
 focus-intent = { path = "crates/focus-intent" }
 focus-lifecycle = { path = "crates/focus-lifecycle" }
