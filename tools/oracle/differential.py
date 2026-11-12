@@ -2836,6 +2836,13 @@ def intent_create_checks():
     UNRECORDED.add("utility/create/memory_binary")
     check_("create/memory_binary", {}, [feature], edits=(binary_memory,))
     check_("create/registry_malformed", {"aidlc/spaces/default/intents/intents.json": "{not a list"}, [feature])
+    # The source baseline of the first row (see the jump's checks for each case).
+    source = {"src/main.ts": "export const a = 1;\n", "src/crlf.txt": "a\r\nb\r\n", "build/out.js": "o\n", ".DS_Store": "d\n", "docs/guide.md": "# g\n"}
+    check_("create/source_files", source, [feature])
+    check_("create/source_registry", {**source, "build/keep.bin": "k\n", ".aidlc-source-paths.json": '{"version":1,"paths":["build/keep.bin"],"exclude":["docs"]}\n'}, [feature])
+    check_("create/source_unreadable", {**source, ".aidlc-source-paths.json": "{"}, [feature])
+    check_("create/source_unbindable", {**source, ".aidlc-source-paths.json": "{", ".git/HEAD": "ref: refs/heads/main\n"}, [feature])
+    check_("create/source_embedded_unresolved", {"vendor/lib/.git/HEAD": "ref: refs/heads/gone\n", "vendor/lib/.git/config": "[core]\n", "vendor/lib/x.c": "x\n"}, [feature])
     check_("create/registry_existing", {"aidlc/spaces/default/intents/intents.json": '[{"uuid":"u","slug":"old","dirName":"250101-old","status":"done"}]\n'}, [feature])
     for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
         check_(f"create/observer_{marker.lower()}", {}, [feature], {marker: "1"})
@@ -4432,6 +4439,19 @@ def jump_checks():
     check_("execute/forward_foreign_scope", created(suffixed), [["execute", "--target", "scope-definition", "--direction", "forward", "--scope", "bugfix"]])
     check_("execute/forward_to_current", created(), [["execute", "--target", "intent-capture", "--direction", "forward"]])
     check_("execute/forward_mis_specified", created(at_feasibility), [["execute", "--target", "intent-capture", "--direction", "forward"]])
+    # The source baseline both rows of a jump carry, with the listing kept beside the record: the project's source
+    # files; what the registry adds and takes out; a project whose source cannot be read, which starts from an
+    # empty listing, or is unbindable when it is a git checkout; and the snapshot's place already taken.
+    source = {"src/main.ts": "export const a = 1;\n", "src/crlf.txt": "a\r\nb\r\n", "build/out.js": "o\n", ".DS_Store": "d\n", "docs/guide.md": "# g\n"}
+    registry_file = ".aidlc-source-paths.json"
+    empty_baseline = f"{CREATED_DIR}/.aidlc-engine/source-review/code-generation/baseline-e3b0c44298fc.tsv"
+    check_("execute/source_files", created(**source), [forward, ["execute", "--target", "intent-capture", "--direction", "backward"]])
+    check_("execute/source_registry", created(**source, **{"build/keep.bin": "k\n", registry_file: '{"version":1,"paths":["build/keep.bin"],"exclude":["docs"]}\n'}), [forward])
+    check_("execute/source_unreadable", created(**source, **{registry_file: "{"}), [forward])
+    check_("execute/source_unbindable", created(**source, **{registry_file: "{", ".git/HEAD": "ref: refs/heads/main\n"}), [forward])
+    check_("execute/source_embedded_unresolved", created(**{"vendor/lib/.git/HEAD": "ref: refs/heads/gone\n", "vendor/lib/.git/config": "[core]\n", "vendor/lib/x.c": "x\n"}), [forward])
+    check_("execute/source_snapshot_taken", created(**{registry_file: "{", empty_baseline: "another listing\n"}), [forward])
+    check_("execute/source_snapshot_kept", created(**{registry_file: "{", empty_baseline: ""}), [forward])
     backward = ["execute", "--target", "intent-capture", "--direction", "backward"]
     mr = artifact("market-research", "competitive-analysis")
     check_("execute/backward", created(at_feasibility, **ic, **mr), [backward, ["resolve", "--stage", "feasibility"]])
