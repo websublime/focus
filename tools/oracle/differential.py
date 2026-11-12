@@ -4527,11 +4527,12 @@ def log_checks():
         ["decision", "--single", "word", "--stage", "intent-capture", "--decision", "x"],
         ["decision", "decision", "--stage", "intent-capture", "--decision", "x"],
         ["--stage", "intent-capture", "words", "decision", "--decision", "x"],
-        ["--stage", "intent-capture", "words", "decision", "more", "--decision", "x"],
-        ["stray", "words", *ask], ["decision", "--stage", "intent-capture", "--decision", "Chose", "Option", "A'"]])
+        ["decision", "stray", "words", "--stage", "intent-capture", "--decision", "x"],
+        ["decision", "--stage", "intent-capture", "--decision", "Chose", "Option", "A'"]])
     # The same, with nothing after the words: the step names the project itself, first, so nothing is added after it.
     check_("decision/split_values_at_the_end", created(), [["--project-dir", "{P}", "decision", "--stage", "intent-capture", "--decision", "Chose", "Option", "A"],
-                                                           ["--project-dir", "{P}", *ask, "decision"], ["--project-dir", "{P}", *ask, "extra"]])
+                                                           ["--project-dir", "{P}", *ask, "decision"], ["--project-dir", "{P}", *ask, "extra"],
+                                                           ["--project-dir", "{P}", "decision", "extra", "--stage", "intent-capture", "--decision", "x"]])
     check_("decision/split_after_project_dir", created(), [["--project-dir", "{P}", "tail", *ask], ["decision", "--project-dir", "--stage", "intent-capture", "--decision", "x"]])
 
     # The row: the question alone, with its options and rationale, for a single stage, twice, for a stage that is
