@@ -5227,7 +5227,7 @@ def runtime_fuzz(count):
             files[UNITS] = rng.choice([A_UNITS, A_UNITS, A_UNITS.replace("[auth]", "[web]"), "# none\n",
                                        A_UNITS.replace("kind: service", "kind: big")])
         runtime_check(str(index), files, [["compile"], ["compile"], ["summary", "--json"], ["summary"],
-                                          ["read", rng.choice(real)]], group="fuzz/runtime")
+                                          ["read", rng.choice(real)]], group="fuzz/runtime", tool="runtime")
 
 
 def audit_fuzz(count):
