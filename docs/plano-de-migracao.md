@@ -1940,7 +1940,7 @@ A fatia 1d recusou a linha onde os repositórios são andados como fonte e deixo
 | Fatia | O que traz | Recusa pelo nome até à fatia que o traz | Como se verifica | Estado |
 | --- | --- | --- | --- | --- |
 | 2a. O comando e `decision` | `focus engine log`: `--project-dir`, o parser de flags, a recusa de valores partidos (`refuseSplitValues`: uma palavra fora de qualquer flag, um fragmento que começa por `--`, as aspas simples do Command Prompt), o erro que fica na auditoria; um workspace sem trabalho selecionado. `decision`: a linha `DECISION_RECORDED` (stage, decision, options, rationale, `--single`), a frase que diz que a pessoa já confirmou (`impliedConfirmationMarker`), `--message` com a prova da mensagem (`proveMessage`: existe, traz palavras da pessoa, não está gasta, veio deste chat), as perguntas protegidas retiradas | `--checkpoint verification-command` e `construction-policy` (fatia 5), `plan-approval` e `--batch-file` (fatia 11), `--unit` (fatia 5) | Diferencial (`log/decision/*`, um grupo novo com a sua ferramenta); corpus para a recusa de valores partidos e para o marcador de confirmação, que são funções puras | Feito |
-| 2b. `answers` e `answer` | `answers` (só leitura: as perguntas de uma stage e as respostas que têm); `answer`: `QUESTION_ANSWERED`, `--details` e `--details-file`, `--on-instruction`, `--message` e a mensagem herdada da pergunta, a dica de uma mensagem que chegou antes da pergunta | As respostas às perguntas do engine (`PLAN_APPROVAL_RECORDED`, `PLAN_APPROVAL_OVERRIDDEN`, `--units`, `--reason`, `--park`: fatia 11; `VERIFICATION_COMMAND_RECORDED` e `CONSTRUCTION_POLICY_RECORDED`: fatia 5) | Diferencial | Por fazer |
+| 2b. `answers` e `answer` | `answers` (só leitura: as perguntas de uma stage e as respostas que têm); `answer`: `QUESTION_ANSWERED`, `--details` e `--details-file`, `--on-instruction`, `--message` e a mensagem herdada da pergunta, a dica de uma mensagem que chegou antes da pergunta | As respostas às perguntas do engine (`PLAN_APPROVAL_RECORDED`, `PLAN_APPROVAL_OVERRIDDEN`, `--units`, `--reason`, `--park`: fatia 11; `VERIFICATION_COMMAND_RECORDED` e `CONSTRUCTION_POLICY_RECORDED`: fatia 5) | Diferencial | Em curso: `answers` feito (abaixo); `answer` por fazer |
 | 2c. O checkpoint de sumário | `--checkpoint summary-confirmation --questions-file` em `decision` e em `answer`: a evidência da pergunta (`summaryQuestionEvidence`), a decisão pendente (`pendingSummaryDecision`), `SUMMARY_CONFIRMATION_RECORDED`, e a recusa de uma pergunta ou resposta de sumário sem o checkpoint, com os comandos certos (`refusePlainSummaryConfirmation`) | | Diferencial. É o que a fatia 3 pesa (`checkSummaryConfirmationEvidence`) | Por fazer |
 | 2d. `link` | `PIPELINE_LINK_COMPLETED`: o handoff de um elo de um pipeline, com o artefacto e o repositório | | Diferencial | Por fazer |
 | 2e. `review` | `REVIEW_REQUESTED` e `REVIEW_COMPLETED`: o revisor de uma stage, a iteração, o veredicto e o ficheiro da revisão (os títulos despromovidos), o orçamento de revisões e a recuperação quando se esgota, o veredicto pendente; o `Source Fingerprint` de um pedido e o snapshot do workspace atrás dele (`workspaceSourceState`, `writeWorkspaceSourceSnapshot`, o que a fatia 1d deixou para aqui) | `--unit` e o registo de uma worktree de swarm | Diferencial. Lida, pode ter de se partir outra vez: o pedido e a conclusão são metades com a sua contabilidade | Por fazer |
@@ -1980,7 +1980,7 @@ Sem trabalho selecionado nada é escrito: a linha cairia na raiz dos registos do
 
 | Desvio | Original | Focus |
 | --- | --- | --- |
-| `answer`, `answers`, `link`, `review` | Corre cada um | Recusa pelo nome até às fatias 2b a 2e |
+| `answer`, `link`, `review` (`answers` deixou de o ser com a primeira parte da 2b) | Corre cada um | Recusa pelo nome até às fatias 2b a 2e |
 | `--checkpoint summary-confirmation`, `verification-command`, `construction-policy`, `plan-approval` | Lê os flags que cada um pede e grava a pergunta com o seu registo | Recusa o checkpoint pelo nome (fatias 2c, 5 e 11) |
 | `--unit` e `--batch-file` | Grava a unit com o seu claim; recusa o lote pela sua forma | Recusa os dois flags pelo nome (fatias 5 e 11) |
 | Uma pergunta simples com as duas escolhas do sumário, numa stage que deve uma confirmação de sumário | Recusa com os dois comandos que gravam um sumário | Recusa pelo nome: esses comandos são a fatia 2c |
@@ -2001,6 +2001,24 @@ Sem trabalho selecionado nada é escrito: a linha cairia na raiz dos registos do
 | Testes unitários | 1: o armazém lista-se do mais antigo para o mais novo, com o id a desempatar (o único leitor de hoje toma os chats da lista como um conjunto) |
 | Mutação | 50 mutantes (a prova, os leitores do armazém, o campo na linha): 47 apanhados (36 à primeira, 11 depois dos checks e do teste escritos para eles) e 3 equivalentes, anotados no módulo: a última recusa nunca é alcançada (a mensagem nomeada é ela própria uma das contadas, salvo se for mais antiga do que a última decisão, e então já foi recusada como gasta; é assim no original); de duas linhas com o mesmo instante qualquer uma é a última; e o id escrito na linha é o do registo provado, que é o id por que foi lido |
 | `cargo test` | 571 testes |
+
+### Fatia 2b, primeira parte: `answers`
+
+**O que existe.** `focus engine log answers --stage <slug> [--unit <unit>]` (`focus-log::answers`, `handleAnswers`): as perguntas de uma stage lidas da auditoria com as respostas que têm. Só lê: não escreve nada, e uma recusa sua é impressa sem deixar linha. Responde com as perguntas respondidas (a pergunta, as opções, o âmbito, quando foi feita, a resposta, quando, e a mensagem que a prova quando a linha a nomeia), as que estão em aberto (com as que um cancelamento gastou) e as respostas ambíguas.
+
+Uma pergunta é uma linha `DECISION_RECORDED` e uma resposta uma `QUESTION_ANSWERED`, e nenhuma nomeia a outra. O emparelhamento é o do original, linha a linha. Uma resposta responde a todas as perguntas do seu âmbito (a unit, a tentativa, o workflow de uma stage sozinha) que estavam abertas quando chegou: o protocolo regista as perguntas de um menu e depois uma resposta. Uma resposta sem pergunta aberta que venha depois de uma troca fechada, sem pergunta registada entre as duas, continua essa troca (`a; b`). Um cancelamento gasta a pergunta sem a responder. E duas linhas em shards diferentes com o mesmo instante não têm ordem: uma resposta que possa ser de mais de uma leitura fica como ambígua, com as perguntas candidatas, em vez de ser dada à pergunta do shard cujo nome ordena primeiro; e uma pergunta de que uma resposta ambígua pode ter sido não é dada a mais nenhuma.
+
+**O que o diferencial encontrou.** Nada que diferisse: os 40 checks da primeira corrida saíram iguais, e os 6 escritos depois da mutação também.
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Diferencial, `log/answers` | 46 checks, todos iguais: os flags que o verbo aceita e os que não; sem trabalho selecionado, sem ficheiro de estado, com ele atrás de um link, com um shard ilegível; nada, perguntas abertas, respondidas, um menu, uma troca continuada uma e duas vezes, e não continuada por cima de uma pergunta, de uma pergunta que um cancelamento gastou, de uma pergunta empatada com a resposta, ou por uma resposta empatada com a que fechou a troca; uma resposta sozinha e antes da sua pergunta; seis formas do que é e não é um cancelamento; a mensagem da resposta e a da pergunta; uma linha que não é pergunta; as linhas de um checkpoint, de outra stage e de outros âmbitos; e, com dois shards, a resposta depois, empatada e antes, duas respostas empatadas, uma resposta empatada com um cancelamento, perguntas nos dois, a ordem das abertas, e um shard com as linhas fora da ordem dos seus instantes (o ciclo, em que todas as respostas têm outra antes) |
+| Diferencial, tudo | @@TOTAL@@ |
+| Repetição da gravação | @@REPLAY@@ |
+| Mutação | 47 mutantes: 44 apanhados (38 à primeira, 6 depois de checks escritos para eles: a ordem dos campos do âmbito, e cinco arestas da continuação de uma troca) e 2 equivalentes, anotados no módulo (todas as linhas lidas são da stage pedida, e uma linha nunca é comparada consigo). Um levou a tirar código: as notas do histórico não são perguntas nem respostas, e filtrá-las não mudava nada |
+| `cargo test` | @@TESTS@@ |
 
 ### A jornada
 
