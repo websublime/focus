@@ -11,9 +11,7 @@
 //! which move units of work one at a time through per-unit stages (M4);
 //! the record's active-directive marker and the pending person lines of a
 //! chat (the orchestrator's and the human-turn hook's, M4/M5); and the
-//! review records a backward jump names (the review brief, M5). The source
-//! baseline upstream stamps on the rows is the attestation's (M5) and is
-//! not written.
+//! review records a backward jump names (the review brief, M5).
 //!
 //! Mirrors `aidlc-jump.ts`: `handleResolve`, `handleExecute`, `movedState`,
 //! `forwardJumpNotice`, `backwardJumpNotice`, `stageArtifactPaths`,
@@ -39,7 +37,9 @@ use serde_json::{Map, Value, json};
 use crate::artifacts::{review_artifact_entries, workspace_artifact_path};
 use crate::events::answer_mode_fields;
 use crate::stage::{self, stage_label};
+use crate::transitions::source_baseline;
 use crate::workflow::Workflow;
+use focus_evidence::source::snapshot::BASELINE_FIELD;
 
 /// `parseFlags`: `--name value` pairs; a flag with nothing after it is not
 /// one, and a value is whatever follows, another flag included.
@@ -641,6 +641,9 @@ pub fn execute(wf: &Workflow, args: &[String]) -> Result<Value> {
     };
     let backward = direction == Direction::Backward;
     let moved = moved_state(wf, &content, target, direction, &plan)?;
+    // One content-addressed snapshot is shared by both rows of the jump: the
+    // stage start repeats the same authority.
+    let baseline = source_baseline(wf, "code-generation")?;
     let changed_upstream = if backward {
         stage_artifact_paths(wf, target, &content)
     } else {
@@ -758,12 +761,14 @@ pub fn execute(wf: &Workflow, args: &[String]) -> Result<Value> {
             json::stringify(&json!(invalidated_reviews)),
         ));
     }
+    jumped.push((BASELINE_FIELD, baseline.clone()));
     wf.emit(&held, "STAGE_JUMPED", &jumped)?;
     let mut started = vec![
         ("Stage", target_slug.to_owned()),
         ("Agent", stage::lead_agent(target).to_owned()),
     ];
     started.extend(answer_mode_fields(&wf.events()));
+    started.push((BASELINE_FIELD, baseline));
     wf.emit(&held, "STAGE_STARTED", &started)?;
     wf.write_state(&moved.content)?;
     let notice = match direction {

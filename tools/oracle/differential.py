@@ -136,11 +136,6 @@ SHAPES = {
         "longer than focus's (\"# AI-DLC Audit Log\" is the one phrase of the name map whose length changes), so "
         "every offset upstream writes is one more. Upstream's offsets are read one byte back before comparing; "
         "the messages, the session and the shard are compared as they are",
-    "source-baseline":
-        "creating a piece of work records the source baseline of the project in the first row and keeps the "
-        "listing beside the record; that is the attestation's walk over every source file (M5), which focus "
-        "has not ported. The field and the listing are left out before comparing; every other field and file "
-        "of the creation is compared",
     "uncaught":
         "upstream lets a refusal thrown inside an audit verb reach the runtime, which prints a source excerpt "
         "and a stack trace around the sentence; focus prints the same sentence as {\"error\": ...}, like every "
@@ -267,17 +262,46 @@ def focus_base():
     return base
 
 
+class Pair(list):
+    """The two trees of a check: laid out when first used, removed when the checks queued on them are done. Every
+    check is queued before any runs, and each tree is a copy of the distribution: laid out at once, a few thousand
+    of them do not fit on a disk."""
+
+    def __init__(self, name, edits):
+        super().__init__()
+        self.name, self.edits, self.made = name, edits, False
+
+    def make(self):
+        if not self.made:
+            self.made = True
+            for engine in ("ts", "rs"):
+                root = os.path.join(WORK, self.name.replace("/", "_"), engine)
+                shutil.copytree(DIST if engine == "ts" else focus_base(), root, symlinks=True)
+                tree = Tree(root, mapped=engine == "rs")
+                for edit in self.edits:
+                    edit(tree)
+                self.append(tree)
+        return self
+
+    def __iter__(self):
+        self.make()
+        return super().__iter__()
+
+    def __getitem__(self, at):
+        self.make()
+        return super().__getitem__(at)
+
+    def __len__(self):
+        return 2
+
+    def dispose(self):
+        if self.made:
+            shutil.rmtree(os.path.join(WORK, self.name.replace("/", "_")), ignore_errors=True)
+
+
 def pair(name, *edits):
     """The same tree twice, one per engine in its own names, with `edits` applied to both."""
-    trees = []
-    for engine in ("ts", "rs"):
-        root = os.path.join(WORK, name.replace("/", "_"), engine)
-        shutil.copytree(DIST if engine == "ts" else focus_base(), root, symlinks=True)
-        tree = Tree(root, mapped=engine == "rs")
-        for edit in edits:
-            edit(tree)
-        trees.append(tree)
-    return trees
+    return Pair(name, edits)
 
 
 def run(engine, tree, args, env=None, stdin=None):
@@ -384,8 +408,11 @@ JOBS = []
 BASE_DIRS = (".claude/aidlc-common/stages", ".claude/agents", ".claude/scopes", ".claude/sensors",
              ".claude/tools/data/memory-seed", "aidlc")
 # The include stub (`.claude/rules/aidlc.md`) names the memory files the session start hashes into the rules record.
+# The two files the distribution lays at the project's root are source like any other: a baseline lists them.
 BASE_FILES = (*(f".claude/tools/data/{name}" for name in ("harness.json", "stage-graph.json", "scope-grid.json", "ars-priors.json")),
-              ".claude/rules/aidlc.md")
+              ".claude/rules/aidlc.md", ".gitignore", ".mcp.json")
+# The tools whose verbs read the project beyond the engine's own files.
+WHOLE_PROJECT = ("utility", "jump", "state")
 RECORDED_TREES = {}
 RECORDED_CHECKS = {}
 LARGE = 3000
@@ -475,7 +502,12 @@ def run_queued(quiet=False):
     def work(group):
         for index, job in group:
             lines[index] = compare(*job)
+        trees = group[0][1][1]
+        if isinstance(trees, Pair):
+            trees.dispose()
 
+    # Built once, before the trees that copy it are laid out side by side.
+    focus_base()
     with ThreadPoolExecutor(max_workers=os.cpu_count() or 2) as pool:
         list(pool.map(work, groups.values()))
     for index in sorted(lines):
@@ -1409,8 +1441,79 @@ def workspace_files(tree, top="aidlc"):
                     text = handle.read().decode("utf-8", errors="replace")
                 if name.endswith(".rules-held.json"):
                     text = own_hashes(tree, text)
+                if BASELINE_SNAPSHOT.search(rel):
+                    rel, text = own_baseline(tree, rel, path, say)
+                    files[rel] = text
+                    continue
                 files[rel] = say(text)
     return files
+
+
+# A source baseline is the hash of the project's source listing, kept beside the record under that hash. The listing
+# names every source file with the hash of its content, and a tree's files carry the engine's name in their paths and
+# text, so the two engines' hashes differ by construction. Each engine's are recomputed here from its own tree: a
+# snapshot whose bytes hash to the name it is kept under is `baseline-<verified>.tsv`, a row whose hash is the hash
+# of the tree's own file (or of where its own link points) reads `<own>`, and a row's field naming a verified snapshot
+# reads `sha256:<verified>`. One that does not match stays as it is, and shows.
+BASELINE_SNAPSHOT = re.compile(r"/source-review/[a-z][a-z0-9-]*/baseline-([0-9a-f]{12})\.tsv$")
+BASELINE_ROW = re.compile(r"^([^\t\\]*)\t([^\t\\]+)\t(100644|100755|120000)\t([0-9a-f]{64})$")
+
+
+def own_baseline(tree, rel, path, say):
+    with open(path, "rb") as handle:
+        raw = handle.read()
+    digest = hashlib.sha256(raw).hexdigest()
+    if digest[:12] != BASELINE_SNAPSHOT.search(rel).group(1):
+        return rel, say(raw.decode("utf-8", errors="replace"))
+    if not hasattr(tree, "baselines"):
+        tree.baselines = set()
+    tree.baselines.add(digest)
+
+    def own(row):
+        found = BASELINE_ROW.match(row)
+        if found is None:
+            return row
+        repo, name, mode, sha = found.groups()
+        target = os.path.join(tree.root, repo, name) if repo else os.path.join(tree.root, name)
+        try:
+            if mode == "120000":
+                held = [os.readlink(target).encode("utf-8")]
+            else:
+                with open(target, "rb") as handle:
+                    content = handle.read()
+                held = [content, content.replace(b"\r\n", b"\n")]
+        except OSError:
+            return row
+        # The file as it is now, or as it was when the command started: a command can change a source file after
+        # it has taken the baseline (creation adds its block to `.gitignore`).
+        hashes = {hashlib.sha256(one).hexdigest() for one in held} | getattr(tree, "source_before", {}).get(target, set())
+        return f"{repo}\t{name}\t{mode}\t<own>" if sha in hashes else row
+
+    rows = [say(own(row)) for row in raw.decode("utf-8", errors="replace").split("\n") if row]
+    # In an order that does not depend on the engine's name.
+    rows.sort(key=lambda row: re.sub("focus", "\x01", row, flags=re.I))
+    return BASELINE_SNAPSHOT.sub(lambda m: m.group(0).replace(m.group(1), "<verified>"), rel), "".join(row + "\n" for row in rows)
+
+
+def source_hashes(tree):
+    """The hashes of every file of a tree outside the workspace and the harness, raw and with each CRLF as LF."""
+    hashes = {}
+    for folder, dirs, names in os.walk(tree.root):
+        if folder == tree.root:
+            dirs[:] = [name for name in dirs if name not in ("aidlc", "focus", "node_modules") and not name.startswith(".")]
+        for name in names:
+            path = os.path.join(folder, name)
+            if os.path.isfile(path) and not os.path.islink(path):
+                with open(path, "rb") as handle:
+                    content = handle.read()
+                hashes[path] = {hashlib.sha256(content).hexdigest(), hashlib.sha256(content.replace(b"\r\n", b"\n")).hexdigest()}
+    return hashes
+
+
+def verified_baselines(tree, text):
+    known = getattr(tree, "baselines", set())
+    return re.sub(r"(\*\*Source Baseline\*\*: sha256:)([0-9a-f]{64})",
+                  lambda m: m.group(1) + ("<verified>" if m.group(2) in known else m.group(2)), text)
 
 
 def own_hashes(tree, text):
@@ -1736,15 +1839,17 @@ def verify_validation_bases(tree, engine, rel, text):
 
 def compare_audit(name, trees, steps, env, tool="audit"):
     ts, rs = trees
-    outcome, shaped, shaped_source, shaped_ask, shaped_basis = {}, False, False, False, False
+    outcome, shaped, shaped_ask, shaped_basis = {}, False, False, False
     shaped_offsets = shaped_thrown = False
     started_from = None
     if RECORD and not has_links(ts.root) and name not in UNRECORDED and not name.startswith("fuzz/"):
-        # An audit check starts from nothing but its files; a runtime check from an installed project.
-        started_from = workspace_files(ts, "") if tool == "audit" else overlay(ts, hidden=True, everything=tool == "utility")
+        # An audit check starts from nothing but its files; a runtime check from an installed project, kept whole
+        # where the verb reads the whole project (the utility's scan, and the source a baseline lists).
+        started_from = workspace_files(ts, "") if tool == "audit" else overlay(ts, hidden=True, everything=tool in WHOLE_PROJECT)
     for engine, tree in (("ts", ts), ("rs", rs)):
         say = to_focus if engine == "ts" else (lambda text: text)
         before = workspace_files(tree)
+        tree.source_before = source_hashes(tree)
         exits, outs, errs = [], [], []
         for args in steps:
             # A step that names its own tool (`@state advance …`) runs that one.
@@ -1774,10 +1879,6 @@ def compare_audit(name, trees, steps, env, tool="audit"):
             if before.get(rel) == after.get(rel):
                 continue
             text = after.get(rel)
-            # The source baseline is the attestation's (SHAPES): its listing is not compared, nor its field.
-            if "/.focus-engine/source-review/" in rel and engine == "ts":
-                shaped_source = True
-                continue
             # The guard-recovery streak is the recovery machinery's (SHAPES).
             if "/.focus-engine/guard-refusals/" in rel and engine == "ts":
                 shaped_ask = True
@@ -1791,9 +1892,8 @@ def compare_audit(name, trees, steps, env, tool="audit"):
                 shaped_offsets = True
                 text = re.sub(r'"(offset|dropped)":([1-9]\d*)', lambda m: f'"{m.group(1)}":{int(m.group(2)) - 1}', text)
             shown, text = minted(rel, text if text is None else normalise_audit(text, tree, engine))
-            if text is not None and "**Source Baseline**: " in text:
-                shaped_source = True
-                text = re.sub(r"^\*\*Source Baseline\*\*: [^\n]*\n", "", text, flags=re.M)
+            if text is not None and "**Source Baseline**: sha256:" in text:
+                text = verified_baselines(tree, text)
             if text is not None and engine == "ts" and ASK_FIELD.search(text):
                 shaped_ask = True
                 text = ASK_FIELD.sub("", text)
@@ -1820,9 +1920,6 @@ def compare_audit(name, trees, steps, env, tool="audit"):
         if shaped:
             shapes["uncaught"] += 1
             detail += "  (upstream: uncaught)"
-        if shaped_source:
-            shapes["source-baseline"] += 1
-            detail += "  (source baseline left out)"
         if shaped_ask:
             shapes["guard-ask"] += 1
             detail += "  (guard ask left out)"
@@ -2209,9 +2306,6 @@ DEVIATIONS.update({
         "scope stamp and checked against the claim registry and the fan-out (M4): focus refuses both by name",
     "jump/usage/flag_without_its_value":
         "upstream takes a trailing --project-dir with no value as an argument of the verb; focus refuses the flag",
-    r"jump/observer/(stop_hook_probe|route_check)":
-        "an observer that reaches a jump is stopped at the first durable write: upstream's is the source "
-        "baseline's snapshot (the attestation's, M5), focus's the first ledger row",
     "jump/execute/units":
         "execute --units moves units of work forward one at a time to a per-unit stage, with the state tool's "
         "one-unit skip (M4): upstream runs it or refuses on its own shape; focus refuses the flag by name",
@@ -2225,6 +2319,18 @@ DEVIATIONS.update({
         "a backward jump names the reviews it invalidates, read from the review brief's records (M5): with review "
         "rows on the ledger for a reviewed stage behind the jump, upstream reads them and focus refuses by name; "
         "an embedded `## Review` section is named by both",
+    r"(jump/execute|utility/create)/delegated_worktree":
+        "upstream runs inside a worktree an engine created for one unit of work, resolving it to the main checkout's "
+        "piece of work; focus refuses the checkout by name (worktrees come with parallel Construction, deferred)",
+    "jump/execute/source_repos_delegated_worktree":
+        "a member repository that is a delegated worktree is read through that worktree's own boundary (the code "
+        "paths of its unit of work); focus does not read that boundary yet and refuses the row whose baseline it "
+        "would be",
+    r"jump/execute/source_repos_refused_\w+":
+        "a registry row whose `repos` is not a list of names: upstream takes what is there and falls over where it "
+        "first joins a path, with the runtime's TypeError (or, with an empty name, lists the whole project, engine "
+        "and harness included, as that member); focus refuses the row by name (exit 1 either way where upstream "
+        "falls over, and the jump's error row written by both)",
     "jump/reopen/by_name":
         "reopen starts a per-unit stage again for named units with their own GATE_REJECTED rows (M4); focus "
         "refuses by name once the usage is satisfied",
@@ -2270,10 +2376,6 @@ DEVIATIONS.update({
         "that text",
     "utility/create/help":
         "upstream's usage offers --request; focus's lists the flags it has",
-    r"utility/create/observer_(stop_hook_probe|route_check)":
-        "an observer that reaches creation is stopped at the first durable write: upstream's is the source "
-        "baseline's (the attestation's, M5), focus's the ledger's first row. Both leave the minted directory, "
-        "the clone id and the shard's title",
     "utility/create/request_flag":
         "an engine question's answer names its request by id; the question store is M5's, so focus refuses the "
         "flag by name where upstream looks the question up",
@@ -2777,6 +2879,19 @@ def intent_create_checks():
     UNRECORDED.add("utility/create/memory_binary")
     check_("create/memory_binary", {}, [feature], edits=(binary_memory,))
     check_("create/registry_malformed", {"aidlc/spaces/default/intents/intents.json": "{not a list"}, [feature])
+    # The source baseline of the first row (see the jump's checks for each case).
+    source = {"src/main.ts": "export const a = 1;\n", "src/crlf.txt": "a\r\nb\r\n", "build/out.js": "o\n", ".DS_Store": "d\n", "docs/guide.md": "# g\n"}
+    check_("create/source_files", source, [feature])
+    check_("create/source_registry", {**source, "build/keep.bin": "k\n", ".aidlc-source-paths.json": '{"version":1,"paths":["build/keep.bin"],"exclude":["docs"]}\n'}, [feature])
+    check_("create/source_unreadable", {**source, ".aidlc-source-paths.json": "{"}, [feature])
+    check_("create/source_unbindable", {**source, ".aidlc-source-paths.json": "{", ".git/HEAD": "ref: refs/heads/main\n"}, [feature])
+    members = {"api/.git/HEAD": "", "web/.git/HEAD": "", "api/a.ts": "a\n", "web/b.ts": "b\n", "top.txt": "t\n"}
+    check_("create/source_repos", members, [feature + ["--repos", "web,api"]])
+    check_("create/source_repos_one", members, [feature + ["--repos", "web"]])
+    check_("create/source_repos_unbindable", {**members, "api/.aidlc-source-paths.json": "{"}, [feature + ["--repos", "web,api"]])
+    check_("create/source_dotnet_outputs", {"App.csproj": "<Project />\n", "Program.cs": "class P {}\n", "bin/Debug/app.dll": "b\n", "obj/project.assets.json": "{}\n"}, [feature])
+    check_("create/delegated_worktree", {**source, ".aidlc/worktree-meta.json": "{}\n"}, [feature])
+    check_("create/source_embedded_unresolved", {"vendor/lib/.git/HEAD": "ref: refs/heads/gone\n", "vendor/lib/.git/config": "[core]\n", "vendor/lib/x.c": "x\n"}, [feature])
     check_("create/registry_existing", {"aidlc/spaces/default/intents/intents.json": '[{"uuid":"u","slug":"old","dirName":"250101-old","status":"done"}]\n'}, [feature])
     for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
         check_(f"create/observer_{marker.lower()}", {}, [feature], {marker: "1"})
@@ -3121,6 +3236,24 @@ def transition_checks():
     check_("complete/registry_malformed", created(registry="{not a list", **ic), [["complete-workflow", "intent-capture"]], direct)
 
     # skip: plain, routed, and what a replay writes once.
+    # A stage that produces code starts from a source baseline, kept beside the record under the stage's own name:
+    # reached by an advance, and by a skip of the stage before it.
+    source = {"src/main.ts": "export const a = 1;\n", "src/crlf.txt": "a\r\nb\r\n", "build/out.js": "o\n", "docs/guide.md": "# g\n"}
+    unbindable = {".aidlc-source-paths.json": "{", ".git/HEAD": "ref: refs/heads/main\n"}
+    into_code = [["advance", "intent-capture", "code-generation"], ["resume"]]
+    check_("advance/into_code_stage", created(**ic, **source), into_code, direct)
+    check_("advance/into_code_stage_unreadable", created(**ic, **source, **{".aidlc-source-paths.json": "{"}), into_code, direct)
+    check_("advance/into_code_stage_unbindable", created(**ic, **source, **unbindable), into_code, direct)
+    answered = CREATED_AUDIT + block("DECISION_RECORDED", T(1), "**Stage**: intent-capture", "**Decision**: How would you like to answer them?",
+                                     "**Options**: Guide me, I'll edit the file, Chat") + block("QUESTION_ANSWERED", T(2), "**Stage**: intent-capture", "**Details**: Chat")
+    check_("advance/into_code_stage_answer_mode", created(audit=answered, **ic, **source), into_code, direct)
+    with open(os.path.join(DIST, ".claude", "tools", "data", "stage-graph.json"), encoding="utf-8") as handle:
+        order = [stage["slug"] for stage in json.load(handle)]
+    before_code = at_stage(CREATED_STATE, "infrastructure-design", done=order[:order.index("infrastructure-design")], phase="CONSTRUCTION")
+    routed = ["skip", "infrastructure-design", "--route", "--reason", "not needed"]
+    check_("skip/into_code_stage", created(before_code, **source), [routed, ["resume"]], direct)
+    check_("skip/into_code_stage_unbindable", created(before_code, **source, **unbindable), [routed], direct)
+    check_("skip/before_code_stage_unrouted", created(before_code, **source), [["skip", "infrastructure-design"], ["resume"]], direct)
     check_("skip/usage", created(), [["skip"]], direct)
     check_("skip/unknown_stage", created(), [["skip", "nope"], ["skip", "--route"]], direct)
     check_("skip/plain", created(), [["skip", "market-research"], ["skip", "feasibility", "--reason", "  not needed  "], ["skip", "intent-capture"],
@@ -4373,6 +4506,52 @@ def jump_checks():
     check_("execute/forward_foreign_scope", created(suffixed), [["execute", "--target", "scope-definition", "--direction", "forward", "--scope", "bugfix"]])
     check_("execute/forward_to_current", created(), [["execute", "--target", "intent-capture", "--direction", "forward"]])
     check_("execute/forward_mis_specified", created(at_feasibility), [["execute", "--target", "intent-capture", "--direction", "forward"]])
+    # The source baseline both rows of a jump carry, with the listing kept beside the record: the project's source
+    # files; what the registry adds and takes out; a project whose source cannot be read, which starts from an
+    # empty listing, or is unbindable when it is a git checkout; and the snapshot's place already taken.
+    source = {"src/main.ts": "export const a = 1;\n", "src/crlf.txt": "a\r\nb\r\n", "build/out.js": "o\n", ".DS_Store": "d\n", "docs/guide.md": "# g\n"}
+    registry_file = ".aidlc-source-paths.json"
+    empty_baseline = f"{CREATED_DIR}/.aidlc-engine/source-review/code-generation/baseline-e3b0c44298fc.tsv"
+    check_("execute/source_files", created(**source), [forward, ["execute", "--target", "intent-capture", "--direction", "backward"]])
+    check_("execute/source_registry", created(**source, **{"build/keep.bin": "k\n", registry_file: '{"version":1,"paths":["build/keep.bin"],"exclude":["docs"]}\n'}), [forward])
+    check_("execute/source_unreadable", created(**source, **{registry_file: "{"}), [forward])
+    check_("execute/source_unbindable", created(**source, **{registry_file: "{", ".git/HEAD": "ref: refs/heads/main\n"}), [forward])
+    check_("execute/source_embedded_unresolved", created(**{"vendor/lib/.git/HEAD": "ref: refs/heads/gone\n", "vendor/lib/.git/config": "[core]\n", "vendor/lib/x.c": "x\n"}), [forward])
+    check_("execute/delegated_worktree", created(**source, **{".aidlc/worktree-meta.json": "{}\n"}), [forward])
+    check_("execute/source_repos_delegated_worktree", created(registry=CREATED_REGISTRY.replace('"status": "in-flight"', '"status": "in-flight",\n    "repos": ["app"]'),
+                                                              **{"app/a.ts": "a\n", "app/.aidlc/worktree-meta.json": "{}\n"}), [forward])
+    check_("execute/source_snapshot_taken", created(**{registry_file: "{", empty_baseline: "another listing\n"}), [forward])
+    check_("execute/source_snapshot_kept", created(**{registry_file: "{", empty_baseline: ""}), [forward])
+    # The member repositories of the piece of work are the source, as its own row of the registry lists them (and
+    # not the first row's); a checkout among them is what makes an unreadable source unbindable, and the project's
+    # own is not; and the snapshot's place is never reached through a link.
+    def with_repos(*names, registry=CREATED_REGISTRY):
+        listed = ", ".join(f'"{name}"' for name in names)
+        return registry.replace('"status": "in-flight"', f'"status": "in-flight",\n    "repos": [{listed}]')
+    members = {"app/a.ts": "a\n", "lib/b.ts": "b\n", "top.txt": "t\n"}
+    other_first = with_repos("app").replace("[\n", '[\n  {\n    "uuid": "01a138fa-d37d-787d-af4a-966efbb0b6f0",\n    "slug": "other",\n    "dirName": "260101-other",\n'
+                                            '    "scope": "feature",\n    "status": "in-flight",\n    "repos": ["lib"]\n  },\n', 1)
+    check_("execute/source_repos", created(registry=with_repos("app", "lib"), **members), [forward])
+    check_("execute/source_repos_own_row", created(registry=other_first, **members), [forward])
+    check_("execute/source_repos_one_absent", created(registry=with_repos("app", "gone"), **members), [forward])
+    check_("execute/source_repos_unreadable", created(registry=with_repos("app", "lib"), **members, **{f"app/{registry_file}": "{", ".git/HEAD": "ref: refs/heads/main\n"}), [forward])
+    check_("execute/source_repos_unbindable", created(registry=with_repos("app", "lib"), **members, **{f"app/{registry_file}": "{", "lib/.git/HEAD": "ref: refs/heads/main\n"}), [forward])
+    review = f"{CREATED_DIR}/.aidlc-engine/source-review"
+    check_("execute/source_snapshot_behind_link", created(**source, **{"elsewhere/keep": ""}), [forward],
+           edits=(lambda tree: (os.makedirs(os.path.dirname(tree.path(review))), os.symlink(tree.path("elsewhere"), tree.path(review))),))
+    check_("execute/source_snapshot_behind_dangling_link", created(**source), [forward],
+           edits=(lambda tree: (os.makedirs(os.path.dirname(tree.path(review))), os.symlink(tree.path("nowhere"), tree.path(review))),))
+    # A row whose `repos` is not a list of names (refused by focus, by name), and names that are no directory of
+    # the project, which the listing's writer refuses in both.
+    for label, listed in (("not_a_name", '["app", 7]'), ("null_name", '[null]'), ("a_list_inside", '[["app"]]'), ("not_a_list", '"app"'), ("empty_name", '[""]')):
+        check_(f"execute/source_repos_refused_{label}", created(registry=with_repos("app").replace('["app"]', listed), **members), [forward])
+    check_("execute/source_repos_null", created(registry=with_repos("app").replace('["app"]', "null"), **members), [forward])
+    check_("execute/source_repos_dots", created(registry=with_repos(".."), **members), [forward])
+    check_("execute/source_repos_nested", created(registry=with_repos("app/sub"), **members, **{"app/sub/c.ts": "c\n"}), [forward])
+    dotnet = {"App.csproj": "<Project />\n", "Program.cs": "class P {}\n", "bin/Debug/app.dll": "b\n", "obj/project.assets.json": "{}\n"}
+    check_("execute/source_dotnet_outputs", created(**dotnet), [forward])
+    check_("execute/source_snapshot_stage_behind_link", created(**source, **{"elsewhere/keep": "", f"{review}/keep": ""}), [forward],
+           edits=(lambda tree: os.symlink(tree.path("elsewhere"), tree.path(f"{review}/code-generation")),))
     backward = ["execute", "--target", "intent-capture", "--direction", "backward"]
     mr = artifact("market-research", "competitive-analysis")
     check_("execute/backward", created(at_feasibility, **ic, **mr), [backward, ["resolve", "--stage", "feasibility"]])
@@ -5114,7 +5293,7 @@ def runtime_fuzz(count):
             files[UNITS] = rng.choice([A_UNITS, A_UNITS, A_UNITS.replace("[auth]", "[web]"), "# none\n",
                                        A_UNITS.replace("kind: service", "kind: big")])
         runtime_check(str(index), files, [["compile"], ["compile"], ["summary", "--json"], ["summary"],
-                                          ["read", rng.choice(real)]], group="fuzz/runtime")
+                                          ["read", rng.choice(real)]], group="fuzz/runtime", tool="runtime")
 
 
 def audit_fuzz(count):

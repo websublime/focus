@@ -6,8 +6,7 @@
 //! a chat, a recorded presence bypass, and a flat `focus-docs/` layout to
 //! migrate are each refused by name rather than acted on half-way. The
 //! `.gitignore` and `AGENTS.md` blocks a copy that config never ran in gets
-//! are the installer's (M6), and the source baseline of the first row is
-//! the attestation's (M5).
+//! are the installer's (M6).
 
 use std::path::Path;
 use std::time::SystemTime;
@@ -15,6 +14,7 @@ use std::time::SystemTime;
 use focus_audit::ledger::{Ledger, Machine};
 use focus_audit::time::iso_timestamp;
 use focus_audit::{Entry, Fields};
+use focus_evidence::source::snapshot;
 use focus_graph::guard_memory::{self, Declaration};
 use focus_graph::runtime::{self, ScopeDefinition, Stage};
 use focus_graph::scopes::{self, GuardPolicy, ScopeMetadata};
@@ -721,7 +721,22 @@ pub fn create(layout: &Layout, request: &Request) -> Result<Created> {
     let stored_review = review_override
         .as_deref()
         .map(|value| stored_review_override(value, definition));
-    let mut started = vec![("Scope", scope.clone()), ("Request", request_line.clone())];
+    // The record is listed last, so its repo set comes from this creation,
+    // not from the registry.
+    let created =
+        focus_workspace::records::resolve_selection(layout, &rows.selector, &rows.invoker)?;
+    let baseline = snapshot::baseline_field(
+        layout,
+        &created,
+        "code-generation",
+        &repos,
+        &focus_evidence::source::walk::Options::from_env(),
+    )?;
+    let mut started = vec![
+        ("Scope", scope.clone()),
+        ("Request", request_line.clone()),
+        (snapshot::BASELINE_FIELD, baseline),
+    ];
     if let Some(stored) = &stored_review {
         started.push((
             "Review Override",

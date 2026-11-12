@@ -186,6 +186,7 @@ name = "focus-evidence"
 version = "0.1.0"
 dependencies = [
  "flate2",
+ "focus-harness",
  "focus-js",
  "focus-workspace",
  "serde_json",
@@ -253,6 +254,7 @@ name = "focus-intent"
 version = "0.1.0"
 dependencies = [
  "focus-audit",
+ "focus-evidence",
  "focus-graph",
  "focus-guards",
  "focus-harness",
@@ -277,6 +279,7 @@ name = "focus-lifecycle"
 version = "0.1.0"
 dependencies = [
  "focus-audit",
+ "focus-evidence",
  "focus-graph",
  "focus-guards",
  "focus-harness",

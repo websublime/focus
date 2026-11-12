@@ -257,6 +257,13 @@ fn normalise_audit(text: &str, root: &Path) -> String {
         r#""(structureHash|contentHash)":"sha256:[0-9a-f]{64}""#,
         |found, text| format!("\"{}\":\"<verified>\"", group(found, text, 1)),
     );
+    // A source baseline is the hash of a listing of hashes of the tree's
+    // own files, recorded the same way (see `own_baseline`).
+    text = replace_all(
+        &text,
+        r"(\*\*Source Baseline\*\*: sha256:)[0-9a-f]{64}",
+        |found, text| format!("{}<verified>", group(found, text, 1)),
+    );
     text = replace_all(
         &text,
         r"`focus engine config set (guard\.[a-z-]+) off`",
@@ -361,6 +368,14 @@ fn workspace_files(root: &Path) -> BTreeMap<String, String> {
                 if name.ends_with(".rules-held.json") {
                     text = own_hashes(root, &text);
                 }
+                if rel.contains("source-review")
+                    && name.starts_with("baseline-")
+                    && name.ends_with(".tsv")
+                {
+                    let (rel, text) = own_baseline(&rel, &name, &text);
+                    files.insert(rel, text);
+                    continue;
+                }
                 files.insert(rel, text);
             }
         }
@@ -368,6 +383,33 @@ fn workspace_files(root: &Path) -> BTreeMap<String, String> {
     let mut files = BTreeMap::new();
     walk(root, &root.join("focus"), &mut files);
     files
+}
+
+/// A source baseline's snapshot is kept under the hash of its bytes and
+/// lists the tree's source files with the hash of each: hashes that differ
+/// between the engines by construction, since a tree's files carry the
+/// engine's name. The recorder verified each engine's against its own tree
+/// and recorded the name as `baseline-<verified>.tsv` and a file's or a
+/// link's hash as `<own>`, the rows in an order that does not depend on the
+/// engine's name; the replay writes Focus's the same way.
+fn own_baseline(rel: &str, name: &str, text: &str) -> (String, String) {
+    let mut rows: Vec<String> = text
+        .split('\n')
+        .filter(|row| !row.is_empty())
+        .map(|row| {
+            replace_all(
+                row,
+                r"^([^\t\\]*\t[^\t\\]+\t(?:100644|100755|120000)\t)[0-9a-f]{64}$",
+                |found, row| format!("{}<own>", group(found, row, 1)),
+            )
+        })
+        .collect();
+    rows.sort_by_key(|row| replace_all(row, "[Ff][Oo][Cc][Uu][Ss]", |_, _| "\u{1}".to_owned()));
+    let rel = format!(
+        "{}baseline-<verified>.tsv",
+        rel.strip_suffix(name).unwrap_or_default()
+    );
+    (rel, rows.iter().map(|row| format!("{row}\n")).collect())
 }
 
 /// A rules record hashes the memory files as each engine ships them, which
