@@ -370,22 +370,25 @@ fn moved_folder_store_name(wf: &Workflow, name: &str) -> Option<String> {
 /// `codekbRepoName`: the one recorded repo; the project's own name with
 /// two or more; else the main checkout's name (a linked worktree) or the
 /// folder's, keeping a moved folder's store.
-#[must_use]
-pub fn codekb_repo_name(wf: &Workflow) -> String {
+///
+/// # Errors
+///
+/// The row's `repos` is not a list of names.
+pub fn codekb_repo_name(wf: &Workflow) -> Result<String> {
     let repos = intent_repos(
         &wf.layout,
         &wf.selection.space,
         wf.selection.intent.as_deref(),
-    );
+    )?;
     if repos.len() == 1 {
-        return repos[0].clone();
+        return Ok(repos[0].clone());
     }
     if repos.len() > 1 {
-        return basename(&wf.layout.project);
+        return Ok(basename(&wf.layout.project));
     }
     let name =
         main_checkout_repo_name(&wf.layout.project).unwrap_or_else(|| basename(&wf.layout.project));
-    moved_folder_store_name(wf, &name).unwrap_or(name)
+    Ok(moved_folder_store_name(wf, &name).unwrap_or(name))
 }
 
 /// `codekbDir`: the store of `repo` in the active space.
@@ -397,21 +400,21 @@ pub fn codekb_dir(wf: &Workflow, repo: &str) -> PathBuf {
         .join(repo)
 }
 
-fn codekb_repos(wf: &Workflow) -> Vec<String> {
+fn codekb_repos(wf: &Workflow) -> Result<Vec<String>> {
     let selected = intent_repos(
         &wf.layout,
         &wf.selection.space,
         wf.selection.intent.as_deref(),
-    );
+    )?;
     let mut repos: Vec<String> = if selected.is_empty() {
-        vec![codekb_repo_name(wf)]
+        vec![codekb_repo_name(wf)?]
     } else {
         selected
     };
     repos.retain(|repo| !repo.is_empty());
     repos.sort_by(|a, b| cmp_utf16(a, b));
     repos.dedup();
-    repos
+    Ok(repos)
 }
 
 // --- Where a stage writes -----------------------------------------------------
@@ -427,9 +430,9 @@ pub fn produces_dirs_for_stage(wf: &Workflow, stage: &Stage) -> Result<Vec<PathB
             &wf.layout,
             &wf.selection.space,
             wf.selection.intent.as_deref(),
-        );
+        )?;
         let resolved = if repos.is_empty() {
-            vec![codekb_repo_name(wf)]
+            vec![codekb_repo_name(wf)?]
         } else {
             repos
         };
@@ -626,18 +629,20 @@ fn dir_has_source_work(dir: &Path) -> bool {
 /// `workspaceHasWork`: the project, or one of the record's repositories,
 /// holds source work. Git is asked only in a folder with a real `.git`
 /// entry; any other folder gets the listing alone.
-#[must_use]
-pub fn workspace_has_work(wf: &Workflow) -> bool {
+///
+/// # Errors
+///
+/// The row's `repos` is not a list of names.
+pub fn workspace_has_work(wf: &Workflow) -> Result<bool> {
     if dir_has_source_work(&wf.layout.project) {
-        return true;
+        return Ok(true);
     }
-    intent_repos(
+    let repos = intent_repos(
         &wf.layout,
         &wf.selection.space,
         wf.selection.intent.as_deref(),
-    )
-    .iter()
-    .any(|repo| {
+    )?;
+    Ok(repos.iter().any(|repo| {
         if !is_valid_repo_name(repo) {
             return false;
         }
@@ -647,7 +652,7 @@ pub fn workspace_has_work(wf: &Workflow) -> bool {
         } else {
             workspace_has_source_file(&dir)
         }
-    })
+    }))
 }
 
 // --- Artifact instances -------------------------------------------------------
@@ -757,7 +762,7 @@ pub fn resolve_artifact_instances(
         unit_kind: kind,
     };
     if KNOWN_CODEKB_STAGES.contains(&owner.slug.as_str()) {
-        return Ok(codekb_repos(wf)
+        return Ok(codekb_repos(wf)?
             .iter()
             .map(|repo| instance(codekb_dir(wf, repo).join(&filename), None, None))
             .collect());
@@ -845,11 +850,33 @@ pub fn workspace_artifact_path(project: &Path, entry: &ReviewEntry) -> String {
 /// `reviewArtifactEntries(pd, stage)`: where each declared artifact of the
 /// stage, required or optional, is or would be. `None` when no record is
 /// selected.
-#[must_use]
+///
+/// # Errors
+///
+/// The row's `repos` is not a list of names, for a stage of the code
+/// knowledge base.
 pub fn review_artifact_entries(
     wf: &Workflow,
     stage: &Stage,
     state: Option<&str>,
+) -> Result<Option<Vec<ReviewEntry>>> {
+    let listed = if KNOWN_CODEKB_STAGES.contains(&stage.slug.as_str()) {
+        intent_repos(
+            &wf.layout,
+            &wf.selection.space,
+            wf.selection.intent.as_deref(),
+        )?
+    } else {
+        Vec::new()
+    };
+    Ok(review_entries(wf, stage, state, listed))
+}
+
+fn review_entries(
+    wf: &Workflow,
+    stage: &Stage,
+    state: Option<&str>,
+    listed: Vec<String>,
 ) -> Option<Vec<ReviewEntry>> {
     let kinds = stage::produces_kinds(stage);
     let artifacts_for_kind = |kind: Option<&str>| -> Vec<String> {
@@ -870,11 +897,7 @@ pub fn review_artifact_entries(
     };
     if KNOWN_CODEKB_STAGES.contains(&stage.slug.as_str()) {
         let root = wf.layout.space_dir(&wf.selection.space).join("codekb");
-        let mut repos = intent_repos(
-            &wf.layout,
-            &wf.selection.space,
-            wf.selection.intent.as_deref(),
-        );
+        let mut repos = listed;
         if repos.is_empty()
             && let Ok(entries) = std::fs::read_dir(&root)
         {

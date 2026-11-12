@@ -140,7 +140,10 @@ pub fn run(input: &str, layout: &Layout) -> Outcome {
         })
         .map(|checkbox| checkbox.slug)
         .collect();
-    let repos = intent_repos(layout, &selection.space, selection.intent.as_deref());
+    let repos = match intent_repos(layout, &selection.space, selection.intent.as_deref()) {
+        Ok(repos) => repos,
+        Err(err) => return refused(&err),
+    };
     let stages = match focus_graph::runtime::load_stages_all(&layout.stage_graph()) {
         Ok(stages) => stages,
         Err(err) => {
