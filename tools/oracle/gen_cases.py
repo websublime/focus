@@ -5244,5 +5244,100 @@ sw({**files2, "p/web/w.ts": "w\n"}, hexes=hexes2, repos=["api", "web"])
 files2, hexes2 = sw_repo(at="p")
 sw(files2, hexes=hexes2)
 
+# Edges the sweep over the repository reader found unguarded.
+SW_GIT = "p/vendor/lib/.git/"
+# A pointer file is a regular file of at most its size, whatever it would say otherwise.
+for name, content in [("HEAD", "ref: refs/heads/main\n"), ("config", SW_CONFIG), ("refs/heads/main", SW_C1 + "\n")]:
+    files, hexes = sw_repo()
+    del files[SW_GIT + name]
+    sw({**files, SW_GIT + name + ".real": content}, hexes=hexes, links=[(SW_GIT + name, name.rsplit("/", 1)[-1] + ".real")])
+sw_git(refs={}, packed=None, links=[(SW_GIT + "packed-refs", "packed.real")], more={SW_GIT + "packed.real": f"{SW_C1} refs/heads/main\n"})
+for length in [8192, 8193]:
+    name = "refs/heads/" + "x" * (length - len("ref: refs/heads/\n"))
+    sw_git(head=f"ref: {name}\n", refs={}, packed=f"{SW_C1} {name}\n")
+# An empty pointer points nowhere, not at the place it is read from; a line break inside one is not part of a name.
+sw_git(more={SW_GIT + "commondir": "\n"})
+sw_git(more={SW_GIT + "commondir": ""})
+files, hexes = sw_repo(git="here")
+sw({k.replace("/here/", "/"): v for k, v in files.items() if not k.endswith("/here/objects")} | {"p/vendor/lib/.git": "gitdir: \n", "p/vendor/lib/objects": None},
+   hexes={k.replace("/here/", "/"): v for k, v in hexes.items()})
+for odd in ["re\nal", "re\ral"]:
+    files, hexes = sw_repo(git=odd)
+    sw({**files, "p/vendor/lib/.git": f"gitdir: {odd}\n"}, hexes=hexes)
+# A shared directory, an object store and a borrowed store are directories, not links to one.
+files, hexes = sw_repo(refs={}, objects={}, config=None, more={SW_GIT + "commondir": "../clink\n", "p/vendor/lib/common/config": SW_CONFIG,
+                                                               "p/vendor/lib/common/refs/heads/main": SW_C1 + "\n", "p/vendor/lib/common/objects": None},
+                       more_hex={"p/vendor/lib/common/objects/1f/" + SW_C1[2:]: sw_object()})
+sw(files, hexes=hexes, links=[("p/vendor/lib/clink", "common")])
+files, hexes = sw_repo()
+del files[SW_GIT + "objects"]
+sw(files, hexes={SW_ALT: sw_object()}, links=[(SW_GIT + "objects", "../../alt/objects")])
+sw_git(more={SW_GIT + "objects/info/alternates/x": "a directory\n"})
+sw_git(more={SW_GIT + "objects/info/alternates": "#alt\n", SW_GIT + "objects/#alt": None})
+sw_git(objects={}, more={SW_GIT + "objects/info/alternates": "../../../alt/objects\n"}, more_hex={SW_ALT: sw_object()}, links=[])
+for line in ["./" * 2038 + "../../../alt/objects", "./" * 2037 + ".//" + "../../../alt/objects"]:
+    assert len(line) in (4096, 4097)
+    sw_git(objects={}, more={SW_GIT + "objects/info/alternates": line + "\n"}, more_hex={SW_ALT: sw_object()})
+# Sixty-four stores are read; a sixty-fifth is one too many.
+for stores in [63, 64]:
+    more = {f"p/vendor/alt{n}/objects": None for n in range(stores)}
+    more[SW_GIT + "objects/info/alternates"] = "".join(f"../../../alt{n}/objects\n" for n in range(stores))
+    sw_git(objects={}, more=more, more_hex={f"p/vendor/alt{stores - 1}/objects/1f/" + SW_C1[2:]: sw_object()})
+# The header of a loose object: its length, and what stands before and between its two parts.
+for header in [b"commit " + b"0" * 120 + b"7", b"commit " + b"0" * 121 + b"7", b"xcommit 7", b"commit7", b" commit 7"]:
+    sw_git(objects={SW_C1: zlib.compress(header + b"\x00tree x\n", 0).hex()})
+
+
+def sw_index_large(entries):
+    """A version-two index whose every offset is in the table of large ones."""
+    entries = sorted(entries)
+    table = b"".join((sum(1 for oid, _ in entries if int(oid[:2], 16) <= n)).to_bytes(4, "big") for n in range(256))
+    return (b"\xfftOc" + (2).to_bytes(4, "big") + table + b"".join(bytes.fromhex(oid) for oid, _ in entries) + b"\x00" * 4 * len(entries)
+            + b"".join((0x80000000 | n).to_bytes(4, "big") for n in range(len(entries)))
+            + b"".join(offset.to_bytes(8, "big") for _, offset in entries) + b"\x00" * 40).hex()
+
+
+SW_LOW = "00" * 20
+SW_ONE = lambda at: [(SW_C1, at[0])]
+sw_git(objects={}, more_hex=sw_packed([SW_COMMIT], SW_ONE, index=sw_index_large))
+sw_git(objects={}, more_hex=sw_packed([SW_COMMIT], SW_ONE, index=lambda e: sw_index(e, short=40)))
+sw_git(objects={}, more_hex={k.replace("pack-aa", "xpack-aa"): v for k, v in found.items()})
+for version in [1, 2]:
+    index = lambda e, version=version: sw_index(e, version=version)
+    good = sw_packed([SW_COMMIT], SW_ONE, index=index)
+    # An index that cannot be trusted ends the reading of its store, even with a good one after it.
+    for bad in [lambda e: sw_index(e, version=1, short=1), lambda e: sw_index(e, version=3), lambda e: sw_index(e, short=41)]:
+        sw_git(objects={}, more_hex={**sw_packed([SW_COMMIT], SW_ONE, name="pack-00", index=bad), **good})
+    # An index that does not have the object, below it or above it, leaves it to the next.
+    sw_git(objects={}, more_hex={**sw_packed([SW_BLOB], lambda at: [(SW_LOW, at[0])], name="pack-00", index=index), **good})
+    sw_git(objects={}, more_hex={**sw_packed([SW_BLOB], lambda at: [(SW_B1, at[0])], name="pack-00", index=index), **good})
+    sw_git(objects={}, more_hex={**sw_packed([SW_BLOB], lambda at: [(SW_LOW, at[0]), (SW_B1, at[0])], name="pack-00", index=index), **good})
+    # The index and the pack are files, not links to one.
+    for which in [".idx", ".pack"]:
+        moved = {k.replace("objects/pack/", "objects/kept/") if k.endswith(which) else k: v for k, v in good.items()}
+        sw_git(objects={}, more_hex=moved, links=[(SW_GIT + "objects/pack/pack-aa" + which, "../kept/pack-aa" + which)])
+    # An object is after the pack's twelve bytes and before its end, and so is the object a change is a change of.
+    sixteen = [b"x"] * 16
+    sw_git(objects={}, more_hex=sw_packed(sixteen, lambda at: [(SW_C1, 11)], index=index))
+    sw_git(objects={}, more_hex=sw_packed(sixteen + [bytes([0x61, 17])], lambda at: [(SW_C1, at[16])], index=index))
+    sw_git(objects={}, more_hex=sw_packed([SW_COMMIT], lambda at: [(SW_C1, at[0] + len(SW_COMMIT) + 20)], index=index))
+    sw_git(objects={}, more_hex=sw_packed([SW_COMMIT], lambda at: [(SW_C1, at[0] + len(SW_COMMIT) + 19)], index=index))
+    # A change of a change of a change: sixty-four deep at most.
+    for depth in [62, 63, 64, 65, 70]:
+        chain = [SW_COMMIT, bytes([0x61, 6])] + [bytes([0x61, 2])] * (depth - 1)
+        sw_git(objects={}, more_hex=sw_packed(chain, lambda at: [(SW_C1, at[-1])], index=index))
+# The config: a note inside a section; a section in capitals; the object format said twice.
+for config in ["[core]\n; note\n\trepositoryformatversion = 0\n", "[core]\n# note\n\trepositoryformatversion = 0\n", "[CORE]\n\trepositoryformatversion = 2\n",
+               "[Extensions]\n\tunknown = 1\n", "[core]\n\trepositoryformatversion = 1\n[extensions]\n\tobjectformat = sha256\n\tobjectformat = sha1\n",
+               "[core]\n\trepositoryformatversion = 1\n[extensions]\n\tobjectformat = sha1\n\tobjectformat = sha1\n"]:
+    sw_git(config=config)
+# In packed-refs a note is skipped, whatever it looks like.
+sw_git(refs={}, packed=f"#x refs/heads/main\n{SW_C1} refs/heads/main\n")
+sw_git(refs={}, packed=f"^x refs/heads/main\n{SW_C1} refs/heads/main\n")
+# A directory of a repository reached again by a link is walked for what the first visit could not list, and for
+# nothing else: its files and what the earlier walk recorded there are not taken twice.
+sw({**files, **inner, "p/vendor/lib/sub/y.c": "y\n", "p/vendor/lib/sub/__pycache__/y.pyc": "c\n", "p/vendor/lib/sub/.DS_Store": "d\n"},
+   hexes={**hexes, **inner_hex}, links=[("p/zlink", "vendor/lib/sub")])
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")
