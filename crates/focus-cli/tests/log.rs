@@ -112,10 +112,9 @@ fn the_verbs_that_are_not_ported_are_refused_by_name() {
 
 /// Deliberate deviation. A question the engine pairs with a record of its
 /// own (a summary confirmation, Construction's checkpoints, Plan Approval),
-/// a question about one unit of work, a batch of Plan Approval questions,
-/// and the message that already answered a question: upstream records each
-/// with what it needs; Focus refuses each by name until the slice that
-/// brings it, and records nothing.
+/// a question about one unit of work and a batch of Plan Approval
+/// questions: upstream records each with what it needs; Focus refuses each
+/// by name until the slice that brings it, and records nothing.
 #[test]
 fn the_questions_that_are_not_ported_are_refused_by_name() {
     let root = project("questions");
@@ -143,10 +142,6 @@ fn the_questions_that_are_not_ported_are_refused_by_name() {
         (
             vec!["--batch-file", "b.json"],
             "--batch-file records the Plan Approval questions of several units of work at once, and Focus does not run Plan Approval yet.",
-        ),
-        (
-            vec!["--message", "m-1"],
-            "--message names the message of the person that answered a question logged after it, and Focus does not read the message store here yet.",
         ),
         (
             vec!["--options", "Looks correct,Request changes"],

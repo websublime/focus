@@ -62,7 +62,9 @@ pub struct Message {
     pub applied: Vec<String>,
 }
 
-fn is_message_id(id: &str) -> bool {
+/// `isMessageId`: eight lowercase hex characters.
+#[must_use]
+pub fn is_message_id(id: &str) -> bool {
     id.len() == 8
         && id
             .bytes()
@@ -207,6 +209,109 @@ fn record_at(layout: &Layout, id: &str) -> Option<SystemTime> {
     let at = record.get("at").and_then(Value::as_str)?;
     let millis = parse_instant(at)?;
     Some(SystemTime::UNIX_EPOCH + Duration::from_millis(u64::try_from(millis).ok()?))
+}
+
+/// A message read back: what a reader of the store acts on. The store
+/// proves that a person said this in this chat; which question it answers
+/// is never written in it.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Stored {
+    pub id: String,
+    /// The chat the message came through; `None` for the terminal.
+    pub session: Option<String>,
+    pub at: String,
+    pub text: String,
+    /// The person's own words, or `None` for a command with none.
+    pub words: Option<String>,
+}
+
+fn is_text_list(value: Option<&Value>) -> bool {
+    value
+        .and_then(Value::as_array)
+        .is_some_and(|list| list.iter().all(Value::is_string))
+}
+
+fn is_null_or_text(value: Option<&Value>) -> bool {
+    matches!(value, Some(Value::Null | Value::String(_)))
+}
+
+/// `parseMessage`: a record is one of ours when every field is there with
+/// the kind the writer gives it.
+fn parse_stored(id: &str, raw: &Value) -> Option<Stored> {
+    let message = raw.as_object()?;
+    let text_of = |key: &str| message.get(key).and_then(Value::as_str);
+    let pairs = |value: Option<&Value>, first: &str, second: &str| {
+        value.and_then(Value::as_array).is_some_and(|list| {
+            list.iter().all(|entry| {
+                entry.is_object() && entry[first].is_string() && entry[second].is_string()
+            })
+        })
+    };
+    let picker = match message.get("picker") {
+        Some(Value::Null) => true,
+        Some(Value::Array(entries)) => entries.iter().all(|entry| {
+            entry.is_object()
+                && entry["question"].is_string()
+                && is_null_or_text(entry.get("reply"))
+        }),
+        _ => false,
+    };
+    let route = message.get("route")?.as_object()?;
+    let project_type = match route.get("projectType") {
+        Some(Value::Null) => true,
+        Some(Value::String(kind)) => kind == "greenfield" || kind == "brownfield",
+        _ => false,
+    };
+    let ours = text_of("id") == Some(id)
+        && is_null_or_text(message.get("session"))
+        && text_of("at").is_some_and(|at| parse_instant(at).is_some())
+        && matches!(text_of("source"), Some("prompt" | "picker" | "terminal"))
+        && text_of("text").is_some()
+        && picker
+        && is_null_or_text(message.get("words"))
+        && pairs(message.get("settings"), "key", "value")
+        && is_null_or_text(route.get("scope"))
+        && route.get("newIntent").is_some_and(Value::is_boolean)
+        && is_text_list(route.get("skip"))
+        && is_text_list(route.get("add"))
+        && project_type
+        && is_text_list(message.get("applied"))
+        && matches!(message.get("cut"), None | Some(Value::Bool(true)));
+    ours.then(|| Stored {
+        id: id.to_owned(),
+        session: text_of("session").map(str::to_owned),
+        at: text_of("at").unwrap_or_default().to_owned(),
+        text: text_of("text").unwrap_or_default().to_owned(),
+        words: text_of("words").map(str::to_owned),
+    })
+}
+
+/// `readMessage`: the message behind `id`; `None` when it is missing,
+/// redirected, unreadable, or not a record of ours.
+#[must_use]
+pub fn read_message(layout: &Layout, id: &str) -> Option<Stored> {
+    if !is_message_id(id) {
+        return None;
+    }
+    let path = target(layout, &messages_rel(Some(id))).ok()?;
+    let bytes = focus_workspace::files::read_regular(&path, "message").ok()?;
+    if bytes.len() > MESSAGE_MAX_BYTES {
+        return None;
+    }
+    let text = String::from_utf8(bytes).ok()?;
+    parse_stored(id, &json::parse(&text).ok()?)
+}
+
+/// `listMessages`: every readable record of the project, oldest first
+/// (ties by id).
+#[must_use]
+pub fn list_messages(layout: &Layout) -> Vec<Stored> {
+    let mut messages: Vec<Stored> = record_ids(layout)
+        .iter()
+        .filter_map(|id| read_message(layout, id))
+        .collect();
+    messages.sort_by(|a, b| focus_js::order::cmp_utf16(&a.at, &b.at).then_with(|| a.id.cmp(&b.id)));
+    messages
 }
 
 fn remove_record(layout: &Layout, id: &str) {

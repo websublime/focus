@@ -2347,9 +2347,6 @@ DEVIATIONS.update({
         "a question about one unit of work, and the Plan Approval questions of several at once: upstream records "
         "the unit with its claim (or refuses the batch on its own shape); focus refuses both flags by name, since "
         "it runs no units yet",
-    "log/decision/message_not_ported":
-        "a question logged after the person already replied names the message that answered it: upstream proves "
-        "the message against its store; focus refuses the flag by name until it reads the store here",
     "log/decision/summary_options_owed_not_ported":
         "a plain question offering the summary's two choices, for a stage that owes a summary confirmation: "
         "upstream refuses it with the two commands that record a summary; those are slice 2c, and focus refuses "
@@ -4554,7 +4551,60 @@ def log_checks():
     check_("decision/unit_not_ported", created(), [ask + ["--unit", "api"]])
     check_("decision/unit_empty", created(), [ask + ["--unit", ""]])
     check_("decision/batch_file_not_ported", created(), [ask + ["--batch-file", "b.json"]])
-    check_("decision/message_not_ported", created(), [ask + ["--message", "m-1"]])
+
+    # A question logged after the person already replied names the message that answered it. The engine proves
+    # the message: it is a record of the store, it carries their words, no later decision spent it, and it came
+    # through the chat this command serves (or the only chat that has spoken, when the engine cannot tell).
+    def sent(ident, at=T(5), session="s1", words="use postgres", **more):
+        record = {"session": session, "at": at, "source": "prompt", "text": words or "/aidlc", "picker": None, "words": words, "settings": [],
+                  "route": {"scope": None, "newIntent": False, "skip": [], "add": [], "projectType": None}, "applied": [], "id": ident, **more}
+        return {f"aidlc/.aidlc-sessions/messages/{ident}.json": json.dumps(record) + "\n"}
+    named = lambda ident: ask + ["--message", ident]
+    turn = lambda ident, mark=None, minute=5: block("HUMAN_TURN", T(minute), "**Session**: s1", f"**Message Id**: {ident}", *([f"**Reply**: {mark}"] if mark else []))
+    check_("decision/message", created(**sent("0000aaaa")), [named("0000aaaa"), ["decision", "--stage", "intent-capture", "--decision", "And the cache?", "--message", "0000aaaa"]])
+    check_("decision/message_absent", created(**sent("0000aaaa")), [named("0000bbbb"), named("m-1"), named(""), named("0000AAAA"), named("0000aaaa.json"), named("../0000aaaa")])
+    check_("decision/message_terminal", created(**sent("0000aaaa", session=None)), [named("0000aaaa")])
+    check_("decision/message_with_turn", created(audit=CREATED_AUDIT + turn("0000aaaa"), **sent("0000aaaa")), [named("0000aaaa")])
+    check_("decision/message_no_words", created(**sent("0000aaaa", words=None)), [named("0000aaaa")])
+    check_("decision/message_empty_words", created(**sent("0000aaaa", words="")), [named("0000aaaa")])
+    for mark in ("command", "question", "words"):
+        check_(f"decision/message_turn_marked_{mark}", created(audit=CREATED_AUDIT + turn("0000aaaa", mark), **sent("0000aaaa")), [named("0000aaaa")])
+    check_("decision/message_turn_of_another", created(audit=CREATED_AUDIT + turn("0000bbbb", "command"), **sent("0000aaaa")), [named("0000aaaa")])
+    # Spent by a later decision of another kind than an answer; a tie favours the message; an answer spends nothing.
+    spent = lambda event, minute, second=0: CREATED_AUDIT + block(event, T(minute, second), "**Stage**: intent-capture")
+    for event in ("GATE_APPROVED", "GATE_REJECTED", "PLAN_APPROVAL_RECORDED", "SUMMARY_CONFIRMATION_RECORDED", "VERIFICATION_COMMAND_RECORDED",
+                  "CONSTRUCTION_POLICY_RECORDED", "QUESTION_UNANSWERED", "REQUEST_ROUTED"):
+        check_(f"decision/message_spent_by_{event.lower()}", created(audit=spent(event, 6), **sent("0000aaaa")), [named("0000aaaa")])
+    check_("decision/message_same_second", created(audit=spent("GATE_APPROVED", 5), **sent("0000aaaa")), [named("0000aaaa")])
+    check_("decision/message_after_spending", created(audit=spent("GATE_APPROVED", 4, 59), **sent("0000aaaa")), [named("0000aaaa")])
+    check_("decision/message_not_spent_by_answers", created(audit=spent("QUESTION_ANSWERED", 6) + block("DECISION_RECORDED", T(7), "**Stage**: intent-capture", "**Decision**: x"),
+                                                            **sent("0000aaaa")), [named("0000aaaa")])
+    check_("decision/message_spent_latest_of_two", created(audit=spent("GATE_APPROVED", 6) + block("GATE_REJECTED", T(4), "**Stage**: intent-capture"), **sent("0000aaaa")),
+           [named("0000aaaa")])
+    # The chat: the one the command serves, another, and none the engine can tell.
+    mine = {**my_pid_entry("s1"), "aidlc/.aidlc-sessions/s1.binding.json": '{"space":"default","intent":"260105-add-login","boundAt":"2026-01-05T10:00:00Z","source":"create"}'}
+    check_("decision/message_this_chat", created(**sent("0000aaaa"), **sent("0000bbbb", session="s2"), **mine), [named("0000aaaa")])
+    check_("decision/message_another_chat", created(**sent("0000aaaa"), **sent("0000bbbb", session="s2"), **mine), [named("0000bbbb")])
+    check_("decision/message_terminal_not_this_chat", created(**sent("0000aaaa", session=None), **mine), [named("0000aaaa")])
+    UNRECORDED.update(f"log/decision/message_{case}" for case in ("this_chat", "another_chat", "terminal_not_this_chat"))
+    check_("decision/message_two_chats", created(**sent("0000aaaa"), **sent("0000bbbb", session="s2")), [named("0000aaaa")])
+    check_("decision/message_two_chats_one_terminal", created(**sent("0000aaaa"), **sent("0000bbbb", session=None)), [named("0000aaaa")])
+    check_("decision/message_two_chats_one_spent", created(audit=spent("GATE_APPROVED", 4), **sent("0000aaaa"), **sent("0000bbbb", session="s2", at=T(3))), [named("0000aaaa"), named("0000bbbb")])
+    check_("decision/message_other_chat_spoke_since", created(audit=spent("GATE_APPROVED", 4), **sent("0000aaaa", at=T(4)), **sent("0000bbbb", session="s2", at=T(3))), [named("0000aaaa")])
+    check_("decision/message_same_chat_twice", created(**sent("0000aaaa"), **sent("0000bbbb", at=T(6))), [named("0000aaaa"), named("0000bbbb")])
+    # A record that is not one of the store's stands for nothing.
+    for label, more in (("other_id", {"id": "0000bbbb"}), ("bad_at", {"at": "yesterday"}), ("bad_source", {"source": "voice"}), ("cut_false", {"cut": False}), ("cut", {"cut": True}),
+                        ("picker", {"picker": [{"question": "q", "reply": None}, {"question": "q", "reply": "r"}]}), ("bad_picker", {"picker": [{"question": "q"}]}),
+                        ("bad_settings", {"settings": [{"key": "k"}]}), ("settings", {"settings": [{"key": "k", "value": "v"}]}), ("bad_route", {"route": None}),
+                        ("bad_project_type", {"route": {"scope": None, "newIntent": False, "skip": [], "add": [], "projectType": "mixed"}}),
+                        ("project_type", {"route": {"scope": "feature", "newIntent": True, "skip": ["a"], "add": ["b"], "projectType": "brownfield"}}),
+                        ("bad_skip", {"route": {"scope": None, "newIntent": False, "skip": [1], "add": [], "projectType": None}}), ("bad_applied", {"applied": "x"}),
+                        ("bad_text", {"text": 7}), ("bad_session", {"session": 7}), ("bad_words", {"words": 7})):
+        check_(f"decision/message_record_{label}", created(**sent("0000aaaa", **more)), [named("0000aaaa")])
+    check_("decision/message_record_not_json", created(**{"aidlc/.aidlc-sessions/messages/0000aaaa.json": "{nope"}), [named("0000aaaa")])
+    check_("decision/message_record_a_list", created(**{"aidlc/.aidlc-sessions/messages/0000aaaa.json": "[]\n"}), [named("0000aaaa")])
+    check_("decision/message_record_linked", created(**{"elsewhere/0000aaaa.json": list(sent("0000aaaa").values())[0]}), [named("0000aaaa")],
+           edits=(lambda tree: (os.makedirs(tree.path("aidlc/.aidlc-sessions")), os.symlink(tree.path("elsewhere"), tree.path("aidlc/.aidlc-sessions/messages"))),))
 
     # A question that offers the summary's two choices: an ordinary one where no summary is owed, refused where it is.
     summary = ["decision", "--stage", "intent-capture", "--decision", "Does this look right?", "--options", "Looks correct, Request changes."]
