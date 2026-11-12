@@ -57,6 +57,9 @@ PHRASES = (
     ("AI-DLC answers with one line", "Focus answers with one line"),
     ("It is from AI-DLC, not the person", "It is from Focus, not the person"),
     ("When AI-DLC carries on by itself", "When Focus carries on by itself"),
+    # The engine speaking of itself where it refuses to record an interaction.
+    ("The single quotes reached AI-DLC as part of the words", "The single quotes reached Focus as part of the words"),
+    ("AI-DLC's carrying-on line is not their answer", "Focus's carrying-on line is not their answer"),
     # The status as the engine heads it.
     ("AI-DLC Workflow Status", "Focus Workflow Status"),
     ("No active AI-DLC workflow found.", "No active Focus workflow found."),
