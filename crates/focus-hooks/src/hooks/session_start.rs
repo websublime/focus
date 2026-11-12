@@ -474,7 +474,8 @@ pub fn run(input: &str, layout: &Layout) -> Outcome {
             record_drop(layout, &selection, HOOK, &err.to_string());
         }
         // The commit-provenance anchor sweep: an opt-in walk over recent
-        // commits that writes SOURCE_COMMITTED rows (the attestation, M5).
+        // commits that writes SOURCE_COMMITTED rows. That is upstream's
+        // `attest`, which is deferred, not a milestone's.
         if focus_workspace::env::is_on("SESSION_ANCHOR") {
             return refused(&EngineError::new(format!(
                 "{}=1 asks the session start to anchor recent commits in the audit trail, which reads the attestation's receipts: Focus does not run the anchor sweep yet. Unset it.",
