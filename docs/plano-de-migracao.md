@@ -1922,6 +1922,8 @@ A fatia 1d recusou a linha onde os repositórios são andados como fonte e deixo
 | --- | --- |
 | Diferencial | 12 checks novos. Iguais, 4: o backstop sob `strict` sem e com repositórios membros (não havia nenhum check que lá chegasse: com a política `off` o backstop não corre), e um nome vazio nos dois leitores. Desvios declarados, 8: as quatro formas no code knowledge base e no gate |
 | Testes | O teste marcado de `registry` (as oito formas recusadas pelos dois leitores, o nome vazio só pelo do passeio, `null` e a falta do campo como nenhum); um teste de CLI marcado: um salto recusa a linha e não move nada |
+| Diferencial, tudo | 4 268 checks com `--fuzz 600`: 4 060 iguais, 208 desvios declarados, nenhum diferente; a gravação (3 008 checks sobre 933 árvores) repete-se igual |
+| `cargo test` | 567 testes |
 | Mutação | 9 mutantes: 7 apanhados (6 pelo teste de `registry`; o leitor do passeio trocado pelo outro só depois do teste de CLI, que o diferencial não vê por ser um desvio) e 2 que levaram a código mais simples ou a uma nota: a saída antecipada do backstop com o ledger vazio era redundante e saiu; ler a lista só para uma stage do code knowledge base é onde o original a lê, e o único chamador já leu a mesma linha |
 
 ### Correção: o pai de um processo, sem `ps`
