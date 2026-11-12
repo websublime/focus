@@ -82,6 +82,17 @@ fn project(name: &str) -> Project {
 }
 
 fn hook(root: &Path, args: &[&str], stdin: &str, env: &[(&str, &str)]) -> Output {
+    hook_under(root, "claude", args, stdin, env)
+}
+
+/// A hook run for the harness named.
+fn hook_under(
+    root: &Path,
+    harness: &str,
+    args: &[&str],
+    stdin: &str,
+    env: &[(&str, &str)],
+) -> Output {
     let mut command = Command::new(env!("CARGO_BIN_EXE_focus"));
     command
         .args(["engine", "hook"])
@@ -90,7 +101,7 @@ fn hook(root: &Path, args: &[&str], stdin: &str, env: &[(&str, &str)]) -> Output
             "--project-dir",
             root.to_str().unwrap(),
             "--harness",
-            "claude",
+            harness,
         ])
         .current_dir(root)
         .stdin(Stdio::piped())
@@ -189,15 +200,15 @@ fn a_name_that_is_not_a_hook_name_is_refused_before_looking() {
 fn a_hook_not_ported_is_refused_by_name() {
     let root = project("not-ported");
     assert_eq!(
-        refusal(&hook(&root, &["guard-tool-call"], &payload(""), &[])),
-        "focus engine hook guard-tool-call: runs the PreToolUse guards in one process, and Focus does not run that hook yet.\n"
+        refusal(&hook(&root, &["deliver-stage-rules"], &payload(""), &[])),
+        "focus engine hook deliver-stage-rules: hands a subagent its stage's rules, and Focus does not run that hook yet.\n"
     );
     assert_eq!(
         refusal(&hook(&root, &["continue-workflow"], &payload(""), &[])),
         "focus engine hook continue-workflow: decides whether a turn may end, and Focus does not run that hook yet.\n"
     );
     assert_eq!(shard(&root), "# Focus Audit Log\n");
-    assert!(heartbeat(&root, "guard-tool-call.last").is_none());
+    assert!(heartbeat(&root, "continue-workflow.last").is_none());
 }
 
 #[test]
@@ -3553,4 +3564,134 @@ fn the_adapters_shell_is_read_under_focuss_name() {
         &written("aidlc_shell"),
         &[],
     ));
+}
+
+fn group(root: &Path, stdin: &str, env: &[(&str, &str)]) -> Output {
+    hook(root, &["guard-tool-call"], stdin, env)
+}
+
+#[test]
+fn one_registration_runs_the_checks_before_a_tool_call() {
+    let root = building("group");
+    let source = call("Write", "\"file_path\":\"src/app.ts\"");
+    let waits = format!(
+        "Code generation cannot start because its Plan Approval authority is ambiguous or stale. {NO_STEP}\n"
+    );
+    // A write reaches the Plan Approval guard, and its refusal is the
+    // group's, as a deny decision.
+    assert_eq!(denied(&group(&root, &source, &[])), waits);
+    assert!(heartbeat(&root, "plan-approval-guard.last").is_some());
+
+    // A direct transition by shell is refused by two of them: each refusal
+    // is said, once, in the order the checks run.
+    let said = denied(&group(
+        &root,
+        &call(
+            "Bash",
+            "\"command\":\"focus engine state approve code-generation\"",
+        ),
+        &[],
+    ));
+    assert!(
+        said.starts_with("Stage status cannot be changed with `focus engine state approve`"),
+        "{said}"
+    );
+    assert!(said.ends_with(&waits), "{said}");
+    assert_eq!(said.matches("Stage status cannot be changed").count(), 1);
+
+    // The same refusal from every check is said once.
+    let audit = call(
+        "Write",
+        &format!("\"file_path\":\"{RECORD}/audit/laptop-abc123.md\""),
+    );
+    let said = denied(&group(&root, &audit, &[]));
+    assert_eq!(
+        said,
+        denied(&hook(&root, &["plan-approval-guard"], &audit, &[]))
+    );
+
+    // A read reaches the three checks that read and not the plan's; a tool
+    // no row matched reaches none, where the plan's check on its own would
+    // refuse it.
+    let rows = shard(&root);
+    quiet(&group(
+        &root,
+        &call("Read", "\"file_path\":\"src/app.ts\""),
+        &[],
+    ));
+    let unmatched = call("TodoWrite", "\"todos\":[]");
+    quiet(&group(&root, &unmatched, &[]));
+    assert_eq!(shard(&root), rows);
+    denied(&guard(&root, &unmatched, &[]));
+
+    // A dispatch reaches the plan's check alone.
+    assert_eq!(
+        denied(&group(
+            &root,
+            &call(
+                "Task",
+                "\"subagent_type\":\"focus-developer-agent\",\"prompt\":\"Build it\"",
+            ),
+            &[],
+        )),
+        waits
+    );
+}
+
+#[test]
+fn a_member_that_fails_on_its_own_refuses_nothing() {
+    let root = building("group-fails");
+    write(&root, "focus.settings.local.json", "{\"flags\": {}}\n");
+    let source = call("Write", "\"file_path\":\"src/app.ts\"");
+    // Each member that reads the settings fails with the same line: the
+    // group says it once and exits as they did, refusing nothing.
+    let said = refusal(&group(&root, &source, &[]));
+    assert_eq!(
+        said,
+        refusal(&hook(&root, &["plan-approval-guard"], &source, &[]))
+    );
+    assert_eq!(said.matches("settings.schemaVersion must be 1").count(), 1);
+}
+
+#[test]
+fn a_refusal_is_a_deny_decision_only_before_a_tool_call() {
+    let root = building("deny-event");
+    let waits = format!(
+        "Code generation cannot start because its Plan Approval authority is ambiguous or stale. {NO_STEP}\n"
+    );
+    for name in ["guard-tool-call", "plan-approval-guard"] {
+        // A payload of another event, or one that names none, is refused
+        // on stderr and with the exit code alone.
+        for event in ["", "\"hook_event_name\":\"PostToolUse\","] {
+            let output = hook(
+                &root,
+                &[name],
+                &payload(&format!(
+                    "{event}\"tool_name\":\"Write\",\"tool_input\":{{\"file_path\":\"src/app.ts\"}}"
+                )),
+                &[],
+            );
+            assert_eq!(output.status.code(), Some(2), "{name} {event}");
+            assert!(output.stdout.is_empty(), "{}", text(&output.stdout));
+            assert_eq!(text(&output.stderr), waits);
+        }
+        // The decision is Claude Code's: another harness reads the refusal
+        // off stderr, through its adapter.
+        let output = hook_under(
+            &root,
+            "cursor",
+            &[name],
+            &call("Write", "\"file_path\":\"src/app.ts\""),
+            &[],
+        );
+        assert_eq!(output.status.code(), Some(2), "{name}");
+        assert!(output.stdout.is_empty(), "{}", text(&output.stdout));
+        // (No such harness is installed here, so the refusal is the one of
+        // an evaluation that failed closed.)
+        assert!(
+            text(&output.stderr).starts_with("Code generation cannot start because"),
+            "{}",
+            text(&output.stderr)
+        );
+    }
 }

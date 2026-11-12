@@ -124,6 +124,13 @@ DEVIATIONS = {
 
 # Differences of shape that are settled before comparing, and counted.
 SHAPES = {
+    "group-thrown":
+        "a member of a hook group that fails on its own (it throws: refused settings, say) refuses nothing, and "
+        "the group carries what it said. Upstream's member says the runtime's stack trace, whose frames differ "
+        "from member to member, so the same sentence is carried once per failing member; focus's member says the "
+        "sentence as every command does (`focus: sentence`), the same line from each, and the group carries it "
+        "once. Each of upstream's traces is read as that one line and repeats are dropped before comparing; the "
+        "exit, the sentence and the files are compared",
     "gate-words-offset":
         "the gate-words record indexes the audit shard by byte offset, and upstream's shard header is one byte "
         "longer than focus's (\"# AI-DLC Audit Log\" is the one phrase of the name map whose length changes), so "
@@ -1362,6 +1369,21 @@ def uncaught(stderr):
     return found.group(1)
 
 
+def group_thrown(stderr):
+    """A hook group's stderr with each member's stack trace read as the line a command says, once; and whether
+    there was one (SHAPES: group-thrown)."""
+    lines, seen = [], False
+    for found in re.finditer(r"^(?:Error: ([^\n]*)\n(?:    at [^\n]*\n)+|[^\n]*\n?)", stderr, flags=re.M):
+        if found.group(1) is not None:
+            seen = True
+            line = f"aidlc: {found.group(1)}\n"
+            if line not in lines:
+                lines.append(line)
+        elif found.group(0):
+            lines.append(found.group(0))
+    return ("".join(lines), True) if seen else (stderr, False)
+
+
 def workspace_files(tree, top="aidlc"):
     """Every file under `top` (the workspace), by path under Focus's names. A link is listed, not read."""
     say = (lambda text: text) if tree.mapped else to_focus
@@ -1715,7 +1737,7 @@ def verify_validation_bases(tree, engine, rel, text):
 def compare_audit(name, trees, steps, env, tool="audit"):
     ts, rs = trees
     outcome, shaped, shaped_source, shaped_ask, shaped_basis = {}, False, False, False, False
-    shaped_offsets = False
+    shaped_offsets = shaped_thrown = False
     started_from = None
     if RECORD and not has_links(ts.root) and name not in UNRECORDED and not name.startswith("fuzz/"):
         # An audit check starts from nothing but its files; a runtime check from an installed project.
@@ -1728,6 +1750,9 @@ def compare_audit(name, trees, steps, env, tool="audit"):
             # A step that names its own tool (`@state advance …`) runs that one.
             named = bool(args) and args[0].startswith("@")
             code, out, err = run_audit(engine, tree, args[1:] if named else args, env, args[0][1:] if named else tool)
+            if engine == "ts" and tool == "hook" and args[:1] == ["guard-tool-call"] and code == 1:
+                err, thrown = group_thrown(err)
+                shaped_thrown |= thrown
             if engine == "ts" and code != 0:
                 sentence = uncaught(err)
                 if sentence is not None:
@@ -1807,6 +1832,9 @@ def compare_audit(name, trees, steps, env, tool="audit"):
         if shaped_budget:
             shapes["process-map-budget"] += 1
             detail += "  (a process-map slot missed its budget)"
+        if shaped_thrown:
+            shapes["group-thrown"] += 1
+            detail += "  (a member's stack trace read as its sentence)"
         if shaped_offsets:
             shapes["gate-words-offset"] += 1
             detail += "  (shard offsets read one byte back)"
@@ -3878,11 +3906,61 @@ def hook_checks():
     check_("review-freeze/review_rows_powershell", reviewed, [["review-freeze", payload(hook_event_name="PreToolUse", tool_name="Bash", tool_input={"command": "Set-Content -Path " + doc.replace("/", "\\") + " -Value x"}, aidlc_shell="powershell")]])
     check_("review-freeze/powershell_other_target", reviewed, [["review-freeze", payload(hook_event_name="PreToolUse", tool_name="Bash", tool_input={"command": "Set-Content -Path notes.md -Value x"}, aidlc_shell="powershell")]])
 
+    # guard-tool-call: one registration that runs the four checks before a tool call in one process, each for the
+    # tools its own row matched.
+    group = lambda tool="Write", more=None, **input: ["guard-tool-call", payload(hook_event_name="PreToolUse", tool_name=tool, tool_input={k: (v.replace("{D}", "{P}/" + CREATED_DIR) if isinstance(v, str) else v) for k, v in input.items()}, **(more or {}))]
+    transition = "bun .claude/tools/aidlc-state.ts approve code-generation"
+    check_("guard-tool-call/quiet", building, [group("Read", file_path="{P}/src/app.ts"), group("Glob", pattern="src/*"), group("LS", path="{P}"), group("Bash", command="ls -la")])
+    check_("guard-tool-call/plan_refuses", building, [group(file_path="{P}/src/app.ts"), group("Bash", command="echo x > src/a.ts"), group("Task", subagent_type=DEVELOPER, prompt="Build it")])
+    check_("guard-tool-call/plan_passes", building, [group(file_path="{P}/../outside.md"), group(file_path="{D}/construction/code-generation/memory.md"), group("Task", subagent_type="aidlc-product-agent")])
+    check_("guard-tool-call/two_refuse", building, [group("Bash", command=transition)])
+    check_("guard-tool-call/same_refusal_once", building, [group("Bash", command="echo x >> {D}/audit/laptop-abc123.md"), group(file_path="{D}/audit/laptop-abc123.md")])
+    check_("guard-tool-call/transition_refuses", strict, [group("Bash", command="bun .claude/tools/aidlc-state.ts approve intent-capture"), group("Read", file_path="{P}/src/app.ts")])
+    check_("guard-tool-call/reviewer_refuses", {**created(construction.replace("- **Guard Policy**: off (from scope feature)", "- **Guard Policy**: strict (set by a command)")), **binding(), **dispatch()}, [group("Read", file_path="{D}/construction/U02/nfr-design/security-design.md", more={"agent_type": REVIEWER}),
+                                                       group("Read", file_path="{D}/construction/U01/nfr-design/security-design.md", more={"agent_type": REVIEWER})])
+    check_("guard-tool-call/review_rows", reviewed, [group(file_path=doc)])
+    check_("guard-tool-call/unmatched_tool", building, [group("TodoWrite", todos=[]), group("WebFetch", url="x"), group("mcp__x__write", path="{P}/src/a.ts"), group("write", file_path="{P}/src/app.ts"),
+                                                      group("Write ", file_path="{P}/src/app.ts"), group("Bash\n", command="rm -rf src")])
+    check_("guard-tool-call/dispatch_reaches_the_plan_only", strict, [group("Task", subagent_type=DEVELOPER, prompt="AIDLC-UNIT: auth"), group("Agent", subagent_type=DEVELOPER, prompt="Build it")])
+    check_("guard-tool-call/read_skips_the_plan", {**building, f"{engine}/active-directive.json": '{"version": 2, "stage": "code-generation"}'}, [group("NotebookRead", notebook_path="{P}/n.ipynb")],
+           {"DISABLE_REVIEWER_SCOPE_HOOK": "1", "DISABLE_REVIEW_FREEZE_HOOK": "1"})
+    check_("guard-tool-call/no_tool_name", building, [["guard-tool-call", payload(hook_event_name="PreToolUse")], ["guard-tool-call", payload(hook_event_name="PreToolUse", tool_input={"file_path": "{P}/src/app.ts"})]])
+    check_("guard-tool-call/tool_name_not_text", building, [["guard-tool-call", payload(hook_event_name="PreToolUse", tool_name=3, tool_input={"file_path": "{P}/src/app.ts"})],
+                                                          ["guard-tool-call", payload(hook_event_name="PreToolUse", tool_name=None)]])
+    check_("guard-tool-call/malformed", building, [["guard-tool-call", "{nope"], ["guard-tool-call", ""], ["guard-tool-call", "[1]"], ["guard-tool-call", "null"], ["guard-tool-call", '"Write"']])
+    check_("guard-tool-call/stood_aside_and_refused", {**created(lowered_state), **binding()}, [group("Bash", command=transition), group(file_path="{P}/src/app.ts")])
+    check_("guard-tool-call/stood_aside", joined, [group("Bash", command="bun .claude/tools/aidlc-state.ts approve intent-capture")])
+    check_("guard-tool-call/settings_refused", {**building, "aidlc.settings.local.json": '{"flags": {}}\n'}, [group(file_path="{P}/src/app.ts"), group("Read", file_path="{P}/src/app.ts")])
+    check_("guard-tool-call/off_switch", building, [group(file_path="{P}/src/app.ts"), group("Bash", command=transition)], off)
+    check_("guard-tool-call/every_switch_off", building, [group("Bash", command=transition), group(file_path="{P}/src/app.ts")],
+           {**off, "ALLOW_DIRECT_STATE_TRANSITIONS": "1", "DISABLE_REVIEWER_SCOPE_HOOK": "1", "DISABLE_REVIEW_FREEZE_HOOK": "1"})
+    check_("guard-tool-call/outsider", {**building, "aidlc/spaces/default/intents/active-intent": None, **binding("other-9f8e7d6c")}, [group(file_path="{P}/src/app.ts"), group("Bash", command=transition), group("Task", subagent_type=DEVELOPER)])
+    check_("guard-tool-call/cold", CLONE, [group(file_path="{P}/src/app.ts"), group("Bash", command=transition)])
+    check_("guard-tool-call/no_event", building, [["guard-tool-call", payload(tool_name="Write", tool_input={"file_path": "{P}/src/app.ts"})], ["plan-approval-guard", payload(tool_name="Write", tool_input={"file_path": "{P}/src/app.ts"})]])
+    check_("guard-tool-call/other_event", building, [["guard-tool-call", payload(hook_event_name="PostToolUse", tool_name="Write", tool_input={"file_path": "{P}/src/app.ts"})],
+                                                   ["plan-approval-guard", payload(hook_event_name="PostToolUse", tool_name="Write", tool_input={"file_path": "{P}/src/app.ts"})]])
+    check_("guard-tool-call/directive_marker", {**building, f"{engine}/active-directive.json": '{"version": 2, "stage": "code-generation"}'}, [group(file_path="{P}/src/app.ts")])
+    # The edges a mutation sweep asked for.
+    strict_reviewing = {**created(construction.replace("- **Guard Policy**: off (from scope feature)", "- **Guard Policy**: strict (set by a command)")), **binding(), **dispatch()}
+    check_("guard-tool-call/reviewer_lists_and_searches", strict_reviewing, [group("LS", path="{D}/construction/U02", more={"agent_type": REVIEWER}), group("Glob", pattern="construction/*/design.md", more={"agent_type": REVIEWER}),
+                                                                           group("NotebookRead", notebook_path="{D}/construction/U02/n.ipynb", more={"agent_type": REVIEWER}),
+                                                                           group("Grep", pattern="x", path="{D}/construction/U02", more={"agent_type": REVIEWER})])
+    check_("guard-tool-call/two_refuse_in_order", strict_reviewing, [group("Bash", command="cat {D}/construction/U02/design.md && bun .claude/tools/aidlc-state.ts approve nfr-design", more={"agent_type": REVIEWER})])
+    check_("guard-tool-call/agent_dispatch", building, [group("Agent", subagent_type=DEVELOPER, prompt="Build it"), group("Task", subagent_type=DEVELOPER, prompt="Build it")])
+    check_("guard-tool-call/prefixed_tool", building, [group("mcp__x__Write", file_path="{P}/src/app.ts"), group("xBash", command="rm -rf src"), group("TaskX", subagent_type=DEVELOPER), group("AgentTask", subagent_type=DEVELOPER)])
+    spoken_aside = lowered_state.replace("off (from scope feature)", "relaxed (set by you)") + "- **Guards Off**: state-transition (set by you)\n"
+    check_("guard-tool-call/stood_aside_speaks", speaking, [group("Bash", command="bun .claude/tools/aidlc-state.ts approve intent-capture")])
+    check_("guard-tool-call/stood_aside_speaks_and_refused", {**created(spoken_aside), **binding()}, [group("Bash", command=transition)])
+    check_("guard-tool-call/refusal_then_failure", {**building, "aidlc.settings.local.json": '{"flags": {}}\n'}, [group("Bash", command=transition)])
+
+    for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
+        check_(f"guard-tool-call/observer_{marker.lower()}", building, [group(file_path="{P}/src/app.ts")], {marker: "1"})
+
     # The dispatcher: a hook it does not have, a name it refuses, the trace.
     check_("dispatch/unknown", created(), [["nope", "{}"]])
     check_("dispatch/unsafe_name", created(), [["../x", "{}"]])
     check_("dispatch/no_name", created(), [["", "{}"]])
-    for name in ("guard-tool-call", "continue-workflow"):
+    for name in ("continue-workflow",):
         check_(f"dispatch/{name.replace('-', '_')}_not_ported", created(), [[name, payload()]])
 
 
@@ -3908,7 +3986,7 @@ DEVIATIONS.update({
         "approval challenge, a protected question any chat asked (4e), a review request with no verdict at a stage "
         "whose class reviews (the receipts, M5); upstream carries, answers or notes it and goes on; focus refuses "
         "the turn by name while it is there",
-    r"hook/review-freeze/review_rows(_[a-z_]+)?":
+    r"hook/(review-freeze|guard-tool-call)/review_rows(_[a-z_]+)?":
         "a write to the output document of an open reviewer-bearing stage whose ledger holds a review row: upstream "
         "weighs the review receipt scan (the attempt window, the source bindings, the Unit claims: the attestation, "
         "M5) and freezes the document when a fresh terminal review covers it, with a REVIEW_FREEZE_BLOCKED row and "

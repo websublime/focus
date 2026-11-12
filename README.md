@@ -15,15 +15,20 @@ a Focus project carries Focus's name: the command, the `FOCUS_*` variables, the
 in each of those places, so a project set up for upstream is not a Focus
 project.
 
-**Status: the stage graph and the audit ledger are complete (milestones M0 to
-M2).** Compiling the graph, including plugin selection and
-composed scopes, and every `graph` verb are ported and held to parity with the
-reference. So are the ledger (the format, the shards, the `audit` command:
-append, notes, history), the settings files, the Markdown reader, and the
-runtime graph a workflow's ledger compiles to. State, guards, hooks and the
-orchestrator are not written yet. The plan for the rest, module by
-module, is in [`docs/plano-de-migracao.md`](docs/plano-de-migracao.md)
-(Portuguese).
+**Status: the stage graph, the audit ledger, the state of a workflow, the
+guards and the harness hooks are ported (milestones M0 to M4); the
+orchestrator is not.** Compiling the graph, including plugin selection and
+composed scopes, and every `graph` verb are held to parity with the reference.
+So are the ledger (the format, the shards, the `audit` command: append, notes,
+history), the settings files, the Markdown reader, the runtime graph a
+workflow's ledger compiles to, the state file and its transitions, gates and
+jumps, the creation of a piece of work, and the hooks a host runs at each
+event of a conversation: the observers, the session start, the person's turn
+and the four checks before a tool call. What those checks read off the
+engine's last step (its directive, an approval and its receipts) belongs to
+the orchestrator, and is refused by name until it is written. The plan for
+the rest, module by module, is in
+[`docs/plano-de-migracao.md`](docs/plano-de-migracao.md) (Portuguese).
 
 ## What works
 
@@ -76,9 +81,9 @@ verb and flag. The `audit` command is
 the diagnostic way into the ledger: events that carry authority (a gate
 approval, a person's turn, a unit's completion) are written only by the
 engine's own tools and hooks, and are refused there. The `runtime` command
-reads the ledger back as a graph of what the workflow has done; the engine
-will compile it after every event, and until the hooks exist it is run by
-hand. The `state` command reads and writes the state file as data, and moves
+reads the ledger back as a graph of what the workflow has done; the
+`rebuild-stage-graph` hook compiles it after every event that moves a
+workflow, and it can be run by hand. The `state` command reads and writes the state file as data, and moves
 a workflow through its stages (`advance`, `finalize`, `complete-workflow`,
 `skip`; `resume` reads where it stands) and through its approval gates
 (`gate-start` puts a stage to the person, `approve` and `reject` record their
@@ -123,9 +128,9 @@ focus engine graph compile --harness claude --core fixtures/upstream/core --out 
 | `focus-graph` | Stage, scope, agent, sensor and rule schemas; the compile; composed scopes; graph queries; plan validation; ARS |
 | `focus-audit` | The audit ledger: the event vocabulary, how an entry is validated and written, how entries are read back, the shard each clone writes, appending to it under the lock, and a record's history from all its shards. And what a ledger reads as: the runtime graph of a workflow, its summary, the counts of a stage's diary, and the order units can be built in |
 | `focus-state` | The state file of a workflow: its bulleted fields and checkbox lines, read and written as text, and the file on disk |
-| `focus-guards` | Guard Policy, the five fences and the authority behind an action: what the guards decide before anything moves. And what the hooks read before any fence: the shell reader (what a `Bash` command may write, in POSIX shell or PowerShell, and where the shell may be when it writes), runtime integrity (whether a tool call touches a runtime record, the audit trail, an installed enforcement file or a hook, directly or through a script), the engine's own invocations as a hook reads them off a command (the transition tools that recompile the runtime graph, one literal call of the orchestrator), the dispatched reviewer's read scope, and the state transitions a command calls directly or through a wrapper, a nested shell or the dispatcher (what a conductor may not call and what a delegated agent may not run) |
+| `focus-guards` | Guard Policy, the five fences and the authority behind an action: what the guards decide before anything moves. And what the hooks read before any fence: the shell reader (what a `Bash` command may write, in POSIX shell or PowerShell, and where the shell may be when it writes), runtime integrity (whether a tool call touches a runtime record, the audit trail, an installed enforcement file or a hook, directly or through a script), the engine's own invocations as a hook reads them off a command (the transition tools that recompile the runtime graph, one literal call of the orchestrator), the dispatched reviewer's read scope, the state transitions a command calls directly or through a wrapper, a nested shell or the dispatcher (what a conductor may not call and what a delegated agent may not run), and what a tool call would change while a plan waits for its approval (the files it names as written to, whether a command could change something the reader cannot see, what the wait admits, and where a write target lies) |
 | `focus-intent` | Creating a piece of work: the record's name and id, the plan it runs, the state file built from it, the registry row and the cursors |
-| `focus-hooks` | The bodies of the harness hooks (`focus engine hook <name>`): which workflow a hook fires in and whether this conversation has joined it, the heartbeat and the drops each hook leaves, and the observers: the compaction breadcrumb, a session's end, a subagent's completion, the task list and the IDE mirror moving the stage, a write into the record as its artifact, the runtime graph recompiled after a transition and a creation binding the session that made it; the session start: the conversation bound to its record and stamped, the process map, the active-memory copy kept for the harness's includes and handed to the chat, the rules the chat holds, the rebind offer, the switched-off checks said once, and the context the model is handed; and the first guards: the review freeze, the reviewer's read scope and the state-transition fence, each refusing with the host's own deny decision or standing aside with one line and one ledger row |
+| `focus-hooks` | The bodies of the harness hooks (`focus engine hook <name>`): which workflow a hook fires in and whether this conversation has joined it, the heartbeat and the drops each hook leaves, and the observers: the compaction breadcrumb, a session's end, a subagent's completion, the task list and the IDE mirror moving the stage, a write into the record as its artifact, the runtime graph recompiled after a transition and a creation binding the session that made it; the session start: the conversation bound to its record and stamped, the process map, the active-memory copy kept for the harness's includes and handed to the chat, the rules the chat holds, the rebind offer, the switched-off checks said once, and the context the model is handed; the person's turn (the `HUMAN_TURN` row and what a gate later reads of it); and the guards: the review freeze, the reviewer's read scope, the state-transition fence and the Plan Approval guard, each refusing with the host's own deny decision or standing aside with one line and one ledger row, and the one registration (`guard-tool-call`) that runs the four in one process, each for the tools its own row matched |
 | `focus-lifecycle` | Moving a piece of work through its stages: the transitions, the gate verbs and the parking of the state command, the jumps, the admission chain each one passes, where a stage's artifacts are, the validity receipt a completion leaves, whether the person has acted since a gate opened, and what a gate asks with |
 | `focus-cli` | The `focus` binary (the package is named `focus`) |
 

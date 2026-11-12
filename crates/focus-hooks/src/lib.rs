@@ -8,13 +8,16 @@
 //! records what it had to drop, under the record's hooks-health directory
 //! ([`health`]).
 //!
-//! This crate holds the observers: hooks that record, keep the record in
-//! step and recompile what derives from it, and decide nothing. The guards that refuse a tool call are M4's
-//! later slices. Ported from `core/hooks/aidlc-*.ts`, and held to upstream's
-//! behaviour by the differential.
+//! This crate holds the observers (hooks that record, keep the record in
+//! step and recompile what derives from it, and decide nothing), the session
+//! start, the person's turn, and the guards that refuse a tool call, with
+//! the one registration that runs those in one process ([`group`]). Ported
+//! from `core/hooks/aidlc-*.ts`, and held to upstream's behaviour by the
+//! differential.
 
 pub mod context;
 pub mod engine;
+pub mod group;
 pub mod health;
 pub mod hooks;
 pub mod messages;
@@ -47,11 +50,7 @@ pub const HOOKS: [&str; 12] = [
 ];
 
 /// Upstream's other hooks, and what each does, for the refusal by name.
-pub const NOT_PORTED: [(&str, &str); 4] = [
-    (
-        "guard-tool-call",
-        "runs the PreToolUse guards in one process",
-    ),
+pub const NOT_PORTED: [(&str, &str); 3] = [
     ("continue-workflow", "decides whether a turn may end"),
     ("deliver-stage-rules", "hands a subagent its stage's rules"),
     ("fold-usage", "folds token usage into the ledger"),
@@ -92,6 +91,9 @@ pub fn run(name: &str, input: &str, layout: &Layout) -> Outcome {
         "record-human-turn" => hooks::record_human_turn::run(input, layout),
         "plan-approval-guard" => hooks::plan_approval_guard::run(input, layout),
         other => {
+            if let Some(members) = group::members(other) {
+                return group::run(members, input, layout, &run);
+            }
             let stderr = match NOT_PORTED.iter().find(|(known, _)| *known == other) {
                 Some((_, does)) => format!(
                     "focus engine hook {other}: {does}, and Focus does not run that hook yet.\n"

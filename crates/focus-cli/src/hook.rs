@@ -45,7 +45,7 @@ pub fn run(args: &mut Args) -> Result<(), Failure> {
         )));
     }
     args.finish().map_err(Failure::Message)?;
-    if !HOOKS.contains(&name.as_str()) {
+    if !HOOKS.contains(&name.as_str()) && focus_hooks::group::members(&name).is_none() {
         let message = match NOT_PORTED.iter().find(|(known, _)| *known == name) {
             Some((_, does)) => {
                 format!("focus engine hook {name}: {does}, and Focus does not run that hook yet.")
@@ -80,11 +80,21 @@ pub fn run(args: &mut Args) -> Result<(), Failure> {
     trace::trace("hook-run-end", &[("code", json!(outcome.code))]);
     let _ = std::io::stdout().write_all(outcome.stdout.as_bytes());
     let _ = std::io::stderr().write_all(outcome.stderr.as_bytes());
-    // `runHookModule`: a refusal (exit 2 with its reason on stderr) that
-    // answered nothing on stdout is also handed to the host as its deny
-    // decision, built from that reason.
+    // `runHookModule`: Claude Code shows a blocking hook's stderr behind the
+    // hook's own command, and a deny decision on stdout with only its
+    // reason. So there, before a tool call, a refusal (exit 2 with its reason
+    // on stderr) that answered nothing on stdout is also handed to the host
+    // as its deny decision, built from that reason. Exit 2 blocks on its
+    // own; a payload of another event, or one that names none, gets the
+    // plain refusal.
+    let before_a_tool_call = focus_js::json::parse(&input).is_ok_and(|payload| {
+        payload
+            .get("hook_event_name")
+            .and_then(|event| event.as_str())
+            == Some("PreToolUse")
+    }) && layout.harness == focus_harness::Harness::Claude;
     let reason = focus_js::text::trim(&outcome.stderr);
-    if outcome.code == 2 && !reason.is_empty() && outcome.stdout.is_empty() {
+    if before_a_tool_call && outcome.code == 2 && !reason.is_empty() && outcome.stdout.is_empty() {
         let decision = json!({
             "hookSpecificOutput": {
                 "hookEventName": "PreToolUse",
