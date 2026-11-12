@@ -12,6 +12,8 @@
 use std::time::SystemTime;
 
 use focus_audit::time::iso_timestamp;
+use focus_evidence::source::snapshot::{self, BASELINE_FIELD};
+use focus_evidence::source::walk::Options;
 use focus_graph::runtime::{ScopeDefinition, Stage};
 use focus_intent::plan::next_in_scope_stage;
 use focus_js::text::trim;
@@ -121,15 +123,40 @@ pub(crate) fn refuse_usage_rollup(wf: &Workflow, slug: Option<&str>) -> Result<(
     Ok(())
 }
 
-/// `STAGE_STARTED`'s fields for `next`: the answer mode reused, and (the
-/// attestation's, M5) the source baseline of a code-producing stage.
-fn stage_started_fields(wf: &Workflow, next: &Stage) -> Vec<(&'static str, String)> {
+/// `STAGE_STARTED`'s fields for `next`: the answer mode reused, and the
+/// source baseline of a stage that produces code.
+fn stage_started_fields(wf: &Workflow, next: &Stage) -> Result<Vec<(&'static str, String)>> {
     let mut fields = vec![
         ("Stage", next.slug.clone()),
         ("Agent", stage::lead_agent(next).to_owned()),
     ];
     fields.extend(answer_mode_fields(&wf.events()));
-    fields
+    if stage::workspace_requires(next) {
+        fields.push((BASELINE_FIELD, source_baseline(wf, &next.slug)?));
+    }
+    Ok(fields)
+}
+
+/// `sourceBaselineAuditFields` for the selected piece of work: the value of
+/// a row's `Source Baseline`, with the project's source listing kept
+/// beside the record under the stage it is taken for.
+///
+/// # Errors
+///
+/// The listing cannot be kept (see `focus_evidence::source::snapshot`).
+pub fn source_baseline(wf: &Workflow, stage_slug: &str) -> Result<String> {
+    let repos = crate::registry::source_repos(
+        &wf.layout,
+        &wf.selection.space,
+        wf.selection.intent.as_deref(),
+    )?;
+    snapshot::baseline_field(
+        &wf.layout,
+        &wf.selection,
+        stage_slug,
+        &repos,
+        &Options::from_env(),
+    )
 }
 
 fn to_pairs<'a>(fields: &'a [(&'a str, String)]) -> Vec<(&'a str, String)> {
@@ -299,7 +326,11 @@ pub fn advance_locked(
             &scope,
         )?;
     }
-    wf.emit(held, "STAGE_STARTED", &stage_started_fields(wf, next_stage))?;
+    wf.emit(
+        held,
+        "STAGE_STARTED",
+        &stage_started_fields(wf, next_stage)?,
+    )?;
     wf.write_state(&content)?;
 
     let mut out = Map::new();
@@ -754,7 +785,7 @@ pub fn skip(wf: &Workflow, slug: &str, reason: Option<&str>, route: bool) -> Res
                 }
             }
             if !stage_started_audited {
-                wf.emit(&held, "STAGE_STARTED", &stage_started_fields(wf, next))?;
+                wf.emit(&held, "STAGE_STARTED", &stage_started_fields(wf, next)?)?;
             }
         }
         None => {

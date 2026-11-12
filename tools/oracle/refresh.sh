@@ -62,6 +62,9 @@ cp "$UPSTREAM/dist/claude/.claude/rules/aidlc.md" "$INSTALLED/.claude/rules/"
 # tree when a copy left it out.
 cp -r "$UPSTREAM/dist/claude/.claude/tools/data/memory-seed" "$INSTALLED/.claude/tools/data/"
 cp -r "$UPSTREAM/dist/claude/aidlc" "$INSTALLED/"
+# The two files the packager lays at the project's root: source like any
+# other, which the baseline of a row lists.
+cp "$UPSTREAM/dist/claude/.gitignore" "$UPSTREAM/dist/claude/.mcp.json" "$INSTALLED/"
 python3 -I tools/oracle/names.py tree "$FIX/core" "$FIX/golden" "$FIX/installed"
 sed -i.bak \
   -e "s|^commit: .*|commit: $(git -C "$UPSTREAM" rev-parse HEAD)|" \

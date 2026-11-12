@@ -446,6 +446,12 @@ mod tests {
     #[test]
     fn a_code_producing_stage_needs_source_work() {
         let (wf, root) = workflow("source", STATE);
+        // What the distribution lays at the project's root is a file like any other, and counts.
+        assert!(workspace_has_work(&wf));
+        std::fs::remove_file(root.join(".mcp.json")).unwrap();
+        assert!(workspace_has_work(&wf));
+        std::fs::remove_file(root.join(".gitignore")).unwrap();
+        assert!(!workspace_has_work(&wf));
         // No artifacts declared: the stage passes on them; the source work is what is missing.
         let stage = stage_of(
             json!({"slug": "builder", "phase": "ideation", "name": "Builder", "workspace_requires": true, "produces": []}),

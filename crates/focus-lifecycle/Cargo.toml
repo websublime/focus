@@ -12,6 +12,7 @@ publish.workspace = true
 serde_json.workspace = true
 sha2.workspace = true
 focus-audit.workspace = true
+focus-evidence.workspace = true
 focus-graph.workspace = true
 focus-guards.workspace = true
 focus-intent.workspace = true
