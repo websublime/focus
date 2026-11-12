@@ -3,6 +3,17 @@
 //! it. The agent maps, the engine proves: that the record exists, carries
 //! words of the person's own, was not spent by a later decision, and came
 //! through the chat this command serves. The engine reads no words.
+//!
+//! # Tests that another test covers
+//!
+//! Three things change no answer when taken out, and are kept as upstream
+//! has them. The last refusal (the message came through another chat than
+//! the one that has spoken since the last decision) is never reached: the
+//! message named is itself one of the messages counted, unless it is older
+//! than the last decision, and then it was refused as spent. Of two
+//! spending rows with the same instant either is the latest. And the id
+//! written on the row is the proved record's, which is the id it was read
+//! by.
 
 use std::cmp::Ordering;
 use std::collections::BTreeSet;

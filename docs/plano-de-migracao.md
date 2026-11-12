@@ -1939,7 +1939,7 @@ A fatia 1d recusou a linha onde os repositórios são andados como fonte e deixo
 
 | Fatia | O que traz | Recusa pelo nome até à fatia que o traz | Como se verifica | Estado |
 | --- | --- | --- | --- | --- |
-| 2a. O comando e `decision` | `focus engine log`: `--project-dir`, o parser de flags, a recusa de valores partidos (`refuseSplitValues`: uma palavra fora de qualquer flag, um fragmento que começa por `--`, as aspas simples do Command Prompt), o erro que fica na auditoria; um workspace sem trabalho selecionado. `decision`: a linha `DECISION_RECORDED` (stage, decision, options, rationale, `--single`), a frase que diz que a pessoa já confirmou (`impliedConfirmationMarker`), `--message` com a prova da mensagem (`proveMessage`: existe, traz palavras da pessoa, não está gasta, veio deste chat), as perguntas protegidas retiradas | `--checkpoint verification-command` e `construction-policy` (fatia 5), `plan-approval` e `--batch-file` (fatia 11), `--unit` (fatia 5) | Diferencial (`log/decision/*`, um grupo novo com a sua ferramenta); corpus para a recusa de valores partidos e para o marcador de confirmação, que são funções puras | Feito, menos `--message`, que é o pull request seguinte (2a-ii) |
+| 2a. O comando e `decision` | `focus engine log`: `--project-dir`, o parser de flags, a recusa de valores partidos (`refuseSplitValues`: uma palavra fora de qualquer flag, um fragmento que começa por `--`, as aspas simples do Command Prompt), o erro que fica na auditoria; um workspace sem trabalho selecionado. `decision`: a linha `DECISION_RECORDED` (stage, decision, options, rationale, `--single`), a frase que diz que a pessoa já confirmou (`impliedConfirmationMarker`), `--message` com a prova da mensagem (`proveMessage`: existe, traz palavras da pessoa, não está gasta, veio deste chat), as perguntas protegidas retiradas | `--checkpoint verification-command` e `construction-policy` (fatia 5), `plan-approval` e `--batch-file` (fatia 11), `--unit` (fatia 5) | Diferencial (`log/decision/*`, um grupo novo com a sua ferramenta); corpus para a recusa de valores partidos e para o marcador de confirmação, que são funções puras | Feito |
 | 2b. `answers` e `answer` | `answers` (só leitura: as perguntas de uma stage e as respostas que têm); `answer`: `QUESTION_ANSWERED`, `--details` e `--details-file`, `--on-instruction`, `--message` e a mensagem herdada da pergunta, a dica de uma mensagem que chegou antes da pergunta | As respostas às perguntas do engine (`PLAN_APPROVAL_RECORDED`, `PLAN_APPROVAL_OVERRIDDEN`, `--units`, `--reason`, `--park`: fatia 11; `VERIFICATION_COMMAND_RECORDED` e `CONSTRUCTION_POLICY_RECORDED`: fatia 5) | Diferencial | Por fazer |
 | 2c. O checkpoint de sumário | `--checkpoint summary-confirmation --questions-file` em `decision` e em `answer`: a evidência da pergunta (`summaryQuestionEvidence`), a decisão pendente (`pendingSummaryDecision`), `SUMMARY_CONFIRMATION_RECORDED`, e a recusa de uma pergunta ou resposta de sumário sem o checkpoint, com os comandos certos (`refusePlainSummaryConfirmation`) | | Diferencial. É o que a fatia 3 pesa (`checkSummaryConfirmationEvidence`) | Por fazer |
 | 2d. `link` | `PIPELINE_LINK_COMPLETED`: o handoff de um elo de um pipeline, com o artefacto e o repositório | | Diferencial | Por fazer |
@@ -1976,15 +1976,31 @@ Sem trabalho selecionado nada é escrito: a linha cairia na raiz dos registos do
 | Mutação | 60 mutantes (`flags`, `decision`, o comando, o marcador e a retirada das perguntas protegidas): 47 apanhados à primeira e 13 depois de checks e testes escritos para eles (a sessão dita pela árvore de processos, um nome de sessão que não dá nome de ficheiro com ficheiros desse nome lá, uma frase que atravessa aspas, as palavras no fim dos argumentos, duas palavras soltas). Nenhum equivalente |
 | `cargo test` | 570 testes |
 
-**Desvios deliberados.** Cinco, cada um com a entrada em `DEVIATIONS` e nos dois testes marcados de `focus-cli/tests/log.rs`.
+**Desvios deliberados.** Quatro (eram cinco: `--message` deixou de o ser com a prova da mensagem, abaixo), cada um com a entrada em `DEVIATIONS` e nos dois testes marcados de `focus-cli/tests/log.rs`.
 
 | Desvio | Original | Focus |
 | --- | --- | --- |
 | `answer`, `answers`, `link`, `review` | Corre cada um | Recusa pelo nome até às fatias 2b a 2e |
 | `--checkpoint summary-confirmation`, `verification-command`, `construction-policy`, `plan-approval` | Lê os flags que cada um pede e grava a pergunta com o seu registo | Recusa o checkpoint pelo nome (fatias 2c, 5 e 11) |
 | `--unit` e `--batch-file` | Grava a unit com o seu claim; recusa o lote pela sua forma | Recusa os dois flags pelo nome (fatias 5 e 11) |
-| `--message` | Prova a mensagem contra o armazém | Recusa o flag pelo nome até ao pull request seguinte |
 | Uma pergunta simples com as duas escolhas do sumário, numa stage que deve uma confirmação de sumário | Recusa com os dois comandos que gravam um sumário | Recusa pelo nome: esses comandos são a fatia 2c |
+
+### Fatia 2a, segunda parte: a prova de uma mensagem
+
+**O que existe.** `--message <id>` em `decision`: uma pergunta registada depois de a pessoa já ter respondido nomeia a mensagem que lhe respondeu, e a linha leva `Message Id`. O agente mapeia, o engine prova, sem ler palavra nenhuma (`focus-log::message::prove`, `proveMessage`): o registo existe no armazém; traz palavras da pessoa, e o turno dele não foi só um comando ao engine ou uma pergunta sobre um switch (as marcas `Reply` da linha `HUMAN_TURN`); não chegou antes da última decisão de outro tipo que não uma resposta (oito eventos gastam uma mensagem; um empate ao segundo favorece a mensagem, porque uma só pode dar uma aprovação e as respostas ao lado); e veio do chat que o comando serve, ou, quando o engine não sabe qual é, do único que falou desde essa decisão. Em `focus-hooks::messages`, onde o turno humano escreve o armazém, entram os leitores: `read_message` (um registo só é do armazém se cada campo lá estiver com o tipo que o escritor lhe dá) e `list_messages` (do mais antigo para o mais novo).
+
+**O que o diferencial encontrou.** Nada que diferisse: os 50 checks da primeira corrida saíram iguais, e os 11 escritos depois da mutação também.
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Diferencial, `log/decision/message*` | 61 checks, todos iguais: a mensagem aceite, com e sem a linha do turno, do terminal; um id que não é de registo nenhum, em seis formas; sem palavras; o turno marcado como comando, como pergunta e de outra forma, numa linha de outra mensagem e numa linha que não é um turno; gasta por cada um dos oito eventos, pela última de duas linhas em qualquer ordem, e não por respostas; o empate ao segundo; o chat do comando, outro, o terminal; dois chats, um deles o terminal, um deles antes da decisão, um deles no segundo da decisão; e vinte e seis formas de um ficheiro que não é um registo do armazém (cada campo com o tipo errado ou em falta, acima do tamanho, atrás de um link, com um nome que não é um id) |
+| Diferencial, tudo | @@TOTAL@@ |
+| Repetição da gravação | @@REPLAY@@ |
+| Testes unitários | 1: o armazém lista-se do mais antigo para o mais novo, com o id a desempatar (o único leitor de hoje toma os chats da lista como um conjunto) |
+| Mutação | 50 mutantes (a prova, os leitores do armazém, o campo na linha): 47 apanhados (36 à primeira, 11 depois dos checks e do teste escritos para eles) e 3 equivalentes, anotados no módulo: a última recusa nunca é alcançada (a mensagem nomeada é ela própria uma das contadas, salvo se for mais antiga do que a última decisão, e então já foi recusada como gasta; é assim no original); de duas linhas com o mesmo instante qualquer uma é a última; e o id escrito na linha é o do registo provado, que é o id por que foi lido |
+| `cargo test` | @@TESTS@@ |
 
 ### A jornada
 
