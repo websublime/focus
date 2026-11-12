@@ -8,6 +8,7 @@
 //! Mirrors `aidlc-log.ts`. The verbs are ported one at a time; one that is
 //! not there yet is refused by name.
 
+pub mod answers;
 pub mod decision;
 pub mod flags;
 pub mod message;
