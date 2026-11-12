@@ -262,17 +262,46 @@ def focus_base():
     return base
 
 
+class Pair(list):
+    """The two trees of a check: laid out when first used, removed when the checks queued on them are done. Every
+    check is queued before any runs, and each tree is a copy of the distribution: laid out at once, a few thousand
+    of them do not fit on a disk."""
+
+    def __init__(self, name, edits):
+        super().__init__()
+        self.name, self.edits, self.made = name, edits, False
+
+    def make(self):
+        if not self.made:
+            self.made = True
+            for engine in ("ts", "rs"):
+                root = os.path.join(WORK, self.name.replace("/", "_"), engine)
+                shutil.copytree(DIST if engine == "ts" else focus_base(), root, symlinks=True)
+                tree = Tree(root, mapped=engine == "rs")
+                for edit in self.edits:
+                    edit(tree)
+                self.append(tree)
+        return self
+
+    def __iter__(self):
+        self.make()
+        return super().__iter__()
+
+    def __getitem__(self, at):
+        self.make()
+        return super().__getitem__(at)
+
+    def __len__(self):
+        return 2
+
+    def dispose(self):
+        if self.made:
+            shutil.rmtree(os.path.join(WORK, self.name.replace("/", "_")), ignore_errors=True)
+
+
 def pair(name, *edits):
     """The same tree twice, one per engine in its own names, with `edits` applied to both."""
-    trees = []
-    for engine in ("ts", "rs"):
-        root = os.path.join(WORK, name.replace("/", "_"), engine)
-        shutil.copytree(DIST if engine == "ts" else focus_base(), root, symlinks=True)
-        tree = Tree(root, mapped=engine == "rs")
-        for edit in edits:
-            edit(tree)
-        trees.append(tree)
-    return trees
+    return Pair(name, edits)
 
 
 def run(engine, tree, args, env=None, stdin=None):
@@ -470,7 +499,12 @@ def run_queued(quiet=False):
     def work(group):
         for index, job in group:
             lines[index] = compare(*job)
+        trees = group[0][1][1]
+        if isinstance(trees, Pair):
+            trees.dispose()
 
+    # Built once, before the trees that copy it are laid out side by side.
+    focus_base()
     with ThreadPoolExecutor(max_workers=os.cpu_count() or 2) as pool:
         list(pool.map(work, groups.values()))
     for index in sorted(lines):
