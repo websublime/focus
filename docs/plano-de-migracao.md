@@ -2,7 +2,7 @@
 
 O projeto chamava-se Sulca até 2026-10-09; o workspace, os crates e o binário passaram a `focus`.
 
-Estado em 2026-10-13, com os marcos M0, M1 e M2 fechados (secção 13 para o último). Referência: `awslabs/aidlc-workflows` no commit `2a555f7` (v2.11.0, licença MIT-0). Focus é um fork congelado nesse commit; o que o original publicar depois não é seguido.
+Estado em 2026-11-12, com os marcos M0 a M4 fechados (secção 15 para o último). Referência: `awslabs/aidlc-workflows` no commit `2a555f7` (v2.11.0, licença MIT-0). Focus é um fork congelado nesse commit; o que o original publicar depois não é seguido.
 
 ## 1. Resumo
 
@@ -114,8 +114,8 @@ focus-cli ✔ ───────────► focus-hooks ──► focus-o
 | `focus-state` | Ficheiro de estado, máquinas de workflow, fase e stage | Existem os campos, as checkboxes e o ficheiro (M3, fatias 1 e 2); as transições são M3 |
 | `focus-intent` | Criação de intents: nomes, plano, template do estado, registo e cursores | Existe (M3, fatia 3b) |
 | `focus-lifecycle` | Transições de stage: a cadeia de admissão, onde estão os artefactos de uma stage, o recibo de validade de uma conclusão, e as transições em si | Existem `advance`, `finalize`, `complete-workflow`, `skip` e `resume` (M3, fatia 4a); os verbos de gate são a fatia 4b |
-| `focus-guards` | Lexer de shell, integridade de runtime, fences, decisões de guard | Existe a resolução da Guard Policy, as fences e a decisão de uma fence (M3, fatia 1) e o lexer de shell (M4, fatia 1); o resto é M4 |
-| `focus-hooks` | Os corpos dos hooks e o dispatcher | Existem o dispatcher, o contexto de um hook, os cinco observadores (M4, fatia 3a) e a recompilação (fatia 3b); o resto é M4 e M6 |
+| `focus-guards` | Lexer de shell, integridade de runtime, fences, decisões de guard | Existe (M3, fatia 1; M4): a Guard Policy e as fences, o lexer de shell, a integridade do runtime, e os leitores dos quatro guards. A avaliação de uma aprovação e os recibos são M5 |
+| `focus-hooks` | Os corpos dos hooks e o dispatcher | Existe (M4): o dispatcher, o contexto de um hook, os observadores, o arranque de sessão, o turno humano, os quatro guards e o grupo que os corre num processo. `continue-workflow`, `deliver-stage-rules` e a status line são M6 |
 | `focus-orchestrate` | `next` e `report`, diretivas, plan approval, checkpoints | M5 |
 | `focus-sensors` | Dispatcher e os seis sensores | M7 |
 | `focus-project` | Projeção de `core/` para a árvore de cada harness, configuração, doctor | M8 |
@@ -199,7 +199,7 @@ Cada marco fecha com um critério verificável contra o oráculo.
 - Ficheiro de estado, transições (`advance`, `approve`, `reject`, `skip`, `gate-start`, `park`), `intent-create`, `jump`, `validity`, `--status`.
 - Critério: uma sequência de comandos deixa o mesmo ficheiro de estado e os mesmos shards nos dois motores, a menos do mapa de nomes.
 
-**M4. Guards e hooks observadores.**
+**M4. Guards e hooks observadores.** Feito. Critério cumprido: os pedidos de hook do diferencial (`hook/*`) dão o mesmo código de saída, stdout, stderr e linhas de auditoria nos dois motores, a menos dos desvios declarados; ver secção 15. Entrou em dezasseis fatias (a tabela da secção 15). O que os guards leem do último passo do engine (o marcador de diretiva, a avaliação de uma aprovação, os recibos de revisão) recusa-se pelo nome e é de M5; os hooks `continue-workflow` e `deliver-stage-rules` são de M6 e `fold-usage` vem com os custos.
 - O lexer de shell `review-freeze-command.ts` (2 083 linhas, só importa built-ins do Node); dependem dele dois guards e `runtime-integrity`.
 - `runtime-integrity`, fences, os quatro guards de `PreToolUse` (um só processo, o grupo `guard-tool-call`), e os hooks que só registam.
 - Critério: um corpus de payloads de hook dá o mesmo código de saída, stdout, stderr e linhas de auditoria.
@@ -1249,7 +1249,7 @@ O que M3 não faz, e o que acontece quando lá se chega. Tudo recusa pelo nome: 
 
 ## 15. Estado de M4
 
-M4 está em curso. Guards e hooks observadores são, no original, o que corre em cada evento do harness: antes de uma ferramenta (`PreToolUse`: a integridade do runtime, e os quatro guards que decidem por uma fence), depois dela (`PostToolUse`: os que só registam e recompilam), e no arranque e no fim de uma sessão. Todos leem o pedido do harness em JSON pelo stdin e respondem pelo código de saída, pelo stdout e por linhas de auditoria; é esse o critério do marco (secção 6). Entra de baixo para cima: primeiro o que os guards leem (o lexer de shell), depois a integridade do runtime, depois o dispatcher e os observadores, e por fim os guards, que são os que mais dependem do resto.
+M4 está feito. Guards e hooks observadores são, no original, o que corre em cada evento do harness: antes de uma ferramenta (`PreToolUse`: a integridade do runtime, e os quatro guards que decidem por uma fence), depois dela (`PostToolUse`: os que só registam e recompilam), e no arranque e no fim de uma sessão. Todos leem o pedido do harness em JSON pelo stdin e respondem pelo código de saída, pelo stdout e por linhas de auditoria; é esse o critério do marco (secção 6). Entra de baixo para cima: primeiro o que os guards leem (o lexer de shell), depois a integridade do runtime, depois o dispatcher e os observadores, e por fim os guards, que são os que mais dependem do resto.
 
 | Fatia | O que traz | Como se verifica | Estado |
 | --- | --- | --- | --- |
@@ -1268,7 +1268,7 @@ M4 está em curso. Guards e hooks observadores são, no original, o que corre em
 | 4e-ii-a. O que corre enquanto um plano espera | `focus-guards::dispatcher` (o namespace `engine` do dispatcher do original: a ferramenta e os argumentos a que um comando é delegado) e `focus-guards::plan_wait` (o que qualquer helper pode correr, os pré-requisitos de um Plan Approval, o que o engine nomeia enquanto o plano espera, os diagnósticos só de leitura, a leitura de uma linha PowerShell simples e a avaliação dinâmica de uma linha de shell) | Corpus (`engine_route`, `every_helper`, `plan_prerequisite`, `engine_directed`, `read_only_diagnostic`, `plain_powershell`, `dynamic_evaluation`), os privados do hook perguntados por um shim de exportação | Feita |
 | 4e-ii-b. A intenção de uma chamada | `focus-guards::mutation_intent`: o `mutationIntent` do hook (os alvos de escrita de uma chamada, a shell opaca, o que corre o engine, o que o lexer não lê), o que a espera de um plano admite com o que depende do projeto (o switch gravado, o switch de chat, a pessoa ter falado, um script instalado corrido por Bun), e os predicados de alvo (fora do projeto, o output de uma stage, o texto de uma resposta, o diário da stage, a proposta do composer); em `focus-workspace`, a cadeia de links lida como o original a lê, a identidade de uma pasta e o ficheiro simples | Corpus (`mutation_intent`, `mutation_target`) sobre árvores de scratch, pelo mesmo shim; a pessoa no registo lida pelo original e dita pelo caso | Feita |
 | 4e-ii-c. `plan-approval-guard`, o hook | `focus-hooks::hooks::plan_approval_guard`: a fronteira de confiança do harness, a conversa que não entrou no trabalho, o heartbeat, o interruptor com `GUARD_DISABLED` uma vez, o que o plano nunca governa (leituras, comandos lidos por inteiro, escritas fora do projeto, o diário, o texto de uma resposta e a proposta do composer), e a recusa sem o passo do engine, com a linha `PLAN_APPROVAL_BLOCKED` ou, de fence baixada, nas outras palavras. As três leituras da pessoa calculadas do ledger. Um marcador de diretiva em disco recusa pelo nome: o marcador, a avaliação da aprovação e `plan-approval-ask` são M5 | Diferencial (`hook/plan-approval-guard/*`), testes da linha de comandos | Feita |
-| 4f. `guard-tool-call` | O registo único de `PreToolUse` que corre os quatro guards num processo, cada um com o seu matcher | Diferencial | Por fazer |
+| 4f. `guard-tool-call` | `focus-hooks::group`: o registo único de `PreToolUse` que corre os quatro guards num processo, cada um para as ferramentas que a sua própria linha escolhia; a recusa de qualquer um recusa a chamada, cada recusa dita uma vez, e um membro que falha sozinho não recusa nada. A decisão `deny` passa a ser dada só antes de uma ferramenta, em Claude Code | Diferencial (`hook/guard-tool-call/*`), testes unitários e da linha de comandos | Feita |
 
 ### Fatia 1: o lexer de shell
 
@@ -1689,3 +1689,27 @@ Os dois recusam o que o original admitiria: a chamada espera pela diretiva em ve
 | `hook/plan-approval-guard/directive_marker`, `unit_scope_stamp` | Lê o marcador e decide por ele; lê o carimbo de unit | Recusa o hook pelo nome enquanto lá estiverem (M5, units) |
 
 **Levantados.** `verbs/memory_lowercase_declaration` e `runtime/compile/project_path_with_a_backslash` (M2), pelo Bun 1.4.4.
+
+### Fatia 4f: `guard-tool-call`
+
+**Decisão de âmbito.** Um host que regista vários hooks para um evento arranca um processo por hook. No original, as quatro linhas de `PreToolUse` do `settings.json` são uma só, `engine hook guard-tool-call`, e o dispatcher corre os membros no seu processo (`HOOK_GROUPS` em `aidlc-command.ts`, `runGroupMembers` em `aidlc.ts`). O grupo é um registo, não um check: não decide nada. É isto que esta fatia porta, e com ela `guard-tool-call` sai da lista dos hooks recusados pelo nome. Um ficheiro de hook em falta ou que não exporta `run`, que o original responde como o processo desse hook responderia, não tem equivalente: os membros de Focus estão no binário.
+
+**O que existe.** `focus-hooks::group`: os membros por ordem (`state-transition-guard`, `reviewer-scope`, `review-freeze`, `plan-approval-guard`) com o matcher que a linha de cada um tinha, uma expressão regular sobre o nome da ferramenta inteiro: leituras e pesquisas chegam aos três que leem; só uma escrita, um comando de shell ou um despacho chega ao guard do plano; uma ferramenta que nenhuma linha escolhia não chega a nenhum. Um pedido que não se consegue ler, ou que não nomeia ferramenta, vai a todos os membros, que o julgam. Todos os membros correm, mesmo depois de um recusar. A chamada é recusada (saída 2) quando algum recusa, com cada recusa dita uma vez pela ordem em que os membros correm; sem recusa, vale o código da primeira falha, e cada falha é dita uma vez. O que um membro diz no stderr enquanto deixa passar a chamada não é levado; o que responde no stdout é, tal como o escreveu.
+
+**O que o diferencial encontrou.**
+
+| Achado | Consequência |
+| --- | --- |
+| A decisão `deny` no stdout é dada pelo dispatcher só quando o pedido é de `PreToolUse` e o harness é Claude Code (`runHookModule`). Focus dava-a a qualquer recusa: um pedido de outro evento, ou sem evento, recusado com saída 2 levava uma decisão `PreToolUse` que o original não dá | A condição está portada, para o grupo e para cada hook sozinho; duas verificações (`no_event`, `other_event`) correm os dois |
+| Um membro que lança (settings recusadas) não recusa nada, e o grupo leva o que ele disse. No original é o stack trace do runtime, com frames diferentes de membro para membro, e a mesma frase sai uma vez por membro que falha; o membro de Focus diz a frase como qualquer comando (`focus: frase`), igual em todos, e o grupo leva-a uma vez | Diferença de forma declarada em `SHAPES` (`group-thrown`): cada trace do original é lido como essa linha e as repetições saem antes de comparar; a saída, a frase e os ficheiros são comparados |
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Diferencial, `hook/guard-tool-call/*` | 33 verificações, 31 iguais, 2 desvios, 0 diferentes: leituras e listagens que passam; o guard do plano a recusar uma escrita, uma shell e um despacho (por `Task` e por `Agent`), e a deixar passar o que nunca governa; duas recusas na mesma chamada, pela ordem dos membros; a mesma recusa de todos, dita uma vez; a transição e o revisor a recusar através do grupo (com `LS`, `Glob`, `NotebookRead` e `Grep`); ferramentas que nenhuma linha escolhia, com prefixo, com sufixo e noutra caixa; o despacho que só chega ao plano e a leitura que não lhe chega; o pedido sem ferramenta, com o nome que não é texto, e malformado de cinco maneiras; um membro posto de lado, calado e a falar, sozinho e ao lado de uma recusa; settings recusadas, sozinhas e depois de uma recusa; o interruptor de um e de todos; de fora; a frio; sem evento e de outro evento; os marcadores de observador |
+| Diferencial completo | 3 013 verificações, 2 817 iguais, 196 desvios, 0 diferentes; 2 956 gravadas sobre 881 árvores. Os desvios passam de 195 a 196: entram os dois dos membros vistos pelo grupo e sai `dispatch/guard_tool_call_not_ported`. Todas as verificações de hook (`hook/*`) correm de novo com a condição da decisão `deny` |
+| Testes | 555: dois unitários em `group` (a que membros chega cada ferramenta; o que o grupo responde ao que os membros respondem, com um membro injetado) e três da linha de comandos (um registo corre os checks; um membro que falha não recusa nada; a decisão `deny` só antes de uma ferramenta, e só em Claude Code) |
+| Mutação | 33 mutantes no grupo, no dispatcher e na condição da decisão: 32 apanhados pelos testes, 1 equivalente retirado do código (uma razão vazia já não acrescenta nada ao que se junta). O diferencial sozinho apanha 29 dos 32, depois de sete verificações escritas para as arestas; os três que não vê ficam só nos testes: a ordem dos dois últimos membros (a recusa do `review-freeze` é de M5, e Focus recusa-o pelo nome), o que um membro diga no stderr deixando passar a chamada (nenhum membro o faz), e o nome do harness (o diferencial corre Focus como Claude Code; os outros harnesses são de M6) |
+
+**Desvios deliberados.** Nenhum novo. `guard-tool-call/directive_marker` e `guard-tool-call/review_rows` são os desvios dos membros (o marcador de diretiva, as linhas de revisão: M5), vistos através do grupo; `dispatch/guard_tool_call_not_ported` deixou de existir.

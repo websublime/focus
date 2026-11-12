@@ -8,10 +8,12 @@
 //! records what it had to drop, under the record's hooks-health directory
 //! ([`health`]).
 //!
-//! This crate holds the observers: hooks that record, keep the record in
-//! step and recompile what derives from it, and decide nothing. The guards that refuse a tool call are M4's
-//! later slices. Ported from `core/hooks/aidlc-*.ts`, and held to upstream's
-//! behaviour by the differential.
+//! This crate holds the observers (hooks that record, keep the record in
+//! step and recompile what derives from it, and decide nothing), the session
+//! start, the person's turn, and the guards that refuse a tool call, with
+//! the one registration that runs those in one process ([`group`]). Ported
+//! from `core/hooks/aidlc-*.ts`, and held to upstream's behaviour by the
+//! differential.
 
 pub mod context;
 pub mod engine;

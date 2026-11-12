@@ -82,6 +82,17 @@ fn project(name: &str) -> Project {
 }
 
 fn hook(root: &Path, args: &[&str], stdin: &str, env: &[(&str, &str)]) -> Output {
+    hook_under(root, "claude", args, stdin, env)
+}
+
+/// A hook run for the harness named.
+fn hook_under(
+    root: &Path,
+    harness: &str,
+    args: &[&str],
+    stdin: &str,
+    env: &[(&str, &str)],
+) -> Output {
     let mut command = Command::new(env!("CARGO_BIN_EXE_focus"));
     command
         .args(["engine", "hook"])
@@ -90,7 +101,7 @@ fn hook(root: &Path, args: &[&str], stdin: &str, env: &[(&str, &str)]) -> Output
             "--project-dir",
             root.to_str().unwrap(),
             "--harness",
-            "claude",
+            harness,
         ])
         .current_dir(root)
         .stdin(Stdio::piped())
@@ -3664,5 +3675,23 @@ fn a_refusal_is_a_deny_decision_only_before_a_tool_call() {
             assert!(output.stdout.is_empty(), "{}", text(&output.stdout));
             assert_eq!(text(&output.stderr), waits);
         }
+        // The decision is Claude Code's: another harness reads the refusal
+        // off stderr, through its adapter.
+        let output = hook_under(
+            &root,
+            "cursor",
+            &[name],
+            &call("Write", "\"file_path\":\"src/app.ts\""),
+            &[],
+        );
+        assert_eq!(output.status.code(), Some(2), "{name}");
+        assert!(output.stdout.is_empty(), "{}", text(&output.stdout));
+        // (No such harness is installed here, so the refusal is the one of
+        // an evaluation that failed closed.)
+        assert!(
+            text(&output.stderr).starts_with("Code generation cannot start because"),
+            "{}",
+            text(&output.stderr)
+        );
     }
 }

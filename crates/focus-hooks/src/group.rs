@@ -92,7 +92,7 @@ pub fn run(
                 &mut failures
             }
         };
-        if !said.stderr.is_empty() && !reasons.contains(&said.stderr) {
+        if !reasons.contains(&said.stderr) {
             reasons.push(said.stderr);
         }
     }
@@ -231,6 +231,15 @@ mod tests {
                 said(2, "", "no\n")
             ]),
             (2, String::new(), "no\n".to_owned())
+        );
+        // A failure after a refusal does not undo it.
+        assert_eq!(
+            answer(&[said(2, "", "no\n"), said(1, "", "failed\n")]),
+            (2, String::new(), "no\n".to_owned())
+        );
+        assert_eq!(
+            answer(&[said(3, "", "a\n"), said(1, "", "b\n")]),
+            (3, String::new(), "a\nb\n".to_owned())
         );
         // With no refusal the first failure's code stands, and each failure
         // is said once.

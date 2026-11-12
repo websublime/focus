@@ -3940,6 +3940,19 @@ def hook_checks():
     check_("guard-tool-call/other_event", building, [["guard-tool-call", payload(hook_event_name="PostToolUse", tool_name="Write", tool_input={"file_path": "{P}/src/app.ts"})],
                                                    ["plan-approval-guard", payload(hook_event_name="PostToolUse", tool_name="Write", tool_input={"file_path": "{P}/src/app.ts"})]])
     check_("guard-tool-call/directive_marker", {**building, f"{engine}/active-directive.json": '{"version": 2, "stage": "code-generation"}'}, [group(file_path="{P}/src/app.ts")])
+    # The edges a mutation sweep asked for.
+    strict_reviewing = {**created(construction.replace("- **Guard Policy**: off (from scope feature)", "- **Guard Policy**: strict (set by a command)")), **binding(), **dispatch()}
+    check_("guard-tool-call/reviewer_lists_and_searches", strict_reviewing, [group("LS", path="{D}/construction/U02", more={"agent_type": REVIEWER}), group("Glob", pattern="construction/*/design.md", more={"agent_type": REVIEWER}),
+                                                                           group("NotebookRead", notebook_path="{D}/construction/U02/n.ipynb", more={"agent_type": REVIEWER}),
+                                                                           group("Grep", pattern="x", path="{D}/construction/U02", more={"agent_type": REVIEWER})])
+    check_("guard-tool-call/two_refuse_in_order", strict_reviewing, [group("Bash", command="cat {D}/construction/U02/design.md && bun .claude/tools/aidlc-state.ts approve nfr-design", more={"agent_type": REVIEWER})])
+    check_("guard-tool-call/agent_dispatch", building, [group("Agent", subagent_type=DEVELOPER, prompt="Build it"), group("Task", subagent_type=DEVELOPER, prompt="Build it")])
+    check_("guard-tool-call/prefixed_tool", building, [group("mcp__x__Write", file_path="{P}/src/app.ts"), group("xBash", command="rm -rf src"), group("TaskX", subagent_type=DEVELOPER), group("AgentTask", subagent_type=DEVELOPER)])
+    spoken_aside = lowered_state.replace("off (from scope feature)", "relaxed (set by you)") + "- **Guards Off**: state-transition (set by you)\n"
+    check_("guard-tool-call/stood_aside_speaks", speaking, [group("Bash", command="bun .claude/tools/aidlc-state.ts approve intent-capture")])
+    check_("guard-tool-call/stood_aside_speaks_and_refused", {**created(spoken_aside), **binding()}, [group("Bash", command=transition)])
+    check_("guard-tool-call/refusal_then_failure", {**building, "aidlc.settings.local.json": '{"flags": {}}\n'}, [group("Bash", command=transition)])
+
     for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
         check_(f"guard-tool-call/observer_{marker.lower()}", building, [group(file_path="{P}/src/app.ts")], {marker: "1"})
 
