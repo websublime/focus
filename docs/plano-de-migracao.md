@@ -152,7 +152,7 @@ Atribuição feita pelo cabeçalho de cada ficheiro e pelo grafo de imports. É 
 | `focus-guards` | `testing-posture` (5 453), `plan-approval-ask` (2 196) | M4, M5 |
 | `focus-hooks` | `plan-approval-guard` (2 793), `state-transition-guard` (1 275), `reviewer-scope` (1 161), `record-human-turn` (934), `session-start` (658), `review-freeze` (447), `rebuild-stage-graph` (355), `write-audit-log` (243), `sync-workflow-state` (147), `session-end` (130), `validate-state` (122), `log-subagent` (113), `hook-trace` (66) | M4 |
 | `focus-evidence` | `log` (4 486), `review-brief` (2 365) | M5 |
-| `focus-orchestrate` | `orchestrate` (16 133), `unit` (3 769), `directive` (2 976), `construction-checkpoints` (1 618), `bolt` (1 511), `learnings` (1 252), `rules-held` (595), `includes` (481), `inline-context` (398), `steering` (128) | M5 |
+| `focus-orchestrate` | `orchestrate` (16 133), `directive` (2 976), `construction-checkpoints` (1 618), `bolt` (1 511), `learnings` (1 252), `rules-held` (595), `includes` (481), `inline-context` (398), `steering` (128) | M5 |
 | `focus-hooks` | `continue-workflow` (2 191), `statusline` (746), `deliver-stage-rules` (412) | M6 |
 | `focus-harness` | `aidlc-cursor-adapter` (3 028), `aidlc-copilot-adapter` (2 304) | M6 |
 | `focus-cli` | `aidlc` (3 735), `command` (670), `completions` (316), `color` (72), `version` (4) | M6 |
@@ -170,6 +170,7 @@ Soma por módulo: 174 082 linhas de `core/tools` e `core/hooks` (169 063 antes d
 | Tema | Linhas | Módulos |
 | --- | ---: | --- |
 | Construction em paralelo | 8 185 | `worktree`, `swarm`, `swarm-checkpoints` |
+| Units de equipa | 3 769 | `unit`: `Unit Ownership: team`, as claims sobre refs de git, o board de equipa (decisão de 2026-11-12, secção 11) |
 | Instalação nativa | 8 415 | `lifecycle`, `windows-uninstall`, `transaction`, `release`, `install-paths`, `uninstall-plan`, `machine-config`, `update`, `archive`, `channel`. Com `cargo-dist` a empacotar e instalar o binário, a maior parte disto é substituída, não portada |
 | DocumentKB | 5 182 | `knowledge`, `documentkb-schema` |
 | Custos e métricas | 2 500 | `usage`, `metrics`, hook `fold-usage` |
@@ -224,7 +225,7 @@ Cada marco fecha com um critério verificável contra o oráculo.
 - Ferramentas de plugin (`create`, `build`, `validate`, `test`, `emit`). A seleção de plugins no compile já existe desde M1.
 - Critério: a árvore gerada equivale à do packager original para os três harnesses; um workflow corre de ponta a ponta em cada host.
 
-Tamanho: M5 é o maior bloco (35 712 linhas atribuídas a `focus-orchestrate` e `focus-evidence`, mais a fatia de `lib` e parte de `utility`). As 21 335 de `focus-project` são um limite superior largo: grande parte de `init` trata dos sete harnesses e da instalação nativa. M0 cobriu, pela minha soma dos intervalos de linhas portados, cerca de 3 000 linhas de TypeScript, e M1 cerca de 2 700; não há um mapa função a função que o confirme. Não dou estimativa em tempo: os dois marcos feitos são os mais autocontidos, e a partir de M2 o código lê e escreve estado partilhado.
+Tamanho: M5 é o maior bloco (31 943 linhas atribuídas a `focus-orchestrate` e `focus-evidence`, mais a fatia de `lib` e parte de `utility`). As 21 335 de `focus-project` são um limite superior largo: grande parte de `init` trata dos sete harnesses e da instalação nativa. M0 cobriu, pela minha soma dos intervalos de linhas portados, cerca de 3 000 linhas de TypeScript, e M1 cerca de 2 700; não há um mapa função a função que o confirme. Não dou estimativa em tempo: os dois marcos feitos são os mais autocontidos, e a partir de M2 o código lê e escreve estado partilhado.
 
 ## 7. Verificação
 
@@ -446,12 +447,15 @@ O que a revisão deu como são, por medição em Linux: lock e escrita atómica 
 
 A decisão 3 dizia "cargo toma posse". Li-a como: nada de compatibilidade com o lock em TypeScript, usar o que a toolchain do Rust dá. Se querias dizer outra coisa, é barato corrigir agora.
 
+### Tomada em 2026-11-12
+
+**`Unit Ownership: team` fica adiado.** As claims de `unit` (3 769 linhas: um registo atómico sobre refs de git, com um remote), o board de equipa e o progresso derivado das units servem várias equipas em vários checkouts. É da mesma família que a Construction em paralelo, com que partilha os branches e o merge para `main`, e verificá-lo pede um diferencial com repositórios git, remotes e vários clones, que mais nada em M5 precisa. Faz-se à frente, como marco próprio, com `worktree` e `swarm`. Até lá um estado com `Unit Ownership: team` recusa pelo nome, nunca corre como se fosse a solo.
+
 ### Em aberto
 
 1. **`.gitignore` do lock.** `focus/.focus-lock` não deve ser commitado. O instalador (M8) é quem escreve o `.gitignore` do projeto; até lá, quem usar Focus num projeto real acrescenta a linha à mão.
 2. **Peso das fixtures (R10).** 19 MB no repositório, ou diferencial gravado fora dele.
 3. **O nome do método na prosa.** O Markdown reutilizado diz "AI-DLC" quando fala do método (por exemplo, "AI-DLC workflow"). Não mexi: é o nome de uma metodologia, não um identificador, e trocá-lo por substituição de texto estraga a gramática ("an AI-DLC" passaria a "an Focus"). Se o queres fora, é uma edição de conteúdo à mão, que cabe em M8 com o resto do Markdown.
-4. **`Unit Ownership: team` (2026-11-12).** As claims de `unit` (3 769 linhas: um registo atómico sobre refs de git, com um remote), o board de equipa e o progresso derivado das units servem várias pessoas em vários checkouts. O mapa da secção 5 tem `unit` em âmbito; proponho adiá-lo com a Construction em paralelo, de que é a mesma família, e que a jornada sem modelo do próprio original deixa de fora. Enquanto não disseres, não se porta nem se retira: recusa pelo nome, e a fatia fica no fim de M5 se a quiseres dentro.
 
 ## 12. Como correr
 
@@ -1243,7 +1247,7 @@ A validade é a segunda metade de `aidlc-validity.ts`: ler os recibos de volta (
 
 O que M3 não faz, e o que acontece quando lá se chega. Tudo recusa pelo nome: nenhum comando ignora o que não porta.
 
-1. **Units e bolts (M5, fatia 5; o que é de equipa, decisão em aberto 4).** Dezoito verbos de `state` (`set-skeleton-stance`, `set-construction-*`, `set-unit-ownership`, `set-unit-gate-rhythm`, `refresh-unit-progress`, `sync-unit-scope-stage`, `fold-unit-merge`, `acknowledge-compaction`, `reuse-artifact`, `lookup`, `practices-event`, `practices-promote`, `fork`, `merge`, `unit`), `jump reopen` e `jump execute --units`, os gates de unit, `park` e `unpark` com `Unit Ownership: team`, o board de equipa do `status`, e uma stage de Construction em `advance`.
+1. **Units e bolts (M5, fatia 5; o que é de equipa está adiado).** Dezoito verbos de `state` (`set-skeleton-stance`, `set-construction-*`, `set-unit-ownership`, `set-unit-gate-rhythm`, `refresh-unit-progress`, `sync-unit-scope-stage`, `fold-unit-merge`, `acknowledge-compaction`, `reuse-artifact`, `lookup`, `practices-event`, `practices-promote`, `fork`, `merge`, `unit`), `jump reopen` e `jump execute --units`, os gates de unit, `park` e `unpark` com `Unit Ownership: team`, o board de equipa do `status`, e uma stage de Construction em `advance`.
 2. **Evidências e marcadores (M5).** Os recibos que `aidlc-log` escreve (a confirmação do sumário, os recibos do reviewer, os handoffs de um pipeline) e que uma transição deve; os findings de uma review no gate; o marcador de diretiva ativa, que `jump`, `status` e os guards leem.
 3. **Sensores (M7).** Os sensores de gate: `gate-start` com a cerimónia `sensors` ligada recusa; o diferencial e o fuzz correm com ela desligada.
 4. **O resto de `utility` (M5 e M8).** Vinte e seis verbos: intents e spaces (`intent`, `space`, `space-create`, `set-status`), o code knowledge base (`codekb-*`, `document-input`, `reclassify`), scopes e settings (`recompose`, `scope-change`, `scope-save`, `config-*`, `detect-scope`, `resolve-env-scope`, `scope-table`, `stage-table`), plugins (`select-plugins`, `plugin-*`) e `help`, `version`, `doctor`, `init`, `project-description`.
@@ -1730,7 +1734,7 @@ O marco entra de baixo para cima, como M2 a M4: primeiro a evidência que as tra
 | --- | --- | --- |
 | 1 | **Solo e em série.** `invoke-swarm` nunca é emitida; um estado que peça Construction em paralelo recusa pelo nome | `swarm`, `swarm-checkpoints` e `worktree` estão adiados (secção 5). Um workflow novo nasce com `Construction Execution: serial` e `Construction Iteration: unit-major` |
 | 2 | **O marcador é publicado como em Claude Code** (`generic-committed`). As tentativas seguidas de Copilot (`--aidlc-attempt-id`, `copilot-committed`, a pergunta de resume preservada) entram com o adapter, em M6; a aprovação de plano de Kiro legado recusa pelo nome | Os adapters são M6; Kiro está adiado |
-| 3 | **`Unit Ownership: team` fica em aberto** (decisão em aberto 4, secção 11): as claims de `unit` (3 769 linhas, um registo atómico sobre refs de git com um remote), o board de equipa e o progresso derivado das units. Até ser decidido continua a recusar pelo nome | É trabalho de várias pessoas em vários checkouts, da mesma família que a Construction em paralelo; a jornada sem modelo do próprio original (`tests/harness/scope-run.ts`) declara os gates de units de equipa e os checkpoints de swarm fora do que conduz |
+| 3 | **`Unit Ownership: team` está adiado** (decisão de 2026-11-12, secção 11): as claims de `unit`, o board de equipa e o progresso derivado das units recusam pelo nome | É trabalho de várias equipas em vários checkouts, da mesma família que a Construction em paralelo; a jornada sem modelo do próprio original (`tests/harness/scope-run.ts`) declara os gates de units de equipa e os checkpoints de swarm fora do que conduz |
 | 4 | **Os sensores de gate continuam em M7.** `report` abre um gate com a cerimónia `sensors` desligada, como `gate-start` desde M3 | Sem alteração |
 | 5 | **O que `next` encaminha para módulos adiados recusa pelo nome**: os comandos de DocumentKB, de plugins (M8), de custos | "Input que não está portado é recusado, nunca ignorado" |
 | 6 | **O code knowledge base entra** (`codekb-path`, `codekb-snapshot`, `codekb-publish`, `codekb-scope-diff`, `document-input`, `reclassify`), com a fatia que primeiro o precisa | Uma jornada brownfield passa por reverse engineering, que os usa |
@@ -1785,4 +1789,4 @@ Dois limites conhecidos. O agente de substituição do original dispara `continu
 
 ### O que M4 não levantou
 
-A secção 14 marca como M4 o que depende de units; M4 fechou sem units, que são da fatia 5 deste marco. Mantêm-se recusados pelo nome até lá: os verbos de units de `state`, `skip --unit`, `jump reopen` e `execute --units`, e uma stage de Construction em `advance`. O que é de equipa (`park` e `unpark` com `Unit Ownership: team`, o gate de uma unit de equipa, o board no `status`) espera pela decisão em aberto 4. As concessões que o turno humano guarda para um chat antes de o trabalho existir e as linhas devidas à pessoa, também marcadas M4, são da porta da frente (fatia 9) e da emissão (fatia 7).
+A secção 14 marca como M4 o que depende de units; M4 fechou sem units, que são da fatia 5 deste marco. Mantêm-se recusados pelo nome até lá: os verbos de units de `state`, `skip --unit`, `jump reopen` e `execute --units`, e uma stage de Construction em `advance`. O que é de equipa (`park` e `unpark` com `Unit Ownership: team`, o gate de uma unit de equipa, o board no `status`) está adiado com `unit` (secção 11). As concessões que o turno humano guarda para um chat antes de o trabalho existir e as linhas devidas à pessoa, também marcadas M4, são da porta da frente (fatia 9) e da emissão (fatia 7).
