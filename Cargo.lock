@@ -300,6 +300,9 @@ name = "focus-log"
 version = "0.1.0"
 dependencies = [
  "focus-audit",
+ "focus-evidence",
+ "focus-graph",
+ "focus-guards",
  "focus-hooks",
  "focus-js",
  "focus-lifecycle",

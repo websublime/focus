@@ -22,8 +22,11 @@ The interactions of the active record's work, written to its ledger.
 
   decision --stage <slug> --decision <text> [--options <a,b>] [--rationale <text>] [--single]
            [--message <id>] [--session <id>]
+           [--checkpoint summary-confirmation --questions-file <file>]
                            A question the agent asks the person; --message names the
-                           message of theirs that already answered it
+                           message of theirs that already answered it. A stage's summary is
+                           asked with its checkpoint, bound to the stage's questions file,
+                           whose summary section still has its one [Answer]: line blank
   answers --stage <slug> [--unit <unit>]
                            The stage's questions, with the answers they have (read only)
   answer --stage <slug> (--details <text> | --details-file <file>) [--single] [--message <id>]

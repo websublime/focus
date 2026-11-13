@@ -10,14 +10,15 @@
 //! verification command and the policy of Construction, and a question
 //! about one unit of work (slice 5), and Plan Approval (slice 11).
 
-use focus_js::text::{to_lower_case, trim};
-use focus_js::{Result, bail, re};
+use focus_js::text::trim;
+use focus_js::{Result, bail};
 use focus_lifecycle::workflow::Workflow;
-use focus_lifecycle::{admission, gate, presence, reply};
+use focus_lifecycle::{gate, presence, reply};
 use serde_json::{Value, json};
 
-use crate::flags::{self, Flags};
+use crate::flags;
 use crate::message::{self, What};
+use crate::summary::{self, Plain, Verb};
 
 /// `unknownCheckpointMessage`.
 pub(crate) fn unknown_checkpoint(checkpoint: &str) -> String {
@@ -28,50 +29,6 @@ pub(crate) fn unknown_checkpoint(checkpoint: &str) -> String {
     format!(
         "Unknown --checkpoint \"{checkpoint}\". Accepted: summary-confirmation, plan-approval, verification-command, construction-policy, guard-recovery"
     )
-}
-
-/// `isSummaryConfirmationChoice`: "Looks correct" or "Request changes",
-/// however it was capitalised or decorated.
-fn is_summary_choice(text: &str) -> bool {
-    let stripped = reply::strip_recommended_decorator(text);
-    let normalized = to_lower_case(&re::replace("[.!]+$", "", trim(&stripped), ""));
-    normalized == "looks correct" || normalized == "request changes"
-}
-
-/// `isSummaryConfirmationOptions`: a question whose offered options are the
-/// summary's two choices.
-pub(crate) fn is_summary_options(options: Option<&str>) -> bool {
-    let Some(options) = options else {
-        return false;
-    };
-    let offered: Vec<&str> = options
-        .split(',')
-        .map(trim)
-        .filter(|option| !option.is_empty())
-        .collect();
-    offered.len() == 2 && offered.iter().all(|option| is_summary_choice(option))
-}
-
-/// `refusePlainSummaryConfirmation`, for a question: one that offers the
-/// summary's two choices, for a stage that owes a summary confirmation, is
-/// not an ordinary question. Upstream refuses it with the two commands that
-/// record a summary; those are slice 2c, and until then Focus refuses it by
-/// name.
-fn refuse_plain_summary(wf: &Workflow, flags: &Flags, stage: &str) -> Result<()> {
-    let Some(stage) = wf.install.stage(stage) else {
-        return Ok(());
-    };
-    if !is_summary_options(flags.get("options")) {
-        return Ok(());
-    }
-    let state = wf.read_state()?;
-    if admission::summary_confirmation_owed(wf, stage, &state) {
-        bail!(
-            "\"{}\" owes a consolidated summary confirmation, and this question offers its two choices: it is recorded with `--checkpoint summary-confirmation --questions-file <path>`, and Focus does not record summary confirmations yet.",
-            stage.slug
-        );
-    }
-    Ok(())
 }
 
 /// `handleDecision`. `open` selects the piece of work the question belongs
@@ -91,9 +48,7 @@ pub fn decision(open: &dyn Fn() -> Result<Workflow>, args: &[String]) -> Result<
     };
     match flags.get("checkpoint") {
         None => {}
-        Some("summary-confirmation") => bail!(
-            "--checkpoint summary-confirmation records the question of a stage's summary confirmation, and Focus does not record summary confirmations yet."
-        ),
+        Some("summary-confirmation") => {}
         Some(checkpoint @ ("verification-command" | "construction-policy")) => bail!(
             "--checkpoint {checkpoint} records a question of Construction's checkpoints, and Focus does not run Construction yet."
         ),
@@ -103,7 +58,20 @@ pub fn decision(open: &dyn Fn() -> Result<Workflow>, args: &[String]) -> Result<
         Some(other) => bail!("{}", unknown_checkpoint(other)),
     }
     let wf = open()?;
-    refuse_plain_summary(&wf, &flags, stage)?;
+    if flags.get("checkpoint").is_none() {
+        summary::refuse_plain(
+            &wf,
+            &[],
+            Verb::Decision,
+            &Plain {
+                stage,
+                unit: flags.get("unit"),
+                single: flags.get("single").is_some(),
+                options: flags.get("options"),
+                details: None,
+            },
+        )?;
+    }
     // A question that says the person already confirmed records a choice
     // they never made: the engine's carrying-on line is not their answer.
     if !presence::human_presence_guard_disabled(&wf)
@@ -125,6 +93,16 @@ pub fn decision(open: &dyn Fn() -> Result<Workflow>, args: &[String]) -> Result<
             "--unit records a question about one unit of work, and Focus does not run units yet."
         );
     }
+    // The summary's question binds to the questions file the person reads:
+    // its summary section still has its one `[Answer]:` line blank.
+    let summary_evidence = match flags.get("checkpoint") {
+        Some("summary-confirmation") => Some(summary::question_evidence(
+            &wf,
+            flags.get("questions-file"),
+            "",
+        )?),
+        _ => None,
+    };
     let mut fields: Vec<(&str, String)> = vec![
         ("Stage", stage.to_owned()),
         ("Decision", question.to_owned()),
@@ -134,6 +112,12 @@ pub fn decision(open: &dyn Fn() -> Result<Workflow>, args: &[String]) -> Result<
     }
     if let Some(rationale) = flags.given("rationale") {
         fields.push(("Rationale", rationale.to_owned()));
+    }
+    // The hash is the answer's to record: here it says the file can be
+    // one.
+    if let Some((questions_file, _)) = summary_evidence {
+        fields.push(("Checkpoint", summary::CHECKPOINT.to_owned()));
+        fields.push(("Questions File", questions_file));
     }
     if flags.get("single") == Some("true") {
         fields.push(("Workflow", format!("single-stage:{stage}")));
