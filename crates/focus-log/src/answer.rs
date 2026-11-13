@@ -8,12 +8,16 @@
 //! answer needs a message of the person's that has not answered anything
 //! yet, or the message named as the one that did.
 //!
+//! An answer the person left to the agent (`--on-instruction`, with their
+//! own words) is the one answer that needs no reply: it needs the person
+//! to have said something in this piece of work, and is recorded as the
+//! agent's choice at their word. An approval is never one of those.
+//!
 //! What is ported is the answer to a stage's question. Refused by name
-//! until the slice that brings them: an answer in a file and a choice the
-//! person left to the agent (the next pull request); the engine's own
-//! questions, each with a record of its own (the recovery question, slice
-//! 4; a summary confirmation, 2c; Construction's checkpoints and a question
-//! about one unit of work, 5; Plan Approval, 11).
+//! until the slice that brings them: the engine's own questions, each with
+//! a record of its own (the recovery question, slice 4; a summary
+//! confirmation, 2c; Construction's checkpoints and a question about one
+//! unit of work, 5; Plan Approval, 11).
 
 use focus_audit::read::block_field;
 use focus_audit::shards::ShardEvent;
@@ -27,8 +31,8 @@ use focus_state::progress::{CheckboxState, parse_checkboxes};
 use serde_json::{Value, json};
 
 use crate::decision::{is_summary_options, unknown_checkpoint};
-use crate::flags;
 use crate::message::{self, What};
+use crate::{answer_text, flags};
 
 /// `SUMMARY_CONFIRMATION_CHECKPOINT`, as a row names it.
 const SUMMARY_CHECKPOINT: &str = "Consolidated Summary Confirmation";
@@ -132,20 +136,53 @@ pub fn answer(open: &dyn Fn() -> Result<Workflow>, args: &[String]) -> Result<Va
     let Some(stage) = flags.given("stage") else {
         bail!("Missing --stage <slug>");
     };
-    for file in ["details-file", "on-instruction-file"] {
-        if flags.get(file).is_some() {
-            bail!(
-                "--{file} passes text in a file the agent wrote, and Focus does not read an answer's text from a file yet."
-            );
+    // Text that holds shell characters arrives in a file the agent wrote,
+    // so no shell reads it on the way.
+    let mut texts = [
+        (
+            "details",
+            "details-file",
+            flags.get("details").map(str::to_owned),
+        ),
+        (
+            "on-instruction",
+            "on-instruction-file",
+            flags.get("on-instruction").map(str::to_owned),
+        ),
+    ];
+    for (text, file, value) in &mut texts {
+        let Some(name) = flags.get(file) else {
+            continue;
+        };
+        if value.is_some() {
+            bail!("Pass either --{text} or --{file}, not both.");
         }
+        *value = Some(answer_text::read(&open()?, name)?);
     }
-    let Some(said) = flags.given("details") else {
+    let [(_, _, details), (_, _, instruction)] = texts;
+    let Some(said) = details.as_deref().filter(|details| !details.is_empty()) else {
         bail!("Missing --details <text> (or --details-file <file>)");
     };
-    if flags.get("on-instruction").is_some() {
-        bail!(
-            "--on-instruction records a choice the person left to the agent, and Focus does not record that yet."
-        );
+    // A stage question the person left to the agent. Checkpoints and
+    // approvals stay the person's own each time, and an unattended run has
+    // nobody to hand anything over.
+    let instruction =
+        instruction.map(|words| trim(&re::replace(r"\s+", "g", &words, " ")).to_owned());
+    if let Some(instruction) = &instruction {
+        if instruction.is_empty() {
+            bail!("--on-instruction needs the person's own words that left the choice to you.");
+        }
+        if let Some(checkpoint) = flags.get("checkpoint") {
+            bail!(
+                "--on-instruction is for a stage question the person left to you; --checkpoint {checkpoint} is theirs to answer. Ask them and record their reply."
+            );
+        }
+        if !presence::attended() {
+            bail!(
+                "--on-instruction needs a person in the session; {}=1 is set.",
+                focus_workspace::env::full_name("UNATTENDED")
+            );
+        }
     }
     match flags.get("checkpoint") {
         None => {}
@@ -262,6 +299,11 @@ pub fn answer(open: &dyn Fn() -> Result<Workflow>, args: &[String]) -> Result<Va
         checkbox.slug == stage && checkbox.state == CheckboxState::AwaitingApproval
     });
     if at_gate && !events::has_pending_decision_at_gate(&rows, stage) {
+        if instruction.is_some() {
+            bail!(
+                "An approval is the person's own each time, so --on-instruction cannot record it. Ask them."
+            );
+        }
         if !autonomous && !unguarded && !presence::human_replied_since_gate(&wf) {
             bail!(
                 "Cannot record this approval choice because no new human reply has arrived. After the human types their choice, use `focus engine orchestrate report` --result approved or rejected; do not use `focus engine log` answer for an approval.{}",
@@ -278,7 +320,7 @@ pub fn answer(open: &dyn Fn() -> Result<Workflow>, args: &[String]) -> Result<Va
     // question it was logged with. A named one that fails its proof
     // refuses; an inherited one falls back to the presence test below.
     let mut named = None;
-    if !autonomous {
+    if instruction.is_none() && !autonomous {
         if let Some(id) = flags.get("message") {
             match message::prove(&wf, id, What::Answer) {
                 Ok(proved) => named = Some(proved),
@@ -297,7 +339,8 @@ pub fn answer(open: &dyn Fn() -> Result<Workflow>, args: &[String]) -> Result<Va
         if let Some(words) = own_words(named.words.clone().filter(|words| !words.is_empty())) {
             fields.push(("Person Reply", words));
         }
-    } else if !autonomous
+    } else if instruction.is_none()
+        && !autonomous
         && let Some(words) =
             own_words(presence::latest_person_turn_words(&wf).filter(|words| !words.is_empty()))
     {
@@ -307,7 +350,33 @@ pub fn answer(open: &dyn Fn() -> Result<Workflow>, args: &[String]) -> Result<Va
     // as its own answer. A question asked after it waits for the next
     // reply, unless the message that answered it arrived before it was
     // logged: then the agent names that message instead of asking again.
-    if !autonomous
+    if let Some(instruction) = &instruction {
+        // `personSpokeInThisWork`: a turn that can carry a request, or the
+        // request that started the work. Their handing a choice over can
+        // come before the question, so the words are what the record keeps.
+        // (A field is read trimmed: a request of white space is none.)
+        let spoke = rows.iter().any(|row| {
+            presence::is_request_turn(&row.event, &row.block)
+                || (row.event == "WORKFLOW_STARTED"
+                    && !block_field(&row.block, "Request").unwrap_or("").is_empty())
+        });
+        if !spoke {
+            // Upstream asks for this hint without naming the project, so it
+            // is the hint of the project its own script is installed in.
+            // Focus has one project in an invocation, the one the command
+            // runs for, and the two are the same wherever the engine runs
+            // for the project that holds it.
+            bail!(
+                "Nothing the person said in this piece of work is on record, so no choice was left to you. Ask them.{}",
+                presence::unattended_human_presence_hint(&wf)
+            );
+        }
+        fields.push((
+            "Answer Source",
+            "chosen by the agent as the person asked".to_owned(),
+        ));
+        fields.push(("Instruction", instruction.clone()));
+    } else if !autonomous
         && !unguarded
         && named.is_none()
         && !presence::human_replied_since_gate(&wf)
@@ -330,7 +399,10 @@ pub fn answer(open: &dyn Fn() -> Result<Workflow>, args: &[String]) -> Result<Va
     }
     // Where the person replied in a question box, an answer none of their
     // picks carried is still recorded, with a note saying what they picked.
-    if !autonomous && let Some(note) = presence::picker_answer_note(&wf, &details) {
+    if instruction.is_none()
+        && !autonomous
+        && let Some(note) = presence::picker_answer_note(&wf, &details)
+    {
         fields.push(("Picker Note", note));
     }
     wf.emit(&held, "QUESTION_ANSWERED", &fields)?;

@@ -247,6 +247,17 @@ impl Snapshot {
 /// elsewhere on the disk into the workspace); or it was replaced or changed
 /// between being opened and being read to the end.
 pub fn read_regular(path: &Path, what: &str) -> Result<Vec<u8>> {
+    read_regular_within(path, what, None)
+}
+
+/// [`read_regular`] for a file with a size it may not pass
+/// (`readRegularFileNoFollowOrThrow` with `maxBytes`): a larger one is
+/// refused before a byte of it is read.
+///
+/// # Errors
+///
+/// As [`read_regular`]; and the file is larger than `max` bytes.
+pub fn read_regular_within(path: &Path, what: &str, max: Option<u64>) -> Result<Vec<u8>> {
     let shown = path.display();
     let a_link = || format!("{what} is a symlink, which is not followed: {shown}");
     let mut options = OpenOptions::new();
@@ -277,6 +288,14 @@ pub fn read_regular(path: &Path, what: &str) -> Result<Vec<u8>> {
             "{what} is multiply linked (a hardlink) and is not trusted: {shown}. A hardlink can alias content from elsewhere on the filesystem into this directory. Replace it with an independent copy — cp <file> <file>.copy && mv <file>.copy <file> — and re-run."
         ),
         _ => {}
+    }
+    if let Some(max) = max
+        && before.len > max
+    {
+        bail!(
+            "{what} is {} bytes, above the {max}-byte limit: {shown}. Reduce the file before retrying.",
+            before.len
+        );
     }
     if is_link(path) {
         bail!("{}", a_link());
