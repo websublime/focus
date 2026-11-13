@@ -2336,7 +2336,7 @@ DEVIATIONS.update({
         "first joins a path, with the runtime's TypeError (or, with an empty name, lists the whole project, engine "
         "and harness included, as that member); focus refuses the row by name (exit 1 either way where upstream "
         "falls over, and the jump's error row written by both)",
-    r"log/usage/(answer|answers|link|review)_not_ported":
+    r"log/usage/(answer|link|review)_not_ported":
         "the verbs of the log tool that focus has not ported (M5, slices 2b to 2e): upstream runs them; focus "
         "refuses each by name",
     r"log/decision/checkpoint_\w+_not_ported":
@@ -4505,7 +4505,7 @@ def log_checks():
     check_("usage/unknown", created(), [["nope"], ["Decision", "--stage", "x"]])
     check_("usage/no_workflow", CLONE, [ask, ["nope"]])
     check_("usage/no_state_file", created(**{f"{CREATED_DIR}/aidlc-state.md": None}), [ask])
-    for verb in ("answer", "answers", "link", "review"):
+    for verb in ("answer", "link", "review"):
         check_(f"usage/{verb}_not_ported", created(), [[verb, "--stage", "intent-capture"]])
 
     # The flags: one with no value, one followed by another flag, the two a question needs, and an empty value.
@@ -4653,6 +4653,71 @@ def log_checks():
     check_("decision/withdraws_odd_session", created(**kept, **{"aidlc/.aidlc-sessions/plan-approval/protected-question-a-b.json": "{}\n"}), [ask + ["--session", "/a b/"]])
     check_("decision/withdraws_behind_link", created(**{"elsewhere/protected-question-s1.json": "{}\n"}), [ask],
            edits=(lambda tree: (os.makedirs(tree.path("aidlc/.aidlc-sessions")), os.symlink(tree.path("elsewhere"), tree.path("aidlc/.aidlc-sessions/plan-approval"))),))
+
+    # answers: the questions of a stage read back with the answers they have. It writes nothing, and its own
+    # refusal leaves no row.
+    read = ["answers", "--stage", "intent-capture"]
+    Q = lambda minute, text, *fields: block("DECISION_RECORDED", T(minute), "**Stage**: intent-capture", f"**Decision**: {text}", *fields)
+    A = lambda minute, text, *fields: block("QUESTION_ANSWERED", T(minute), "**Stage**: intent-capture", f"**Details**: {text}", *fields)
+    told = lambda *rows, **more: created(audit=CREATED_AUDIT + "".join(rows), **more)
+    other = lambda *rows: {f"{CREATED_DIR}/audit/desktop-def456.md": TITLE + "".join(rows)}
+    check_("answers/usage", created(), [["answers"], ["answers", "--stage"], ["answers", "--stage", ""], read + ["extra"], read + ["--single"], read + ["--decision", "x"],
+                                        read + ["--unit"], ["answers", "--unit", "api"], read + ["--stage", "intent-capture"], ["answers", "extra", "--decision", "x"]])
+    check_("answers/no_workflow", CLONE, [read])
+    check_("answers/no_state_file", created(**{f"{CREATED_DIR}/aidlc-state.md": None}), [read])
+    check_("answers/state_linked", created(**{f"{CREATED_DIR}/aidlc-state.md": None, "elsewhere.md": CREATED_STATE}), [read],
+           edits=(lambda tree: os.symlink(tree.path("elsewhere.md"), tree.path(f"{CREATED_DIR}/aidlc-state.md")),))
+    check_("answers/shard_unreadable", created(**{f"{CREATED_DIR}/audit/desktop-def456.md/x": "x"}), [read])
+    check_("answers/none", created(), [read, ["answers", "--stage", "nope"], read + ["--unit", "api"]])
+    check_("answers/open", told(Q(1, "Which database?", "**Options**: Postgres, SQLite ,,"), Q(2, "Which cache?")), [read])
+    check_("answers/answered", told(Q(1, "Which database?", "**Options**: Postgres,SQLite"), A(2, "Postgres")), [read])
+    check_("answers/menu", told(Q(1, "Which database?"), Q(2, "Which cache?"), A(3, "Postgres and Redis"), Q(4, "Which queue?")), [read])
+    check_("answers/continued", told(Q(1, "Which database?"), Q(2, "Which cache?"), A(3, "Postgres"), A(4, "Redis"), A(5, "and that is all")), [read])
+    check_("answers/not_continued_over_a_question", told(Q(1, "Which database?"), A(2, "Postgres"), Q(3, "Which cache?"), A(4, "Redis"), A(5, "really"), Q(6, "x")), [read])
+    check_("answers/answer_alone", told(A(1, "Postgres"), Q(2, "Which database?")), [read])
+    check_("answers/answer_before_its_question", told(A(1, "Postgres"), Q(2, "Which database?"), A(3, "SQLite")), [read])
+    for label, said in (("cancelled", "Cancelled."), ("empty", ""), ("timed_out", "timed out"), ("no_response", "No response!"), ("dismissed", "User dismissed"),
+                        ("words", "cancel the standing order")):
+        check_(f"answers/non_answer_{label}", told(Q(1, "Which database?"), A(2, said)), [read])
+    check_("answers/non_answer_then_answer", told(Q(1, "Which database?"), A(2, "Cancelled"), A(3, "Postgres")), [read])
+    check_("answers/non_answer_alone", told(A(1, "Cancelled"), Q(2, "Which database?")), [read])
+    check_("answers/non_answer_after_exchange", told(Q(1, "Which database?"), A(2, "Postgres"), A(3, "Cancelled"), A(4, "and Redis")), [read])
+    check_("answers/message_id", told(Q(1, "Which database?", "**Message Id**: 0000aaaa"), A(2, "Postgres"), Q(3, "Which cache?", "**Message Id**: 0000aaaa"),
+                                      A(4, "Redis", "**Message Id**: 0000bbbb")), [read])
+    check_("answers/not_a_question", told(block("DECISION_RECORDED", T(1), "**Stage**: intent-capture"), A(2, "Postgres"), Q(3, "", "**Options**: a")), [read])
+    check_("answers/checkpoint_rows", told(Q(1, "Does this look right?", "**Checkpoint**: summary-confirmation"), A(2, "Looks correct", "**Checkpoint**: summary-confirmation"),
+                                           Q(3, "Which database?"), A(4, "Postgres")), [read])
+    check_("answers/other_stage", told(block("DECISION_RECORDED", T(1), "**Stage**: market-research", "**Decision**: Who buys?"), A(2, "Postgres"),
+                                       block("QUESTION_ANSWERED", T(3), "**Stage**: market-research", "**Details**: Teams")), [read, ["answers", "--stage", "market-research"]])
+    check_("answers/scopes", told(Q(1, "For api?", "**Unit**: api"), Q(2, "For web?", "**Unit**: web"), Q(3, "For all?"), Q(4, "Single?", "**Workflow**: single-stage:intent-capture"),
+                                  Q(5, "Again?", "**Unit**: api", "**Attempt Generation**: 2"), A(6, "web says yes", "**Unit**: web"), A(7, "all say yes"),
+                                  A(8, "second attempt", "**Unit**: api", "**Attempt Generation**: 2"), A(9, "nobody's", "**Unit**: lib")),
+           [read, read + ["--unit", "api"], read + ["--unit", "web"], read + ["--unit", ""], read + ["--unit", "nope"]])
+    # Two shards: an instant shared between them orders nothing.
+    check_("answers/other_shard_later", told(Q(1, "Which database?"), **other(A(2, "Postgres"))), [read])
+    check_("answers/other_shard_tied", told(Q(1, "Which database?"), **other(A(1, "Postgres"))), [read])
+    check_("answers/other_shard_tied_then_later", told(Q(1, "Which database?"), A(3, "SQLite"), **other(A(1, "Postgres"))), [read])
+    check_("answers/other_shard_earlier", told(Q(2, "Which database?"), **other(A(1, "Postgres"))), [read])
+    check_("answers/two_answers_tied", told(Q(1, "Which database?"), A(2, "Postgres"), **other(A(2, "SQLite"))), [read])
+    check_("answers/answer_tied_with_a_cancellation", told(Q(1, "Which database?"), A(2, "Postgres"), **other(A(2, "Cancelled"))), [read])
+    check_("answers/cancellation_tied_with_an_answer", told(Q(1, "Which database?"), A(2, "Cancelled"), **other(A(2, "Postgres"))), [read])
+    check_("answers/questions_in_two_shards", told(Q(1, "Which database?"), A(3, "Both"), **other(Q(2, "Which cache?"))), [read])
+    check_("answers/question_tied_with_the_answer", told(Q(1, "Which database?"), A(2, "Both"), **other(Q(2, "Which cache?"))), [read])
+    check_("answers/open_in_the_ledgers_order", told(Q(3, "Third?"), Q(1, "First?"), **other(Q(2, "Second?"), Q(1, "Also first?"))), [read])
+    check_("answers/continued_across_shards", told(Q(1, "Which database?"), A(2, "Postgres"), **other(A(3, "and Redis"), A(2, "tied"))), [read])
+    check_("answers/scope_fields_in_order", told(Q(1, "Both?", "**Workflow**: single-stage:intent-capture", "**Attempt Generation**: 2", "**Unit**: api"),
+                                                 A(2, "x", "**Workflow**: single-stage:intent-capture", "**Unit**: api")), [read])
+    # What ends an exchange: a question between it and the answer, even one a cancellation already spent; a
+    # question tied with the answer; an answer tied with the one that closed it.
+    check_("answers/not_continued_over_a_cancelled_question", told(Q(1, "Which database?"), A(2, "Postgres"), Q(3, "Which cache?"), A(4, "Cancelled"), A(5, "Redis")), [read])
+    check_("answers/not_continued_with_a_tied_question", told(Q(1, "Which database?"), A(2, "Postgres"), A(3, "more"), **other(Q(3, "Which cache?"))), [read])
+    check_("answers/not_continued_by_a_tied_answer", told(A(2, "in the file before its question"), Q(1, "Which database?"), **other(A(2, "Postgres"))), [read])
+    check_("answers/continued_once_of_two_tied", told(Q(1, "Which database?"), A(2, "Postgres"), A(3, "laptop's"), **other(A(3, "desktop's"))), [read])
+    # A shard whose rows are out of the order of their instants: every answer has another before it.
+    check_("answers/out_of_order_in_two_scopes", told(Q(1, "For api?", "**Unit**: api"), Q(1, "For web?", "**Unit**: web"), A(7, "api says", "**Unit**: api"),
+                                                      A(5, "web says", "**Unit**: web")), [read])
+    check_("answers/cycle", told(Q(1, "Which database?"), A(7, "first in the file"), A(5, "second in the file"), **other(A(6, "between them"))), [read])
+    check_("answers/cycle_with_a_cancellation", told(Q(1, "Which database?"), A(7, "Cancelled"), A(5, "second in the file"), **other(A(6, "between them"))), [read])
 
 
 def jump_checks():

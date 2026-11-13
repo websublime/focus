@@ -1,6 +1,7 @@
 //! `focus engine log <verb>`: `decision` records a question the agent asks
-//! the person. `answer`, `answers`, `link` and `review` are not ported yet,
-//! and are refused by name.
+//! the person, and `answers` reads a stage's questions back with the
+//! answers they have. `answer`, `link` and `review` are not ported yet, and
+//! are refused by name.
 //!
 //! Mirrors `main` and `error` in `aidlc-log.ts`.
 
@@ -23,8 +24,9 @@ The interactions of the active record's work, written to its ledger.
            [--message <id>] [--session <id>]
                            A question the agent asks the person; --message names the
                            message of theirs that already answered it
-  answer, answers, link, review
-                           Not ported yet
+  answers --stage <slug> [--unit <unit>]
+                           The stage's questions, with the answers they have (read only)
+  answer, link, review     Not ported yet
 ";
 
 pub fn run(args: &mut Args) -> Result<(), Failure> {
@@ -66,6 +68,28 @@ pub fn run(args: &mut Args) -> Result<(), Failure> {
         command,
         selector: Selector::default(),
     };
+    // `answers` only reads: its own refusal is printed and leaves no row.
+    if filtered.first().map(String::as_str) == Some("answers") {
+        let read = context
+            .workspace()
+            .map_err(focus_js::EngineError::new)
+            .and_then(|layout| {
+                focus_log::answers::answers(&layout, &Invoker::from_env(), &filtered[1..])
+            });
+        return match read {
+            Ok(answered) => {
+                println!("{}", focus_js::json::stringify(&answered));
+                Ok(())
+            }
+            Err(err) => {
+                eprintln!(
+                    "{}",
+                    focus_js::json::stringify(&serde_json::json!({"error": err.to_string()}))
+                );
+                Err(Failure::Reported)
+            }
+        };
+    }
     match answer(&filtered, &raw_for_verb, &context) {
         Ok(text) => {
             println!("{text}");
@@ -98,9 +122,9 @@ fn answer(filtered: &[String], raw: &[String], context: &Context) -> Result<Stri
             flags::refuse_split_values(Interaction::Decision, raw)?;
             focus_log::decision::decision(&|| open(context), rest)?
         }
-        Some(verb @ ("answer" | "answers" | "link" | "review")) => {
+        Some(verb @ ("answer" | "link" | "review")) => {
             return Err(Refusal::of(format!(
-                "log {verb} is not ported yet: Focus records the questions of a stage (log decision), and not yet their answers, a pipeline's handoffs or the reviews."
+                "log {verb} is not ported yet: Focus records the questions of a stage (log decision) and reads them back with their answers (log answers), and does not yet record an answer, a pipeline's handoffs or the reviews."
             )));
         }
         other => {

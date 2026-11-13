@@ -23,6 +23,11 @@ impl Flags {
             .map(|(_, value)| value.as_str())
     }
 
+    /// Every flag given, by name, a name once for each time it was given.
+    pub fn names(&self) -> impl Iterator<Item = &str> {
+        self.0.iter().map(|(name, _)| name.as_str())
+    }
+
     /// The value of `name` when it is not empty: what upstream reads as
     /// truthy.
     #[must_use]

@@ -93,17 +93,17 @@ fn asking(more: &[&'static str]) -> Vec<&'static str> {
     ASK.iter().chain(more).copied().collect()
 }
 
-/// Deliberate deviation. `answer`, `answers`, `link` and `review` are the
-/// slices after this one (2b to 2e): upstream runs them, Focus names each
-/// as a verb it does not have yet.
+/// Deliberate deviation. `answer`, `link` and `review` are slices to come
+/// (2b to 2e): upstream runs them, Focus names each as a verb it does not
+/// have yet.
 #[test]
 fn the_verbs_that_are_not_ported_are_refused_by_name() {
     let root = project("verbs");
-    for verb in ["answer", "answers", "link", "review"] {
+    for verb in ["answer", "link", "review"] {
         assert_eq!(
             refusal(&root, &[verb, "--stage", "intent-capture"]),
             format!(
-                "log {verb} is not ported yet: Focus records the questions of a stage (log decision), and not yet their answers, a pipeline's handoffs or the reviews."
+                "log {verb} is not ported yet: Focus records the questions of a stage (log decision) and reads them back with their answers (log answers), and does not yet record an answer, a pipeline's handoffs or the reviews."
             )
         );
     }
