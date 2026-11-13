@@ -280,7 +280,7 @@ Duas leituras desta tabela. A mutação do fold-back passou no diferencial grava
 
 **R6. Números.** Resolvido. `focus-js::num` imprime e arredonda como o JavaScript (`String`, `toFixed`, `Number`, `Math.round`), e `JSON.stringify` usa-o. O corpus alargado encontrou um defeito na primeira passagem: quando um double fica exatamente a meio entre dois candidatos mais curtos, o JavaScript escolhe o de último dígito par e o formatador do Rust o de cima (`2126906910518472.25` imprime `...472.2` num e `...472.3` no outro). Corrigido; 5 casos em 124 818 antes, 0 em 208 030 depois.
 
-**R7. Regex fora do comum.** O original usa lookbehind (9 ocorrências) e a flag `v` com `\p{RGI_Emoji}` (2). O `regress` compila ambos e aplica-os a uma amostra com o resultado esperado (há um teste em `focus-js`); ainda não passaram por um corpus diferencial. A flag `i` passou: o `regress` compara caracteres de outra maneira que o JavaScript em quatro sítios, `focus-js` corrige-o e recusa o padrão que a correção não cobre (secção 13, "Entre a fatia 5 e a 6").
+**R7. Regex fora do comum.** O original usa lookbehind (9 ocorrências) e a flag `v` com `\p{RGI_Emoji}` (2). O `regress` compila ambos e aplica-os a uma amostra com o resultado esperado (há um teste em `focus-js`). A flag `v` passou pelo corpus em M5: as 3 953 sequências de emoji do Unicode 17 e o que está ao lado de cada uma, comparadas com o runtime do original (secção 16, "Fatia 2c-i"). A flag `i` passou: o `regress` compara caracteres de outra maneira que o JavaScript em quatro sítios, `focus-js` corrige-o e recusa o padrão que a correção não cobre (secção 13, "Entre a fatia 5 e a 6").
 
 **R8. Plataformas.** Medido pela primeira vez em 2026-10-09, no CI do primeiro pull request: os lints e os testes passam em Linux, macOS e Windows com a toolchain fixada (1.97.0), e o workspace compila com a 1.89. O lock usa `std::fs::File::lock` (`flock` em Linux e macOS, `LockFileEx` em Windows), sem FFI, e os seus testes correm nas três. Fica por medir o que só corre em Unix: o diferencial gravado (as mensagens trazem caminhos com o separador da plataforma) e os testes de links. A repetição do rename em Windows, quando outro processo tem o ficheiro aberto, continua sem um teste que a force. A primeira execução no `main` falhou nos lints por outra razão: o CI instalava a `stable` do dia, mais recente do que a usada aqui. A toolchain passou a estar fixada em `rust-toolchain.toml`.
 
@@ -340,7 +340,7 @@ Os quatro primeiros foram reproduzidos nos dois motores. O quinto deixou de exis
 - **Projeto e harness.** O projeto é `--project-dir`, senão `FOCUS_PROJECT_DIR`, senão o que o host indicar (`CLAUDE_PROJECT_DIR`), senão o diretório mais próximo, de onde o comando corre para cima, com um harness instalado. O harness é `--harness`, senão `FOCUS_HARNESS`, senão o único instalado; com vários instalados, Focus pede que se diga qual.
 - **Todos os verbos de `graph`**: `topo`, `cycles`, `scope`, `artifacts`, `producers`, `consumers`, `validate-scope`, `validate-grid`, `ars`, `resolve`, `export`.
 - **Distribuição.** `dist-workspace.toml` e o workflow de release gerado pelo `cargo-dist` 0.32 para cinco alvos (Linux x86-64 e arm64, macOS x86-64 e arm64, Windows x86-64), com instaladores shell e PowerShell. Um CI próprio corre lints e testes nas três plataformas. O pacote do binário passou a chamar-se `focus` para os artefactos saírem com esse nome.
-- Dependências externas diretas: `serde`, `serde_json` e `regress`; em testes, `sha2`. (Desde M5: `sha2` e `flate2` em `focus-evidence`, secção 16.)
+- Dependências externas diretas: `serde`, `serde_json` e `regress`; em testes, `sha2`. (Desde M5: `sha2` e `flate2` em `focus-evidence`, secção 16; e o `regress` otimizado também nos testes, "Fatia 2c-i".)
 
 ### Verificado
 
@@ -1747,7 +1747,7 @@ O marco entra de baixo para cima, como M2 a M4: primeiro a evidência que as tra
 
 Três crates novos. `focus-evidence` existe desde a fatia 1a e `focus-log` desde a 2a; `focus-orchestrate` confirma-se na fatia que o criar:
 
-- **`focus-evidence`**: a identidade da fonte, os recibos pesados e o brief de revisão. Fica abaixo de `focus-lifecycle`, porque as transições, os hooks e o orchestrator leem todos a mesma evidência.
+- **`focus-evidence`**: a identidade da fonte, os recibos pesados e o brief de revisão. Fica abaixo de `focus-lifecycle`, porque as transições, os hooks e o orchestrator leem todos a mesma evidência. Desde a fatia 2c-i lê Markdown (`focus-markdown`) e os nomes do grafo (`focus-graph`): o sumário que uma pessoa confirma está num ficheiro de perguntas.
 - **`focus-log`**: o comando `log`, que escreve as linhas que essa evidência lê. Fica acima de `focus-lifecycle`. O plano punha `log` em `focus-evidence`; lido o código, não cabe lá: quem escreve uma pergunta precisa do que é do lifecycle (o marcador de uma confirmação que a pessoa não deu, as perguntas protegidas que uma pergunta nova retira, a confirmação de sumário devida) e, com `--message`, do armazém de mensagens que o turno humano escreve. Quem lê as linhas para as pesar (fatia 3) não precisa de nada disso e fica em baixo.
 - **`focus-orchestrate`**: as diretivas, `next`, `report`, `continue`, `park`, `wait`, a Construction em série.
 
@@ -1941,7 +1941,7 @@ A fatia 1d recusou a linha onde os repositórios são andados como fonte e deixo
 | --- | --- | --- | --- | --- |
 | 2a. O comando e `decision` | `focus engine log`: `--project-dir`, o parser de flags, a recusa de valores partidos (`refuseSplitValues`: uma palavra fora de qualquer flag, um fragmento que começa por `--`, as aspas simples do Command Prompt), o erro que fica na auditoria; um workspace sem trabalho selecionado. `decision`: a linha `DECISION_RECORDED` (stage, decision, options, rationale, `--single`), a frase que diz que a pessoa já confirmou (`impliedConfirmationMarker`), `--message` com a prova da mensagem (`proveMessage`: existe, traz palavras da pessoa, não está gasta, veio deste chat), as perguntas protegidas retiradas | `--checkpoint verification-command` e `construction-policy` (fatia 5), `plan-approval` e `--batch-file` (fatia 11), `--unit` (fatia 5) | Diferencial (`log/decision/*`, um grupo novo com a sua ferramenta); corpus para a recusa de valores partidos e para o marcador de confirmação, que são funções puras | Feito |
 | 2b. `answers` e `answer` | `answers` (só leitura: as perguntas de uma stage e as respostas que têm); `answer`: `QUESTION_ANSWERED`, `--details` e `--details-file`, `--on-instruction`, `--message` e a mensagem herdada da pergunta, a dica de uma mensagem que chegou antes da pergunta | As respostas às perguntas do engine (`PLAN_APPROVAL_RECORDED`, `PLAN_APPROVAL_OVERRIDDEN`, `--units`, `--reason`, `--park`: fatia 11; `VERIFICATION_COMMAND_RECORDED` e `CONSTRUCTION_POLICY_RECORDED`: fatia 5) | Diferencial | Feito (abaixo, em três partes) |
-| 2c. O checkpoint de sumário | `--checkpoint summary-confirmation --questions-file` em `decision` e em `answer`: a evidência da pergunta (`summaryQuestionEvidence`), a decisão pendente (`pendingSummaryDecision`), `SUMMARY_CONFIRMATION_RECORDED`, e a recusa de uma pergunta ou resposta de sumário sem o checkpoint, com os comandos certos (`refusePlainSummaryConfirmation`) | | Diferencial. É o que a fatia 3 pesa (`checkSummaryConfirmationEvidence`) | Por fazer |
+| 2c. O checkpoint de sumário | `--checkpoint summary-confirmation --questions-file` em `decision` e em `answer`: a evidência da pergunta (`summaryQuestionEvidence`), a decisão pendente (`pendingSummaryDecision`), `SUMMARY_CONFIRMATION_RECORDED`, e a recusa de uma pergunta ou resposta de sumário sem o checkpoint, com os comandos certos (`refusePlainSummaryConfirmation`) | | Diferencial. É o que a fatia 3 pesa (`checkSummaryConfirmationEvidence`) | Em curso: partida em três (abaixo), a primeira feita |
 | 2d. `link` | `PIPELINE_LINK_COMPLETED`: o handoff de um elo de um pipeline, com o artefacto e o repositório | | Diferencial | Por fazer |
 | 2e. `review` | `REVIEW_REQUESTED` e `REVIEW_COMPLETED`: o revisor de uma stage, a iteração, o veredicto e o ficheiro da revisão (os títulos despromovidos), o orçamento de revisões e a recuperação quando se esgota, o veredicto pendente; o `Source Fingerprint` de um pedido e o snapshot do workspace atrás dele (`workspaceSourceState`, `writeWorkspaceSourceSnapshot`, o que a fatia 1d deixou para aqui) | `--unit` e o registo de uma worktree de swarm | Diferencial. Lida, pode ter de se partir outra vez: o pedido e a conclusão são metades com a sua contabilidade | Por fazer |
 
@@ -2078,6 +2078,54 @@ Ao lado da escolha vão o id da mensagem, as palavras da pessoa (`Person Reply`:
 | Testes | O teste de CLI marcado deixa de listar os três flags; as doze formas recusadas pelo nome passam a nove |
 | Mutação | 40 mutantes (o leitor do ficheiro, o limite de tamanho, os ramos da instrução): 38 apanhados à primeira e 2 equivalentes (acima) |
 | `cargo test` | 572 testes |
+
+### Fatia 2c, partida em três
+
+O checkpoint de sumário atravessa `decision` e `answer`, e assenta em duas leituras do ficheiro de perguntas que são funções e não comandos. Lido o código, a resposta ao sumário escreve mais do que uma linha: escreve a autorização que os outputs da stage passam a levar. A fatia parte-se em três, cada uma verificada por si:
+
+| Fatia | O que traz | Recusa pelo nome até à fatia que o traz | Como se verifica | Estado |
+| --- | --- | --- | --- | --- |
+| 2c-i. O que a pessoa confirmou | `focus-evidence::summary`: a escolha na linha `[Answer]:` da secção de sumário (`summaryConfirmationAnswer`) e o hash do que foi confirmado (`summaryConfirmationContentHash`); `heading_key` (`headingKey`): a secção que um título nomeia, lido para lá de um emoji | | Corpus do oráculo: são funções | Feito (abaixo) |
+| 2c-ii. A pergunta | `decision --checkpoint summary-confirmation --questions-file`: a evidência da pergunta (`summaryQuestionEvidence`) e a linha com `Checkpoint` e `Questions File`; a recusa de uma pergunta ou de uma resposta de sumário sem o checkpoint, com os dois comandos certos (`refusePlainSummaryConfirmation`, `summaryConfirmationCommands`) | `--unit` (fatia 5) | Diferencial | Por fazer |
+| 2c-iii. A resposta | `answer --checkpoint summary-confirmation`: a decisão pendente (`pendingSummaryDecision`), o piso da tentativa (`summaryAttemptFloors`), a autorização (`.focus-engine/summary-authorization/`, escrita antes do recibo e reposta se o recibo falhar) e a linha `SUMMARY_CONFIRMATION_RECORDED` | `--unit` e uma stage por unit (fatia 5) | Diferencial; corpus para o piso e o id da autorização | Por fazer |
+
+### Fatia 2c-i: o que a pessoa confirmou
+
+**O que existe.**
+
+- **`focus-evidence::summary::answer`** (`summaryConfirmationAnswer`): a escolha na única linha `[Answer]:` da secção `## Consolidated Summary Confirmation` de um ficheiro de perguntas; nada quando a secção não existe, ou quando tem zero linhas dessas ou mais de uma. A secção é a de um título `##` de topo, lido pelo que um leitor do ficheiro renderizado vê: um título dentro de um bloco de código, de um comentário ou de uma citação não é a secção.
+- **`focus-evidence::summary::content_hash`** (`summaryConfirmationContentHash`): o SHA-256 do que a pessoa confirmou. É o ficheiro tal como está, com os fins de linha feitos `\n`, sem a única secção que pode ser acrescentada depois da confirmação e não faz parte dela: `## Assumption Confirmation`, com a linha horizontal que possa estar antes. Uma pergunta acrescentada depois do sumário (`## Q<n>`) e `## Requested Changes Feedback` entram no hash, para que uma confirmação posterior as cubra. Recusado, com a frase do original: o sumário em falta ou duas vezes, uma pergunta ou a secção de assumptions repetida, e qualquer outro título depois do sumário (`#`, sublinhado ou em HTML), porque nada diz se a pessoa confirmou o que está debaixo dele.
+- **`focus-graph::vocabulary::heading_key`** (`headingKey`): a secção que um título nomeia, lido para lá de uma decoração de emoji. `ℹ️ Sources` nomeia `Sources`; um símbolo mostrado como texto (um `©` sem seletor de variação) não é decoração.
+- `focus-markdown::visible_lines_of` passa a ser público: quem lê a estrutura e as linhas visíveis analisa o documento uma vez.
+
+**Decisões.**
+
+| Decisão | Porquê |
+| --- | --- |
+| A tabela de emoji é a do `regress` (`\p{RGI_Emoji}` sob a flag `v`), e o corpus tem as 3 953 sequências | Que sequências são emoji é uma tabela do runtime, e um padrão não diz o que aceita. A lista vem dos dados do Unicode 17 (`tools/oracle/rgi_emoji.txt`, com o aviso da licença do Unicode ao lado), e é verificada dos dois lados: `tools/oracle/emoji.ts`, que `refresh.sh` corre, confirma que o Bun aceita cada sequência da lista e nenhuma das 11 milhões que estão ao lado delas; o corpus (tipo `heading_key`) compara a tabela de Focus com essa, sequência a sequência, com o que está ao lado de cada uma. Fecha o risco R7 |
+| O `regress` é compilado com otimização nos testes (`[profile.dev.package.regress]`) | Todos os testes passam pelo motor de regex, e sem otimização passam nele a maior parte do tempo: vinte mil títulos levavam doze segundos e levam seis décimos. A suite inteira desce de meia hora para quatro minutos e meio |
+| A primeira linha de um ficheiro que começa por uma marca de ordem de bytes é lida sem a marca | O original procura uma tag de HTML na linha tal como o ficheiro a tem, com as colunas da linha sem a marca, e nessa linha as colunas caem uma unidade antes. Nenhuma resposta depende disso: antes da secção de sumário só conta um título `#`, e a primeira linha de um ficheiro está antes dela ou é ela |
+| `nested` só é dito de um título `#` | O original calcula-o para as outras duas formas de título e não o lê em nenhuma |
+
+**O que o corpus encontrou.**
+
+| Achado | Consequência |
+| --- | --- |
+| As 783 leituras de sumário e as 73 mil de títulos saíram iguais à primeira | Nenhuma correção ao código; a varredura de mutação é que disse o que o corpus não prendia |
+| 28 dos primeiros 104 mutantes sobreviveram | 17 pediram documentos (um título de cada profundidade e um sem palavras; o que parece um título dentro de um bloco de HTML; um sublinhado com espaços depois, e um título sublinhado dentro de um contentor; um bloco de HTML aberto por uma tag que não é de bloco, e os que são literais até ao fim; a tag de um título como código, num comentário, em duas linhas, dentro do atributo de outra tag; uma pergunta para lá da nona; uma linha horizontal de dois traços, indentada, indentada como código; uma linha escrita como fronteira onde o renderizador não lê título nenhum). 6 eram de código que saiu: a leitura em unidades UTF-16, que só a primeira linha de um ficheiro com marca distinguia, e o `nested` das outras formas de título. 5 são equivalentes, anotados no módulo |
+| O teste do corpus de `focus-evidence` contava um caso de sumário como um par de listagens | Conta-os à parte: quantos têm hash, quantos são recusados, quantos têm escolha, em branco ou nenhuma |
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Corpus, `summary` | 834 documentos, todos iguais: 382 com hash e 452 recusados (87 sem a secção, 104 com a secção, uma pergunta ou as assumptions repetidas, 182 com um título `#` que não pode seguir o sumário, 27 com um sublinhado e 52 com um em HTML); a escolha lida em 392, em branco em 71, nenhuma em 371 |
+| Corpus, `heading_key` | 157 casos, todos iguais: 73 287 títulos dados pelos code points do que está antes das palavras (em 12 339 tudo é decoração, em 60 851 nada, em 97 uma parte) e 28 escritos por inteiro |
+| Corpus, tudo | 34 680 casos (eram 33 689), todos iguais; `refresh.sh` gera o mesmo corpus, casos e respostas |
+| `emoji.ts` | 3 953 sequências listadas, nenhuma recusada pelo Bun; 11 173 765 perguntadas ao lado, nenhuma aceite sem estar na lista |
+| Testes | 2 novos: o que o hash é (a secção de assumptions acrescentada, com e sem linha horizontal, não muda o que foi confirmado; uma pergunta acrescentada e a própria escolha mudam), e a decoração de um título |
+| Mutação | 108 mutantes (os três leitores de títulos, o hash, a escolha, `heading_key`): 97 apanhados (76 à primeira, 21 depois dos documentos escritos para eles), 5 equivalentes anotados e 6 em código que saiu |
+| `cargo test` | 574 testes. A suite inteira, nesta máquina e com tudo compilado: 1 840 s antes, 270 s depois, com 991 casos a mais |
 
 ### A jornada
 
