@@ -5149,6 +5149,8 @@ def log_checks():
     # A stage whose name is none: there is nowhere to keep its authorization.
     check_("answer/summary_stage_name_is_none", created(owing, CREATED_AUDIT + sq(1).replace("**Stage**: intent-capture", "**Stage**: Bad_Stage") + H(2), **{qfile: confirmed}),
            [["answer", "--stage", "Bad_Stage", "--details", "Looks correct", "--checkpoint", "summary-confirmation", "--questions-file", qfile]])
+    check_("answer/summary_registry_too_large", created(owing, asked_and_replied, **{qfile: confirmed, registry: "x" * 65537}), [chooses("Looks correct")])
+    check_("answer/summary_registry_at_the_limit", created(owing, asked_and_replied, **{qfile: confirmed, registry: "x" * 65536}), [chooses("Looks correct")])
     check_("answer/summary_observer_changes_asked", created(owing, asked_and_replied, **{qfile: changed}), [chooses("Request changes")], {"STOP_HOOK_PROBE": "1"})
     # The registry: a link on the way, a folder where the file goes, an observer.
     engine = f"{CREATED_DIR}/.aidlc-engine"

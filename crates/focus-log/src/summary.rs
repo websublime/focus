@@ -459,6 +459,13 @@ fn follows(candidate: &ShardEvent, boundary: &ShardEvent) -> Option<bool> {
 /// `pendingSummaryDecision`: whether the summary's question for this stage
 /// and questions file is recorded and still unanswered, in the stage's
 /// current run when it is run by itself.
+///
+/// Two of its tests change no answer when taken out, and are kept where
+/// upstream has them. A row that cannot be placed against the run's end
+/// ties with it, and the ends kept are those of the latest instant, so its
+/// instant is the end's: either names the ambiguity. And such a row among
+/// the placed ones would be at the latest instant or left behind by a
+/// newer one, which is what is asked of it apart.
 pub(crate) fn pending_decision(
     rows: &[ShardEvent],
     stage: &str,
