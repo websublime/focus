@@ -203,7 +203,7 @@ pub fn summary_confirmation_owed(wf: &Workflow, stage: &Stage, state: &str) -> b
 }
 
 /// `isAutonomousMode`.
-fn is_autonomous_mode(state: &str) -> bool {
+pub fn is_autonomous_mode(state: &str) -> bool {
     get_field(state, "Construction Autonomy Mode").map(trim) == Some("autonomous")
 }
 

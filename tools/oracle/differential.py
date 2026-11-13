@@ -1348,7 +1348,7 @@ def normalise_audit(text, tree, engine):
                   lambda m: f"<cli> {m.group(1)}" + (f" {m.group(2)}" if m.group(2) else ""), text)
     # The state tool names itself, its verbs and the orchestrator's in each engine's own spelling.
     # (A file's text has already been through the name map, so the tool is named either way.)
-    text = re.sub(r"(?:aidlc|focus)-(state|orchestrate)\.ts(?: ([a-z-]+))?",
+    text = re.sub(r"(?:aidlc|focus)-(state|orchestrate|log)\.ts(?: ([a-z-]+))?",
                   lambda m: f"<cli> {m.group(1)}" + (f" {m.group(2)}" if m.group(2) else ""), text)
     text = re.sub(r"`(?:aidlc|focus) engine (state|orchestrate)(?: ([^`]*))?`", lambda m: f"<cli> {m.group(1)}" + (f" {m.group(2)}" if m.group(2) else ""), text)
     # The entry script naming a tool's verb in a sentence (`<next>` in a hook-activation step).
@@ -2336,7 +2336,12 @@ DEVIATIONS.update({
         "first joins a path, with the runtime's TypeError (or, with an empty name, lists the whole project, engine "
         "and harness included, as that member); focus refuses the row by name (exit 1 either way where upstream "
         "falls over, and the jump's error row written by both)",
-    r"log/usage/(answer|link|review)_not_ported":
+    r"log/answer/\w+_not_ported":
+        "what an answer may carry that focus has not ported: its text in a file and a choice the person left to the "
+        "agent (the next pull request), the engine's own questions (the recovery question, slice 4; a summary "
+        "confirmation, 2c; Construction's checkpoints and a unit of work, 5; Plan Approval, 11). Upstream reads "
+        "what each needs and records or refuses on its own terms; focus refuses each by name",
+    r"log/usage/(link|review)_not_ported":
         "the verbs of the log tool that focus has not ported (M5, slices 2b to 2e): upstream runs them; focus "
         "refuses each by name",
     r"log/decision/checkpoint_\w+_not_ported":
@@ -4505,7 +4510,7 @@ def log_checks():
     check_("usage/unknown", created(), [["nope"], ["Decision", "--stage", "x"]])
     check_("usage/no_workflow", CLONE, [ask, ["nope"]])
     check_("usage/no_state_file", created(**{f"{CREATED_DIR}/aidlc-state.md": None}), [ask])
-    for verb in ("answer", "link", "review"):
+    for verb in ("link", "review"):
         check_(f"usage/{verb}_not_ported", created(), [[verb, "--stage", "intent-capture"]])
 
     # The flags: one with no value, one followed by another flag, the two a question needs, and an empty value.
@@ -4718,6 +4723,162 @@ def log_checks():
                                                       A(5, "web says", "**Unit**: web")), [read])
     check_("answers/cycle", told(Q(1, "Which database?"), A(7, "first in the file"), A(5, "second in the file"), **other(A(6, "between them"))), [read])
     check_("answers/cycle_with_a_cancellation", told(Q(1, "Which database?"), A(7, "Cancelled"), A(5, "second in the file"), **other(A(6, "between them"))), [read])
+
+    # answer: the person's reply to a question, as the agent read it.
+    reply = ["answer", "--stage", "intent-capture", "--details", "Postgres"]
+    replied = lambda text, *more: ["answer", "--stage", "intent-capture", "--details", text, *more]
+    H = lambda minute, *fields: block("HUMAN_TURN", T(minute), "**Session**: s1", *fields)
+    asked = told(Q(1, "Which database?"), H(2))
+    check_("answer/usage", created(), [["answer"], ["answer", "--stage"], ["answer", "--stage", "intent-capture"], ["answer", "--details", "x"],
+                                       ["answer", "--stage", "intent-capture", "--details", ""], ["answer", "--stage", "intent-capture", "--details"],
+                                       ["answer", "--stage", "", "--details", "x"]])
+    check_("answer/split_values", created(), [reply + ["extra"], ["answer", "--stage", "intent-capture", "--details", "Chose", "Option", "A"],
+                                              ["answer", "--stage", "intent-capture", "--details", "'Chose", "Option", "A'"], reply + ["--decision", "x"], reply + ["--rationale", "x"],
+                                              ["answer", "--stage", "intent-capture", "--details", "Run todo", "--help", "first"], reply + ["--units", "a"], reply + ["--park"],
+                                              ["--project-dir", "{P}", "answer", "--stage", "intent-capture", "--details", "Chose", "Option"]])
+    check_("answer/no_workflow", CLONE, [reply])
+    check_("answer/unknown_checkpoint", asked, [reply + ["--checkpoint", "nope"], reply + ["--checkpoint", "learnings"], reply + ["--checkpoint", ""]])
+    for flag, value in (("details-file", ".aidlc-engine/answer-text/answer.txt"), ("on-instruction", "you decide"), ("on-instruction-file", ".aidlc-engine/answer-text/i.txt"),
+                        ("override", "because"), ("override-file", "o.txt"), ("batch-file", "b.json"), ("unit", "api")):
+        steps = [["answer", "--stage", "intent-capture", f"--{flag}", value]] if flag == "details-file" else [reply + [f"--{flag}", value]]
+        check_(f"answer/{flag.replace('-', '_')}_not_ported", asked, steps)
+    for checkpoint in ("guard-recovery", "summary-confirmation", "verification-command", "construction-policy", "plan-approval"):
+        check_(f"answer/checkpoint_{checkpoint.replace('-', '_')}_not_ported", asked, [reply + ["--checkpoint", checkpoint]])
+    # The reply an answer needs: one that has answered nothing yet. One reply answers every question that was open
+    # when it arrived; a command to the engine is no reply; with the guard off, or unattended, each says so.
+    check_("answer/replied", asked, [reply, reply])
+    check_("answer/no_reply", told(Q(1, "Which database?")), [reply])
+    check_("answer/no_question", told(H(1)), [reply, reply])
+    check_("answer/menu", told(Q(1, "Which database?"), Q(2, "Which cache?"), H(3)), [reply, replied("Redis"), replied("and a third"), ["answers", "--stage", "intent-capture"]])
+    check_("answer/reply_spent_by_an_answer", told(Q(1, "Which database?"), H(2), A(3, "Postgres"), Q(4, "Which cache?")), [replied("Redis")])
+    check_("answer/reply_spent_by_a_gate", told(H(1), block("GATE_APPROVED", T(2), "**Stage**: workspace-detection"), Q(3, "Which database?")), [reply])
+    check_("answer/reply_before_the_question", told(H(1), Q(2, "Which database?")), [reply])
+    check_("answer/command_turn_after_an_answered_reply", told(Q(1, "Which database?"), Q(2, "Which cache?"), H(3), A(4, "Postgres"), H(5, "**Reply**: command")), [replied("Redis")])
+    check_("answer/command_turn", told(Q(1, "Which database?"), H(2, "**Reply**: command")), [reply])
+    check_("answer/question_turn", told(Q(1, "Which database?"), H(2, "**Reply**: question")), [reply])
+    check_("answer/guard_off", told(Q(1, "Which database?")), [reply], {"SKIP_HUMAN_PRESENCE_GUARD": "1"})
+    check_("answer/unattended", told(Q(1, "Which database?")), [reply], {"UNATTENDED": "1"})
+    check_("answer/unattended_replied", asked, [reply, reply], {"UNATTENDED": "1"})
+    check_("answer/single", asked, [reply + ["--single"]])
+    check_("answer/unknown_stage", told(H(1)), [["answer", "--stage", "nope", "--details", "x"]])
+    check_("answer/observer", asked, [reply], {"STOP_HOOK_PROBE": "1"})
+    check_("answer/other_shard_turn", told(Q(1, "Which database?"), **other(H(2))), [reply])
+    # A dismissed question box is no answer; a choice the text credits to the assistant is not the person's.
+    check_("answer/dismissed", asked, [replied("Cancelled."), replied("timed out"), replied("  "), replied("User dismissed"), replied("cancel the standing order")])
+    check_("answer/self_attributed", asked, [replied("A. Nothing to add - CONDUCTOR DEFAULT, session unattended"), replied("The assistant chose this answer."),
+                                             replied('The label reads "assistant-selected answer"'), replied("“é” not a human answer.")])
+    check_("answer/self_attributed_guard_off", asked, [replied("The assistant chose this answer.")], {"SKIP_HUMAN_PRESENCE_GUARD": "1"})
+    # An approval is a gate's: at an open gate with no question asked since it opened, the answer is acknowledged
+    # and not written; with one, it is that question's.
+    gate_open = lambda *rows: created(CREATED_STATE.replace("- [-] intent-capture — EXECUTE", "- [?] intent-capture — EXECUTE"),
+                                      CREATED_AUDIT + block("STAGE_AWAITING_APPROVAL", T(1), "**Stage**: intent-capture") + "".join(rows))
+    check_("answer/at_gate", gate_open(H(2)), [replied("Approve"), replied("Approve")])
+    check_("answer/at_gate_no_reply", gate_open(), [replied("Approve")])
+    check_("answer/at_gate_guard_off", gate_open(), [replied("Approve")], {"SKIP_HUMAN_PRESENCE_GUARD": "1"})
+    check_("answer/at_gate_question_open", gate_open(Q(2, "Which database?"), H(3)), [reply, reply])
+    check_("answer/at_gate_question_answered", gate_open(Q(2, "Which database?"), A(3, "Postgres"), H(4)), [reply])
+    check_("answer/at_gate_question_before_it", created(CREATED_STATE.replace("- [-] intent-capture — EXECUTE", "- [?] intent-capture — EXECUTE"),
+                                                        CREATED_AUDIT + Q(1, "Which database?") + block("STAGE_AWAITING_APPROVAL", T(2), "**Stage**: intent-capture") + H(3)), [reply])
+    check_("answer/at_gate_opened_twice", gate_open(Q(2, "Which database?"), block("STAGE_AWAITING_APPROVAL", T(3), "**Stage**: intent-capture"), H(4)), [reply])
+    check_("answer/at_gate_another_gate_after", gate_open(Q(2, "Which database?"), block("STAGE_AWAITING_APPROVAL", T(3), "**Stage**: market-research"), H(4)), [reply])
+    check_("answer/at_gate_question_of_another_stage", gate_open(block("DECISION_RECORDED", T(2), "**Stage**: market-research", "**Decision**: Who buys?"), H(3)), [reply])
+    check_("answer/at_another_stages_gate", created(CREATED_STATE.replace("- [ ] market-research — EXECUTE", "- [?] market-research — EXECUTE"),
+                                                    CREATED_AUDIT + block("STAGE_AWAITING_APPROVAL", T(1), "**Stage**: market-research") + Q(2, "Which database?") + H(3)), [reply])
+    # The mode question: the agent passes the way the person chose, and its option is what the row keeps.
+    mode = told(Q(1, "How would you like to answer them?", "**Options**: Guide me, I'll edit the file, Chat"), H(2))
+    for label, text in (("label", "chat"), ("number", "3"), ("numbered_label", "2. I'll edit the file"), ("words_after", "Guide me, please"), ("quoted", "'Chat'"),
+                        ("number_and_another", "1. Chat"), ("other", "whatever works"), ("dismissed", "Cancelled"), ("decorated", "Chat (Recommended)"),
+                        ("quoted_words_after", '"Chat, please"'), ("capitals_words_after", "CHAT, please"), ("longer_word", "Chatty"), ("lettered", "C) chat: yes"),
+                        ("quoted_then_decorated", "'Chat' (Recommended)")):
+        check_(f"answer/mode_{label}", mode, [replied(text)])
+    check_("answer/mode_by_options", told(Q(1, "Pick one", "**Options**: chat, guide me, i’ll edit the file"), H(2)), [replied("first one")])
+    check_("answer/mode_question_of_another_stage", told(Q(1, "Which database?"), block("DECISION_RECORDED", T(2), "**Stage**: market-research",
+                                                              "**Decision**: How would you like to answer them?"), H(3)), [replied("whatever works")])
+    check_("answer/mode_picker_note", told(Q(1, "How would you like to answer them?", "**Options**: Guide me, I'll edit the file, Chat"), H(2, '**Picked**: ["Guide me"]')), [replied("3")])
+    check_("answer/mode_question_closed", told(Q(1, "How would you like to answer them?"), A(2, "Chat"), Q(3, "Which database?"), H(4)), [replied("whatever works")])
+    # The person's own words beside the choice: kept by their chat right after the turn's row.
+    def kept(audit, *texts, at=20, shard=CREATED_SHARD, session="s1"):
+        return {f"{CREATED_DIR}/.aidlc-engine/gate-words/{session}.json": json.dumps(
+            {"version": 1, "session": session, "shard": shard, "dropped": 0, "messages": [{"offset": len(audit.encode()) + at + n, "text": text} for n, text in enumerate(texts)]})}
+    before_turn = CREATED_AUDIT + Q(1, "Which database?")
+    check_("answer/person_reply", told(Q(1, "Which database?"), H(2), **kept(before_turn, "the first one, postgres")), [reply])
+    check_("answer/person_reply_before_the_turn", told(Q(1, "Which database?"), H(2), **kept(before_turn, "old words", at=-5)), [reply])
+    check_("answer/person_reply_after_the_turn", told(Q(1, "Which database?"), H(2), **kept(before_turn, "later words", at=4000)), [reply])
+    check_("answer/person_reply_other_shard", told(Q(1, "Which database?"), H(2), **kept(before_turn, "words", shard="other/audit/x.md")), [reply])
+    check_("answer/person_reply_dismissal", told(Q(1, "Which database?"), H(2), **kept(before_turn, "Cancelled")), [reply])
+    check_("answer/person_reply_of_the_last_turn", told(Q(1, "Which database?"), H(2), H(3), **kept(before_turn, "first turn's words")), [reply])
+    check_("answer/person_reply_turn_without_session", told(Q(1, "Which database?"), block("HUMAN_TURN", T(2)), **kept(before_turn, "words")), [reply])
+    check_("answer/person_reply_guard_off_no_turn", told(Q(1, "Which database?")), [reply], {"SKIP_HUMAN_PRESENCE_GUARD": "1"})
+    # A reply in a question box: an answer none of the picks carried is recorded with a note.
+    for label, picked, text in (("other", '["Postgres"]', "SQLite"), ("same", '["Postgres (Recommended)"]', "postgres"), ("contains", '["Postgres"]', "Postgres with pgvector"),
+                                ("contained", '["Postgres with pgvector"]', "Postgres"), ("letter", '["Postgres"]', "B."), ("number", '["Postgres"]', "2"),
+                                ("two", '["Postgres", "Redis"]', "SQLite"), ("not_a_list", '"Postgres"', "SQLite"), ("empty", "[]", "SQLite"), ("not_text", "[1]", "SQLite"),
+                                ("not_json", "[Postgres", "SQLite"), ("empty_pick", '["", "Redis"]', "SQLite")):
+        check_(f"answer/picker_{label}", told(Q(1, "Which database?"), H(2, f"**Picked**: {picked}")), [replied(text)])
+    check_("answer/picker_decorated_pick", told(Q(1, "Which database?"), H(2, '**Picked**: ["Postgres (Recommended)"]')), [replied("Postgres!")])
+    check_("answer/picker_of_the_last_turn", told(Q(1, "Which database?"), H(2, '**Picked**: ["Postgres"]'), H(3)), [replied("SQLite")])
+    # The message that answered: named, or inherited from the question it was logged with.
+    check_("answer/message", told(Q(1, "Which database?"), **sent("0000aaaa")), [reply + ["--message", "0000aaaa"], reply + ["--message", "0000bbbb"], reply + ["--message", ""]])
+    check_("answer/message_no_words", told(Q(1, "Which database?"), **sent("0000aaaa", words="")), [reply + ["--message", "0000aaaa"]])
+    check_("answer/message_dismissal", told(Q(1, "Which database?"), **sent("0000aaaa", words="Cancelled")), [reply + ["--message", "0000aaaa"]])
+    check_("answer/message_inherited", told(Q(1, "Which database?", "**Message Id**: 0000aaaa"), **sent("0000aaaa")), [reply, reply])
+    check_("answer/message_inherited_unproved", told(Q(1, "Which database?", "**Message Id**: 0000bbbb"), **sent("0000aaaa")), [reply])
+    check_("answer/message_inherited_unproved_replied", told(Q(1, "Which database?", "**Message Id**: 0000bbbb"), H(2), **sent("0000aaaa")), [reply])
+    check_("answer/message_of_another_stages_question", told(Q(1, "Which database?"), block("DECISION_RECORDED", T(2), "**Stage**: market-research", "**Decision**: Who buys?",
+                                                                                           "**Message Id**: 0000aaaa"), **sent("0000aaaa")), [reply])
+    check_("answer/message_inherited_from_the_latest", told(Q(1, "Which database?", "**Message Id**: 0000aaaa"), Q(2, "Which cache?"), **sent("0000aaaa")), [reply])
+    # A question logged after the reply: the refusal names the messages that arrived before it.
+    late = lambda *rows, **more: told(H(1, "**Message Id**: 0000aaaa"), A(2, "an earlier answer"), *rows, Q(5, "Which database?"), **more)
+    check_("answer/late_question", late(**sent("0000aaaa", at=T(1), words="postgres   please,\nit is what we know and it has served us well for years")), [reply])
+    check_("answer/late_question_text_and_words", late(**sent("0000aaaa", at=T(1), words="x" * 40, text="/aidlc " + "x" * 40)), [reply])
+    check_("answer/late_question_before_the_latest", told(H(1, "**Message Id**: 0000aaaa"), A(2, "x"), Q(3, "First?"), H(4, "**Message Id**: 0000bbbb"), A(5, "y"), Q(7, "Second?"),
+                                                          **sent("0000aaaa", at=T(1)), **sent("0000bbbb", at=T(4))), [reply])
+    check_("answer/late_question_turn_in_another_shard", told(H(1, "**Message Id**: 0000aaaa"), A(2, "x"), Q(3, "Which database?"),
+                                                              **other(H(4, "**Message Id**: 0000bbbb"), A(5, "y"), Q(6, "Which cache?")),
+                                                              **sent("0000aaaa", at=T(1)), **sent("0000bbbb", at=T(4))), [reply])
+    check_("answer/late_question_out_of_order", told(H(9, "**Message Id**: 0000aaaa"), A(10, "x"), Q(5, "Which database?"), Q(11, "Which cache?"), **sent("0000aaaa", at=T(1))),
+           [reply])
+    check_("answer/late_question_before_in_the_file_only", told(H(9, "**Message Id**: 0000aaaa"), A(10, "x"), Q(5, "Which database?"), **sent("0000aaaa", at=T(1))), [reply])
+    check_("answer/late_question_before_in_the_file_spent_turn", told(H(9, "**Message Id**: 0000aaaa"), Q(5, "Which database?"), block("GATE_APPROVED", T(10), "**Stage**: workspace-detection"),
+                                                                     **sent("0000aaaa", at=T(11))), [reply])
+    check_("answer/late_question_named_by_two_turns", told(H(1, "**Message Id**: 0000aaaa"), A(2, "x"), Q(5, "Which database?"), H(6, "**Message Id**: 0000aaaa"),
+                                                           block("GATE_APPROVED", T(7), "**Stage**: workspace-detection"), **sent("0000aaaa", at=T(8))), [reply])
+    check_("answer/late_question_this_chat", late(**sent("0000aaaa", at=T(1)), **sent("0000bbbb", at=T(1), session="s2"), **mine), [reply])
+    UNRECORDED.add("log/answer/late_question_this_chat")
+    check_("answer/late_question_two", late(H(3, "**Message Id**: 0000bbbb"), A(4, "another"), **sent("0000aaaa", at=T(1)), **sent("0000bbbb", at=T(3), words=None, text="/aidlc go")), [reply])
+    check_("answer/late_question_two_replies", late(H(3, "**Message Id**: 0000bbbb"), A(4, "another"), **sent("0000aaaa", at=T(1)), **sent("0000bbbb", at=T(3), words="x" * 41)), [reply])
+    check_("answer/late_question_no_turn_row", told(H(1), A(2, "an earlier answer"), Q(5, "Which database?"), **sent("0000aaaa", at=T(4)), **sent("0000bbbb", at=T(5)),
+                                                    **sent("0000cccc", at=T(6))), [reply])
+    check_("answer/late_question_message_after", late(**sent("0000aaaa", at=T(1)), **sent("0000bbbb", at=T(9))), [reply])
+    check_("answer/late_question_spent", told(H(1, "**Message Id**: 0000aaaa"), block("GATE_APPROVED", T(2), "**Stage**: workspace-detection"), Q(5, "Which database?"),
+                                              **sent("0000aaaa", at=T(1))), [reply])
+    check_("answer/late_question_two_chats", late(**sent("0000aaaa", at=T(1)), **sent("0000bbbb", at=T(1), session="s2")), [reply])
+    check_("answer/late_question_command", told(H(1, "**Message Id**: 0000aaaa", "**Reply**: command"), A(2, "an earlier answer"), Q(5, "Which database?"), **sent("0000aaaa", at=T(1))), [reply])
+    check_("answer/late_question_other_shard", told(A(2, "an earlier answer"), Q(5, "Which database?"), **other(H(5, "**Message Id**: 0000aaaa"), H(4, "**Message Id**: 0000bbbb")),
+                                                    **sent("0000aaaa", at=T(1)), **sent("0000bbbb", at=T(1))), [reply])
+    # A stage that owes a summary confirmation, with that summary as its open question.
+    summary_q = Q(1, "Does this look right?", "**Options**: Looks correct,Request changes")
+    check_("answer/summary_question_open_not_ported", created(owing, CREATED_AUDIT + summary_q + H(2)), [replied("Looks correct")])
+    check_("answer/summary_checkpoint_open_not_ported", created(owing, CREATED_AUDIT + Q(1, "Does this look right?", "**Checkpoint**: Consolidated Summary Confirmation") + H(2)), [reply])
+    check_("answer/summary_question_not_owed", told(summary_q, H(2)), [replied("Looks correct")])
+    check_("answer/summary_owed_other_question", created(owing, CREATED_AUDIT + Q(1, "Which database?") + H(2)), [replied("Looks correct"), reply])
+    check_("answer/summary_owed_question_superseded", created(owing, CREATED_AUDIT + summary_q + Q(2, "Which database?") + H(3)), [reply])
+    check_("answer/summary_owed_of_another_stage", created(owing, CREATED_AUDIT + Q(1, "Which database?") + block(
+        "DECISION_RECORDED", T(2), "**Stage**: market-research", "**Decision**: Right?", "**Options**: Looks correct,Request changes") + H(3)), [reply])
+    check_("answer/summary_owed_another_checkpoint", created(owing, CREATED_AUDIT + Q(1, "Run it?", "**Checkpoint**: Construction Verification Command") + H(2)), [reply])
+    check_("answer/summary_owed_out_of_order", created(owing, CREATED_AUDIT + Q(7, "Does this look right?", "**Options**: Looks correct,Request changes") + Q(5, "Which database?") + H(8)),
+           [reply])
+    check_("answer/summary_owed_single", created(owing, CREATED_AUDIT + summary_q + H(2)), [reply + ["--single"]])
+    # Autonomous Construction: nobody is at the keyboard, and nothing of a person's is asked for or kept.
+    building = at_stage(CREATED_STATE.replace("- **Construction Execution**: serial\n", "- **Construction Execution**: serial\n- **Construction Autonomy Mode**: autonomous\n"),
+                        "functional-design", done=["intent-capture"], phase="CONSTRUCTION")
+    built = lambda text, *more: ["answer", "--stage", "functional-design", "--details", text, *more]
+    check_("answer/autonomous_construction", created(building, CREATED_AUDIT + H(1, '**Picked**: ["x"]') + block("DECISION_RECORDED", T(2), "**Stage**: functional-design", "**Decision**: Which?")),
+           [built("The assistant chose this answer."), built("y", "--message", "nope"), replied("Postgres")])
+    check_("answer/autonomous_construction_at_gate", created(building.replace("- [-] functional-design", "- [?] functional-design"),
+                                                             CREATED_AUDIT + block("STAGE_AWAITING_APPROVAL", T(1), "**Stage**: functional-design")), [built("Approve")])
+    check_("answer/autonomous_construction_words_kept", created(building, CREATED_AUDIT + H(1), **kept(CREATED_AUDIT, "the person's words")), [built("y")])
+    check_("answer/construction_not_autonomous", created(at_stage(CREATED_STATE, "functional-design", done=["intent-capture"], phase="CONSTRUCTION")), [built("y")])
 
 
 def jump_checks():

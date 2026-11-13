@@ -212,6 +212,56 @@ pub fn next_open_decision(open: Option<&str>, event: &str, block: &str) -> Optio
     }
 }
 
+/// The rows a decision reader walks, in the ledger's order: by instant,
+/// then as the shards are read one after the other.
+fn pairing_rows<'a>(rows: &'a [ShardEvent], also: Option<&str>) -> Vec<&'a ShardEvent> {
+    let mut events: Vec<&ShardEvent> = rows
+        .iter()
+        .filter(|row| is_pairing_event(&row.event) || Some(row.event.as_str()) == also)
+        .collect();
+    events.sort_by(|a, b| {
+        cmp_utf16(&a.timestamp, &b.timestamp)
+            .then(a.shard_index.cmp(&b.shard_index))
+            .then(a.pos.cmp(&b.pos))
+    });
+    events
+}
+
+/// `openDecisionBlock(pd, stage)`: the stage's open `DECISION_RECORDED`
+/// block, or `None` when every question it was asked is answered.
+#[must_use]
+pub fn open_decision_block(rows: &[ShardEvent], stage: &str) -> Option<String> {
+    let mut open: Option<String> = None;
+    for row in pairing_rows(rows, None) {
+        if block_field(&row.block, "Stage") == Some(stage) {
+            open = next_open_decision(open.as_deref(), &row.event, &row.block);
+        }
+    }
+    open
+}
+
+/// `hasPendingDecisionAtGate`: a question of the stage asked after its
+/// gate last opened, and not answered since. An answer at an open gate
+/// belongs to such a question; with none, it is the gate's own.
+#[must_use]
+pub fn has_pending_decision_at_gate(rows: &[ShardEvent], stage: &str) -> bool {
+    let events = pairing_rows(rows, Some("STAGE_AWAITING_APPROVAL"));
+    let Some(gate_open) = events.iter().rposition(|row| {
+        row.event == "STAGE_AWAITING_APPROVAL" && block_field(&row.block, "Stage") == Some(stage)
+    }) else {
+        return false;
+    };
+    // From the row after the gate's (the gate's own row is no question, so
+    // starting at it would change nothing).
+    let mut open: Option<String> = None;
+    for row in &events[gate_open + 1..] {
+        if block_field(&row.block, "Stage") == Some(stage) {
+            open = next_open_decision(open.as_deref(), &row.event, &row.block);
+        }
+    }
+    open.is_some()
+}
+
 // --- Answer mode ------------------------------------------------------------
 
 /// The `STAGE_STARTED` field recording the mode a stage starts with.

@@ -1008,6 +1008,7 @@ fn the_recording_covers_every_verb_and_both_outcomes() {
         ("state", "count"),
         ("log", "decision"),
         ("log", "answers"),
+        ("log", "answer"),
     ] {
         let exits = |code: &str| {
             checks
