@@ -5366,6 +5366,18 @@ def log_checks():
            edits=[at_time()])
     check_("link/boundary_in_two_shards", created(chained, CREATED_AUDIT + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering") + scan_receipt(5), **{scan: SCAN},
                                                 **other(block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering"))), [returned(arch)], edits=[at_time()])
+    # The same ties with the receipt far down its shard: where a row is in one shard says nothing against another's.
+    filler = "".join(block("STAGE_STARTED", T(0), "**Stage**: intent-capture") for _ in range(8))
+    check_("link/receipt_tied_in_another_shard_further_down", created(chained, CREATED_AUDIT + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering"), **{scan: SCAN}, **other(filler + scan_receipt(5))),
+           [returned(arch)], edits=[at_time()])
+    check_("link/boundary_in_two_shards_receipt_further_down", created(chained, CREATED_AUDIT + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering"), **{scan: SCAN},
+                                                                      **other(filler + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering") + scan_receipt(5))), [returned(arch)], edits=[at_time()])
+    check_("link/boundary_in_two_shards_receipt_in_the_longer", created(chained, CREATED_AUDIT + filler + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering") + scan_receipt(5), **{scan: SCAN},
+                                                                       **other(block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering"))), [returned(arch)], edits=[at_time()])
+    # No boundary at all: every receipt is of the one attempt there is.
+    check_("link/receipt_with_no_boundary", created(chained, TITLE + scan_receipt(1), **{scan: SCAN}), [returned(arch), scanned()], edits=[at_time()])
+    check_("link/single_receipt_with_no_start", created(chained, CREATED_AUDIT + scan_receipt(2, scan, scan_sha, "1767610800123.4567", alone), **{scan: SCAN}), [returned(arch, "--single"), scanned("--single")],
+           edits=[at_time()])
     check_("link/receipt_in_another_shard_later", created(chained, CREATED_AUDIT + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering"), **{scan: SCAN}, **other(scan_receipt(6))), [returned(arch)],
            edits=[at_time()])
     # A piece of work over repositories: the chain runs once for each, and the handoff carries the repository's name.
