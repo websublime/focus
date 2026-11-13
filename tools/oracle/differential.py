@@ -5217,6 +5217,33 @@ def log_checks():
         check_(f"link/collaborators_not_said_scope_{label}", created(unsaid.replace("- **Scope**: feature", f"- **Scope**: {scope}"), **{scan: SCAN}), [scanned(), returned(arch)], edits=[at_time()])
     check_("link/second_names_a_file", created(chained, **{scan: SCAN}), [scanned("--nope", "x"), returned(arch, "--artifact", "nope.md"), returned(dev, "--nope", "x")], edits=[at_time()])
     check_("link/flag_twice", created(chained, **{scan: SCAN}), [returned(arch, "--link", dev, "--artifact", "nope.md", "--artifact", scan, "--stage", "reverse-engineering")], edits=[at_time()])
+    # A state that cannot be read: the chain is the one the stage declares.
+    check_("link/state_a_folder", created(chained, **{f"{CREATED_DIR}/aidlc-state.md": None, f"{CREATED_DIR}/aidlc-state.md/x": "x", scan: SCAN}), [scanned(), returned(arch)], edits=[at_time()])
+    check_("link/state_not_text", created(chained, **{scan: SCAN}), [scanned(), returned(arch)],
+           edits=[at_time(), lambda tree: open(tree.path(f"{CREATED_DIR}/aidlc-state.md"), "wb").write(b"- **Collaborators**: off\n\xff\xfe\n")])
+    # A chain of three, and a pipeline that is not Reverse Engineering: the graph says who is in it.
+    def chain_of(slug, *supports):
+        def edit(tree):
+            graph = tree.json(".claude/tools/data/stage-graph.json")
+            for stage in graph:
+                if stage["slug"] == slug:
+                    stage["mode"] = "pipeline"
+                    stage["support_agents"] = [f"{stage['lead_agent'].split('-')[0]}-{name}-agent" for name in supports]
+            tree.write_json(".claude/tools/data/stage-graph.json", graph)
+        return edit
+    quality = "aidlc-quality-agent"
+    three = chain_of("reverse-engineering", "architect", "quality")
+    check_("link/three_links", created(chained, **{scan: SCAN}), [returned(quality), scanned(), returned(quality), returned(arch), returned(arch), returned(quality), returned(quality), scanned()],
+           edits=[at_time(), three])
+    check_("link/three_links_the_middle_one_missing", created(chained, CREATED_AUDIT + scan_receipt(1).replace("1/2", "1/3") + receipt(2, quality, "3/3"), **{scan: SCAN}),
+           [returned(quality), returned(arch), returned(quality)], edits=[at_time(), three])
+    check_("link/three_links_receipts_of_two", created(chained, CREATED_AUDIT + scan_receipt(1) + receipt(2, arch, "2/2"), **{scan: SCAN}), [returned(arch), returned(quality)], edits=[at_time(), three])
+    check_("link/three_links_the_last_of_a_longer_chain", created(chained, CREATED_AUDIT + scan_receipt(1) + receipt(2, arch, "2/4") + receipt(3, quality, "3/4"), **{scan: SCAN}),
+           [returned(quality), returned(arch)], edits=[at_time(), three])
+    check_("link/another_pipeline", created(chained), [["link", "--stage", "intent-capture", "--link", arch], ["link", "--stage", "intent-capture", "--link", "aidlc-product-agent", "--artifact", "nope.md"],
+                                                       ["link", "--stage", "intent-capture", "--link", "aidlc-product-agent"], ["link", "--stage", "intent-capture", "--link", arch],
+                                                       ["link", "--stage", "intent-capture", "--link", dev]], edits=[chain_of("intent-capture", "architect")])
+    check_("link/a_pipeline_with_no_support", created(chained, **{scan: SCAN}), [scanned(), returned(arch)], edits=[at_time(), chain_of("reverse-engineering")])
     check_("link/no_state_file", created(audit=CREATED_AUDIT, **{f"{CREATED_DIR}/aidlc-state.md": None, scan: SCAN}), [scanned()], edits=[at_time()])
     # The developer's handoff: named, the stage's own, there, a plain file, written in this attempt.
     elsewhere = {scan: SCAN, f"{scan_dir}/other.md": SCAN, "developer-scan.md": SCAN, scan_app: SCAN, f"{CREATED_DIR}/inception/developer-scan.md": SCAN}
@@ -5231,8 +5258,9 @@ def log_checks():
            edits=[lambda tree: (os.makedirs(tree.path(scan_dir), exist_ok=True), os.symlink(tree.path("elsewhere.md"), tree.path(scan)))])
     check_("link/handoff_behind_a_link", created(chained, **{"elsewhere/developer-scan.md": SCAN}), [scanned()],
            edits=[lambda tree: (os.makedirs(os.path.dirname(tree.path(scan_dir)), exist_ok=True), os.symlink(tree.path("elsewhere"), tree.path(scan_dir)))])
-    # A second name is a link no recording carries, and the project's own name is the replay's own: compared live.
-    UNRECORDED.update({"log/link/handoff_a_second_name", "log/link/root_handoff_by_its_name"})
+    # A second name is a link no recording carries, the project's own name is the replay's own, and a state that is
+    # not text is no text a recording holds: compared live.
+    UNRECORDED.update({"log/link/handoff_a_second_name", "log/link/root_handoff_by_its_name", "log/link/state_not_text"})
     check_("link/handoff_a_second_name", created(chained, **{scan: SCAN}), [scanned()], edits=[lambda tree: os.link(tree.path(scan), tree.path("other-name.md"))])
     check_("link/handoff_a_link_to_nothing", created(chained), [scanned()],
            edits=[lambda tree: (os.makedirs(tree.path(scan_dir), exist_ok=True), os.symlink(tree.path("nowhere.md"), tree.path(scan)))])
@@ -5366,6 +5394,9 @@ def log_checks():
         check_(f"link/single_scope_{label}", created(chained, CREATED_AUDIT + alone_started(1, f"**Scope**: {said}"), **{scan: SCAN}), [scanned("--single"), returned(arch, "--single")], edits=[at_time()])
     check_("link/single_start_of_another_stage", created(chained, CREATED_AUDIT + alone_started(1, "**Scope**: feature") + alone_started(2, "**Scope**: brownfield").replace("reverse-engineering", "intent-capture"), **{scan: SCAN}),
            [scanned("--single"), returned(arch, "--single")], edits=[at_time()])
+    check_("link/single_start_naming_another_stage", created(chained, CREATED_AUDIT + alone_started(1, "**Scope**: feature")
+                                                            + alone_started(2, "**Scope**: brownfield").replace("**Stage**: reverse-engineering", "**Stage**: intent-capture"), **{scan: SCAN}),
+           [scanned("--single"), returned(arch, "--single")], edits=[at_time()])
     check_("link/single_start_in_the_workflow", created(chained, CREATED_AUDIT + alone_started(1, "**Scope**: feature") + block("STAGE_STARTED", T(2), "**Stage**: reverse-engineering", "**Scope**: brownfield"), **{scan: SCAN}),
            [scanned("--single"), returned(arch, "--single")], edits=[at_time()])
     check_("link/single_no_scope_recorded", created(lead_only, CREATED_AUDIT + alone_started(1), **{scan: SCAN}), [scanned("--single"), returned(arch, "--single")], edits=[at_time()])
@@ -5380,6 +5411,14 @@ def log_checks():
                    [returned(arch, "--single"), scanned("--single")], edits=[at_time()])
             check_(f"link/single_attempt_{label}_rewritten{suffix}", created(state, CREATED_AUDIT + alone_started(1, "**Scope**: brownfield") + scan_receipt(2, scan, scan_sha, "1767610800123.4567", alone) + rows, **{scan: SCAN}),
                    [scanned("--single"), returned(arch, "--single")], edits=[at_time(ns=WRITTEN + 10**12)])
+    # A row of the stage that another stage's run wrote is no row of this run.
+    another = "**Workflow**: single-stage:intent-capture"
+    check_("link/single_receipt_of_another_run", created(chained, CREATED_AUDIT + alone_started(1, "**Scope**: brownfield") + scan_receipt(2, scan, scan_sha, "1767610800123.4567", another), **{scan: SCAN}),
+           [returned(arch, "--single")], edits=[at_time()])
+    check_("link/single_start_of_another_run", created(chained, CREATED_AUDIT + block("STAGE_STARTED", T(1), "**Stage**: reverse-engineering", another, "**Scope**: brownfield"), **{scan: SCAN}),
+           [scanned("--single")], edits=[at_time()])
+    check_("link/single_restarted_by_another_run", created(chained, CREATED_AUDIT + alone_started(1, "**Scope**: brownfield") + scan_receipt(2, scan, scan_sha, "1767610800123.4567", alone)
+                                                          + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering", another), **{scan: SCAN}), [returned(arch, "--single")], edits=[at_time()])
     check_("link/single_receipt_of_the_workflow", created(chained, CREATED_AUDIT + alone_started(1, "**Scope**: brownfield") + scan_receipt(2), **{scan: SCAN}), [returned(arch, "--single")], edits=[at_time()])
     check_("link/observer", created(chained, **{scan: SCAN}), [scanned()], {"STOP_HOOK_PROBE": "1"}, edits=[at_time()])
     check_("link/no_workflow", CLONE, [returned(dev)])
