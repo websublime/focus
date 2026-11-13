@@ -35,6 +35,7 @@ use std::path::Path;
 
 use focus_audit::read::block_field;
 use focus_audit::shards::ShardEvent;
+use focus_evidence::authorization;
 use focus_evidence::summary as confirmed;
 use focus_guards::guard_operation::{
     EngineInvocation, RenderMode, RenderShell, render_engine_invocation,
@@ -44,7 +45,7 @@ use focus_js::text::{to_lower_case, trim};
 use focus_js::{EngineError, Result, bail, re};
 use focus_lifecycle::artifacts::uses_stage_level_per_unit_artifacts;
 use focus_lifecycle::workflow::Workflow;
-use focus_lifecycle::{admission, reply};
+use focus_lifecycle::{admission, presence, reply};
 use focus_state::fields::get_field;
 use focus_workspace::{files, links};
 
@@ -426,4 +427,313 @@ pub(crate) fn question_evidence(
         jspath::relative(host, &project, &project, &absolute).replace('\\', "/"),
         sha256,
     ))
+}
+
+/// What `pendingSummaryDecision` finds for a stage's summary.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) enum Pending {
+    /// No unanswered summary question matches.
+    Nothing,
+    /// Rows that matter share an instant across shards, so that a reply
+    /// after the question cannot be proven; the instant.
+    Ambiguous(String),
+    /// The summary's question is recorded and unanswered. `question` is its
+    /// text when no reply of the person is recorded after it: the reply
+    /// came before the question was recorded.
+    Open { question: Option<String> },
+}
+
+/// Whether `candidate` is after `boundary`: by position in one shard, by
+/// instant across shards, and not at all for two shards at one instant.
+fn follows(candidate: &ShardEvent, boundary: &ShardEvent) -> Option<bool> {
+    if candidate.shard == boundary.shard {
+        return Some(candidate.pos > boundary.pos);
+    }
+    match focus_js::order::cmp_utf16(&candidate.timestamp, &boundary.timestamp) {
+        std::cmp::Ordering::Equal => None,
+        order => Some(order == std::cmp::Ordering::Greater),
+    }
+}
+
+/// `pendingSummaryDecision`: whether the summary's question for this stage
+/// and questions file is recorded and still unanswered, in the stage's
+/// current run when it is run by itself.
+pub(crate) fn pending_decision(
+    rows: &[ShardEvent],
+    stage: &str,
+    workflow: Option<&str>,
+    questions_file: &str,
+) -> Pending {
+    let field = |row: &ShardEvent, name: &str| block_field(&row.block, name).map(str::to_owned);
+    let of_this_run = |row: &ShardEvent| {
+        field(row, "Stage").as_deref() == Some(stage)
+            && field(row, "Workflow").as_deref() == workflow
+    };
+    let is_action = |row: &ShardEvent| {
+        matches!(
+            row.event.as_str(),
+            "DECISION_RECORDED" | "SUMMARY_CONFIRMATION_RECORDED"
+        )
+    };
+    let entries: Vec<&ShardEvent> = rows
+        .iter()
+        .filter(|row| match row.event.as_str() {
+            // A turn that was only a command to the engine is no reply.
+            "HUMAN_TURN" => presence::is_reply_turn(&row.event, &row.block),
+            "STAGE_COMPLETED" => of_this_run(row),
+            _ if is_action(row) => {
+                of_this_run(row)
+                    && field(row, "Checkpoint").as_deref() == Some(CHECKPOINT)
+                    && field(row, "Unit").is_none()
+                    && field(row, "Questions File").as_deref() == Some(questions_file)
+            }
+            _ => false,
+        })
+        .collect();
+    let completions: Vec<&ShardEvent> = entries
+        .iter()
+        .filter(|row| row.event == "STAGE_COMPLETED")
+        .copied()
+        .collect();
+    let floors = authorization::frontier(&completions);
+    // After every floor, before one of them, or neither can be said.
+    let after_floor = |row: &ShardEvent| -> Option<bool> {
+        let relations: Vec<Option<bool>> = floors.iter().map(|floor| follows(row, floor)).collect();
+        if relations.iter().all(|relation| *relation == Some(true)) {
+            Some(true)
+        } else if relations.contains(&Some(false)) {
+            Some(false)
+        } else {
+            None
+        }
+    };
+    let actions: Vec<&ShardEvent> = entries
+        .iter()
+        .filter(|row| is_action(row))
+        .copied()
+        .collect();
+    let ordered: Vec<&ShardEvent> = actions
+        .iter()
+        .filter(|row| after_floor(row) == Some(true))
+        .copied()
+        .collect();
+    let latest = authorization::frontier(&ordered);
+    let latest_instant = latest.first().map(|row| row.timestamp.clone());
+    let unordered: Vec<&ShardEvent> = actions
+        .iter()
+        .filter(|row| after_floor(row).is_none())
+        .copied()
+        .collect();
+    let not_before_latest = |row: &&ShardEvent| {
+        latest_instant.as_ref().is_none_or(|instant| {
+            focus_js::order::cmp_utf16(&row.timestamp, instant) != std::cmp::Ordering::Less
+        })
+    };
+    if unordered.iter().any(not_before_latest) {
+        let instant = floors
+            .first()
+            .map_or(&unordered[0].timestamp, |floor| &floor.timestamp);
+        return Pending::Ambiguous(instant.clone());
+    }
+    let Some(latest_instant) = latest_instant else {
+        return Pending::Nothing;
+    };
+    let questions = latest
+        .iter()
+        .filter(|row| row.event == "DECISION_RECORDED")
+        .count();
+    if questions != 0 && questions != latest.len() {
+        return Pending::Ambiguous(latest_instant);
+    }
+    if questions == 0 {
+        return Pending::Nothing;
+    }
+    // The person's reply since their last answer is theirs to give whenever
+    // the question was recorded; this says only whether it came after the
+    // question's record. A turn in another shard at the record's own
+    // instant proves neither.
+    let relations: Vec<Vec<Option<bool>>> = entries
+        .iter()
+        .filter(|row| row.event == "HUMAN_TURN")
+        .map(|human| {
+            latest
+                .iter()
+                .map(|question| follows(human, question))
+                .collect()
+        })
+        .collect();
+    if relations
+        .iter()
+        .any(|of| of.iter().all(|relation| *relation == Some(true)))
+    {
+        return Pending::Open { question: None };
+    }
+    if relations
+        .iter()
+        .any(|of| !of.contains(&Some(false)) && of.contains(&None))
+    {
+        return Pending::Ambiguous(latest_instant);
+    }
+    Pending::Open {
+        question: Some(field(latest[0], "Decision").unwrap_or_default()),
+    }
+}
+
+/// What the answer to a summary carries into its receipt.
+pub(crate) struct Choice<'a> {
+    pub stage: &'a str,
+    pub single: bool,
+    /// `Looks correct` or `Request changes`.
+    pub choice: &'a str,
+    /// What the person asked to change, after the choice.
+    pub feedback: Option<&'a str>,
+    /// The questions file, named from the project, and its hash.
+    pub questions_file: &'a str,
+    pub questions_sha256: &'a str,
+}
+
+/// The summary branch of `handleAnswer`, under the lock: the question has
+/// to be recorded and unanswered and the person has to have replied since
+/// their last answer; then the stage's authorization is written (or
+/// withdrawn, for a change request) and the receipt after it. A receipt
+/// that cannot be written leaves the authorization as it was.
+///
+/// # Errors
+///
+/// What upstream refuses, in its words.
+pub(crate) fn record_choice(
+    wf: &Workflow,
+    held: &focus_workspace::lock::WorkspaceLock,
+    fields: &mut Vec<(&str, String)>,
+    answer: &Choice,
+) -> Result<serde_json::Value> {
+    let workflow = answer
+        .single
+        .then(|| format!("single-stage:{}", answer.stage));
+    let rows = wf.events();
+    let question = match pending_decision(
+        &rows,
+        answer.stage,
+        workflow.as_deref(),
+        answer.questions_file,
+    ) {
+        Pending::Ambiguous(instant) => bail!(
+            "Refusing to record summary confirmation: matching prompt, response, or run-boundary events share audit Timestamp \"{instant}\" across different shards, so a human response after this prompt cannot be proven. Present a fresh summary prompt after that second, end the turn, and record the human's new response."
+        ),
+        Pending::Nothing => bail!(
+            "Cannot record the summary choice because no matching unanswered summary question exists for this stage and work item. Record the question before presenting it, then wait for the human's choice."
+        ),
+        Pending::Open { question } => question,
+    };
+    if !presence::human_presence_guard_disabled(wf) && !presence::human_replied_since_gate(wf) {
+        bail!(
+            "Cannot record the summary choice because no human reply has arrived since their last answer. End the turn, wait for the human's choice, then try again.{}",
+            presence::unattended_human_presence_hint_for_a_reply_not_given(wf)
+        );
+    }
+    // Their words go on the receipt. A reply that came before the question
+    // was recorded is the agent's reading, so the engine says it back.
+    let words = presence::latest_person_turn_words(wf)
+        .filter(|words| !words.is_empty() && !reply::is_non_answer(Some(words)));
+    if let Some(words) = &words {
+        fields.push(("Person Reply", words.clone()));
+    }
+    let say = question.map(|question| {
+        let kept = words.as_ref().map_or_else(
+            || "reply".to_owned(),
+            |words| format!("\"{}\"", trim(&re::replace(r"\s+", "g", words, " "))),
+        );
+        format!("Recorded your {kept} for \"{question}\".")
+    });
+    // The confirmation authorizes the outputs generated from it: the id is
+    // minted from the attempt, the scope and what was confirmed.
+    let floors =
+        authorization::attempt_floors(&rows, answer.stage, workflow.as_deref(), &wf.install.graph);
+    let attempt = authorization::attempt_identity(&floors);
+    let id = authorization::id(
+        &attempt,
+        answer.stage,
+        workflow.as_deref(),
+        answer.questions_file,
+        answer.questions_sha256,
+        answer.choice,
+    );
+    let positive = answer.choice == CHOICES[0];
+    if positive {
+        fields.push((authorization::FIELD, id.clone()));
+    }
+    // The registry first, the receipt second, both under the lock. A
+    // registry that cannot be written refuses the answer before any
+    // receipt exists, so the question and the person's turn are still
+    // there for another try.
+    let record = wf.record_dir();
+    let saved = (|| -> Result<Option<Vec<u8>>> {
+        let Some(record) = &record else {
+            bail!("Cannot resolve the active intent record.");
+        };
+        let target = authorization::target(record, answer.stage)?;
+        let before = if target.symlink_metadata().is_ok() {
+            Some(files::read_regular_within(
+                &target,
+                "summary authorization",
+                Some(64 * 1024),
+            )?)
+        } else {
+            None
+        };
+        if positive {
+            authorization::write(
+                record,
+                &authorization::Authorization {
+                    id: id.clone(),
+                    stage: answer.stage.to_owned(),
+                    workflow: workflow.clone(),
+                    attempt,
+                    questions_file: answer.questions_file.to_owned(),
+                    questions_sha256: answer.questions_sha256.to_owned(),
+                    choice: answer.choice.to_owned(),
+                    recorded_at: focus_audit::time::iso_timestamp(std::time::SystemTime::now()),
+                },
+            )?;
+        } else {
+            authorization::clear(record, answer.stage)?;
+        }
+        Ok(before)
+    })();
+    let before = match saved {
+        Ok(before) => before,
+        Err(why) => bail!(
+            "Cannot record the summary choice: its authorization record could not be saved ({why}). Nothing was recorded; the pending question is still answerable. Repair the record directory and run this command again."
+        ),
+    };
+    if let Err(why) = wf.emit(held, "SUMMARY_CONFIRMATION_RECORDED", fields) {
+        // The registry goes back to what it held, so no authorization
+        // stands without the receipt that minted it.
+        let rollback = match record
+            .as_ref()
+            .map(|record| authorization::restore(record, answer.stage, before.as_deref()))
+        {
+            Some(Err(restore)) => format!(
+                " The authorization record could not be restored either ({restore}); remove {} under the intent record before retrying.",
+                authorization::relative_path(answer.stage).unwrap_or_default()
+            ),
+            _ => String::new(),
+        };
+        bail!("{why}.{rollback}");
+    }
+    let mut out = serde_json::Map::new();
+    out.insert("emitted".to_owned(), "SUMMARY_CONFIRMATION_RECORDED".into());
+    out.insert("checkpoint".to_owned(), "summary-confirmation".into());
+    out.insert("stage".to_owned(), answer.stage.into());
+    out.insert("choice".to_owned(), answer.choice.into());
+    if positive {
+        out.insert("summary_authorization_id".to_owned(), id.into());
+    }
+    if let Some(feedback) = answer.feedback {
+        out.insert("feedback".to_owned(), feedback.into());
+    }
+    if let Some(say) = say {
+        out.insert("say".to_owned(), say.into());
+    }
+    Ok(serde_json::Value::Object(out))
 }

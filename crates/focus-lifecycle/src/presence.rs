@@ -707,10 +707,20 @@ fn prompt_hook_ran_recently(wf: &Workflow) -> bool {
 }
 
 /// `unattendedHumanPresenceHint`: what a refusal for want of a reply adds.
-/// (Upstream's `missedReply: false`, a refusal for a reply not given yet,
-/// is the log tool's, M5.)
 #[must_use]
 pub fn unattended_human_presence_hint(wf: &Workflow) -> String {
+    presence_hint(wf, true)
+}
+
+/// `unattendedHumanPresenceHint` with `missedReply: false`: the caller
+/// refuses for a reply not given yet, not for one the hooks missed, so the
+/// lines about a reply that did not arrive are left out.
+#[must_use]
+pub fn unattended_human_presence_hint_for_a_reply_not_given(wf: &Workflow) -> String {
+    presence_hint(wf, false)
+}
+
+fn presence_hint(wf: &Workflow, missed_reply: bool) -> String {
     if env::var("UNATTENDED").as_deref() == Some("1") {
         return format!(
             " {}=1 is set, so automated prompt submissions cannot count as a human reply. Unset {} before returning to interactive mode, then submit a new human response.",
@@ -727,6 +737,9 @@ pub fn unattended_human_presence_hint(wf: &Workflow) -> String {
         return format!(
             " If the person already replied, that reply was not recorded because Focus's hooks are not running here, so do not ask them to answer again; do this instead: {step} {NO_CHECK_OFF_OFFER}"
         );
+    }
+    if !missed_reply {
+        return String::new();
     }
     if prompt_hook_ran_recently(wf) {
         return format!(" {NOT_ANSWERED_YET_STEP}");

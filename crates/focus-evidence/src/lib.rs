@@ -10,6 +10,7 @@
 //! The crate sits below the lifecycle, the hooks and the orchestrator, which
 //! all read the same evidence.
 
+pub mod authorization;
 pub mod oracle;
 pub mod source;
 pub mod summary;
