@@ -143,7 +143,7 @@ fn question_file_relative(
     unit: Option<&str>,
 ) -> Option<String> {
     let record = wf.record_dir()?;
-    let stage_level = !focus_graph::query::is_per_unit(stage)
+    let stage_level = !focus_lifecycle::stage::is_per_unit(stage)
         || uses_stage_level_per_unit_artifacts(wf, get_field(state, "Scope").unwrap_or(""), state);
     let found = if stage_level {
         // A file at the stage is no unit's.
@@ -310,7 +310,7 @@ pub(crate) fn refuse_plain(
     };
     let unit = call
         .unit
-        .or_else(|| focus_graph::query::is_per_unit(stage).then_some("<unit>"));
+        .or_else(|| focus_lifecycle::stage::is_per_unit(stage).then_some("<unit>"));
     let file = question_file_relative(wf, stage, &state, call.unit);
     let commands = commands(
         wf,
