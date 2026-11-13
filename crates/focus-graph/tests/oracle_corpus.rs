@@ -82,6 +82,7 @@ fn the_corpus_exercises_every_kind_and_both_outcomes() {
         "settings-",
         "guard-",
         "guardwild-",
+        "heading_key-",
     ] {
         assert!(
             count(&format!("{{\"id\":\"{kind}")) > 100,
@@ -95,4 +96,17 @@ fn the_corpus_exercises_every_kind_and_both_outcomes() {
     assert!(count("\"valid\":true") > 100);
     assert!(count("\"valid\":false") > 100);
     assert!(count("\"out\":{\"error\":") > 10);
+    // A heading has to be seen with a decoration taken off, with none, and
+    // with only part of what stands before its words taken.
+    let stripped: String = expected
+        .lines()
+        .filter(|line| line.starts_with("{\"id\":\"heading_key-"))
+        .collect();
+    let answers = |answer: &str| stripped.matches(answer).count();
+    assert!(
+        answers("1,") > 10_000 && answers("0,") > 50_000,
+        "{}",
+        answers("1,")
+    );
+    assert!(answers(",\"") > 50, "{}", answers(",\""));
 }

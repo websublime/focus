@@ -22,10 +22,11 @@ use crate::rules;
 use crate::runtime;
 use crate::sensors;
 use crate::stage_schema::{self, ValidationContext};
+use crate::vocabulary;
 
 /// The kinds of case this crate answers. Each kind in the corpus belongs to
 /// exactly one crate, and each crate replays its own.
-pub const KINDS: [&str; 15] = [
+pub const KINDS: [&str; 16] = [
     "stage",
     "sensor",
     "rule",
@@ -41,6 +42,7 @@ pub const KINDS: [&str; 15] = [
     "settings",
     "guard",
     "guardwild",
+    "heading_key",
 ];
 
 /// Answer one oracle case. An unknown `kind` answers `{"unsupported": kind}`.
@@ -55,6 +57,7 @@ pub fn run_case(case: &Value) -> Value {
         "list" => json!({ "value": fm::list_field(text("fm"), text("key")) }),
         "collate" => json!({ "sign": locale_compare(text("a"), text("b")) as i8 }),
         "icase" => icase(case, text("hay")),
+        "heading_key" => heading_key(case, text("after")),
         "instant" => {
             let ms: Vec<Option<i64>> = case
                 .get("texts")
@@ -91,6 +94,43 @@ pub fn run_case(case: &Value) -> Value {
         },
         other => json!({ "unsupported": other }),
     }
+}
+
+/// The section each of a batch of headings names. A heading given whole
+/// answers with its key. One given as the code points of what stands
+/// before `after` answers 1 when all of that was taken for decoration, 0
+/// when none was, and with the key otherwise.
+fn heading_key(case: &Value, after: &str) -> Value {
+    let list = |key: &str| case[key].as_array().map(Vec::as_slice).unwrap_or_default();
+    if case.get("headings").is_some() {
+        let keys: Vec<String> = list("headings")
+            .iter()
+            .map(|heading| vocabulary::heading_key(heading.as_str().unwrap_or_default()))
+            .collect();
+        return json!({ "keys": keys });
+    }
+    let stripped: Vec<Value> = list("emoji")
+        .iter()
+        .map(|points| {
+            let lead: String = points
+                .as_str()
+                .unwrap_or_default()
+                .split(' ')
+                .filter_map(|point| u32::from_str_radix(point, 16).ok())
+                .filter_map(char::from_u32)
+                .collect();
+            let whole = format!("{lead}{after}");
+            let key = vocabulary::heading_key(&whole);
+            if key == focus_js::text::trim(after) {
+                json!(1)
+            } else if key == focus_js::text::trim(&whole) {
+                json!(0)
+            } else {
+                json!(key)
+            }
+        })
+        .collect();
+    json!({ "stripped": stripped })
 }
 
 /// What each of a batch of patterns matches in `hay` under flag `i`.

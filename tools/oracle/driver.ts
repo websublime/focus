@@ -58,6 +58,7 @@ const libPrivate = await import(libShim);
 const dispatcher = await import(tool("aidlc.ts"));
 const guardOperation = await import(tool("aidlc-guard-operation.ts"));
 const posture = await import(tool("aidlc-testing-posture.ts"));
+const vocabulary = await import(tool("aidlc-artifact-vocabulary.ts"));
 const nodePath = await import("node:path");
 
 // A scratch project for the cases that can only be asked by writing a file.
@@ -327,6 +328,28 @@ async function answer(c: Record<string, any>): Promise<unknown> {
         guardsOn: lib.setGuardsOnLine(c.content, fences),
         policyLine: lib.setGuardPolicyLine(c.content, c.line),
       };
+    }
+    case "heading_key": {
+      // A heading given whole answers with its key. One given as the code
+      // points of what stands before `after` answers 1 when all of that was
+      // taken for decoration, 0 when none was, and with the key otherwise.
+      if (c.headings) return { keys: c.headings.map((heading: string) => vocabulary.headingKey(heading)) };
+      return {
+        stripped: c.emoji.map((points: string) => {
+          const whole = String.fromCodePoint(...points.split(" ").map((point) => parseInt(point, 16))) + c.after;
+          const key = vocabulary.headingKey(whole);
+          return key === c.after.trim() ? 1 : key === whole.trim() ? 0 : key;
+        }),
+      };
+    }
+    case "summary": {
+      const out: Record<string, unknown> = { answer: lib.summaryConfirmationAnswer(c.content) };
+      try {
+        out.hash = lib.summaryConfirmationContentHash(c.content);
+      } catch (err) {
+        out.error = (err as Error).message;
+      }
+      return out;
     }
     case "icase":
       // What each pattern matches in the text, case ignored, outside the

@@ -60,8 +60,10 @@ pub fn visible_lines(content: &str, options: Visible) -> Result<Vec<String>> {
 }
 
 /// The visible lines of `content`, whose structure is `blocks`: what
-/// [`analyse`] answered for this same `content`.
-pub(crate) fn visible_lines_of(content: &str, blocks: &Blocks, options: Visible) -> Vec<String> {
+/// [`analyse`] answered for this same `content`. For a consumer that reads
+/// the structure too, so the document is analysed once.
+#[must_use]
+pub fn visible_lines_of(content: &str, blocks: &Blocks, options: Visible) -> Vec<String> {
     let finish = |visible: String| {
         if options.preserve_comment_boundaries {
             visible

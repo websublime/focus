@@ -12,7 +12,9 @@ publish.workspace = true
 serde_json.workspace = true
 sha2.workspace = true
 flate2.workspace = true
+focus-graph.workspace = true
 focus-js.workspace = true
+focus-markdown.workspace = true
 focus-workspace.workspace = true
 
 [dev-dependencies]
