@@ -26,8 +26,12 @@ The interactions of the active record's work, written to its ledger.
                            message of theirs that already answered it
   answers --stage <slug> [--unit <unit>]
                            The stage's questions, with the answers they have (read only)
-  answer --stage <slug> --details <text> [--single] [--message <id>]
-                           The person's reply to a question, as the agent read it
+  answer --stage <slug> (--details <text> | --details-file <file>) [--single] [--message <id>]
+         [--on-instruction <their words> | --on-instruction-file <file>]
+                           The person's reply to a question, as the agent read it. A file
+                           is one the agent wrote under .focus-engine/answer-text/ of the
+                           record, read once and removed; --on-instruction records a choice
+                           the person left to the agent, with the words that left it
   link, review             Not ported yet
 ";
 

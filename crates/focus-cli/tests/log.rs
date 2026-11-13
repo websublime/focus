@@ -111,9 +111,8 @@ fn the_verbs_that_are_not_ported_are_refused_by_name() {
 }
 
 /// Deliberate deviation. What an answer may carry that Focus has not
-/// ported: its text in a file, a choice the person left to the agent, the
-/// engine's own questions, a unit of work. Upstream reads what each needs;
-/// Focus refuses each by name and records nothing.
+/// ported: the engine's own questions, a unit of work. Upstream reads what
+/// each needs; Focus refuses each by name and records nothing.
 #[test]
 fn the_answers_that_are_not_ported_are_refused_by_name() {
     let root = project("answers");
@@ -129,18 +128,6 @@ fn the_answers_that_are_not_ported_are_refused_by_name() {
     };
     let plan = "and Focus does not run Plan Approval yet.";
     for (args, said) in [
-        (
-            vec!["answer", "--stage", "intent-capture", "--details-file", "a.txt"],
-            "--details-file passes text in a file the agent wrote, and Focus does not read an answer's text from a file yet.".to_owned(),
-        ),
-        (
-            with(&["--on-instruction-file", "i.txt"]),
-            "--on-instruction-file passes text in a file the agent wrote, and Focus does not read an answer's text from a file yet.".to_owned(),
-        ),
-        (
-            with(&["--on-instruction", "you decide"]),
-            "--on-instruction records a choice the person left to the agent, and Focus does not record that yet.".to_owned(),
-        ),
         (
             with(&["--checkpoint", "guard-recovery"]),
             "--checkpoint guard-recovery records the remedy the person picked after a refusal, and Focus does not ask the recovery question yet.".to_owned(),

@@ -2337,10 +2337,9 @@ DEVIATIONS.update({
         "and harness included, as that member); focus refuses the row by name (exit 1 either way where upstream "
         "falls over, and the jump's error row written by both)",
     r"log/answer/\w+_not_ported":
-        "what an answer may carry that focus has not ported: its text in a file and a choice the person left to the "
-        "agent (the next pull request), the engine's own questions (the recovery question, slice 4; a summary "
-        "confirmation, 2c; Construction's checkpoints and a unit of work, 5; Plan Approval, 11). Upstream reads "
-        "what each needs and records or refuses on its own terms; focus refuses each by name",
+        "what an answer may carry that focus has not ported: the engine's own questions (the recovery question, "
+        "slice 4; a summary confirmation, 2c; Construction's checkpoints and a unit of work, 5; Plan Approval, 11). "
+        "Upstream reads what each needs and records or refuses on its own terms; focus refuses each by name",
     r"log/usage/(link|review)_not_ported":
         "the verbs of the log tool that focus has not ported (M5, slices 2b to 2e): upstream runs them; focus "
         "refuses each by name",
@@ -4738,10 +4737,8 @@ def log_checks():
                                               ["--project-dir", "{P}", "answer", "--stage", "intent-capture", "--details", "Chose", "Option"]])
     check_("answer/no_workflow", CLONE, [reply])
     check_("answer/unknown_checkpoint", asked, [reply + ["--checkpoint", "nope"], reply + ["--checkpoint", "learnings"], reply + ["--checkpoint", ""]])
-    for flag, value in (("details-file", ".aidlc-engine/answer-text/answer.txt"), ("on-instruction", "you decide"), ("on-instruction-file", ".aidlc-engine/answer-text/i.txt"),
-                        ("override", "because"), ("override-file", "o.txt"), ("batch-file", "b.json"), ("unit", "api")):
-        steps = [["answer", "--stage", "intent-capture", f"--{flag}", value]] if flag == "details-file" else [reply + [f"--{flag}", value]]
-        check_(f"answer/{flag.replace('-', '_')}_not_ported", asked, steps)
+    for flag, value in (("override", "because"), ("override-file", "o.txt"), ("batch-file", "b.json"), ("unit", "api")):
+        check_(f"answer/{flag.replace('-', '_')}_not_ported", asked, [reply + [f"--{flag}", value]])
     for checkpoint in ("guard-recovery", "summary-confirmation", "verification-command", "construction-policy", "plan-approval"):
         check_(f"answer/checkpoint_{checkpoint.replace('-', '_')}_not_ported", asked, [reply + ["--checkpoint", checkpoint]])
     # The reply an answer needs: one that has answered nothing yet. One reply answers every question that was open
@@ -4879,6 +4876,65 @@ def log_checks():
                                                              CREATED_AUDIT + block("STAGE_AWAITING_APPROVAL", T(1), "**Stage**: functional-design")), [built("Approve")])
     check_("answer/autonomous_construction_words_kept", created(building, CREATED_AUDIT + H(1), **kept(CREATED_AUDIT, "the person's words")), [built("y")])
     check_("answer/construction_not_autonomous", created(at_stage(CREATED_STATE, "functional-design", done=["intent-capture"], phase="CONSTRUCTION")), [built("y")])
+
+    # An answer's text in a file the agent wrote, read once and removed: named in the record, from the project or
+    # in full; nothing outside the record's answer-text folder is read, and nothing through a link.
+    folder = f"{CREATED_DIR}/.aidlc-engine/answer-text"
+    filed = lambda name=".aidlc-engine/answer-text/answer.txt", *more: ["answer", "--stage", "intent-capture", "--details-file", name, *more]
+    text_file = lambda text, name="answer.txt": {**asked, f"{folder}/{name}": text}
+    check_("answer/details_file", text_file('Postgres & "quotes" | $HOME\n'), [filed(), filed()])
+    check_("answer/details_file_and_details", text_file("Postgres\n"), [filed() + ["--details", "x"], reply + ["--details-file", ".aidlc-engine/answer-text/answer.txt"]])
+    check_("answer/details_file_named_from_the_project", text_file("Postgres\n"), [filed(f"{folder}/answer.txt")])
+    check_("answer/details_file_named_in_full", text_file("Postgres\n"), [filed("{P}/" + f"{folder}/answer.txt")])
+    check_("answer/details_file_backslashes", text_file("Postgres\n"), [filed(".aidlc-engine\\answer-text\\answer.txt")])
+    check_("answer/details_file_in_a_subfolder", text_file("Postgres\n", "deep/answer.txt"), [filed(".aidlc-engine/answer-text/deep/answer.txt")])
+    check_("answer/details_file_outside_the_folder", {**text_file("Postgres\n"), f"{CREATED_DIR}/answer.txt": "x\n", "answer.txt": "y\n"}, [
+        filed("answer.txt"), filed(".aidlc-engine/answer.txt"), filed(".aidlc-engine/answer-text/"), filed(".aidlc-engine/answer-text"), filed(".aidlc-engine/answer-text/../answer.txt"),
+        filed(".aidlc-engine/answer-text/./answer.txt"), filed("{P}/answer.txt"), filed(""), filed(f"{CREATED_DIR}/answer.txt"), filed("/.aidlc-engine/answer-text/answer.txt")])
+    check_("answer/details_file_missing", asked, [filed()])
+    for label, text in (("empty", ""), ("blank", "  \n"), ("newline", "\n"), ("two_newlines", "Postgres\n\n"), ("crlf", "Postgres\r\n"), ("no_newline", "Postgres"),
+                        ("inner_lines", "first\nsecond\n"), ("dismissal", "Cancelled\n"), ("at_the_limit", "x" * 65536), ("too_large", "x" * 65537)):
+        check_(f"answer/details_file_{label}", text_file(text), [filed()])
+    check_("answer/details_file_a_folder", {**asked, f"{folder}/answer.txt/x": "x"}, [filed()])
+    check_("answer/details_file_a_link", {**asked, "elsewhere.txt": "Postgres\n"}, [filed()],
+           edits=(lambda tree: (os.makedirs(tree.path(folder)), os.symlink(tree.path("elsewhere.txt"), tree.path(f"{folder}/answer.txt"))),))
+    check_("answer/details_file_behind_a_link", {**asked, "elsewhere/answer.txt": "Postgres\n"}, [filed()],
+           edits=(lambda tree: (os.makedirs(os.path.dirname(tree.path(folder)), exist_ok=True), os.symlink(tree.path("elsewhere"), tree.path(folder))),))
+    check_("answer/details_file_no_workflow", CLONE, [filed()])
+    check_("answer/details_file_observer", text_file("Postgres\n"), [filed()], {"STOP_HOOK_PROBE": "1"})
+    check_("answer/details_file_refused_after_reading", {**told(Q(1, "Which database?")), f"{folder}/answer.txt": "Postgres\n"}, [filed(), filed()])
+
+    # A choice the person left to the agent: recorded as the agent's at their word, with no reply needed, where
+    # the person has said something in this piece of work. An approval and a checkpoint are never left to it.
+    left = lambda words, *more: reply + ["--on-instruction", words, *more]
+    silent = TITLE + block("WORKFLOW_STARTED", T(0), "**Scope**: feature") + Q(1, "Which database?")
+    check_("answer/on_instruction", told(Q(1, "Which database?")), [left("  you   decide,\tI trust you  "), left("again")])
+    check_("answer/on_instruction_empty", told(Q(1, "Which database?")), [left(""), left("   "), reply + ["--on-instruction"]])
+    check_("answer/on_instruction_checkpoint", told(Q(1, "Which database?")), [left("you decide", "--checkpoint", "summary-confirmation"), left("you decide", "--checkpoint", "nope"),
+                                                                              left("", "--checkpoint", "nope")])
+    check_("answer/on_instruction_unattended", told(Q(1, "Which database?")), [left("you decide")], {"UNATTENDED": "1"})
+    check_("answer/on_instruction_nothing_said", created(audit=silent), [left("you decide")])
+    check_("answer/on_instruction_blank_request", created(audit=TITLE + block("WORKFLOW_STARTED", T(0), "**Scope**: feature", "**Request**:  ") + Q(1, "Which database?")), [left("you decide")])
+    check_("answer/on_instruction_after_a_turn", created(audit=silent + H(2)), [left("you decide")])
+    check_("answer/on_instruction_after_a_command_turn", created(audit=silent + H(2, "**Reply**: command")), [left("you decide")])
+    check_("answer/on_instruction_after_a_switch_question", created(audit=silent + H(2, "**Reply**: question")), [left("you decide")])
+    check_("answer/on_instruction_at_gate", gate_open(H(2)), [left("you decide")])
+    check_("answer/on_instruction_at_gate_question_open", gate_open(Q(2, "Which database?")), [left("you decide")])
+    check_("answer/on_instruction_dismissed", told(Q(1, "Which database?")), [replied("Cancelled", "--on-instruction", "you decide")])
+    check_("answer/on_instruction_self_attributed", told(Q(1, "Which database?")), [replied("The assistant chose this answer.", "--on-instruction", "you decide")])
+    check_("answer/on_instruction_keeps_nothing_of_the_turn", told(Q(1, "Which database?"), H(2, '**Picked**: ["SQLite"]'), **kept(before_turn, "the person's words"),
+                                                                    **sent("0000aaaa")), [left("you decide", "--message", "0000aaaa"), left("you decide", "--message", "nope")])
+    check_("answer/on_instruction_mode", told(Q(1, "How would you like to answer them?", "**Options**: Guide me, I'll edit the file, Chat")), [replied("3", "--on-instruction", "you decide"),
+                                                                                                                                             replied("whatever", "--on-instruction", "x")])
+    check_("answer/on_instruction_single", told(Q(1, "Which database?")), [left("you decide", "--single")])
+    check_("answer/on_instruction_file", {**told(Q(1, "Which database?")), f"{folder}/i.txt": "you decide: I'm & \"away\"\n"},
+           [reply + ["--on-instruction-file", ".aidlc-engine/answer-text/i.txt"], reply + ["--on-instruction-file", ".aidlc-engine/answer-text/i.txt"]])
+    check_("answer/on_instruction_file_and_words", {**told(Q(1, "Which database?")), f"{folder}/i.txt": "you decide\n"},
+           [left("x", "--on-instruction-file", ".aidlc-engine/answer-text/i.txt")])
+    check_("answer/both_files", {**told(Q(1, "Which database?")), f"{folder}/i.txt": "you decide\n", f"{folder}/answer.txt": "Postgres\n"},
+           [["answer", "--stage", "intent-capture", "--on-instruction-file", ".aidlc-engine/answer-text/i.txt", "--details-file", ".aidlc-engine/answer-text/answer.txt"]])
+    check_("answer/on_instruction_autonomous_construction", created(building, CREATED_AUDIT + block("DECISION_RECORDED", T(2), "**Stage**: functional-design", "**Decision**: Which?")),
+           [built("y", "--on-instruction", "you decide")])
 
 
 def jump_checks():

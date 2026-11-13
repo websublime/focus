@@ -63,7 +63,10 @@ pub fn is_reply_turn(event: &str, block: &str) -> bool {
     mark != Some(COMMAND_TURN_REPLY) && mark != Some(QUESTION_TURN_REPLY)
 }
 
-fn is_request_turn(event: &str, block: &str) -> bool {
+/// `isRequestTurn`: a human turn that can carry a request (anything but a
+/// question about a switch).
+#[must_use]
+pub fn is_request_turn(event: &str, block: &str) -> bool {
     event == "HUMAN_TURN" && block_field(block, "Reply") != Some(QUESTION_TURN_REPLY)
 }
 
