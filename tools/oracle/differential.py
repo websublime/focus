@@ -4777,6 +4777,8 @@ def log_checks():
         os.makedirs(tree.path(qdir), exist_ok=True)
         with open(tree.path(qfile), "wb") as handle:
             handle.write(b"## Consolidated Summary Confirmation\n\nA \xff tool\n\n[Answer]:\n")
+    # (Compared live: a file that is not text cannot be kept in the recording.)
+    UNRECORDED.add("log/decision/summary_checkpoint_file_not_text")
     check_("decision/summary_checkpoint_file_not_text", created(owing), [with_file, with_file], edits=[not_text])
     # Not opened by name: a link, a file behind a linked folder, a second name, a folder.
     check_("decision/summary_checkpoint_a_link", created(owing, **{"elsewhere-questions.md": SUMMARY}), [with_file],
