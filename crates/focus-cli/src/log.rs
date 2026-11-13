@@ -37,9 +37,9 @@ The interactions of the active record's work, written to its ledger.
                            record, read once and removed; --on-instruction records a choice
                            the person left to the agent, with the words that left it
                            With the checkpoint, the person's choice at a stage's summary
-                           ("Looks correct", or "Request changes" and what to change),
+                           (Looks correct, or Request changes and what to change),
                            written on the summary's [Answer]: line of the questions file
-                           first: "Looks correct" authorizes the stage's outputs
+                           first. Looks correct authorizes the stage's outputs
   link, review             Not ported yet
 ";
 
