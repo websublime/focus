@@ -2,8 +2,8 @@
 # interchange, one per line, as code points in hexadecimal. The data is the
 # Unicode Consortium's (emoji-sequences.txt and emoji-zwj-sequences.txt, read
 # through the npm package @unicode/unicode-17.0.0, Sequence_Property/RGI_Emoji):
-# Copyright (c) Unicode, Inc., under the Unicode License v3
-# (https://www.unicode.org/license.txt).
+# Copyright (c) Unicode, Inc., under the Unicode License v3, whose notice is
+# in rgi_emoji.LICENSE.txt beside this file.
 #
 # These are the candidates the oracle asks upstream's runtime about
 # (gen_cases.py, kind heading_key). emoji.ts checks that the runtime takes
