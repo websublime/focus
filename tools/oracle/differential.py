@@ -5287,6 +5287,17 @@ def log_checks():
            [scanned()], edits=[at_time()])
     check_("link/handoff_receipt_time_is_no_number", created(chained, CREATED_AUDIT + scan_receipt(1, scan, scan_sha, "1e99") + scan_receipt(2, scan, scan_sha, "") + restarted, **{scan: SCAN}),
            [scanned()], edits=[at_time()])
+    over_app = CREATED_REGISTRY.replace('"status": "in-flight"', '"status": "in-flight",\n    "repos": ["app", "web"]')
+    # The earlier receipt is one of this stage, this link and this repository: another's time is not the scan's.
+    later = "9999999999999"
+    check_("link/handoff_receipt_of_another_stage", created(chained, CREATED_AUDIT + scan_receipt(1, scan, scan_sha, later).replace("reverse-engineering", "intent-capture", 1) + restarted, **{scan: SCAN}),
+           [scanned()], edits=[at_time()])
+    check_("link/handoff_receipt_of_another_link", created(chained, CREATED_AUDIT + receipt(1, arch, "2/2", f"**Artifact Mtime Ms**: {later}") + restarted, **{scan: SCAN}), [scanned()], edits=[at_time()])
+    check_("link/handoff_receipt_of_a_repo", created(chained, CREATED_AUDIT + scan_receipt(1, scan, scan_sha, later, "**Repo**: app") + restarted, **{scan: SCAN}), [scanned()], edits=[at_time()])
+    check_("link/handoff_receipt_of_another_repo", created(chained, CREATED_AUDIT + scan_receipt(1, scan_app, scan_sha, later, "**Repo**: web") + restarted, registry=over_app, **{scan_app: SCAN}),
+           [scanned("--repo", "app", file=scan_app)], edits=[at_time(scan_app)])
+    check_("link/handoff_receipt_of_the_root", created(chained, CREATED_AUDIT + scan_receipt(1, scan, scan_sha, later) + restarted, registry=over_app, **{scan_app: SCAN}),
+           [scanned("--repo", "app", file=scan_app)], edits=[at_time(scan_app)])
     # The receipts of this attempt: the developer's counts while its file is the one it recorded, unless the
     # record's guard policy accepts a changed file (relaxed, off).
     off = "- **Guard Policy**: off (from scope feature)"
@@ -5381,7 +5392,6 @@ def log_checks():
     check_("link/receipt_in_another_shard_later", created(chained, CREATED_AUDIT + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering"), **{scan: SCAN}, **other(scan_receipt(6))), [returned(arch)],
            edits=[at_time()])
     # A piece of work over repositories: the chain runs once for each, and the handoff carries the repository's name.
-    over_app = CREATED_REGISTRY.replace('"status": "in-flight"', '"status": "in-flight",\n    "repos": ["app", "web"]')
     check_("link/repos", created(chained, registry=over_app, **{scan_app: SCAN, scan: SCAN}), [scanned(), scanned("--repo", "nope", file=scan_app), scanned("--repo", "app"), scanned("--repo", "app", file=scan_app),
                                                                                           returned(arch, "--repo", "web"), returned(arch, "--repo", "app"), returned(arch, "--repo", "app"),
                                                                                           scanned("--repo", "app", file=scan_app), scanned("--repo", "")], edits=[at_time(scan_app)])
