@@ -263,6 +263,14 @@ fn normalise_audit(text: &str, root: &Path) -> String {
         r#""(structureHash|contentHash)":"sha256:[0-9a-f]{64}""#,
         |found, text| format!("\"{}\":\"<verified>\"", group(found, text, 1)),
     );
+    // A summary's authorization id is taken over the questions file's
+    // name, which carries the workspace directory's; recorded the same way.
+    // (What is hashed is pinned in `focus-evidence::authorization`.)
+    text = replace_all(
+        &text,
+        r#"(\*\*Summary Authorization Id\*\*: |"summary_authorization_id":"|^  "id": ")[0-9a-f]{64}"#,
+        |found, text| format!("{}<verified>", group(found, text, 1)),
+    );
     // A source baseline is the hash of a listing of hashes of the tree's
     // own files, recorded the same way (see `own_baseline`).
     text = replace_all(
@@ -281,6 +289,12 @@ fn normalise_audit(text: &str, root: &Path) -> String {
         |found, text| format!("<cli-config guard-policy {}>", group(found, text, 1)),
     );
     text = text.replace(" --harness claude\n", "\n");
+    // A file where a folder is to be made: the runtime's own words.
+    text = replace_all(
+        &text,
+        r#"(?:<project-dir>/)?[^\s"(]*: File exists \(os error 17\)"#,
+        |_, _| "<runtime>".to_owned(),
+    );
     text = replace_all(
         &text,
         r#"(?:<project-dir>/)?[^\s"]*focus-state\.md: Is a directory \(os error 21\)"#,

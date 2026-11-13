@@ -111,8 +111,9 @@ fn the_verbs_that_are_not_ported_are_refused_by_name() {
 }
 
 /// Deliberate deviation. What an answer may carry that Focus has not
-/// ported: the engine's own questions, a unit of work. Upstream reads what
-/// each needs; Focus refuses each by name and records nothing.
+/// ported: the engine's own questions, a unit of work, the summary of a
+/// stage that runs per unit. Upstream reads what each needs; Focus refuses
+/// each by name and records nothing.
 #[test]
 fn the_answers_that_are_not_ported_are_refused_by_name() {
     let root = project("answers");
@@ -131,10 +132,6 @@ fn the_answers_that_are_not_ported_are_refused_by_name() {
         (
             with(&["--checkpoint", "guard-recovery"]),
             "--checkpoint guard-recovery records the remedy the person picked after a refusal, and Focus does not ask the recovery question yet.".to_owned(),
-        ),
-        (
-            with(&["--checkpoint", "summary-confirmation"]),
-            "--checkpoint summary-confirmation records the person's choice at a stage's summary confirmation, and Focus does not record summary confirmations yet.".to_owned(),
         ),
         (
             with(&["--checkpoint", "verification-command"]),
@@ -163,6 +160,20 @@ fn the_answers_that_are_not_ported_are_refused_by_name() {
         (
             with(&["--unit", "api"]),
             "--unit records an answer about one unit of work, and Focus does not run units yet.".to_owned(),
+        ),
+        (
+            vec![
+                "answer",
+                "--stage",
+                "functional-design",
+                "--details",
+                "Looks correct",
+                "--checkpoint",
+                "summary-confirmation",
+                "--questions-file",
+                "x-questions.md",
+            ],
+            "\"functional-design\" runs per unit of work, and a unit's summary confirmation binds to the unit's own attempt: Focus does not run units yet.".to_owned(),
         ),
     ] {
         assert_eq!(refusal(&root, &args), said, "{args:?}");
