@@ -144,19 +144,17 @@ fn question_file_relative(
             .then(|| question_files_in(&record.join(&stage.phase).join(&stage.slug)))
             .and_then(|files| files.into_iter().next())
     } else {
-        // Under each unit of the record: the one asked for.
+        // Under the unit asked for, when the record has a folder of that
+        // very name (a filesystem that ignores case would find another).
         let unit = unit?;
         let construction = record.join("construction");
-        let mut units: Vec<String> = std::fs::read_dir(&construction)
+        let listed = std::fs::read_dir(&construction)
             .ok()?
             .filter_map(|entry| entry.ok()?.file_name().into_string().ok())
-            .collect();
-        units.sort_by(|a, b| focus_js::order::cmp_utf16(a, b));
-        units
-            .iter()
-            .filter(|name| name.as_str() == unit)
-            .flat_map(|name| question_files_in(&construction.join(name).join(&stage.slug)))
-            .next()
+            .any(|name| name == unit);
+        listed
+            .then(|| question_files_in(&construction.join(unit).join(&stage.slug)))
+            .and_then(|files| files.into_iter().next())
     }?;
     let host = Flavour::host();
     let project = wf.layout.project.to_string_lossy().into_owned();
