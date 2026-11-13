@@ -441,7 +441,7 @@ pub fn produces_dirs_for_stage(wf: &Workflow, stage: &Stage) -> Result<Vec<PathB
     let Some(record) = wf.record_dir() else {
         return Ok(Vec::new());
     };
-    if stage::is_per_unit(stage) {
+    if stage::has_unit_marker(stage) {
         let state = wf.read_state()?;
         let scope = get_field(&state, "Scope").unwrap_or("");
         if uses_stage_level_per_unit_artifacts(wf, scope, &state) {
@@ -482,7 +482,7 @@ pub fn produces_artifacts_exist(wf: &Workflow, stage: &Stage) -> Result<bool> {
     if stage.produces.is_empty() {
         return Ok(true);
     }
-    if stage::is_per_unit(stage)
+    if stage::has_unit_marker(stage)
         && let Some(kinds) = stage::produces_kinds(stage)
     {
         let state = wf.read_state()?;
@@ -944,7 +944,7 @@ fn review_entries(
             })
             .collect()
     };
-    if !stage::is_per_unit(stage) {
+    if !stage::has_unit_marker(stage) {
         return Some(stage_level());
     }
     let stage_level_present = all.iter().any(|name| {
