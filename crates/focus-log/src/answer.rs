@@ -354,10 +354,11 @@ pub fn answer(open: &dyn Fn() -> Result<Workflow>, args: &[String]) -> Result<Va
         // `personSpokeInThisWork`: a turn that can carry a request, or the
         // request that started the work. Their handing a choice over can
         // come before the question, so the words are what the record keeps.
+        // (A field is read trimmed: a request of white space is none.)
         let spoke = rows.iter().any(|row| {
             presence::is_request_turn(&row.event, &row.block)
                 || (row.event == "WORKFLOW_STARTED"
-                    && !trim(block_field(&row.block, "Request").unwrap_or("")).is_empty())
+                    && !block_field(&row.block, "Request").unwrap_or("").is_empty())
         });
         if !spoke {
             bail!(

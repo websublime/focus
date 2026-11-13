@@ -2,6 +2,12 @@
 //! Text that holds shell characters arrives in a file the agent wrote with
 //! its file tool, so no shell reads it on the way. The file is read once
 //! and removed: it is a message in transit, not a record.
+//!
+//! # A test that another test covers
+//!
+//! A name is taken as relative to the record when it is not absolute and
+//! is inside the folder. No absolute name starts with the folder's own, so
+//! the first question changes no answer; it is kept where upstream has it.
 
 use std::path::Path;
 
