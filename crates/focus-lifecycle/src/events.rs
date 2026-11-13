@@ -251,6 +251,8 @@ pub fn has_pending_decision_at_gate(rows: &[ShardEvent], stage: &str) -> bool {
     }) else {
         return false;
     };
+    // From the row after the gate's (the gate's own row is no question, so
+    // starting at it would change nothing).
     let mut open: Option<String> = None;
     for row in &events[gate_open + 1..] {
         if block_field(&row.block, "Stage") == Some(stage) {
