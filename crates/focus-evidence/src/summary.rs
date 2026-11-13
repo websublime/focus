@@ -31,14 +31,16 @@
 //!
 //! # Tests that another test covers
 //!
-//! Four questions change no answer when taken out, and are kept where
+//! Five questions change no answer when taken out, and are kept where
 //! upstream has them. A comment's end is looked for after its four opening
 //! characters, and the two comments that end inside those four are told
-//! apart first. A raw HTML block is read from its first line, whichever
-//! line asks, and its lines are asked in order. An `[Answer]:` line's
-//! value starts after spaces and tabs, and is trimmed of both anyway. A
-//! choice is only collected inside the summary section, so having one says
-//! the section was seen.
+//! apart first. A comment is looked for from where a line's content
+//! starts, and only container markers and indentation stand before that.
+//! A raw HTML block is read from its first line, whichever line asks, and
+//! its lines are asked in order. An `[Answer]:` line's value starts after
+//! spaces and tabs, and is trimmed of both anyway. A choice is only
+//! collected inside the summary section, so having one says the section
+//! was seen.
 
 use std::collections::{HashMap, HashSet};
 
@@ -203,7 +205,8 @@ impl Flows<'_> {
     /// markup, in a raw HTML block opened by a tag or inline.
     fn html_heading(&mut self, index: usize) -> Option<Heading> {
         let block = &self.blocks.lines[index];
-        let flow = block.kind == LineKind::HtmlFlow && matches!(block.html_kind, Some(6 | 7));
+        // Only a line of a raw HTML block has a kind.
+        let flow = matches!(block.html_kind, Some(6 | 7));
         let text = if flow {
             self.without_comments(index)
         } else {

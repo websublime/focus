@@ -5577,6 +5577,10 @@ for document in [
     # A heading's tag as code, in a comment, across two lines, inside another tag's attribute, and a longer name.
     f"## {SM}\n\ntext `<h2>` more\n", f"## {SM}\n\ntext <!-- <h2> --> more\n", f"## {SM}\n\ntext <b title=\"\n<h3>\"> more\n",
     f"## {SM}\n\ntext <h2\nclass=\"x\"> more\n", f"## {SM}\n\ntext <h1x>y</h1x> more\n", f"## {SM}\n\n<div>\n<h1x>y</h1x>\n</div>\n",
+    f"## {SM}\n\ntext <b title=\"x\ny <h3>\"> more\n", f"## {SM}\n\ntext <H2\nclass=\"x\"> more\n", f"## {SM}\n\ntext <b title='x\ny <H5>'> more <i>i</i>\n",
+    # A raw HTML block of the kinds that are verbatim to their end: nothing in one is a heading.
+    f"## {SM}\n\n<pre>\n<h2>x</h2>\n</pre>\n", f"## {SM}\n\n<script>\n\"<h3>\"\n</script>\n", f"## {SM}\n\n<!--\n<h2>x</h2>\n-->\n",
+    f"## {SM}\n\n<?php\n<h2>\n?>\n", f"## {SM}\n\n<!DOCTYPE x\n<h2>>\n", f"## {SM}\n\n<![CDATA[\n<h2>\n]]>\n", f"## {SM}\n\n<style>\n<h4>\n</style>\n",
     f"## {SM}\n\n<div>\n<h2<!-- c -->>t</h2>\n</div>\n", f"## {SM}\n\n<div>\n<!-- c --><h2 a='<!--'>t</h2>\n</div>\n",
     # A question past the ninth; a rule of two, an indented one, one indented as code.
     f"## {SM}\n\n## Q12\n\n## Q120. more\n", f"## Q10\n\n## Q1\n\n## {SM}\n\n## Q10\n", f"## {SM}\n\ntext\n\n--\n\n## {SM_AC}\n",
