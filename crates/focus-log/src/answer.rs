@@ -167,9 +167,7 @@ pub fn answer(open: &dyn Fn() -> Result<Workflow>, args: &[String]) -> Result<Va
         Some("guard-recovery") => bail!(
             "--checkpoint guard-recovery records the remedy the person picked after a refusal, and Focus does not ask the recovery question yet."
         ),
-        Some("summary-confirmation") => bail!(
-            "--checkpoint summary-confirmation records the person's choice at a stage's summary confirmation, and Focus does not record summary confirmations yet."
-        ),
+        Some("summary-confirmation") => {}
         Some(checkpoint @ ("verification-command" | "construction-policy")) => bail!(
             "--checkpoint {checkpoint} records an answer at one of Construction's checkpoints, and Focus does not run Construction yet."
         ),
@@ -238,6 +236,27 @@ pub fn answer(open: &dyn Fn() -> Result<Workflow>, args: &[String]) -> Result<Va
             .find(|(name, _)| *name == mode)
             .map_or(details, |(_, label)| (*label).to_owned());
     }
+    // The summary's choice: the agent names the one the person made; what
+    // they asked to change may follow the label.
+    let summary_checkpoint = flags.get("checkpoint") == Some("summary-confirmation");
+    if summary_checkpoint && stage_node.is_some_and(focus_lifecycle::stage::is_per_unit) {
+        bail!(
+            "\"{stage}\" runs per unit of work, and a unit's summary confirmation binds to the unit's own attempt: Focus does not run units yet."
+        );
+    }
+    let mut feedback: Option<String> = None;
+    if summary_checkpoint && !reply::is_non_answer(Some(said)) {
+        let Some((choice, rest)) = offered_choice_label(said, &summary::CHOICES) else {
+            bail!(
+                "Cannot record the summary choice because --details {} does not name a choice. Pass the choice the person made, \"{}\" or \"{}\", as you read it from their reply, with what they asked to change after it.",
+                reply::format_received_reply(Some(said)),
+                summary::CHOICES[0],
+                summary::CHOICES[1]
+            );
+        };
+        details = choice.to_owned();
+        feedback = (choice == summary::CHOICES[1] && !rest.is_empty()).then_some(rest);
+    }
     // A cancelled, dismissed or timed-out question box is not an answer.
     if reply::is_non_answer(Some(&details)) {
         bail!(
@@ -245,8 +264,27 @@ pub fn answer(open: &dyn Fn() -> Result<Workflow>, args: &[String]) -> Result<Va
             reply::format_received_reply(Some(&details))
         );
     }
+    let summary_evidence = if summary_checkpoint {
+        Some(summary::question_evidence(
+            &wf,
+            flags.get("questions-file"),
+            &details,
+        )?)
+    } else {
+        None
+    };
     let mut fields: Vec<(&str, String)> =
         vec![("Stage", stage.to_owned()), ("Details", details.clone())];
+    if let Some((questions_file, sha256)) = &summary_evidence {
+        fields.push(("Checkpoint", summary::CHECKPOINT.to_owned()));
+        fields.push(("Questions File", questions_file.clone()));
+        fields.push(("Questions SHA-256", sha256.clone()));
+        fields.push(("Hash Scope", focus_evidence::summary::HASH_SCOPE.to_owned()));
+        // A change request's own words ride on the receipt as its feedback.
+        if let Some(feedback) = &feedback {
+            fields.push(("Feedback", re::replace(r"\s+", "g", feedback, " ")));
+        }
+    }
     if flags.get("single") == Some("true") {
         fields.push(("Workflow", format!("single-stage:{stage}")));
     }
@@ -271,6 +309,25 @@ pub fn answer(open: &dyn Fn() -> Result<Workflow>, args: &[String]) -> Result<Va
             marker.category,
             marker.phrase
         );
+    }
+    // The summary is a checkpoint of the person's: a fresh turn of theirs is
+    // needed whatever Construction's autonomy.
+    if let Some((questions_file, sha256)) = &summary_evidence {
+        let out = summary::record_choice(
+            &wf,
+            &held,
+            &mut fields,
+            &summary::Choice {
+                stage,
+                single: flags.get("single") == Some("true"),
+                choice: &details,
+                feedback: feedback.as_deref(),
+                questions_file,
+                questions_sha256: sha256,
+            },
+        )?;
+        drop(held);
+        return Ok(out);
     }
     // An approval is a gate's, not a question's: an answer at an open gate
     // with no question asked since it opened is acknowledged and not
