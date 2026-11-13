@@ -1007,6 +1007,7 @@ fn the_recording_covers_every_verb_and_both_outcomes() {
         ("state", "checkbox"),
         ("state", "count"),
         ("log", "decision"),
+        ("log", "answers"),
     ] {
         let exits = |code: &str| {
             checks
