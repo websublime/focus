@@ -2175,12 +2175,12 @@ O checkpoint de sumário atravessa `decision` e `answer`, e assenta em duas leit
 
 | Verificação | Resultado |
 | --- | --- |
-| Diferencial, `log/decision/summary*` e `log/answer/summary*` | @@SQ@@ |
-| Diferencial, tudo | @@DIFF@@ |
-| Repetição da gravação | @@REC@@ |
+| Diferencial, `log/decision/summary*` e `log/answer/summary*` | 68 checks: 63 iguais e 5 desvios declarados (o ficheiro de perguntas, acima). A pergunta: gravada, duas vezes, com `--single` e com rationale, numa stage que não deve sumário, com outras opções; sem ficheiro nomeado; o ficheiro nomeado por inteiro e com passos pelo meio; oito nomes fora do registo, três de qualquer ficheiro de perguntas do registo, seis que não são um; em falta; treze formas do que a secção de sumário tem (respondida, sem linha, com duas, sem secção, vazia, em branco com espaços, um comentário, a secção duas vezes, uma pergunta duas vezes, um título depois, as assumptions depois, CRLF com marca, bytes que não são texto); a ordem das recusas; num observador; sem trabalho selecionado. A forma simples de uma pergunta: as duas escolhas em várias grafias, com `--single` e com `--unit`; o ficheiro que a recusa nomeia (o da stage, o primeiro de vários pelo nome, nenhum entre outros ficheiros, uma pasta com nome de um, um caminho com espaços e aspas); a unit vazia; sem ficheiro de estado; uma stage por unit, com as units planeadas, sem elas e com os ficheiros ao nível da stage. A forma simples de uma resposta: sete formas da escolha contra a pergunta simples e contra a gravada com o checkpoint, com e sem ficheiro; as duas formas abertas; o guard desligado; o ciclo entre dois shards, a pergunta noutro shard, empatada, de uma unit, de uma stage isolada; sem ficheiro de estado; uma escolha sem pergunta nenhuma |
+| Diferencial, tudo | 4 655 checks com `--fuzz 600`: 4 426 iguais, 229 desvios declarados, nenhum diferente |
+| Repetição da gravação | 3 380 checks sobre 1 193 árvores, todos iguais. Um check fica só no diferencial: um ficheiro que não é texto não cabe na gravação |
 | Testes | 1 de CLI marcado novo (o ficheiro de perguntas: um link, um link para nada, atrás de um link, um segundo nome, uma pasta; e o ficheiro como deve ser, gravado com o seu nome). Os dois testes marcados de `decision` e `answer` deixam de listar o que passou a ser do original |
 | Mutação | 59 mutantes (as duas escolhas, a pergunta aberta, o ficheiro que a recusa nomeia, os comandos, as três frases, a evidência da pergunta, os dois verbos): 55 apanhados (51 à primeira, 4 depois de 6 checks escritos para eles), 2 equivalentes anotados (a pasta de uma unit lida pelo seu próprio nome, que só um sistema de ficheiros que ignora maiúsculas distingue; e uma resposta com checkpoint, que até à 2c-iii é recusada antes) e 2 em código que saiu |
-| `cargo test` | @@TESTS@@ |
+| `cargo test` | 575 testes |
 
 ### A jornada
 
