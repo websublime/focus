@@ -4480,6 +4480,11 @@ def gate_checks():
     team = at_stage(GATE_STATE, "functional-design", done=["intent-capture", "market-research", "feasibility", "scope-definition", "team-formation", "rough-mockups", "approval-handoff"], phase="CONSTRUCTION") + "- **Unit Ownership**: team\n"
     check_("gates/unit_team", created(team, **{f"{CREATED_DIR}/construction/api/functional-design/entities.md": "# E\n"}),
            [["gate-start", "functional-design", "--unit", "api"], ["gate-start", "intent-capture", "--unit", "api"]], quiet)
+    # A unit's gate is asked of a stage that carries the per-unit marker: one of the five stages that always run
+    # per unit, in a compiled graph that lost its marker, is told it is not one.
+    check_("gates/unit_team_no_marker", created(team, **{f"{CREATED_DIR}/construction/api/functional-design/entities.md": "# E\n"}),
+           [["gate-start", "functional-design", "--unit", "api"], ["approve", "functional-design", "--unit", "api", "--user-input", "Approve"]], quiet,
+           edits=[lambda tree: no_marker(tree, ["functional-design"])])
     # Usage ledger, the directive marker, the fence, a missing state file.
     usage = {"aidlc/.aidlc-sessions/usage-ledger.json": json.dumps({"schemaVersion": 3, "cursors": {}, "workflows": {"w": {
         "totals": {"tokens": {"input": 10, "output": 5, "cacheRead": 0, "cacheCreate5m": 0, "cacheCreate1h": 0}}, "byStage": {"intent-capture": {}}}}})}
@@ -5118,6 +5123,14 @@ def jump_checks():
            [["execute", "--target", "feasibility", "--direction", "backward"]])
     check_("execute/backward_over_construction_dirs", created(operation, **per_unit), [["execute", "--target", "units-generation", "--direction", "backward"]])
     check_("execute/backward_over_construction_dag", created(operation, **per_unit, **{UNITS.replace(RECORD_DIR, CREATED_DIR): A_UNITS}), [["execute", "--target", "units-generation", "--direction", "backward"]])
+    # The files a jump lists for review are a stage's own outputs, laid out by the stage's marker alone: one of
+    # the five stages that always run per unit, in a compiled graph that lost its marker, is listed at the stage.
+    lost = [lambda tree: no_marker(tree, ["functional-design", "code-generation"])]
+    check_("execute/backward_over_construction_dirs_no_marker", created(operation, **per_unit), [["execute", "--target", "units-generation", "--direction", "backward"]], edits=lost)
+    check_("execute/backward_over_construction_dag_no_marker", created(operation, **per_unit, **{UNITS.replace(RECORD_DIR, CREATED_DIR): A_UNITS}),
+           [["execute", "--target", "units-generation", "--direction", "backward"]], edits=lost)
+    check_("execute/backward_over_construction_mixed_no_marker", created(operation, **per_unit, **{f"{CREATED_DIR}/construction/functional-design/entities.md": "# all\n"}),
+           [["execute", "--target", "delivery-planning", "--direction", "backward"]], edits=lost)
     check_("execute/backward_over_construction_empty", created(operation), [["execute", "--target", "delivery-planning", "--direction", "backward"]])
     check_("execute/backward_over_construction_stage_level", created(operation.replace("- [x] units-generation \u2014 EXECUTE", "- [S] units-generation \u2014 SKIP"),
                                                                      **{f"{CREATED_DIR}/construction/functional-design/entities.md": "# all\n"}),
