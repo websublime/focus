@@ -4638,7 +4638,10 @@ def log_checks():
     SUMMARY = "# Questions\n\n## Q1. Who is it for?\n\n[Answer]: A\n\n## Consolidated Summary Confirmation\n\nA tool for the team.\n\n[Answer]:\n"
     check_("decision/summary_options_owed_names_the_file", created(owing, **{qfile: SUMMARY}), [summary, summary + ["--unit", "api"]])
     check_("decision/summary_options_owed_two_files", created(owing, **{qfile: SUMMARY, f"{qdir}/b-questions.md": SUMMARY, f"{qdir}/Z-questions.md": SUMMARY, f"{qdir}/questions.md": SUMMARY,
-                                                                        f"{qdir}/a-questions.md.bak": SUMMARY}), [summary])
+                                                                        f"{qdir}/a-questions.md.bak": SUMMARY, f"{qdir}/0-notes.md": "x"}), [summary])
+    check_("decision/summary_options_owed_no_questions_file_among_others", created(owing, **{f"{qdir}/0-notes.md": "x", f"{qdir}/questions.md": "x"}), [summary])
+    check_("decision/summary_options_owed_unit_empty", created(owing, **{qfile: SUMMARY}), [summary + ["--unit", ""]])
+    check_("decision/summary_options_owed_no_state_file", created(**{f"{CREATED_DIR}/aidlc-state.md": None, qfile: SUMMARY}), [summary])
     check_("decision/summary_options_owed_a_folder_named_like_one", created(owing, **{f"{qdir}/a-questions.md/x": "x"}), [summary])
     check_("decision/summary_options_owed_a_path_with_spaces", created(owing, **{f"{qdir}/my $HOME's-questions.md": SUMMARY}), [summary])
     # A stage that runs per unit: the commands name the unit, and the file is the unit's.
@@ -4647,6 +4650,9 @@ def log_checks():
     unit_files = {f"{CREATED_DIR}/construction/api/functional-design/functional-design-questions.md": SUMMARY, f"{CREATED_DIR}/construction/web/functional-design/functional-design-questions.md": SUMMARY,
                   f"{CREATED_DIR}/construction/functional-design/functional-design-questions.md": SUMMARY}
     check_("decision/summary_options_owed_per_unit", created(building_owing, **unit_files), [unit_summary, unit_summary + ["--unit", "web"], unit_summary + ["--unit", "nope"]])
+    # Units Generation off the plan: a stage that runs per unit keeps its files at the stage, and they are no unit's.
+    stage_level = building_owing.replace("- [ ] units-generation \u2014 EXECUTE", "- [S] units-generation \u2014 SKIP")
+    check_("decision/summary_options_owed_per_unit_at_the_stage", created(stage_level, **unit_files), [unit_summary, unit_summary + ["--unit", "web"]])
     check_("decision/summary_options_owed_per_unit_no_units", created(building_owing), [unit_summary, unit_summary + ["--unit", "web"]])
     check_("decision/summary_options_owed_per_unit_with_units_planned", created(building_owing.replace("- [ ] units-generation \u2014 SKIP", "- [ ] units-generation \u2014 EXECUTE"), **unit_files),
            [unit_summary, unit_summary + ["--unit", "web"]])
@@ -4946,6 +4952,8 @@ def log_checks():
     check_("answer/summary_question_of_a_unit", created(owing, CREATED_AUDIT + Q(1, "Does this look right?", "**Options**: Looks correct,Request changes", "**Unit**: api") + H(2)), [replied("Looks correct")])
     check_("answer/summary_question_single_stage", created(owing, CREATED_AUDIT + Q(1, "Does this look right?", "**Options**: Looks correct,Request changes", "**Workflow**: single-stage:intent-capture") + H(2)),
            [replied("Looks correct"), replied("Looks correct", "--single")])
+    check_("answer/summary_question_open_no_state_file", created(audit=CREATED_AUDIT + summary_q + H(2), **{f"{CREATED_DIR}/aidlc-state.md": None}), [replied("Looks correct")])
+    check_("answer/summary_choice_with_no_question_no_state_file", created(audit=CREATED_AUDIT + H(2), **{f"{CREATED_DIR}/aidlc-state.md": None}), [replied("Looks correct")])
     check_("answer/summary_choice_with_no_question", created(owing, CREATED_AUDIT + H(2)), [replied("Looks correct"), replied("Request changes: x")])
     check_("answer/summary_question_not_owed", told(summary_q, H(2)), [replied("Looks correct")])
     check_("answer/summary_owed_other_question", created(owing, CREATED_AUDIT + Q(1, "Which database?") + H(2)), [replied("Looks correct"), reply])

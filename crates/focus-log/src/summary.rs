@@ -23,6 +23,13 @@
 //! The folder of a stage is only listed to name its questions file in a
 //! refusal: nothing is decided by that, and it is listed by name as
 //! upstream lists it.
+//!
+//! # A test this filesystem cannot make
+//!
+//! A unit's questions file is looked for under the folder of that very
+//! name, read off the record's listing. Where names differ by case and the
+//! filesystem tells them apart, looking the folder up directly finds the
+//! same; where it does not, it would find another unit's.
 
 use std::path::Path;
 
@@ -80,11 +87,12 @@ pub(crate) enum Asked {
 }
 
 /// `answersSummaryQuestion`: whether the stage's latest recorded question
-/// is the summary's, and in which form.
+/// is the summary's, and in which form. (Upstream narrows the questions to
+/// one unit of work when the answer names one; an answer about a unit is
+/// refused by name until slice 5.)
 pub(crate) fn answers_summary_question(
     rows: &[ShardEvent],
     stage: &str,
-    unit: Option<&str>,
     single: bool,
 ) -> Option<Asked> {
     let workflow = single.then(|| format!("single-stage:{stage}"));
@@ -94,7 +102,6 @@ pub(crate) fn answers_summary_question(
             row.event == "DECISION_RECORDED"
                 && block_field(&row.block, "Stage") == Some(stage)
                 && block_field(&row.block, "Workflow") == workflow.as_deref()
-                && unit.is_none_or(|unit| block_field(&row.block, "Unit") == Some(unit))
         })
         .collect();
     let latest: Vec<Option<Asked>> = crate::answer::maximal(&decisions)
@@ -267,24 +274,23 @@ pub(crate) fn refuse_plain(
         Verb::Decision => None,
     };
     // An answer is to the summary question when that is the question open
-    // for this stage and work item, whatever its words; a question, by its
-    // options.
+    // for this stage, whatever its words; a question is the summary by its
+    // options. (Upstream also takes an answer that names one of the two
+    // choices for the summary, and then lets it through when no summary
+    // question is open: only the open question decides.)
     let asked = match verb {
-        Verb::Answer => answers_summary_question(rows, &stage.slug, call.unit, call.single),
+        Verb::Answer => answers_summary_question(rows, &stage.slug, call.single),
         Verb::Decision => None,
     };
     let looks_like_summary = match verb {
         Verb::Decision => is_options(call.options),
-        Verb::Answer => asked.is_some() || call.details.is_some_and(is_choice) || read.is_some(),
+        Verb::Answer => asked.is_some(),
     };
     if !looks_like_summary {
         return Ok(());
     }
     let state = wf.read_state()?;
     if !admission::summary_confirmation_owed(wf, stage, &state) {
-        return Ok(());
-    }
-    if verb == Verb::Answer && asked.is_none() {
         return Ok(());
     }
     // A change request that says what to change keeps what they asked for,
