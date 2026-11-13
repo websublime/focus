@@ -93,20 +93,115 @@ fn asking(more: &[&'static str]) -> Vec<&'static str> {
     ASK.iter().chain(more).copied().collect()
 }
 
-/// Deliberate deviation. `answer`, `link` and `review` are slices to come
-/// (2b to 2e): upstream runs them, Focus names each as a verb it does not
-/// have yet.
+/// Deliberate deviation. `link` and `review` are slices to come (2d and
+/// 2e): upstream runs them, Focus names each as a verb it does not have
+/// yet.
 #[test]
 fn the_verbs_that_are_not_ported_are_refused_by_name() {
     let root = project("verbs");
-    for verb in ["answer", "link", "review"] {
+    for verb in ["link", "review"] {
         assert_eq!(
             refusal(&root, &[verb, "--stage", "intent-capture"]),
             format!(
-                "log {verb} is not ported yet: Focus records the questions of a stage (log decision) and reads them back with their answers (log answers), and does not yet record an answer, a pipeline's handoffs or the reviews."
+                "log {verb} is not ported yet: Focus records the questions of a stage and their answers (log decision, log answer, log answers), and not yet a pipeline's handoffs or the reviews."
             )
         );
     }
+    let _ = fs::remove_dir_all(root);
+}
+
+/// Deliberate deviation. What an answer may carry that Focus has not
+/// ported: its text in a file, a choice the person left to the agent, the
+/// engine's own questions, a unit of work. Upstream reads what each needs;
+/// Focus refuses each by name and records nothing.
+#[test]
+fn the_answers_that_are_not_ported_are_refused_by_name() {
+    let root = project("answers");
+    let reply = [
+        "answer",
+        "--stage",
+        "intent-capture",
+        "--details",
+        "Postgres",
+    ];
+    let with = |more: &[&'static str]| -> Vec<&'static str> {
+        reply.iter().chain(more).copied().collect()
+    };
+    let plan = "and Focus does not run Plan Approval yet.";
+    for (args, said) in [
+        (
+            vec!["answer", "--stage", "intent-capture", "--details-file", "a.txt"],
+            "--details-file passes text in a file the agent wrote, and Focus does not read an answer's text from a file yet.".to_owned(),
+        ),
+        (
+            with(&["--on-instruction-file", "i.txt"]),
+            "--on-instruction-file passes text in a file the agent wrote, and Focus does not read an answer's text from a file yet.".to_owned(),
+        ),
+        (
+            with(&["--on-instruction", "you decide"]),
+            "--on-instruction records a choice the person left to the agent, and Focus does not record that yet.".to_owned(),
+        ),
+        (
+            with(&["--checkpoint", "guard-recovery"]),
+            "--checkpoint guard-recovery records the remedy the person picked after a refusal, and Focus does not ask the recovery question yet.".to_owned(),
+        ),
+        (
+            with(&["--checkpoint", "summary-confirmation"]),
+            "--checkpoint summary-confirmation records the person's choice at a stage's summary confirmation, and Focus does not record summary confirmations yet.".to_owned(),
+        ),
+        (
+            with(&["--checkpoint", "verification-command"]),
+            "--checkpoint verification-command records an answer at one of Construction's checkpoints, and Focus does not run Construction yet.".to_owned(),
+        ),
+        (
+            with(&["--checkpoint", "construction-policy"]),
+            "--checkpoint construction-policy records an answer at one of Construction's checkpoints, and Focus does not run Construction yet.".to_owned(),
+        ),
+        (
+            with(&["--checkpoint", "plan-approval"]),
+            format!("--checkpoint plan-approval records the Plan Approval choice, {plan}"),
+        ),
+        (
+            with(&["--override", "because"]),
+            format!("--override records a break-glass reason for Plan Approval, {plan}"),
+        ),
+        (
+            with(&["--override-file", "o.txt"]),
+            format!("--override-file records a break-glass reason for Plan Approval, {plan}"),
+        ),
+        (
+            with(&["--batch-file", "b.json"]),
+            format!("--batch-file records the Plan Approval choices of several units of work at once, {plan}"),
+        ),
+        (
+            with(&["--unit", "api"]),
+            "--unit records an answer about one unit of work, and Focus does not run units yet.".to_owned(),
+        ),
+    ] {
+        assert_eq!(refusal(&root, &args), said, "{args:?}");
+    }
+    // The summary of a stage that owes one, as the question open for it.
+    write(
+        &root,
+        &format!("{RECORD}/audit/laptop-abc123.md"),
+        &format!(
+            "{}\n## Decision Recorded\n**Timestamp**: 2026-01-05T10:01:00Z\n**Event**: DECISION_RECORDED\n**Stage**: intent-capture\n**Decision**: Does this look right?\n**Options**: Looks correct,Request changes\n\n---\n\n## Human Turn\n**Timestamp**: 2026-01-05T10:02:00Z\n**Event**: HUMAN_TURN\n**Session**: s1\n\n---\n",
+            fs::read_to_string(root.join(RECORD).join("audit/laptop-abc123.md")).unwrap()
+        ),
+    );
+    assert_eq!(
+        refusal(
+            &root,
+            &[
+                "answer",
+                "--stage",
+                "intent-capture",
+                "--details",
+                "Looks correct"
+            ]
+        ),
+        "\"intent-capture\" owes a consolidated summary confirmation, and the question open for it is that summary: its answer is recorded with `--checkpoint summary-confirmation --questions-file <path>`, and Focus does not record summary confirmations yet."
+    );
     let _ = fs::remove_dir_all(root);
 }
 

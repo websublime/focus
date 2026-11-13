@@ -1,7 +1,7 @@
 //! `focus engine log <verb>`: `decision` records a question the agent asks
-//! the person, and `answers` reads a stage's questions back with the
-//! answers they have. `answer`, `link` and `review` are not ported yet, and
-//! are refused by name.
+//! the person, `answer` the person's reply to it, and `answers` reads a
+//! stage's questions back with the answers they have. `link` and `review`
+//! are not ported yet, and are refused by name.
 //!
 //! Mirrors `main` and `error` in `aidlc-log.ts`.
 
@@ -26,7 +26,9 @@ The interactions of the active record's work, written to its ledger.
                            message of theirs that already answered it
   answers --stage <slug> [--unit <unit>]
                            The stage's questions, with the answers they have (read only)
-  answer, link, review     Not ported yet
+  answer --stage <slug> --details <text> [--single] [--message <id>]
+                           The person's reply to a question, as the agent read it
+  link, review             Not ported yet
 ";
 
 pub fn run(args: &mut Args) -> Result<(), Failure> {
@@ -122,9 +124,13 @@ fn answer(filtered: &[String], raw: &[String], context: &Context) -> Result<Stri
             flags::refuse_split_values(Interaction::Decision, raw)?;
             focus_log::decision::decision(&|| open(context), rest)?
         }
-        Some(verb @ ("answer" | "link" | "review")) => {
+        Some("answer") => {
+            flags::refuse_split_values(Interaction::Answer, raw)?;
+            focus_log::answer::answer(&|| open(context), rest)?
+        }
+        Some(verb @ ("link" | "review")) => {
             return Err(Refusal::of(format!(
-                "log {verb} is not ported yet: Focus records the questions of a stage (log decision) and reads them back with their answers (log answers), and does not yet record an answer, a pipeline's handoffs or the reviews."
+                "log {verb} is not ported yet: Focus records the questions of a stage and their answers (log decision, log answer, log answers), and not yet a pipeline's handoffs or the reviews."
             )));
         }
         other => {

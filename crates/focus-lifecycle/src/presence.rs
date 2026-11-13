@@ -769,10 +769,15 @@ fn invoking_session(wf: &Workflow) -> Option<&str> {
     valid_session_id(wf.selection.session_id.as_deref())
 }
 
-/// `gateWordsPath`: where the session's gate-words record is, whether or
-/// not one is there.
-fn gate_words_path(wf: &Workflow) -> Option<std::path::PathBuf> {
-    let session = invoking_session(wf)?;
+/// `readGateWords`: the record of the chat this command runs for, when it
+/// is one of ours.
+fn read_gate_words(wf: &Workflow) -> Option<GateWordsRecord> {
+    read_gate_words_of(wf, invoking_session(wf)?)
+}
+
+/// `gateWordsPath`: where a chat's gate-words record is, whether or not
+/// one is there; nowhere for a chat whose name leaves no file name.
+fn gate_words_path(wf: &Workflow, session: &str) -> Option<std::path::PathBuf> {
     let segment = focus_intent::create::runtime_session_segment(session);
     if segment.is_empty() {
         return None;
@@ -785,10 +790,9 @@ fn gate_words_path(wf: &Workflow) -> Option<std::path::PathBuf> {
     )
 }
 
-/// `readGateWords`: the session's record, when it is one of ours.
-fn read_gate_words(wf: &Workflow) -> Option<GateWordsRecord> {
-    let session = invoking_session(wf)?;
-    let path = gate_words_path(wf)?;
+/// `readGateWords(pd, session)`: the record a chat's turns are kept in.
+fn read_gate_words_of(wf: &Workflow, session: &str) -> Option<GateWordsRecord> {
+    let path = gate_words_path(wf, session)?;
     if !path.exists() {
         return None;
     }
@@ -822,6 +826,114 @@ fn read_gate_words(wf: &Workflow) -> Option<GateWordsRecord> {
         dropped,
         messages,
     })
+}
+
+/// This clone's shard of the record: its text, and its path in the project
+/// as a gate-words record names it.
+fn own_shard(wf: &Workflow) -> Option<(String, String)> {
+    let shard = wf.ledger().audit_file(&wf.selector(), &wf.invoker).ok()?;
+    let relative = shard
+        .strip_prefix(&wf.layout.project)
+        .ok()?
+        .to_string_lossy()
+        .replace('\\', "/");
+    let content = String::from_utf8_lossy(&read_append_only(&shard)?).into_owned();
+    Some((content, relative))
+}
+
+/// `latestPersonTurn(pd)?.words`: the words the person's latest chat turn
+/// in this clone's shard was kept with, right after its row; `None` when
+/// there is no turn, or its chat kept none (a slash command, a picked
+/// option, a message too long to keep). It only words a record, so nothing
+/// unreadable is an error.
+#[must_use]
+pub fn latest_person_turn_words(wf: &Workflow) -> Option<String> {
+    let (content, relative) = own_shard(wf)?;
+    // The last `HUMAN_TURN` block, with the bytes it and its separator take.
+    let separator = re::compile(r"\r?\n---\r?\n", "g");
+    let mut turn: Option<(Option<String>, usize, usize)> = None;
+    let mut start = 0;
+    let mut ends: Vec<(usize, usize)> = separator
+        .find_iter(&content)
+        .map(|found| (found.range().start, found.range().end))
+        .collect();
+    ends.push((content.len(), content.len()));
+    for (end, next) in ends {
+        let block = content[start..end].replace("\r\n", "\n");
+        if block_field(&block, "Event") == Some("HUMAN_TURN") {
+            turn = Some((
+                block_field(&block, "Session").map(str::to_owned),
+                start,
+                next,
+            ));
+        }
+        start = next;
+    }
+    let (session, from, to) = turn?;
+    let record = read_gate_words_of(
+        wf,
+        session.as_deref().filter(|session| !session.is_empty())?,
+    )?;
+    if record.shard != relative {
+        return None;
+    }
+    // The hook keeps a turn's words at the shard's size right after its row.
+    record
+        .messages
+        .into_iter()
+        .find(|(offset, _)| *offset > from as u64 && *offset <= to as u64)
+        .map(|(_, text)| text)
+}
+
+/// `pickerAnswerNote`: where the person's latest turn was a reply in a
+/// question box, the note an answer gets when none of their picks carried
+/// it: the agent logged a choice they never saw, or one they did not pick.
+/// `None` when the turn was typed, when a pick matches (with or without the
+/// recommended decorator), or when the answer is only an option's letter
+/// or number. A note on the record, never a refusal.
+#[must_use]
+pub fn picker_answer_note(wf: &Workflow, details: &str) -> Option<String> {
+    let (content, _) = own_shard(wf)?;
+    let content = content.replace("\r\n", "\n");
+    let turn = content
+        .split("\n---\n")
+        .filter(|block| block_field(block, "Event") == Some("HUMAN_TURN"))
+        .last()?;
+    let raw = block_field(turn, "Picked").filter(|raw| !raw.is_empty())?;
+    let picked = json::parse(raw).ok()?;
+    let picked: Vec<&str> = picked
+        .as_array()
+        .filter(|picked| !picked.is_empty())?
+        .iter()
+        .map(Value::as_str)
+        .collect::<Option<_>>()?;
+    let plain = |text: &str| {
+        focus_js::text::to_lower_case(trim(&crate::reply::strip_recommended_decorator(text)))
+    };
+    let answer = plain(details);
+    if answer.is_empty() || re::test(r"^(?:[a-z]|\d+)[.)]?$", "", &answer) {
+        return None;
+    }
+    if picked.iter().any(|pick| {
+        let pick = plain(pick);
+        pick == answer || answer.contains(&pick) || pick.contains(&answer)
+    }) {
+        return None;
+    }
+    Some(format!(
+        "Not what the person picked in the picker ({}).",
+        picked
+            .iter()
+            .map(|pick| format!("\"{pick}\""))
+            .collect::<Vec<_>>()
+            .join(", ")
+    ))
+}
+
+/// `humanTurnMintAllowed`: an unattended run has nobody to reply.
+#[must_use]
+pub fn attended() -> bool {
+    env::var("UNATTENDED").as_deref() != Some("1")
 }
 
 /// `Number.isSafeInteger` for an offset: a whole number of bytes.
@@ -1360,7 +1472,7 @@ mod tests {
         write_record(&root, "s1", &no_text);
         assert!(persons_gate_words(&wf, "a").is_none());
         // Not JSON, not an object, over the ceiling.
-        let path = gate_words_path(&wf).unwrap();
+        let path = gate_words_path(&wf, "s1").unwrap();
         std::fs::write(&path, "{").unwrap();
         assert!(persons_gate_words(&wf, "a").is_none());
         std::fs::write(&path, "[]").unwrap();
@@ -1373,10 +1485,11 @@ mod tests {
         // is the chat's segment.
         write_record(&root, "s1", &good);
         let (alone, _) = workflow_for("gate-words-alone", &mine, "# Log\n", None);
-        assert!(gate_words_path(&alone).is_none());
+        assert!(invoking_session(&alone).is_none());
         assert!(persons_gate_words(&alone, "a").is_none());
+        assert!(gate_words_path(&wf, "///").is_none());
         assert!(
-            gate_words_path(&wf)
+            gate_words_path(&wf, invoking_session(&wf).unwrap())
                 .unwrap()
                 .ends_with(".focus-engine/gate-words/s1.json")
         );

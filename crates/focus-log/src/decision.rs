@@ -20,7 +20,7 @@ use crate::flags::{self, Flags};
 use crate::message::{self, What};
 
 /// `unknownCheckpointMessage`.
-fn unknown_checkpoint(checkpoint: &str) -> String {
+pub(crate) fn unknown_checkpoint(checkpoint: &str) -> String {
     if checkpoint == "learnings" {
         return "The learnings question takes no --checkpoint: run the same command without it."
             .to_owned();
@@ -40,7 +40,7 @@ fn is_summary_choice(text: &str) -> bool {
 
 /// `isSummaryConfirmationOptions`: a question whose offered options are the
 /// summary's two choices.
-fn is_summary_options(options: Option<&str>) -> bool {
+pub(crate) fn is_summary_options(options: Option<&str>) -> bool {
     let Some(options) = options else {
         return false;
     };

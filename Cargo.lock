@@ -301,6 +301,7 @@ dependencies = [
  "focus-hooks",
  "focus-js",
  "focus-lifecycle",
+ "focus-state",
  "focus-workspace",
  "serde_json",
 ]
