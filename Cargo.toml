@@ -52,3 +52,9 @@ strip = true
 [profile.dist]
 inherits = "release"
 lto = "thin"
+
+# The regex engine runs every ported pattern, and the tests replay tens of
+# thousands of cases through it: unoptimised, they spend most of their time
+# there.
+[profile.dev.package.regress]
+opt-level = 3

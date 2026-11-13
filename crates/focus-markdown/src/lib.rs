@@ -45,7 +45,7 @@ mod probes;
 mod visible;
 
 pub use analysis::analyse;
-pub use visible::{COMMENT_MARKER, LINE_MARKER, Visible, visible_lines};
+pub use visible::{COMMENT_MARKER, LINE_MARKER, Visible, visible_lines, visible_lines_of};
 
 /// The kind of block a source line belongs to.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

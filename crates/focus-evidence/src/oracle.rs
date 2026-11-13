@@ -4,7 +4,9 @@
 //! `source_listing_parse` cases read a snapshot's text; `source_listing`
 //! cases write a listing given as pairs, and say what changed between it
 //! and a second one; `source_walk` cases walk a project laid out under a
-//! scratch root.
+//! scratch root; `summary` cases read a questions file's summary section:
+//! the choice on it, and the hash of what was confirmed or why there is
+//! none.
 
 use std::path::Path;
 
@@ -13,9 +15,15 @@ use serde_json::{Value, json};
 use crate::source::listing::{self, Listing};
 use crate::source::raw;
 use crate::source::walk::{self, Budgets, Names, Options, Stop};
+use crate::summary;
 
 /// The kinds of case this crate answers.
-pub const KINDS: [&str; 3] = ["source_listing_parse", "source_listing", "source_walk"];
+pub const KINDS: [&str; 4] = [
+    "source_listing_parse",
+    "source_listing",
+    "source_walk",
+    "summary",
+];
 
 /// Lay the case's project out and walk it.
 fn walk_case(case: &Value) -> Value {
@@ -226,6 +234,17 @@ pub fn run_case(case: &Value) -> Value {
             })
         }
         "source_walk" => walk_case(case),
+        "summary" => {
+            let content = text("content");
+            let answer = match summary::answer(content) {
+                Ok(answer) => answer,
+                Err(refusal) => return json!({ "unreadable": refusal.to_string() }),
+            };
+            match summary::content_hash(content) {
+                Ok(hash) => json!({ "answer": answer, "hash": hash }),
+                Err(error) => json!({ "answer": answer, "error": error }),
+            }
+        }
         other => json!({ "unsupported": other }),
     }
 }

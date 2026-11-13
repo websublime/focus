@@ -76,6 +76,8 @@ rm -f "$FIX/PIN.bak"
 # Cases are generated from upstream's own files and answered by upstream, then
 # both the questions and the answers are translated.
 ASKED=$(mktemp -d)
+# The list of emoji the heading cases are written from is the runtime's own.
+bun tools/oracle/emoji.ts
 bun tools/oracle/patterns.ts "$UPSTREAM" >"$ASKED/patterns.json"
 python3 -I tools/oracle/gen_cases.py "$UPSTREAM/core" "$SEED" "$SCALE" "$ASKED/patterns.json" >"$ASKED/cases.ndjson"
 bun tools/oracle/driver.ts "$UPSTREAM" "$ASKED/cases.ndjson" >"$ASKED/expected.ndjson"
