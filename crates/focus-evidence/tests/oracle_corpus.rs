@@ -27,6 +27,8 @@ fn every_evidence_case_gets_upstreams_answer() {
     let (mut pairs, mut unwritten, mut changed, mut unchanged) = (0, 0, 0, 0);
     let (mut walked, mut stopped, mut exact, mut earlier, mut raw) = (0, 0, 0, 0, 0);
     let (mut embedded, mut unresolved) = (0, 0);
+    let (mut summaries, mut hashed, mut unhashed) = (0, 0, 0);
+    let (mut chosen, mut blank, mut unanswered) = (0, 0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         // Parsed as upstream's driver parses it, so nested objects are in the
@@ -66,6 +68,18 @@ fn every_evidence_case_gets_upstreams_answer() {
                     .as_str()
                     .is_some_and(|detail| detail.contains("embedded git repository")),
             );
+        } else if kind == "summary" {
+            summaries += 1;
+            hashed += usize::from(out["hash"].as_str().is_some_and(|hash| hash.len() == 64));
+            unhashed += usize::from(out.get("error").is_some());
+            chosen += usize::from(
+                out["answer"]
+                    .as_str()
+                    .is_some_and(|answer| !answer.is_empty()),
+            );
+            blank += usize::from(out["answer"].as_str().is_some_and(str::is_empty));
+            unanswered += usize::from(out.get("answer").is_some_and(Value::is_null));
+            assert!(out.get("unreadable").is_none(), "{}: {out}", case["id"]);
         } else if kind == "source_listing_parse" {
             read += 1;
             listings += usize::from(out["size"].as_u64().is_some_and(|size| size > 1));
@@ -105,6 +119,14 @@ fn every_evidence_case_gets_upstreams_answer() {
     assert!(
         cfg!(windows) || (embedded >= 120 && unresolved >= 200),
         "{embedded} {unresolved}"
+    );
+    assert!(
+        summaries >= 700 && hashed >= 250 && unhashed >= 250,
+        "{summaries} {hashed} {unhashed}"
+    );
+    assert!(
+        chosen >= 250 && blank >= 40 && unanswered >= 200,
+        "{chosen} {blank} {unanswered}"
     );
     assert!(
         differing.is_empty(),

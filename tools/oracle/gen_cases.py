@@ -5344,5 +5344,256 @@ sw_git(refs={}, packed=f"^x refs/heads/main\n{SW_C1} refs/heads/main\n")
 sw({**files, **inner, "p/vendor/lib/sub/y.c": "y\n", "p/vendor/lib/sub/__pycache__/y.pyc": "c\n", "p/vendor/lib/sub/.DS_Store": "d\n"},
    hexes={**hexes, **inner_hex}, links=[("p/zlink", "vendor/lib/sub")])
 
+# --- heading_key: which leading characters of a heading are decoration ---------
+#
+# Upstream reads a contract heading past a run of emoji (`headingKey`), and
+# which sequences are emoji is a table of the runtime's. Every listed sequence
+# is a case, and so is what stands next to each: the sequence short of its
+# last code points, without each one in turn, with one more; every character
+# of the blocks emoji come from, alone and with each variation selector; every
+# pair of regional indicators. (`emoji.ts` checks the list against the
+# runtime; this compares Focus's table with it.)
+RGI = [line for line in read(os.path.join(os.path.dirname(os.path.abspath(__file__)), "rgi_emoji.txt")).split("\n")
+       if line and not line.startswith("#")]
+RGI_SET = set(RGI)
+
+
+def hk(points, after=" Sources", size=500):
+    for at in range(0, len(points), size):
+        add("heading_key", emoji=points[at:at + size], after=after)
+
+
+def hk_order(sequence):
+    return [int(point, 16) for point in sequence.split(" ")]
+
+
+hk(RGI)
+hk_near = set()
+for sequence in RGI:
+    points = sequence.split(" ")
+    for cut in range(1, len(points)):
+        hk_near.add(" ".join(points[:cut]))
+    for drop in range(len(points)):
+        hk_near.add(" ".join(points[:drop] + points[drop + 1:]))
+    for more in ["FE0F", "FE0E", "200D", "1F3FB"]:
+        hk_near.add(f"{sequence} {more}")
+hk_near.discard("")
+hk(sorted(hk_near - RGI_SET, key=hk_order))
+hk_singles = [f"{cp:X}" for cp in list(range(0x20, 0x3300)) + list(range(0x1F000, 0x1FC00)) + list(range(0xE0020, 0xE0080))]
+hk([single for single in hk_singles if single not in RGI_SET and single not in hk_near])
+hk([f"{single} FE0F" for single in hk_singles if f"{single} FE0F" not in RGI_SET | hk_near])
+hk([f"{single} FE0E" for single in hk_singles if f"{single} FE0E" not in hk_near])
+hk([f"{a:X} {b:X}" for a in range(0x1F1E6, 0x1F200) for b in range(0x1F1E6, 0x1F200) if f"{a:X} {b:X}" not in RGI_SET])
+# A run of emoji, joined or not; and what may stand between the run and the words.
+hk_runs = []
+for _ in range(600):
+    run = rng.sample(RGI, rng.randint(2, 4))
+    joiner = rng.choice([" ", " ", " 200D ", " 200D ", " 200D 200D ", " FE0F ", " 20 "])
+    hk_runs.append(joiner.join(run))
+hk(hk_runs)
+for after in ["Sources", "\tSources", "  \t Sources ", " ", "", " Sources", "　Sources", "\nSources", " ‍ Sources",
+              " Q1. the question", "‍ Sources", "️ Sources"]:
+    hk(rng.sample(RGI, 150) + rng.sample(sorted(hk_near - RGI_SET), 50), after=after)
+add("heading_key", headings=["", " ", "Sources", "  Sources\t", "Assumption Confirmation", "✅ Assumption Confirmation",
+                             "✅️ Assumption Confirmation", "ℹ️ Sources", "ℹ Sources", "\U0001F600 Q1",
+                             "\U0001F600\U0001F600 Q1", "\U0001F600 \U0001F600 Q1", "\U0001F600‍\U0001F600\tQ1", "x \U0001F600 Q1",
+                             " \U0001F600 Q1", "\U0001F600Q1", "#️⃣ Q1", "# Q1", "1️⃣ Q1", "1 Q1", "© Q1", "©️ Q1",
+                             "\U0001F1F5\U0001F1F9 Q1", "\U0001F1F5 Q1", "\U0001F44B\U0001F3FB Q1", "\U0001F44B\U0001F3FB\U0001F3FB Q1",
+                             "\U0001F3F4\U000E0067\U000E0062\U000E0065\U000E006E\U000E0067\U000E007F Q1", "\U0001F3F4\U000E0067\U000E0062 Q1"])
+
+# --- summary: the consolidated summary a person confirms -----------------------
+#
+# A stage's questions file ends its questions with a summary section, the
+# person's choice on its one `[Answer]:` line. Upstream reads the choice off
+# the file and hashes what was confirmed (`summaryConfirmationAnswer`,
+# `summaryConfirmationContentHash`): the file without the one section that may
+# be added afterwards. Documents are written here as a stage writes them, and
+# with each thing that can be wrong with one: the section missing or twice, a
+# question twice, a heading that may not follow the summary, an answer line
+# that is not one. What is hashed is the document's own text, so a document
+# the map of names would change is not a case.
+from names import to_focus  # noqa: E402
+
+SM = "Consolidated Summary Confirmation"
+SM_AC = "Assumption Confirmation"
+SM_RC = "Requested Changes Feedback"
+SM_WORDS = ["the", "plan", "is", "ready", "alpha", "beta", "é", "naïve", "**bold**", "`code`", "[link](http://x.y/z)", "5 < 6",
+            "<!-- c -->", "v1.2", "C#", "50%", "(note)", "\U0001F600", "&amp;", "<b>bold</b>", "Q1.", "Looks", "correct"]
+SM_ANSWERS = ["[Answer]:", "[Answer]: ", "[Answer]: Looks correct", "[Answer]: Looks correct", "[Answer]: Request changes",
+              "[Answer]:Looks correct", "[Answer]:\tLooks correct  ", "[Answer]: Looks correct <!-- kept -->",
+              "[Answer]: <!-- c -->Looks correct", "[Answer]: `Looks correct`", "[Answer]: **Looks correct**",
+              "[Answer]: A", "[Answer]: Request changes: rename the handler"]
+SM_NOT_ANSWERS = [" [Answer]: Looks correct", "[answer]: Looks correct", "[Answer] : Looks correct", "<!-- [Answer]: Looks correct -->",
+                  "    [Answer]: Looks correct", "> [Answer]: Looks correct", "- [Answer]: Looks correct", "Answer: Looks correct",
+                  "`[Answer]: Looks correct`", "```\n[Answer]: Looks correct\n```", "<!--\n[Answer]: Looks correct\n-->",
+                  "x [Answer]: Looks correct", "**[Answer]**: Looks correct"]
+SM_TITLES = ["Q{n}", "Q{n}", "Q{n}.", "Q{n}:", "Q{n}. What is the scope?", "Q{n}: Who uses it?", "\U0001F600 Q{n}. With a face",
+             "ℹ️ Q{n}", "✅ Q{n}: Checked"]
+SM_NOT_TITLES = ["Q0{n}", "Q0", "Q{n}x", "Q{n} What", "Q{n}.What", "q{n}", "© Q{n}", "ℹ Q{n}", "Question {n}", "Q{n}.   two lines",
+                 "Q", "Q-{n}", "Q{n}.:", "Q{n} .", "**Q{n}**"]
+
+
+def sm_words(low=2, high=7):
+    return " ".join(rng.choice(SM_WORDS) for _ in range(rng.randint(low, high)))
+
+
+def sm_h2(title, good=0.85):
+    """A heading for `title`: mostly a top-level `##` one, sometimes one that is not."""
+    if rng.random() < good:
+        return rng.choice([f"## {title}"] * 6 + [f"##  {title}  ", f"## {title} ##", f" ## {title}", f"   ## {title}", f"##\t{title}",
+                                               f"## {title} <!-- c -->", f"## <!-- c --> {title}", f"## {title} #", f"## {title}\t"])
+    return rng.choice([f"### {title}", f"# {title}", f"{title}\n---", f"{title}\n===", f"> ## {title}", f"- ## {title}", f"    ## {title}",
+                       f"##{title}", f"<h2>{title}</h2>", f"## {title} extra", f"## **{title}**", f"## {title}\\", f"## {title}:",
+                       f"##<!-- c --> {title}", f"```\n## {title}\n```", f"<!--\n## {title}\n-->", f"1. ## {title}", f"## {title} \\#",
+                       f"<div>\n## {title}\n</div>", f"text\n## {title}", f"## {title.lower()}", f"####### {title}", f"## {title}<!-- c -->x"])
+
+
+def sm_body(answers=0.0):
+    out = []
+    for _ in range(rng.randint(0, 3)):
+        roll = rng.random()
+        if roll < answers:
+            out.append(rng.choice(SM_ANSWERS))
+        elif roll < answers * 1.5:
+            out.append(rng.choice(SM_NOT_ANSWERS))
+        elif roll < 0.75:
+            out.append(sm_words())
+        elif roll < 0.8:
+            out.append(f"- {sm_words()}\n- {sm_words()}")
+        elif roll < 0.85:
+            out.append(f"```\n## {rng.choice([SM, SM_AC, SM_RC, 'Q3'])}\n```")
+        elif roll < 0.9:
+            out.append(rng.choice(["---", "***", "___", "- - -", "--", "----  "]))
+        elif roll < 0.94:
+            out.append(f"<!-- ## {rng.choice([SM, SM_AC, 'Q4'])} -->")
+        else:
+            out.append(rng.choice(["| a | b |\n| - | - |\n| 1 | 2 |", "> quoted", "<details>\n<summary>more</summary>\n\ntext\n\n</details>",
+                                   "<h3>raw</h3>", "text <h2>inline</h2> text", "<H2 class=\"x\">Raw</H2>", "<span>s</span>"]))
+        out.append("")
+    return out
+
+
+def sm_question(number):
+    title = rng.choice(SM_TITLES if rng.random() < 0.9 else SM_NOT_TITLES).format(n=number)
+    return [sm_h2(title), "", *sm_body(0.1)]
+
+
+def sm_doc():
+    lines = []
+    if rng.random() < 0.6:
+        lines += [rng.choice(["# Intent Capture Questions", "# Questions", "Questions\n=========", "<h1>Questions</h1>"]), ""]
+    count = rng.randint(0, 4)
+    for number in range(1, count + 1):
+        lines += sm_question(number if rng.random() < 0.94 else rng.randint(1, max(1, number - 1)))
+    roll = rng.random()
+    summaries = 1 if roll < 0.9 else (2 if roll < 0.95 else 0)
+    for _ in range(summaries):
+        lines += [sm_h2(SM, 0.92), ""]
+        if rng.random() < 0.8:
+            lines += [sm_words(), ""]
+        answers = rng.choice([1, 1, 1, 1, 1, 1, 0, 2])
+        for _ in range(answers):
+            lines += [rng.choice(SM_ANSWERS), ""]
+        if rng.random() < 0.25:
+            lines += [rng.choice(SM_NOT_ANSWERS), ""]
+        if rng.random() < 0.2:
+            lines += sm_body(0.2)
+    # What follows the summary: nothing, the sections that may, and the ones that may not.
+    following = count
+    for _ in range(rng.choice([0, 0, 0, 1, 1, 1, 2, 2, 3, 4])):
+        roll = rng.random()
+        if roll < 0.4:
+            rule = rng.choice([[], [], ["---", ""], ["***", ""], ["___  ", "", ""], ["---"], [sm_words(), "---", ""], ["- - -", ""],
+                               ["", "---", ""], ["    ---", ""]])
+            title = rng.choice([SM_AC] * 5 + ["✅ " + SM_AC, "\U0001F600‍\U0001F600 " + SM_AC, "ℹ " + SM_AC, SM_AC + ":",
+                                              SM_AC.lower()])
+            lines += [*rule, sm_h2(title, 0.9), "", *sm_body(0.15)]
+            if rng.random() < 0.2:
+                lines += [f"```\n## {rng.choice(['Q9', SM_RC, 'Q9. spelled', 'Other'])}\n```", "", sm_words(), ""]
+        elif roll < 0.65:
+            following += 1
+            lines += sm_question(following if rng.random() < 0.9 else rng.randint(1, following))
+        elif roll < 0.8:
+            lines += [sm_h2(rng.choice([SM_RC] * 4 + [SM_RC + " ", "✅ " + SM_RC, SM_RC.lower()]), 0.9), "", *sm_body(0.1)]
+        elif roll < 0.9:
+            lines += [sm_h2(rng.choice(["Notes", "Open Points", SM, "Next Steps <!-- c -->"]), 0.6), "", sm_words(), ""]
+        else:
+            lines += sm_body(0.3)
+    text = "\n".join(lines)
+    roll = rng.random()
+    if roll < 0.7:
+        text += "\n"
+    elif roll < 0.8:
+        text += rng.choice(["\n\n\n", "  \n", "\n \t\n", " \n", "\n　"])
+    roll = rng.random()
+    if roll < 0.08:
+        text = text.replace("\n", "\r\n")
+    elif roll < 0.11:
+        text = text.replace("\n", "\r")
+    elif roll < 0.13:
+        text = "".join(rng.choice(["\n", "\r\n", "\r"]) if c == "\n" else c for c in text)
+    if rng.random() < 0.05:
+        text = "﻿" + text
+    return text
+
+
+def summary(content):
+    if to_focus(content) == content:
+        add("summary", content=content)
+
+
+for document in [
+    "", "\n", SM, f"## {SM}", f"## {SM}\n", f"## {SM}\n\n[Answer]:\n", f"## {SM}\n\n[Answer]: Looks correct\n",
+    f"## {SM}\n[Answer]: Looks correct", f"## {SM}\n\n[Answer]: Looks correct\n[Answer]: Request changes\n",
+    f"## Q1\n\n[Answer]: A\n\n## {SM}\n\ntext\n\n[Answer]: Looks correct\n\n## Q2\n\n[Answer]: B\n",
+    f"## {SM}\n\n[Answer]: Looks correct\n\n## Next\n\n[Answer]: no\n",
+    f"﻿## {SM}\n\n[Answer]: Looks correct\n", f"﻿<h2>x</h2>\n\n## {SM}\n", f"## {SM}\n\n﻿<h2>x</h2>\n",
+    f"﻿text <h2>x</h2>\n\n## {SM}\n\ntext <h3>y</h3> more\n", f"## {SM}\n\n\U0001F600 <h3>y</h3>\n", f"﻿\U0001F600 <h3>y</h3>\n\n## {SM}\n",
+    f"## {SM}\n\n<div>\n<!-- <h2>hidden</h2> -->\n</div>\n", f"## {SM}\n\n<div>\n<!--\n<h2>hidden</h2>\n-->\n<h4>shown</h4>\n</div>\n",
+    f"## {SM}\n\n<div><!--> <h5>a</h5></div>\n", f"## {SM}\n\n<div><!---> <h5>a</h5></div>\n", f"## {SM}\n\n<div><!-- x --> <h6 a=\"<h1>\">a</h6></div>\n",
+    f"## {SM}\n\n<div a='>' b=\"x\"><h1\n", f"## {SM}\n\n<div>\ntext <H3 class='a>b'>t</H3>\n</div>\n", f"## {SM}\n\n<h7>x</h7>\n\n<hr>\n\n<header>h</header>\n",
+    f"## {SM}\n\n> <h2>quoted</h2>\n", f"## {SM}\n\n- <h2>listed</h2>\n", f"## {SM}\n\ntext\n<h2>after text</h2>\n",
+    f"## {SM}\n\n## {SM_AC}\n\ntext\n", f"## {SM}\n\n---\n\n## {SM_AC}\n\ntext\n", f"## {SM}\n\ntext\n---\n\n## {SM_AC}\n",
+    f"## {SM}\n\n---\n## {SM_AC}\n", f"---\n## {SM_AC}\n\n## {SM}\n", f"## {SM}\n\n## {SM_AC}\n\n## {SM_AC}\n",
+    f"## {SM}\n\n## {SM_AC}\n\ntext\n\n## Q3\n\nmore\n", f"## {SM}\n\n## {SM_AC}\n\n```\n## Q3\n```\n\nmore\n",
+    f"## {SM}\n\n## {SM_AC}\n\n   ## {SM_RC} ##  \nmore\n", f"## {SM}\n\n## {SM_AC}\n\n    ## Q3\n\nmore\n",
+    f"## {SM}\n\n## {SM_AC}\n\n## {SM_RC}\n\n## {SM_AC}\n", f"## {SM_AC}\n\n## {SM}\n\n## {SM_AC}\n",
+    f"## Q1\n\n## Q1\n\n## {SM}\n", f"## Q1\n\n## {SM}\n\n## Q1\n", f"## Q1\n\n## Q01\n\n## \U0001F600 Q1\n\n## {SM}\n",
+    f"## {SM}\n\n## {SM}\n", f"### {SM}\n", f"{SM}\n---\n", f"> ## {SM}\n", f"## {SM} \n\n### Detail\n", f"## {SM}\n\nDetail\n===\n",
+    f"## {SM}\n\n# Top\n", f"## {SM}\n\n<h2>Raw</h2>\n", f"## {SM}\n\n## {SM_AC}\n\n### Detail\n", f"## {SM}\n\n## {SM_RC}\n\ntext   \n\n\n",
+    f"## {SM}\r\n\r\n[Answer]: Looks correct\r\n", f"## {SM}\r\r[Answer]: Looks correct\r", f"## {SM}\n\n[Answer]: Looks correct more\n",
+    f"## {SM} \n\n[Answer]: Looks correct\n", f"## {SM}\n\n[Answer]:  Looks correct　\n", f"## {SM}\n\n[Answer]: Looks correct\n",
+    f"## {SM}\n\n\x00[Answer]: Looks correct\n", f"## {SM}\n\n[Answer]: \x00 x\n", f"## \x00{SM}\n", f"## {SM}\n\n## \x00{SM_AC}\n",
+    # A heading of each depth, and one with no words.
+    f"## {SM}\n\n###### Deep\n", f"## {SM}\n\n####### Deeper\n", f"## {SM}\n\n###\n", f"## {SM}\n\n#\n\ntext\n", f"## {SM}\n\n## \n",
+    f"## {SM}\n\n##\n", f"##\n\n## {SM}\n\n##\t\n",
+    # What looks like a heading inside a raw HTML block is not one.
+    f"## {SM}\n\n<div>\n  ## Inside\n</div>\n", f"## {SM}\n\n<div>\n ## Q7\n</div>\n", f"## {SM}\n\n<div>\n   # Inside\n</div>\n",
+    # An underline with white space after it; a title and an underline inside a container.
+    f"## {SM}\n\nDetail\n---  \n", f"## {SM}\n\nDetail\n===\t\n", f"## {SM}\n\n> Detail\n> ===\n", f"## {SM}\n\n- Detail\n  ---\n",
+    f"## {SM}\n\n> Detail\n> ---\n", f"## {SM}\n\n1. Detail\n   ===\n",
+    # A raw HTML block opened by a tag that is not a block's, and a heading in it.
+    f"## {SM}\n\n<a href=\"x\">\n<h3>T</h3>\n</a>\n", f"## {SM}\n\n<span>\n<H4>T</H4>\n</span>\n",
+    # A heading's tag as code, in a comment, across two lines, inside another tag's attribute, and a longer name.
+    f"## {SM}\n\ntext `<h2>` more\n", f"## {SM}\n\ntext <!-- <h2> --> more\n", f"## {SM}\n\ntext <b title=\"\n<h3>\"> more\n",
+    f"## {SM}\n\ntext <h2\nclass=\"x\"> more\n", f"## {SM}\n\ntext <h1x>y</h1x> more\n", f"## {SM}\n\n<div>\n<h1x>y</h1x>\n</div>\n",
+    f"## {SM}\n\ntext <b title=\"x\ny <h3>\"> more\n", f"## {SM}\n\ntext <H2\nclass=\"x\"> more\n", f"## {SM}\n\ntext <b title='x\ny <H5>'> more <i>i</i>\n",
+    # A raw HTML block of the kinds that are verbatim to their end: nothing in one is a heading.
+    f"## {SM}\n\n<pre>\n<h2>x</h2>\n</pre>\n", f"## {SM}\n\n<script>\n\"<h3>\"\n</script>\n", f"## {SM}\n\n<!--\n<h2>x</h2>\n-->\n",
+    f"## {SM}\n\n<?php\n<h2>\n?>\n", f"## {SM}\n\n<!DOCTYPE x\n<h2>>\n", f"## {SM}\n\n<![CDATA[\n<h2>\n]]>\n", f"## {SM}\n\n<style>\n<h4>\n</style>\n",
+    f"## {SM}\n\n<div>\n<h2<!-- c -->>t</h2>\n</div>\n", f"## {SM}\n\n<div>\n<!-- c --><h2 a='<!--'>t</h2>\n</div>\n",
+    # A question past the ninth; a rule of two, an indented one, one indented as code.
+    f"## {SM}\n\n## Q12\n\n## Q120. more\n", f"## Q10\n\n## Q1\n\n## {SM}\n\n## Q10\n", f"## {SM}\n\ntext\n\n--\n\n## {SM_AC}\n",
+    f"## {SM}\n\ntext\n\n  ---\n\n## {SM_AC}\n", f"## {SM}\n\ntext\n\n   ***  \n\n## {SM_AC}\n", f"## {SM}\n\ntext\n\n    ---\n\n## {SM_AC}\n",
+    f"## {SM}\n\ntext\n\n___\n## {SM_AC}\n\nmore\n", f"## {SM}\n\n---\n\n\n\n## {SM_AC}\n\nmore\n", f"---\n\n## {SM_AC}\n",
+    # A line spelled as a boundary where the renderer reads none: indented, and with a closing run.
+    f"## {SM}\n\n## {SM_AC}\n\n```\n  ## Q3\n```\n\nmore\n", f"## {SM}\n\n## {SM_AC}\n\n```\n## Q3 ##\n```\n\nmore\n",
+    f"## {SM}\n\n## {SM_AC}\n\n```\n## {SM_RC} #  \n```\n\nmore\n", f"## {SM}\n\n## {SM_AC}\n\n```\n##{SM_RC}\n```\n\nmore\n",
+    f"## {SM}\n\n## {SM_AC}\n\n<!--\n   ## Q4: hidden\n-->\n\nmore\n", f"## {SM}\n\n## {SM_AC}\n\n```\n    ## Q3\n```\n\nmore\n",
+]:
+    summary(document)
+for _ in range(scale * 120):
+    summary(sm_doc())
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")
