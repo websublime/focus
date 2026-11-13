@@ -140,10 +140,11 @@ fn answer(filtered: &[String], raw: &[String], context: &Context) -> Result<Stri
             flags::refuse_split_values(Interaction::Answer, raw)?;
             focus_log::answer::answer(&|| open(context), rest)?
         }
-        Some(verb @ ("link" | "review")) => {
-            return Err(Refusal::of(format!(
-                "log {verb} is not ported yet: Focus records the questions of a stage and their answers (log decision, log answer, log answers), and not yet a pipeline's handoffs or the reviews."
-            )));
+        Some("link") => focus_log::link::link(&|| open(context), rest)?,
+        Some("review") => {
+            return Err(Refusal::of(
+                "log review is not ported yet: Focus records the questions of a stage, their answers and a pipeline's handoffs (log decision, log answer, log answers, log link), and not yet the reviews.",
+            ));
         }
         other => {
             return Err(Refusal::of(format!(

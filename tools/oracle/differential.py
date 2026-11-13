@@ -482,6 +482,17 @@ def overlay(tree, hidden=False, everything=False):
     return key
 
 
+def hand_set_times(tree, key, everything=False):
+    """{relative path: modification time in nanoseconds} of the files of the overlay `key` that were not written
+    during this run: a check set their time, and what it compares depends on it."""
+    times = {}
+    for rel, path in relevant_files(tree.root, True, everything).items():
+        name = dated(to_focus(rel))
+        if RECORDED_TREES[key].get(name) is not None and abs(time.time() - os.stat(path).st_mtime) > 3600:
+            times[name] = str(os.stat(path).st_mtime_ns)
+    return times
+
+
 def compact(text):
     """Long output is recorded as its digest; the live comparison is where a diff is read."""
     import hashlib
@@ -1338,6 +1349,8 @@ RECORD_DIR = "aidlc/spaces/default/intents/add-login-1a2b3c4d"
 
 def normalise_audit(text, tree, engine):
     text = without_tree(text, tree)
+    # A handoff named after the project's own folder, which each engine's tree names its own way.
+    text = text.replace(f"developer-scan-{os.path.basename(tree.root)}.md", "developer-scan-<root>.md")
     if engine == "ts":
         # Bun reads the working directory's package.json as it starts, and says on standard error what it
         # thinks of one it cannot parse; that is the runtime, not the tool.
@@ -1672,7 +1685,8 @@ def run_audit(engine, tree, args, env, tool="audit"):
     env = {k: v for k, v in (env or {}).items() if not k.startswith("=")}
     full.update(raw)
     # `{P}` in an argument is the project's own location.
-    args = [arg.replace("{P}", tree.root) for arg in args]
+    # `{N}` is the name of the project's folder, the name its one repository goes by.
+    args = [arg.replace("{P}", tree.root).replace("{N}", os.path.basename(tree.root)) for arg in args]
     # A hook step is the hook's name and the host's payload, which it reads on stdin.
     stdin = None
     if tool == "hook":
@@ -1892,6 +1906,8 @@ def compare_audit(name, trees, steps, env, tool="audit"):
         # An audit check starts from nothing but its files; a runtime check from an installed project, kept whole
         # where the verb reads the whole project (the utility's scan, and the source a baseline lists).
         started_from = workspace_files(ts, "") if tool == "audit" else overlay(ts, hidden=True, everything=tool in WHOLE_PROJECT)
+        # A file whose time a check set by hand: the replay sets it again.
+        times = {} if tool == "audit" else hand_set_times(ts, started_from, everything=tool in WHOLE_PROJECT)
     for engine, tree in (("ts", ts), ("rs", rs)):
         say = to_focus if engine == "ts" else (lambda text: text)
         before = workspace_files(tree)
@@ -2011,6 +2027,7 @@ def compare_audit(name, trees, steps, env, tool="audit"):
             "steps": [[to_focus(arg) for arg in args] for args in steps], "args": [],
             "env": {key_: to_focus(value) for key_, value in (env or {}).items()},
             "stdin": None, "writes": True,
+            **({"times": times} if times else {}),
             "deviation": detail if verdict == "deviation" else None,
             # The process map names the host's own processes (the engines' ancestors): the same for both engines
             # live, and nothing a replay under another process tree could reproduce.
@@ -2382,10 +2399,11 @@ DEVIATIONS.update({
         "a member repository that is a delegated worktree is read through that worktree's own boundary (the code "
         "paths of its unit of work); focus does not read that boundary yet and refuses the row whose baseline it "
         "would be",
-    r"state/(advance/repos|gates/revision_backstop_repos)_(not_a_name|null_name|a_list_inside|not_a_list)":
+    r"(state/(advance/repos|gates/revision_backstop_repos)|log/link/repos)_(not_a_name|null_name|a_list_inside|not_a_list)":
         "a registry row whose `repos` is not a list of text: upstream takes what is there, so a reader that joins a "
         "path with a name falls over with the runtime's TypeError (the stores of the code knowledge base), and one "
-        "that only looks names up in the list goes on (the revision backstop); focus refuses the row by name, "
+        "that only looks names up in the list goes on (the revision backstop) or falls over further on (a link of a "
+        "pipeline, where it filters the list); focus refuses the row by name, "
         "whoever reads it",
     r"jump/execute/source_repos_refused_\w+":
         "a registry row whose `repos` is not a list of names: upstream takes what is there and falls over where it "
@@ -2396,7 +2414,7 @@ DEVIATIONS.update({
         "what an answer may carry that focus has not ported: the engine's own questions (the recovery question, "
         "slice 4; a summary confirmation, 2c; Construction's checkpoints and a unit of work, 5; Plan Approval, 11). "
         "Upstream reads what each needs and records or refuses on its own terms; focus refuses each by name",
-    r"log/usage/(link|review)_not_ported":
+    r"log/usage/review_not_ported":
         "the verbs of the log tool that focus has not ported (M5, slices 2b to 2e): upstream runs them; focus "
         "refuses each by name",
     r"log/decision/checkpoint_\w+_not_ported":
@@ -5163,6 +5181,183 @@ def log_checks():
     check_("answer/summary_observer", created(owing, asked_and_replied, **{qfile: confirmed}), [chooses("Looks correct")], {"STOP_HOOK_PROBE": "1"})
     check_("answer/summary_per_unit_not_ported", created(at_stage(owing, "functional-design", done=["intent-capture"], phase="CONSTRUCTION")),
            [["answer", "--stage", "functional-design", "--details", "Looks correct", "--checkpoint", "summary-confirmation", "--questions-file", "x-questions.md"]])
+    # --- link: a link of a pipeline stage returned ---
+    # Reverse Engineering is the pipeline: the developer scans, then the architect. A created record has the
+    # collaborators off, so its chain is the developer alone.
+    lead_only = at_stage(CREATED_STATE.replace("- [ ] reverse-engineering \u2014 SKIP", "- [ ] reverse-engineering \u2014 EXECUTE"), "reverse-engineering",
+                         done=["intent-capture"], phase="INCEPTION")
+    chained = lead_only.replace("- **Collaborators**: off (from scope feature)", "- **Collaborators**: on")
+    dev, arch = "aidlc-developer-agent", "aidlc-architect-agent"
+    scan_dir = f"{CREATED_DIR}/inception/reverse-engineering"
+    scan, scan_app = f"{scan_dir}/developer-scan.md", f"{scan_dir}/developer-scan-app.md"
+    returned = lambda agent, *more: ["link", "--stage", "reverse-engineering", "--link", agent, *more]
+    scanned = lambda *more, file=scan: returned(dev, "--artifact", file, *more)
+    # Times are whole hundreds of nanoseconds: what every filesystem the replay runs on keeps.
+    WRITTEN = 1767610800123456700  # 2026-01-05T11:00:00.1234567Z
+    at_time = lambda file=scan, ns=WRITTEN: lambda tree: os.utime(tree.path(file), ns=(ns, ns))
+    SCAN = "# Developer scan\n\nWhat the code is.\n"
+    scan_sha = "sha256:" + hashlib.sha256(SCAN.encode()).hexdigest()
+    receipt = lambda minute, agent=dev, position="1/2", *more: block("PIPELINE_LINK_COMPLETED", T(minute), "**Stage**: reverse-engineering", f"**Link**: {agent}", f"**Position**: {position}", *more)
+    scan_receipt = lambda minute, file=scan, sha=scan_sha, mtime="1767610800123.4567", *more: receipt(
+        minute, dev, "1/2", f"**Artifact Path**: {file}", f"**Artifact SHA256**: {sha}", f"**Artifact Mtime Ms**: {mtime}", *more)
+    check_("link/usage", created(chained), [["link"], ["link", "--stage", "reverse-engineering"], ["link", "--link", dev], ["link", "--stage", "", "--link", dev], returned(""),
+                                              returned(dev, "--intent", "x"), returned(dev, "--space", "x"), returned(dev, "--intent", "")])
+    check_("link/not_a_pipeline", created(chained), [["link", "--stage", "intent-capture", "--link", dev], ["link", "--stage", "nope", "--link", dev]])
+    check_("link/not_in_the_chain", created(chained), [returned("aidlc-product-agent"), returned("nope"), returned(dev.upper())])
+    check_("link/the_chain", created(chained, **{scan: SCAN}), [scanned(), scanned(), returned(arch), returned(arch), returned(dev)], edits=[at_time()])
+    check_("link/out_of_order", created(chained, **{scan: SCAN}), [returned(arch), scanned(), returned(arch)], edits=[at_time()])
+    check_("link/lead_alone", created(lead_only, **{scan: SCAN}), [returned(arch), scanned(), scanned()], edits=[at_time()])
+    check_("link/collaborators_off_by_the_switch", created(chained, **{scan: SCAN}), [scanned(), returned(arch)], {"DISABLE_COLLABORATORS": "1"}, edits=[at_time()])
+    check_("link/not_the_stage_in_progress", created(**{scan: SCAN}), [scanned(), returned(arch)], edits=[at_time()])
+    check_("link/collaborators_not_said", created(chained.replace("- **Collaborators**: on\n", ""), **{scan: SCAN}), [scanned(), returned(arch)], edits=[at_time()])
+    for label, said in (("another_word", "maybe"), ("in_capitals", "ON"), ("blank", ""), ("on_and_why", "on (set by you)"), ("off", "off")):
+        check_(f"link/collaborators_{label}", created(chained.replace("- **Collaborators**: on", f"- **Collaborators**: {said}"), **{scan: SCAN}), [scanned(), returned(arch)], edits=[at_time()])
+    check_("link/second_names_a_file", created(chained, **{scan: SCAN}), [scanned("--nope", "x"), returned(arch, "--artifact", "nope.md"), returned(dev, "--nope", "x")], edits=[at_time()])
+    check_("link/flag_twice", created(chained, **{scan: SCAN}), [returned(arch, "--link", dev, "--artifact", "nope.md", "--artifact", scan, "--stage", "reverse-engineering")], edits=[at_time()])
+    check_("link/no_state_file", created(audit=CREATED_AUDIT, **{f"{CREATED_DIR}/aidlc-state.md": None, scan: SCAN}), [scanned()], edits=[at_time()])
+    # The developer's handoff: named, the stage's own, there, a plain file, written in this attempt.
+    elsewhere = {scan: SCAN, f"{scan_dir}/other.md": SCAN, "developer-scan.md": SCAN, scan_app: SCAN, f"{CREATED_DIR}/inception/developer-scan.md": SCAN}
+    check_("link/handoff_not_named", created(chained, **{scan: SCAN}), [returned(dev), returned(dev, "--artifact", "")])
+    check_("link/handoff_not_the_stages", created(chained, **elsewhere), [scanned(file=name) for name in (
+        f"{scan_dir}/other.md", "developer-scan.md", scan_app, f"{CREATED_DIR}/inception/developer-scan.md", scan_dir, "../x.md")])
+    check_("link/handoff_named_in_full", created(chained, **{scan: SCAN}), [scanned(file="{P}/" + scan)], edits=[at_time()])
+    check_("link/handoff_named_through_steps", created(chained, **{scan: SCAN}), [scanned(file=f"./{scan_dir}/../reverse-engineering/developer-scan.md")], edits=[at_time()])
+    check_("link/handoff_missing", created(chained), [scanned()])
+    check_("link/handoff_a_folder", created(chained, **{f"{scan}/x": "x"}), [scanned()])
+    check_("link/handoff_a_link", created(chained, **{"elsewhere.md": SCAN}), [scanned()],
+           edits=[lambda tree: (os.makedirs(tree.path(scan_dir), exist_ok=True), os.symlink(tree.path("elsewhere.md"), tree.path(scan)))])
+    check_("link/handoff_behind_a_link", created(chained, **{"elsewhere/developer-scan.md": SCAN}), [scanned()],
+           edits=[lambda tree: (os.makedirs(os.path.dirname(tree.path(scan_dir)), exist_ok=True), os.symlink(tree.path("elsewhere"), tree.path(scan_dir)))])
+    # A second name is a link no recording carries, and the project's own name is the replay's own: compared live.
+    UNRECORDED.update({"log/link/handoff_a_second_name", "log/link/root_handoff_by_its_name"})
+    check_("link/handoff_a_second_name", created(chained, **{scan: SCAN}), [scanned()], edits=[lambda tree: os.link(tree.path(scan), tree.path("other-name.md"))])
+    check_("link/handoff_empty", created(chained, **{scan: ""}), [scanned()], edits=[at_time()])
+    # When it was written: before the attempt, at its very start, in whole seconds, with a start that is no instant.
+    START = 1767607200000000000  # 2026-01-05T10:00:00Z, when the work was created
+    for label, ns in (("before_the_attempt", START - 100), ("at_the_attempts_start", START), ("a_millisecond_before", START - 1000000), ("whole_seconds", START + 60 * 10**9),
+                      ("half_a_millisecond", START + 500000), ("long_ago", 100)):
+        check_(f"link/handoff_written_{label}", created(chained, **{scan: SCAN}), [scanned()], edits=[at_time(ns=ns)])
+    check_("link/handoff_written_before_the_stage_started", created(chained, CREATED_AUDIT + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering"), **{scan: SCAN}), [scanned()],
+           edits=[at_time(ns=START + 60 * 10**9)])
+    check_("link/handoff_no_attempt", created(chained, TITLE, **{scan: SCAN}), [scanned()], edits=[at_time()])
+    check_("link/handoff_start_is_no_instant", created(chained, TITLE + block("WORKFLOW_STARTED", "soon", "**Scope**: feature"), **{scan: SCAN}), [scanned()], edits=[at_time()])
+    # An earlier receipt of the link: the file has to have been rewritten since, in any attempt.
+    restarted = block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering")
+    check_("link/handoff_not_rewritten", created(chained, CREATED_AUDIT + scan_receipt(1) + restarted, **{scan: SCAN}), [scanned()], edits=[at_time()])
+    check_("link/handoff_rewritten", created(chained, CREATED_AUDIT + scan_receipt(1, scan, scan_sha, "1767610800123.4565") + restarted, **{scan: SCAN}), [scanned()], edits=[at_time()])
+    check_("link/handoff_older_than_a_receipt", created(chained, CREATED_AUDIT + scan_receipt(1, scan, scan_sha, "1767610800124") + scan_receipt(2, scan, scan_sha, "17") + restarted, **{scan: SCAN}),
+           [scanned()], edits=[at_time()])
+    check_("link/handoff_receipt_time_is_no_number", created(chained, CREATED_AUDIT + scan_receipt(1, scan, scan_sha, "1e99") + scan_receipt(2, scan, scan_sha, "") + restarted, **{scan: SCAN}),
+           [scanned()], edits=[at_time()])
+    # The receipts of this attempt: the developer's counts while its file is the one it recorded, unless the
+    # record's guard policy accepts a changed file (relaxed, off).
+    off = "- **Guard Policy**: off (from scope feature)"
+    policies = (("", chained), ("_strict", chained.replace(off, "- **Guard Policy**: strict (set by you)")))
+    relaxed = chained.replace(off, "- **Guard Policy**: relaxed (set by you)")
+    for suffix, state in policies:
+        check_(f"link/second_after_a_recorded_first{suffix}", created(state, CREATED_AUDIT + scan_receipt(1), **{scan: SCAN}), [returned(arch), scanned()], edits=[at_time()])
+        check_(f"link/first_receipt_file_changed{suffix}", created(state, CREATED_AUDIT + scan_receipt(1), **{scan: SCAN + "more\n"}), [returned(arch)], edits=[at_time()])
+        check_(f"link/first_receipt_file_touched{suffix}", created(state, CREATED_AUDIT + scan_receipt(1), **{scan: SCAN}), [returned(arch)], edits=[at_time(ns=WRITTEN + 20000)])
+        check_(f"link/first_receipt_file_touched_a_little{suffix}", created(state, CREATED_AUDIT + scan_receipt(1), **{scan: SCAN}), [returned(arch)], edits=[at_time(ns=WRITTEN + 5000)])
+        check_(f"link/first_receipt_file_touched_back{suffix}", created(state, CREATED_AUDIT + scan_receipt(1), **{scan: SCAN}), [returned(arch)], edits=[at_time(ns=WRITTEN - 20000)])
+        check_(f"link/first_receipt_file_gone{suffix}", created(state, CREATED_AUDIT + scan_receipt(1)), [returned(arch)])
+        check_(f"link/first_receipt_file_a_folder{suffix}", created(state, CREATED_AUDIT + scan_receipt(1), **{f"{scan}/x": "x"}), [returned(arch)])
+        for label, row in (("no_file", receipt(1)), ("no_hash", receipt(1, dev, "1/2", f"**Artifact Path**: {scan}", "**Artifact Mtime Ms**: 1767610800123.4567")),
+                           ("hash_not_one", scan_receipt(1, scan, "sha256:XYZ")), ("hash_in_capitals", scan_receipt(1, scan, scan_sha.upper())), ("hash_bare", scan_receipt(1, scan, scan_sha[7:])),
+                           ("no_time", receipt(1, dev, "1/2", f"**Artifact Path**: {scan}", f"**Artifact SHA256**: {scan_sha}")),
+                           ("time_not_a_number", scan_receipt(1, scan, scan_sha, "soon")), ("time_with_words_after", scan_receipt(1, scan, scan_sha, "1767610800123.4567ms")),
+                           ("time_in_another_notation", scan_receipt(1, scan, scan_sha, "1.7676108001234567e12")), ("time_blank", scan_receipt(1, scan, scan_sha, "")),
+                           ("file_outside_the_record", scan_receipt(1, "developer-scan.md")), ("file_is_the_record", scan_receipt(1, CREATED_DIR)),
+                           ("file_named_through_steps", scan_receipt(1, f"{scan_dir}/./developer-scan.md")),
+                           ("position_of_another_chain", scan_receipt(1).replace("1/2", "1/3")), ("no_position", scan_receipt(1).replace("**Position**: 1/2\n", "")),
+                           ("no_link", scan_receipt(1).replace(f"**Link**: {dev}\n", "")), ("of_another_stage", scan_receipt(1).replace("reverse-engineering", "intent-capture", 1)),
+                           ("of_a_stage_run_alone", scan_receipt(1, scan, scan_sha, "1767610800123.4567", "**Workflow**: single-stage:reverse-engineering")),
+                           ("of_another_stage_run_alone", scan_receipt(1, scan, scan_sha, "1767610800123.4567", "**Workflow**: single-stage:intent-capture")),
+                           ("of_a_workflow_by_another_name", scan_receipt(1, scan, scan_sha, "1767610800123.4567", "**Workflow**: main")),
+                           ("of_a_repo", scan_receipt(1, scan, scan_sha, "1767610800123.4567", "**Repo**: app")), ("of_a_blank_repo", scan_receipt(1, scan, scan_sha, "1767610800123.4567", "**Repo**: "))):
+            check_(f"link/first_receipt_{label}{suffix}", created(state, CREATED_AUDIT + row, **{scan: SCAN, "developer-scan.md": SCAN}), [returned(arch)], edits=[at_time()])
+    check_("link/first_receipt_file_changed_relaxed", created(relaxed, CREATED_AUDIT + scan_receipt(1), **{scan: SCAN + "more\n"}), [returned(arch)], edits=[at_time()])
+    check_("link/first_receipt_file_a_link", created(policies[0][1], CREATED_AUDIT + scan_receipt(1), **{"elsewhere.md": SCAN}), [returned(arch)],
+           edits=[lambda tree: (os.makedirs(tree.path(scan_dir), exist_ok=True), os.symlink(tree.path("elsewhere.md"), tree.path(scan)))])
+    check_("link/last_receipt_of_another_chain", created(chained, CREATED_AUDIT + scan_receipt(1) + receipt(2, arch, "2/3"), **{scan: SCAN}), [returned(arch)], edits=[at_time()])
+    check_("link/last_receipt_with_no_position", created(chained, CREATED_AUDIT + scan_receipt(1) + receipt(2, arch, "2/2").replace("**Position**: 2/2\n", ""), **{scan: SCAN}), [returned(arch)],
+           edits=[at_time()])
+    check_("link/first_again_starts_the_chain_again", created(chained, CREATED_AUDIT + scan_receipt(1) + receipt(2, arch, "2/2") + scan_receipt(3), **{scan: SCAN}), [returned(arch), returned(arch)],
+           edits=[at_time()])
+    check_("link/second_before_the_first", created(chained, CREATED_AUDIT + receipt(1, arch, "2/2") + scan_receipt(2), **{scan: SCAN}), [returned(arch)], edits=[at_time()])
+    check_("link/second_twice", created(chained, CREATED_AUDIT + scan_receipt(1) + receipt(2, arch, "2/2") + receipt(3, arch, "2/2"), **{scan: SCAN}), [returned(arch), scanned()], edits=[at_time()])
+    # A chain that is the developer alone: its receipt is the last one, and counts as the last of a chain this long.
+    check_("link/lead_alone_receipt_of_a_longer_chain", created(lead_only, CREATED_AUDIT + scan_receipt(1), **{scan: SCAN}), [scanned()], edits=[at_time(ns=WRITTEN + 10**12)])
+    check_("link/lead_alone_receipt_of_its_own_chain", created(lead_only, CREATED_AUDIT + scan_receipt(1).replace("1/2", "1/1"), **{scan: SCAN}), [scanned()], edits=[at_time()])
+    # A row that says the stage's work was kept: nothing a link reads.
+    kept_row = lambda *more: block("ARTIFACT_REUSED", T(2), "**Stage**: reverse-engineering", "**Decision**: keep", *more)
+    alone = "**Workflow**: single-stage:reverse-engineering"
+    store = "aidlc/spaces/default/codekb"
+    check_("link/work_kept", created(chained, CREATED_AUDIT + kept_row(), **{scan: SCAN}), [returned(arch), scanned(), returned(arch)], edits=[at_time()])
+    check_("link/work_kept_single", created(chained, CREATED_AUDIT + block("STAGE_STARTED", T(1), "**Stage**: reverse-engineering", alone, "**Scope**: brownfield") + kept_row(alone) + kept_row(alone, "**Repo**: app"),
+                                            **{scan: SCAN, f"{store}/app/reverse-engineering-timestamp.md": "not a scope\n", f"{store}/reverse-engineering-timestamp.md/x": "x"}),
+           [returned(arch, "--single"), scanned("--single"), returned(arch, "--single")], edits=[at_time()])
+    # What starts the attempt again: a start of the stage, a jump that reaches it, a rejection of its gate (which
+    # keeps the receipts where the policy accepts changes); and what does not.
+    rejected = block("GATE_REJECTED", T(5), "**Stage**: reverse-engineering", "**Feedback**: again")
+    for suffix, state in policies:
+        for label, boundary in (("restarted", restarted), ("jumped_to", block("STAGE_JUMPED", T(5), "**Target**: reverse-engineering")), ("jumped_before", block("STAGE_JUMPED", T(5), "**Target**: intent-capture")),
+                                ("jumped_after", block("STAGE_JUMPED", T(5), "**Target**: requirements-analysis")), ("jumped_nowhere", block("STAGE_JUMPED", T(5), "**Target**: nope")),
+                                ("jumped_no_target", block("STAGE_JUMPED", T(5))), ("rejected", rejected), ("another_stage_rejected", rejected.replace("reverse-engineering", "intent-capture")),
+                                ("created_again", block("WORKFLOW_STARTED", T(5), "**Scope**: feature")), ("another_stage_started", block("STAGE_STARTED", T(5), "**Stage**: intent-capture")),
+                                ("completed", block("STAGE_COMPLETED", T(5), "**Stage**: reverse-engineering")), ("approved", block("GATE_APPROVED", T(5), "**Stage**: reverse-engineering")),
+                                ("started_alone", block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering", alone)),
+                                ("rejected_alone", rejected.replace("**Feedback**", alone + "\n**Feedback**"))):
+            check_(f"link/attempt_{label}{suffix}", created(state, CREATED_AUDIT + scan_receipt(1) + boundary, **{scan: SCAN}), [returned(arch), scanned()], edits=[at_time()])
+            # The same with the scan written again since.
+            check_(f"link/attempt_{label}_rewritten{suffix}", created(state, CREATED_AUDIT + scan_receipt(1) + boundary, **{scan: SCAN}), [scanned(), returned(arch)], edits=[at_time(ns=WRITTEN + 10**12)])
+    # A receipt at the boundary's own instant: after it in the boundary's shard, unordered in another.
+    check_("link/receipt_at_the_boundarys_instant", created(chained, CREATED_AUDIT + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering") + scan_receipt(5), **{scan: SCAN}), [returned(arch)], edits=[at_time()])
+    check_("link/receipt_before_the_boundary_at_its_instant", created(chained, CREATED_AUDIT + scan_receipt(5) + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering"), **{scan: SCAN}), [returned(arch)],
+           edits=[at_time()])
+    check_("link/receipt_tied_in_another_shard", created(chained, CREATED_AUDIT + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering"), **{scan: SCAN}, **other(scan_receipt(5))), [returned(arch)],
+           edits=[at_time()])
+    check_("link/boundary_in_two_shards", created(chained, CREATED_AUDIT + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering") + scan_receipt(5), **{scan: SCAN},
+                                                **other(block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering"))), [returned(arch)], edits=[at_time()])
+    check_("link/receipt_in_another_shard_later", created(chained, CREATED_AUDIT + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering"), **{scan: SCAN}, **other(scan_receipt(6))), [returned(arch)],
+           edits=[at_time()])
+    # A piece of work over repositories: the chain runs once for each, and the handoff carries the repository's name.
+    over_app = CREATED_REGISTRY.replace('"status": "in-flight"', '"status": "in-flight",\n    "repos": ["app", "web"]')
+    check_("link/repos", created(chained, registry=over_app, **{scan_app: SCAN, scan: SCAN}), [scanned(), scanned("--repo", "nope", file=scan_app), scanned("--repo", "app"), scanned("--repo", "app", file=scan_app),
+                                                                                          returned(arch, "--repo", "web"), returned(arch, "--repo", "app"), returned(arch, "--repo", "app"),
+                                                                                          scanned("--repo", "app", file=scan_app), scanned("--repo", "")], edits=[at_time(scan_app)])
+    check_("link/repo_where_none_is_registered", created(chained, **{scan: SCAN}), [scanned("--repo", "app"), scanned("--repo", "")], edits=[at_time()])
+    for label, listed in NOT_NAMES:
+        check_(f"link/repos_{label}", created(chained, registry=CREATED_REGISTRY.replace('"status": "in-flight"', '"status": "in-flight",\n    "repos": ' + listed), **{scan: SCAN, scan_app: SCAN}),
+               [scanned(), scanned("--repo", "app", file=scan_app)], edits=[at_time(), at_time(scan_app)])
+    # The project's own name stands for the root: as `--repo`, and in the handoff's name.
+    def root_scan(tree):
+        named = f"{scan_dir}/developer-scan-{os.path.basename(tree.root)}.md"
+        tree.write(named, SCAN)
+        os.utime(tree.path(named), ns=(WRITTEN, WRITTEN))
+    check_("link/root_by_its_name", created(chained, **{scan: SCAN}), [scanned("--repo", "{N}"), returned(arch, "--repo", "{N}"), returned(arch)], edits=[at_time()])
+    check_("link/root_handoff_by_its_name", created(chained), [scanned(file=f"{scan_dir}/developer-scan-{{N}}.md"), returned(arch)], edits=[root_scan])
+    # A stage run by itself: its own starts are its attempts, its own receipts its chain, the scope its start recorded its ceremony.
+    alone_started = lambda minute, *more: block("STAGE_STARTED", T(minute), "**Stage**: reverse-engineering", "**Workflow**: single-stage:reverse-engineering", *more)
+    check_("link/single", created(chained, CREATED_AUDIT + alone_started(1, "**Scope**: brownfield"), **{scan: SCAN}), [scanned("--single"), scanned("--single"), returned(arch, "--single"), returned(arch), scanned()],
+           edits=[at_time()])
+    check_("link/single_not_started", created(chained, **{scan: SCAN}), [scanned("--single")], edits=[at_time()])
+    check_("link/single_scope_with_collaborators_off", created(chained, CREATED_AUDIT + alone_started(1, "**Scope**: feature"), **{scan: SCAN}), [returned(arch, "--single"), scanned("--single")], edits=[at_time()])
+    check_("link/single_no_scope_recorded", created(lead_only, CREATED_AUDIT + alone_started(1), **{scan: SCAN}), [scanned("--single"), returned(arch, "--single")], edits=[at_time()])
+    check_("link/single_newest_start_decides", created(chained, CREATED_AUDIT + alone_started(1, "**Scope**: feature") + alone_started(2, "**Scope**: brownfield"), **{scan: SCAN}),
+           [scanned("--single"), returned(arch, "--single")], edits=[at_time()])
+    check_("link/single_then_a_word", created(chained, **{scan: SCAN}), [scanned("--single", "yes"), scanned("--single", "false")], edits=[at_time()])
+    # A stage run by itself has attempts of its own: the piece of work's boundaries are not its, and its are its own.
+    for label, rows in (("restarted_alone", alone_started(5, "**Scope**: brownfield")), ("workflow_restarted", restarted), ("rejected_alone", rejected.replace("**Feedback**", alone + "\n**Feedback**")),
+                        ("rejected_in_the_workflow", rejected), ("jumped_to", block("STAGE_JUMPED", T(5), "**Target**: reverse-engineering")), ("created_again", block("WORKFLOW_STARTED", T(5), "**Scope**: feature"))):
+        for suffix, state in policies:
+            check_(f"link/single_attempt_{label}{suffix}", created(state, CREATED_AUDIT + alone_started(1, "**Scope**: brownfield") + scan_receipt(2, scan, scan_sha, "1767610800123.4567", alone) + rows, **{scan: SCAN}),
+                   [returned(arch, "--single"), scanned("--single")], edits=[at_time()])
+            check_(f"link/single_attempt_{label}_rewritten{suffix}", created(state, CREATED_AUDIT + alone_started(1, "**Scope**: brownfield") + scan_receipt(2, scan, scan_sha, "1767610800123.4567", alone) + rows, **{scan: SCAN}),
+                   [scanned("--single"), returned(arch, "--single")], edits=[at_time(ns=WRITTEN + 10**12)])
+    check_("link/single_receipt_of_the_workflow", created(chained, CREATED_AUDIT + alone_started(1, "**Scope**: brownfield") + scan_receipt(2), **{scan: SCAN}), [returned(arch, "--single")], edits=[at_time()])
+    check_("link/observer", created(chained, **{scan: SCAN}), [scanned()], {"STOP_HOOK_PROBE": "1"}, edits=[at_time()])
+    check_("link/no_workflow", CLONE, [returned(dev)])
     check_("answer/summary_choice_with_no_question", created(owing, CREATED_AUDIT + H(2)), [replied("Looks correct"), replied("Request changes: x")])
     check_("answer/summary_question_not_owed", told(summary_q, H(2)), [replied("Looks correct")])
     check_("answer/summary_owed_other_question", created(owing, CREATED_AUDIT + Q(1, "Which database?") + H(2)), [replied("Looks correct"), reply])

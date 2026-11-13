@@ -13,5 +13,6 @@ pub mod answer_text;
 pub mod answers;
 pub mod decision;
 pub mod flags;
+pub mod link;
 pub mod message;
 mod summary;
