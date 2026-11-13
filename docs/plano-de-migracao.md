@@ -1940,7 +1940,7 @@ A fatia 1d recusou a linha onde os repositórios são andados como fonte e deixo
 | Fatia | O que traz | Recusa pelo nome até à fatia que o traz | Como se verifica | Estado |
 | --- | --- | --- | --- | --- |
 | 2a. O comando e `decision` | `focus engine log`: `--project-dir`, o parser de flags, a recusa de valores partidos (`refuseSplitValues`: uma palavra fora de qualquer flag, um fragmento que começa por `--`, as aspas simples do Command Prompt), o erro que fica na auditoria; um workspace sem trabalho selecionado. `decision`: a linha `DECISION_RECORDED` (stage, decision, options, rationale, `--single`), a frase que diz que a pessoa já confirmou (`impliedConfirmationMarker`), `--message` com a prova da mensagem (`proveMessage`: existe, traz palavras da pessoa, não está gasta, veio deste chat), as perguntas protegidas retiradas | `--checkpoint verification-command` e `construction-policy` (fatia 5), `plan-approval` e `--batch-file` (fatia 11), `--unit` (fatia 5) | Diferencial (`log/decision/*`, um grupo novo com a sua ferramenta); corpus para a recusa de valores partidos e para o marcador de confirmação, que são funções puras | Feito |
-| 2b. `answers` e `answer` | `answers` (só leitura: as perguntas de uma stage e as respostas que têm); `answer`: `QUESTION_ANSWERED`, `--details` e `--details-file`, `--on-instruction`, `--message` e a mensagem herdada da pergunta, a dica de uma mensagem que chegou antes da pergunta | As respostas às perguntas do engine (`PLAN_APPROVAL_RECORDED`, `PLAN_APPROVAL_OVERRIDDEN`, `--units`, `--reason`, `--park`: fatia 11; `VERIFICATION_COMMAND_RECORDED` e `CONSTRUCTION_POLICY_RECORDED`: fatia 5) | Diferencial | Em curso: `answers` feito (abaixo); `answer` por fazer |
+| 2b. `answers` e `answer` | `answers` (só leitura: as perguntas de uma stage e as respostas que têm); `answer`: `QUESTION_ANSWERED`, `--details` e `--details-file`, `--on-instruction`, `--message` e a mensagem herdada da pergunta, a dica de uma mensagem que chegou antes da pergunta | As respostas às perguntas do engine (`PLAN_APPROVAL_RECORDED`, `PLAN_APPROVAL_OVERRIDDEN`, `--units`, `--reason`, `--park`: fatia 11; `VERIFICATION_COMMAND_RECORDED` e `CONSTRUCTION_POLICY_RECORDED`: fatia 5) | Diferencial | Em curso: `answers` e `answer` feitos (abaixo); falta o texto de uma resposta num ficheiro e `--on-instruction`, o pull request seguinte |
 | 2c. O checkpoint de sumário | `--checkpoint summary-confirmation --questions-file` em `decision` e em `answer`: a evidência da pergunta (`summaryQuestionEvidence`), a decisão pendente (`pendingSummaryDecision`), `SUMMARY_CONFIRMATION_RECORDED`, e a recusa de uma pergunta ou resposta de sumário sem o checkpoint, com os comandos certos (`refusePlainSummaryConfirmation`) | | Diferencial. É o que a fatia 3 pesa (`checkSummaryConfirmationEvidence`) | Por fazer |
 | 2d. `link` | `PIPELINE_LINK_COMPLETED`: o handoff de um elo de um pipeline, com o artefacto e o repositório | | Diferencial | Por fazer |
 | 2e. `review` | `REVIEW_REQUESTED` e `REVIEW_COMPLETED`: o revisor de uma stage, a iteração, o veredicto e o ficheiro da revisão (os títulos despromovidos), o orçamento de revisões e a recuperação quando se esgota, o veredicto pendente; o `Source Fingerprint` de um pedido e o snapshot do workspace atrás dele (`workspaceSourceState`, `writeWorkspaceSourceSnapshot`, o que a fatia 1d deixou para aqui) | `--unit` e o registo de uma worktree de swarm | Diferencial. Lida, pode ter de se partir outra vez: o pedido e a conclusão são metades com a sua contabilidade | Por fazer |
@@ -1980,7 +1980,7 @@ Sem trabalho selecionado nada é escrito: a linha cairia na raiz dos registos do
 
 | Desvio | Original | Focus |
 | --- | --- | --- |
-| `answer`, `link`, `review` (`answers` deixou de o ser com a primeira parte da 2b) | Corre cada um | Recusa pelo nome até às fatias 2b a 2e |
+| `link`, `review` (`answers` e `answer` deixaram de o ser com a 2b) | Corre cada um | Recusa pelo nome até às fatias 2d e 2e |
 | `--checkpoint summary-confirmation`, `verification-command`, `construction-policy`, `plan-approval` | Lê os flags que cada um pede e grava a pergunta com o seu registo | Recusa o checkpoint pelo nome (fatias 2c, 5 e 11) |
 | `--unit` e `--batch-file` | Grava a unit com o seu claim; recusa o lote pela sua forma | Recusa os dois flags pelo nome (fatias 5 e 11) |
 | Uma pergunta simples com as duas escolhas do sumário, numa stage que deve uma confirmação de sumário | Recusa com os dois comandos que gravam um sumário | Recusa pelo nome: esses comandos são a fatia 2c |
@@ -2019,6 +2019,39 @@ Uma pergunta é uma linha `DECISION_RECORDED` e uma resposta uma `QUESTION_ANSWE
 | Repetição da gravação | 3 152 checks sobre 1 034 árvores, todos iguais; a gravação tem de ter `answers` a responder e a recusar |
 | Mutação | 47 mutantes: 44 apanhados (38 à primeira, 6 depois de checks escritos para eles: a ordem dos campos do âmbito, e cinco arestas da continuação de uma troca) e 2 equivalentes, anotados no módulo (todas as linhas lidas são da stage pedida, e uma linha nunca é comparada consigo). Um levou a tirar código: as notas do histórico não são perguntas nem respostas, e filtrá-las não mudava nada |
 | `cargo test` | 571 testes |
+
+### Fatia 2b, segunda parte: `answer`
+
+**Decisão de âmbito.** A resposta à pergunta de uma stage. Recusado pelo nome até à fatia que o traz: o texto da resposta num ficheiro (`--details-file`) e uma escolha que a pessoa deixou ao agente (`--on-instruction`, `--on-instruction-file`), que são o pull request a seguir; e as perguntas do próprio engine, cada uma com o seu registo (a pergunta de recuperação, fatia 4; a confirmação de sumário, 2c; os checkpoints de Construction e `--unit`, 5; o Plan Approval, com `--override`, `--override-file` e `--batch-file`, 11).
+
+**O que existe.** `focus engine log answer --stage <slug> --details <texto>` (`focus-log::answer`, `handleAnswer`) escreve `QUESTION_ANSWERED`. O agente passa a escolha que leu na resposta; o engine grava-a ao lado das palavras da própria pessoa e não lê sentido nenhum nelas. O que verifica é que houve resposta:
+
+- Uma caixa de pergunta dispensada, cancelada ou expirada não é resposta.
+- Uma escolha que o texto atribui ao assistente não é da pessoa (o mesmo marcador dos gates, com as frases de uma resposta).
+- Uma aprovação é de um gate e não de uma pergunta. Com a stage num gate aberto e nenhuma pergunta feita desde que abriu (`has_pending_decision_at_gate`), a resposta é reconhecida e não é escrita, para não gastar a resposta de que a aprovação precisa; e mesmo essa pede uma resposta nova da pessoa.
+- Uma resposta precisa de uma mensagem da pessoa que ainda não tenha respondido a nada. Uma só responde a todas as perguntas abertas quando chegou; uma pergunta feita depois espera pela seguinte. A exceção é a mensagem nomeada (`--message`, provada como em `decision`) ou herdada da pergunta com que foi registada. Quando a pergunta foi registada depois de a resposta chegar, a recusa nomeia as mensagens que chegaram antes dela (`messages_before_question`, `late_question_hint`), para o agente nomear uma em vez de perguntar outra vez.
+
+Ao lado da escolha vão o id da mensagem, as palavras da pessoa (`Person Reply`: as da mensagem provada, ou as que o chat guardou logo a seguir à linha do último turno, `latest_person_turn_words`), e uma nota quando a resposta não é nenhuma das que a pessoa escolheu numa caixa de pergunta (`picker_answer_note`). A pergunta do modo de resposta ("How would you like to answer them?") fica gravada pela opção que a resposta nomeia, pelo rótulo ou pelo número, que é o que as stages seguintes reutilizam. Em Construction autónoma não há ninguém ao teclado: nada disto é pedido nem guardado.
+
+**O que o diferencial encontrou.**
+
+| Achado | Consequência |
+| --- | --- |
+| Os dois checks que diferiram na primeira corrida diferiam no ficheiro da auditoria, não no que o comando disse: o normalizador conhecia `aidlc-state.ts` e `aidlc-orchestrate.ts` dentro de um ficheiro, e não `aidlc-log.ts` | O normalizador passa a conhecer os três |
+| A varredura de mutação parou ao fim de meia hora, a meio, e deixou um mutante aplicado; os resultados, que passavam por um filtro, perderam-se | O ficheiro foi reposto. As varreduras longas correm com o limite alargado e gravam cada resultado num ficheiro à medida que sai |
+| Sete mutantes da lista nunca correram: o formatador tinha mudado o texto das suas âncoras, e a lista só avisava | Reescritos e corridos; três pediram um check cada |
+| O âmbito de uma pergunta de sumário aberta só se vê num desvio (a recusa pelo nome até à 2c): o diferencial não o compara | O teste de CLI marcado cobre-o: a pergunta gravada com o checkpoint, e três perguntas em ciclo entre dois shards, em que as do último instante valem por todas |
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Diferencial, `log/answer` | 124 checks: 110 iguais e 14 desvios declarados. Os iguais: os flags e os valores partidos (com a ajuda própria de uma resposta); a resposta que chegou, a que não chegou, um menu, uma resposta gasta por outra resposta e por um gate, um turno que foi só um comando ou uma pergunta sobre um switch, o guard desligado, sem ninguém na sessão; cinco formas de uma caixa dispensada e quatro de uma escolha do assistente; o gate (com e sem resposta, com uma pergunta aberta, respondida, de antes do gate, de outra stage, o gate aberto duas vezes, o gate de outra stage depois); catorze formas da pergunta do modo; as palavras da pessoa (dentro, antes e depois do turno, noutro shard, do último turno, sem sessão); catorze formas da nota da caixa; a mensagem nomeada, herdada, herdada sem prova, da pergunta mais recente e de outra stage; treze formas da pergunta registada depois da resposta; o sumário devido com outra pergunta aberta, de outra stage, com outro checkpoint, fora de ordem; e Construction autónoma |
+| Diferencial, tudo | @@TOTAL@@ |
+| Repetição da gravação | @@REPLAY@@ |
+| Testes | 1 de CLI marcado novo (as doze formas recusadas pelo nome e a pergunta de sumário aberta em três formas) |
+| Mutação | 87 mutantes (o verbo, os leitores de mensagens, os leitores de perguntas abertas, as palavras da pessoa, a nota da caixa): 86 apanhados (55 à primeira, 31 depois de 28 checks e do teste de CLI escritos para eles) e 1 equivalente, anotado onde está (a linha do próprio gate não é uma pergunta) |
+| `cargo test` | @@TESTS@@ |
 
 ### A jornada
 
