@@ -25,6 +25,7 @@
 use std::fs::{File, Metadata, OpenOptions};
 use std::io::Read;
 use std::path::Path;
+use std::time::SystemTime;
 
 use focus_js::{Result, bail};
 
@@ -210,7 +211,7 @@ fn kind_of(meta: &Metadata) -> &'static str {
 #[derive(PartialEq, Eq)]
 struct Snapshot {
     len: u64,
-    modified: Option<std::time::SystemTime>,
+    modified: Option<SystemTime>,
     /// Unix: the link count and the inode change time.
     links_and_change: Option<(u64, i64, i64)>,
 }
@@ -258,6 +259,29 @@ pub fn read_regular(path: &Path, what: &str) -> Result<Vec<u8>> {
 ///
 /// As [`read_regular`]; and the file is larger than `max` bytes.
 pub fn read_regular_within(path: &Path, what: &str, max: Option<u64>) -> Result<Vec<u8>> {
+    read_checked(path, what, max).map(|(bytes, _)| bytes)
+}
+
+/// [`read_regular`], with when the file was last written
+/// (`readRegularFileNoFollowOrThrow`'s `mtimeMs`): the time of the file
+/// that was opened and read, which a later look at its name need not find.
+///
+/// # Errors
+///
+/// As [`read_regular`]; and the file system keeps no time for the file.
+pub fn read_regular_with_time(path: &Path, what: &str) -> Result<(Vec<u8>, SystemTime)> {
+    let (bytes, modified) = read_checked(path, what, None)?;
+    match modified {
+        Some(modified) => Ok((bytes, modified)),
+        None => bail!("{what} has no modification time: {}", path.display()),
+    }
+}
+
+fn read_checked(
+    path: &Path,
+    what: &str,
+    max: Option<u64>,
+) -> Result<(Vec<u8>, Option<SystemTime>)> {
     let shown = path.display();
     let a_link = || format!("{what} is a symlink, which is not followed: {shown}");
     let mut options = OpenOptions::new();
@@ -317,7 +341,7 @@ pub fn read_regular_within(path: &Path, what: &str, max: Option<u64>) -> Result<
     if !unchanged {
         bail!("{what} changed while reading: {shown}");
     }
-    Ok(bytes)
+    Ok((bytes, before.modified))
 }
 
 /// Open a file to append to it, creating it when it is not there. The path's

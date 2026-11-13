@@ -15,6 +15,15 @@
 //! is, what it holds and when it was written. It has to be the stage's
 //! handoff for the repository, written in this attempt and rewritten since
 //! any earlier receipt of the same link.
+//!
+//! # What a link does not read
+//!
+//! Upstream's reader of the receipts (`pipelineLinkEvidence`) also works
+//! out which links the stage still owes and which repositories a row that
+//! kept the stage's work answers for (`currentPipelineReuseEvidence`, and
+//! for a stage run by itself whether the knowledge base's store is still
+//! current). A link reads the receipts and nothing else of it: the rest is
+//! what closes the stage, and comes with the verb that does (slice 3).
 
 use std::path::Path;
 
@@ -321,6 +330,9 @@ fn lead_scan(wf: &Workflow, scan: &Scan) -> Result<Vec<(&'static str, String)>> 
             from_project(&accepted[0])
         );
     }
+    // Asked by name, as upstream asks (`existsSync`): it picks the sentence
+    // of the refusal and nothing else. The file is read below as every file
+    // of the record that decides something.
     if !Path::new(&artifact).exists() {
         bail!(
             "Cannot record reverse-engineering developer link: handoff file does not exist: {named}."

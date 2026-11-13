@@ -1,7 +1,8 @@
 //! `focus engine log <verb>`: `decision` records a question the agent asks
-//! the person, `answer` the person's reply to it, and `answers` reads a
-//! stage's questions back with the answers they have. `link` and `review`
-//! are not ported yet, and are refused by name.
+//! the person, `answer` the person's reply to it, `answers` reads a
+//! stage's questions back with the answers they have, and `link` records a
+//! link of a pipeline stage that returned. `review` is not ported yet, and
+//! is refused by name.
 //!
 //! Mirrors `main` and `error` in `aidlc-log.ts`.
 
@@ -40,7 +41,13 @@ The interactions of the active record's work, written to its ledger.
                            (Looks correct, or Request changes and what to change),
                            written on the summary's [Answer]: line of the questions file
                            first. Looks correct authorizes the stage's outputs
-  link, review             Not ported yet
+  link --stage <slug> --link <agent> [--repo <repo>] [--artifact <file>] [--single]
+                           A link of a pipeline stage that returned: the lead agent, then
+                           each supporting agent, once for each repository of the work.
+                           Recorded in the chain's order, once an attempt. The developer's
+                           link of reverse-engineering names the scan it hands on with
+                           --artifact: the stage's own file, written in this attempt
+  review                   Not ported yet
 ";
 
 pub fn run(args: &mut Args) -> Result<(), Failure> {

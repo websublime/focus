@@ -5231,6 +5231,13 @@ def log_checks():
     # A second name is a link no recording carries, and the project's own name is the replay's own: compared live.
     UNRECORDED.update({"log/link/handoff_a_second_name", "log/link/root_handoff_by_its_name"})
     check_("link/handoff_a_second_name", created(chained, **{scan: SCAN}), [scanned()], edits=[lambda tree: os.link(tree.path(scan), tree.path("other-name.md"))])
+    check_("link/handoff_a_link_to_nothing", created(chained), [scanned()],
+           edits=[lambda tree: (os.makedirs(tree.path(scan_dir), exist_ok=True), os.symlink(tree.path("nowhere.md"), tree.path(scan)))])
+    check_("link/handoff_under_a_file", created(chained, **{scan_dir: "x"}), [scanned()])
+    check_("link/handoff_written_before_1970", created(chained, TITLE + block("WORKFLOW_STARTED", "1969-12-31T23:59:59Z", "**Scope**: feature"), **{scan: SCAN}), [scanned()],
+           edits=[at_time(ns=-2 * 10**9)])
+    check_("link/handoff_written_before_a_start_before_1970", created(chained, TITLE + block("WORKFLOW_STARTED", "1969-12-31T23:59:59Z", "**Scope**: feature"), **{scan: SCAN}), [scanned()],
+           edits=[at_time(ns=-5 * 10**8)])
     check_("link/handoff_empty", created(chained, **{scan: ""}), [scanned()], edits=[at_time()])
     # When it was written: before the attempt, at its very start, in whole seconds, with a start that is no instant.
     START = 1767607200000000000  # 2026-01-05T10:00:00Z, when the work was created

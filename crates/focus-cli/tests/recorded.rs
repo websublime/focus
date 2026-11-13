@@ -74,6 +74,31 @@ fn materialise(overlay: &Value, root: &Path, empty: bool) {
     }
 }
 
+/// The files whose time the recorded check set by hand, set again: what the
+/// check compares depends on when they were written. A check that sets a
+/// time writes, so the tree is its own.
+fn set_times(check: &Value, root: &Path) {
+    let Some(times) = check["times"].as_object() else {
+        return;
+    };
+    for (rel, nanos) in times {
+        let rel = rel.replace("/intents/<day>-", &format!("/intents/{}-", today()));
+        // Counted from the epoch, and back from it for a time before.
+        let nanos: i64 = nanos.as_str().unwrap().parse().unwrap();
+        let span = std::time::Duration::from_nanos(nanos.unsigned_abs());
+        let at = if nanos < 0 {
+            std::time::UNIX_EPOCH - span
+        } else {
+            std::time::UNIX_EPOCH + span
+        };
+        let file = fs::File::options()
+            .write(true)
+            .open(root.join(rel))
+            .unwrap();
+        file.set_modified(at).unwrap();
+    }
+}
+
 fn replace_all(
     text: &str,
     pattern: &str,
@@ -524,7 +549,13 @@ fn replay_audit(check: &Value, root: &Path) -> BTreeMap<String, String> {
             .as_array()
             .unwrap()
             .iter()
-            .map(|arg| arg.as_str().unwrap().replace("{P}", root.to_str().unwrap()))
+            .map(|arg| {
+                // `{P}` is where the project is, `{N}` the name of its folder.
+                arg.as_str()
+                    .unwrap()
+                    .replace("{P}", root.to_str().unwrap())
+                    .replace("{N}", root.file_name().unwrap().to_str().unwrap())
+            })
             .collect();
         // A step that names its own tool (`@state advance …`) runs that one.
         let tool = match args.first().and_then(|first| first.strip_prefix('@')) {
@@ -906,6 +937,7 @@ fn focus_does_what_upstream_did_in_every_recorded_check() {
                             let root = if check["writes"] == true {
                                 let own = scratch.join(format!("{tree}-{step}"));
                                 materialise(&trees[*tree], &own, check["base"] == "empty");
+                                set_times(check, &own);
                                 own
                             } else {
                                 if !shared_ready {
@@ -1029,6 +1061,7 @@ fn the_recording_covers_every_verb_and_both_outcomes() {
         ("log", "decision"),
         ("log", "answers"),
         ("log", "answer"),
+        ("log", "link"),
     ] {
         let exits = |code: &str| {
             checks

@@ -238,15 +238,18 @@ pub fn read_handoff(project: &Path, relative: &str) -> focus_js::Result<Handoff>
         .map_err(|err| focus_js::EngineError::new(format!("{}: {err}", project.display())))?;
     links::refuse_link_in_chain(&anchor, Path::new(relative))?;
     let path = anchor.join(relative);
-    let bytes = files::read_regular(&path, "reverse-engineering developer handoff")?;
-    let written = std::fs::symlink_metadata(&path)
-        .and_then(|meta| meta.modified())
-        .ok()
-        .and_then(|at| at.duration_since(std::time::UNIX_EPOCH).ok())
-        .ok_or_else(|| focus_js::EngineError::new(format!("{}: no time", path.display())))?;
-    // `mtimeMs`: the seconds as milliseconds, plus the nanoseconds.
+    let (bytes, written) =
+        files::read_regular_with_time(&path, "reverse-engineering developer handoff")?;
+    // `mtimeMs`: the seconds as milliseconds, plus the nanoseconds; a time
+    // before the epoch counts back from it.
     #[allow(clippy::cast_precision_loss)]
-    let mtime_ms = written.as_secs() as f64 * 1e3 + f64::from(written.subsec_nanos()) / 1e6;
+    let millis = |span: std::time::Duration| {
+        span.as_secs() as f64 * 1e3 + f64::from(span.subsec_nanos()) / 1e6
+    };
+    let mtime_ms = match written.duration_since(std::time::UNIX_EPOCH) {
+        Ok(since) => millis(since),
+        Err(before) => -millis(before.duration()),
+    };
     Ok(Handoff { bytes, mtime_ms })
 }
 
