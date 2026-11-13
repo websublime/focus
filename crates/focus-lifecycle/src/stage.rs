@@ -60,10 +60,28 @@ pub fn produces_kinds(stage: &Stage) -> Option<&Map<String, Value>> {
     stage.raw.get("produces_kinds").and_then(Value::as_object)
 }
 
-/// `isPerUnitStage`: the stage runs once per unit of work.
+/// `isPerUnitStage`: the stage runs once per unit of work, by its marker
+/// or by being one of the five stages that always do. A compiled graph that
+/// lost the marker on one of them still runs it per unit: the cross-check
+/// upstream keeps beside the marker, and the rule the graph's own queries
+/// use.
+///
+/// Upstream asks this in two ways, and each caller here asks the one its
+/// original asks. The status, the session start and the resolution of a
+/// consumed artifact ask this one; the places that lay out or look for a
+/// stage's own outputs, and a gate, read the marker alone
+/// ([`has_unit_marker`]).
 #[must_use]
 pub fn is_per_unit(stage: &Stage) -> bool {
-    stage.for_each.as_deref() == Some("unit-of-work")
+    focus_graph::query::is_per_unit(stage)
+}
+
+/// `stage.for_each === "unit-of-work"`: the stage carries the per-unit
+/// marker. One of the five stages that always run per unit, in a graph that
+/// lost its marker, does not.
+#[must_use]
+pub fn has_unit_marker(stage: &Stage) -> bool {
+    stage.for_each.as_deref() == Some(focus_graph::query::PER_UNIT_FOR_EACH)
 }
 
 fn text<'a>(stage: &'a Stage, key: &str) -> Option<&'a str> {
@@ -113,5 +131,12 @@ mod tests {
         assert_eq!(reviewer(bare), None);
         assert!(!workspace_requires(bare));
         assert!(!is_per_unit(bare));
+        assert!(has_unit_marker(stage) && !has_unit_marker(bare));
+        // One of the five without its marker is still per unit, and has
+        // no marker.
+        let unmarked = &focus_graph::runtime::load_from_value(
+            &json!([{"slug": "nfr-design", "phase": "construction"}]),
+        )[0];
+        assert!(is_per_unit(unmarked) && !has_unit_marker(unmarked));
     }
 }

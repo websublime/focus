@@ -157,7 +157,7 @@ fn refuse_team_gate(state: &str, stage: &Stage, unit: Option<&str>) -> Result<()
         }
         return Ok(());
     }
-    if stage.phase != "construction" || !stage::is_per_unit(stage) {
+    if stage.phase != "construction" || !stage::has_unit_marker(stage) {
         if unit.is_some() {
             refuse!(
                 "Stage \"{}\" is not a per-unit Construction stage; team unit gates do not apply.",
