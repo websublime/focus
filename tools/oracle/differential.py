@@ -827,6 +827,18 @@ def raw(*edits):
     return lambda name: pair(name, *edits)
 
 
+PER_UNIT_STAGES = ("nfr-requirements", "nfr-design", "functional-design", "infrastructure-design", "code-generation")
+
+
+def no_marker(tree, slugs):
+    """The compiled graph without the per-unit marker on `slugs`."""
+    graph = tree.json(".claude/tools/data/stage-graph.json")
+    for stage in graph:
+        if stage["slug"] in slugs:
+            stage.pop("for_each", None)
+    tree.write_json(".claude/tools/data/stage-graph.json", graph)
+
+
 def add_cycle(tree):
     graph = tree.json(".claude/tools/data/stage-graph.json")
     by_slug = {s["slug"]: s for s in graph}
@@ -1801,7 +1813,8 @@ def verify_validation_bases(tree, engine, rel, text):
             if stores is None:
                 return entry
             paths = [(f"aidlc/spaces/default/codekb/{repo}/{filename}", None, None) for repo in stores]
-        elif stage.get("for_each") == "unit-of-work" and not stage_level():
+        # `isPerUnitStage`: by the marker, or by being one of the five stages that always run per unit.
+        elif (stage.get("for_each") == "unit-of-work" or stage["slug"] in PER_UNIT_STAGES) and not stage_level():
             resolved = units(stage["slug"])
             if resolved is None:
                 return entry
@@ -3068,6 +3081,13 @@ def status_checks():
     check_("status/current_step_same_stage", created(construction + "- **Active Unit**: api\n- **Unit Stage**: functional-design\n"), status)
     check_("status/current_step_bad_unit", created(construction + "- **Active Unit**: bad name\n- **Unit Stage**: code-generation\n"), status)
     check_("status/current_step_not_per_unit", created(CREATED_STATE + "- **Active Unit**: api\n- **Unit Stage**: code-generation\n"), status)
+    # A stage is per unit by its marker, or by being one of the five that always are: a compiled graph that lost
+    # the marker on one of them still names the step. A stage that is none of the five is per unit by its marker alone.
+    for label, slugs, unit_stage in (("unit_stage", ["code-generation"], "code-generation"), ("current_stage", ["functional-design"], "code-generation"),
+                                     ("every", ["functional-design", "nfr-requirements", "nfr-design", "infrastructure-design", "code-generation"], "nfr-design"),
+                                     ("not_one_of_the_five", ["code-generation"], "build-and-test")):
+        check_(f"status/current_step_no_marker_{label}", created(construction + f"- **Active Unit**: api\n- **Unit Stage**: {unit_stage}\n"), status,
+               edits=[lambda tree, slugs=slugs: no_marker(tree, slugs)])
     check_("status/directive_marker", created(**{f"{GATE_DIR}/active-directive.json": json.dumps({"stage": "market-research", "unit": "api"})}), status)
     check_("status/directive_marker_by_flags", created(**{f"{GATE_DIR}/active-directive.json": json.dumps({"stage": "market-research"})}), [["status", "--space", "default"]])
     check_("status/team", created(CREATED_STATE + "- **Unit Ownership**: team\n"), status)
@@ -3190,6 +3210,23 @@ def transition_checks():
     check_("advance/construction", created(at_stage(CREATED_STATE, "functional-design", done=ideation + ["approval-handoff"], phase="CONSTRUCTION"),
                                            **{f"{CREATED_DIR}/construction/api/functional-design/entities.md": "# E\n"}),
            [["advance", "functional-design"]], direct)
+    # The artifact of one of the five stages that always run per unit, consumed by another stage: it is resolved
+    # under each unit, whether the compiled graph kept the stage's marker or lost it.
+    def consumes_entities(tree, marker):
+        graph = tree.json(".claude/tools/data/stage-graph.json")
+        for stage in graph:
+            if stage["slug"] == "intent-capture":
+                stage["consumes"] = [{"artifact": "entities", "required": True}]
+            if stage["slug"] == "functional-design" and not marker:
+                stage.pop("for_each", None)
+        tree.write_json(".claude/tools/data/stage-graph.json", graph)
+    edge_block = "# Dependencies\n\n## Machine-Readable Edge Block\n\n```yaml\nunits:\n  - name: api\n    depends_on: []\n  - name: web\n    depends_on: [api]\n```\n"
+    for label, files in (("under_units", {f"{CREATED_DIR}/construction/api/functional-design/entities.md": "# E\n", f"{CREATED_DIR}/construction/web/functional-design/entities.md": "# W\n",
+                                          UNITS.replace(RECORD_DIR, CREATED_DIR): edge_block}),
+                         ("at_the_stage", {f"{CREATED_DIR}/construction/functional-design/entities.md": "# E\n"}), ("nowhere", {})):
+        for marker in (True, False):
+            check_(f"advance/consumes_per_unit_{label}" + ("" if marker else "_no_marker"), created(**ic, **files), [["advance", "intent-capture"]], direct,
+                   edits=[lambda tree, marker=marker: consumes_entities(tree, marker)])
     usage = {"aidlc/.aidlc-sessions/usage-ledger.json": json.dumps({"schemaVersion": 3, "cursors": {}, "workflows": {"w": {
         "totals": {"tokens": {"input": 10, "output": 5, "cacheRead": 0, "cacheCreate5m": 0, "cacheCreate1h": 0}}, "byStage": {"intent-capture": {}}}}})}
     check_("advance/usage_ledger", created(**ic, **usage), [["advance", "intent-capture"]], direct)
@@ -3682,6 +3719,13 @@ def hook_checks():
     check_("session-start/plan_approval_bypass_cleared", {**begun, "aidlc/.aidlc-sessions/plan-approval/plan-approval-bypass-s1": "2026-01-05T10:00:00Z\n"}, [start(source="startup")])
     check_("session-start/unit_line", created(CREATED_STATE.replace("- **Active Agent**:", "- **Active Unit**: auth\n- **Unit Stage**: code-generation\n- **Unit State**: paused\n- **Unit Pause Reason**: tests red\n- **Unit Next Action**: fix them\n- **Active Agent**:"), **binding(), **configured), [start(source="startup")])
     check_("session-start/unit_line_in_unit_stages", created(at_stage(CREATED_STATE, "functional-design").replace("- **Active Agent**:", "- **Active Unit**: auth\n- **Unit Stage**: code-generation\n- **Active Agent**:"), **binding(), **configured), [start(source="startup")])
+    # One of the five stages that always run per unit, in a compiled graph that lost its marker, is still one; a
+    # stage that is none of the five is per unit by its marker alone.
+    for label, slugs, unit_stage in (("unit_stage", ["code-generation"], "code-generation"), ("current_stage", ["functional-design"], "code-generation"),
+                                     ("every", ["functional-design", "nfr-requirements", "nfr-design", "infrastructure-design", "code-generation"], "nfr-design"),
+                                     ("not_one_of_the_five", ["code-generation"], "build-and-test")):
+        check_(f"session-start/unit_line_no_marker_{label}", created(at_stage(CREATED_STATE, "functional-design").replace("- **Active Agent**:", f"- **Active Unit**: auth\n- **Unit Stage**: {unit_stage}\n- **Active Agent**:"), **binding(), **configured),
+               [start(source="startup")], edits=[lambda tree, slugs=slugs: no_marker(tree, slugs)])
     check_("session-start/unit_line_team", created(at_stage(CREATED_STATE, "functional-design").replace("- **Active Agent**:", "- **Active Unit**: auth\n- **Unit Stage**: code-generation\n- **Unit Ownership**: team\n- **Active Agent**:"), **binding(), **configured), [start(source="startup")])
     check_("session-start/unit_line_bad_name", created(CREATED_STATE.replace("- **Active Agent**:", "- **Active Unit**: ../x\n- **Unit Stage**: code-generation\n- **Active Agent**:"), **binding(), **configured), [start(source="startup")])
     check_("session-start/sparse_state", created("# AI-DLC State Tracking\n", **binding(), **configured), [start(source="startup")])

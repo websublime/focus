@@ -691,7 +691,7 @@ pub fn produces_artifact_unit(
     if !produces_file(&stage.slug, produces, file, recorded_repos) {
         return None;
     }
-    if !stage::is_per_unit(stage) {
+    if !stage::has_unit_marker(stage) {
         return Some(None);
     }
     let norm = file.replace('\\', "/");
