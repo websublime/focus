@@ -4788,7 +4788,8 @@ def log_checks():
     mode = told(Q(1, "How would you like to answer them?", "**Options**: Guide me, I'll edit the file, Chat"), H(2))
     for label, text in (("label", "chat"), ("number", "3"), ("numbered_label", "2. I'll edit the file"), ("words_after", "Guide me, please"), ("quoted", "'Chat'"),
                         ("number_and_another", "1. Chat"), ("other", "whatever works"), ("dismissed", "Cancelled"), ("decorated", "Chat (Recommended)"),
-                        ("quoted_words_after", '"Chat, please"'), ("capitals_words_after", "CHAT, please"), ("longer_word", "Chatty"), ("lettered", "C) chat: yes")):
+                        ("quoted_words_after", '"Chat, please"'), ("capitals_words_after", "CHAT, please"), ("longer_word", "Chatty"), ("lettered", "C) chat: yes"),
+                        ("quoted_then_decorated", "'Chat' (Recommended)")):
         check_(f"answer/mode_{label}", mode, [replied(text)])
     check_("answer/mode_by_options", told(Q(1, "Pick one", "**Options**: chat, guide me, i’ll edit the file"), H(2)), [replied("first one")])
     check_("answer/mode_question_of_another_stage", told(Q(1, "Which database?"), block("DECISION_RECORDED", T(2), "**Stage**: market-research",
@@ -4837,6 +4838,9 @@ def log_checks():
                                                               **sent("0000aaaa", at=T(1)), **sent("0000bbbb", at=T(4))), [reply])
     check_("answer/late_question_out_of_order", told(H(9, "**Message Id**: 0000aaaa"), A(10, "x"), Q(5, "Which database?"), Q(11, "Which cache?"), **sent("0000aaaa", at=T(1))),
            [reply])
+    check_("answer/late_question_before_in_the_file_only", told(H(9, "**Message Id**: 0000aaaa"), A(10, "x"), Q(5, "Which database?"), **sent("0000aaaa", at=T(1))), [reply])
+    check_("answer/late_question_before_in_the_file_spent_turn", told(H(9, "**Message Id**: 0000aaaa"), Q(5, "Which database?"), block("GATE_APPROVED", T(10), "**Stage**: workspace-detection"),
+                                                                     **sent("0000aaaa", at=T(11))), [reply])
     check_("answer/late_question_named_by_two_turns", told(H(1, "**Message Id**: 0000aaaa"), A(2, "x"), Q(5, "Which database?"), H(6, "**Message Id**: 0000aaaa"),
                                                            block("GATE_APPROVED", T(7), "**Stage**: workspace-detection"), **sent("0000aaaa", at=T(8))), [reply])
     check_("answer/late_question_this_chat", late(**sent("0000aaaa", at=T(1)), **sent("0000bbbb", at=T(1), session="s2"), **mine), [reply])
