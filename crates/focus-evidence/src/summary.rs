@@ -20,15 +20,25 @@
 //! heading after the summary is refused, since nothing says whether the
 //! person confirmed what stands under it.
 //!
-//! # Columns
+//! # What is kept as upstream has it, and what is not
 //!
-//! Upstream counts a line in UTF-16 units and `focus-markdown` in bytes.
-//! Up to where a line's content starts the two agree, because only
-//! container markers and indentation stand there. A raw HTML tag is looked
-//! for in the line as the file has it, while the columns are those of the
-//! line without a byte order mark: on the first line of a file that starts
-//! with one, upstream's columns fall one unit early. That reading is kept,
-//! unit for unit (`html_heading`), instead of a corrected one.
+//! Upstream looks for a raw HTML tag in the line as the file has it, with
+//! the columns of the line without a byte order mark, so on the first line
+//! of a file that starts with one its columns fall one unit early. That
+//! line is read here without the mark. No answer depends on it: the only
+//! heading that counts before the summary section is a `#` one, and the
+//! first line of a file is before it or is it.
+//!
+//! # Tests that another test covers
+//!
+//! Four questions change no answer when taken out, and are kept where
+//! upstream has them. A comment's end is looked for after its four opening
+//! characters, and the two comments that end inside those four are told
+//! apart first. A raw HTML block is read from its first line, whichever
+//! line asks, and its lines are asked in order. An `[Answer]:` line's
+//! value starts after spaces and tabs, and is trimmed of both anyway. A
+//! choice is only collected inside the summary section, so having one says
+//! the section was seen.
 
 use std::collections::{HashMap, HashSet};
 
@@ -65,7 +75,9 @@ struct Heading {
     title: String,
     level: usize,
     style: Style,
-    /// Inside a block quote or a list item, or after other words on its line.
+    /// Inside a block quote or a list item. Said of a `#` heading only:
+    /// upstream works it out for the other two styles as well, and reads it
+    /// for none of them.
     nested: bool,
 }
 
@@ -113,50 +125,19 @@ fn setext_heading(lines: &[String], blocks: &Blocks, at: usize) -> Option<Headin
             2
         },
         style: Style::Setext,
-        nested: !block.containers.is_empty(),
+        nested: false,
     })
 }
 
-/// A document's lines as upstream indexes them, in UTF-16 units, with the
-/// columns of `focus-markdown` (bytes of the line without a byte order
-/// mark) taken to units.
-struct Units<'a> {
-    /// The lines as the file has them: the first keeps a byte order mark.
-    raw: Vec<Vec<u16>>,
-    /// The lines the columns were counted on.
-    counted: &'a [String],
+/// The lines of a document's raw HTML blocks with their comments blanked
+/// (`HTML_FLOW_WITHOUT_COMMENTS`), each block read once.
+struct Flows<'a> {
+    lines: &'a [String],
     blocks: &'a Blocks,
-    /// `HTML_FLOW_WITHOUT_COMMENTS`.
-    flows: HashMap<usize, Vec<u16>>,
+    blanked: HashMap<usize, String>,
 }
 
-fn units(text: &str) -> Vec<u16> {
-    text.encode_utf16().collect()
-}
-
-fn find_units(text: &[u16], needle: &[u16], from: usize) -> Option<usize> {
-    (from..=text.len().checked_sub(needle.len())?).find(|at| text[*at..].starts_with(needle))
-}
-
-/// `text.slice(start, end)`, as text: half of a pair reads as U+FFFD, one
-/// unit that is neither white space nor markup, like the half itself.
-fn slice_units(text: &[u16], start: usize, end: usize) -> String {
-    let end = end.min(text.len());
-    let start = start.min(end);
-    String::from_utf16_lossy(&text[start..end])
-}
-
-impl Units<'_> {
-    /// A byte column of line `at` as the unit column upstream has for it.
-    fn column(&self, at: usize, byte: usize) -> usize {
-        let line = &self.counted[at];
-        let mut byte = byte.min(line.len());
-        while !line.is_char_boundary(byte) {
-            byte -= 1;
-        }
-        line[..byte].encode_utf16().count()
-    }
-
+impl Flows<'_> {
     fn in_flow(&self, at: usize, id: Option<usize>) -> bool {
         let line = &self.blocks.lines[at];
         line.kind == LineKind::HtmlFlow && line.block == id
@@ -165,8 +146,8 @@ impl Units<'_> {
     /// `htmlFlowWithoutComments`: a line of a raw HTML block with the
     /// comments of the block blanked, columns kept; a comment may open on
     /// an earlier line of the block.
-    fn flow_without_comments(&mut self, index: usize) -> Vec<u16> {
-        if let Some(cached) = self.flows.get(&index) {
+    fn without_comments(&mut self, index: usize) -> String {
+        if let Some(cached) = self.blanked.get(&index) {
             return cached.clone();
         }
         let id = self.blocks.lines[index].block;
@@ -174,48 +155,48 @@ impl Units<'_> {
         while first > 0 && self.in_flow(first - 1, id) {
             first -= 1;
         }
-        let (open, close) = (units("<!--"), units("-->"));
         let mut in_comment = false;
         let mut line = first;
-        while line < self.raw.len() && self.in_flow(line, id) {
-            let mut text = self.raw[line].clone();
-            let mut cursor = self.column(line, self.blocks.lines[line].content_start);
+        while line < self.lines.len() && self.in_flow(line, id) {
+            let mut text = self.lines[line].clone();
+            let mut cursor = self.blocks.lines[line].content_start;
             while cursor < text.len() {
                 let start = if in_comment {
                     Some(cursor)
                 } else {
-                    find_units(&text, &open, cursor)
+                    text[cursor..].find("<!--").map(|at| cursor + at)
                 };
                 let Some(start) = start else { break };
                 // `<!-->` and `<!--->` are complete comments.
                 let rest = &text[start..];
                 let empty = if in_comment {
                     None
-                } else if rest.starts_with(&units("<!-->")) {
+                } else if rest.starts_with("<!-->") {
                     Some(5)
-                } else if rest.starts_with(&units("<!--->")) {
+                } else if rest.starts_with("<!--->") {
                     Some(6)
                 } else {
                     None
                 };
                 let closing = match empty {
                     Some(length) => Some(start + length - 3),
-                    None => find_units(&text, &close, if in_comment { start } else { start + 4 }),
+                    None => {
+                        let from = if in_comment { start } else { start + 4 };
+                        text[from..].find("-->").map(|at| from + at)
+                    }
                 };
                 let end = closing.map_or(text.len(), |at| at + 3);
-                for unit in &mut text[start..end] {
-                    *unit = u16::from(b' ');
-                }
+                text.replace_range(start..end, &" ".repeat(end - start));
                 in_comment = closing.is_none();
                 cursor = end;
             }
-            self.flows.insert(line, text);
+            self.blanked.insert(line, text);
             line += 1;
         }
-        self.flows
+        self.blanked
             .get(&index)
             .cloned()
-            .unwrap_or_else(|| self.raw[index].clone())
+            .unwrap_or_else(|| self.lines[index].clone())
     }
 
     /// `visibleHtmlHeading`: an `<h1>` to `<h6>` tag the renderer keeps as
@@ -223,53 +204,43 @@ impl Units<'_> {
     fn html_heading(&mut self, index: usize) -> Option<Heading> {
         let block = &self.blocks.lines[index];
         let flow = block.kind == LineKind::HtmlFlow && matches!(block.html_kind, Some(6 | 7));
-        let content_start = self.column(index, block.content_start);
-        let contained = !block.containers.is_empty();
-        let spans: Vec<(usize, Option<usize>)> = if flow {
-            vec![(content_start, None)]
+        let text = if flow {
+            self.without_comments(index)
+        } else {
+            self.lines[index].clone()
+        };
+        let spans: Vec<(usize, usize)> = if flow {
+            vec![(block.content_start.min(text.len()), text.len())]
         } else {
             block
                 .invisible
                 .iter()
                 .filter(|span| span.kind == SpanKind::HtmlText && span.token_start_line == index)
-                .map(|span| {
-                    (
-                        self.column(index, span.start),
-                        Some(self.column(index, span.end)),
-                    )
-                })
+                .map(|span| (span.start, span.end))
                 .collect()
-        };
-        let text = if flow {
-            self.flow_without_comments(index)
-        } else {
-            self.raw[index].clone()
         };
         for (start, end) in spans {
             // Inline positions come from the parser, so escapes, code and
             // link destinations cannot make an HTML heading. Tags of a raw
             // block still need their quoted attributes skipped.
-            let within = slice_units(&text, start, end.unwrap_or(text.len()));
+            let within = text.get(start..end).unwrap_or("");
             let tags = re::find_all(
                 r#"<(?:[^<>"']|"[^"]*"|'[^']*')*>|<h[1-6]\b[^>]*$"#,
                 "i",
-                &within,
+                within,
             );
             for tag in tags {
                 let found = &within[tag.range()];
-                let Some(level) = re::find(r"^<h([1-6])\b", "i", found)
-                    .and_then(|h| re::group(found, &h, 1).and_then(|digit| digit.parse().ok()))
-                else {
-                    continue;
-                };
-                let before = start + within[..tag.range().start].encode_utf16().count();
-                return Some(Heading {
-                    title: format!("<h{level}>"),
-                    level,
-                    style: Style::Html,
-                    nested: contained
-                        || !trim(&slice_units(&text, content_start, before)).is_empty(),
-                });
+                let level = re::find(r"^<h([1-6])\b", "i", found)
+                    .and_then(|h| re::group(found, &h, 1).and_then(|digit| digit.parse().ok()));
+                if let Some(level) = level {
+                    return Some(Heading {
+                        title: format!("<h{level}>"),
+                        level,
+                        style: Style::Html,
+                        nested: false,
+                    });
+                }
             }
         }
         None
@@ -328,11 +299,10 @@ pub fn content_hash(content: &str) -> std::result::Result<String, String> {
     let blocks = analyse(&normalized).map_err(|err| err.to_string())?;
     let visible = visible_lines_of(&normalized, &blocks, BOUNDARIES);
     let counted = source_lines(&normalized);
-    let mut read = Units {
-        raw: lines.iter().map(|line| units(line)).collect(),
-        counted: &counted,
+    let mut flows = Flows {
+        lines: &counted,
         blocks: &blocks,
-        flows: HashMap::new(),
+        blanked: HashMap::new(),
     };
     let mut saw_summary = false;
     let mut assumption_seen = false;
@@ -349,7 +319,7 @@ pub fn content_hash(content: &str) -> std::result::Result<String, String> {
         let block = &blocks.lines[line];
         let heading = atx_heading(from(&visible[line], block.content_start), block)
             .or_else(|| setext_heading(&visible, &blocks, line))
-            .or_else(|| read.html_heading(line));
+            .or_else(|| flows.html_heading(line));
         // The exclusion fails closed: a line spelled as a top-level Q<n> or
         // Requested Changes Feedback heading ends it even where the
         // renderer read no heading, so a misread line can only widen what

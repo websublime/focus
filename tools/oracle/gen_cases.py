@@ -5564,6 +5564,28 @@ for document in [
     f"## {SM}\r\n\r\n[Answer]: Looks correct\r\n", f"## {SM}\r\r[Answer]: Looks correct\r", f"## {SM}\n\n[Answer]: Looks correct more\n",
     f"## {SM} \n\n[Answer]: Looks correct\n", f"## {SM}\n\n[Answer]:  Looks correct　\n", f"## {SM}\n\n[Answer]: Looks correct\n",
     f"## {SM}\n\n\x00[Answer]: Looks correct\n", f"## {SM}\n\n[Answer]: \x00 x\n", f"## \x00{SM}\n", f"## {SM}\n\n## \x00{SM_AC}\n",
+    # A heading of each depth, and one with no words.
+    f"## {SM}\n\n###### Deep\n", f"## {SM}\n\n####### Deeper\n", f"## {SM}\n\n###\n", f"## {SM}\n\n#\n\ntext\n", f"## {SM}\n\n## \n",
+    f"## {SM}\n\n##\n", f"##\n\n## {SM}\n\n##\t\n",
+    # What looks like a heading inside a raw HTML block is not one.
+    f"## {SM}\n\n<div>\n  ## Inside\n</div>\n", f"## {SM}\n\n<div>\n ## Q7\n</div>\n", f"## {SM}\n\n<div>\n   # Inside\n</div>\n",
+    # An underline with white space after it; a title and an underline inside a container.
+    f"## {SM}\n\nDetail\n---  \n", f"## {SM}\n\nDetail\n===\t\n", f"## {SM}\n\n> Detail\n> ===\n", f"## {SM}\n\n- Detail\n  ---\n",
+    f"## {SM}\n\n> Detail\n> ---\n", f"## {SM}\n\n1. Detail\n   ===\n",
+    # A raw HTML block opened by a tag that is not a block's, and a heading in it.
+    f"## {SM}\n\n<a href=\"x\">\n<h3>T</h3>\n</a>\n", f"## {SM}\n\n<span>\n<H4>T</H4>\n</span>\n",
+    # A heading's tag as code, in a comment, across two lines, inside another tag's attribute, and a longer name.
+    f"## {SM}\n\ntext `<h2>` more\n", f"## {SM}\n\ntext <!-- <h2> --> more\n", f"## {SM}\n\ntext <b title=\"\n<h3>\"> more\n",
+    f"## {SM}\n\ntext <h2\nclass=\"x\"> more\n", f"## {SM}\n\ntext <h1x>y</h1x> more\n", f"## {SM}\n\n<div>\n<h1x>y</h1x>\n</div>\n",
+    f"## {SM}\n\n<div>\n<h2<!-- c -->>t</h2>\n</div>\n", f"## {SM}\n\n<div>\n<!-- c --><h2 a='<!--'>t</h2>\n</div>\n",
+    # A question past the ninth; a rule of two, an indented one, one indented as code.
+    f"## {SM}\n\n## Q12\n\n## Q120. more\n", f"## Q10\n\n## Q1\n\n## {SM}\n\n## Q10\n", f"## {SM}\n\ntext\n\n--\n\n## {SM_AC}\n",
+    f"## {SM}\n\ntext\n\n  ---\n\n## {SM_AC}\n", f"## {SM}\n\ntext\n\n   ***  \n\n## {SM_AC}\n", f"## {SM}\n\ntext\n\n    ---\n\n## {SM_AC}\n",
+    f"## {SM}\n\ntext\n\n___\n## {SM_AC}\n\nmore\n", f"## {SM}\n\n---\n\n\n\n## {SM_AC}\n\nmore\n", f"---\n\n## {SM_AC}\n",
+    # A line spelled as a boundary where the renderer reads none: indented, and with a closing run.
+    f"## {SM}\n\n## {SM_AC}\n\n```\n  ## Q3\n```\n\nmore\n", f"## {SM}\n\n## {SM_AC}\n\n```\n## Q3 ##\n```\n\nmore\n",
+    f"## {SM}\n\n## {SM_AC}\n\n```\n## {SM_RC} #  \n```\n\nmore\n", f"## {SM}\n\n## {SM_AC}\n\n```\n##{SM_RC}\n```\n\nmore\n",
+    f"## {SM}\n\n## {SM_AC}\n\n<!--\n   ## Q4: hidden\n-->\n\nmore\n", f"## {SM}\n\n## {SM_AC}\n\n```\n    ## Q3\n```\n\nmore\n",
 ]:
     summary(document)
 for _ in range(scale * 120):
