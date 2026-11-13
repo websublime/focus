@@ -189,19 +189,57 @@ fn the_answers_that_are_not_ported_are_refused_by_name() {
             fs::read_to_string(root.join(RECORD).join("audit/laptop-abc123.md")).unwrap()
         ),
     );
-    assert_eq!(
-        refusal(
-            &root,
-            &[
-                "answer",
-                "--stage",
-                "intent-capture",
-                "--details",
-                "Looks correct"
-            ]
+    let owed = "\"intent-capture\" owes a consolidated summary confirmation, and the question open for it is that summary: its answer is recorded with `--checkpoint summary-confirmation --questions-file <path>`, and Focus does not record summary confirmations yet.";
+    let looks = [
+        "answer",
+        "--stage",
+        "intent-capture",
+        "--details",
+        "Looks correct",
+    ];
+    assert_eq!(refusal(&root, &looks), owed);
+    // The same when the summary was recorded with its checkpoint.
+    let row = |event: &str, minute: u32, fields: &str| {
+        format!(
+            "\n## Row\n**Timestamp**: 2026-01-05T10:{minute:02}:00Z\n**Event**: {event}\n**Stage**: intent-capture\n{fields}\n---\n"
+        )
+    };
+    let shard = format!("{RECORD}/audit/laptop-abc123.md");
+    write(
+        &root,
+        &shard,
+        &format!(
+            "{SHARD}{}",
+            row(
+                "DECISION_RECORDED",
+                1,
+                "**Decision**: Right?\n**Checkpoint**: Consolidated Summary Confirmation\n"
+            )
         ),
-        "\"intent-capture\" owes a consolidated summary confirmation, and the question open for it is that summary: its answer is recorded with `--checkpoint summary-confirmation --questions-file <path>`, and Focus does not record summary confirmations yet."
     );
+    assert_eq!(refusal(&root, &looks), owed);
+    // Three questions, each with another after it: position orders the two
+    // of one shard, the instant orders the shards. The questions of the
+    // latest instant stand for all, and that one is the summary.
+    let summary = "**Decision**: Right?\n**Options**: Looks correct,Request changes\n";
+    write(
+        &root,
+        &shard,
+        &format!(
+            "{SHARD}{}{}",
+            row("DECISION_RECORDED", 7, summary),
+            row("DECISION_RECORDED", 5, "**Decision**: Which database?\n")
+        ),
+    );
+    write(
+        &root,
+        &format!("{RECORD}/audit/desktop-def456.md"),
+        &format!(
+            "{SHARD}{}",
+            row("DECISION_RECORDED", 6, "**Decision**: Which cache?\n")
+        ),
+    );
+    assert_eq!(refusal(&root, &looks), owed);
     let _ = fs::remove_dir_all(root);
 }
 

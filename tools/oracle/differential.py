@@ -4730,7 +4730,8 @@ def log_checks():
     H = lambda minute, *fields: block("HUMAN_TURN", T(minute), "**Session**: s1", *fields)
     asked = told(Q(1, "Which database?"), H(2))
     check_("answer/usage", created(), [["answer"], ["answer", "--stage"], ["answer", "--stage", "intent-capture"], ["answer", "--details", "x"],
-                                       ["answer", "--stage", "intent-capture", "--details", ""], ["answer", "--stage", "intent-capture", "--details"]])
+                                       ["answer", "--stage", "intent-capture", "--details", ""], ["answer", "--stage", "intent-capture", "--details"],
+                                       ["answer", "--stage", "", "--details", "x"]])
     check_("answer/split_values", created(), [reply + ["extra"], ["answer", "--stage", "intent-capture", "--details", "Chose", "Option", "A"],
                                               ["answer", "--stage", "intent-capture", "--details", "'Chose", "Option", "A'"], reply + ["--decision", "x"], reply + ["--rationale", "x"],
                                               ["answer", "--stage", "intent-capture", "--details", "Run todo", "--help", "first"], reply + ["--units", "a"], reply + ["--park"],
@@ -4752,6 +4753,7 @@ def log_checks():
     check_("answer/reply_spent_by_an_answer", told(Q(1, "Which database?"), H(2), A(3, "Postgres"), Q(4, "Which cache?")), [replied("Redis")])
     check_("answer/reply_spent_by_a_gate", told(H(1), block("GATE_APPROVED", T(2), "**Stage**: workspace-detection"), Q(3, "Which database?")), [reply])
     check_("answer/reply_before_the_question", told(H(1), Q(2, "Which database?")), [reply])
+    check_("answer/command_turn_after_an_answered_reply", told(Q(1, "Which database?"), Q(2, "Which cache?"), H(3), A(4, "Postgres"), H(5, "**Reply**: command")), [replied("Redis")])
     check_("answer/command_turn", told(Q(1, "Which database?"), H(2, "**Reply**: command")), [reply])
     check_("answer/question_turn", told(Q(1, "Which database?"), H(2, "**Reply**: question")), [reply])
     check_("answer/guard_off", told(Q(1, "Which database?")), [reply], {"SKIP_HUMAN_PRESENCE_GUARD": "1"})
@@ -4777,14 +4779,21 @@ def log_checks():
     check_("answer/at_gate_question_answered", gate_open(Q(2, "Which database?"), A(3, "Postgres"), H(4)), [reply])
     check_("answer/at_gate_question_before_it", created(CREATED_STATE.replace("- [-] intent-capture — EXECUTE", "- [?] intent-capture — EXECUTE"),
                                                         CREATED_AUDIT + Q(1, "Which database?") + block("STAGE_AWAITING_APPROVAL", T(2), "**Stage**: intent-capture") + H(3)), [reply])
+    check_("answer/at_gate_opened_twice", gate_open(Q(2, "Which database?"), block("STAGE_AWAITING_APPROVAL", T(3), "**Stage**: intent-capture"), H(4)), [reply])
+    check_("answer/at_gate_another_gate_after", gate_open(Q(2, "Which database?"), block("STAGE_AWAITING_APPROVAL", T(3), "**Stage**: market-research"), H(4)), [reply])
+    check_("answer/at_gate_question_of_another_stage", gate_open(block("DECISION_RECORDED", T(2), "**Stage**: market-research", "**Decision**: Who buys?"), H(3)), [reply])
     check_("answer/at_another_stages_gate", created(CREATED_STATE.replace("- [ ] market-research — EXECUTE", "- [?] market-research — EXECUTE"),
                                                     CREATED_AUDIT + block("STAGE_AWAITING_APPROVAL", T(1), "**Stage**: market-research") + Q(2, "Which database?") + H(3)), [reply])
     # The mode question: the agent passes the way the person chose, and its option is what the row keeps.
     mode = told(Q(1, "How would you like to answer them?", "**Options**: Guide me, I'll edit the file, Chat"), H(2))
     for label, text in (("label", "chat"), ("number", "3"), ("numbered_label", "2. I'll edit the file"), ("words_after", "Guide me, please"), ("quoted", "'Chat'"),
-                        ("number_and_another", "1. Chat"), ("other", "whatever works"), ("dismissed", "Cancelled")):
+                        ("number_and_another", "1. Chat"), ("other", "whatever works"), ("dismissed", "Cancelled"), ("decorated", "Chat (Recommended)"),
+                        ("quoted_words_after", '"Chat, please"'), ("capitals_words_after", "CHAT, please"), ("longer_word", "Chatty"), ("lettered", "C) chat: yes")):
         check_(f"answer/mode_{label}", mode, [replied(text)])
     check_("answer/mode_by_options", told(Q(1, "Pick one", "**Options**: chat, guide me, i’ll edit the file"), H(2)), [replied("first one")])
+    check_("answer/mode_question_of_another_stage", told(Q(1, "Which database?"), block("DECISION_RECORDED", T(2), "**Stage**: market-research",
+                                                              "**Decision**: How would you like to answer them?"), H(3)), [replied("whatever works")])
+    check_("answer/mode_picker_note", told(Q(1, "How would you like to answer them?", "**Options**: Guide me, I'll edit the file, Chat"), H(2, '**Picked**: ["Guide me"]')), [replied("3")])
     check_("answer/mode_question_closed", told(Q(1, "How would you like to answer them?"), A(2, "Chat"), Q(3, "Which database?"), H(4)), [replied("whatever works")])
     # The person's own words beside the choice: kept by their chat right after the turn's row.
     def kept(audit, *texts, at=20, shard=CREATED_SHARD, session="s1"):
@@ -4805,6 +4814,7 @@ def log_checks():
                                 ("two", '["Postgres", "Redis"]', "SQLite"), ("not_a_list", '"Postgres"', "SQLite"), ("empty", "[]", "SQLite"), ("not_text", "[1]", "SQLite"),
                                 ("not_json", "[Postgres", "SQLite"), ("empty_pick", '["", "Redis"]', "SQLite")):
         check_(f"answer/picker_{label}", told(Q(1, "Which database?"), H(2, f"**Picked**: {picked}")), [replied(text)])
+    check_("answer/picker_decorated_pick", told(Q(1, "Which database?"), H(2, '**Picked**: ["Postgres (Recommended)"]')), [replied("Postgres!")])
     check_("answer/picker_of_the_last_turn", told(Q(1, "Which database?"), H(2, '**Picked**: ["Postgres"]'), H(3)), [replied("SQLite")])
     # The message that answered: named, or inherited from the question it was logged with.
     check_("answer/message", told(Q(1, "Which database?"), **sent("0000aaaa")), [reply + ["--message", "0000aaaa"], reply + ["--message", "0000bbbb"], reply + ["--message", ""]])
@@ -4813,10 +4823,24 @@ def log_checks():
     check_("answer/message_inherited", told(Q(1, "Which database?", "**Message Id**: 0000aaaa"), **sent("0000aaaa")), [reply, reply])
     check_("answer/message_inherited_unproved", told(Q(1, "Which database?", "**Message Id**: 0000bbbb"), **sent("0000aaaa")), [reply])
     check_("answer/message_inherited_unproved_replied", told(Q(1, "Which database?", "**Message Id**: 0000bbbb"), H(2), **sent("0000aaaa")), [reply])
+    check_("answer/message_of_another_stages_question", told(Q(1, "Which database?"), block("DECISION_RECORDED", T(2), "**Stage**: market-research", "**Decision**: Who buys?",
+                                                                                           "**Message Id**: 0000aaaa"), **sent("0000aaaa")), [reply])
     check_("answer/message_inherited_from_the_latest", told(Q(1, "Which database?", "**Message Id**: 0000aaaa"), Q(2, "Which cache?"), **sent("0000aaaa")), [reply])
     # A question logged after the reply: the refusal names the messages that arrived before it.
     late = lambda *rows, **more: told(H(1, "**Message Id**: 0000aaaa"), A(2, "an earlier answer"), *rows, Q(5, "Which database?"), **more)
     check_("answer/late_question", late(**sent("0000aaaa", at=T(1), words="postgres   please,\nit is what we know and it has served us well for years")), [reply])
+    check_("answer/late_question_text_and_words", late(**sent("0000aaaa", at=T(1), words="x" * 40, text="/aidlc " + "x" * 40)), [reply])
+    check_("answer/late_question_before_the_latest", told(H(1, "**Message Id**: 0000aaaa"), A(2, "x"), Q(3, "First?"), H(4, "**Message Id**: 0000bbbb"), A(5, "y"), Q(7, "Second?"),
+                                                          **sent("0000aaaa", at=T(1)), **sent("0000bbbb", at=T(4))), [reply])
+    check_("answer/late_question_turn_in_another_shard", told(H(1, "**Message Id**: 0000aaaa"), A(2, "x"), Q(3, "Which database?"),
+                                                              **other(H(4, "**Message Id**: 0000bbbb"), A(5, "y"), Q(6, "Which cache?")),
+                                                              **sent("0000aaaa", at=T(1)), **sent("0000bbbb", at=T(4))), [reply])
+    check_("answer/late_question_out_of_order", told(H(9, "**Message Id**: 0000aaaa"), A(10, "x"), Q(5, "Which database?"), Q(11, "Which cache?"), **sent("0000aaaa", at=T(1))),
+           [reply])
+    check_("answer/late_question_named_by_two_turns", told(H(1, "**Message Id**: 0000aaaa"), A(2, "x"), Q(5, "Which database?"), H(6, "**Message Id**: 0000aaaa"),
+                                                           block("GATE_APPROVED", T(7), "**Stage**: workspace-detection"), **sent("0000aaaa", at=T(8))), [reply])
+    check_("answer/late_question_this_chat", late(**sent("0000aaaa", at=T(1)), **sent("0000bbbb", at=T(1), session="s2"), **mine), [reply])
+    UNRECORDED.add("log/answer/late_question_this_chat")
     check_("answer/late_question_two", late(H(3, "**Message Id**: 0000bbbb"), A(4, "another"), **sent("0000aaaa", at=T(1)), **sent("0000bbbb", at=T(3), words=None, text="/aidlc go")), [reply])
     check_("answer/late_question_two_replies", late(H(3, "**Message Id**: 0000bbbb"), A(4, "another"), **sent("0000aaaa", at=T(1)), **sent("0000bbbb", at=T(3), words="x" * 41)), [reply])
     check_("answer/late_question_no_turn_row", told(H(1), A(2, "an earlier answer"), Q(5, "Which database?"), **sent("0000aaaa", at=T(4)), **sent("0000bbbb", at=T(5)),
@@ -4835,6 +4859,11 @@ def log_checks():
     check_("answer/summary_question_not_owed", told(summary_q, H(2)), [replied("Looks correct")])
     check_("answer/summary_owed_other_question", created(owing, CREATED_AUDIT + Q(1, "Which database?") + H(2)), [replied("Looks correct"), reply])
     check_("answer/summary_owed_question_superseded", created(owing, CREATED_AUDIT + summary_q + Q(2, "Which database?") + H(3)), [reply])
+    check_("answer/summary_owed_of_another_stage", created(owing, CREATED_AUDIT + Q(1, "Which database?") + block(
+        "DECISION_RECORDED", T(2), "**Stage**: market-research", "**Decision**: Right?", "**Options**: Looks correct,Request changes") + H(3)), [reply])
+    check_("answer/summary_owed_another_checkpoint", created(owing, CREATED_AUDIT + Q(1, "Run it?", "**Checkpoint**: Construction Verification Command") + H(2)), [reply])
+    check_("answer/summary_owed_out_of_order", created(owing, CREATED_AUDIT + Q(7, "Does this look right?", "**Options**: Looks correct,Request changes") + Q(5, "Which database?") + H(8)),
+           [reply])
     check_("answer/summary_owed_single", created(owing, CREATED_AUDIT + summary_q + H(2)), [reply + ["--single"]])
     # Autonomous Construction: nobody is at the keyboard, and nothing of a person's is asked for or kept.
     building = at_stage(CREATED_STATE.replace("- **Construction Execution**: serial\n", "- **Construction Execution**: serial\n- **Construction Autonomy Mode**: autonomous\n"),
@@ -4842,6 +4871,10 @@ def log_checks():
     built = lambda text, *more: ["answer", "--stage", "functional-design", "--details", text, *more]
     check_("answer/autonomous_construction", created(building, CREATED_AUDIT + H(1, '**Picked**: ["x"]') + block("DECISION_RECORDED", T(2), "**Stage**: functional-design", "**Decision**: Which?")),
            [built("The assistant chose this answer."), built("y", "--message", "nope"), replied("Postgres")])
+    check_("answer/autonomous_construction_at_gate", created(building.replace("- [-] functional-design", "- [?] functional-design"),
+                                                             CREATED_AUDIT + block("STAGE_AWAITING_APPROVAL", T(1), "**Stage**: functional-design")), [built("Approve")])
+    check_("answer/autonomous_construction_words_kept", created(building, CREATED_AUDIT + H(1), **kept(CREATED_AUDIT, "the person's words")), [built("y")])
+    check_("answer/construction_not_autonomous", created(at_stage(CREATED_STATE, "functional-design", done=["intent-capture"], phase="CONSTRUCTION")), [built("y")])
 
 
 def jump_checks():
