@@ -2015,10 +2015,10 @@ Uma pergunta é uma linha `DECISION_RECORDED` e uma resposta uma `QUESTION_ANSWE
 | Verificação | Resultado |
 | --- | --- |
 | Diferencial, `log/answers` | 46 checks, todos iguais: os flags que o verbo aceita e os que não; sem trabalho selecionado, sem ficheiro de estado, com ele atrás de um link, com um shard ilegível; nada, perguntas abertas, respondidas, um menu, uma troca continuada uma e duas vezes, e não continuada por cima de uma pergunta, de uma pergunta que um cancelamento gastou, de uma pergunta empatada com a resposta, ou por uma resposta empatada com a que fechou a troca; uma resposta sozinha e antes da sua pergunta; seis formas do que é e não é um cancelamento; a mensagem da resposta e a da pergunta; uma linha que não é pergunta; as linhas de um checkpoint, de outra stage e de outros âmbitos; e, com dois shards, a resposta depois, empatada e antes, duas respostas empatadas, uma resposta empatada com um cancelamento, perguntas nos dois, a ordem das abertas, e um shard com as linhas fora da ordem dos seus instantes (o ciclo, em que todas as respostas têm outra antes) |
-| Diferencial, tudo | @@TOTAL@@ |
-| Repetição da gravação | @@REPLAY@@ |
+| Diferencial, tudo | 4 420 checks com `--fuzz 600`: 4 202 iguais, 218 desvios declarados, nenhum diferente |
+| Repetição da gravação | 3 152 checks sobre 1 034 árvores, todos iguais; a gravação tem de ter `answers` a responder e a recusar |
 | Mutação | 47 mutantes: 44 apanhados (38 à primeira, 6 depois de checks escritos para eles: a ordem dos campos do âmbito, e cinco arestas da continuação de uma troca) e 2 equivalentes, anotados no módulo (todas as linhas lidas são da stage pedida, e uma linha nunca é comparada consigo). Um levou a tirar código: as notas do histórico não são perguntas nem respostas, e filtrá-las não mudava nada |
-| `cargo test` | @@TESTS@@ |
+| `cargo test` | 571 testes |
 
 ### A jornada
 
