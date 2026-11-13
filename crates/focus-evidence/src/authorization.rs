@@ -18,6 +18,14 @@
 //! `clearSummaryAuthorization` in `aidlc-lib.ts`, L12 979 to L13 190).
 //! Reading it back is the gate's, with the receipts (slice 3).
 //!
+//! # Tests that another test covers
+//!
+//! Three questions about links change no answer when taken out, and are
+//! kept where upstream has them. The place of a stage's file is asked for
+//! links before anything is written or removed ([`target`]), so the write
+//! does not find one when it asks again, before it makes the folders and
+//! after; and the registry's folder is on the way to that place.
+//!
 //! # What is not ported
 //!
 //! A stage that runs per unit of work has an attempt of its own shape (a
@@ -93,7 +101,8 @@ fn jump_reaches(block: &str, slug: &str, graph: &[Stage]) -> bool {
     let index = |name: &str| graph.iter().position(|stage| stage.slug == name);
     match block_field(block, "Target").filter(|name| !name.is_empty()) {
         None => true,
-        Some(name) if name == slug => true,
+        // (Upstream asks first whether the target is the stage itself:
+        // then it is at its own place in the graph, or in no graph.)
         Some(name) => match (index(name), index(slug)) {
             (Some(target), Some(at)) => at >= target,
             _ => true,

@@ -445,6 +445,7 @@ pub(crate) enum Pending {
 
 /// Whether `candidate` is after `boundary`: by position in one shard, by
 /// instant across shards, and not at all for two shards at one instant.
+/// (No row is asked about itself.)
 fn follows(candidate: &ShardEvent, boundary: &ShardEvent) -> Option<bool> {
     if candidate.shard == boundary.shard {
         return Some(candidate.pos > boundary.pos);

@@ -5110,6 +5110,46 @@ def log_checks():
         check_(f"answer/summary_attempt_{label}", created(owing, audit, **{qfile: confirmed}), [chooses("Looks correct")])
     check_("answer/summary_attempt_two_shards", created(owing, CREATED_AUDIT + sq(3) + H(4), **{qfile: confirmed}, **other(started(0) + started(1))), [chooses("Looks correct")])
     check_("answer/summary_attempt_two_shards_tied", created(owing, CREATED_AUDIT + started(1) + sq(3) + H(4), **{qfile: confirmed}, **other(started(1))), [chooses("Looks correct")])
+    # What the sweep left unpinned.
+    answered_row = lambda minute: block("SUMMARY_CONFIRMATION_RECORDED", T(minute), "**Stage**: intent-capture", "**Details**: Looks correct", "**Checkpoint**: Consolidated Summary Confirmation",
+                                        f"**Questions File**: {qfile}")
+    # A turn that was only a command is no reply after the question: the reply before it is said back.
+    check_("answer/summary_reply_before_then_a_command", created(owing, CREATED_AUDIT + H(1) + sq(2) + H(3, "**Reply**: command"), **{qfile: confirmed}), [chooses("Looks correct")])
+    # The completion of another stage, or of this one in the ordinary walk, is no boundary of a question.
+    check_("answer/summary_another_stage_completed_since", created(owing, CREATED_AUDIT + sq(1) + block("STAGE_COMPLETED", T(2), "**Stage**: feasibility") + H(3), **{qfile: confirmed}), [chooses("Looks correct")])
+    check_("answer/summary_single_other_completions_since", created(owing, CREATED_AUDIT + done(1) + alone(2) + block("STAGE_COMPLETED", T(3), "**Stage**: intent-capture")
+                                                                 + block("STAGE_COMPLETED", T(3), "**Stage**: feasibility", "**Workflow**: single-stage:feasibility") + H(4), **{qfile: confirmed}),
+           [chooses("Looks correct", "--single")])
+    # A question of another checkpoint that names the same file is not the summary's.
+    check_("answer/summary_another_checkpoint_names_the_file", created(owing, CREATED_AUDIT + sq(1) + H(2) + answered_row(3) + Q(4, "Approve the plan?", "**Checkpoint**: Plan Approval", f"**Questions File**: {qfile}") + H(5),
+                                                                       **{qfile: confirmed}), [chooses("Looks correct")])
+    # An older run that ties with the question in another shard does not count once a newer run is the boundary.
+    check_("answer/summary_single_older_run_tied", created(owing, CREATED_AUDIT + done(2) + alone(1) + H(3), **{qfile: confirmed}, **other(done(1))), [chooses("Looks correct", "--single")])
+    # A question that ties with the run's end is left behind by a newer one.
+    check_("answer/summary_single_tied_question_then_a_newer_one", created(owing, CREATED_AUDIT + alone(1) + alone(2) + H(3), **{qfile: confirmed}, **other(done(1))), [chooses("Looks correct", "--single")])
+    # The question asked twice at one instant in two shards, and a reply that is before one of them.
+    check_("answer/summary_reply_before_one_of_two_questions", created(owing, CREATED_AUDIT + H(2) + sq(2), **{qfile: confirmed}, **other(sq(2))), [chooses("Looks correct")])
+    # The hint of a reply not given yet says nothing of one the hooks missed.
+    health = f"{CREATED_DIR}/.aidlc-engine/hooks-health/record-human-turn.last"
+    check_("answer/summary_no_reply_hooks_ran_long_ago", created(owing, CREATED_AUDIT + sq(1), **{qfile: confirmed, health: T(0) + "\n"}), [chooses("Looks correct"), reply])
+    check_("answer/summary_no_reply_hooks_ran_just_now", created(owing, CREATED_AUDIT + sq(1), **{qfile: confirmed, health: STARTED + "\n"}), [chooses("Looks correct")])
+    # (A heartbeat is recent against the clock: the replay runs later.)
+    UNRECORDED.add("log/answer/summary_no_reply_hooks_ran_just_now")
+    # The last turn's words were a dismissed box: they are not the person's reply.
+    check_("answer/summary_reply_words_dismissed", created(owing, asked_and_replied, **{qfile: confirmed}, **kept(CREATED_AUDIT + sq(1), "Cancelled")), [chooses("Looks correct")])
+    check_("answer/summary_reply_before_the_question_words_dismissed", created(owing, CREATED_AUDIT + H(1) + sq(2), **{qfile: confirmed}, **kept(CREATED_AUDIT, "Cancelled", at=1)), [chooses("Looks correct")])
+    # The attempt: the creation alone, a creation newer than a start, two boundaries at one instant in two shards.
+    creation = lambda minute: block("WORKFLOW_STARTED", T(minute), "**Scope**: feature", "**Request**: Add login")
+    check_("answer/summary_attempt_created_only", created(owing, TITLE + creation(1) + sq(3) + H(4), **{qfile: confirmed}), [chooses("Looks correct")])
+    check_("answer/summary_attempt_created_after_a_start", created(owing, TITLE + started(0) + creation(1) + sq(3) + H(4), **{qfile: confirmed}), [chooses("Looks correct")])
+    check_("answer/summary_attempt_two_kinds_tied", created(owing, TITLE + started(1) + sq(3) + H(4), **{qfile: confirmed}, **other(creation(1))), [chooses("Looks correct")])
+    check_("answer/summary_single_attempt", created(owing, CREATED_AUDIT + done(1) + block("STAGE_COMPLETED", T(2), "**Stage**: intent-capture")
+                                                    + block("STAGE_COMPLETED", T(2), "**Stage**: feasibility", "**Workflow**: single-stage:intent-capture") + alone(3) + H(4), **{qfile: confirmed}),
+           [chooses("Looks correct", "--single")])
+    # A stage whose name is none: there is nowhere to keep its authorization.
+    check_("answer/summary_stage_name_is_none", created(owing, CREATED_AUDIT + sq(1).replace("**Stage**: intent-capture", "**Stage**: Bad_Stage") + H(2), **{qfile: confirmed}),
+           [["answer", "--stage", "Bad_Stage", "--details", "Looks correct", "--checkpoint", "summary-confirmation", "--questions-file", qfile]])
+    check_("answer/summary_observer_changes_asked", created(owing, asked_and_replied, **{qfile: changed}), [chooses("Request changes")], {"STOP_HOOK_PROBE": "1"})
     # The registry: a link on the way, a folder where the file goes, an observer.
     engine = f"{CREATED_DIR}/.aidlc-engine"
     check_("answer/summary_registry_a_link", created(owing, asked_and_replied, **{qfile: confirmed, "elsewhere/keep": ""}), [chooses("Looks correct")],
