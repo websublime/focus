@@ -5212,6 +5212,9 @@ def log_checks():
     check_("link/collaborators_not_said", created(chained.replace("- **Collaborators**: on\n", ""), **{scan: SCAN}), [scanned(), returned(arch)], edits=[at_time()])
     for label, said in (("another_word", "maybe"), ("in_capitals", "ON"), ("blank", ""), ("on_and_why", "on (set by you)"), ("off", "off")):
         check_(f"link/collaborators_{label}", created(chained.replace("- **Collaborators**: on", f"- **Collaborators**: {said}"), **{scan: SCAN}), [scanned(), returned(arch)], edits=[at_time()])
+    unsaid = chained.replace("- **Collaborators**: on\n", "")
+    for label, scope in (("in_capitals", "FEATURE"), ("unknown", "nope"), ("with_collaborators", "brownfield")):
+        check_(f"link/collaborators_not_said_scope_{label}", created(unsaid.replace("- **Scope**: feature", f"- **Scope**: {scope}"), **{scan: SCAN}), [scanned(), returned(arch)], edits=[at_time()])
     check_("link/second_names_a_file", created(chained, **{scan: SCAN}), [scanned("--nope", "x"), returned(arch, "--artifact", "nope.md"), returned(dev, "--nope", "x")], edits=[at_time()])
     check_("link/flag_twice", created(chained, **{scan: SCAN}), [returned(arch, "--link", dev, "--artifact", "nope.md", "--artifact", scan, "--stage", "reverse-engineering")], edits=[at_time()])
     check_("link/no_state_file", created(audit=CREATED_AUDIT, **{f"{CREATED_DIR}/aidlc-state.md": None, scan: SCAN}), [scanned()], edits=[at_time()])
@@ -5318,10 +5321,19 @@ def log_checks():
             check_(f"link/attempt_{label}{suffix}", created(state, CREATED_AUDIT + scan_receipt(1) + boundary, **{scan: SCAN}), [returned(arch), scanned()], edits=[at_time()])
             # The same with the scan written again since.
             check_(f"link/attempt_{label}_rewritten{suffix}", created(state, CREATED_AUDIT + scan_receipt(1) + boundary, **{scan: SCAN}), [scanned(), returned(arch)], edits=[at_time(ns=WRITTEN + 10**12)])
+    # The attempt a handoff has to be written in starts at a rejection whatever the policy keeps.
+    for suffix, state in policies:
+        check_(f"link/handoff_written_before_a_rejection{suffix}", created(state, CREATED_AUDIT + rejected, **{scan: SCAN}), [scanned()], edits=[at_time(ns=START + 120 * 10**9)])
     # A receipt at the boundary's own instant: after it in the boundary's shard, unordered in another.
     check_("link/receipt_at_the_boundarys_instant", created(chained, CREATED_AUDIT + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering") + scan_receipt(5), **{scan: SCAN}), [returned(arch)], edits=[at_time()])
     check_("link/receipt_before_the_boundary_at_its_instant", created(chained, CREATED_AUDIT + scan_receipt(5) + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering"), **{scan: SCAN}), [returned(arch)],
            edits=[at_time()])
+    check_("link/receipt_between_two_boundaries_at_one_instant", created(chained, CREATED_AUDIT + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering") + scan_receipt(5)
+                                                                        + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering"), **{scan: SCAN}), [returned(arch)], edits=[at_time()])
+    check_("link/receipt_after_two_boundaries_at_one_instant", created(chained, CREATED_AUDIT + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering")
+                                                                      + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering") + scan_receipt(5), **{scan: SCAN}), [returned(arch)], edits=[at_time()])
+    check_("link/receipt_tied_with_an_older_boundarys_shard", created(chained, CREATED_AUDIT + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering") + scan_receipt(5), **{scan: SCAN},
+                                                                     **other(block("STAGE_STARTED", T(4), "**Stage**: reverse-engineering"))), [returned(arch)], edits=[at_time()])
     check_("link/receipt_tied_in_another_shard", created(chained, CREATED_AUDIT + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering"), **{scan: SCAN}, **other(scan_receipt(5))), [returned(arch)],
            edits=[at_time()])
     check_("link/boundary_in_two_shards", created(chained, CREATED_AUDIT + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering") + scan_receipt(5), **{scan: SCAN},
@@ -5350,6 +5362,12 @@ def log_checks():
            edits=[at_time()])
     check_("link/single_not_started", created(chained, **{scan: SCAN}), [scanned("--single")], edits=[at_time()])
     check_("link/single_scope_with_collaborators_off", created(chained, CREATED_AUDIT + alone_started(1, "**Scope**: feature"), **{scan: SCAN}), [returned(arch, "--single"), scanned("--single")], edits=[at_time()])
+    for label, said in (("in_capitals", "FEATURE"), ("unknown", "nope"), ("blank", "")):
+        check_(f"link/single_scope_{label}", created(chained, CREATED_AUDIT + alone_started(1, f"**Scope**: {said}"), **{scan: SCAN}), [scanned("--single"), returned(arch, "--single")], edits=[at_time()])
+    check_("link/single_start_of_another_stage", created(chained, CREATED_AUDIT + alone_started(1, "**Scope**: feature") + alone_started(2, "**Scope**: brownfield").replace("reverse-engineering", "intent-capture"), **{scan: SCAN}),
+           [scanned("--single"), returned(arch, "--single")], edits=[at_time()])
+    check_("link/single_start_in_the_workflow", created(chained, CREATED_AUDIT + alone_started(1, "**Scope**: feature") + block("STAGE_STARTED", T(2), "**Stage**: reverse-engineering", "**Scope**: brownfield"), **{scan: SCAN}),
+           [scanned("--single"), returned(arch, "--single")], edits=[at_time()])
     check_("link/single_no_scope_recorded", created(lead_only, CREATED_AUDIT + alone_started(1), **{scan: SCAN}), [scanned("--single"), returned(arch, "--single")], edits=[at_time()])
     check_("link/single_newest_start_decides", created(chained, CREATED_AUDIT + alone_started(1, "**Scope**: feature") + alone_started(2, "**Scope**: brownfield"), **{scan: SCAN}),
            [scanned("--single"), returned(arch, "--single")], edits=[at_time()])
