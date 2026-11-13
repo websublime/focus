@@ -2046,12 +2046,12 @@ Ao lado da escolha vão o id da mensagem, as palavras da pessoa (`Person Reply`:
 
 | Verificação | Resultado |
 | --- | --- |
-| Diferencial, `log/answer` | 124 checks: 110 iguais e 14 desvios declarados. Os iguais: os flags e os valores partidos (com a ajuda própria de uma resposta); a resposta que chegou, a que não chegou, um menu, uma resposta gasta por outra resposta e por um gate, um turno que foi só um comando ou uma pergunta sobre um switch, o guard desligado, sem ninguém na sessão; cinco formas de uma caixa dispensada e quatro de uma escolha do assistente; o gate (com e sem resposta, com uma pergunta aberta, respondida, de antes do gate, de outra stage, o gate aberto duas vezes, o gate de outra stage depois); catorze formas da pergunta do modo; as palavras da pessoa (dentro, antes e depois do turno, noutro shard, do último turno, sem sessão); catorze formas da nota da caixa; a mensagem nomeada, herdada, herdada sem prova, da pergunta mais recente e de outra stage; treze formas da pergunta registada depois da resposta; o sumário devido com outra pergunta aberta, de outra stage, com outro checkpoint, fora de ordem; e Construction autónoma |
-| Diferencial, tudo | @@TOTAL@@ |
-| Repetição da gravação | @@REPLAY@@ |
+| Diferencial, `log/answer` | 124 checks: 110 iguais e 14 desvios declarados. Os iguais: os flags e os valores partidos (com a ajuda própria de uma resposta); a resposta que chegou, a que não chegou, um menu, uma resposta gasta por outra resposta e por um gate, um turno que foi só um comando ou uma pergunta sobre um switch, o guard desligado, sem ninguém na sessão; cinco formas de uma caixa dispensada e quatro de uma escolha do assistente; o gate (com e sem resposta, com uma pergunta aberta, respondida, de antes do gate, de outra stage, o gate aberto duas vezes, o gate de outra stage depois); catorze formas da pergunta do modo; as palavras da pessoa (dentro, antes e depois do turno, noutro shard, do último turno, sem sessão); catorze formas da nota da caixa; a mensagem nomeada, herdada, herdada sem prova, da pergunta mais recente e de outra stage; dezassete formas da pergunta registada depois da resposta; o sumário devido com outra pergunta aberta, de outra stage, com outro checkpoint, fora de ordem; e Construction autónoma |
+| Diferencial, tudo | 4 543 checks com `--fuzz 600`: 4 312 iguais, 231 desvios declarados, nenhum diferente |
+| Repetição da gravação | 3 274 checks sobre 1 111 árvores, todos iguais; a gravação tem de ter `answer` a gravar e a recusar |
 | Testes | 1 de CLI marcado novo (as doze formas recusadas pelo nome e a pergunta de sumário aberta em três formas) |
 | Mutação | 87 mutantes (o verbo, os leitores de mensagens, os leitores de perguntas abertas, as palavras da pessoa, a nota da caixa): 86 apanhados (55 à primeira, 31 depois de 28 checks e do teste de CLI escritos para eles) e 1 equivalente, anotado onde está (a linha do próprio gate não é uma pergunta) |
-| `cargo test` | @@TESTS@@ |
+| `cargo test` | 572 testes |
 
 ### A jornada
 
