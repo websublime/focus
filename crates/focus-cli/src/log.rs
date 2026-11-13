@@ -31,10 +31,15 @@ The interactions of the active record's work, written to its ledger.
                            The stage's questions, with the answers they have (read only)
   answer --stage <slug> (--details <text> | --details-file <file>) [--single] [--message <id>]
          [--on-instruction <their words> | --on-instruction-file <file>]
+         [--checkpoint summary-confirmation --questions-file <file>]
                            The person's reply to a question, as the agent read it. A file
                            is one the agent wrote under .focus-engine/answer-text/ of the
                            record, read once and removed; --on-instruction records a choice
                            the person left to the agent, with the words that left it
+                           With the checkpoint, the person's choice at a stage's summary
+                           ("Looks correct", or "Request changes" and what to change),
+                           written on the summary's [Answer]: line of the questions file
+                           first: "Looks correct" authorizes the stage's outputs
   link, review             Not ported yet
 ";
 

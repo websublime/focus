@@ -299,3 +299,64 @@ pub fn restore(record: &Path, stage: &str, before: Option<&[u8]>) -> Result<()> 
         None => remove_record_file(record, &relative),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn row(event: &str, minute: u32, shard: &str, pos: usize, block: &str) -> ShardEvent {
+        ShardEvent {
+            block: block.to_owned(),
+            event: event.to_owned(),
+            pos,
+            shard: shard.to_owned(),
+            shard_index: 0,
+            timestamp: format!("2026-01-05T10:{minute:02}:00Z"),
+        }
+    }
+
+    /// The differential compares an id as `<verified>`, since each engine
+    /// takes it over its own names. These two are upstream's own answers
+    /// (`summaryAuthorizationId`, asked of the pinned commit) for the same
+    /// fields, so the form that is hashed is pinned here.
+    #[test]
+    fn an_id_is_upstreams_for_the_same_fields() {
+        let file = "focus/spaces/default/intents/260105-add-login/ideation/intent-capture/intent-capture-questions.md";
+        assert_eq!(
+            id(
+                "WORKFLOW_STARTED:2026-01-05T10:00:00Z:laptop-abc123.md:0",
+                "intent-capture",
+                None,
+                file,
+                &"a".repeat(64),
+                "Looks correct"
+            ),
+            "61bfc75a28e5e3c88113331fbb58626f0ea0940776c6e4d9186b3623191fa9cd"
+        );
+        assert_eq!(
+            id(
+                "unstarted",
+                "intent-capture",
+                Some("single-stage:intent-capture"),
+                "q \"x\" \u{e9}\n.md",
+                &"a".repeat(64),
+                "Looks correct"
+            ),
+            "e45f607a87e6bfee487f4bf074fee6b6686ac3c8ef217781b76153f96421894c"
+        );
+    }
+
+    #[test]
+    fn an_attempt_is_named_by_its_boundary_rows_in_order() {
+        let rows = [
+            row("STAGE_STARTED", 1, "b.md", 3, ""),
+            row("WORKFLOW_STARTED", 1, "a.md", 0, ""),
+        ];
+        let floors: Vec<&ShardEvent> = rows.iter().collect();
+        assert_eq!(
+            attempt_identity(&floors),
+            "STAGE_STARTED:2026-01-05T10:01:00Z:b.md:3|WORKFLOW_STARTED:2026-01-05T10:01:00Z:a.md:0"
+        );
+        assert_eq!(attempt_identity(&[]), "unstarted");
+    }
+}
