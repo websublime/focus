@@ -1351,6 +1351,9 @@ def normalise_audit(text, tree, engine):
         text = re.sub(pattern, replacement, text, flags=re.M)
     text = text.replace("Usage: aidlc-audit ", "Usage: <cli> audit ").replace("Usage: focus engine audit ",
                                                                              "Usage: <cli> audit ")
+    # A command of the log tool rendered for the agent to run next: each engine's own spelling of the same route.
+    text = re.sub(r"`bun \.claude/tools/(?:aidlc|focus)-log\.ts ((?:decision|answer) [^`]*)`", r"<run log \1>", text)
+    text = re.sub(r"`focus engine log ((?:decision|answer) [^`]*)`", r"<run log \1>", text)
     for tool in ("orchestrate", "log"):
         suffix = " report" if tool == "orchestrate" else ""
         text = text.replace(f"aidlc-{tool}.ts{suffix}", f"<cli> {tool}{suffix}")
@@ -2357,17 +2360,19 @@ DEVIATIONS.update({
         "the verbs of the log tool that focus has not ported (M5, slices 2b to 2e): upstream runs them; focus "
         "refuses each by name",
     r"log/decision/checkpoint_\w+_not_ported":
-        "a question the engine pairs with a record of its own: a stage's summary confirmation (slice 2c), the "
-        "verification command and the policy of Construction (slice 5), Plan Approval (slice 11). Upstream reads "
+        "a question the engine pairs with a record of its own: the verification command and the policy of "
+        "Construction (slice 5), Plan Approval (slice 11). Upstream reads "
         "the flags each needs and records it; focus refuses the checkpoint by name",
     r"log/decision/(unit|batch_file)_not_ported":
         "a question about one unit of work, and the Plan Approval questions of several at once: upstream records "
         "the unit with its claim (or refuses the batch on its own shape); focus refuses both flags by name, since "
         "it runs no units yet",
-    "log/decision/summary_options_owed_not_ported":
-        "a plain question offering the summary's two choices, for a stage that owes a summary confirmation: "
-        "upstream refuses it with the two commands that record a summary; those are slice 2c, and focus refuses "
-        "it by name",
+    r"log/decision/summary_checkpoint_(a_link|a_dangling_link|behind_a_link|second_name|a_folder)":
+        "the questions file of a summary is hashed into the receipt a gate weighs. Upstream opens it by name, so "
+        "it reads through a link, a linked directory or a second hard link, says of a link to nothing that the "
+        "file does not exist, and falls over on a directory with the runtime's EISDIR; focus reads it as every "
+        "file of the record that decides something, a regular "
+        "file with one name reached through no link, and refuses the rest by name",
     "jump/reopen/by_name":
         "reopen starts a per-unit stage again for named units with their own GATE_REJECTED rows (M4); focus "
         "refuses by name once the usage is satisfied",
@@ -4597,9 +4602,9 @@ def log_checks():
     check_("decision/observer", created(), [ask], {"STOP_HOOK_PROBE": "1"})
     check_("decision/project_dir_first", created(), [["--project-dir", "{P}", *ask]])
 
-    # The checkpoints: one the verb does not know, the learnings question, and the four Focus has not ported.
+    # The checkpoints: one the verb does not know, the learnings question, and the three Focus has not ported.
     check_("decision/checkpoint_unknown", created(), [ask + ["--checkpoint", "nope"], ask + ["--checkpoint", "learnings"], ask + ["--checkpoint", "guard-recovery"], ask + ["--checkpoint", ""]])
-    for checkpoint in ("summary-confirmation", "verification-command", "construction-policy", "plan-approval"):
+    for checkpoint in ("verification-command", "construction-policy", "plan-approval"):
         check_(f"decision/checkpoint_{checkpoint.replace('-', '_')}_not_ported", created(), [ask + ["--checkpoint", checkpoint]])
     check_("decision/unit_not_ported", created(), [ask + ["--unit", "api"]])
     check_("decision/unit_empty", created(), [ask + ["--unit", ""]])
@@ -4674,7 +4679,81 @@ def log_checks():
     # A question that offers the summary's two choices: an ordinary one where no summary is owed, refused where it is.
     summary = ["decision", "--stage", "intent-capture", "--decision", "Does this look right?", "--options", "Looks correct, Request changes."]
     check_("decision/summary_options_not_owed", created(), [summary])
-    check_("decision/summary_options_owed_not_ported", created(owing), [summary, summary[:-1] + ["LOOKS CORRECT!, request changes (Recommended), "]])
+    check_("decision/summary_options_owed", created(owing), [summary, summary[:-1] + ["LOOKS CORRECT!, request changes (Recommended), "], summary + ["--single"], summary + ["--unit", "api"],
+                                                           summary + ["--rationale", "x", "--message", "nope"]])
+    # The questions file the refusal names: the stage's own, the first by name when it has two, none under a unit.
+    qdir = f"{CREATED_DIR}/ideation/intent-capture"
+    qfile = f"{qdir}/intent-capture-questions.md"
+    SUMMARY = "# Questions\n\n## Q1. Who is it for?\n\n[Answer]: A\n\n## Consolidated Summary Confirmation\n\nA tool for the team.\n\n[Answer]:\n"
+    check_("decision/summary_options_owed_names_the_file", created(owing, **{qfile: SUMMARY}), [summary, summary + ["--unit", "api"]])
+    check_("decision/summary_options_owed_two_files", created(owing, **{qfile: SUMMARY, f"{qdir}/b-questions.md": SUMMARY, f"{qdir}/Z-questions.md": SUMMARY, f"{qdir}/questions.md": SUMMARY,
+                                                                        f"{qdir}/a-questions.md.bak": SUMMARY, f"{qdir}/0-notes.md": "x"}), [summary])
+    check_("decision/summary_options_owed_no_questions_file_among_others", created(owing, **{f"{qdir}/0-notes.md": "x", f"{qdir}/questions.md": "x"}), [summary])
+    check_("decision/summary_options_owed_unit_empty", created(owing, **{qfile: SUMMARY}), [summary + ["--unit", ""]])
+    check_("decision/summary_options_owed_no_state_file", created(**{f"{CREATED_DIR}/aidlc-state.md": None, qfile: SUMMARY}), [summary])
+    check_("decision/summary_options_owed_a_folder_named_like_one", created(owing, **{f"{qdir}/a-questions.md/x": "x"}), [summary])
+    check_("decision/summary_options_owed_a_path_with_spaces", created(owing, **{f"{qdir}/my $HOME's-questions.md": SUMMARY}), [summary])
+    # A stage that runs per unit: the commands name the unit, and the file is the unit's.
+    building_owing = at_stage(owing, "functional-design", done=["intent-capture"], phase="CONSTRUCTION")
+    unit_summary = ["decision", "--stage", "functional-design", "--decision", "Does this look right?", "--options", "Looks correct,Request changes"]
+    unit_files = {f"{CREATED_DIR}/construction/api/functional-design/functional-design-questions.md": SUMMARY, f"{CREATED_DIR}/construction/web/functional-design/functional-design-questions.md": SUMMARY,
+                  f"{CREATED_DIR}/construction/functional-design/functional-design-questions.md": SUMMARY}
+    check_("decision/summary_options_owed_per_unit", created(building_owing, **unit_files), [unit_summary, unit_summary + ["--unit", "web"], unit_summary + ["--unit", "nope"]])
+    # Units Generation off the plan: a stage that runs per unit keeps its files at the stage, and they are no unit's.
+    stage_level = building_owing.replace("- [ ] units-generation \u2014 EXECUTE", "- [S] units-generation \u2014 SKIP")
+    check_("decision/summary_options_owed_per_unit_at_the_stage", created(stage_level, **unit_files), [unit_summary, unit_summary + ["--unit", "web"]])
+    check_("decision/summary_options_owed_per_unit_no_units", created(building_owing), [unit_summary, unit_summary + ["--unit", "web"]])
+    check_("decision/summary_options_owed_per_unit_with_units_planned", created(building_owing.replace("- [ ] units-generation \u2014 SKIP", "- [ ] units-generation \u2014 EXECUTE"), **unit_files),
+           [unit_summary, unit_summary + ["--unit", "web"]])
+    # The summary's question, with its checkpoint: bound to the questions file, whose one answer line is still blank.
+    asks = ["decision", "--stage", "intent-capture", "--decision", "Does this all look correct?", "--options", "Looks correct,Request changes", "--checkpoint", "summary-confirmation"]
+    with_file = asks + ["--questions-file", qfile]
+    check_("decision/summary_checkpoint", created(owing, **{qfile: SUMMARY}), [with_file, with_file + ["--single", "--rationale", "the end of the questions"]])
+    check_("decision/summary_checkpoint_not_owed", created(**{qfile: SUMMARY}), [with_file])
+    check_("decision/summary_checkpoint_other_options", created(owing, **{qfile: SUMMARY}), [with_file[:6] + ["Yes,No"] + with_file[7:], with_file[:5] + with_file[7:]])
+    check_("decision/summary_checkpoint_no_file_named", created(owing, **{qfile: SUMMARY}), [asks, asks + ["--questions-file", ""], asks + ["--questions-file"]])
+    check_("decision/summary_checkpoint_named_in_full", created(owing, **{qfile: SUMMARY}), [asks + ["--questions-file", "{P}/" + qfile], asks + ["--questions-file", "./" + qfile],
+                                                                                           asks + ["--questions-file", qdir + "/../intent-capture/intent-capture-questions.md"]])
+    elsewhere = {qfile: SUMMARY, "x-questions.md": SUMMARY, "aidlc/spaces/default/intents/x-questions.md": SUMMARY, f"{CREATED_DIR}x/x-questions.md": SUMMARY,
+                 f"{CREATED_DIR}/x-questions.md": SUMMARY, f"{CREATED_DIR}/ideation/market-research/other-questions.md": SUMMARY, f"{qdir}/questions.md": SUMMARY,
+                 f"{qdir}/intent-statement.md": SUMMARY, f"{qdir}/a-questions.md.bak": SUMMARY, f"{qdir}/-questions.md": SUMMARY}
+    check_("decision/summary_checkpoint_outside_the_record", created(owing, **elsewhere), [asks + ["--questions-file", name] for name in (
+        "x-questions.md", "../x-questions.md", "aidlc/spaces/default/intents/x-questions.md", f"{CREATED_DIR}x/x-questions.md", "{P}/x-questions.md", "/x-questions.md", CREATED_DIR,
+        f"{CREATED_DIR}/../x-questions.md")])
+    check_("decision/summary_checkpoint_any_questions_file_of_the_record", created(owing, **elsewhere), [asks + ["--questions-file", name] for name in (
+        f"{CREATED_DIR}/x-questions.md", f"{CREATED_DIR}/ideation/market-research/other-questions.md", f"{qdir}/-questions.md")])
+    check_("decision/summary_checkpoint_not_a_questions_file", created(owing, **elsewhere), [asks + ["--questions-file", name] for name in (
+        f"{qdir}/questions.md", f"{qdir}/intent-statement.md", f"{qdir}/a-questions.md.bak", qdir, f"{qdir}/", f"{qdir}/intent-capture-questions.MD")])
+    check_("decision/summary_checkpoint_missing_file", created(owing), [with_file])
+    # What the summary section has to hold before the question is recorded: its one answer line, blank.
+    for label, text in (("answered", SUMMARY.replace("[Answer]:\n", "[Answer]: Looks correct\n")), ("no_answer_line", SUMMARY.replace("[Answer]:\n", "")),
+                        ("two_answer_lines", SUMMARY + "\n[Answer]:\n"), ("no_section", SUMMARY.replace("## Consolidated", "## Final")), ("empty", ""),
+                        ("blank_with_spaces", SUMMARY.replace("[Answer]:\n", "[Answer]: \t \n")), ("answer_in_a_comment", SUMMARY.replace("[Answer]:\n", "[Answer]: <!-- pending -->\n")),
+                        ("section_twice", SUMMARY + "\n## Consolidated Summary Confirmation\n"), ("question_twice", SUMMARY.replace("## Consolidated", "## Q1\n\n## Consolidated")),
+                        ("heading_after", SUMMARY + "\n## Notes\n"), ("assumptions_after", SUMMARY + "\n---\n\n## Assumption Confirmation\n\n[Answer]: A\n"),
+                        ("crlf_and_mark", "\ufeff" + SUMMARY.replace("\n", "\r\n"))):
+        check_(f"decision/summary_checkpoint_file_{label}", created(owing, **{qfile: text}), [with_file])
+    def not_text(tree):
+        os.makedirs(tree.path(qdir), exist_ok=True)
+        with open(tree.path(qfile), "wb") as handle:
+            handle.write(b"## Consolidated Summary Confirmation\n\nA \xff tool\n\n[Answer]:\n")
+    # (Compared live: a file that is not text cannot be kept in the recording.)
+    UNRECORDED.add("log/decision/summary_checkpoint_file_not_text")
+    check_("decision/summary_checkpoint_file_not_text", created(owing), [with_file, with_file], edits=[not_text])
+    # Not opened by name: a link, a file behind a linked folder, a second name, a folder.
+    check_("decision/summary_checkpoint_a_link", created(owing, **{"elsewhere-questions.md": SUMMARY}), [with_file],
+           edits=[lambda tree: (os.makedirs(tree.path(qdir), exist_ok=True), os.symlink(tree.path("elsewhere-questions.md"), tree.path(qfile)))])
+    check_("decision/summary_checkpoint_behind_a_link", created(owing, **{"elsewhere/intent-capture-questions.md": SUMMARY}), [with_file],
+           edits=[lambda tree: (os.makedirs(os.path.dirname(tree.path(qdir)), exist_ok=True), os.symlink(tree.path("elsewhere"), tree.path(qdir)))])
+    check_("decision/summary_checkpoint_second_name", created(owing, **{qfile: SUMMARY}), [with_file], edits=[lambda tree: os.link(tree.path(qfile), tree.path("other-name.md"))])
+    check_("decision/summary_checkpoint_a_folder", created(owing, **{f"{qfile}/x": "x"}), [with_file])
+    check_("decision/summary_checkpoint_a_dangling_link", created(owing), [with_file],
+           edits=[lambda tree: (os.makedirs(tree.path(qdir), exist_ok=True), os.symlink(tree.path("nowhere-questions.md"), tree.path(qfile)))])
+    # The order of the refusals: an unknown stage records; the claim of a confirmation, then the unit, come first.
+    check_("decision/summary_checkpoint_order", created(owing, **{qfile: SUMMARY}), [with_file[:2] + ["nope"] + with_file[3:], with_file[:4] + ["Continue (user implicitly confirmed by hook trigger)"] + with_file[5:],
+                                                                                    asks + ["--message", "nope"], with_file + ["--message", "nope"]])
+    check_("decision/summary_checkpoint_observer", created(owing, **{qfile: SUMMARY}), [with_file], {"STOP_HOOK_PROBE": "1"})
+    check_("decision/summary_checkpoint_no_workflow", CLONE, [with_file, asks])
     check_("decision/summary_options_other", created(owing), [summary[:-1] + ["Looks correct,Other"], summary[:-1] + ["Looks correct"], summary[:-1] + ["Looks correct,Request changes,Looks correct"],
                                                               summary[:-1] + ["Looks correct?,Request changes"]])
     check_("decision/summary_options_unknown_stage", created(owing), [["decision", "--stage", "nope", "--decision", "x", "--options", "Looks correct,Request changes"]])
@@ -4904,8 +4983,29 @@ def log_checks():
                                                     **sent("0000aaaa", at=T(1)), **sent("0000bbbb", at=T(1))), [reply])
     # A stage that owes a summary confirmation, with that summary as its open question.
     summary_q = Q(1, "Does this look right?", "**Options**: Looks correct,Request changes")
-    check_("answer/summary_question_open_not_ported", created(owing, CREATED_AUDIT + summary_q + H(2)), [replied("Looks correct")])
-    check_("answer/summary_checkpoint_open_not_ported", created(owing, CREATED_AUDIT + Q(1, "Does this look right?", "**Checkpoint**: Consolidated Summary Confirmation") + H(2)), [reply])
+    choices = [replied("Looks correct"), replied("Request changes"), replied("B) request changes: rename  the\thandler,\nplease"), replied("'Looks correct.'"), reply,
+               replied("Request changes."), replied("Looks correct (Recommended)")]
+    check_("answer/summary_question_open", created(owing, CREATED_AUDIT + summary_q + H(2)), choices)
+    recorded_q = Q(1, "Does this look right?", "**Checkpoint**: Consolidated Summary Confirmation")
+    check_("answer/summary_checkpoint_open", created(owing, CREATED_AUDIT + recorded_q + H(2)), choices)
+    qfile = f"{CREATED_DIR}/ideation/intent-capture/intent-capture-questions.md"
+    check_("answer/summary_checkpoint_open_names_the_file", created(owing, CREATED_AUDIT + recorded_q + H(2), **{qfile: "x"}), [replied("Looks correct"), replied("Looks correct", "--single")])
+    check_("answer/summary_question_open_names_the_file", created(owing, CREATED_AUDIT + summary_q + H(2), **{qfile: "x"}), [replied("Request changes: the title")])
+    check_("answer/summary_both_forms_open", created(owing, CREATED_AUDIT + summary_q + recorded_q.replace("laptop", "laptop") + H(2)), [replied("Looks correct")])
+    check_("answer/summary_question_open_guard_off", created(owing, CREATED_AUDIT + summary_q + H(2)), [replied("Looks correct")], {"SKIP_SUMMARY_CONFIRMATION_GUARD": "1"})
+    # Three questions, each with another after it: position orders the two of one shard, the instant orders the
+    # shards. The questions of the latest instant stand for all, and that one is the summary (or is not).
+    plain_q = lambda minute: Q(minute, "Does this look right?", "**Options**: Looks correct,Request changes")
+    check_("answer/summary_question_in_a_cycle", created(owing, CREATED_AUDIT + plain_q(7) + Q(5, "Which database?") + H(8), **other(Q(6, "Which cache?"))), [replied("Looks correct")])
+    check_("answer/summary_question_in_a_cycle_not_latest", created(owing, CREATED_AUDIT + Q(7, "Which database?") + plain_q(5) + H(8), **other(Q(6, "Which cache?"))), [replied("Looks correct")])
+    check_("answer/summary_question_in_another_shard", created(owing, CREATED_AUDIT + Q(1, "Which database?") + H(3), **other(plain_q(2))), [replied("Looks correct")])
+    check_("answer/summary_question_tied_with_another", created(owing, CREATED_AUDIT + Q(2, "Which database?") + H(3), **other(plain_q(2))), [replied("Looks correct")])
+    check_("answer/summary_question_of_a_unit", created(owing, CREATED_AUDIT + Q(1, "Does this look right?", "**Options**: Looks correct,Request changes", "**Unit**: api") + H(2)), [replied("Looks correct")])
+    check_("answer/summary_question_single_stage", created(owing, CREATED_AUDIT + Q(1, "Does this look right?", "**Options**: Looks correct,Request changes", "**Workflow**: single-stage:intent-capture") + H(2)),
+           [replied("Looks correct"), replied("Looks correct", "--single")])
+    check_("answer/summary_question_open_no_state_file", created(audit=CREATED_AUDIT + summary_q + H(2), **{f"{CREATED_DIR}/aidlc-state.md": None}), [replied("Looks correct")])
+    check_("answer/summary_choice_with_no_question_no_state_file", created(audit=CREATED_AUDIT + H(2), **{f"{CREATED_DIR}/aidlc-state.md": None}), [replied("Looks correct")])
+    check_("answer/summary_choice_with_no_question", created(owing, CREATED_AUDIT + H(2)), [replied("Looks correct"), replied("Request changes: x")])
     check_("answer/summary_question_not_owed", told(summary_q, H(2)), [replied("Looks correct")])
     check_("answer/summary_owed_other_question", created(owing, CREATED_AUDIT + Q(1, "Which database?") + H(2)), [replied("Looks correct"), reply])
     check_("answer/summary_owed_question_superseded", created(owing, CREATED_AUDIT + summary_q + Q(2, "Which database?") + H(3)), [reply])

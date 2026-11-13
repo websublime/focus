@@ -167,82 +167,18 @@ fn the_answers_that_are_not_ported_are_refused_by_name() {
     ] {
         assert_eq!(refusal(&root, &args), said, "{args:?}");
     }
-    // The summary of a stage that owes one, as the question open for it.
-    write(
-        &root,
-        &format!("{RECORD}/audit/laptop-abc123.md"),
-        &format!(
-            "{}\n## Decision Recorded\n**Timestamp**: 2026-01-05T10:01:00Z\n**Event**: DECISION_RECORDED\n**Stage**: intent-capture\n**Decision**: Does this look right?\n**Options**: Looks correct,Request changes\n\n---\n\n## Human Turn\n**Timestamp**: 2026-01-05T10:02:00Z\n**Event**: HUMAN_TURN\n**Session**: s1\n\n---\n",
-            fs::read_to_string(root.join(RECORD).join("audit/laptop-abc123.md")).unwrap()
-        ),
-    );
-    let owed = "\"intent-capture\" owes a consolidated summary confirmation, and the question open for it is that summary: its answer is recorded with `--checkpoint summary-confirmation --questions-file <path>`, and Focus does not record summary confirmations yet.";
-    let looks = [
-        "answer",
-        "--stage",
-        "intent-capture",
-        "--details",
-        "Looks correct",
-    ];
-    assert_eq!(refusal(&root, &looks), owed);
-    // The same when the summary was recorded with its checkpoint.
-    let row = |event: &str, minute: u32, fields: &str| {
-        format!(
-            "\n## Row\n**Timestamp**: 2026-01-05T10:{minute:02}:00Z\n**Event**: {event}\n**Stage**: intent-capture\n{fields}\n---\n"
-        )
-    };
-    let shard = format!("{RECORD}/audit/laptop-abc123.md");
-    write(
-        &root,
-        &shard,
-        &format!(
-            "{SHARD}{}",
-            row(
-                "DECISION_RECORDED",
-                1,
-                "**Decision**: Right?\n**Checkpoint**: Consolidated Summary Confirmation\n"
-            )
-        ),
-    );
-    assert_eq!(refusal(&root, &looks), owed);
-    // Three questions, each with another after it: position orders the two
-    // of one shard, the instant orders the shards. The questions of the
-    // latest instant stand for all, and that one is the summary.
-    let summary = "**Decision**: Right?\n**Options**: Looks correct,Request changes\n";
-    write(
-        &root,
-        &shard,
-        &format!(
-            "{SHARD}{}{}",
-            row("DECISION_RECORDED", 7, summary),
-            row("DECISION_RECORDED", 5, "**Decision**: Which database?\n")
-        ),
-    );
-    write(
-        &root,
-        &format!("{RECORD}/audit/desktop-def456.md"),
-        &format!(
-            "{SHARD}{}",
-            row("DECISION_RECORDED", 6, "**Decision**: Which cache?\n")
-        ),
-    );
-    assert_eq!(refusal(&root, &looks), owed);
     let _ = fs::remove_dir_all(root);
 }
 
 /// Deliberate deviation. A question the engine pairs with a record of its
-/// own (a summary confirmation, Construction's checkpoints, Plan Approval),
-/// a question about one unit of work and a batch of Plan Approval
-/// questions: upstream records each with what it needs; Focus refuses each
-/// by name until the slice that brings it, and records nothing.
+/// own (Construction's checkpoints, Plan Approval), a question about one
+/// unit of work and a batch of Plan Approval questions: upstream records
+/// each with what it needs; Focus refuses each by name until the slice that
+/// brings it, and records nothing.
 #[test]
 fn the_questions_that_are_not_ported_are_refused_by_name() {
     let root = project("questions");
     for (more, said) in [
-        (
-            vec!["--checkpoint", "summary-confirmation"],
-            "--checkpoint summary-confirmation records the question of a stage's summary confirmation, and Focus does not record summary confirmations yet.",
-        ),
         (
             vec!["--checkpoint", "verification-command"],
             "--checkpoint verification-command records a question of Construction's checkpoints, and Focus does not run Construction yet.",
@@ -263,36 +199,8 @@ fn the_questions_that_are_not_ported_are_refused_by_name() {
             vec!["--batch-file", "b.json"],
             "--batch-file records the Plan Approval questions of several units of work at once, and Focus does not run Plan Approval yet.",
         ),
-        (
-            vec!["--options", "Looks correct,Request changes"],
-            "\"intent-capture\" owes a consolidated summary confirmation, and this question offers its two choices: it is recorded with `--checkpoint summary-confirmation --questions-file <path>`, and Focus does not record summary confirmations yet.",
-        ),
     ] {
         assert_eq!(refusal(&root, &asking(&more)), said, "{more:?}");
-    }
-    // The summary's two choices are known however they are capitalised,
-    // decorated or ended.
-    let owed = "\"intent-capture\" owes a consolidated summary confirmation, and this question offers its two choices: it is recorded with `--checkpoint summary-confirmation --questions-file <path>`, and Focus does not record summary confirmations yet.";
-    for options in [
-        "LOOKS CORRECT!, request changes (Recommended), ",
-        "Looks correct.,Request changes!!",
-        " ,Request changes,,Looks correct",
-    ] {
-        assert_eq!(
-            refusal(&root, &asking(&["--options", options])),
-            owed,
-            "{options}"
-        );
-    }
-    // Any other pair, one choice alone and three of them are ordinary questions.
-    for options in [
-        "Looks correct,Other",
-        "Looks correct",
-        "Looks correct?,Request changes",
-        "Looks correct,Request changes,Looks correct",
-    ] {
-        let output = log(&root, &asking(&["--options", options]));
-        assert_eq!(output.status.code(), Some(0), "{options}");
     }
     // A question with other options is an ordinary one, and is recorded.
     let output = log(&root, &asking(&["--options", "Postgres,SQLite"]));
@@ -303,6 +211,105 @@ fn the_questions_that_are_not_ported_are_refused_by_name() {
     let ledger = fs::read_to_string(root.join(RECORD).join("audit/laptop-abc123.md")).unwrap();
     assert!(
         ledger.ends_with("**Event**: DECISION_RECORDED\n**Stage**: intent-capture\n**Decision**: Which database?\n**Options**: Postgres,SQLite\n\n---\n"),
+        "{ledger}"
+    );
+    let _ = fs::remove_dir_all(root);
+}
+
+/// Deliberate deviation. The questions file of a summary is hashed into the
+/// receipt a gate weighs. Upstream opens it by name: it reads through a
+/// link, a linked folder or a second hard link, says of a link to nothing
+/// that the file does not exist, and falls over on a folder. Focus reads it
+/// as every file of the record that decides something, a regular file with
+/// one name reached through no link, and records nothing otherwise.
+#[cfg(unix)]
+#[test]
+fn the_questions_file_of_a_summary_is_not_opened_by_name() {
+    use std::os::unix::fs::symlink;
+    const SUMMARY: &str =
+        "## Q1\n\n[Answer]: A\n\n## Consolidated Summary Confirmation\n\nA tool.\n\n[Answer]:\n";
+    let file = format!("{RECORD}/ideation/intent-capture/intent-capture-questions.md");
+    let asks = |file: &str| -> Vec<String> {
+        ASK.iter()
+            .copied()
+            .chain([
+                "--options",
+                "Looks correct,Request changes",
+                "--checkpoint",
+                "summary-confirmation",
+                "--questions-file",
+                file,
+            ])
+            .map(str::to_owned)
+            .collect()
+    };
+    let said = |root: &Path| {
+        let args = asks(&file);
+        let args: Vec<&str> = args.iter().map(String::as_str).collect();
+        refusal(root, &args)
+    };
+    let is_link = |said: &str, what: &str| {
+        assert!(
+            said.ends_with(&format!(
+                "{what} is a symlink, and no path component may be a symlink here. A redirected container directory is refused exactly like a symlink found INSIDE an already-trusted one."
+            )),
+            "{said}"
+        );
+    };
+
+    // A link to a questions file outside the record, and one to nothing.
+    for target in ["elsewhere-questions.md", "nowhere-questions.md"] {
+        let root = project(&format!("summary-link-{}", &target[..2]));
+        write(&root, "elsewhere-questions.md", SUMMARY);
+        fs::create_dir_all(root.join(&file).parent().unwrap()).unwrap();
+        symlink(root.join(target), root.join(&file)).unwrap();
+        is_link(&said(&root), "intent-capture-questions.md");
+        let _ = fs::remove_dir_all(root);
+    }
+    // The stage's folder is a link to one outside the record.
+    let root = project("summary-behind");
+    write(&root, "elsewhere/intent-capture-questions.md", SUMMARY);
+    fs::create_dir_all(root.join(RECORD).join("ideation")).unwrap();
+    symlink(
+        root.join("elsewhere"),
+        root.join(RECORD).join("ideation/intent-capture"),
+    )
+    .unwrap();
+    is_link(&said(&root), "ideation/intent-capture");
+    let _ = fs::remove_dir_all(root);
+    // A second name for the file, anywhere on the disk.
+    let root = project("summary-second-name");
+    write(&root, &file, SUMMARY);
+    fs::hard_link(root.join(&file), root.join("other-name.md")).unwrap();
+    let refused = said(&root);
+    assert!(
+        refused.starts_with(
+            "summary questions file is multiply linked (a hardlink) and is not trusted: "
+        ),
+        "{refused}"
+    );
+    let _ = fs::remove_dir_all(root);
+    // A folder with the file's name.
+    let root = project("summary-folder");
+    write(&root, &format!("{file}/x"), "x");
+    let refused = said(&root);
+    assert!(
+        refused.starts_with("summary questions file is not a regular file"),
+        "{refused}"
+    );
+    let _ = fs::remove_dir_all(root);
+    // The file as it should be is recorded, bound to its name.
+    let root = project("summary-plain");
+    write(&root, &file, SUMMARY);
+    let args = asks(&file);
+    let args: Vec<&str> = args.iter().map(String::as_str).collect();
+    let output = log(&root, &args);
+    assert_eq!(output.status.code(), Some(0));
+    let ledger = fs::read_to_string(root.join(RECORD).join("audit/laptop-abc123.md")).unwrap();
+    assert!(
+        ledger.ends_with(&format!(
+            "**Checkpoint**: Consolidated Summary Confirmation\n**Questions File**: {file}\n\n---\n"
+        )),
         "{ledger}"
     );
     let _ = fs::remove_dir_all(root);

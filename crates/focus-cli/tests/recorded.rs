@@ -212,6 +212,12 @@ fn normalise_audit(text: &str, root: &Path) -> String {
             "<cli> orchestrate report",
         )
         .replace("`focus engine log`", "<cli> log");
+    // A command of the log tool rendered for the agent to run next.
+    text = replace_all(
+        &text,
+        r"`focus engine log ((?:decision|answer) [^`]*)`",
+        |found, text| format!("<run log {}>", group(found, text, 1)),
+    );
     // The state tool names itself, its verbs and the orchestrator's. A
     // memory file copied whole may name upstream's script too.
     text = replace_all(

@@ -30,12 +30,11 @@ use focus_lifecycle::{admission, events};
 use focus_state::progress::{CheckboxState, parse_checkboxes};
 use serde_json::{Value, json};
 
-use crate::decision::{is_summary_options, unknown_checkpoint};
+use crate::decision::unknown_checkpoint;
 use crate::message::{self, What};
+use crate::summary::{self, Plain, Verb};
 use crate::{answer_text, flags};
 
-/// `SUMMARY_CONFIRMATION_CHECKPOINT`, as a row names it.
-const SUMMARY_CHECKPOINT: &str = "Consolidated Summary Confirmation";
 /// `ANSWER_MODE_LABELS`.
 const ANSWER_MODE_LABELS: [(&str, &str); 3] = [
     ("guide", "Guide me"),
@@ -79,7 +78,7 @@ fn definitely_before(earlier: &ShardEvent, later: &ShardEvent) -> bool {
 /// within a shard and instant between shards are two orders, so three rows
 /// can each have another after them; then the rows of the latest instant
 /// stand for all.
-fn maximal<'a>(rows: &[&'a ShardEvent]) -> Vec<&'a ShardEvent> {
+pub(crate) fn maximal<'a>(rows: &[&'a ShardEvent]) -> Vec<&'a ShardEvent> {
     let kept: Vec<&ShardEvent> = rows
         .iter()
         .enumerate()
@@ -103,27 +102,6 @@ fn maximal<'a>(rows: &[&'a ShardEvent]) -> Vec<&'a ShardEvent> {
         .filter(|row| row.timestamp == latest)
         .copied()
         .collect()
-}
-
-/// `answersSummaryQuestion`: whether the question open for this stage is
-/// its summary confirmation, recorded with its checkpoint or as a plain
-/// question offering the summary's two choices.
-fn answers_summary_question(rows: &[ShardEvent], stage: &str, single: bool) -> bool {
-    let workflow = single.then(|| format!("single-stage:{stage}"));
-    let decisions: Vec<&ShardEvent> = rows
-        .iter()
-        .filter(|row| {
-            row.event == "DECISION_RECORDED"
-                && block_field(&row.block, "Stage") == Some(stage)
-                && block_field(&row.block, "Workflow") == workflow.as_deref()
-        })
-        .collect();
-    maximal(&decisions)
-        .iter()
-        .any(|row| match block_field(&row.block, "Checkpoint") {
-            None => is_summary_options(block_field(&row.block, "Options")),
-            Some(checkpoint) => checkpoint == SUMMARY_CHECKPOINT,
-        })
 }
 
 /// `handleAnswer`. `open` selects the piece of work the answer belongs to.
@@ -217,20 +195,22 @@ pub fn answer(open: &dyn Fn() -> Result<Workflow>, args: &[String]) -> Result<Va
     }
     let wf = open()?;
     let rows = wf.events();
-    let state = wf.read_state()?;
     let stage_node = wf.install.stage(stage);
-    // `refusePlainSummaryConfirmation`, for an answer: when the question open
-    // for this stage is its summary confirmation and the stage owes one, an
-    // answer without the checkpoint never counts. Upstream refuses it with
-    // the commands that record a summary (slice 2c).
-    if let Some(node) = stage_node
-        && answers_summary_question(&rows, stage, flags.get("single").is_some())
-        && admission::summary_confirmation_owed(&wf, node, &state)
-    {
-        bail!(
-            "\"{}\" owes a consolidated summary confirmation, and the question open for it is that summary: its answer is recorded with `--checkpoint summary-confirmation --questions-file <path>`, and Focus does not record summary confirmations yet.",
-            node.slug
-        );
+    // An answer to the stage's summary question that does not say so never
+    // counts: refused with the commands that do.
+    if flags.get("checkpoint").is_none() {
+        summary::refuse_plain(
+            &wf,
+            &rows,
+            Verb::Answer,
+            &Plain {
+                stage,
+                unit: None,
+                single: flags.get("single").is_some(),
+                options: None,
+                details: Some(said),
+            },
+        )?;
     }
     // The mode question: the agent reads the way the person chose from
     // their reply and records its option, which later stages reuse.
