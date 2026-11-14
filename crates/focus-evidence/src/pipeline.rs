@@ -26,6 +26,23 @@
 //! Which links a stage still owes, and a repository whose knowledge base
 //! was kept instead of rebuilt, are the gate's reading of the same rows
 //! (slice 3).
+//!
+//! # Tests that change no answer
+//!
+//! Upstream asks them and so does this module; the mutation sweep found no
+//! input that tells them apart.
+//!
+//! - The shard and the position in [`ordered`]: the rows arrive shard by
+//!   shard and in position order, and the sort keeps rows of one instant as
+//!   it found them.
+//! - A receipt whose `Link` is blank is left out: no link of a chain has an
+//!   empty name, so it would match none.
+//! - A receipt whose `Artifact Path` is blank is not current: a blank path
+//!   is the project's folder, which is outside the record.
+//! - A path that is the record itself is let past the test of being inside
+//!   it: the record is a folder, and no folder is read as a handoff.
+//! - A later link counts only on a chain already started: on an empty chain
+//!   the next link is the first, which the branch before has taken.
 
 use std::path::Path;
 

@@ -24,6 +24,14 @@
 //! for a stage run by itself whether the knowledge base's store is still
 //! current). A link reads the receipts and nothing else of it: the rest is
 //! what closes the stage, and comes with the verb that does (slice 3).
+//!
+//! # Tests that change no answer
+//!
+//! - The ceremony's setting is `on` or `off` and nothing else, so asking
+//!   for `off` and asking for anything but `on` are one question.
+//! - Whether a receipt's file is still current is asked of the lead's
+//!   receipts alone, and the chain asks it of no other: naming the lead
+//!   there says who the question is about, and decides nothing.
 
 use std::path::Path;
 
