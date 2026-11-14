@@ -702,6 +702,19 @@ async function answer(c: Record<string, any>): Promise<unknown> {
     }
     case "audit_find":
       return { found: lib.findAllEvents(c.audit, c.event, c.slug ?? undefined) };
+    case "review_binding": {
+      // What a review request's row binds, whether a completion can be held
+      // to it, and whether the row replaces the request pending at its pass.
+      const binding = lib.reviewRequestBindingFromBlock(c.block);
+      const pending = c.pending === null
+        ? undefined
+        : { binding: c.pending.block === null ? null : lib.reviewRequestBindingFromBlock(c.pending.block) };
+      return {
+        binding,
+        modern: binding === null ? null : lib.reviewRequestBindingIsModern(binding, { workspace_requires: c.workspace_requires }),
+        replaces: lib.reviewRequestReplaces(c.block, pending),
+      };
+    }
     case "audit_field":
       return { value: lib.auditBlockField(c.block, c.name) };
     case "bullet_field":

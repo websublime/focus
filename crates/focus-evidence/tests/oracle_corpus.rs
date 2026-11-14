@@ -29,6 +29,8 @@ fn every_evidence_case_gets_upstreams_answer() {
     let (mut embedded, mut unresolved) = (0, 0);
     let (mut summaries, mut hashed, mut unhashed) = (0, 0, 0);
     let (mut chosen, mut blank, mut unanswered) = (0, 0, 0);
+    let (mut requests, mut bound, mut of_records, mut of_appendices) = (0, 0, 0, 0);
+    let (mut modern, mut replacing) = (0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         // Parsed as upstream's driver parses it, so nested objects are in the
@@ -80,6 +82,14 @@ fn every_evidence_case_gets_upstreams_answer() {
             blank += usize::from(out["answer"].as_str().is_some_and(str::is_empty));
             unanswered += usize::from(out.get("answer").is_some_and(Value::is_null));
             assert!(out.get("unreadable").is_none(), "{}: {out}", case["id"]);
+        } else if kind == "review_binding" {
+            requests += 1;
+            let binding = &out["binding"];
+            bound += usize::from(!binding.is_null());
+            of_records += usize::from(binding["requestId"].is_string());
+            of_appendices += usize::from(binding["legacyAppendix"].is_object());
+            modern += usize::from(out["modern"] == true);
+            replacing += usize::from(out["replaces"] == true);
         } else if kind == "source_listing_parse" {
             read += 1;
             listings += usize::from(out["size"].as_u64().is_some_and(|size| size > 1));
@@ -128,6 +138,15 @@ fn every_evidence_case_gets_upstreams_answer() {
         chosen >= 250 && blank >= 40 && unanswered >= 200,
         "{chosen} {blank} {unanswered}"
     );
+    assert!(
+        requests >= 2000 && bound >= 900 && requests - bound >= 900,
+        "{requests} {bound}"
+    );
+    assert!(
+        of_records >= 400 && of_appendices >= 300 && modern >= 400 && bound - modern >= 300,
+        "{of_records} {of_appendices} {modern}"
+    );
+    assert!(replacing >= 250, "{replacing}");
     assert!(
         differing.is_empty(),
         "{} evidence cases differ from upstream; first:\n{}",

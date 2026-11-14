@@ -5595,5 +5595,99 @@ for document in [
 for _ in range(scale * 120):
     summary(sm_doc())
 
+
+# --- review_binding: what a review request binds its review to ----------------
+#
+# A REVIEW_REQUESTED row carries the fields its completion is checked against
+# (`reviewRequestBindingFromBlock`): the fingerprint of the artifacts, the
+# request's id, the source fingerprints, a recovery's cause, and on rows from
+# before review records the boundary of the artifact's review appendix. A row
+# with a field that is not what it should be binds nothing. The cases start
+# from a row of each era and change up to three fields, to a value that is
+# right, wrong or missing; with each goes whether the binding is one a
+# completion can be held to (`reviewRequestBindingIsModern`) and whether the
+# row replaces the request pending at its pass (`reviewRequestReplaces`).
+rb = random.Random(seed * 7919 + 21)
+rb_hex = lambda n: "".join(rb.choice("0123456789abcdef") for _ in range(n))
+rb_sha = lambda: "sha256:" + rb_hex(64)
+rb_id = lambda: "review:" + rb_hex(32)
+RB_POOLS = {
+    "Artifact Fingerprint": [rb_sha, lambda: "sha256:" + rb_hex(63), lambda: "sha256:" + rb_hex(65), lambda: "sha256:" + rb_hex(64).upper(), lambda: rb_hex(64),
+                             lambda: "SHA256:" + rb_hex(64), lambda: "", lambda: "unbindable", lambda: rb_sha() + " x"],
+    "Request Id": [rb_id, rb_id, lambda: "review:" + rb_hex(31), lambda: "review:" + rb_hex(33), lambda: "review:" + rb_hex(32).upper(), lambda: "none", lambda: rb_hex(32), lambda: ""],
+    "Review Appendix Artifact": [lambda: "aidlc/spaces/default/intents/260105-add-login/ideation/intent-capture/intent-statement.md", lambda: "x.md", lambda: ""],
+    "Review Appendix Offset": [lambda: rb.choice(["0", "12", "4096", "007", "9007199254740991", "9007199254740992", "9007199254740993", "99999999999999999999999", "00009007199254740991",
+                                                "-1", "1.5", "1e3", "", "12 ", "0x10", "١٢"])],
+    "Review Appendix Prior Digest": [lambda: "none", rb_sha, lambda: "None", lambda: "sha256:xyz", lambda: "", lambda: rb_hex(64)],
+    "Review Appendix Prior Length": [lambda: rb.choice(["0", "12", "0012", "000", "9007199254740991", "9007199254740992", "18014398509481984", "x", "-1", "", "1.0"])],
+    "Review Challenge": [rb_id, lambda: "review:zz", lambda: "", lambda: rb_hex(32)],
+    "Source Fingerprint": [lambda: rb_hex(40), lambda: rb_hex(64), lambda: "unbindable", lambda: rb_hex(41), lambda: rb_sha(), lambda: "UNBINDABLE", lambda: "", lambda: rb_hex(40).upper()],
+    "Unit Source Fingerprint": [rb_sha, lambda: "unbindable", lambda: rb_hex(64), lambda: "", lambda: "sha256:" + rb_hex(40)],
+    "Recovery Cause": [lambda: "artifact", lambda: "source", lambda: "artifact+source", lambda: "source+artifact", lambda: "Artifact", lambda: "", lambda: "artifact + source"],
+}
+
+
+def rb_row(era):
+    """The fields of a request of an era, every one as it should be."""
+    fields = {"Artifact Fingerprint": rb_sha()}
+    if era == "record":
+        fields["Request Id"] = rb_id()
+    elif era == "appendix":
+        fields["Review Appendix Artifact"] = "x.md"
+        fields["Review Appendix Offset"] = rb.choice(["0", "12", "4096"])
+        shape = rb.randrange(5)
+        if shape >= 1:
+            fields["Review Appendix Prior Digest"] = "none" if shape in (1, 2) else rb_sha()
+        if shape == 2:
+            fields["Review Appendix Prior Length"] = "0"
+        if shape >= 4:
+            fields["Review Appendix Prior Length"] = rb.choice(["1", "12", "4096"])
+            if rb.random() < 0.6:
+                fields["Review Challenge"] = rb_id()
+    if rb.random() < 0.5:
+        fields["Source Fingerprint"] = rb.choice([rb_hex(40), rb_hex(64), "unbindable"])
+    if rb.random() < 0.25:
+        fields["Unit Source Fingerprint"] = rb.choice([rb_sha(), "unbindable"])
+    if rb.random() < 0.2:
+        fields["Recovery Cause"] = rb.choice(["artifact", "source", "artifact+source"])
+    return fields
+
+
+def rb_block(fields):
+    lines = [f"**{name}**: {value}" if value != "" or rb.random() < 0.5 else f"**{name}**:" for name, value in fields]
+    return "\n## Review Requested\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: REVIEW_REQUESTED\n**Stage**: intent-capture\n" + "\n".join(lines) + "\n\n---\n"
+
+
+for index in range(scale * 400):
+    fields = rb_row(rb.choice(["record", "record", "appendix", "appendix", "bare"]))
+    for _ in range(rb.choice([0, 0, 1, 1, 1, 2, 3])):
+        name = rb.choice(list(RB_POOLS))
+        if rb.random() < 0.25:
+            fields.pop(name, None)
+        else:
+            fields[name] = rb.choice(RB_POOLS[name])()
+    rows = list(fields.items())
+    rb.shuffle(rows)
+    # A field written twice: the first is the one read.
+    if rb.random() < 0.05 and rows:
+        name = rb.choice(rows)[0]
+        rows.append((name, rb.choice(RB_POOLS[name])()))
+    # The request pending at this pass, if there is one: of either era, or a row that bound nothing.
+    pending = rb.choice([None, None, "record", "record", "appendix", "unbound", "none"])
+    pending_block = None
+    if pending in ("record", "appendix"):
+        pending_fields = rb_row(pending)
+        pending_block = rb_block(list(pending_fields.items()))
+        named = rb.choice([pending_fields.get("Request Id", "none"), pending_fields.get("Request Id", "none"), "none", rb_id(), "", None])
+    elif pending == "unbound":
+        pending_block = rb_block([("Artifact Fingerprint", "nope")])
+        named = rb.choice(["none", rb_id(), None])
+    else:
+        named = rb.choice(["none", rb_id(), None, None])
+    if named is not None:
+        rows.insert(rb.randrange(len(rows) + 1), ("Replaces Request Id", named))
+    add("review_binding", block=rb_block(rows), workspace_requires=rb.random() < 0.5,
+        pending=None if pending is None else {"block": None if pending == "none" else pending_block})
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")
