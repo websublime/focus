@@ -14,6 +14,15 @@
 //! Three fields are tested as text whatever they are (`String(value)`): a
 //! finding's id, the id of a related finding and an earlier decision. So a
 //! list of one id reads as that id, as it does upstream.
+//!
+//! # Tests that change no answer
+//!
+//! - What that text is for a `null`, a flag or a number, alone or as an
+//!   entry of a list: none of them reads as an id or as a decision whichever
+//!   way it is written.
+//! - A completion of a request with no id carries its review only when it
+//!   names no record at all. One that names a record badly has already
+//!   failed to answer the request.
 
 use focus_audit::read::block_field;
 use focus_js::{json, num, re};

@@ -6104,6 +6104,13 @@ for key in ("id", "severity", "location", "finding", "required_action", "status"
             finding[key] = value
             record[where] = [finding]
             rr_case(request, answer, record, "pretty", "right")
+# The pass of a record as each kind of number, and as no number, with a completion that says the same.
+for value in (0, -1, 1.5, 1.0, 2, 100, 1e2, "1", None, True, 2.000001, -0.0):
+    for _ in range(3):
+        request, answer, record = rr_pair()
+        record["iteration"] = value
+        answer["Iteration"] = "1" if isinstance(value, (str, bool)) or value is None else json.dumps(value)
+        rr_case(request, answer, record, "pretty", "right")
 # A completion with no pass, on a record that is otherwise its review.
 for _ in range(12):
     request, answer, record = rr_pair()
