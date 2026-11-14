@@ -37,10 +37,14 @@
 
 use focus_audit::read::block_field;
 use focus_audit::shards::ShardEvent;
+use focus_audit::units::bolt_slug_for_unit;
 use focus_evidence::authorization::jump_reaches;
+use focus_evidence::review::{self, RecordRef, RequestBinding};
+use focus_evidence::review_record::{self, Record};
 use focus_graph::runtime::Stage;
 use focus_js::order::cmp_utf16;
 use focus_js::text::trim;
+use focus_js::{num, re};
 use focus_state::fields::get_field;
 
 use crate::artifacts::uses_stage_level_per_unit_artifacts;
@@ -561,4 +565,419 @@ pub fn window(wf: &Workflow, state: &str, stage: &Stage, rows: Vec<ShardEvent>) 
         stage_level,
         &wf.install.graph,
     )
+}
+
+/// `REVIEW_ACCOUNTING_EVENTS`: the rows the count of an attempt's reviews is
+/// read against.
+const ACCOUNTING_EVENTS: [&str; 10] = [
+    "WORKFLOW_STARTED",
+    "STAGE_STARTED",
+    "STAGE_COMPLETED",
+    "STAGE_JUMPED",
+    "GATE_REJECTED",
+    "BOLT_STARTED",
+    "BOLT_COMPLETED",
+    "BOLT_FAILED",
+    "REVIEW_REQUESTED",
+    "REVIEW_COMPLETED",
+];
+
+/// A review request that waits for its verdict.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PendingRequest {
+    pub binding: RequestBinding,
+    /// Whether the request was dispatched again against its own binding.
+    pub retried: bool,
+    /// Whether the request's row names a review file of its own (rows from
+    /// before per-request review files do not).
+    pub own_review_file: bool,
+}
+
+/// `ReviewAttemptAccounting`: the reviews of one attempt of a stage, for one
+/// reviewer and one unit (or the stage).
+#[derive(Debug, Clone, PartialEq)]
+pub struct Accounting {
+    /// The row the attempt starts at, as text; empty when the ledger has no
+    /// boundary. The id of the attempt's review files is taken from it.
+    pub floor: String,
+    /// The requests of the attempt.
+    pub request_count: usize,
+    /// The requests the review budget counts: fewer when the unit started
+    /// again a step it had finished.
+    pub budget_count: usize,
+    pub bolt_started: bool,
+    pub bolt_batch: Option<String>,
+    pub bolt_slug: Option<String>,
+    /// The passes with a request and no verdict yet, in the order asked.
+    pub pending_iterations: Vec<f64>,
+    /// The pending request of each such pass.
+    pub pending_requests: Vec<(f64, PendingRequest)>,
+    pub recovery_iteration: Option<f64>,
+    pub recovery_spent: bool,
+    /// Why the attempt's order cannot be told: a tie across shards.
+    pub ambiguity: Option<String>,
+}
+
+/// What the accounting is asked about.
+pub struct Reviewed<'a> {
+    pub slug: &'a str,
+    pub per_unit: bool,
+    pub workspace_requires: bool,
+    pub reviewer: &'a str,
+    pub unit: Option<&'a str>,
+    /// `single-stage:<slug>` for a stage run by itself.
+    pub workflow: Option<&'a str>,
+}
+
+/// The names a row lists in `field`, as written between the commas.
+fn listed<'a>(block: &'a str, field: &str) -> Vec<&'a str> {
+    block_field(block, field)
+        .unwrap_or_default()
+        .split(',')
+        .map(trim)
+        .collect()
+}
+
+/// `reviewAttemptAccounting`: the requests of the current attempt, counted.
+/// The boundaries are the window's, read again with the unit in mind: the
+/// start of the unit's own bolt is a stronger floor than the stage's, and
+/// its end closes it. `read` hands over the review record a completion
+/// names.
+///
+/// # Errors
+///
+/// `unit` is no unit name.
+pub fn accounting(
+    view: &Window,
+    state: &str,
+    reviewed: &Reviewed,
+    graph: &[Stage],
+    read: &dyn Fn(&RecordRef) -> Option<Record>,
+) -> Result<Accounting, String> {
+    let Reviewed {
+        slug,
+        per_unit,
+        workspace_requires,
+        reviewer,
+        unit,
+        workflow,
+    } = *reviewed;
+    let rows: Vec<ShardEvent> = view
+        .all_events
+        .iter()
+        .filter(|row| ACCOUNTING_EVENTS.contains(&row.event.as_str()))
+        .cloned()
+        .collect();
+    let events = sort_attempt_events(&rows);
+    let tied_across_shards = |index: usize| {
+        events.iter().any(|candidate| {
+            candidate.timestamp == events[index].timestamp && candidate.shard != events[index].shard
+        })
+    };
+    // Tied with rows of other shards that are all the work's own boundaries.
+    let tied_only_to_workflow_boundary = |index: usize| {
+        let mut others = events.iter().filter(|other| {
+            other.timestamp == events[index].timestamp && other.shard != events[index].shard
+        });
+        let mut saw_boundary = false;
+        others.all(|other| {
+            saw_boundary = true;
+            other.event == "WORKFLOW_STARTED" || other.event == "STAGE_JUMPED"
+        }) && saw_boundary
+    };
+
+    let unit_major = per_unit && (iteration_is_unit_major(state) || checkpoints_enabled(state));
+    let team = per_unit && (is_team_unit_ownership(state) || checkpoints_enabled(state));
+    let scoped_rejections = per_unit && unit_scoped_lifecycle_floors(state);
+    let unit_floored: Vec<&ShardEvent> = if per_unit && !unit_major {
+        let ignored = starts_under_unit_flooring(&view.all_events, graph);
+        view.all_events
+            .iter()
+            .zip(ignored)
+            .filter_map(|(row, ignored)| ignored.then_some(row))
+            .collect()
+    } else {
+        Vec::new()
+    };
+    let floored = |event: &ShardEvent| {
+        unit_floored
+            .iter()
+            .any(|row| row.shard == event.shard && row.pos == event.pos)
+    };
+
+    let expected_bolt_slug = unit.map(bolt_slug_for_unit).transpose()?;
+    let mut floor: Option<usize> = None;
+    let mut bolt_started = false;
+    let mut bolt_batch: Option<String> = None;
+    let mut bolt_slug: Option<String> = None;
+    let mut ambiguity: Option<String> = None;
+    for (index, entry) in events.iter().enumerate() {
+        let field = |name: &str| block_field(&entry.block, name);
+        let tie = |what: &str| format!("cross-shard {what} tie at {}", entry.timestamp);
+        if let Some(workflow) = workflow {
+            // A stage run by itself counts from its own last completion.
+            if entry.event == "STAGE_COMPLETED"
+                && field("Stage") == Some(slug)
+                && field("Workflow") == Some(workflow)
+            {
+                floor = Some(index);
+            }
+            continue;
+        }
+        let mut closes_bolt = false;
+        if entry.event == "WORKFLOW_STARTED"
+            || (entry.event == "STAGE_JUMPED" && jump_reaches(&entry.block, slug, graph))
+        {
+            // Only an attempt owned by a team is undone by a tied boundary.
+            ambiguity = (team && tied_across_shards(index)).then(|| tie("boundary"));
+            closes_bolt = true;
+        } else if let Some(unit) = unit.filter(|_| entry.event == "BOLT_STARTED") {
+            let started_slug = field("Bolt slug");
+            if !listed(&entry.block, "Bolt names").contains(&unit)
+                || started_slug.is_some_and(|slug| Some(slug) != expected_bolt_slug.as_deref())
+            {
+                continue;
+            }
+            ambiguity = tied_across_shards(index).then(|| tie("Bolt boundary"));
+            floor = Some(index);
+            bolt_started = true;
+            bolt_batch = field("Batch number").map(str::to_owned);
+            bolt_slug = started_slug.map(str::to_owned);
+            continue;
+        } else if let Some(unit) =
+            unit.filter(|_| entry.event == "BOLT_COMPLETED" || entry.event == "BOLT_FAILED")
+        {
+            let names = listed(
+                &entry.block,
+                if entry.event == "BOLT_FAILED" {
+                    "Failed Bolt"
+                } else {
+                    "Bolt names"
+                },
+            );
+            let paired = match (bolt_slug.as_deref(), field("Bolt slug")) {
+                (Some(started), Some(ended)) => started == ended,
+                _ => names.contains(&unit),
+            };
+            if !paired {
+                continue;
+            }
+            ambiguity = tied_across_shards(index).then(|| tie("Bolt boundary"));
+            closes_bolt = true;
+        } else if entry.event == "GATE_REJECTED" {
+            let stages = match field("Gate Stages").or(field("Stage")) {
+                Some(stages) => stages.split(',').map(trim).collect(),
+                None => vec![""],
+            };
+            if !stages.contains(&slug) {
+                continue;
+            }
+            let rejected_unit = field("Unit");
+            // A rejection with no unit asks for changes to the whole stage:
+            // outside team and checkpoint ownership it starts every unit's
+            // attempt again.
+            if scoped_rejections
+                && match unit {
+                    Some(unit) => rejected_unit != Some(unit) && (team || rejected_unit.is_some()),
+                    None => rejected_unit.is_some(),
+                }
+            {
+                continue;
+            }
+            ambiguity = tied_across_shards(index).then(|| tie("gate boundary"));
+            closes_bolt = true;
+        } else if entry.event == "STAGE_STARTED"
+            && field("Stage") == Some(slug)
+            && !unit_major
+            && !floored(entry)
+            && !single_stage(&entry.block)
+        {
+            ambiguity = tied_across_shards(index).then(|| tie("stage boundary"));
+            closes_bolt = true;
+        }
+        if closes_bolt {
+            floor = Some(index);
+            bolt_started = false;
+            bolt_batch = None;
+            bolt_slug = None;
+        }
+    }
+
+    // A tie among the rows of the unit's own bolt, once that bolt is merged
+    // and none is open, orders nothing that matters.
+    const BOLT_TIE: &str = "cross-shard Bolt boundary tie at ";
+    if let Some(unit) = unit
+        && let Some(instant) = ambiguity
+            .as_deref()
+            .and_then(|said| said.strip_prefix(BOLT_TIE))
+        && view.merged_bolt_units.iter().any(|merged| merged == unit)
+        && !view.open_bolt_units.iter().any(|open| open == unit)
+    {
+        let tied: Vec<&ShardEvent> = view
+            .events
+            .iter()
+            .filter(|event| event.timestamp == instant)
+            .collect();
+        let several_shards = tied.iter().any(|event| event.shard != tied[0].shard);
+        let lifecycle_only = tied.len() > 1
+            && several_shards
+            && tied.iter().all(|event| match event.event.as_str() {
+                "AUDIT_MERGED" => true,
+                "BOLT_STARTED" | "BOLT_COMPLETED" => {
+                    listed(&event.block, "Bolt names").contains(&unit)
+                }
+                "BOLT_FAILED" => listed(&event.block, "Failed Bolt").contains(&unit),
+                _ => false,
+            });
+        if lifecycle_only {
+            ambiguity = None;
+            bolt_started = false;
+            bolt_batch = None;
+            bolt_slug = None;
+        }
+    }
+
+    // A solo unit-major walk hands a unit's finished step back when its work
+    // is gone, and the unit starts that step again: that run of the step has
+    // the stage's review passes, and its one recovery, again.
+    let mut restart: Option<ShardEvent> = None;
+    if let Some(unit) = unit
+        && unit_major
+        && !is_team_unit_ownership(state)
+        && workflow.is_none()
+    {
+        let steps: Vec<ShardEvent> = view
+            .all_events
+            .iter()
+            .filter(|row| {
+                (row.event == "UNIT_STARTED" || row.event == "UNIT_COMPLETED")
+                    && block_field(&row.block, "Stage") == Some(slug)
+                    && block_field(&row.block, "Unit") == Some(unit)
+            })
+            .cloned()
+            .collect();
+        let mut finished = false;
+        for row in sort_attempt_events(&steps) {
+            if floor.is_some_and(|floor| !definitely_before(&events[floor], &row)) {
+                continue;
+            }
+            if row.event == "UNIT_COMPLETED" {
+                finished = true;
+            } else if finished {
+                restart = Some(row);
+                finished = false;
+            }
+        }
+    }
+
+    let mut request_count = 0;
+    let mut budget_count = 0;
+    let mut recovery_iteration: Option<f64> = None;
+    let mut recovery_spent = false;
+    let mut pending_iterations: Vec<f64> = Vec::new();
+    let mut pending_requests: Vec<(f64, PendingRequest)> = Vec::new();
+    for (index, entry) in events
+        .iter()
+        .enumerate()
+        .skip(floor.map_or(0, |floor| floor + 1))
+    {
+        if entry.event != "REVIEW_REQUESTED" && entry.event != "REVIEW_COMPLETED" {
+            continue;
+        }
+        let field = |name: &str| block_field(&entry.block, name);
+        if field("Stage") != Some(slug) || field("Reviewer") != Some(reviewer) {
+            continue;
+        }
+        if said(&entry.block, "Unit") != unit {
+            continue;
+        }
+        let of_another_run = match (workflow, said(&entry.block, "Workflow")) {
+            (Some(workflow), row) => row != Some(workflow),
+            (None, row) => row.is_some_and(|row| row.starts_with("single-stage:")),
+        };
+        if of_another_run {
+            continue;
+        }
+        if tied_across_shards(index) && (team || !tied_only_to_workflow_boundary(index)) {
+            ambiguity = Some(format!(
+                "cross-shard review authority tie at {}",
+                entry.timestamp
+            ));
+            continue;
+        }
+        let Some(iteration) = field("Iteration")
+            .filter(|pass| re::test("^[1-9][0-9]*$", "", pass))
+            .map(num::from_str)
+        else {
+            continue;
+        };
+        let held = pending_requests
+            .iter()
+            .position(|(pass, _)| *pass == iteration);
+        if entry.event == "REVIEW_REQUESTED" {
+            let Some(binding) = review::request_binding(&entry.block) else {
+                continue;
+            };
+            let previous = held.map(|held| &pending_requests[held].1);
+            // A replacement takes the pass of the request it replaces: it
+            // neither counts again nor inherits a retry.
+            let replacement = review::request_replaces(
+                &entry.block,
+                previous.map(|previous| Some(&previous.binding)),
+            );
+            let since_restart = restart
+                .as_ref()
+                .is_none_or(|restart| definitely_before(restart, entry));
+            let retry = field("Retry") == Some("pending-request");
+            if !retry && !replacement {
+                request_count += 1;
+                if since_restart {
+                    budget_count += 1;
+                }
+            }
+            if field("Recovery") == Some("stale-receipt") && since_restart {
+                recovery_iteration = Some(iteration);
+                recovery_spent = true;
+            }
+            if !pending_iterations.contains(&iteration) {
+                pending_iterations.push(iteration);
+            }
+            let request = PendingRequest {
+                retried: !replacement
+                    && (previous.is_some_and(|previous| previous.retried)
+                        || (retry && review::binding_is_modern(&binding, workspace_requires))),
+                own_review_file: field("Review File").is_some(),
+                binding,
+            };
+            match held {
+                Some(held) => pending_requests[held].1 = request,
+                None => pending_requests.push((iteration, request)),
+            }
+        } else if let Some(held) = held
+            && review_record::completion_carries_verified_review(
+                &pending_requests[held].1.binding,
+                &entry.block,
+                read,
+            )
+        {
+            pending_requests.remove(held);
+            pending_iterations.retain(|pass| *pass != iteration);
+        }
+    }
+    Ok(Accounting {
+        floor: floor.map_or_else(String::new, |floor| {
+            let row = &events[floor];
+            format!("{}:{}:{}:{}", row.event, row.timestamp, row.shard, row.pos)
+        }),
+        request_count,
+        budget_count,
+        bolt_started,
+        bolt_batch,
+        bolt_slug,
+        pending_iterations,
+        pending_requests,
+        recovery_iteration,
+        recovery_spent,
+        ambiguity,
+    })
 }

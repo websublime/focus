@@ -30,6 +30,7 @@ use std::collections::{HashMap, HashSet};
 use focus_js::order::cmp_utf16;
 use focus_js::re;
 use focus_js::text::trim;
+use sha2::{Digest, Sha256};
 
 /// The kinds a unit may declare.
 pub const UNIT_KINDS: [&str; 5] = ["service", "spec", "ui", "packaging", "library"];
@@ -77,6 +78,50 @@ fn malformed(detail: impl Into<String>) -> Unreadable {
 fn utf16_prefix(text: &str, count: usize) -> String {
     let units: Vec<u16> = text.encode_utf16().take(count).collect();
     String::from_utf16_lossy(&units)
+}
+
+/// `BOLT_SLUG_MAX_LENGTH`.
+pub const BOLT_SLUG_MAX_LENGTH: usize = 64;
+
+/// `validateBoltSlug` as a yes or no: a lowercase letter, then lowercase
+/// letters, digits and hyphens, within the length a slug may have.
+#[must_use]
+pub fn is_bolt_slug(slug: &str) -> bool {
+    !slug.is_empty()
+        && slug.encode_utf16().count() <= BOLT_SLUG_MAX_LENGTH
+        && re::test("^[a-z][a-z0-9-]*$", "", slug)
+}
+
+/// `boltSlugForUnit`: the slug of the bolt that runs `name`. A name that is
+/// a slug already is its own; any other unit name is lowered, its dots and
+/// underscores made hyphens, and told apart by a piece of its hash.
+///
+/// # Errors
+///
+/// `name` is no unit name, in the validator's words.
+pub fn bolt_slug_for_unit(name: &str) -> Result<String, String> {
+    if let Some(problem) = validate_unit_name(name) {
+        return Err(problem);
+    }
+    if is_bolt_slug(name) {
+        return Ok(name.to_owned());
+    }
+    let digest: String = Sha256::digest(name.as_bytes())
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect();
+    let digest = &digest[..16];
+    // A unit name is ASCII: lowering it and cutting it are per byte.
+    let lowered = name.to_ascii_lowercase();
+    let hyphened = re::replace("[._]+", "g", &lowered, "-");
+    let single = re::replace("-+", "g", &hyphened, "-");
+    let mut stem = re::replace("^-+|-+$", "g", &single, "");
+    if !re::test("^[a-z]", "", &stem) {
+        stem = format!("unit-{stem}");
+    }
+    let kept = BOLT_SLUG_MAX_LENGTH - digest.len() - 1;
+    let cut = &stem[..stem.len().min(kept)];
+    Ok(format!("{}-{digest}", re::replace("-+$", "g", cut, "")))
 }
 
 /// Why `name` cannot be a unit's name; `None` when it can. A name becomes a

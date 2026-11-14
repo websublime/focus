@@ -24,8 +24,11 @@
 //!   names no record at all. One that names a record badly has already
 //!   failed to answer the request.
 
+use std::path::Path;
+
 use focus_audit::read::block_field;
 use focus_js::{json, num, re};
+use focus_workspace::{files, links};
 use serde_json::{Map, Value};
 use sha2::{Digest, Sha256};
 
@@ -222,4 +225,29 @@ pub fn completion_carries_verified_review(
         }
         Some(named) => read(&named).is_some_and(|record| matches_completion(&record, block)),
     }
+}
+
+/// `REVIEW_RECORD_MAX_BYTES`: a review record is a small document; anything
+/// larger is not one.
+pub const MAX_BYTES: u64 = 4 * 1024 * 1024;
+
+/// `readReviewRecord`: the record the reference `named` names under the
+/// record's folder, or nothing when it is not there, is not read as a plain
+/// file of the record (a link on the way, a second name, too large), or is
+/// not the bytes the reference pins: a record edited after it was recorded
+/// is not the review.
+#[must_use]
+pub fn read(record: Option<&Path>, named: &review::RecordRef) -> Option<Record> {
+    if !review::is_record_relative_path(&named.path) {
+        return None;
+    }
+    let anchor = std::fs::canonicalize(record?).ok()?;
+    let relative = Path::new(&named.path);
+    links::refuse_link_in_chain(&anchor, relative).ok()?;
+    let bytes =
+        files::read_regular_within(&anchor.join(relative), "review record", Some(MAX_BYTES))
+            .ok()?;
+    (digest(&bytes) == named.digest)
+        .then(|| parse(&bytes))
+        .flatten()
 }

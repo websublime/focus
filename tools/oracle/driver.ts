@@ -702,6 +702,51 @@ async function answer(c: Record<string, any>): Promise<unknown> {
     }
     case "audit_find":
       return { found: lib.findAllEvents(c.audit, c.event, c.slug ?? undefined) };
+    case "review_accounting": {
+      // The reviews of one attempt, counted, in a project of its own: the
+      // record's folder holds the review records the verdicts name.
+      const root = mkdtempSync(join(tmpdir(), "focus-oracle-reviews-"));
+      const record = join(root, "aidlc", "spaces", "default", "intents", "rec-1a2b3c4d");
+      mkdirSync(record, { recursive: true });
+      writeFileSync(join(root, "aidlc", "spaces", "default", "intents", "active-intent"), "rec-1a2b3c4d\n");
+      // A record is one the engine finds only with its state file in it.
+      writeFileSync(join(record, "aidlc-state.md"), c.state);
+      if (lib.recordDir(root) !== record) throw new Error(`${c.id}: the scratch record was not found`);
+      for (const [rel, text] of Object.entries(c.files as Record<string, string>)) {
+        mkdirSync(dirname(join(record, rel)), { recursive: true });
+        writeFileSync(join(record, rel), text);
+      }
+      const rows = (c.shards as { shard: string; content: string }[]).flatMap((shard, index) =>
+        lib.parseAuditShardEvents(shard.content, shard.shard, index, new Set<number>()));
+      const stage = { slug: c.slug, ...(c.per_unit ? { for_each: "unit-of-work" } : {}), workspace_requires: c.workspace_requires };
+      const data = resolve(upstream, "dist", "claude", ".claude", "tools", "data");
+      const before = [process.env.AIDLC_STAGE_GRAPH, process.env.AIDLC_SCOPE_GRID];
+      process.env.AIDLC_STAGE_GRAPH = join(data, "stage-graph.json");
+      process.env.AIDLC_SCOPE_GRID = join(data, "scope-grid.json");
+      try {
+        const view = lib.reviewAttemptWindow(root, c.state, stage, rows);
+        const count = lib.reviewAttemptAccounting(root, view, c.state, stage, c.reviewer, c.unit ?? undefined, c.workflow ?? undefined);
+        return {
+          floor: count.floor,
+          requests: count.requestCount,
+          budgeted: count.budgetCount,
+          bolt: [count.boltStarted, count.boltBatch, count.boltSlug],
+          pending: [...count.pendingIterations],
+          waiting: [...count.pendingRequests].map(([pass, request]) =>
+            [pass, request.binding?.requestId ?? null, request.binding?.artifactFingerprint ?? null, request.retried, request.ownReviewFile]),
+          recovery: [count.recoveryIteration, count.recoverySpent],
+          ambiguity: count.ambiguity,
+        };
+      } catch (err) {
+        return { error: (err as Error).message };
+      } finally {
+        for (const [index, name] of ["AIDLC_STAGE_GRAPH", "AIDLC_SCOPE_GRID"].entries()) {
+          if (before[index] === undefined) delete process.env[name];
+          else process.env[name] = before[index];
+        }
+        rmSync(root, { recursive: true, force: true });
+      }
+    }
     case "review_record": {
       // A document read as a review record, whether it is the review its
       // completion says, and whether the completion carries the verified

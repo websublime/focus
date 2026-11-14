@@ -6117,5 +6117,194 @@ for _ in range(12):
     answer.pop("Iteration")
     rr_case(request, answer, record, "pretty", "right")
 
+
+# --- review_accounting: the reviews of one attempt, counted -------------------
+#
+# The requests of a stage's current attempt, for one reviewer and one unit (or
+# the stage): how many, how many the budget counts, which passes still wait
+# for a verdict and with what binding, whether the one recovery is spent, and
+# whether a tie across shards leaves the order untold
+# (`reviewAttemptAccounting`). A verdict closes its request when it carries the
+# verified review, read from the record's folder (`readReviewRecord`). The
+# cases are ledgers with the stories of a review (asked, answered, asked again,
+# retried, replaced, recovered) among boundaries, bolts and unit rows, and the
+# review records those verdicts name, there or not.
+ra = random.Random(seed * 7919 + 25)
+RA_REVIEWER = "architecture-reviewer-agent"
+
+
+def ra_review(slug, unit, workflow, iteration, files):
+    """A request and the verdict that answers it, as rows' fields, with the verdict's record written to `files`."""
+    request = rc_request()
+    answer = rc_answer(request)
+    scope = {"Stage": slug, "Reviewer": RA_REVIEWER, "Iteration": str(iteration)}
+    if unit is not None:
+        scope["Unit"] = unit
+    if workflow is not None:
+        scope["Workflow"] = workflow
+    answer.update(scope)
+    record = {"version": 1, "stage": slug, "unit": unit, "workflow": workflow, "attempt": rc_hex(16), "iteration": iteration, "reviewer": RA_REVIEWER,
+              "verdict": answer["Verdict"], "request_id": answer.get("Request Id"), "request_challenge": answer.get("Review Challenge"),
+              "artifact_fingerprint": answer["Artifact Fingerprint"], "source_fingerprint": answer.get("Source Fingerprint"),
+              "unit_source_fingerprint": answer.get("Unit Source Fingerprint"), "findings": [], "body": "It reads well.\n", "recorded_at": "2026-01-05T10:00:00Z"}
+    answer.pop("Review Record", None)
+    answer.pop("Review Record Digest", None)
+    kept = ra.choice(["there"] * 6 + ["gone", "edited", "other", "unnamed", "elsewhere"])
+    if kept != "unnamed":
+        if kept == "other":
+            # A true record of another review: another pass.
+            record["iteration"] = iteration + 1
+        text = json.dumps(record, indent=2) + "\n"
+        path = (f".aidlc-engine/reviews/{slug}/stage/{rc_hex(16)}/{iteration}.json" if unit is None
+                else f".aidlc-engine/reviews/{slug}/units/{unit}/{rc_hex(16)}/{iteration}.json")
+        answer["Review Record"] = path if kept != "elsewhere" else f"reviews/{iteration}.json"
+        answer["Review Record Digest"] = "sha256:" + hashlib.sha256(text.encode("utf-8")).hexdigest()
+        if kept != "gone":
+            files[path] = text if kept != "edited" else text.replace("It reads well.", "It reads badly.")
+    return {**request, **scope}, answer
+
+
+def ra_row(kind, fields, extra=()):
+    rows = list(fields.items()) + list(extra)
+    return kind, "".join(f"**{name}**: {value}\n" for name, value in rows)
+
+
+def ra_story(slug, unit, workflow, files, restart=None):
+    """The rows of a review, in the order they happen."""
+    other_unit = ra.choice([name for name in RW_UNITS if name != unit])
+    passes = {}
+
+    def asked(iteration, *extra, of=unit, run=workflow):
+        request, answer = ra_review(slug, of, run, iteration, files)
+        if of == unit and run == workflow:
+            passes[iteration] = request
+        return ra_row("REVIEW_REQUESTED", request, extra), ra_row("REVIEW_COMPLETED", answer)
+
+    def again(iteration, *extra):
+        """The pending request of the pass, recorded again as it was."""
+        return ra_row("REVIEW_REQUESTED", passes[iteration], extra)
+
+    replaces = lambda iteration: ("Replaces Request Id", passes[iteration].get("Request Id", "none"))
+    retry, recovery, own_file = ("Retry", "pending-request"), ("Recovery", "stale-receipt"), ("Review File", "review.md")
+    first, first_done = asked(1)
+    shape = ra.randrange(16) if restart is None else restart
+    if shape == 0:
+        return [first]
+    if shape == 1:
+        return [first, first_done]
+    if shape == 2:
+        second, second_done = asked(2, own_file)
+        return [first, first_done, second, second_done]
+    if shape == 3:
+        second, _ = asked(2)
+        return [first, first_done, second]
+    if shape == 4:
+        return [first, again(1, retry)]
+    if shape == 5:
+        return [first, again(1, retry), first_done]
+    if shape == 6:
+        replacement, replacement_done = asked(1, replaces(1))
+        return [first, replacement] + ([replacement_done] if ra.random() < 0.5 else [])
+    if shape == 7:
+        replacement, _ = asked(1, ("Replaces Request Id", ra.choice(["review:" + rc_hex(32), "none", ""])))
+        return [first, replacement]
+    if shape == 8:
+        second, second_done = asked(2, recovery)
+        return [first, first_done, second] + ([second_done] if ra.random() < 0.5 else [])
+    if shape == 9:
+        elsewhere, elsewhere_done = asked(1, of=other_unit if unit is not None else ra.choice(RW_UNITS))
+        return [first, elsewhere, elsewhere_done]
+    if shape == 10:
+        alone, alone_done = asked(1, run=None if workflow is not None else f"single-stage:{slug}")
+        return [first, alone, alone_done]
+    if shape == 11:
+        return [first_done, first]
+    if shape == 12:
+        # A pass that is no pass, and a request that binds nothing.
+        broken = dict(passes[1])
+        broken[ra.choice(["Iteration", "Artifact Fingerprint"])] = ra.choice(["0", "01", "x", "", "1.0"])
+        return [ra_row("REVIEW_REQUESTED", broken), first_done]
+    if shape == 13:
+        another = dict(passes[1])
+        another[ra.choice(["Stage", "Reviewer"])] = "another"
+        return [ra_row("REVIEW_REQUESTED", another), first, first_done]
+    if shape == 14:
+        second, second_done = asked(2)
+        return [first, second, second_done, first_done]
+    if shape == 15:
+        replacement, replacement_done = asked(1, replaces(1), retry)
+        return [first, again(1, retry), replacement, again(1, retry), replacement_done]
+    # The unit finishes its step and starts it again: the passes after that are the new run's.
+    step = lambda kind: (kind, rw_fields(("Stage", slug), ("Unit", unit or "ui")))
+    second, second_done = asked(2, *([recovery] if ra.random() < 0.4 else []))
+    third, _ = asked(3)
+    return ra.choice([
+        [first, first_done, step("UNIT_COMPLETED"), step("UNIT_STARTED"), second, second_done, third],
+        [first, step("UNIT_COMPLETED"), step("UNIT_STARTED"), second],
+        [step("UNIT_STARTED"), first, first_done, step("UNIT_COMPLETED"), second, step("UNIT_STARTED"), third],
+        [first, step("UNIT_STARTED"), second, step("UNIT_COMPLETED"), third],
+    ])
+
+
+def ra_bolt_slug(unit):
+    """The slug of the bolt that runs a unit: the unit's name when it is a slug already, else the name lowered and told apart by its hash."""
+    if re.fullmatch(r"[a-z][a-z0-9-]*", unit):
+        return unit
+    stem = re.sub(r"^-+|-+$", "", re.sub(r"-+", "-", re.sub(r"[._]+", "-", unit.lower())))
+    stem = stem if re.match(r"[a-z]", stem) else f"unit-{stem}"
+    return re.sub(r"-+$", "", stem[:47]) + "-" + hashlib.sha256(unit.encode()).hexdigest()[:16]
+
+
+def ra_boundary(slug, unit):
+    """A row that may start the attempt again, or the unit's step."""
+    named = unit or ra.choice(RW_UNITS)
+    bolt = lambda kind, field, with_slug: (kind, rw_fields((field, ra.choice([named, named, f"ui, {named}", "ui"])),
+                                                           ("Bolt slug", ra.choice([ra_bolt_slug(named), ra_bolt_slug(named), named, "x"]) if with_slug else None),
+                                                           ("Batch number", "2")))
+    return ra.choice([
+        ("STAGE_STARTED", rw_fields(("Stage", slug))), ("STAGE_STARTED", rw_fields(("Stage", slug), ("Workflow", f"single-stage:{slug}"))),
+        ("STAGE_COMPLETED", rw_fields(("Stage", slug), ("Workflow", f"single-stage:{slug}"))), ("STAGE_COMPLETED", rw_fields(("Stage", slug))),
+        ("STAGE_JUMPED", rw_fields(("Target", ra.choice([slug, "intent-capture", "build-and-test"])))), ("WORKFLOW_STARTED", ""),
+        ("GATE_REJECTED", rw_fields(("Stage", slug), ("Unit", ra.choice([None, unit, "ui"])))),
+        ("GATE_REJECTED", rw_fields(("Gate Stages", ra.choice([f"intent-capture, {slug}", "intent-capture", ""])), ("Stage", ra.choice([slug, "intent-capture"])))),
+        bolt("BOLT_STARTED", "Bolt names", True), bolt("BOLT_STARTED", "Bolt names", False), bolt("BOLT_COMPLETED", "Bolt names", True),
+        bolt("BOLT_COMPLETED", "Bolt names", False), bolt("BOLT_FAILED", "Failed Bolt", True), bolt("BOLT_FAILED", "Failed Bolt", False),
+        ("AUDIT_MERGED", rw_fields(("Bolt slug", ra_bolt_slug(named)))),
+        ("UNIT_STARTED", rw_fields(("Stage", slug), ("Unit", unit or "ui"))), ("UNIT_COMPLETED", rw_fields(("Stage", slug), ("Unit", unit or "ui"))),
+        rw_policy(ra.random() < 0.5),
+    ])
+
+
+for _ in range(scale * 200):
+    slug = ra.choice(["code-generation", "functional-design", "requirements-analysis"])
+    per_unit = slug != "requirements-analysis" and ra.random() < 0.9
+    unit = ra.choice(["auth", "auth", "billing", "Billing_API", "ui.v2"]) if per_unit and ra.random() < 0.7 else None
+    workflow = f"single-stage:{slug}" if ra.random() < 0.15 else None
+    files = {}
+    script = []
+    # One case in six is a solo unit-major walk in which the unit starts its step again.
+    again = unit is not None and workflow is None and ra.random() < 0.25
+    for _ in range(ra.choice([1, 1, 2])):
+        story = ra_story(slug, unit, workflow, files, 16 if again else None)
+        places = sorted(ra.randrange(len(script) + 1) for _ in story)
+        for offset, (place, row) in enumerate(zip(places, story)):
+            script.insert(place + offset, row)
+    for _ in range(ra.choice([0, 0, 1, 2, 3, 5])):
+        script.insert(ra.randrange(len(script) + 1), ra_boundary(slug, unit))
+    instants = [f"2026-01-05T10:00:{second:02d}Z" for second in range(ra.choice([2, 4, 8, 8]))]
+    shards = [[] for _ in range(ra.choice([1, 1, 1, 2, 2, 3]))]
+    clock = 0
+    for kind, fields in script:
+        clock = min(len(instants) - 1, clock + ra.choice([0, 1, 1]))
+        shards[ra.randrange(len(shards))].append(f"\n## Row\n**Timestamp**: {instants[clock]}\n**Event**: {kind}\n{fields}\n---\n")
+    names = ["laptop-abc123.md", "desktop-def456.md", "server-0a1b2c.md"]
+    state = rw_state(stage_major=ra.random() < 0.3)
+    if again and ra.random() < 0.85:
+        state = ("# AI-DLC State\n\n## Workflow\n- **Scope**: feature\n" + ra.choice(["- **Construction Iteration**: unit-major\n", "- **Construction Checkpoints**: enabled\n"])
+                 + ("- **Unit Ownership**: team\n" if ra.random() < 0.15 else ""))
+    add("review_accounting", state=state, slug=slug, per_unit=per_unit, workspace_requires=ra.random() < 0.4, reviewer=RA_REVIEWER,
+        unit=unit if ra.random() < 0.95 else ra.choice(["bad name", ""]), workflow=workflow,
+        shards=[{"shard": names[index], "content": "# AI-DLC Audit Log\n" + "".join(rows)} for index, rows in enumerate(shards)], files=files)
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")
