@@ -799,8 +799,17 @@ fn an_argument_that_is_not_unicode_is_refused_as_a_mistake() {
 
 #[test]
 fn every_kind_of_oracle_case_is_answered_by_some_crate() {
-    let cases = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../fixtures/oracle/cases.ndjson");
-    let run = focus(&["dev", "oracle", cases.to_str().unwrap()]);
+    let fixtures = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../fixtures");
+    let cases = fixtures.join("oracle/cases.ndjson");
+    // The lifecycle's cases are read against the installed tree of the fixtures.
+    let installed = fixtures.join("upstream/installed/claude");
+    let run = focus(&[
+        "dev",
+        "oracle",
+        cases.to_str().unwrap(),
+        "--installed",
+        installed.to_str().unwrap(),
+    ]);
     assert!(run.status.success(), "{}", text(&run.stderr));
     let answers = text(&run.stdout);
     assert_eq!(

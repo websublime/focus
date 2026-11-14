@@ -832,11 +832,31 @@ fn check_compiled(dir: &Path, compiled: &Compiled) -> Verb {
     Ok(())
 }
 
-/// `focus dev oracle <cases.ndjson>`: answer each case on its own line as
-/// `{"id": ..., "out": ...}`, the shape `tools/oracle/driver.ts` prints.
+/// `focus dev oracle <cases.ndjson> [--installed <project>]`: answer each
+/// case on its own line as `{"id": ..., "out": ...}`, the shape
+/// `tools/oracle/driver.ts` prints. A case of the lifecycle is read against
+/// an install (the graph, the plan of each scope): the Claude Code project
+/// `--installed` names. Without one, those cases answer `unsupported`.
 pub fn oracle(args: &mut Args) -> Result<(), String> {
+    let installed = args.value("--installed")?;
     let path = args.positional("cases.ndjson")?;
     args.finish()?;
+    let workflow = match installed {
+        None => None,
+        Some(project) => Some(
+            focus_lifecycle::workflow::Workflow::open(
+                Layout::new(PathBuf::from(project), Harness::Claude),
+                records::Selection {
+                    space: DEFAULT_SPACE.to_owned(),
+                    intent: None,
+                    session_id: None,
+                    binding: None,
+                },
+                Invoker::default(),
+            )
+            .map_err(|err| err.to_string())?,
+        ),
+    };
     let file = fs::File::open(&path).map_err(|err| format!("{path}: {err}"))?;
     let mut stdout = std::io::BufWriter::new(std::io::stdout().lock());
     for line in std::io::BufReader::new(file).lines() {
@@ -869,6 +889,11 @@ pub fn oracle(args: &mut Args) -> Result<(), String> {
             focus_evidence::oracle::run_case(&case)
         } else if focus_js::oracle::KINDS.contains(&kind) {
             focus_js::oracle::run_case(&case)
+        } else if let Some(workflow) = workflow
+            .as_ref()
+            .filter(|_| focus_lifecycle::oracle::KINDS.contains(&kind))
+        {
+            focus_lifecycle::oracle::run_case(workflow, &case)
         } else {
             cases::run_case(&case)
         };
