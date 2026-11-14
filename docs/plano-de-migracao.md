@@ -2282,7 +2282,7 @@ Lido `handleReview` (`aidlc-log.ts` L2 975 a L4 412, uma função só): não há
 
 **O que a 2e traz, quando vier.** O pedido (`REVIEW_REQUESTED`): o ordinal, que é do engine, o orçamento por classe de revisão e a recuperação única quando se esgota, uma revisão que a pessoa pediu fora do orçamento (`personAskedForReview`), o `Source Fingerprint` com o snapshot atrás, o id do pedido e o sítio onde o revisor escreve. O veredicto (`REVIEW_COMPLETED`): `READY` ou `NOT-READY`, o ficheiro da revisão levado para o registo com os títulos despromovidos, o pedido pendente a que responde, e o registo de despacho do revisor retirado no fim.
 
-### Fatia 3a: a tentativa de revisão (em curso)
+### Fatia 3a: a tentativa de revisão, partida em três
 
 A primeira parte da fatia 3, e o que as outras e `review` usam: de que tentativa da stage é um pedido de revisão, quantos pedidos a tentativa já tem, e que pedidos esperam veredicto. São duas funções sobre o ledger e o estado, sem comando próprio: verificam-se pelo corpus do oráculo, com ledgers gerados, e não pelo diferencial.
 
@@ -2294,7 +2294,30 @@ A primeira parte da fatia 3, e o que as outras e `review` usam: de que tentativa
 | `completionCarriesVerifiedReview` (L17 509) | 23 | Se uma linha `REVIEW_COMPLETED` responde ao pedido pendente: lê o registo da revisão em disco |
 | `stageStartsUnderUnitFlooring`, `usesStageLevelPerUnitArtifacts`, `unitScopedLifecycleFloors`, `isTeamUnitOwnership`, `boltSlugForUnit`, `reviewAttemptEventMatchesCurrentClaim` | cerca de 140 | A dimensão por unit e de equipa: entram como funções no corpus quando forem puras; o que lê claims em disco fica com a fatia 5 |
 
+| Fatia | O que traz | Como se verifica | Estado |
+| --- | --- | --- | --- |
+| 3a-i. O que um pedido liga | `focus-evidence::review`: a ligação de uma linha `REVIEW_REQUESTED`, se um veredicto lhe pode responder, e um pedido que substitui outro | Corpus | Feito (abaixo) |
+| 3a-ii. A janela | `reviewAttemptWindow`: a fronteira da tentativa e os bolts abertos e fundidos | Corpus, com ledgers gerados | Por fazer |
+| 3a-iii. A contagem | `reviewAttemptAccounting`, com `completionCarriesVerifiedReview` (que lê o registo da revisão em disco) | Corpus, com ledgers gerados e registos em disco | Por fazer |
+
 Quem as chama no original: `freshReviewReceipts` e `pendingReviewRequestStatus` (o resto da fatia 3), `log review` (2e), os checkpoints de Construction (fatia 5) e `orchestrate` (fatias 6 a 10). Focus já tem as peças de ordem que elas usam: `sort_attempt_events` (`focus-lifecycle::gate`), a fronteira (`focus-evidence::authorization::frontier`) e o salto que alcança uma stage (`jump_reaches`).
+
+### Fatia 3a-i: o que um pedido de revisão liga
+
+**O que existe.** `focus-evidence::review`:
+
+- **`request_binding`** (`reviewRequestBindingFromBlock`): o que uma linha `REVIEW_REQUESTED` guarda para o veredicto ser conferido contra ela. O fingerprint dos artefactos, o id do pedido, os fingerprints da fonte (do workspace e da unit) e a causa de uma recuperação; numa linha de antes dos registos de revisão, a fronteira do apêndice de revisão no artefacto (o offset, o digest e o comprimento do que lá estava, o desafio). Uma linha com um campo que não é o que devia ser não liga nada.
+- **`binding_is_modern`** (`reviewRequestBindingIsModern`): se um veredicto pode ser preso à ligação. Um pedido com id pode; um do tempo do apêndice pode quando fixou a fronteira e, havendo já um apêndice, um desafio. Uma stage que escreve no workspace precisa do fingerprint da fonte nos dois casos.
+- **`request_replaces`** (`reviewRequestReplaces`): se a linha substitui o pedido pendente na mesma iteração, por nomear o id dele (`none` para um pedido de antes dos ids).
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Corpus, `review_binding` | 2 400 casos, todos iguais à primeira: @@BOUND@@ |
+| Corpus, tudo | 37 080 casos |
+| Mutação | 43 mutantes: 41 apanhados (39 à primeira, 2 depois de valores novos no gerador: um fingerprint com texto antes, um digest com texto depois), 1 equivalente anotado (o fim do padrão de um número: o que passa sem ele não é número para a leitura a seguir) e 1 em código que saiu (o teste do comprimento de um número, que a leitura e o limite já cobrem) |
+| `cargo test` | @@TESTS@@ |
 
 ### A jornada
 

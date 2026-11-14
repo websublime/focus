@@ -5613,12 +5613,12 @@ rb_sha = lambda: "sha256:" + rb_hex(64)
 rb_id = lambda: "review:" + rb_hex(32)
 RB_POOLS = {
     "Artifact Fingerprint": [rb_sha, lambda: "sha256:" + rb_hex(63), lambda: "sha256:" + rb_hex(65), lambda: "sha256:" + rb_hex(64).upper(), lambda: rb_hex(64),
-                             lambda: "SHA256:" + rb_hex(64), lambda: "", lambda: "unbindable", lambda: rb_sha() + " x"],
+                             lambda: "SHA256:" + rb_hex(64), lambda: "", lambda: "unbindable", lambda: rb_sha() + " x", lambda: "x" + rb_sha(), lambda: "x " + rb_sha()],
     "Request Id": [rb_id, rb_id, lambda: "review:" + rb_hex(31), lambda: "review:" + rb_hex(33), lambda: "review:" + rb_hex(32).upper(), lambda: "none", lambda: rb_hex(32), lambda: ""],
     "Review Appendix Artifact": [lambda: "aidlc/spaces/default/intents/260105-add-login/ideation/intent-capture/intent-statement.md", lambda: "x.md", lambda: ""],
     "Review Appendix Offset": [lambda: rb.choice(["0", "12", "4096", "007", "9007199254740991", "9007199254740992", "9007199254740993", "99999999999999999999999", "00009007199254740991",
                                                 "-1", "1.5", "1e3", "", "12 ", "0x10", "١٢"])],
-    "Review Appendix Prior Digest": [lambda: "none", rb_sha, lambda: "None", lambda: "sha256:xyz", lambda: "", lambda: rb_hex(64)],
+    "Review Appendix Prior Digest": [lambda: "none", rb_sha, lambda: "None", lambda: "sha256:xyz", lambda: "", lambda: rb_hex(64), lambda: "nonesuch", lambda: rb_sha() + "0", lambda: "none ."],
     "Review Appendix Prior Length": [lambda: rb.choice(["0", "12", "0012", "000", "9007199254740991", "9007199254740992", "18014398509481984", "x", "-1", "", "1.0"])],
     "Review Challenge": [rb_id, lambda: "review:zz", lambda: "", lambda: rb_hex(32)],
     "Source Fingerprint": [lambda: rb_hex(40), lambda: rb_hex(64), lambda: "unbindable", lambda: rb_hex(41), lambda: rb_sha(), lambda: "UNBINDABLE", lambda: "", lambda: rb_hex(40).upper()],

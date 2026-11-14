@@ -48,6 +48,10 @@ const UNIT_SOURCE_FINGERPRINT: &str = "^(?:sha256:[0-9a-f]{64}|unbindable)$";
 
 /// A count written in digits that a JavaScript number holds exactly
 /// (`/^[0-9]+$/`, then `Number.isSafeInteger`): `None` for anything else.
+///
+/// The pattern is upstream's question. Dropping its end changes no answer
+/// here, since what is then let through is no number to the parse below;
+/// and a count too long for the parse is past what a number holds exactly.
 fn safe_count(raw: &str) -> Option<u64> {
     if !re::test("^[0-9]+$", "", raw) {
         return None;
@@ -55,10 +59,6 @@ fn safe_count(raw: &str) -> Option<u64> {
     let digits = raw.trim_start_matches('0');
     if digits.is_empty() {
         return Some(0);
-    }
-    // 2^53 - 1 has sixteen digits: a longer number is past it.
-    if digits.len() > 16 {
-        return None;
     }
     digits
         .parse::<u64>()
