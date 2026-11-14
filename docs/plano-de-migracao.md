@@ -2297,7 +2297,7 @@ A primeira parte da fatia 3, e o que as outras e `review` usam: de que tentativa
 | Fatia | O que traz | Como se verifica | Estado |
 | --- | --- | --- | --- |
 | 3a-i. O que um pedido liga | `focus-evidence::review`: a ligação de uma linha `REVIEW_REQUESTED`, se um veredicto lhe pode responder, e um pedido que substitui outro | Corpus | Feito (abaixo) |
-| 3a-ii. A janela | `reviewAttemptWindow`: a fronteira da tentativa e os bolts abertos e fundidos | Corpus, com ledgers gerados | Por fazer |
+| 3a-ii. A janela | `reviewAttemptWindow`: a fronteira da tentativa e os bolts abertos e fundidos. Fica em `focus-lifecycle` (`review_attempt`), e não em `focus-evidence`: precisa do grafo (um salto que alcança a stage) e do plano aprovado (`usesStageLevelPerUnitArtifacts`, que já lá está). Traz consigo `stageStartsUnderUnitFlooring`, `constructionPolicyRowComplete`, `constructionPolicyFoundUnitMajor`, `unitScopedLifecycleFloors` e `isTeamUnitOwnership`, que são funções do ledger e do estado | Corpus, com ledgers gerados: `focus-lifecycle` ganha o seu `oracle`, sobre a árvore instalada dos fixtures | Por fazer |
 | 3a-iii. A contagem | `reviewAttemptAccounting`, com `completionCarriesVerifiedReview` (que lê o registo da revisão em disco) | Corpus, com ledgers gerados e registos em disco | Por fazer |
 
 Quem as chama no original: `freshReviewReceipts` e `pendingReviewRequestStatus` (o resto da fatia 3), `log review` (2e), os checkpoints de Construction (fatia 5) e `orchestrate` (fatias 6 a 10). Focus já tem as peças de ordem que elas usam: `sort_attempt_events` (`focus-lifecycle::gate`), a fronteira (`focus-evidence::authorization::frontier`) e o salto que alcança uma stage (`jump_reaches`).
