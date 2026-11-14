@@ -32,6 +32,7 @@ fn every_evidence_case_gets_upstreams_answer() {
     let (mut requests, mut bound, mut of_records, mut of_appendices) = (0, 0, 0, 0);
     let (mut modern, mut replacing) = (0, 0);
     let (mut completions, mut answering, mut naming) = (0, 0, 0);
+    let (mut records, mut valid, mut same_review, mut carried) = (0, 0, 0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         // Parsed as upstream's driver parses it, so nested objects are in the
@@ -83,6 +84,11 @@ fn every_evidence_case_gets_upstreams_answer() {
             blank += usize::from(out["answer"].as_str().is_some_and(str::is_empty));
             unanswered += usize::from(out.get("answer").is_some_and(Value::is_null));
             assert!(out.get("unreadable").is_none(), "{}: {out}", case["id"]);
+        } else if kind == "review_record" {
+            records += 1;
+            valid += usize::from(out["valid"] == true);
+            same_review += usize::from(out["matches"] == true);
+            carried += usize::from(out["carries"] == true);
         } else if kind == "review_completion" {
             completions += 1;
             answering += usize::from(out["matches"] == true);
@@ -144,21 +150,29 @@ fn every_evidence_case_gets_upstreams_answer() {
         "{chosen} {blank} {unanswered}"
     );
     assert!(
-        requests >= 2000 && bound >= 900 && requests - bound >= 900,
+        requests >= 1400 && bound >= 600 && requests - bound >= 600,
         "{requests} {bound}"
     );
     assert!(
-        of_records >= 400 && of_appendices >= 300 && modern >= 400 && bound - modern >= 300,
+        of_records >= 230 && of_appendices >= 270 && modern >= 350 && bound - modern >= 250,
         "{of_records} {of_appendices} {modern}"
     );
-    assert!(replacing >= 250, "{replacing}");
+    assert!(replacing >= 190, "{replacing}");
     assert!(
-        completions >= 2500
-            && answering >= 1000
+        completions >= 1800
+            && answering >= 650
             && completions - answering >= 1000
-            && naming >= 1200
-            && completions - naming >= 1200,
+            && naming >= 850
+            && completions - naming >= 850,
         "{completions} {answering} {naming}"
+    );
+    assert!(
+        records >= 2000 && valid >= 1100 && records - valid >= 900,
+        "{records} {valid}"
+    );
+    assert!(
+        same_review >= 400 && valid - same_review >= 600 && carried >= 300,
+        "{same_review} {carried}"
     );
     assert!(
         differing.is_empty(),
