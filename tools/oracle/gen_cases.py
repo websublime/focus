@@ -5765,17 +5765,58 @@ def rw_bolt_story():
         [started(True), failed(False), started(True), completed(True), merged],
         [started(False), completed(False), started(True), completed(True)],
         [started(True), merged, completed(True)],
+        # Two attempts of the unit that are neither open nor merged, and a failure that names no slug.
+        [started(True), completed(True), started(True), failed(True), failed(False)],
+        [started(False), failed(False), started(True), completed(True), failed(False)],
     ])
 
 
-def rw_ledger(slug):
+def rw_policy(found, field=None):
+    """A complete change of Construction policy that found unit-major flooring in force, or did not."""
+    field = field or rw.choice(["Construction Iteration", "Construction Checkpoints", "Construction Execution"])
+    if field == "Construction Iteration":
+        value, previous = ("stage-major", "unit-major") if found else ("unit-major", "stage-major")
+        rest = (("Construction Iteration", value), ("Construction Checkpoints", "disabled"))
+    elif field == "Construction Checkpoints":
+        value, previous = ("disabled", "enabled") if found else ("enabled", "disabled")
+        rest = (("Construction Iteration", "stage-major"), ("Construction Checkpoints", value))
+    else:
+        value, previous = "parallel", "serial"
+        rest = rw.choice([(("Construction Iteration", "unit-major"), ("Construction Checkpoints", "disabled")),
+                          (("Construction Iteration", "stage-major"), ("Construction Checkpoints", "enabled"))]) if found else (
+            ("Construction Iteration", "stage-major"), ("Construction Checkpoints", "disabled"))
+    return "CONSTRUCTION_POLICY_SET", rw_fields(("Field", field), ("Value", value), ("Previous Value", previous), *rest)
+
+
+def rw_flooring_story(slug):
+    """Starts of the stage around changes of policy, with rows of its units: what a switch back from unit-major leaves."""
+    unit = rw.choice(RW_UNITS)
+    other = rw.choice([name for name in RW_SLUGS if name != slug])
+    start = lambda stage=slug, alone=False: ("STAGE_STARTED", rw_fields(("Stage", stage), ("Workflow", f"single-stage:{stage}" if alone else None)))
+    unit_row = lambda stage=slug, kind="UNIT_STARTED": (kind, rw_fields(("Stage", stage), ("Unit", unit)))
+    jump = lambda target: ("STAGE_JUMPED", rw_fields(("Target", target)))
+    created = ("WORKFLOW_STARTED", "")
+    yes, no = lambda: rw_policy(True), lambda: rw_policy(False)
+    return rw.choice([
+        [start(), yes()], [start(), no()], [yes(), start()], [no(), start(), yes()], [yes(), start(), yes()], [yes(), start(), no()],
+        [start(), yes(), no()], [start(), no(), yes()], [start(), yes(), yes()], [start(alone=True), yes()], [start(other), yes()],
+        [yes(), unit_row(), unit_row(kind="UNIT_COMPLETED"), start()], [yes(), unit_row(), start()], [no(), unit_row(), start()], [unit_row(), yes(), start()],
+        [yes(), unit_row(other), start()], [yes(), unit_row(), start(), start()], [yes(), unit_row(), start(alone=True), start()],
+        [yes(), unit_row(), start(other), start()], [unit_row(), created, yes(), start()], [unit_row(), jump(slug), yes(), start()],
+        [unit_row(), jump("build-and-test"), yes(), start()], [unit_row(), jump("intent-capture"), yes(), start()], [yes(), unit_row(), jump(slug), start()],
+        [start(), unit_row(), yes(), start()], [yes(), start(), unit_row(), start()], [unit_row(), start(), yes()], [yes(), unit_row(), start(alone=True)],
+        [start(), rw_policy(True, "Construction Execution")], [rw_policy(True, "Construction Execution"), unit_row(), start()],
+    ])
+
+
+def rw_ledger(slug, flooring=0):
     hot = rw.choice([0.5, 0.8, 1.0])
     instants = [f"2026-01-05T10:00:{second:02d}Z" for second in range(rw.choice([1, 2, 3, 5, 8]))]
     shards = [[] for _ in range(rw.choice([1, 1, 2, 2, 3]))]
     # Rows at random, and among them the rows of a few bolts, each bolt's in its own order.
     script = [rw_row(slug, hot) for _ in range(rw.choice([2, 5, 9, 14, 20]))]
-    for _ in range(rw.choice([0, 1, 1, 2, 3])):
-        story = rw_bolt_story()
+    stories = [rw_bolt_story() for _ in range(rw.choice([0, 1, 1, 2, 3]))] + [rw_flooring_story(slug) for _ in range(flooring)]
+    for story in stories:
         places = sorted(rw.randrange(len(script) + 1) for _ in story)
         for offset, (place, row) in enumerate(zip(places, story)):
             script.insert(place + offset, row)
@@ -5789,8 +5830,14 @@ def rw_ledger(slug):
     return [{"shard": names[index], "content": "# AI-DLC Audit Log\n" + "".join(rows)} for index, rows in enumerate(shards)]
 
 
-def rw_state():
+def rw_state(stage_major=False):
     lines = ["# AI-DLC State", "", "## Workflow", f"- **Scope**: {rw.choice(['feature', 'feature', 'mvp', 'bugfix', 'poc', 'nope', ''])}"]
+    if stage_major:
+        # Stage-major now, with units as planned: where a start under unit-major flooring is told apart.
+        lines[-1] = f"- **Scope**: {rw.choice(['feature', 'mvp'])}"
+        lines += rw.choice([[], ["- **Construction Iteration**: stage-major"], ["- **Construction Checkpoints**: disabled"], ["- **Unit Ownership**: team"],
+                            ["- **Construction Iteration**: stage-major", "- **Unit Ownership**: team"]])
+        return "\n".join(lines + ["", "## Stage Progress", "- [x] intent-capture \u2014 EXECUTE", "- [ ] code-generation \u2014 EXECUTE"]) + "\n"
     if rw.random() < 0.6:
         lines.append(f"- **Construction Iteration**: {rw.choice(['unit-major', 'unit-major', 'stage-major', ' unit-major ', 'Unit-Major', ''])}")
     if rw.random() < 0.5:
@@ -5808,6 +5855,9 @@ def rw_state():
 for _ in range(scale * 500):
     slug = rw.choice(RW_SLUGS[:3] + ["code-generation", "functional-design"])
     add("review_window", state=rw_state(), slug=slug, per_unit=rw.random() < 0.75, shards=rw_ledger(slug))
+for _ in range(scale * 250):
+    slug = rw.choice(["code-generation", "functional-design", "requirements-analysis"])
+    add("review_window", state=rw_state(stage_major=rw.random() < 0.8), slug=slug, per_unit=rw.random() < 0.9, shards=rw_ledger(slug, flooring=rw.choice([1, 1, 2])))
 
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

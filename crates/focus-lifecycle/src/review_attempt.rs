@@ -83,7 +83,7 @@ struct Units {
 /// `isTeamUnitOwnership`.
 #[must_use]
 pub fn is_team_unit_ownership(state: &str) -> bool {
-    get_field(state, "Unit Ownership").map(trim) == Some("team")
+    get_field(state, "Unit Ownership") == Some("team")
 }
 
 fn checkpoints_enabled(state: &str) -> bool {
@@ -91,7 +91,7 @@ fn checkpoints_enabled(state: &str) -> bool {
 }
 
 fn iteration_is_unit_major(state: &str) -> bool {
-    get_field(state, "Construction Iteration").map(trim) == Some("unit-major")
+    get_field(state, "Construction Iteration") == Some("unit-major")
 }
 
 /// `unitScopedLifecycleFloors`: whether a unit's receipts are floored for
@@ -470,10 +470,8 @@ pub fn window_over(
             index += 1;
             continue;
         }
-        let tied_across_shards = events.iter().enumerate().any(|(other, candidate)| {
-            other != index
-                && candidate.timestamp == event.timestamp
-                && candidate.shard != event.shard
+        let tied_across_shards = events.iter().any(|candidate| {
+            candidate.timestamp == event.timestamp && candidate.shard != event.shard
         });
         // An attempt owned by a team floors the whole instant of a boundary
         // tied across shards: nothing orders its rows.
