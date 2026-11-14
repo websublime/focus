@@ -2282,7 +2282,7 @@ Lido `handleReview` (`aidlc-log.ts` L2 975 a L4 412, uma função só): não há
 
 **O que a 2e traz, quando vier.** O pedido (`REVIEW_REQUESTED`): o ordinal, que é do engine, o orçamento por classe de revisão e a recuperação única quando se esgota, uma revisão que a pessoa pediu fora do orçamento (`personAskedForReview`), o `Source Fingerprint` com o snapshot atrás, o id do pedido e o sítio onde o revisor escreve. O veredicto (`REVIEW_COMPLETED`): `READY` ou `NOT-READY`, o ficheiro da revisão levado para o registo com os títulos despromovidos, o pedido pendente a que responde, e o registo de despacho do revisor retirado no fim.
 
-### Fatia 3a: a tentativa de revisão, partida em três
+### Fatia 3a: a tentativa de revisão, partida em cinco
 
 A primeira parte da fatia 3, e o que as outras e `review` usam: de que tentativa da stage é um pedido de revisão, quantos pedidos a tentativa já tem, e que pedidos esperam veredicto. São duas funções sobre o ledger e o estado, sem comando próprio: verificam-se pelo corpus do oráculo, com ledgers gerados, e não pelo diferencial.
 
@@ -2298,7 +2298,9 @@ A primeira parte da fatia 3, e o que as outras e `review` usam: de que tentativa
 | --- | --- | --- | --- |
 | 3a-i. O que um pedido liga | `focus-evidence::review`: a ligação de uma linha `REVIEW_REQUESTED`, se um veredicto lhe pode responder, e um pedido que substitui outro | Corpus | Feito (abaixo) |
 | 3a-ii. A janela | `focus-lifecycle::review_attempt`: a fronteira da tentativa e os bolts abertos e fundidos (`reviewAttemptWindow`) | Corpus, com ledgers gerados | Feito (abaixo) |
-| 3a-iii. A contagem | `reviewAttemptAccounting`, com `completionCarriesVerifiedReview` (que lê o registo da revisão em disco) | Corpus, com ledgers gerados e registos em disco | Por fazer |
+| 3a-iii. O veredicto contra o pedido | `focus-evidence::review`: se uma linha `REVIEW_COMPLETED` responde a um pedido, e o registo de revisão que nomeia | Corpus | Feito (abaixo) |
+| 3a-iv. O registo de revisão | O documento que um veredicto deixa no registo: a forma (`isReviewRecord`), a leitura em disco sem seguir links (`readReviewRecord`), se é a revisão que a linha diz (`reviewRecordMatchesCompletion`), e com isso `completionCarriesVerifiedReview` | Corpus, com registos em disco | Por fazer |
+| 3a-v. A contagem | `reviewAttemptAccounting`: o piso, os pedidos contados, os pendentes por iteração, a recuperação gasta, a ambiguidade de um empate | Corpus, com ledgers gerados e registos em disco | Por fazer |
 
 Quem as chama no original: `freshReviewReceipts` e `pendingReviewRequestStatus` (o resto da fatia 3), `log review` (2e), os checkpoints de Construction (fatia 5) e `orchestrate` (fatias 6 a 10). Focus já tem as peças de ordem que elas usam: `sort_attempt_events` (`focus-lifecycle::gate`), a fronteira (`focus-evidence::authorization::frontier`) e o salto que alcança uma stage (`jump_reaches`).
 
@@ -2352,6 +2354,25 @@ Quem as chama no original: `freshReviewReceipts` e `pendingReviewRequestStatus` 
 | Corpus, tudo | 41 580 casos |
 | Mutação | 114 mutantes: 106 apanhados (87 à primeira, os outros depois das histórias e dos tipos de linha novos no gerador), 5 equivalentes anotados no módulo (a ordem dos shards entre linhas de bolt do mesmo tipo; os inícios sob unit-major só são calculados quando o passeio não o é; um início já deixado de fora e o de uma corrida isolada; uma mudança de política que o início não precede) e 3 em código que saiu. A lista inteira voltou a correr contra o corpus final |
 | `cargo test` | 579 testes: 1 novo, o do corpus de `focus-lifecycle`. O teste de CLI que pede a `focus dev oracle` todos os tipos de caso passa-lhe a instalação dos fixtures |
+
+### Fatia 3a-iii: o veredicto contra o pedido
+
+A contagem precisa de saber se um veredicto responde ao pedido pendente, e isso é mais do que cabia numa fatia com ela: 108 linhas para conferir a linha contra o pedido, e depois o registo de revisão em disco (3a-iv).
+
+**O que existe.** `focus-evidence::review`:
+
+- **`completion_matches_request`** (`reviewCompletionMatchesRequest`): uma linha `REVIEW_COMPLETED` responde a um pedido quando tem um dos dois veredictos, o fingerprint em que a revisão foi pedida (o seu próprio, ou `Request Fingerprint` quando os artefactos mudaram debaixo da revisão), o id do pedido, a fronteira do apêndice de um pedido desse tempo com o que lá estava e o desafio, e os fingerprints da fonte que o pedido ligou (`Request Source Fingerprint` e `Source Fingerprint`, os dois; o da unit).
+- **`record_ref`** (`reviewRecordRefFromBlock`): o registo de revisão que a linha nomeia, pelo caminho e pelo digest dos bytes. Uma linha que nomeia um registo mal não responde a pedido nenhum.
+- **`is_record_relative_path`** (`isReviewRecordRelativePath`): as duas formas do caminho de um registo, a de uma stage (`<stage>/stage/<tentativa>/<iteração>.json`) e a de uma unit (`<stage>/units/<unit>/<tentativa>/<iteração>.json`), debaixo de `.focus-engine/reviews/` ou da pasta de antes dela, que as linhas antigas guardam (`.focus-reviews/`, a `.aidlc-reviews/` do original).
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Corpus, `review_completion` | 3 114 casos, todos iguais à primeira: 1 226 respondem ao pedido e 1 888 não; 1 524 nomeiam um registo que se lê como tal e 1 590 não. Cada caso parte do veredicto que responde a um pedido de uma das eras e muda até três campos; 114 levam cada forma de caminho, certa e errada, num veredicto que de resto responde |
+| Corpus, tudo | 44 694 casos |
+| Mutação | 46 mutantes, todos apanhados: 40 à primeira, 6 depois de formas de caminho que o gerador não escrevia (um ficheiro com texto depois de `.json`, um ponto que não é ponto, a pasta sem a barra, cinco segmentos sem `units`, a forma de unit com a tentativa ou o ficheiro errados). Uma das formas só voltou a ser apanhada quando passou a estar no corpus por construção e não por sorteio |
+| `cargo test` | 579 testes (o teste do corpus de `focus-evidence` conta os casos de cada resposta) |
 
 ### A jornada
 
