@@ -5718,8 +5718,9 @@ def rw_row(slug, hot):
     alone = rw.choice([None] * 6 + [f"single-stage:{stage}"])
     kind = rw.choices(
         ["WORKFLOW_STARTED", "STAGE_STARTED", "STAGE_JUMPED", "GATE_REJECTED", "BOLT_STARTED", "BOLT_COMPLETED", "BOLT_FAILED", "AUDIT_MERGED", "ARTIFACT_CREATED",
-         "REVIEW_REQUESTED", "REVIEW_COMPLETED", "SESSION_STARTED", "CONSTRUCTION_POLICY_SET", "UNIT_STARTED", "UNIT_COMPLETED", "DECISION_RECORDED", "GATE_APPROVED"],
-        [1, 6, 2, 3, 8, 6, 3, 5, 1, 2, 2, 1, 4, 3, 3, 1, 1])[0]
+         "REVIEW_REQUESTED", "REVIEW_COMPLETED", "SESSION_STARTED", "CONSTRUCTION_POLICY_SET", "UNIT_STARTED", "UNIT_COMPLETED", "DECISION_RECORDED", "GATE_APPROVED",
+         "ARTIFACT_UPDATED", "SESSION_RESUMED"],
+        [1, 6, 2, 3, 8, 6, 3, 5, 1, 2, 2, 1, 4, 3, 3, 1, 1, 1, 1])[0]
     if kind == "STAGE_STARTED":
         return kind, rw_fields(("Stage", stage), ("Workflow", alone))
     if kind == "STAGE_JUMPED":
@@ -5740,7 +5741,7 @@ def rw_row(slug, hot):
                                ("Construction Iteration", iteration), ("Construction Checkpoints", checkpoints))
     if kind in ("UNIT_STARTED", "UNIT_COMPLETED"):
         return kind, rw_fields(("Stage", stage), ("Unit", unit))
-    if kind in ("REVIEW_REQUESTED", "REVIEW_COMPLETED", "ARTIFACT_CREATED", "GATE_APPROVED"):
+    if kind in ("REVIEW_REQUESTED", "REVIEW_COMPLETED", "ARTIFACT_CREATED", "ARTIFACT_UPDATED", "GATE_APPROVED"):
         return kind, rw_fields(("Stage", stage), ("Unit", rw.choice([None, unit])))
     return kind, ""
 
@@ -5793,7 +5794,8 @@ def rw_flooring_story(slug):
     unit = rw.choice(RW_UNITS)
     other = rw.choice([name for name in RW_SLUGS if name != slug])
     start = lambda stage=slug, alone=False: ("STAGE_STARTED", rw_fields(("Stage", stage), ("Workflow", f"single-stage:{stage}" if alone else None)))
-    unit_row = lambda stage=slug, kind="UNIT_STARTED": (kind, rw_fields(("Stage", stage), ("Unit", unit)))
+    unit_row = lambda stage=slug, kind=None: (kind or rw.choice(["UNIT_STARTED", "UNIT_PAUSED", "UNIT_RESUMED", "UNIT_COMPLETED", "UNIT_SKIPPED"]),
+                                              rw_fields(("Stage", stage), ("Unit", unit)))
     jump = lambda target: ("STAGE_JUMPED", rw_fields(("Target", target)))
     created = ("WORKFLOW_STARTED", "")
     yes, no = lambda: rw_policy(True), lambda: rw_policy(False)

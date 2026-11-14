@@ -16,6 +16,24 @@
 //! another is a narrower question (`attemptEventDefinitelyBefore`): position
 //! decides inside a shard and the instant decides across shards, so two rows
 //! of different shards at one instant are neither before the other.
+//!
+//! # Tests that change no answer
+//!
+//! Upstream asks them and so does this module; the mutation sweep found no
+//! ledger that tells them apart.
+//!
+//! - Bolt rows of one instant and the same kind are applied in the order of
+//!   their shards: the queues are met in that order already, so the earlier
+//!   shard is the one held.
+//! - The starts recorded under unit-major flooring are worked out only when
+//!   the walk is not unit-major now: they are asked about nowhere else.
+//! - Among those starts, one already left out is not looked at again, and a
+//!   start of a stage run by itself is passed over: neither is a boundary
+//!   whatever the answer.
+//! - A change of policy counts as between a start and a later change only
+//!   when the start is plainly before it. A change the start is not plainly
+//!   before is itself one the start is tested against, and fails that test,
+//!   so the start is kept either way.
 
 use focus_audit::read::block_field;
 use focus_audit::shards::ShardEvent;
