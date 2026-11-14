@@ -2299,8 +2299,8 @@ A primeira parte da fatia 3, e o que as outras e `review` usam: de que tentativa
 | 3a-i. O que um pedido liga | `focus-evidence::review`: a ligação de uma linha `REVIEW_REQUESTED`, se um veredicto lhe pode responder, e um pedido que substitui outro | Corpus | Feito (abaixo) |
 | 3a-ii. A janela | `focus-lifecycle::review_attempt`: a fronteira da tentativa e os bolts abertos e fundidos (`reviewAttemptWindow`) | Corpus, com ledgers gerados | Feito (abaixo) |
 | 3a-iii. O veredicto contra o pedido | `focus-evidence::review`: se uma linha `REVIEW_COMPLETED` responde a um pedido, e o registo de revisão que nomeia | Corpus | Feito (abaixo) |
-| 3a-iv. O registo de revisão | O documento que um veredicto deixa no registo: a forma (`isReviewRecord`), a leitura em disco sem seguir links (`readReviewRecord`), se é a revisão que a linha diz (`reviewRecordMatchesCompletion`), e com isso `completionCarriesVerifiedReview` | Corpus, com registos em disco | Por fazer |
-| 3a-v. A contagem | `reviewAttemptAccounting`: o piso, os pedidos contados, os pendentes por iteração, a recuperação gasta, a ambiguidade de um empate | Corpus, com ledgers gerados e registos em disco | Por fazer |
+| 3a-iv. O registo de revisão | `focus-evidence::review_record`: a forma do documento que um veredicto deixa no registo, se é a revisão que a linha diz, e se um veredicto traz a revisão verificada que o pedido exige | Corpus | Feito (abaixo) |
+| 3a-v. A contagem | `reviewAttemptAccounting`: o piso, os pedidos contados, os pendentes por iteração, a recuperação gasta, a ambiguidade de um empate; e a leitura do registo de revisão em disco, sem seguir links e com limite de tamanho (`readReviewRecord`) | Corpus, com ledgers gerados e registos em disco num projeto | Por fazer |
 
 Quem as chama no original: `freshReviewReceipts` e `pendingReviewRequestStatus` (o resto da fatia 3), `log review` (2e), os checkpoints de Construction (fatia 5) e `orchestrate` (fatias 6 a 10). Focus já tem as peças de ordem que elas usam: `sort_attempt_events` (`focus-lifecycle::gate`), a fronteira (`focus-evidence::authorization::frontier`) e o salto que alcança uma stage (`jump_reaches`).
 
@@ -2373,6 +2373,33 @@ A contagem precisa de saber se um veredicto responde ao pedido pendente, e isso 
 | Corpus, tudo | 44 694 casos |
 | Mutação | 46 mutantes, todos apanhados: 40 à primeira, 6 depois de formas de caminho que o gerador não escrevia (um ficheiro com texto depois de `.json`, um ponto que não é ponto, a pasta sem a barra, cinco segmentos sem `units`, a forma de unit com a tentativa ou o ficheiro errados). Uma das formas só voltou a ser apanhada quando passou a estar no corpus por construção e não por sorteio |
 | `cargo test` | 579 testes (o teste do corpus de `focus-evidence` conta os casos de cada resposta) |
+
+### Fatia 3a-iv: o registo de revisão
+
+**O que existe.** `focus-evidence::review_record`:
+
+- **`parse`** (`parseReviewRecordBytes`, `isReviewRecord`): o documento JSON que um veredicto deixa no registo é um registo de revisão quando cada campo lá está e é do seu tipo: a versão 1, a stage, a unit e o workflow (texto ou `null`), a tentativa, a iteração (um inteiro positivo), o revisor, um dos dois veredictos, o id e o desafio do pedido, os fingerprints, os findings (cada um com o id `R-<n>`, a severidade, o sítio, o texto, a ação e um estado dos quatro fixos ou uma rejeição com a razão), os findings derivados com os seus campos opcionais, o corpo e o instante.
+- **`matches_completion`** (`reviewRecordMatchesCompletion`): o registo é a revisão que a linha `REVIEW_COMPLETED` diz quando stage, unit, workflow, iteração, revisor, veredicto, id do pedido, fingerprints e desafio coincidem. O digest prende os bytes à linha; isto prende o que eles dizem ao âmbito da linha.
+- **`completion_carries_verified_review`** (`completionCarriesVerifiedReview`): um veredicto traz a sua revisão verificada quando responde ao pedido e o registo que nomeia é essa revisão. Um pedido com id precisa do registo; um de antes dos ids pode ser respondido sem registo nenhum, e o que nomear tem de conferir. Quem lê o registo é dado de fora: a leitura em disco chega com a 3a-v.
+- **`digest`** (`reviewRecordDigest`).
+
+**Decisões.**
+
+| Decisão | Porquê |
+| --- | --- |
+| Três campos são testados como texto, seja o que forem (`String(valor)`): o id de um finding, o id de um finding relacionado e uma decisão anterior | É o que o original faz, e tem uma consequência que o corpus mostra: uma lista de um id lê-se como esse id |
+| O texto dos registos gerados não leva nenhum nome que os dois engines escrevam de maneira diferente | O digest é tirado sobre os bytes: com `aidlc` de um lado e `focus` do outro, o digest esperado e o de Focus nunca coincidiam |
+| Os tipos de caso de revisão ficaram com menos casos | `fixtures/oracle/cases.ndjson` passou os 50 MB (52,7), e o GitHub avisa a partir daí e recusa aos 100. Os quatro tipos desta fatia pesavam 24 MB; com cerca de metade dos casos sorteados o ficheiro fica em 41,6 MB. O que só aparecia por sorteio e uma varredura mostrou que fazia falta passou a estar no corpus por construção |
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Corpus, `review_record` | 2 208 casos, todos iguais: 1 203 são registos e 1 005 não; 501 são a revisão que a linha diz; 394 veredictos trazem a revisão verificada. 1 500 partem de um pedido, um veredicto e um registo que concordam e mudam até dois campos de cada; 708 são por construção: cada campo de um finding como cada tipo de valor, a iteração como cada tipo de número, um veredicto sem iteração |
+| Corpus, tudo | 42 282 casos: `review_binding` 1 500, `review_completion` 1 914, `review_window` 1 980 |
+| Mutação, `review_record` | 69 mutantes: 64 apanhados (58 à primeira, 6 depois dos casos por construção) e 5 equivalentes anotados no módulo (o texto de um `null`, de um booleano ou de um número, sozinho ou numa lista, não é id nem decisão de nenhuma maneira; um veredicto que nomeia mal um registo já não responde ao pedido) |
+| Mutação, outra vez, depois de o corpus encolher | As três varreduras anteriores correram de novo contra o corpus reduzido: `review_completion` 46 de 46; `review_binding` 40 e o equivalente de antes; `review_window` 106 e os cinco equivalentes de antes. Em `review_record` dois mutantes da iteração deixaram de ser apanhados, e os casos por construção da iteração apanham-nos |
+| `cargo test` | 579 testes; os testes de corpus de `focus-evidence` e `focus-lifecycle` contam os casos de cada resposta, com os mínimos baixados para o corpus reduzido |
 
 ### A jornada
 

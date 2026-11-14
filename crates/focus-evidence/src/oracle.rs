@@ -13,19 +13,21 @@ use std::path::Path;
 use serde_json::{Value, json};
 
 use crate::review;
+use crate::review_record;
 use crate::source::listing::{self, Listing};
 use crate::source::raw;
 use crate::source::walk::{self, Budgets, Names, Options, Stop};
 use crate::summary;
 
 /// The kinds of case this crate answers.
-pub const KINDS: [&str; 6] = [
+pub const KINDS: [&str; 7] = [
     "source_listing_parse",
     "source_listing",
     "source_walk",
     "summary",
     "review_binding",
     "review_completion",
+    "review_record",
 ];
 
 /// Lay the case's project out and walk it.
@@ -249,6 +251,26 @@ pub fn run_case(case: &Value) -> Value {
             }
         }
         "review_binding" => review_binding_case(case),
+        "review_record" => {
+            let bytes = text("text").as_bytes();
+            let completion = text("completion");
+            let record = review_record::parse(bytes);
+            let digest = review_record::digest(bytes);
+            // The record is handed over as the reader of the record's folder
+            // would: only under the digest of its own bytes.
+            let read =
+                |named: &review::RecordRef| record.clone().filter(|_| named.digest == digest);
+            json!({
+                "valid": record.is_some(),
+                "digest": digest,
+                "matches": record
+                    .as_ref()
+                    .map(|record| review_record::matches_completion(record, completion)),
+                "carries": review::request_binding(text("request")).map(|request| {
+                    review_record::completion_carries_verified_review(&request, completion, &read)
+                }),
+            })
+        }
         "review_completion" => {
             let completion = text("completion");
             json!({
