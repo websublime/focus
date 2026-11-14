@@ -2235,8 +2235,8 @@ O checkpoint de sumário atravessa `decision` e `answer`, e assenta em duas leit
 | Um recibo no instante da fronteira só conta no shard da fronteira e depois dela | Entre shards nada diz qual veio primeiro; o original recusa e Focus também |
 | O que `pipelineLinkEvidence` calcula além dos recibos fica para a fatia 3 | Que elos faltam, e que repositórios uma linha `ARTIFACT_REUSED` satisfaz (e, numa stage corrida sozinha, se a base de conhecimento ainda está atual), é o que fecha a stage. Um elo não lê nada disso, e os checks com essas linhas dão o mesmo |
 | Se o ficheiro existe é perguntado pelo nome, como o original pergunta | Só escolhe a frase da recusa. O ficheiro é lido a seguir sem seguir links |
-| Uma gravação leva os instantes dos ficheiros que um check pôs à mão (`times`), e a repetição volta a pô-los | O que um elo responde depende de quando o handoff foi escrito. Sem isto os 190 checks com handoff ficavam só no diferencial. Os instantes são centenas de nanossegundos inteiras, o que todos os sistemas de ficheiros onde a repetição corre guardam |
-| Dois checks ficam só no diferencial, com um teste de CLI | Um segundo nome do ficheiro é um link que uma gravação não leva; o nome da pasta do projeto é o de quem repete |
+| Uma gravação leva os instantes dos ficheiros que um check pôs à mão (`times`), e a repetição volta a pô-los | O que um elo responde depende de quando o handoff foi escrito. Sem isto os 232 checks de `link` que põem um instante ficavam só no diferencial. Os instantes são centenas de nanossegundos inteiras, o que todos os sistemas de ficheiros onde a repetição corre guardam |
+| Três checks ficam só no diferencial por decisão, dois deles com um teste de CLI | Um segundo nome do ficheiro é um link que uma gravação não leva; o nome da pasta do projeto é o de quem repete; um estado que não é texto não cabe numa gravação de texto |
 
 **O que o diferencial encontrou.**
 
@@ -2247,17 +2247,19 @@ O checkpoint de sumário atravessa `decision` e `answer`, e assenta em duas leit
 | O instante de um ficheiro é um número de milissegundos com fração, e a 1,7 × 10¹² um `double` anda de 244 em 244 nanossegundos | Um ficheiro escrito 100 ns antes da tentativa é do instante dela e é aceite pelos dois; um recibo com `…123.4567` e um ficheiro em `…123.456789` são o mesmo instante. Os checks dizem-no |
 | O original não embrulha a falha de escrita do recibo na frase `Audit emission failed` | `link` usa `emit_plain` |
 | `--single` é um interruptor: a palavra a seguir é um argumento solto | O check diz-no (`--single yes`, `--single false`) |
+| O grafo só tem uma stage `pipeline`, com dois elos | A ordem entre o segundo e o terceiro elo, a posição do último e um elo principal sem handoff não tinham onde ser vistos. Três checks editam o grafo compilado dos dois lados: uma cadeia de três, e `intent-capture` como pipeline |
+| A posição de uma linha no shard é um offset em bytes | Um empate entre shards só distingue as regras com o recibo depois do offset da fronteira do outro shard: os checks levam quarenta linhas de enchimento |
 | O instante do ficheiro era lido pelo nome depois da leitura | Passou a ser o do ficheiro aberto (`read_regular_with_time`), como no original (`snapshot.mtimeMs`) |
 
 **Verificado.**
 
 | Verificação | Resultado |
 | --- | --- |
-| Diferencial, `log/link/*` | @@LINK@@ |
-| Diferencial, tudo | @@ALL@@ |
-| Repetição da gravação | @@RECORDED@@ |
-| Testes | @@TESTS_NEW@@ |
-| Mutação | @@MUTATION@@ |
+| Diferencial, `log/link/*` | 253 checks: 249 iguais e 4 desvios declarados (o `repos` que não é uma lista de nomes). O uso e o que não é um pipeline, nem um elo da cadeia. A cadeia: por ordem, fora de ordem, duas vezes, o agente principal sozinho, a cerimónia desligada pelo interruptor, pelo estado (cinco formas da linha) e pelo scope, um estado que não se lê, uma cadeia de três elos e um pipeline que não é `reverse-engineering` (o grafo editado dos dois lados). O handoff: sem nome, noutro sítio (seis), pelo caminho inteiro e com passos, em falta, uma pasta, um link, atrás de um link, um link para nada, debaixo de um ficheiro, com um segundo nome, vazio; escrito antes da tentativa, no instante dela, um milissegundo antes, meio milissegundo depois, antes de 1970, antes de um início de stage e de uma rejeição, sem tentativa, com um início que não é um instante; não reescrito, reescrito, mais velho que um recibo, com um recibo de outra stage, de outro elo, de outro repositório. Os recibos, com `off` e com `strict`: o ficheiro mudado, tocado para a frente e para trás, tocado por menos do que a tolerância, desaparecido, uma pasta, e vinte e duas formas de um recibo (sem ficheiro, sem hash, um hash que não o é, um instante que não é número, fora do registo, de outra cadeia, de outra stage, de uma corrida isolada, de um repositório). A tentativa, nas duas políticas e com o ficheiro igual e reescrito: catorze fronteiras e não-fronteiras (um início, um salto para a stage, para antes, para depois, para lado nenhum, uma rejeição, da stage e de outra, a criação outra vez, uma conclusão, uma aprovação, linhas de uma corrida isolada). Os empates: o recibo no instante da fronteira, antes e depois dela, entre duas, noutro shard, com a fronteira em dois shards, e os mesmos com o recibo muito abaixo no seu shard. Os repositórios: registados, o errado, em falta, dado sem haver nenhum, intercalados, a raiz pelo nome dela. Uma stage corrida sozinha: a cadeia, sem início, o scope do início (seis formas), as fronteiras dela e as do trabalho que não são dela, linhas da corrida de outra stage. O observador e a falta de workflow |
+| Diferencial, tudo | 4 978 checks com `--fuzz 600`: 4 746 iguais, 232 desvios declarados, nenhum diferente |
+| Repetição da gravação | 3 692 checks sobre 1 427 árvores, todos iguais. Dos 253 de `link`, 246 estão gravados, 232 deles com os instantes dos ficheiros; 7 ficam só no diferencial: quatro com links, que nenhuma gravação leva, o segundo nome, o nome da pasta e um estado que não é texto. Um check de `state` que já punha instantes à mão passa a levá-los também |
+| Testes | 1 novo de CLI, com o que a gravação não leva: o handoff com o nome da pasta do projeto, e o de outra pasta recusado; um handoff com um segundo nome recusado, e aceite quando fica com um só. O teste marcado dos verbos por portar fica só com `review` |
+| Mutação | 118 mutantes (o verbo, a cadeia, a fronteira da tentativa, os recibos, o ficheiro de um recibo, a cerimónia): 110 apanhados (99 à primeira, 11 depois de 25 checks escritos para eles: o estado que não se lê, a cadeia de três, o outro pipeline, as linhas da corrida de outra stage, os recibos sem fronteira, os empates com o recibo muito abaixo no shard, o recibo anterior de outra stage, elo ou repositório, os repositórios intercalados) e 8 equivalentes anotados nos dois módulos (o shard e a posição numa ordenação estável de linhas que já chegam por essa ordem; um recibo sem elo ou sem caminho; o registo como caminho; a cadeia vazia; a cerimónia só tem dois valores; só os recibos do primeiro elo são perguntados pelo ficheiro) |
 | `cargo test` | @@TESTS@@ |
 
 ### A jornada
