@@ -5378,13 +5378,20 @@ def log_checks():
     check_("link/boundary_in_two_shards", created(chained, CREATED_AUDIT + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering") + scan_receipt(5), **{scan: SCAN},
                                                 **other(block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering"))), [returned(arch)], edits=[at_time()])
     # The same ties with the receipt far down its shard: where a row is in one shard says nothing against another's.
-    filler = "".join(block("STAGE_STARTED", T(0), "**Stage**: intent-capture") for _ in range(8))
+    filler = "".join(block("STAGE_STARTED", T(0), "**Stage**: intent-capture") for _ in range(40))
     check_("link/receipt_tied_in_another_shard_further_down", created(chained, CREATED_AUDIT + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering"), **{scan: SCAN}, **other(filler + scan_receipt(5))),
            [returned(arch)], edits=[at_time()])
     check_("link/boundary_in_two_shards_receipt_further_down", created(chained, CREATED_AUDIT + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering"), **{scan: SCAN},
                                                                       **other(filler + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering") + scan_receipt(5))), [returned(arch)], edits=[at_time()])
     check_("link/boundary_in_two_shards_receipt_in_the_longer", created(chained, CREATED_AUDIT + filler + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering") + scan_receipt(5), **{scan: SCAN},
                                                                        **other(block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering"))), [returned(arch)], edits=[at_time()])
+    check_("link/receipt_tied_with_a_boundary_in_another_shard", created(chained, CREATED_AUDIT + filler + scan_receipt(5), **{scan: SCAN}, **other(block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering"))),
+           [returned(arch)], edits=[at_time()])
+    # Receipts of two repositories one after the other: each repository's chain is its own.
+    check_("link/repos_one_after_the_other", created(chained, CREATED_AUDIT + scan_receipt(1, scan_app, scan_sha, "1767610800123.4567", "**Repo**: app")
+                                                    + scan_receipt(2, f"{scan_dir}/developer-scan-web.md", scan_sha, "1767610800123.4567", "**Repo**: web"),
+                                                    registry=over_app, **{scan_app: SCAN, f"{scan_dir}/developer-scan-web.md": SCAN}),
+           [returned(arch, "--repo", "app"), scanned("--repo", "app", file=scan_app), returned(arch, "--repo", "web")], edits=[at_time(scan_app), at_time(f"{scan_dir}/developer-scan-web.md")])
     # No boundary at all: every receipt is of the one attempt there is.
     check_("link/receipt_with_no_boundary", created(chained, TITLE + scan_receipt(1), **{scan: SCAN}), [returned(arch), scanned()], edits=[at_time()])
     check_("link/single_receipt_with_no_start", created(chained, CREATED_AUDIT + scan_receipt(2, scan, scan_sha, "1767610800123.4567", alone), **{scan: SCAN}), [returned(arch, "--single"), scanned("--single")],
