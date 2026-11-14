@@ -314,17 +314,24 @@ fn normalise_audit(text: &str, root: &Path) -> String {
         |found, text| format!("<cli-config guard-policy {}>", group(found, text, 1)),
     );
     text = text.replace(" --harness claude\n", "\n");
-    // A file where a folder is to be made: the runtime's own words.
-    text = replace_all(
-        &text,
-        r#"(?:<project-dir>/)?[^\s"(]*: File exists \(os error 17\)"#,
-        |_, _| "<runtime>".to_owned(),
-    );
-    text = replace_all(
-        &text,
-        r#"(?:<project-dir>/)?[^\s"]*focus-state\.md: Is a directory \(os error 21\)"#,
-        |_, _| "<runtime>".to_owned(),
-    );
+    // A file where a folder is to be made: the runtime's own words. Each
+    // pattern is tried only on a text that holds the words: looking for the
+    // path before them costs the square of a long run with no space in it,
+    // and an answer's text can be one.
+    if text.contains(": File exists (os error 17)") {
+        text = replace_all(
+            &text,
+            r#"(?:<project-dir>/)?[^\s"(]*: File exists \(os error 17\)"#,
+            |_, _| "<runtime>".to_owned(),
+        );
+    }
+    if text.contains("focus-state.md: Is a directory (os error 21)") {
+        text = replace_all(
+            &text,
+            r#"(?:<project-dir>/)?[^\s"]*focus-state\.md: Is a directory \(os error 21\)"#,
+            |_, _| "<runtime>".to_owned(),
+        );
+    }
     text = replace_all(
         &text,
         r"(?<![\w-])focus-state(?![\w.-])(?: ([a-z-]+))?(?![\w-])",

@@ -2248,6 +2248,7 @@ O checkpoint de sumário atravessa `decision` e `answer`, e assenta em duas leit
 | O original não embrulha a falha de escrita do recibo na frase `Audit emission failed` | `link` usa `emit_plain` |
 | `--single` é um interruptor: a palavra a seguir é um argumento solto | O check diz-no (`--single yes`, `--single false`) |
 | O grafo só tem uma stage `pipeline`, com dois elos | A ordem entre o segundo e o terceiro elo, a posição do último e um elo principal sem handoff não tinham onde ser vistos. Três checks editam o grafo compilado dos dois lados: uma cadeia de três, e `intent-capture` como pipeline |
+| A repetição da gravação levava 1 168 s, quase todos num só fio a normalizar texto | Dois padrões do normalizador da repetição procuram o caminho antes das palavras do runtime (`File exists`, `Is a directory`), e num texto comprido sem espaços, como o de uma resposta, isso custa o quadrado do comprimento. O segundo padrão entrou com a 2c-iii. Cada um só corre agora num texto que tenha as palavras: 89 s |
 | A posição de uma linha no shard é um offset em bytes | Um empate entre shards só distingue as regras com o recibo depois do offset da fronteira do outro shard: os checks levam quarenta linhas de enchimento |
 | O instante do ficheiro era lido pelo nome depois da leitura | Passou a ser o do ficheiro aberto (`read_regular_with_time`), como no original (`snapshot.mtimeMs`) |
 
@@ -2260,7 +2261,7 @@ O checkpoint de sumário atravessa `decision` e `answer`, e assenta em duas leit
 | Repetição da gravação | 3 692 checks sobre 1 427 árvores, todos iguais. Dos 253 de `link`, 246 estão gravados, 232 deles com os instantes dos ficheiros; 7 ficam só no diferencial: quatro com links, que nenhuma gravação leva, o segundo nome, o nome da pasta e um estado que não é texto. Um check de `state` que já punha instantes à mão passa a levá-los também |
 | Testes | 1 novo de CLI, com o que a gravação não leva: o handoff com o nome da pasta do projeto, e o de outra pasta recusado; um handoff com um segundo nome recusado, e aceite quando fica com um só. O teste marcado dos verbos por portar fica só com `review` |
 | Mutação | 118 mutantes (o verbo, a cadeia, a fronteira da tentativa, os recibos, o ficheiro de um recibo, a cerimónia): 110 apanhados (99 à primeira, 11 depois de 25 checks escritos para eles: o estado que não se lê, a cadeia de três, o outro pipeline, as linhas da corrida de outra stage, os recibos sem fronteira, os empates com o recibo muito abaixo no shard, o recibo anterior de outra stage, elo ou repositório, os repositórios intercalados) e 8 equivalentes anotados nos dois módulos (o shard e a posição numa ordenação estável de linhas que já chegam por essa ordem; um recibo sem elo ou sem caminho; o registo como caminho; a cadeia vazia; a cerimónia só tem dois valores; só os recibos do primeiro elo são perguntados pelo ficheiro) |
-| `cargo test` | @@TESTS@@ |
+| `cargo test` | 578 testes. A suite inteira leva 207 s onde levava 1 342 (a repetição da gravação, 89 s onde levava 1 168) |
 
 ### A jornada
 
