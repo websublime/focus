@@ -702,6 +702,12 @@ async function answer(c: Record<string, any>): Promise<unknown> {
     }
     case "audit_find":
       return { found: lib.findAllEvents(c.audit, c.event, c.slug ?? undefined) };
+    case "bolt_slug":
+      try {
+        return { slug: lib.boltSlugForUnit(c.name) };
+      } catch (err) {
+        return { error: (err as Error).message };
+      }
     case "review_accounting": {
       // The reviews of one attempt, counted, in a project of its own: the
       // record's folder holds the review records the verdicts name.

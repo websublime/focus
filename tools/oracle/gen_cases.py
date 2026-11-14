@@ -6342,5 +6342,75 @@ for kept in ("plain", "link", "folder link", "second name", "edited", "gone", "l
                 files=files, links=links, hard=hard, pad=pad)
 
 
+# What a drawn ledger almost never tells: each as a ledger written row by row, a row being (shard, second, event, fields).
+def ra_fixed(rows, unit="auth", per_unit=True, workflow=None, state="# AI-DLC State\n\n## Workflow\n- **Scope**: feature\n", slug="code-generation"):
+    names = ["laptop-abc123.md", "desktop-def456.md"]
+    shards = [[], []]
+    for shard, second, kind, fields in rows:
+        shards[shard].append(f"\n## Row\n**Timestamp**: 2026-01-05T10:00:{second:02d}Z\n**Event**: {kind}\n{fields}\n---\n")
+    add("review_accounting", state=state, slug=slug, per_unit=per_unit, workspace_requires=False, reviewer=RA_REVIEWER, unit=unit, workflow=workflow,
+        shards=[{"shard": names[index], "content": "# AI-DLC Audit Log\n" + "".join(rows)} for index, rows in enumerate(shards) if rows], files={})
+
+
+def ra_asked(unit="auth", workflow=None, iteration=1, slug="code-generation"):
+    request, _ = ra_review(slug, unit, workflow, iteration, {}, "record")
+    return ra_row("REVIEW_REQUESTED", request)
+
+
+UNIT_MAJOR = "# AI-DLC State\n\n## Workflow\n- **Scope**: feature\n- **Construction Iteration**: unit-major\n"
+for _ in range(2):
+    bolt = lambda kind, unit="auth", slug=None: (kind, rw_fields(("Failed Bolt" if kind == "BOLT_FAILED" else "Bolt names", unit), ("Bolt slug", slug)))
+    merged = ("AUDIT_MERGED", rw_fields(("Bolt slug", "auth")))
+    step = lambda kind, stage="code-generation", unit="auth": (kind, rw_fields(("Stage", stage), ("Unit", unit)))
+    start = lambda stage="code-generation": ("STAGE_STARTED", rw_fields(("Stage", stage)))
+    # A review row tied across shards with a jump alone, and with a row that is no boundary of the work.
+    ra_fixed([(0, 1, *ra_asked()), (1, 1, "STAGE_JUMPED", rw_fields(("Target", "build-and-test")))])
+    ra_fixed([(0, 1, *ra_asked()), (1, 1, "WORKFLOW_STARTED", "")])
+    ra_fixed([(0, 1, *ra_asked()), (1, 1, *start("functional-design"))])
+    # A rejection that names a unit, at a stage that does not run for each unit; and a start of the stage that a later
+    # change of policy found under unit-major flooring, at such a stage and at one that does.
+    ra_fixed([(0, 1, *ra_asked(unit=None)), (0, 2, "GATE_REJECTED", rw_fields(("Stage", "code-generation"), ("Unit", "auth")))], unit=None, per_unit=False, state=UNIT_MAJOR)
+    ra_fixed([(0, 1, *ra_asked(unit=None)), (0, 2, "GATE_REJECTED", rw_fields(("Stage", "code-generation"), ("Unit", "auth")))], unit=None, per_unit=True, state=UNIT_MAJOR)
+    for per_unit in (False, True):
+        ra_fixed([(0, 1, *ra_asked(unit="auth" if per_unit else None)), (0, 2, *start()), (0, 3, *rw_policy(True))], unit="auth" if per_unit else None, per_unit=per_unit)
+        ra_fixed([(0, 1, *ra_asked(unit="auth" if per_unit else None)), (0, 2, *start()), (0, 3, *rw_policy(False))], unit="auth" if per_unit else None, per_unit=per_unit)
+    # A start of another stage, and the end of another stage's own run that names this stage's run.
+    ra_fixed([(0, 1, *ra_asked()), (0, 2, *start("functional-design"))])
+    alone = "single-stage:code-generation"
+    ra_fixed([(0, 1, "STAGE_COMPLETED", rw_fields(("Stage", "functional-design"), ("Workflow", alone))), (0, 2, *ra_asked(workflow=alone))], workflow=alone)
+    ra_fixed([(0, 1, *ra_asked(workflow=alone)), (0, 2, "STAGE_COMPLETED", rw_fields(("Stage", "functional-design"), ("Workflow", alone)))], workflow=alone)
+    ra_fixed([(0, 1, *ra_asked(workflow=alone)), (0, 2, "STAGE_COMPLETED", rw_fields(("Stage", "code-generation"), ("Workflow", alone))), (0, 3, *ra_asked(workflow=alone, iteration=2))],
+             workflow=alone)
+    # A tie among the rows of the unit's own bolt: with its merge, with nothing merged, with a bolt open again, with
+    # another unit's row, with a row that is no bolt's, and with a row the window does not read.
+    ra_fixed([(0, 1, *bolt("BOLT_STARTED", slug="auth")), (0, 2, *bolt("BOLT_COMPLETED", slug="auth")), (1, 2, *merged), (0, 3, *ra_asked())])
+    ra_fixed([(0, 1, *bolt("BOLT_STARTED")), (1, 2, *bolt("BOLT_FAILED")), (0, 2, *bolt("BOLT_FAILED")), (0, 3, *ra_asked())])
+    ra_fixed([(0, 1, *bolt("BOLT_STARTED")), (0, 2, *bolt("BOLT_COMPLETED")), (0, 3, *bolt("BOLT_STARTED")), (1, 3, *bolt("BOLT_STARTED")), (0, 4, *ra_asked())])
+    for other in (bolt("BOLT_STARTED", "billing"), bolt("BOLT_COMPLETED", "billing"), bolt("BOLT_FAILED", "billing"), start("functional-design"),
+                  ("STAGE_COMPLETED", rw_fields(("Stage", "functional-design"))), ("ARTIFACT_CREATED", rw_fields(("Stage", "code-generation")))):
+        ra_fixed([(0, 1, *bolt("BOLT_STARTED")), (0, 2, *bolt("BOLT_COMPLETED")), (1, 2, *other), (0, 3, *ra_asked())])
+    ra_fixed([(0, 1, *bolt("BOLT_STARTED", slug="auth")), (0, 2, *bolt("BOLT_COMPLETED", slug="auth")), (0, 2, *merged),
+              (1, 2, "STAGE_COMPLETED", rw_fields(("Stage", "functional-design"))), (0, 3, *ra_asked())])
+    # A unit's step finished and started again: of another stage, of another unit, and before the attempt's boundary.
+    for again in ([step("UNIT_COMPLETED"), step("UNIT_STARTED")], [step("UNIT_COMPLETED", "functional-design"), step("UNIT_STARTED", "functional-design")],
+                  [step("UNIT_COMPLETED", unit="billing"), step("UNIT_STARTED", unit="billing")]):
+        ra_fixed([(0, 1, *ra_asked()), (0, 2, *again[0]), (0, 3, *again[1]), (0, 4, *ra_asked(iteration=2))], state=UNIT_MAJOR)
+    ra_fixed([(0, 1, *step("UNIT_COMPLETED")), (0, 2, "GATE_REJECTED", rw_fields(("Stage", "code-generation"))), (0, 3, *ra_asked()), (0, 4, *step("UNIT_STARTED")),
+              (0, 5, *ra_asked(iteration=2))], state=UNIT_MAJOR)
+
+# --- bolt_slug: the slug of the bolt that runs a unit ------------------------
+#
+# A unit's name is a bolt's slug when it is one already; any other name is
+# lowered, its dots and underscores made hyphens, and told apart by a piece of
+# its hash (`boltSlugForUnit`). A name that is no unit's name has none.
+for name in ["auth", "a", "a1", "a-b", "a--b", "a-", "billing-api", "Billing_API", "ui.v2", "A", "9", "2fa", "9-lives", "a_b", "a..b", "a._-b", "a__b--c", "a_", "a.",
+             "a_-", "A-", "Z9", "0", "0-", "0_", "9.", "a" * 64, "a" * 65, "A" * 64, "a" * 47 + "_" + "b" * 16, "a" * 46 + "_" + "b" * 17, "a" * 46 + "-_" + "b" * 16,
+             "a" * 45 + "--_" + "b" * 16, "9" + "a" * 63, "9" * 64, "a" * 63 + "_", "A" + "-" * 62 + "b", "", " ", "-a", "_a", ".a", "a b", "a/b", "é", "a\n", "ａ"]:
+    add("bolt_slug", name=name)
+for _ in range(scale * 40):
+    # Names drawn from what a unit's name may hold and a little that it may not, short and at the length a slug may have.
+    length = ra.choice([1, 2, 3, 5, 8, 20, 46, 47, 48, 49, 63, 64, 65])
+    add("bolt_slug", name="".join(ra.choice("aabz09AZ..__--" + (" /" if ra.random() < 0.03 else "")) for _ in range(length)))
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

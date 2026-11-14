@@ -819,8 +819,7 @@ pub fn accounting(
             .filter(|event| event.timestamp == instant)
             .collect();
         let several_shards = tied.iter().any(|event| event.shard != tied[0].shard);
-        let lifecycle_only = tied.len() > 1
-            && several_shards
+        let lifecycle_only = several_shards
             && tied.iter().all(|event| match event.event.as_str() {
                 "AUDIT_MERGED" => true,
                 "BOLT_STARTED" | "BOLT_COMPLETED" => {
