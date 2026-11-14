@@ -5972,6 +5972,13 @@ for _ in range(scale * 500):
         else:
             answer[name] = RC_CHANGES[name]()
     add("review_completion", request=rc_block("REVIEW_REQUESTED", request), completion=rc_block("REVIEW_COMPLETED", answer))
+# Every shape of a record's path, right and wrong, on a completion that otherwise answers its request.
+for shape in RC_PATHS + RC_BAD_PATHS:
+    for _ in range(3):
+        request = rc_request()
+        answer = rc_answer(request)
+        answer["Review Record"], answer["Review Record Digest"] = shape(), "sha256:" + rc_hex(64)
+        add("review_completion", request=rc_block("REVIEW_REQUESTED", request), completion=rc_block("REVIEW_COMPLETED", answer))
 
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")
