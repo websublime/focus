@@ -32,6 +32,7 @@ fn every_evidence_case_gets_upstreams_answer() {
     let (mut requests, mut bound, mut of_records, mut of_appendices) = (0, 0, 0, 0);
     let (mut modern, mut replacing) = (0, 0);
     let (mut completions, mut answering, mut naming) = (0, 0, 0);
+    let (mut records, mut valid, mut same_review, mut carried) = (0, 0, 0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         // Parsed as upstream's driver parses it, so nested objects are in the
@@ -83,6 +84,11 @@ fn every_evidence_case_gets_upstreams_answer() {
             blank += usize::from(out["answer"].as_str().is_some_and(str::is_empty));
             unanswered += usize::from(out.get("answer").is_some_and(Value::is_null));
             assert!(out.get("unreadable").is_none(), "{}: {out}", case["id"]);
+        } else if kind == "review_record" {
+            records += 1;
+            valid += usize::from(out["valid"] == true);
+            same_review += usize::from(out["matches"] == true);
+            carried += usize::from(out["carries"] == true);
         } else if kind == "review_completion" {
             completions += 1;
             answering += usize::from(out["matches"] == true);
@@ -159,6 +165,14 @@ fn every_evidence_case_gets_upstreams_answer() {
             && naming >= 1200
             && completions - naming >= 1200,
         "{completions} {answering} {naming}"
+    );
+    assert!(
+        records >= 2500 && valid >= 1200 && records - valid >= 1000,
+        "{records} {valid}"
+    );
+    assert!(
+        same_review >= 400 && valid - same_review >= 600 && carried >= 300,
+        "{same_review} {carried}"
     );
     assert!(
         differing.is_empty(),

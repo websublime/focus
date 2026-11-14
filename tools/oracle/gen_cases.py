@@ -5980,5 +5980,108 @@ for shape in RC_PATHS + RC_BAD_PATHS:
         answer["Review Record"], answer["Review Record Digest"] = shape(), "sha256:" + rc_hex(64)
         add("review_completion", request=rc_block("REVIEW_REQUESTED", request), completion=rc_block("REVIEW_COMPLETED", answer))
 
+
+# --- review_record: the review a completion names ----------------------------
+#
+# A verdict leaves the review as a JSON document in the record, and its row
+# names the document and pins its bytes. The document is a review record when
+# every field is of its kind (`parseReviewRecordBytes`), and it is the review
+# the row says when stage, unit, workflow, pass, reviewer, verdict, request and
+# fingerprints agree (`reviewRecordMatchesCompletion`). A completion carries
+# its verified review when it answers the request and the record it names is
+# that review (`completionCarriesVerifiedReview`); a request from before
+# request ids may be answered with no record. The cases start from a record
+# and a completion that agree and change up to two fields of each.
+# (Nothing in a record's text is a name the two engines spell differently: its
+# digest is taken over the bytes, and has to be the same for both.)
+import hashlib
+rr = random.Random(seed * 7919 + 24)
+RR_WRONG = [None, 1, 0, -1, 1.5, "x", "", True, False, [], ["R-1"], {}, "1", 2]
+
+
+def rr_finding(derived=False):
+    finding = {"id": f"R-{rr.randrange(1, 30)}", "severity": rr.choice(["high", "low", ""]), "location": "a.md:3", "finding": "It is wrong.",
+               "required_action": "Fix it.", "status": rr.choice(["New", "Unresolved", "Resolved", "Accepted risk", "Rejected: not ours", "Rejected: x"])}
+    if derived:
+        for key, values in (("decided_at_severity", ["high"]), ("reviewer_note", ["seen"]), ("reopened_reason", ["again"]),
+                            ("earlier_decision", ["Accepted risk", "Rejected: no", "Rejected: a\nb"]), ("related_finding_id", ["R-2", "R-10"]),
+                            ("not_rechecked", [True, False]), ("resolved_by_reviewer", [True]), ("resolved_in_review", [False]), ("introduced_in_review", [True])):
+            if rr.random() < 0.3:
+                finding[key] = rr.choice(values)
+    return finding
+
+
+def rr_break(record):
+    """One change to a record: a field of another kind, gone, or a finding that is not one."""
+    kind = rr.choice(["field", "field", "gone", "finding", "derived", "extra"])
+    if kind == "field":
+        record[rr.choice(list(record))] = rr.choice(RR_WRONG)
+    elif kind == "gone":
+        record.pop(rr.choice(list(record)), None)
+    elif kind == "extra":
+        record[rr.choice(["note", "Stage", "derived_findings"])] = rr.choice([None, "x", [], [rr_finding(True)]])
+    else:
+        key = "findings" if kind == "finding" else "derived_findings"
+        finding = rr_finding(key == "derived_findings")
+        change = rr.choice(["id", "status", "kind", "gone", "option", "none"])
+        if change == "id":
+            finding["id"] = rr.choice(["R-", "r-1", "R-1a", "R1", 7, ["R-3"], None, "R-01", " R-1"])
+        elif change == "status":
+            finding["status"] = rr.choice(["new", "Rejected:", "Rejected: ", "Rejected:  x", "Rejected:x", "Done", "", 3, "Rejected: \tx"])
+        elif change == "kind":
+            finding[rr.choice(["severity", "location", "finding", "required_action", "status"])] = rr.choice([None, 1, [], True])
+        elif change == "gone":
+            finding.pop(rr.choice(list(finding)), None)
+        elif change == "option" and key == "derived_findings":
+            option = rr.choice(["decided_at_severity", "reviewer_note", "reopened_reason", "earlier_decision", "related_finding_id", "not_rechecked",
+                                "resolved_by_reviewer", "resolved_in_review", "introduced_in_review"])
+            finding[option] = rr.choice([None, 1, "x", "", True, "Accepted risk", "Rejected: ", "Rejected: y", "R-4", "R-", ["R-5"], "true"])
+        entry = rr.choice([finding, finding, None, "x", [], 3]) if change == "none" else finding
+        record[key] = (record.get(key) if isinstance(record.get(key), list) else []) + [entry]
+
+
+for _ in range(scale * 500):
+    request = rc_request()
+    answer = rc_answer(request)
+    answer.update({"Stage": rr.choice(["intent-capture", "code-generation"]), "Iteration": str(rr.choice([1, 1, 2, 3, 12])), "Reviewer": "architecture-reviewer-agent"})
+    if rr.random() < 0.3:
+        answer["Unit"] = rr.choice(["auth", "billing"])
+    if rr.random() < 0.2:
+        answer["Workflow"] = f"single-stage:{answer['Stage']}"
+    record = {"version": 1, "stage": answer["Stage"], "unit": answer.get("Unit"), "workflow": answer.get("Workflow"), "attempt": rc_hex(16),
+              "iteration": int(answer["Iteration"]), "reviewer": answer["Reviewer"], "verdict": answer["Verdict"], "request_id": answer.get("Request Id"),
+              "request_challenge": answer.get("Review Challenge"), "artifact_fingerprint": answer["Artifact Fingerprint"],
+              "source_fingerprint": answer.get("Source Fingerprint"), "unit_source_fingerprint": answer.get("Unit Source Fingerprint"),
+              "findings": [rr_finding() for _ in range(rr.choice([0, 0, 1, 2]))], "body": "## Review\n\nIt reads well.\n", "recorded_at": "2026-01-05T10:00:00Z"}
+    if rr.random() < 0.3:
+        record["derived_findings"] = [rr_finding(True) for _ in range(rr.choice([0, 1, 2]))]
+    for _ in range(rr.choice([0, 0, 0, 0, 0, 1, 1, 2])):
+        rr_break(record)
+    # The row may say the same in other words, or something else.
+    for _ in range(rr.choice([0, 0, 0, 0, 0, 1, 1, 2])):
+        name = rr.choice(["Stage", "Unit", "Workflow", "Iteration", "Reviewer", "Verdict", "Request Id", "Artifact Fingerprint", "Source Fingerprint",
+                          "Unit Source Fingerprint", "Review Challenge"])
+        if name == "Iteration":
+            answer[name] = rr.choice([f"0{answer[name]}", f"{answer[name]}.0", f"{answer[name]}e0", "0x1", "", "one", "2", "1"])
+        elif rr.random() < 0.4:
+            answer.pop(name, None)
+        else:
+            answer[name] = rr.choice(["", "x", "READY", "NOT-READY", "auth", "intent-capture", "sha256:" + rc_hex(64), "review:" + rc_hex(32)])
+    form = rr.choice(["pretty"] * 5 + ["compact", "compact", "broken", "other"])
+    text = (json.dumps(record, indent=2, ensure_ascii=False) + "\n" if form == "pretty" else json.dumps(record, ensure_ascii=False) if form == "compact"
+            else json.dumps(record, indent=2)[:-3] if form == "broken" else rr.choice(["[]", "null", "\"x\"", "7", "", "{}"]))
+    digest = "sha256:" + hashlib.sha256(text.encode("utf-8")).hexdigest()
+    named = rr.choice(["right"] * 6 + ["wrong", "none", "path", "bad"])
+    if named in ("right", "wrong", "bad"):
+        answer["Review Record"] = rr.choice(RC_PATHS)() if named != "bad" else "nope.json"
+        answer["Review Record Digest"] = digest if named == "right" else "sha256:" + rc_hex(64)
+    elif named == "none":
+        answer.pop("Review Record", None)
+        answer.pop("Review Record Digest", None)
+    else:
+        answer["Review Record"] = rr.choice(RC_PATHS)()
+        answer.pop("Review Record Digest", None)
+    add("review_record", text=text, request=rc_block("REVIEW_REQUESTED", request), completion=rc_block("REVIEW_COMPLETED", answer))
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

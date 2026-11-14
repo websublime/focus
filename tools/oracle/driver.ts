@@ -702,6 +702,22 @@ async function answer(c: Record<string, any>): Promise<unknown> {
     }
     case "audit_find":
       return { found: lib.findAllEvents(c.audit, c.event, c.slug ?? undefined) };
+    case "review_record": {
+      // A document read as a review record, whether it is the review its
+      // completion says, and whether the completion carries the verified
+      // review its request needs. The record is handed over as the reader of
+      // the record's folder would: only under the digest of its own bytes.
+      const record = lib.parseReviewRecordBytes(c.text);
+      const digest = lib.reviewRecordDigest(c.text);
+      const request = lib.reviewRequestBindingFromBlock(c.request);
+      const reader = (_project: string, ref: { path: string; digest: string }) => (ref.digest === digest ? record : null);
+      return {
+        valid: record !== null,
+        digest,
+        matches: record === null ? null : lib.reviewRecordMatchesCompletion(record, c.completion),
+        carries: request === null ? null : lib.completionCarriesVerifiedReview(scratch, request, c.completion, reader),
+      };
+    }
     case "review_completion": {
       // The record a completion names, and whether the completion answers
       // the request (`null` when the request's row bound nothing).
