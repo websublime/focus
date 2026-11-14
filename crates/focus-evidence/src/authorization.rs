@@ -97,7 +97,7 @@ pub fn id(
 /// A jump resets its target and every stage after it, so a stage before the
 /// target keeps its attempt. A row whose target, or a stage, the graph does
 /// not know reaches every stage.
-fn jump_reaches(block: &str, slug: &str, graph: &[Stage]) -> bool {
+pub(crate) fn jump_reaches(block: &str, slug: &str, graph: &[Stage]) -> bool {
     let index = |name: &str| graph.iter().position(|stage| stage.slug == name);
     match block_field(block, "Target").filter(|name| !name.is_empty()) {
         None => true,

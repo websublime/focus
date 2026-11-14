@@ -93,20 +93,109 @@ fn asking(more: &[&'static str]) -> Vec<&'static str> {
     ASK.iter().chain(more).copied().collect()
 }
 
-/// Deliberate deviation. `link` and `review` are slices to come (2d and
-/// 2e): upstream runs them, Focus names each as a verb it does not have
-/// yet.
+/// Deliberate deviation. `review` is a slice to come (2e): upstream runs
+/// it, Focus names it as a verb it does not have yet.
 #[test]
 fn the_verbs_that_are_not_ported_are_refused_by_name() {
     let root = project("verbs");
-    for verb in ["link", "review"] {
-        assert_eq!(
-            refusal(&root, &[verb, "--stage", "intent-capture"]),
-            format!(
-                "log {verb} is not ported yet: Focus records the questions of a stage and their answers (log decision, log answer, log answers), and not yet a pipeline's handoffs or the reviews."
-            )
-        );
-    }
+    assert_eq!(
+        refusal(&root, &["review", "--stage", "intent-capture"]),
+        "log review is not ported yet: Focus records the questions of a stage, their answers and a pipeline's handoffs (log decision, log answer, log answers, log link), and not yet the reviews."
+    );
+    let _ = fs::remove_dir_all(root);
+}
+
+/// What a recording cannot carry of `log link`, compared live by the
+/// differential (`log/link/root_handoff_by_its_name`,
+/// `log/link/handoff_a_second_name`): the developer's handoff may carry the
+/// name of the project's own folder, which is the replay's own; and a
+/// handoff with a second name is refused, a link no recording holds.
+#[cfg(unix)]
+#[test]
+fn a_handoff_by_the_projects_name_and_one_with_a_second_name() {
+    const STARTED: &str = "\n## Workflow Started\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: WORKFLOW_STARTED\n**Scope**: feature\n\n---\n";
+    let scans = format!("{RECORD}/inception/reverse-engineering");
+    let returned = |root: &Path, file: &str| {
+        log(
+            root,
+            &[
+                "link",
+                "--stage",
+                "reverse-engineering",
+                "--link",
+                "focus-developer-agent",
+                "--artifact",
+                file,
+            ],
+        )
+    };
+    let shard =
+        |root: &Path| fs::read_to_string(root.join(RECORD).join("audit/laptop-abc123.md")).unwrap();
+
+    let root = project("link-name");
+    write(
+        &root,
+        &format!("{RECORD}/audit/laptop-abc123.md"),
+        &format!("{SHARD}{STARTED}"),
+    );
+    let name = root.file_name().unwrap().to_str().unwrap().to_owned();
+    let named = format!("{scans}/developer-scan-{name}.md");
+    write(&root, &named, "# Developer scan\n");
+    // Another folder's name is no name of this one's.
+    let other = format!("{scans}/developer-scan-elsewhere.md");
+    write(&root, &other, "# Developer scan\n");
+    assert_eq!(
+        refusal(
+            &root,
+            &[
+                "link",
+                "--stage",
+                "reverse-engineering",
+                "--link",
+                "focus-developer-agent",
+                "--artifact",
+                &other
+            ]
+        ),
+        format!(
+            "Cannot record reverse-engineering developer link: --artifact must resolve to {scans}/developer-scan.md."
+        )
+    );
+    let output = returned(&root, &named);
+    assert_eq!(output.status.code(), Some(0), "{output:?}");
+    assert_eq!(
+        String::from_utf8_lossy(&output.stdout),
+        "{\"emitted\":\"PIPELINE_LINK_COMPLETED\",\"stage\":\"reverse-engineering\",\"link\":\"focus-developer-agent\"}\n"
+    );
+    let row = shard(&root);
+    assert!(
+        row.contains(&format!("**Position**: 1/1\n**Artifact Path**: {named}\n")),
+        "{row}"
+    );
+    assert!(!row.contains("**Repo**"), "{row}");
+    let _ = fs::remove_dir_all(root);
+
+    let root = project("link-second-name");
+    write(
+        &root,
+        &format!("{RECORD}/audit/laptop-abc123.md"),
+        &format!("{SHARD}{STARTED}"),
+    );
+    let scan = format!("{scans}/developer-scan.md");
+    write(&root, &scan, "# Developer scan\n");
+    fs::hard_link(root.join(&scan), root.join("other-name.md")).unwrap();
+    let output = returned(&root, &scan);
+    assert_eq!(output.status.code(), Some(1), "{output:?}");
+    let said = String::from_utf8_lossy(&output.stderr).into_owned();
+    assert!(
+        said.starts_with("{\"error\":\"Cannot record reverse-engineering developer link: handoff file must be a regular file with no symlink path components ("),
+        "{said}"
+    );
+    assert!(!shard(&root).contains("PIPELINE_LINK_COMPLETED"));
+    // With the one name it is the handoff.
+    fs::remove_file(root.join("other-name.md")).unwrap();
+    assert_eq!(returned(&root, &scan).status.code(), Some(0));
+    assert!(shard(&root).contains("PIPELINE_LINK_COMPLETED"));
     let _ = fs::remove_dir_all(root);
 }
 

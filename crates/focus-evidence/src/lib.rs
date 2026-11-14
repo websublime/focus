@@ -12,5 +12,6 @@
 
 pub mod authorization;
 pub mod oracle;
+pub mod pipeline;
 pub mod source;
 pub mod summary;
