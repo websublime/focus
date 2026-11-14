@@ -702,6 +702,35 @@ async function answer(c: Record<string, any>): Promise<unknown> {
     }
     case "audit_find":
       return { found: lib.findAllEvents(c.audit, c.event, c.slug ?? undefined) };
+    case "review_window": {
+      // The review attempt of a stage, read off a ledger given as its shards:
+      // the receipt rows in order, the attempt's boundary among them, and the
+      // units whose bolt is merged or still open.
+      const rows = (c.shards as { shard: string; content: string }[]).flatMap((shard, index) =>
+        lib.parseAuditShardEvents(shard.content, shard.shard, index, new Set<number>()));
+      const stage = c.per_unit ? { slug: c.slug, for_each: "unit-of-work" } : { slug: c.slug };
+      // The plan and the order of the stages are read from the compiled data
+      // of the distribution, which the library's own folder does not have.
+      const data = resolve(upstream, "dist", "claude", ".claude", "tools", "data");
+      const before = [process.env.AIDLC_STAGE_GRAPH, process.env.AIDLC_SCOPE_GRID];
+      process.env.AIDLC_STAGE_GRAPH = join(data, "stage-graph.json");
+      process.env.AIDLC_SCOPE_GRID = join(data, "scope-grid.json");
+      let view;
+      try {
+        view = lib.reviewAttemptWindow(scratch, c.state, stage, rows);
+      } finally {
+        for (const [index, name] of ["AIDLC_STAGE_GRAPH", "AIDLC_SCOPE_GRID"].entries()) {
+          if (before[index] === undefined) delete process.env[name];
+          else process.env[name] = before[index];
+        }
+      }
+      return {
+        events: view.events.map((row: { shardIndex: number; pos: number }) => `${row.shardIndex}:${row.pos}`),
+        floor: view.floorIdx,
+        merged: [...view.mergedBoltUnits],
+        open: [...view.openBoltUnits],
+      };
+    }
     case "review_binding": {
       // What a review request's row binds, whether a completion can be held
       // to it, and whether the row replaces the request pending at its pass.

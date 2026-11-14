@@ -127,7 +127,7 @@ fn main() -> ExitCode {
         // Development aid: answers oracle cases for the parity corpus.
         Some("dev") => match args.next_positional().as_deref() {
             Some("oracle") => graph::oracle(&mut args).map_err(Failure::from),
-            _ => Err("Usage: focus dev oracle <cases.ndjson>".into()),
+            _ => Err("Usage: focus dev oracle <cases.ndjson> [--installed <project>]".into()),
         },
         Some(other) => Err(format!("Unknown command: {other}. Run `focus --help`.").into()),
     };

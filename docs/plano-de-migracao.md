@@ -2249,7 +2249,7 @@ O checkpoint de sumário atravessa `decision` e `answer`, e assenta em duas leit
 | `--single` é um interruptor: a palavra a seguir é um argumento solto | O check diz-no (`--single yes`, `--single false`) |
 | O grafo só tem uma stage `pipeline`, com dois elos | A ordem entre o segundo e o terceiro elo, a posição do último e um elo principal sem handoff não tinham onde ser vistos. Três checks editam o grafo compilado dos dois lados: uma cadeia de três, e `intent-capture` como pipeline |
 | A repetição da gravação levava 1 168 s, quase todos num só fio a normalizar texto | Dois padrões do normalizador da repetição procuram o caminho antes das palavras do runtime (`File exists`, `Is a directory`), e num texto comprido sem espaços, como o de uma resposta, isso custa o quadrado do comprimento. O segundo padrão entrou com a 2c-iii. Cada um só corre agora num texto que tenha as palavras: 89 s |
-| A posição de uma linha no shard é um offset em bytes | Um empate entre shards só distingue as regras com o recibo depois do offset da fronteira do outro shard: os checks levam quarenta linhas de enchimento |
+| A posição de uma linha no shard é o número do bloco, e o shard de um trabalho criado já tem muitos | Um empate entre shards só distingue as regras com o recibo numa posição depois da da fronteira do outro shard: os checks levam quarenta linhas de enchimento |
 | O instante do ficheiro era lido pelo nome depois da leitura | Passou a ser o do ficheiro aberto (`read_regular_with_time`), como no original (`snapshot.mtimeMs`) |
 
 **Verificado.**
@@ -2297,7 +2297,7 @@ A primeira parte da fatia 3, e o que as outras e `review` usam: de que tentativa
 | Fatia | O que traz | Como se verifica | Estado |
 | --- | --- | --- | --- |
 | 3a-i. O que um pedido liga | `focus-evidence::review`: a ligação de uma linha `REVIEW_REQUESTED`, se um veredicto lhe pode responder, e um pedido que substitui outro | Corpus | Feito (abaixo) |
-| 3a-ii. A janela | `reviewAttemptWindow`: a fronteira da tentativa e os bolts abertos e fundidos | Corpus, com ledgers gerados | Por fazer |
+| 3a-ii. A janela | `focus-lifecycle::review_attempt`: a fronteira da tentativa e os bolts abertos e fundidos (`reviewAttemptWindow`) | Corpus, com ledgers gerados | Feito (abaixo) |
 | 3a-iii. A contagem | `reviewAttemptAccounting`, com `completionCarriesVerifiedReview` (que lê o registo da revisão em disco) | Corpus, com ledgers gerados e registos em disco | Por fazer |
 
 Quem as chama no original: `freshReviewReceipts` e `pendingReviewRequestStatus` (o resto da fatia 3), `log review` (2e), os checkpoints de Construction (fatia 5) e `orchestrate` (fatias 6 a 10). Focus já tem as peças de ordem que elas usam: `sort_attempt_events` (`focus-lifecycle::gate`), a fronteira (`focus-evidence::authorization::frontier`) e o salto que alcança uma stage (`jump_reaches`).
@@ -2318,6 +2318,40 @@ Quem as chama no original: `freshReviewReceipts` e `pendingReviewRequestStatus` 
 | Corpus, tudo | 37 080 casos |
 | Mutação | 43 mutantes: 41 apanhados (39 à primeira, 2 depois de valores novos no gerador: um fingerprint com texto antes, um digest com texto depois), 1 equivalente anotado (o fim do padrão de um número: o que passa sem ele não é número para a leitura a seguir) e 1 em código que saiu (o teste do comprimento de um número, que a leitura e o limite já cobrem) |
 | `cargo test` | 578 testes (o teste do corpus de `focus-evidence` conta os casos de cada resposta) |
+
+### Fatia 3a-ii: a janela da tentativa de revisão
+
+**O que existe.** `focus-lifecycle::review_attempt::window` (`reviewAttemptWindow`), sobre o ledger e o estado do registo:
+
+- **As linhas que contam para um recibo**, por ordem: instante, depois posição dentro de um shard, depois a ordem dos shards.
+- **A fronteira da tentativa** entre elas: a criação do trabalho, um salto que alcança a stage, uma rejeição do gate dela, um início dela (nunca o de uma corrida isolada). Numa stage por unit, uma rejeição que nomeia uma unit só é fronteira onde os pisos não são por unit, e um início de stage não é fronteira num passeio unit-major, nem o que foi gravado enquanto o passeio era unit-major e a política mudou depois (`stageStartsUnderUnitFlooring`). Com units de equipa, uma fronteira empatada entre shards leva o piso ao fim do instante inteiro.
+- **Os bolts da tentativa**, numa stage por unit: que units têm um bolt aberto (ou completo à espera da fusão) e que units têm um fundido. Uma linha terminal emparelha com o início pelo slug do bolt quando as duas o têm, e pelo nome da unit quando não; uma conclusão sozinha fecha um bolt só de nome, e uma que envolve um slug espera pelo `AUDIT_MERGED` que a confirma. As linhas de um mesmo instante aplicam-se shard a shard, um início antes de uma falha, antes de uma conclusão, antes de uma fusão.
+- **`focus-lifecycle` ganha o seu `oracle`** e o seu teste de corpus: os casos são lidos contra a árvore instalada dos fixtures (o grafo e o plano por scope). `focus dev oracle` responde-lhes contra a instalação que `--installed <projeto>` nomear.
+
+**Decisões.**
+
+| Decisão | Porquê |
+| --- | --- |
+| A janela fica em `focus-lifecycle` e não em `focus-evidence` | Precisa do grafo (um salto que alcança a stage) e do plano aprovado (`usesStageLevelPerUnitArtifacts`), que são da instalação |
+| A dimensão por unit entra já, inteira | É uma função do ledger e do estado, e o corpus compara-a toda. O que fica para a fatia 5 é quem escreve as linhas de bolt e os claims em disco |
+| O driver do oráculo aponta o original para o grafo e a grelha compilados da distribuição (`AIDLC_STAGE_GRAPH`, `AIDLC_SCOPE_GRID`) só durante estes casos | A pasta de onde a biblioteca é carregada não tem os dados compilados, e nenhum caso anterior os lia |
+
+**O que o corpus encontrou.**
+
+| Achado | Consequência |
+| --- | --- |
+| Os primeiros 3 000 casos saíram iguais à primeira, mas só 37 tinham um bolt fundido | Linhas ao acaso quase nunca contam a história de um bolt. O gerador ganhou histórias: treze de um bolt (começa, falha, completa, funde, repete) e trinta de uma mudança de política à volta dos inícios de stage e das linhas das units, com o estado em que elas se distinguem (stage-major agora, com units no plano) |
+| Quatro tipos de linha que a janela lê nunca apareciam nos ledgers gerados | `ARTIFACT_UPDATED`, `SESSION_RESUMED`, `UNIT_PAUSED` e `UNIT_SKIPPED` entram no gerador |
+| Três testes do original não mudam resposta nenhuma em Focus | Dois `trim` sobre um campo que o leitor já devolve aparado, e o "não é a própria linha" num empate entre shards, que a diferença de shard já garante: saíram |
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Corpus, `review_window` | 4 500 casos, todos iguais: 3 399 com fronteira e 1 101 sem nenhuma; 761 com units de bolt fundido e 1 502 com units de bolt aberto. Ledgers de um a três shards, com poucos instantes para as linhas empatarem, e uma em cada catorze escrita fora de passo |
+| Corpus, tudo | 41 580 casos |
+| Mutação | 114 mutantes: 106 apanhados (87 à primeira, os outros depois das histórias e dos tipos de linha novos no gerador), 5 equivalentes anotados no módulo (a ordem dos shards entre linhas de bolt do mesmo tipo; os inícios sob unit-major só são calculados quando o passeio não o é; um início já deixado de fora e o de uma corrida isolada; uma mudança de política que o início não precede) e 3 em código que saiu. A lista inteira voltou a correr contra o corpus final |
+| `cargo test` | 579 testes: 1 novo, o do corpus de `focus-lifecycle`. O teste de CLI que pede a `focus dev oracle` todos os tipos de caso passa-lhe a instalação dos fixtures |
 
 ### A jornada
 
