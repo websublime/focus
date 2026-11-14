@@ -5689,5 +5689,125 @@ for index in range(scale * 400):
     add("review_binding", block=rb_block(rows), workspace_requires=rb.random() < 0.5,
         pending=None if pending is None else {"block": None if pending == "none" else pending_block})
 
+
+# --- review_window: the attempt of a stage a review belongs to ----------------
+#
+# A review counts from the stage's last boundary in the ledger: the creation
+# of the work, a jump that reaches the stage, a rejection of its gate, a start
+# of it (`reviewAttemptWindow`). For a stage that runs for each unit the same
+# reading pairs the rows of each unit's bolt: started, failed, completed,
+# merged. The cases are ledgers of one to three shards whose rows share a few
+# instants, so that order has to be decided across shards, with the state's
+# lines that change how units are walked.
+rw = random.Random(seed * 7919 + 22)
+RW_UNITS = ["auth", "billing", "ui"]
+RW_SLUGS = ["functional-design", "code-generation", "requirements-analysis", "units-generation"]
+RW_TARGETS = ["intent-capture", "requirements-analysis", "units-generation", "functional-design", "code-generation", "build-and-test", "nope", ""]
+
+
+def rw_fields(*fields):
+    return "".join(f"**{name}**: {value}\n" for name, value in fields if value is not None)
+
+
+def rw_row(slug, hot):
+    """One row: its event and its fields. `hot` leans the rows toward the stage and the units of the case."""
+    stage = slug if rw.random() < hot else rw.choice(RW_SLUGS)
+    unit = rw.choice(RW_UNITS)
+    bolt_slug = rw.choice([None, None, f"bolt-{unit}", f"bolt-{unit}", "bolt-x", ""])
+    names = unit if rw.random() < 0.8 else rw.choice([f"{unit}, {rw.choice(RW_UNITS)}", f" {unit} ,", ""])
+    alone = rw.choice([None] * 6 + [f"single-stage:{stage}"])
+    kind = rw.choices(
+        ["WORKFLOW_STARTED", "STAGE_STARTED", "STAGE_JUMPED", "GATE_REJECTED", "BOLT_STARTED", "BOLT_COMPLETED", "BOLT_FAILED", "AUDIT_MERGED", "ARTIFACT_CREATED",
+         "REVIEW_REQUESTED", "REVIEW_COMPLETED", "SESSION_STARTED", "CONSTRUCTION_POLICY_SET", "UNIT_STARTED", "UNIT_COMPLETED", "DECISION_RECORDED", "GATE_APPROVED"],
+        [1, 6, 2, 3, 8, 6, 3, 5, 1, 2, 2, 1, 4, 3, 3, 1, 1])[0]
+    if kind == "STAGE_STARTED":
+        return kind, rw_fields(("Stage", stage), ("Workflow", alone))
+    if kind == "STAGE_JUMPED":
+        return kind, rw_fields(("Target", rw.choice(RW_TARGETS + [slug, slug, None])))
+    if kind == "GATE_REJECTED":
+        return kind, rw_fields(("Stage", stage), ("Unit", rw.choice([None, None, unit, ""])))
+    if kind in ("BOLT_STARTED", "BOLT_COMPLETED"):
+        return kind, rw_fields(("Bolt names", names), ("Bolt slug", bolt_slug), ("Batch number", "1"))
+    if kind == "BOLT_FAILED":
+        return kind, rw_fields(("Failed Bolt", names), ("Bolt slug", bolt_slug))
+    if kind == "AUDIT_MERGED":
+        return kind, rw_fields(("Bolt slug", rw.choice([f"bolt-{unit}", f"bolt-{unit}", "bolt-x", None, ""])))
+    if kind == "CONSTRUCTION_POLICY_SET":
+        field = rw.choice(["Construction Iteration", "Construction Checkpoints", "Construction Execution", "Autonomy Mode"])
+        iteration, checkpoints = rw.choice(["unit-major", "stage-major", None, ""]), rw.choice(["enabled", "disabled", None])
+        previous = rw.choice(["unit-major", "stage-major", "enabled", "disabled", None, ""])
+        return kind, rw_fields(("Field", field), ("Value", rw.choice(["unit-major", "stage-major", "enabled", "disabled", None])), ("Previous Value", previous),
+                               ("Construction Iteration", iteration), ("Construction Checkpoints", checkpoints))
+    if kind in ("UNIT_STARTED", "UNIT_COMPLETED"):
+        return kind, rw_fields(("Stage", stage), ("Unit", unit))
+    if kind in ("REVIEW_REQUESTED", "REVIEW_COMPLETED", "ARTIFACT_CREATED", "GATE_APPROVED"):
+        return kind, rw_fields(("Stage", stage), ("Unit", rw.choice([None, unit])))
+    return kind, ""
+
+
+def rw_bolt_story():
+    """The rows of one unit's bolt, in the order they happen: started, then failed, completed, merged, or replayed."""
+    unit = rw.choice(RW_UNITS)
+    slug = f"bolt-{unit}"
+    started = lambda with_slug: ("BOLT_STARTED", rw_fields(("Bolt names", unit), ("Bolt slug", slug if with_slug else None), ("Batch number", "1")))
+    completed = lambda with_slug: ("BOLT_COMPLETED", rw_fields(("Bolt names", unit), ("Bolt slug", slug if with_slug else None)))
+    failed = lambda with_slug: ("BOLT_FAILED", rw_fields(("Failed Bolt", unit), ("Bolt slug", slug if with_slug else None)))
+    merged = ("AUDIT_MERGED", rw_fields(("Bolt slug", slug)))
+    return rw.choice([
+        [started(True), completed(True), merged],
+        [started(True), completed(True), merged],
+        [started(False), completed(False)],
+        [started(False), completed(True), merged],
+        [started(True), failed(True)],
+        [started(True), completed(True), merged, completed(True), failed(True)],
+        [started(True), completed(False), merged],
+        [started(True), completed(True)],
+        [started(True), failed(False), started(True), completed(True), merged],
+        [started(False), completed(False), started(True), completed(True)],
+        [started(True), merged, completed(True)],
+    ])
+
+
+def rw_ledger(slug):
+    hot = rw.choice([0.5, 0.8, 1.0])
+    instants = [f"2026-01-05T10:00:{second:02d}Z" for second in range(rw.choice([1, 2, 3, 5, 8]))]
+    shards = [[] for _ in range(rw.choice([1, 1, 2, 2, 3]))]
+    # Rows at random, and among them the rows of a few bolts, each bolt's in its own order.
+    script = [rw_row(slug, hot) for _ in range(rw.choice([2, 5, 9, 14, 20]))]
+    for _ in range(rw.choice([0, 1, 1, 2, 3])):
+        story = rw_bolt_story()
+        places = sorted(rw.randrange(len(script) + 1) for _ in story)
+        for offset, (place, row) in enumerate(zip(places, story)):
+            script.insert(place + offset, row)
+    # Rows are written as time passes, each to one of the shards; now and then one is written out of step.
+    clock = 0
+    for kind, fields in script:
+        clock = min(len(instants) - 1, clock + rw.choice([0, 0, 0, 1]))
+        at = instants[clock] if rw.random() < 0.93 else rw.choice(instants)
+        rw.choice(shards).append(f"\n## Row\n**Timestamp**: {at}\n**Event**: {kind}\n{fields}\n---\n")
+    names = ["laptop-abc123.md", "desktop-def456.md", "server-0a1b2c.md"]
+    return [{"shard": names[index], "content": "# AI-DLC Audit Log\n" + "".join(rows)} for index, rows in enumerate(shards)]
+
+
+def rw_state():
+    lines = ["# AI-DLC State", "", "## Workflow", f"- **Scope**: {rw.choice(['feature', 'feature', 'mvp', 'bugfix', 'poc', 'nope', ''])}"]
+    if rw.random() < 0.6:
+        lines.append(f"- **Construction Iteration**: {rw.choice(['unit-major', 'unit-major', 'stage-major', ' unit-major ', 'Unit-Major', ''])}")
+    if rw.random() < 0.5:
+        lines.append(f"- **Construction Checkpoints**: {rw.choice(['enabled', 'enabled', 'disabled', 'Enabled', 'enabled (set by you)'])}")
+    if rw.random() < 0.5:
+        lines.append(f"- **Unit Ownership**: {rw.choice(['team', 'team', 'solo', 'Team', 'team (set by you)'])}")
+    lines += ["", "## Stage Progress", "- [x] intent-capture \u2014 EXECUTE"]
+    planned = rw.choice([None, "EXECUTE", "SKIP", "EXECUTE", "SKIP", "bare"])
+    if planned is not None:
+        lines.append(f"- [{rw.choice('x x-')}] units-generation" + ("" if planned == "bare" else f" \u2014 {planned}"))
+    lines.append("- [ ] code-generation \u2014 EXECUTE")
+    return "\n".join(lines) + "\n"
+
+
+for _ in range(scale * 500):
+    slug = rw.choice(RW_SLUGS[:3] + ["code-generation", "functional-design"])
+    add("review_window", state=rw_state(), slug=slug, per_unit=rw.random() < 0.75, shards=rw_ledger(slug))
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

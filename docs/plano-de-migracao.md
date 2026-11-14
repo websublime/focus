@@ -2249,7 +2249,7 @@ O checkpoint de sumário atravessa `decision` e `answer`, e assenta em duas leit
 | `--single` é um interruptor: a palavra a seguir é um argumento solto | O check diz-no (`--single yes`, `--single false`) |
 | O grafo só tem uma stage `pipeline`, com dois elos | A ordem entre o segundo e o terceiro elo, a posição do último e um elo principal sem handoff não tinham onde ser vistos. Três checks editam o grafo compilado dos dois lados: uma cadeia de três, e `intent-capture` como pipeline |
 | A repetição da gravação levava 1 168 s, quase todos num só fio a normalizar texto | Dois padrões do normalizador da repetição procuram o caminho antes das palavras do runtime (`File exists`, `Is a directory`), e num texto comprido sem espaços, como o de uma resposta, isso custa o quadrado do comprimento. O segundo padrão entrou com a 2c-iii. Cada um só corre agora num texto que tenha as palavras: 89 s |
-| A posição de uma linha no shard é um offset em bytes | Um empate entre shards só distingue as regras com o recibo depois do offset da fronteira do outro shard: os checks levam quarenta linhas de enchimento |
+| A posição de uma linha no shard é o número do bloco, e o shard de um trabalho criado já tem muitos | Um empate entre shards só distingue as regras com o recibo numa posição depois da da fronteira do outro shard: os checks levam quarenta linhas de enchimento |
 | O instante do ficheiro era lido pelo nome depois da leitura | Passou a ser o do ficheiro aberto (`read_regular_with_time`), como no original (`snapshot.mtimeMs`) |
 
 **Verificado.**
