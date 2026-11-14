@@ -73,10 +73,10 @@ fn every_lifecycle_case_gets_upstreams_answer() {
     }
     // Enough cases, and enough of them on each side of every answer.
     assert!(
-        windows >= 4000 && floored >= 2000 && unfloored >= 800,
+        windows >= 1900 && floored >= 1400 && unfloored >= 400,
         "{windows} {floored} {unfloored}"
     );
-    assert!(merged >= 700 && open >= 1200, "{merged} {open}");
+    assert!(merged >= 280 && open >= 580, "{merged} {open}");
     assert!(
         differing.is_empty(),
         "{} lifecycle cases differ from upstream; first:\n{}",

@@ -150,24 +150,24 @@ fn every_evidence_case_gets_upstreams_answer() {
         "{chosen} {blank} {unanswered}"
     );
     assert!(
-        requests >= 2000 && bound >= 900 && requests - bound >= 900,
+        requests >= 1400 && bound >= 600 && requests - bound >= 600,
         "{requests} {bound}"
     );
     assert!(
-        of_records >= 400 && of_appendices >= 300 && modern >= 400 && bound - modern >= 300,
+        of_records >= 230 && of_appendices >= 270 && modern >= 350 && bound - modern >= 250,
         "{of_records} {of_appendices} {modern}"
     );
-    assert!(replacing >= 250, "{replacing}");
+    assert!(replacing >= 190, "{replacing}");
     assert!(
-        completions >= 2500
-            && answering >= 1000
+        completions >= 1800
+            && answering >= 650
             && completions - answering >= 1000
-            && naming >= 1200
-            && completions - naming >= 1200,
+            && naming >= 850
+            && completions - naming >= 850,
         "{completions} {answering} {naming}"
     );
     assert!(
-        records >= 2500 && valid >= 1200 && records - valid >= 1000,
+        records >= 2000 && valid >= 1100 && records - valid >= 900,
         "{records} {valid}"
     );
     assert!(

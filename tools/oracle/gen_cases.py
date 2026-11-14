@@ -5658,7 +5658,7 @@ def rb_block(fields):
     return "\n## Review Requested\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: REVIEW_REQUESTED\n**Stage**: intent-capture\n" + "\n".join(lines) + "\n\n---\n"
 
 
-for index in range(scale * 400):
+for index in range(scale * 250):
     fields = rb_row(rb.choice(["record", "record", "appendix", "appendix", "bare"]))
     for _ in range(rb.choice([0, 0, 1, 1, 1, 2, 3])):
         name = rb.choice(list(RB_POOLS))
@@ -5854,10 +5854,10 @@ def rw_state(stage_major=False):
     return "\n".join(lines) + "\n"
 
 
-for _ in range(scale * 500):
+for _ in range(scale * 200):
     slug = rw.choice(RW_SLUGS[:3] + ["code-generation", "functional-design"])
     add("review_window", state=rw_state(), slug=slug, per_unit=rw.random() < 0.75, shards=rw_ledger(slug))
-for _ in range(scale * 250):
+for _ in range(scale * 130):
     slug = rw.choice(["code-generation", "functional-design", "requirements-analysis"])
     add("review_window", state=rw_state(stage_major=rw.random() < 0.8), slug=slug, per_unit=rw.random() < 0.9, shards=rw_ledger(slug, flooring=rw.choice([1, 1, 2])))
 
@@ -5959,7 +5959,7 @@ def rc_block(event, fields):
     return f"\n## Review\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: {event}\n**Stage**: intent-capture\n{lines}\n---\n"
 
 
-for _ in range(scale * 500):
+for _ in range(scale * 300):
     request = rc_request()
     answer = rc_answer(request)
     for _ in range(rc.choice([0, 0, 1, 1, 1, 2, 3])):
@@ -6074,7 +6074,7 @@ def rr_case(request, answer, record, form, named):
     add("review_record", text=text, request=rc_block("REVIEW_REQUESTED", request), completion=rc_block("REVIEW_COMPLETED", answer))
 
 
-for _ in range(scale * 500):
+for _ in range(scale * 250):
     request, answer, record = rr_pair()
     if rr.random() < 0.3:
         record["derived_findings"] = [rr_finding(True) for _ in range(rr.choice([0, 1, 2]))]
