@@ -5900,11 +5900,11 @@ RC_BAD_PATHS = [
 ]
 
 
-def rc_request():
+def rc_request(era=None):
     """A request's fields, bound: of the record era or the appendix era."""
     random_state = rb.getstate()
     rb.setstate(rc.getstate())
-    fields = rb_row(rc.choice(["record", "record", "appendix", "appendix", "bare"]))
+    fields = rb_row(era or rc.choice(["record", "record", "appendix", "appendix", "bare"]))
     rc.setstate(rb.getstate())
     rb.setstate(random_state)
     return fields
@@ -6133,9 +6133,9 @@ ra = random.Random(seed * 7919 + 25)
 RA_REVIEWER = "architecture-reviewer-agent"
 
 
-def ra_review(slug, unit, workflow, iteration, files):
+def ra_review(slug, unit, workflow, iteration, files, era=None):
     """A request and the verdict that answers it, as rows' fields, with the verdict's record written to `files`."""
-    request = rc_request()
+    request = rc_request(era)
     answer = rc_answer(request)
     scope = {"Stage": slug, "Reviewer": RA_REVIEWER, "Iteration": str(iteration)}
     if unit is not None:
@@ -6305,6 +6305,42 @@ for _ in range(scale * 200):
     add("review_accounting", state=state, slug=slug, per_unit=per_unit, workspace_requires=ra.random() < 0.4, reviewer=RA_REVIEWER,
         unit=unit if ra.random() < 0.95 else ra.choice(["bad name", ""]), workflow=workflow,
         shards=[{"shard": names[index], "content": "# AI-DLC Audit Log\n" + "".join(rows)} for index, rows in enumerate(shards)], files=files)
+# A request and its verdict in one shard, with the verdict's record kept in each way a record can be kept: as it was
+# written, behind a link, under a folder that is a link, with a second name, edited, of another review, too large, gone.
+for kept in ("plain", "link", "folder link", "second name", "edited", "gone", "large", "padded"):
+    for unit in (None, "auth"):
+        for _ in range(2):
+            files, links, hard, pad = {}, {}, {}, {}
+            request, answer = ra_review("code-generation", unit, None, 1, {}, "record")
+            record = {"version": 1, "stage": "code-generation", "unit": unit, "workflow": None, "attempt": rc_hex(16), "iteration": 1, "reviewer": RA_REVIEWER,
+                      "verdict": answer["Verdict"], "request_id": answer.get("Request Id"), "request_challenge": answer.get("Review Challenge"),
+                      "artifact_fingerprint": answer["Artifact Fingerprint"], "source_fingerprint": answer.get("Source Fingerprint"),
+                      "unit_source_fingerprint": answer.get("Unit Source Fingerprint"), "findings": [], "body": "It reads well.\n", "recorded_at": "2026-01-05T10:00:00Z"}
+            text = json.dumps(record, indent=2) + "\n"
+            # Past the size a record may have, and just at it: the file is the record and then that many spaces, which
+            # the case names instead of holding.
+            padding = 0 if kept not in ("large", "padded") else 4 * 1024 * 1024 - len(text) + (1 if kept == "large" else 0)
+            folder = f".aidlc-engine/reviews/code-generation/{'stage' if unit is None else 'units/' + unit}/{rc_hex(16)}"
+            path = f"{folder}/1.json"
+            answer["Review Record"], answer["Review Record Digest"] = path, "sha256:" + hashlib.sha256((text + " " * padding).encode("utf-8")).hexdigest()
+            if kept in ("plain", "second name", "large", "padded"):
+                files[path] = text
+            if padding:
+                pad[path] = padding
+            if kept == "edited":
+                files[path] = text.replace("It reads well.", "It reads badly.")
+            if kept == "link":
+                files["elsewhere/1.json"], links[path] = text, "elsewhere/1.json"
+            if kept == "folder link":
+                files["elsewhere/1.json"], links[folder] = text, "elsewhere"
+            if kept == "second name":
+                hard["other-name.json"] = path
+            rows = "".join(f"\n## Row\n**Timestamp**: 2026-01-05T10:00:0{second}Z\n**Event**: {kind}\n{fields}\n---\n"
+                           for second, (kind, fields) in enumerate([ra_row("REVIEW_REQUESTED", request), ra_row("REVIEW_COMPLETED", answer)]))
+            add("review_accounting", state="# AI-DLC State\n\n## Workflow\n- **Scope**: feature\n", slug="code-generation", per_unit=True, workspace_requires=False,
+                reviewer=RA_REVIEWER, unit=unit, workflow=None, shards=[{"shard": "laptop-abc123.md", "content": "# AI-DLC Audit Log\n" + rows}],
+                files=files, links=links, hard=hard, pad=pad)
+
 
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

@@ -42,6 +42,8 @@ fn every_lifecycle_case_gets_upstreams_answer() {
     );
 
     let (mut windows, mut floored, mut unfloored, mut merged, mut open) = (0, 0, 0, 0, 0);
+    let (mut counts, mut refused, mut still_pending, mut closed) = (0, 0, 0, 0);
+    let (mut ambiguous, mut started_again, mut recovered, mut in_a_bolt) = (0, 0, 0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         let case: Value = focus_js::json::parse(line).unwrap();
@@ -49,20 +51,34 @@ fn every_lifecycle_case_gets_upstreams_answer() {
         if !KINDS.contains(&kind) {
             continue;
         }
+        // A case with a link in it needs a platform where a link is a file.
+        if cfg!(windows)
+            && case["links"]
+                .as_object()
+                .is_some_and(|links| !links.is_empty())
+        {
+            continue;
+        }
         let out = run_case(&wf, &case);
-        windows += 1;
-        floored += usize::from(out["floor"].as_i64().is_some_and(|floor| floor >= 0));
-        unfloored += usize::from(out["floor"] == -1);
-        merged += usize::from(
-            out["merged"]
-                .as_array()
-                .is_some_and(|units| !units.is_empty()),
-        );
-        open += usize::from(
-            out["open"]
-                .as_array()
-                .is_some_and(|units| !units.is_empty()),
-        );
+        let some = |key: &str| out[key].as_array().is_some_and(|list| !list.is_empty());
+        if kind == "review_accounting" {
+            counts += 1;
+            refused += usize::from(out.get("error").is_some());
+            let waiting = out["pending"].as_array().map_or(0, Vec::len) as u64;
+            let asked = out["requests"].as_u64().unwrap_or_default();
+            still_pending += usize::from(waiting > 0);
+            closed += usize::from(asked > waiting);
+            ambiguous += usize::from(out["ambiguity"].is_string());
+            started_again += usize::from(out["budgeted"].as_u64().unwrap_or_default() < asked);
+            recovered += usize::from(out["recovery"][1] == true);
+            in_a_bolt += usize::from(out["bolt"][0] == true);
+        } else {
+            windows += 1;
+            floored += usize::from(out["floor"].as_i64().is_some_and(|floor| floor >= 0));
+            unfloored += usize::from(out["floor"] == -1);
+            merged += usize::from(some("merged"));
+            open += usize::from(some("open"));
+        }
         let got = stringify(&json!({ "id": case["id"], "out": out }));
         if got != *want {
             differing.push(format!(
@@ -77,6 +93,14 @@ fn every_lifecycle_case_gets_upstreams_answer() {
         "{windows} {floored} {unfloored}"
     );
     assert!(merged >= 280 && open >= 580, "{merged} {open}");
+    assert!(
+        cfg!(windows) || (counts >= 1150 && refused >= 40 && still_pending >= 500 && closed >= 250),
+        "{counts} {refused} {still_pending} {closed}"
+    );
+    assert!(
+        ambiguous >= 200 && started_again >= 20 && recovered >= 40 && in_a_bolt >= 20,
+        "{ambiguous} {started_again} {recovered} {in_a_bolt}"
+    );
     assert!(
         differing.is_empty(),
         "{} lifecycle cases differ from upstream; first:\n{}",

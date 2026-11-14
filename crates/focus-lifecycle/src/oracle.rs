@@ -90,7 +90,30 @@ fn review_accounting_case(wf: &Workflow, case: &Value) -> Value {
     for (rel, content) in case["files"].as_object().into_iter().flatten() {
         let path = record.join(rel);
         std::fs::create_dir_all(path.parent().expect("a file has a folder")).expect("a folder");
-        std::fs::write(path, content.as_str().unwrap_or_default()).expect("a review record");
+        // A file may be longer than the case holds: its text, then spaces.
+        let padding = case["pad"][rel].as_u64().unwrap_or_default();
+        let mut bytes = content.as_str().unwrap_or_default().as_bytes().to_vec();
+        bytes.resize(
+            bytes.len() + usize::try_from(padding).unwrap_or_default(),
+            b' ',
+        );
+        std::fs::write(path, bytes).expect("a review record");
+    }
+    // A name that is a link to another place of the record, and a second
+    // name of a file of it. Only where the platform has links as files.
+    #[cfg(unix)]
+    for (rel, target) in case["links"].as_object().into_iter().flatten() {
+        let path = record.join(rel);
+        std::fs::create_dir_all(path.parent().expect("a link has a folder")).expect("a folder");
+        std::os::unix::fs::symlink(record.join(target.as_str().unwrap_or_default()), path)
+            .expect("a link");
+    }
+    for (rel, target) in case["hard"].as_object().into_iter().flatten() {
+        std::fs::hard_link(
+            record.join(target.as_str().unwrap_or_default()),
+            record.join(rel),
+        )
+        .expect("a second name");
     }
     let per_unit = case["per_unit"] == true;
     let state = text("state").unwrap_or_default();

@@ -714,7 +714,17 @@ async function answer(c: Record<string, any>): Promise<unknown> {
       if (lib.recordDir(root) !== record) throw new Error(`${c.id}: the scratch record was not found`);
       for (const [rel, text] of Object.entries(c.files as Record<string, string>)) {
         mkdirSync(dirname(join(record, rel)), { recursive: true });
-        writeFileSync(join(record, rel), text);
+        // A file may be longer than the case holds: its text, then spaces.
+        writeFileSync(join(record, rel), text + " ".repeat((c.pad ?? {})[rel] ?? 0));
+      }
+      // A name that is a link to another place of the record, and a second
+      // name of a file of it.
+      for (const [rel, target] of Object.entries((c.links ?? {}) as Record<string, string>)) {
+        mkdirSync(dirname(join(record, rel)), { recursive: true });
+        symlinkSync(join(record, target), join(record, rel));
+      }
+      for (const [rel, target] of Object.entries((c.hard ?? {}) as Record<string, string>)) {
+        linkSync(join(record, target), join(record, rel));
       }
       const rows = (c.shards as { shard: string; content: string }[]).flatMap((shard, index) =>
         lib.parseAuditShardEvents(shard.content, shard.shard, index, new Set<number>()));
