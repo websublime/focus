@@ -6384,6 +6384,9 @@ for _ in range(2):
     # A tie among the rows of the unit's own bolt: with its merge, with nothing merged, with a bolt open again, with
     # another unit's row, with a row that is no bolt's, and with a row the window does not read.
     ra_fixed([(0, 1, *bolt("BOLT_STARTED", slug="auth")), (0, 2, *bolt("BOLT_COMPLETED", slug="auth")), (1, 2, *merged), (0, 3, *ra_asked())])
+    ra_fixed([(0, 1, *bolt("BOLT_STARTED")), (0, 2, *bolt("BOLT_COMPLETED")), (1, 2, *bolt("BOLT_COMPLETED")), (0, 3, *ra_asked())])
+    ra_fixed([(0, 1, *bolt("BOLT_STARTED", slug="auth")), (0, 2, *bolt("BOLT_COMPLETED", slug="auth")), (1, 2, *bolt("BOLT_COMPLETED", slug="auth")), (1, 2, *merged),
+              (0, 3, *ra_asked())])
     ra_fixed([(0, 1, *bolt("BOLT_STARTED")), (1, 2, *bolt("BOLT_FAILED")), (0, 2, *bolt("BOLT_FAILED")), (0, 3, *ra_asked())])
     ra_fixed([(0, 1, *bolt("BOLT_STARTED")), (0, 2, *bolt("BOLT_COMPLETED")), (0, 3, *bolt("BOLT_STARTED")), (1, 3, *bolt("BOLT_STARTED")), (0, 4, *ra_asked())])
     for other in (bolt("BOLT_STARTED", "billing"), bolt("BOLT_COMPLETED", "billing"), bolt("BOLT_FAILED", "billing"), start("functional-design"),

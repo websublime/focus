@@ -23,6 +23,8 @@
 //! - A completion of a request with no id carries its review only when it
 //!   names no record at all. One that names a record badly has already
 //!   failed to answer the request.
+//! - Reading a record starts by asking whether the path is a record's. A
+//!   reference is only made from a path that is, so the answer is known.
 
 use std::path::Path;
 

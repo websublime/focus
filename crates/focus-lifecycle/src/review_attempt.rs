@@ -34,6 +34,11 @@
 //!   when the start is plainly before it. A change the start is not plainly
 //!   before is itself one the start is tested against, and fails that test,
 //!   so the start is kept either way.
+//! - In the accounting, a review row tied across shards is tied only to the
+//!   work's own boundaries when every row it is tied with is one: that there
+//!   is such a row is what being tied means, so it is not asked again.
+//! - The count starts at the row after the boundary: the boundary is no
+//!   review row, so starting at it counts the same.
 
 use focus_audit::read::block_field;
 use focus_audit::shards::ShardEvent;

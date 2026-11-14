@@ -96,6 +96,10 @@ pub fn is_bolt_slug(slug: &str) -> bool {
 /// a slug already is its own; any other unit name is lowered, its dots and
 /// underscores made hyphens, and told apart by a piece of its hash.
 ///
+/// Two of upstream's steps change no slug here: the length a slug may have
+/// (a unit name is no longer), and the hyphens taken off the ends before the
+/// cut (a unit name starts with none, and those at the end go after it).
+///
 /// # Errors
 ///
 /// `name` is no unit name, in the validator's words.
