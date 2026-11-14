@@ -9,6 +9,12 @@
 //! completion answers (`reviewRequestBindingFromBlock`,
 //! `reviewRequestBindingIsModern` and `reviewRequestReplaces`,
 //! `aidlc-lib.ts` L16 315 to L16 457 and L19 082).
+//!
+//! A `REVIEW_COMPLETED` row answers a request when it echoes what the
+//! request bound, and it may name the review's record: a file under the
+//! record's engine folder, by its path and the digest of its bytes
+//! (`reviewCompletionMatchesRequest`, `reviewRecordRefFromBlock` and
+//! `isReviewRecordRelativePath`, L16 489 to L16 613 and L17 236).
 
 use focus_audit::read::block_field;
 use focus_js::re;
@@ -188,4 +194,136 @@ pub fn request_replaces(block: &str, pending: Option<Option<&RequestBinding>>) -
         return false;
     };
     named == binding.request_id.as_deref().unwrap_or("none")
+}
+
+/// The folder of a record that holds its review records
+/// (`REVIEW_RECORDS_DIR`), and the one rows from before the engine folder
+/// name (`LEGACY_REVIEW_RECORDS_DIR`): a row keeps the path it was written
+/// with.
+const RECORDS_DIRS: [&str; 2] = [".focus-engine/reviews", ".focus-reviews"];
+const RECORD_SEGMENT: &str = "^[A-Za-z0-9][A-Za-z0-9._-]*$";
+const ATTEMPT_ID: &str = "^[0-9a-f]{16}$";
+const RECORD_FILE: &str = r"^[1-9][0-9]*\.json$";
+
+/// `isReviewRecordRelativePath`: whether `path`, from the record, has one of
+/// the two shapes of a review record: of a stage
+/// (`<stage>/stage/<attempt>/<pass>.json`) or of a unit
+/// (`<stage>/units/<unit>/<attempt>/<pass>.json`).
+#[must_use]
+pub fn is_record_relative_path(path: &str) -> bool {
+    let Some(rest) = RECORDS_DIRS.iter().find_map(|dir| {
+        path.strip_prefix(dir)
+            .and_then(|rest| rest.strip_prefix('/'))
+    }) else {
+        return false;
+    };
+    let parts: Vec<&str> = rest.split('/').collect();
+    let is = |index: usize, pattern: &str| {
+        parts
+            .get(index)
+            .is_some_and(|part| re::test(pattern, "", part))
+    };
+    if !is(0, RECORD_SEGMENT) {
+        return false;
+    }
+    if parts.get(1) == Some(&"stage") {
+        return parts.len() == 4 && is(2, ATTEMPT_ID) && is(3, RECORD_FILE);
+    }
+    parts.len() == 5
+        && parts[1] == "units"
+        && is(2, RECORD_SEGMENT)
+        && is(3, ATTEMPT_ID)
+        && is(4, RECORD_FILE)
+}
+
+/// The review record a completion names.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RecordRef {
+    /// From the record's folder.
+    pub path: String,
+    /// `sha256:` and the digest of the record's bytes.
+    pub digest: String,
+}
+
+/// `reviewRecordRefFromBlock`: the record the completion row `block` names,
+/// or `None` when it names none (a review from before review records) or
+/// names one badly.
+#[must_use]
+pub fn record_ref(block: &str) -> Option<RecordRef> {
+    let path = block_field(block, "Review Record")?;
+    let digest = block_field(block, "Review Record Digest")?;
+    (re::test(FINGERPRINT, "", digest) && is_record_relative_path(path)).then(|| RecordRef {
+        path: path.to_owned(),
+        digest: digest.to_owned(),
+    })
+}
+
+/// `reviewCompletionMatchesRequest`: whether the completion row `block`
+/// answers `request`: one of the two verdicts, on the fingerprint the review
+/// was requested on, with the request's id, the appendix boundary of a
+/// request of that era, and the source fingerprints the request bound.
+#[must_use]
+pub fn completion_matches_request(request: &RequestBinding, block: &str) -> bool {
+    let field = |name: &str| block_field(block, name);
+    if !matches!(field("Verdict"), Some("READY" | "NOT-READY")) {
+        return false;
+    }
+    let Some(recorded) =
+        field("Artifact Fingerprint").filter(|recorded| re::test(FINGERPRINT, "", recorded))
+    else {
+        return false;
+    };
+    // What the review was requested on, where the artifacts changed under it.
+    if field("Request Fingerprint").unwrap_or(recorded) != request.artifact_fingerprint {
+        return false;
+    }
+    // A completion that names a record names it well: a reference that is
+    // not one is no evidence.
+    if (field("Review Record").is_some() || field("Review Record Digest").is_some())
+        && record_ref(block).is_none()
+    {
+        return false;
+    }
+    if field("Request Id") != request.request_id.as_deref() {
+        return false;
+    }
+
+    let legacy = request.legacy_appendix.as_ref();
+    if field("Review Appendix Artifact") != legacy.map(|legacy| legacy.artifact.as_str()) {
+        return false;
+    }
+    match (field("Review Appendix Offset"), legacy) {
+        (None, None) => {}
+        (Some(offset), Some(legacy)) if safe_count(offset) == Some(legacy.offset) => {}
+        _ => return false,
+    }
+    if let Some(legacy) = legacy {
+        if legacy.prior_digest.is_some()
+            && field("Review Appendix Prior Digest") != legacy.prior_digest.as_deref()
+        {
+            return false;
+        }
+        if legacy.prior_digest.is_some() && legacy.prior_length.is_none() {
+            return false;
+        }
+        if let Some(length) = legacy.prior_length
+            && field("Review Appendix Prior Length").and_then(safe_count) != Some(length)
+        {
+            return false;
+        }
+    }
+    if field("Review Challenge") != legacy.and_then(|legacy| legacy.challenge.as_deref()) {
+        return false;
+    }
+
+    if let Some(source) = request.source_fingerprint.as_deref()
+        && (field("Request Source Fingerprint") != Some(source)
+            || field("Source Fingerprint") != Some(source))
+    {
+        return false;
+    }
+    request
+        .unit_source_fingerprint
+        .as_deref()
+        .is_none_or(|unit_source| field("Unit Source Fingerprint") == Some(unit_source))
 }

@@ -19,12 +19,13 @@ use crate::source::walk::{self, Budgets, Names, Options, Stop};
 use crate::summary;
 
 /// The kinds of case this crate answers.
-pub const KINDS: [&str; 5] = [
+pub const KINDS: [&str; 6] = [
     "source_listing_parse",
     "source_listing",
     "source_walk",
     "summary",
     "review_binding",
+    "review_completion",
 ];
 
 /// Lay the case's project out and walk it.
@@ -248,6 +249,15 @@ pub fn run_case(case: &Value) -> Value {
             }
         }
         "review_binding" => review_binding_case(case),
+        "review_completion" => {
+            let completion = text("completion");
+            json!({
+                "ref": review::record_ref(completion)
+                    .map(|record| json!({ "path": record.path, "digest": record.digest })),
+                "matches": review::request_binding(text("request"))
+                    .map(|request| review::completion_matches_request(&request, completion)),
+            })
+        }
         other => json!({ "unsupported": other }),
     }
 }

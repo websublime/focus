@@ -5861,5 +5861,111 @@ for _ in range(scale * 250):
     slug = rw.choice(["code-generation", "functional-design", "requirements-analysis"])
     add("review_window", state=rw_state(stage_major=rw.random() < 0.8), slug=slug, per_unit=rw.random() < 0.9, shards=rw_ledger(slug, flooring=rw.choice([1, 1, 2])))
 
+
+# --- review_completion: a review's completion against its request -------------
+#
+# A REVIEW_COMPLETED row answers a request when it echoes what the request
+# bound (`reviewCompletionMatchesRequest`): the verdict is one of the two, the
+# fingerprint it was requested on, the request's id, the appendix boundary of
+# a request of that era, the source fingerprints. It may name the review's
+# record, by a path of one of the supported shapes and the digest of its bytes
+# (`reviewRecordRefFromBlock`). The cases start from the completion that
+# answers a request and change up to three of its fields.
+rc = random.Random(seed * 7919 + 23)
+rc_hex = lambda n: "".join(rc.choice("0123456789abcdef") for _ in range(n))
+RC_PATHS = [
+    lambda: f".aidlc-engine/reviews/intent-capture/stage/{rc_hex(16)}/{rc.choice(['1', '2', '10'])}.json",
+    lambda: f".aidlc-engine/reviews/code-generation/units/{rc.choice(['auth', 'Billing_API', 'ui.v2'])}/{rc_hex(16)}/1.json",
+    lambda: f".aidlc-reviews/intent-capture/stage/{rc_hex(16)}/3.json",
+    lambda: f".aidlc-reviews/code-generation/units/auth/{rc_hex(16)}/1.json",
+]
+RC_BAD_PATHS = [
+    lambda: f".aidlc-engine/reviews/intent-capture/stage/{rc_hex(15)}/1.json", lambda: f".aidlc-engine/reviews/intent-capture/stage/{rc_hex(16).upper()}/1.json",
+    lambda: f".aidlc-engine/reviews/intent-capture/stage/{rc_hex(16)}/0.json", lambda: f".aidlc-engine/reviews/intent-capture/stage/{rc_hex(16)}/01.json",
+    lambda: f".aidlc-engine/reviews/intent-capture/stage/{rc_hex(16)}/1.md", lambda: f".aidlc-engine/reviews/intent-capture/stage/{rc_hex(16)}/1.json/x",
+    lambda: f".aidlc-engine/reviews/intent-capture/stage/{rc_hex(16)}", lambda: f".aidlc-engine/reviews/intent-capture/units/{rc_hex(16)}/1.json",
+    lambda: f".aidlc-engine/reviews/intent-capture/stage/auth/{rc_hex(16)}/1.json", lambda: f".aidlc-engine/reviews/intent-capture/units/.auth/{rc_hex(16)}/1.json",
+    lambda: f".aidlc-engine/reviews/intent-capture/units/a b/{rc_hex(16)}/1.json", lambda: f".aidlc-engine/reviews/intent-capture/other/{rc_hex(16)}/1.json",
+    lambda: f".aidlc-engine/reviews/-x/stage/{rc_hex(16)}/1.json", lambda: f".aidlc-engine/reviews//stage/{rc_hex(16)}/1.json",
+    lambda: f".aidlc-engine/review/intent-capture/stage/{rc_hex(16)}/1.json", lambda: f"/.aidlc-engine/reviews/intent-capture/stage/{rc_hex(16)}/1.json",
+    lambda: f".aidlc-engine/reviews/../reviews/intent-capture/stage/{rc_hex(16)}/1.json", lambda: f".aidlc-engine/reviewsx/intent-capture/stage/{rc_hex(16)}/1.json",
+    lambda: f".aidlc-engine/reviews/intent-capture/units/auth/{rc_hex(16)}/1.json/", lambda: f".aidlc-reviews/intent-capture/stage/{rc_hex(16)}/1.JSON",
+    lambda: f".aidlc-engine/reviews/intent-capture/stage/{rc_hex(16)}/١.json", lambda: "",
+]
+
+
+def rc_request():
+    """A request's fields, bound: of the record era or the appendix era."""
+    random_state = rb.getstate()
+    rb.setstate(rc.getstate())
+    fields = rb_row(rc.choice(["record", "record", "appendix", "appendix", "bare"]))
+    rc.setstate(rb.getstate())
+    rb.setstate(random_state)
+    return fields
+
+
+def rc_answer(request):
+    """The completion that answers `request`: every field it has to echo."""
+    asked_on = request["Artifact Fingerprint"]
+    fields = {"Verdict": rc.choice(["READY", "NOT-READY"])}
+    if rc.random() < 0.3:
+        # The artifacts changed under the review: the completion says what it was requested on.
+        fields["Artifact Fingerprint"] = "sha256:" + rc_hex(64)
+        fields["Request Fingerprint"] = asked_on
+    else:
+        fields["Artifact Fingerprint"] = asked_on
+        if rc.random() < 0.3:
+            fields["Request Fingerprint"] = asked_on
+    for name in ("Request Id", "Review Appendix Artifact", "Review Appendix Offset", "Review Appendix Prior Digest", "Review Appendix Prior Length", "Review Challenge",
+                 "Unit Source Fingerprint"):
+        if name in request:
+            fields[name] = request[name]
+    if "Source Fingerprint" in request:
+        fields["Request Source Fingerprint"] = fields["Source Fingerprint"] = request["Source Fingerprint"]
+    if "Request Id" in request or rc.random() < 0.3:
+        fields["Review Record"] = rc.choice(RC_PATHS)()
+        fields["Review Record Digest"] = "sha256:" + rc_hex(64)
+    return fields
+
+
+RC_CHANGES = {
+    "Verdict": lambda: rc.choice(["READY", "NOT-READY", "ready", "Ready", "NOT READY", "", "PASS"]),
+    "Artifact Fingerprint": lambda: rc.choice(["sha256:" + rc_hex(64), "sha256:" + rc_hex(63), rc_hex(64), ""]),
+    "Request Fingerprint": lambda: rc.choice(["sha256:" + rc_hex(64), "nope", ""]),
+    "Request Id": lambda: rc.choice(["review:" + rc_hex(32), "none", ""]),
+    "Review Appendix Artifact": lambda: rc.choice(["x.md", "y.md", ""]),
+    "Review Appendix Offset": lambda: rc.choice(["0", "12", "4096", "012", "0004096", "12.0", "9007199254740993", "x", ""]),
+    "Review Appendix Prior Digest": lambda: rc.choice(["none", "sha256:" + rc_hex(64), ""]),
+    "Review Appendix Prior Length": lambda: rc.choice(["0", "1", "12", "4096", "012", "00", "1e1", "x", ""]),
+    "Review Challenge": lambda: rc.choice(["review:" + rc_hex(32), ""]),
+    "Request Source Fingerprint": lambda: rc.choice([rc_hex(40), rc_hex(64), "unbindable", ""]),
+    "Source Fingerprint": lambda: rc.choice([rc_hex(40), rc_hex(64), "unbindable", ""]),
+    "Unit Source Fingerprint": lambda: rc.choice(["sha256:" + rc_hex(64), "unbindable", ""]),
+    "Review Record": lambda: rc.choice(RC_PATHS + RC_BAD_PATHS + RC_BAD_PATHS)(),
+    "Review Record Digest": lambda: rc.choice(["sha256:" + rc_hex(64), "sha256:" + rc_hex(64), "sha256:" + rc_hex(63), "sha256:" + rc_hex(64).upper(), rc_hex(64), "none", ""]),
+}
+
+
+def rc_block(event, fields):
+    rows = list(fields.items())
+    rc.shuffle(rows)
+    lines = "".join(f"**{name}**: {value}\n" for name, value in rows)
+    return f"\n## Review\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: {event}\n**Stage**: intent-capture\n{lines}\n---\n"
+
+
+for _ in range(scale * 500):
+    request = rc_request()
+    answer = rc_answer(request)
+    for _ in range(rc.choice([0, 0, 1, 1, 1, 2, 3])):
+        name = rc.choice(list(RC_CHANGES))
+        if rc.random() < 0.3:
+            answer.pop(name, None)
+        elif name in ("Request Source Fingerprint", "Source Fingerprint") and "Source Fingerprint" in request and rc.random() < 0.3:
+            # One of the two source fields says what the request bound, and the other does not.
+            answer[name] = request["Source Fingerprint"]
+        else:
+            answer[name] = RC_CHANGES[name]()
+    add("review_completion", request=rc_block("REVIEW_REQUESTED", request), completion=rc_block("REVIEW_COMPLETED", answer))
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

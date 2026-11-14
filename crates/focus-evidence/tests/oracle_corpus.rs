@@ -31,6 +31,7 @@ fn every_evidence_case_gets_upstreams_answer() {
     let (mut chosen, mut blank, mut unanswered) = (0, 0, 0);
     let (mut requests, mut bound, mut of_records, mut of_appendices) = (0, 0, 0, 0);
     let (mut modern, mut replacing) = (0, 0);
+    let (mut completions, mut answering, mut naming) = (0, 0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         // Parsed as upstream's driver parses it, so nested objects are in the
@@ -82,6 +83,10 @@ fn every_evidence_case_gets_upstreams_answer() {
             blank += usize::from(out["answer"].as_str().is_some_and(str::is_empty));
             unanswered += usize::from(out.get("answer").is_some_and(Value::is_null));
             assert!(out.get("unreadable").is_none(), "{}: {out}", case["id"]);
+        } else if kind == "review_completion" {
+            completions += 1;
+            answering += usize::from(out["matches"] == true);
+            naming += usize::from(out["ref"].is_object());
         } else if kind == "review_binding" {
             requests += 1;
             let binding = &out["binding"];
@@ -147,6 +152,14 @@ fn every_evidence_case_gets_upstreams_answer() {
         "{of_records} {of_appendices} {modern}"
     );
     assert!(replacing >= 250, "{replacing}");
+    assert!(
+        completions >= 2500
+            && answering >= 1000
+            && completions - answering >= 1000
+            && naming >= 1200
+            && completions - naming >= 1200,
+        "{completions} {answering} {naming}"
+    );
     assert!(
         differing.is_empty(),
         "{} evidence cases differ from upstream; first:\n{}",
