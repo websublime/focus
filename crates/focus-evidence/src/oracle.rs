@@ -12,17 +12,19 @@ use std::path::Path;
 
 use serde_json::{Value, json};
 
+use crate::review;
 use crate::source::listing::{self, Listing};
 use crate::source::raw;
 use crate::source::walk::{self, Budgets, Names, Options, Stop};
 use crate::summary;
 
 /// The kinds of case this crate answers.
-pub const KINDS: [&str; 4] = [
+pub const KINDS: [&str; 5] = [
     "source_listing_parse",
     "source_listing",
     "source_walk",
     "summary",
+    "review_binding",
 ];
 
 /// Lay the case's project out and walk it.
@@ -245,6 +247,45 @@ pub fn run_case(case: &Value) -> Value {
                 Err(error) => json!({ "answer": answer, "error": error }),
             }
         }
+        "review_binding" => review_binding_case(case),
         other => json!({ "unsupported": other }),
     }
+}
+
+/// What a review request's row binds, whether a completion can be held to
+/// it, and whether the row replaces the request pending at its pass.
+fn review_binding_case(case: &Value) -> Value {
+    let block = case["block"].as_str().unwrap_or_default();
+    let binding = review::request_binding(block);
+    let pending = match &case["pending"] {
+        Value::Null => None,
+        pending => Some(pending["block"].as_str().and_then(review::request_binding)),
+    };
+    let written = |binding: &review::RequestBinding| {
+        json!({
+            "artifactFingerprint": binding.artifact_fingerprint,
+            "requestId": binding.request_id,
+            "legacyAppendix": binding.legacy_appendix.as_ref().map(|legacy| json!({
+                "artifact": legacy.artifact,
+                "offset": legacy.offset,
+                "priorDigest": legacy.prior_digest,
+                "priorLength": legacy.prior_length,
+                "challenge": legacy.challenge,
+                "priorAppendix": legacy.prior_appendix,
+            })),
+            "sourceFingerprint": binding.source_fingerprint,
+            "unitSourceFingerprint": binding.unit_source_fingerprint,
+            "recoveryCause": binding.recovery_cause,
+        })
+    };
+    json!({
+        "binding": binding.as_ref().map(written),
+        "modern": binding.as_ref().map(|binding| {
+            review::binding_is_modern(binding, case["workspace_requires"] == true)
+        }),
+        "replaces": review::request_replaces(
+            block,
+            pending.as_ref().map(Option::as_ref),
+        ),
+    })
 }
