@@ -5891,6 +5891,12 @@ RC_BAD_PATHS = [
     lambda: f".aidlc-engine/reviews/../reviews/intent-capture/stage/{rc_hex(16)}/1.json", lambda: f".aidlc-engine/reviewsx/intent-capture/stage/{rc_hex(16)}/1.json",
     lambda: f".aidlc-engine/reviews/intent-capture/units/auth/{rc_hex(16)}/1.json/", lambda: f".aidlc-reviews/intent-capture/stage/{rc_hex(16)}/1.JSON",
     lambda: f".aidlc-engine/reviews/intent-capture/stage/{rc_hex(16)}/١.json", lambda: "",
+    lambda: f".aidlc-engine/reviews/intent-capture/stage/{rc_hex(16)}/1.jsonx", lambda: f".aidlc-engine/reviews/intent-capture/stage/{rc_hex(16)}/1xjson",
+    lambda: f".aidlc-engine/reviewsintent-capture/stage/{rc_hex(16)}/1.json", lambda: f".aidlc-reviewscode-generation/units/auth/{rc_hex(16)}/1.json",
+    lambda: f".aidlc-engine/reviews/code-generation/other/auth/{rc_hex(16)}/1.json", lambda: f".aidlc-engine/reviews/code-generation/stage/auth/{rc_hex(16)}/1.json",
+    lambda: f".aidlc-engine/reviews/code-generation/units/auth/{rc_hex(15)}/1.json", lambda: f".aidlc-engine/reviews/code-generation/units/auth/{rc_hex(17)}/1.json",
+    lambda: f".aidlc-engine/reviews/code-generation/units/auth/{rc_hex(16)}/0.json", lambda: f".aidlc-engine/reviews/code-generation/units/auth/{rc_hex(16)}/1.jsonx",
+    lambda: f".aidlc-engine/reviews/code-generation/units/auth/{rc_hex(16)}/1xjson", lambda: f".aidlc-engine/reviews/code-generation/units/-auth/{rc_hex(16)}/1.json",
 ]
 
 
