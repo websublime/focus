@@ -702,6 +702,15 @@ async function answer(c: Record<string, any>): Promise<unknown> {
     }
     case "audit_find":
       return { found: lib.findAllEvents(c.audit, c.event, c.slug ?? undefined) };
+    case "review_completion": {
+      // The record a completion names, and whether the completion answers
+      // the request (`null` when the request's row bound nothing).
+      const request = lib.reviewRequestBindingFromBlock(c.request);
+      return {
+        ref: lib.reviewRecordRefFromBlock(c.completion),
+        matches: request === null ? null : lib.reviewCompletionMatchesRequest(request, c.completion),
+      };
+    }
     case "review_window": {
       // The review attempt of a stage, read off a ledger given as its shards:
       // the receipt rows in order, the attempt's boundary among them, and the
