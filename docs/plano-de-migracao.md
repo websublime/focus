@@ -2282,6 +2282,20 @@ Lido `handleReview` (`aidlc-log.ts` L2 975 a L4 412, uma função só): não há
 
 **O que a 2e traz, quando vier.** O pedido (`REVIEW_REQUESTED`): o ordinal, que é do engine, o orçamento por classe de revisão e a recuperação única quando se esgota, uma revisão que a pessoa pediu fora do orçamento (`personAskedForReview`), o `Source Fingerprint` com o snapshot atrás, o id do pedido e o sítio onde o revisor escreve. O veredicto (`REVIEW_COMPLETED`): `READY` ou `NOT-READY`, o ficheiro da revisão levado para o registo com os títulos despromovidos, o pedido pendente a que responde, e o registo de despacho do revisor retirado no fim.
 
+### Fatia 3a: a tentativa de revisão (em curso)
+
+A primeira parte da fatia 3, e o que as outras e `review` usam: de que tentativa da stage é um pedido de revisão, quantos pedidos a tentativa já tem, e que pedidos esperam veredicto. São duas funções sobre o ledger e o estado, sem comando próprio: verificam-se pelo corpus do oráculo, com ledgers gerados, e não pelo diferencial.
+
+| Função do original (`aidlc-lib.ts`) | Linhas | O que diz |
+| --- | --- | --- |
+| `reviewAttemptWindow` (L18 309) | 220 | A fronteira da tentativa sobre os catorze eventos que contam para um recibo (a criação, um salto que alcança a stage, uma rejeição do gate, um início da stage) e, numa stage por unit, que units têm o bolt aberto ou fundido |
+| `reviewAttemptAccounting` (L18 601) | 346 | Sobre a mesma tentativa: o piso (`floor`, o texto que identifica a tentativa e de onde sai o id dos ficheiros de revisão), os pedidos contados e os que o orçamento conta, os pedidos pendentes por iteração com a sua ligação, a recuperação gasta, e a ambiguidade de um empate entre shards, que recusa a revisão |
+| `reviewRequestBindingFromBlock` (L16 367), `reviewRequestBindingIsModern`, `reviewRequestReplaces` | 113 | A ligação que uma linha `REVIEW_REQUESTED` guarda, e um pedido que substitui outro na mesma iteração |
+| `completionCarriesVerifiedReview` (L17 509) | 23 | Se uma linha `REVIEW_COMPLETED` responde ao pedido pendente: lê o registo da revisão em disco |
+| `stageStartsUnderUnitFlooring`, `usesStageLevelPerUnitArtifacts`, `unitScopedLifecycleFloors`, `isTeamUnitOwnership`, `boltSlugForUnit`, `reviewAttemptEventMatchesCurrentClaim` | cerca de 140 | A dimensão por unit e de equipa: entram como funções no corpus quando forem puras; o que lê claims em disco fica com a fatia 5 |
+
+Quem as chama no original: `freshReviewReceipts` e `pendingReviewRequestStatus` (o resto da fatia 3), `log review` (2e), os checkpoints de Construction (fatia 5) e `orchestrate` (fatia 6). Focus já tem as peças de ordem que elas usam: `sort_attempt_events` (`focus-lifecycle::gate`), a fronteira (`focus-evidence::authorization::frontier`) e o salto que alcança uma stage (`jump_reaches`).
+
 ### A jornada
 
 O original tem uma jornada sem modelo, `tests/harness/scope-run.ts` (1 798 linhas), em três papéis separados: um host que corre o CLI como o skill o corre e dispara os hooks que o harness dispararia; um agente de substituição que faz o que cada diretiva pede (escreve artefactos pequenos, corre os comandos que a diretiva nomeia tal como estão, e acaba o turno em cada pergunta ou gate); e um guião da pessoa, o único que responde, pelo hook do turno humano. O diferencial ganha o mesmo (`tools/oracle/journey.py`), agnóstico do motor: cada lado é conduzido nos seus próprios nomes, e o que o original diz é traduzido por `names.py`, como em tudo o resto.
