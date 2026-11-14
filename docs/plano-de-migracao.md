@@ -2294,7 +2294,7 @@ A primeira parte da fatia 3, e o que as outras e `review` usam: de que tentativa
 | `completionCarriesVerifiedReview` (L17 509) | 23 | Se uma linha `REVIEW_COMPLETED` responde ao pedido pendente: lê o registo da revisão em disco |
 | `stageStartsUnderUnitFlooring`, `usesStageLevelPerUnitArtifacts`, `unitScopedLifecycleFloors`, `isTeamUnitOwnership`, `boltSlugForUnit`, `reviewAttemptEventMatchesCurrentClaim` | cerca de 140 | A dimensão por unit e de equipa: entram como funções no corpus quando forem puras; o que lê claims em disco fica com a fatia 5 |
 
-Quem as chama no original: `freshReviewReceipts` e `pendingReviewRequestStatus` (o resto da fatia 3), `log review` (2e), os checkpoints de Construction (fatia 5) e `orchestrate` (fatia 6). Focus já tem as peças de ordem que elas usam: `sort_attempt_events` (`focus-lifecycle::gate`), a fronteira (`focus-evidence::authorization::frontier`) e o salto que alcança uma stage (`jump_reaches`).
+Quem as chama no original: `freshReviewReceipts` e `pendingReviewRequestStatus` (o resto da fatia 3), `log review` (2e), os checkpoints de Construction (fatia 5) e `orchestrate` (fatias 6 a 10). Focus já tem as peças de ordem que elas usam: `sort_attempt_events` (`focus-lifecycle::gate`), a fronteira (`focus-evidence::authorization::frontier`) e o salto que alcança uma stage (`jump_reaches`).
 
 ### A jornada
 
