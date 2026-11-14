@@ -157,13 +157,35 @@ pub fn ceremony_setting(
     field: &str,
     switch: &str,
 ) -> &'static str {
+    ceremony_setting_of(
+        wf,
+        get_field(state, "Scope"),
+        Some(state),
+        key,
+        field,
+        switch,
+    )
+}
+
+/// [`ceremony_setting`] for a caller that names the scope itself and may
+/// have no state: a stage run by itself reads the scope its own attempt
+/// recorded and never the main workflow's settings.
+#[must_use]
+pub fn ceremony_setting_of(
+    wf: &Workflow,
+    scope: Option<&str>,
+    state: Option<&str>,
+    key: &str,
+    field: &str,
+    switch: &str,
+) -> &'static str {
     if project_flag(&wf.layout, switch).as_deref() == Some("1") {
         return "off";
     }
-    if let Some(value) = ceremony_state_value(get_field(state, field)) {
+    if let Some(value) = state.and_then(|state| ceremony_state_value(get_field(state, field))) {
         return value;
     }
-    let scope = get_field(state, "Scope")
+    let scope = scope
         .map(|scope| trim(scope).to_lowercase())
         .unwrap_or_default();
     match wf.install.definition(&scope) {

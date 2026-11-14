@@ -463,7 +463,8 @@ fn revision_backstop_disabled(wf: &Workflow) -> bool {
 
 /// `guardPolicyAcceptsChanges`: the policy is not strict; unreadable reads
 /// as strict.
-fn guard_policy_accepts_changes(wf: &Workflow, state: &str) -> bool {
+#[must_use]
+pub fn guard_policy_accepts_changes(wf: &Workflow, state: &str) -> bool {
     focus_guards::workflow::Guards::read(&wf.layout, &wf.selector(), &wf.invoker)
         .map(|guards| guards.with_state(state).accepts_changes())
         .unwrap_or(false)
