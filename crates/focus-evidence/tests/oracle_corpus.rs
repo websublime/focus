@@ -9,6 +9,7 @@ use std::path::Path;
 use focus_evidence::oracle::{KINDS, run_case};
 use focus_js::json::stringify;
 use serde_json::{Value, json};
+use sha2::{Digest, Sha256};
 
 #[test]
 fn every_evidence_case_gets_upstreams_answer() {
@@ -33,6 +34,7 @@ fn every_evidence_case_gets_upstreams_answer() {
     let (mut modern, mut replacing) = (0, 0);
     let (mut completions, mut answering, mut naming) = (0, 0, 0);
     let (mut records, mut valid, mut same_review, mut carried) = (0, 0, 0, 0);
+    let (mut inputs, mut set_aside) = (0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         // Parsed as upstream's driver parses it, so nested objects are in the
@@ -84,6 +86,20 @@ fn every_evidence_case_gets_upstreams_answer() {
             blank += usize::from(out["answer"].as_str().is_some_and(str::is_empty));
             unanswered += usize::from(out.get("answer").is_some_and(Value::is_null));
             assert!(out.get("unreadable").is_none(), "{}: {out}", case["id"]);
+        } else if kind == "summary_input" {
+            inputs += 1;
+            assert!(out.is_string(), "{}: {out}", case["id"]);
+            // Whether the file hashed as it is written, or with its
+            // confirmation set aside.
+            if let Some(text) = case["text"].as_str() {
+                let text = text.strip_prefix('\u{feff}').unwrap_or(text);
+                let written = text.replace("\r\n", "\n").replace('\r', "\n");
+                let digest: String = Sha256::digest(written.as_bytes())
+                    .iter()
+                    .map(|byte| format!("{byte:02x}"))
+                    .collect();
+                set_aside += usize::from(out.as_str() != Some(digest.as_str()));
+            }
         } else if kind == "review_record" {
             records += 1;
             valid += usize::from(out["valid"] == true);
@@ -173,6 +189,10 @@ fn every_evidence_case_gets_upstreams_answer() {
     assert!(
         same_review >= 400 && valid - same_review >= 600 && carried >= 300,
         "{same_review} {carried}"
+    );
+    assert!(
+        inputs >= 700 && set_aside >= 140 && inputs - set_aside >= 500,
+        "{inputs} {set_aside}"
     );
     assert!(
         differing.is_empty(),

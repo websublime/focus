@@ -2382,6 +2382,10 @@ DEVIATIONS.update({
     "jump/execute/units":
         "execute --units moves units of work forward one at a time to a per-unit stage, with the state tool's "
         "one-unit skip (M4): upstream runs it or refuses on its own shape; focus refuses the flag by name",
+    "jump/execute/backward_construction_is_a_file":
+        "a jump back over a per-unit stage finds its units by listing the record's construction folder; where a file "
+        "has that name, upstream fails with what its runtime says of the listing (ENOTDIR ... scandir), focus says what "
+        "is wrong with the folder. Both refuse, move nothing and log the error",
     "jump/execute/directive_marker":
         "a record carrying an active-directive marker: a jump reads the step the person was on off it (M5); "
         "focus refuses to jump with the marker there",
@@ -5699,6 +5703,13 @@ def jump_checks():
            [forward])
     check_("execute/units", created(**ic), [["execute", "--target", "functional-design", "--direction", "forward", "--units", "api"],
                                             ["execute", "--target", "feasibility", "--direction", "forward", "--units", ""]])
+    # A per-unit stage's units are found by listing the record's construction folder.
+    before_code = re.findall(r"^- \[ \] (\S+) \u2014 EXECUTE$", CREATED_STATE.split("- [ ] code-generation")[0], re.M)
+    at_code = at_stage(CREATED_STATE, "code-generation", done=before_code)
+    over_units = [["execute", "--target", "functional-design", "--direction", "backward"]]
+    check_("execute/backward_over_units", created(at_code, **{f"{CREATED_DIR}/construction/api/functional-design/functional-spec.md": "# Spec\n",
+                                                              f"{CREATED_DIR}/construction/api/nfr-design/security-design.md": "# Design\n"}), over_units)
+    check_("execute/backward_construction_is_a_file", created(at_code, **{f"{CREATED_DIR}/construction": "Not a folder.\n"}), over_units)
     check_("execute/directive_marker", created(**ic, **{f"{GATE_DIR}/active-directive.json": json.dumps({"stage": "market-research"})}), [forward])
     check_("execute/no_state_file", created(**{f"{CREATED_DIR}/aidlc-state.md": None}), [forward])
     check_("execute/archived", created(CREATED_STATE.replace("- **Status**: Running", "- **Status**: Archived")), [forward])

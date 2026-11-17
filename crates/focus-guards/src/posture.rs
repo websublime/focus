@@ -460,4 +460,43 @@ mod tests {
         );
         assert_eq!(plan_review_appendix("## Review ##\n"), "");
     }
+
+    #[test]
+    fn a_byte_order_mark_is_not_counted_in_the_boundary() {
+        // The mark is not part of the text the heading is looked for in, so
+        // a plan that starts with it and the heading is all appendix.
+        assert_eq!(
+            terminal_review_appendix_boundary("\u{feff}## Review\nx\n".as_bytes()),
+            Some(AppendixBoundary { raw: 0, trimmed: 0 })
+        );
+        // The offsets count the text without the mark: three bytes short
+        // of the heading in the file, as upstream counts them.
+        assert_eq!(
+            terminal_review_appendix_boundary("\u{feff}abc\n\n## Review\nx\n".as_bytes()),
+            Some(AppendixBoundary { raw: 5, trimmed: 4 })
+        );
+        assert_eq!(
+            content_before_terminal_review_appendix("\u{feff}abc\n\n## Review\nx\n"),
+            "\u{feff}a"
+        );
+        assert_eq!(
+            plan_review_appendix("\u{feff}abc\n\n## Review\nx\n"),
+            "bc\n\n## Review\nx\n"
+        );
+        // Cut inside a character: what is left of it reads as the
+        // replacement character, one unit of the plan.
+        assert_eq!(
+            content_before_terminal_review_appendix("\u{feff}\u{20ac}\n## Review\nx\n"),
+            "\u{feff}\u{fffd}"
+        );
+        assert_eq!(
+            plan_review_appendix("\u{feff}\u{20ac}\n## Review\nx\n"),
+            "\n## Review\nx\n"
+        );
+        // Bytes that are not text have no appendix.
+        assert_eq!(
+            terminal_review_appendix_boundary(b"\xff\n## Review\n"),
+            None
+        );
+    }
 }

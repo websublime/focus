@@ -881,7 +881,8 @@ pub fn workspace_artifact_path(project: &Path, entry: &ReviewEntry) -> String {
 /// # Errors
 ///
 /// The row's `repos` is not a list of names, for a stage of the code
-/// knowledge base.
+/// knowledge base; or a folder the entries are found by listing is there
+/// and cannot be listed.
 pub fn review_artifact_entries(
     wf: &Workflow,
     stage: &Stage,
@@ -891,25 +892,35 @@ pub fn review_artifact_entries(
         state: state.map(Some),
         ..ReviewScope::default()
     };
-    // A folder that cannot be listed holds nothing, for a jump: the one
-    // caller that is not asking what a review is of.
-    Ok(review_entries(wf, stage, scope)?.unwrap_or_else(|_| Some(Vec::new())))
+    match review_entries(wf, stage, scope)? {
+        Ok(entries) => Ok(entries),
+        // Upstream falls over here with what its runtime says of the
+        // folder; Focus says what is wrong with it.
+        Err(Unlistable(folder)) => bail!(
+            "{} is there and is not a folder that can be listed, and the artifacts of \"{}\" are found by listing it. Restore the folder, or move what is there away.",
+            folder.display(),
+            stage.slug
+        ),
+    }
 }
 
 /// A folder upstream lists by name, when the name is there and is no
 /// folder that can be listed: upstream falls over on it, and whoever asks
 /// what a review is of gets no answer.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Unlistable;
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Unlistable(pub PathBuf);
 
 /// `readdirSync(dir).filter(...)` behind `existsSync(dir)`: the names in
 /// `dir` that `keep` keeps; none when nothing is there.
-fn listed(dir: &Path, keep: impl Fn(&Path) -> bool) -> std::result::Result<Vec<String>, Unlistable> {
+fn listed(
+    dir: &Path,
+    keep: impl Fn(&Path) -> bool,
+) -> std::result::Result<Vec<String>, Unlistable> {
     if !dir.exists() {
         return Ok(Vec::new());
     }
     let mut names: Vec<String> = std::fs::read_dir(dir)
-        .map_err(|_| Unlistable)?
+        .map_err(|_| Unlistable(dir.to_path_buf()))?
         .filter_map(std::result::Result::ok)
         .map(|entry| entry.file_name().to_string_lossy().into_owned())
         .filter(|name| keep(&dir.join(name)))

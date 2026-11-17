@@ -213,7 +213,10 @@ fn review_snapshot_case(wf: &Workflow, case: &Value) -> Value {
         std::fs::write(within(rel), bytes).expect("a file");
     }
     if let Some(state) = case["state"].as_str() {
-        let record = format!("intents/rec-1a2b3c4d/{}", focus_workspace::names::STATE_FILE);
+        let record = format!(
+            "intents/rec-1a2b3c4d/{}",
+            focus_workspace::names::STATE_FILE
+        );
         std::fs::write(within(&record), state).expect("a state file");
     }
     // A name that is a link to another place of the space, and a second
@@ -262,7 +265,8 @@ fn review_snapshot_case(wf: &Workflow, case: &Value) -> Value {
             bodies[0].clone(),
             bodies[bodies.len() - 1].clone(),
             other.clone(),
-            raw::raw_form(&snapshot.fingerprint).unwrap_or(other),
+            raw::raw_form(&snapshot.fingerprint).unwrap_or_else(|| other.clone()),
+            raw::raw_form(&bodies[0]).unwrap_or(other),
         ];
         let told: Vec<Vec<[bool; 2]>> = requested
             .iter()

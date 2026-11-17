@@ -757,7 +757,10 @@ async function answer(c: Record<string, any>): Promise<unknown> {
         if (snapshot === null) return { fingerprint, snapshot: null };
         const other = `sha256:${"0".repeat(64)}`;
         const bodies = snapshot.bodyFingerprints as string[];
-        const requested = [snapshot.fingerprint, bodies[0], bodies[bodies.length - 1], other, lib.rawFingerprintForm(snapshot.fingerprint) ?? other];
+        // The requests a snapshot is weighed against: of the whole set, of each body view, of something else, and
+        // of the set and the body as they were fingerprinted before line ends were read as LF.
+        const requested = [snapshot.fingerprint, bodies[0], bodies[bodies.length - 1], other, lib.rawFingerprintForm(snapshot.fingerprint) ?? other,
+          lib.rawFingerprintForm(bodies[0]) ?? other];
         const told = requested.map((artifactFingerprint) =>
           [null, false, true].map((prior) => {
             const binding = {
