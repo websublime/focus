@@ -2608,6 +2608,18 @@ Verificado: os 45 947 casos e as respostas são os mesmos, com os nomes novos; `
 | Mutação | 89 mutantes: 81 apanhados (70 à primeira, 11 depois de casos novos) e 8 equivalentes anotados no módulo (o lugar de uma linha no seu shard, "ou o mesmo", três vezes; a unit onde se procura uma confirmação simples, duas; o nome de um ficheiro a partir de `<project-dir>`, duas, que a segunda maneira de reconhecer uma escrita já cobre; uma confirmação anterior ter de vir antes do recibo) |
 | `cargo test` | 587 testes: a recusa de uma stage por unit e o ficheiro de perguntas que é um link |
 
+### Fatia 3d: os recibos de revisão pesados (por fazer)
+
+`freshReviewReceipts` (`aidlc-lib.ts` L19 409, 1 071 linhas) é a leitura que junta a fatia 3: os veredictos de revisão que ainda valem para a stage e para cada unit, e se a fonte mudou desde então. Devolve o veredicto da stage e se está ultrapassado, os veredictos por unit, o fingerprint de fonte mais novo e de que unit, se a fonte está ultrapassada (com a razão e o progresso) e se a recuperação da fonte está gasta. O corpo ainda não foi lido para o partir; o que está aqui é o inventário do que chama, tirado mecanicamente, para a leitura começar por onde falta.
+
+| O que chama | Em Focus |
+| --- | --- |
+| `reviewAttemptWindow`, `attemptEventDefinitelyBefore`, `unitScopedLifecycleFloors` (3a-ii); `reviewRequestBindingFromBlock`, `reviewRecordRefFromBlock`, `reviewCompletionMatchesRequest`, `completionCarriesVerifiedReview` (3a-i, 3a-iii, 3a-iv); `reviewArtifactFingerprint` (3b-i); `workspaceSourceState`, `sameWorkspaceSource` (3b-ii); `pendingRequestCurrency` (3b-iii); `producesArtifactUnit`, `reviewedArtifactUnit`, `stageJumpReaches`, `resolveBoltDag`, `filterProducesByKind`, `usesStageLevelPerUnitArtifacts`, `guardPolicyAcceptsChanges`, `resolveAuditProjectPath`, `sourceListingEntriesEqual`, `sourceListingChangedPaths`, `renderSourcePathKeys`, `intentRepos` | Existe |
+| `terminalReviewVerdict` (L15 109, 19 linhas), `reviewRecordAbsent` (L17 429, 22), `reviewCompletionDidNotFinish` (L17 543, 21), `gateStagesFromBlock` (L34 415, 12) | Falta: leituras de uma linha de revisão ou de gate |
+| `hasModernSourceBindingEvidence` (L18 094, 35), `sourceBaselineBoundaryValue` (L18 129, 21), `readBaselineSourceSnapshot` (L25 690, 24), `recordedSourceListingUnderCurrentBoundary` (L20 839, 26), `workspaceSourceChangedPaths` (L25 805, 15), `renderChangedPaths` (L40 233, 7) | Falta: a baseline da fonte lida de volta, e que caminhos mudaram |
+| `readUnitSourceManifest`, `unitSourceFingerprint`, `readUnitSourceSnapshot`, `restrictSourceListing`, `sourceClaimCovers`, `unitPlainName` | Fatia 5: a fonte de uma unit |
+| `eventMatchesClaimAttempt` | Adiado com `Unit Ownership: team` |
+
 ### A jornada
 
 O original tem uma jornada sem modelo, `tests/harness/scope-run.ts` (1 798 linhas), em três papéis separados: um host que corre o CLI como o skill o corre e dispara os hooks que o harness dispararia; um agente de substituição que faz o que cada diretiva pede (escreve artefactos pequenos, corre os comandos que a diretiva nomeia tal como estão, e acaba o turno em cada pergunta ou gate); e um guião da pessoa, o único que responde, pelo hook do turno humano. O diferencial ganha o mesmo (`tools/oracle/journey.py`), agnóstico do motor: cada lado é conduzido nos seus próprios nomes, e o que o original diz é traduzido por `names.py`, como em tudo o resto.
