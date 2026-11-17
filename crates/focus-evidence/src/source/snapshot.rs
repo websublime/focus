@@ -27,7 +27,7 @@ use focus_workspace::records::Selection;
 use focus_workspace::{Layout, atomic, links, observer};
 
 use super::listing::{self, Listing};
-use super::walk::{self, Options, Stop};
+use super::walk::{Options, Stop};
 
 /// The field's name on a row.
 pub const BASELINE_FIELD: &str = "Source Baseline";
@@ -134,7 +134,7 @@ pub fn baseline_field(
     } else {
         repos.iter().any(|name| is_git(&layout.project.join(name)))
     };
-    match walk::workspace_source(&layout.project, repos, true, options) {
+    match super::state::workspace_source_state(&layout.project, repos, options) {
         Ok(source) => write_baseline(layout, selection, stage_slug, &source.listing),
         Err(Stop::Failed(_)) if has_git_checkout => Ok(UNBINDABLE.to_owned()),
         Err(Stop::Failed(_)) => write_baseline(layout, selection, stage_slug, &Listing::new()),

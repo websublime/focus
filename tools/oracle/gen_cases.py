@@ -6794,5 +6794,17 @@ for answer in ("[Answer]:", "[Answer]: Looks correct", "[Answer]: Something else
     rv_fixed("requirements-analysis", {f"{RV_REQ}/requirements.md": "# Requirements\n", f"{RV_REQ}/later-questions.md": RV_QUESTIONS + answer + "\n"},
              patch={"optional_produces": ["later-questions"]})
 
+# --- The source a decision reads now (M5, slice 3b-ii) ----------------------
+#
+# Every source_walk case is also asked what recorded values are told of the
+# source (`workspaceSourceState`, `sameWorkspaceSource`). What a walk leaves
+# for a later comparison is kept by the fingerprint, so these come in pairs:
+# the same source with and without what an earlier walk recorded beside it.
+for extra in ({"p/.DS_Store": "x\n"}, {"p/__pycache__/a.pyc": "x\n"}, {"p/bin/a.dll": "b\n", "p/App.csproj": "<Project/>\n"}):
+    kept = {"p/kept-by-fingerprint.ts": "k\n", **({"p/App.csproj": "<Project/>\n"} if "p/App.csproj" in extra else {})}
+    sw({**kept, **extra})
+    sw(kept)
+    sw({**kept, **extra})
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")
