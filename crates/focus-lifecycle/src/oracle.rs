@@ -16,7 +16,12 @@ use crate::review_attempt;
 use crate::workflow::Workflow;
 
 /// The case kinds this crate answers.
-pub const KINDS: [&str; 3] = ["review_window", "review_accounting", "review_snapshot"];
+pub const KINDS: [&str; 4] = [
+    "review_window",
+    "review_accounting",
+    "review_snapshot",
+    "summary_evidence",
+];
 
 /// The ledger a case gives as its shards, read as a project's would be.
 fn ledger(case: &Value) -> Vec<ShardEvent> {
@@ -72,6 +77,7 @@ pub fn run_case(wf: &Workflow, case: &Value) -> Value {
         }
         "review_accounting" => review_accounting_case(wf, case),
         "review_snapshot" => review_snapshot_case(wf, case),
+        "summary_evidence" => summary_evidence_case(wf, case),
         other => json!({ "unsupported": other }),
     }
 }
@@ -175,18 +181,11 @@ fn review_accounting_case(wf: &Workflow, case: &Value) -> Value {
     }
 }
 
-/// What a review is of, in a project of the case's own, read with `wf`'s
-/// install: the fingerprint of the stage's declared artifacts, the snapshot
-/// with its appendix view, and what each kind of request would be told of
-/// that snapshot.
-fn review_snapshot_case(wf: &Workflow, case: &Value) -> Value {
-    use focus_evidence::review::{LegacyAppendix, RequestBinding};
-    use focus_evidence::source::raw;
-    use focus_workspace::records::{Invoker, Selector, resolve_selection};
-    use sha2::{Digest, Sha256};
-
-    use crate::review_artifacts::{self, Options};
-
+/// A project of a case's own, under a scratch root: `files`, `hex`
+/// (bytes), `dirs`, `links` and `hard` under the
+/// space's folder, `source` beside the engine's folder, and `state` as the
+/// record's state file.
+fn lay_project(wf: &Workflow, case: &Value) -> (std::path::PathBuf, focus_workspace::Layout) {
     static NEXT: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
     let root = std::env::temp_dir().join(format!(
         "focus-oracle-snapshot-{}-{}",
@@ -236,6 +235,22 @@ fn review_snapshot_case(wf: &Workflow, case: &Value) -> Value {
         std::fs::hard_link(space.join(target.as_str().unwrap_or_default()), within(rel))
             .expect("a second name");
     }
+    (root, layout)
+}
+
+/// What a review is of, in a project of the case's own, read with `wf`'s
+/// install: the fingerprint of the stage's declared artifacts, the snapshot
+/// with its appendix view, and what each kind of request would be told of
+/// that snapshot.
+fn review_snapshot_case(wf: &Workflow, case: &Value) -> Value {
+    use focus_evidence::review::{LegacyAppendix, RequestBinding};
+    use focus_evidence::source::raw;
+    use focus_workspace::records::{Invoker, Selector, resolve_selection};
+    use sha2::{Digest, Sha256};
+
+    use crate::review_artifacts::{self, Options};
+
+    let (root, layout) = lay_project(wf, case);
     let answer = (|| -> Result<Value, String> {
         let selection = resolve_selection(&layout, &Selector::default(), &Invoker::default())
             .map_err(|refusal| refusal.to_string())?;
@@ -585,4 +600,126 @@ fn pending_answers(
             ])
         )),
     })
+}
+
+/// Whether a stage's outputs descend from a current summary confirmation,
+/// in a project of the case's own. The ledger's rows name the root as
+/// `{P}` and what was confirmed by its hash: of the questions file as it is
+/// (`{NOW}`, `{NOWRAW}` over its bytes) and of the text the case says was
+/// confirmed (`{THEN}`, `{THENRAW}`).
+fn summary_evidence_case(wf: &Workflow, case: &Value) -> Value {
+    use focus_evidence::summary::content_hash;
+    use focus_workspace::records::{Invoker, Selector, resolve_selection};
+    use sha2::{Digest, Sha256};
+
+    use crate::summary_evidence::{Asked, Evidence, check};
+
+    let hashes = |key: &str| -> (String, String) {
+        let text = case[key].as_str().unwrap_or_default();
+        let raw: String = Sha256::digest(text.as_bytes())
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect();
+        // A file that cannot be hashed was never confirmed under a scope.
+        (content_hash(text).unwrap_or_else(|_| "0".repeat(64)), raw)
+    };
+    let (now, now_raw) = hashes("questions");
+    let (then, then_raw) = hashes("then");
+    // The root is known once the project is laid out: the files that name
+    // it are written after.
+    let mut bare = case.clone();
+    bare["files"] = json!({});
+    let (root, layout) = lay_project(wf, &bare);
+    let shown_root = root.to_string_lossy().into_owned();
+    let space = layout.space_dir("default");
+    for (rel, content) in case["files"].as_object().into_iter().flatten() {
+        let path = space.join(rel);
+        std::fs::create_dir_all(path.parent().expect("a name has a folder")).expect("a folder");
+        let text = content
+            .as_str()
+            .unwrap_or_default()
+            .replace("{P}", &shown_root)
+            .replace("{NOWRAW}", &now_raw)
+            .replace("{NOW}", &now)
+            .replace("{THENRAW}", &then_raw)
+            .replace("{THEN}", &then);
+        std::fs::write(path, text).expect("a file");
+    }
+    let answer = (|| -> Result<Value, String> {
+        let selection = resolve_selection(&layout, &Selector::default(), &Invoker::default())
+            .map_err(|refusal| refusal.to_string())?;
+        let scratch = Workflow {
+            layout: layout.clone(),
+            selection,
+            invoker: Invoker::default(),
+            install: wf.install.clone(),
+        };
+        let mut stage = wf
+            .stage(case["slug"].as_str().unwrap_or_default())
+            .map_err(|refusal| refusal.to_string())?
+            .clone();
+        for (field, value) in case["patch"].as_object().into_iter().flatten() {
+            if value.is_null() {
+                stage.raw.remove(field);
+            } else {
+                stage.raw.insert(field.clone(), value.clone());
+            }
+        }
+        // The list the compiled stage keeps apart from its node.
+        if let Some(listed) = case["patch"]["optional_produces"].as_array() {
+            stage.optional_produces = listed
+                .iter()
+                .filter_map(|name| name.as_str().map(str::to_owned))
+                .collect();
+        }
+        let given = case["given"] == true;
+        let asked = Asked {
+            workflow: case["workflow"].as_str(),
+            state: case["state"].as_str().filter(|_| given),
+            scope: case["scope"].as_str(),
+            unit: case["unit"].as_str(),
+        };
+        let spelled = |text: &str| text.replace(&shown_root, "{P}");
+        match check(&scratch, &stage, asked).map_err(|refusal| refusal.to_string())? {
+            Evidence::Ok {
+                required,
+                accepted_changes,
+                change_control_read,
+            } => Ok(json!({
+                "ok": true,
+                "required": required,
+                "accepted": accepted_changes
+                    .iter()
+                    .map(|change| json!([
+                        change.stage,
+                        change.unit,
+                        change.changed,
+                        change.recorded,
+                        change.current,
+                        change.notice,
+                    ]))
+                    .collect::<Vec<_>>(),
+                "read": change_control_read,
+            })),
+            Evidence::Refused {
+                code,
+                message,
+                coverage,
+                change_control_read,
+            } => Ok(json!({
+                "ok": false,
+                // (The refusal's code is on its recovery question, which
+                // upstream asks only with a state in hand.)
+                "code": given.then_some(code),
+                "message": spelled(&message),
+                "coverage": coverage.name(),
+                "read": change_control_read,
+            })),
+        }
+    })();
+    let _ = std::fs::remove_dir_all(&root);
+    match answer {
+        Ok(out) => out,
+        Err(error) => json!({ "error": error }),
+    }
 }

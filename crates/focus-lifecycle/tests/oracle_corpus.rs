@@ -56,6 +56,8 @@ fn every_lifecycle_case_gets_upstreams_answer() {
     let (mut two_views, mut converted, mut came_after) = (0, 0, 0);
     let (mut current, mut unreadable, mut replaceable) = (0, 0, 0);
     let (mut retried, mut unrecordable) = (0, 0);
+    let (mut evidence, mut in_order, mut not_owed) = (0, 0, 0);
+    let (mut let_through, mut missing, mut stale) = (0, 0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         let case: Value = focus_js::json::parse(line).unwrap();
@@ -73,7 +75,19 @@ fn every_lifecycle_case_gets_upstreams_answer() {
         }
         let out = run_case(&wf, &case);
         let some = |key: &str| out[key].as_array().is_some_and(|list| !list.is_empty());
-        if kind == "review_snapshot" {
+        if kind == "summary_evidence" {
+            evidence += 1;
+            assert!(out.get("error").is_none(), "{}: {out}", case["id"]);
+            in_order += usize::from(out["ok"] == true && out["required"] == true);
+            not_owed += usize::from(out["required"] == false);
+            let_through += usize::from(
+                out["accepted"]
+                    .as_array()
+                    .is_some_and(|list| !list.is_empty()),
+            );
+            missing += usize::from(out["coverage"] == "missing");
+            stale += usize::from(out["coverage"] == "stale");
+        } else if kind == "review_snapshot" {
             snapshots += 1;
             fingerprinted += usize::from(out["fingerprint"].is_string());
             let taken = &out["snapshot"];
@@ -128,8 +142,23 @@ fn every_lifecycle_case_gets_upstreams_answer() {
             merged += usize::from(some("merged"));
             open += usize::from(some("open"));
         }
+        let mut out = out;
+        let mut want = (*want).to_owned();
+        if kind == "summary_evidence" && cfg!(windows) {
+            // A refusal's sentence names files by their path and commands
+            // as this platform's shell writes them: the rest of the answer
+            // is compared.
+            if let Some(answer) = out.as_object_mut() {
+                answer.remove("message");
+            }
+            let mut wanted: Value = focus_js::json::parse(&want).unwrap();
+            if let Some(answer) = wanted["out"].as_object_mut() {
+                answer.remove("message");
+            }
+            want = stringify(&wanted);
+        }
         let got = stringify(&json!({ "id": case["id"], "out": out }));
-        if got != *want {
+        if got != want {
             differing.push(format!(
                 "{}\n  upstream: {want}\n  focus:    {got}",
                 case["id"]
@@ -172,6 +201,11 @@ fn every_lifecycle_case_gets_upstreams_answer() {
                 && unrecordable >= 650),
         "{current} {unreadable} {replaceable} {retried} {unrecordable}"
     );
+    assert!(
+        evidence >= 1350 && in_order >= 240 && not_owed >= 120 && let_through >= 60,
+        "{evidence} {in_order} {not_owed} {let_through}"
+    );
+    assert!(missing >= 380 && stale >= 600, "{missing} {stale}");
     assert!(
         differing.is_empty(),
         "{} lifecycle cases differ from upstream; first:\n{}",

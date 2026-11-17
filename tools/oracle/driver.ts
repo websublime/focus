@@ -56,6 +56,41 @@ const libShim = tool("aidlc-lib.focus-oracle.ts");
 writeFileSync(libShim, `${readFileSync(tool("aidlc-lib.ts"), "utf-8")}\nexport { walkWorkspaceSource };\n`);
 process.on("exit", () => rmSync(libShim, { force: true }));
 const libPrivate = await import(libShim);
+// A project of a case's own, under a scratch root: `files`, `hex` (bytes), `dirs`, `links` and `hard` under the
+// space's folder, `source` beside the engine's folder, and `state` as the record's state file.
+function layProject(c: any): string {
+  const root = mkdtempSync(join(tmpdir(), "focus-oracle-snapshot-"));
+  const space = join(root, "aidlc", "spaces", "default");
+  mkdirSync(space, { recursive: true });
+  for (const rel of (c.dirs ?? []) as string[]) mkdirSync(join(space, rel), { recursive: true });
+  for (const [rel, text] of Object.entries(c.files as Record<string, string>)) {
+    mkdirSync(dirname(join(space, rel)), { recursive: true });
+    writeFileSync(join(space, rel), text);
+  }
+  for (const [rel, bytes] of Object.entries((c.hex ?? {}) as Record<string, string>)) {
+    mkdirSync(dirname(join(space, rel)), { recursive: true });
+    writeFileSync(join(space, rel), Buffer.from(bytes, "hex"));
+  }
+  // The project's own source, beside the engine's folder.
+  for (const [rel, text] of Object.entries((c.source ?? {}) as Record<string, string>)) {
+    mkdirSync(dirname(join(root, rel)), { recursive: true });
+    writeFileSync(join(root, rel), text);
+  }
+  if (c.state !== null) {
+    mkdirSync(join(space, "intents", "rec-1a2b3c4d"), { recursive: true });
+    writeFileSync(join(space, "intents", "rec-1a2b3c4d", "aidlc-state.md"), c.state);
+  }
+  for (const [rel, target] of Object.entries((c.links ?? {}) as Record<string, string>)) {
+    mkdirSync(dirname(join(space, rel)), { recursive: true });
+    symlinkSync(join(space, target), join(space, rel));
+  }
+  for (const [rel, target] of Object.entries((c.hard ?? {}) as Record<string, string>)) {
+    mkdirSync(dirname(join(space, rel)), { recursive: true });
+    linkSync(join(space, target), join(space, rel));
+  }
+  return root;
+}
+
 // What the walk that took the .NET output directories gave for the last source_walk case that was asked.
 let earlierOfTheCaseBefore: string | null = null;
 const dispatcher = await import(tool("aidlc.ts"));
@@ -736,35 +771,7 @@ async function answer(c: Record<string, any>): Promise<unknown> {
       // What a review is of, in a project of the case's own: the fingerprint
       // of the stage's declared artifacts, the snapshot with its appendix
       // view, and what each kind of request would be told of that snapshot.
-      const root = mkdtempSync(join(tmpdir(), "focus-oracle-snapshot-"));
-      const space = join(root, "aidlc", "spaces", "default");
-      mkdirSync(space, { recursive: true });
-      for (const rel of (c.dirs ?? []) as string[]) mkdirSync(join(space, rel), { recursive: true });
-      for (const [rel, text] of Object.entries(c.files as Record<string, string>)) {
-        mkdirSync(dirname(join(space, rel)), { recursive: true });
-        writeFileSync(join(space, rel), text);
-      }
-      for (const [rel, bytes] of Object.entries((c.hex ?? {}) as Record<string, string>)) {
-        mkdirSync(dirname(join(space, rel)), { recursive: true });
-        writeFileSync(join(space, rel), Buffer.from(bytes, "hex"));
-      }
-      // The project's own source, beside the engine's folder.
-      for (const [rel, text] of Object.entries((c.source ?? {}) as Record<string, string>)) {
-        mkdirSync(dirname(join(root, rel)), { recursive: true });
-        writeFileSync(join(root, rel), text);
-      }
-      if (c.state !== null) {
-        mkdirSync(join(space, "intents", "rec-1a2b3c4d"), { recursive: true });
-        writeFileSync(join(space, "intents", "rec-1a2b3c4d", "aidlc-state.md"), c.state);
-      }
-      for (const [rel, target] of Object.entries((c.links ?? {}) as Record<string, string>)) {
-        mkdirSync(dirname(join(space, rel)), { recursive: true });
-        symlinkSync(join(space, target), join(space, rel));
-      }
-      for (const [rel, target] of Object.entries((c.hard ?? {}) as Record<string, string>)) {
-        mkdirSync(dirname(join(space, rel)), { recursive: true });
-        linkSync(join(space, target), join(space, rel));
-      }
+      const root = layProject(c);
       const data = resolve(upstream, "dist", "claude", ".claude", "tools", "data");
       const compiled = JSON.parse(readFileSync(join(data, "stage-graph.json"), "utf-8"));
       const compiledStage = (Array.isArray(compiled) ? compiled : compiled.stages).find((node: { slug: string }) => node.slug === c.slug);
@@ -869,6 +876,66 @@ async function answer(c: Record<string, any>): Promise<unknown> {
           told,
           pending,
         };
+      } finally {
+        for (const [index, name] of ["AIDLC_STAGE_GRAPH", "AIDLC_SCOPE_GRID"].entries()) {
+          if (before[index] === undefined) delete process.env[name];
+          else process.env[name] = before[index];
+        }
+        rmSync(root, { recursive: true, force: true });
+      }
+    }
+    case "summary_evidence": {
+      // Whether a stage's outputs descend from a current summary confirmation, in a project of the case's own. The
+      // ledger's rows name the root as `{P}` and what was confirmed by its hash: of the questions file as it is
+      // (`{NOW}`, `{NOWRAW}` over its bytes) and of the text the case says was confirmed (`{THEN}`, `{THENRAW}`).
+      const hashes = (text: string) => {
+        let scoped = "0".repeat(64);
+        try {
+          scoped = lib.summaryConfirmationContentHash(text);
+        } catch {
+          // A file that cannot be hashed was never confirmed under a scope.
+        }
+        return [scoped, createHash("sha256").update(text).digest("hex")];
+      };
+      const [now, nowRaw] = hashes(c.questions ?? "");
+      const [then, thenRaw] = hashes(c.then ?? "");
+      const root = layProject({ ...c, files: {} });
+      const space = join(root, "aidlc", "spaces", "default");
+      for (const [rel, text] of Object.entries(c.files as Record<string, string>)) {
+        mkdirSync(dirname(join(space, rel)), { recursive: true });
+        writeFileSync(join(space, rel), text.split("{P}").join(root).split("{NOWRAW}").join(nowRaw).split("{NOW}").join(now)
+          .split("{THENRAW}").join(thenRaw).split("{THEN}").join(then));
+      }
+      const data = resolve(upstream, "dist", "claude", ".claude", "tools", "data");
+      const compiled = JSON.parse(readFileSync(join(data, "stage-graph.json"), "utf-8"));
+      const compiledStage = (Array.isArray(compiled) ? compiled : compiled.stages).find((node: { slug: string }) => node.slug === c.slug);
+      if (compiledStage === undefined) throw new Error(`${c.id}: no stage ${c.slug}`);
+      const stage = Object.fromEntries(Object.entries({ ...compiledStage, ...(c.patch ?? {}) }).filter(([, value]) => value !== null));
+      const before = [process.env.AIDLC_STAGE_GRAPH, process.env.AIDLC_SCOPE_GRID];
+      process.env.AIDLC_STAGE_GRAPH = join(data, "stage-graph.json");
+      process.env.AIDLC_SCOPE_GRID = join(data, "scope-grid.json");
+      // Upstream names its log and orchestrator tools by their script; Focus says the command a person runs. The
+      // answer is put in that spelling before the names are mapped.
+      const spelled = (text: string) => text.split(root).join("{P}").split("bun .claude/tools/aidlc-log.ts ").join("aidlc engine log ")
+        .split("aidlc-log.ts ").join("aidlc engine log ").split("aidlc-orchestrate.ts ").join("aidlc engine orchestrate ");
+      try {
+        const got = lib.checkSummaryConfirmationEvidence(root, stage, {
+          ...(c.workflow === null ? {} : { workflow: c.workflow }),
+          ...(c.given ? { stateContent: c.state } : {}),
+          ...(c.scope === null ? {} : { scope: c.scope }),
+          ...(c.unit === null ? {} : { unit: c.unit }),
+        });
+        if (got.ok) {
+          return {
+            ok: true,
+            required: got.required,
+            accepted: (got.acceptedChanges ?? []).map((change: any) =>
+              [change.stage, change.unit, change.changed, change.recorded, change.current, change.notice]),
+            read: got.changeControlRead === true,
+          };
+        }
+        // (The refusal's code is on its recovery question, which upstream asks only with a state in hand.)
+        return { ok: false, code: got.refusal?.code ?? null, message: spelled(got.message), coverage: got.summaryCoverage, read: got.changeControlRead === true };
       } finally {
         for (const [index, name] of ["AIDLC_STAGE_GRAPH", "AIDLC_SCOPE_GRID"].entries()) {
           if (before[index] === undefined) delete process.env[name];

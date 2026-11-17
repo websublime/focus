@@ -6829,5 +6829,261 @@ for extra in ({"p/.DS_Store": "x\n"}, {"p/__pycache__/a.pyc": "x\n"}, {"p/bin/a.
     sw(kept)
     sw({**kept, **extra})
 
+# --- summary_evidence: do a stage's outputs descend from a confirmed summary (M5, slice 3c) ---
+#
+# A project with a stage's questions file, its outputs and a ledger
+# (`checkSummaryConfirmationEvidence`). A row names the project's root as `{P}`
+# and what was confirmed by its hash: `{NOW}` of the questions file as it is
+# (`{NOWRAW}` over its bytes), `{THEN}` of the text the case says was confirmed.
+se = random.Random(seed * 7919 + 28)
+SE_STAGES = {"requirements-analysis": ("inception", ["requirements"]), "intent-capture": ("ideation", ["intent-statement", "stakeholder-map"]),
+             "market-research": ("ideation", ["competitive-analysis", "market-trends", "build-vs-buy"])}
+SE_SHARDS = ["laptop-abc123.md", "desktop-def456.md"]
+SE_STATE = "# AI-DLC State\n\n## Workflow\n- **Scope**: feature\n"
+
+
+def se_hex():
+    return "".join(se.choice("0123456789abcdef") for _ in range(64))
+
+
+def se_questions(answer="[Answer]: Looks correct", extra=""):
+    return f"# Questions\n\n## Q1\n\nWhat is it for?\n\n[Answer]: A\n\n{SI_SUMMARY}\n\nAs understood.\n\n{answer}\n{extra}"
+
+
+def se_row(shard, at, event, **fields):
+    """A row of a shard at a second; a field's name is written with spaces for its underscores."""
+    lines = "".join(f"**{name.replace('_', ' ')}**: {value}\n" for name, value in fields.items() if value is not None)
+    return (shard, f"\n## Row\n**Timestamp**: 2026-01-05T10:{at // 60:02d}:{at % 60:02d}Z\n**Event**: {event}\n{lines}---\n")
+
+
+def se_paths(slug):
+    phase, _ = SE_STAGES[slug]
+    return f"{RV_RECORD}/{phase}/{slug}", f"aidlc/spaces/default/{RV_RECORD}/{phase}/{slug}"
+
+
+def se_add(slug, rows, questions=None, then=None, state=SE_STATE, given=True, workflow=None, unit=None, scope=None, outputs=None, more=None, patch=None):
+    folder, _ = se_paths(slug)
+    files = dict(RV_ACTIVE)
+    if questions is not None:
+        files[f"{folder}/{slug}-questions.md"] = questions
+    for name in SE_STAGES[slug][1] if outputs is None else outputs:
+        files[f"{folder}/{rv_file(name)}"] = f"# {name}\n"
+    shards = {}
+    for shard, text in rows:
+        shards.setdefault(shard, []).append(text)
+    for shard, texts in shards.items():
+        files[f"{RV_RECORD}/audit/{SE_SHARDS[shard]}"] = "# AI-DLC Audit Log\n" + "".join(texts)
+    files.update(more or {})
+    case = {"slug": slug, "state": state, "given": given, "workflow": workflow, "unit": unit, "scope": scope, "files": files,
+            "questions": questions or "", "then": then or ""}
+    if patch:
+        case["patch"] = patch
+    add("summary_evidence", **case)
+
+
+def se_receipt(shard, at, slug, scope="current", then=False, details="Looks correct", auth=None, workflow=None, **more):
+    """A confirmation's receipt: under a scope (none, the current one, the earlier one), of the file as it is or as it was."""
+    _, named = se_paths(slug)
+    which = "THEN" if then else "NOW"
+    fields = {"Stage": slug, "Checkpoint": SUMMARY_CHECKPOINT, "Questions_File": f"{named}/{slug}-questions.md", "Details": details,
+              "Hash_Scope": {"current": "confirmed-content-v2", "legacy": "confirmed-content-v1", "none": None}.get(scope, scope),
+              "Questions_SHA-256": "{" + which + ("RAW" if scope == "none" else "") + "}", "Summary_Authorization_Id": auth, "Workflow": workflow}
+    fields.update(more)
+    return se_row(shard, at, "SUMMARY_CONFIRMATION_RECORDED", **fields)
+
+
+def se_write(shard, at, slug, name, auth=None, form="relative", event="ARTIFACT_CREATED"):
+    _, named = se_paths(slug)
+    path = f"{named}/{rv_file(name)}"
+    file = {"relative": path, "token": f"<project-dir>/{path}", "token-back": "<project-dir>\\" + path.replace("/", "\\"), "absolute": "{P}/" + path,
+            "moved": f"/old/place/{path}", "other": f"{named}/another.md", "tail": f"x{path}",
+            # A path from the root is taken as written: one that goes round is another name.
+            "dotted": "{P}/" + path.replace("/inception/", "/inception/./"), "token-alone": "<project-dir>"}[form]
+    return se_row(shard, at, event, File=file, Summary_Authorization_Id=auth)
+
+
+SUMMARY_CHECKPOINT = "Consolidated Summary Confirmation"
+
+
+def se_story():
+    slug = se.choice(list(SE_STAGES))
+    outputs = SE_STAGES[slug][1]
+    two = se.random() < 0.4
+    tie = se.choice([0.0, 0.0, 0.3]) if two else 0.0
+    clock = [0]
+
+    def tick():
+        clock[0] += 0 if se.random() < tie else se.choice([1, 1, 2])
+        return clock[0]
+
+    shard = lambda: se.randrange(2) if two else 0
+    workflow = f"single-stage:{slug}" if se.random() < 0.12 else None
+    ident, other = se_hex(), se_hex()
+    answer = se.choice(["[Answer]: Looks correct"] * 9 + ["[Answer]:", "[Answer]: Request changes"])
+    extra = se.choice([""] * 7 + ["\n## Q2\n\nMore?\n\n[Answer]: B\n", "\n## Assumption Confirmation\n\n[Answer]: Looks correct\n", "\n## Other\n\ntext\n"])
+    questions = se_questions(answer, extra)
+    then = questions if se.random() < 0.75 else se_questions("[Answer]: Looks correct", "\n## Q9\n\nOld?\n\n[Answer]: Z\n")
+    changed = then != questions
+
+    def receipt(**more):
+        scope = se.choice(["current"] * 6 + ["none", "none", "legacy", "legacy", "confirmed-content-v9"])
+        auth = se.choice([ident] * 6 + [None, None, None, "not-an-id"])
+        fields = {}
+        odd = se.random()
+        if odd < 0.04:
+            fields["Unit"] = "api"
+        elif odd < 0.08:
+            fields["Checkpoint"] = None
+        elif odd < 0.12:
+            fields["Questions_File"] = "aidlc/spaces/default/elsewhere-questions.md"
+        elif odd < 0.15:
+            fields["Workflow"] = "single-stage:other" if workflow is None else None
+        elif odd < 0.18:
+            fields["Questions_SHA-256"] = se_hex()
+        fields.update(more)
+        return se_receipt(shard(), tick(), slug, scope, changed and se.random() < 0.8, se.choice(["Looks correct"] * 7 + ["Request changes"]), auth,
+                          workflow, **fields)
+
+    def write(name):
+        return se_write(shard(), tick(), slug, name, se.choice([ident] * 6 + [other, None, None, None]),
+                        se.choice(["relative"] * 5 + ["token", "token-back", "absolute", "moved", "other", "tail"]),
+                        se.choice(["ARTIFACT_CREATED", "ARTIFACT_UPDATED"]))
+
+    rows = [se_row(0, tick(), "WORKFLOW_STARTED", Scope="feature")]
+    if se.random() < 0.3:
+        # An attempt before the boundary: its confirmation and its writes are not this attempt's.
+        rows += [receipt()] + [write(name) for name in outputs if se.random() < 0.7]
+    floor = se.choice(["start", "start", "start", "jump", "none"]) if workflow is None else se.choice(["completed", "completed", "none"])
+    if floor == "start":
+        rows.append(se_row(shard(), tick(), "STAGE_STARTED", Stage=slug))
+    elif floor == "jump":
+        rows.append(se_row(shard(), tick(), "STAGE_JUMPED", Target=se.choice([slug, slug, "feedback-optimization", "intent-capture"])))
+    elif floor == "completed":
+        rows.append(se_row(shard(), tick(), "STAGE_COMPLETED", Stage=slug, Workflow=workflow))
+    if se.random() < 0.15:
+        rows.append(se_row(shard(), tick(), "DECISION_RECORDED", Stage=slug, Options="Looks correct, Request changes", Workflow=workflow))
+    if se.random() < 0.15:
+        rows.append(se_row(shard(), tick(), "DECISION_RECORDED", Stage=slug, Checkpoint=SUMMARY_CHECKPOINT, Workflow=workflow))
+    after = [("receipt", None) for _ in range(se.choice([0, 1, 1, 1, 1, 2]))]
+    for name in outputs:
+        after += [("write", name) for _ in range(se.choice([0, 1, 1, 1, 2]))]
+    # The confirmation first and the writes after it, most of the time.
+    if se.random() < 0.35:
+        se.shuffle(after)
+    rows += [receipt() if kind == "receipt" else write(name) for kind, name in after]
+    state = SE_STATE + se.choice(["", "", "", "- **Guard Policy**: strict\n", "- **Guard Policy**: relaxed\n", "- **Guard Policy**: relaxed\n", "- **Guard Policy**: off\n"])
+    roll = se.random()
+    if roll < 0.05:
+        state += "- **Summary Confirmation**: off\n"
+    fields = {}
+    odd = se.random()
+    if odd < 0.08:
+        questions, fields = None, {"patch": se.choice([None, {"summary_confirmation": "if-present"}, {"summary_confirmation": "if-present"}])}
+    elif odd < 0.11:
+        fields = {"unit": "api"}
+    elif odd < 0.15:
+        fields = {"given": False, "scope": se.choice([None, "feature", "bugfix"])}
+    elif odd < 0.18:
+        fields = {"patch": {"summary_confirmation": se.choice(["if-present", None])}}
+    se_add(slug, rows, questions, then, state=state, workflow=workflow, **fields)
+
+
+for _ in range(scale * 170):
+    se_story()
+
+SE_SLUG = "requirements-analysis"
+SE_ID, SE_OTHER_ID = "a" * 64, "b" * 64
+SE_START = [se_row(0, 1, "WORKFLOW_STARTED", Scope="feature"), se_row(0, 2, "STAGE_STARTED", Stage=SE_SLUG)]
+for policy in ("", "- **Guard Policy**: strict\n", "- **Guard Policy**: relaxed\n", "- **Guard Policy**: off\n"):
+    state = SE_STATE + policy
+    # The file changed after the confirmation, under each scope; and an output saved under another confirmation, under none, and never.
+    for scope in ("current", "legacy", "none"):
+        se_add(SE_SLUG, SE_START + [se_receipt(0, 3, SE_SLUG, scope, True, auth=SE_ID), se_write(0, 4, SE_SLUG, "requirements", SE_ID)],
+               se_questions(), se_questions("[Answer]: Looks correct", "\n## Q2\n\nMore?\n\n[Answer]: B\n"), state=state)
+    for stamp in (SE_ID, SE_OTHER_ID, None, "not-an-id"):
+        se_add(SE_SLUG, SE_START + [se_receipt(0, 3, SE_SLUG, auth=SE_ID), se_write(0, 4, SE_SLUG, "requirements", stamp)], se_questions(), state=state)
+        se_add(SE_SLUG, SE_START + [se_write(0, 3, SE_SLUG, "requirements", stamp), se_receipt(0, 4, SE_SLUG, auth=SE_ID)], se_questions(), state=state)
+    se_add(SE_SLUG, SE_START + [se_receipt(0, 3, SE_SLUG, auth=SE_ID)], se_questions(), state=state)
+    se_add(SE_SLUG, SE_START + [se_receipt(0, 3, SE_SLUG, auth=SE_ID), se_write(0, 4, SE_SLUG, "requirements", SE_ID), se_write(1, 5, SE_SLUG, "requirements", SE_OTHER_ID),
+                                se_write(1, 4, SE_SLUG, "requirements", None)], se_questions(), state=state)
+for form in ("relative", "token", "token-back", "absolute", "moved", "other", "tail", "dotted", "token-alone"):
+    # How a write names its file.
+    se_add(SE_SLUG, SE_START + [se_receipt(0, 3, SE_SLUG, auth=SE_ID), se_write(0, 4, SE_SLUG, "requirements", SE_ID, form)], se_questions())
+    se_add(SE_SLUG, SE_START + [se_receipt(0, 3, SE_SLUG), se_write(0, 4, SE_SLUG, "requirements", None, form)], se_questions())
+# A receipt from before authorization ids is held to by order: a write after it, or after an earlier confirmation of the same answers.
+SE_THEN = se_questions("[Answer]: Looks correct", "\n## Q2\n\nMore?\n\n[Answer]: B\n")
+for workflow in (None, f"single-stage:{SE_SLUG}"):
+    SE_OLD = lambda at, shard=0, **more: se_receipt(shard, at, SE_SLUG, workflow=workflow, **more)
+    SE_SAVE = lambda at, shard=0: se_write(shard, at, SE_SLUG, "requirements")
+    start = SE_START if workflow is None else [SE_START[0], se_row(0, 2, "STAGE_COMPLETED", Stage=SE_SLUG, Workflow=workflow)]
+    for rows in ([SE_OLD(3), SE_SAVE(4)], [SE_SAVE(3), SE_OLD(4)], [SE_OLD(3)], [SE_OLD(3), SE_SAVE(4), SE_OLD(5)], [SE_OLD(3), SE_OLD(5)],
+                 [SE_OLD(3, details="Request changes"), SE_SAVE(4), SE_OLD(5)], [SE_OLD(3, then=True), SE_SAVE(4), SE_OLD(5)],
+                 [SE_OLD(3, scope="none"), SE_SAVE(4), SE_OLD(5)], [SE_OLD(3, scope="confirmed-content-v9"), SE_SAVE(4), SE_OLD(5)],
+                 [SE_OLD(3, scope="legacy"), SE_SAVE(4), SE_OLD(5)], [SE_SAVE(3), SE_OLD(4), SE_OLD(5)], [SE_OLD(3), SE_OLD(4), SE_SAVE(5)],
+                 [SE_OLD(3, **{"Questions_SHA-256": None}), SE_SAVE(4), SE_OLD(5)], [SE_OLD(3), SE_SAVE(4), SE_OLD(5, details="Request changes")],
+                 # Ties across shards: the receipt and the write, two receipts, the receipt and the boundary.
+                 [SE_OLD(3), SE_SAVE(3, 1)], [SE_OLD(3), SE_SAVE(3)], [SE_OLD(3), SE_SAVE(4, 1)], [SE_OLD(4), SE_SAVE(3, 1)], [SE_OLD(3, 1), SE_SAVE(3)],
+                 [SE_OLD(3), SE_OLD(3, 1), SE_SAVE(4)], [SE_OLD(3), SE_OLD(4, 1), SE_SAVE(5)], [SE_OLD(2, 1), SE_SAVE(4)], [SE_OLD(2, 1), SE_OLD(3), SE_SAVE(4)],
+                 [SE_OLD(3), SE_OLD(2, 1), SE_SAVE(4)], [SE_OLD(1, 1), SE_SAVE(4)], [SE_OLD(2), SE_SAVE(4)], [SE_OLD(3, 1), SE_OLD(3), SE_SAVE(4), SE_SAVE(4, 1)],
+                 [SE_OLD(3), SE_SAVE(4), SE_OLD(5), SE_SAVE(5, 1)], [SE_OLD(3), SE_SAVE(3, 1), SE_OLD(5)], [SE_OLD(3), SE_OLD(3, 1, details="Request changes"), SE_SAVE(4)],
+                 # A boundary in each shard: after both, between them, at one's instant in the other shard.
+                 [se_row(1, 3, "STAGE_STARTED", Stage=SE_SLUG), SE_OLD(4), SE_SAVE(5)], [se_row(1, 3, "STAGE_STARTED", Stage=SE_SLUG), SE_OLD(3), SE_SAVE(5)],
+                 [SE_OLD(3), se_row(1, 4, "STAGE_STARTED", Stage=SE_SLUG), SE_SAVE(5)], [se_row(1, 2, "STAGE_STARTED", Stage=SE_SLUG), SE_OLD(3), SE_SAVE(5)],
+                 [se_row(1, 2, "STAGE_STARTED", Stage=SE_SLUG), SE_OLD(2, 1), SE_SAVE(5)], [se_row(1, 2, "STAGE_COMPLETED", Stage=SE_SLUG, Workflow=workflow), SE_OLD(3), SE_SAVE(5)],
+                 [se_row(1, 2, "STAGE_COMPLETED", Stage=SE_SLUG, Workflow=workflow), SE_OLD(3, 1), SE_SAVE(5)]):
+        se_add(SE_SLUG, start + rows, se_questions(), SE_THEN, workflow=workflow)
+        se_add(SE_SLUG, start + rows, se_questions(), SE_THEN, workflow=workflow, state=SE_STATE + "- **Guard Policy**: relaxed\n")
+# The questions file: what it answers, what stands after its summary, and none at all.
+for questions in (se_questions("[Answer]:"), se_questions("[Answer]: Request changes"), se_questions("[Answer]: Looks correct\n\n[Answer]: Looks correct"),
+                  se_questions(extra="\n## Other\n\ntext\n"), se_questions(extra="\n## Q2\n\nMore?\n\n[Answer]: B\n"), "# Questions\n", ""):
+    for scope in ("current", "none"):
+        se_add(SE_SLUG, SE_START + [se_receipt(0, 3, SE_SLUG, scope, auth=SE_ID), se_write(0, 4, SE_SLUG, "requirements", SE_ID)], questions)
+for patch in (None, {"summary_confirmation": "if-present"}, {"summary_confirmation": None}):
+    for asked in ([], [se_row(0, 3, "DECISION_RECORDED", Stage=SE_SLUG, Checkpoint=SUMMARY_CHECKPOINT)], [se_row(0, 1, "DECISION_RECORDED", Stage=SE_SLUG, Checkpoint=SUMMARY_CHECKPOINT)],
+                  [se_row(1, 2, "DECISION_RECORDED", Stage=SE_SLUG, Checkpoint=SUMMARY_CHECKPOINT)], [se_row(0, 3, "DECISION_RECORDED", Stage="other", Checkpoint=SUMMARY_CHECKPOINT)],
+                  [se_row(0, 3, "DECISION_RECORDED", Stage=SE_SLUG)], [se_row(0, 3, "DECISION_RECORDED", Stage=SE_SLUG, Checkpoint=SUMMARY_CHECKPOINT, Unit="api")],
+                  [se_row(0, 3, "DECISION_RECORDED", Stage=SE_SLUG, Checkpoint=SUMMARY_CHECKPOINT, Workflow=f"single-stage:{SE_SLUG}")],
+                  [se_receipt(0, 3, SE_SLUG)], [se_row(0, 3, "QUESTION_ANSWERED", Stage=SE_SLUG, Checkpoint=SUMMARY_CHECKPOINT)]):
+        se_add(SE_SLUG, SE_START + asked, None, patch=patch)
+        se_add(SE_SLUG, SE_START + asked, None, patch=patch, unit="api")
+# A summary recorded in the plain form, which never counts: the refusal says so.
+for plain in ([se_row(0, 3, "DECISION_RECORDED", Stage=SE_SLUG, Options="Looks correct, Request changes")], [se_row(0, 3, "QUESTION_ANSWERED", Stage=SE_SLUG, Details="Looks correct.")],
+              [se_row(0, 3, "DECISION_RECORDED", Stage=SE_SLUG, Options="Yes, No")], [se_row(0, 3, "QUESTION_ANSWERED", Stage=SE_SLUG, Details="Fine")],
+              [se_row(0, 3, "DECISION_RECORDED", Stage="other", Options="Looks correct, Request changes")],
+              [se_row(0, 3, "DECISION_RECORDED", Stage=SE_SLUG, Options="Looks correct, Request changes", Checkpoint=SUMMARY_CHECKPOINT)],
+              [se_row(0, 3, "QUESTION_ANSWERED", Stage=SE_SLUG, Details="Request changes", Unit="api")], [se_row(0, 3, "NOTE", Stage=SE_SLUG, Details="Looks correct")]):
+    se_add(SE_SLUG, plain, se_questions())
+    se_add(SE_SLUG, SE_START + plain, se_questions())
+    se_add(SE_SLUG, SE_START + plain + [se_receipt(0, 4, SE_SLUG, details="Request changes")], se_questions())
+# Nothing owed: the ceremony off, by the state, by the scope asked, and with no state given.
+for state, fields in ((SE_STATE + "- **Summary Confirmation**: off\n", {}), (SE_STATE, {"given": False}), (SE_STATE, {"given": False, "scope": "feature"}),
+                      (SE_STATE.replace("feature", "poc"), {}), (SE_STATE, {"given": False, "scope": "poc"}), ("# AI-DLC State\n", {}), (None, {"given": False})):
+    se_add(SE_SLUG, SE_START, se_questions(), state=state, **fields)
+    se_add(SE_SLUG, SE_START + [se_receipt(0, 3, SE_SLUG, auth=SE_ID), se_write(0, 4, SE_SLUG, "requirements", SE_ID)], se_questions(), state=state, **fields)
+# What the mutants of the check showed no case told apart.
+SE_RELAXED = SE_STATE + "- **Guard Policy**: relaxed\n"
+for state in (SE_STATE, SE_RELAXED):
+    # A unit named with no name; a row that is no receipt and reads like one; a receipt of another stage for this file.
+    se_add(SE_SLUG, SE_START, None, unit="", state=state)
+    se_add(SE_SLUG, SE_START + [se_row(0, 3, "ARTIFACT_UPDATED", Stage=SE_SLUG, Checkpoint=SUMMARY_CHECKPOINT, Details="Looks correct", Hash_Scope="confirmed-content-v2",
+                                       Questions_File=f"{se_paths(SE_SLUG)[1]}/{SE_SLUG}-questions.md", **{"Questions_SHA-256": "{NOW}"}),
+                                se_write(0, 4, SE_SLUG, "requirements")], se_questions(), state=state)
+    se_add(SE_SLUG, SE_START + [se_receipt(0, 3, SE_SLUG, Stage="intent-capture"), se_write(0, 4, SE_SLUG, "requirements")], se_questions(), state=state)
+    # A receipt at the boundary's instant in the other shard, with one of this attempt at that instant and one after it.
+    se_add(SE_SLUG, SE_START + [se_receipt(0, 2, SE_SLUG), se_receipt(1, 2, SE_SLUG), se_write(0, 4, SE_SLUG, "requirements")], se_questions(), state=state)
+    se_add(SE_SLUG, SE_START + [se_receipt(0, 3, SE_SLUG), se_receipt(1, 2, SE_SLUG), se_write(0, 4, SE_SLUG, "requirements")], se_questions(), state=state)
+    # A receipt that recorded no hash; an output that is not there; an output the stage may leave out, there and never saved.
+    se_add(SE_SLUG, SE_START + [se_receipt(0, 3, SE_SLUG, **{"Questions_SHA-256": None}), se_write(0, 4, SE_SLUG, "requirements")], se_questions(), state=state)
+    se_add(SE_SLUG, SE_START + [se_receipt(0, 3, SE_SLUG, auth=SE_ID)], se_questions(), outputs=[], state=state)
+    se_add(SE_SLUG, SE_START + [se_receipt(0, 3, SE_SLUG)], se_questions(), outputs=[], state=state)
+    se_add(SE_SLUG, SE_START + [se_receipt(0, 3, SE_SLUG, auth=SE_ID), se_write(0, 4, SE_SLUG, "requirements", SE_ID)], se_questions(), state=state,
+           patch={"optional_produces": ["later-notes"]}, more={f"{se_paths(SE_SLUG)[0]}/later-notes.md": "# Notes\n"})
+    se_add(SE_SLUG, SE_START + [se_receipt(0, 3, SE_SLUG, auth=SE_ID), se_write(0, 4, SE_SLUG, "requirements", SE_ID)], se_questions(), state=state,
+           patch={"optional_produces": ["later-notes"]})
+    # The newest write in each shard at one instant, saved under other confirmations: each named once, in order.
+    for stamps in ((SE_OTHER_ID, None), (None, SE_OTHER_ID), (None, None), (SE_OTHER_ID, SE_OTHER_ID), ("c" * 64, SE_OTHER_ID), (SE_OTHER_ID, SE_ID)):
+        se_add(SE_SLUG, SE_START + [se_receipt(0, 3, SE_SLUG, auth=SE_ID), se_write(0, 4, SE_SLUG, "requirements", stamps[0]),
+                                    se_write(1, 4, SE_SLUG, "requirements", stamps[1])], se_questions(), state=state)
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

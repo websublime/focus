@@ -465,8 +465,18 @@ fn revision_backstop_disabled(wf: &Workflow) -> bool {
 /// as strict.
 #[must_use]
 pub fn guard_policy_accepts_changes(wf: &Workflow, state: &str) -> bool {
+    guard_policy_accepts_changes_of(wf, Some(state))
+}
+
+/// [`guard_policy_accepts_changes`] for a caller that may have no state in
+/// hand: the policy is then read from the record's own state file.
+#[must_use]
+pub fn guard_policy_accepts_changes_of(wf: &Workflow, state: Option<&str>) -> bool {
     focus_guards::workflow::Guards::read(&wf.layout, &wf.selector(), &wf.invoker)
-        .map(|guards| guards.with_state(state).accepts_changes())
+        .map(|guards| match state {
+            Some(state) => guards.with_state(state).accepts_changes(),
+            None => guards.accepts_changes(),
+        })
         .unwrap_or(false)
 }
 

@@ -316,3 +316,80 @@ fn a_units_request_that_binds_the_units_source_is_refused_until_units_arrive() {
     assert!(pending_request_currency(&wf, &stage, None, &asked, Asked::default()).is_ok());
     let _ = fs::remove_dir_all(root);
 }
+
+/// A stage that runs for each unit and owes a summary confirmation is
+/// refused by name: which units owe one is read off their rows, which
+/// arrive with units. One that owes none is answered.
+#[test]
+fn the_summary_evidence_of_a_per_unit_stage_is_refused_until_units_arrive() {
+    use focus_lifecycle::summary_evidence::{Asked, Evidence, check};
+    let (root, wf) = project("per-unit-summary", &[]);
+    let stage = wf.stage("functional-design").unwrap().clone();
+    let asked = Asked {
+        state: Some(STATE),
+        ..Asked::default()
+    };
+    let refusal = check(&wf, &stage, asked).unwrap_err().to_string();
+    assert_eq!(
+        refusal,
+        "\"functional-design\" runs for each unit and owes a summary confirmation: which units owe one is read off their rows, and Focus does not read those yet (units arrive with a later slice)."
+    );
+    let off = format!("{STATE}- **Summary Confirmation**: off\n");
+    let asked = Asked {
+        state: Some(&off),
+        ..Asked::default()
+    };
+    assert_eq!(
+        check(&wf, &stage, asked).unwrap(),
+        Evidence::Ok {
+            required: false,
+            accepted_changes: Vec::new(),
+            change_control_read: false,
+        }
+    );
+    let _ = fs::remove_dir_all(root);
+}
+
+/// Deliberate deviation, as where the receipt is recorded (`focus-log`):
+/// a questions file is read as every file of the record that decides
+/// something. Upstream opens it by name, so a link there brings in a file
+/// from outside the record; here it reads as a file with no answer.
+#[cfg(unix)]
+#[test]
+fn deliberate_deviation_a_questions_file_that_is_a_link_has_no_answer() {
+    use focus_lifecycle::summary_evidence::{Asked, Evidence, check};
+    let (root, wf) = project("linked-questions", &[]);
+    let stage = wf.stage("requirements-analysis").unwrap().clone();
+    let dir = wf
+        .record_dir()
+        .unwrap()
+        .join("inception/requirements-analysis");
+    fs::create_dir_all(&dir).unwrap();
+    fs::write(
+        root.join("elsewhere.md"),
+        "## Consolidated Summary Confirmation\n\n[Answer]: Looks correct\n",
+    )
+    .unwrap();
+    std::os::unix::fs::symlink(
+        root.join("elsewhere.md"),
+        dir.join("requirements-analysis-questions.md"),
+    )
+    .unwrap();
+    // A row on record, so the file is what is asked next.
+    let audit = wf.record_dir().unwrap().join("audit");
+    fs::create_dir_all(&audit).unwrap();
+    fs::write(
+        audit.join("laptop-abc123.md"),
+        "# Focus Audit Log\n\n## Row\n**Timestamp**: 2026-01-05T10:00:01Z\n**Event**: WORKFLOW_STARTED\n**Scope**: feature\n---\n",
+    )
+    .unwrap();
+    let asked = Asked {
+        state: Some(STATE),
+        ..Asked::default()
+    };
+    let Evidence::Refused { code, .. } = check(&wf, &stage, asked).unwrap() else {
+        panic!("a linked questions file was read");
+    };
+    assert_eq!(code, "SUMMARY_ANSWER_INVALID");
+    let _ = fs::remove_dir_all(root);
+}
