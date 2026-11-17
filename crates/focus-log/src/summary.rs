@@ -37,13 +37,11 @@ use focus_audit::read::block_field;
 use focus_audit::shards::ShardEvent;
 use focus_evidence::authorization;
 use focus_evidence::summary as confirmed;
-use focus_guards::guard_operation::{
-    EngineInvocation, RenderMode, RenderShell, render_engine_invocation,
-};
 use focus_js::path::{self as jspath, Flavour};
-use focus_js::text::{to_lower_case, trim};
+use focus_js::text::trim;
 use focus_js::{EngineError, Result, bail, re};
 use focus_lifecycle::artifacts::uses_stage_level_per_unit_artifacts;
+use focus_lifecycle::summary_evidence::{commands, is_options};
 use focus_lifecycle::workflow::Workflow;
 use focus_lifecycle::{admission, presence, reply};
 use focus_state::fields::get_field;
@@ -52,31 +50,9 @@ use focus_workspace::{files, links};
 use crate::answer::offered_choice_label;
 
 /// `SUMMARY_CONFIRMATION_CHOICES`.
-pub(crate) const CHOICES: [&str; 2] = ["Looks correct", "Request changes"];
+pub(crate) use focus_lifecycle::summary_evidence::CHOICES;
 /// `SUMMARY_CONFIRMATION_CHECKPOINT`, as a row names it.
 pub(crate) const CHECKPOINT: &str = confirmed::CHECKPOINT;
-
-/// `isSummaryConfirmationChoice`: "Looks correct" or "Request changes",
-/// however it was capitalised or decorated.
-fn is_choice(text: &str) -> bool {
-    let stripped = reply::strip_recommended_decorator(text);
-    let normalized = to_lower_case(&re::replace("[.!]+$", "", trim(&stripped), ""));
-    normalized == "looks correct" || normalized == "request changes"
-}
-
-/// `isSummaryConfirmationOptions`: a question whose offered options are the
-/// summary's two choices.
-pub(crate) fn is_options(options: Option<&str>) -> bool {
-    let Some(options) = options else {
-        return false;
-    };
-    let offered: Vec<&str> = options
-        .split(',')
-        .map(trim)
-        .filter(|option| !option.is_empty())
-        .collect();
-    offered.len() == 2 && offered.iter().all(|option| is_choice(option))
-}
 
 /// How the summary was asked, when the stage's latest question is it.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -167,70 +143,6 @@ fn question_file_relative(
     let host = Flavour::host();
     let project = wf.layout.project.to_string_lossy().into_owned();
     Some(jspath::relative(host, &project, &project, &found.to_string_lossy()).replace('\\', "/"))
-}
-
-/// The two commands that record a summary confirmation.
-pub(crate) struct Commands {
-    pub decision: String,
-    pub answer: String,
-}
-
-/// `summaryConfirmationCommands`: the two commands, flags filled in, every
-/// argument quoted for this platform's shell.
-fn commands(
-    wf: &Workflow,
-    stage: &str,
-    unit: Option<&str>,
-    questions_file: Option<&str>,
-    single: bool,
-    details: &str,
-) -> Result<Commands> {
-    let mut head: Vec<String> = ["--checkpoint", "summary-confirmation", "--stage", stage]
-        .map(str::to_owned)
-        .to_vec();
-    if let Some(unit) = unit.filter(|unit| !unit.is_empty()) {
-        head.extend(["--unit".to_owned(), unit.to_owned()]);
-    }
-    if single {
-        head.push("--single".to_owned());
-    }
-    head.push("--questions-file".to_owned());
-    head.push(
-        questions_file.map_or_else(|| format!("<path to {stage}-questions.md>"), str::to_owned),
-    );
-    let shell = if cfg!(windows) {
-        RenderShell::PowerShell
-    } else {
-        RenderShell::Posix
-    };
-    let render = |verb: &str, tail: &[&str]| -> Result<String> {
-        let mut args = vec![verb.to_owned()];
-        args.extend(head.iter().cloned());
-        args.extend(tail.iter().map(|arg| (*arg).to_owned()));
-        let invocation = EngineInvocation {
-            route: "log".to_owned(),
-            args,
-        };
-        render_engine_invocation(
-            &invocation,
-            RenderMode::Native,
-            wf.layout.harness.dir(),
-            shell,
-        )
-        .map_err(EngineError::new)
-    };
-    Ok(Commands {
-        decision: render(
-            "decision",
-            &[
-                "--decision",
-                "Does this all look correct?",
-                "--options",
-                "Looks correct,Request changes",
-            ],
-        )?,
-        answer: render("answer", &["--details", details])?,
-    })
 }
 
 /// Which verb a summary is being recorded with.

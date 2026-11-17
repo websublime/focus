@@ -45,6 +45,7 @@ pub mod review_attempt;
 pub mod review_pending;
 pub mod stage;
 pub mod status;
+pub mod summary_evidence;
 pub mod transitions;
 pub mod validity;
 pub mod workflow;

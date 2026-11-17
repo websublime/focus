@@ -209,16 +209,37 @@ pub fn summary_confirmation_setting(wf: &Workflow, state: &str) -> &'static str 
 /// `summaryConfirmationOwed`: whether the stage owes a summary confirmation.
 #[must_use]
 pub fn summary_confirmation_owed(wf: &Workflow, stage: &Stage, state: &str) -> bool {
+    summary_confirmation_owed_of(wf, stage, Some(state), None)
+}
+
+/// [`summary_confirmation_owed`] for a caller that may have no state and
+/// may name the scope itself, as a stage run by itself does.
+#[must_use]
+pub fn summary_confirmation_owed_of(
+    wf: &Workflow,
+    stage: &Stage,
+    state: Option<&str>,
+    scope: Option<&str>,
+) -> bool {
     if project_flag(&wf.layout, "SKIP_SUMMARY_CONFIRMATION_GUARD").as_deref() == Some("1") {
         return false;
     }
-    if summary_confirmation_setting(wf, state) == "off" {
+    let scope = scope.or_else(|| get_field(state.unwrap_or_default(), "Scope"));
+    if ceremony_setting_of(
+        wf,
+        scope,
+        state,
+        "summary_confirmation",
+        "Summary Confirmation",
+        "DISABLE_SUMMARY_CONFIRMATION",
+    ) == "off"
+    {
         return false;
     }
     if stage.phase == "initialization" {
         return false;
     }
-    if stage.phase == "construction" && is_autonomous_mode(state) {
+    if stage.phase == "construction" && state.is_some_and(is_autonomous_mode) {
         return false;
     }
     stage::summary_confirmation(stage).is_some()
