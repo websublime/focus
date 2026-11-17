@@ -11,6 +11,7 @@ use focus_lifecycle::artifacts::review_artifact_entries;
 use focus_lifecycle::review_artifacts::{
     Options, Snapshot, appended_after_request, fingerprint, request_artifacts_current, snapshot,
 };
+use focus_lifecycle::review_pending::{Asked, Currency, pending_request_currency};
 use focus_lifecycle::workflow::Workflow;
 use focus_workspace::Layout;
 use focus_workspace::records::{Invoker, Selection, Selector, resolve_selection};
@@ -273,5 +274,45 @@ fn deliberate_deviation_a_construction_folder_that_cannot_be_listed() {
         None
     );
     assert_eq!(snapshot(&wf, &stage, None, Options::default()), None);
+    let _ = fs::remove_dir_all(root);
+}
+
+/// A request of a unit, in a per-unit stage that writes the workspace,
+/// binds the unit's own source, which is not read yet: it is refused by
+/// name, not answered without it. A stage run by itself binds none.
+#[test]
+fn a_units_request_that_binds_the_units_source_is_refused_until_units_arrive() {
+    let (root, wf) = project(
+        "unit-source",
+        &[(
+            "construction/api/code-generation/code-generation-plan.md",
+            b"# Plan\n",
+        )],
+    );
+    let stage = wf.stage("code-generation").unwrap().clone();
+    let taken = snapshot(&wf, &stage, Some("api"), Options::default()).unwrap();
+    let asked = request(&taken.fingerprint, None);
+    let refusal = pending_request_currency(&wf, &stage, Some("api"), &asked, Asked::default())
+        .unwrap_err()
+        .to_string();
+    assert_eq!(
+        refusal,
+        "A review request of unit \"api\" in \"code-generation\" binds the unit's own source, and Focus does not read that yet (units arrive with a later slice)."
+    );
+    let alone = Asked {
+        single: true,
+        ..Asked::default()
+    };
+    assert_eq!(
+        pending_request_currency(&wf, &stage, Some("api"), &asked, alone).unwrap(),
+        Currency {
+            request_current: true,
+            readable: true,
+            // The request bound no source, and the stage writes it.
+            modern_verdict_binding: false,
+        }
+    );
+    // The stage as a whole binds no unit's source.
+    assert!(pending_request_currency(&wf, &stage, None, &asked, Asked::default()).is_ok());
     let _ = fs::remove_dir_all(root);
 }

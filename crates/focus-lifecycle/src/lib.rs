@@ -42,6 +42,7 @@ pub mod registry;
 pub mod reply;
 pub mod review_artifacts;
 pub mod review_attempt;
+pub mod review_pending;
 pub mod stage;
 pub mod status;
 pub mod transitions;

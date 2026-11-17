@@ -212,6 +212,12 @@ fn review_snapshot_case(wf: &Workflow, case: &Value) -> Value {
         let bytes = focus_evidence::oracle::unhex(bytes.as_str().unwrap_or_default());
         std::fs::write(within(rel), bytes).expect("a file");
     }
+    // The project's own source, beside the engine's folder.
+    for (rel, content) in case["source"].as_object().into_iter().flatten() {
+        let path = root.join(rel);
+        std::fs::create_dir_all(path.parent().expect("a name has a folder")).expect("a folder");
+        std::fs::write(path, content.as_str().unwrap_or_default()).expect("a file");
+    }
     if let Some(state) = case["state"].as_str() {
         let record = format!(
             "intents/rec-1a2b3c4d/{}",
@@ -283,8 +289,16 @@ fn review_snapshot_case(wf: &Workflow, case: &Value) -> Value {
         let snapshot = review_artifacts::snapshot(&scratch, stage, unit, asked);
         let given = case.get("given_state").map(Value::as_str);
         let fingerprint = review_artifacts::fingerprint(&scratch, stage, unit, given, asked);
+        let pending = pending_answers(
+            &scratch,
+            stage,
+            unit,
+            asked,
+            snapshot.as_ref(),
+            case.get("source").is_some(),
+        );
         let Some(snapshot) = snapshot else {
-            return Ok(json!({ "fingerprint": fingerprint, "snapshot": null }));
+            return Ok(json!({ "fingerprint": fingerprint, "snapshot": null, "pending": pending }));
         };
         let other = format!("sha256:{}", "0".repeat(64));
         let bodies = &snapshot.body_fingerprints;
@@ -342,6 +356,7 @@ fn review_snapshot_case(wf: &Workflow, case: &Value) -> Value {
                     .collect::<Vec<_>>(),
             },
             "told": told,
+            "pending": pending,
         }))
     })();
     let _ = std::fs::remove_dir_all(&root);
@@ -349,4 +364,225 @@ fn review_snapshot_case(wf: &Workflow, case: &Value) -> Value {
         Ok(out) => out,
         Err(error) => json!({ "error": error }),
     }
+}
+
+/// What can be done with a request that waits for its verdict, for each
+/// kind of request: of these artifacts or of others, of this source, of
+/// what an earlier walk gave for it, of another or of none, and of each
+/// era.
+fn pending_answers(
+    wf: &Workflow,
+    stage: &focus_graph::runtime::Stage,
+    unit: Option<&str>,
+    asked: crate::review_artifacts::Options<'_>,
+    snapshot: Option<&crate::review_artifacts::Snapshot>,
+    has_source: bool,
+) -> Value {
+    use focus_evidence::review::{LegacyAppendix, RequestBinding};
+    use focus_evidence::source::state::{legacy_alias, workspace_source_state};
+    use focus_evidence::source::walk::Options as WalkOptions;
+
+    use crate::review_attempt::{Accounting, PendingRequest};
+    use crate::review_pending::{Asked, pending_request_currency, pending_review_request_status};
+
+    let writes = crate::stage::workspace_requires(stage);
+    let binds = writes && unit.is_some() && crate::stage::has_unit_marker(stage);
+    let source = writes
+        .then(|| workspace_source_state(&wf.layout.project, &[], &WalkOptions::from_env()).ok())
+        .flatten();
+    let now = source.as_ref().map_or_else(
+        || "unbindable".to_owned(),
+        |source| source.fingerprint.clone(),
+    );
+    let elsewhere = format!("sha256:{}", "0".repeat(64));
+    let bits = |flags: &[bool]| -> String {
+        flags
+            .iter()
+            .map(|flag| if *flag { '1' } else { '0' })
+            .collect()
+    };
+    let mut bindings: Vec<RequestBinding> = Vec::new();
+    // (The last artifacts are the set without a review appended to the
+    // reviewed file, asked with no source.)
+    let whole = snapshot.map_or_else(
+        || elsewhere.clone(),
+        |snapshot| snapshot.fingerprint.clone(),
+    );
+    let body = snapshot.map_or_else(
+        || elsewhere.clone(),
+        |snapshot| snapshot.body_fingerprints[0].clone(),
+    );
+    for (at, artifact_fingerprint) in [whole, elsewhere.clone(), body].into_iter().enumerate() {
+        // (A stage that does not write the workspace reads no source: one
+        // request stands for them all. And a project the case gives no
+        // source to is asked of its source, of none and of one that could
+        // not be bound.)
+        let unbindable = Some("unbindable".to_owned());
+        let sources = if !writes || at == 2 {
+            vec![None]
+        } else if has_source {
+            vec![
+                None,
+                Some(now.clone()),
+                Some(legacy_alias(&now).unwrap_or_else(|| "1".repeat(40))),
+                Some("2".repeat(40)),
+                unbindable,
+            ]
+        } else {
+            vec![None, Some(now.clone()), unbindable]
+        };
+        for source_fingerprint in sources {
+            for (request_id, legacy) in [
+                (Some(format!("review:{}", "a".repeat(32))), None),
+                (None, None),
+                (None, Some((false, None))),
+                (None, Some((true, Some(5)))),
+            ] {
+                bindings.push(RequestBinding {
+                    artifact_fingerprint: artifact_fingerprint.clone(),
+                    request_id,
+                    legacy_appendix: legacy.map(|(prior_appendix, prior_length)| LegacyAppendix {
+                        artifact: snapshot
+                            .map(|snapshot| snapshot.review_artifact.clone())
+                            .unwrap_or_default(),
+                        offset: 0,
+                        prior_digest: None,
+                        prior_length,
+                        challenge: None,
+                        prior_appendix,
+                    }),
+                    source_fingerprint: source_fingerprint.clone(),
+                    unit_source_fingerprint: None,
+                    recovery_cause: None,
+                });
+            }
+        }
+    }
+    // (A unit of a per-unit stage that writes the workspace also binds the
+    // unit's source, which is asked of a stage run by itself: the other is
+    // a later slice's.)
+    let options = Asked {
+        require_required_artifacts: asked.require_required_artifacts,
+        merged_bolt_units: asked.merged_bolt_units,
+        single: binds,
+        source_state: None,
+    };
+    let attempt =
+        |pending_iterations: Vec<f64>, pending_requests: Vec<(f64, PendingRequest)>| Accounting {
+            floor: String::new(),
+            request_count: 0,
+            budget_count: 0,
+            bolt_started: false,
+            bolt_batch: None,
+            bolt_slug: None,
+            pending_iterations,
+            pending_requests,
+            recovery_iteration: None,
+            recovery_spent: false,
+            ambiguity: None,
+        };
+    let waiting = |binding: &RequestBinding, retried: bool| PendingRequest {
+        binding: binding.clone(),
+        retried,
+        own_review_file: false,
+    };
+    let shown = |status: Option<crate::review_pending::Status>, pass: f64| -> String {
+        status.map_or_else(
+            || "!".to_owned(),
+            |status| {
+                format!(
+                    "{}{}",
+                    if (status.iteration - pass).abs() < f64::EPSILON {
+                        ""
+                    } else {
+                        "?"
+                    },
+                    bits(&[
+                        status.request_current,
+                        status.retryable,
+                        status.verdict_recordable,
+                        status.replaceable,
+                    ])
+                )
+            },
+        )
+    };
+    let (mut currency, mut status) = (String::new(), String::new());
+    // The source as the caller has already taken it, said to be unreadable,
+    // and (for the first requests) left for the currency to take.
+    let taken = if writes {
+        Asked {
+            source_state: Some(source.as_ref()),
+            ..options
+        }
+    } else {
+        options
+    };
+    for (index, binding) in bindings.iter().enumerate() {
+        let unreadable = Asked {
+            source_state: Some(None),
+            ..options
+        };
+        let ways = if index < 8 {
+            vec![taken, unreadable, options]
+        } else {
+            vec![taken, unreadable]
+        };
+        for given in ways {
+            match pending_request_currency(wf, stage, unit, binding, given) {
+                Ok(got) => currency.push_str(&bits(&[
+                    got.request_current,
+                    got.readable,
+                    got.modern_verdict_binding,
+                ])),
+                Err(_) => currency.push('!'),
+            }
+        }
+        let other = RequestBinding {
+            artifact_fingerprint: elsewhere.clone(),
+            ..binding.clone()
+        };
+        let asked_of = attempt(
+            vec![10.0, 9.0],
+            vec![
+                (10.0, waiting(&other, false)),
+                (9.0, waiting(binding, (index / 4) % 2 == 1)),
+            ],
+        );
+        status.push_str(&shown(
+            pending_review_request_status(wf, stage, unit, &asked_of, taken)
+                .ok()
+                .flatten(),
+            9.0,
+        ));
+    }
+    let none =
+        pending_review_request_status(wf, stage, unit, &attempt(Vec::new(), Vec::new()), options)
+            .ok()
+            .flatten();
+    // A pass that waits with nothing to hold a request to.
+    let unbound = pending_review_request_status(
+        wf,
+        stage,
+        unit,
+        &attempt(vec![2.0, 1.0], vec![(2.0, waiting(&bindings[0], false))]),
+        options,
+    )
+    .ok()
+    .flatten();
+    json!({
+        "currency": currency,
+        "status": status,
+        "none": none.map(|status| status.iteration),
+        "unbound": unbound.map(|status| format!(
+            "{}:{}",
+            status.iteration,
+            bits(&[
+                status.request_current,
+                status.retryable,
+                status.verdict_recordable,
+                status.replaceable,
+            ])
+        )),
+    })
 }
