@@ -20,11 +20,12 @@ use crate::source::walk::{self, Budgets, Names, Options, Stop};
 use crate::summary;
 
 /// The kinds of case this crate answers.
-pub const KINDS: [&str; 7] = [
+pub const KINDS: [&str; 8] = [
     "source_listing_parse",
     "source_listing",
     "source_walk",
     "summary",
+    "summary_input",
     "review_binding",
     "review_completion",
     "review_record",
@@ -250,6 +251,17 @@ pub fn run_case(case: &Value) -> Value {
                 Err(error) => json!({ "answer": answer, "error": error }),
             }
         }
+        "summary_input" => {
+            // Text, or bytes that are none (`hex`).
+            let bytes = match case.get("hex").and_then(Value::as_str) {
+                Some(hex) => unhex(hex),
+                None => text("text").as_bytes().to_vec(),
+            };
+            match summary::review_input_fingerprint(&bytes) {
+                Ok(fingerprint) => json!(fingerprint),
+                Err(refusal) => json!({ "unreadable": refusal.to_string() }),
+            }
+        }
         "review_binding" => review_binding_case(case),
         "review_record" => {
             let bytes = text("text").as_bytes();
@@ -320,4 +332,12 @@ fn review_binding_case(case: &Value) -> Value {
             pending.as_ref().map(Option::as_ref),
         ),
     })
+}
+
+/// The bytes a case writes as pairs of hex digits.
+#[must_use]
+pub fn unhex(hex: &str) -> Vec<u8> {
+    (0..hex.len() / 2)
+        .filter_map(|at| u8::from_str_radix(hex.get(at * 2..at * 2 + 2)?, 16).ok())
+        .collect()
 }

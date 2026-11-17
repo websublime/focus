@@ -3711,6 +3711,22 @@ for plan in [
     "# Plan\n\n## Review\n\n### B\n",
     "## Review\n\n## Review\n",
     "## Review\n\ntext\n\n## Review\n",
+    # A byte order mark is not part of the text the boundary is counted in,
+    # so the plan is cut three bytes short of it: inside a character, when
+    # the last one before the boundary is longer than the mark is not.
+    "\ufeffabc\n\n## Review\nx\n",
+    "\ufeff## Review\nx\n",
+    "\ufeffab\n## Review\n",
+    "\ufeff# Plan\n\ntext\n\n## Review\n\nverdict\n",
+    "\ufeffabc\u00e9\n## Review\nx\n",
+    "\ufeff\u20ac\n## Review\nx\n",
+    "\ufeff\ufeff## Review\nx\n",
+    "\ufeff# Plan\n\n## Review\n\n## After\n",
+    "abc\u00e9\n\n## Review\nx\n",
+    "abc\ufeff\n\n## Review\nx\n",
+    # The appendix starts where the text before it ends, counted in the units a string is held in.
+    "\U0001f600 plan\n\n## Review\nx\n",
+    "\U0001f600\U0001f600\n## Review\n",
 ]:
     add("review_appendix", plan=plan)
 
@@ -6414,6 +6430,366 @@ for _ in range(scale * 40):
     # Names drawn from what a unit's name may hold and a little that it may not, short and at the length a slug may have.
     length = ra.choice([1, 2, 3, 5, 8, 20, 46, 47, 48, 49, 63, 64, 65])
     add("bolt_slug", name="".join(ra.choice("aabz09AZ..__--" + (" /" if ra.random() < 0.03 else "")) for _ in range(length)))
+
+# --- summary_input: a stage's questions as a review's input (M5, slice 3b-i) ---
+#
+# The questions a stage asks end with a summary the person confirms after the
+# review. The confirmation is not what was reviewed, so the one `[Answer]:`
+# line of the one summary section hashes the same whatever it says of the two
+# choices; anything else on it, and everything else in the file, counts
+# (`summaryInputReviewFingerprint`).
+si = random.Random(seed * 7919 + 27)
+SI_SUMMARY = "## Consolidated Summary Confirmation"
+SI_HEADINGS = [SI_SUMMARY] * 7 + [SI_SUMMARY + " ##", SI_SUMMARY + "  ", "##  Consolidated Summary Confirmation", "## consolidated summary confirmation",
+                                  "## Consolidated <!-- x --> Summary Confirmation", "Consolidated Summary Confirmation\n---", "### Consolidated Summary Confirmation",
+                                  "> " + SI_SUMMARY, "- " + SI_SUMMARY, " " + SI_SUMMARY, "## Consolidated Summary"]
+SI_ANSWERS = ["[Answer]:", "[Answer]: ", "[Answer]: Looks correct", "[Answer]: Request changes", "[Answer]:   Looks correct  ", "[Answer]:\tRequest changes\t",
+              "[Answer]: Something else", "[Answer]: looks correct", "[Answer]: Looks correct.", " [Answer]: Looks correct", "[Answer]:Looks correct",
+              "[Answer]: Looks correct <!-- chosen -->", "[Answer]: <!-- pick one -->", "[Answer]: Looks correct <!-- a --> <!-- b -->",
+              "[Answer]: Looks correct <!-- a --> tail", "[Answer]: <!-- open", "[Answer]: Looks <!-- x --> correct", "<!-- lead --> [Answer]: Looks correct",
+              "[Answer]: Request changes<!--c-->", "[Answer]: Looks correctRequest changes", "[Answer]: Request changes <!-- a --> <!-- open", "[answer]: Looks correct",
+              "[Answer]: Looks<!-- x --> correct", "[Answer]: <!-- x -->Looks correct", "[Answer]:<!-- x --> Request changes", "[Answer]: Request<!----> changes"]
+SI_BODY = ["Some text.", "- one\n- two", "## Q1\n\nWhat?\n\n[Answer]: A", "## Assumption Confirmation\n\n[Answer]: Looks correct", "```\n[Answer]: Looks correct\n```",
+           "<!--\n[Answer]: Looks correct\n-->", "    [Answer]: Looks correct", "### Detail", "<div>\n[Answer]: Looks correct\n</div>",
+           "```\n" + SI_SUMMARY + "\n```", "<!--\n" + SI_SUMMARY + "\n-->", "## Requested Changes Feedback\n\nNone."]
+
+
+def si_file(rng):
+    parts = ["# Questions"] + [rng.choice(SI_BODY) for _ in range(rng.randrange(0, 3))]
+    for _ in range(rng.choice([0, 1, 1, 1, 1, 1, 2])):
+        parts.append(rng.choice(SI_HEADINGS))
+        parts += [rng.choice(SI_BODY[:2]) for _ in range(rng.randrange(0, 2))]
+        parts += [rng.choice(SI_ANSWERS) for _ in range(rng.choice([0, 1, 1, 1, 1, 1, 2]))]
+        parts += [rng.choice(SI_BODY) for _ in range(rng.randrange(0, 2))]
+    text = rng.choice(["\n\n", "\n\n", "\n\n", "\n", "\r\n\r\n", "\r\r"]).join(parts) + rng.choice(["", "\n", "\n", "\r\n"])
+    return ("﻿" if rng.random() < 0.06 else "") + text
+
+
+for _ in range(scale * 110):
+    add("summary_input", text=si_file(si))
+for answer in SI_ANSWERS:
+    # Every way the line is written, as the one answer of the one summary.
+    add("summary_input", text=f"# Questions\n\n{SI_SUMMARY}\n\nAs understood.\n\n{answer}\n")
+    add("summary_input", text=f"# Questions\r\n\r\n{SI_SUMMARY}\r\n\r\n{answer}\r\n\r\n## Q9\r\n\r\n[Answer]: B\r\n")
+for heading in SI_HEADINGS[6:]:
+    add("summary_input", text=f"# Questions\n\n{heading}\n\n[Answer]: Looks correct\n")
+for text in ["", "\n", "[Answer]: Looks correct\n", SI_SUMMARY, f"{SI_SUMMARY}\n[Answer]: Looks correct", f"﻿{SI_SUMMARY}\n[Answer]: Request changes\n",
+             f"{SI_SUMMARY}\n[Answer]: Looks correct\n{SI_SUMMARY}\n", f"{SI_SUMMARY}\n[Answer]:\n[Answer]: Looks correct\n",
+             f"{SI_SUMMARY}\n[Answer]: Looks correct\n## Q2\n[Answer]: Looks correct\n", f"{SI_SUMMARY}\n## Q2\n[Answer]: Looks correct\n",
+             f"## Q1\n[Answer]: Looks correct\n{SI_SUMMARY}\n[Answer]: Looks correct\n", f"{SI_SUMMARY}\n\n[Answer]: Looks correct  \n",
+             f"{SI_SUMMARY}\n\n[Answer]: Looks correct <!-- a --> \n", f"{SI_SUMMARY}\n\n[Answer]: Looks correct <!-- a -->x<!-- b -->\n"]:
+    add("summary_input", text=text)
+for nested in ("- item\n  ", "- item\n\n  ", "1. item\n   "):
+    # A heading inside a list item is not the summary's, though the line reads as one.
+    add("summary_input", text=f"# Questions\n\n{nested}{SI_SUMMARY}\n\n[Answer]: Looks correct\n")
+    add("summary_input", text=f"# Questions\n\n{nested}{SI_SUMMARY}\n\n{SI_SUMMARY}\n\n[Answer]: Looks correct\n")
+for raw in ["ff", "fffe41", "c3", "23205175657374696f6e730a80", "efbbbf", "efbbbfefbbbf41"]:
+    # Bytes that are not text hash as they are; a byte order mark is not part of the text.
+    add("summary_input", hex=raw)
+
+# --- review_snapshot: what a review is of (M5, slice 3b-i) ---------------------
+#
+# The declared artifacts of a stage, read as one set and fingerprinted
+# (`reviewArtifactSnapshot`, `reviewArtifactFingerprint`), in a project of the
+# case's own: `files`, `hex` (bytes), `dirs`, `links` and `hard` are laid out
+# under the space's folder, `state` is the record's state file. `posix` marks a
+# case whose answer rests on what a POSIX host says of a path through a file.
+rv = random.Random(seed * 7919 + 26)
+RV_RECORD = "intents/rec-1a2b3c4d"
+RV_ACTIVE = {"intents/active-intent": "rec-1a2b3c4d\n"}
+RV_STAGES = {
+    "requirements-analysis": ("inception", ["requirements", "requirements-analysis-questions"], [], "requirements"),
+    "intent-capture": ("ideation", ["intent-statement", "stakeholder-map", "intent-capture-questions"], [], "intent-statement"),
+    "user-stories": ("inception", ["stories", "personas", "user-stories-assessment", "traceability"], [], "stories"),
+    "market-research": ("ideation", ["competitive-analysis", "market-trends", "build-vs-buy", "market-research-questions"], [], None),
+    "functional-design": ("construction", ["entities", "rules", "functional-spec", "traceability"], ["frontend-components"], "functional-spec"),
+    "code-generation": ("construction", ["code-generation-plan", "unit-test-instructions", "code-summary", "traceability"], [], "code-generation-plan"),
+    "reverse-engineering": ("inception", ["business-overview", "architecture", "code-structure", "api-documentation", "component-inventory", "technology-stack",
+                                          "dependencies", "code-quality-assessment", "reverse-engineering-timestamp"], [], None),
+}
+RV_PER_UNIT = ("functional-design", "code-generation")
+RV_SERIAL = [0]
+
+
+def rv_file(name):
+    return "traceability.json" if name == "traceability" else f"{name}.md"
+
+
+def rv_text(target=False):
+    """A file's text, unlike any other case's: plain, with the line ends a checkout on Windows gives, or not text at all."""
+    RV_SERIAL[0] += 1
+    lines = [f"# Document {RV_SERIAL[0]}", "", rv.choice(["Body.", "One.\n\nTwo.", "- a\n- b", "café", "## Part\n\ntext"])]
+    if target and rv.random() < 0.55:
+        # A review appended to the reviewed file, as reviews once were.
+        gap = rv.choice(["", "", "\n", "\n\n", "  ", "\t\n", " \n \n"])
+        tail = rv.choice(["## Review", "## Review  ", "## Review\n\nVerdict: READY", "## Review\n\n### Finding\n\ntext", "## Review\n\n## After", "## Review\n\n<h2>x</h2>",
+                          "```\n## Review\n```", "## Review\n\nold\n\n## Review\n\nVerdict: READY", "## Review ##", "## Reviews"])
+        lines += [gap + tail] if gap.strip(" \t") == gap and gap else [gap, tail] if gap else [tail]
+    end = rv.choice(["\n", "\n", "\n", "\n", "\r\n", "\r\n", "\r"])
+    text = end.join("\n".join(lines).split("\n")) + rv.choice([end, end, end, ""])
+    kind = rv.random()
+    if kind < 0.04:
+        text = "﻿" + text
+    elif kind < 0.07:
+        text = text.replace("\r\n", "\r\n\x00", 1) if "\r\n" in text else text + "\x00"
+    elif kind < 0.10:
+        text = text.replace("\r\n", "\n", 1) if text.count("\r\n") > 1 else text + "\r"
+    elif kind < 0.12:
+        text = ""
+    return text
+
+
+def rv_state(scope=None, units=None):
+    lines = ["# AI-DLC State", "", "## Workflow", f"- **Scope**: {scope if scope is not None else rv.choice(['feature', 'feature', 'mvp', 'bugfix', 'poc', 'nope', ''])}",
+             "", "## Stage Progress", "- [x] intent-capture — EXECUTE"]
+    units = units if units is not None else rv.choice([None, None, "x] units-generation — EXECUTE", "x] units-generation — SKIP", " ] units-generation — SKIP",
+                                                         "x] units-generation", " ] units-generation — EXECUTE"])
+    if units:
+        lines.append(f"- [{units}")
+    return "\n".join(lines + ["- [ ] code-generation — EXECUTE"]) + "\n"
+
+
+def rv_dag(units):
+    """The units' dependency document: each a name and, for some, a kind."""
+    rows = "".join(f"  - name: {name}\n" + (f"    kind: {kind}\n" if kind else "") + "    depends_on: []\n" for name, kind in units)
+    return f"# Dependencies\n\n```yaml\nunits:\n{rows}```\n"
+
+
+def rv_put(case, rel, target=False, questions=False):
+    """Lay one artifact where `rel` says, as a file most of the time and as each thing that is no trusted file some of the time."""
+    how = rv.random()
+    if how < 0.80:
+        case["files"][rel] = si_file(rv) if questions and rv.random() < 0.8 else rv_text(target)
+    elif how < 0.86:
+        pass
+    elif how < 0.90:
+        case["dirs"].append(rel)
+    elif how < 0.93:
+        case["hex"][rel] = rv.choice(["ff", "23204180", "efbbbf2320410a0a232320526576696577", "0d", "410d0a420d0a00"])
+    elif how < 0.955:
+        case["files"]["elsewhere/kept.md"] = "Kept elsewhere.\n"
+        case["links"][rel] = "elsewhere/kept.md"
+    elif how < 0.98:
+        case["files"][rel] = rv_text(target)
+        case["hard"][f"elsewhere/second-{len(case['hard'])}.md"] = rel
+        case["dirs"].append("elsewhere")
+    else:
+        # A file where a folder of the path should be.
+        case["blocked"] = rel.rsplit("/", 1)[0]
+        case["posix"] = True
+
+
+def rv_case(slug, **fields):
+    case = {"slug": slug, "unit": None, "state": rv_state(), "files": dict(RV_ACTIVE), "hex": {}, "dirs": [], "links": {}, "hard": {}, "require": rv.random() < 0.35,
+            "merged": None}
+    case.update(fields)
+    return case
+
+
+def rv_add(case):
+    blocked = case.pop("blocked", None)
+    if blocked is not None:
+        # Nothing can be under a file.
+        under = lambda rel: rel.startswith(blocked + "/")
+        for key in ("files", "hex", "links"):
+            case[key] = {rel: value for rel, value in case[key].items() if not under(rel)}
+        case["hard"] = {rel: target for rel, target in case["hard"].items() if not under(rel) and not under(target)}
+        case["dirs"] = [rel for rel in case["dirs"] if not under(rel) and rel != blocked]
+        case["files"][blocked] = "In the way.\n"
+    for key in ("hex", "links", "hard"):
+        if not case[key]:
+            del case[key]
+    if not case["dirs"]:
+        del case["dirs"]
+    add("review_snapshot", **case)
+
+
+def rv_stage_level():
+    slug = rv.choice(["requirements-analysis", "requirements-analysis", "intent-capture", "user-stories", "market-research"])
+    phase, produces, _, review = RV_STAGES[slug]
+    case = rv_case(slug)
+    for name in produces:
+        rv_put(case, f"{RV_RECORD}/{phase}/{slug}/{rv_file(name)}", name == review, name.endswith("-questions"))
+    roll = rv.random()
+    if roll < 0.04:
+        del case["files"]["intents/active-intent"]
+    elif roll < 0.08:
+        case["state"] = None
+    elif roll < 0.11:
+        # The stage's folder reached through a link.
+        moved = {rel.replace(f"{RV_RECORD}/{phase}/", "moved/"): text for rel, text in case["files"].items()}
+        case["files"] = moved
+        case["links"] = {f"{RV_RECORD}/{phase}": "moved"}
+        case["hard"], case["dirs"], case["hex"] = {}, [], {}
+        case.pop("blocked", None), case.pop("posix", None)
+    elif roll < 0.14:
+        case["unit"] = "api"
+    return case
+
+
+def rv_per_unit():
+    slug = rv.choice(RV_PER_UNIT)
+    phase, produces, optional, review = RV_STAGES[slug]
+    names = rv.sample(["api", "web", "auth", "billing-api", "docs"], rv.randrange(1, 4))
+    units = [(name, rv.choice([None, None, "service", "ui", "library", "spec", "packaging"])) for name in names]
+    case = rv_case(slug, state=rv_state(rv.choice(["feature", "feature", "feature", "mvp", "bugfix", "poc", "nope"])))
+    dag = rv.random()
+    if dag < 0.6:
+        case["files"][f"{RV_RECORD}/inception/units-generation/unit-of-work-dependency.md"] = rv_dag(units)
+    elif dag < 0.68:
+        case["files"][f"{RV_RECORD}/inception/units-generation/unit-of-work-dependency.md"] = rv.choice([
+            "# Dependencies\n\nNothing here.\n", "```yaml\nunits:\n  - nome: api\n```\n",
+            "```yaml\nunits:\n  - name: api\n    depends_on: [web]\n  - name: web\n    depends_on: [api]\n```\n"])
+    elif dag < 0.76:
+        case["files"][f"{RV_RECORD}/runtime-graph.json"] = json.dumps(
+            {"bolt_dag": {"batches": [[name for name, _ in units]], "units": [{"name": name, **({"kind": kind} if kind else {})} for name, kind in units]}})
+    where = rv.random()
+    for name, kind in units if where < 0.8 else []:
+        for artifact in produces + optional:
+            if artifact in optional and rv.random() < 0.5:
+                continue
+            rv_put(case, f"{RV_RECORD}/construction/{name}/{slug}/{rv_file(artifact)}", artifact == review)
+    if where >= 0.7:
+        for artifact in produces:
+            rv_put(case, f"{RV_RECORD}/construction/{slug}/{rv_file(artifact)}", artifact == review)
+    ask = rv.random()
+    if ask < 0.45:
+        case["unit"] = rv.choice(names + names + ["other", "", "..", "api/../web"])
+    if rv.random() < 0.3:
+        case["merged"] = rv.choice([[], names[:1], sorted(names), ["other"], ["web", "api"]])
+    given = rv.random()
+    if given < 0.15:
+        case["given_state"] = None
+    elif given < 0.35:
+        case["given_state"] = rv_state(rv.choice(["feature", "bugfix", "poc"]))
+    odd = rv.random()
+    if odd < 0.03:
+        case["state"] = None
+    elif odd < 0.06:
+        # A unit's folder reached through a link.
+        case["links"][f"{RV_RECORD}/construction/linked"] = f"{RV_RECORD}/construction/{names[0]}"
+    elif odd < 0.08:
+        case["files"] = {rel: text for rel, text in case["files"].items() if "/construction/" not in rel}
+        case["files"][f"{RV_RECORD}/construction"] = "Not a folder.\n"
+        case["dirs"], case["hard"], case["links"], case["hex"] = [], {}, {}, {}
+        case.pop("blocked", None), case.pop("posix", None)
+    return case
+
+
+def rv_codekb():
+    phase, produces, _, _ = RV_STAGES["reverse-engineering"]
+    case = rv_case("reverse-engineering")
+    repos = rv.sample(["shop", "ledger", "site"], rv.randrange(1, 3))
+    listed = rv.random()
+    if listed < 0.5:
+        case["files"]["intents/intents.json"] = json.dumps([{"dirName": "rec-1a2b3c4d", "slug": "rec", "uuid": "1a2b3c4d-0000-4000-8000-000000000000", "status": "in-flight",
+                                                             "repos": rv.choice([repos, repos, repos + ["absent"], ["../intents"], []])}])
+    for repo in repos if rv.random() < 0.85 else []:
+        for name in produces:
+            if rv.random() < 0.8:
+                rv_put(case, f"codekb/{repo}/{rv_file(name)}")
+    odd = rv.random()
+    if odd < 0.05:
+        case["files"] = {rel: text for rel, text in case["files"].items() if not rel.startswith("codekb/")}
+        case["files"]["codekb"] = "Not a folder.\n"
+        case["dirs"], case["hard"], case["links"], case["hex"] = [], {}, {}, {}
+        case.pop("blocked", None), case.pop("posix", None)
+    elif odd < 0.10:
+        case["files"]["codekb/README.md"] = "Not a repository.\n"
+    elif odd < 0.14:
+        del case["files"]["intents/active-intent"]
+    return case
+
+
+for _ in range(scale * 55):
+    rv_add(rv_stage_level())
+for _ in range(scale * 60):
+    rv_add(rv_per_unit())
+for _ in range(scale * 15):
+    rv_add(rv_codekb())
+
+
+def rv_fixed(slug, files, **fields):
+    case = rv_case(slug, state=fields.pop("state", rv_state("feature", "x] units-generation — EXECUTE")), require=fields.pop("require", False))
+    case["files"].update(files)
+    case.update(fields)
+    rv_add(case)
+
+
+RV_REQ = f"{RV_RECORD}/inception/requirements-analysis"
+RV_QUESTIONS = f"# Questions\n\n{SI_SUMMARY}\n\nAs understood.\n\n"
+for body in ["# Requirements\n\nBody.\n", "# Requirements\r\n\r\nBody.\r\n", "# Requirements\r\n\r\nBody.\n", "# Requirements\r\rBody.\r", "# Requirements\r\n\x00Body.\r\n",
+             "# Requirements\r\n" + "\x01" * 3 + "\r\n", "# Requirements\r\nBody.\r\n\x1a", "# Requirements\r\nBody.\r", "\r\n", "\r", "", "﻿# Requirements\n\nBody.\n"]:
+    # The same document under each way its line ends may be written, and the bytes Git would not convert.
+    for answer in ("[Answer]:", "[Answer]: Looks correct", "[Answer]: Something else"):
+        rv_fixed("requirements-analysis", {f"{RV_REQ}/requirements.md": body, f"{RV_REQ}/requirements-analysis-questions.md": RV_QUESTIONS + answer + "\n"})
+for gap in ["\n\n", "\n", "\n\n\n", "\n \n", "\r\n\r\n", "\r\n", "\n\t\n\n", " \n", "", "\n\r\n", "\r\r", "\n\n \t"]:
+    # A review appended after each kind of separator: the two boundaries are one when nothing but one line end stands before the heading.
+    for lead in ("# Requirements\n\nBody.", "﻿# Requirements\n\nBody.", "# Requirements\r\n\r\nBody.", ""):
+        for tail in ("## Review\n\nVerdict: READY\n", "## Review\r\n\r\nVerdict: READY\r\n", "## Review"):
+            rv_fixed("requirements-analysis", {f"{RV_REQ}/requirements.md": lead + gap + tail,
+                                               f"{RV_REQ}/requirements-analysis-questions.md": RV_QUESTIONS + "[Answer]:\n"})
+for require in (False, True):
+    # What is owed and is not a file: nothing there, a folder, and the review artifact itself.
+    rv_fixed("requirements-analysis", {f"{RV_REQ}/requirements.md": "# Requirements\n"}, require=require)
+    rv_fixed("requirements-analysis", {f"{RV_REQ}/requirements-analysis-questions.md": RV_QUESTIONS + "[Answer]:\n"}, require=require)
+    rv_fixed("requirements-analysis", {f"{RV_REQ}/requirements.md": "# Requirements\n"}, dirs=[f"{RV_REQ}/requirements-analysis-questions.md"], require=require)
+    rv_fixed("requirements-analysis", {f"{RV_REQ}/requirements-analysis-questions.md": RV_QUESTIONS}, dirs=[f"{RV_REQ}/requirements.md"], require=require)
+    rv_fixed("requirements-analysis", {}, require=require)
+    rv_fixed("functional-design", {f"{RV_RECORD}/inception/units-generation/unit-of-work-dependency.md": rv_dag([("web", "ui"), ("api", "service")]),
+                                   f"{RV_RECORD}/construction/web/functional-design/functional-spec.md": "# Web\n",
+                                   f"{RV_RECORD}/construction/web/functional-design/traceability.json": "{}\n",
+                                   f"{RV_RECORD}/construction/api/functional-design/functional-spec.md": "# Api\n"}, require=require)
+    for unit in ("web", "api", "other", ""):
+        rv_fixed("functional-design", {f"{RV_RECORD}/inception/units-generation/unit-of-work-dependency.md": rv_dag([("web", "ui"), ("api", "service")]),
+                                       f"{RV_RECORD}/construction/web/functional-design/functional-spec.md": "# Web\n",
+                                       f"{RV_RECORD}/construction/web/functional-design/traceability.json": "{}\n",
+                                       f"{RV_RECORD}/construction/web/functional-design/frontend-components.md": "# Parts\n",
+                                       f"{RV_RECORD}/construction/api/functional-design/functional-spec.md": "# Api\n",
+                                       f"{RV_RECORD}/construction/api/functional-design/entities.md": "# Entities\n",
+                                       f"{RV_RECORD}/construction/api/functional-design/rules.md": "# Rules\n",
+                                       f"{RV_RECORD}/construction/api/functional-design/traceability.json": "{}\n"}, unit=unit, require=require)
+RV_UNIT_FILES = {f"{RV_RECORD}/construction/api/code-generation/code-generation-plan.md": "# Plan of api\n",
+                 f"{RV_RECORD}/construction/web/code-generation/code-generation-plan.md": "# Plan of web\n"}
+RV_STAGE_FILE = {f"{RV_RECORD}/construction/code-generation/code-generation-plan.md": "# Plan of all\n"}
+for state in (rv_state("feature", ""), rv_state("bugfix", ""), rv_state("bugfix", "x] units-generation — SKIP"), rv_state("bugfix", "x] units-generation"),
+              rv_state("bugfix", " ] units-generation — EXECUTE"), rv_state("nope", ""), rv_state("", ""), None):
+    # Where a per-unit stage keeps its files: by unit, or at the stage when units are not planned and never ran.
+    for files in (RV_UNIT_FILES, RV_STAGE_FILE, {**RV_UNIT_FILES, **RV_STAGE_FILE}, {}):
+        for merged in (None, ["web"]):
+            rv_fixed("code-generation", files, state=state, merged=merged)
+            rv_fixed("code-generation", files, state=state, merged=merged, given_state=rv_state("bugfix", ""))
+            rv_fixed("code-generation", files, state=state, merged=merged, given_state=None)
+            rv_fixed("code-generation", files, state=state, merged=merged, unit="web")
+RV_OTHER_STAGE = {f"{RV_RECORD}/construction/api/functional-design/functional-spec.md": "# Spec of api\n",
+                  f"{RV_RECORD}/construction/web/code-generation/code-generation-plan.md": "# Plan of web\n"}
+for state in (rv_state("feature", ""), rv_state("bugfix", ""), None):
+    # A unit's folder with another stage's work in it and none of this one's is not a unit of this stage.
+    for merged in (None, [], ["api"]):
+        rv_fixed("code-generation", RV_OTHER_STAGE, state=state, merged=merged)
+        rv_fixed("functional-design", RV_OTHER_STAGE, state=state, merged=merged)
+RV_ASKED = {f"{RV_REQ}/requirements.md": "# Requirements\n\nBody.\n\n## Review\n\nVerdict: READY\n"}
+for answer in ("[Answer]:", "[Answer]: Looks correct", "[Answer]: Something else"):
+    # The questions as the artifact a review is about are read as any artifact is; and so are a stage's that asks
+    # for no confirmation.
+    files = {**RV_ASKED, f"{RV_REQ}/requirements-analysis-questions.md": RV_QUESTIONS + answer + "\n\n## Review\n\nVerdict: READY\n"}
+    for patch in ({"review_artifact": "requirements-analysis-questions"}, {"summary_confirmation": None}, {"summary_confirmation": "if-present"},
+                  {"review_artifact": None}, {"review_artifact": "nothing-declared"}):
+        rv_fixed("requirements-analysis", files, patch=patch)
+for patch in ({"produces_kinds": None}, {"produces_kinds": {"functional-spec": ["ui"]}}, {"produces_kinds": {"frontend-components": ["service", "ui"]}}):
+    rv_fixed("functional-design", {f"{RV_RECORD}/inception/units-generation/unit-of-work-dependency.md": rv_dag([("web", "ui"), ("api", "service"), ("lib", None)]),
+                                   f"{RV_RECORD}/construction/web/functional-design/functional-spec.md": "# Web\n",
+                                   f"{RV_RECORD}/construction/api/functional-design/functional-spec.md": "# Api\n",
+                                   f"{RV_RECORD}/construction/lib/functional-design/functional-spec.md": "# Lib\n"}, patch=patch)
+for require in (False, True):
+    # An optional artifact that is not there is not owed: a unit of a kind that may have one.
+    rv_fixed("functional-design", {f"{RV_RECORD}/inception/units-generation/unit-of-work-dependency.md": rv_dag([("web", "ui")]),
+                                   f"{RV_RECORD}/construction/web/functional-design/functional-spec.md": "# Web\n",
+                                   f"{RV_RECORD}/construction/web/functional-design/traceability.json": "{}\n"}, unit="web", require=require)
+for answer in ("[Answer]:", "[Answer]: Looks correct", "[Answer]: Something else"):
+    # Questions a stage may leave out are read as its questions are.
+    rv_fixed("requirements-analysis", {f"{RV_REQ}/requirements.md": "# Requirements\n", f"{RV_REQ}/later-questions.md": RV_QUESTIONS + answer + "\n"},
+             patch={"optional_produces": ["later-questions"]})
 
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

@@ -112,6 +112,45 @@ pub fn hard_links(meta: &Metadata) -> u64 {
     }
 }
 
+/// What tells one file from another, and one state of a file from a later
+/// one (`sameArtifactIdentity`): where it is kept, what kind it is, how
+/// many names it has, its size and when it and its inode last changed; the
+/// kind, the size and the time of the last write where the host says no
+/// more.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Identity {
+    len: u64,
+    modified: Option<SystemTime>,
+    kind: (bool, bool),
+    /// Unix: device, inode, mode, link count and the inode change time.
+    held: Option<(u64, u64, u32, u64, i64, i64)>,
+}
+
+/// The [`Identity`] `meta` describes.
+#[must_use]
+pub fn identity(meta: &Metadata) -> Identity {
+    #[cfg(unix)]
+    let held = {
+        use std::os::unix::fs::MetadataExt;
+        Some((
+            meta.dev(),
+            meta.ino(),
+            meta.mode(),
+            meta.nlink(),
+            meta.ctime(),
+            meta.ctime_nsec(),
+        ))
+    };
+    #[cfg(not(unix))]
+    let held = None;
+    Identity {
+        len: meta.len(),
+        modified: meta.modified().ok(),
+        kind: (meta.is_file(), meta.is_dir()),
+        held,
+    }
+}
+
 /// Nothing at `path`, or a regular file with one name: what a write may
 /// replace without reaching another file. `lstat` with `throwIfNoEntry:
 /// false` as Bun answers it: a name that is not there reads as nothing,
