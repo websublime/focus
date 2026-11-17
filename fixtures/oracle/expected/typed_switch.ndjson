@@ -1,0 +1,1180 @@
+{"id":"typed_switch-00000","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00001","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"fix --nope now"}}
+{"id":"typed_switch-00002","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00003","out":{"switches":[],"settings":[{"key":"review","value":"none"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add a --help flag to the reverser"}}
+{"id":"typed_switch-00004","out":{"switches":[],"settings":[{"key":"guard-policy","value":"on"}],"space":null,"intent":null,"scope":"approve","error":null,"words":"the plan"}}
+{"id":"typed_switch-00005","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00006","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00007","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00008","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00009","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"approve the plan"}}
+{"id":"typed_switch-00010","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00011","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00012","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00013","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00014","out":{"switches":[],"settings":[{"key":"depth","value":"minimal"}],"space":null,"intent":null,"scope":null,"error":null,"words":"1"}}
+{"id":"typed_switch-00015","out":{"switches":[],"settings":[{"key":"guard.review-freeze","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"the plan is fine really"}}
+{"id":"typed_switch-00016","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":"Nothing changed: \"--depth\" came with no value. Which value did you mean for it?"}}
+{"id":"typed_switch-00017","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00018","out":{"switches":[],"settings":[{"key":"sensors","value":"use"}],"space":null,"intent":null,"scope":null,"error":null,"words":"postgres"}}
+{"id":"typed_switch-00019","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00020","out":{"switches":[{"key":"guard.state-transition","value":"off"}],"settings":[{"key":"test-strategy","value":"tdd"},{"key":"guard.state-transition","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00021","out":{"switches":[],"settings":[{"key":"sensors","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkCeremonies":{"sensors":"off"},"words":"--guard-policy "}}
+{"id":"typed_switch-00022","out":{"switches":[],"settings":[{"key":"guard.review-freeze","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add a --help flag to the reverser"}}
+{"id":"typed_switch-00023","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00024","out":{"switches":[],"settings":[{"key":"depth","value":"minimal"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00025","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00026","out":{"switches":[],"settings":[],"space":"s","intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00027","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00028","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00029","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00030","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkPlanApprovalOff":true,"newWorkFencesOff":["reviewer-scope"],"words":"approve the plan"}}
+{"id":"typed_switch-00031","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"--sensors off --space x"}}
+{"id":"typed_switch-00032","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00033","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00034","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00035","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00036","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"asked":true}}
+{"id":"typed_switch-00037","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00038","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00039","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00040","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"--guard.plan-approval on add a --help flag to the reverser"}}
+{"id":"typed_switch-00041","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00042","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00043","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00044","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00045","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00046","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"plan-approval","value":"approve"},{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"the plan"}}
+{"id":"typed_switch-00047","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"fix --nope now"}}
+{"id":"typed_switch-00048","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00049","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00050","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00051","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":"Nothing changed: \"--guard-policy\" came with no value. Which value did you mean for it?"}}
+{"id":"typed_switch-00052","out":{"switches":[],"settings":[{"key":"sensors","value":"off"},{"key":"summary-confirmation","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"x"}}
+{"id":"typed_switch-00053","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00054","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"approve the plan --guard.review-freeze off"}}
+{"id":"typed_switch-00055","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"asked":true}}
+{"id":"typed_switch-00056","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00057","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00058","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00059","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add a --help flag to the reverser"}}
+{"id":"typed_switch-00060","out":{"switches":[],"settings":[],"space":null,"intent":"i","scope":null,"error":null,"newWorkGuardPolicy":"off","words":"approve the plan"}}
+{"id":"typed_switch-00061","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00062","out":{"switches":[],"settings":[],"space":"s","intent":null,"scope":null,"error":null,"words":"the plan is fine really","unread":"--nope"}}
+{"id":"typed_switch-00063","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00064","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00065","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00066","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00067","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00068","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00069","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00070","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"x"}}
+{"id":"typed_switch-00071","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00072","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00073","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"use postgres","unread":"--json"}}
+{"id":"typed_switch-00074","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00075","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00076","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00077","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":"Nothing changed: \"--sensors\" came with no value. Which value did you mean for it?"}}
+{"id":"typed_switch-00078","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"on the login page"}}
+{"id":"typed_switch-00079","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00080","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"use postgres --change-control off"}}
+{"id":"typed_switch-00081","out":{"switches":[{"key":"guard.state-transition","value":"off"}],"settings":[{"key":"guard.state-transition","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00082","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"},{"key":"learnings","value":"on"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00083","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"--plan-approval on"}}
+{"id":"typed_switch-00084","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00085","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"asked":true}}
+{"id":"typed_switch-00086","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00087","out":{"switches":[],"settings":[{"key":"plan-approval","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"unread":"--json"}}
+{"id":"typed_switch-00088","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00089","out":{"switches":[],"settings":[{"key":"summary-confirmation","value":"on"},{"key":"guard.state-transition","value":"off x"},{"key":"learnings","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkCeremonies":{"learnings":"off","summary-confirmation":"on"},"words":"the plan is fine really"}}
+{"id":"typed_switch-00090","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkPlanApprovalOff":true,"words":"fix --nope now"}}
+{"id":"typed_switch-00091","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00092","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00093","out":{"switches":[],"settings":[{"key":"depth","value":"minimal"},{"key":"test-strategy","value":"tdd"}],"space":null,"intent":null,"scope":null,"error":null,"words":"the plan is fine really","unread":"--json"}}
+{"id":"typed_switch-00094","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00095","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00096","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00097","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":"Nothing changed: \"--depth\" came with no value. Which value did you mean for it?"}}
+{"id":"typed_switch-00098","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"approve the plan"}}
+{"id":"typed_switch-00099","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00100","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00101","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00102","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00103","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"--nope"}}
+{"id":"typed_switch-00104","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00105","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00106","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00107","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00108","out":{"switches":[],"settings":[{"key":"review","value":"none"}],"space":null,"intent":null,"scope":"bugfix","error":null,"unread":"--json"}}
+{"id":"typed_switch-00109","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00110","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"--summary-confirmation off"}}
+{"id":"typed_switch-00111","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00112","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00113","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00114","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00115","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00116","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"use postgres"}}
+{"id":"typed_switch-00117","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkFencesOff":["state-transition"],"words":"fix --nope now"}}
+{"id":"typed_switch-00118","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00119","out":{"switches":[],"settings":[{"key":"guard.review-freeze","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"use postgres"}}
+{"id":"typed_switch-00120","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00121","out":{"switches":[],"settings":[{"key":"plan-approval","value":"o'ff"},{"key":"depth","value":"minimal"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add a --help flag to the reverser","unread":"--help"}}
+{"id":"typed_switch-00122","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00123","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00124","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":"Nothing changed: \"--guard-policy\" came with no value. Which value did you mean for it?"}}
+{"id":"typed_switch-00125","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":"Nothing changed: \"--depth\" came with no value. Which value did you mean for it?"}}
+{"id":"typed_switch-00126","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00127","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00128","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"asked":true}}
+{"id":"typed_switch-00129","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00130","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"approve the plan"}}
+{"id":"typed_switch-00131","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00132","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00133","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"approve the plan"}}
+{"id":"typed_switch-00134","out":{"switches":[],"settings":[{"key":"plan-approval","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkFencesOff":["review-freeze"],"words":"x"}}
+{"id":"typed_switch-00135","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00136","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"asked":true}}
+{"id":"typed_switch-00137","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00138","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00139","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00140","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"1"}}
+{"id":"typed_switch-00141","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00142","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00143","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00144","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":"Nothing changed: you typed Guard Policy twice in that command, as off and relaxed. Which did you mean?"}}
+{"id":"typed_switch-00145","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00146","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00147","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00148","out":{"switches":[],"settings":[{"key":"guard.review-freeze","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkGuardPolicy":"off","words":"the plan is fine really"}}
+{"id":"typed_switch-00149","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00150","out":{"switches":[],"settings":[{"key":"test-strategy","value":"tdd"},{"key":"guard.review-freeze","value":"on"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00151","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00152","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00153","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00154","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00155","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":"Nothing changed: you typed Guard Policy twice in that command, as relaxed and off. Which did you mean?"}}
+{"id":"typed_switch-00156","out":{"switches":[],"settings":[{"key":"plan-approval","value":"on"},{"key":"test-strategy","value":"tdd"}],"space":null,"intent":null,"scope":null,"error":null,"words":"1"}}
+{"id":"typed_switch-00157","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00158","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"--json"}}
+{"id":"typed_switch-00159","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00160","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00161","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00162","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00163","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00164","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkFencesOff":["reviewer-scope"],"words":"add the export"}}
+{"id":"typed_switch-00165","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00166","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00167","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00168","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00169","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00170","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"--change-control off -- --guard-policy"}}
+{"id":"typed_switch-00171","out":{"switches":[],"settings":[{"key":"summary-confirmation","value":"on"},{"key":"guard-policy","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkCeremonies":{"summary-confirmation":"on"},"words":"x"}}
+{"id":"typed_switch-00172","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":"Nothing changed: \"--guard-policy\" came with no value. Which value did you mean for it?"}}
+{"id":"typed_switch-00173","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00174","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00175","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00176","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":"bugfix","error":null,"words":"add the export"}}
+{"id":"typed_switch-00177","out":{"switches":[],"settings":[{"key":"guard-policy","value":"off x"},{"key":"sensors","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkCeremonies":{"sensors":"off"},"words":"use postgres"}}
+{"id":"typed_switch-00178","out":{"switches":[],"settings":[],"space":"the","intent":null,"scope":null,"error":null,"words":"plan is fine really"}}
+{"id":"typed_switch-00179","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00180","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00181","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":"Nothing changed: \"--guard-policy\" came with no value. Which value did you mean for it?"}}
+{"id":"typed_switch-00182","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00183","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00184","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00185","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00186","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00187","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00188","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00189","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"unread":"--json"}}
+{"id":"typed_switch-00190","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00191","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00192","out":{"switches":[],"settings":[{"key":"test-strategy","value":"tdd"},{"key":"guard.review-freeze","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkGuardPolicy":"off","words":"fix --nope now"}}
+{"id":"typed_switch-00193","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"fix --nope now"}}
+{"id":"typed_switch-00194","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00195","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00196","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"--guard-policy strict --depth -- use postgres --guard.plan-approval off"}}
+{"id":"typed_switch-00197","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00198","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00199","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"approve the plan"}}
+{"id":"typed_switch-00200","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00201","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkGuardPolicy":"relaxed","words":"1","unread":"--guard.nope"}}
+{"id":"typed_switch-00202","out":{"switches":[],"settings":[{"key":"guard-policy","value":"strict"},{"key":"sensors","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"the plan is fine -- really","unread":"--guard.human-presence"}}
+{"id":"typed_switch-00203","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00204","out":{"switches":[],"settings":[{"key":"learnings","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00205","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00206","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00207","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"fix --nope now","unread":"--guard.nope"}}
+{"id":"typed_switch-00208","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00209","out":{"switches":[],"settings":[],"space":null,"intent":"i","scope":null,"error":null,"words":"the plan is fine really --space"}}
+{"id":"typed_switch-00210","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00211","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00212","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"unread":"--help"}}
+{"id":"typed_switch-00213","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00214","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"use postgres --GUARD-POLICY off"}}
+{"id":"typed_switch-00215","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00216","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"approve the plan"}}
+{"id":"typed_switch-00217","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00218","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00219","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"x"}}
+{"id":"typed_switch-00220","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00221","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00222","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00223","out":{"switches":[],"settings":[{"key":"plan-approval","value":"on"}],"space":null,"intent":"i","scope":null,"error":null,"words":"add the export","unread":"--help"}}
+{"id":"typed_switch-00224","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00225","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00226","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"--guard-policy off 1"}}
+{"id":"typed_switch-00227","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00228","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00229","out":{"switches":[],"settings":[{"key":"learnings","value":"on"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00230","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"},{"key":"guard.review-freeze","value":"on"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00231","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00232","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00233","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"status"}}
+{"id":"typed_switch-00234","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00235","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00236","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00237","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00238","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00239","out":{"switches":[],"settings":[{"key":"sensors","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add a --help flag to the reverser"}}
+{"id":"typed_switch-00240","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00241","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"park"}}
+{"id":"typed_switch-00242","out":{"switches":[],"settings":[{"key":"summary-confirmation","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkCeremonies":{"summary-confirmation":"on"},"words":"add a --help flag to the reverser"}}
+{"id":"typed_switch-00243","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00244","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00245","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00246","out":{"switches":[],"settings":[{"key":"review","value":"none"}],"space":"s","intent":null,"scope":null,"error":null,"unread":"--nope"}}
+{"id":"typed_switch-00247","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00248","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00249","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00250","out":{"switches":[],"settings":[{"key":"review","value":"none"}],"space":null,"intent":null,"scope":null,"error":null,"words":"the plan is fine really"}}
+{"id":"typed_switch-00251","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00252","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00253","out":{"switches":[],"settings":[{"key":"sensors","value":"x"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00254","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00255","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00256","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00257","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00258","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":"Nothing changed: \"--guard-policy\" came with no value. Which value did you mean for it?"}}
+{"id":"typed_switch-00259","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00260","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00261","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00262","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00263","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00264","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00265","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00266","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"1"}}
+{"id":"typed_switch-00267","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00268","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00269","out":{"switches":[],"settings":[{"key":"depth","value":"minimal"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkCeremonies":{"summary-confirmation":"off"},"words":"fix --nope now"}}
+{"id":"typed_switch-00270","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00271","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"1"}}
+{"id":"typed_switch-00272","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard.review-freeze","value":"on"},{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"unread":"--help"}}
+{"id":"typed_switch-00273","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00274","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00275","out":{"switches":[],"settings":[{"key":"test-strategy","value":"tdd"},{"key":"depth","value":"minimal"},{"key":"guard-policy","value":"strict"}],"space":null,"intent":null,"scope":null,"error":null,"words":"1"}}
+{"id":"typed_switch-00276","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":"bugfix","error":null,"words":"fix --nope now"}}
+{"id":"typed_switch-00277","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00278","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00279","out":{"switches":[],"settings":[],"space":null,"intent":"i","scope":null,"error":null,"words":"use postgres"}}
+{"id":"typed_switch-00280","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00281","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"1"}}
+{"id":"typed_switch-00282","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00283","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00284","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00285","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00286","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00287","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00288","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00289","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00290","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00291","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00292","out":{"switches":[],"settings":[{"key":"summary-confirmation","value":"on"}],"space":null,"intent":"i","scope":null,"error":null,"words":"use postgres"}}
+{"id":"typed_switch-00293","out":{"switches":[],"settings":[{"key":"learnings","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkCeremonies":{"learnings":"off"},"words":"fix --nope now"}}
+{"id":"typed_switch-00294","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00295","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00296","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00297","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00298","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":"Nothing changed: \"--sensors\" came with no value. Which value did you mean for it?"}}
+{"id":"typed_switch-00299","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00300","out":{"switches":[],"settings":[{"key":"guard-policy","value":"strict"}],"space":null,"intent":null,"scope":null,"error":null,"words":"fix --nope now"}}
+{"id":"typed_switch-00301","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00302","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00303","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00304","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"x"}}
+{"id":"typed_switch-00305","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00306","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"unread":"--guard.nope"}}
+{"id":"typed_switch-00307","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00308","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00309","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00310","out":{"switches":[],"settings":[{"key":"guard.review-freeze","value":"on"},{"key":"learnings","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkCeremonies":{"learnings":"on"},"words":"fix --nope now"}}
+{"id":"typed_switch-00311","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00312","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00313","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"the plan is fine really"}}
+{"id":"typed_switch-00314","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":"i","scope":null,"error":null}}
+{"id":"typed_switch-00315","out":{"switches":[],"settings":[{"key":"plan-approval","value":"add"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkGuardPolicy":"off","words":"the export"}}
+{"id":"typed_switch-00316","out":{"switches":[],"settings":[{"key":"plan-approval","value":"fix"}],"space":null,"intent":null,"scope":null,"error":null,"unread":"--nope"}}
+{"id":"typed_switch-00317","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00318","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"asked":true}}
+{"id":"typed_switch-00319","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00320","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"1 --json"}}
+{"id":"typed_switch-00321","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00322","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00323","out":{"switches":[],"settings":[{"key":"sensors","value":"add"}],"space":null,"intent":null,"scope":null,"error":null,"words":"the export"}}
+{"id":"typed_switch-00324","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00325","out":{"switches":[],"settings":[{"key":"depth","value":"minimal"}],"space":null,"intent":null,"scope":null,"error":null,"words":"use postgres"}}
+{"id":"typed_switch-00326","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"asked":true}}
+{"id":"typed_switch-00327","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add a --help flag to the reverser"}}
+{"id":"typed_switch-00328","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-00329","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00330","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00331","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00332","out":{"switches":[],"settings":[{"key":"guard.review-freeze","value":"on"},{"key":"depth","value":"minimal"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkPlanApprovalOff":true,"words":"the plan is fine -- really"}}
+{"id":"typed_switch-00333","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00334","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkGuardPolicy":"relaxed","words":"add a --help flag to the reverser"}}
+{"id":"typed_switch-00335","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":"Nothing changed: \"--guard-policy\" came with no value. Which value did you mean for it?"}}
+{"id":"typed_switch-00336","out":{"switches":[],"settings":[{"key":"learnings","value":"off"},{"key":"summary-confirmation","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-00337","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00338","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":"Nothing changed: \"--guard-policy\" came with no value. Which value did you mean for it?"}}
+{"id":"typed_switch-00339","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":"Nothing changed: \"--guard-policy\" came with no value. Which value did you mean for it?"}}
+{"id":"typed_switch-00340","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00341","out":{"switches":[],"settings":[{"key":"learnings","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkCeremonies":{"learnings":"on"},"words":"use postgres"}}
+{"id":"typed_switch-00342","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00343","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00344","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00345","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"fix --nope now"}}
+{"id":"typed_switch-00346","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00347","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkGuardPolicy":"relaxed","words":"approve the plan"}}
+{"id":"typed_switch-00348","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"park"}}
+{"id":"typed_switch-00349","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00350","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00351","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00352","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00353","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00354","out":{"switches":[],"settings":[{"key":"plan-approval","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkGuardPolicy":"relaxed","words":"use postgres --skip"}}
+{"id":"typed_switch-00355","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00356","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00357","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00358","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"asked":true}}
+{"id":"typed_switch-00359","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00360","out":{"switches":[],"settings":[{"key":"plan-approval","value":"on"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00361","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkFencesOff":["review-freeze"],"words":"use postgres","unread":"--guard.nope"}}
+{"id":"typed_switch-00362","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00363","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00364","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"asked":true}}
+{"id":"typed_switch-00365","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"asked":true}}
+{"id":"typed_switch-00366","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00367","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00368","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00369","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":"approve","error":null,"words":"the plan"}}
+{"id":"typed_switch-00370","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00371","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"use postgres","unread":"--json"}}
+{"id":"typed_switch-00372","out":{"switches":[],"settings":[{"key":"sensors","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"unread":"--guard.human-presence"}}
+{"id":"typed_switch-00373","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00374","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"x"}}
+{"id":"typed_switch-00375","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00376","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00377","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"the plan is fine really"}}
+{"id":"typed_switch-00378","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00379","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00380","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00381","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00382","out":{"switches":[],"settings":[{"key":"guard-policy","value":"strict"},{"key":"plan-approval","value":"on"},{"key":"sensors","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"use postgres"}}
+{"id":"typed_switch-00383","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00384","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00385","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00386","out":{"switches":[{"key":"plan-approval","value":"off"},{"key":"guard.state-transition","value":"off"}],"settings":[{"key":"plan-approval","value":"off"},{"key":"guard.state-transition","value":"off"},{"key":"sensors","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"x"}}
+{"id":"typed_switch-00387","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00388","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00389","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00390","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"the plan is fine really"}}
+{"id":"typed_switch-00391","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00392","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":"s","intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00393","out":{"switches":[],"settings":[{"key":"guard.review-freeze","value":"on"},{"key":"sensors","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkCeremonies":{"sensors":"off"},"words":"use postgres --guard.review-freeze off"}}
+{"id":"typed_switch-00394","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":"Nothing changed: \"--depth\" came with no value. Which value did you mean for it?"}}
+{"id":"typed_switch-00395","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00396","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00397","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00398","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00399","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"the plan is fine really"}}
+{"id":"typed_switch-00400","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00401","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00402","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"approve the plan --depth","unread":"--json"}}
+{"id":"typed_switch-00403","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00404","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00405","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkFencesOff":["reviewer-scope"],"words":"fix --nope now","unread":"--json"}}
+{"id":"typed_switch-00406","out":{"switches":[],"settings":[{"key":"plan-approval","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"approve the plan"}}
+{"id":"typed_switch-00407","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00408","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00409","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00410","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00411","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00412","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00413","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00414","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00415","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00416","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00417","out":{"switches":[],"settings":[{"key":"plan-approval","value":"on"},{"key":"guard.review-freeze","value":"on"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00418","out":{"switches":[],"settings":[{"key":"learnings","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkCeremonies":{"learnings":"on"},"words":"approve the plan"}}
+{"id":"typed_switch-00419","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00420","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00421","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00422","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00423","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"x"}}
+{"id":"typed_switch-00424","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00425","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00426","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00427","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00428","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00429","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"the plan is fine really"}}
+{"id":"typed_switch-00430","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00431","out":{"switches":[],"settings":[{"key":"plan-approval","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"use postgres"}}
+{"id":"typed_switch-00432","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00433","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00434","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00435","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00436","out":{"switches":[],"settings":[{"key":"guard-policy","value":"strict"},{"key":"plan-approval","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add a --help flag to the reverser"}}
+{"id":"typed_switch-00437","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00438","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00439","out":{"switches":[],"settings":[],"space":"s","intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00440","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00441","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00442","out":{"switches":[],"settings":[{"key":"guard-policy","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"approve the plan"}}
+{"id":"typed_switch-00443","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00444","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00445","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00446","out":{"switches":[],"settings":[{"key":"test-strategy","value":"tdd"}],"space":null,"intent":null,"scope":null,"error":null,"words":"the plan is fine really"}}
+{"id":"typed_switch-00447","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":"Nothing changed: \"--guard-policy\" came with no value. Which value did you mean for it?"}}
+{"id":"typed_switch-00448","out":{"switches":[{"key":"guard.state-transition","value":"off"}],"settings":[{"key":"guard.state-transition","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"x"}}
+{"id":"typed_switch-00449","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00450","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"fix --nope now"}}
+{"id":"typed_switch-00451","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00452","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-00453","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00454","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00455","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00456","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00457","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00458","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00459","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkFencesOff":["state-transition"],"words":"the plan is fine really"}}
+{"id":"typed_switch-00460","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"},{"key":"summary-confirmation","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"unread":"--nope"}}
+{"id":"typed_switch-00461","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"asked":true}}
+{"id":"typed_switch-00462","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00463","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00464","out":{"switches":[],"settings":[{"key":"guard-policy","value":"strict"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-00465","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00466","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00467","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"asked":true}}
+{"id":"typed_switch-00468","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"postgres","unread":"--nope"}}
+{"id":"typed_switch-00469","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"asked":true}}
+{"id":"typed_switch-00470","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00471","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00472","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00473","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"1 --depth minimal"}}
+{"id":"typed_switch-00474","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"x --skip"}}
+{"id":"typed_switch-00475","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00476","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add a --help flag to the reverser"}}
+{"id":"typed_switch-00477","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00478","out":{"switches":[],"settings":[{"key":"learnings","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00479","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00480","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00481","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00482","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00483","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00484","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00485","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00486","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00487","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00488","out":{"switches":[],"settings":[{"key":"guard-policy","value":"strict"},{"key":"plan-approval","value":"on"}],"space":"s","intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00489","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00490","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":"Nothing changed: \"--guard-policy\" came with no value. Which value did you mean for it?"}}
+{"id":"typed_switch-00491","out":{"switches":[],"settings":[{"key":"guard.review-freeze","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"1"}}
+{"id":"typed_switch-00492","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00493","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"unread":"--guard.nope"}}
+{"id":"typed_switch-00494","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add a --help flag to the reverser --summary-confirmation off"}}
+{"id":"typed_switch-00495","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00496","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":"Nothing changed: you typed Guard Policy twice in that command, as relaxed and off. Which did you mean?"}}
+{"id":"typed_switch-00497","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00498","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00499","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkGuardPolicy":"relaxed","newWorkFencesOff":["state-transition"],"words":"x"}}
+{"id":"typed_switch-00500","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00501","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":"Nothing changed: \"--guard-policy\" came with no value. Which value did you mean for it?"}}
+{"id":"typed_switch-00502","out":{"switches":[],"settings":[{"key":"learnings","value":"on"},{"key":"plan-approval","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkCeremonies":{"learnings":"on"},"words":"use postgres"}}
+{"id":"typed_switch-00503","out":{"switches":[],"settings":[{"key":"test-strategy","value":"tdd"}],"space":null,"intent":null,"scope":null,"error":null,"words":"approve the plan"}}
+{"id":"typed_switch-00504","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00505","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00506","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00507","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"1"}}
+{"id":"typed_switch-00508","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export","unread":"--help"}}
+{"id":"typed_switch-00509","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00510","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"fix --nope now"}}
+{"id":"typed_switch-00511","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00512","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00513","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00514","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00515","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00516","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00517","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00518","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00519","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":"s","intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00520","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00521","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"use postgres"}}
+{"id":"typed_switch-00522","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00523","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00524","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00525","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00526","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkGuardPolicy":"relaxed","words":"the plan is fine -- really --guard-policy relaxed","unread":"--nope"}}
+{"id":"typed_switch-00527","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00528","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00529","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00530","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"fix --nope now"}}
+{"id":"typed_switch-00531","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"asked":true}}
+{"id":"typed_switch-00532","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":"bugfix","error":null,"words":"x"}}
+{"id":"typed_switch-00533","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00534","out":{"switches":[],"settings":[{"key":"sensors","value":"off"},{"key":"test-strategy","value":"tdd"}],"space":"s","intent":null,"scope":null,"error":null,"newWorkCeremonies":{"sensors":"off"},"words":"use postgres"}}
+{"id":"typed_switch-00535","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"on the login page"}}
+{"id":"typed_switch-00536","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00537","out":{"switches":[],"settings":[{"key":"guard-policy","value":"strict"}],"space":null,"intent":null,"scope":null,"error":null,"words":"use postgres"}}
+{"id":"typed_switch-00538","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00539","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":"s","intent":null,"scope":null,"error":null,"words":"1"}}
+{"id":"typed_switch-00540","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":"s","intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00541","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00542","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-00543","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00544","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00545","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00546","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00547","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00548","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00549","out":{"switches":[],"settings":[{"key":"guard-policy","value":"use"}],"space":null,"intent":null,"scope":null,"error":null,"words":"postgres"}}
+{"id":"typed_switch-00550","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00551","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00552","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00553","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00554","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00555","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkGuardPolicy":"off","newWorkFencesOff":["reviewer-scope"],"words":"x"}}
+{"id":"typed_switch-00556","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"asked":true}}
+{"id":"typed_switch-00557","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00558","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"asked":true}}
+{"id":"typed_switch-00559","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00560","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00561","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00562","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00563","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"asked":true}}
+{"id":"typed_switch-00564","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00565","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkCeremonies":{"summary-confirmation":"off"},"words":"add the export"}}
+{"id":"typed_switch-00566","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00567","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00568","out":{"switches":[{"key":"guard.reviewer-scope","value":"off"}],"settings":[{"key":"guard.reviewer-scope","value":"off"},{"key":"learnings","value":"off"},{"key":"guard-policy","value":"strict"}],"space":null,"intent":null,"scope":null,"error":null,"words":"use postgres"}}
+{"id":"typed_switch-00569","out":{"switches":[{"key":"guard.reviewer-scope","value":"off"}],"settings":[{"key":"guard.reviewer-scope","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add a --help flag to the reverser"}}
+{"id":"typed_switch-00570","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00571","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00572","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00573","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"summary-confirmation","value":"on"},{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00574","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00575","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"x --learnings of\\f"}}
+{"id":"typed_switch-00576","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00577","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00578","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00579","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"asked":true}}
+{"id":"typed_switch-00580","out":{"switches":[],"settings":[{"key":"test-strategy","value":"tdd"},{"key":"sensors","value":"add"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkFencesOff":["reviewer-scope"],"words":"the export"}}
+{"id":"typed_switch-00581","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00582","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00583","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00584","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"use postgres"}}
+{"id":"typed_switch-00585","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00586","out":{"switches":[],"settings":[{"key":"sensors","value":"on"},{"key":"guard-policy","value":"strict"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export","unread":"--nope"}}
+{"id":"typed_switch-00587","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00588","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00589","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00590","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"1"}}
+{"id":"typed_switch-00591","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"approve the plan"}}
+{"id":"typed_switch-00592","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00593","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"park"}}
+{"id":"typed_switch-00594","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00595","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00596","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"the plan is fine really"}}
+{"id":"typed_switch-00597","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00598","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00599","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00600","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00601","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00602","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"use postgres"}}
+{"id":"typed_switch-00603","out":{"switches":[],"settings":[],"space":"s","intent":null,"scope":null,"error":null,"newWorkGuardPolicy":"off","words":"add the export"}}
+{"id":"typed_switch-00604","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00605","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00606","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00607","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00608","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00609","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00610","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00611","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00612","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00613","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00614","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00615","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00616","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00617","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00618","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00619","out":{"switches":[],"settings":[{"key":"guard.review-freeze","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"fix --nope now"}}
+{"id":"typed_switch-00620","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":"1","error":null}}
+{"id":"typed_switch-00621","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00622","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00623","out":{"switches":[],"settings":[{"key":"guard-policy","value":"strict"},{"key":"sensors","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkCeremonies":{"sensors":"off"},"words":"add the export","unread":"--nope"}}
+{"id":"typed_switch-00624","out":{"switches":[],"settings":[{"key":"guard-policy","value":"add"}],"space":null,"intent":null,"scope":null,"error":null,"words":"a --help flag to the reverser"}}
+{"id":"typed_switch-00625","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00626","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00627","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00628","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00629","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-00630","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"on the login page"}}
+{"id":"typed_switch-00631","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"the plan is fine really"}}
+{"id":"typed_switch-00632","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00633","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00634","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00635","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00636","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"asked":true}}
+{"id":"typed_switch-00637","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00638","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00639","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00640","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00641","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00642","out":{"switches":[{"key":"summary-confirmation","value":"off"}],"settings":[{"key":"summary-confirmation","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"unread":"--guard.human-presence"}}
+{"id":"typed_switch-00643","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"fix --nope now"}}
+{"id":"typed_switch-00644","out":{"switches":[],"settings":[{"key":"sensors","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"fix --nope now"}}
+{"id":"typed_switch-00645","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00646","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00647","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":"Nothing changed: \"--guard-policy\" came with no value. Which value did you mean for it?"}}
+{"id":"typed_switch-00648","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00649","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00650","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00651","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"the plan is fine really --guard.nope off"}}
+{"id":"typed_switch-00652","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"approve the plan"}}
+{"id":"typed_switch-00653","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00654","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00655","out":{"switches":[],"settings":[{"key":"learnings","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkCeremonies":{"learnings":"on"},"words":"add a --help flag to the reverser"}}
+{"id":"typed_switch-00656","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00657","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00658","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00659","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"unread":"--help"}}
+{"id":"typed_switch-00660","out":{"switches":[],"settings":[{"key":"review","value":"none"},{"key":"sensors","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkCeremonies":{"sensors":"on"},"words":"approve the plan"}}
+{"id":"typed_switch-00661","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00662","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00663","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00664","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00665","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00666","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00667","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"asked":true}}
+{"id":"typed_switch-00668","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00669","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":"Nothing changed: \"--guard-policy\" came with no value. Which value did you mean for it?"}}
+{"id":"typed_switch-00670","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkPlanApprovalOff":true,"words":"the plan is fine really"}}
+{"id":"typed_switch-00671","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"unread":"--json"}}
+{"id":"typed_switch-00672","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"unread":"--json"}}
+{"id":"typed_switch-00673","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-00674","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00675","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00676","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00677","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00678","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00679","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"fix --nope now"}}
+{"id":"typed_switch-00680","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00681","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00682","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"x"}}
+{"id":"typed_switch-00683","out":{"switches":[],"settings":[{"key":"sensors","value":"on"},{"key":"learnings","value":"on"},{"key":"review","value":"none"}],"space":null,"intent":null,"scope":null,"error":null,"words":"fix --nope now"}}
+{"id":"typed_switch-00684","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"approve the plan"}}
+{"id":"typed_switch-00685","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00686","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00687","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"on the login page"}}
+{"id":"typed_switch-00688","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00689","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00690","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":"Nothing changed: \"--guard-policy\" came with no value. Which value did you mean for it?"}}
+{"id":"typed_switch-00691","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00692","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"--guard-policy off"}}
+{"id":"typed_switch-00693","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkPlanApprovalOff":true,"words":"add the export"}}
+{"id":"typed_switch-00694","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"x"}}
+{"id":"typed_switch-00695","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00696","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00697","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"status"}}
+{"id":"typed_switch-00698","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00699","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-00700","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00701","out":{"switches":[{"key":"guard.review-freeze","value":"off"},{"key":"plan-approval","value":"off"}],"settings":[{"key":"guard.review-freeze","value":"off"},{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"fix --nope now --json","unread":"--guard.nope"}}
+{"id":"typed_switch-00702","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00703","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00704","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00705","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00706","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":"bugfix","error":null,"words":"the plan is fine really"}}
+{"id":"typed_switch-00707","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00708","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00709","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00710","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00711","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00712","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00713","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"asked":true}}
+{"id":"typed_switch-00714","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00715","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00716","out":{"switches":[],"settings":[{"key":"plan-approval","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkGuardPolicy":"off","newWorkFencesOff":["state-transition"],"words":"1"}}
+{"id":"typed_switch-00717","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"approve the plan --sensors on"}}
+{"id":"typed_switch-00718","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00719","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"asked":true}}
+{"id":"typed_switch-00720","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00721","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00722","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00723","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00724","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00725","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00726","out":{"switches":[],"settings":[{"key":"plan-approval","value":"on"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00727","out":{"switches":[],"settings":[{"key":"plan-approval","value":"on"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00728","out":{"switches":[],"settings":[{"key":"summary-confirmation","value":"on"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00729","out":{"switches":[],"settings":[{"key":"summary-confirmation","value":"on"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00730","out":{"switches":[],"settings":[{"key":"guard.review-freeze","value":"on"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00731","out":{"switches":[],"settings":[{"key":"guard.review-freeze","value":"on"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00732","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00733","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00734","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"strict"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00735","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"strict"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00736","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00737","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00738","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00739","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00740","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00741","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00742","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00743","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00744","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkPlanApprovalOff":true,"words":"add the export"}}
+{"id":"typed_switch-00745","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-00746","out":{"switches":[],"settings":[{"key":"plan-approval","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add x"}}
+{"id":"typed_switch-00747","out":{"switches":[],"settings":[{"key":"plan-approval","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add x"}}
+{"id":"typed_switch-00748","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"unread":"--nope"}}
+{"id":"typed_switch-00749","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"unread":"--nope"}}
+{"id":"typed_switch-00750","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"unread":"--nope"}}
+{"id":"typed_switch-00751","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"unread":"--nope"}}
+{"id":"typed_switch-00752","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00753","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00754","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00755","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00756","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00757","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00758","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00759","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00760","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00761","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00762","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00763","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00764","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00765","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00766","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00767","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00768","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00769","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00770","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00771","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00772","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00773","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00774","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00775","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00776","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00777","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00778","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00779","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00780","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00781","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00782","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00783","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00784","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00785","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00786","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00787","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00788","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00789","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00790","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00791","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00792","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00793","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00794","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00795","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00796","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00797","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00798","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00799","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00800","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00801","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00802","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00803","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00804","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00805","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00806","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00807","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00808","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00809","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00810","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00811","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00812","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00813","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00814","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00815","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00816","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00817","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00818","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00819","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00820","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00821","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00822","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00823","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00824","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00825","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00826","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00827","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00828","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00829","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00830","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00831","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00832","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"on the login page"}}
+{"id":"typed_switch-00833","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"on the login page"}}
+{"id":"typed_switch-00834","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00835","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00836","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00837","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00838","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00839","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00840","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00841","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00842","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"next"}}
+{"id":"typed_switch-00843","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"next"}}
+{"id":"typed_switch-00844","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"report --stage x"}}
+{"id":"typed_switch-00845","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"report --stage x"}}
+{"id":"typed_switch-00846","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00847","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00848","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00849","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00850","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00851","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00852","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00853","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00854","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00855","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00856","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00857","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00858","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00859","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00860","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00861","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00862","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00863","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00864","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00865","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00866","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00867","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00868","out":{"switches":[{"key":"guard.review-freeze","value":"off"}],"settings":[{"key":"guard.review-freeze","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00869","out":{"switches":[{"key":"guard.review-freeze","value":"off"}],"settings":[{"key":"guard.review-freeze","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00870","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00871","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00872","out":{"switches":[],"settings":[{"key":"depth","value":"minimal"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00873","out":{"switches":[],"settings":[{"key":"depth","value":"minimal"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00874","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00875","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00876","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00877","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00878","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00879","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00880","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":"s","intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00881","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":"s","intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00882","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"status"}}
+{"id":"typed_switch-00883","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"status"}}
+{"id":"typed_switch-00884","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"park"}}
+{"id":"typed_switch-00885","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"park"}}
+{"id":"typed_switch-00886","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00887","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00888","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00889","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00890","out":{"switches":[],"settings":[{"key":"guard-policy","value":"strict"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00891","out":{"switches":[],"settings":[{"key":"guard-policy","value":"strict"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00892","out":{"switches":[],"settings":[{"key":"guard-policy","value":"on"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00893","out":{"switches":[],"settings":[{"key":"guard-policy","value":"on"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00894","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00895","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00896","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00897","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00898","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00899","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00900","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00901","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00902","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00903","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00904","out":{"switches":[],"settings":[{"key":"plan-approval","value":"on"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00905","out":{"switches":[],"settings":[{"key":"plan-approval","value":"on"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00906","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00907","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00908","out":{"switches":[],"settings":[{"key":"plan-approval","value":"on"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00909","out":{"switches":[],"settings":[{"key":"plan-approval","value":"on"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00910","out":{"switches":[{"key":"guard.review-freeze","value":"off"}],"settings":[{"key":"guard.review-freeze","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00911","out":{"switches":[{"key":"guard.review-freeze","value":"off"}],"settings":[{"key":"guard.review-freeze","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00912","out":{"switches":[],"settings":[{"key":"guard.review-freeze","value":"on"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00913","out":{"switches":[],"settings":[{"key":"guard.review-freeze","value":"on"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00914","out":{"switches":[{"key":"guard.state-transition","value":"off"}],"settings":[{"key":"guard.state-transition","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00915","out":{"switches":[{"key":"guard.state-transition","value":"off"}],"settings":[{"key":"guard.state-transition","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00916","out":{"switches":[{"key":"guard.reviewer-scope","value":"off"}],"settings":[{"key":"guard.reviewer-scope","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00917","out":{"switches":[{"key":"guard.reviewer-scope","value":"off"}],"settings":[{"key":"guard.reviewer-scope","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00918","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"unread":"--guard.human-presence"}}
+{"id":"typed_switch-00919","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"unread":"--guard.human-presence"}}
+{"id":"typed_switch-00920","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"unread":"--guard.nope"}}
+{"id":"typed_switch-00921","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"unread":"--guard.nope"}}
+{"id":"typed_switch-00922","out":{"switches":[{"key":"summary-confirmation","value":"off"}],"settings":[{"key":"summary-confirmation","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00923","out":{"switches":[{"key":"summary-confirmation","value":"off"}],"settings":[{"key":"summary-confirmation","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00924","out":{"switches":[],"settings":[{"key":"summary-confirmation","value":"on"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00925","out":{"switches":[],"settings":[{"key":"summary-confirmation","value":"on"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00926","out":{"switches":[],"settings":[{"key":"sensors","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00927","out":{"switches":[],"settings":[{"key":"sensors","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00928","out":{"switches":[],"settings":[{"key":"sensors","value":"on"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00929","out":{"switches":[],"settings":[{"key":"sensors","value":"on"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00930","out":{"switches":[],"settings":[{"key":"learnings","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00931","out":{"switches":[],"settings":[{"key":"learnings","value":"off"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00932","out":{"switches":[],"settings":[{"key":"learnings","value":"on"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00933","out":{"switches":[],"settings":[{"key":"learnings","value":"on"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00934","out":{"switches":[],"settings":[{"key":"depth","value":"minimal"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00935","out":{"switches":[],"settings":[{"key":"depth","value":"minimal"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00936","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00937","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00938","out":{"switches":[],"settings":[{"key":"test-strategy","value":"tdd"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00939","out":{"switches":[],"settings":[{"key":"test-strategy","value":"tdd"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00940","out":{"switches":[],"settings":[{"key":"review","value":"none"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00941","out":{"switches":[],"settings":[{"key":"review","value":"none"}],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00942","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00943","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00944","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00945","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00946","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00947","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00948","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00949","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00950","out":{"switches":[],"settings":[],"space":"s","intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00951","out":{"switches":[],"settings":[],"space":"s","intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00952","out":{"switches":[],"settings":[],"space":null,"intent":"i","scope":null,"error":null}}
+{"id":"typed_switch-00953","out":{"switches":[],"settings":[],"space":null,"intent":"i","scope":null,"error":null}}
+{"id":"typed_switch-00954","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":"bugfix","error":null}}
+{"id":"typed_switch-00955","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":"bugfix","error":null}}
+{"id":"typed_switch-00956","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"unread":"--nope"}}
+{"id":"typed_switch-00957","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"unread":"--nope"}}
+{"id":"typed_switch-00958","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"unread":"--nope"}}
+{"id":"typed_switch-00959","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"unread":"--nope"}}
+{"id":"typed_switch-00960","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"unread":"--help"}}
+{"id":"typed_switch-00961","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"unread":"--help"}}
+{"id":"typed_switch-00962","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"unread":"--json"}}
+{"id":"typed_switch-00963","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"unread":"--json"}}
+{"id":"typed_switch-00964","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00965","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00966","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00967","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00968","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00969","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00970","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00971","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00972","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00973","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00974","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00975","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00976","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00977","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00978","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00979","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00980","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00981","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00982","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00983","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-00984","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkGuardPolicy":"off","words":"add the export"}}
+{"id":"typed_switch-00985","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-00986","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkGuardPolicy":"relaxed","words":"add the export"}}
+{"id":"typed_switch-00987","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-00988","out":{"switches":[],"settings":[{"key":"guard-policy","value":"strict"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-00989","out":{"switches":[],"settings":[{"key":"guard-policy","value":"strict"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-00990","out":{"switches":[],"settings":[{"key":"guard-policy","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-00991","out":{"switches":[],"settings":[{"key":"guard-policy","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-00992","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkGuardPolicy":"off","words":"add the export"}}
+{"id":"typed_switch-00993","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-00994","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkGuardPolicy":"off","words":"add the export"}}
+{"id":"typed_switch-00995","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-00996","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkGuardPolicy":"relaxed","words":"add the export"}}
+{"id":"typed_switch-00997","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-00998","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkGuardPolicy":"off","words":"add the export"}}
+{"id":"typed_switch-00999","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01000","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkPlanApprovalOff":true,"words":"add the export"}}
+{"id":"typed_switch-01001","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01002","out":{"switches":[],"settings":[{"key":"plan-approval","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01003","out":{"switches":[],"settings":[{"key":"plan-approval","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01004","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkPlanApprovalOff":true,"words":"add the export"}}
+{"id":"typed_switch-01005","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01006","out":{"switches":[],"settings":[{"key":"plan-approval","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01007","out":{"switches":[],"settings":[{"key":"plan-approval","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01008","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkFencesOff":["review-freeze"],"words":"add the export"}}
+{"id":"typed_switch-01009","out":{"switches":[{"key":"guard.review-freeze","value":"off"}],"settings":[{"key":"guard.review-freeze","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01010","out":{"switches":[],"settings":[{"key":"guard.review-freeze","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01011","out":{"switches":[],"settings":[{"key":"guard.review-freeze","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01012","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkFencesOff":["state-transition"],"words":"add the export"}}
+{"id":"typed_switch-01013","out":{"switches":[{"key":"guard.state-transition","value":"off"}],"settings":[{"key":"guard.state-transition","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01014","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkFencesOff":["reviewer-scope"],"words":"add the export"}}
+{"id":"typed_switch-01015","out":{"switches":[{"key":"guard.reviewer-scope","value":"off"}],"settings":[{"key":"guard.reviewer-scope","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01016","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export","unread":"--guard.human-presence"}}
+{"id":"typed_switch-01017","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export","unread":"--guard.human-presence"}}
+{"id":"typed_switch-01018","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export","unread":"--guard.nope"}}
+{"id":"typed_switch-01019","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export","unread":"--guard.nope"}}
+{"id":"typed_switch-01020","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkCeremonies":{"summary-confirmation":"off"},"words":"add the export"}}
+{"id":"typed_switch-01021","out":{"switches":[{"key":"summary-confirmation","value":"off"}],"settings":[{"key":"summary-confirmation","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01022","out":{"switches":[],"settings":[{"key":"summary-confirmation","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkCeremonies":{"summary-confirmation":"on"},"words":"add the export"}}
+{"id":"typed_switch-01023","out":{"switches":[],"settings":[{"key":"summary-confirmation","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01024","out":{"switches":[],"settings":[{"key":"sensors","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkCeremonies":{"sensors":"off"},"words":"add the export"}}
+{"id":"typed_switch-01025","out":{"switches":[],"settings":[{"key":"sensors","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01026","out":{"switches":[],"settings":[{"key":"sensors","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkCeremonies":{"sensors":"on"},"words":"add the export"}}
+{"id":"typed_switch-01027","out":{"switches":[],"settings":[{"key":"sensors","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01028","out":{"switches":[],"settings":[{"key":"learnings","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkCeremonies":{"learnings":"off"},"words":"add the export"}}
+{"id":"typed_switch-01029","out":{"switches":[],"settings":[{"key":"learnings","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01030","out":{"switches":[],"settings":[{"key":"learnings","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkCeremonies":{"learnings":"on"},"words":"add the export"}}
+{"id":"typed_switch-01031","out":{"switches":[],"settings":[{"key":"learnings","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01032","out":{"switches":[],"settings":[{"key":"depth","value":"minimal"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01033","out":{"switches":[],"settings":[{"key":"depth","value":"minimal"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01034","out":{"switches":[],"settings":[{"key":"depth","value":"add"}],"space":null,"intent":null,"scope":null,"error":null,"words":"the export"}}
+{"id":"typed_switch-01035","out":{"switches":[],"settings":[{"key":"depth","value":"add"}],"space":null,"intent":null,"scope":null,"error":null,"words":"the export"}}
+{"id":"typed_switch-01036","out":{"switches":[],"settings":[{"key":"test-strategy","value":"tdd"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01037","out":{"switches":[],"settings":[{"key":"test-strategy","value":"tdd"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01038","out":{"switches":[],"settings":[{"key":"review","value":"none"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01039","out":{"switches":[],"settings":[{"key":"review","value":"none"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01040","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01041","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01042","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01043","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01044","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01045","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01046","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01047","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01048","out":{"switches":[],"settings":[],"space":"s","intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01049","out":{"switches":[],"settings":[],"space":"s","intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01050","out":{"switches":[],"settings":[],"space":null,"intent":"i","scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01051","out":{"switches":[],"settings":[],"space":null,"intent":"i","scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01052","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":"bugfix","error":null,"words":"add the export"}}
+{"id":"typed_switch-01053","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":"bugfix","error":null,"words":"add the export"}}
+{"id":"typed_switch-01054","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"the export","unread":"--nope"}}
+{"id":"typed_switch-01055","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"the export","unread":"--nope"}}
+{"id":"typed_switch-01056","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export","unread":"--nope"}}
+{"id":"typed_switch-01057","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export","unread":"--nope"}}
+{"id":"typed_switch-01058","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"the export","unread":"--help"}}
+{"id":"typed_switch-01059","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"the export","unread":"--help"}}
+{"id":"typed_switch-01060","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"the export","unread":"--json"}}
+{"id":"typed_switch-01061","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"the export","unread":"--json"}}
+{"id":"typed_switch-01062","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01063","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01064","out":{"switches":[],"settings":[{"key":"guard-policy","value":"add"}],"space":null,"intent":null,"scope":null,"error":null,"words":"the export"}}
+{"id":"typed_switch-01065","out":{"switches":[],"settings":[{"key":"guard-policy","value":"add"}],"space":null,"intent":null,"scope":null,"error":null,"words":"the export"}}
+{"id":"typed_switch-01066","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-01067","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-01068","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-01069","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-01070","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-01071","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-01072","out":{"switches":[],"settings":[{"key":"plan-approval","value":"add"}],"space":null,"intent":null,"scope":null,"error":null,"words":"the export"}}
+{"id":"typed_switch-01073","out":{"switches":[],"settings":[{"key":"plan-approval","value":"add"}],"space":null,"intent":null,"scope":null,"error":null,"words":"the export"}}
+{"id":"typed_switch-01074","out":{"switches":[],"settings":[{"key":"sensors","value":"add"}],"space":null,"intent":null,"scope":null,"error":null,"words":"the export"}}
+{"id":"typed_switch-01075","out":{"switches":[],"settings":[{"key":"sensors","value":"add"}],"space":null,"intent":null,"scope":null,"error":null,"words":"the export"}}
+{"id":"typed_switch-01076","out":{"switches":[],"settings":[],"space":"add","intent":null,"scope":null,"error":null,"words":"the export"}}
+{"id":"typed_switch-01077","out":{"switches":[],"settings":[],"space":"add","intent":null,"scope":null,"error":null,"words":"the export"}}
+{"id":"typed_switch-01078","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":"add","error":null,"words":"the export"}}
+{"id":"typed_switch-01079","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":"add","error":null,"words":"the export"}}
+{"id":"typed_switch-01080","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"the export"}}
+{"id":"typed_switch-01081","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"the export"}}
+{"id":"typed_switch-01082","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkGuardPolicy":"off","words":"add the export"}}
+{"id":"typed_switch-01083","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01084","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkGuardPolicy":"relaxed","words":"add the export"}}
+{"id":"typed_switch-01085","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01086","out":{"switches":[],"settings":[{"key":"guard-policy","value":"strict"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01087","out":{"switches":[],"settings":[{"key":"guard-policy","value":"strict"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01088","out":{"switches":[],"settings":[{"key":"guard-policy","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01089","out":{"switches":[],"settings":[{"key":"guard-policy","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01090","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkGuardPolicy":"off","words":"add the export"}}
+{"id":"typed_switch-01091","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01092","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkGuardPolicy":"off","words":"add the export"}}
+{"id":"typed_switch-01093","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01094","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkGuardPolicy":"relaxed","words":"add the export"}}
+{"id":"typed_switch-01095","out":{"switches":[{"key":"guard-policy","value":"relaxed"}],"settings":[{"key":"guard-policy","value":"relaxed"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01096","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkGuardPolicy":"off","words":"add the export"}}
+{"id":"typed_switch-01097","out":{"switches":[{"key":"guard-policy","value":"off"}],"settings":[{"key":"guard-policy","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01098","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkPlanApprovalOff":true,"words":"add the export"}}
+{"id":"typed_switch-01099","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01100","out":{"switches":[],"settings":[{"key":"plan-approval","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01101","out":{"switches":[],"settings":[{"key":"plan-approval","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01102","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkPlanApprovalOff":true,"words":"add the export"}}
+{"id":"typed_switch-01103","out":{"switches":[{"key":"plan-approval","value":"off"}],"settings":[{"key":"plan-approval","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01104","out":{"switches":[],"settings":[{"key":"plan-approval","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01105","out":{"switches":[],"settings":[{"key":"plan-approval","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01106","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkFencesOff":["review-freeze"],"words":"add the export"}}
+{"id":"typed_switch-01107","out":{"switches":[{"key":"guard.review-freeze","value":"off"}],"settings":[{"key":"guard.review-freeze","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01108","out":{"switches":[],"settings":[{"key":"guard.review-freeze","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01109","out":{"switches":[],"settings":[{"key":"guard.review-freeze","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01110","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkFencesOff":["state-transition"],"words":"add the export"}}
+{"id":"typed_switch-01111","out":{"switches":[{"key":"guard.state-transition","value":"off"}],"settings":[{"key":"guard.state-transition","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01112","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkFencesOff":["reviewer-scope"],"words":"add the export"}}
+{"id":"typed_switch-01113","out":{"switches":[{"key":"guard.reviewer-scope","value":"off"}],"settings":[{"key":"guard.reviewer-scope","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01114","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export","unread":"--guard.human-presence"}}
+{"id":"typed_switch-01115","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export","unread":"--guard.human-presence"}}
+{"id":"typed_switch-01116","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export","unread":"--guard.nope"}}
+{"id":"typed_switch-01117","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export","unread":"--guard.nope"}}
+{"id":"typed_switch-01118","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"newWorkCeremonies":{"summary-confirmation":"off"},"words":"add the export"}}
+{"id":"typed_switch-01119","out":{"switches":[{"key":"summary-confirmation","value":"off"}],"settings":[{"key":"summary-confirmation","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01120","out":{"switches":[],"settings":[{"key":"summary-confirmation","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkCeremonies":{"summary-confirmation":"on"},"words":"add the export"}}
+{"id":"typed_switch-01121","out":{"switches":[],"settings":[{"key":"summary-confirmation","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01122","out":{"switches":[],"settings":[{"key":"sensors","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkCeremonies":{"sensors":"off"},"words":"add the export"}}
+{"id":"typed_switch-01123","out":{"switches":[],"settings":[{"key":"sensors","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01124","out":{"switches":[],"settings":[{"key":"sensors","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkCeremonies":{"sensors":"on"},"words":"add the export"}}
+{"id":"typed_switch-01125","out":{"switches":[],"settings":[{"key":"sensors","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01126","out":{"switches":[],"settings":[{"key":"learnings","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkCeremonies":{"learnings":"off"},"words":"add the export"}}
+{"id":"typed_switch-01127","out":{"switches":[],"settings":[{"key":"learnings","value":"off"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01128","out":{"switches":[],"settings":[{"key":"learnings","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"newWorkCeremonies":{"learnings":"on"},"words":"add the export"}}
+{"id":"typed_switch-01129","out":{"switches":[],"settings":[{"key":"learnings","value":"on"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01130","out":{"switches":[],"settings":[{"key":"depth","value":"minimal"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01131","out":{"switches":[],"settings":[{"key":"depth","value":"minimal"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01132","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-01133","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-01134","out":{"switches":[],"settings":[{"key":"test-strategy","value":"tdd"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01135","out":{"switches":[],"settings":[{"key":"test-strategy","value":"tdd"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01136","out":{"switches":[],"settings":[{"key":"review","value":"none"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01137","out":{"switches":[],"settings":[{"key":"review","value":"none"}],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01138","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01139","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01140","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01141","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01142","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01143","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01144","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01145","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01146","out":{"switches":[],"settings":[],"space":"s","intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01147","out":{"switches":[],"settings":[],"space":"s","intent":null,"scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01148","out":{"switches":[],"settings":[],"space":null,"intent":"i","scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01149","out":{"switches":[],"settings":[],"space":null,"intent":"i","scope":null,"error":null,"words":"add the export"}}
+{"id":"typed_switch-01150","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":"bugfix","error":null,"words":"add the export"}}
+{"id":"typed_switch-01151","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":"bugfix","error":null,"words":"add the export"}}
+{"id":"typed_switch-01152","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export","unread":"--nope"}}
+{"id":"typed_switch-01153","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export","unread":"--nope"}}
+{"id":"typed_switch-01154","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export","unread":"--nope"}}
+{"id":"typed_switch-01155","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export","unread":"--nope"}}
+{"id":"typed_switch-01156","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export","unread":"--help"}}
+{"id":"typed_switch-01157","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export","unread":"--help"}}
+{"id":"typed_switch-01158","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export","unread":"--json"}}
+{"id":"typed_switch-01159","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"add the export","unread":"--json"}}
+{"id":"typed_switch-01160","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"-- add the export"}}
+{"id":"typed_switch-01161","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null,"words":"-- add the export"}}
+{"id":"typed_switch-01162","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-01163","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-01164","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-01165","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-01166","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-01167","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-01168","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-01169","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-01170","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-01171","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-01172","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-01173","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-01174","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-01175","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-01176","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-01177","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-01178","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}
+{"id":"typed_switch-01179","out":{"switches":[],"settings":[],"space":null,"intent":null,"scope":null,"error":null}}

@@ -1,0 +1,180 @@
+{"id": "audit_field-00000", "kind": "audit_field", "block": "\n## Gate_Approved\n**Timestamp**: é\n**Evet**: GATE_APPROVED\n**Deta_ls (raw)**: x\n", "name": "Bolt slug"}
+{"id": "audit_field-00001", "kind": "audit_field", "block": "\n## A.B\n**Timestamp**:  2026-10-09T16:22:43Z\n**Event**: .B\n**Event**: X\n**Bolt slug**: o.e\n- **Sage**:  spaced  \n", "name": "Event"}
+{"id": "audit_field-00002", "kind": "audit_field", "block": "\n## Stage_Completed\n**Timestamp**:  2026-10-08T23:59:59Z\n**Event\n**: STAGE_C OMPLETEDx\n**Bolt slug**: twox\n**Stage**: code-generation\\", "name": "Details (raw)"}
+{"id": "audit_field-00003", "kind": "audit_field", "block": "\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:42Z\n**Event**: STAGE_STARTED\n**Note**: a\\nb\n", "name": "Timestamp"}
+{"id": "audit_field-00004", "kind": "audit_field", "block": "\n## A+\n**Event**: A+\n**Bolt slug**: one\n", "name": "Event"}
+{"id": "audit_field-00005", "kind": "audit_field", "block": "\n## X\n**Timesta mp**: 2026-10-09T16:22:42.123Z\n- **Event**:, X\n**\"olt slug**: twox\n", "name": "Note"}
+{"id": "audit_field-00006", "kind": "audit_field", "block": "\n## Stage_Completed\n**Timestamp**: 1 tail\n**Event**:\nSTAGE_COMPLETED\n**Bolt slug**:one \n**Stage**: code-generation\n", "name": "Bolt slug"}
+{"id": "audit_field-00007", "kind": "audit_field", "block": "\n## A.B\n**Timestamp**:\té\n**Event**: A.B\n**Event**: X\n**Bolt slug**: one\n", "name": "Event"}
+{"id": "audit_field-00008", "kind": "audit_field", "block": "\n## A.B\n**Timestamp**: 1 tail\n**Event**: A.B  \n**Stage**: first\n**Stage**: second\n", "name": "Bolt slug"}
+{"id": "audit_field-00009", "kind": "audit_field", "block": "\n## Bolt_Started\n**Timestamp**:  2026-10-09T16:22:42Z tail\n**event**: BOLT_STARTED\n", "name": "Timestamp"}
+{"id": "audit_field-00010", "kind": "audit_field", "block": "\n## A+\n**Timestamp**: 2026-10-09T16:22:42.123Z\n**Event**:A+\n**Bolt slug**: one\n", "name": "Event"}
+{"id": "audit_field-00011", "kind": "audit_field", "block": "\n## Bolt_Started\n**Event**: BOLT_STARTED\n**Event**: X\n**Bolt slug**:two \n**Stage**: code-generation\n", "name": "Stage"}
+{"id": "audit_field-00012", "kind": "audit_field", "block": "\n## A.B\n**Timestamp*   2026-10-08T23:59:59Z\n**Event**: A.B\n**Stage**: code-generation\n", "name": "Bolt slug"}
+{"id": "audit_field-00013", "kind": "audit_field", "block": "\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:42.123Z\n**Event**: STAGE_STARTED  \n**Bolt slug**: o.ex\n**Stage**:\n", "name": "Event"}
+{"id": "audit_field-00014", "kind": "audit_field", "block": "\n## X\n**Timestamp**:\t2026-10-09T16:22:42.123Z tail\n- **Event**: X\n", "name": "Timestamp"}
+{"id": "audit_field-00015", "kind": "audit_field", "block": "\n## Gate_Approved\n**event**: GATE_APPROVED\n**Stage**:\n", "name": "Note"}
+{"id": "audit_field-00016", "kind": "audit_field", "block": "\n## A.B\n**Timestamp**: 1 tail\n**Event**: A.Bx\n**Bolt slug**: o.ex\n**Stage**: first\n**Stage**: second\n", "name": "event"}
+{"id": "audit_field-00017", "kind": "audit_field", "block": "\n## A+\n**Timestamp**:  2026-10-08T23:59:59Z tail\n**Event**:\nA+\n", "name": "Timestamp"}
+{"id": "audit_field-00018", "kind": "audit_field", "block": "\n## A.B\n**Timestamp**:  2026-10-08T23:59:59Z tail\n**Event**: A.B\t\n", "name": "Bolt slug"}
+{"id": "audit_field-00019", "kind": "audit_field", "block": "\n## Bolt_Started\n**Timestamp**:é\n- **Event**: BOLT_STARTED\n", "name": ""}
+{"id": "audit_field-00020", "kind": "audit_field", "block": "\n## Bolt_Starte{\n**Timestamp**: é\n**E~vent**: BOLT_ STARTED\t\n*Bolt slug**: one\n", "name": ""}
+{"id": "audit_field-00021", "kind": "audit_field", "block": "\n## Bolt_Started\n**Timestamp**:  1\n**Event**: BOLT_STARTED\t\n", "name": "event"}
+{"id": "audit_field-00022", "kind": "audit_field", "block": "\n## Gate_Approved\n**Timestamp**: 1\n**Event**: GATE_APPROVED\n- **Bolt slug**: a-b\n", "name": "Event"}
+{"id": "audit_field-00023", "kind": "audit_field", "block": "\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:42.123Z tail\n**Event**: STAGE_STARTEDx\n", "name": ""}
+{"id": "audit_field-00024", "kind": "audit_field", "block": "\n## Bolt_Started\n**Timestamp**: 1\n**Event**:BOLT_STARTED\n**Bolt slug**: one\nplain line\n", "name": "Event"}
+{"id": "audit_field-00025", "kind": "audit_field", "block": "\n## Stagek_Started\n**Event**: STAGE_STARTED\n**Event**: X\n**Bolt slug**':two\n", "name": "Note"}
+{"id": "audit_field-00026", "kind": "audit_field", "block": "\n## A+\n**Event*: A+  \n**Bolt slug**:one \n", "name": "Details (raw)"}
+{"id": "audit_field-00027", "kind": "audit_field", "block": "\n## Stage_Completed\n**Timestamp**:\t2026-10-08T23:59:59Z\n**Event**: STAGE_COMPLETED\n**Event**: X\n**Bolt slug**: two\n**Stage**: code-generation\n", "name": "Timestamp"}
+{"id": "audit_field-00028", "kind": "audit_field", "block": "\n## Gate_Approved\n**Timestamp**: é\n**Event**: GATE_APPROVED\t\n**Bolt slug**: one\n**Stage**: code-generation\n", "name": "Timestamp"}
+{"id": "audit_field-00029", "kind": "audit_field", "block": "\n## A.B\n**Timestam**:2026-10-09T16:22:42.123Z\n**Event**:\nA.\n\n**Bolt slug**:a-b \nplain lin1e\n", "name": "Note"}
+{"id": "audit_field-00030", "kind": "audit_field", "block": "\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:42Z tail\n**event**: STAGE_STARTED\n**Stage**: code-generation\n", "name": "Event"}
+{"id": "audit_field-00031", "kind": "audit_field", "block": "\n## A.B\n**Timestamp**: x\n**Event**: A.B\n**S tage**:\n", "name": "Sta"}
+{"id": "audit_field-00032", "kind": "audit_field", "block": "\n## +\n**Timestamp**:  1\n**Event**:\nA+\n**Bolt slug**: o.ex\n", "name": "Event"}
+{"id": "audit_field-00033", "kind": "audit_field", "block": "\n## A.B\n**Timestamp**:  1 tail\n**Event**: A.B\t\n**Bolt slug**: one\nplain line\n", "name": "Timestamp"}
+{"id": "audit_field-00034", "kind": "audit_field", "block": "\n## A.B\n**Timestamp**: 1\n**event**: A.B\n- **Bolt slug**: one\n- **Stage**:  sp acbed  \n", "name": "event"}
+{"id": "audit_field-00035", "kind": "audit_field", "block": "\n## Stage_Completed\n**Timestamp**:  1\n**Event**: STAGE_COMPLETED  \n- **Bolt slug**: two\n**Details (raw)**: x\n", "name": "Event"}
+{"id": "audit_field-00036", "kind": "audit_field", "block": "\n## Stage_Completed\n**Timestamp**: é tail\n**Event**:\nSTAGE_COMPLETED\n**Details (raw)**: x\n", "name": "Sta"}
+{"id": "audit_field-00037", "kind": "audit_field", "block": "\n## Bolt_Started\n**Timestamp**\" - 1\n| **Event**: BOLT_STARTED\n**Bolt slug**: o.e\n**Stage**: fir﻿st\n**Stage**: second\n", "name": "event"}
+{"id": "audit_field-00038", "kind": "audit_field", "block": "\n## Stage_Completed\n**Event**:\nSTAGE_COMPLETED\n**Bolt slug**: one\n**Stage**:\n", "name": "Timestamp"}
+{"id": "audit_field-00039", "kind": "audit_field", "block": "\n## Bolt_Started\n**Event**: BOLT_STARTED\n**Event**: X\n", "name": ""}
+{"id": "audit_field-00040", "kind": "audit_field", "block": "\n## A.B\n**Timestamp**:  2026-10-08T23:59:59Z\n**Event**: A.B\t\n**Bolt slug**:a-b \n", "name": "Timestamp"}
+{"id": "audit_field-00041", "kind": "audit_field", "block": "\n## A+\n**Event**:\nA+,**Note**: a\\,b\n", "name": "Timestamp"}
+{"id": "audit_field-00042", "kind": "audit_field", "block": "\n## A+\n**Timestamp**:\tx tail\n**Event**: A+\n- **Bolt slug**: one\nplain line\n", "name": "Event"}
+{"id": "audit_field-00043", "kind": "audit_field", "block": "\n## X\n**Timestamp**:  2026-10-08T23:59:59Z tail\n**event**: X\n**Bolt slug**: one\n**Stage**: code-generation\n", "name": "Stage"}
+{"id": "audit_field-00044", "kind": "audit_field", "block": "\n## A.B\n**Timestamp**: 2026-10-09T16:22:42Z\n**Event**:A.B\n- **Bolt slug**: two\n**Stage**: first\n**Stage**: second\n", "name": "Bolt slug"}
+{"id": "audit_field-00045", "kind": "audit_field", "block": "\n## A.B\n**Event**: A.B  \n**Stage**:\n", "name": "Bolt slug"}
+{"id": "audit_field-00046", "kind": "audit_field", "block": "\n## Stage_Completed\n**Timestamp**: 2026-10-08T23:59:59Z tail\n**Event**: STAGE_COMPLETED  \n- **Stage**:  spaced  \n", "name": "Event"}
+{"id": "audit_field-00047", "kind": "audit_field", "block": "\n## A.B\né**Timestamp**:\t2026-10-08T23:59:59Z tail\n*event**: A.B\n*]Bol slug**: onex\n", "name": "Sta"}
+{"id": "audit_field-00048", "kind": "audit_field", "block": "\n## X\n**Timestamp**: 2026-10-09T16:22:42.123Z\n**Event**: X\n", "name": "Details (raw)"}
+{"id": "audit_field-00049", "kind": "audit_field", "block": "\n## Gate_Approved\n**Timestamp**:2026-10-09T16:22:43Z tail\n**Event**: GATE_APPROVED  \n", "name": "Event"}
+{"id": "audit_field-00050", "kind": "audit_field", "block": "\n## Stage_Started\n**Timestamp**: x\n**Event**:STAGE_STARTED\n- **Bolt slug**: o.e\nplain line\n", "name": "event"}
+{"id": "audit_field-00051", "kind": "audit_field", "block": "\n## A+\n**Timestamp**: x\n**Event**: A+\n**Event**: X\n**Bolt slug**: one\n", "name": "event"}
+{"id": "audit_field-00052", "kind": "audit_field", "block": "\n## X\n**Timestamp**:  1\n**Event**: X\n- **Bolt slug**: o.e\n**Note**: a\\nb\n", "name": "Details (raw)"}
+{"id": "audit_field-00053", "kind": "audit_field", "block": "\n## Stage_Completed\n**Event**:\nSTAGE_COMPLETED\n", "name": "Timestamp"}
+{"id": "audit_field-00054", "kind": "audit_field", "block": "\n## Stage_Completed\n**Timestamp**: 2026-10-09T16:22:42.123Z tail\n**Event**: STAGE_COMPLETED\n**Event**: X\n", "name": "event"}
+{"id": "audit_field-00055", "kind": "audit_field", "block": "\n## Gate_Approved\n**Timestamp**:é tail\n**Event**: GATE_APPROVED\n**Bolt slug**:a-b \n**Stage**: first\n**Stage**: second\n", "name": "event"}
+{"id": "audit_field-00056", "kind": "audit_field", "block": "\n## Gate_Approved\n**Timestamp**:\t2026-10-09T16:22:43Z\n**event**: GATE_APPROVED\nplain line\n", "name": "Note"}
+{"id": "audit_field-00057", "kind": "audit_field", "block": "\n## Stage_Completed\n**Timestamp**:  é tail\n**Event**: STAGE_COMPLETED\n- **Bolt slug**: a-b\nplain line\n", "name": "Timestamp"}
+{"id": "audit_field-00058", "kind": "audit_field", "block": "\n## Stage_Completed\n**Timestamp**:\t2026-10-09T16:22:42.123Z\n**Event**:\nSTAGE_COMPLETED\nplain line\n", "name": ""}
+{"id": "audit_field-00059", "kind": "audit_field", "block": "\n## Bolt_Started\n**Ti1estamp**:  2026-10-09T1-6022:42Z\n**Event**: BOLT_STARTED  \n- **Bo.lt slug**: o.e\n", "name": "Event"}
+{"id": "audit_field-00060", "kind": "audit_field", "block": "\n## Bolt_Started\n**Timestamp**:\té\n**event**: BOLT_STARTED\n**Bolt slug**: onex\n**Stage**:\n", "name": "event"}
+{"id": "audit_field-00061", "kind": "audit_field", "block": "\n## X\n**Timestamp**:x tail\n**Event**: X\t\n**Bolt slug**: o.ex\n**Stage**: first\n**Stage**: second\n", "name": "Event"}
+{"id": "audit_field-00062", "kind": "audit_field", "block": "\n## Stage_Completed\n**Timestamp**:2026-10-09T16:22:42.123Z tail\n**Event**:STAGE_COMPLETED\n**Note**: a\\nb\n", "name": "Sta"}
+{"id": "audit_field-00063", "kind": "audit_field", "block": "\n## Gate_Approved\n**Timestamp**:  2026-10-09T16:22:42Z tail\n**Event**: GATE_APPROVEDx\n**Bolt slug**: twox\n", "name": "Stage"}
+{"id": "audit_field-00064", "kind": "audit_field", "block": "\n## A+\n**Timestamp**:\t2026-10-09T16:22:43|\n**Event**: A+\n", "name": "Timestamp"}
+{"id": "audit_field-00065", "kind": "audit_field", "block": "\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:42Z\n**event**: STAGE_STARTED\n**Bolt slug**: two\n", "name": "Details (raw)"}
+{"id": "audit_field-00066", "kind": "audit_field", "block": "\n## Bolt_Started\n**Timestamp**: 2026-10-08T23:59:59Z tail\n**Event**: BOLT_STARTED  \n- **Bolt slug**: one\n**Stage**: code-generation\n", "name": "Event"}
+{"id": "audit_field-00067", "kind": "audit_field", "block": "\n## Stage_Started\n**Timestamp**:2026-10-08T23:59:59Z tail\n**Event**:\nSTAGE_STARTED\n**Bolt slug**: two\n", "name": "event"}
+{"id": "audit_field-00068", "kind": "audit_field", "block": "\n## Stage_Completed\n**Timestamp**:1\n**Event**: STAGE_COMPLETED  \n", "name": "event"}
+{"id": "audit_field-00069", "kind": "audit_field", "block": "\n## Bolt_Started\n**Timestamp**:  2026-10-09T16:22:43Z\n**Event**: BOLT_STARTED\t\n**Bolt slug**: a-b\n", "name": "Details (raw)"}
+{"id": "audit_field-00070", "kind": "audit_field", "block": "\n## Stage_Started\n**Timestamp**:2026-10-08T23:59:59Z tail\n**event**: STAGE_STARTED\n", "name": "event"}
+{"id": "audit_field-00071", "kind": "audit_field", "block": "\n## Stage_Completed\n**Timestamp**:  2026-10-09T16:22:43Z\n**Event**: STAGE_COMPLETED  \n**Bolt slug**: o.e\n**Note**: a\\nb\n", "name": "Bolt slug"}
+{"id": "audit_field-00072", "kind": "audit_field", "block": "\n## X\n**Timestamp**:  2026-10-09T16:22:42Z\n**event**: X\n- **Bolt slug**: o.e\n", "name": "Event"}
+{"id": "audit_field-00073", "kind": "audit_field", "block": "\n## Gate_Approved\n**Timestamp**:2026-10-08T23:59:59Z\n**Event**: GATE_APPROVED\n", "name": "Event"}
+{"id": "audit_field-00074", "kind": "audit_field", "block": "\n## Stage_Started\n**Timestam\np**: x tail\n**Event**: STAGE_STARED\t\n**Bolt slug**: o.e\n", "name": "Timestamp"}
+{"id": "audit_field-00075", "kind": "audit_field", "block": "\n## A.B\n**Timestamp**: x\n**Event**: A.B\t\n**Bolt slug**:o.e \n", "name": "Details (raw)"}
+{"id": "audit_field-00076", "kind": "audit_field", "block": "\n## A+\n**Timestamp**:x\n**Event**: A+\n**Event**: X\n**Bolt slug**: a-b\n**Details (raw)**: x\n", "name": "Event"}
+{"id": "audit_field-00077", "kind": "audit_field", "block": "\n## A+\n**Timestamp**:\t2026-10-08T23:59:59Z\n**event**: A+\n**Stage**: first\n**Stage**: second\n", "name": "Timestamp"}
+{"id": "audit_field-00078", "kind": "audit_field", "block": "\n## Bolt_Started\n**Timestamp**: 1 tail\n**Event**: BOLT_STARTED  \n", "name": "Details (raw)"}
+{"id": "audit_field-00079", "kind": "audit_field", "block": "\n## Bolt_Started\n**Timestamp**:1\n**Event**:BOLT_STARTED\n- **Bolt slug**: o.e\n", "name": "Note"}
+{"id": "audit_field-00080", "kind": "audit_field", "block": "\n## Bolt_Started\n**Timestamp**:x\n**Event**: BOLT_STARTED\n**Bolt slug**: two\nplain line\n", "name": "Details (raw)"}
+{"id": "audit_field-00081", "kind": "audit_field", "block": "\n## Stage_Started\n**Timestamp**:2026-10-09T16:22:42Z\n**Event**:STAGE_STARTED\n", "name": "Event"}
+{"id": "audit_field-00082", "kind": "audit_field", "block": "\n## Stage_Completed\n**Timestamp**:\t2026-10-08T23:59:59Z tail\n- **Event**: STAGE_COMPLETED\n**Bolt slug**:one \n", "name": "Timestamp"}
+{"id": "audit_field-00083", "kind": "audit_field", "block": "\n## Stage_Started\n**Timestamp**: x\n**Event**:\nSTAGE_STARTED\n**Bolt slug**: a-b\n", "name": "Details (raw)"}
+{"id": "audit_field-00084", "kind": "audit_field", "block": "\n## Stage_Completed\n**Timestamp**:  2026-10-09T16:22:42Z tail\n- **Event**: STAGE_COMPLETED\n**Bolt slug**: two\n", "name": "Stage"}
+{"id": "audit_field-00085", "kind": "audit_field", "block": "\n## A.B\n**Timestamp**:\t2026-10-09T16:22:42.123Z tail\n**Event**: A.B\n**Bolt slug**: one\n**Stage**:\n", "name": "Timestamp"}
+{"id": "audit_field-00086", "kind": "audit_field", "block": "\n## A+\n**Timestamp**: 1 tail\n**Event**: A+\n", "name": "Note"}
+{"id": "audit_field-00087", "kind": "audit_field", "block": "\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:43Z\n**Event**: STAGE_STARTED\n**Bolt slug**: o.ex\n", "name": "Note"}
+{"id": "audit_field-00088", "kind": "audit_field", "block": "\n## Gate_Approved\n**Event**:\nGATE_APPROVED\n**Bolt slug**: o.e\n", "name": "Sta"}
+{"id": "audit_field-00089", "kind": "audit_field", "block": "\n## Bolt_Started\n**Timestamp**: 2026-10-09T16:22:43Z\n**Event**: BOLT_STARTED\n**Bolt slug**:one \n", "name": "Event"}
+{"id": "audit_field-00090", "kind": "audit_field", "block": "\n## Gate_Approved\n**Timestamp**:\t2026-10-09T16:22:42Z tail\n**Event**: GATE_APPROVED  \n**Bolt slug**: onex\n**Stage**:\n", "name": "Stage"}
+{"id": "audit_field-00091", "kind": "audit_field", "block": "\n## Gae_Approved\n**Timestamp**: 2026-10-09T16:22:42Z\n*b*Event**0: GATE_APPROVED\n**Bolt slug**:a-b \n", "name": "Stage"}
+{"id": "audit_field-00092", "kind": "audit_field", "block": "\n## Stage_Started\n**Timestamp**:  1\n**Event**: STAGE_STARTED\n- **Stage**:  spaced  \n", "name": "Sta"}
+{"id": "audit_field-00093", "kind": "audit_field", "block": "\n## X\n**Timestamp**:\té tail\n- **Event**: X\n**Bolt slug**: one\n", "name": "event"}
+{"id": "audit_field-00094", "kind": "audit_field", "block": "\n## X\n**Timestamp**:\t2026-10-08T23:59:59Z\n**Event**: X  \n", "name": "event"}
+{"id": "audit_field-00095", "kind": "audit_field", "block": "\n## X\n**Timestamp**: 2026-10-09T16:22:42Z tail\n**Event**: X\n**Bolt slug**:one \n**Note**: a\\nb\n", "name": "Event"}
+{"id": "audit_field-00096", "kind": "audit_field", "block": "\n## Bolt_Started\n**Timestamp**: 2026-10-09T16:22:42Z\n**event**: BOLT_STARTED\n**Details (raw)**: x\n", "name": "Timestamp"}
+{"id": "audit_field-00097", "kind": "audit_field", "block": "\n## Stage_Completed\n**Timestamp**: é\n**Event**: STAGE_COMPLETED  \n", "name": "Details (raw)"}
+{"id": "audit_field-00098", "kind": "audit_field", "block": "\n## Stage_Started\n**Timestamp**: é\n**Event**: STAGE_STARTED\t\n- **Bolt slug**: one\nplain line\n", "name": "Timestamp"}
+{"id": "audit_field-00099", "kind": "audit_field", "block": "\n##😀Gate_Approved\n**Timestamp*:1 tail\n**Event**: GATE_APPROVED\t\n- **Stage**:  spaced  \n", "name": "Stage"}
+{"id": "audit_field-00100", "kind": "audit_field", "block": "\n## Bolt_Started\n**Timestamp**:2026-10-09T16:22:42Z tail\n**Event**:\nBOLT_STARTED\n- **Bolt slug**: on\r\n\nplain li\r\nne\n", "name": "Timestamp"}
+{"id": "audit_field-00101", "kind": "audit_field", "block": "\n## Stage_ ompleted\n**Timeatamp**:\t1 tail\n**Event**- STAGE_COMPLETED\n- **Bolt slug**: one\n", "name": "Stage"}
+{"id": "audit_field-00102", "kind": "audit_field", "block": "\n## Stage_Completed\n**Timestamp**:  2026-10-09T16:22:42.123Z\n- **Event**: STAGE_COMPLETED\n**Bolt slug**: o.e\n", "name": "Details (raw)"}
+{"id": "audit_field-00103", "kind": "audit_field", "block": "\n## Stage_Started\n**Timestamp*:é\n**Event**:\nSTAGE_STARTED\n**Bolt slug**: two\\\n**Stage**: code-:generation-", "name": ""}
+{"id": "audit_field-00104", "kind": "audit_field", "block": "\n## X\n**Timestamp**:  2026-10-09T16:22:42.123Z\n- **Event**: X\n**Stage**: first\n**Stage**: second\n", "name": "Note"}
+{"id": "audit_field-00105", "kind": "audit_field", "block": "\n## Gate_Approved\n**Timestamp**:  2026-10-09T16:22:42Z tail\n**Event**: GATE_APPROVED\n- **Bolt slug**: o.e\n**Note**: a\\nb\n", "name": "Timestamp"}
+{"id": "audit_field-00106", "kind": "audit_field", "block": "\n## Stage_Completed\n**Timestamp**: 2026-10-08T23:59:59Z\n**event**: STAGE_COMPLETED\n", "name": "Details (raw)"}
+{"id": "audit_field-00107", "kind": "audit_field", "block": "\n## X\n,**Timestamp**: 2026-10-09T16:22:42Z\n**Event**: X  \n**Stage**: first\n**Stage**: second\n", "name": "Details (raw)"}
+{"id": "audit_field-00108", "kind": "audit_field", "block": "\n## A.B\n**Timestamp**:  x\n**event**: A.B\n**Bolt slug**:two \n", "name": "Note"}
+{"id": "audit_field-00109", "kind": "audit_field", "block": "\n## Stage_Completed\n**Timestamp**:  2026-10-09T16:22:43Z tail\n**Event**: STAGE_COMPLETED\t\n**Bolt slug*: twox\n", "name": "Event"}
+{"id": "audit_field-00110", "kind": "audit_field", "block": "\n## Stage_Started\n**Timestamp**:2026-10-09T16:22:42.123Z\n**Event**: STAGE_STARTED\n**Bolt slug**: one\n", "name": "Details (raw)"}
+{"id": "audit_field-00111", "kind": "audit_field", "block": "\n## Stage_Started\n**Timestamp**:\t2026-10-09T16:22:42.123Z\n**Event**: STAGE_STARTED\n**Bolt slug**: two\n", "name": "Event"}
+{"id": "audit_field-00112", "kind": "audit_field", "block": "\n## A.B\n**Timestamp**: 1\n**Event**: A.B\n**Event**: X\n", "name": "Timestamp"}
+{"id": "audit_field-00113", "kind": "audit_field", "block": "\n## X\n**Timestamp**: 2026-10-09T16:22:43Z tai[l\n*Event**: X\n*{Bolt sl[g**: o.e\n**Stage**:\n", "name": "Event"}
+{"id": "audit_field-00114", "kind": "audit_field", "block": "\n## Gate_Approved\n**Timestamp**:202\"-10-09T16:2242.123Z tail\n**Event**: GA0TE_APPROVD  \n", "name": ""}
+{"id": "audit_field-00115", "kind": "audit_field", "block": "\n## Stage_Completed\n**Timestamp**: é\n**Event**:STAGE_COMPLETED\n- **Bolt slug**: two\n**Stage**: first\n**Stage**: second\n", "name": "Event"}
+{"id": "audit_field-00116", "kind": "audit_field", "block": "\n## X\n**Timestamp**:  2026-10-09T16:22:42Z\n**event**[ X\n- **Bolt slug**: o.e\n- **Stage{**:  spaced  \n", "name": "Note"}
+{"id": "audit_field-00117", "kind": "audit_field", "block": "\n## Bolt_Started\n**Timestamp**:2026-10-09T16:22:42Z\n**Event**: BOLT_STARTED\n**Stage**:\n", "name": "Timestamp"}
+{"id": "audit_field-00118", "kind": "audit_field", "block": "\n## X\n**Timestamp**: 2026-10-09T16:22:43Z\n**Event**: X\n**Bolt slug**: o.e\n**Stage**:\n", "name": "event"}
+{"id": "audit_field-00119", "kind": "audit_field", "block": "\n## Stage_Completed\n**Event**: STAGE_COMPLETEDx\nplain line\n", "name": "Event"}
+{"id": "audit_field-00120", "kind": "audit_field", "block": "\n## Bolt_Started\n**Timestamp**: é\n**event**: BOLT_STARTED\n**Bolt slug**:a-b \nplain line\n", "name": "Event"}
+{"id": "audit_field-00121", "kind": "audit_field", "block": "\n## X\n**Timestamp**: 2026-10-09T16:22:42.123Z tail\n**Event**:\nX\n**Bolt slug**: o.e\nplain line\n", "name": "Timestamp"}
+{"id": "audit_field-00122", "kind": "audit_field", "block": "\n## Stage_Completed\n**Timestamp**:\t2026-10-08T23:59:59Z\n**Event**: STAGE_COMPLETED\n**Bolt slug**: twox\n", "name": "Bolt slug"}
+{"id": "audit_field-00123", "kind": "audit_field", "block": "\n## X\n**Timestamp**: 2026-10-08T23:59:59Z\n- **Event**: X\n", "name": "event"}
+{"id": "audit_field-00124", "kind": "audit_field", "block": "\n## Bolt_Started\n**Event**:BOLT_STARTED\n- **Bolt slug**: o.e\n", "name": "Timestamp"}
+{"id": "audit_field-00125", "kind": "audit_field", "block": "\n## X\n**Timestamp**: 2026-10-09T16:22:43Z tail\n**Event**: Xx\n", "name": "Timestamp"}
+{"id": "audit_field-00126", "kind": "audit_field", "block": "\n## X\n**Timestamp**:\t2026-10-08T23:59:59Z\n**Event**:X\n**Details (raw)**: x\n", "name": "Stage"}
+{"id": "audit_field-00127", "kind": "audit_field", "block": "\n## Gate_Approved\n**Timestamp**: é\n**Event**: GATE_APPROVED\n**Event**: X\n- **Bolt slug**: two\n", "name": "Timestamp"}
+{"id": "audit_field-00128", "kind": "audit_field", "block": "\n## A.B\n|*Event*: A.B\t\n**Bolt slu**:a-b **Stage**:\n", "name": "Details (raw)"}
+{"id": "audit_field-00129", "kind": "audit_field", "block": "\n## Bolt_Started\n**Timestamp**:1 tail\n**Event**:\nBOLT_STARTED\n", "name": "event"}
+{"id": "audit_field-00130", "kind": "audit_field", "block": "\n## A.B\n**Timestamp**: 2026-10-09T16:22:42.123Z tail\n**event**: A.B\n**Bolt slug**:o.e \n", "name": "Details (raw)"}
+{"id": "audit_field-00131", "kind": "audit_field", "block": "\n## X\n**Timestamp**: 2026-10-08T23:59:59Z tail\n**Event**: X\n- **Bolt slug**: o.e\n**Stage**: first\n**Stage**: second\n", "name": "Note"}
+{"id": "audit_field-00132", "kind": "audit_field", "block": "\n## A+\n**Timestamp**: 1 tail\n**Event**: A+\t\n", "name": "Note"}
+{"id": "audit_field-00133", "kind": "audit_field", "block": "\n## A+\n**Timestamp*[*:  x**Event**: A+  \n", "name": "Event"}
+{"id": "audit_field-00134", "kind": "audit_field", "block": "\n## A.B\n**Timestamp**: x tail\n**Event**: A.B\n**Event**: X\n- **Bolt slug**: one\n**Note**: a\\nb\n", "name": "Bolt slug"}
+{"id": "audit_field-00135", "kind": "audit_field", "block": "\n## A.B\n**Timestamp**: 2026-10-09T16:22:42Z\n**Event**: A.B\n", "name": "Note"}
+{"id": "audit_field-00136", "kind": "audit_field", "block": "\n## A.B\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**: A.B\n**Event**: X\n**Bolt slug**:o.e \n**Stage**: first\n**Stage**: second\n", "name": "Details (raw)"}
+{"id": "audit_field-00137", "kind": "audit_field", "block": "\n## A.B\n**Timestamp**: 2026-10-09T16:22:42.123Z\n**event**: A.B\n- **Stage**:  spaced  \n", "name": "Stage"}
+{"id": "audit_field-00138", "kind": "audit_field", "block": "\n## Gate_Approved\n**Timestamp**:\t1\n- **Event**: GATE_APPROVED\n**Bolt slug**: one\n", "name": ""}
+{"id": "audit_field-00139", "kind": "audit_field", "block": "\n## A+\n**Event**: A+  \n- **Bolt slug**: o.e\n", "name": ""}
+{"id": "audit_field-00140", "kind": "audit_field", "block": "\n## Stage_Started\n**Timestamp**:\té\n- **Event**: STAGE_STARTED\n**Bolt slug**: twox\n**Stage**: code-generation\n", "name": "event"}
+{"id": "audit_field-00141", "kind": "audit_field", "block": "\n## A.B\n**Timestamp**: é tail\n**Event**: A.B\n**Bolt slug**: two\n**Stage**: first\n**Stage**: second\n", "name": ""}
+{"id": "audit_field-00142", "kind": "audit_field", "block": "\n## A+\n**Event**: A+\t\n**Bolt slug**:a-b \n- **Stage**:  spaced  \n", "name": "Note"}
+{"id": "audit_field-00143", "kind": "audit_field", "block": "\n## X\n**Timestamp**: 'é\n*éEvent*: X  \n**Stage*\\: first\n**Stage**: second\n", "name": ""}
+{"id": "audit_field-00144", "kind": "audit_field", "block": "\n## Bolt_Started\n**Timestamp**: 1 tail\n**event**: BOLT_STARTED\n**Bolt slug**: a-bx\n**Note**: a\\nb\n", "name": "Timestamp"}
+{"id": "audit_field-00145", "kind": "audit_field", "block": "\n## A+\n**Timestamp'*:\t2026-10-08T23:59:59Z til\n- **Event*: A+\n**Bolt slug**: twox\n", "name": "Event"}
+{"id": "audit_field-00146", "kind": "audit_field", "block": "\n## A.B\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**: A.B\n**Event**: X\n", "name": "Stage"}
+{"id": "audit_field-00147", "kind": "audit_field", "block": "\n## Bolt_Started\n**Event**: BOLT_STARTED\n**Event**: X\n**Bolt slug**: two\n**Note**: a\\nb\n", "name": "event"}
+{"id": "audit_field-00148", "kind": "audit_field", "block": "\n## A+\n**Timestamp**:2026-10-09T16:22:43Z\n**Event**: A+\n**Bolt slug**: a-b\n", "name": "Event"}
+{"id": "audit_field-00149", "kind": "audit_field", "block": "\n## A.B\n**Timestamp**: 2026-10-09T16:22:42Z\n**Event**: A.B\t\n- **Bolt slug**: one\n", "name": "Sta"}
+{"id": "audit_field-00150", "kind": "audit_field", "block": "\n## Stage_Completed\n**Timestamp**:2026-10-09T16:22:43Z tail\n**Event**:STAGE_COMPLETED\n**Bolt slug**: o.e\n**Stage**: code-generation\n", "name": "Sta"}
+{"id": "audit_field-00151", "kind": "audit_field", "block": "\n## A.B\n**Timestamp**:  1\n**Event**: A.B\n**Bolt slug**:two \n", "name": "Bolt slug"}
+{"id": "audit_field-00152", "kind": "audit_field", "block": "\n## Stage_Completed\n**Timestamp**: 2026-10-09T16:22:42Z\n**event**: STAGE_COMPLETED\n**Bolt slug**: o.ex\nplain line\n", "name": "event"}
+{"id": "audit_field-00153", "kind": "audit_field", "block": "-\n## A.B\n**Timestamp**:  026-10-09T16:22:42Z\n**Event**: A.B\n", "name": "Stage"}
+{"id": "audit_field-00154", "kind": "audit_field", "block": "\n## Stage_Completed\n**Times　amp**:2026-10-09T16:22:42.123Z\n**Event**: SaTAGE_COMPLETED\n**Event**: X\n*Bolt slug**:two \n**Stage**: code-generation\n", "name": "Stage"}
+{"id": "audit_field-00155", "kind": "audit_field", "block": "\n## Stage_Completed\n**Timestamp**:é\n**Event**:\nSTAGE_COMPLETED\n**Bolt slug**: o.e\n- **Stage**:  spaced  \n", "name": "Note"}
+{"id": "audit_field-00156", "kind": "audit_field", "block": "\n## A.B\n**Timestamp**: 1 tail\n- **Event**: A.B\n- **Stage**:  spaced  \n", "name": ""}
+{"id": "audit_field-00157", "kind": "audit_field", "block": "\n## X\n**Timestamp**: 2026-10-09T16:22:42.123Z\n- **Event**: X\n**Bolt slug**: a-b\n**Details (raw)**: x\n", "name": "Details (raw)"}
+{"id": "audit_field-00158", "kind": "audit_field", "block": "\n## A.B\n**Event**: A.B\t\nplain line\n", "name": "Sta"}
+{"id": "audit_field-00159", "kind": "audit_field", "block": "\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:42Z\n**Event**: STAGE_STARTED\n**Event**: X\n**Bolt slug**\\ o.e\n", "name": "Event"}
+{"id": "audit_field-00160", "kind": "audit_field", "block": "\n## Bolt_Started\n**Timestamp**: 2026-10-09T16:22:43Z tail\n**event**: BOLT_STARTED\n**Stage**: first\n**Stage**: second\n", "name": "Note"}
+{"id": "audit_field-00161", "kind": "audit_field", "block": "\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:42Z\n- **Event**: STAGE_STARTED\n**Bolt slug**: a-bx\n**Stage**: code-generation\n", "name": ""}
+{"id": "audit_field-00162", "kind": "audit_field", "block": "\n## A+\n**Timestamp**:2026-10-08T23:59:59Z tail\n**Event**: A+x\n**Bolt slug**: a-b\n**Stage**: code-generation\n", "name": "Event"}
+{"id": "audit_field-00163", "kind": "audit_field", "block": "\n## Gate_Approved\n**Timestamp**: 2026-10-09T16:22:42Z\n**Event**:GATE_APPROVED\n**Stage**: code-generation\n", "name": "Timestamp"}
+{"id": "audit_field-00164", "kind": "audit_field", "block": "\n## A.B\n**Timestamp**:\t2026-10-08T23:59:59Z tail\n**Event**: A.B\n**Event**: X\n- **Bolt slug**: o.e\n", "name": "Sta"}
+{"id": "audit_field-00165", "kind": "audit_field", "block": "\n## Bolt_Started\n*1*Eent**:BOLT_STARTED\n**Detailsé(raw)**: x\n", "name": "Timestamp"}
+{"id": "audit_field-00166", "kind": "audit_field", "block": "\n## X\n**Timestamp**: é\n**Event**: X\n**Event**: X\n- **Bolt slug**: two\n**Note**: a\\nb\n", "name": "Event"}
+{"id": "audit_field-00167", "kind": "audit_field", "block": "\n## A.B\n**Timestamp**: x\n**Event**: A.B\n**Event**: X\n**Note**: a\\nb\n", "name": "Event"}
+{"id": "audit_field-00168", "kind": "audit_field", "block": "\n## Stage_Started\n**Timestamp**:  2026-10-09T16:22:42..23Z tail\n**Ev{nt**: STAGE_STARTED  \n**Bolt slug**: one\n- **Stage**:  spaced  \n", "name": "Bolt slug"}
+{"id": "audit_field-00169", "kind": "audit_field", "block": "\n## X\n**Timestamp**:\t2026-10-08T23:59:59Z\n**event**: X\nplain line\n", "name": ""}
+{"id": "audit_field-00170", "kind": "audit_field", "block": "\n## Gate_Approved\n**Timestamp**:\té\n**Event**: GATE_APPROVED\t\n- **Stage**:  spaced  \n", "name": "Note"}
+{"id": "audit_field-00171", "kind": "audit_field", "block": "\n## X\n**Event**: X\n", "name": "Details (raw)"}
+{"id": "audit_field-00172", "kind": "audit_field", "block": "\n## Bolt_Started\n**Timestamp**:  é\n**Event**: BOLT_S[ARTED\n", "name": "Sta"}
+{"id": "audit_field-00173", "kind": "audit_field", "block": "\n## G\"te_Approved\n**Timestamp**:  2026-10-09T16:22:42Z\n**Event**: GATE_APPROVED\t\n- **Bolt slug**: one\n", "name": "Timestamp"}
+{"id": "audit_field-00174", "kind": "audit_field", "block": "\n## A+\n**Timestamp**:1 tail\n**Event**:A+\n", "name": "Event"}
+{"id": "audit_field-00175", "kind": "audit_field", "block": "\n# Bolt_Started\n**Timestamp**: 2026-10-09T16:22:43Z\n- **Event**: BOLT_STARTED\n*Bl{t slug**: two\n", "name": "Event"}
+{"id": "audit_field-00176", "kind": "audit_field", "block": "\n## Bolt_Started\n**Event**:BOLT_STARTED\n", "name": "event"}
+{"id": "audit_field-00177", "kind": "audit_field", "block": "\n## X\n**Timestamp**:  2026-10-09T16:22:42Z tail\n**Event**: X\n", "name": "Timestamp"}
+{"id": "audit_field-00178", "kind": "audit_field", "block": "\n## A+\n**Timestamp**: 2026-10-09T16:22:42Z\n**Event**:A+\n- **Bolt slug**: two\n", "name": "Details (raw)"}
+{"id": "audit_field-00179", "kind": "audit_field", "block": "\n## Stage_Completed\n**Timestamp**:x tail\n**Event**: STAGE_COMPLETED\n**Event**: X\n- **Bolt slug**: a-b\n", "name": "Timestamp"}

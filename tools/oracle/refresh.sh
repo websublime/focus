@@ -81,10 +81,12 @@ bun tools/oracle/emoji.ts
 bun tools/oracle/patterns.ts "$UPSTREAM" >"$ASKED/patterns.json"
 python3 -I tools/oracle/gen_cases.py "$UPSTREAM/core" "$SEED" "$SCALE" "$ASKED/patterns.json" >"$ASKED/cases.ndjson"
 bun tools/oracle/driver.ts "$UPSTREAM" "$ASKED/cases.ndjson" >"$ASKED/expected.ndjson"
-python3 -I tools/oracle/names.py text <"$ASKED/cases.ndjson" >fixtures/oracle/cases.ndjson
-python3 -I tools/oracle/names.py text <"$ASKED/expected.ndjson" >fixtures/oracle/expected.ndjson
+python3 -I tools/oracle/names.py text <"$ASKED/cases.ndjson" >"$ASKED/cases.focus.ndjson"
+python3 -I tools/oracle/names.py text <"$ASKED/expected.ndjson" >"$ASKED/expected.focus.ndjson"
+# One file of cases and one of answers for each kind, in the order they were answered.
+python3 -I tools/oracle/split.py "$ASKED/cases.focus.ndjson" "$ASKED/expected.focus.ndjson" fixtures/oracle
+printf 'seed: %s\nscale: %s\ncases: %s\n' "$SEED" "$SCALE" "$(wc -l <"$ASKED/cases.focus.ndjson")" >fixtures/oracle/CORPUS
 rm -rf "$ASKED"
-printf 'seed: %s\nscale: %s\ncases: %s\n' "$SEED" "$SCALE" "$(wc -l <fixtures/oracle/cases.ndjson)" >fixtures/oracle/CORPUS
 
 cargo build --release --quiet
 python3 -I tools/oracle/differential.py "$UPSTREAM" target/release/focus --record fixtures/recorded

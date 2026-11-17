@@ -1,0 +1,1201 @@
+{"id": "engine_route-00000", "kind": "engine_route", "args": ["engine", "top", "status"]}
+{"id": "engine_route-00001", "kind": "engine_route", "args": ["engine", "top", "status", "--unit", "auth", "--quiet"]}
+{"id": "engine_route-00002", "kind": "engine_route", "args": ["engine", "top", "recompose"]}
+{"id": "engine_route-00003", "kind": "engine_route", "args": ["engine", "top", "recompose", "--help"]}
+{"id": "engine_route-00004", "kind": "engine_route", "args": ["engine", "top", "now"]}
+{"id": "engine_route-00005", "kind": "engine_route", "args": ["engine", "top", "now", "--help"]}
+{"id": "engine_route-00006", "kind": "engine_route", "args": ["engine", "top", "statusline"]}
+{"id": "engine_route-00007", "kind": "engine_route", "args": ["engine", "top", "statusline", "--project-dir=/oracle/x"]}
+{"id": "engine_route-00008", "kind": "engine_route", "args": ["engine", "top", "adapter"]}
+{"id": "engine_route-00009", "kind": "engine_route", "args": ["engine", "top", "adapter", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-00010", "kind": "engine_route", "args": ["engine", "top"]}
+{"id": "engine_route-00011", "kind": "engine_route", "args": ["engine", "top", "nope"]}
+{"id": "engine_route-00012", "kind": "engine_route", "args": ["engine", "state", "get"]}
+{"id": "engine_route-00013", "kind": "engine_route", "args": ["engine", "state", "get", "--no-color", "--offline"]}
+{"id": "engine_route-00014", "kind": "engine_route", "args": ["engine", "state", "set"]}
+{"id": "engine_route-00015", "kind": "engine_route", "args": ["engine", "state", "set", "--intent", "a"]}
+{"id": "engine_route-00016", "kind": "engine_route", "args": ["engine", "state", "set-skeleton-stance"]}
+{"id": "engine_route-00017", "kind": "engine_route", "args": ["engine", "state", "set-skeleton-stance", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-00018", "kind": "engine_route", "args": ["engine", "state", "set-construction-iteration"]}
+{"id": "engine_route-00019", "kind": "engine_route", "args": ["engine", "state", "set-construction-iteration", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-00020", "kind": "engine_route", "args": ["engine", "state", "set-construction-checkpoints"]}
+{"id": "engine_route-00021", "kind": "engine_route", "args": ["engine", "state", "set-construction-checkpoints", "--unit", "auth", "--quiet"]}
+{"id": "engine_route-00022", "kind": "engine_route", "args": ["engine", "state", "set-construction-execution"]}
+{"id": "engine_route-00023", "kind": "engine_route", "args": ["engine", "state", "set-construction-execution", "x"]}
+{"id": "engine_route-00024", "kind": "engine_route", "args": ["engine", "state", "set-construction-verification-command"]}
+{"id": "engine_route-00025", "kind": "engine_route", "args": ["engine", "state", "set-construction-verification-command", "", "x"]}
+{"id": "engine_route-00026", "kind": "engine_route", "args": ["engine", "state", "checkbox"]}
+{"id": "engine_route-00027", "kind": "engine_route", "args": ["engine", "state", "checkbox", "--space=b"]}
+{"id": "engine_route-00028", "kind": "engine_route", "args": ["engine", "state", "count"]}
+{"id": "engine_route-00029", "kind": "engine_route", "args": ["engine", "state", "count", "", "x"]}
+{"id": "engine_route-00030", "kind": "engine_route", "args": ["engine", "state", "advance"]}
+{"id": "engine_route-00031", "kind": "engine_route", "args": ["engine", "state", "advance", "--json"]}
+{"id": "engine_route-00032", "kind": "engine_route", "args": ["engine", "state", "finalize"]}
+{"id": "engine_route-00033", "kind": "engine_route", "args": ["engine", "state", "finalize", "a", "--", "b"]}
+{"id": "engine_route-00034", "kind": "engine_route", "args": ["engine", "state", "complete-workflow"]}
+{"id": "engine_route-00035", "kind": "engine_route", "args": ["engine", "state", "complete-workflow", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-00036", "kind": "engine_route", "args": ["engine", "state", "gate-start"]}
+{"id": "engine_route-00037", "kind": "engine_route", "args": ["engine", "state", "gate-start", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-00038", "kind": "engine_route", "args": ["engine", "state", "approve"]}
+{"id": "engine_route-00039", "kind": "engine_route", "args": ["engine", "state", "approve", "--project-dir=/oracle/x"]}
+{"id": "engine_route-00040", "kind": "engine_route", "args": ["engine", "state", "reject"]}
+{"id": "engine_route-00041", "kind": "engine_route", "args": ["engine", "state", "reject", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-00042", "kind": "engine_route", "args": ["engine", "state", "revise"]}
+{"id": "engine_route-00043", "kind": "engine_route", "args": ["engine", "state", "revise", "", "x"]}
+{"id": "engine_route-00044", "kind": "engine_route", "args": ["engine", "state", "skip"]}
+{"id": "engine_route-00045", "kind": "engine_route", "args": ["engine", "state", "skip", "--yes", "--", "--json"]}
+{"id": "engine_route-00046", "kind": "engine_route", "args": ["engine", "state", "resume"]}
+{"id": "engine_route-00047", "kind": "engine_route", "args": ["engine", "state", "resume", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-00048", "kind": "engine_route", "args": ["engine", "state", "acknowledge-compaction"]}
+{"id": "engine_route-00049", "kind": "engine_route", "args": ["engine", "state", "acknowledge-compaction", "--project-dir"]}
+{"id": "engine_route-00050", "kind": "engine_route", "args": ["engine", "state", "reuse-artifact"]}
+{"id": "engine_route-00051", "kind": "engine_route", "args": ["engine", "state", "reuse-artifact", "--json"]}
+{"id": "engine_route-00052", "kind": "engine_route", "args": ["engine", "state", "lookup"]}
+{"id": "engine_route-00053", "kind": "engine_route", "args": ["engine", "state", "lookup", "", "x"]}
+{"id": "engine_route-00054", "kind": "engine_route", "args": ["engine", "state", "practices-event"]}
+{"id": "engine_route-00055", "kind": "engine_route", "args": ["engine", "state", "practices-event", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-00056", "kind": "engine_route", "args": ["engine", "state", "practices-promote"]}
+{"id": "engine_route-00057", "kind": "engine_route", "args": ["engine", "state", "practices-promote", "--json"]}
+{"id": "engine_route-00058", "kind": "engine_route", "args": ["engine", "state", "set-unit-ownership"]}
+{"id": "engine_route-00059", "kind": "engine_route", "args": ["engine", "state", "set-unit-ownership", "", "x"]}
+{"id": "engine_route-00060", "kind": "engine_route", "args": ["engine", "state", "set-unit-gate-rhythm"]}
+{"id": "engine_route-00061", "kind": "engine_route", "args": ["engine", "state", "set-unit-gate-rhythm", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-00062", "kind": "engine_route", "args": ["engine", "state", "refresh-unit-progress"]}
+{"id": "engine_route-00063", "kind": "engine_route", "args": ["engine", "state", "refresh-unit-progress", "--help"]}
+{"id": "engine_route-00064", "kind": "engine_route", "args": ["engine", "state", "sync-unit-scope-stage"]}
+{"id": "engine_route-00065", "kind": "engine_route", "args": ["engine", "state", "sync-unit-scope-stage", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-00066", "kind": "engine_route", "args": ["engine", "state", "fold-unit-merge"]}
+{"id": "engine_route-00067", "kind": "engine_route", "args": ["engine", "state", "fold-unit-merge", "--space=b"]}
+{"id": "engine_route-00068", "kind": "engine_route", "args": ["engine", "state", "fork"]}
+{"id": "engine_route-00069", "kind": "engine_route", "args": ["engine", "state", "fork", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-00070", "kind": "engine_route", "args": ["engine", "state", "merge"]}
+{"id": "engine_route-00071", "kind": "engine_route", "args": ["engine", "state", "merge", "", "x"]}
+{"id": "engine_route-00072", "kind": "engine_route", "args": ["engine", "state", "park"]}
+{"id": "engine_route-00073", "kind": "engine_route", "args": ["engine", "state", "park", "--space=b"]}
+{"id": "engine_route-00074", "kind": "engine_route", "args": ["engine", "state", "unpark"]}
+{"id": "engine_route-00075", "kind": "engine_route", "args": ["engine", "state", "unpark", "--project-dir", "--json"]}
+{"id": "engine_route-00076", "kind": "engine_route", "args": ["engine", "state", "unit"]}
+{"id": "engine_route-00077", "kind": "engine_route", "args": ["engine", "state", "unit", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-00078", "kind": "engine_route", "args": ["engine", "state", "set-status"]}
+{"id": "engine_route-00079", "kind": "engine_route", "args": ["engine", "state", "set-status", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-00080", "kind": "engine_route", "args": ["engine", "state", "init"]}
+{"id": "engine_route-00081", "kind": "engine_route", "args": ["engine", "state", "init", "--intent", "a"]}
+{"id": "engine_route-00082", "kind": "engine_route", "args": ["engine", "state"]}
+{"id": "engine_route-00083", "kind": "engine_route", "args": ["engine", "state", "--help"]}
+{"id": "engine_route-00084", "kind": "engine_route", "args": ["engine", "audit", "append"]}
+{"id": "engine_route-00085", "kind": "engine_route", "args": ["engine", "audit", "append", "--help"]}
+{"id": "engine_route-00086", "kind": "engine_route", "args": ["engine", "audit", "append-batch"]}
+{"id": "engine_route-00087", "kind": "engine_route", "args": ["engine", "audit", "append-batch", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-00088", "kind": "engine_route", "args": ["engine", "audit", "append-raw"]}
+{"id": "engine_route-00089", "kind": "engine_route", "args": ["engine", "audit", "append-raw", "--project-dir"]}
+{"id": "engine_route-00090", "kind": "engine_route", "args": ["engine", "audit", "history"]}
+{"id": "engine_route-00091", "kind": "engine_route", "args": ["engine", "audit", "history", "--project-dir=/oracle/x"]}
+{"id": "engine_route-00092", "kind": "engine_route", "args": ["engine", "audit", "fork"]}
+{"id": "engine_route-00093", "kind": "engine_route", "args": ["engine", "audit", "fork", "--project-dir", "--json"]}
+{"id": "engine_route-00094", "kind": "engine_route", "args": ["engine", "audit", "merge"]}
+{"id": "engine_route-00095", "kind": "engine_route", "args": ["engine", "audit", "merge", "", "x"]}
+{"id": "engine_route-00096", "kind": "engine_route", "args": ["engine", "audit"]}
+{"id": "engine_route-00097", "kind": "engine_route", "args": ["engine", "audit", ""]}
+{"id": "engine_route-00098", "kind": "engine_route", "args": ["engine", "graph", "artifacts"]}
+{"id": "engine_route-00099", "kind": "engine_route", "args": ["engine", "graph", "artifacts", "--project-dir=/oracle/x"]}
+{"id": "engine_route-00100", "kind": "engine_route", "args": ["engine", "graph", "producers"]}
+{"id": "engine_route-00101", "kind": "engine_route", "args": ["engine", "graph", "producers", "", "x"]}
+{"id": "engine_route-00102", "kind": "engine_route", "args": ["engine", "graph", "consumers"]}
+{"id": "engine_route-00103", "kind": "engine_route", "args": ["engine", "graph", "consumers", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-00104", "kind": "engine_route", "args": ["engine", "graph", "topo"]}
+{"id": "engine_route-00105", "kind": "engine_route", "args": ["engine", "graph", "topo", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-00106", "kind": "engine_route", "args": ["engine", "graph", "cycles"]}
+{"id": "engine_route-00107", "kind": "engine_route", "args": ["engine", "graph", "cycles", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-00108", "kind": "engine_route", "args": ["engine", "graph", "scope"]}
+{"id": "engine_route-00109", "kind": "engine_route", "args": ["engine", "graph", "scope", "--intent", "a"]}
+{"id": "engine_route-00110", "kind": "engine_route", "args": ["engine", "graph", "validate-scope"]}
+{"id": "engine_route-00111", "kind": "engine_route", "args": ["engine", "graph", "validate-scope", "--help"]}
+{"id": "engine_route-00112", "kind": "engine_route", "args": ["engine", "graph", "validate-grid"]}
+{"id": "engine_route-00113", "kind": "engine_route", "args": ["engine", "graph", "validate-grid", "--help"]}
+{"id": "engine_route-00114", "kind": "engine_route", "args": ["engine", "graph", "ars"]}
+{"id": "engine_route-00115", "kind": "engine_route", "args": ["engine", "graph", "ars", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-00116", "kind": "engine_route", "args": ["engine", "graph", "compile"]}
+{"id": "engine_route-00117", "kind": "engine_route", "args": ["engine", "graph", "compile", "--project-dir", "--json"]}
+{"id": "engine_route-00118", "kind": "engine_route", "args": ["engine", "graph", "resolve"]}
+{"id": "engine_route-00119", "kind": "engine_route", "args": ["engine", "graph", "resolve", "--space=b"]}
+{"id": "engine_route-00120", "kind": "engine_route", "args": ["engine", "graph", "export"]}
+{"id": "engine_route-00121", "kind": "engine_route", "args": ["engine", "graph", "export", "--project-dir"]}
+{"id": "engine_route-00122", "kind": "engine_route", "args": ["engine", "graph"]}
+{"id": "engine_route-00123", "kind": "engine_route", "args": ["engine", "graph", "--help"]}
+{"id": "engine_route-00124", "kind": "engine_route", "args": ["engine", "runtime", "compile"]}
+{"id": "engine_route-00125", "kind": "engine_route", "args": ["engine", "runtime", "compile", "--verbose", "a b"]}
+{"id": "engine_route-00126", "kind": "engine_route", "args": ["engine", "runtime", "read"]}
+{"id": "engine_route-00127", "kind": "engine_route", "args": ["engine", "runtime", "read", "--space=b"]}
+{"id": "engine_route-00128", "kind": "engine_route", "args": ["engine", "runtime", "summary"]}
+{"id": "engine_route-00129", "kind": "engine_route", "args": ["engine", "runtime", "summary", "--verbose", "a b"]}
+{"id": "engine_route-00130", "kind": "engine_route", "args": ["engine", "runtime", "fragment-fork"]}
+{"id": "engine_route-00131", "kind": "engine_route", "args": ["engine", "runtime", "fragment-fork", "--project-dir"]}
+{"id": "engine_route-00132", "kind": "engine_route", "args": ["engine", "runtime", "fragment-merge"]}
+{"id": "engine_route-00133", "kind": "engine_route", "args": ["engine", "runtime", "fragment-merge", "--stage", "code-generation"]}
+{"id": "engine_route-00134", "kind": "engine_route", "args": ["engine", "runtime"]}
+{"id": "engine_route-00135", "kind": "engine_route", "args": ["engine", "runtime", ""]}
+{"id": "engine_route-00136", "kind": "engine_route", "args": ["engine", "sensor", "list"]}
+{"id": "engine_route-00137", "kind": "engine_route", "args": ["engine", "sensor", "list", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-00138", "kind": "engine_route", "args": ["engine", "sensor", "describe"]}
+{"id": "engine_route-00139", "kind": "engine_route", "args": ["engine", "sensor", "describe", "", "x"]}
+{"id": "engine_route-00140", "kind": "engine_route", "args": ["engine", "sensor", "fire"]}
+{"id": "engine_route-00141", "kind": "engine_route", "args": ["engine", "sensor", "fire", "--unit", "auth", "--quiet"]}
+{"id": "engine_route-00142", "kind": "engine_route", "args": ["engine", "sensor"]}
+{"id": "engine_route-00143", "kind": "engine_route", "args": ["engine", "sensor", "--help"]}
+{"id": "engine_route-00144", "kind": "engine_route", "args": ["engine", "swarm", "prepare"]}
+{"id": "engine_route-00145", "kind": "engine_route", "args": ["engine", "swarm", "prepare", "--unit", "auth", "--quiet"]}
+{"id": "engine_route-00146", "kind": "engine_route", "args": ["engine", "swarm", "check"]}
+{"id": "engine_route-00147", "kind": "engine_route", "args": ["engine", "swarm", "check", "a", "--", "b"]}
+{"id": "engine_route-00148", "kind": "engine_route", "args": ["engine", "swarm", "finalize"]}
+{"id": "engine_route-00149", "kind": "engine_route", "args": ["engine", "swarm", "finalize", "--verbose", "a b"]}
+{"id": "engine_route-00150", "kind": "engine_route", "args": ["engine", "swarm"]}
+{"id": "engine_route-00151", "kind": "engine_route", "args": ["engine", "swarm", "-h"]}
+{"id": "engine_route-00152", "kind": "engine_route", "args": ["engine", "bolt", "start"]}
+{"id": "engine_route-00153", "kind": "engine_route", "args": ["engine", "bolt", "start", "--intent", "a"]}
+{"id": "engine_route-00154", "kind": "engine_route", "args": ["engine", "bolt", "complete"]}
+{"id": "engine_route-00155", "kind": "engine_route", "args": ["engine", "bolt", "complete", "--yes", "--", "--json"]}
+{"id": "engine_route-00156", "kind": "engine_route", "args": ["engine", "bolt", "fail"]}
+{"id": "engine_route-00157", "kind": "engine_route", "args": ["engine", "bolt", "fail", "--verbose", "a b"]}
+{"id": "engine_route-00158", "kind": "engine_route", "args": ["engine", "bolt", "abort"]}
+{"id": "engine_route-00159", "kind": "engine_route", "args": ["engine", "bolt", "abort", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-00160", "kind": "engine_route", "args": ["engine", "bolt", "set-autonomy"]}
+{"id": "engine_route-00161", "kind": "engine_route", "args": ["engine", "bolt", "set-autonomy", "--project-dir", "--json"]}
+{"id": "engine_route-00162", "kind": "engine_route", "args": ["engine", "bolt", "checkpoint"]}
+{"id": "engine_route-00163", "kind": "engine_route", "args": ["engine", "bolt", "checkpoint", "--json"]}
+{"id": "engine_route-00164", "kind": "engine_route", "args": ["engine", "bolt", "swarm-checkpoint"]}
+{"id": "engine_route-00165", "kind": "engine_route", "args": ["engine", "bolt", "swarm-checkpoint", "--unit", "auth", "--quiet"]}
+{"id": "engine_route-00166", "kind": "engine_route", "args": ["engine", "bolt", "dispatch-event"]}
+{"id": "engine_route-00167", "kind": "engine_route", "args": ["engine", "bolt", "dispatch-event", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-00168", "kind": "engine_route", "args": ["engine", "bolt", "hold-merge"]}
+{"id": "engine_route-00169", "kind": "engine_route", "args": ["engine", "bolt", "hold-merge", "a", "--", "b"]}
+{"id": "engine_route-00170", "kind": "engine_route", "args": ["engine", "bolt", "release-merge"]}
+{"id": "engine_route-00171", "kind": "engine_route", "args": ["engine", "bolt", "release-merge", "--intent", "a"]}
+{"id": "engine_route-00172", "kind": "engine_route", "args": ["engine", "bolt"]}
+{"id": "engine_route-00173", "kind": "engine_route", "args": ["engine", "bolt", "--help"]}
+{"id": "engine_route-00174", "kind": "engine_route", "args": ["engine", "worktree", "create"]}
+{"id": "engine_route-00175", "kind": "engine_route", "args": ["engine", "worktree", "create", "--project-dir", "--json"]}
+{"id": "engine_route-00176", "kind": "engine_route", "args": ["engine", "worktree", "merge"]}
+{"id": "engine_route-00177", "kind": "engine_route", "args": ["engine", "worktree", "merge", "--verbose", "a b"]}
+{"id": "engine_route-00178", "kind": "engine_route", "args": ["engine", "worktree", "discard"]}
+{"id": "engine_route-00179", "kind": "engine_route", "args": ["engine", "worktree", "discard", "--space=b"]}
+{"id": "engine_route-00180", "kind": "engine_route", "args": ["engine", "worktree", "restore"]}
+{"id": "engine_route-00181", "kind": "engine_route", "args": ["engine", "worktree", "restore", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-00182", "kind": "engine_route", "args": ["engine", "worktree", "purge"]}
+{"id": "engine_route-00183", "kind": "engine_route", "args": ["engine", "worktree", "purge", "--space=b"]}
+{"id": "engine_route-00184", "kind": "engine_route", "args": ["engine", "worktree", "list"]}
+{"id": "engine_route-00185", "kind": "engine_route", "args": ["engine", "worktree", "list", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-00186", "kind": "engine_route", "args": ["engine", "worktree", "verify"]}
+{"id": "engine_route-00187", "kind": "engine_route", "args": ["engine", "worktree", "verify", "", "x"]}
+{"id": "engine_route-00188", "kind": "engine_route", "args": ["engine", "worktree", "info"]}
+{"id": "engine_route-00189", "kind": "engine_route", "args": ["engine", "worktree", "info", "--yes", "--", "--json"]}
+{"id": "engine_route-00190", "kind": "engine_route", "args": ["engine", "worktree"]}
+{"id": "engine_route-00191", "kind": "engine_route", "args": ["engine", "worktree", "nope"]}
+{"id": "engine_route-00192", "kind": "engine_route", "args": ["engine", "jump", "resolve"]}
+{"id": "engine_route-00193", "kind": "engine_route", "args": ["engine", "jump", "resolve", "x"]}
+{"id": "engine_route-00194", "kind": "engine_route", "args": ["engine", "jump", "execute"]}
+{"id": "engine_route-00195", "kind": "engine_route", "args": ["engine", "jump", "execute", "--help"]}
+{"id": "engine_route-00196", "kind": "engine_route", "args": ["engine", "jump", "reopen"]}
+{"id": "engine_route-00197", "kind": "engine_route", "args": ["engine", "jump", "reopen", "--verbose", "a b"]}
+{"id": "engine_route-00198", "kind": "engine_route", "args": ["engine", "jump"]}
+{"id": "engine_route-00199", "kind": "engine_route", "args": ["engine", "jump", "--help"]}
+{"id": "engine_route-00200", "kind": "engine_route", "args": ["engine", "log", "decision"]}
+{"id": "engine_route-00201", "kind": "engine_route", "args": ["engine", "log", "decision", "--project-dir=/oracle/x"]}
+{"id": "engine_route-00202", "kind": "engine_route", "args": ["engine", "log", "answer"]}
+{"id": "engine_route-00203", "kind": "engine_route", "args": ["engine", "log", "answer", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-00204", "kind": "engine_route", "args": ["engine", "log", "answers"]}
+{"id": "engine_route-00205", "kind": "engine_route", "args": ["engine", "log", "answers", "--project-dir=/oracle/x"]}
+{"id": "engine_route-00206", "kind": "engine_route", "args": ["engine", "log", "review"]}
+{"id": "engine_route-00207", "kind": "engine_route", "args": ["engine", "log", "review", "--project-dir"]}
+{"id": "engine_route-00208", "kind": "engine_route", "args": ["engine", "log", "link"]}
+{"id": "engine_route-00209", "kind": "engine_route", "args": ["engine", "log", "link", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-00210", "kind": "engine_route", "args": ["engine", "log"]}
+{"id": "engine_route-00211", "kind": "engine_route", "args": ["engine", "log", "nope"]}
+{"id": "engine_route-00212", "kind": "engine_route", "args": ["engine", "learnings", "surface"]}
+{"id": "engine_route-00213", "kind": "engine_route", "args": ["engine", "learnings", "surface", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-00214", "kind": "engine_route", "args": ["engine", "learnings", "persist"]}
+{"id": "engine_route-00215", "kind": "engine_route", "args": ["engine", "learnings", "persist", "", "x"]}
+{"id": "engine_route-00216", "kind": "engine_route", "args": ["engine", "learnings"]}
+{"id": "engine_route-00217", "kind": "engine_route", "args": ["engine", "learnings", "-h"]}
+{"id": "engine_route-00218", "kind": "engine_route", "args": ["engine", "testing-posture", "resolve"]}
+{"id": "engine_route-00219", "kind": "engine_route", "args": ["engine", "testing-posture", "resolve", "--help"]}
+{"id": "engine_route-00220", "kind": "engine_route", "args": ["engine", "testing-posture", "render"]}
+{"id": "engine_route-00221", "kind": "engine_route", "args": ["engine", "testing-posture", "render", "--no-color", "--offline"]}
+{"id": "engine_route-00222", "kind": "engine_route", "args": ["engine", "testing-posture", "fingerprint"]}
+{"id": "engine_route-00223", "kind": "engine_route", "args": ["engine", "testing-posture", "fingerprint", "--unit", "auth", "--quiet"]}
+{"id": "engine_route-00224", "kind": "engine_route", "args": ["engine", "testing-posture", "verify"]}
+{"id": "engine_route-00225", "kind": "engine_route", "args": ["engine", "testing-posture", "verify", "--no-color", "--offline"]}
+{"id": "engine_route-00226", "kind": "engine_route", "args": ["engine", "testing-posture", "begin"]}
+{"id": "engine_route-00227", "kind": "engine_route", "args": ["engine", "testing-posture", "begin", "--project-dir"]}
+{"id": "engine_route-00228", "kind": "engine_route", "args": ["engine", "testing-posture", "brief"]}
+{"id": "engine_route-00229", "kind": "engine_route", "args": ["engine", "testing-posture", "brief", "--project-dir", "--json"]}
+{"id": "engine_route-00230", "kind": "engine_route", "args": ["engine", "testing-posture", "reply"]}
+{"id": "engine_route-00231", "kind": "engine_route", "args": ["engine", "testing-posture", "reply", "--json"]}
+{"id": "engine_route-00232", "kind": "engine_route", "args": ["engine", "testing-posture", "restore"]}
+{"id": "engine_route-00233", "kind": "engine_route", "args": ["engine", "testing-posture", "restore", "--json"]}
+{"id": "engine_route-00234", "kind": "engine_route", "args": ["engine", "testing-posture"]}
+{"id": "engine_route-00235", "kind": "engine_route", "args": ["engine", "testing-posture", "help"]}
+{"id": "engine_route-00236", "kind": "engine_route", "args": ["engine", "validate", "outputs"]}
+{"id": "engine_route-00237", "kind": "engine_route", "args": ["engine", "validate", "outputs", "--json"]}
+{"id": "engine_route-00238", "kind": "engine_route", "args": ["engine", "validate"]}
+{"id": "engine_route-00239", "kind": "engine_route", "args": ["engine", "validate", "-h"]}
+{"id": "engine_route-00240", "kind": "engine_route", "args": ["engine", "intent", "list"]}
+{"id": "engine_route-00241", "kind": "engine_route", "args": ["engine", "intent", "list", "--verbose", "a b"]}
+{"id": "engine_route-00242", "kind": "engine_route", "args": ["engine", "intent", "switch"]}
+{"id": "engine_route-00243", "kind": "engine_route", "args": ["engine", "intent", "switch", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-00244", "kind": "engine_route", "args": ["engine", "intent", "<name>"]}
+{"id": "engine_route-00245", "kind": "engine_route", "args": ["engine", "intent", "<name>", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-00246", "kind": "engine_route", "args": ["engine", "intent", "create"]}
+{"id": "engine_route-00247", "kind": "engine_route", "args": ["engine", "intent", "create", "--unit", "auth", "--quiet"]}
+{"id": "engine_route-00248", "kind": "engine_route", "args": ["engine", "intent", "archive"]}
+{"id": "engine_route-00249", "kind": "engine_route", "args": ["engine", "intent", "archive", "--intent", "a"]}
+{"id": "engine_route-00250", "kind": "engine_route", "args": ["engine", "intent", "unarchive"]}
+{"id": "engine_route-00251", "kind": "engine_route", "args": ["engine", "intent", "unarchive", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-00252", "kind": "engine_route", "args": ["engine", "intent", "add-repo"]}
+{"id": "engine_route-00253", "kind": "engine_route", "args": ["engine", "intent", "add-repo", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-00254", "kind": "engine_route", "args": ["engine", "intent", "remove-repo"]}
+{"id": "engine_route-00255", "kind": "engine_route", "args": ["engine", "intent", "remove-repo", "--no-color", "--offline"]}
+{"id": "engine_route-00256", "kind": "engine_route", "args": ["engine", "intent"]}
+{"id": "engine_route-00257", "kind": "engine_route", "args": ["engine", "intent", "help"]}
+{"id": "engine_route-00258", "kind": "engine_route", "args": ["engine", "space", "list"]}
+{"id": "engine_route-00259", "kind": "engine_route", "args": ["engine", "space", "list", "x"]}
+{"id": "engine_route-00260", "kind": "engine_route", "args": ["engine", "space", "switch"]}
+{"id": "engine_route-00261", "kind": "engine_route", "args": ["engine", "space", "switch", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-00262", "kind": "engine_route", "args": ["engine", "space", "<name>"]}
+{"id": "engine_route-00263", "kind": "engine_route", "args": ["engine", "space", "<name>", "--help"]}
+{"id": "engine_route-00264", "kind": "engine_route", "args": ["engine", "space", "create"]}
+{"id": "engine_route-00265", "kind": "engine_route", "args": ["engine", "space", "create", "--project-dir", "--json"]}
+{"id": "engine_route-00266", "kind": "engine_route", "args": ["engine", "space"]}
+{"id": "engine_route-00267", "kind": "engine_route", "args": ["engine", "space", ""]}
+{"id": "engine_route-00268", "kind": "engine_route", "args": ["engine", "scope", "change"]}
+{"id": "engine_route-00269", "kind": "engine_route", "args": ["engine", "scope", "change", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-00270", "kind": "engine_route", "args": ["engine", "scope", "save"]}
+{"id": "engine_route-00271", "kind": "engine_route", "args": ["engine", "scope", "save", "--yes", "--", "--json"]}
+{"id": "engine_route-00272", "kind": "engine_route", "args": ["engine", "scope", "detect"]}
+{"id": "engine_route-00273", "kind": "engine_route", "args": ["engine", "scope", "detect", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-00274", "kind": "engine_route", "args": ["engine", "scope", "resolve-env"]}
+{"id": "engine_route-00275", "kind": "engine_route", "args": ["engine", "scope", "resolve-env", "--project-dir"]}
+{"id": "engine_route-00276", "kind": "engine_route", "args": ["engine", "scope"]}
+{"id": "engine_route-00277", "kind": "engine_route", "args": ["engine", "scope", "-h"]}
+{"id": "engine_route-00278", "kind": "engine_route", "args": ["engine", "config", "depth"]}
+{"id": "engine_route-00279", "kind": "engine_route", "args": ["engine", "config", "depth", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-00280", "kind": "engine_route", "args": ["engine", "config", "test-strategy"]}
+{"id": "engine_route-00281", "kind": "engine_route", "args": ["engine", "config", "test-strategy", "--project-dir"]}
+{"id": "engine_route-00282", "kind": "engine_route", "args": ["engine", "config", "review"]}
+{"id": "engine_route-00283", "kind": "engine_route", "args": ["engine", "config", "review", "--intent", "a"]}
+{"id": "engine_route-00284", "kind": "engine_route", "args": ["engine", "config", "guard-policy"]}
+{"id": "engine_route-00285", "kind": "engine_route", "args": ["engine", "config", "guard-policy", "--yes", "--", "--json"]}
+{"id": "engine_route-00286", "kind": "engine_route", "args": ["engine", "config", "change-control"]}
+{"id": "engine_route-00287", "kind": "engine_route", "args": ["engine", "config", "change-control", "--no-color", "--offline"]}
+{"id": "engine_route-00288", "kind": "engine_route", "args": ["engine", "config", "sensors"]}
+{"id": "engine_route-00289", "kind": "engine_route", "args": ["engine", "config", "sensors", "--yes", "--", "--json"]}
+{"id": "engine_route-00290", "kind": "engine_route", "args": ["engine", "config", "learnings"]}
+{"id": "engine_route-00291", "kind": "engine_route", "args": ["engine", "config", "learnings", "a", "--", "b"]}
+{"id": "engine_route-00292", "kind": "engine_route", "args": ["engine", "config", "collaborators"]}
+{"id": "engine_route-00293", "kind": "engine_route", "args": ["engine", "config", "collaborators", "--project-dir", "--json"]}
+{"id": "engine_route-00294", "kind": "engine_route", "args": ["engine", "config", "summary-confirmation"]}
+{"id": "engine_route-00295", "kind": "engine_route", "args": ["engine", "config", "summary-confirmation", "--help"]}
+{"id": "engine_route-00296", "kind": "engine_route", "args": ["engine", "config", "plan-approval"]}
+{"id": "engine_route-00297", "kind": "engine_route", "args": ["engine", "config", "plan-approval", "", "x"]}
+{"id": "engine_route-00298", "kind": "engine_route", "args": ["engine", "config", "guard.plan-approval"]}
+{"id": "engine_route-00299", "kind": "engine_route", "args": ["engine", "config", "guard.plan-approval", "--space=b"]}
+{"id": "engine_route-00300", "kind": "engine_route", "args": ["engine", "config", "guard.review-freeze"]}
+{"id": "engine_route-00301", "kind": "engine_route", "args": ["engine", "config", "guard.review-freeze", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-00302", "kind": "engine_route", "args": ["engine", "config", "guard.state-transition"]}
+{"id": "engine_route-00303", "kind": "engine_route", "args": ["engine", "config", "guard.state-transition", "--help"]}
+{"id": "engine_route-00304", "kind": "engine_route", "args": ["engine", "config", "guard.reviewer-scope"]}
+{"id": "engine_route-00305", "kind": "engine_route", "args": ["engine", "config", "guard.reviewer-scope", "--project-dir=/oracle/x"]}
+{"id": "engine_route-00306", "kind": "engine_route", "args": ["engine", "config", "get"]}
+{"id": "engine_route-00307", "kind": "engine_route", "args": ["engine", "config", "get", "x"]}
+{"id": "engine_route-00308", "kind": "engine_route", "args": ["engine", "config", "list"]}
+{"id": "engine_route-00309", "kind": "engine_route", "args": ["engine", "config", "list", "--space=b"]}
+{"id": "engine_route-00310", "kind": "engine_route", "args": ["engine", "config"]}
+{"id": "engine_route-00311", "kind": "engine_route", "args": ["engine", "config", "-h"]}
+{"id": "engine_route-00312", "kind": "engine_route", "args": ["engine", "plugin", "select"]}
+{"id": "engine_route-00313", "kind": "engine_route", "args": ["engine", "plugin", "select", "--verbose", "a b"]}
+{"id": "engine_route-00314", "kind": "engine_route", "args": ["engine", "plugin", "sync"]}
+{"id": "engine_route-00315", "kind": "engine_route", "args": ["engine", "plugin", "sync", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-00316", "kind": "engine_route", "args": ["engine", "plugin", "list"]}
+{"id": "engine_route-00317", "kind": "engine_route", "args": ["engine", "plugin", "list", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-00318", "kind": "engine_route", "args": ["engine", "plugin", "validate"]}
+{"id": "engine_route-00319", "kind": "engine_route", "args": ["engine", "plugin", "validate", "--no-color", "--offline"]}
+{"id": "engine_route-00320", "kind": "engine_route", "args": ["engine", "plugin", "build"]}
+{"id": "engine_route-00321", "kind": "engine_route", "args": ["engine", "plugin", "build", "--no-color", "--offline"]}
+{"id": "engine_route-00322", "kind": "engine_route", "args": ["engine", "plugin"]}
+{"id": "engine_route-00323", "kind": "engine_route", "args": ["engine", "plugin", "nope"]}
+{"id": "engine_route-00324", "kind": "engine_route", "args": ["engine", "knowledge", "onboard"]}
+{"id": "engine_route-00325", "kind": "engine_route", "args": ["engine", "knowledge", "onboard", "--space=b"]}
+{"id": "engine_route-00326", "kind": "engine_route", "args": ["engine", "knowledge", "sync"]}
+{"id": "engine_route-00327", "kind": "engine_route", "args": ["engine", "knowledge", "sync", "--yes", "--", "--json"]}
+{"id": "engine_route-00328", "kind": "engine_route", "args": ["engine", "knowledge", "list"]}
+{"id": "engine_route-00329", "kind": "engine_route", "args": ["engine", "knowledge", "list", "a", "--", "b"]}
+{"id": "engine_route-00330", "kind": "engine_route", "args": ["engine", "knowledge", "show"]}
+{"id": "engine_route-00331", "kind": "engine_route", "args": ["engine", "knowledge", "show", "--verbose", "a b"]}
+{"id": "engine_route-00332", "kind": "engine_route", "args": ["engine", "knowledge", "associate"]}
+{"id": "engine_route-00333", "kind": "engine_route", "args": ["engine", "knowledge", "associate", "--json"]}
+{"id": "engine_route-00334", "kind": "engine_route", "args": ["engine", "knowledge", "dissociate"]}
+{"id": "engine_route-00335", "kind": "engine_route", "args": ["engine", "knowledge", "dissociate", "--yes", "--", "--json"]}
+{"id": "engine_route-00336", "kind": "engine_route", "args": ["engine", "knowledge", "rebind"]}
+{"id": "engine_route-00337", "kind": "engine_route", "args": ["engine", "knowledge", "rebind", "", "x"]}
+{"id": "engine_route-00338", "kind": "engine_route", "args": ["engine", "knowledge", "summarize"]}
+{"id": "engine_route-00339", "kind": "engine_route", "args": ["engine", "knowledge", "summarize", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-00340", "kind": "engine_route", "args": ["engine", "knowledge", "help"]}
+{"id": "engine_route-00341", "kind": "engine_route", "args": ["engine", "knowledge", "help", "a", "--", "b"]}
+{"id": "engine_route-00342", "kind": "engine_route", "args": ["engine", "knowledge"]}
+{"id": "engine_route-00343", "kind": "engine_route", "args": ["engine", "knowledge", ""]}
+{"id": "engine_route-00344", "kind": "engine_route", "args": ["engine", "gen", "runners"]}
+{"id": "engine_route-00345", "kind": "engine_route", "args": ["engine", "gen", "runners", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-00346", "kind": "engine_route", "args": ["engine", "gen", "runners --check"]}
+{"id": "engine_route-00347", "kind": "engine_route", "args": ["engine", "gen", "runners --check", "x"]}
+{"id": "engine_route-00348", "kind": "engine_route", "args": ["engine", "gen", "runner-list"]}
+{"id": "engine_route-00349", "kind": "engine_route", "args": ["engine", "gen", "runner-list", "--yes", "--", "--json"]}
+{"id": "engine_route-00350", "kind": "engine_route", "args": ["engine", "gen", "runner-scopes"]}
+{"id": "engine_route-00351", "kind": "engine_route", "args": ["engine", "gen", "runner-scopes", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-00352", "kind": "engine_route", "args": ["engine", "gen", "stage-table"]}
+{"id": "engine_route-00353", "kind": "engine_route", "args": ["engine", "gen", "stage-table", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-00354", "kind": "engine_route", "args": ["engine", "gen", "scope-table"]}
+{"id": "engine_route-00355", "kind": "engine_route", "args": ["engine", "gen", "scope-table", "--verbose", "a b"]}
+{"id": "engine_route-00356", "kind": "engine_route", "args": ["engine", "gen"]}
+{"id": "engine_route-00357", "kind": "engine_route", "args": ["engine", "gen", "nope"]}
+{"id": "engine_route-00358", "kind": "engine_route", "args": ["engine", "workspace", "detect"]}
+{"id": "engine_route-00359", "kind": "engine_route", "args": ["engine", "workspace", "detect", "--stage", "code-generation"]}
+{"id": "engine_route-00360", "kind": "engine_route", "args": ["engine", "workspace", "reclassify"]}
+{"id": "engine_route-00361", "kind": "engine_route", "args": ["engine", "workspace", "reclassify", "--unit", "auth", "--quiet"]}
+{"id": "engine_route-00362", "kind": "engine_route", "args": ["engine", "workspace", "codekb"]}
+{"id": "engine_route-00363", "kind": "engine_route", "args": ["engine", "workspace", "codekb", "--project-dir", "--json"]}
+{"id": "engine_route-00364", "kind": "engine_route", "args": ["engine", "workspace", "codekb-scope-diff"]}
+{"id": "engine_route-00365", "kind": "engine_route", "args": ["engine", "workspace", "codekb-scope-diff", "--yes", "--", "--json"]}
+{"id": "engine_route-00366", "kind": "engine_route", "args": ["engine", "workspace", "codekb-snapshot"]}
+{"id": "engine_route-00367", "kind": "engine_route", "args": ["engine", "workspace", "codekb-snapshot", "--stage", "code-generation"]}
+{"id": "engine_route-00368", "kind": "engine_route", "args": ["engine", "workspace", "codekb-publish"]}
+{"id": "engine_route-00369", "kind": "engine_route", "args": ["engine", "workspace", "codekb-publish", "", "x"]}
+{"id": "engine_route-00370", "kind": "engine_route", "args": ["engine", "workspace", "project-description"]}
+{"id": "engine_route-00371", "kind": "engine_route", "args": ["engine", "workspace", "project-description", "--unit", "auth", "--quiet"]}
+{"id": "engine_route-00372", "kind": "engine_route", "args": ["engine", "workspace", "document-input"]}
+{"id": "engine_route-00373", "kind": "engine_route", "args": ["engine", "workspace", "document-input", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-00374", "kind": "engine_route", "args": ["engine", "workspace"]}
+{"id": "engine_route-00375", "kind": "engine_route", "args": ["engine", "workspace", "help"]}
+{"id": "engine_route-00376", "kind": "engine_route", "args": ["engine", "review-brief", "review"]}
+{"id": "engine_route-00377", "kind": "engine_route", "args": ["engine", "review-brief", "review", "--space=b"]}
+{"id": "engine_route-00378", "kind": "engine_route", "args": ["engine", "review-brief", "context"]}
+{"id": "engine_route-00379", "kind": "engine_route", "args": ["engine", "review-brief", "context", "--space=b"]}
+{"id": "engine_route-00380", "kind": "engine_route", "args": ["engine", "review-brief", "summary"]}
+{"id": "engine_route-00381", "kind": "engine_route", "args": ["engine", "review-brief", "summary", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-00382", "kind": "engine_route", "args": ["engine", "review-brief"]}
+{"id": "engine_route-00383", "kind": "engine_route", "args": ["engine", "review-brief", "-h"]}
+{"id": "engine_route-00384", "kind": "engine_route", "args": ["engine", "orchestrate", "next"]}
+{"id": "engine_route-00385", "kind": "engine_route", "args": ["engine", "orchestrate", "next", "a", "--", "b"]}
+{"id": "engine_route-00386", "kind": "engine_route", "args": ["engine", "orchestrate", "continue"]}
+{"id": "engine_route-00387", "kind": "engine_route", "args": ["engine", "orchestrate", "continue", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-00388", "kind": "engine_route", "args": ["engine", "orchestrate", "report"]}
+{"id": "engine_route-00389", "kind": "engine_route", "args": ["engine", "orchestrate", "report", "--project-dir"]}
+{"id": "engine_route-00390", "kind": "engine_route", "args": ["engine", "orchestrate", "park"]}
+{"id": "engine_route-00391", "kind": "engine_route", "args": ["engine", "orchestrate", "park", "--project-dir=/oracle/x"]}
+{"id": "engine_route-00392", "kind": "engine_route", "args": ["engine", "orchestrate", "wait"]}
+{"id": "engine_route-00393", "kind": "engine_route", "args": ["engine", "orchestrate", "wait", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-00394", "kind": "engine_route", "args": ["engine", "orchestrate", "team-board"]}
+{"id": "engine_route-00395", "kind": "engine_route", "args": ["engine", "orchestrate", "team-board", "--project-dir=/oracle/x"]}
+{"id": "engine_route-00396", "kind": "engine_route", "args": ["engine", "orchestrate", "help"]}
+{"id": "engine_route-00397", "kind": "engine_route", "args": ["engine", "orchestrate", "help", "--project-dir"]}
+{"id": "engine_route-00398", "kind": "engine_route", "args": ["engine", "orchestrate"]}
+{"id": "engine_route-00399", "kind": "engine_route", "args": ["engine", "orchestrate", "-h"]}
+{"id": "engine_route-00400", "kind": "engine_route", "args": ["engine", "sensor-claim-sources", "<args>"]}
+{"id": "engine_route-00401", "kind": "engine_route", "args": ["engine", "sensor-claim-sources", "<args>", "--intent", "a"]}
+{"id": "engine_route-00402", "kind": "engine_route", "args": ["engine", "sensor-claim-sources"]}
+{"id": "engine_route-00403", "kind": "engine_route", "args": ["engine", "sensor-claim-sources", "-h"]}
+{"id": "engine_route-00404", "kind": "engine_route", "args": ["engine", "sensor-linter", "<args>"]}
+{"id": "engine_route-00405", "kind": "engine_route", "args": ["engine", "sensor-linter", "<args>", "--unit", "auth", "--quiet"]}
+{"id": "engine_route-00406", "kind": "engine_route", "args": ["engine", "sensor-linter"]}
+{"id": "engine_route-00407", "kind": "engine_route", "args": ["engine", "sensor-linter", ""]}
+{"id": "engine_route-00408", "kind": "engine_route", "args": ["engine", "sensor-required-sections", "<args>"]}
+{"id": "engine_route-00409", "kind": "engine_route", "args": ["engine", "sensor-required-sections", "<args>", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-00410", "kind": "engine_route", "args": ["engine", "sensor-required-sections"]}
+{"id": "engine_route-00411", "kind": "engine_route", "args": ["engine", "sensor-required-sections", "--help"]}
+{"id": "engine_route-00412", "kind": "engine_route", "args": ["engine", "sensor-traceability", "<args>"]}
+{"id": "engine_route-00413", "kind": "engine_route", "args": ["engine", "sensor-traceability", "<args>", "--project-dir", "--json"]}
+{"id": "engine_route-00414", "kind": "engine_route", "args": ["engine", "sensor-traceability"]}
+{"id": "engine_route-00415", "kind": "engine_route", "args": ["engine", "sensor-traceability", ""]}
+{"id": "engine_route-00416", "kind": "engine_route", "args": ["engine", "sensor-type-check", "<args>"]}
+{"id": "engine_route-00417", "kind": "engine_route", "args": ["engine", "sensor-type-check", "<args>", "--intent", "a"]}
+{"id": "engine_route-00418", "kind": "engine_route", "args": ["engine", "sensor-type-check"]}
+{"id": "engine_route-00419", "kind": "engine_route", "args": ["engine", "sensor-type-check", "nope"]}
+{"id": "engine_route-00420", "kind": "engine_route", "args": ["engine", "sensor-upstream-coverage", "<args>"]}
+{"id": "engine_route-00421", "kind": "engine_route", "args": ["engine", "sensor-upstream-coverage", "<args>", "--intent", "a"]}
+{"id": "engine_route-00422", "kind": "engine_route", "args": ["engine", "sensor-upstream-coverage"]}
+{"id": "engine_route-00423", "kind": "engine_route", "args": ["engine", "sensor-upstream-coverage", "-h"]}
+{"id": "engine_route-00424", "kind": "engine_route", "args": ["engine", "hook", "<name>"]}
+{"id": "engine_route-00425", "kind": "engine_route", "args": ["engine", "hook", "<name>", "--project-dir", "--json"]}
+{"id": "engine_route-00426", "kind": "engine_route", "args": ["engine", "hook"]}
+{"id": "engine_route-00427", "kind": "engine_route", "args": ["engine", "hook", "nope"]}
+{"id": "engine_route-00428", "kind": "engine_route", "args": ["engine", "utility", "help"]}
+{"id": "engine_route-00429", "kind": "engine_route", "args": ["engine", "utility", "help", "--verbose", "a b"]}
+{"id": "engine_route-00430", "kind": "engine_route", "args": ["engine", "utility", "version"]}
+{"id": "engine_route-00431", "kind": "engine_route", "args": ["engine", "utility", "version", "--yes", "--", "--json"]}
+{"id": "engine_route-00432", "kind": "engine_route", "args": ["engine", "utility", "now"]}
+{"id": "engine_route-00433", "kind": "engine_route", "args": ["engine", "utility", "now", "", "x"]}
+{"id": "engine_route-00434", "kind": "engine_route", "args": ["engine", "utility", "status"]}
+{"id": "engine_route-00435", "kind": "engine_route", "args": ["engine", "utility", "status", "x"]}
+{"id": "engine_route-00436", "kind": "engine_route", "args": ["engine", "utility", "detect"]}
+{"id": "engine_route-00437", "kind": "engine_route", "args": ["engine", "utility", "detect", "x"]}
+{"id": "engine_route-00438", "kind": "engine_route", "args": ["engine", "utility", "project-description"]}
+{"id": "engine_route-00439", "kind": "engine_route", "args": ["engine", "utility", "project-description", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-00440", "kind": "engine_route", "args": ["engine", "utility", "codekb-path"]}
+{"id": "engine_route-00441", "kind": "engine_route", "args": ["engine", "utility", "codekb-path", "--yes", "--", "--json"]}
+{"id": "engine_route-00442", "kind": "engine_route", "args": ["engine", "utility", "codekb-scope-diff"]}
+{"id": "engine_route-00443", "kind": "engine_route", "args": ["engine", "utility", "codekb-scope-diff", "", "x"]}
+{"id": "engine_route-00444", "kind": "engine_route", "args": ["engine", "utility", "codekb-snapshot"]}
+{"id": "engine_route-00445", "kind": "engine_route", "args": ["engine", "utility", "codekb-snapshot", "--project-dir=/oracle/x"]}
+{"id": "engine_route-00446", "kind": "engine_route", "args": ["engine", "utility", "codekb-publish"]}
+{"id": "engine_route-00447", "kind": "engine_route", "args": ["engine", "utility", "codekb-publish", "--stage", "code-generation"]}
+{"id": "engine_route-00448", "kind": "engine_route", "args": ["engine", "utility", "plugin-list"]}
+{"id": "engine_route-00449", "kind": "engine_route", "args": ["engine", "utility", "plugin-list", "--space=b"]}
+{"id": "engine_route-00450", "kind": "engine_route", "args": ["engine", "utility", "plugin-validate"]}
+{"id": "engine_route-00451", "kind": "engine_route", "args": ["engine", "utility", "plugin-validate", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-00452", "kind": "engine_route", "args": ["engine", "utility", "config-get"]}
+{"id": "engine_route-00453", "kind": "engine_route", "args": ["engine", "utility", "config-get", "--stage", "code-generation"]}
+{"id": "engine_route-00454", "kind": "engine_route", "args": ["engine", "utility", "config-list"]}
+{"id": "engine_route-00455", "kind": "engine_route", "args": ["engine", "utility", "config-list", "--json"]}
+{"id": "engine_route-00456", "kind": "engine_route", "args": ["engine", "utility", "resolve-env-scope"]}
+{"id": "engine_route-00457", "kind": "engine_route", "args": ["engine", "utility", "resolve-env-scope", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-00458", "kind": "engine_route", "args": ["engine", "utility", "scope-table"]}
+{"id": "engine_route-00459", "kind": "engine_route", "args": ["engine", "utility", "scope-table", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-00460", "kind": "engine_route", "args": ["engine", "utility", "stage-table"]}
+{"id": "engine_route-00461", "kind": "engine_route", "args": ["engine", "utility", "stage-table", "--space=b"]}
+{"id": "engine_route-00462", "kind": "engine_route", "args": ["engine", "utility", "select-plugins"]}
+{"id": "engine_route-00463", "kind": "engine_route", "args": ["engine", "utility", "select-plugins", "--json"]}
+{"id": "engine_route-00464", "kind": "engine_route", "args": ["engine", "utility", "document-input"]}
+{"id": "engine_route-00465", "kind": "engine_route", "args": ["engine", "utility", "document-input", "--intent", "a"]}
+{"id": "engine_route-00466", "kind": "engine_route", "args": ["engine", "utility", "config-change"]}
+{"id": "engine_route-00467", "kind": "engine_route", "args": ["engine", "utility", "config-change", "", "x"]}
+{"id": "engine_route-00468", "kind": "engine_route", "args": ["engine", "utility", "intent-create"]}
+{"id": "engine_route-00469", "kind": "engine_route", "args": ["engine", "utility", "intent-create", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-00470", "kind": "engine_route", "args": ["engine", "utility", "state-init"]}
+{"id": "engine_route-00471", "kind": "engine_route", "args": ["engine", "utility", "state-init", "--help"]}
+{"id": "engine_route-00472", "kind": "engine_route", "args": ["engine", "utility", "claim"]}
+{"id": "engine_route-00473", "kind": "engine_route", "args": ["engine", "utility", "claim", "--project-dir=/oracle/x"]}
+{"id": "engine_route-00474", "kind": "engine_route", "args": ["engine", "utility", "intent"]}
+{"id": "engine_route-00475", "kind": "engine_route", "args": ["engine", "utility", "intent", "x"]}
+{"id": "engine_route-00476", "kind": "engine_route", "args": ["engine", "state", "get"]}
+{"id": "engine_route-00477", "kind": "engine_route", "args": ["engine", "state", "get", "a", "--", "b"]}
+{"id": "engine_route-00478", "kind": "engine_route", "args": ["engine", "state", "count"]}
+{"id": "engine_route-00479", "kind": "engine_route", "args": ["engine", "state", "count", "--yes", "--", "--json"]}
+{"id": "engine_route-00480", "kind": "engine_route", "args": ["engine", "state", "resume"]}
+{"id": "engine_route-00481", "kind": "engine_route", "args": ["engine", "state", "resume", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-00482", "kind": "engine_route", "args": ["engine", "state", "lookup"]}
+{"id": "engine_route-00483", "kind": "engine_route", "args": ["engine", "state", "lookup", "a", "--", "b"]}
+{"id": "engine_route-00484", "kind": "engine_route", "args": ["engine", "orchestrate", "wait"]}
+{"id": "engine_route-00485", "kind": "engine_route", "args": ["engine", "orchestrate", "wait", "", "x"]}
+{"id": "engine_route-00486", "kind": "engine_route", "args": ["engine", "orchestrate", "team-board"]}
+{"id": "engine_route-00487", "kind": "engine_route", "args": ["engine", "orchestrate", "team-board", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-00488", "kind": "engine_route", "args": ["engine", "jump", "resolve"]}
+{"id": "engine_route-00489", "kind": "engine_route", "args": ["engine", "jump", "resolve", "--yes", "--", "--json"]}
+{"id": "engine_route-00490", "kind": "engine_route", "args": ["engine", "unit", "merge-status"]}
+{"id": "engine_route-00491", "kind": "engine_route", "args": ["engine", "unit", "merge-status", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-00492", "kind": "engine_route", "args": ["engine", "unit", "status"]}
+{"id": "engine_route-00493", "kind": "engine_route", "args": ["engine", "unit", "status", "--space=b"]}
+{"id": "engine_route-00494", "kind": "engine_route", "args": ["engine", "unit", "claim"]}
+{"id": "engine_route-00495", "kind": "engine_route", "args": ["engine", "unit", "claim", "--verbose", "a b"]}
+{"id": "engine_route-00496", "kind": "engine_route", "args": ["engine", "log", "answers"]}
+{"id": "engine_route-00497", "kind": "engine_route", "args": ["engine", "log", "answers", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-00498", "kind": "engine_route", "args": ["engine", "learnings", "surface"]}
+{"id": "engine_route-00499", "kind": "engine_route", "args": ["engine", "learnings", "surface", "a", "--", "b"]}
+{"id": "engine_route-00500", "kind": "engine_route", "args": ["engine", "runtime", "read"]}
+{"id": "engine_route-00501", "kind": "engine_route", "args": ["engine", "runtime", "read", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-00502", "kind": "engine_route", "args": ["engine", "runtime", "summary"]}
+{"id": "engine_route-00503", "kind": "engine_route", "args": ["engine", "runtime", "summary", "x"]}
+{"id": "engine_route-00504", "kind": "engine_route", "args": ["engine", "testing-posture", "resolve"]}
+{"id": "engine_route-00505", "kind": "engine_route", "args": ["engine", "testing-posture", "resolve", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-00506", "kind": "engine_route", "args": ["engine", "testing-posture", "render"]}
+{"id": "engine_route-00507", "kind": "engine_route", "args": ["engine", "testing-posture", "render", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-00508", "kind": "engine_route", "args": ["engine", "testing-posture", "verify"]}
+{"id": "engine_route-00509", "kind": "engine_route", "args": ["engine", "testing-posture", "verify", "--yes", "--", "--json"]}
+{"id": "engine_route-00510", "kind": "engine_route", "args": ["engine", "testing-posture", "reply"]}
+{"id": "engine_route-00511", "kind": "engine_route", "args": ["engine", "testing-posture", "reply", "--help"]}
+{"id": "engine_route-00512", "kind": "engine_route", "args": ["engine", "testing-posture", "brief"]}
+{"id": "engine_route-00513", "kind": "engine_route", "args": ["engine", "testing-posture", "brief", "--space=b"]}
+{"id": "engine_route-00514", "kind": "engine_route", "args": ["engine", "worktree", "list"]}
+{"id": "engine_route-00515", "kind": "engine_route", "args": ["engine", "worktree", "list", "--verbose", "a b"]}
+{"id": "engine_route-00516", "kind": "engine_route", "args": ["engine", "worktree", "verify"]}
+{"id": "engine_route-00517", "kind": "engine_route", "args": ["engine", "worktree", "verify", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-00518", "kind": "engine_route", "args": ["engine", "worktree", "info"]}
+{"id": "engine_route-00519", "kind": "engine_route", "args": ["engine", "worktree", "info", "--help"]}
+{"id": "engine_route-00520", "kind": "engine_route", "args": ["engine", "audit", "history"]}
+{"id": "engine_route-00521", "kind": "engine_route", "args": ["engine", "audit", "history", "--intent", "a"]}
+{"id": "engine_route-00522", "kind": "engine_route", "args": ["engine", "plugin", "list"]}
+{"id": "engine_route-00523", "kind": "engine_route", "args": ["engine", "plugin", "list", "--json"]}
+{"id": "engine_route-00524", "kind": "engine_route", "args": ["engine", "graph", "artifacts"]}
+{"id": "engine_route-00525", "kind": "engine_route", "args": ["engine", "graph", "artifacts", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-00526", "kind": "engine_route", "args": ["engine", "graph", "producers"]}
+{"id": "engine_route-00527", "kind": "engine_route", "args": ["engine", "graph", "producers", "--space=b"]}
+{"id": "engine_route-00528", "kind": "engine_route", "args": ["engine", "graph", "consumers"]}
+{"id": "engine_route-00529", "kind": "engine_route", "args": ["engine", "graph", "consumers", "", "x"]}
+{"id": "engine_route-00530", "kind": "engine_route", "args": ["engine", "graph", "topo"]}
+{"id": "engine_route-00531", "kind": "engine_route", "args": ["engine", "graph", "topo", "--intent", "a"]}
+{"id": "engine_route-00532", "kind": "engine_route", "args": ["engine", "graph", "cycles"]}
+{"id": "engine_route-00533", "kind": "engine_route", "args": ["engine", "graph", "cycles", "a", "--", "b"]}
+{"id": "engine_route-00534", "kind": "engine_route", "args": ["engine", "graph", "scope"]}
+{"id": "engine_route-00535", "kind": "engine_route", "args": ["engine", "graph", "scope", "--yes", "--", "--json"]}
+{"id": "engine_route-00536", "kind": "engine_route", "args": ["engine", "graph", "validate-scope"]}
+{"id": "engine_route-00537", "kind": "engine_route", "args": ["engine", "graph", "validate-scope", "--help"]}
+{"id": "engine_route-00538", "kind": "engine_route", "args": ["engine", "graph", "validate-grid"]}
+{"id": "engine_route-00539", "kind": "engine_route", "args": ["engine", "graph", "validate-grid", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-00540", "kind": "engine_route", "args": ["engine", "graph", "ars"]}
+{"id": "engine_route-00541", "kind": "engine_route", "args": ["engine", "graph", "ars", "", "x"]}
+{"id": "engine_route-00542", "kind": "engine_route", "args": ["engine", "graph", "export"]}
+{"id": "engine_route-00543", "kind": "engine_route", "args": ["engine", "graph", "export", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-00544", "kind": "engine_route", "args": ["engine", "sensor", "list"]}
+{"id": "engine_route-00545", "kind": "engine_route", "args": ["engine", "sensor", "list", "a", "--", "b"]}
+{"id": "engine_route-00546", "kind": "engine_route", "args": ["engine", "sensor", "describe"]}
+{"id": "engine_route-00547", "kind": "engine_route", "args": ["engine", "sensor", "describe", "", "x"]}
+{"id": "engine_route-00548", "kind": "engine_route", "args": ["engine", "sensor", "fire"]}
+{"id": "engine_route-00549", "kind": "engine_route", "args": ["engine", "sensor", "fire", "--json"]}
+{"id": "engine_route-00550", "kind": "engine_route", "args": ["engine", "validate", "outputs"]}
+{"id": "engine_route-00551", "kind": "engine_route", "args": ["engine", "validate", "outputs", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-00552", "kind": "engine_route", "args": ["engine", "review-brief", "review"]}
+{"id": "engine_route-00553", "kind": "engine_route", "args": ["engine", "review-brief", "review", "--unit", "auth", "--quiet"]}
+{"id": "engine_route-00554", "kind": "engine_route", "args": ["engine", "review-brief", "context"]}
+{"id": "engine_route-00555", "kind": "engine_route", "args": ["engine", "review-brief", "context", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-00556", "kind": "engine_route", "args": ["engine", "review-brief", "summary"]}
+{"id": "engine_route-00557", "kind": "engine_route", "args": ["engine", "review-brief", "summary", "x"]}
+{"id": "engine_route-00558", "kind": "engine_route", "args": ["engine", "attest", "resolve"]}
+{"id": "engine_route-00559", "kind": "engine_route", "args": ["engine", "attest", "resolve", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-00560", "kind": "engine_route", "args": ["engine", "attest", "record"]}
+{"id": "engine_route-00561", "kind": "engine_route", "args": ["engine", "attest", "record", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-00562", "kind": "engine_route", "args": ["engine", "knowledge", "list"]}
+{"id": "engine_route-00563", "kind": "engine_route", "args": ["engine", "knowledge", "list", "--project-dir=/oracle/x"]}
+{"id": "engine_route-00564", "kind": "engine_route", "args": ["engine", "knowledge", "show"]}
+{"id": "engine_route-00565", "kind": "engine_route", "args": ["engine", "knowledge", "show", "--project-dir=/oracle/x"]}
+{"id": "engine_route-00566", "kind": "engine_route", "args": ["engine", "doctor", "doctor"]}
+{"id": "engine_route-00567", "kind": "engine_route", "args": ["engine", "doctor", "doctor", "a", "--", "b"]}
+{"id": "engine_route-00568", "kind": "engine_route", "args": ["engine", "machine-config", "global"]}
+{"id": "engine_route-00569", "kind": "engine_route", "args": ["engine", "machine-config", "global", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-00570", "kind": "engine_route", "args": ["engine", "status"]}
+{"id": "engine_route-00571", "kind": "engine_route", "args": ["engine", "status", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-00572", "kind": "engine_route", "args": ["engine", "recompose"]}
+{"id": "engine_route-00573", "kind": "engine_route", "args": ["engine", "recompose", "--project-dir=/oracle/x"]}
+{"id": "engine_route-00574", "kind": "engine_route", "args": ["engine", "now"]}
+{"id": "engine_route-00575", "kind": "engine_route", "args": ["engine", "now", "--unit", "auth", "--quiet"]}
+{"id": "engine_route-00576", "kind": "engine_route", "args": ["engine", "statusline"]}
+{"id": "engine_route-00577", "kind": "engine_route", "args": ["engine", "statusline", "--space=b"]}
+{"id": "engine_route-00578", "kind": "engine_route", "args": ["engine", "adapter"]}
+{"id": "engine_route-00579", "kind": "engine_route", "args": ["engine", "adapter", "--no-color", "--offline"]}
+{"id": "engine_route-00580", "kind": "engine_route", "args": ["engine", "help"]}
+{"id": "engine_route-00581", "kind": "engine_route", "args": ["engine", "help", "--project-dir"]}
+{"id": "engine_route-00582", "kind": "engine_route", "args": ["engine", "--help"]}
+{"id": "engine_route-00583", "kind": "engine_route", "args": ["engine", "--help", "--help"]}
+{"id": "engine_route-00584", "kind": "engine_route", "args": ["engine", "-h"]}
+{"id": "engine_route-00585", "kind": "engine_route", "args": ["engine", "-h", "--project-dir"]}
+{"id": "engine_route-00586", "kind": "engine_route", "args": ["engine", "--status"]}
+{"id": "engine_route-00587", "kind": "engine_route", "args": ["engine", "--status", "--unit", "auth", "--quiet"]}
+{"id": "engine_route-00588", "kind": "engine_route", "args": ["engine", "--claim"]}
+{"id": "engine_route-00589", "kind": "engine_route", "args": ["engine", "--claim", "--json"]}
+{"id": "engine_route-00590", "kind": "engine_route", "args": ["engine", "--release"]}
+{"id": "engine_route-00591", "kind": "engine_route", "args": ["engine", "--release", "--unit", "auth", "--quiet"]}
+{"id": "engine_route-00592", "kind": "engine_route", "args": ["engine", "--doctor"]}
+{"id": "engine_route-00593", "kind": "engine_route", "args": ["engine", "--doctor", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-00594", "kind": "engine_route", "args": ["engine", "--version"]}
+{"id": "engine_route-00595", "kind": "engine_route", "args": ["engine", "--version", "--yes", "--", "--json"]}
+{"id": "engine_route-00596", "kind": "engine_route", "args": ["engine", "--resume"]}
+{"id": "engine_route-00597", "kind": "engine_route", "args": ["engine", "--resume", "--json"]}
+{"id": "engine_route-00598", "kind": "engine_route", "args": ["engine", "--scope"]}
+{"id": "engine_route-00599", "kind": "engine_route", "args": ["engine", "--scope", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-00600", "kind": "engine_route", "args": ["engine", "__sensor-script"]}
+{"id": "engine_route-00601", "kind": "engine_route", "args": ["engine", "__sensor-script", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-00602", "kind": "engine_route", "args": ["engine", "__sensor-script-file"]}
+{"id": "engine_route-00603", "kind": "engine_route", "args": ["engine", "__sensor-script-file", "--intent", "a"]}
+{"id": "engine_route-00604", "kind": "engine_route", "args": ["engine", "nope"]}
+{"id": "engine_route-00605", "kind": "engine_route", "args": ["engine", "nope", "--project-dir", "--json"]}
+{"id": "engine_route-00606", "kind": "engine_route", "args": ["engine", "top"]}
+{"id": "engine_route-00607", "kind": "engine_route", "args": ["engine", "top", "--stage", "code-generation"]}
+{"id": "engine_route-00608", "kind": "engine_route", "args": ["engine", "hook"]}
+{"id": "engine_route-00609", "kind": "engine_route", "args": ["engine", "hook", "--help"]}
+{"id": "engine_route-00610", "kind": "engine_route", "args": ["engine", "unit"]}
+{"id": "engine_route-00611", "kind": "engine_route", "args": ["engine", "unit", "", "x"]}
+{"id": "engine_route-00612", "kind": "engine_route", "args": ["engine", "doctor"]}
+{"id": "engine_route-00613", "kind": "engine_route", "args": ["engine", "doctor", "--json"]}
+{"id": "engine_route-00614", "kind": "engine_route", "args": ["engine", "version"]}
+{"id": "engine_route-00615", "kind": "engine_route", "args": ["engine", "version", "x"]}
+{"id": "engine_route-00616", "kind": "engine_route", "args": ["engine", "config"]}
+{"id": "engine_route-00617", "kind": "engine_route", "args": ["engine", "config", "--unit", "auth", "--quiet"]}
+{"id": "engine_route-00618", "kind": "engine_route", "args": ["engine", "park"]}
+{"id": "engine_route-00619", "kind": "engine_route", "args": ["engine", "park", "a", "--", "b"]}
+{"id": "engine_route-00620", "kind": "engine_route", "args": ["engine", "next"]}
+{"id": "engine_route-00621", "kind": "engine_route", "args": ["engine", "next", "--project-dir=/oracle/x"]}
+{"id": "engine_route-00622", "kind": "engine_route", "args": ["engine", ""]}
+{"id": "engine_route-00623", "kind": "engine_route", "args": ["engine", "", "--stage", "code-generation"]}
+{"id": "engine_route-00624", "kind": "engine_route", "args": ["engine", "__sensor-script", "claim-sources", "a"]}
+{"id": "engine_route-00625", "kind": "engine_route", "args": ["engine", "__sensor-script-file", "claim-sources", "a"]}
+{"id": "engine_route-00626", "kind": "engine_route", "args": ["engine", "__sensor-script", "linter", "a"]}
+{"id": "engine_route-00627", "kind": "engine_route", "args": ["engine", "__sensor-script-file", "linter", "a"]}
+{"id": "engine_route-00628", "kind": "engine_route", "args": ["engine", "__sensor-script", "required-sections", "a"]}
+{"id": "engine_route-00629", "kind": "engine_route", "args": ["engine", "__sensor-script-file", "required-sections", "a"]}
+{"id": "engine_route-00630", "kind": "engine_route", "args": ["engine", "__sensor-script", "traceability", "a"]}
+{"id": "engine_route-00631", "kind": "engine_route", "args": ["engine", "__sensor-script-file", "traceability", "a"]}
+{"id": "engine_route-00632", "kind": "engine_route", "args": ["engine", "__sensor-script", "type-check", "a"]}
+{"id": "engine_route-00633", "kind": "engine_route", "args": ["engine", "__sensor-script-file", "type-check", "a"]}
+{"id": "engine_route-00634", "kind": "engine_route", "args": ["engine", "__sensor-script", "upstream-coverage", "a"]}
+{"id": "engine_route-00635", "kind": "engine_route", "args": ["engine", "__sensor-script-file", "upstream-coverage", "a"]}
+{"id": "engine_route-00636", "kind": "engine_route", "args": ["engine", "__sensor-script", "nope", "a"]}
+{"id": "engine_route-00637", "kind": "engine_route", "args": ["engine", "__sensor-script-file", "nope", "a"]}
+{"id": "engine_route-00638", "kind": "engine_route", "args": ["engine", "__sensor-script", "", "a"]}
+{"id": "engine_route-00639", "kind": "engine_route", "args": ["engine", "__sensor-script-file", "", "a"]}
+{"id": "engine_route-00640", "kind": "engine_route", "args": ["engine", "intent", "list"]}
+{"id": "engine_route-00641", "kind": "engine_route", "args": ["engine", "intent", "list", "a"]}
+{"id": "engine_route-00642", "kind": "engine_route", "args": ["engine", "intent", "list", "a", "--all", "y"]}
+{"id": "engine_route-00643", "kind": "engine_route", "args": ["engine", "intent", "switch"]}
+{"id": "engine_route-00644", "kind": "engine_route", "args": ["engine", "intent", "switch", "b c"]}
+{"id": "engine_route-00645", "kind": "engine_route", "args": ["engine", "intent", "switch", "a", "--json", "y"]}
+{"id": "engine_route-00646", "kind": "engine_route", "args": ["engine", "intent", "create"]}
+{"id": "engine_route-00647", "kind": "engine_route", "args": ["engine", "intent", "create", ""]}
+{"id": "engine_route-00648", "kind": "engine_route", "args": ["engine", "intent", "create", "a", "--all", "y"]}
+{"id": "engine_route-00649", "kind": "engine_route", "args": ["engine", "intent", "archive"]}
+{"id": "engine_route-00650", "kind": "engine_route", "args": ["engine", "intent", "archive", "a"]}
+{"id": "engine_route-00651", "kind": "engine_route", "args": ["engine", "intent", "archive", "a", "--json", "y"]}
+{"id": "engine_route-00652", "kind": "engine_route", "args": ["engine", "intent", "unarchive"]}
+{"id": "engine_route-00653", "kind": "engine_route", "args": ["engine", "intent", "unarchive", "b c"]}
+{"id": "engine_route-00654", "kind": "engine_route", "args": ["engine", "intent", "unarchive", "a", "--json", "y"]}
+{"id": "engine_route-00655", "kind": "engine_route", "args": ["engine", "intent", "add-repo"]}
+{"id": "engine_route-00656", "kind": "engine_route", "args": ["engine", "intent", "add-repo", ""]}
+{"id": "engine_route-00657", "kind": "engine_route", "args": ["engine", "intent", "add-repo", "a", "x", "y"]}
+{"id": "engine_route-00658", "kind": "engine_route", "args": ["engine", "intent", "remove-repo"]}
+{"id": "engine_route-00659", "kind": "engine_route", "args": ["engine", "intent", "remove-repo", "b c"]}
+{"id": "engine_route-00660", "kind": "engine_route", "args": ["engine", "intent", "remove-repo", "a", "--json", "y"]}
+{"id": "engine_route-00661", "kind": "engine_route", "args": ["engine", "intent", "help"]}
+{"id": "engine_route-00662", "kind": "engine_route", "args": ["engine", "intent", "help", "a"]}
+{"id": "engine_route-00663", "kind": "engine_route", "args": ["engine", "intent", "help", "a", "--all", "y"]}
+{"id": "engine_route-00664", "kind": "engine_route", "args": ["engine", "intent", "-h"]}
+{"id": "engine_route-00665", "kind": "engine_route", "args": ["engine", "intent", "-h", "a"]}
+{"id": "engine_route-00666", "kind": "engine_route", "args": ["engine", "intent", "-h", "a", "--all", "y"]}
+{"id": "engine_route-00667", "kind": "engine_route", "args": ["engine", "intent", "--help"]}
+{"id": "engine_route-00668", "kind": "engine_route", "args": ["engine", "intent", "--help", ""]}
+{"id": "engine_route-00669", "kind": "engine_route", "args": ["engine", "intent", "--help", "a", "x", "y"]}
+{"id": "engine_route-00670", "kind": "engine_route", "args": ["engine", "intent", "--json"]}
+{"id": "engine_route-00671", "kind": "engine_route", "args": ["engine", "intent", "--json", "b c"]}
+{"id": "engine_route-00672", "kind": "engine_route", "args": ["engine", "intent", "--json", "a", "x", "y"]}
+{"id": "engine_route-00673", "kind": "engine_route", "args": ["engine", "intent", "--all"]}
+{"id": "engine_route-00674", "kind": "engine_route", "args": ["engine", "intent", "--all", ""]}
+{"id": "engine_route-00675", "kind": "engine_route", "args": ["engine", "intent", "--all", "a", "--reason", "y"]}
+{"id": "engine_route-00676", "kind": "engine_route", "args": ["engine", "intent", "rename"]}
+{"id": "engine_route-00677", "kind": "engine_route", "args": ["engine", "intent", "rename", ""]}
+{"id": "engine_route-00678", "kind": "engine_route", "args": ["engine", "intent", "rename", "a", "--reason", "y"]}
+{"id": "engine_route-00679", "kind": "engine_route", "args": ["engine", "intent", "show"]}
+{"id": "engine_route-00680", "kind": "engine_route", "args": ["engine", "intent", "show", "--x"]}
+{"id": "engine_route-00681", "kind": "engine_route", "args": ["engine", "intent", "show", "a", "--reason", "y"]}
+{"id": "engine_route-00682", "kind": "engine_route", "args": ["engine", "intent", "birth"]}
+{"id": "engine_route-00683", "kind": "engine_route", "args": ["engine", "intent", "birth", "--x"]}
+{"id": "engine_route-00684", "kind": "engine_route", "args": ["engine", "intent", "birth", "a", "--json", "y"]}
+{"id": "engine_route-00685", "kind": "engine_route", "args": ["engine", "intent", "my-intent"]}
+{"id": "engine_route-00686", "kind": "engine_route", "args": ["engine", "intent", "my-intent", "a"]}
+{"id": "engine_route-00687", "kind": "engine_route", "args": ["engine", "intent", "my-intent", "a", "--reason", "y"]}
+{"id": "engine_route-00688", "kind": "engine_route", "args": ["engine", "intent", "--x"]}
+{"id": "engine_route-00689", "kind": "engine_route", "args": ["engine", "intent", "--x", "--x"]}
+{"id": "engine_route-00690", "kind": "engine_route", "args": ["engine", "intent", "--x", "a", "--json", "y"]}
+{"id": "engine_route-00691", "kind": "engine_route", "args": ["engine", "intent", "space-create"]}
+{"id": "engine_route-00692", "kind": "engine_route", "args": ["engine", "intent", "space-create", ""]}
+{"id": "engine_route-00693", "kind": "engine_route", "args": ["engine", "intent", "space-create", "a", "--json", "y"]}
+{"id": "engine_route-00694", "kind": "engine_route", "args": ["engine", "space", "list"]}
+{"id": "engine_route-00695", "kind": "engine_route", "args": ["engine", "space", "list", "a"]}
+{"id": "engine_route-00696", "kind": "engine_route", "args": ["engine", "space", "list", "a", "--all", "y"]}
+{"id": "engine_route-00697", "kind": "engine_route", "args": ["engine", "space", "switch"]}
+{"id": "engine_route-00698", "kind": "engine_route", "args": ["engine", "space", "switch", "--x"]}
+{"id": "engine_route-00699", "kind": "engine_route", "args": ["engine", "space", "switch", "a", "x", "y"]}
+{"id": "engine_route-00700", "kind": "engine_route", "args": ["engine", "space", "create"]}
+{"id": "engine_route-00701", "kind": "engine_route", "args": ["engine", "space", "create", "a"]}
+{"id": "engine_route-00702", "kind": "engine_route", "args": ["engine", "space", "create", "a", "--all", "y"]}
+{"id": "engine_route-00703", "kind": "engine_route", "args": ["engine", "space", "archive"]}
+{"id": "engine_route-00704", "kind": "engine_route", "args": ["engine", "space", "archive", "b c"]}
+{"id": "engine_route-00705", "kind": "engine_route", "args": ["engine", "space", "archive", "a", "x", "y"]}
+{"id": "engine_route-00706", "kind": "engine_route", "args": ["engine", "space", "unarchive"]}
+{"id": "engine_route-00707", "kind": "engine_route", "args": ["engine", "space", "unarchive", "b c"]}
+{"id": "engine_route-00708", "kind": "engine_route", "args": ["engine", "space", "unarchive", "a", "--json", "y"]}
+{"id": "engine_route-00709", "kind": "engine_route", "args": ["engine", "space", "add-repo"]}
+{"id": "engine_route-00710", "kind": "engine_route", "args": ["engine", "space", "add-repo", "b c"]}
+{"id": "engine_route-00711", "kind": "engine_route", "args": ["engine", "space", "add-repo", "a", "--all", "y"]}
+{"id": "engine_route-00712", "kind": "engine_route", "args": ["engine", "space", "remove-repo"]}
+{"id": "engine_route-00713", "kind": "engine_route", "args": ["engine", "space", "remove-repo", "--x"]}
+{"id": "engine_route-00714", "kind": "engine_route", "args": ["engine", "space", "remove-repo", "a", "--reason", "y"]}
+{"id": "engine_route-00715", "kind": "engine_route", "args": ["engine", "space", "help"]}
+{"id": "engine_route-00716", "kind": "engine_route", "args": ["engine", "space", "help", "b c"]}
+{"id": "engine_route-00717", "kind": "engine_route", "args": ["engine", "space", "help", "a", "--json", "y"]}
+{"id": "engine_route-00718", "kind": "engine_route", "args": ["engine", "space", "-h"]}
+{"id": "engine_route-00719", "kind": "engine_route", "args": ["engine", "space", "-h", "a"]}
+{"id": "engine_route-00720", "kind": "engine_route", "args": ["engine", "space", "-h", "a", "--all", "y"]}
+{"id": "engine_route-00721", "kind": "engine_route", "args": ["engine", "space", "--help"]}
+{"id": "engine_route-00722", "kind": "engine_route", "args": ["engine", "space", "--help", "a"]}
+{"id": "engine_route-00723", "kind": "engine_route", "args": ["engine", "space", "--help", "a", "--json", "y"]}
+{"id": "engine_route-00724", "kind": "engine_route", "args": ["engine", "space", "--json"]}
+{"id": "engine_route-00725", "kind": "engine_route", "args": ["engine", "space", "--json", "a"]}
+{"id": "engine_route-00726", "kind": "engine_route", "args": ["engine", "space", "--json", "a", "--json", "y"]}
+{"id": "engine_route-00727", "kind": "engine_route", "args": ["engine", "space", "--all"]}
+{"id": "engine_route-00728", "kind": "engine_route", "args": ["engine", "space", "--all", "b c"]}
+{"id": "engine_route-00729", "kind": "engine_route", "args": ["engine", "space", "--all", "a", "--reason", "y"]}
+{"id": "engine_route-00730", "kind": "engine_route", "args": ["engine", "space", "rename"]}
+{"id": "engine_route-00731", "kind": "engine_route", "args": ["engine", "space", "rename", "--x"]}
+{"id": "engine_route-00732", "kind": "engine_route", "args": ["engine", "space", "rename", "a", "--reason", "y"]}
+{"id": "engine_route-00733", "kind": "engine_route", "args": ["engine", "space", "show"]}
+{"id": "engine_route-00734", "kind": "engine_route", "args": ["engine", "space", "show", "a"]}
+{"id": "engine_route-00735", "kind": "engine_route", "args": ["engine", "space", "show", "a", "--reason", "y"]}
+{"id": "engine_route-00736", "kind": "engine_route", "args": ["engine", "space", "birth"]}
+{"id": "engine_route-00737", "kind": "engine_route", "args": ["engine", "space", "birth", "b c"]}
+{"id": "engine_route-00738", "kind": "engine_route", "args": ["engine", "space", "birth", "a", "x", "y"]}
+{"id": "engine_route-00739", "kind": "engine_route", "args": ["engine", "space", "my-intent"]}
+{"id": "engine_route-00740", "kind": "engine_route", "args": ["engine", "space", "my-intent", "a"]}
+{"id": "engine_route-00741", "kind": "engine_route", "args": ["engine", "space", "my-intent", "a", "--json", "y"]}
+{"id": "engine_route-00742", "kind": "engine_route", "args": ["engine", "space", "--x"]}
+{"id": "engine_route-00743", "kind": "engine_route", "args": ["engine", "space", "--x", "a"]}
+{"id": "engine_route-00744", "kind": "engine_route", "args": ["engine", "space", "--x", "a", "--reason", "y"]}
+{"id": "engine_route-00745", "kind": "engine_route", "args": ["engine", "space", "space-create"]}
+{"id": "engine_route-00746", "kind": "engine_route", "args": ["engine", "space", "space-create", "b c"]}
+{"id": "engine_route-00747", "kind": "engine_route", "args": ["engine", "space", "space-create", "a", "--all", "y"]}
+{"id": "engine_route-00748", "kind": "engine_route", "args": ["engine", "config", "set", "depth"]}
+{"id": "engine_route-00749", "kind": "engine_route", "args": ["engine", "config", "set", "depth", ""]}
+{"id": "engine_route-00750", "kind": "engine_route", "args": ["engine", "config", "set", "depth", "off", "--depth", "standard"]}
+{"id": "engine_route-00751", "kind": "engine_route", "args": ["engine", "config", "set", "test-strategy"]}
+{"id": "engine_route-00752", "kind": "engine_route", "args": ["engine", "config", "set", "test-strategy", ""]}
+{"id": "engine_route-00753", "kind": "engine_route", "args": ["engine", "config", "set", "test-strategy", "off", "--depth", "standard"]}
+{"id": "engine_route-00754", "kind": "engine_route", "args": ["engine", "config", "set", "review"]}
+{"id": "engine_route-00755", "kind": "engine_route", "args": ["engine", "config", "set", "review", "on"]}
+{"id": "engine_route-00756", "kind": "engine_route", "args": ["engine", "config", "set", "review", "off", "--depth", "standard"]}
+{"id": "engine_route-00757", "kind": "engine_route", "args": ["engine", "config", "set", "guard-policy"]}
+{"id": "engine_route-00758", "kind": "engine_route", "args": ["engine", "config", "set", "guard-policy", "standard"]}
+{"id": "engine_route-00759", "kind": "engine_route", "args": ["engine", "config", "set", "guard-policy", "off", "--depth", "standard"]}
+{"id": "engine_route-00760", "kind": "engine_route", "args": ["engine", "config", "set", "change-control"]}
+{"id": "engine_route-00761", "kind": "engine_route", "args": ["engine", "config", "set", "change-control", "standard"]}
+{"id": "engine_route-00762", "kind": "engine_route", "args": ["engine", "config", "set", "change-control", "off", "--depth", "standard"]}
+{"id": "engine_route-00763", "kind": "engine_route", "args": ["engine", "config", "set", "sensors"]}
+{"id": "engine_route-00764", "kind": "engine_route", "args": ["engine", "config", "set", "sensors", "standard"]}
+{"id": "engine_route-00765", "kind": "engine_route", "args": ["engine", "config", "set", "sensors", "off", "--depth", "standard"]}
+{"id": "engine_route-00766", "kind": "engine_route", "args": ["engine", "config", "set", "learnings"]}
+{"id": "engine_route-00767", "kind": "engine_route", "args": ["engine", "config", "set", "learnings", "standard"]}
+{"id": "engine_route-00768", "kind": "engine_route", "args": ["engine", "config", "set", "learnings", "off", "--depth", "standard"]}
+{"id": "engine_route-00769", "kind": "engine_route", "args": ["engine", "config", "set", "collaborators"]}
+{"id": "engine_route-00770", "kind": "engine_route", "args": ["engine", "config", "set", "collaborators", ""]}
+{"id": "engine_route-00771", "kind": "engine_route", "args": ["engine", "config", "set", "collaborators", "off", "--depth", "standard"]}
+{"id": "engine_route-00772", "kind": "engine_route", "args": ["engine", "config", "set", "summary-confirmation"]}
+{"id": "engine_route-00773", "kind": "engine_route", "args": ["engine", "config", "set", "summary-confirmation", "off"]}
+{"id": "engine_route-00774", "kind": "engine_route", "args": ["engine", "config", "set", "summary-confirmation", "off", "--depth", "standard"]}
+{"id": "engine_route-00775", "kind": "engine_route", "args": ["engine", "config", "set", "plan-approval"]}
+{"id": "engine_route-00776", "kind": "engine_route", "args": ["engine", "config", "set", "plan-approval", "off"]}
+{"id": "engine_route-00777", "kind": "engine_route", "args": ["engine", "config", "set", "plan-approval", "off", "--depth", "standard"]}
+{"id": "engine_route-00778", "kind": "engine_route", "args": ["engine", "config", "set", "guard.plan-approval"]}
+{"id": "engine_route-00779", "kind": "engine_route", "args": ["engine", "config", "set", "guard.plan-approval", "off"]}
+{"id": "engine_route-00780", "kind": "engine_route", "args": ["engine", "config", "set", "guard.plan-approval", "off", "--depth", "standard"]}
+{"id": "engine_route-00781", "kind": "engine_route", "args": ["engine", "config", "set", "guard.review-freeze"]}
+{"id": "engine_route-00782", "kind": "engine_route", "args": ["engine", "config", "set", "guard.review-freeze", "standard"]}
+{"id": "engine_route-00783", "kind": "engine_route", "args": ["engine", "config", "set", "guard.review-freeze", "off", "--depth", "standard"]}
+{"id": "engine_route-00784", "kind": "engine_route", "args": ["engine", "config", "set", "guard.state-transition"]}
+{"id": "engine_route-00785", "kind": "engine_route", "args": ["engine", "config", "set", "guard.state-transition", "on"]}
+{"id": "engine_route-00786", "kind": "engine_route", "args": ["engine", "config", "set", "guard.state-transition", "off", "--depth", "standard"]}
+{"id": "engine_route-00787", "kind": "engine_route", "args": ["engine", "config", "set", "guard.reviewer-scope"]}
+{"id": "engine_route-00788", "kind": "engine_route", "args": ["engine", "config", "set", "guard.reviewer-scope", "standard"]}
+{"id": "engine_route-00789", "kind": "engine_route", "args": ["engine", "config", "set", "guard.reviewer-scope", "off", "--depth", "standard"]}
+{"id": "engine_route-00790", "kind": "engine_route", "args": ["engine", "config", "set", "guard.human-presence"]}
+{"id": "engine_route-00791", "kind": "engine_route", "args": ["engine", "config", "set", "guard.human-presence", "off"]}
+{"id": "engine_route-00792", "kind": "engine_route", "args": ["engine", "config", "set", "guard.human-presence", "off", "--depth", "standard"]}
+{"id": "engine_route-00793", "kind": "engine_route", "args": ["engine", "config", "set", "nope"]}
+{"id": "engine_route-00794", "kind": "engine_route", "args": ["engine", "config", "set", "nope", "on"]}
+{"id": "engine_route-00795", "kind": "engine_route", "args": ["engine", "config", "set", "nope", "off", "--depth", "standard"]}
+{"id": "engine_route-00796", "kind": "engine_route", "args": ["engine", "config", "set", ""]}
+{"id": "engine_route-00797", "kind": "engine_route", "args": ["engine", "config", "set", "", "on"]}
+{"id": "engine_route-00798", "kind": "engine_route", "args": ["engine", "config", "set", "", "off", "--depth", "standard"]}
+{"id": "engine_route-00799", "kind": "engine_route", "args": ["engine", "config", "get", "depth"]}
+{"id": "engine_route-00800", "kind": "engine_route", "args": ["engine", "config", "list", "depth"]}
+{"id": "engine_route-00801", "kind": "engine_route", "args": ["engine", "config", "help", "depth"]}
+{"id": "engine_route-00802", "kind": "engine_route", "args": ["engine", "config", "--help", "depth"]}
+{"id": "engine_route-00803", "kind": "engine_route", "args": ["engine", "config", "-h", "depth"]}
+{"id": "engine_route-00804", "kind": "engine_route", "args": ["engine", "config", "nope", "depth"]}
+{"id": "engine_route-00805", "kind": "engine_route", "args": ["engine", "plugin", "select"]}
+{"id": "engine_route-00806", "kind": "engine_route", "args": ["engine", "plugin", "select", "a"]}
+{"id": "engine_route-00807", "kind": "engine_route", "args": ["engine", "plugin", "sync"]}
+{"id": "engine_route-00808", "kind": "engine_route", "args": ["engine", "plugin", "sync", "a"]}
+{"id": "engine_route-00809", "kind": "engine_route", "args": ["engine", "plugin", "list"]}
+{"id": "engine_route-00810", "kind": "engine_route", "args": ["engine", "plugin", "list", "a"]}
+{"id": "engine_route-00811", "kind": "engine_route", "args": ["engine", "plugin", "validate"]}
+{"id": "engine_route-00812", "kind": "engine_route", "args": ["engine", "plugin", "validate", "a"]}
+{"id": "engine_route-00813", "kind": "engine_route", "args": ["engine", "plugin", "build"]}
+{"id": "engine_route-00814", "kind": "engine_route", "args": ["engine", "plugin", "build", "a"]}
+{"id": "engine_route-00815", "kind": "engine_route", "args": ["engine", "plugin", "help"]}
+{"id": "engine_route-00816", "kind": "engine_route", "args": ["engine", "plugin", "help", "a"]}
+{"id": "engine_route-00817", "kind": "engine_route", "args": ["engine", "plugin", "-h"]}
+{"id": "engine_route-00818", "kind": "engine_route", "args": ["engine", "plugin", "-h", "a"]}
+{"id": "engine_route-00819", "kind": "engine_route", "args": ["engine", "plugin", "--help"]}
+{"id": "engine_route-00820", "kind": "engine_route", "args": ["engine", "plugin", "--help", "a"]}
+{"id": "engine_route-00821", "kind": "engine_route", "args": ["engine", "plugin", "nope"]}
+{"id": "engine_route-00822", "kind": "engine_route", "args": ["engine", "plugin", "nope", "a"]}
+{"id": "engine_route-00823", "kind": "engine_route", "args": ["engine", "gen", "runners"]}
+{"id": "engine_route-00824", "kind": "engine_route", "args": ["engine", "gen", "runners", "--check"]}
+{"id": "engine_route-00825", "kind": "engine_route", "args": ["engine", "gen", "runners", "--check", "x"]}
+{"id": "engine_route-00826", "kind": "engine_route", "args": ["engine", "gen", "runners", "x"]}
+{"id": "engine_route-00827", "kind": "engine_route", "args": ["engine", "gen", "runner-list"]}
+{"id": "engine_route-00828", "kind": "engine_route", "args": ["engine", "gen", "runner-scopes", "a"]}
+{"id": "engine_route-00829", "kind": "engine_route", "args": ["engine", "gen", "stage-table"]}
+{"id": "engine_route-00830", "kind": "engine_route", "args": ["engine", "gen", "scope-table", "--json"]}
+{"id": "engine_route-00831", "kind": "engine_route", "args": ["engine", "gen", "nope"]}
+{"id": "engine_route-00832", "kind": "engine_route", "args": ["engine", "gen"]}
+{"id": "engine_route-00833", "kind": "engine_route", "args": ["engine", "space", "list", "--all"]}
+{"id": "engine_route-00834", "kind": "engine_route", "args": ["engine", "intent", "list", "--all"]}
+{"id": "engine_route-00835", "kind": "engine_route", "args": ["engine", "space", "list", "--all", "x"]}
+{"id": "engine_route-00836", "kind": "engine_route", "args": ["engine", "intent", "list", "x", "--all"]}
+{"id": "engine_route-00837", "kind": "engine_route", "args": ["engine", "graph", "topo", "--project-dir", ""]}
+{"id": "engine_route-00838", "kind": "engine_route", "args": ["engine", "graph", "topo", "--project-dir", "", "x"]}
+{"id": "engine_route-00839", "kind": "engine_route", "args": ["engine", "log", "answer", "--", "a", "--project-dir", "/oracle/y"]}
+{"id": "engine_route-00840", "kind": "engine_route", "args": ["engine", "log", "answer", "--", "--project-dir"]}
+{"id": "engine_route-00841", "kind": "engine_route", "args": ["engine", "log", "answer", "--", "--project-dir=/oracle/y", "--json"]}
+{"id": "engine_route-00842", "kind": "engine_route", "args": ["engine", "utility", "--project-dir", "/oracle/other", "status"]}
+{"id": "engine_route-00843", "kind": "engine_route", "args": ["engine", "utility", "--project-dir", "/oracle/other", "config-change"]}
+{"id": "engine_route-00844", "kind": "engine_route", "args": ["engine", "utility", "status", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-00845", "kind": "engine_route", "args": ["engine", "doctor", "--project-dir", "/oracle/other", "doctor"]}
+{"id": "engine_route-00846", "kind": "engine_route", "args": ["engine", "attest", "--project-dir", "/oracle/other", "resolve", "x"]}
+{"id": "engine_route-00847", "kind": "engine_route", "args": ["engine", "state", "practices-event", "--unit", "auth", "--quiet", "--yes", "--", "--json"]}
+{"id": "engine_route-00848", "kind": "engine_route", "args": ["engine", "sensor-linter", "<args>", "--help"]}
+{"id": "engine_route-00849", "kind": "engine_route", "args": ["engine", "sensor", "describe", "--stage", "code-generation", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-00850", "kind": "engine_route", "args": ["engine", "audit", "--intent", "a", "--json", "--unit", "auth", "--quiet"]}
+{"id": "engine_route-00851", "kind": "engine_route", "args": ["engine", "space", "set-construction-verification-command", "x"]}
+{"id": "engine_route-00852", "kind": "engine_route", "args": ["engine", "state"]}
+{"id": "engine_route-00853", "kind": "engine_route", "args": ["engine", "gen", "runner-scopes", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-00854", "kind": "engine_route", "args": ["engine", "park", "depth", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-00855", "kind": "engine_route", "args": ["engine", "hook", "answer", "--intent", "--quiet", "a"]}
+{"id": "engine_route-00856", "kind": "engine_route", "args": ["engine", "testing-posture", "reply", "", "x"]}
+{"id": "engine_route-00857", "kind": "engine_route", "args": ["engine", "machine-config", "global"]}
+{"id": "engine_route-00858", "kind": "engine_route", "args": ["engine", "__sensor-script-file", "export", "--no-color", "--offline", "a", "--", "b"]}
+{"id": "engine_route-00859", "kind": "engine_route", "args": ["engine", "config", "review", "--yes"]}
+{"id": "engine_route-00860", "kind": "engine_route", "args": ["engine", "sensor", "describe"]}
+{"id": "engine_route-00861", "kind": "engine_route", "args": ["engine", "--scope", "init"]}
+{"id": "engine_route-00862", "kind": "engine_route", "args": ["engine", "review-brief", "report", "--json", "--stage", "code-generation", "--yes", "--", "--json"]}
+{"id": "engine_route-00863", "kind": "engine_route", "args": ["engine", "validate", "outputs", "--project-dir", "--quiet", "/oracle/other", "x"]}
+{"id": "engine_route-00864", "kind": "engine_route", "args": ["engine", "nope", "onboard"]}
+{"id": "engine_route-00865", "kind": "engine_route", "args": ["engine", "recompose", "switch", "--no-color", "--offline"]}
+{"id": "engine_route-00866", "kind": "engine_route", "args": ["engine", "next", "archive"]}
+{"id": "engine_route-00867", "kind": "engine_route", "args": ["engine", "nope", "change-control", "--project-dir", "--json"]}
+{"id": "engine_route-00868", "kind": "engine_route", "args": ["engine", "sensor-claim-sources", "<args>", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-00869", "kind": "engine_route", "args": ["engine", "swarm", "check"]}
+{"id": "engine_route-00870", "kind": "engine_route", "args": ["engine", "swarm", "prepare", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-00871", "kind": "engine_route", "args": ["engine", "gen", "select"]}
+{"id": "engine_route-00872", "kind": "engine_route", "args": ["engine", "plugin", "build"]}
+{"id": "engine_route-00873", "kind": "engine_route", "args": ["engine", "doctor", "doctor"]}
+{"id": "engine_route-00874", "kind": "engine_route", "args": ["engine", "audit", "append", "--intent", "a"]}
+{"id": "engine_route-00875", "kind": "engine_route", "args": ["engine", "sensor-traceability", "review", "--project-dir", "--json"]}
+{"id": "engine_route-00876", "kind": "engine_route", "args": ["engine", "state", "set-unit-ownership", "--unit", "auth", "--quiet", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-00877", "kind": "engine_route", "args": ["engine", "audit", "--intent", "a"]}
+{"id": "engine_route-00878", "kind": "engine_route", "args": ["engine", "adapter", "--help", "--no-color", "--offline"]}
+{"id": "engine_route-00879", "kind": "engine_route", "args": ["engine", "--quiet", "doctor", "render", "", "x"]}
+{"id": "engine_route-00880", "kind": "engine_route", "args": ["engine", "intent", "create"]}
+{"id": "engine_route-00881", "kind": "engine_route", "args": ["engine", "plugin", "sync", "--no-color", "--offline"]}
+{"id": "engine_route-00882", "kind": "engine_route", "args": ["--json", "engine", "intent", "--no-color", "--offline", "--yes", "--", "--json"]}
+{"id": "engine_route-00883", "kind": "engine_route", "args": ["engine", "__sensor-script", "remove-repo"]}
+{"id": "engine_route-00884", "kind": "engine_route", "args": ["engine", "help", "fire", "--space=b"]}
+{"id": "engine_route-00885", "kind": "engine_route", "args": ["engine", "statusline", "show", "x", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-00886", "kind": "engine_route", "args": ["engine", "top", "adapter", "", "x"]}
+{"id": "engine_route-00887", "kind": "engine_route", "args": ["engine", "sensor-type-check", "plan-approval", "", "x"]}
+{"id": "engine_route-00888", "kind": "engine_route", "args": ["engine", "learnings", "surface", "--quiet", "--intent", "a", "--project-dir"]}
+{"id": "engine_route-00889", "kind": "engine_route", "args": ["engine", "park", "swarm-checkpoint", "--project-dir", "--project-dir", "/a", "--project-dir", "/b", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-00890", "kind": "engine_route", "args": ["engine", "nope", "validate-scope"]}
+{"id": "engine_route-00891", "kind": "engine_route", "args": ["engine", "jump", "resolve"]}
+{"id": "engine_route-00892", "kind": "engine_route", "args": ["engine", "log", "--yes", "sensors"]}
+{"id": "engine_route-00893", "kind": "engine_route", "args": ["engine", "learnings", "surface"]}
+{"id": "engine_route-00894", "kind": "engine_route", "args": ["engine", "scope", "detect", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-00895", "kind": "engine_route", "args": ["engine", "intent", "add-repo", "--project-dir"]}
+{"id": "engine_route-00896", "kind": "engine_route", "args": ["engine", "help", "set-construction-verification-command", "--project-dir"]}
+{"id": "engine_route-00897", "kind": "engine_route", "args": ["engine", "audit", "history"]}
+{"id": "engine_route-00898", "kind": "engine_route", "args": ["engine", "swarm", "prepare"]}
+{"id": "engine_route-00899", "kind": "engine_route", "args": ["engine", "runtime", "read", "--project-dir", "/oracle/other", "x", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-00900", "kind": "engine_route", "args": ["engine", "sensor-claim-sources", "runner-list", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-00901", "kind": "engine_route", "args": ["engine", "graph", "export", "--json"]}
+{"id": "engine_route-00902", "kind": "engine_route", "args": ["engine", "jump", "reopen", "--project-dir=/oracle/x", "--json"]}
+{"id": "engine_route-00903", "kind": "engine_route", "args": ["engine", "log", "--verbose", "a b"]}
+{"id": "engine_route-00904", "kind": "engine_route", "args": ["engine", "scope", "change", "--", "literal", "--project-dir", "y", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-00905", "kind": "engine_route", "args": ["engine", "sensor-type-check", "next", "--space=b", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-00906", "kind": "engine_route", "args": ["engine", "--help", "detect"]}
+{"id": "engine_route-00907", "kind": "engine_route", "args": ["engine", "gen", "runner-list"]}
+{"id": "engine_route-00908", "kind": "engine_route", "args": ["engine", "sensor-type-check", "summarize", "--project-dir"]}
+{"id": "engine_route-00909", "kind": "engine_route", "args": ["engine", "sensor-claim-sources", "acknowledge-compaction", "--project-dir", "--json", "--help"]}
+{"id": "engine_route-00910", "kind": "engine_route", "args": ["engine", "state", "practices-event", "--unit", "auth", "--quiet", "--intent", "a"]}
+{"id": "engine_route-00911", "kind": "engine_route", "args": ["engine", "config", "guard.reviewer-scope"]}
+{"id": "engine_route-00912", "kind": "engine_route", "args": ["engine", "recompose", "sync", "--json"]}
+{"id": "engine_route-00913", "kind": "engine_route", "args": ["engine", "worktree", "verify"]}
+{"id": "engine_route-00914", "kind": "engine_route", "args": ["engine", "status", "cycles"]}
+{"id": "engine_route-00915", "kind": "engine_route", "args": ["engine", "statusline", "stage-table", "--project-dir", "/oracle/other", "x", "--help"]}
+{"id": "engine_route-00916", "kind": "engine_route", "args": ["engine", "--doctor", "purge"]}
+{"id": "engine_route-00917", "kind": "engine_route", "args": ["engine", "audit", "append", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-00918", "kind": "engine_route", "args": ["engine", "testing-posture", "resolve"]}
+{"id": "engine_route-00919", "kind": "engine_route", "args": ["engine", "testing-posture", "brief"]}
+{"id": "engine_route-00920", "kind": "engine_route", "args": ["engine", "__sensor-script-file", "--quiet", "--project-dir", "--json", "--space=b"]}
+{"id": "engine_route-00921", "kind": "engine_route", "args": ["engine", "--release", "now"]}
+{"id": "engine_route-00922", "kind": "engine_route", "args": ["engine", "recompose", "continue", "--no-color", "--offline", "--project-dir=/oracle/x"]}
+{"id": "engine_route-00923", "kind": "engine_route", "args": ["engine", "knowledge", "onboard", "--project-dir=/oracle/x", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-00924", "kind": "engine_route", "args": ["engine", "state", "practices-promote", "--project-dir=/oracle/x", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-00925", "kind": "engine_route", "args": ["engine", "worktree", "info", "--intent", "a"]}
+{"id": "engine_route-00926", "kind": "engine_route", "args": ["engine", "swarm", "learnings", "--yes", "--", "--json", "--project-dir"]}
+{"id": "engine_route-00927", "kind": "engine_route", "args": ["engine", "--help", "set-autonomy", "", "x", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-00928", "kind": "engine_route", "args": ["engine", "runtime", "fire"]}
+{"id": "engine_route-00929", "kind": "engine_route", "args": ["engine", "learnings", "--yes", "brief", "--project-dir=/oracle/x", "--json"]}
+{"id": "engine_route-00930", "kind": "engine_route", "args": ["engine", "", "learnings"]}
+{"id": "engine_route-00931", "kind": "engine_route", "args": ["engine", "sensor-claim-sources", "decision", "--stage", "code-generation"]}
+{"id": "engine_route-00932", "kind": "engine_route", "args": ["engine", "jump", "execute", "--space=b"]}
+{"id": "engine_route-00933", "kind": "engine_route", "args": ["engine", "runtime", "read", "--verbose", "a b"]}
+{"id": "engine_route-00934", "kind": "engine_route", "args": ["engine", "orchestrate", "continue"]}
+{"id": "engine_route-00935", "kind": "engine_route", "args": ["engine", "sensor", "describe", "--json", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-00936", "kind": "engine_route", "args": ["engine", "review-brief"]}
+{"id": "engine_route-00937", "kind": "engine_route", "args": ["engine", "sensor-claim-sources", "--yes", "<args>"]}
+{"id": "engine_route-00938", "kind": "engine_route", "args": ["engine", "knowledge", "associate", "--project-dir", "/oracle/other", "x", "x"]}
+{"id": "engine_route-00939", "kind": "engine_route", "args": ["engine", "doctor", "doctor", "--space=b", "--project-dir=/oracle/x"]}
+{"id": "engine_route-00940", "kind": "engine_route", "args": ["engine", "config", "list", "--verbose", "a b", "x"]}
+{"id": "engine_route-00941", "kind": "engine_route", "args": ["engine", "top", "adapter"]}
+{"id": "engine_route-00942", "kind": "engine_route", "args": ["engine", "space", "create", "--json", "--no-color", "--offline"]}
+{"id": "engine_route-00943", "kind": "engine_route", "args": ["engine", "plugin", "list", "--space=b"]}
+{"id": "engine_route-00944", "kind": "engine_route", "args": ["engine", "park", "fingerprint", "--project-dir", "/oracle/other", "x", "--project-dir=/oracle/x"]}
+{"id": "engine_route-00945", "kind": "engine_route", "args": ["engine", "adapter", "begin", "--help"]}
+{"id": "engine_route-00946", "kind": "engine_route", "args": ["--yes", "engine", "park", "recompose"]}
+{"id": "engine_route-00947", "kind": "engine_route", "args": ["engine", "config", "get"]}
+{"id": "engine_route-00948", "kind": "engine_route", "args": ["engine", "status", "verify"]}
+{"id": "engine_route-00949", "kind": "engine_route", "args": ["engine", "doctor", "doctor"]}
+{"id": "engine_route-00950", "kind": "engine_route", "args": ["engine", "version", "restore"]}
+{"id": "engine_route-00951", "kind": "engine_route", "args": ["engine", "plugin", "list", "--space=b"]}
+{"id": "engine_route-00952", "kind": "engine_route", "args": ["engine", "__sensor-script", "export"]}
+{"id": "engine_route-00953", "kind": "engine_route", "args": ["engine", "runtime", "compile", "--yes", "--", "--json"]}
+{"id": "engine_route-00954", "kind": "engine_route", "args": ["engine", "validate", "outputs"]}
+{"id": "engine_route-00955", "kind": "engine_route", "args": ["engine", "runtime", "summary", "x"]}
+{"id": "engine_route-00956", "kind": "engine_route", "args": ["engine", "--version", "practices-event", "--json", "--yes", "--", "--json"]}
+{"id": "engine_route-00957", "kind": "engine_route", "args": ["engine", "config", "plan-approval", "--stage", "code-generation", "--yes", "", "x"]}
+{"id": "engine_route-00958", "kind": "engine_route", "args": ["engine", "recompose", "set-construction-iteration"]}
+{"id": "engine_route-00959", "kind": "engine_route", "args": ["engine", "--release", "--json", "recompose"]}
+{"id": "engine_route-00960", "kind": "engine_route", "args": ["engine", "space", "scope-table"]}
+{"id": "engine_route-00961", "kind": "engine_route", "args": ["engine", "learnings", "reuse-artifact", "--intent", "a"]}
+{"id": "engine_route-00962", "kind": "engine_route", "args": ["--", "engine", "--status", "checkpoint"]}
+{"id": "engine_route-00963", "kind": "engine_route", "args": ["engine", "bolt", "start", "--stage", "code-generation", "--json"]}
+{"id": "engine_route-00964", "kind": "engine_route", "args": ["engine", "recompose", "runners", "--space=b", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-00965", "kind": "engine_route", "args": ["engine", "bolt", "complete", "--project-dir"]}
+{"id": "engine_route-00966", "kind": "engine_route", "args": ["engine", "learnings", "surface", "--verbose", "a b", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-00967", "kind": "engine_route", "args": ["engine", "sensor-linter", "<args>"]}
+{"id": "engine_route-00968", "kind": "engine_route", "args": ["engine", "unit", "merge-status", "--help", "--stage", "code-generation"]}
+{"id": "engine_route-00969", "kind": "engine_route", "args": ["engine", "--help", "link"]}
+{"id": "engine_route-00970", "kind": "engine_route", "args": ["engine", "jump", "sync-unit-scope-stage"]}
+{"id": "engine_route-00971", "kind": "engine_route", "args": ["engine", "runtime", "fragment-fork"]}
+{"id": "engine_route-00972", "kind": "engine_route", "args": ["engine", "version", "<args>", "--stage", "code-generation"]}
+{"id": "engine_route-00973", "kind": "engine_route", "args": ["engine", "runtime", "revise", "--unit", "auth", "--quiet"]}
+{"id": "engine_route-00974", "kind": "engine_route", "args": ["engine", "audit", "append-batch", "--project-dir", "/oracle/other", "x", "--intent", "a"]}
+{"id": "engine_route-00975", "kind": "engine_route", "args": ["engine", "sensor", "list"]}
+{"id": "engine_route-00976", "kind": "engine_route", "args": ["engine", "attest", "resolve", "--unit", "auth", "--quiet"]}
+{"id": "engine_route-00977", "kind": "engine_route", "args": ["engine", "sensor", "show"]}
+{"id": "engine_route-00978", "kind": "engine_route", "args": ["engine", "sensor", "checkbox", "--project-dir", "/a", "--project-dir", "/b", "--project-dir"]}
+{"id": "engine_route-00979", "kind": "engine_route", "args": ["engine", "hook", "<name>", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-00980", "kind": "engine_route", "args": ["engine", "knowledge", "list", "--yes", "--json", "--project-dir=/oracle/x"]}
+{"id": "engine_route-00981", "kind": "engine_route", "args": ["engine", "validate", "outputs", "--quiet", "--project-dir", "--json"]}
+{"id": "engine_route-00982", "kind": "engine_route", "args": ["engine", "--resume", "guard.reviewer-scope", "--space=b", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-00983", "kind": "engine_route", "args": ["engine", "hook", "<name>", "--unit", "auth", "--quiet"]}
+{"id": "engine_route-00984", "kind": "engine_route", "args": ["engine", "runtime", "summary"]}
+{"id": "engine_route-00985", "kind": "engine_route", "args": ["engine", "scope", "detect"]}
+{"id": "engine_route-00986", "kind": "engine_route", "args": ["engine", "config", "summary-confirmation"]}
+{"id": "engine_route-00987", "kind": "engine_route", "args": ["--", "engine", "nope", "codekb-publish"]}
+{"id": "engine_route-00988", "kind": "engine_route", "args": ["engine", "worktree", "info"]}
+{"id": "engine_route-00989", "kind": "engine_route", "args": ["engine", "--claim", "codekb", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-00990", "kind": "engine_route", "args": ["engine", "scope", "resolve-env", "--project-dir", "/oracle/other", "a", "--", "b", "--"]}
+{"id": "engine_route-00991", "kind": "engine_route", "args": ["engine", "--release", "answer", "--intent", "a"]}
+{"id": "engine_route-00992", "kind": "engine_route", "args": ["engine", "machine-config", "scope", "--quiet"]}
+{"id": "engine_route-00993", "kind": "engine_route", "args": ["engine", "hook", "<name>", "--project-dir", "--json", "--help"]}
+{"id": "engine_route-00994", "kind": "engine_route", "args": ["engine", "learnings", "surface", "--unit", "auth", "--quiet"]}
+{"id": "engine_route-00995", "kind": "engine_route", "args": ["engine", "sensor-traceability", "<args>", "--project-dir", "--space=b"]}
+{"id": "engine_route-00996", "kind": "engine_route", "args": ["engine", "hook", "<name>"]}
+{"id": "engine_route-00997", "kind": "engine_route", "args": ["engine", "review-brief", "context", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-00998", "kind": "engine_route", "args": ["engine", "worktree", "create"]}
+{"id": "engine_route-00999", "kind": "engine_route", "args": ["--quiet", "engine", "sensor", "describe", "--", "literal", "--project-dir", "y", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-01000", "kind": "engine_route", "args": ["engine", "knowledge", "onboard"]}
+{"id": "engine_route-01001", "kind": "engine_route", "args": ["engine", "--version", "fire", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-01002", "kind": "engine_route", "args": ["engine", "doctor", "unpark", "--intent", "a", "--space=b"]}
+{"id": "engine_route-01003", "kind": "engine_route", "args": ["engine", "jump", "execute", "--unit", "auth", "--quiet"]}
+{"id": "engine_route-01004", "kind": "engine_route", "args": ["engine", "utility", "status"]}
+{"id": "engine_route-01005", "kind": "engine_route", "args": ["engine", "top", "--verbose", "a b", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-01006", "kind": "engine_route", "args": ["engine", "--status", "start", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-01007", "kind": "engine_route", "args": ["engine", "sensor", "describe", "--project-dir"]}
+{"id": "engine_route-01008", "kind": "engine_route", "args": ["engine", "worktree", "resolve", "--unit", "auth", "--quiet"]}
+{"id": "engine_route-01009", "kind": "engine_route", "args": ["engine", "knowledge", "--json"]}
+{"id": "engine_route-01010", "kind": "engine_route", "args": ["engine", "testing-posture", "render", "--project-dir", "/oracle/other", "x", "--project-dir=/oracle/x"]}
+{"id": "engine_route-01011", "kind": "engine_route", "args": ["engine", "sensor-required-sections"]}
+{"id": "engine_route-01012", "kind": "engine_route", "args": ["engine", "sensor-type-check", "lookup", "x"]}
+{"id": "engine_route-01013", "kind": "engine_route", "args": ["engine", "log", "answer"]}
+{"id": "engine_route-01014", "kind": "engine_route", "args": ["engine", "jump", "execute"]}
+{"id": "engine_route-01015", "kind": "engine_route", "args": ["engine", "log", "answers", "--unit", "auth", "--quiet", "--help"]}
+{"id": "engine_route-01016", "kind": "engine_route", "args": ["engine", "worktree", "verify"]}
+{"id": "engine_route-01017", "kind": "engine_route", "args": ["engine", "jump", "resolve", "x"]}
+{"id": "engine_route-01018", "kind": "engine_route", "args": ["engine", "__sensor-script", "statusline", "--no-color", "--offline"]}
+{"id": "engine_route-01019", "kind": "engine_route", "args": ["engine", "-h", "render"]}
+{"id": "engine_route-01020", "kind": "engine_route", "args": ["engine", "help", "codekb-publish"]}
+{"id": "engine_route-01021", "kind": "engine_route", "args": ["--", "engine", "review-brief", "review"]}
+{"id": "engine_route-01022", "kind": "engine_route", "args": ["engine", "testing-posture", "verify", "--project-dir=/oracle/x"]}
+{"id": "engine_route-01023", "kind": "engine_route", "args": ["engine", "config", "depth"]}
+{"id": "engine_route-01024", "kind": "engine_route", "args": ["engine", "audit", "append-raw"]}
+{"id": "engine_route-01025", "kind": "engine_route", "args": ["engine", "__sensor-script-file", "review", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-01026", "kind": "engine_route", "args": ["engine", "--resume", "park", "--project-dir=/oracle/x"]}
+{"id": "engine_route-01027", "kind": "engine_route", "args": ["engine", "worktree", "list"]}
+{"id": "engine_route-01028", "kind": "engine_route", "args": ["engine", "knowledge", "sync"]}
+{"id": "engine_route-01029", "kind": "engine_route", "args": ["engine", "unit", "status", "--project-dir", "--verbose", "a b"]}
+{"id": "engine_route-01030", "kind": "engine_route", "args": ["engine", "--status", "render"]}
+{"id": "engine_route-01031", "kind": "engine_route", "args": ["engine", "knowledge", "list", "--project-dir", "--json", "", "x"]}
+{"id": "engine_route-01032", "kind": "engine_route", "args": ["engine", "bolt", "dispatch-event", "--help", "--quiet"]}
+{"id": "engine_route-01033", "kind": "engine_route", "args": ["engine", "--scope", "abort", "--project-dir", "/a", "--project-dir", "/b", "--yes", "--", "--json"]}
+{"id": "engine_route-01034", "kind": "engine_route", "args": ["engine", "sensor-traceability", "scope"]}
+{"id": "engine_route-01035", "kind": "engine_route", "args": ["engine", "hook", "--quiet", "<name>", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-01036", "kind": "engine_route", "args": ["engine", "nope", "save", "--project-dir", "--json", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-01037", "kind": "engine_route", "args": ["engine", "attest", "record", "--intent", "a"]}
+{"id": "engine_route-01038", "kind": "engine_route", "args": ["engine", "state", "unpark"]}
+{"id": "engine_route-01039", "kind": "engine_route", "args": ["engine", "next", "remove-repo", "--quiet", "--unit", "auth", "--quiet"]}
+{"id": "engine_route-01040", "kind": "engine_route", "args": ["engine", "sensor-traceability", "summarize", "x"]}
+{"id": "engine_route-01041", "kind": "engine_route", "args": ["engine", "doctor", "project-description", "--intent", "a", "--project-dir=/oracle/x"]}
+{"id": "engine_route-01042", "kind": "engine_route", "args": ["engine", "sensor-upstream-coverage", "<args>", "--project-dir", "/oracle/other", "x", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-01043", "kind": "engine_route", "args": ["engine", "testing-posture", "--no-color", "--offline"]}
+{"id": "engine_route-01044", "kind": "engine_route", "args": ["engine", "sensor", "fire", "--project-dir", "--no-color", "--offline"]}
+{"id": "engine_route-01045", "kind": "engine_route", "args": ["engine", "learnings", "surface", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-01046", "kind": "engine_route", "args": ["engine", "testing-posture", "reply", "--project-dir", "/a", "--project-dir", "/b", "--project-dir", "--json"]}
+{"id": "engine_route-01047", "kind": "engine_route", "args": ["engine", "recompose", "dissociate", "--yes", "--", "--json"]}
+{"id": "engine_route-01048", "kind": "engine_route", "args": ["engine", "help", "init", "--project-dir", "--json"]}
+{"id": "engine_route-01049", "kind": "engine_route", "args": ["engine", "statusline", "append", "--intent", "a"]}
+{"id": "engine_route-01050", "kind": "engine_route", "args": ["engine", "runtime"]}
+{"id": "engine_route-01051", "kind": "engine_route", "args": ["engine", "--claim", "test-strategy"]}
+{"id": "engine_route-01052", "kind": "engine_route", "args": ["engine", "state", "lookup", "--project-dir", "/a", "--project-dir", "/b", "--project-dir", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-01053", "kind": "engine_route", "args": ["engine", "worktree", "merge", "--project-dir", "/oracle/other", "a", "--", "b"]}
+{"id": "engine_route-01054", "kind": "engine_route", "args": ["engine", "--", "adapter"]}
+{"id": "engine_route-01055", "kind": "engine_route", "args": ["engine", "worktree", "restore", "--intent", "a"]}
+{"id": "engine_route-01056", "kind": "engine_route", "args": ["engine", "__sensor-script", "set"]}
+{"id": "engine_route-01057", "kind": "engine_route", "args": ["engine", "learnings", "surface", "--stage", "code-generation"]}
+{"id": "engine_route-01058", "kind": "engine_route", "args": ["engine", "intent", "create", "--project-dir", "--json"]}
+{"id": "engine_route-01059", "kind": "engine_route", "args": ["engine", "statusline", "summary", "--stage", "code-generation"]}
+{"id": "engine_route-01060", "kind": "engine_route", "args": ["--json", "engine", "hook", "gate-start"]}
+{"id": "engine_route-01061", "kind": "engine_route", "args": ["engine", "sensor-linter", "<args>", "--stage", "code-generation", "--intent", "a"]}
+{"id": "engine_route-01062", "kind": "engine_route", "args": ["engine", "doctor", "check"]}
+{"id": "engine_route-01063", "kind": "engine_route", "args": ["engine", "orchestrate", "codekb-snapshot"]}
+{"id": "engine_route-01064", "kind": "engine_route", "args": ["engine", "park", "next", "--help"]}
+{"id": "engine_route-01065", "kind": "engine_route", "args": ["engine", "sensor-traceability", "fragment-merge"]}
+{"id": "engine_route-01066", "kind": "engine_route", "args": ["engine", "help", "status", "--no-color", "--offline"]}
+{"id": "engine_route-01067", "kind": "engine_route", "args": ["engine", "next", "reclassify", "--intent", "a"]}
+{"id": "engine_route-01068", "kind": "engine_route", "args": ["engine", "--release", "<args>", "--project-dir", "--json", "--"]}
+{"id": "engine_route-01069", "kind": "engine_route", "args": ["engine", "learnings", "--yes", "--", "--json", "--intent", "a"]}
+{"id": "engine_route-01070", "kind": "engine_route", "args": ["engine", "testing-posture", "info"]}
+{"id": "engine_route-01071", "kind": "engine_route", "args": ["engine", "--release", "create"]}
+{"id": "engine_route-01072", "kind": "engine_route", "args": ["engine", "__sensor-script", "purge", "x"]}
+{"id": "engine_route-01073", "kind": "engine_route", "args": ["engine", "sensor-traceability", "--", "practices-promote"]}
+{"id": "engine_route-01074", "kind": "engine_route", "args": ["engine", "--help", "context"]}
+{"id": "engine_route-01075", "kind": "engine_route", "args": ["engine", "runtime", "summary", "--project-dir", "--json", "--stage", "code-generation"]}
+{"id": "engine_route-01076", "kind": "engine_route", "args": ["engine", "sensor-type-check", "<args>", "x", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-01077", "kind": "engine_route", "args": ["engine", "sensor", "unarchive", "--no-color", "--offline", "--project-dir"]}
+{"id": "engine_route-01078", "kind": "engine_route", "args": ["engine", "plugin", "build"]}
+{"id": "engine_route-01079", "kind": "engine_route", "args": ["--json", "engine", "sensor-traceability", "checkbox"]}
+{"id": "engine_route-01080", "kind": "engine_route", "args": ["engine", "review-brief", "review"]}
+{"id": "engine_route-01081", "kind": "engine_route", "args": ["engine", "--help", "set-skeleton-stance"]}
+{"id": "engine_route-01082", "kind": "engine_route", "args": ["engine", "park", "x"]}
+{"id": "engine_route-01083", "kind": "engine_route", "args": ["engine", "--release", "--json"]}
+{"id": "engine_route-01084", "kind": "engine_route", "args": ["--quiet", "engine", "log", "--yes", "--", "--json"]}
+{"id": "engine_route-01085", "kind": "engine_route", "args": ["engine", "unit", "status", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-01086", "kind": "engine_route", "args": ["engine", "__sensor-script-file", "switch", "--project-dir", "--project-dir", "--json"]}
+{"id": "engine_route-01087", "kind": "engine_route", "args": ["engine", "intent", "<name>"]}
+{"id": "engine_route-01088", "kind": "engine_route", "args": ["engine", "plugin", "select", "--help"]}
+{"id": "engine_route-01089", "kind": "engine_route", "args": ["engine", "graph", "validate-grid", "--no-color", "--offline", "--yes", "--yes", "--", "--json"]}
+{"id": "engine_route-01090", "kind": "engine_route", "args": ["engine", "--status", "set-autonomy"]}
+{"id": "engine_route-01091", "kind": "engine_route", "args": ["engine", "__sensor-script", "link"]}
+{"id": "engine_route-01092", "kind": "engine_route", "args": ["engine", "--resume", "cycles", "--yes", "--", "--json"]}
+{"id": "engine_route-01093", "kind": "engine_route", "args": ["engine", "--doctor", "--project-dir", "--json"]}
+{"id": "engine_route-01094", "kind": "engine_route", "args": ["engine", "--claim", "abort"]}
+{"id": "engine_route-01095", "kind": "engine_route", "args": ["engine", "swarm", "prepare", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-01096", "kind": "engine_route", "args": ["engine", "review-brief", "summary"]}
+{"id": "engine_route-01097", "kind": "engine_route", "args": ["engine", "statusline", "guard.review-freeze"]}
+{"id": "engine_route-01098", "kind": "engine_route", "args": ["engine", "state", "set-status"]}
+{"id": "engine_route-01099", "kind": "engine_route", "args": ["engine", "knowledge", "--json", "", "x"]}
+{"id": "engine_route-01100", "kind": "engine_route", "args": ["engine", "knowledge", "sync", "--json", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-01101", "kind": "engine_route", "args": ["engine", "--release", "surface"]}
+{"id": "engine_route-01102", "kind": "engine_route", "args": ["engine", "sensor-traceability", "gate-start", "--help", "--unit", "auth", "--quiet"]}
+{"id": "engine_route-01103", "kind": "engine_route", "args": ["engine", "unit", "status", "--help", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-01104", "kind": "engine_route", "args": ["engine", "jump", "execute", "--space=b"]}
+{"id": "engine_route-01105", "kind": "engine_route", "args": ["engine", "bolt", "dispatch-event", "--intent", "a"]}
+{"id": "engine_route-01106", "kind": "engine_route", "args": ["engine", "unit", "status"]}
+{"id": "engine_route-01107", "kind": "engine_route", "args": ["engine", "utility", "--space=b", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-01108", "kind": "engine_route", "args": ["engine", "knowledge", "--space=b"]}
+{"id": "engine_route-01109", "kind": "engine_route", "args": ["engine", "sensor", "list"]}
+{"id": "engine_route-01110", "kind": "engine_route", "args": ["engine", "plugin", "list", "--intent", "a", "a", "--", "b"]}
+{"id": "engine_route-01111", "kind": "engine_route", "args": ["engine", "utility", "status"]}
+{"id": "engine_route-01112", "kind": "engine_route", "args": ["engine", "jump", "--help", "--json"]}
+{"id": "engine_route-01113", "kind": "engine_route", "args": ["engine", "--claim", "resolve", "x"]}
+{"id": "engine_route-01114", "kind": "engine_route", "args": ["engine", "log", "--yes", "--", "--json", "--json"]}
+{"id": "engine_route-01115", "kind": "engine_route", "args": ["engine", "review-brief", "summary", "--space=b"]}
+{"id": "engine_route-01116", "kind": "engine_route", "args": ["engine", "orchestrate", "wait", "--project-dir=/oracle/x"]}
+{"id": "engine_route-01117", "kind": "engine_route", "args": ["engine", "plugin", "select", "--project-dir=/oracle/x"]}
+{"id": "engine_route-01118", "kind": "engine_route", "args": ["engine", "--resume", "set-construction-checkpoints", "--project-dir", "--", "/oracle/other"]}
+{"id": "engine_route-01119", "kind": "engine_route", "args": ["engine", "sensor-type-check", "<args>", "--space=b", "--help"]}
+{"id": "engine_route-01120", "kind": "engine_route", "args": ["engine", "status", "codekb-snapshot", "--project-dir", "/a", "--project-dir", "/b", "--space=b"]}
+{"id": "engine_route-01121", "kind": "engine_route", "args": ["engine", "audit", "--", "merge"]}
+{"id": "engine_route-01122", "kind": "engine_route", "args": ["engine", "validate", "unit", "--yes", "--", "--json"]}
+{"id": "engine_route-01123", "kind": "engine_route", "args": ["engine", "__sensor-script", "summarize", "--stage", "code-generation"]}
+{"id": "engine_route-01124", "kind": "engine_route", "args": ["engine", "--claim", "--no-color", "--offline", "a", "--", "b"]}
+{"id": "engine_route-01125", "kind": "engine_route", "args": ["engine", "next", "reclassify", "a", "--project-dir", "--", "b"]}
+{"id": "engine_route-01126", "kind": "engine_route", "args": ["engine", "park", "start"]}
+{"id": "engine_route-01127", "kind": "engine_route", "args": ["engine", "graph", "artifacts", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-01128", "kind": "engine_route", "args": ["engine", "__sensor-script", "surface", "--project-dir", "--stage", "code-generation"]}
+{"id": "engine_route-01129", "kind": "engine_route", "args": ["engine", "top", "recompose", "--no-color", "--offline"]}
+{"id": "engine_route-01130", "kind": "engine_route", "args": ["engine", "nope", "discard", "--stage", "code-generation"]}
+{"id": "engine_route-01131", "kind": "engine_route", "args": ["engine", "jump", "reopen", "x"]}
+{"id": "engine_route-01132", "kind": "engine_route", "args": ["engine", "help", "park", "--project-dir", "/a", "--project-dir", "/b", "--intent", "a"]}
+{"id": "engine_route-01133", "kind": "engine_route", "args": ["engine", "doctor", "doctor", "--project-dir=/oracle/x", "--stage", "code-generation"]}
+{"id": "engine_route-01134", "kind": "engine_route", "args": ["engine", "sensor-required-sections", "reclassify"]}
+{"id": "engine_route-01135", "kind": "engine_route", "args": ["engine", "recompose", "start", "--no-color", "--offline"]}
+{"id": "engine_route-01136", "kind": "engine_route", "args": ["engine", "machine-config", "global", "x", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-01137", "kind": "engine_route", "args": ["engine", "learnings", "runners", "--json"]}
+{"id": "engine_route-01138", "kind": "engine_route", "args": ["engine", "sensor-upstream-coverage", "team-board", "--project-dir=/oracle/x", "--project-dir"]}
+{"id": "engine_route-01139", "kind": "engine_route", "args": ["engine", "swarm", "prepare"]}
+{"id": "engine_route-01140", "kind": "engine_route", "args": ["engine", "graph", "export"]}
+{"id": "engine_route-01141", "kind": "engine_route", "args": ["engine", "--help", "set"]}
+{"id": "engine_route-01142", "kind": "engine_route", "args": ["engine", "now", "decision"]}
+{"id": "engine_route-01143", "kind": "engine_route", "args": ["engine", "state", "checkbox", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-01144", "kind": "engine_route", "args": ["engine", "--resume", "add-repo"]}
+{"id": "engine_route-01145", "kind": "engine_route", "args": ["engine", "log", "answers"]}
+{"id": "engine_route-01146", "kind": "engine_route", "args": ["engine", "status", "set-construction-iteration", "--unit", "auth", "--quiet", "--json"]}
+{"id": "engine_route-01147", "kind": "engine_route", "args": ["engine", "--release", "fork"]}
+{"id": "engine_route-01148", "kind": "engine_route", "args": ["engine", "orchestrate", "report"]}
+{"id": "engine_route-01149", "kind": "engine_route", "args": ["engine", "gen", "validate", "x", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-01150", "kind": "engine_route", "args": ["engine", "worktree", "verify"]}
+{"id": "engine_route-01151", "kind": "engine_route", "args": ["engine", "-h"]}
+{"id": "engine_route-01152", "kind": "engine_route", "args": ["engine", "--release", "start"]}
+{"id": "engine_route-01153", "kind": "engine_route", "args": ["engine", "space", "create", "--project-dir", "/oracle/other", "x", "--unit", "auth", "--quiet"]}
+{"id": "engine_route-01154", "kind": "engine_route", "args": ["engine", "now", "merge"]}
+{"id": "engine_route-01155", "kind": "engine_route", "args": ["engine", "config", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-01156", "kind": "engine_route", "args": ["engine", "graph", "producers", "--help"]}
+{"id": "engine_route-01157", "kind": "engine_route", "args": ["engine", "worktree", "list", "--intent", "a", "--stage", "code-generation"]}
+{"id": "engine_route-01158", "kind": "engine_route", "args": ["engine", "sensor-required-sections", "<args>"]}
+{"id": "engine_route-01159", "kind": "engine_route", "args": ["engine", "review-brief", "review"]}
+{"id": "engine_route-01160", "kind": "engine_route", "args": ["engine", "status", "topo"]}
+{"id": "engine_route-01161", "kind": "engine_route", "args": ["engine", "runtime", "fragment-fork", "--help"]}
+{"id": "engine_route-01162", "kind": "engine_route", "args": ["engine", "--claim", "runner-list", "--verbose", "a b"]}
+{"id": "engine_route-01163", "kind": "engine_route", "args": ["engine", "validate", "outputs"]}
+{"id": "engine_route-01164", "kind": "engine_route", "args": ["engine", "orchestrate", "wait", "--json", "--project-dir", "--json"]}
+{"id": "engine_route-01165", "kind": "engine_route", "args": ["--", "engine", "config", "guard.state-transition", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-01166", "kind": "engine_route", "args": ["engine", "sensor", "--yes", "--", "--json", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-01167", "kind": "engine_route", "args": ["engine", "runtime", "export", "--verbose", "a b", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-01168", "kind": "engine_route", "args": ["engine", "unit", "status", "--unit", "auth", "--quiet"]}
+{"id": "engine_route-01169", "kind": "engine_route", "args": ["engine", "unit", "test-strategy"]}
+{"id": "engine_route-01170", "kind": "engine_route", "args": ["engine", "workspace", "document-input", "--json", "--project-dir", "--json"]}
+{"id": "engine_route-01171", "kind": "engine_route", "args": ["engine", "sensor-linter", "--", "literal", "--project-dir", "y"]}
+{"id": "engine_route-01172", "kind": "engine_route", "args": ["engine", "adapter", "set-construction-checkpoints", "--", "literal", "--project-dir", "y", "--", "--quiet", "literal", "--project-dir", "y"]}
+{"id": "engine_route-01173", "kind": "engine_route", "args": ["engine", "worktree", "list"]}
+{"id": "engine_route-01174", "kind": "engine_route", "args": ["engine", "unit", "--yes", "set-autonomy"]}
+{"id": "engine_route-01175", "kind": "engine_route", "args": ["engine", "--claim", "archive"]}
+{"id": "engine_route-01176", "kind": "engine_route", "args": ["engine", "sensor-traceability", "<args>"]}
+{"id": "engine_route-01177", "kind": "engine_route", "args": ["engine", "workspace", "detect", "--project-dir=/oracle/x"]}
+{"id": "engine_route-01178", "kind": "engine_route", "args": ["engine", "__sensor-script-file", "fire", "--project-dir=/oracle/x", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-01179", "kind": "engine_route", "args": ["engine", "jump", "resolve", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-01180", "kind": "engine_route", "args": ["engine", "sensor", "--verbose", "a b"]}
+{"id": "engine_route-01181", "kind": "engine_route", "args": ["engine", "validate"]}
+{"id": "engine_route-01182", "kind": "engine_route", "args": ["engine", "sensor-upstream-coverage", "<args>", "--verbose", "a b", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-01183", "kind": "engine_route", "args": ["engine", "status", "init"]}
+{"id": "engine_route-01184", "kind": "engine_route", "args": ["engine", "runtime", "--stage", "code-generation", "--stage", "code-generation"]}
+{"id": "engine_route-01185", "kind": "engine_route", "args": ["engine", "learnings", "surface", "--project-dir", "/a", "--project-dir", "/b", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "engine_route-01186", "kind": "engine_route", "args": ["engine", "knowledge", "sync", "--space=b"]}
+{"id": "engine_route-01187", "kind": "engine_route", "args": ["engine", "top", "recompose"]}
+{"id": "engine_route-01188", "kind": "engine_route", "args": ["engine", "help", "stage-table", "--space=b", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-01189", "kind": "engine_route", "args": ["engine", "--claim", "create", "--project-dir", "/oracle/other", "x"]}
+{"id": "engine_route-01190", "kind": "engine_route", "args": ["engine", "--resume", "decision", "a", "--", "b"]}
+{"id": "engine_route-01191", "kind": "engine_route", "args": ["engine", "--version", "--json", "dispatch-event"]}
+{"id": "engine_route-01192", "kind": "engine_route", "args": ["engine", "top", "status", "--stage", "code-generation", "a", "--", "b"]}
+{"id": "engine_route-01193", "kind": "engine_route", "args": ["engine", "top", "statusline"]}
+{"id": "engine_route-01194", "kind": "engine_route", "args": ["engine", "validate", "discard", "--json"]}
+{"id": "engine_route-01195", "kind": "engine_route", "args": ["engine", "space", "resume"]}
+{"id": "engine_route-01196", "kind": "engine_route", "args": ["engine", "attest", "--json"]}
+{"id": "engine_route-01197", "kind": "engine_route", "args": ["engine", "unit", "artifacts", "--stage", "--quiet", "code-generation", "--project-dir", "/oracle/other"]}
+{"id": "engine_route-01198", "kind": "engine_route", "args": ["engine", "unit", "merge-status", "--json"]}
+{"id": "engine_route-01199", "kind": "engine_route", "args": ["engine", "now", "runners --check"]}
+{"id": "engine_route-01200", "kind": "engine_route", "args": ["engine", "--resume", "wait", "--verbose", "a b", "x"]}

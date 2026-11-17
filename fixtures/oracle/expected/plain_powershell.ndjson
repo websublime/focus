@@ -1,0 +1,759 @@
+{"id":"plain_powershell-00000","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00001","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00002","out":{"plain":{"commands":[["bun","-First"],["focus.cmd","A=b"]],"rendering":"bun -First | focus.cmd 'A=b'"},"reading":"bun -First | focus.cmd 'A=b'"}}
+{"id":"plain_powershell-00003","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00004","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00005","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00006","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00007","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00008","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00009","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00010","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00011","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00012","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00013","out":{"plain":{"commands":[["rm","-x","a_b"]],"rendering":"rm -x a_b"},"reading":"rm -x a_b"}}
+{"id":"plain_powershell-00014","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00015","out":{"plain":{"commands":[["bun","a.b.c","status","engine"],["focus.cmd","a b"]],"rendering":"bun a.b.c status engine ; focus.cmd 'a b'"},"reading":"bun a.b.c status engine ; focus.cmd 'a b'"}}
+{"id":"plain_powershell-00016","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00017","out":{"plain":{"commands":[[".\\tool.ps1","status"],["Write-Output","a\\b","next","a\\b"],["command"]],"rendering":"'.\\tool.ps1' status ; Write-Output 'a\\b' next 'a\\b' ; command"},"reading":null}}
+{"id":"plain_powershell-00018","out":{"plain":{"commands":[[".\\tool.ps1","a:b","orchestrate"],["command","A=b"],["if","out.txt","a_b","it works"]],"rendering":"'.\\tool.ps1' a:b orchestrate ; command 'A=b' | if out.txt a_b 'it works'"},"reading":null}}
+{"id":"plain_powershell-00019","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00020","out":{"plain":{"commands":[["env","out.txt"],["focus.cmd","it works"],["get-childitem"]],"rendering":"env out.txt ; focus.cmd 'it works' | get-childitem"},"reading":null}}
+{"id":"plain_powershell-00021","out":{"plain":{"commands":[["Set-Location","-First"],["exec"]],"rendering":"Set-Location -First | exec"},"reading":null}}
+{"id":"plain_powershell-00022","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00023","out":{"plain":{"commands":[["if","é","engine"],["time","--","~"],["git"]],"rendering":"if 'é' engine | time -- '~' ; git"},"reading":null}}
+{"id":"plain_powershell-00024","out":{"plain":{"commands":[["Write-Output","status"]],"rendering":"Write-Output status"},"reading":"Write-Output status"}}
+{"id":"plain_powershell-00025","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00026","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00027","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00028","out":{"plain":{"commands":[["if","engine","next"],["time"],["env","a.txt","a+b"]],"rendering":"if engine next | time ; env a.txt a+b"},"reading":null}}
+{"id":"plain_powershell-00029","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00030","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00031","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00032","out":{"plain":{"commands":[["time","-First","a b","a_b"],["exec","-","a+b"]],"rendering":"time -First 'a b' a_b | exec - a+b"},"reading":null}}
+{"id":"plain_powershell-00033","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00034","out":{"plain":{"commands":[["git","a b","a:b","A=b"],["Get-Content","A=b","--x.y"]],"rendering":"git 'a b' a:b 'A=b' | Get-Content 'A=b' --x.y"},"reading":"git 'a b' a:b 'A=b' | Get-Content 'A=b' --x.y"}}
+{"id":"plain_powershell-00035","out":{"plain":{"commands":[["Write-Output"]],"rendering":"Write-Output"},"reading":"Write-Output"}}
+{"id":"plain_powershell-00036","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00037","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00038","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00039","out":{"plain":{"commands":[["a/b","engine"]],"rendering":"a/b engine"},"reading":"a/b engine"}}
+{"id":"plain_powershell-00040","out":{"plain":{"commands":[["git"],["Get-Content","1","a\\b","-x"],["my tool","-","orchestrate","out.txt"]],"rendering":"git ; Get-Content 1 'a\\b' -x ; 'my tool' - orchestrate out.txt"},"reading":"git ; Get-Content 1 'a\\b' -x ; 'my tool' - orchestrate out.txt"}}
+{"id":"plain_powershell-00041","out":{"plain":{"commands":[["a/b","a.b.c","A=b","a b"]],"rendering":"a/b a.b.c 'A=b' 'a b'"},"reading":"a/b a.b.c 'A=b' 'a b'"}}
+{"id":"plain_powershell-00042","out":{"plain":{"commands":[["get-childitem","a.txt","a.txt","1"],["if","status","engine","a.txt"]],"rendering":"get-childitem a.txt a.txt 1 ; if status engine a.txt"},"reading":null}}
+{"id":"plain_powershell-00043","out":{"plain":{"commands":[["focus.cmd"]],"rendering":"focus.cmd"},"reading":"focus.cmd"}}
+{"id":"plain_powershell-00044","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00045","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00046","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00047","out":{"plain":{"commands":[["sudo","-rf","--x.y"],["Write-Output","1","a\\b"]],"rendering":"sudo -rf --x.y ; Write-Output 1 'a\\b'"},"reading":null}}
+{"id":"plain_powershell-00048","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00049","out":{"plain":{"commands":[["my tool","-rf"],["sudo","it works"]],"rendering":"'my tool' -rf ; sudo 'it works'"},"reading":null}}
+{"id":"plain_powershell-00050","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00051","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00052","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00053","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00054","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00055","out":{"plain":{"commands":[["Write-Output"],["focus","a b"]],"rendering":"Write-Output | focus 'a b'"},"reading":"Write-Output | focus 'a b'"}}
+{"id":"plain_powershell-00056","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00057","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00058","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00059","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00060","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00061","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00062","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00063","out":{"plain":{"commands":[["command","-x","é"]],"rendering":"command -x 'é'"},"reading":null}}
+{"id":"plain_powershell-00064","out":{"plain":{"commands":[["rm","a.txt"],["if"],["C:\\Tools\\x.exe"]],"rendering":"rm a.txt ; if | 'C:\\Tools\\x.exe'"},"reading":null}}
+{"id":"plain_powershell-00065","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00066","out":{"plain":{"commands":[["focus.cmd","command","C:\\Tools\\x.exe"]],"rendering":"focus.cmd command 'C:\\Tools\\x.exe'"},"reading":"focus.cmd command 'C:\\Tools\\x.exe'"}}
+{"id":"plain_powershell-00067","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00068","out":{"plain":{"commands":[["env","out.txt","-First"],["a/b","a.txt"],["Get-Content",""]],"rendering":"env out.txt -First ; a/b a.txt ; Get-Content ''"},"reading":null}}
+{"id":"plain_powershell-00069","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00070","out":{"plain":{"commands":[["time"]],"rendering":"time"},"reading":null}}
+{"id":"plain_powershell-00071","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00072","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00073","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00074","out":{"plain":{"commands":[["rm","-"]],"rendering":"rm -"},"reading":"rm -"}}
+{"id":"plain_powershell-00075","out":{"plain":{"commands":[["time","-"],["if","a/b","a:b"],["bun"]],"rendering":"time - | if a/b a:b | bun"},"reading":null}}
+{"id":"plain_powershell-00076","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00077","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00078","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00079","out":{"plain":{"commands":[["C:\\Tools\\x.exe","it works","it works","--x.y"]],"rendering":"'C:\\Tools\\x.exe' 'it works' 'it works' --x.y"},"reading":"'C:\\Tools\\x.exe' 'it works' 'it works' --x.y"}}
+{"id":"plain_powershell-00080","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00081","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00082","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00083","out":{"plain":{"commands":[["command",".\\tool.ps1","if"]],"rendering":"command '.\\tool.ps1' if"},"reading":null}}
+{"id":"plain_powershell-00084","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00085","out":{"plain":{"commands":[["exec","orchestrate"],["Get-Content","A=b","a+b"]],"rendering":"exec orchestrate | Get-Content 'A=b' a+b"},"reading":null}}
+{"id":"plain_powershell-00086","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00087","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00088","out":{"plain":{"commands":[["if","engine"]],"rendering":"if engine"},"reading":null}}
+{"id":"plain_powershell-00089","out":{"plain":{"commands":[["Get-Content"],["git","-rf","-rf"]],"rendering":"Get-Content | git -rf -rf"},"reading":"Get-Content | git -rf -rf"}}
+{"id":"plain_powershell-00090","out":{"plain":{"commands":[["my tool","status"]],"rendering":"'my tool' status"},"reading":"'my tool' status"}}
+{"id":"plain_powershell-00091","out":{"plain":{"commands":[["focus.cmd"],["get-childitem","--","-rf"],["a/b","-rf"]],"rendering":"focus.cmd | get-childitem -- -rf | a/b -rf"},"reading":"focus.cmd | get-childitem -- -rf | a/b -rf"}}
+{"id":"plain_powershell-00092","out":{"plain":{"commands":[["bun","1","-x","out.txt"]],"rendering":"bun 1 -x out.txt"},"reading":"bun 1 -x out.txt"}}
+{"id":"plain_powershell-00093","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00094","out":{"plain":{"commands":[["if"],["C:\\Tools\\x.exe"],["focus.cmd","orchestrate","it works","é"]],"rendering":"if | 'C:\\Tools\\x.exe' | focus.cmd orchestrate 'it works' 'é'"},"reading":null}}
+{"id":"plain_powershell-00095","out":{"plain":{"commands":[["Write-Output","next","é"],["Select-Object","-x"]],"rendering":"Write-Output next 'é' | Select-Object -x"},"reading":"Write-Output next 'é' | Select-Object -x"}}
+{"id":"plain_powershell-00096","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00097","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00098","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00099","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00100","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00101","out":{"plain":{"commands":[["get-childitem","","1"]],"rendering":"get-childitem '' 1"},"reading":"get-childitem '' 1"}}
+{"id":"plain_powershell-00102","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00103","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00104","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00105","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00106","out":{"plain":{"commands":[["sudo","--x.y","é"],["time","a.txt","a+b","é"]],"rendering":"sudo --x.y 'é' ; time a.txt a+b 'é'"},"reading":null}}
+{"id":"plain_powershell-00107","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00108","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00109","out":{"plain":{"commands":[["focus","a b","-rf","engine"],["sudo","a b"]],"rendering":"focus 'a b' -rf engine | sudo 'a b'"},"reading":null}}
+{"id":"plain_powershell-00110","out":{"plain":{"commands":[["focus","-x","-rf"],["rm","-First"],["sudo","next","-x","~"]],"rendering":"focus -x -rf ; rm -First ; sudo next -x '~'"},"reading":null}}
+{"id":"plain_powershell-00111","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00112","out":{"plain":{"commands":[["get-childitem","a:b"]],"rendering":"get-childitem a:b"},"reading":"get-childitem a:b"}}
+{"id":"plain_powershell-00113","out":{"plain":{"commands":[["git"]],"rendering":"git"},"reading":"git"}}
+{"id":"plain_powershell-00114","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00115","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00116","out":{"plain":{"commands":[["focus.cmd"]],"rendering":"focus.cmd"},"reading":"focus.cmd"}}
+{"id":"plain_powershell-00117","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00118","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00119","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00120","out":{"plain":{"commands":[["get-childitem","-First","a.txt"],["focus","next","a:b"],["C:\\Tools\\x.exe","next"]],"rendering":"get-childitem -First a.txt ; focus next a:b ; 'C:\\Tools\\x.exe' next"},"reading":"get-childitem -First a.txt ; focus next a:b ; 'C:\\Tools\\x.exe' next"}}
+{"id":"plain_powershell-00121","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00122","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00123","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00124","out":{"plain":{"commands":[["time","a+b","engine","engine"]],"rendering":"time a+b engine engine"},"reading":null}}
+{"id":"plain_powershell-00125","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00126","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00127","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00128","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00129","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00130","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00131","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00132","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00133","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00134","out":{"plain":{"commands":[["my tool","a:b","a b","a b"],["Write-Output","a.txt","-First","out.txt"]],"rendering":"'my tool' a:b 'a b' 'a b' | Write-Output a.txt -First out.txt"},"reading":"'my tool' a:b 'a b' 'a b' | Write-Output a.txt -First out.txt"}}
+{"id":"plain_powershell-00135","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00136","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00137","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00138","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00139","out":{"plain":{"commands":[["get-content","Set-Location"]],"rendering":"get-content Set-Location"},"reading":"get-content Set-Location"}}
+{"id":"plain_powershell-00140","out":{"plain":{"commands":[["Write-Output"],["time","a+b","-First","engine"],["git","a b","1"]],"rendering":"Write-Output ; time a+b -First engine ; git 'a b' 1"},"reading":null}}
+{"id":"plain_powershell-00141","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00142","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00143","out":{"plain":{"commands":[["C:\\Tools\\x.exe"],["sudo","next","out.txt"]],"rendering":"'C:\\Tools\\x.exe' | sudo next out.txt"},"reading":null}}
+{"id":"plain_powershell-00144","out":{"plain":{"commands":[["sudo"],["Select-Object","~","-"]],"rendering":"sudo ; Select-Object '~' -"},"reading":null}}
+{"id":"plain_powershell-00145","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00146","out":{"plain":{"commands":[["if","a/b","it works"],["get-childitem"]],"rendering":"if a/b 'it works' ; get-childitem"},"reading":null}}
+{"id":"plain_powershell-00147","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00148","out":{"plain":{"commands":[["bun","a b"],["env"],["sudo","-x"]],"rendering":"bun 'a b' ; env ; sudo -x"},"reading":null}}
+{"id":"plain_powershell-00149","out":{"plain":{"commands":[["git"],["time","it works","a b","status"]],"rendering":"git ; time 'it works' 'a b' status"},"reading":null}}
+{"id":"plain_powershell-00150","out":{"plain":{"commands":[["env","1","a b"],["env","-x","a/b"],["if"]],"rendering":"env 1 'a b' | env -x a/b ; if"},"reading":null}}
+{"id":"plain_powershell-00151","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00152","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00153","out":{"plain":{"commands":[["a/b","a/b"]],"rendering":"a/b a/b"},"reading":"a/b a/b"}}
+{"id":"plain_powershell-00154","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00155","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00156","out":{"plain":{"commands":[[".\\tool.ps1","out.txt","--x.y"],["Set-Location","a b","a.txt"],["if","a\\b","a_b","--"]],"rendering":"'.\\tool.ps1' out.txt --x.y ; Set-Location 'a b' a.txt | if 'a\\b' a_b --"},"reading":null}}
+{"id":"plain_powershell-00157","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00158","out":{"plain":{"commands":[["get-childitem"]],"rendering":"get-childitem"},"reading":"get-childitem"}}
+{"id":"plain_powershell-00159","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00160","out":{"plain":{"commands":[["env","orchestrate","A=b"]],"rendering":"env orchestrate 'A=b'"},"reading":null}}
+{"id":"plain_powershell-00161","out":{"plain":{"commands":[["git"],["rm"],["C:\\Tools\\x.exe","a_b","a b"]],"rendering":"git | rm ; 'C:\\Tools\\x.exe' a_b 'a b'"},"reading":"git | rm ; 'C:\\Tools\\x.exe' a_b 'a b'"}}
+{"id":"plain_powershell-00162","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00163","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00164","out":{"plain":{"commands":[["sudo"],["sudo","~","engine"]],"rendering":"sudo | sudo '~' engine"},"reading":null}}
+{"id":"plain_powershell-00165","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00166","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00167","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00168","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00169","out":{"plain":{"commands":[["bun"]],"rendering":"bun"},"reading":"bun"}}
+{"id":"plain_powershell-00170","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00171","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00172","out":{"plain":{"commands":[["cd","é"]],"rendering":"cd 'é'"},"reading":"cd 'é'"}}
+{"id":"plain_powershell-00173","out":{"plain":{"commands":[["rm"],["focus.cmd"]],"rendering":"rm | focus.cmd"},"reading":"rm | focus.cmd"}}
+{"id":"plain_powershell-00174","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00175","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00176","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00177","out":{"plain":{"commands":[["engine"]],"rendering":"engine"},"reading":"engine"}}
+{"id":"plain_powershell-00178","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00179","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00180","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00181","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00182","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00183","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00184","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00185","out":{"plain":{"commands":[["focus.cmd"],["a/b","next"]],"rendering":"focus.cmd | a/b next"},"reading":"focus.cmd | a/b next"}}
+{"id":"plain_powershell-00186","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00187","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00188","out":{"plain":{"commands":[["Get-Content","next","it works","a_b"],["Set-Location","out.txt","a/b"],["sudo","~","-","next"]],"rendering":"Get-Content next 'it works' a_b ; Set-Location out.txt a/b | sudo '~' - next"},"reading":null}}
+{"id":"plain_powershell-00189","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00190","out":{"plain":{"commands":[["a/b","-rf","~"],["Set-Location"],["sudo","status","status"]],"rendering":"a/b -rf '~' ; Set-Location | sudo status status"},"reading":null}}
+{"id":"plain_powershell-00191","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00192","out":{"plain":{"commands":[["focus","1","a.b.c"]],"rendering":"focus 1 a.b.c"},"reading":"focus 1 a.b.c"}}
+{"id":"plain_powershell-00193","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00194","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00195","out":{"plain":{"commands":[["C:\\Tools\\x.exe","a b"]],"rendering":"'C:\\Tools\\x.exe' 'a b'"},"reading":"'C:\\Tools\\x.exe' 'a b'"}}
+{"id":"plain_powershell-00196","out":{"plain":{"commands":[["get-childitem","--","A=b"]],"rendering":"get-childitem -- 'A=b'"},"reading":"get-childitem -- 'A=b'"}}
+{"id":"plain_powershell-00197","out":{"plain":{"commands":[["if","-"],["env","--"]],"rendering":"if - ; env --"},"reading":null}}
+{"id":"plain_powershell-00198","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00199","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00200","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00201","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00202","out":{"plain":{"commands":[["Get-Content"]],"rendering":"Get-Content"},"reading":"Get-Content"}}
+{"id":"plain_powershell-00203","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00204","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00205","out":{"plain":{"commands":[["a/b","-First","out.txt","-rf"],["rm","a+b","A=b","a+b"]],"rendering":"a/b -First out.txt -rf | rm a+b 'A=b' a+b"},"reading":"a/b -First out.txt -rf | rm a+b 'A=b' a+b"}}
+{"id":"plain_powershell-00206","out":{"plain":{"commands":[["my tool","next","a_b"],["cd","--","a_b"]],"rendering":"'my tool' next a_b ; cd -- a_b"},"reading":"'my tool' next a_b ; cd -- a_b"}}
+{"id":"plain_powershell-00207","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00208","out":{"plain":{"commands":[["Get-Content","1"]],"rendering":"Get-Content 1"},"reading":"Get-Content 1"}}
+{"id":"plain_powershell-00209","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00210","out":{"plain":{"commands":[["exec","engine","it works"],["rm","a.b.c"],["bun","engine","a.b.c","a\\b"]],"rendering":"exec engine 'it works' ; rm a.b.c | bun engine a.b.c 'a\\b'"},"reading":null}}
+{"id":"plain_powershell-00211","out":{"plain":{"commands":[["sudo","a/b","it works"],["C:\\Tools\\x.exe","a b"],["bun","a b","é"]],"rendering":"sudo a/b 'it works' ; 'C:\\Tools\\x.exe' 'a b' | bun 'a b' 'é'"},"reading":null}}
+{"id":"plain_powershell-00212","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00213","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00214","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00215","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00216","out":{"plain":{"commands":[["sudo","~","-"]],"rendering":"sudo '~' -"},"reading":null}}
+{"id":"plain_powershell-00217","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00218","out":{"plain":{"commands":[["cd"],["if","a b","a\\b"]],"rendering":"cd | if 'a b' 'a\\b'"},"reading":null}}
+{"id":"plain_powershell-00219","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00220","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00221","out":{"plain":{"commands":[["sudo","next","a:b"],["Select-Object","engine","a b","a\\b"],["command","a+b"]],"rendering":"sudo next a:b | Select-Object engine 'a b' 'a\\b' ; command a+b"},"reading":null}}
+{"id":"plain_powershell-00222","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00223","out":{"plain":{"commands":[["cd"],["sudo"]],"rendering":"cd | sudo"},"reading":null}}
+{"id":"plain_powershell-00224","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00225","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00226","out":{"plain":{"commands":[["bun"]],"rendering":"bun"},"reading":"bun"}}
+{"id":"plain_powershell-00227","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00228","out":{"plain":{"commands":[["exec","é"]],"rendering":"exec 'é'"},"reading":null}}
+{"id":"plain_powershell-00229","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00230","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00231","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00232","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00233","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00234","out":{"plain":{"commands":[["time","a:b","a/b"]],"rendering":"time a:b a/b"},"reading":null}}
+{"id":"plain_powershell-00235","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00236","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00237","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00238","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00239","out":{"plain":{"commands":[["get-childitem"],["time","status","1","it works"],[".\\tool.ps1"]],"rendering":"get-childitem | time status 1 'it works' ; '.\\tool.ps1'"},"reading":null}}
+{"id":"plain_powershell-00240","out":{"plain":{"commands":[["git","a\\b","next"]],"rendering":"git 'a\\b' next"},"reading":"git 'a\\b' next"}}
+{"id":"plain_powershell-00241","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00242","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00243","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00244","out":{"plain":{"commands":[["command","-First","--x.y"]],"rendering":"command -First --x.y"},"reading":null}}
+{"id":"plain_powershell-00245","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00246","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00247","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00248","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00249","out":{"plain":{"commands":[["env"]],"rendering":"env"},"reading":null}}
+{"id":"plain_powershell-00250","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00251","out":{"plain":{"commands":[["Select-Object","é"],["if","-First","1"]],"rendering":"Select-Object 'é' | if -First 1"},"reading":null}}
+{"id":"plain_powershell-00252","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00253","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00254","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00255","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00256","out":{"plain":{"commands":[["bun"],["bun"],["my tool","a\\b"]],"rendering":"bun | bun | 'my tool' 'a\\b'"},"reading":"bun | bun | 'my tool' 'a\\b'"}}
+{"id":"plain_powershell-00257","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00258","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00259","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00260","out":{"plain":{"commands":[["focus.cmd"]],"rendering":"focus.cmd"},"reading":"focus.cmd"}}
+{"id":"plain_powershell-00261","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00262","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00263","out":{"plain":{"commands":[["Get-Content","--","-x"]],"rendering":"Get-Content -- -x"},"reading":"Get-Content -- -x"}}
+{"id":"plain_powershell-00264","out":{"plain":{"commands":[["focus.cmd","a:b","a:b","é"],["exec","-rf"],["if","out.txt","next"]],"rendering":"focus.cmd a:b a:b 'é' ; exec -rf ; if out.txt next"},"reading":null}}
+{"id":"plain_powershell-00265","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00266","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00267","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00268","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00269","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00270","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00271","out":{"plain":{"commands":[["bun","a:b","out.txt"]],"rendering":"bun a:b out.txt"},"reading":"bun a:b out.txt"}}
+{"id":"plain_powershell-00272","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00273","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00274","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00275","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00276","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00277","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00278","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00279","out":{"plain":{"commands":[["focus","a\\b"]],"rendering":"focus 'a\\b'"},"reading":"focus 'a\\b'"}}
+{"id":"plain_powershell-00280","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00281","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00282","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00283","out":{"plain":{"commands":[["bun","it works","--x.y"]],"rendering":"bun 'it works' --x.y"},"reading":"bun 'it works' --x.y"}}
+{"id":"plain_powershell-00284","out":{"plain":{"commands":[["my tool"],["C:\\Tools\\x.exe","it works"],["C:\\Tools\\x.exe","--x.y","--"]],"rendering":"'my tool' | 'C:\\Tools\\x.exe' 'it works' ; 'C:\\Tools\\x.exe' --x.y --"},"reading":"'my tool' | 'C:\\Tools\\x.exe' 'it works' ; 'C:\\Tools\\x.exe' --x.y --"}}
+{"id":"plain_powershell-00285","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00286","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00287","out":{"plain":{"commands":[["C:\\Tools\\x.exe"]],"rendering":"'C:\\Tools\\x.exe'"},"reading":"'C:\\Tools\\x.exe'"}}
+{"id":"plain_powershell-00288","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00289","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00290","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00291","out":{"plain":{"commands":[["C:\\Tools\\x.exe","orchestrate","A=b"]],"rendering":"'C:\\Tools\\x.exe' orchestrate 'A=b'"},"reading":"'C:\\Tools\\x.exe' orchestrate 'A=b'"}}
+{"id":"plain_powershell-00292","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00293","out":{"plain":{"commands":[["get-childitem","out.txt"]],"rendering":"get-childitem out.txt"},"reading":"get-childitem out.txt"}}
+{"id":"plain_powershell-00294","out":{"plain":{"commands":[["my tool","a\\b","next"],["bun","A=b"]],"rendering":"'my tool' 'a\\b' next | bun 'A=b'"},"reading":"'my tool' 'a\\b' next | bun 'A=b'"}}
+{"id":"plain_powershell-00295","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00296","out":{"plain":{"commands":[["rm"]],"rendering":"rm"},"reading":"rm"}}
+{"id":"plain_powershell-00297","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00298","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00299","out":{"plain":{"commands":[["git","A=b"],["Write-Output","1"]],"rendering":"git 'A=b' | Write-Output 1"},"reading":"git 'A=b' | Write-Output 1"}}
+{"id":"plain_powershell-00300","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00301","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00302","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00303","out":{"plain":{"commands":[["focus.cmd","A=b"]],"rendering":"focus.cmd 'A=b'"},"reading":"focus.cmd 'A=b'"}}
+{"id":"plain_powershell-00304","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00305","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00306","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00307","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00308","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00309","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00310","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00311","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00312","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00313","out":{"plain":{"commands":[["if","a.txt","a.b.c"],["Set-Location"]],"rendering":"if a.txt a.b.c | Set-Location"},"reading":null}}
+{"id":"plain_powershell-00314","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00315","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00316","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00317","out":{"plain":{"commands":[["focus.cmd"]],"rendering":"focus.cmd"},"reading":"focus.cmd"}}
+{"id":"plain_powershell-00318","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00319","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00320","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00321","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00322","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00323","out":{"plain":{"commands":[["a/b","--"],["time","a:b","a_b"]],"rendering":"a/b -- ; time a:b a_b"},"reading":null}}
+{"id":"plain_powershell-00324","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00325","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00326","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00327","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00328","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00329","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00330","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00331","out":{"plain":{"commands":[["exec","a+b"],["focus","it works","it works"]],"rendering":"exec a+b | focus 'it works' 'it works'"},"reading":null}}
+{"id":"plain_powershell-00332","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00333","out":{"plain":{"commands":[["Set-Location"]],"rendering":"Set-Location"},"reading":"Set-Location"}}
+{"id":"plain_powershell-00334","out":{"plain":{"commands":[["cd","-","a b"]],"rendering":"cd - 'a b'"},"reading":"cd - 'a b'"}}
+{"id":"plain_powershell-00335","out":{"plain":{"commands":[["get-childitem","--x.y"],["bun","-rf","a/b","engine"],["a/b"]],"rendering":"get-childitem --x.y ; bun -rf a/b engine | a/b"},"reading":"get-childitem --x.y ; bun -rf a/b engine | a/b"}}
+{"id":"plain_powershell-00336","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00337","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00338","out":{"plain":{"commands":[["time","1"],["time"],["Select-Object","a_b","--","-x"]],"rendering":"time 1 | time | Select-Object a_b -- -x"},"reading":null}}
+{"id":"plain_powershell-00339","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00340","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00341","out":{"plain":{"commands":[["Get-Content","a\\b","-","a\\b"],["env","-rf","a:b"]],"rendering":"Get-Content 'a\\b' - 'a\\b' | env -rf a:b"},"reading":null}}
+{"id":"plain_powershell-00342","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00343","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00344","out":{"plain":{"commands":[["C:\\Tools\\x.exe"]],"rendering":"'C:\\Tools\\x.exe'"},"reading":"'C:\\Tools\\x.exe'"}}
+{"id":"plain_powershell-00345","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00346","out":{"plain":{"commands":[["Set-Location","-x","a.b.c","a/b"],["exec","-rf"],["Set-Location","a.txt"]],"rendering":"Set-Location -x a.b.c a/b ; exec -rf ; Set-Location a.txt"},"reading":null}}
+{"id":"plain_powershell-00347","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00348","out":{"plain":{"commands":[["Select-Object","--"]],"rendering":"Select-Object --"},"reading":"Select-Object --"}}
+{"id":"plain_powershell-00349","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00350","out":{"plain":{"commands":[["Write-Output","a.txt","it works","-rf"]],"rendering":"Write-Output a.txt 'it works' -rf"},"reading":"Write-Output a.txt 'it works' -rf"}}
+{"id":"plain_powershell-00351","out":{"plain":{"commands":[["focus.cmd"]],"rendering":"focus.cmd"},"reading":"focus.cmd"}}
+{"id":"plain_powershell-00352","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00353","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00354","out":{"plain":{"commands":[["cd","a/b","it works"]],"rendering":"cd a/b 'it works'"},"reading":"cd a/b 'it works'"}}
+{"id":"plain_powershell-00355","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00356","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00357","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00358","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00359","out":{"plain":{"commands":[["Get-Content","--","~"]],"rendering":"Get-Content -- '~'"},"reading":"Get-Content -- '~'"}}
+{"id":"plain_powershell-00360","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00361","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00362","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00363","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00364","out":{"plain":{"commands":[["focus.cmd"],["Get-Content"]],"rendering":"focus.cmd ; Get-Content"},"reading":"focus.cmd ; Get-Content"}}
+{"id":"plain_powershell-00365","out":{"plain":{"commands":[["focus"]],"rendering":"focus"},"reading":"focus"}}
+{"id":"plain_powershell-00366","out":{"plain":{"commands":[["command"]],"rendering":"command"},"reading":null}}
+{"id":"plain_powershell-00367","out":{"plain":{"commands":[["time","--x.y"],["if","out.txt","-"]],"rendering":"time --x.y | if out.txt -"},"reading":null}}
+{"id":"plain_powershell-00368","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00369","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00370","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00371","out":{"plain":{"commands":[["focus.cmd","--x.y","it works"],["exec","~"],["Get-Content","a b","a/b"]],"rendering":"focus.cmd --x.y 'it works' | exec '~' | Get-Content 'a b' a/b"},"reading":null}}
+{"id":"plain_powershell-00372","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00373","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00374","out":{"plain":{"commands":[["command","A=b"]],"rendering":"command 'A=b'"},"reading":null}}
+{"id":"plain_powershell-00375","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00376","out":{"plain":{"commands":[["Get-Content",""],["focus","a/b"],["time","--","~"]],"rendering":"Get-Content '' ; focus a/b | time -- '~'"},"reading":null}}
+{"id":"plain_powershell-00377","out":{"plain":{"commands":[["status","exec"]],"rendering":"status exec"},"reading":"status exec"}}
+{"id":"plain_powershell-00378","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00379","out":{"plain":{"commands":[["focus","-First"],["Get-Content","","next","~"]],"rendering":"focus -First | Get-Content '' next '~'"},"reading":"focus -First | Get-Content '' next '~'"}}
+{"id":"plain_powershell-00380","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00381","out":{"plain":{"commands":[["time","é"],["exec","a\\b"],["exec","out.txt"]],"rendering":"time 'é' ; exec 'a\\b' | exec out.txt"},"reading":null}}
+{"id":"plain_powershell-00382","out":{"plain":{"commands":[["Set-Location","é","out.txt"]],"rendering":"Set-Location 'é' out.txt"},"reading":"Set-Location 'é' out.txt"}}
+{"id":"plain_powershell-00383","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00384","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00385","out":{"plain":{"commands":[["git","--x.y","it works"],["exec"]],"rendering":"git --x.y 'it works' | exec"},"reading":null}}
+{"id":"plain_powershell-00386","out":{"plain":{"commands":[["git","a.txt","status","a b"]],"rendering":"git a.txt status 'a b'"},"reading":"git a.txt status 'a b'"}}
+{"id":"plain_powershell-00387","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00388","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00389","out":{"plain":{"commands":[["my tool","engine"],["if","a+b","next"],["get-childitem","a b"]],"rendering":"'my tool' engine ; if a+b next ; get-childitem 'a b'"},"reading":null}}
+{"id":"plain_powershell-00390","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00391","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00392","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00393","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00394","out":{"plain":{"commands":[["if"],["focus.cmd"]],"rendering":"if ; focus.cmd"},"reading":null}}
+{"id":"plain_powershell-00395","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00396","out":{"plain":{"commands":[["rm","é","-","1"]],"rendering":"rm 'é' - 1"},"reading":"rm 'é' - 1"}}
+{"id":"plain_powershell-00397","out":{"plain":{"commands":[["Select-Object","a:b"],["time","a.b.c"]],"rendering":"Select-Object a:b ; time a.b.c"},"reading":null}}
+{"id":"plain_powershell-00398","out":{"plain":{"commands":[["if"],["env"]],"rendering":"if ; env"},"reading":null}}
+{"id":"plain_powershell-00399","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00400","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00401","out":{"plain":{"commands":[["exec","-rf","a+b"],["Select-Object"]],"rendering":"exec -rf a+b | Select-Object"},"reading":null}}
+{"id":"plain_powershell-00402","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00403","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00404","out":{"plain":{"commands":[["if"],["focus","status"]],"rendering":"if | focus status"},"reading":null}}
+{"id":"plain_powershell-00405","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00406","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00407","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00408","out":{"plain":{"commands":[["a/b","get-content"]],"rendering":"a/b get-content"},"reading":"a/b get-content"}}
+{"id":"plain_powershell-00409","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00410","out":{"plain":{"commands":[["focus.cmd"],["env","--x.y","--x.y"]],"rendering":"focus.cmd ; env --x.y --x.y"},"reading":null}}
+{"id":"plain_powershell-00411","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00412","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00413","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00414","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00415","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00416","out":{"plain":{"commands":[["get-childitem","next","a.txt"]],"rendering":"get-childitem next a.txt"},"reading":"get-childitem next a.txt"}}
+{"id":"plain_powershell-00417","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00418","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00419","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00420","out":{"plain":{"commands":[["Get-Content"],["command"]],"rendering":"Get-Content ; command"},"reading":null}}
+{"id":"plain_powershell-00421","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00422","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00423","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00424","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00425","out":{"plain":{"commands":[["-x","orchestrate","*.md"]],"rendering":"-x orchestrate '*.md'"},"reading":"-x orchestrate '*.md'"}}
+{"id":"plain_powershell-00426","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00427","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00428","out":{"plain":{"commands":[["exec"],["env","a+b","~"]],"rendering":"exec ; env a+b '~'"},"reading":null}}
+{"id":"plain_powershell-00429","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00430","out":{"plain":{"commands":[["git","a b"]],"rendering":"git 'a b'"},"reading":"git 'a b'"}}
+{"id":"plain_powershell-00431","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00432","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00433","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00434","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00435","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00436","out":{"plain":{"commands":[["get-childitem","orchestrate","A=b"]],"rendering":"get-childitem orchestrate 'A=b'"},"reading":"get-childitem orchestrate 'A=b'"}}
+{"id":"plain_powershell-00437","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00438","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00439","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00440","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00441","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00442","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00443","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00444","out":{"plain":{"commands":[["my tool","-First"]],"rendering":"'my tool' -First"},"reading":"'my tool' -First"}}
+{"id":"plain_powershell-00445","out":{"plain":{"commands":[["a/b","a.txt","-First"]],"rendering":"a/b a.txt -First"},"reading":"a/b a.txt -First"}}
+{"id":"plain_powershell-00446","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00447","out":{"plain":{"commands":[["Write-Output","--x.y"]],"rendering":"Write-Output --x.y"},"reading":"Write-Output --x.y"}}
+{"id":"plain_powershell-00448","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00449","out":{"plain":{"commands":[["bun","1"]],"rendering":"bun 1"},"reading":"bun 1"}}
+{"id":"plain_powershell-00450","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00451","out":{"plain":{"commands":[["rm","a/b"],["bun","it works","a.b.c","a+b"]],"rendering":"rm a/b | bun 'it works' a.b.c a+b"},"reading":"rm a/b | bun 'it works' a.b.c a+b"}}
+{"id":"plain_powershell-00452","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00453","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00454","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00455","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00456","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00457","out":{"plain":{"commands":[["focus","-rf","next"],["if","status"],["sudo"]],"rendering":"focus -rf next | if status | sudo"},"reading":null}}
+{"id":"plain_powershell-00458","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00459","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00460","out":{"plain":{"commands":[["exec","a_b"]],"rendering":"exec a_b"},"reading":null}}
+{"id":"plain_powershell-00461","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00462","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00463","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00464","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00465","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00466","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00467","out":{"plain":{"commands":[["git","--x.y"],["if","-rf"]],"rendering":"git --x.y ; if -rf"},"reading":null}}
+{"id":"plain_powershell-00468","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00469","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00470","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00471","out":{"plain":{"commands":[["a/b","-rf"],["get-childitem","a/b"],["get-childitem","A=b"]],"rendering":"a/b -rf ; get-childitem a/b | get-childitem 'A=b'"},"reading":"a/b -rf ; get-childitem a/b | get-childitem 'A=b'"}}
+{"id":"plain_powershell-00472","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00473","out":{"plain":{"commands":[["command"]],"rendering":"command"},"reading":null}}
+{"id":"plain_powershell-00474","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00475","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00476","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00477","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00478","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00479","out":{"plain":{"commands":[["focus","engine","engine"]],"rendering":"focus engine engine"},"reading":"focus engine engine"}}
+{"id":"plain_powershell-00480","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00481","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00482","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00483","out":{"plain":{"commands":[["git","a\\b","-First"]],"rendering":"git 'a\\b' -First"},"reading":"git 'a\\b' -First"}}
+{"id":"plain_powershell-00484","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00485","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00486","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00487","out":{"plain":{"commands":[["time"],["C:\\Tools\\x.exe"]],"rendering":"time ; 'C:\\Tools\\x.exe'"},"reading":null}}
+{"id":"plain_powershell-00488","out":{"plain":{"commands":[["bun"]],"rendering":"bun"},"reading":"bun"}}
+{"id":"plain_powershell-00489","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00490","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00491","out":{"plain":{"commands":[["Set-Location","-x"],["bun","a:b"],["focus","out.txt"]],"rendering":"Set-Location -x ; bun a:b | focus out.txt"},"reading":"Set-Location -x ; bun a:b | focus out.txt"}}
+{"id":"plain_powershell-00492","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00493","out":{"plain":{"commands":[["git","--","it works","engine"]],"rendering":"git -- 'it works' engine"},"reading":"git -- 'it works' engine"}}
+{"id":"plain_powershell-00494","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00495","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00496","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00497","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00498","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00499","out":{"plain":{"commands":[["cd"]],"rendering":"cd"},"reading":"cd"}}
+{"id":"plain_powershell-00500","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00501","out":{"plain":{"commands":[["bun"],["env","-"],["git"]],"rendering":"bun ; env - ; git"},"reading":null}}
+{"id":"plain_powershell-00502","out":{"plain":{"commands":[["sudo","engine"]],"rendering":"sudo engine"},"reading":null}}
+{"id":"plain_powershell-00503","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00504","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00505","out":{"plain":{"commands":[["sudo"]],"rendering":"sudo"},"reading":null}}
+{"id":"plain_powershell-00506","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00507","out":{"plain":{"commands":[["focus.cmd","a:b","a+b"]],"rendering":"focus.cmd a:b a+b"},"reading":"focus.cmd a:b a+b"}}
+{"id":"plain_powershell-00508","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00509","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00510","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00511","out":{"plain":{"commands":[["focus"]],"rendering":"focus"},"reading":"focus"}}
+{"id":"plain_powershell-00512","out":{"plain":{"commands":[["rm","--x.y","a/b","a_b"],["Get-Content","a_b","it works","A=b"],["C:\\Tools\\x.exe","a:b","-","status"]],"rendering":"rm --x.y a/b a_b ; Get-Content a_b 'it works' 'A=b' ; 'C:\\Tools\\x.exe' a:b - status"},"reading":"rm --x.y a/b a_b ; Get-Content a_b 'it works' 'A=b' ; 'C:\\Tools\\x.exe' a:b - status"}}
+{"id":"plain_powershell-00513","out":{"plain":{"commands":[["Write-Output","a:b"]],"rendering":"Write-Output a:b"},"reading":"Write-Output a:b"}}
+{"id":"plain_powershell-00514","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00515","out":{"plain":{"commands":[["get-childitem"],["focus","é","~","orchestrate"]],"rendering":"get-childitem | focus 'é' '~' orchestrate"},"reading":"get-childitem | focus 'é' '~' orchestrate"}}
+{"id":"plain_powershell-00516","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00517","out":{"plain":{"commands":[["env","status","orchestrate","orchestrate"]],"rendering":"env status orchestrate orchestrate"},"reading":null}}
+{"id":"plain_powershell-00518","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00519","out":{"plain":{"commands":[["a/b"],["Select-Object"],["sudo","a+b"]],"rendering":"a/b ; Select-Object | sudo a+b"},"reading":null}}
+{"id":"plain_powershell-00520","out":{"plain":{"commands":[["sudo","a.txt"]],"rendering":"sudo a.txt"},"reading":null}}
+{"id":"plain_powershell-00521","out":{"plain":{"commands":[["Select-Object","a b","A=b","a\\b"]],"rendering":"Select-Object 'a b' 'A=b' 'a\\b'"},"reading":"Select-Object 'a b' 'A=b' 'a\\b'"}}
+{"id":"plain_powershell-00522","out":{"plain":{"commands":[["focus.cmd","é","é"]],"rendering":"focus.cmd 'é' 'é'"},"reading":"focus.cmd 'é' 'é'"}}
+{"id":"plain_powershell-00523","out":{"plain":{"commands":[["focus","é","-x"],["rm","it works","-First","a:b"]],"rendering":"focus 'é' -x | rm 'it works' -First a:b"},"reading":"focus 'é' -x | rm 'it works' -First a:b"}}
+{"id":"plain_powershell-00524","out":{"plain":{"commands":[["focus","a_b"],["get-childitem","a b","orchestrate"]],"rendering":"focus a_b | get-childitem 'a b' orchestrate"},"reading":"focus a_b | get-childitem 'a b' orchestrate"}}
+{"id":"plain_powershell-00525","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00526","out":{"plain":{"commands":[["Write-Output"],["bun","a/b"]],"rendering":"Write-Output | bun a/b"},"reading":"Write-Output | bun a/b"}}
+{"id":"plain_powershell-00527","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00528","out":{"plain":{"commands":[["exec"]],"rendering":"exec"},"reading":null}}
+{"id":"plain_powershell-00529","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00530","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00531","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00532","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00533","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00534","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00535","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00536","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00537","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00538","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00539","out":{"plain":{"commands":[["focus"],["bun","a b","--"],["time","-"]],"rendering":"focus ; bun 'a b' -- ; time -"},"reading":null}}
+{"id":"plain_powershell-00540","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00541","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00542","out":{"plain":{"commands":[["command","status"]],"rendering":"command status"},"reading":null}}
+{"id":"plain_powershell-00543","out":{"plain":{"commands":[["my tool","next","a b"],["command","--","--"]],"rendering":"'my tool' next 'a b' ; command -- --"},"reading":null}}
+{"id":"plain_powershell-00544","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00545","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00546","out":{"plain":{"commands":[["sudo","a_b","a_b"]],"rendering":"sudo a_b a_b"},"reading":null}}
+{"id":"plain_powershell-00547","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00548","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00549","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00550","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00551","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00552","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00553","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00554","out":{"plain":{"commands":[["focus.cmd","a/b"],["command","--","a.b.c"],["Write-Output"]],"rendering":"focus.cmd a/b ; command -- a.b.c | Write-Output"},"reading":null}}
+{"id":"plain_powershell-00555","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00556","out":{"plain":{"commands":[["focus.cmd","focus.cmd","Select-Object","a/b"]],"rendering":"focus.cmd focus.cmd Select-Object a/b"},"reading":"focus.cmd focus.cmd Select-Object a/b"}}
+{"id":"plain_powershell-00557","out":{"plain":{"commands":[["sudo"],["get-childitem"]],"rendering":"sudo | get-childitem"},"reading":null}}
+{"id":"plain_powershell-00558","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00559","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00560","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00561","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00562","out":{"plain":{"commands":[["git","-","out.txt"],["focus","é","-First","a.txt"]],"rendering":"git - out.txt ; focus 'é' -First a.txt"},"reading":"git - out.txt ; focus 'é' -First a.txt"}}
+{"id":"plain_powershell-00563","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00564","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00565","out":{"plain":{"commands":[["exec","-x","next"],["git","a:b","A=b","-First"]],"rendering":"exec -x next ; git a:b 'A=b' -First"},"reading":null}}
+{"id":"plain_powershell-00566","out":{"plain":{"commands":[["command","1"],["focus"],["focus","-rf"]],"rendering":"command 1 ; focus | focus -rf"},"reading":null}}
+{"id":"plain_powershell-00567","out":{"plain":{"commands":[["Get-Content","it works"]],"rendering":"Get-Content 'it works'"},"reading":"Get-Content 'it works'"}}
+{"id":"plain_powershell-00568","out":{"plain":{"commands":[["git","a.txt","a.txt","engine"]],"rendering":"git a.txt a.txt engine"},"reading":"git a.txt a.txt engine"}}
+{"id":"plain_powershell-00569","out":{"plain":{"commands":[["rm"]],"rendering":"rm"},"reading":"rm"}}
+{"id":"plain_powershell-00570","out":{"plain":{"commands":[["focus","orchestrate","a:b"],["get-childitem","a:b","engine","out.txt"]],"rendering":"focus orchestrate a:b | get-childitem a:b engine out.txt"},"reading":"focus orchestrate a:b | get-childitem a:b engine out.txt"}}
+{"id":"plain_powershell-00571","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00572","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00573","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00574","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00575","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00576","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00577","out":{"plain":{"commands":[["~","Get-Content","time"]],"rendering":"'~' Get-Content time"},"reading":"'~' Get-Content time"}}
+{"id":"plain_powershell-00578","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00579","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00580","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00581","out":{"plain":{"commands":[["bun"],["focus.cmd","A=b"],["a/b","engine","engine"]],"rendering":"bun | focus.cmd 'A=b' | a/b engine engine"},"reading":"bun | focus.cmd 'A=b' | a/b engine engine"}}
+{"id":"plain_powershell-00582","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00583","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00584","out":{"plain":{"commands":[["if"]],"rendering":"if"},"reading":null}}
+{"id":"plain_powershell-00585","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00586","out":{"plain":{"commands":[["env","engine"],["focus.cmd"],["Set-Location","é","--x.y"]],"rendering":"env engine | focus.cmd | Set-Location 'é' --x.y"},"reading":null}}
+{"id":"plain_powershell-00587","out":{"plain":{"commands":[["exec","é"],["get-childitem","--x.y"]],"rendering":"exec 'é' | get-childitem --x.y"},"reading":null}}
+{"id":"plain_powershell-00588","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00589","out":{"plain":{"commands":[["if","A=b"],["Write-Output","","orchestrate"]],"rendering":"if 'A=b' | Write-Output '' orchestrate"},"reading":null}}
+{"id":"plain_powershell-00590","out":{"plain":{"commands":[["get-childitem","next","A=b"],["time","~"]],"rendering":"get-childitem next 'A=b' | time '~'"},"reading":null}}
+{"id":"plain_powershell-00591","out":{"plain":{"commands":[["bun","a_b","1","out.txt"],["Select-Object"],["rm"]],"rendering":"bun a_b 1 out.txt ; Select-Object | rm"},"reading":"bun a_b 1 out.txt ; Select-Object | rm"}}
+{"id":"plain_powershell-00592","out":{"plain":{"commands":[["exec"],["get-childitem","a\\b"],["env","~","1"]],"rendering":"exec ; get-childitem 'a\\b' | env '~' 1"},"reading":null}}
+{"id":"plain_powershell-00593","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00594","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00595","out":{"plain":{"commands":[["get-content"],["next","git","next","focus"]],"rendering":"get-content | next git next focus"},"reading":"get-content | next git next focus"}}
+{"id":"plain_powershell-00596","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00597","out":{"plain":{"commands":[["Write-Output","A=b"]],"rendering":"Write-Output 'A=b'"},"reading":"Write-Output 'A=b'"}}
+{"id":"plain_powershell-00598","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00599","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00600","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00601","out":{"plain":{"commands":[["exec","--x.y","engine","-First"],["env","-x"]],"rendering":"exec --x.y engine -First ; env -x"},"reading":null}}
+{"id":"plain_powershell-00602","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00603","out":{"plain":{"commands":[["cd","next"],["Get-Content","orchestrate","next","a:b"],["Set-Location"]],"rendering":"cd next | Get-Content orchestrate next a:b ; Set-Location"},"reading":"cd next | Get-Content orchestrate next a:b ; Set-Location"}}
+{"id":"plain_powershell-00604","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00605","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00606","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00607","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00608","out":{"plain":{"commands":[["env","it works","~"]],"rendering":"env 'it works' '~'"},"reading":null}}
+{"id":"plain_powershell-00609","out":{"plain":{"commands":[["rm","é"],["a/b","next","a.txt"]],"rendering":"rm 'é' ; a/b next a.txt"},"reading":"rm 'é' ; a/b next a.txt"}}
+{"id":"plain_powershell-00610","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00611","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00612","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00613","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00614","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00615","out":{"plain":{"commands":[["focus"],["sudo","1"]],"rendering":"focus | sudo 1"},"reading":null}}
+{"id":"plain_powershell-00616","out":{"plain":{"commands":[["rm","orchestrate"]],"rendering":"rm orchestrate"},"reading":"rm orchestrate"}}
+{"id":"plain_powershell-00617","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00618","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00619","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00620","out":{"plain":{"commands":[["time","~","-x"]],"rendering":"time '~' -x"},"reading":null}}
+{"id":"plain_powershell-00621","out":{"plain":{"commands":[["Select-Object","~","a_b","next"]],"rendering":"Select-Object '~' a_b next"},"reading":"Select-Object '~' a_b next"}}
+{"id":"plain_powershell-00622","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00623","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00624","out":{"plain":{"commands":[["focus"],["Get-Content","a:b","a_b","-x"],["command","it works","1","next"]],"rendering":"focus | Get-Content a:b a_b -x ; command 'it works' 1 next"},"reading":null}}
+{"id":"plain_powershell-00625","out":{"plain":{"commands":[["my tool","a\\b"]],"rendering":"'my tool' 'a\\b'"},"reading":"'my tool' 'a\\b'"}}
+{"id":"plain_powershell-00626","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00627","out":{"plain":{"commands":[["exec","A=b"],[".\\tool.ps1","--x.y"]],"rendering":"exec 'A=b' ; '.\\tool.ps1' --x.y"},"reading":null}}
+{"id":"plain_powershell-00628","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00629","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00630","out":{"plain":{"commands":[["command","a b","-x","a\\b"],["get-childitem"],[".\\tool.ps1","a/b","a/b"]],"rendering":"command 'a b' -x 'a\\b' ; get-childitem | '.\\tool.ps1' a/b a/b"},"reading":null}}
+{"id":"plain_powershell-00631","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00632","out":{"plain":{"commands":[["a.txt"]],"rendering":"a.txt"},"reading":"a.txt"}}
+{"id":"plain_powershell-00633","out":{"plain":{"commands":[["focus"],["time"]],"rendering":"focus | time"},"reading":null}}
+{"id":"plain_powershell-00634","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00635","out":{"plain":{"commands":[["if"]],"rendering":"if"},"reading":null}}
+{"id":"plain_powershell-00636","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00637","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00638","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00639","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00640","out":{"plain":{"commands":[["env"],["a/b","it works"]],"rendering":"env ; a/b 'it works'"},"reading":null}}
+{"id":"plain_powershell-00641","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00642","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00643","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00644","out":{"plain":{"commands":[["get-childitem","a b","a b"],["command"],["Select-Object","status"]],"rendering":"get-childitem 'a b' 'a b' | command ; Select-Object status"},"reading":null}}
+{"id":"plain_powershell-00645","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00646","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00647","out":{"plain":{"commands":[["time"]],"rendering":"time"},"reading":null}}
+{"id":"plain_powershell-00648","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00649","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00650","out":{"plain":{"commands":[["Select-Object"]],"rendering":"Select-Object"},"reading":"Select-Object"}}
+{"id":"plain_powershell-00651","out":{"plain":{"commands":[["C:\\Tools\\x.exe"],["rm","next"],["Write-Output"]],"rendering":"'C:\\Tools\\x.exe' ; rm next ; Write-Output"},"reading":"'C:\\Tools\\x.exe' ; rm next ; Write-Output"}}
+{"id":"plain_powershell-00652","out":{"plain":{"commands":[["bun","status","A=b"]],"rendering":"bun status 'A=b'"},"reading":"bun status 'A=b'"}}
+{"id":"plain_powershell-00653","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00654","out":{"plain":{"commands":[["time","-First","A=b"],["C:\\Tools\\x.exe"],["C:\\Tools\\x.exe","a b"]],"rendering":"time -First 'A=b' | 'C:\\Tools\\x.exe' ; 'C:\\Tools\\x.exe' 'a b'"},"reading":null}}
+{"id":"plain_powershell-00655","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00656","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00657","out":{"plain":{"commands":[["Set-Location","a+b"]],"rendering":"Set-Location a+b"},"reading":"Set-Location a+b"}}
+{"id":"plain_powershell-00658","out":{"plain":{"commands":[["rm","-","--x.y"],["Select-Object"],["get-childitem"]],"rendering":"rm - --x.y ; Select-Object | get-childitem"},"reading":"rm - --x.y ; Select-Object | get-childitem"}}
+{"id":"plain_powershell-00659","out":{"plain":{"commands":[["Write-Output","A=b","A=b","--x.y"],["Select-Object"]],"rendering":"Write-Output 'A=b' 'A=b' --x.y | Select-Object"},"reading":"Write-Output 'A=b' 'A=b' --x.y | Select-Object"}}
+{"id":"plain_powershell-00660","out":{"plain":{"commands":[["command","é"],["cd","a/b","-x"]],"rendering":"command 'é' ; cd a/b -x"},"reading":null}}
+{"id":"plain_powershell-00661","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00662","out":{"plain":{"commands":[["Write-Output","a b","status","1"],["exec","orchestrate","a b","1"],["my tool","a.txt","-","a:b"]],"rendering":"Write-Output 'a b' status 1 ; exec orchestrate 'a b' 1 | 'my tool' a.txt - a:b"},"reading":null}}
+{"id":"plain_powershell-00663","out":{"plain":{"commands":[["get-childitem"]],"rendering":"get-childitem"},"reading":"get-childitem"}}
+{"id":"plain_powershell-00664","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00665","out":{"plain":{"commands":[["a/b","*.md","-","if"]],"rendering":"a/b '*.md' - if"},"reading":"a/b '*.md' - if"}}
+{"id":"plain_powershell-00666","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00667","out":{"plain":{"commands":[["git","1","next"]],"rendering":"git 1 next"},"reading":"git 1 next"}}
+{"id":"plain_powershell-00668","out":{"plain":{"commands":[["exec","next"],["focus.cmd","a b"]],"rendering":"exec next ; focus.cmd 'a b'"},"reading":null}}
+{"id":"plain_powershell-00669","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00670","out":{"plain":{"commands":[["C:\\Tools\\x.exe","-"],["focus","~","engine","engine"],["sudo","A=b"]],"rendering":"'C:\\Tools\\x.exe' - | focus '~' engine engine ; sudo 'A=b'"},"reading":null}}
+{"id":"plain_powershell-00671","out":{"plain":{"commands":[["env","A=b","a.b.c"],["Select-Object"],["time","status","next","-"]],"rendering":"env 'A=b' a.b.c ; Select-Object | time status next -"},"reading":null}}
+{"id":"plain_powershell-00672","out":{"plain":{"commands":[["bun","-x","next"],["Write-Output"],["Get-Content","--x.y"]],"rendering":"bun -x next | Write-Output | Get-Content --x.y"},"reading":"bun -x next | Write-Output | Get-Content --x.y"}}
+{"id":"plain_powershell-00673","out":{"plain":{"commands":[["Select-Object","a:b"],["sudo","a+b"]],"rendering":"Select-Object a:b ; sudo a+b"},"reading":null}}
+{"id":"plain_powershell-00674","out":{"plain":{"commands":[["Set-Location"],["rm","-x"],[".\\tool.ps1","~","é"]],"rendering":"Set-Location | rm -x | '.\\tool.ps1' '~' 'é'"},"reading":"Set-Location | rm -x | '.\\tool.ps1' '~' 'é'"}}
+{"id":"plain_powershell-00675","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00676","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00677","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00678","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00679","out":{"plain":{"commands":[["bun"]],"rendering":"bun"},"reading":"bun"}}
+{"id":"plain_powershell-00680","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00681","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00682","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00683","out":{"plain":{"commands":[["time","it works","it works"]],"rendering":"time 'it works' 'it works'"},"reading":null}}
+{"id":"plain_powershell-00684","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00685","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00686","out":{"plain":{"commands":[["Select-Object","-"]],"rendering":"Select-Object -"},"reading":"Select-Object -"}}
+{"id":"plain_powershell-00687","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00688","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00689","out":{"plain":{"commands":[["exec","next","-First"],["focus","a b","a\\b"],["env","A=b","a.b.c","a b"]],"rendering":"exec next -First | focus 'a b' 'a\\b' | env 'A=b' a.b.c 'a b'"},"reading":null}}
+{"id":"plain_powershell-00690","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00691","out":{"plain":{"commands":[["a/b","-rf","~","~"]],"rendering":"a/b -rf '~' '~'"},"reading":"a/b -rf '~' '~'"}}
+{"id":"plain_powershell-00692","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00693","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00694","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00695","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00696","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00697","out":{"plain":{"commands":[["Select-Object","a+b","~"]],"rendering":"Select-Object a+b '~'"},"reading":"Select-Object a+b '~'"}}
+{"id":"plain_powershell-00698","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00699","out":{"plain":{"commands":[["Write-Output","--","é"]],"rendering":"Write-Output -- 'é'"},"reading":"Write-Output -- 'é'"}}
+{"id":"plain_powershell-00700","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00701","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00702","out":{"plain":{"commands":[["focus","--","1"]],"rendering":"focus -- 1"},"reading":"focus -- 1"}}
+{"id":"plain_powershell-00703","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00704","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00705","out":{"plain":{"commands":[["rm","Get-Content"]],"rendering":"rm Get-Content"},"reading":"rm Get-Content"}}
+{"id":"plain_powershell-00706","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00707","out":{"plain":{"commands":[["if"]],"rendering":"if"},"reading":null}}
+{"id":"plain_powershell-00708","out":{"plain":{"commands":[["Set-Location"]],"rendering":"Set-Location"},"reading":"Set-Location"}}
+{"id":"plain_powershell-00709","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00710","out":{"plain":{"commands":[["engine","1"]],"rendering":"engine 1"},"reading":"engine 1"}}
+{"id":"plain_powershell-00711","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00712","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00713","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00714","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00715","out":{"plain":{"commands":[["env","a\\b"],["Write-Output","a b"]],"rendering":"env 'a\\b' | Write-Output 'a b'"},"reading":null}}
+{"id":"plain_powershell-00716","out":{"plain":{"commands":[[".\\tool.ps1","~","-","a\\b"],["rm"]],"rendering":"'.\\tool.ps1' '~' - 'a\\b' | rm"},"reading":"'.\\tool.ps1' '~' - 'a\\b' | rm"}}
+{"id":"plain_powershell-00717","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00718","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00719","out":{"plain":{"commands":[["--","a+b"]],"rendering":"-- a+b"},"reading":"-- a+b"}}
+{"id":"plain_powershell-00720","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00721","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00722","out":{"plain":{"commands":[["git","status"]],"rendering":"git status"},"reading":"git status"}}
+{"id":"plain_powershell-00723","out":{"plain":{"commands":[["git","status"]],"rendering":"git status"},"reading":"git status"}}
+{"id":"plain_powershell-00724","out":{"plain":{"commands":[["C:\\Program Files\\Git\\git.exe","status"]],"rendering":"'C:\\Program Files\\Git\\git.exe' status"},"reading":"'C:\\Program Files\\Git\\git.exe' status"}}
+{"id":"plain_powershell-00725","out":{"plain":{"commands":[["C:\\x y\\git.exe","status"]],"rendering":"'C:\\x y\\git.exe' status"},"reading":"'C:\\x y\\git.exe' status"}}
+{"id":"plain_powershell-00726","out":{"plain":{"commands":[["Get-Content","a.txt"],["Select-Object","-First","1"]],"rendering":"Get-Content a.txt | Select-Object -First 1"},"reading":"Get-Content a.txt | Select-Object -First 1"}}
+{"id":"plain_powershell-00727","out":{"plain":{"commands":[["focus.cmd","engine","orchestrate","next"]],"rendering":"focus.cmd engine orchestrate next"},"reading":"focus.cmd engine orchestrate next"}}
+{"id":"plain_powershell-00728","out":{"plain":{"commands":[["Get-ChildItem","a\\"],["git","log"]],"rendering":"Get-ChildItem 'a\\' ; git log"},"reading":"Get-ChildItem 'a\\' ; git log"}}
+{"id":"plain_powershell-00729","out":{"plain":{"commands":[["git","commit","-m","it works"]],"rendering":"git commit -m 'it works'"},"reading":"git commit -m 'it works'"}}
+{"id":"plain_powershell-00730","out":{"plain":{"commands":[["git","commit","-m","it works"]],"rendering":"git commit -m 'it works'"},"reading":"git commit -m 'it works'"}}
+{"id":"plain_powershell-00731","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00732","out":{"plain":{"commands":[["Get-Content","a\\"]],"rendering":"Get-Content 'a\\'"},"reading":"Get-Content 'a\\'"}}
+{"id":"plain_powershell-00733","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00734","out":{"plain":{"commands":[["Get-Content",""]],"rendering":"Get-Content ''"},"reading":"Get-Content ''"}}
+{"id":"plain_powershell-00735","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00736","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00737","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00738","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00739","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00740","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00741","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00742","out":{"plain":{"commands":[["a","b"]],"rendering":"a b"},"reading":"a b"}}
+{"id":"plain_powershell-00743","out":{"plain":{"commands":[["a"]],"rendering":"a"},"reading":"a"}}
+{"id":"plain_powershell-00744","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00745","out":{"plain":{"commands":[["a"],["b"]],"rendering":"a ; b"},"reading":"a ; b"}}
+{"id":"plain_powershell-00746","out":{"plain":{"commands":[["a","b","c"]],"rendering":"a b c"},"reading":"a b c"}}
+{"id":"plain_powershell-00747","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00748","out":{"plain":{"commands":[["a","b"]],"rendering":"a b"},"reading":"a b"}}
+{"id":"plain_powershell-00749","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00750","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00751","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00752","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00753","out":{"plain":null,"reading":null}}
+{"id":"plain_powershell-00754","out":{"plain":{"commands":[["a.b","c"]],"rendering":"a.b c"},"reading":"a.b c"}}
+{"id":"plain_powershell-00755","out":{"plain":{"commands":[["a:b","c"]],"rendering":"a:b c"},"reading":"a:b c"}}
+{"id":"plain_powershell-00756","out":{"plain":{"commands":[["a/b","c"]],"rendering":"a/b c"},"reading":"a/b c"}}
+{"id":"plain_powershell-00757","out":{"plain":{"commands":[["a\\b","c"]],"rendering":"'a\\b' c"},"reading":"'a\\b' c"}}
+{"id":"plain_powershell-00758","out":{"plain":null,"reading":null}}

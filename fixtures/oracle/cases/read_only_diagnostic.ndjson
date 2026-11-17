@@ -1,0 +1,208 @@
+{"id": "read_only_diagnostic-00000", "kind": "read_only_diagnostic", "args": ["status"], "stem": ""}
+{"id": "read_only_diagnostic-00001", "kind": "read_only_diagnostic", "args": [], "stem": "doctor"}
+{"id": "read_only_diagnostic-00002", "kind": "read_only_diagnostic", "args": ["status", "now"], "stem": ""}
+{"id": "read_only_diagnostic-00003", "kind": "read_only_diagnostic", "args": ["now"], "stem": "utility"}
+{"id": "read_only_diagnostic-00004", "kind": "read_only_diagnostic", "args": ["status", "now", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00005", "kind": "read_only_diagnostic", "args": ["now", "x"], "stem": "utility"}
+{"id": "read_only_diagnostic-00006", "kind": "read_only_diagnostic", "args": ["status", "doctor"], "stem": ""}
+{"id": "read_only_diagnostic-00007", "kind": "read_only_diagnostic", "args": ["doctor"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00008", "kind": "read_only_diagnostic", "args": ["status", "--export"], "stem": "utility"}
+{"id": "read_only_diagnostic-00009", "kind": "read_only_diagnostic", "args": ["--export"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00010", "kind": "read_only_diagnostic", "args": ["status", "status"], "stem": "state"}
+{"id": "read_only_diagnostic-00011", "kind": "read_only_diagnostic", "args": ["status"], "stem": "utility"}
+{"id": "read_only_diagnostic-00012", "kind": "read_only_diagnostic", "args": ["status", "version", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00013", "kind": "read_only_diagnostic", "args": ["version", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00014", "kind": "read_only_diagnostic", "args": ["status", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00015", "kind": "read_only_diagnostic", "args": ["x"], "stem": "utility"}
+{"id": "read_only_diagnostic-00016", "kind": "read_only_diagnostic", "args": ["--status"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00017", "kind": "read_only_diagnostic", "args": [], "stem": "utility"}
+{"id": "read_only_diagnostic-00018", "kind": "read_only_diagnostic", "args": ["--status", "now"], "stem": "utility"}
+{"id": "read_only_diagnostic-00019", "kind": "read_only_diagnostic", "args": ["now"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00020", "kind": "read_only_diagnostic", "args": ["--status", "now", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00021", "kind": "read_only_diagnostic", "args": ["now", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00022", "kind": "read_only_diagnostic", "args": ["--status", "doctor"], "stem": "utility"}
+{"id": "read_only_diagnostic-00023", "kind": "read_only_diagnostic", "args": ["doctor"], "stem": "utility"}
+{"id": "read_only_diagnostic-00024", "kind": "read_only_diagnostic", "args": ["--status", "--export"], "stem": ""}
+{"id": "read_only_diagnostic-00025", "kind": "read_only_diagnostic", "args": ["--export"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00026", "kind": "read_only_diagnostic", "args": ["--status", "status"], "stem": ""}
+{"id": "read_only_diagnostic-00027", "kind": "read_only_diagnostic", "args": ["status"], "stem": "utility"}
+{"id": "read_only_diagnostic-00028", "kind": "read_only_diagnostic", "args": ["--status", "version", "x"], "stem": "utility"}
+{"id": "read_only_diagnostic-00029", "kind": "read_only_diagnostic", "args": ["version", "x"], "stem": "utility"}
+{"id": "read_only_diagnostic-00030", "kind": "read_only_diagnostic", "args": ["--status", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00031", "kind": "read_only_diagnostic", "args": ["x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00032", "kind": "read_only_diagnostic", "args": ["version"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00033", "kind": "read_only_diagnostic", "args": [], "stem": "doctor"}
+{"id": "read_only_diagnostic-00034", "kind": "read_only_diagnostic", "args": ["version", "now"], "stem": ""}
+{"id": "read_only_diagnostic-00035", "kind": "read_only_diagnostic", "args": ["now"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00036", "kind": "read_only_diagnostic", "args": ["version", "now", "x"], "stem": "state"}
+{"id": "read_only_diagnostic-00037", "kind": "read_only_diagnostic", "args": ["now", "x"], "stem": "utility"}
+{"id": "read_only_diagnostic-00038", "kind": "read_only_diagnostic", "args": ["version", "doctor"], "stem": ""}
+{"id": "read_only_diagnostic-00039", "kind": "read_only_diagnostic", "args": ["doctor"], "stem": "utility"}
+{"id": "read_only_diagnostic-00040", "kind": "read_only_diagnostic", "args": ["version", "--export"], "stem": ""}
+{"id": "read_only_diagnostic-00041", "kind": "read_only_diagnostic", "args": ["--export"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00042", "kind": "read_only_diagnostic", "args": ["version", "status"], "stem": "state"}
+{"id": "read_only_diagnostic-00043", "kind": "read_only_diagnostic", "args": ["status"], "stem": "utility"}
+{"id": "read_only_diagnostic-00044", "kind": "read_only_diagnostic", "args": ["version", "version", "x"], "stem": "state"}
+{"id": "read_only_diagnostic-00045", "kind": "read_only_diagnostic", "args": ["version", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00046", "kind": "read_only_diagnostic", "args": ["version", "x"], "stem": ""}
+{"id": "read_only_diagnostic-00047", "kind": "read_only_diagnostic", "args": ["x"], "stem": "utility"}
+{"id": "read_only_diagnostic-00048", "kind": "read_only_diagnostic", "args": ["--version"], "stem": "utility"}
+{"id": "read_only_diagnostic-00049", "kind": "read_only_diagnostic", "args": [], "stem": "utility"}
+{"id": "read_only_diagnostic-00050", "kind": "read_only_diagnostic", "args": ["--version", "now"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00051", "kind": "read_only_diagnostic", "args": ["now"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00052", "kind": "read_only_diagnostic", "args": ["--version", "now", "x"], "stem": "utility"}
+{"id": "read_only_diagnostic-00053", "kind": "read_only_diagnostic", "args": ["now", "x"], "stem": "utility"}
+{"id": "read_only_diagnostic-00054", "kind": "read_only_diagnostic", "args": ["--version", "doctor"], "stem": "utility"}
+{"id": "read_only_diagnostic-00055", "kind": "read_only_diagnostic", "args": ["doctor"], "stem": "utility"}
+{"id": "read_only_diagnostic-00056", "kind": "read_only_diagnostic", "args": ["--version", "--export"], "stem": "state"}
+{"id": "read_only_diagnostic-00057", "kind": "read_only_diagnostic", "args": ["--export"], "stem": "utility"}
+{"id": "read_only_diagnostic-00058", "kind": "read_only_diagnostic", "args": ["--version", "status"], "stem": "state"}
+{"id": "read_only_diagnostic-00059", "kind": "read_only_diagnostic", "args": ["status"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00060", "kind": "read_only_diagnostic", "args": ["--version", "version", "x"], "stem": "state"}
+{"id": "read_only_diagnostic-00061", "kind": "read_only_diagnostic", "args": ["version", "x"], "stem": "utility"}
+{"id": "read_only_diagnostic-00062", "kind": "read_only_diagnostic", "args": ["--version", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00063", "kind": "read_only_diagnostic", "args": ["x"], "stem": "utility"}
+{"id": "read_only_diagnostic-00064", "kind": "read_only_diagnostic", "args": ["help"], "stem": "state"}
+{"id": "read_only_diagnostic-00065", "kind": "read_only_diagnostic", "args": [], "stem": "utility"}
+{"id": "read_only_diagnostic-00066", "kind": "read_only_diagnostic", "args": ["help", "now"], "stem": ""}
+{"id": "read_only_diagnostic-00067", "kind": "read_only_diagnostic", "args": ["now"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00068", "kind": "read_only_diagnostic", "args": ["help", "now", "x"], "stem": ""}
+{"id": "read_only_diagnostic-00069", "kind": "read_only_diagnostic", "args": ["now", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00070", "kind": "read_only_diagnostic", "args": ["help", "doctor"], "stem": "state"}
+{"id": "read_only_diagnostic-00071", "kind": "read_only_diagnostic", "args": ["doctor"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00072", "kind": "read_only_diagnostic", "args": ["help", "--export"], "stem": "utility"}
+{"id": "read_only_diagnostic-00073", "kind": "read_only_diagnostic", "args": ["--export"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00074", "kind": "read_only_diagnostic", "args": ["help", "status"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00075", "kind": "read_only_diagnostic", "args": ["status"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00076", "kind": "read_only_diagnostic", "args": ["help", "version", "x"], "stem": ""}
+{"id": "read_only_diagnostic-00077", "kind": "read_only_diagnostic", "args": ["version", "x"], "stem": "utility"}
+{"id": "read_only_diagnostic-00078", "kind": "read_only_diagnostic", "args": ["help", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00079", "kind": "read_only_diagnostic", "args": ["x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00080", "kind": "read_only_diagnostic", "args": ["--help"], "stem": "state"}
+{"id": "read_only_diagnostic-00081", "kind": "read_only_diagnostic", "args": [], "stem": "utility"}
+{"id": "read_only_diagnostic-00082", "kind": "read_only_diagnostic", "args": ["--help", "now"], "stem": "utility"}
+{"id": "read_only_diagnostic-00083", "kind": "read_only_diagnostic", "args": ["now"], "stem": "utility"}
+{"id": "read_only_diagnostic-00084", "kind": "read_only_diagnostic", "args": ["--help", "now", "x"], "stem": "state"}
+{"id": "read_only_diagnostic-00085", "kind": "read_only_diagnostic", "args": ["now", "x"], "stem": "utility"}
+{"id": "read_only_diagnostic-00086", "kind": "read_only_diagnostic", "args": ["--help", "doctor"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00087", "kind": "read_only_diagnostic", "args": ["doctor"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00088", "kind": "read_only_diagnostic", "args": ["--help", "--export"], "stem": "utility"}
+{"id": "read_only_diagnostic-00089", "kind": "read_only_diagnostic", "args": ["--export"], "stem": "utility"}
+{"id": "read_only_diagnostic-00090", "kind": "read_only_diagnostic", "args": ["--help", "status"], "stem": ""}
+{"id": "read_only_diagnostic-00091", "kind": "read_only_diagnostic", "args": ["status"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00092", "kind": "read_only_diagnostic", "args": ["--help", "version", "x"], "stem": ""}
+{"id": "read_only_diagnostic-00093", "kind": "read_only_diagnostic", "args": ["version", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00094", "kind": "read_only_diagnostic", "args": ["--help", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00095", "kind": "read_only_diagnostic", "args": ["x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00096", "kind": "read_only_diagnostic", "args": ["doctor"], "stem": "utility"}
+{"id": "read_only_diagnostic-00097", "kind": "read_only_diagnostic", "args": [], "stem": "doctor"}
+{"id": "read_only_diagnostic-00098", "kind": "read_only_diagnostic", "args": ["doctor", "now"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00099", "kind": "read_only_diagnostic", "args": ["now"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00100", "kind": "read_only_diagnostic", "args": ["doctor", "now", "x"], "stem": "utility"}
+{"id": "read_only_diagnostic-00101", "kind": "read_only_diagnostic", "args": ["now", "x"], "stem": "utility"}
+{"id": "read_only_diagnostic-00102", "kind": "read_only_diagnostic", "args": ["doctor", "doctor"], "stem": "state"}
+{"id": "read_only_diagnostic-00103", "kind": "read_only_diagnostic", "args": ["doctor"], "stem": "utility"}
+{"id": "read_only_diagnostic-00104", "kind": "read_only_diagnostic", "args": ["doctor", "--export"], "stem": ""}
+{"id": "read_only_diagnostic-00105", "kind": "read_only_diagnostic", "args": ["--export"], "stem": "utility"}
+{"id": "read_only_diagnostic-00106", "kind": "read_only_diagnostic", "args": ["doctor", "status"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00107", "kind": "read_only_diagnostic", "args": ["status"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00108", "kind": "read_only_diagnostic", "args": ["doctor", "version", "x"], "stem": "state"}
+{"id": "read_only_diagnostic-00109", "kind": "read_only_diagnostic", "args": ["version", "x"], "stem": "utility"}
+{"id": "read_only_diagnostic-00110", "kind": "read_only_diagnostic", "args": ["doctor", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00111", "kind": "read_only_diagnostic", "args": ["x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00112", "kind": "read_only_diagnostic", "args": ["--doctor"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00113", "kind": "read_only_diagnostic", "args": [], "stem": "utility"}
+{"id": "read_only_diagnostic-00114", "kind": "read_only_diagnostic", "args": ["--doctor", "now"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00115", "kind": "read_only_diagnostic", "args": ["now"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00116", "kind": "read_only_diagnostic", "args": ["--doctor", "now", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00117", "kind": "read_only_diagnostic", "args": ["now", "x"], "stem": "utility"}
+{"id": "read_only_diagnostic-00118", "kind": "read_only_diagnostic", "args": ["--doctor", "doctor"], "stem": "utility"}
+{"id": "read_only_diagnostic-00119", "kind": "read_only_diagnostic", "args": ["doctor"], "stem": "utility"}
+{"id": "read_only_diagnostic-00120", "kind": "read_only_diagnostic", "args": ["--doctor", "--export"], "stem": "utility"}
+{"id": "read_only_diagnostic-00121", "kind": "read_only_diagnostic", "args": ["--export"], "stem": "utility"}
+{"id": "read_only_diagnostic-00122", "kind": "read_only_diagnostic", "args": ["--doctor", "status"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00123", "kind": "read_only_diagnostic", "args": ["status"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00124", "kind": "read_only_diagnostic", "args": ["--doctor", "version", "x"], "stem": "state"}
+{"id": "read_only_diagnostic-00125", "kind": "read_only_diagnostic", "args": ["version", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00126", "kind": "read_only_diagnostic", "args": ["--doctor", "x"], "stem": ""}
+{"id": "read_only_diagnostic-00127", "kind": "read_only_diagnostic", "args": ["x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00128", "kind": "read_only_diagnostic", "args": ["engine"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00129", "kind": "read_only_diagnostic", "args": [], "stem": "utility"}
+{"id": "read_only_diagnostic-00130", "kind": "read_only_diagnostic", "args": ["engine", "now"], "stem": "state"}
+{"id": "read_only_diagnostic-00131", "kind": "read_only_diagnostic", "args": ["now"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00132", "kind": "read_only_diagnostic", "args": ["engine", "now", "x"], "stem": ""}
+{"id": "read_only_diagnostic-00133", "kind": "read_only_diagnostic", "args": ["now", "x"], "stem": "utility"}
+{"id": "read_only_diagnostic-00134", "kind": "read_only_diagnostic", "args": ["engine", "doctor"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00135", "kind": "read_only_diagnostic", "args": ["doctor"], "stem": "utility"}
+{"id": "read_only_diagnostic-00136", "kind": "read_only_diagnostic", "args": ["engine", "--export"], "stem": "utility"}
+{"id": "read_only_diagnostic-00137", "kind": "read_only_diagnostic", "args": ["--export"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00138", "kind": "read_only_diagnostic", "args": ["engine", "status"], "stem": ""}
+{"id": "read_only_diagnostic-00139", "kind": "read_only_diagnostic", "args": ["status"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00140", "kind": "read_only_diagnostic", "args": ["engine", "version", "x"], "stem": "state"}
+{"id": "read_only_diagnostic-00141", "kind": "read_only_diagnostic", "args": ["version", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00142", "kind": "read_only_diagnostic", "args": ["engine", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00143", "kind": "read_only_diagnostic", "args": ["x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00144", "kind": "read_only_diagnostic", "args": ["now"], "stem": "state"}
+{"id": "read_only_diagnostic-00145", "kind": "read_only_diagnostic", "args": [], "stem": "doctor"}
+{"id": "read_only_diagnostic-00146", "kind": "read_only_diagnostic", "args": ["now", "now"], "stem": "utility"}
+{"id": "read_only_diagnostic-00147", "kind": "read_only_diagnostic", "args": ["now"], "stem": "utility"}
+{"id": "read_only_diagnostic-00148", "kind": "read_only_diagnostic", "args": ["now", "now", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00149", "kind": "read_only_diagnostic", "args": ["now", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00150", "kind": "read_only_diagnostic", "args": ["now", "doctor"], "stem": "state"}
+{"id": "read_only_diagnostic-00151", "kind": "read_only_diagnostic", "args": ["doctor"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00152", "kind": "read_only_diagnostic", "args": ["now", "--export"], "stem": "utility"}
+{"id": "read_only_diagnostic-00153", "kind": "read_only_diagnostic", "args": ["--export"], "stem": "utility"}
+{"id": "read_only_diagnostic-00154", "kind": "read_only_diagnostic", "args": ["now", "status"], "stem": "utility"}
+{"id": "read_only_diagnostic-00155", "kind": "read_only_diagnostic", "args": ["status"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00156", "kind": "read_only_diagnostic", "args": ["now", "version", "x"], "stem": "utility"}
+{"id": "read_only_diagnostic-00157", "kind": "read_only_diagnostic", "args": ["version", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00158", "kind": "read_only_diagnostic", "args": ["now", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00159", "kind": "read_only_diagnostic", "args": ["x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00160", "kind": "read_only_diagnostic", "args": ["next"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00161", "kind": "read_only_diagnostic", "args": [], "stem": "doctor"}
+{"id": "read_only_diagnostic-00162", "kind": "read_only_diagnostic", "args": ["next", "now"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00163", "kind": "read_only_diagnostic", "args": ["now"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00164", "kind": "read_only_diagnostic", "args": ["next", "now", "x"], "stem": "utility"}
+{"id": "read_only_diagnostic-00165", "kind": "read_only_diagnostic", "args": ["now", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00166", "kind": "read_only_diagnostic", "args": ["next", "doctor"], "stem": "utility"}
+{"id": "read_only_diagnostic-00167", "kind": "read_only_diagnostic", "args": ["doctor"], "stem": "utility"}
+{"id": "read_only_diagnostic-00168", "kind": "read_only_diagnostic", "args": ["next", "--export"], "stem": ""}
+{"id": "read_only_diagnostic-00169", "kind": "read_only_diagnostic", "args": ["--export"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00170", "kind": "read_only_diagnostic", "args": ["next", "status"], "stem": ""}
+{"id": "read_only_diagnostic-00171", "kind": "read_only_diagnostic", "args": ["status"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00172", "kind": "read_only_diagnostic", "args": ["next", "version", "x"], "stem": "utility"}
+{"id": "read_only_diagnostic-00173", "kind": "read_only_diagnostic", "args": ["version", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00174", "kind": "read_only_diagnostic", "args": ["next", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00175", "kind": "read_only_diagnostic", "args": ["x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00176", "kind": "read_only_diagnostic", "args": ["Status"], "stem": ""}
+{"id": "read_only_diagnostic-00177", "kind": "read_only_diagnostic", "args": [], "stem": "utility"}
+{"id": "read_only_diagnostic-00178", "kind": "read_only_diagnostic", "args": ["Status", "now"], "stem": "utility"}
+{"id": "read_only_diagnostic-00179", "kind": "read_only_diagnostic", "args": ["now"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00180", "kind": "read_only_diagnostic", "args": ["Status", "now", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00181", "kind": "read_only_diagnostic", "args": ["now", "x"], "stem": "utility"}
+{"id": "read_only_diagnostic-00182", "kind": "read_only_diagnostic", "args": ["Status", "doctor"], "stem": ""}
+{"id": "read_only_diagnostic-00183", "kind": "read_only_diagnostic", "args": ["doctor"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00184", "kind": "read_only_diagnostic", "args": ["Status", "--export"], "stem": "utility"}
+{"id": "read_only_diagnostic-00185", "kind": "read_only_diagnostic", "args": ["--export"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00186", "kind": "read_only_diagnostic", "args": ["Status", "status"], "stem": "state"}
+{"id": "read_only_diagnostic-00187", "kind": "read_only_diagnostic", "args": ["status"], "stem": "utility"}
+{"id": "read_only_diagnostic-00188", "kind": "read_only_diagnostic", "args": ["Status", "version", "x"], "stem": "utility"}
+{"id": "read_only_diagnostic-00189", "kind": "read_only_diagnostic", "args": ["version", "x"], "stem": "utility"}
+{"id": "read_only_diagnostic-00190", "kind": "read_only_diagnostic", "args": ["Status", "x"], "stem": "state"}
+{"id": "read_only_diagnostic-00191", "kind": "read_only_diagnostic", "args": ["x"], "stem": "utility"}
+{"id": "read_only_diagnostic-00192", "kind": "read_only_diagnostic", "args": [""], "stem": ""}
+{"id": "read_only_diagnostic-00193", "kind": "read_only_diagnostic", "args": [], "stem": "utility"}
+{"id": "read_only_diagnostic-00194", "kind": "read_only_diagnostic", "args": ["", "now"], "stem": "state"}
+{"id": "read_only_diagnostic-00195", "kind": "read_only_diagnostic", "args": ["now"], "stem": "utility"}
+{"id": "read_only_diagnostic-00196", "kind": "read_only_diagnostic", "args": ["", "now", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00197", "kind": "read_only_diagnostic", "args": ["now", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00198", "kind": "read_only_diagnostic", "args": ["", "doctor"], "stem": "utility"}
+{"id": "read_only_diagnostic-00199", "kind": "read_only_diagnostic", "args": ["doctor"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00200", "kind": "read_only_diagnostic", "args": ["", "--export"], "stem": "utility"}
+{"id": "read_only_diagnostic-00201", "kind": "read_only_diagnostic", "args": ["--export"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00202", "kind": "read_only_diagnostic", "args": ["", "status"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00203", "kind": "read_only_diagnostic", "args": ["status"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00204", "kind": "read_only_diagnostic", "args": ["", "version", "x"], "stem": "state"}
+{"id": "read_only_diagnostic-00205", "kind": "read_only_diagnostic", "args": ["version", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00206", "kind": "read_only_diagnostic", "args": ["", "x"], "stem": "doctor"}
+{"id": "read_only_diagnostic-00207", "kind": "read_only_diagnostic", "args": ["x"], "stem": "utility"}

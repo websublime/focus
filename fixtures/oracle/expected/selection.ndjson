@@ -1,0 +1,480 @@
+{"id":"selection-00000","out":{"space":"default","intent":"fix-logout-9f8e7d6c","sessionId":"s1","binding":null,"recordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","relativeRecordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","intents":["fix-logout-9f8e7d6c"]}}
+{"id":"selection-00001","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","intents":["add-login-1a2b3c4d","undefined-abc","x"]}}
+{"id":"selection-00002","out":{"space":"default","intent":"260101-tidy","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/260101-tidy","relativeRecordDir":"focus/spaces/default/intents/260101-tidy","intents":["260101-tidy"]}}
+{"id":"selection-00003","out":{"error":"\"..\" is not an intent name: it is a path."}}
+{"id":"selection-00004","out":{"space":"payments","intent":"x","sessionId":"s1","binding":null,"intents":["x"]}}
+{"id":"selection-00005","out":{"space":"default","intent":"x","sessionId":"s1","binding":null,"intents":["add-login-1a2b3c4d","fix-logout-9f8e7d6c","x"]}}
+{"id":"selection-00006","out":{"error":"\"a/b\" is not an intent name: it is a path."}}
+{"id":"selection-00007","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":"s1","binding":null,"recordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00008","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":["260101-tidy","x"]}}
+{"id":"selection-00009","out":{"error":"\"a/b\" is not a space name: it is a path."}}
+{"id":"selection-00010","out":{"space":"payments","intent":"260101-tidy","sessionId":"s2","binding":null,"intents":["260101-tidy"]}}
+{"id":"selection-00011","out":{"error":"\"a/b\" is not a space name: it is a path."}}
+{"id":"selection-00012","out":{"space":"default","intent":"../other","sessionId":"s1","binding":null,"recordDir":"focus/spaces/default/other","relativeRecordDir":"focus/spaces/default/intents/../other","intents":["260101-tidy"]}}
+{"id":"selection-00013","out":{"space":"default","intent":"260101-tidy","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/260101-tidy","relativeRecordDir":"focus/spaces/default/intents/260101-tidy","intents":["260101-tidy"]}}
+{"id":"selection-00014","out":{"space":"default","intent":"260101-tidy","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/260101-tidy","relativeRecordDir":"focus/spaces/default/intents/260101-tidy","intents":["260101-tidy"]}}
+{"id":"selection-00015","out":{"space":"payments","intent":null,"sessionId":"s1","binding":null,"intents":["add-login-1a2b3c4d","undefined-abc","x"]}}
+{"id":"selection-00016","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":"s1","binding":null,"recordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","intents":["undefined-abc"]}}
+{"id":"selection-00017","out":{"space":"default","intent":"fix-logout-9f8e7d6c","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","relativeRecordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","intents":["fix-logout-9f8e7d6c"]}}
+{"id":"selection-00018","out":{"space":"default","intent":"../other","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/other","relativeRecordDir":"focus/spaces/default/intents/../other","intents":[]}}
+{"id":"selection-00019","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":"s1","binding":null,"intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00020","out":{"space":"payments","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"recordDir":"focus/spaces/payments/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/payments/intents/add-login-1a2b3c4d","intents":["260101-tidy","add-login-1a2b3c4d"]}}
+{"id":"selection-00021","out":{"error":"\".\" is not a space name: it is a path."}}
+{"id":"selection-00022","out":{"space":"default","intent":"undefined-abc","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/undefined-abc","relativeRecordDir":"focus/spaces/default/intents/undefined-abc","intents":["260101-tidy","undefined-abc"]}}
+{"id":"selection-00023","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":"s1","binding":{"space":"default","intent":"add-login-1a2b3c4d","boundAt":"2026-10-09T16:22:42Z","source":"create"},"recordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00024","out":{"error":"\"a/b\" is not a space name: it is a path."}}
+{"id":"selection-00025","out":{"space":"default","intent":"x","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/x","relativeRecordDir":"focus/spaces/default/intents/x","intents":["x"]}}
+{"id":"selection-00026","out":{"space":"default","intent":"x","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/x","relativeRecordDir":"focus/spaces/default/intents/x","intents":["5-ab","undefined-abc","x"]}}
+{"id":"selection-00027","out":{"space":"default","intent":"../other","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/other","relativeRecordDir":"focus/spaces/default/intents/../other","intents":["fix-logout-9f8e7d6c"]}}
+{"id":"selection-00028","out":{"space":"default","intent":"260101-tidy","sessionId":"s1","binding":null,"intents":["260101-tidy"]}}
+{"id":"selection-00029","out":{"space":"payments","intent":"add-login-1a2b3c4d","sessionId":"s1","binding":{"space":"payments","intent":"add-login-1a2b3c4d","boundAt":"2026-10-09T16:22:42Z"},"intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00030","out":{"space":"default","intent":null,"sessionId":"s1","binding":null,"intents":["fix-logout-9f8e7d6c"]}}
+{"id":"selection-00031","out":{"space":"zz","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00032","out":{"error":"\".\" is not a space name: it is a path."}}
+{"id":"selection-00033","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","intents":["260101-tidy"]}}
+{"id":"selection-00034","out":{"error":"\"a/b\" is not an intent name: it is a path."}}
+{"id":"selection-00035","out":{"space":"zz","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00036","out":{"space":"default","intent":"../other","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/other","relativeRecordDir":"focus/spaces/default/intents/../other","intents":[]}}
+{"id":"selection-00037","out":{"error":"\"../x\" is not a space name: it is a path."}}
+{"id":"selection-00038","out":{"space":"","intent":null,"sessionId":"s1","binding":null,"intents":[]}}
+{"id":"selection-00039","out":{"space":"default","intent":"fix-logout-9f8e7d6c","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","relativeRecordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","intents":["add-login-1a2b3c4d","fix-logout-9f8e7d6c","x"]}}
+{"id":"selection-00040","out":{"space":"default","intent":"260101-tidy","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/260101-tidy","relativeRecordDir":"focus/spaces/default/intents/260101-tidy","intents":["260101-tidy"]}}
+{"id":"selection-00041","out":{"error":"\"../x\" is not a space name: it is a path."}}
+{"id":"selection-00042","out":{"space":"default","intent":null,"sessionId":"s2","binding":null,"recordDir":null,"relativeRecordDir":null,"intents":["260101-tidy","5-ab"]}}
+{"id":"selection-00043","out":{"space":"default","intent":null,"sessionId":"s1","binding":{"space":"default","intent":null,"boundAt":"t","source":"archive"},"intents":["5-ab","undefined-abc","x"]}}
+{"id":"selection-00044","out":{"space":"payments","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"recordDir":"focus/spaces/payments/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/payments/intents/add-login-1a2b3c4d","intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00045","out":{"space":"payments","intent":"add-login-1a2b3c4d","sessionId":"s1","binding":null,"intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00046","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":["5-ab","fix-logout-9f8e7d6c"]}}
+{"id":"selection-00047","out":{"space":"default","intent":"5-ab","sessionId":"s1","binding":{"space":"default","intent":"5-ab","boundAt":"2026-10-09T16:22:42Z","source":"switch"},"intents":["5-ab"]}}
+{"id":"selection-00048","out":{"error":"\".\" is not a space name: it is a path."}}
+{"id":"selection-00049","out":{"space":"zz","intent":"fix-logout-9f8e7d6c","sessionId":null,"binding":null,"intents":[]}}
+{"id":"selection-00050","out":{"space":"default","intent":"../other","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/other","relativeRecordDir":"focus/spaces/default/intents/../other","intents":["260101-tidy","5-ab","fix-logout-9f8e7d6c"]}}
+{"id":"selection-00051","out":{"error":"\"a/b\" is not a space name: it is a path."}}
+{"id":"selection-00052","out":{"space":"payments","intent":"5-ab","sessionId":"s2","binding":null,"recordDir":"focus/spaces/payments/intents/5-ab","relativeRecordDir":"focus/spaces/payments/intents/5-ab","intents":["5-ab"]}}
+{"id":"selection-00053","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00054","out":{"space":"default","intent":"fix-logout-9f8e7d6c","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","relativeRecordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","intents":["fix-logout-9f8e7d6c"]}}
+{"id":"selection-00055","out":{"error":"\"a/b\" is not a space name: it is a path."}}
+{"id":"selection-00056","out":{"space":"zz","intent":null,"sessionId":"s1","binding":null,"intents":[]}}
+{"id":"selection-00057","out":{"error":"\"../x\" is not a space name: it is a path."}}
+{"id":"selection-00058","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":["5-ab","undefined-abc","x"]}}
+{"id":"selection-00059","out":{"space":"default","intent":"undefined-abc","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/undefined-abc","relativeRecordDir":"focus/spaces/default/intents/undefined-abc","intents":["add-login-1a2b3c4d","fix-logout-9f8e7d6c","undefined-abc"]}}
+{"id":"selection-00060","out":{"error":"\"a/b\" is not an intent name: it is a path."}}
+{"id":"selection-00061","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":["260101-tidy","add-login-1a2b3c4d","x"]}}
+{"id":"selection-00062","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00063","out":{"space":"default","intent":"260101-tidy","sessionId":"s1","binding":{"space":"default","intent":null,"boundAt":"t","source":"archive"},"intents":["x"]}}
+{"id":"selection-00064","out":{"space":"payments","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00065","out":{"error":"\"a/b\" is not a space name: it is a path."}}
+{"id":"selection-00066","out":{"error":"<runtime>"}}
+{"id":"selection-00067","out":{"space":"default","intent":null,"sessionId":"s1","binding":{"space":"default","intent":null,"boundAt":"t","source":"archive"},"intents":["5-ab","x"]}}
+{"id":"selection-00068","out":{"error":"\".\" is not a space name: it is a path."}}
+{"id":"selection-00069","out":{"space":"payments","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"recordDir":"focus/spaces/payments/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/payments/intents/add-login-1a2b3c4d","intents":[]}}
+{"id":"selection-00070","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":"s1","binding":null,"intents":["5-ab","add-login-1a2b3c4d"]}}
+{"id":"selection-00071","out":{"space":"default","intent":"5-ab","sessionId":"s1","binding":null,"intents":["5-ab"]}}
+{"id":"selection-00072","out":{"error":"\"..\" is not an intent name: it is a path."}}
+{"id":"selection-00073","out":{"space":"default","intent":"../other","sessionId":null,"binding":null,"intents":["undefined-abc"]}}
+{"id":"selection-00074","out":{"error":"<runtime>"}}
+{"id":"selection-00075","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00076","out":{"error":"\"..\" is not an intent name: it is a path."}}
+{"id":"selection-00077","out":{"space":"payments","intent":null,"sessionId":"s1","binding":null,"intents":["add-login-1a2b3c4d","x"]}}
+{"id":"selection-00078","out":{"space":"default","intent":null,"sessionId":"s2","binding":null,"intents":["260101-tidy","add-login-1a2b3c4d","x"]}}
+{"id":"selection-00079","out":{"error":"\"..\" is not an intent name: it is a path."}}
+{"id":"selection-00080","out":{"error":"\"a/b\" is not an intent name: it is a path."}}
+{"id":"selection-00081","out":{"space":"payments","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00082","out":{"space":"","intent":null,"sessionId":"s1","binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00083","out":{"space":"default","intent":"fix-logout-9f8e7d6c","sessionId":null,"binding":null,"intents":["fix-logout-9f8e7d6c"]}}
+{"id":"selection-00084","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00085","out":{"space":"payments","intent":"fix-logout-9f8e7d6c","sessionId":null,"binding":null,"recordDir":"focus/spaces/payments/intents/fix-logout-9f8e7d6c","relativeRecordDir":"focus/spaces/payments/intents/fix-logout-9f8e7d6c","intents":["fix-logout-9f8e7d6c"]}}
+{"id":"selection-00086","out":{"error":"<runtime>"}}
+{"id":"selection-00087","out":{"space":"payments","intent":"5-ab","sessionId":"s1","binding":null,"recordDir":"focus/spaces/payments/intents/5-ab","relativeRecordDir":"focus/spaces/payments/intents/5-ab","intents":["260101-tidy","5-ab","add-login-1a2b3c4d"]}}
+{"id":"selection-00088","out":{"space":"default","intent":"undefined-abc","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/undefined-abc","relativeRecordDir":"focus/spaces/default/intents/undefined-abc","intents":["undefined-abc"]}}
+{"id":"selection-00089","out":{"error":"\".\" is not a space name: it is a path."}}
+{"id":"selection-00090","out":{"space":"","intent":null,"sessionId":"s1","binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00091","out":{"error":"\"a/b\" is not an intent name: it is a path."}}
+{"id":"selection-00092","out":{"space":"default","intent":"x","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/x","relativeRecordDir":"focus/spaces/default/intents/x","intents":["undefined-abc","x"]}}
+{"id":"selection-00093","out":{"error":"\"..\" is not an intent name: it is a path."}}
+{"id":"selection-00094","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":["260101-tidy","fix-logout-9f8e7d6c"]}}
+{"id":"selection-00095","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","intents":["add-login-1a2b3c4d","undefined-abc"]}}
+{"id":"selection-00096","out":{"space":"default","intent":"../other","sessionId":"s2","binding":null,"recordDir":"focus/spaces/default/other","relativeRecordDir":"focus/spaces/default/intents/../other","intents":["5-ab"]}}
+{"id":"selection-00097","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00098","out":{"error":"\"a/b\" is not a space name: it is a path."}}
+{"id":"selection-00099","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","intents":["undefined-abc"]}}
+{"id":"selection-00100","out":{"space":"default","intent":"../other","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/other","relativeRecordDir":"focus/spaces/default/intents/../other","intents":["x"]}}
+{"id":"selection-00101","out":{"space":"default","intent":"undefined-abc","sessionId":"s2","binding":null,"recordDir":"focus/spaces/default/intents/undefined-abc","relativeRecordDir":"focus/spaces/default/intents/undefined-abc","intents":["undefined-abc"]}}
+{"id":"selection-00102","out":{"space":"default","intent":null,"sessionId":"s1","binding":null,"intents":[]}}
+{"id":"selection-00103","out":{"space":"default","intent":"5-ab","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/5-ab","relativeRecordDir":"focus/spaces/default/intents/5-ab","intents":["5-ab","add-login-1a2b3c4d","undefined-abc"]}}
+{"id":"selection-00104","out":{"error":"<runtime>"}}
+{"id":"selection-00105","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","intents":["5-ab"]}}
+{"id":"selection-00106","out":{"error":"<runtime>"}}
+{"id":"selection-00107","out":{"space":"default","intent":"","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents","relativeRecordDir":"focus/spaces/default/intents/","intents":["260101-tidy","undefined-abc"]}}
+{"id":"selection-00108","out":{"space":"default","intent":"260101-tidy","sessionId":"s1","binding":{"space":"default","intent":"5-ab","boundAt":"2026-10-09T16:22:42Z"},"intents":["5-ab"]}}
+{"id":"selection-00109","out":{"space":"default","intent":"x","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/x","relativeRecordDir":"focus/spaces/default/intents/x","intents":["260101-tidy","x"]}}
+{"id":"selection-00110","out":{"space":"default","intent":"260101-tidy","sessionId":null,"binding":null,"intents":["x"]}}
+{"id":"selection-00111","out":{"error":"\"../x\" is not a space name: it is a path."}}
+{"id":"selection-00112","out":{"error":"\".\" is not a space name: it is a path."}}
+{"id":"selection-00113","out":{"space":"payments","intent":"5-ab","sessionId":"s2","binding":null,"intents":["5-ab"]}}
+{"id":"selection-00114","out":{"space":"payments","intent":"","sessionId":"s1","binding":null,"recordDir":"focus/spaces/payments/intents","relativeRecordDir":"focus/spaces/payments/intents/","intents":["260101-tidy","fix-logout-9f8e7d6c"]}}
+{"id":"selection-00115","out":{"error":"\"..\" is not an intent name: it is a path."}}
+{"id":"selection-00116","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00117","out":{"error":"\"..\" is not an intent name: it is a path."}}
+{"id":"selection-00118","out":{"error":"\"a/b\" is not a space name: it is a path."}}
+{"id":"selection-00119","out":{"error":"\"../x\" is not a space name: it is a path."}}
+{"id":"selection-00120","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":"s2","binding":null,"intents":["fix-logout-9f8e7d6c"]}}
+{"id":"selection-00121","out":{"space":"default","intent":"nope","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/nope","relativeRecordDir":"focus/spaces/default/intents/nope","intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00122","out":{"space":"default","intent":"260101-tidy","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/260101-tidy","relativeRecordDir":"focus/spaces/default/intents/260101-tidy","intents":["260101-tidy"]}}
+{"id":"selection-00123","out":{"space":"default","intent":"260101-tidy","sessionId":"s1","binding":null,"intents":["fix-logout-9f8e7d6c"]}}
+{"id":"selection-00124","out":{"error":"\"../x\" is not a space name: it is a path."}}
+{"id":"selection-00125","out":{"space":"","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00126","out":{"error":"\"a/b\" is not an intent name: it is a path."}}
+{"id":"selection-00127","out":{"space":"payments","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":["add-login-1a2b3c4d","x"]}}
+{"id":"selection-00128","out":{"error":"\"..\" is not an intent name: it is a path."}}
+{"id":"selection-00129","out":{"space":"payments","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00130","out":{"space":"default","intent":"fix-logout-9f8e7d6c","sessionId":"s1","binding":null,"intents":["fix-logout-9f8e7d6c"]}}
+{"id":"selection-00131","out":{"space":"default","intent":"undefined-abc","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/undefined-abc","relativeRecordDir":"focus/spaces/default/intents/undefined-abc","intents":["undefined-abc"]}}
+{"id":"selection-00132","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":["260101-tidy","fix-logout-9f8e7d6c"]}}
+{"id":"selection-00133","out":{"space":"default","intent":"260101-tidy","sessionId":"s2","binding":null,"intents":["260101-tidy"]}}
+{"id":"selection-00134","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00135","out":{"space":"default","intent":"undefined-abc","sessionId":"s2","binding":null,"intents":["undefined-abc"]}}
+{"id":"selection-00136","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"intents":["x"]}}
+{"id":"selection-00137","out":{"error":"<runtime>"}}
+{"id":"selection-00138","out":{"space":"default","intent":"","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents","relativeRecordDir":"focus/spaces/default/intents/","intents":["5-ab"]}}
+{"id":"selection-00139","out":{"space":"default","intent":"5-ab","sessionId":"s1","binding":null,"intents":["5-ab"]}}
+{"id":"selection-00140","out":{"space":"default","intent":"fix-logout-9f8e7d6c","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","relativeRecordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","intents":["5-ab"]}}
+{"id":"selection-00141","out":{"space":"default","intent":"5-ab","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/5-ab","relativeRecordDir":"focus/spaces/default/intents/5-ab","intents":["5-ab"]}}
+{"id":"selection-00142","out":{"error":"\"a/b\" is not a space name: it is a path."}}
+{"id":"selection-00143","out":{"error":"\"a/b\" is not an intent name: it is a path."}}
+{"id":"selection-00144","out":{"space":"default","intent":"260101-tidy","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/260101-tidy","relativeRecordDir":"focus/spaces/default/intents/260101-tidy","intents":["260101-tidy"]}}
+{"id":"selection-00145","out":{"space":"default","intent":"5-ab","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/5-ab","relativeRecordDir":"focus/spaces/default/intents/5-ab","intents":["5-ab"]}}
+{"id":"selection-00146","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00147","out":{"error":"\".\" is not a space name: it is a path."}}
+{"id":"selection-00148","out":{"error":"<runtime>"}}
+{"id":"selection-00149","out":{"space":"default","intent":"undefined-abc","sessionId":"s2","binding":null,"intents":["undefined-abc"]}}
+{"id":"selection-00150","out":{"space":"default","intent":null,"sessionId":"s1","binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00151","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00152","out":{"space":"default","intent":"fix-logout-9f8e7d6c","sessionId":"s1","binding":null,"recordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","relativeRecordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","intents":["fix-logout-9f8e7d6c"]}}
+{"id":"selection-00153","out":{"space":"default","intent":"x","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/x","relativeRecordDir":"focus/spaces/default/intents/x","intents":["x"]}}
+{"id":"selection-00154","out":{"space":"default","intent":"undefined-abc","sessionId":null,"binding":null,"intents":["undefined-abc"]}}
+{"id":"selection-00155","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"intents":["260101-tidy","x"]}}
+{"id":"selection-00156","out":{"space":"","intent":"260101-tidy","sessionId":"s2","binding":null,"recordDir":"focus/spaces/intents/260101-tidy","relativeRecordDir":"focus/spaces//intents/260101-tidy","intents":[]}}
+{"id":"selection-00157","out":{"space":"payments","intent":"260101-tidy","sessionId":null,"binding":null,"recordDir":"focus/spaces/payments/intents/260101-tidy","relativeRecordDir":"focus/spaces/payments/intents/260101-tidy","intents":["260101-tidy"]}}
+{"id":"selection-00158","out":{"space":"default","intent":"260101-tidy","sessionId":null,"binding":null,"intents":["undefined-abc"]}}
+{"id":"selection-00159","out":{"space":"default","intent":"nope","sessionId":"s1","binding":null,"intents":["260101-tidy","undefined-abc"]}}
+{"id":"selection-00160","out":{"space":"default","intent":null,"sessionId":"s1","binding":null,"intents":[]}}
+{"id":"selection-00161","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","intents":["fix-logout-9f8e7d6c","undefined-abc"]}}
+{"id":"selection-00162","out":{"space":"default","intent":"5-ab","sessionId":null,"binding":null,"intents":["5-ab"]}}
+{"id":"selection-00163","out":{"space":"default","intent":"x","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/x","relativeRecordDir":"focus/spaces/default/intents/x","intents":["add-login-1a2b3c4d","x"]}}
+{"id":"selection-00164","out":{"error":"\"a/b\" is not an intent name: it is a path."}}
+{"id":"selection-00165","out":{"space":"default","intent":null,"sessionId":"s1","binding":null,"intents":[]}}
+{"id":"selection-00166","out":{"space":"payments","intent":"260101-tidy","sessionId":"s1","binding":{"space":"payments","intent":"260101-tidy","boundAt":"2026-10-09T16:22:42Z","source":"switch"},"intents":["260101-tidy"]}}
+{"id":"selection-00167","out":{"space":"payments","intent":"fix-logout-9f8e7d6c","sessionId":null,"binding":null,"intents":["x"]}}
+{"id":"selection-00168","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00169","out":{"error":"\"a/b\" is not a space name: it is a path."}}
+{"id":"selection-00170","out":{"space":"default","intent":"fix-logout-9f8e7d6c","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","relativeRecordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","intents":["fix-logout-9f8e7d6c"]}}
+{"id":"selection-00171","out":{"space":"","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00172","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00173","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":"s1","binding":{"space":"default","intent":"undefined-abc","boundAt":"2026-10-09T16:22:42Z","source":"create"},"intents":["undefined-abc"]}}
+{"id":"selection-00174","out":{"error":"\".\" is not a space name: it is a path."}}
+{"id":"selection-00175","out":{"error":"<runtime>"}}
+{"id":"selection-00176","out":{"space":"payments","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"recordDir":"focus/spaces/payments/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/payments/intents/add-login-1a2b3c4d","intents":["260101-tidy","5-ab","fix-logout-9f8e7d6c"]}}
+{"id":"selection-00177","out":{"space":"default","intent":null,"sessionId":"s1","binding":null,"intents":["5-ab","undefined-abc"]}}
+{"id":"selection-00178","out":{"error":"\"a/b\" is not a space name: it is a path."}}
+{"id":"selection-00179","out":{"space":"default","intent":"undefined-abc","sessionId":null,"binding":null,"intents":["fix-logout-9f8e7d6c","undefined-abc","x"]}}
+{"id":"selection-00180","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00181","out":{"space":"","intent":null,"sessionId":"s1","binding":null,"intents":[]}}
+{"id":"selection-00182","out":{"space":"default","intent":"fix-logout-9f8e7d6c","sessionId":null,"binding":null,"intents":["fix-logout-9f8e7d6c"]}}
+{"id":"selection-00183","out":{"space":"payments","intent":"fix-logout-9f8e7d6c","sessionId":null,"binding":null,"recordDir":"focus/spaces/payments/intents/fix-logout-9f8e7d6c","relativeRecordDir":"focus/spaces/payments/intents/fix-logout-9f8e7d6c","intents":["fix-logout-9f8e7d6c"]}}
+{"id":"selection-00184","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","intents":["260101-tidy","add-login-1a2b3c4d","undefined-abc"]}}
+{"id":"selection-00185","out":{"error":"\"a/b\" is not an intent name: it is a path."}}
+{"id":"selection-00186","out":{"error":"\"a/b\" is not an intent name: it is a path."}}
+{"id":"selection-00187","out":{"space":"default","intent":"260101-tidy","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/260101-tidy","relativeRecordDir":"focus/spaces/default/intents/260101-tidy","intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00188","out":{"space":"default","intent":"undefined-abc","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/undefined-abc","relativeRecordDir":"focus/spaces/default/intents/undefined-abc","intents":["add-login-1a2b3c4d","undefined-abc"]}}
+{"id":"selection-00189","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00190","out":{"space":"default","intent":"nope","sessionId":"s1","binding":null,"recordDir":"focus/spaces/default/intents/nope","relativeRecordDir":"focus/spaces/default/intents/nope","intents":[]}}
+{"id":"selection-00191","out":{"error":"<runtime>"}}
+{"id":"selection-00192","out":{"space":"default","intent":"x","sessionId":"s1","binding":null,"recordDir":"focus/spaces/default/intents/x","relativeRecordDir":"focus/spaces/default/intents/x","intents":["add-login-1a2b3c4d","fix-logout-9f8e7d6c","x"]}}
+{"id":"selection-00193","out":{"space":"default","intent":"fix-logout-9f8e7d6c","sessionId":"s1","binding":null,"intents":["fix-logout-9f8e7d6c"]}}
+{"id":"selection-00194","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":"s1","binding":null,"intents":["fix-logout-9f8e7d6c","undefined-abc"]}}
+{"id":"selection-00195","out":{"space":"default","intent":"fix-logout-9f8e7d6c","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","relativeRecordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","intents":["add-login-1a2b3c4d","undefined-abc"]}}
+{"id":"selection-00196","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00197","out":{"error":"<runtime>"}}
+{"id":"selection-00198","out":{"space":"default","intent":null,"sessionId":"s1","binding":null,"intents":[]}}
+{"id":"selection-00199","out":{"space":"","intent":"","sessionId":null,"binding":null,"recordDir":"focus/spaces/intents","relativeRecordDir":"focus/spaces//intents/","intents":[]}}
+{"id":"selection-00200","out":{"space":"","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00201","out":{"space":"default","intent":"fix-logout-9f8e7d6c","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","relativeRecordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","intents":[]}}
+{"id":"selection-00202","out":{"space":"zz","intent":null,"sessionId":"s1","binding":null,"intents":[]}}
+{"id":"selection-00203","out":{"space":"default","intent":"x","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/x","relativeRecordDir":"focus/spaces/default/intents/x","intents":["x"]}}
+{"id":"selection-00204","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00205","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00206","out":{"space":"default","intent":"x","sessionId":null,"binding":null,"intents":["undefined-abc","x"]}}
+{"id":"selection-00207","out":{"space":"zz","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00208","out":{"error":"\"a/b\" is not an intent name: it is a path."}}
+{"id":"selection-00209","out":{"space":"payments","intent":"add-login-1a2b3c4d","sessionId":"s2","binding":null,"intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00210","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":"s1","binding":{"space":"default","intent":"add-login-1a2b3c4d","boundAt":"2026-10-09T16:22:42Z"},"intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00211","out":{"space":"zz","intent":"fix-logout-9f8e7d6c","sessionId":"s1","binding":null,"intents":[]}}
+{"id":"selection-00212","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"intents":["260101-tidy","5-ab"]}}
+{"id":"selection-00213","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00214","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00215","out":{"space":"default","intent":"260101-tidy","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/260101-tidy","relativeRecordDir":"focus/spaces/default/intents/260101-tidy","intents":["260101-tidy"]}}
+{"id":"selection-00216","out":{"error":"\"..\" is not an intent name: it is a path."}}
+{"id":"selection-00217","out":{"error":"\"..\" is not an intent name: it is a path."}}
+{"id":"selection-00218","out":{"space":"default","intent":"260101-tidy","sessionId":"s1","binding":null,"intents":["260101-tidy","5-ab"]}}
+{"id":"selection-00219","out":{"space":"zz","intent":null,"sessionId":"s2","binding":null,"intents":[]}}
+{"id":"selection-00220","out":{"error":"<runtime>"}}
+{"id":"selection-00221","out":{"space":"default","intent":"nope","sessionId":"s1","binding":null,"intents":[]}}
+{"id":"selection-00222","out":{"error":"<runtime>"}}
+{"id":"selection-00223","out":{"space":"payments","intent":"x","sessionId":null,"binding":null,"recordDir":"focus/spaces/payments/intents/x","relativeRecordDir":"focus/spaces/payments/intents/x","intents":["undefined-abc","x"]}}
+{"id":"selection-00224","out":{"error":"<runtime>"}}
+{"id":"selection-00225","out":{"space":"default","intent":"x","sessionId":"s2","binding":null,"recordDir":"focus/spaces/default/intents/x","relativeRecordDir":"focus/spaces/default/intents/x","intents":["x"]}}
+{"id":"selection-00226","out":{"space":"payments","intent":"../other","sessionId":"s2","binding":null,"recordDir":"focus/spaces/payments/other","relativeRecordDir":"focus/spaces/payments/intents/../other","intents":["5-ab","undefined-abc"]}}
+{"id":"selection-00227","out":{"space":"default","intent":"undefined-abc","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/undefined-abc","relativeRecordDir":"focus/spaces/default/intents/undefined-abc","intents":["5-ab","undefined-abc","x"]}}
+{"id":"selection-00228","out":{"space":"default","intent":"../other","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/other","relativeRecordDir":"focus/spaces/default/intents/../other","intents":["add-login-1a2b3c4d","x"]}}
+{"id":"selection-00229","out":{"space":"default","intent":"undefined-abc","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/undefined-abc","relativeRecordDir":"focus/spaces/default/intents/undefined-abc","intents":["undefined-abc"]}}
+{"id":"selection-00230","out":{"error":"\"a/b\" is not a space name: it is a path."}}
+{"id":"selection-00231","out":{"error":"\"../x\" is not a space name: it is a path."}}
+{"id":"selection-00232","out":{"error":"\"a/b\" is not a space name: it is a path."}}
+{"id":"selection-00233","out":{"space":"default","intent":"5-ab","sessionId":"s1","binding":null,"intents":["5-ab"]}}
+{"id":"selection-00234","out":{"space":"default","intent":"5-ab","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/5-ab","relativeRecordDir":"focus/spaces/default/intents/5-ab","intents":["5-ab"]}}
+{"id":"selection-00235","out":{"space":"default","intent":"nope","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/nope","relativeRecordDir":"focus/spaces/default/intents/nope","intents":["5-ab"]}}
+{"id":"selection-00236","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00237","out":{"error":"\"a/b\" is not a space name: it is a path."}}
+{"id":"selection-00238","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":"s1","binding":null,"recordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00239","out":{"error":"<runtime>"}}
+{"id":"selection-00240","out":{"space":"default","intent":"5-ab","sessionId":"s1","binding":null,"intents":["260101-tidy","5-ab","fix-logout-9f8e7d6c"]}}
+{"id":"selection-00241","out":{"space":"default","intent":"","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents","relativeRecordDir":"focus/spaces/default/intents/","intents":["260101-tidy","fix-logout-9f8e7d6c"]}}
+{"id":"selection-00242","out":{"space":"default","intent":"260101-tidy","sessionId":"s1","binding":null,"recordDir":"focus/spaces/default/intents/260101-tidy","relativeRecordDir":"focus/spaces/default/intents/260101-tidy","intents":["undefined-abc"]}}
+{"id":"selection-00243","out":{"space":"default","intent":"x","sessionId":"s1","binding":null,"recordDir":"focus/spaces/default/intents/x","relativeRecordDir":"focus/spaces/default/intents/x","intents":["5-ab","x"]}}
+{"id":"selection-00244","out":{"error":"\"a/b\" is not a space name: it is a path."}}
+{"id":"selection-00245","out":{"space":"default","intent":"260101-tidy","sessionId":"s1","binding":null,"intents":["260101-tidy"]}}
+{"id":"selection-00246","out":{"space":"","intent":"","sessionId":"s1","binding":null,"intents":[]}}
+{"id":"selection-00247","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00248","out":{"error":"\".\" is not a space name: it is a path."}}
+{"id":"selection-00249","out":{"error":"\".\" is not a space name: it is a path."}}
+{"id":"selection-00250","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":["fix-logout-9f8e7d6c","x"]}}
+{"id":"selection-00251","out":{"space":"default","intent":"260101-tidy","sessionId":"s1","binding":{"space":"default","intent":"260101-tidy","boundAt":"2026-10-09T16:22:42Z"},"intents":["260101-tidy","add-login-1a2b3c4d"]}}
+{"id":"selection-00252","out":{"space":"zz","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00253","out":{"error":"\"../x\" is not a space name: it is a path."}}
+{"id":"selection-00254","out":{"space":"default","intent":"undefined-abc","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/undefined-abc","relativeRecordDir":"focus/spaces/default/intents/undefined-abc","intents":["undefined-abc"]}}
+{"id":"selection-00255","out":{"space":"payments","intent":"add-login-1a2b3c4d","sessionId":"s1","binding":null,"recordDir":"focus/spaces/payments/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/payments/intents/add-login-1a2b3c4d","intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00256","out":{"error":"\"a/b\" is not an intent name: it is a path."}}
+{"id":"selection-00257","out":{"space":"default","intent":"undefined-abc","sessionId":"s1","binding":null,"intents":["5-ab","undefined-abc"]}}
+{"id":"selection-00258","out":{"error":"\"a/b\" is not a space name: it is a path."}}
+{"id":"selection-00259","out":{"error":"\"a/b\" is not a space name: it is a path."}}
+{"id":"selection-00260","out":{"error":"\"..\" is not an intent name: it is a path."}}
+{"id":"selection-00261","out":{"space":"payments","intent":"undefined-abc","sessionId":"s2","binding":null,"intents":["add-login-1a2b3c4d","undefined-abc"]}}
+{"id":"selection-00262","out":{"error":"\"..\" is not an intent name: it is a path."}}
+{"id":"selection-00263","out":{"error":"\"../x\" is not a space name: it is a path."}}
+{"id":"selection-00264","out":{"space":"zz","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00265","out":{"space":"default","intent":"260101-tidy","sessionId":"s1","binding":null,"intents":["260101-tidy"]}}
+{"id":"selection-00266","out":{"error":"\"../x\" is not a space name: it is a path."}}
+{"id":"selection-00267","out":{"space":"default","intent":"fix-logout-9f8e7d6c","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","relativeRecordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","intents":["fix-logout-9f8e7d6c"]}}
+{"id":"selection-00268","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00269","out":{"error":"\"..\" is not an intent name: it is a path."}}
+{"id":"selection-00270","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00271","out":{"space":"default","intent":null,"sessionId":"s1","binding":null,"recordDir":null,"relativeRecordDir":null,"intents":["add-login-1a2b3c4d","x"]}}
+{"id":"selection-00272","out":{"error":"\".\" is not a space name: it is a path."}}
+{"id":"selection-00273","out":{"space":"default","intent":"260101-tidy","sessionId":"s1","binding":null,"intents":["260101-tidy"]}}
+{"id":"selection-00274","out":{"error":"\"../x\" is not a space name: it is a path."}}
+{"id":"selection-00275","out":{"space":"","intent":"fix-logout-9f8e7d6c","sessionId":null,"binding":null,"recordDir":"focus/spaces/intents/fix-logout-9f8e7d6c","relativeRecordDir":"focus/spaces//intents/fix-logout-9f8e7d6c","intents":[]}}
+{"id":"selection-00276","out":{"error":"\"..\" is not an intent name: it is a path."}}
+{"id":"selection-00277","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":["260101-tidy","fix-logout-9f8e7d6c","x"]}}
+{"id":"selection-00278","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00279","out":{"space":"default","intent":"x","sessionId":"s1","binding":null,"intents":["x"]}}
+{"id":"selection-00280","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00281","out":{"space":"zz","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00282","out":{"space":"default","intent":"x","sessionId":"s1","binding":null,"recordDir":"focus/spaces/default/intents/x","relativeRecordDir":"focus/spaces/default/intents/x","intents":["260101-tidy","x"]}}
+{"id":"selection-00283","out":{"space":"default","intent":"","sessionId":"s1","binding":null,"intents":[]}}
+{"id":"selection-00284","out":{"space":"default","intent":"5-ab","sessionId":"s1","binding":null,"recordDir":"focus/spaces/default/intents/5-ab","relativeRecordDir":"focus/spaces/default/intents/5-ab","intents":["5-ab","x"]}}
+{"id":"selection-00285","out":{"error":"\"../x\" is not a space name: it is a path."}}
+{"id":"selection-00286","out":{"space":"default","intent":"../other","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/other","relativeRecordDir":"focus/spaces/default/intents/../other","intents":["260101-tidy","5-ab","undefined-abc"]}}
+{"id":"selection-00287","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":"s1","binding":null,"intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00288","out":{"error":"\"a/b\" is not a space name: it is a path."}}
+{"id":"selection-00289","out":{"space":"payments","intent":"nope","sessionId":"s2","binding":null,"recordDir":"focus/spaces/payments/intents/nope","relativeRecordDir":"focus/spaces/payments/intents/nope","intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00290","out":{"error":"\"a/b\" is not an intent name: it is a path."}}
+{"id":"selection-00291","out":{"space":"payments","intent":"add-login-1a2b3c4d","sessionId":"s1","binding":null,"intents":["add-login-1a2b3c4d","fix-logout-9f8e7d6c"]}}
+{"id":"selection-00292","out":{"space":"default","intent":"260101-tidy","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/260101-tidy","relativeRecordDir":"focus/spaces/default/intents/260101-tidy","intents":["260101-tidy"]}}
+{"id":"selection-00293","out":{"space":"default","intent":"260101-tidy","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/260101-tidy","relativeRecordDir":"focus/spaces/default/intents/260101-tidy","intents":["260101-tidy"]}}
+{"id":"selection-00294","out":{"space":"default","intent":"fix-logout-9f8e7d6c","sessionId":null,"binding":null,"intents":["fix-logout-9f8e7d6c"]}}
+{"id":"selection-00295","out":{"space":"default","intent":"260101-tidy","sessionId":"s1","binding":null,"recordDir":"focus/spaces/default/intents/260101-tidy","relativeRecordDir":"focus/spaces/default/intents/260101-tidy","intents":["260101-tidy"]}}
+{"id":"selection-00296","out":{"space":"default","intent":"../other","sessionId":"s1","binding":null,"recordDir":"focus/spaces/default/other","relativeRecordDir":"focus/spaces/default/intents/../other","intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00297","out":{"error":"\"a/b\" is not an intent name: it is a path."}}
+{"id":"selection-00298","out":{"error":"\"a/b\" is not a space name: it is a path."}}
+{"id":"selection-00299","out":{"space":"default","intent":"5-ab","sessionId":"s1","binding":null,"intents":["5-ab"]}}
+{"id":"selection-00300","out":{"error":"\".\" is not a space name: it is a path."}}
+{"id":"selection-00301","out":{"space":"default","intent":"undefined-abc","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/undefined-abc","relativeRecordDir":"focus/spaces/default/intents/undefined-abc","intents":["undefined-abc"]}}
+{"id":"selection-00302","out":{"space":"default","intent":"","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents","relativeRecordDir":"focus/spaces/default/intents/","intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00303","out":{"space":"","intent":"260101-tidy","sessionId":"s1","binding":null,"intents":[]}}
+{"id":"selection-00304","out":{"space":"default","intent":"260101-tidy","sessionId":"s1","binding":null,"intents":["260101-tidy","undefined-abc"]}}
+{"id":"selection-00305","out":{"space":"default","intent":"fix-logout-9f8e7d6c","sessionId":"s2","binding":null,"intents":["fix-logout-9f8e7d6c"]}}
+{"id":"selection-00306","out":{"error":"<runtime>"}}
+{"id":"selection-00307","out":{"error":"\"a/b\" is not a space name: it is a path."}}
+{"id":"selection-00308","out":{"space":"default","intent":"260101-tidy","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/260101-tidy","relativeRecordDir":"focus/spaces/default/intents/260101-tidy","intents":["260101-tidy"]}}
+{"id":"selection-00309","out":{"space":"default","intent":"5-ab","sessionId":"s1","binding":null,"intents":["5-ab","add-login-1a2b3c4d"]}}
+{"id":"selection-00310","out":{"space":"default","intent":"5-ab","sessionId":null,"binding":null,"intents":["5-ab","fix-logout-9f8e7d6c","undefined-abc"]}}
+{"id":"selection-00311","out":{"space":"default","intent":"../other","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/other","relativeRecordDir":"focus/spaces/default/intents/../other","intents":["fix-logout-9f8e7d6c"]}}
+{"id":"selection-00312","out":{"error":"<runtime>"}}
+{"id":"selection-00313","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":["fix-logout-9f8e7d6c","x"]}}
+{"id":"selection-00314","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":["add-login-1a2b3c4d","fix-logout-9f8e7d6c"]}}
+{"id":"selection-00315","out":{"space":"payments","intent":"fix-logout-9f8e7d6c","sessionId":"s1","binding":null,"intents":["undefined-abc"]}}
+{"id":"selection-00316","out":{"space":"default","intent":"undefined-abc","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/undefined-abc","relativeRecordDir":"focus/spaces/default/intents/undefined-abc","intents":["undefined-abc"]}}
+{"id":"selection-00317","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":["add-login-1a2b3c4d","fix-logout-9f8e7d6c"]}}
+{"id":"selection-00318","out":{"space":"default","intent":null,"sessionId":"s1","binding":{"space":"default","intent":null,"boundAt":"t","source":"archive"},"intents":["5-ab","undefined-abc"]}}
+{"id":"selection-00319","out":{"error":"\"..\" is not an intent name: it is a path."}}
+{"id":"selection-00320","out":{"space":"default","intent":"260101-tidy","sessionId":"s2","binding":null,"recordDir":"focus/spaces/default/intents/260101-tidy","relativeRecordDir":"focus/spaces/default/intents/260101-tidy","intents":["260101-tidy"]}}
+{"id":"selection-00321","out":{"error":"\".\" is not a space name: it is a path."}}
+{"id":"selection-00322","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":["undefined-abc"]}}
+{"id":"selection-00323","out":{"error":"\"a/b\" is not a space name: it is a path."}}
+{"id":"selection-00324","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00325","out":{"space":"default","intent":"260101-tidy","sessionId":"s1","binding":null,"recordDir":"focus/spaces/default/intents/260101-tidy","relativeRecordDir":"focus/spaces/default/intents/260101-tidy","intents":["260101-tidy"]}}
+{"id":"selection-00326","out":{"error":"\"../x\" is not a space name: it is a path."}}
+{"id":"selection-00327","out":{"error":"\"../x\" is not a space name: it is a path."}}
+{"id":"selection-00328","out":{"error":"\".\" is not a space name: it is a path."}}
+{"id":"selection-00329","out":{"space":"default","intent":"nope","sessionId":null,"binding":null,"intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00330","out":{"space":"default","intent":"fix-logout-9f8e7d6c","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","relativeRecordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","intents":["260101-tidy","fix-logout-9f8e7d6c"]}}
+{"id":"selection-00331","out":{"space":"default","intent":"undefined-abc","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/undefined-abc","relativeRecordDir":"focus/spaces/default/intents/undefined-abc","intents":["fix-logout-9f8e7d6c","undefined-abc"]}}
+{"id":"selection-00332","out":{"space":"default","intent":"260101-tidy","sessionId":"s2","binding":null,"intents":["260101-tidy"]}}
+{"id":"selection-00333","out":{"space":"default","intent":"260101-tidy","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/260101-tidy","relativeRecordDir":"focus/spaces/default/intents/260101-tidy","intents":["260101-tidy"]}}
+{"id":"selection-00334","out":{"space":"default","intent":"fix-logout-9f8e7d6c","sessionId":"s1","binding":null,"intents":["fix-logout-9f8e7d6c"]}}
+{"id":"selection-00335","out":{"space":"default","intent":"undefined-abc","sessionId":"s2","binding":null,"recordDir":"focus/spaces/default/intents/undefined-abc","relativeRecordDir":"focus/spaces/default/intents/undefined-abc","intents":["undefined-abc"]}}
+{"id":"selection-00336","out":{"space":"zz","intent":null,"sessionId":"s2","binding":null,"intents":[]}}
+{"id":"selection-00337","out":{"space":"default","intent":"260101-tidy","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/260101-tidy","relativeRecordDir":"focus/spaces/default/intents/260101-tidy","intents":[]}}
+{"id":"selection-00338","out":{"space":"default","intent":"fix-logout-9f8e7d6c","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","relativeRecordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","intents":["5-ab","x"]}}
+{"id":"selection-00339","out":{"error":"\".\" is not a space name: it is a path."}}
+{"id":"selection-00340","out":{"space":"zz","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00341","out":{"space":"default","intent":"x","sessionId":null,"binding":null,"intents":["x"]}}
+{"id":"selection-00342","out":{"space":"default","intent":"fix-logout-9f8e7d6c","sessionId":"s2","binding":null,"intents":["fix-logout-9f8e7d6c"]}}
+{"id":"selection-00343","out":{"space":"default","intent":"260101-tidy","sessionId":"s1","binding":null,"intents":["260101-tidy"]}}
+{"id":"selection-00344","out":{"space":"default","intent":"","sessionId":null,"binding":null,"intents":["fix-logout-9f8e7d6c"]}}
+{"id":"selection-00345","out":{"space":"default","intent":"nope","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/nope","relativeRecordDir":"focus/spaces/default/intents/nope","intents":["undefined-abc"]}}
+{"id":"selection-00346","out":{"space":"default","intent":"../other","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/other","relativeRecordDir":"focus/spaces/default/intents/../other","intents":[]}}
+{"id":"selection-00347","out":{"space":"default","intent":null,"sessionId":"s1","binding":{"space":"default","intent":null,"boundAt":"t","source":"archive"},"intents":["x"]}}
+{"id":"selection-00348","out":{"space":"default","intent":"undefined-abc","sessionId":null,"binding":null,"intents":["5-ab","undefined-abc","x"]}}
+{"id":"selection-00349","out":{"space":"default","intent":"5-ab","sessionId":"s1","binding":null,"intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00350","out":{"space":"payments","intent":"","sessionId":null,"binding":null,"recordDir":"focus/spaces/payments/intents","relativeRecordDir":"focus/spaces/payments/intents/","intents":["260101-tidy","5-ab"]}}
+{"id":"selection-00351","out":{"space":"default","intent":"","sessionId":"s1","binding":null,"intents":["fix-logout-9f8e7d6c"]}}
+{"id":"selection-00352","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00353","out":{"space":"default","intent":"260101-tidy","sessionId":"s1","binding":null,"recordDir":"focus/spaces/default/intents/260101-tidy","relativeRecordDir":"focus/spaces/default/intents/260101-tidy","intents":[]}}
+{"id":"selection-00354","out":{"space":"default","intent":"x","sessionId":"s1","binding":null,"intents":["add-login-1a2b3c4d","x"]}}
+{"id":"selection-00355","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","intents":["x"]}}
+{"id":"selection-00356","out":{"space":"default","intent":"x","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/x","relativeRecordDir":"focus/spaces/default/intents/x","intents":["x"]}}
+{"id":"selection-00357","out":{"space":"zz","intent":null,"sessionId":"s1","binding":null,"intents":[]}}
+{"id":"selection-00358","out":{"error":"\"a/b\" is not a space name: it is a path."}}
+{"id":"selection-00359","out":{"space":"default","intent":"fix-logout-9f8e7d6c","sessionId":"s1","binding":null,"recordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","relativeRecordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","intents":["fix-logout-9f8e7d6c"]}}
+{"id":"selection-00360","out":{"error":"\"a/b\" is not an intent name: it is a path."}}
+{"id":"selection-00361","out":{"error":"\"a/b\" is not a space name: it is a path."}}
+{"id":"selection-00362","out":{"space":"default","intent":null,"sessionId":"s1","binding":{"space":"default","intent":null,"boundAt":"t","source":"archive"},"intents":["add-login-1a2b3c4d","fix-logout-9f8e7d6c","undefined-abc"]}}
+{"id":"selection-00363","out":{"error":"<runtime>"}}
+{"id":"selection-00364","out":{"space":"default","intent":"../other","sessionId":null,"binding":null,"intents":["x"]}}
+{"id":"selection-00365","out":{"space":"zz","intent":null,"sessionId":"s1","binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00366","out":{"error":"\"../x\" is not a space name: it is a path."}}
+{"id":"selection-00367","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00368","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00369","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00370","out":{"error":"\"..\" is not an intent name: it is a path."}}
+{"id":"selection-00371","out":{"space":"default","intent":null,"sessionId":"s2","binding":null,"intents":[]}}
+{"id":"selection-00372","out":{"error":"\"..\" is not an intent name: it is a path."}}
+{"id":"selection-00373","out":{"space":"default","intent":"x","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/x","relativeRecordDir":"focus/spaces/default/intents/x","intents":["x"]}}
+{"id":"selection-00374","out":{"space":"default","intent":"undefined-abc","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/undefined-abc","relativeRecordDir":"focus/spaces/default/intents/undefined-abc","intents":["260101-tidy"]}}
+{"id":"selection-00375","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00376","out":{"space":"default","intent":"","sessionId":null,"binding":null,"intents":["260101-tidy","fix-logout-9f8e7d6c"]}}
+{"id":"selection-00377","out":{"space":"default","intent":"260101-tidy","sessionId":"s2","binding":null,"recordDir":"focus/spaces/default/intents/260101-tidy","relativeRecordDir":"focus/spaces/default/intents/260101-tidy","intents":["260101-tidy"]}}
+{"id":"selection-00378","out":{"space":"default","intent":"260101-tidy","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/260101-tidy","relativeRecordDir":"focus/spaces/default/intents/260101-tidy","intents":["260101-tidy"]}}
+{"id":"selection-00379","out":{"space":"payments","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"recordDir":"focus/spaces/payments/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/payments/intents/add-login-1a2b3c4d","intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00380","out":{"space":"default","intent":"../other","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/other","relativeRecordDir":"focus/spaces/default/intents/../other","intents":["5-ab"]}}
+{"id":"selection-00381","out":{"error":"\".\" is not a space name: it is a path."}}
+{"id":"selection-00382","out":{"space":"payments","intent":"x","sessionId":"s1","binding":null,"intents":["5-ab","x"]}}
+{"id":"selection-00383","out":{"error":"\"..\" is not an intent name: it is a path."}}
+{"id":"selection-00384","out":{"space":"zz","intent":null,"sessionId":"s2","binding":null,"intents":[]}}
+{"id":"selection-00385","out":{"space":"default","intent":null,"sessionId":"s1","binding":null,"intents":["undefined-abc","x"]}}
+{"id":"selection-00386","out":{"space":"default","intent":"x","sessionId":"s1","binding":null,"recordDir":"focus/spaces/default/intents/x","relativeRecordDir":"focus/spaces/default/intents/x","intents":[]}}
+{"id":"selection-00387","out":{"space":"default","intent":"260101-tidy","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/260101-tidy","relativeRecordDir":"focus/spaces/default/intents/260101-tidy","intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00388","out":{"error":"<runtime>"}}
+{"id":"selection-00389","out":{"space":"default","intent":"nope","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/nope","relativeRecordDir":"focus/spaces/default/intents/nope","intents":["add-login-1a2b3c4d","x"]}}
+{"id":"selection-00390","out":{"error":"\"..\" is not an intent name: it is a path."}}
+{"id":"selection-00391","out":{"space":"","intent":null,"sessionId":"s1","binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00392","out":{"space":"default","intent":"x","sessionId":"s1","binding":{"space":"default","intent":"x","boundAt":"2026-10-09T16:22:42Z"},"recordDir":"focus/spaces/default/intents/x","relativeRecordDir":"focus/spaces/default/intents/x","intents":["fix-logout-9f8e7d6c","undefined-abc","x"]}}
+{"id":"selection-00393","out":{"space":"default","intent":"5-ab","sessionId":"s1","binding":null,"recordDir":"focus/spaces/default/intents/5-ab","relativeRecordDir":"focus/spaces/default/intents/5-ab","intents":["5-ab"]}}
+{"id":"selection-00394","out":{"error":"\"../x\" is not a space name: it is a path."}}
+{"id":"selection-00395","out":{"error":"\"../x\" is not a space name: it is a path."}}
+{"id":"selection-00396","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":["add-login-1a2b3c4d","undefined-abc"]}}
+{"id":"selection-00397","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00398","out":{"space":"default","intent":"260101-tidy","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/260101-tidy","relativeRecordDir":"focus/spaces/default/intents/260101-tidy","intents":["260101-tidy","5-ab"]}}
+{"id":"selection-00399","out":{"space":"default","intent":null,"sessionId":"s2","binding":null,"recordDir":null,"relativeRecordDir":null,"intents":["260101-tidy","fix-logout-9f8e7d6c","x"]}}
+{"id":"selection-00400","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","intents":["add-login-1a2b3c4d","x"]}}
+{"id":"selection-00401","out":{"space":"","intent":"260101-tidy","sessionId":"s1","binding":null,"intents":[]}}
+{"id":"selection-00402","out":{"error":"\"a/b\" is not a space name: it is a path."}}
+{"id":"selection-00403","out":{"space":"default","intent":"undefined-abc","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/undefined-abc","relativeRecordDir":"focus/spaces/default/intents/undefined-abc","intents":["fix-logout-9f8e7d6c","undefined-abc"]}}
+{"id":"selection-00404","out":{"error":"\"a/b\" is not a space name: it is a path."}}
+{"id":"selection-00405","out":{"space":"default","intent":"x","sessionId":null,"binding":null,"intents":["fix-logout-9f8e7d6c","x"]}}
+{"id":"selection-00406","out":{"space":"payments","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00407","out":{"space":"default","intent":"260101-tidy","sessionId":"s1","binding":null,"recordDir":"focus/spaces/default/intents/260101-tidy","relativeRecordDir":"focus/spaces/default/intents/260101-tidy","intents":["260101-tidy"]}}
+{"id":"selection-00408","out":{"space":"default","intent":null,"sessionId":"s1","binding":null,"intents":[]}}
+{"id":"selection-00409","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"intents":["5-ab","undefined-abc"]}}
+{"id":"selection-00410","out":{"space":"default","intent":"","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents","relativeRecordDir":"focus/spaces/default/intents/","intents":["5-ab","add-login-1a2b3c4d"]}}
+{"id":"selection-00411","out":{"error":"\"../x\" is not a space name: it is a path."}}
+{"id":"selection-00412","out":{"space":"","intent":null,"sessionId":null,"binding":null,"intents":[]}}
+{"id":"selection-00413","out":{"space":"zz","intent":"nope","sessionId":null,"binding":null,"recordDir":"focus/spaces/zz/intents/nope","relativeRecordDir":"focus/spaces/zz/intents/nope","intents":[]}}
+{"id":"selection-00414","out":{"space":"payments","intent":null,"sessionId":"s1","binding":null,"intents":[]}}
+{"id":"selection-00415","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"intents":[]}}
+{"id":"selection-00416","out":{"space":"default","intent":"nope","sessionId":"s1","binding":null,"intents":["260101-tidy"]}}
+{"id":"selection-00417","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":["add-login-1a2b3c4d","undefined-abc"]}}
+{"id":"selection-00418","out":{"space":"default","intent":null,"sessionId":"s1","binding":null,"intents":["260101-tidy","5-ab"]}}
+{"id":"selection-00419","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":["5-ab"]}}
+{"id":"selection-00420","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"intents":[]}}
+{"id":"selection-00421","out":{"error":"\"a/b\" is not an intent name: it is a path."}}
+{"id":"selection-00422","out":{"space":"payments","intent":"undefined-abc","sessionId":null,"binding":null,"recordDir":"focus/spaces/payments/intents/undefined-abc","relativeRecordDir":"focus/spaces/payments/intents/undefined-abc","intents":["5-ab","undefined-abc"]}}
+{"id":"selection-00423","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":["260101-tidy","add-login-1a2b3c4d","x"]}}
+{"id":"selection-00424","out":{"space":"default","intent":"5-ab","sessionId":"s1","binding":{"space":"default","intent":"5-ab","boundAt":"2026-10-09T16:22:42Z"},"intents":["5-ab","add-login-1a2b3c4d"]}}
+{"id":"selection-00425","out":{"space":"default","intent":"x","sessionId":null,"binding":null,"intents":["x"]}}
+{"id":"selection-00426","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00427","out":{"error":"\"..\" is not an intent name: it is a path."}}
+{"id":"selection-00428","out":{"space":"default","intent":"260101-tidy","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/260101-tidy","relativeRecordDir":"focus/spaces/default/intents/260101-tidy","intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00429","out":{"error":"\".\" is not a space name: it is a path."}}
+{"id":"selection-00430","out":{"space":"default","intent":"fix-logout-9f8e7d6c","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","relativeRecordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","intents":["5-ab","fix-logout-9f8e7d6c"]}}
+{"id":"selection-00431","out":{"space":"","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00432","out":{"error":"\"a/b\" is not an intent name: it is a path."}}
+{"id":"selection-00433","out":{"space":"payments","intent":"add-login-1a2b3c4d","sessionId":"s2","binding":null,"intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00434","out":{"error":"\"a/b\" is not a space name: it is a path."}}
+{"id":"selection-00435","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","intents":["add-login-1a2b3c4d","undefined-abc"]}}
+{"id":"selection-00436","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","relativeRecordDir":"focus/spaces/default/intents/add-login-1a2b3c4d","intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00437","out":{"space":"default","intent":"x","sessionId":"s1","binding":null,"intents":["x"]}}
+{"id":"selection-00438","out":{"space":"default","intent":null,"sessionId":"s1","binding":null,"recordDir":null,"relativeRecordDir":null,"intents":["fix-logout-9f8e7d6c","undefined-abc","x"]}}
+{"id":"selection-00439","out":{"error":"\".\" is not a space name: it is a path."}}
+{"id":"selection-00440","out":{"space":"default","intent":"add-login-1a2b3c4d","sessionId":"s1","binding":null,"intents":[]}}
+{"id":"selection-00441","out":{"error":"\"..\" is not an intent name: it is a path."}}
+{"id":"selection-00442","out":{"space":"default","intent":"nope","sessionId":"s2","binding":null,"intents":["x"]}}
+{"id":"selection-00443","out":{"space":"default","intent":"","sessionId":"s1","binding":null,"intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00444","out":{"space":"default","intent":"","sessionId":null,"binding":null,"intents":["260101-tidy","fix-logout-9f8e7d6c","x"]}}
+{"id":"selection-00445","out":{"space":"default","intent":"fix-logout-9f8e7d6c","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","relativeRecordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","intents":["fix-logout-9f8e7d6c"]}}
+{"id":"selection-00446","out":{"error":"\"a/b\" is not a space name: it is a path."}}
+{"id":"selection-00447","out":{"space":"default","intent":"5-ab","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/5-ab","relativeRecordDir":"focus/spaces/default/intents/5-ab","intents":["5-ab","fix-logout-9f8e7d6c","undefined-abc"]}}
+{"id":"selection-00448","out":{"space":"default","intent":"x","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/x","relativeRecordDir":"focus/spaces/default/intents/x","intents":["x"]}}
+{"id":"selection-00449","out":{"error":"\".\" is not a space name: it is a path."}}
+{"id":"selection-00450","out":{"space":"zz","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00451","out":{"space":"default","intent":"","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents","relativeRecordDir":"focus/spaces/default/intents/","intents":["add-login-1a2b3c4d"]}}
+{"id":"selection-00452","out":{"space":"zz","intent":null,"sessionId":"s1","binding":{"space":"default","intent":"fix-logout-9f8e7d6c","boundAt":"2026-10-09T16:22:42Z","source":"cursor"},"intents":[]}}
+{"id":"selection-00453","out":{"space":"payments","intent":"x","sessionId":null,"binding":null,"recordDir":"focus/spaces/payments/intents/x","relativeRecordDir":"focus/spaces/payments/intents/x","intents":["x"]}}
+{"id":"selection-00454","out":{"space":"default","intent":null,"sessionId":"s1","binding":null,"intents":["260101-tidy","add-login-1a2b3c4d","fix-logout-9f8e7d6c"]}}
+{"id":"selection-00455","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":["undefined-abc","x"]}}
+{"id":"selection-00456","out":{"space":"payments","intent":"x","sessionId":null,"binding":null,"recordDir":"focus/spaces/payments/intents/x","relativeRecordDir":"focus/spaces/payments/intents/x","intents":["x"]}}
+{"id":"selection-00457","out":{"error":"\"a/b\" is not a space name: it is a path."}}
+{"id":"selection-00458","out":{"error":"\".\" is not a space name: it is a path."}}
+{"id":"selection-00459","out":{"space":"default","intent":"260101-tidy","sessionId":null,"binding":null,"intents":["260101-tidy"]}}
+{"id":"selection-00460","out":{"space":"default","intent":"260101-tidy","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/260101-tidy","relativeRecordDir":"focus/spaces/default/intents/260101-tidy","intents":["260101-tidy"]}}
+{"id":"selection-00461","out":{"space":"default","intent":"5-ab","sessionId":null,"binding":null,"recordDir":"focus/spaces/default/intents/5-ab","relativeRecordDir":"focus/spaces/default/intents/5-ab","intents":["5-ab"]}}
+{"id":"selection-00462","out":{"error":"\"../x\" is not a space name: it is a path."}}
+{"id":"selection-00463","out":{"space":"default","intent":"nope","sessionId":"s1","binding":null,"recordDir":"focus/spaces/default/intents/nope","relativeRecordDir":"focus/spaces/default/intents/nope","intents":["fix-logout-9f8e7d6c","x"]}}
+{"id":"selection-00464","out":{"space":"default","intent":null,"sessionId":"s2","binding":null,"intents":[]}}
+{"id":"selection-00465","out":{"space":"default","intent":"fix-logout-9f8e7d6c","sessionId":"s1","binding":null,"intents":["fix-logout-9f8e7d6c"]}}
+{"id":"selection-00466","out":{"error":"<runtime>"}}
+{"id":"selection-00467","out":{"space":"zz","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00468","out":{"space":"default","intent":"","sessionId":"s1","binding":{"space":"default","intent":"undefined-abc","boundAt":"2026-10-09T16:22:42Z","source":"switch"},"intents":["undefined-abc"]}}
+{"id":"selection-00469","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":["260101-tidy","undefined-abc"]}}
+{"id":"selection-00470","out":{"space":"default","intent":"260101-tidy","sessionId":"s2","binding":null,"recordDir":"focus/spaces/default/intents/260101-tidy","relativeRecordDir":"focus/spaces/default/intents/260101-tidy","intents":["260101-tidy"]}}
+{"id":"selection-00471","out":{"space":"","intent":null,"sessionId":null,"binding":null,"intents":[]}}
+{"id":"selection-00472","out":{"error":"\"../x\" is not a space name: it is a path."}}
+{"id":"selection-00473","out":{"space":"default","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":[]}}
+{"id":"selection-00474","out":{"space":"","intent":"nothing-00000000","sessionId":null,"binding":null,"recordDir":"focus/spaces/intents/nothing-00000000","relativeRecordDir":"focus/spaces//intents/nothing-00000000","intents":[]}}
+{"id":"selection-00475","out":{"error":"\"../x\" is not a space name: it is a path."}}
+{"id":"selection-00476","out":{"space":"payments","intent":"fix-logout-9f8e7d6c","sessionId":null,"binding":null,"intents":["x"]}}
+{"id":"selection-00477","out":{"space":"payments","intent":"260101-tidy","sessionId":"s1","binding":null,"intents":["260101-tidy"]}}
+{"id":"selection-00478","out":{"space":"payments","intent":null,"sessionId":null,"binding":null,"recordDir":null,"relativeRecordDir":null,"intents":["add-login-1a2b3c4d","undefined-abc"]}}
+{"id":"selection-00479","out":{"space":"default","intent":"fix-logout-9f8e7d6c","sessionId":"s1","binding":{"space":"default","intent":"fix-logout-9f8e7d6c","boundAt":"2026-10-09T16:22:42Z"},"recordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","relativeRecordDir":"focus/spaces/default/intents/fix-logout-9f8e7d6c","intents":["fix-logout-9f8e7d6c"]}}

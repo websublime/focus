@@ -1,0 +1,759 @@
+{"id": "plain_powershell-00000", "kind": "plain_powershell", "command": "get-childitem A=b a@b 'a b' 2>$null ; exec out.txt out.txt é"}
+{"id": "plain_powershell-00001", "kind": "plain_powershell", "command": "Write-Output \"a b\" 3>> $null|Select-Object -x.y A=b ; Set-Location"}
+{"id": "plain_powershell-00002", "kind": "plain_powershell", "command": "bun -First | focus.cmd A=b"}
+{"id": "plain_powershell-00003", "kind": "plain_powershell", "command": "& Select-Object -x.y 2>$null"}
+{"id": "plain_powershell-00004", "kind": "plain_powershell", "command": "out.txt | - a@b next"}
+{"id": "plain_powershell-00005", "kind": "plain_powershell", "command": "Get-Content a%b focus.cmd cd || & C:\\Tools\\x.exe a!b a@b 3>> $null"}
+{"id": "plain_powershell-00006", "kind": "plain_powershell", "command": "if x\"y -rf"}
+{"id": "plain_powershell-00007", "kind": "plain_powershell", "command": " a&b ;orchestrate a=b status cd"}
+{"id": "plain_powershell-00008", "kind": "plain_powershell", "command": "a.txt # c 3>> $null"}
+{"id": "plain_powershell-00009", "kind": "plain_powershell", "command": "if a:b a\\ a.txt|exec 3>> $null ; & cd 2>$null"}
+{"id": "plain_powershell-00010", "kind": "plain_powershell", "command": "Set-Location a\\b a\\"}
+{"id": "plain_powershell-00011", "kind": "plain_powershell", "command": "bun command git | exec focus *.md é; Set-Location out.txt A=b Get-Content>$null"}
+{"id": "plain_powershell-00012", "kind": "plain_powershell", "command": "a@b"}
+{"id": "plain_powershell-00013", "kind": "plain_powershell", "command": "rm -x a_b"}
+{"id": "plain_powershell-00014", "kind": "plain_powershell", "command": "cd 2>&1 |  ; & \"$x\""}
+{"id": "plain_powershell-00015", "kind": "plain_powershell", "command": "bun a.b.c status engine ; focus.cmd \"a b\""}
+{"id": "plain_powershell-00016", "kind": "plain_powershell", "command": "& a'b \"\""}
+{"id": "plain_powershell-00017", "kind": "plain_powershell", "command": "& .\\tool.ps1 status ; Write-Output a\\b next a\\b ; command"}
+{"id": "plain_powershell-00018", "kind": "plain_powershell", "command": "& .\\tool.ps1 a:b orchestrate 2>$null; command A=b 2>$null|if out.txt a_b 'it works'"}
+{"id": "plain_powershell-00019", "kind": "plain_powershell", "command": "& .\\tool.ps1 status \"$x\"  \"a`n\" 3>> $null  env"}
+{"id": "plain_powershell-00020", "kind": "plain_powershell", "command": "env out.txt; focus.cmd 'it works' | get-childitem 2>&1"}
+{"id": "plain_powershell-00021", "kind": "plain_powershell", "command": "Set-Location -First | exec"}
+{"id": "plain_powershell-00022", "kind": "plain_powershell", "command": "a=b command a'b ; -x # c"}
+{"id": "plain_powershell-00023", "kind": "plain_powershell", "command": "if é engine *>$null | time -- ~; git"}
+{"id": "plain_powershell-00024", "kind": "plain_powershell", "command": "Write-Output status 3>> $null"}
+{"id": "plain_powershell-00025", "kind": "plain_powershell", "command": "rm engine a\\ -- >$null | Set-Location a.txt a_b engine; exec a/b x\"y engine"}
+{"id": "plain_powershell-00026", "kind": "plain_powershell", "command": "next .\\tool.ps1 2>&2 & Get-Content a\\ a%b || (1) {x} git a&b"}
+{"id": "plain_powershell-00027", "kind": "plain_powershell", "command": "& a^b sudo a\\"}
+{"id": "plain_powershell-00028", "kind": "plain_powershell", "command": "if engine next | & time ; env a.txt a+b >$null"}
+{"id": "plain_powershell-00029", "kind": "plain_powershell", "command": "a%b command bun 'it''s' >>$null  & bun ‘q’ ; exec a\tb a\tb C:\\Tools\\x.exe"}
+{"id": "plain_powershell-00030", "kind": "plain_powershell", "command": "a!b # c \"$x\";;next a\tb Set-Location"}
+{"id": "plain_powershell-00031", "kind": "plain_powershell", "command": "& \"my tool\" 'it works'; focus a@b 'it works' -- >$null ; & a/b status - 'a b'"}
+{"id": "plain_powershell-00032", "kind": "plain_powershell", "command": "& time -First 'a b' a_b *>$null|& exec - a+b"}
+{"id": "plain_powershell-00033", "kind": "plain_powershell", "command": "{x}|& a^b 3>> $null"}
+{"id": "plain_powershell-00034", "kind": "plain_powershell", "command": "& git \"a b\" a:b A=b | Get-Content A=b --x.y"}
+{"id": "plain_powershell-00035", "kind": "plain_powershell", "command": "& Write-Output >$null"}
+{"id": "plain_powershell-00036", "kind": "plain_powershell", "command": "|command  a[0] a@b a[0]"}
+{"id": "plain_powershell-00037", "kind": "plain_powershell", "command": "a'b a\\b sudo 2>&2 ;focus"}
+{"id": "plain_powershell-00038", "kind": "plain_powershell", "command": "cd a\\ 2>$null"}
+{"id": "plain_powershell-00039", "kind": "plain_powershell", "command": "a/b engine"}
+{"id": "plain_powershell-00040", "kind": "plain_powershell", "command": "& git 2>$null; & Get-Content 1 a\\b -x ; & \"my tool\" - orchestrate out.txt"}
+{"id": "plain_powershell-00041", "kind": "plain_powershell", "command": "a/b a.b.c A=b 'a b'"}
+{"id": "plain_powershell-00042", "kind": "plain_powershell", "command": "get-childitem a.txt a.txt 1 ; if status engine a.txt"}
+{"id": "plain_powershell-00043", "kind": "plain_powershell", "command": "focus.cmd"}
+{"id": "plain_powershell-00044", "kind": "plain_powershell", "command": "focus 'a b' a.b.c a+b|.\\tool.ps1 é a\\b|Set-Location status ''"}
+{"id": "plain_powershell-00045", "kind": "plain_powershell", "command": "command next '' ~; 'my tool' -x|Select-Object a@b a_b"}
+{"id": "plain_powershell-00046", "kind": "plain_powershell", "command": "& orchestrate C:\\Tools\\x.exe & 1 2>&1 | a\\ time \"a b\""}
+{"id": "plain_powershell-00047", "kind": "plain_powershell", "command": "sudo -rf --x.y; Write-Output 1 a\\b"}
+{"id": "plain_powershell-00048", "kind": "plain_powershell", "command": "~ env -x | & a/b time --x.y"}
+{"id": "plain_powershell-00049", "kind": "plain_powershell", "command": "& 'my tool' -rf; sudo 'it works'"}
+{"id": "plain_powershell-00050", "kind": "plain_powershell", "command": "a+b a:b 'a b' >$nullx"}
+{"id": "plain_powershell-00051", "kind": "plain_powershell", "command": "Select-Object a.b.c a_b status|git --x.y -First x\"y"}
+{"id": "plain_powershell-00052", "kind": "plain_powershell", "command": "\"a b\" ‘q’ x\"y && Set-Location a:b é a'b && a%b"}
+{"id": "plain_powershell-00053", "kind": "plain_powershell", "command": "- a\\b 1"}
+{"id": "plain_powershell-00054", "kind": "plain_powershell", "command": "Write-Output --x.y | 'my tool' --x.y"}
+{"id": "plain_powershell-00055", "kind": "plain_powershell", "command": "Write-Output|& focus \"a b\""}
+{"id": "plain_powershell-00056", "kind": "plain_powershell", "command": "get-childitem | 'my tool' 'it works' \"a b\" >$null"}
+{"id": "plain_powershell-00057", "kind": "plain_powershell", "command": "get-childitem a\\ a\\ ; & rm a+b; & .\\tool.ps1 - é 2>&1"}
+{"id": "plain_powershell-00058", "kind": "plain_powershell", "command": "~"}
+{"id": "plain_powershell-00059", "kind": "plain_powershell", "command": "command - && (1)"}
+{"id": "plain_powershell-00060", "kind": "plain_powershell", "command": "a[0] a'b focus a!b >$null"}
+{"id": "plain_powershell-00061", "kind": "plain_powershell", "command": "Set-Location \"a b\" ; Get-Content - -rf; command -x.y -x"}
+{"id": "plain_powershell-00062", "kind": "plain_powershell", "command": "@args é next; & 1 git a=b >$nullx ;& \"\" time a!b # c"}
+{"id": "plain_powershell-00063", "kind": "plain_powershell", "command": "command -x é"}
+{"id": "plain_powershell-00064", "kind": "plain_powershell", "command": "rm a.txt ; & if | C:\\Tools\\x.exe 3>> $null"}
+{"id": "plain_powershell-00065", "kind": "plain_powershell", "command": "env '' 1 | focus.cmd status -- '' 2>&1; sudo *>$null"}
+{"id": "plain_powershell-00066", "kind": "plain_powershell", "command": "focus.cmd command C:\\Tools\\x.exe"}
+{"id": "plain_powershell-00067", "kind": "plain_powershell", "command": "x\"y {x} & Set-Location ‘q’ a^b C:\\Tools\\x.exe"}
+{"id": "plain_powershell-00068", "kind": "plain_powershell", "command": "env out.txt -First; a/b a.txt ; Get-Content ''"}
+{"id": "plain_powershell-00069", "kind": "plain_powershell", "command": "*.md | {x} -x"}
+{"id": "plain_powershell-00070", "kind": "plain_powershell", "command": "time"}
+{"id": "plain_powershell-00071", "kind": "plain_powershell", "command": ".\\tool.ps1 -- 'it works' a\\ | if a:b | Write-Output a\\ a@b"}
+{"id": "plain_powershell-00072", "kind": "plain_powershell", "command": "if focus x\"y>$null"}
+{"id": "plain_powershell-00073", "kind": "plain_powershell", "command": "Select-Object a@b 2>$null"}
+{"id": "plain_powershell-00074", "kind": "plain_powershell", "command": "& rm -"}
+{"id": "plain_powershell-00075", "kind": "plain_powershell", "command": "time - | if a/b a:b | bun 2>$null"}
+{"id": "plain_powershell-00076", "kind": "plain_powershell", "command": "sudo --|if -x.y A=b engine"}
+{"id": "plain_powershell-00077", "kind": "plain_powershell", "command": "cd | \"a`n\" sudo; 'it''s' if Select-Object"}
+{"id": "plain_powershell-00078", "kind": "plain_powershell", "command": "bun 1 \"a`n\""}
+{"id": "plain_powershell-00079", "kind": "plain_powershell", "command": "C:\\Tools\\x.exe 'it works' 'it works' --x.y"}
+{"id": "plain_powershell-00080", "kind": "plain_powershell", "command": "& a—b orchestrate && engine status .\\tool.ps1 2>&2; a+b focus.cmd 1 'it''s'"}
+{"id": "plain_powershell-00081", "kind": "plain_powershell", "command": "& & \"my tool\" '' é 1 2>&1 ; & bun status -rf | bun engine next"}
+{"id": "plain_powershell-00082", "kind": "plain_powershell", "command": "'my tool' orchestrate a/b a\\"}
+{"id": "plain_powershell-00083", "kind": "plain_powershell", "command": "command .\\tool.ps1 if 2>$null"}
+{"id": "plain_powershell-00084", "kind": "plain_powershell", "command": "Write-Output a/b -x.y a_b; exec a.txt ~ 1 ; a/b 2>&1"}
+{"id": "plain_powershell-00085", "kind": "plain_powershell", "command": "exec orchestrate *>$null|& Get-Content A=b a+b"}
+{"id": "plain_powershell-00086", "kind": "plain_powershell", "command": "cd a+b -x.y engine|env 'a b' 3>> $null; time -rf a\\b orchestrate"}
+{"id": "plain_powershell-00087", "kind": "plain_powershell", "command": "1 \"\""}
+{"id": "plain_powershell-00088", "kind": "plain_powershell", "command": "if engine"}
+{"id": "plain_powershell-00089", "kind": "plain_powershell", "command": "Get-Content 2>&1 | git -rf -rf"}
+{"id": "plain_powershell-00090", "kind": "plain_powershell", "command": "& \"my tool\" status"}
+{"id": "plain_powershell-00091", "kind": "plain_powershell", "command": "& focus.cmd|get-childitem -- -rf|a/b -rf 2>$null"}
+{"id": "plain_powershell-00092", "kind": "plain_powershell", "command": "bun 1 -x out.txt"}
+{"id": "plain_powershell-00093", "kind": "plain_powershell", "command": "rm a/b ; \"my tool\" -rf é; 'my tool' -x status engine"}
+{"id": "plain_powershell-00094", "kind": "plain_powershell", "command": "if | C:\\Tools\\x.exe | focus.cmd orchestrate 'it works' é"}
+{"id": "plain_powershell-00095", "kind": "plain_powershell", "command": "Write-Output next é >$null|Select-Object -x"}
+{"id": "plain_powershell-00096", "kind": "plain_powershell", "command": "Get-Content out.txt -First 2>&1|bun x\"y --x.y|& focus.cmd"}
+{"id": "plain_powershell-00097", "kind": "plain_powershell", "command": "& a\tb"}
+{"id": "plain_powershell-00098", "kind": "plain_powershell", "command": "-x ~ & & a\tb a\\b a'b | get-content"}
+{"id": "plain_powershell-00099", "kind": "plain_powershell", "command": "focus; Get-Content -First -x.y | & cd"}
+{"id": "plain_powershell-00100", "kind": "plain_powershell", "command": "Get-Content 1 out.txt|get-childitem a@b 2>&1"}
+{"id": "plain_powershell-00101", "kind": "plain_powershell", "command": "get-childitem '' 1"}
+{"id": "plain_powershell-00102", "kind": "plain_powershell", "command": "& a'b"}
+{"id": "plain_powershell-00103", "kind": "plain_powershell", "command": "engine command {x}  A=b >$nullx"}
+{"id": "plain_powershell-00104", "kind": "plain_powershell", "command": "env | focus.cmd x\"y out.txt 1 3>> $null|& bun -rf --"}
+{"id": "plain_powershell-00105", "kind": "plain_powershell", "command": "& {x} -- focus.cmd *.md ; a'b Set-Location >$null"}
+{"id": "plain_powershell-00106", "kind": "plain_powershell", "command": "sudo --x.y é; time a.txt a+b é"}
+{"id": "plain_powershell-00107", "kind": "plain_powershell", "command": "& \"$x\"  out.txt A=b Select-Object"}
+{"id": "plain_powershell-00108", "kind": "plain_powershell", "command": "& time a.txt next 1|bun; sudo a_b a_b x\"y"}
+{"id": "plain_powershell-00109", "kind": "plain_powershell", "command": "& focus 'a b' -rf engine|sudo \"a b\""}
+{"id": "plain_powershell-00110", "kind": "plain_powershell", "command": "focus -x -rf ; rm -First ; sudo next -x ~"}
+{"id": "plain_powershell-00111", "kind": "plain_powershell", "command": "a%b"}
+{"id": "plain_powershell-00112", "kind": "plain_powershell", "command": " get-childitem a:b 2>&1"}
+{"id": "plain_powershell-00113", "kind": "plain_powershell", "command": "git"}
+{"id": "plain_powershell-00114", "kind": "plain_powershell", "command": "'' a:b git Get-Content"}
+{"id": "plain_powershell-00115", "kind": "plain_powershell", "command": "focus.cmd @args status a!b"}
+{"id": "plain_powershell-00116", "kind": "plain_powershell", "command": "& focus.cmd 2>&1"}
+{"id": "plain_powershell-00117", "kind": "plain_powershell", "command": "Set-Location 'it works'; & .\\tool.ps1 a@b 'a b' 'it works'; Set-Location 1 a\\ 3>> $null"}
+{"id": "plain_powershell-00118", "kind": "plain_powershell", "command": "& \"a`n\" *.md & \"a`n\" ~;;\"a`n\""}
+{"id": "plain_powershell-00119", "kind": "plain_powershell", "command": "status engine -x ‘q’ >>$null  get-content ;a,b"}
+{"id": "plain_powershell-00120", "kind": "plain_powershell", "command": "get-childitem -First a.txt; & focus next a:b ; C:\\Tools\\x.exe next 2>&1"}
+{"id": "plain_powershell-00121", "kind": "plain_powershell", "command": "~ engine a&b orchestrate"}
+{"id": "plain_powershell-00122", "kind": "plain_powershell", "command": "& 'a b' \"$x\" 1 && & status -First orchestrate a\\ 2>$NULL"}
+{"id": "plain_powershell-00123", "kind": "plain_powershell", "command": "if|sudo a.b.c ~ a\\"}
+{"id": "plain_powershell-00124", "kind": "plain_powershell", "command": "& time a+b engine engine"}
+{"id": "plain_powershell-00125", "kind": "plain_powershell", "command": "\"my tool\" -- ; a/b 2>$null"}
+{"id": "plain_powershell-00126", "kind": "plain_powershell", "command": "get-content -First a\\b ;a^b rm 2>&2"}
+{"id": "plain_powershell-00127", "kind": "plain_powershell", "command": "x\"y a'b a\\; a%b focus.cmd"}
+{"id": "plain_powershell-00128", "kind": "plain_powershell", "command": "focus.cmd|rm -rf -First -x.y"}
+{"id": "plain_powershell-00129", "kind": "plain_powershell", "command": "&*.md --x.y 2>$NULL"}
+{"id": "plain_powershell-00130", "kind": "plain_powershell", "command": "&-rf a\tb a—b -x; & env Get-Content status a—b > out.txt | bun 1 a%b"}
+{"id": "plain_powershell-00131", "kind": "plain_powershell", "command": "Select-Object -- ~ | \"my tool\" x\"y a_b x\"y"}
+{"id": "plain_powershell-00132", "kind": "plain_powershell", "command": "-x.y --x.y Get-Content rm 2>&1"}
+{"id": "plain_powershell-00133", "kind": "plain_powershell", "command": "& -rf é 'a b' >>$null; 'a b' (1) focus; - 7>$null"}
+{"id": "plain_powershell-00134", "kind": "plain_powershell", "command": "& 'my tool' a:b \"a b\" 'a b'|Write-Output a.txt -First out.txt 2>$null"}
+{"id": "plain_powershell-00135", "kind": "plain_powershell", "command": "a&b 'a b' -x ;git command Get-Content C:\\Tools\\x.exe 2>&2;;*.md command $env:X focus"}
+{"id": "plain_powershell-00136", "kind": "plain_powershell", "command": "\"a b\" ''; env focus.cmd Write-Output C:\\Tools\\x.exe | git"}
+{"id": "plain_powershell-00137", "kind": "plain_powershell", "command": "cd a_b ~|& focus a\\"}
+{"id": "plain_powershell-00138", "kind": "plain_powershell", "command": "command *>$null | get-childitem engine orchestrate; .\\tool.ps1 'it works' a_b a.txt"}
+{"id": "plain_powershell-00139", "kind": "plain_powershell", "command": "get-content Set-Location 2>$NULL"}
+{"id": "plain_powershell-00140", "kind": "plain_powershell", "command": "Write-Output; time a+b -First engine; git \"a b\" 1 2>&1"}
+{"id": "plain_powershell-00141", "kind": "plain_powershell", "command": "-- orchestrate 2>$NULL  & \"a b\" # c & & Write-Output"}
+{"id": "plain_powershell-00142", "kind": "plain_powershell", "command": "exec a\tb;;& rm a@b 1>$null | & -rf"}
+{"id": "plain_powershell-00143", "kind": "plain_powershell", "command": "C:\\Tools\\x.exe | sudo next out.txt"}
+{"id": "plain_powershell-00144", "kind": "plain_powershell", "command": "sudo; Select-Object ~ -"}
+{"id": "plain_powershell-00145", "kind": "plain_powershell", "command": "time a\\b | cd exec || a=b a b \"\" Select-Object"}
+{"id": "plain_powershell-00146", "kind": "plain_powershell", "command": "& if a/b 'it works'; & get-childitem"}
+{"id": "plain_powershell-00147", "kind": "plain_powershell", "command": "rm \"$x\" 2>&1 |  ;Get-Content a b command; ‘q’ 1 a!b"}
+{"id": "plain_powershell-00148", "kind": "plain_powershell", "command": "& bun \"a b\" ; env ; sudo -x"}
+{"id": "plain_powershell-00149", "kind": "plain_powershell", "command": "git 2>$null ; time 'it works' \"a b\" status"}
+{"id": "plain_powershell-00150", "kind": "plain_powershell", "command": "& env 1 \"a b\" 2>$null | env -x a/b; if"}
+{"id": "plain_powershell-00151", "kind": "plain_powershell", "command": "Set-Location - | time ''; & Get-Content x\"y"}
+{"id": "plain_powershell-00152", "kind": "plain_powershell", "command": "C:\\Tools\\x.exe out.txt A=b a@b | Select-Object a_b x\"y \"a b\" 2>$null | Select-Object a_b"}
+{"id": "plain_powershell-00153", "kind": "plain_powershell", "command": "a/b a/b >$null"}
+{"id": "plain_powershell-00154", "kind": "plain_powershell", "command": "& get-childitem é 'it works'|get-childitem a.b.c 2>&1|command out.txt --x.y a\\"}
+{"id": "plain_powershell-00155", "kind": "plain_powershell", "command": "& sudo x\"y --"}
+{"id": "plain_powershell-00156", "kind": "plain_powershell", "command": "& .\\tool.ps1 out.txt --x.y *>$null; Set-Location 'a b' a.txt | if a\\b a_b --"}
+{"id": "plain_powershell-00157", "kind": "plain_powershell", "command": "& a\\ a/b;;a.txt a b"}
+{"id": "plain_powershell-00158", "kind": "plain_powershell", "command": "get-childitem"}
+{"id": "plain_powershell-00159", "kind": "plain_powershell", "command": "& time a@b"}
+{"id": "plain_powershell-00160", "kind": "plain_powershell", "command": "& env orchestrate A=b"}
+{"id": "plain_powershell-00161", "kind": "plain_powershell", "command": "git 2>$null | & rm ; & C:\\Tools\\x.exe a_b 'a b' >$null"}
+{"id": "plain_powershell-00162", "kind": "plain_powershell", "command": "|a\tb a\\ ;time a=b out.txt # c"}
+{"id": "plain_powershell-00163", "kind": "plain_powershell", "command": "a\tb"}
+{"id": "plain_powershell-00164", "kind": "plain_powershell", "command": "& sudo | sudo ~ engine 2>&1"}
+{"id": "plain_powershell-00165", "kind": "plain_powershell", "command": "git; & Set-Location >$null | & a/b '' a@b 2>$null"}
+{"id": "plain_powershell-00166", "kind": "plain_powershell", "command": " & -x.y rm é Get-Content"}
+{"id": "plain_powershell-00167", "kind": "plain_powershell", "command": "|next  & '' orchestrate a!b"}
+{"id": "plain_powershell-00168", "kind": "plain_powershell", "command": "1"}
+{"id": "plain_powershell-00169", "kind": "plain_powershell", "command": "& bun >$null"}
+{"id": "plain_powershell-00170", "kind": "plain_powershell", "command": "& Get-Content | rm é 'a b'|& 'my tool' -x '' -rf"}
+{"id": "plain_powershell-00171", "kind": "plain_powershell", "command": "\"my tool\"; exec ~ a_b ''"}
+{"id": "plain_powershell-00172", "kind": "plain_powershell", "command": "cd é"}
+{"id": "plain_powershell-00173", "kind": "plain_powershell", "command": "rm | focus.cmd"}
+{"id": "plain_powershell-00174", "kind": "plain_powershell", "command": "out.txt x\"y && cd a=b a:b"}
+{"id": "plain_powershell-00175", "kind": "plain_powershell", "command": "& 'my tool' \"a b\" \"a b\" x\"y"}
+{"id": "plain_powershell-00176", "kind": "plain_powershell", "command": "& \"my tool\"|rm a\\ 2>$null"}
+{"id": "plain_powershell-00177", "kind": "plain_powershell", "command": "engine"}
+{"id": "plain_powershell-00178", "kind": "plain_powershell", "command": "|time ; cd --x.y out.txt a.b.c; & Select-Object a+b"}
+{"id": "plain_powershell-00179", "kind": "plain_powershell", "command": "sudo 'it works' a:b a@b|a/b 'a b' | \"my tool\" a@b"}
+{"id": "plain_powershell-00180", "kind": "plain_powershell", "command": "& env ; focus next orchestrate a@b ; git A=b 1 -First"}
+{"id": "plain_powershell-00181", "kind": "plain_powershell", "command": "\"a`n\" ; - a%b a,b \"\" > out.txt & git a[0] a'b"}
+{"id": "plain_powershell-00182", "kind": "plain_powershell", "command": "if x\"y status -- | focus.cmd *>$null | C:\\Tools\\x.exe 1 3>> $null"}
+{"id": "plain_powershell-00183", "kind": "plain_powershell", "command": "& rm orchestrate next; \"my tool\" x\"y ''|Select-Object - out.txt 2>&1"}
+{"id": "plain_powershell-00184", "kind": "plain_powershell", "command": "& \"\" a b --x.y a\\"}
+{"id": "plain_powershell-00185", "kind": "plain_powershell", "command": "focus.cmd | a/b next"}
+{"id": "plain_powershell-00186", "kind": "plain_powershell", "command": "~ ~ -rf ;if @args"}
+{"id": "plain_powershell-00187", "kind": "plain_powershell", "command": "Select-Object *>$null & \"$x\" Get-Content *>$null ;*.md a&b a'b -First"}
+{"id": "plain_powershell-00188", "kind": "plain_powershell", "command": "Get-Content next 'it works' a_b ; Set-Location out.txt a/b | & sudo ~ - next"}
+{"id": "plain_powershell-00189", "kind": "plain_powershell", "command": "a\\ a b a.txt"}
+{"id": "plain_powershell-00190", "kind": "plain_powershell", "command": "a/b -rf ~ ; Set-Location|sudo status status"}
+{"id": "plain_powershell-00191", "kind": "plain_powershell", "command": ".\\tool.ps1 a.txt 3>> $null ; get-childitem >$null | focus out.txt 3>> $null"}
+{"id": "plain_powershell-00192", "kind": "plain_powershell", "command": "focus 1 a.b.c"}
+{"id": "plain_powershell-00193", "kind": "plain_powershell", "command": "& 'a b' a—b orchestrate a\\b; a^b|*.md if A=b"}
+{"id": "plain_powershell-00194", "kind": "plain_powershell", "command": "a=b \"a`n\""}
+{"id": "plain_powershell-00195", "kind": "plain_powershell", "command": "C:\\Tools\\x.exe \"a b\" >$null"}
+{"id": "plain_powershell-00196", "kind": "plain_powershell", "command": "& get-childitem -- A=b"}
+{"id": "plain_powershell-00197", "kind": "plain_powershell", "command": "if - 2>&1; env -- 2>$null"}
+{"id": "plain_powershell-00198", "kind": "plain_powershell", "command": "get-childitem x\"y engine|Write-Output engine 2>&1; & cd status a.b.c a_b"}
+{"id": "plain_powershell-00199", "kind": "plain_powershell", "command": "& exec '' -First; & get-childitem | Select-Object a:b 3>> $null"}
+{"id": "plain_powershell-00200", "kind": "plain_powershell", "command": "Write-Output --x.y é --x.y | Write-Output -x.y 2>&1"}
+{"id": "plain_powershell-00201", "kind": "plain_powershell", "command": "Set-Location status a.b.c ''"}
+{"id": "plain_powershell-00202", "kind": "plain_powershell", "command": "Get-Content 3>> $null"}
+{"id": "plain_powershell-00203", "kind": "plain_powershell", "command": "focus|.\\tool.ps1 a_b x\"y"}
+{"id": "plain_powershell-00204", "kind": "plain_powershell", "command": "rm 'it works'; rm a:b *>$null|& sudo a\\ -rf *>$null"}
+{"id": "plain_powershell-00205", "kind": "plain_powershell", "command": "a/b -First out.txt -rf >$null|rm a+b A=b a+b 2>$null"}
+{"id": "plain_powershell-00206", "kind": "plain_powershell", "command": "& 'my tool' next a_b 2>$null ; & cd -- a_b >$null"}
+{"id": "plain_powershell-00207", "kind": "plain_powershell", "command": ".\\tool.ps1 a:b 'it works' - | a/b ; Write-Output"}
+{"id": "plain_powershell-00208", "kind": "plain_powershell", "command": "Get-Content 1"}
+{"id": "plain_powershell-00209", "kind": "plain_powershell", "command": "a%b ; & a,b A=b time 2>$NULL | status a,b bun \"$x\""}
+{"id": "plain_powershell-00210", "kind": "plain_powershell", "command": "exec engine 'it works' 3>> $null ; rm a.b.c 2>&1 | bun engine a.b.c a\\b 2>&1"}
+{"id": "plain_powershell-00211", "kind": "plain_powershell", "command": "sudo a/b 'it works'; C:\\Tools\\x.exe \"a b\"|bun \"a b\" é"}
+{"id": "plain_powershell-00212", "kind": "plain_powershell", "command": "& -x.y a^b  a!b - git a,b|a=b a%b Write-Output"}
+{"id": "plain_powershell-00213", "kind": "plain_powershell", "command": "cd 'it works' é|get-childitem orchestrate ; & focus.cmd a\\ a:b a/b"}
+{"id": "plain_powershell-00214", "kind": "plain_powershell", "command": "a\tb get-content -First focus.cmd; & .\\tool.ps1 2>$null & Select-Object a@b"}
+{"id": "plain_powershell-00215", "kind": "plain_powershell", "command": "& 1 --x.y C:\\Tools\\x.exe; a+b"}
+{"id": "plain_powershell-00216", "kind": "plain_powershell", "command": "sudo ~ - 3>> $null"}
+{"id": "plain_powershell-00217", "kind": "plain_powershell", "command": "Set-Location; & a\tb && a:b \"a`n\""}
+{"id": "plain_powershell-00218", "kind": "plain_powershell", "command": "& cd 3>> $null|if \"a b\" a\\b"}
+{"id": "plain_powershell-00219", "kind": "plain_powershell", "command": "& exec -x.y 1 | & exec | Set-Location orchestrate"}
+{"id": "plain_powershell-00220", "kind": "plain_powershell", "command": "focus.cmd a@b | C:\\Tools\\x.exe; bun a@b next"}
+{"id": "plain_powershell-00221", "kind": "plain_powershell", "command": "sudo next a:b 3>> $null | Select-Object engine 'a b' a\\b ; command a+b 3>> $null"}
+{"id": "plain_powershell-00222", "kind": "plain_powershell", "command": "a@b '' *.md"}
+{"id": "plain_powershell-00223", "kind": "plain_powershell", "command": "& cd | & sudo *>$null"}
+{"id": "plain_powershell-00224", "kind": "plain_powershell", "command": "\"$x\" ;& \"a`n\" a—b a b a=b 1>$null | & 1 -- 2>&1 | "}
+{"id": "plain_powershell-00225", "kind": "plain_powershell", "command": "C:\\Tools\\x.exe env C:\\Tools\\x.exe a'b && a[0] ‘q’ exec if"}
+{"id": "plain_powershell-00226", "kind": "plain_powershell", "command": "bun"}
+{"id": "plain_powershell-00227", "kind": "plain_powershell", "command": "a%b"}
+{"id": "plain_powershell-00228", "kind": "plain_powershell", "command": "exec é"}
+{"id": "plain_powershell-00229", "kind": "plain_powershell", "command": "sudo a.b.c -x|Write-Output -First a:b --x.y | & focus.cmd '' 2>&1"}
+{"id": "plain_powershell-00230", "kind": "plain_powershell", "command": "x\"y a\\b || {x} & 1 a—b"}
+{"id": "plain_powershell-00231", "kind": "plain_powershell", "command": "A=b .\\tool.ps1 Get-Content 'a b' 2>$null;;get-content é Write-Output|(1) a&b 2>&2"}
+{"id": "plain_powershell-00232", "kind": "plain_powershell", "command": "a@b ;a!b ;'a b' -x.y"}
+{"id": "plain_powershell-00233", "kind": "plain_powershell", "command": "& 'my tool' -First | .\\tool.ps1 -rf | & rm 3>> $null"}
+{"id": "plain_powershell-00234", "kind": "plain_powershell", "command": "time a:b a/b"}
+{"id": "plain_powershell-00235", "kind": "plain_powershell", "command": "if ; & exec '' -First a/b"}
+{"id": "plain_powershell-00236", "kind": "plain_powershell", "command": "bun;;@args a[0]; & a\tb ‘q’ get-content 2>&2"}
+{"id": "plain_powershell-00237", "kind": "plain_powershell", "command": "& if -x.y orchestrate a.b.c; get-childitem -x \"a b\""}
+{"id": "plain_powershell-00238", "kind": "plain_powershell", "command": "& bun x\"y orchestrate"}
+{"id": "plain_powershell-00239", "kind": "plain_powershell", "command": "get-childitem | time status 1 'it works'; & .\\tool.ps1 2>$null"}
+{"id": "plain_powershell-00240", "kind": "plain_powershell", "command": "git a\\b next"}
+{"id": "plain_powershell-00241", "kind": "plain_powershell", "command": "focus a@b ''; .\\tool.ps1 --x.y a.b.c|focus --x.y é ~"}
+{"id": "plain_powershell-00242", "kind": "plain_powershell", "command": "& a&b >>$null & -First Write-Output ;a\\ 1 x\"y"}
+{"id": "plain_powershell-00243", "kind": "plain_powershell", "command": "Write-Output a—b \"a`n\""}
+{"id": "plain_powershell-00244", "kind": "plain_powershell", "command": "& command -First --x.y"}
+{"id": "plain_powershell-00245", "kind": "plain_powershell", "command": "& \"\" \"a`n\" >>$null && & a/b"}
+{"id": "plain_powershell-00246", "kind": "plain_powershell", "command": "rm a@b -x.y >$null"}
+{"id": "plain_powershell-00247", "kind": "plain_powershell", "command": "Get-Content Get-Content a%b .\\tool.ps1 3>> $null;;Write-Output C:\\Tools\\x.exe \"$x\" >$nullx ;& a:b focus.cmd \"\" >$null"}
+{"id": "plain_powershell-00248", "kind": "plain_powershell", "command": "a&b focus -x ; & a!b"}
+{"id": "plain_powershell-00249", "kind": "plain_powershell", "command": "env"}
+{"id": "plain_powershell-00250", "kind": "plain_powershell", "command": "- > out.txt"}
+{"id": "plain_powershell-00251", "kind": "plain_powershell", "command": "& Select-Object é|if -First 1"}
+{"id": "plain_powershell-00252", "kind": "plain_powershell", "command": "‘q’ Get-Content Set-Location ; a:b"}
+{"id": "plain_powershell-00253", "kind": "plain_powershell", "command": "Set-Location a.b.c engine a:b >$null | & get-childitem a\\"}
+{"id": "plain_powershell-00254", "kind": "plain_powershell", "command": "Set-Location status|a^b focus.cmd a+b 'it''s'; a:b next"}
+{"id": "plain_powershell-00255", "kind": "plain_powershell", "command": "- # c"}
+{"id": "plain_powershell-00256", "kind": "plain_powershell", "command": "bun|bun|& \"my tool\" a\\b"}
+{"id": "plain_powershell-00257", "kind": "plain_powershell", "command": "cd a\\b a:b 'a b' ; & cd a\\b 2>$null|& git x\"y 3>> $null"}
+{"id": "plain_powershell-00258", "kind": "plain_powershell", "command": "\"a`n\" time | a—b sudo"}
+{"id": "plain_powershell-00259", "kind": "plain_powershell", "command": "a^b"}
+{"id": "plain_powershell-00260", "kind": "plain_powershell", "command": "focus.cmd"}
+{"id": "plain_powershell-00261", "kind": "plain_powershell", "command": ";x\"y command a:b \"a b\" 3>> $null || focus command \"$x\" ;& x\"y 1 env a—b"}
+{"id": "plain_powershell-00262", "kind": "plain_powershell", "command": "Select-Object -x.y a b exec ;$env:X  & x\"y get-content"}
+{"id": "plain_powershell-00263", "kind": "plain_powershell", "command": "Get-Content -- -x"}
+{"id": "plain_powershell-00264", "kind": "plain_powershell", "command": "focus.cmd a:b a:b é ; exec -rf; if out.txt next"}
+{"id": "plain_powershell-00265", "kind": "plain_powershell", "command": "env engine a\\ x\"y ; get-childitem status a:b"}
+{"id": "plain_powershell-00266", "kind": "plain_powershell", "command": "focus;;a,b a[0] >>$null"}
+{"id": "plain_powershell-00267", "kind": "plain_powershell", "command": ";a+b"}
+{"id": "plain_powershell-00268", "kind": "plain_powershell", "command": "a&b ~ | x\"y é 'it''s' out.txt|1 if"}
+{"id": "plain_powershell-00269", "kind": "plain_powershell", "command": "a[0] command a=b cd"}
+{"id": "plain_powershell-00270", "kind": "plain_powershell", "command": "& focus a@b exec || a\tb 1 ; if Set-Location"}
+{"id": "plain_powershell-00271", "kind": "plain_powershell", "command": "bun a:b out.txt"}
+{"id": "plain_powershell-00272", "kind": "plain_powershell", "command": ".\\tool.ps1 '' orchestrate orchestrate|sudo --x.y --"}
+{"id": "plain_powershell-00273", "kind": "plain_powershell", "command": "a/b ‘q’ a+b | a\\b \"$x\" C:\\Tools\\x.exe git"}
+{"id": "plain_powershell-00274", "kind": "plain_powershell", "command": "a[0] ; env a&b a.txt"}
+{"id": "plain_powershell-00275", "kind": "plain_powershell", "command": "Set-Location >$null | Write-Output -x.y a@b"}
+{"id": "plain_powershell-00276", "kind": "plain_powershell", "command": "-First  a\tb a&b Get-Content || command"}
+{"id": "plain_powershell-00277", "kind": "plain_powershell", "command": "time a\\ a\\"}
+{"id": "plain_powershell-00278", "kind": "plain_powershell", "command": "cd '' - -x 2>&1 ; & Write-Output; rm 'it works' a:b --"}
+{"id": "plain_powershell-00279", "kind": "plain_powershell", "command": "& focus a\\b"}
+{"id": "plain_powershell-00280", "kind": "plain_powershell", "command": "get-content Get-Content focus ‘q’ && -rf a'b x\"y focus.cmd 2>$null;;a%b orchestrate cd>$null"}
+{"id": "plain_powershell-00281", "kind": "plain_powershell", "command": "env é - a@b"}
+{"id": "plain_powershell-00282", "kind": "plain_powershell", "command": ".\\tool.ps1 a[0] a.txt; -rf|& next out.txt -x"}
+{"id": "plain_powershell-00283", "kind": "plain_powershell", "command": "bun 'it works' --x.y 3>> $null"}
+{"id": "plain_powershell-00284", "kind": "plain_powershell", "command": "& 'my tool'|C:\\Tools\\x.exe 'it works' 2>&1; C:\\Tools\\x.exe --x.y --"}
+{"id": "plain_powershell-00285", "kind": "plain_powershell", "command": "Select-Object|.\\tool.ps1 a\\b orchestrate orchestrate"}
+{"id": "plain_powershell-00286", "kind": "plain_powershell", "command": "command ; Get-Content 2>$null | sudo a.txt '' a_b"}
+{"id": "plain_powershell-00287", "kind": "plain_powershell", "command": "C:\\Tools\\x.exe"}
+{"id": "plain_powershell-00288", "kind": "plain_powershell", "command": "|sudo a_b ~ a:b ; C:\\Tools\\x.exe A=b 3>> $null ; a/b a:b"}
+{"id": "plain_powershell-00289", "kind": "plain_powershell", "command": "\"a`n\" | git if a,b focus.cmd"}
+{"id": "plain_powershell-00290", "kind": "plain_powershell", "command": "if '' 'it works' ; env -x.y -x -x"}
+{"id": "plain_powershell-00291", "kind": "plain_powershell", "command": "C:\\Tools\\x.exe orchestrate A=b *>$null"}
+{"id": "plain_powershell-00292", "kind": "plain_powershell", "command": "Write-Output; Set-Location -x.y a+b"}
+{"id": "plain_powershell-00293", "kind": "plain_powershell", "command": "get-childitem out.txt 3>> $null"}
+{"id": "plain_powershell-00294", "kind": "plain_powershell", "command": "& 'my tool' a\\b next >$null|bun A=b"}
+{"id": "plain_powershell-00295", "kind": "plain_powershell", "command": "'it''s' -x a—b & bun -x.y a&b orchestrate ; ~ a[0]"}
+{"id": "plain_powershell-00296", "kind": "plain_powershell", "command": "rm >$null"}
+{"id": "plain_powershell-00297", "kind": "plain_powershell", "command": "& bun 7>$null ;*.md 2>$NULL  1 exec a[0] C:\\Tools\\x.exe 2>$null"}
+{"id": "plain_powershell-00298", "kind": "plain_powershell", "command": "time out.txt -x.y ; git|focus -x.y x\"y"}
+{"id": "plain_powershell-00299", "kind": "plain_powershell", "command": "& git A=b|Write-Output 1"}
+{"id": "plain_powershell-00300", "kind": "plain_powershell", "command": "& a&b a[0] out.txt"}
+{"id": "plain_powershell-00301", "kind": "plain_powershell", "command": "sudo orchestrate;;-x >>$null"}
+{"id": "plain_powershell-00302", "kind": "plain_powershell", "command": "\"$x\" Get-Content time"}
+{"id": "plain_powershell-00303", "kind": "plain_powershell", "command": "focus.cmd A=b"}
+{"id": "plain_powershell-00304", "kind": "plain_powershell", "command": "'my tool' -"}
+{"id": "plain_powershell-00305", "kind": "plain_powershell", "command": "& a—b .\\tool.ps1 | a!b > out.txt"}
+{"id": "plain_powershell-00306", "kind": "plain_powershell", "command": "sudo a'b $env:X|a,b a\\ ;focus a:b é"}
+{"id": "plain_powershell-00307", "kind": "plain_powershell", "command": "cd # c"}
+{"id": "plain_powershell-00308", "kind": "plain_powershell", "command": "a%b rm a b"}
+{"id": "plain_powershell-00309", "kind": "plain_powershell", "command": "command \"a`n\" && bun;;-x focus.cmd"}
+{"id": "plain_powershell-00310", "kind": "plain_powershell", "command": "a[0] -First;;A=b -x.y a+b Select-Object|~ focus.cmd Set-Location"}
+{"id": "plain_powershell-00311", "kind": "plain_powershell", "command": "\"\" a\\ exec"}
+{"id": "plain_powershell-00312", "kind": "plain_powershell", "command": "$env:X a—b a'b next|# c é \"\" next >$null|(1) 1"}
+{"id": "plain_powershell-00313", "kind": "plain_powershell", "command": "& if a.txt a.b.c | & Set-Location"}
+{"id": "plain_powershell-00314", "kind": "plain_powershell", "command": "a^b a b @args -First"}
+{"id": "plain_powershell-00315", "kind": "plain_powershell", "command": "Write-Output a\\b '' ; .\\tool.ps1"}
+{"id": "plain_powershell-00316", "kind": "plain_powershell", "command": "1 1 cd a^b"}
+{"id": "plain_powershell-00317", "kind": "plain_powershell", "command": "focus.cmd"}
+{"id": "plain_powershell-00318", "kind": "plain_powershell", "command": "& a/b x\"y a\\"}
+{"id": "plain_powershell-00319", "kind": "plain_powershell", "command": "{x} a%b>$null | .\\tool.ps1 sudo"}
+{"id": "plain_powershell-00320", "kind": "plain_powershell", "command": "status {x} a/b é"}
+{"id": "plain_powershell-00321", "kind": "plain_powershell", "command": "exec Set-Location A=b a—b  ~ $env:X a:b"}
+{"id": "plain_powershell-00322", "kind": "plain_powershell", "command": "rm status out.txt -x | sudo -x|.\\tool.ps1"}
+{"id": "plain_powershell-00323", "kind": "plain_powershell", "command": "a/b -- 2>$null; time a:b a_b"}
+{"id": "plain_powershell-00324", "kind": "plain_powershell", "command": "@args \"a b\" 7>$null && .\\tool.ps1 'a b' a=b orchestrate"}
+{"id": "plain_powershell-00325", "kind": "plain_powershell", "command": "-First a\tb a^b é ; Set-Location @args a'b a%b;;-rf"}
+{"id": "plain_powershell-00326", "kind": "plain_powershell", "command": "Set-Location engine -x.y engine *>$null"}
+{"id": "plain_powershell-00327", "kind": "plain_powershell", "command": "& sudo a!b;;'a b' @args a'b"}
+{"id": "plain_powershell-00328", "kind": "plain_powershell", "command": "& next \"a b\" sudo a b;;Select-Object \"a`n\" && .\\tool.ps1"}
+{"id": "plain_powershell-00329", "kind": "plain_powershell", "command": "a!b a&b @args if >>$null"}
+{"id": "plain_powershell-00330", "kind": "plain_powershell", "command": "a'b \"a b\""}
+{"id": "plain_powershell-00331", "kind": "plain_powershell", "command": "exec a+b|focus 'it works' 'it works'"}
+{"id": "plain_powershell-00332", "kind": "plain_powershell", "command": "a/b 'it works' x\"y a@b; get-childitem a\\ status A=b | git a_b 1 2>$null"}
+{"id": "plain_powershell-00333", "kind": "plain_powershell", "command": "Set-Location"}
+{"id": "plain_powershell-00334", "kind": "plain_powershell", "command": "cd - \"a b\" 3>> $null"}
+{"id": "plain_powershell-00335", "kind": "plain_powershell", "command": "& get-childitem --x.y ; bun -rf a/b engine | a/b"}
+{"id": "plain_powershell-00336", "kind": "plain_powershell", "command": "--x.y a[0] --x.y a/b & & Get-Content \"a b\""}
+{"id": "plain_powershell-00337", "kind": "plain_powershell", "command": "focus.cmd a\\ exec a,b || orchestrate && time -x.y"}
+{"id": "plain_powershell-00338", "kind": "plain_powershell", "command": "time 1|time >$null|& Select-Object a_b -- -x 2>$null"}
+{"id": "plain_powershell-00339", "kind": "plain_powershell", "command": "cd '' a:b"}
+{"id": "plain_powershell-00340", "kind": "plain_powershell", "command": "& a\tb a/b a,b"}
+{"id": "plain_powershell-00341", "kind": "plain_powershell", "command": "Get-Content a\\b - a\\b | env -rf a:b 2>$null"}
+{"id": "plain_powershell-00342", "kind": "plain_powershell", "command": "sudo '' -x"}
+{"id": "plain_powershell-00343", "kind": "plain_powershell", "command": ";& out.txt C:\\Tools\\x.exe ;orchestrate 'it''s' a@b>$null"}
+{"id": "plain_powershell-00344", "kind": "plain_powershell", "command": "C:\\Tools\\x.exe"}
+{"id": "plain_powershell-00345", "kind": "plain_powershell", "command": "focus; & exec \"a b\" -x.y '' 2>&1; exec \"a b\""}
+{"id": "plain_powershell-00346", "kind": "plain_powershell", "command": "Set-Location -x a.b.c a/b ; exec -rf 2>&1; Set-Location a.txt"}
+{"id": "plain_powershell-00347", "kind": "plain_powershell", "command": "& \"my tool\" 2>&1; & time next -x.y out.txt"}
+{"id": "plain_powershell-00348", "kind": "plain_powershell", "command": "Select-Object --"}
+{"id": "plain_powershell-00349", "kind": "plain_powershell", "command": "&rm a+b -- engine|Get-Content \"a b\" \"a b\" status; & focus.cmd '' -x.y"}
+{"id": "plain_powershell-00350", "kind": "plain_powershell", "command": "Write-Output a.txt 'it works' -rf"}
+{"id": "plain_powershell-00351", "kind": "plain_powershell", "command": "focus.cmd"}
+{"id": "plain_powershell-00352", "kind": "plain_powershell", "command": "git a/b 3>> $null|& git 'a b' a\\ 1 2>$null; focus 'a b' --x.y 'a b'"}
+{"id": "plain_powershell-00353", "kind": "plain_powershell", "command": "bun a/b a@b engine; if | \"my tool\" -x status a.b.c *>$null"}
+{"id": "plain_powershell-00354", "kind": "plain_powershell", "command": "cd a/b 'it works'"}
+{"id": "plain_powershell-00355", "kind": "plain_powershell", "command": "\"my tool\" out.txt '' 3>> $null"}
+{"id": "plain_powershell-00356", "kind": "plain_powershell", "command": "''  & env orchestrate 2>&1;;a%b"}
+{"id": "plain_powershell-00357", "kind": "plain_powershell", "command": "focus.cmd 'a b' -rf -x.y"}
+{"id": "plain_powershell-00358", "kind": "plain_powershell", "command": "~"}
+{"id": "plain_powershell-00359", "kind": "plain_powershell", "command": "Get-Content -- ~ 3>> $null"}
+{"id": "plain_powershell-00360", "kind": "plain_powershell", "command": "& 'my tool' a@b 'it works' a\\ >$null | a/b -x.y -First *>$null"}
+{"id": "plain_powershell-00361", "kind": "plain_powershell", "command": ".\\tool.ps1 A=b a@b *>$null | \"my tool\" a.b.c é"}
+{"id": "plain_powershell-00362", "kind": "plain_powershell", "command": "& C:\\Tools\\x.exe focus.cmd # c a[0] ;next if 'it''s' *.md || A=b"}
+{"id": "plain_powershell-00363", "kind": "plain_powershell", "command": "*.md a\tb -x.y  orchestrate 1 2>&2"}
+{"id": "plain_powershell-00364", "kind": "plain_powershell", "command": "& focus.cmd ; & Get-Content"}
+{"id": "plain_powershell-00365", "kind": "plain_powershell", "command": "focus"}
+{"id": "plain_powershell-00366", "kind": "plain_powershell", "command": "command"}
+{"id": "plain_powershell-00367", "kind": "plain_powershell", "command": "& time --x.y 2>$null | if out.txt -"}
+{"id": "plain_powershell-00368", "kind": "plain_powershell", "command": "{x} 'a b' A=b 1"}
+{"id": "plain_powershell-00369", "kind": "plain_powershell", "command": "-- next;;‘q’ (1) \"a`n\" && (1)"}
+{"id": "plain_powershell-00370", "kind": "plain_powershell", "command": "&focus a.txt status next; & \"my tool\" a\\"}
+{"id": "plain_powershell-00371", "kind": "plain_powershell", "command": "& focus.cmd --x.y 'it works' | & exec ~ | Get-Content 'a b' a/b"}
+{"id": "plain_powershell-00372", "kind": "plain_powershell", "command": "focus.cmd A=b; & - A=b a%b ; - a\\b Write-Output a\\"}
+{"id": "plain_powershell-00373", "kind": "plain_powershell", "command": "‘q’ rm x\"y || a+b a\\b a!b --x.y & -First"}
+{"id": "plain_powershell-00374", "kind": "plain_powershell", "command": "& command A=b"}
+{"id": "plain_powershell-00375", "kind": "plain_powershell", "command": "& '' bun a[0] '' > out.txt  & -First -x.y @args>$null"}
+{"id": "plain_powershell-00376", "kind": "plain_powershell", "command": "Get-Content ''; & focus a/b | time -- ~"}
+{"id": "plain_powershell-00377", "kind": "plain_powershell", "command": "& status exec"}
+{"id": "plain_powershell-00378", "kind": "plain_powershell", "command": "Get-Content -First a.b.c out.txt 2>&1 ; & bun '' -- 2>$null"}
+{"id": "plain_powershell-00379", "kind": "plain_powershell", "command": "focus -First 2>$null|Get-Content '' next ~"}
+{"id": "plain_powershell-00380", "kind": "plain_powershell", "command": "-rf ~ a&b a%b && .\\tool.ps1 a—b a^b a+b; {x} a&b $env:X"}
+{"id": "plain_powershell-00381", "kind": "plain_powershell", "command": "time é ; exec a\\b|exec out.txt"}
+{"id": "plain_powershell-00382", "kind": "plain_powershell", "command": "& Set-Location é out.txt"}
+{"id": "plain_powershell-00383", "kind": "plain_powershell", "command": "-- ~ \"a b\""}
+{"id": "plain_powershell-00384", "kind": "plain_powershell", "command": "\"my tool\" 2>&1|& \"my tool\" A=b | command - a\\b a\\b *>$null"}
+{"id": "plain_powershell-00385", "kind": "plain_powershell", "command": "git --x.y 'it works'|exec"}
+{"id": "plain_powershell-00386", "kind": "plain_powershell", "command": "& git a.txt status \"a b\""}
+{"id": "plain_powershell-00387", "kind": "plain_powershell", "command": "& rm é|a/b - a_b a\\ 2>&1 ; sudo a_b a\\"}
+{"id": "plain_powershell-00388", "kind": "plain_powershell", "command": "--x.y A=b \"\" 3>> $null;;& rm -x git"}
+{"id": "plain_powershell-00389", "kind": "plain_powershell", "command": "& 'my tool' engine 3>> $null; if a+b next 3>> $null; & get-childitem 'a b'"}
+{"id": "plain_powershell-00390", "kind": "plain_powershell", "command": "a&b a,b -rf status"}
+{"id": "plain_powershell-00391", "kind": "plain_powershell", "command": "rm ~ -x.y -x"}
+{"id": "plain_powershell-00392", "kind": "plain_powershell", "command": "& cd; cd -x.y '' engine"}
+{"id": "plain_powershell-00393", "kind": "plain_powershell", "command": "a[0]"}
+{"id": "plain_powershell-00394", "kind": "plain_powershell", "command": "if *>$null; focus.cmd"}
+{"id": "plain_powershell-00395", "kind": "plain_powershell", "command": "a[0] --x.y >$nullx; a@b 2>&1 |   C:\\Tools\\x.exe"}
+{"id": "plain_powershell-00396", "kind": "plain_powershell", "command": "& rm é - 1"}
+{"id": "plain_powershell-00397", "kind": "plain_powershell", "command": "& Select-Object a:b >$null; time a.b.c"}
+{"id": "plain_powershell-00398", "kind": "plain_powershell", "command": "if ;env 2>$null"}
+{"id": "plain_powershell-00399", "kind": "plain_powershell", "command": "command a_b a:b 'a b' ; focus 'it works' a\\ 'it works'"}
+{"id": "plain_powershell-00400", "kind": "plain_powershell", "command": "& C:\\Tools\\x.exe 1 a@b -x|sudo *>$null | Select-Object a_b --x.y a/b"}
+{"id": "plain_powershell-00401", "kind": "plain_powershell", "command": "exec -rf a+b|Select-Object"}
+{"id": "plain_powershell-00402", "kind": "plain_powershell", "command": "'a b' a b ~ C:\\Tools\\x.exe | & -"}
+{"id": "plain_powershell-00403", "kind": "plain_powershell", "command": "& Get-Content 2>$NULL; 'it''s'"}
+{"id": "plain_powershell-00404", "kind": "plain_powershell", "command": "if | focus status"}
+{"id": "plain_powershell-00405", "kind": "plain_powershell", "command": "& .\\tool.ps1 ; & Write-Output ~ a@b x\"y; Get-Content a/b"}
+{"id": "plain_powershell-00406", "kind": "plain_powershell", "command": "a^b a.txt"}
+{"id": "plain_powershell-00407", "kind": "plain_powershell", "command": "& a/b>$null & & get-content"}
+{"id": "plain_powershell-00408", "kind": "plain_powershell", "command": "& a/b get-content 2>$null"}
+{"id": "plain_powershell-00409", "kind": "plain_powershell", "command": "a/b a:b command {x} *>$null; -- 1"}
+{"id": "plain_powershell-00410", "kind": "plain_powershell", "command": "focus.cmd 3>> $null ; & env --x.y --x.y 3>> $null"}
+{"id": "plain_powershell-00411", "kind": "plain_powershell", "command": "& Write-Output a@b ; time x\"y"}
+{"id": "plain_powershell-00412", "kind": "plain_powershell", "command": "\"a`n\""}
+{"id": "plain_powershell-00413", "kind": "plain_powershell", "command": "if a@b A=b >$null; env a+b; 'my tool' status 1 -rf *>$null"}
+{"id": "plain_powershell-00414", "kind": "plain_powershell", "command": "\"$x\" Set-Location ;next if a=b '' && out.txt a!b a:b 'a b'"}
+{"id": "plain_powershell-00415", "kind": "plain_powershell", "command": "a—b status a\tb {x}"}
+{"id": "plain_powershell-00416", "kind": "plain_powershell", "command": "get-childitem next a.txt 2>$null"}
+{"id": "plain_powershell-00417", "kind": "plain_powershell", "command": "exec '' - ; command a_b"}
+{"id": "plain_powershell-00418", "kind": "plain_powershell", "command": "get-childitem engine a\\ -x.y"}
+{"id": "plain_powershell-00419", "kind": "plain_powershell", "command": ".\\tool.ps1 orchestrate a.txt 2>&1"}
+{"id": "plain_powershell-00420", "kind": "plain_powershell", "command": "Get-Content ; command"}
+{"id": "plain_powershell-00421", "kind": "plain_powershell", "command": "git a!b a\\; .\\tool.ps1 a'b a/b out.txt"}
+{"id": "plain_powershell-00422", "kind": "plain_powershell", "command": "a&b ~ \"a`n\" a:b  C:\\Tools\\x.exe a%b a'b"}
+{"id": "plain_powershell-00423", "kind": "plain_powershell", "command": "next || \"\" sudo a+b ;.\\tool.ps1 a%b 3>> $null"}
+{"id": "plain_powershell-00424", "kind": "plain_powershell", "command": "& a[0] a[0] 2>&1 | |''"}
+{"id": "plain_powershell-00425", "kind": "plain_powershell", "command": "& -x orchestrate *.md"}
+{"id": "plain_powershell-00426", "kind": "plain_powershell", "command": "get-childitem a@b -x"}
+{"id": "plain_powershell-00427", "kind": "plain_powershell", "command": "focus a@b; Write-Output -x.y 1 a+b ; Set-Location ''"}
+{"id": "plain_powershell-00428", "kind": "plain_powershell", "command": "exec; env a+b ~"}
+{"id": "plain_powershell-00429", "kind": "plain_powershell", "command": "Write-Output; Write-Output orchestrate a@b ; exec é a+b 'it works' 2>&1"}
+{"id": "plain_powershell-00430", "kind": "plain_powershell", "command": "git \"a b\""}
+{"id": "plain_powershell-00431", "kind": "plain_powershell", "command": "Write-Output >$nullx  a=b a'b Write-Output ; & -"}
+{"id": "plain_powershell-00432", "kind": "plain_powershell", "command": "a[0] bun a&b && engine || Get-Content a%b Select-Object 2>$null"}
+{"id": "plain_powershell-00433", "kind": "plain_powershell", "command": "Write-Output a:b cd a=b; ‘q’ Set-Location .\\tool.ps1"}
+{"id": "plain_powershell-00434", "kind": "plain_powershell", "command": "1 \"$x\" get-content;;# c a\\"}
+{"id": "plain_powershell-00435", "kind": "plain_powershell", "command": "--x.y ~ 'it''s' env 1>$null"}
+{"id": "plain_powershell-00436", "kind": "plain_powershell", "command": "& get-childitem orchestrate A=b"}
+{"id": "plain_powershell-00437", "kind": "plain_powershell", "command": "& # c 1 ;& time a\\b a@b a,b || - 1"}
+{"id": "plain_powershell-00438", "kind": "plain_powershell", "command": "'' rm 'a b' focus.cmd|exec -First Write-Output env|@args \"$x\" command"}
+{"id": "plain_powershell-00439", "kind": "plain_powershell", "command": "& -First next # c sudo"}
+{"id": "plain_powershell-00440", "kind": "plain_powershell", "command": "& (1) bun"}
+{"id": "plain_powershell-00441", "kind": "plain_powershell", "command": "sudo x\"y 3>> $null; rm ~ - -|sudo 2>$null"}
+{"id": "plain_powershell-00442", "kind": "plain_powershell", "command": "& a'b"}
+{"id": "plain_powershell-00443", "kind": "plain_powershell", "command": "'my tool' *>$null|.\\tool.ps1 -rf a:b ~"}
+{"id": "plain_powershell-00444", "kind": "plain_powershell", "command": "& 'my tool' -First"}
+{"id": "plain_powershell-00445", "kind": "plain_powershell", "command": "a/b a.txt -First"}
+{"id": "plain_powershell-00446", "kind": "plain_powershell", "command": "& # c Set-Location x\"y | A=b - \"$x\""}
+{"id": "plain_powershell-00447", "kind": "plain_powershell", "command": "Write-Output --x.y"}
+{"id": "plain_powershell-00448", "kind": "plain_powershell", "command": "a!b *>$null;;~ - {x} || a.txt env"}
+{"id": "plain_powershell-00449", "kind": "plain_powershell", "command": "bun 1"}
+{"id": "plain_powershell-00450", "kind": "plain_powershell", "command": "rm Write-Output 'it''s'"}
+{"id": "plain_powershell-00451", "kind": "plain_powershell", "command": "rm a/b|bun 'it works' a.b.c a+b"}
+{"id": "plain_powershell-00452", "kind": "plain_powershell", "command": "& Set-Location time || é"}
+{"id": "plain_powershell-00453", "kind": "plain_powershell", "command": "a=b cd  a!b out.txt status {x} 2>$null|'a b' a.txt"}
+{"id": "plain_powershell-00454", "kind": "plain_powershell", "command": "'my tool'"}
+{"id": "plain_powershell-00455", "kind": "plain_powershell", "command": "{x} a!b rm a\\b >>$null ;''"}
+{"id": "plain_powershell-00456", "kind": "plain_powershell", "command": "&1 \"a`n\" (1) || & status;;‘q’"}
+{"id": "plain_powershell-00457", "kind": "plain_powershell", "command": "& focus -rf next 2>$null | if status *>$null|sudo"}
+{"id": "plain_powershell-00458", "kind": "plain_powershell", "command": "a/b '' engine 'a b'|& get-childitem 'a b' --x.y ; time x\"y"}
+{"id": "plain_powershell-00459", "kind": "plain_powershell", "command": "rm --x.y | 'my tool' >$null; command a+b --"}
+{"id": "plain_powershell-00460", "kind": "plain_powershell", "command": "exec a_b"}
+{"id": "plain_powershell-00461", "kind": "plain_powershell", "command": "&& sudo ‘q’ 1>$null ;rm command *>$null  a/b Set-Location 3>> $null"}
+{"id": "plain_powershell-00462", "kind": "plain_powershell", "command": ".\\tool.ps1 -x.y a\\b"}
+{"id": "plain_powershell-00463", "kind": "plain_powershell", "command": "& if x\"y '' a+b | time -First a+b ; rm A=b"}
+{"id": "plain_powershell-00464", "kind": "plain_powershell", "command": "next & # c;;C:\\Tools\\x.exe 'a b'"}
+{"id": "plain_powershell-00465", "kind": "plain_powershell", "command": "a/b a@b # c '';;focus.cmd"}
+{"id": "plain_powershell-00466", "kind": "plain_powershell", "command": "& a/b A=b a.b.c ; focus.cmd '' | Write-Output a@b"}
+{"id": "plain_powershell-00467", "kind": "plain_powershell", "command": "git --x.y; if -rf"}
+{"id": "plain_powershell-00468", "kind": "plain_powershell", "command": "rm status a\\ é | a/b|C:\\Tools\\x.exe"}
+{"id": "plain_powershell-00469", "kind": "plain_powershell", "command": "& --x.y || next"}
+{"id": "plain_powershell-00470", "kind": "plain_powershell", "command": "Select-Object time '' >$nullx"}
+{"id": "plain_powershell-00471", "kind": "plain_powershell", "command": "a/b -rf ; get-childitem a/b 3>> $null|& get-childitem A=b"}
+{"id": "plain_powershell-00472", "kind": "plain_powershell", "command": "rm é a+b a@b | & Get-Content 'a b'"}
+{"id": "plain_powershell-00473", "kind": "plain_powershell", "command": "command 1>$null"}
+{"id": "plain_powershell-00474", "kind": "plain_powershell", "command": ".\\tool.ps1 a@b >$null"}
+{"id": "plain_powershell-00475", "kind": "plain_powershell", "command": "focus.cmd x\"y ~ -rf ; C:\\Tools\\x.exe"}
+{"id": "plain_powershell-00476", "kind": "plain_powershell", "command": "bun>$null ; status a:b & a.txt exec"}
+{"id": "plain_powershell-00477", "kind": "plain_powershell", "command": "Set-Location ;focus '' env ''"}
+{"id": "plain_powershell-00478", "kind": "plain_powershell", "command": "Select-Object x\"y ~ -rf|get-childitem - orchestrate \"a b\""}
+{"id": "plain_powershell-00479", "kind": "plain_powershell", "command": "focus engine engine"}
+{"id": "plain_powershell-00480", "kind": "plain_powershell", "command": "bun -x.y out.txt; env a_b \"a b\" -First"}
+{"id": "plain_powershell-00481", "kind": "plain_powershell", "command": "command ; & 'my tool' a:b -x.y"}
+{"id": "plain_powershell-00482", "kind": "plain_powershell", "command": "-x --x.y Set-Location"}
+{"id": "plain_powershell-00483", "kind": "plain_powershell", "command": "git a\\b -First"}
+{"id": "plain_powershell-00484", "kind": "plain_powershell", "command": "& next a,b 'a b' ; bun|.\\tool.ps1 \"a b\" engine"}
+{"id": "plain_powershell-00485", "kind": "plain_powershell", "command": "a&b 2>$NULL"}
+{"id": "plain_powershell-00486", "kind": "plain_powershell", "command": "a/b; 'my tool' next out.txt"}
+{"id": "plain_powershell-00487", "kind": "plain_powershell", "command": "time; C:\\Tools\\x.exe"}
+{"id": "plain_powershell-00488", "kind": "plain_powershell", "command": "bun"}
+{"id": "plain_powershell-00489", "kind": "plain_powershell", "command": "engine a b time a[0]"}
+{"id": "plain_powershell-00490", "kind": "plain_powershell", "command": ".\\tool.ps1 status"}
+{"id": "plain_powershell-00491", "kind": "plain_powershell", "command": "& Set-Location -x; & bun a:b *>$null|focus out.txt"}
+{"id": "plain_powershell-00492", "kind": "plain_powershell", "command": "bun '' 'it works' a+b 3>> $null | if A=b 1 -First >$null"}
+{"id": "plain_powershell-00493", "kind": "plain_powershell", "command": "git -- 'it works' engine"}
+{"id": "plain_powershell-00494", "kind": "plain_powershell", "command": "& 'my tool' -- next -x.y 2>$null ; & Write-Output next x\"y 2>$null | bun"}
+{"id": "plain_powershell-00495", "kind": "plain_powershell", "command": "‘q’ ; A=b|@args Write-Output out.txt Select-Object"}
+{"id": "plain_powershell-00496", "kind": "plain_powershell", "command": "& & -x.y *.md Get-Content 'a b'; {x} a@b 2>&1"}
+{"id": "plain_powershell-00497", "kind": "plain_powershell", "command": "& \"$x\""}
+{"id": "plain_powershell-00498", "kind": "plain_powershell", "command": "get-childitem 'a b' --x.y engine ; time ''; Select-Object A=b é 2>$null"}
+{"id": "plain_powershell-00499", "kind": "plain_powershell", "command": "cd"}
+{"id": "plain_powershell-00500", "kind": "plain_powershell", "command": "command orchestrate a+b a@b|& git ~ a/b a/b"}
+{"id": "plain_powershell-00501", "kind": "plain_powershell", "command": "bun; env -; git"}
+{"id": "plain_powershell-00502", "kind": "plain_powershell", "command": "sudo engine"}
+{"id": "plain_powershell-00503", "kind": "plain_powershell", "command": "& $env:X focus.cmd"}
+{"id": "plain_powershell-00504", "kind": "plain_powershell", "command": "git -x.y 'a b'"}
+{"id": "plain_powershell-00505", "kind": "plain_powershell", "command": "sudo"}
+{"id": "plain_powershell-00506", "kind": "plain_powershell", "command": "focus engine é x\"y ; focus a_b 2>$null"}
+{"id": "plain_powershell-00507", "kind": "plain_powershell", "command": "focus.cmd a:b a+b"}
+{"id": "plain_powershell-00508", "kind": "plain_powershell", "command": "rm a:b 'it works' ; Select-Object a.txt a\\b; Write-Output \"a b\" -x.y a.txt"}
+{"id": "plain_powershell-00509", "kind": "plain_powershell", "command": "(1) -First rm a\\; '' Write-Output rm (1)"}
+{"id": "plain_powershell-00510", "kind": "plain_powershell", "command": ".\\tool.ps1 ~ 'it works'; if"}
+{"id": "plain_powershell-00511", "kind": "plain_powershell", "command": "focus"}
+{"id": "plain_powershell-00512", "kind": "plain_powershell", "command": "rm --x.y a/b a_b ; Get-Content a_b 'it works' A=b *>$null; C:\\Tools\\x.exe a:b - status"}
+{"id": "plain_powershell-00513", "kind": "plain_powershell", "command": "Write-Output a:b"}
+{"id": "plain_powershell-00514", "kind": "plain_powershell", "command": ".\\tool.ps1 -rf"}
+{"id": "plain_powershell-00515", "kind": "plain_powershell", "command": "& get-childitem|focus é ~ orchestrate"}
+{"id": "plain_powershell-00516", "kind": "plain_powershell", "command": ";C:\\Tools\\x.exe a+b -- *>$null"}
+{"id": "plain_powershell-00517", "kind": "plain_powershell", "command": "env status orchestrate orchestrate"}
+{"id": "plain_powershell-00518", "kind": "plain_powershell", "command": "Select-Object | rm out.txt 'a b' x\"y"}
+{"id": "plain_powershell-00519", "kind": "plain_powershell", "command": "a/b; Select-Object | & sudo a+b 3>> $null"}
+{"id": "plain_powershell-00520", "kind": "plain_powershell", "command": "sudo a.txt"}
+{"id": "plain_powershell-00521", "kind": "plain_powershell", "command": "Select-Object 'a b' A=b a\\b 3>> $null"}
+{"id": "plain_powershell-00522", "kind": "plain_powershell", "command": "focus.cmd é é 2>&1"}
+{"id": "plain_powershell-00523", "kind": "plain_powershell", "command": "focus é -x | rm 'it works' -First a:b"}
+{"id": "plain_powershell-00524", "kind": "plain_powershell", "command": "focus a_b|get-childitem 'a b' orchestrate"}
+{"id": "plain_powershell-00525", "kind": "plain_powershell", "command": "bun orchestrate out.txt|bun|.\\tool.ps1"}
+{"id": "plain_powershell-00526", "kind": "plain_powershell", "command": "& Write-Output|bun a/b"}
+{"id": "plain_powershell-00527", "kind": "plain_powershell", "command": "& Set-Location -x.y 1 | & .\\tool.ps1 1 1 a.txt"}
+{"id": "plain_powershell-00528", "kind": "plain_powershell", "command": "exec"}
+{"id": "plain_powershell-00529", "kind": "plain_powershell", "command": "C:\\Tools\\x.exe 3>> $null|.\\tool.ps1"}
+{"id": "plain_powershell-00530", "kind": "plain_powershell", "command": "a/b a%b  & x\"y \"a b\" ;a'b x\"y > out.txt"}
+{"id": "plain_powershell-00531", "kind": "plain_powershell", "command": "& Select-Object 2>&1 ; sudo -x.y A=b -x | & Get-Content out.txt 2>$null"}
+{"id": "plain_powershell-00532", "kind": "plain_powershell", "command": "(1) # c a—b C:\\Tools\\x.exe & Write-Output 2>&2"}
+{"id": "plain_powershell-00533", "kind": "plain_powershell", "command": "git -- --x.y x\"y|rm | exec >$null"}
+{"id": "plain_powershell-00534", "kind": "plain_powershell", "command": "C:\\Tools\\x.exe a\\"}
+{"id": "plain_powershell-00535", "kind": "plain_powershell", "command": ";--x.y exec a@b|& engine"}
+{"id": "plain_powershell-00536", "kind": "plain_powershell", "command": "get-childitem a\\b a_b; .\\tool.ps1; sudo"}
+{"id": "plain_powershell-00537", "kind": "plain_powershell", "command": "git -rf a@b *>$null"}
+{"id": "plain_powershell-00538", "kind": "plain_powershell", "command": "& get-childitem a@b >$null|& focus a\\b ; exec 'a b' A=b 3>> $null"}
+{"id": "plain_powershell-00539", "kind": "plain_powershell", "command": "& focus 2>$null ; bun 'a b' --; & time -"}
+{"id": "plain_powershell-00540", "kind": "plain_powershell", "command": ".\\tool.ps1;;command a\\b a—b"}
+{"id": "plain_powershell-00541", "kind": "plain_powershell", "command": "a\\"}
+{"id": "plain_powershell-00542", "kind": "plain_powershell", "command": "command status"}
+{"id": "plain_powershell-00543", "kind": "plain_powershell", "command": "& 'my tool' next \"a b\"; & command -- --"}
+{"id": "plain_powershell-00544", "kind": "plain_powershell", "command": "&-First ‘q’ > out.txt"}
+{"id": "plain_powershell-00545", "kind": "plain_powershell", "command": "& exec 1 '' ; bun x\"y A=b ''|time -- out.txt a_b"}
+{"id": "plain_powershell-00546", "kind": "plain_powershell", "command": "sudo a_b a_b"}
+{"id": "plain_powershell-00547", "kind": "plain_powershell", "command": ".\\tool.ps1 a\\ '' | & Write-Output >$null"}
+{"id": "plain_powershell-00548", "kind": "plain_powershell", "command": "Get-Content || a b a\tb a[0] >$null || a\\ 1 -x.y env > out.txt"}
+{"id": "plain_powershell-00549", "kind": "plain_powershell", "command": "‘q’ - a'b ;time \"a`n\" -- 2>&2"}
+{"id": "plain_powershell-00550", "kind": "plain_powershell", "command": "get-childitem A=b --x.y -x.y|& exec engine a+b 2>&1"}
+{"id": "plain_powershell-00551", "kind": "plain_powershell", "command": "A=b a.txt || \"a b\" a:b 'it''s' 2>$NULL ; - \"a b\""}
+{"id": "plain_powershell-00552", "kind": "plain_powershell", "command": "get-childitem -x.y a\\ orchestrate 2>&1"}
+{"id": "plain_powershell-00553", "kind": "plain_powershell", "command": "rm engine \"a b\" a.b.c | & sudo -x orchestrate a+b|'my tool' status"}
+{"id": "plain_powershell-00554", "kind": "plain_powershell", "command": "focus.cmd a/b; & command -- a.b.c|Write-Output"}
+{"id": "plain_powershell-00555", "kind": "plain_powershell", "command": "C:\\Tools\\x.exe a&b 7>$null  & focus.cmd"}
+{"id": "plain_powershell-00556", "kind": "plain_powershell", "command": "focus.cmd focus.cmd Select-Object a/b 3>> $null"}
+{"id": "plain_powershell-00557", "kind": "plain_powershell", "command": "sudo | get-childitem 3>> $null"}
+{"id": "plain_powershell-00558", "kind": "plain_powershell", "command": "Select-Object  Set-Location>$null"}
+{"id": "plain_powershell-00559", "kind": "plain_powershell", "command": "a/b 1>$null;;& out.txt a,b a=b ; & status a^b time"}
+{"id": "plain_powershell-00560", "kind": "plain_powershell", "command": "& Set-Location a'b next"}
+{"id": "plain_powershell-00561", "kind": "plain_powershell", "command": "orchestrate Select-Object cd; & a@b $env:X C:\\Tools\\x.exe engine"}
+{"id": "plain_powershell-00562", "kind": "plain_powershell", "command": "git - out.txt ; focus é -First a.txt"}
+{"id": "plain_powershell-00563", "kind": "plain_powershell", "command": "&{x} -First sudo \"a`n\" | rm engine # c 2>$null"}
+{"id": "plain_powershell-00564", "kind": "plain_powershell", "command": "1 \"\" # c"}
+{"id": "plain_powershell-00565", "kind": "plain_powershell", "command": "exec -x next; git a:b A=b -First 2>&1"}
+{"id": "plain_powershell-00566", "kind": "plain_powershell", "command": "command 1; & focus | & focus -rf 2>$null"}
+{"id": "plain_powershell-00567", "kind": "plain_powershell", "command": "Get-Content 'it works'"}
+{"id": "plain_powershell-00568", "kind": "plain_powershell", "command": "git a.txt a.txt engine"}
+{"id": "plain_powershell-00569", "kind": "plain_powershell", "command": "rm"}
+{"id": "plain_powershell-00570", "kind": "plain_powershell", "command": "focus orchestrate a:b 2>$null | get-childitem a:b engine out.txt 2>$null"}
+{"id": "plain_powershell-00571", "kind": "plain_powershell", "command": ".\\tool.ps1; env -- \"a b\" >$null"}
+{"id": "plain_powershell-00572", "kind": "plain_powershell", "command": "'it''s' ‘q’ ; a\tb a\\"}
+{"id": "plain_powershell-00573", "kind": "plain_powershell", "command": "é && time # c {x}"}
+{"id": "plain_powershell-00574", "kind": "plain_powershell", "command": "&& if é >$null"}
+{"id": "plain_powershell-00575", "kind": "plain_powershell", "command": "out.txt $env:X"}
+{"id": "plain_powershell-00576", "kind": "plain_powershell", "command": "x\"y"}
+{"id": "plain_powershell-00577", "kind": "plain_powershell", "command": "& ~ Get-Content time"}
+{"id": "plain_powershell-00578", "kind": "plain_powershell", "command": "Set-Location a@b a\\ | .\\tool.ps1 --x.y -"}
+{"id": "plain_powershell-00579", "kind": "plain_powershell", "command": "get-childitem x\"y -- x\"y"}
+{"id": "plain_powershell-00580", "kind": "plain_powershell", "command": "git; cd *>$null | C:\\Tools\\x.exe a\\"}
+{"id": "plain_powershell-00581", "kind": "plain_powershell", "command": "bun|focus.cmd A=b|a/b engine engine"}
+{"id": "plain_powershell-00582", "kind": "plain_powershell", "command": ".\\tool.ps1 A=b a@b ; sudo a.txt -- x\"y"}
+{"id": "plain_powershell-00583", "kind": "plain_powershell", "command": "& C:\\Tools\\x.exe ; git orchestrate 'a b' >$null | git 1 '' 3>> $null"}
+{"id": "plain_powershell-00584", "kind": "plain_powershell", "command": "if"}
+{"id": "plain_powershell-00585", "kind": "plain_powershell", "command": "-First | .\\tool.ps1 a:b engine 2>&1;;& git >>$null"}
+{"id": "plain_powershell-00586", "kind": "plain_powershell", "command": "env engine | focus.cmd|& Set-Location é --x.y *>$null"}
+{"id": "plain_powershell-00587", "kind": "plain_powershell", "command": "exec é 2>$null | get-childitem --x.y"}
+{"id": "plain_powershell-00588", "kind": "plain_powershell", "command": "a\tb;;a^b; A=b C:\\Tools\\x.exe"}
+{"id": "plain_powershell-00589", "kind": "plain_powershell", "command": "if A=b|Write-Output '' orchestrate 3>> $null"}
+{"id": "plain_powershell-00590", "kind": "plain_powershell", "command": "get-childitem next A=b | time ~"}
+{"id": "plain_powershell-00591", "kind": "plain_powershell", "command": "bun a_b 1 out.txt ; Select-Object 3>> $null | rm"}
+{"id": "plain_powershell-00592", "kind": "plain_powershell", "command": "exec ; get-childitem a\\b | env ~ 1"}
+{"id": "plain_powershell-00593", "kind": "plain_powershell", "command": "Write-Output out.txt; time -x.y a:b status 3>> $null"}
+{"id": "plain_powershell-00594", "kind": "plain_powershell", "command": ".\\tool.ps1 a_b; .\\tool.ps1 a/b"}
+{"id": "plain_powershell-00595", "kind": "plain_powershell", "command": "get-content >$null|next git next focus"}
+{"id": "plain_powershell-00596", "kind": "plain_powershell", "command": "& focus 'a b' a\\ a\\b >$null|bun -First a\\b|focus.cmd >$null"}
+{"id": "plain_powershell-00597", "kind": "plain_powershell", "command": "Write-Output A=b 3>> $null"}
+{"id": "plain_powershell-00598", "kind": "plain_powershell", "command": "git x\"y a[0] ;Set-Location @args & 1 a%b exec 7>$null"}
+{"id": "plain_powershell-00599", "kind": "plain_powershell", "command": "& bun a\tb # c & & -rf -x.y # c 1>$null"}
+{"id": "plain_powershell-00600", "kind": "plain_powershell", "command": "if|'my tool'; exec -rf >$null"}
+{"id": "plain_powershell-00601", "kind": "plain_powershell", "command": "exec --x.y engine -First; env -x"}
+{"id": "plain_powershell-00602", "kind": "plain_powershell", "command": "out.txt a'b get-content"}
+{"id": "plain_powershell-00603", "kind": "plain_powershell", "command": "cd next|Get-Content orchestrate next a:b 3>> $null; Set-Location"}
+{"id": "plain_powershell-00604", "kind": "plain_powershell", "command": "Get-Content orchestrate a.b.c x\"y"}
+{"id": "plain_powershell-00605", "kind": "plain_powershell", "command": "a'b a=b -rf 'a b' | (1) \"a b\" status"}
+{"id": "plain_powershell-00606", "kind": "plain_powershell", "command": "'' 'it''s' a[0]"}
+{"id": "plain_powershell-00607", "kind": "plain_powershell", "command": ".\\tool.ps1 a.b.c -x.y 2>$null"}
+{"id": "plain_powershell-00608", "kind": "plain_powershell", "command": "env 'it works' ~"}
+{"id": "plain_powershell-00609", "kind": "plain_powershell", "command": "rm é 2>&1; a/b next a.txt 3>> $null"}
+{"id": "plain_powershell-00610", "kind": "plain_powershell", "command": "cd -rf next engine 2>&1 ; \"my tool\"; & \"my tool\" a\\b -x.y 2>&1"}
+{"id": "plain_powershell-00611", "kind": "plain_powershell", "command": "|& git a/b 3>> $null ; cd 2>$null | Select-Object A=b"}
+{"id": "plain_powershell-00612", "kind": "plain_powershell", "command": "\"my tool\" a\\b|exec"}
+{"id": "plain_powershell-00613", "kind": "plain_powershell", "command": "& sudo --x.y a.b.c | bun '' a.txt --x.y"}
+{"id": "plain_powershell-00614", "kind": "plain_powershell", "command": "# c (1) Get-Content & --x.y - a&b 7>$null"}
+{"id": "plain_powershell-00615", "kind": "plain_powershell", "command": "focus 2>$null | & sudo 1"}
+{"id": "plain_powershell-00616", "kind": "plain_powershell", "command": "rm  orchestrate"}
+{"id": "plain_powershell-00617", "kind": "plain_powershell", "command": "a=b 2>&1 |  ;Set-Location $env:X>$null"}
+{"id": "plain_powershell-00618", "kind": "plain_powershell", "command": "exec 'a b' -rf a_b *>$null|command; .\\tool.ps1 ~ ~ A=b"}
+{"id": "plain_powershell-00619", "kind": "plain_powershell", "command": "Select-Object (1) a@b 1 | \"\" \"a`n\" # c @args  command status"}
+{"id": "plain_powershell-00620", "kind": "plain_powershell", "command": "time ~ -x"}
+{"id": "plain_powershell-00621", "kind": "plain_powershell", "command": "Select-Object ~ a_b next"}
+{"id": "plain_powershell-00622", "kind": "plain_powershell", "command": "Write-Output a!b A=b a:b"}
+{"id": "plain_powershell-00623", "kind": "plain_powershell", "command": "orchestrate (1) >>$null ;a.txt 2>$null"}
+{"id": "plain_powershell-00624", "kind": "plain_powershell", "command": "focus *>$null | Get-Content a:b a_b -x ; & command 'it works' 1 next"}
+{"id": "plain_powershell-00625", "kind": "plain_powershell", "command": "& 'my tool' a\\b"}
+{"id": "plain_powershell-00626", "kind": "plain_powershell", "command": "a/b --x.y '' ; focus a:b a.b.c ''; & if - orchestrate"}
+{"id": "plain_powershell-00627", "kind": "plain_powershell", "command": "exec A=b ; & .\\tool.ps1 --x.y"}
+{"id": "plain_powershell-00628", "kind": "plain_powershell", "command": "bun engine a@b -x|& \"my tool\" a_b 'a b' ; env -First"}
+{"id": "plain_powershell-00629", "kind": "plain_powershell", "command": "bun a.txt -rf | & C:\\Tools\\x.exe a\\ 2>$null | & get-childitem"}
+{"id": "plain_powershell-00630", "kind": "plain_powershell", "command": "command \"a b\" -x a\\b ; get-childitem | & .\\tool.ps1 a/b a/b"}
+{"id": "plain_powershell-00631", "kind": "plain_powershell", "command": ".\\tool.ps1 -x.y"}
+{"id": "plain_powershell-00632", "kind": "plain_powershell", "command": "a.txt"}
+{"id": "plain_powershell-00633", "kind": "plain_powershell", "command": "& focus|& time"}
+{"id": "plain_powershell-00634", "kind": "plain_powershell", "command": "rm x\"y bun \"a b\""}
+{"id": "plain_powershell-00635", "kind": "plain_powershell", "command": "if"}
+{"id": "plain_powershell-00636", "kind": "plain_powershell", "command": "focus a_b 'it works' A=b | command -- out.txt; time -x.y --"}
+{"id": "plain_powershell-00637", "kind": "plain_powershell", "command": "& a\\b a&b a@b; a.txt"}
+{"id": "plain_powershell-00638", "kind": "plain_powershell", "command": "& a—b {x} a:b focus ; status a,b .\\tool.ps1 Get-Content >$null & focus.cmd *.md Get-Content Set-Location"}
+{"id": "plain_powershell-00639", "kind": "plain_powershell", "command": "@args|a+b Select-Object && a,b a!b focus"}
+{"id": "plain_powershell-00640", "kind": "plain_powershell", "command": "env; a/b 'it works'"}
+{"id": "plain_powershell-00641", "kind": "plain_powershell", "command": "a[0] rm"}
+{"id": "plain_powershell-00642", "kind": "plain_powershell", "command": "a\\b a\\b|exec # c >$null"}
+{"id": "plain_powershell-00643", "kind": "plain_powershell", "command": "Select-Object \"$x\" .\\tool.ps1 @args 3>> $null|next > out.txt"}
+{"id": "plain_powershell-00644", "kind": "plain_powershell", "command": "& get-childitem 'a b' 'a b'|command ; Select-Object status"}
+{"id": "plain_powershell-00645", "kind": "plain_powershell", "command": "if engine a&b 2>&1"}
+{"id": "plain_powershell-00646", "kind": "plain_powershell", "command": "$env:X && -First"}
+{"id": "plain_powershell-00647", "kind": "plain_powershell", "command": "time 3>> $null"}
+{"id": "plain_powershell-00648", "kind": "plain_powershell", "command": "git '' \"a b\" ; & env a@b a/b *>$null; Set-Location >$null"}
+{"id": "plain_powershell-00649", "kind": "plain_powershell", "command": "# c \"$x\" >$nullx; Set-Location get-content status"}
+{"id": "plain_powershell-00650", "kind": "plain_powershell", "command": "Select-Object"}
+{"id": "plain_powershell-00651", "kind": "plain_powershell", "command": "C:\\Tools\\x.exe ; rm next; & Write-Output"}
+{"id": "plain_powershell-00652", "kind": "plain_powershell", "command": "bun status A=b 2>&1"}
+{"id": "plain_powershell-00653", "kind": "plain_powershell", "command": "command - | Get-Content 2>$null|time -x.y"}
+{"id": "plain_powershell-00654", "kind": "plain_powershell", "command": "time -First A=b | C:\\Tools\\x.exe ; C:\\Tools\\x.exe \"a b\""}
+{"id": "plain_powershell-00655", "kind": "plain_powershell", "command": "Get-Content \"$x\">$null | # c a\\b"}
+{"id": "plain_powershell-00656", "kind": "plain_powershell", "command": ";& é ; next cd; \"\" cd bun"}
+{"id": "plain_powershell-00657", "kind": "plain_powershell", "command": "Set-Location a+b"}
+{"id": "plain_powershell-00658", "kind": "plain_powershell", "command": "rm - --x.y; Select-Object | get-childitem"}
+{"id": "plain_powershell-00659", "kind": "plain_powershell", "command": "& Write-Output A=b A=b --x.y | Select-Object"}
+{"id": "plain_powershell-00660", "kind": "plain_powershell", "command": "command é 2>&1 ; cd a/b -x"}
+{"id": "plain_powershell-00661", "kind": "plain_powershell", "command": "# c -First a&b get-content & \"$x\""}
+{"id": "plain_powershell-00662", "kind": "plain_powershell", "command": "Write-Output \"a b\" status 1 ; exec orchestrate 'a b' 1 >$null|& \"my tool\" a.txt - a:b"}
+{"id": "plain_powershell-00663", "kind": "plain_powershell", "command": "& get-childitem 2>$null"}
+{"id": "plain_powershell-00664", "kind": "plain_powershell", "command": "a\\b bun git || engine a!b a@b orchestrate 2>&1 | "}
+{"id": "plain_powershell-00665", "kind": "plain_powershell", "command": "& a/b *.md - if"}
+{"id": "plain_powershell-00666", "kind": "plain_powershell", "command": "'' -rf \"$x\" \"\" | env a=b;;& {x} sudo bun a\\"}
+{"id": "plain_powershell-00667", "kind": "plain_powershell", "command": "git 1 next"}
+{"id": "plain_powershell-00668", "kind": "plain_powershell", "command": "exec next ; focus.cmd 'a b'"}
+{"id": "plain_powershell-00669", "kind": "plain_powershell", "command": "& cd|- 2>&2|& a'b time a b"}
+{"id": "plain_powershell-00670", "kind": "plain_powershell", "command": "C:\\Tools\\x.exe - *>$null|focus ~ engine engine; sudo A=b"}
+{"id": "plain_powershell-00671", "kind": "plain_powershell", "command": "env A=b a.b.c 3>> $null ; Select-Object | time status next -"}
+{"id": "plain_powershell-00672", "kind": "plain_powershell", "command": "& bun -x next 2>&1|Write-Output|& Get-Content --x.y"}
+{"id": "plain_powershell-00673", "kind": "plain_powershell", "command": "Select-Object a:b; sudo a+b"}
+{"id": "plain_powershell-00674", "kind": "plain_powershell", "command": "& Set-Location|rm -x *>$null | & .\\tool.ps1 ~ é >$null"}
+{"id": "plain_powershell-00675", "kind": "plain_powershell", "command": "get-childitem A=b | get-childitem; & bun a@b \"a b\" a:b 3>> $null"}
+{"id": "plain_powershell-00676", "kind": "plain_powershell", "command": "a/b x\"y"}
+{"id": "plain_powershell-00677", "kind": "plain_powershell", "command": "focus.cmd A=b -rf | focus a\\b ~ ~ >$null; focus.cmd '' a\\ orchestrate"}
+{"id": "plain_powershell-00678", "kind": "plain_powershell", "command": "Get-Content>$null|a^b|bun Select-Object --"}
+{"id": "plain_powershell-00679", "kind": "plain_powershell", "command": "& bun"}
+{"id": "plain_powershell-00680", "kind": "plain_powershell", "command": "a&b a=b a—b a[0] ;& a,b a\\ a/b  \"$x\" @args \"a`n\" status"}
+{"id": "plain_powershell-00681", "kind": "plain_powershell", "command": "out.txt;;& \"\" a/b 1 orchestrate 7>$null"}
+{"id": "plain_powershell-00682", "kind": "plain_powershell", "command": "env 1 1 A=b|if 'it works' 3>> $null | & command ''"}
+{"id": "plain_powershell-00683", "kind": "plain_powershell", "command": "time 'it works' 'it works' >$null"}
+{"id": "plain_powershell-00684", "kind": "plain_powershell", "command": "if -x.y a\\ a.txt"}
+{"id": "plain_powershell-00685", "kind": "plain_powershell", "command": "& .\\tool.ps1 -x|env a\\ next | get-childitem"}
+{"id": "plain_powershell-00686", "kind": "plain_powershell", "command": "Select-Object - 3>> $null"}
+{"id": "plain_powershell-00687", "kind": "plain_powershell", "command": "\"a b\" x\"y if \"a b\""}
+{"id": "plain_powershell-00688", "kind": "plain_powershell", "command": "& a/b next && engine -First;;a&b (1)"}
+{"id": "plain_powershell-00689", "kind": "plain_powershell", "command": "exec next -First 3>> $null|focus 'a b' a\\b|& env A=b a.b.c 'a b'"}
+{"id": "plain_powershell-00690", "kind": "plain_powershell", "command": "1 a^b | & -x Write-Output .\\tool.ps1; a'b a+b"}
+{"id": "plain_powershell-00691", "kind": "plain_powershell", "command": "a/b -rf ~ ~"}
+{"id": "plain_powershell-00692", "kind": "plain_powershell", "command": "\"a b\" a b (1)"}
+{"id": "plain_powershell-00693", "kind": "plain_powershell", "command": "focus || & a\\ {x} sudo ;a,b a\\b 3>> $null"}
+{"id": "plain_powershell-00694", "kind": "plain_powershell", "command": "& sudo {x} ~ && focus.cmd a[0] .\\tool.ps1 *.md"}
+{"id": "plain_powershell-00695", "kind": "plain_powershell", "command": "status >>$null | a b a\tb"}
+{"id": "plain_powershell-00696", "kind": "plain_powershell", "command": "get-childitem a@b|& \"my tool\" next | if a+b - \"a b\""}
+{"id": "plain_powershell-00697", "kind": "plain_powershell", "command": "Select-Object a+b ~ >$null"}
+{"id": "plain_powershell-00698", "kind": "plain_powershell", "command": ".\\tool.ps1 'it works' orchestrate next"}
+{"id": "plain_powershell-00699", "kind": "plain_powershell", "command": "Write-Output -- é"}
+{"id": "plain_powershell-00700", "kind": "plain_powershell", "command": "& \"my tool\" -First; exec -rf a/b x\"y"}
+{"id": "plain_powershell-00701", "kind": "plain_powershell", "command": "'a b' ~ ‘q’ rm"}
+{"id": "plain_powershell-00702", "kind": "plain_powershell", "command": "focus -- 1"}
+{"id": "plain_powershell-00703", "kind": "plain_powershell", "command": "sudo ; & env ~ '' a.txt"}
+{"id": "plain_powershell-00704", "kind": "plain_powershell", "command": "& a\\b Select-Object  focus.cmd get-content .\\tool.ps1 a@b 2>&2 & & sudo \"$x\" *>$null"}
+{"id": "plain_powershell-00705", "kind": "plain_powershell", "command": "rm Get-Content"}
+{"id": "plain_powershell-00706", "kind": "plain_powershell", "command": "& sudo next - \"a b\" ; & Write-Output a:b 'a b' a.txt >$null ; command 1 next a\\"}
+{"id": "plain_powershell-00707", "kind": "plain_powershell", "command": "if 2>$null"}
+{"id": "plain_powershell-00708", "kind": "plain_powershell", "command": " Set-Location"}
+{"id": "plain_powershell-00709", "kind": "plain_powershell", "command": "1 || next -- {x} time >$nullx || get-content a[0] ‘q’ # c"}
+{"id": "plain_powershell-00710", "kind": "plain_powershell", "command": "engine 1"}
+{"id": "plain_powershell-00711", "kind": "plain_powershell", "command": "if a+b -First a\\ | & git orchestrate 'a b' a.b.c ; Write-Output -- out.txt a\\b"}
+{"id": "plain_powershell-00712", "kind": "plain_powershell", "command": "a/b (1)"}
+{"id": "plain_powershell-00713", "kind": "plain_powershell", "command": "& a/b a@b a=b \"$x\""}
+{"id": "plain_powershell-00714", "kind": "plain_powershell", "command": "a\\ {x} focus 3>> $null"}
+{"id": "plain_powershell-00715", "kind": "plain_powershell", "command": "env a\\b 3>> $null | & Write-Output 'a b'"}
+{"id": "plain_powershell-00716", "kind": "plain_powershell", "command": "& .\\tool.ps1 ~ - a\\b *>$null|rm >$null"}
+{"id": "plain_powershell-00717", "kind": "plain_powershell", "command": "'my tool' a@b 'a b'"}
+{"id": "plain_powershell-00718", "kind": "plain_powershell", "command": "~ x\"y || sudo x\"y -x status"}
+{"id": "plain_powershell-00719", "kind": "plain_powershell", "command": "& -- a+b"}
+{"id": "plain_powershell-00720", "kind": "plain_powershell", "command": ""}
+{"id": "plain_powershell-00721", "kind": "plain_powershell", "command": " "}
+{"id": "plain_powershell-00722", "kind": "plain_powershell", "command": "git status"}
+{"id": "plain_powershell-00723", "kind": "plain_powershell", "command": "& git status"}
+{"id": "plain_powershell-00724", "kind": "plain_powershell", "command": "& 'C:\\Program Files\\Git\\git.exe' status"}
+{"id": "plain_powershell-00725", "kind": "plain_powershell", "command": "& \"C:\\x y\\git.exe\" status 2>$null"}
+{"id": "plain_powershell-00726", "kind": "plain_powershell", "command": "Get-Content a.txt | Select-Object -First 1"}
+{"id": "plain_powershell-00727", "kind": "plain_powershell", "command": "focus.cmd engine orchestrate next"}
+{"id": "plain_powershell-00728", "kind": "plain_powershell", "command": "Get-ChildItem 'a\\' ; git log"}
+{"id": "plain_powershell-00729", "kind": "plain_powershell", "command": "git commit -m 'it works'"}
+{"id": "plain_powershell-00730", "kind": "plain_powershell", "command": "git commit -m \"it works\""}
+{"id": "plain_powershell-00731", "kind": "plain_powershell", "command": "tool 'a\\'"}
+{"id": "plain_powershell-00732", "kind": "plain_powershell", "command": "Get-Content 'a\\'"}
+{"id": "plain_powershell-00733", "kind": "plain_powershell", "command": "tool ''"}
+{"id": "plain_powershell-00734", "kind": "plain_powershell", "command": "Get-Content ''"}
+{"id": "plain_powershell-00735", "kind": "plain_powershell", "command": "a ;"}
+{"id": "plain_powershell-00736", "kind": "plain_powershell", "command": "a |"}
+{"id": "plain_powershell-00737", "kind": "plain_powershell", "command": "| a"}
+{"id": "plain_powershell-00738", "kind": "plain_powershell", "command": "a ; ; b"}
+{"id": "plain_powershell-00739", "kind": "plain_powershell", "command": "& & a"}
+{"id": "plain_powershell-00740", "kind": "plain_powershell", "command": "a & b"}
+{"id": "plain_powershell-00741", "kind": "plain_powershell", "command": "&a"}
+{"id": "plain_powershell-00742", "kind": "plain_powershell", "command": "a 2>$null b"}
+{"id": "plain_powershell-00743", "kind": "plain_powershell", "command": "2>$null a"}
+{"id": "plain_powershell-00744", "kind": "plain_powershell", "command": "a>$null"}
+{"id": "plain_powershell-00745", "kind": "plain_powershell", "command": "a 2>&1;b"}
+{"id": "plain_powershell-00746", "kind": "plain_powershell", "command": "a  b   c"}
+{"id": "plain_powershell-00747", "kind": "plain_powershell", "command": "'a' b"}
+{"id": "plain_powershell-00748", "kind": "plain_powershell", "command": "& 'a' b"}
+{"id": "plain_powershell-00749", "kind": "plain_powershell", "command": "& '' b"}
+{"id": "plain_powershell-00750", "kind": "plain_powershell", "command": "a=b c"}
+{"id": "plain_powershell-00751", "kind": "plain_powershell", "command": "& a=b c"}
+{"id": "plain_powershell-00752", "kind": "plain_powershell", "command": "1a b"}
+{"id": "plain_powershell-00753", "kind": "plain_powershell", "command": "-a b"}
+{"id": "plain_powershell-00754", "kind": "plain_powershell", "command": "a.b c"}
+{"id": "plain_powershell-00755", "kind": "plain_powershell", "command": "a:b c"}
+{"id": "plain_powershell-00756", "kind": "plain_powershell", "command": "a/b c"}
+{"id": "plain_powershell-00757", "kind": "plain_powershell", "command": "a\\b c"}
+{"id": "plain_powershell-00758", "kind": "plain_powershell", "command": "a\\ c"}

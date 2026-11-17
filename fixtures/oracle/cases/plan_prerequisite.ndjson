@@ -1,0 +1,617 @@
+{"id": "plan_prerequisite-00000", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "continue"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00001", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "help"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00002", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "park"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00003", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00004", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "team-board"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00005", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "park"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00006", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "team-board"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00007", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "help"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00008", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "park"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00009", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00010", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "team-board"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00011", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "wait"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00012", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "--x", "--result", "revised"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00013", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "", "--result", "revised"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00014", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "Code Generation", "--result", "completed"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00015", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "--x", "--result", "revised"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00016", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "Code Generation", "--result", "rejected"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00017", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "--x", "--result", "approved"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00018", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "code-generation", "--result", "completed"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00019", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "code-generation", "--result", ""], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00020", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "build", "--result", "resumed"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00021", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "", "--result", "revised"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00022", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "--x", "--result", "revised"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00023", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "build", "--result", ""], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00024", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--result", "revised", "--stage", "", "--stage", ""], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00025", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--result", "approved", "--stage", "build", "--stage", ""], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00026", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--result", "awaiting-approval", "--stage", "Code Generation", "--stage", ""], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00027", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--result", "", "--stage", "Code Generation", "--stage", ""], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00028", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--result", "completed", "--stage", "", "--stage", "--x"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00029", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--result", "approved", "--stage", "build", "--stage", ""], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00030", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--result", "revised", "--stage", "--x", "--stage", "--x"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00031", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--result", "rejected", "--stage", "", "--stage", "--x"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00032", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--result", "", "--stage", "build", "--stage", "--x"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00033", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--result", "awaiting-approval", "--stage", "--x", "--stage", "--x"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00034", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--result", "approved", "--stage", "Code Generation", "--stage", "--x"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00035", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--result", "revised", "--stage", "", "--stage", "build"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00036", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "scope-dependent"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00037", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "maybe"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00038", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "on"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00039", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "scope-dependent"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00040", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "on"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00041", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "scope-dependent"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00042", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "off"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00043", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "scope-dependent"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00044", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "on"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00045", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", ""], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00046", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "on"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00047", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "maybe"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00048", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "scope-dependent", "--result", "approved"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00049", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "off", "--result", "rejected"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00050", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "", "--result", "completed"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00051", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "", "--result", "completed"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00052", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "scope-dependent", "--result", "completed"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00053", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "", "--result", "resumed"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00054", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "", "--result", "rejected"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00055", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "on", "--result", "awaiting-approval"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00056", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "maybe", "--result", "resumed"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00057", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "", "--result", "rejected"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00058", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "", "--result", "awaiting-approval"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00059", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "scope-dependent", "--result", "awaiting-approval"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00060", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "", "--stage", "--x"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00061", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "maybe", "--stage", "build"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00062", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "maybe", "--stage", ""], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00063", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "off", "--stage", "Code Generation"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00064", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "on", "--stage", "code-generation"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00065", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "scope-dependent", "--stage", "build"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00066", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "scope-dependent", "--stage", "Code Generation"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00067", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "", "--stage", "code-generation"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00068", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "on", "--stage", "Code Generation"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00069", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "off", "--stage", "code-generation"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00070", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "scope-dependent", "--stage", ""], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00071", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance", "maybe", "--stage", "code-generation"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00072", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00073", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00074", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00075", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00076", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00077", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00078", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00079", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00080", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00081", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00082", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00083", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--skeleton-stance"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00084", "kind": "plan_prerequisite", "args": ["engine", "state", "unpark"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00085", "kind": "plan_prerequisite", "args": ["engine", "state", "unpark"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00086", "kind": "plan_prerequisite", "args": ["engine", "state", "unpark"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00087", "kind": "plan_prerequisite", "args": ["engine", "state", "unpark"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00088", "kind": "plan_prerequisite", "args": ["engine", "state", "unpark"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00089", "kind": "plan_prerequisite", "args": ["engine", "state", "unpark"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00090", "kind": "plan_prerequisite", "args": ["engine", "state", "unpark"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00091", "kind": "plan_prerequisite", "args": ["engine", "state", "unpark"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00092", "kind": "plan_prerequisite", "args": ["engine", "state", "unpark"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00093", "kind": "plan_prerequisite", "args": ["engine", "state", "unpark"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00094", "kind": "plan_prerequisite", "args": ["engine", "state", "unpark"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00095", "kind": "plan_prerequisite", "args": ["engine", "state", "unpark"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00096", "kind": "plan_prerequisite", "args": ["engine", "state", "unit", "abandon"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00097", "kind": "plan_prerequisite", "args": ["engine", "state", "unit", "abandon"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00098", "kind": "plan_prerequisite", "args": ["engine", "state", "unit", "resume"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00099", "kind": "plan_prerequisite", "args": ["engine", "state", "unit", ""], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00100", "kind": "plan_prerequisite", "args": ["engine", "state", "unit", "pause"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00101", "kind": "plan_prerequisite", "args": ["engine", "state", "unit", ""], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00102", "kind": "plan_prerequisite", "args": ["engine", "state", "unit", "resume"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00103", "kind": "plan_prerequisite", "args": ["engine", "state", "unit", "resume"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00104", "kind": "plan_prerequisite", "args": ["engine", "state", "unit", ""], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00105", "kind": "plan_prerequisite", "args": ["engine", "state", "unit", "start"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00106", "kind": "plan_prerequisite", "args": ["engine", "state", "unit", ""], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00107", "kind": "plan_prerequisite", "args": ["engine", "state", "unit", "complete"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00108", "kind": "plan_prerequisite", "args": ["engine", "state", "unit", "", "--unit", "auth"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00109", "kind": "plan_prerequisite", "args": ["engine", "state", "unit", "abandon", "--unit", "auth"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00110", "kind": "plan_prerequisite", "args": ["engine", "state", "unit", "complete", "--unit", "auth"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00111", "kind": "plan_prerequisite", "args": ["engine", "state", "unit", "abandon", "--unit", "auth"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00112", "kind": "plan_prerequisite", "args": ["engine", "state", "unit", "start", "--unit", "auth"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00113", "kind": "plan_prerequisite", "args": ["engine", "state", "unit", "abandon", "--unit", "auth"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00114", "kind": "plan_prerequisite", "args": ["engine", "state", "unit", "", "--unit", "auth"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00115", "kind": "plan_prerequisite", "args": ["engine", "state", "unit", "", "--unit", "auth"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00116", "kind": "plan_prerequisite", "args": ["engine", "state", "unit", "abandon", "--unit", "auth"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00117", "kind": "plan_prerequisite", "args": ["engine", "state", "unit", "pause", "--unit", "auth"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00118", "kind": "plan_prerequisite", "args": ["engine", "state", "unit", "start", "--unit", "auth"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00119", "kind": "plan_prerequisite", "args": ["engine", "state", "unit", "", "--unit", "auth"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00120", "kind": "plan_prerequisite", "args": ["engine", "state", "approve"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00121", "kind": "plan_prerequisite", "args": ["engine", "state", "set-construction-verification-command"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00122", "kind": "plan_prerequisite", "args": ["engine", "state", "get"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00123", "kind": "plan_prerequisite", "args": ["engine", "state", "set-construction-iteration"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00124", "kind": "plan_prerequisite", "args": ["engine", "state", "set-construction-verification-command"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00125", "kind": "plan_prerequisite", "args": ["engine", "state", "set-skeleton-stance"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00126", "kind": "plan_prerequisite", "args": ["engine", "state", "get"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00127", "kind": "plan_prerequisite", "args": ["engine", "state", "set-construction-execution"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00128", "kind": "plan_prerequisite", "args": ["engine", "state", "set-construction-checkpoints"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00129", "kind": "plan_prerequisite", "args": ["engine", "state", "set-construction-checkpoints"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00130", "kind": "plan_prerequisite", "args": ["engine", "state", "set-construction-iteration"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00131", "kind": "plan_prerequisite", "args": ["engine", "state", "set-skeleton-stance"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00132", "kind": "plan_prerequisite", "args": ["engine", "bolt", "set-autonomy", "--mode", "x"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00133", "kind": "plan_prerequisite", "args": ["engine", "bolt", "set-autonomy", "--mode", "x"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00134", "kind": "plan_prerequisite", "args": ["engine", "bolt", "set-autonomy", "--mode", "x"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00135", "kind": "plan_prerequisite", "args": ["engine", "bolt", "set-autonomy", "--mode", "x"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00136", "kind": "plan_prerequisite", "args": ["engine", "bolt", "set-autonomy", "--mode", "x"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00137", "kind": "plan_prerequisite", "args": ["engine", "bolt", "set-autonomy", "--mode", "x"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00138", "kind": "plan_prerequisite", "args": ["engine", "bolt", "set-autonomy", "--mode", "x"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00139", "kind": "plan_prerequisite", "args": ["engine", "bolt", "set-autonomy", "--mode", "x"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00140", "kind": "plan_prerequisite", "args": ["engine", "bolt", "set-autonomy", "--mode", "x"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00141", "kind": "plan_prerequisite", "args": ["engine", "bolt", "set-autonomy", "--mode", "x"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00142", "kind": "plan_prerequisite", "args": ["engine", "bolt", "set-autonomy", "--mode", "x"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00143", "kind": "plan_prerequisite", "args": ["engine", "bolt", "set-autonomy", "--mode", "x"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00144", "kind": "plan_prerequisite", "args": ["engine", "bolt", "start"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00145", "kind": "plan_prerequisite", "args": ["engine", "bolt", "swarm-checkpoint"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00146", "kind": "plan_prerequisite", "args": ["engine", "bolt", "complete"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00147", "kind": "plan_prerequisite", "args": ["engine", "bolt", "complete"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00148", "kind": "plan_prerequisite", "args": ["engine", "bolt", "complete"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00149", "kind": "plan_prerequisite", "args": ["engine", "bolt", "checkpoint"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00150", "kind": "plan_prerequisite", "args": ["engine", "bolt", "start"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00151", "kind": "plan_prerequisite", "args": ["engine", "bolt", "complete"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00152", "kind": "plan_prerequisite", "args": ["engine", "bolt", "complete"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00153", "kind": "plan_prerequisite", "args": ["engine", "bolt", "checkpoint"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00154", "kind": "plan_prerequisite", "args": ["engine", "bolt", "complete"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00155", "kind": "plan_prerequisite", "args": ["engine", "bolt", "swarm-checkpoint"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00156", "kind": "plan_prerequisite", "args": ["engine", "bolt", "start", "--action", "run"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00157", "kind": "plan_prerequisite", "args": ["engine", "bolt", "swarm-checkpoint", "--action", ""], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00158", "kind": "plan_prerequisite", "args": ["engine", "bolt", "complete", "--action", "ask"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00159", "kind": "plan_prerequisite", "args": ["engine", "bolt", "checkpoint", "--action", "status"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00160", "kind": "plan_prerequisite", "args": ["engine", "bolt", "complete", "--action", "run"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00161", "kind": "plan_prerequisite", "args": ["engine", "bolt", "complete", "--action", "reject"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00162", "kind": "plan_prerequisite", "args": ["engine", "bolt", "start", "--action", ""], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00163", "kind": "plan_prerequisite", "args": ["engine", "bolt", "complete", "--action", "verify"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00164", "kind": "plan_prerequisite", "args": ["engine", "bolt", "complete", "--action", "approve"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00165", "kind": "plan_prerequisite", "args": ["engine", "bolt", "checkpoint", "--action", "reject"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00166", "kind": "plan_prerequisite", "args": ["engine", "bolt", "start", "--action", "status"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00167", "kind": "plan_prerequisite", "args": ["engine", "bolt", "complete", "--action", ""], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00168", "kind": "plan_prerequisite", "args": ["engine", "bolt", "checkpoint", "--action"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00169", "kind": "plan_prerequisite", "args": ["engine", "bolt", "swarm-checkpoint", "--action"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00170", "kind": "plan_prerequisite", "args": ["engine", "bolt", "start", "--action"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00171", "kind": "plan_prerequisite", "args": ["engine", "bolt", "complete", "--action"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00172", "kind": "plan_prerequisite", "args": ["engine", "bolt", "swarm-checkpoint", "--action"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00173", "kind": "plan_prerequisite", "args": ["engine", "bolt", "checkpoint", "--action"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00174", "kind": "plan_prerequisite", "args": ["engine", "bolt", "complete", "--action"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00175", "kind": "plan_prerequisite", "args": ["engine", "bolt", "checkpoint", "--action"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00176", "kind": "plan_prerequisite", "args": ["engine", "bolt", "checkpoint", "--action"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00177", "kind": "plan_prerequisite", "args": ["engine", "bolt", "complete", "--action"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00178", "kind": "plan_prerequisite", "args": ["engine", "bolt", "checkpoint", "--action"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00179", "kind": "plan_prerequisite", "args": ["engine", "bolt", "checkpoint", "--action"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00180", "kind": "plan_prerequisite", "args": ["engine", "bolt", "start", "--action", "reject", "--action", "reject"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00181", "kind": "plan_prerequisite", "args": ["engine", "bolt", "complete", "--action", "run", "--action", ""], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00182", "kind": "plan_prerequisite", "args": ["engine", "bolt", "checkpoint", "--action", "status", "--action", "status"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00183", "kind": "plan_prerequisite", "args": ["engine", "bolt", "start", "--action", "verify", "--action", "verify"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00184", "kind": "plan_prerequisite", "args": ["engine", "bolt", "checkpoint", "--action", "reject", "--action", "reject"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00185", "kind": "plan_prerequisite", "args": ["engine", "bolt", "start", "--action", "status", "--action", "ask"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00186", "kind": "plan_prerequisite", "args": ["engine", "bolt", "checkpoint", "--action", "reject", "--action", "run"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00187", "kind": "plan_prerequisite", "args": ["engine", "bolt", "complete", "--action", "verify", "--action", ""], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00188", "kind": "plan_prerequisite", "args": ["engine", "bolt", "start", "--action", "verify", "--action", ""], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00189", "kind": "plan_prerequisite", "args": ["engine", "bolt", "swarm-checkpoint", "--action", "run", "--action", "run"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00190", "kind": "plan_prerequisite", "args": ["engine", "bolt", "start", "--action", "", "--action", ""], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00191", "kind": "plan_prerequisite", "args": ["engine", "bolt", "start", "--action", "status", "--action", "reject"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00192", "kind": "plan_prerequisite", "args": ["engine", "bolt", "checkpoint", "--action", "--x"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00193", "kind": "plan_prerequisite", "args": ["engine", "bolt", "checkpoint", "--action", "--x"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00194", "kind": "plan_prerequisite", "args": ["engine", "bolt", "start", "--action", "--x"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00195", "kind": "plan_prerequisite", "args": ["engine", "bolt", "checkpoint", "--action", "--x"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00196", "kind": "plan_prerequisite", "args": ["engine", "bolt", "complete", "--action", "--x"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00197", "kind": "plan_prerequisite", "args": ["engine", "bolt", "start", "--action", "--x"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00198", "kind": "plan_prerequisite", "args": ["engine", "bolt", "checkpoint", "--action", "--x"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00199", "kind": "plan_prerequisite", "args": ["engine", "bolt", "checkpoint", "--action", "--x"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00200", "kind": "plan_prerequisite", "args": ["engine", "bolt", "complete", "--action", "--x"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00201", "kind": "plan_prerequisite", "args": ["engine", "bolt", "swarm-checkpoint", "--action", "--x"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00202", "kind": "plan_prerequisite", "args": ["engine", "bolt", "swarm-checkpoint", "--action", "--x"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00203", "kind": "plan_prerequisite", "args": ["engine", "bolt", "start", "--action", "--x"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00204", "kind": "plan_prerequisite", "args": ["engine", "testing-posture", "reply"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00205", "kind": "plan_prerequisite", "args": ["engine", "testing-posture", "render"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00206", "kind": "plan_prerequisite", "args": ["engine", "testing-posture", "brief"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00207", "kind": "plan_prerequisite", "args": ["engine", "testing-posture", "fingerprint"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00208", "kind": "plan_prerequisite", "args": ["engine", "testing-posture", "verify"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00209", "kind": "plan_prerequisite", "args": ["engine", "testing-posture", "brief"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00210", "kind": "plan_prerequisite", "args": ["engine", "testing-posture", "brief"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00211", "kind": "plan_prerequisite", "args": ["engine", "testing-posture", "resolve"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00212", "kind": "plan_prerequisite", "args": ["engine", "testing-posture", "fingerprint"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00213", "kind": "plan_prerequisite", "args": ["engine", "testing-posture", "fingerprint"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00214", "kind": "plan_prerequisite", "args": ["engine", "testing-posture", "resolve"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00215", "kind": "plan_prerequisite", "args": ["engine", "testing-posture", "restore"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00216", "kind": "plan_prerequisite", "args": ["engine", "runtime", "compile"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00217", "kind": "plan_prerequisite", "args": ["engine", "runtime", "read"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00218", "kind": "plan_prerequisite", "args": ["engine", "runtime", "compile"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00219", "kind": "plan_prerequisite", "args": ["engine", "runtime", "summary"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00220", "kind": "plan_prerequisite", "args": ["engine", "runtime", "read"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00221", "kind": "plan_prerequisite", "args": ["engine", "runtime", "read"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00222", "kind": "plan_prerequisite", "args": ["engine", "runtime", "read"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00223", "kind": "plan_prerequisite", "args": ["engine", "runtime", "compile"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00224", "kind": "plan_prerequisite", "args": ["engine", "runtime", "compile"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00225", "kind": "plan_prerequisite", "args": ["engine", "runtime", "summary"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00226", "kind": "plan_prerequisite", "args": ["engine", "runtime", "read"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00227", "kind": "plan_prerequisite", "args": ["engine", "runtime", "read"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00228", "kind": "plan_prerequisite", "args": ["engine", "log", "answers"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00229", "kind": "plan_prerequisite", "args": ["engine", "log", "answers"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00230", "kind": "plan_prerequisite", "args": ["engine", "log", "answers"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00231", "kind": "plan_prerequisite", "args": ["engine", "log", "answers"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00232", "kind": "plan_prerequisite", "args": ["engine", "log", "answers"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00233", "kind": "plan_prerequisite", "args": ["engine", "log", "answers"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00234", "kind": "plan_prerequisite", "args": ["engine", "log", "answers"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00235", "kind": "plan_prerequisite", "args": ["engine", "log", "answers"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00236", "kind": "plan_prerequisite", "args": ["engine", "log", "answers"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00237", "kind": "plan_prerequisite", "args": ["engine", "log", "answers"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00238", "kind": "plan_prerequisite", "args": ["engine", "log", "answers"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00239", "kind": "plan_prerequisite", "args": ["engine", "log", "answers"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00240", "kind": "plan_prerequisite", "args": ["engine", "audit", "history"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00241", "kind": "plan_prerequisite", "args": ["engine", "audit", "append"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00242", "kind": "plan_prerequisite", "args": ["engine", "audit", "history"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00243", "kind": "plan_prerequisite", "args": ["engine", "audit", "append"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00244", "kind": "plan_prerequisite", "args": ["engine", "audit", "append"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00245", "kind": "plan_prerequisite", "args": ["engine", "audit", "append"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00246", "kind": "plan_prerequisite", "args": ["engine", "audit", "append"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00247", "kind": "plan_prerequisite", "args": ["engine", "audit", "append"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00248", "kind": "plan_prerequisite", "args": ["engine", "audit", "append"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00249", "kind": "plan_prerequisite", "args": ["engine", "audit", "append"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00250", "kind": "plan_prerequisite", "args": ["engine", "audit", "history"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00251", "kind": "plan_prerequisite", "args": ["engine", "audit", "append"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00252", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard-policy", "on"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00253", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.plan-approval", "off"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00254", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard-policy", "relaxed"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00255", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard-policy", "off"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00256", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.plan-approval", "on"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00257", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.review-freeze", ""], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00258", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard-policy", "on"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00259", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "plan-approval", "off"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00260", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.plan-approval", "relaxed"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00261", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard-policy", "off"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00262", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.plan-approval", ""], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00263", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.review-freeze", "off"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00264", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "depth", "relaxed", "x"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00265", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "depth", "", "x"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00266", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "depth", "", "x"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00267", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.review-freeze", "on", "x"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00268", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.review-freeze", "off", "x"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00269", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.plan-approval", "off", "x"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00270", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "plan-approval", "", "x"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00271", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard-policy", "relaxed", "x"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00272", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "depth", "on", "x"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00273", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.plan-approval", "", "x"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00274", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.plan-approval", "relaxed", "x"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00275", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "plan-approval", "", "x"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00276", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "depth"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00277", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.plan-approval"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00278", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.review-freeze"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00279", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.review-freeze"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00280", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "plan-approval"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00281", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "depth"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00282", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.review-freeze"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00283", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.review-freeze"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00284", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.review-freeze"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00285", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "depth"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00286", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "depth"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00287", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard-policy"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00288", "kind": "plan_prerequisite", "args": ["engine", "log", "answer", "--stage", "code-generation", "--checkpoint", "guard-recovery"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00289", "kind": "plan_prerequisite", "args": ["engine", "log", "answers", "--stage", "--x", "--checkpoint", "guard-recovery"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00290", "kind": "plan_prerequisite", "args": ["engine", "log", "answers", "--stage", "Code Generation", "--checkpoint", "other"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00291", "kind": "plan_prerequisite", "args": ["engine", "log", "review", "--stage", "", "--checkpoint", "plan-approval"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00292", "kind": "plan_prerequisite", "args": ["engine", "log", "decision", "--stage", "--x", "--checkpoint", "plan-approval"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00293", "kind": "plan_prerequisite", "args": ["engine", "log", "review", "--stage", "Code Generation", "--checkpoint", ""], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00294", "kind": "plan_prerequisite", "args": ["engine", "log", "decision", "--stage", "Code Generation", "--checkpoint", "plan-approval"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00295", "kind": "plan_prerequisite", "args": ["engine", "log", "answers", "--stage", "Code Generation", "--checkpoint", "guard-recovery"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00296", "kind": "plan_prerequisite", "args": ["engine", "log", "review", "--stage", "", "--checkpoint", ""], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00297", "kind": "plan_prerequisite", "args": ["engine", "log", "review", "--stage", "build", "--checkpoint", "guard-recovery"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00298", "kind": "plan_prerequisite", "args": ["engine", "log", "answer", "--stage", "build", "--checkpoint", "guard-recovery"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00299", "kind": "plan_prerequisite", "args": ["engine", "log", "answer", "--stage", "", "--checkpoint", ""], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00300", "kind": "plan_prerequisite", "args": ["engine", "log", "answer", "--checkpoint", ""], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00301", "kind": "plan_prerequisite", "args": ["engine", "log", "decision", "--checkpoint", ""], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00302", "kind": "plan_prerequisite", "args": ["engine", "log", "review", "--checkpoint", ""], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00303", "kind": "plan_prerequisite", "args": ["engine", "log", "answer", "--checkpoint", "plan-approval"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00304", "kind": "plan_prerequisite", "args": ["engine", "log", "decision", "--checkpoint", "other"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00305", "kind": "plan_prerequisite", "args": ["engine", "log", "answers", "--checkpoint", ""], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00306", "kind": "plan_prerequisite", "args": ["engine", "log", "review", "--checkpoint", ""], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00307", "kind": "plan_prerequisite", "args": ["engine", "log", "answer", "--checkpoint", "guard-recovery"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00308", "kind": "plan_prerequisite", "args": ["engine", "log", "decision", "--checkpoint", ""], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00309", "kind": "plan_prerequisite", "args": ["engine", "log", "decision", "--checkpoint", "plan-approval"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00310", "kind": "plan_prerequisite", "args": ["engine", "log", "answer", "--checkpoint", "plan-approval"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00311", "kind": "plan_prerequisite", "args": ["engine", "log", "answer", "--checkpoint", "plan-approval"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00312", "kind": "plan_prerequisite", "args": ["engine", "log", "answers", "--stage", "--x"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00313", "kind": "plan_prerequisite", "args": ["engine", "log", "decision", "--stage", "--x"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00314", "kind": "plan_prerequisite", "args": ["engine", "log", "answers", "--stage", "--x"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00315", "kind": "plan_prerequisite", "args": ["engine", "log", "answer", "--stage", "--x"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00316", "kind": "plan_prerequisite", "args": ["engine", "log", "answers", "--stage", "code-generation"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00317", "kind": "plan_prerequisite", "args": ["engine", "log", "answers", "--stage", ""], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00318", "kind": "plan_prerequisite", "args": ["engine", "log", "answer", "--stage", "Code Generation"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00319", "kind": "plan_prerequisite", "args": ["engine", "log", "review", "--stage", "build"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00320", "kind": "plan_prerequisite", "args": ["engine", "log", "decision", "--stage", ""], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00321", "kind": "plan_prerequisite", "args": ["engine", "log", "review", "--stage", "code-generation"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00322", "kind": "plan_prerequisite", "args": ["engine", "log", "decision", "--stage", ""], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00323", "kind": "plan_prerequisite", "args": ["engine", "log", "decision", "--stage", "Code Generation"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00324", "kind": "plan_prerequisite", "args": ["engine", "log", "answer", "--checkpoint", "", "--stage", "", "--checkpoint", "other"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00325", "kind": "plan_prerequisite", "args": ["engine", "log", "answers", "--checkpoint", "plan-approval", "--stage", "code-generation", "--checkpoint", ""], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00326", "kind": "plan_prerequisite", "args": ["engine", "log", "answer", "--checkpoint", "other", "--stage", "code-generation", "--checkpoint", ""], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00327", "kind": "plan_prerequisite", "args": ["engine", "log", "decision", "--checkpoint", "plan-approval", "--stage", "build", "--checkpoint", "plan-approval"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00328", "kind": "plan_prerequisite", "args": ["engine", "log", "answer", "--checkpoint", "other", "--stage", "build", "--checkpoint", "guard-recovery"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00329", "kind": "plan_prerequisite", "args": ["engine", "log", "answer", "--checkpoint", "", "--stage", "Code Generation", "--checkpoint", "plan-approval"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00330", "kind": "plan_prerequisite", "args": ["engine", "log", "answers", "--checkpoint", "other", "--stage", "build", "--checkpoint", "plan-approval"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00331", "kind": "plan_prerequisite", "args": ["engine", "log", "answers", "--checkpoint", "", "--stage", "code-generation", "--checkpoint", "other"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00332", "kind": "plan_prerequisite", "args": ["engine", "log", "decision", "--checkpoint", "plan-approval", "--stage", "Code Generation", "--checkpoint", "other"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00333", "kind": "plan_prerequisite", "args": ["engine", "log", "decision", "--checkpoint", "other", "--stage", "--x", "--checkpoint", "guard-recovery"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00334", "kind": "plan_prerequisite", "args": ["engine", "log", "answers", "--checkpoint", "", "--stage", "--x", "--checkpoint", "other"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00335", "kind": "plan_prerequisite", "args": ["engine", "log", "review", "--checkpoint", "", "--stage", "", "--checkpoint", "other"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00336", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.plan-approval", ""], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00337", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.review-freeze", "on"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00338", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.reviewer-scope", ""], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00339", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.reviewer-scope", "off"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00340", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.state-transition", "relaxed"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00341", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.reviewer-scope", ""], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00342", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.human-presence", "off"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00343", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.human-presence", "off"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00344", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.reviewer-scope", "on"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00345", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.review-freeze", "off"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00346", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.reviewer-scope", "relaxed"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00347", "kind": "plan_prerequisite", "args": ["engine", "config", "set", "guard.human-presence", "on"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00348", "kind": "plan_prerequisite", "args": ["engine", "utility", "config-change", "--guard.human-presence", "relaxed"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00349", "kind": "plan_prerequisite", "args": ["engine", "utility", "config-change", "--guard.plan-approval", ""], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00350", "kind": "plan_prerequisite", "args": ["engine", "utility", "config-change", "--guard.state-transition", "off"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00351", "kind": "plan_prerequisite", "args": ["engine", "utility", "config-change", "--guard.review-freeze", ""], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00352", "kind": "plan_prerequisite", "args": ["engine", "utility", "config-change", "--guard.state-transition", "relaxed"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00353", "kind": "plan_prerequisite", "args": ["engine", "utility", "config-change", "--guard.reviewer-scope", "on"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00354", "kind": "plan_prerequisite", "args": ["engine", "utility", "config-change", "--guard.plan-approval", "on"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00355", "kind": "plan_prerequisite", "args": ["engine", "utility", "config-change", "--guard.human-presence", "on"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00356", "kind": "plan_prerequisite", "args": ["engine", "utility", "config-change", "--guard.human-presence", "on"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00357", "kind": "plan_prerequisite", "args": ["engine", "utility", "config-change", "--guard.state-transition", "off"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00358", "kind": "plan_prerequisite", "args": ["engine", "utility", "config-change", "--guard.reviewer-scope", "off"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00359", "kind": "plan_prerequisite", "args": ["engine", "utility", "config-change", "--guard.human-presence", ""], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00360", "kind": "plan_prerequisite", "args": ["engine", "bolt", "abort", "--name", "u", "--slug", "s", "--reason", "stale-review", "--discard"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00361", "kind": "plan_prerequisite", "args": ["engine", "bolt", "abort", "--name", "u", "--slug", "s", "--reason", "stale-review", "--discard"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00362", "kind": "plan_prerequisite", "args": ["engine", "bolt", "abort", "--name", "u", "--slug", "s", "--reason", "stale-review", "--discard"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00363", "kind": "plan_prerequisite", "args": ["engine", "bolt", "abort", "--name", "u", "--slug", "s", "--reason", "stale-review", "--discard"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00364", "kind": "plan_prerequisite", "args": ["engine", "bolt", "abort", "--name", "u", "--slug", "s", "--reason", "stale-review", "--discard"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00365", "kind": "plan_prerequisite", "args": ["engine", "bolt", "abort", "--name", "u", "--slug", "s", "--reason", "stale-review", "--discard"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00366", "kind": "plan_prerequisite", "args": ["engine", "bolt", "abort", "--name", "u", "--slug", "s", "--reason", "stale-review", "--discard"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00367", "kind": "plan_prerequisite", "args": ["engine", "bolt", "abort", "--name", "u", "--slug", "s", "--reason", "stale-review", "--discard"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00368", "kind": "plan_prerequisite", "args": ["engine", "bolt", "abort", "--name", "u", "--slug", "s", "--reason", "stale-review", "--discard"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00369", "kind": "plan_prerequisite", "args": ["engine", "bolt", "abort", "--name", "u", "--slug", "s", "--reason", "stale-review", "--discard"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00370", "kind": "plan_prerequisite", "args": ["engine", "bolt", "abort", "--name", "u", "--slug", "s", "--reason", "stale-review", "--discard"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00371", "kind": "plan_prerequisite", "args": ["engine", "bolt", "abort", "--name", "u", "--slug", "s", "--reason", "stale-review", "--discard"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00372", "kind": "plan_prerequisite", "args": ["continue", "orchestrate", "next"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00373", "kind": "plan_prerequisite", "args": ["park", "orchestrate", "next"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00374", "kind": "plan_prerequisite", "args": ["wait", "orchestrate", "next"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00375", "kind": "plan_prerequisite", "args": ["wait", "orchestrate", "next"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00376", "kind": "plan_prerequisite", "args": ["help", "orchestrate", "next"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00377", "kind": "plan_prerequisite", "args": ["team-board", "orchestrate", "next"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00378", "kind": "plan_prerequisite", "args": ["help", "orchestrate", "next"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00379", "kind": "plan_prerequisite", "args": ["continue", "orchestrate", "next"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00380", "kind": "plan_prerequisite", "args": ["continue", "orchestrate", "next"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00381", "kind": "plan_prerequisite", "args": ["park", "orchestrate", "next"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00382", "kind": "plan_prerequisite", "args": ["wait", "orchestrate", "next"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00383", "kind": "plan_prerequisite", "args": ["wait", "orchestrate", "next"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00384", "kind": "plan_prerequisite", "args": ["engine"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00385", "kind": "plan_prerequisite", "args": ["engine"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00386", "kind": "plan_prerequisite", "args": ["engine"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00387", "kind": "plan_prerequisite", "args": ["engine"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00388", "kind": "plan_prerequisite", "args": ["engine"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00389", "kind": "plan_prerequisite", "args": ["engine"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00390", "kind": "plan_prerequisite", "args": ["engine"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00391", "kind": "plan_prerequisite", "args": ["engine"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00392", "kind": "plan_prerequisite", "args": ["engine"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00393", "kind": "plan_prerequisite", "args": ["engine"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00394", "kind": "plan_prerequisite", "args": ["engine"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00395", "kind": "plan_prerequisite", "args": ["engine"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00396", "kind": "plan_prerequisite", "args": ["engine", "help"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00397", "kind": "plan_prerequisite", "args": ["engine", "report"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00398", "kind": "plan_prerequisite", "args": ["engine", "wait"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00399", "kind": "plan_prerequisite", "args": ["engine", "report"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00400", "kind": "plan_prerequisite", "args": ["engine", "help"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00401", "kind": "plan_prerequisite", "args": ["engine", "help"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00402", "kind": "plan_prerequisite", "args": ["engine", "next"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00403", "kind": "plan_prerequisite", "args": ["engine", "wait"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00404", "kind": "plan_prerequisite", "args": ["engine", "help"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00405", "kind": "plan_prerequisite", "args": ["engine", "continue"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00406", "kind": "plan_prerequisite", "args": ["engine", "park"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00407", "kind": "plan_prerequisite", "args": ["engine", "report"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00408", "kind": "plan_prerequisite", "args": ["engine", "bolt", "abort", "--name", "u", "--slug", "s", "--reason", "stale review recovery exhausted", "--discard"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00409", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "code-generation", "--result", "approved"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00410", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "code-generation", "--result", "approved"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00411", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "code-generation", "--result", "rejected"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00412", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "code-generation", "--result", "rejected"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00413", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "code-generation", "--result", "revised"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00414", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "code-generation", "--result", "revised"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00415", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "", "--stage", "code-generation", "--result", "approved"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00416", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "", "--stage", "code-generation", "--result", "approved"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00417", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "--x", "--stage", "code-generation", "--result", "rejected"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00418", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "--x", "--stage", "code-generation", "--result", "rejected"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00419", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "build", "--stage", "code-generation", "--result", "approved"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00420", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "build", "--stage", "code-generation", "--result", "approved"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00421", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "code-generation", "--stage", "build", "--result", "approved"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00422", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "code-generation", "--stage", "build", "--result", "approved"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00423", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "code-generation", "--result", "approved", "--result"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00424", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "code-generation", "--result", "approved", "--result"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00425", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--result", "approved", "--stage", "code-generation", "--stage"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00426", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--result", "approved", "--stage", "code-generation", "--stage"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00427", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "code-generation", "--result", "", "--result", "rejected"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00428", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report", "--stage", "code-generation", "--result", "", "--result", "rejected"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00429", "kind": "plan_prerequisite", "args": ["engine", "bolt", "checkpoint", "--action", "", "--action", "ask"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00430", "kind": "plan_prerequisite", "args": ["engine", "bolt", "checkpoint", "--action", "--x", "--action", "ask"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00431", "kind": "plan_prerequisite", "args": ["engine", "bolt", "checkpoint", "--action", "verify", "--action", "ask"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00432", "kind": "plan_prerequisite", "args": ["engine", "bolt", "checkpoint", "--action", "ask", "--action", "verify"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00433", "kind": "plan_prerequisite", "args": ["engine", "bolt", "checkpoint", "--action", "ask", "--action"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00434", "kind": "plan_prerequisite", "args": ["engine", "top", "status"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00435", "kind": "plan_prerequisite", "args": ["engine", "top", "recompose"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00436", "kind": "plan_prerequisite", "args": ["engine", "top", "now"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00437", "kind": "plan_prerequisite", "args": ["engine", "top", "statusline"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00438", "kind": "plan_prerequisite", "args": ["engine", "top", "adapter"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00439", "kind": "plan_prerequisite", "args": ["engine", "state", "get"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00440", "kind": "plan_prerequisite", "args": ["engine", "state", "set"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00441", "kind": "plan_prerequisite", "args": ["engine", "state", "set-skeleton-stance"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00442", "kind": "plan_prerequisite", "args": ["engine", "state", "set-construction-iteration"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00443", "kind": "plan_prerequisite", "args": ["engine", "state", "set-construction-checkpoints"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00444", "kind": "plan_prerequisite", "args": ["engine", "state", "set-construction-execution"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00445", "kind": "plan_prerequisite", "args": ["engine", "state", "set-construction-verification-command"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00446", "kind": "plan_prerequisite", "args": ["engine", "state", "checkbox"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00447", "kind": "plan_prerequisite", "args": ["engine", "state", "count"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00448", "kind": "plan_prerequisite", "args": ["engine", "state", "advance"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00449", "kind": "plan_prerequisite", "args": ["engine", "state", "finalize"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00450", "kind": "plan_prerequisite", "args": ["engine", "state", "complete-workflow"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00451", "kind": "plan_prerequisite", "args": ["engine", "state", "gate-start"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00452", "kind": "plan_prerequisite", "args": ["engine", "state", "approve"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00453", "kind": "plan_prerequisite", "args": ["engine", "state", "reject"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00454", "kind": "plan_prerequisite", "args": ["engine", "state", "revise"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00455", "kind": "plan_prerequisite", "args": ["engine", "state", "skip"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00456", "kind": "plan_prerequisite", "args": ["engine", "state", "resume"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00457", "kind": "plan_prerequisite", "args": ["engine", "state", "acknowledge-compaction"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00458", "kind": "plan_prerequisite", "args": ["engine", "state", "reuse-artifact"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00459", "kind": "plan_prerequisite", "args": ["engine", "state", "lookup"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00460", "kind": "plan_prerequisite", "args": ["engine", "state", "practices-event"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00461", "kind": "plan_prerequisite", "args": ["engine", "state", "practices-promote"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00462", "kind": "plan_prerequisite", "args": ["engine", "state", "set-unit-ownership"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00463", "kind": "plan_prerequisite", "args": ["engine", "state", "set-unit-gate-rhythm"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00464", "kind": "plan_prerequisite", "args": ["engine", "state", "refresh-unit-progress"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00465", "kind": "plan_prerequisite", "args": ["engine", "state", "sync-unit-scope-stage"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00466", "kind": "plan_prerequisite", "args": ["engine", "state", "fold-unit-merge"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00467", "kind": "plan_prerequisite", "args": ["engine", "state", "fork"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00468", "kind": "plan_prerequisite", "args": ["engine", "state", "merge"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00469", "kind": "plan_prerequisite", "args": ["engine", "state", "park"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00470", "kind": "plan_prerequisite", "args": ["engine", "state", "unpark"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00471", "kind": "plan_prerequisite", "args": ["engine", "state", "unit"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00472", "kind": "plan_prerequisite", "args": ["engine", "state", "set-status"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00473", "kind": "plan_prerequisite", "args": ["engine", "state", "init"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00474", "kind": "plan_prerequisite", "args": ["engine", "audit", "append"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00475", "kind": "plan_prerequisite", "args": ["engine", "audit", "append-batch"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00476", "kind": "plan_prerequisite", "args": ["engine", "audit", "append-raw"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00477", "kind": "plan_prerequisite", "args": ["engine", "audit", "history"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00478", "kind": "plan_prerequisite", "args": ["engine", "audit", "fork"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00479", "kind": "plan_prerequisite", "args": ["engine", "audit", "merge"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00480", "kind": "plan_prerequisite", "args": ["engine", "graph", "artifacts"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00481", "kind": "plan_prerequisite", "args": ["engine", "graph", "producers"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00482", "kind": "plan_prerequisite", "args": ["engine", "graph", "consumers"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00483", "kind": "plan_prerequisite", "args": ["engine", "graph", "topo"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00484", "kind": "plan_prerequisite", "args": ["engine", "graph", "cycles"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00485", "kind": "plan_prerequisite", "args": ["engine", "graph", "scope"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00486", "kind": "plan_prerequisite", "args": ["engine", "graph", "validate-scope"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00487", "kind": "plan_prerequisite", "args": ["engine", "graph", "validate-grid"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00488", "kind": "plan_prerequisite", "args": ["engine", "graph", "ars"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00489", "kind": "plan_prerequisite", "args": ["engine", "graph", "compile"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00490", "kind": "plan_prerequisite", "args": ["engine", "graph", "resolve"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00491", "kind": "plan_prerequisite", "args": ["engine", "graph", "export"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00492", "kind": "plan_prerequisite", "args": ["engine", "runtime", "compile"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00493", "kind": "plan_prerequisite", "args": ["engine", "runtime", "read"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00494", "kind": "plan_prerequisite", "args": ["engine", "runtime", "summary"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00495", "kind": "plan_prerequisite", "args": ["engine", "runtime", "fragment-fork"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00496", "kind": "plan_prerequisite", "args": ["engine", "runtime", "fragment-merge"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00497", "kind": "plan_prerequisite", "args": ["engine", "sensor", "list"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00498", "kind": "plan_prerequisite", "args": ["engine", "sensor", "describe"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00499", "kind": "plan_prerequisite", "args": ["engine", "sensor", "fire"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00500", "kind": "plan_prerequisite", "args": ["engine", "swarm", "prepare"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00501", "kind": "plan_prerequisite", "args": ["engine", "swarm", "check"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00502", "kind": "plan_prerequisite", "args": ["engine", "swarm", "finalize"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00503", "kind": "plan_prerequisite", "args": ["engine", "bolt", "start"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00504", "kind": "plan_prerequisite", "args": ["engine", "bolt", "complete"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00505", "kind": "plan_prerequisite", "args": ["engine", "bolt", "fail"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00506", "kind": "plan_prerequisite", "args": ["engine", "bolt", "abort"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00507", "kind": "plan_prerequisite", "args": ["engine", "bolt", "set-autonomy"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00508", "kind": "plan_prerequisite", "args": ["engine", "bolt", "checkpoint"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00509", "kind": "plan_prerequisite", "args": ["engine", "bolt", "swarm-checkpoint"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00510", "kind": "plan_prerequisite", "args": ["engine", "bolt", "dispatch-event"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00511", "kind": "plan_prerequisite", "args": ["engine", "bolt", "hold-merge"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00512", "kind": "plan_prerequisite", "args": ["engine", "bolt", "release-merge"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00513", "kind": "plan_prerequisite", "args": ["engine", "worktree", "create"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00514", "kind": "plan_prerequisite", "args": ["engine", "worktree", "merge"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00515", "kind": "plan_prerequisite", "args": ["engine", "worktree", "discard"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00516", "kind": "plan_prerequisite", "args": ["engine", "worktree", "restore"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00517", "kind": "plan_prerequisite", "args": ["engine", "worktree", "purge"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00518", "kind": "plan_prerequisite", "args": ["engine", "worktree", "list"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00519", "kind": "plan_prerequisite", "args": ["engine", "worktree", "verify"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00520", "kind": "plan_prerequisite", "args": ["engine", "worktree", "info"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00521", "kind": "plan_prerequisite", "args": ["engine", "jump", "resolve"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00522", "kind": "plan_prerequisite", "args": ["engine", "jump", "execute"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00523", "kind": "plan_prerequisite", "args": ["engine", "jump", "reopen"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00524", "kind": "plan_prerequisite", "args": ["engine", "log", "decision"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00525", "kind": "plan_prerequisite", "args": ["engine", "log", "answer"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00526", "kind": "plan_prerequisite", "args": ["engine", "log", "answers"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00527", "kind": "plan_prerequisite", "args": ["engine", "log", "review"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00528", "kind": "plan_prerequisite", "args": ["engine", "log", "link"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00529", "kind": "plan_prerequisite", "args": ["engine", "learnings", "surface"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00530", "kind": "plan_prerequisite", "args": ["engine", "learnings", "persist"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00531", "kind": "plan_prerequisite", "args": ["engine", "testing-posture", "resolve"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00532", "kind": "plan_prerequisite", "args": ["engine", "testing-posture", "render"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00533", "kind": "plan_prerequisite", "args": ["engine", "testing-posture", "fingerprint"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00534", "kind": "plan_prerequisite", "args": ["engine", "testing-posture", "verify"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00535", "kind": "plan_prerequisite", "args": ["engine", "testing-posture", "begin"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00536", "kind": "plan_prerequisite", "args": ["engine", "testing-posture", "brief"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00537", "kind": "plan_prerequisite", "args": ["engine", "testing-posture", "reply"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00538", "kind": "plan_prerequisite", "args": ["engine", "testing-posture", "restore"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00539", "kind": "plan_prerequisite", "args": ["engine", "validate", "outputs"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00540", "kind": "plan_prerequisite", "args": ["engine", "intent", "list"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00541", "kind": "plan_prerequisite", "args": ["engine", "intent", "switch"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00542", "kind": "plan_prerequisite", "args": ["engine", "intent", "<name>"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00543", "kind": "plan_prerequisite", "args": ["engine", "intent", "create"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00544", "kind": "plan_prerequisite", "args": ["engine", "intent", "archive"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00545", "kind": "plan_prerequisite", "args": ["engine", "intent", "unarchive"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00546", "kind": "plan_prerequisite", "args": ["engine", "intent", "add-repo"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00547", "kind": "plan_prerequisite", "args": ["engine", "intent", "remove-repo"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00548", "kind": "plan_prerequisite", "args": ["engine", "space", "list"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00549", "kind": "plan_prerequisite", "args": ["engine", "space", "switch"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00550", "kind": "plan_prerequisite", "args": ["engine", "space", "<name>"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00551", "kind": "plan_prerequisite", "args": ["engine", "space", "create"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00552", "kind": "plan_prerequisite", "args": ["engine", "scope", "change"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00553", "kind": "plan_prerequisite", "args": ["engine", "scope", "save"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00554", "kind": "plan_prerequisite", "args": ["engine", "scope", "detect"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00555", "kind": "plan_prerequisite", "args": ["engine", "scope", "resolve-env"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00556", "kind": "plan_prerequisite", "args": ["engine", "config", "depth"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00557", "kind": "plan_prerequisite", "args": ["engine", "config", "test-strategy"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00558", "kind": "plan_prerequisite", "args": ["engine", "config", "review"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00559", "kind": "plan_prerequisite", "args": ["engine", "config", "guard-policy"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00560", "kind": "plan_prerequisite", "args": ["engine", "config", "change-control"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00561", "kind": "plan_prerequisite", "args": ["engine", "config", "sensors"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00562", "kind": "plan_prerequisite", "args": ["engine", "config", "learnings"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00563", "kind": "plan_prerequisite", "args": ["engine", "config", "collaborators"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00564", "kind": "plan_prerequisite", "args": ["engine", "config", "summary-confirmation"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00565", "kind": "plan_prerequisite", "args": ["engine", "config", "plan-approval"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00566", "kind": "plan_prerequisite", "args": ["engine", "config", "guard.plan-approval"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00567", "kind": "plan_prerequisite", "args": ["engine", "config", "guard.review-freeze"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00568", "kind": "plan_prerequisite", "args": ["engine", "config", "guard.state-transition"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00569", "kind": "plan_prerequisite", "args": ["engine", "config", "guard.reviewer-scope"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00570", "kind": "plan_prerequisite", "args": ["engine", "config", "get"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00571", "kind": "plan_prerequisite", "args": ["engine", "config", "list"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00572", "kind": "plan_prerequisite", "args": ["engine", "plugin", "select"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00573", "kind": "plan_prerequisite", "args": ["engine", "plugin", "sync"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00574", "kind": "plan_prerequisite", "args": ["engine", "plugin", "list"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00575", "kind": "plan_prerequisite", "args": ["engine", "plugin", "validate"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00576", "kind": "plan_prerequisite", "args": ["engine", "plugin", "build"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00577", "kind": "plan_prerequisite", "args": ["engine", "knowledge", "onboard"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00578", "kind": "plan_prerequisite", "args": ["engine", "knowledge", "sync"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00579", "kind": "plan_prerequisite", "args": ["engine", "knowledge", "list"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00580", "kind": "plan_prerequisite", "args": ["engine", "knowledge", "show"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00581", "kind": "plan_prerequisite", "args": ["engine", "knowledge", "associate"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00582", "kind": "plan_prerequisite", "args": ["engine", "knowledge", "dissociate"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00583", "kind": "plan_prerequisite", "args": ["engine", "knowledge", "rebind"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00584", "kind": "plan_prerequisite", "args": ["engine", "knowledge", "summarize"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00585", "kind": "plan_prerequisite", "args": ["engine", "knowledge", "help"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00586", "kind": "plan_prerequisite", "args": ["engine", "gen", "runners"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00587", "kind": "plan_prerequisite", "args": ["engine", "gen", "runners --check"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00588", "kind": "plan_prerequisite", "args": ["engine", "gen", "runner-list"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00589", "kind": "plan_prerequisite", "args": ["engine", "gen", "runner-scopes"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00590", "kind": "plan_prerequisite", "args": ["engine", "gen", "stage-table"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00591", "kind": "plan_prerequisite", "args": ["engine", "gen", "scope-table"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00592", "kind": "plan_prerequisite", "args": ["engine", "workspace", "detect"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00593", "kind": "plan_prerequisite", "args": ["engine", "workspace", "reclassify"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00594", "kind": "plan_prerequisite", "args": ["engine", "workspace", "codekb"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00595", "kind": "plan_prerequisite", "args": ["engine", "workspace", "codekb-scope-diff"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00596", "kind": "plan_prerequisite", "args": ["engine", "workspace", "codekb-snapshot"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00597", "kind": "plan_prerequisite", "args": ["engine", "workspace", "codekb-publish"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00598", "kind": "plan_prerequisite", "args": ["engine", "workspace", "project-description"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00599", "kind": "plan_prerequisite", "args": ["engine", "workspace", "document-input"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00600", "kind": "plan_prerequisite", "args": ["engine", "review-brief", "review"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00601", "kind": "plan_prerequisite", "args": ["engine", "review-brief", "context"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00602", "kind": "plan_prerequisite", "args": ["engine", "review-brief", "summary"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00603", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "next"], "gate_held": true, "spoke": false}
+{"id": "plan_prerequisite-00604", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "continue"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00605", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "report"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00606", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "park"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00607", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "wait"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00608", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "team-board"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00609", "kind": "plan_prerequisite", "args": ["engine", "orchestrate", "help"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00610", "kind": "plan_prerequisite", "args": ["engine", "sensor-claim-sources", "<args>"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00611", "kind": "plan_prerequisite", "args": ["engine", "sensor-linter", "<args>"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00612", "kind": "plan_prerequisite", "args": ["engine", "sensor-required-sections", "<args>"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00613", "kind": "plan_prerequisite", "args": ["engine", "sensor-traceability", "<args>"], "gate_held": false, "spoke": false}
+{"id": "plan_prerequisite-00614", "kind": "plan_prerequisite", "args": ["engine", "sensor-type-check", "<args>"], "gate_held": false, "spoke": true}
+{"id": "plan_prerequisite-00615", "kind": "plan_prerequisite", "args": ["engine", "sensor-upstream-coverage", "<args>"], "gate_held": true, "spoke": true}
+{"id": "plan_prerequisite-00616", "kind": "plan_prerequisite", "args": ["engine", "hook", "<name>"], "gate_held": false, "spoke": true}

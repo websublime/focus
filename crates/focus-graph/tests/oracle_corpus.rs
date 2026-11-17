@@ -15,14 +15,22 @@ use serde_json::{Value, json};
 #[test]
 fn every_case_gets_upstreams_answer() {
     let dir = common::fixtures().join("oracle");
-    let cases = fs::read_to_string(dir.join("cases.ndjson")).unwrap();
-    let expected = fs::read_to_string(dir.join("expected.ndjson")).unwrap();
+    // The corpus is kept by kind: the kinds this crate answers, each in the
+    // order it was answered in.
+    let read = |part: &str| -> String {
+        focus_graph::oracle::KINDS
+            .iter()
+            .map(|kind| fs::read_to_string(dir.join(part).join(format!("{kind}.ndjson"))).unwrap())
+            .collect()
+    };
+    let cases = read("cases");
+    let expected = read("expected");
     let cases: Vec<&str> = cases.lines().filter(|l| !l.is_empty()).collect();
     let expected: Vec<&str> = expected.lines().filter(|l| !l.is_empty()).collect();
     assert_eq!(
         cases.len(),
         expected.len(),
-        "cases.ndjson and expected.ndjson are out of step"
+        "the cases and their answers are out of step"
     );
     assert!(
         cases.len() > 1000,
@@ -66,7 +74,11 @@ fn every_case_gets_upstreams_answer() {
 fn the_corpus_exercises_every_kind_and_both_outcomes() {
     // A corpus of nothing but refusals, or nothing but acceptances, would
     // pass the replay while proving little.
-    let expected = fs::read_to_string(common::fixtures().join("oracle/expected.ndjson")).unwrap();
+    let dir = common::fixtures().join("oracle/expected");
+    let expected: String = focus_graph::oracle::KINDS
+        .iter()
+        .map(|kind| fs::read_to_string(dir.join(format!("{kind}.ndjson"))).unwrap())
+        .collect();
     let count = |needle: &str| expected.lines().filter(|l| l.contains(needle)).count();
     for kind in [
         "stage-",

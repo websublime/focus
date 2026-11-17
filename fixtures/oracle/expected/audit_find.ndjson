@@ -1,0 +1,240 @@
+{"id":"audit_find-00000","out":{"found":[{"timestamp":"2026-10-09T16:22:43Z","block":"# Focus Audit Log\n\n## A.B\n**Timestamp**: 2026-10-09T16:22:43Z\n**event**: A.B\n\n--- \n\n## Gate_Approved\n**Timestamp**:  2026-10-09T16:22:43Z\n- **Even,**: GATE_APPROVED\n- **Stage**:  spaced  \n\n--- \n\n## X\n**Timestamp**:2026-10-09T16:22:42Z tail\n**Event**: X  \n- **Bolt >lug**: two\n**Stage**: code-generation\n\n--- \n\n## Gate_Approved\n**Timestamp**:1 tail\n**Event**: GATE_APPROVED\n**Bolt slug**: one\n**Stage**: code-generation\n\n--- \n\n## Gate_Approved\n**Timestamp**: 2026-10-09T16:22:2Z\n**Event**:GATE_APPROVED\n- **Bolt slug**: one\n\n--- \n\n## Gate_Approved\n**Timestamp**:é tail\n**Event**:\nGATE_APPROVED\n- **Bolt slug**: one\n- **Stage**:  spaced  \n"}]}}
+{"id":"audit_find-00001","out":{"found":[]}}
+{"id":"audit_find-00002","out":{"found":[{"timestamp":"1","block":"# Focus Audit Log\n\n## X\n**Timestamp**:1\n**Event**: X\n- **Bolt slug**: one\n"}]}}
+{"id":"audit_find-00003","out":{"found":[{"timestamp":"1","block":"# Focus Audit Log\n\n## Bolt_Started\n**Timestamp**:1\n**Event**: BOLT_STARTEDx\n**Bolt slug**: o.e\n**Stage**: code-generation\n\n----\n\n## Bolt_Started\n**Timestamp**:\tx\n**Event**: BOLT_STARTED\n**Bolt slug**:o.e \n\n----\n\n## Bolt_Started\n**Timestamp**:  2026-10-09T16:22:42.123Z tail\n**Event**: BOLT_STARTED  \n**Bolt slug**: a-b\n**Stage**: first\n**Stage**: second\n\n----\n\n## Stage_Completed\n**Timestamp**:  1\n**Event**: STAGE_COMPLETED\t\n**Stage**: first\n**Stage**: second\n\n----\n\n## Bolt_Started\n**Timestamp**:é\n**Event**:\nBOLT_STARTED\n- **Bolt slug**: o.e\n"}]}}
+{"id":"audit_find-00004","out":{"found":[]}}
+{"id":"audit_find-00005","out":{"found":[]}}
+{"id":"audit_find-00006","out":{"found":[]}}
+{"id":"audit_find-00007","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"\n## X\n**Timestamp**:\t2026-10-09T16:22:42Z\n**Event**: X\n**Bolt slug**: o.e\nplain line\n"}]}}
+{"id":"audit_find-00008","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"\n## A.B\n**Timestamp**:  2026-10-09T16:22:42Z tail\n**Event**: A.B\n"}]}}
+{"id":"audit_find-00009","out":{"found":[{"timestamp":"x","block":"# Focus Audit Log\n\n## X\n**Timestamp**: x\n**Event**: X\n\n----\n\n## A+\n**Timestamp**:\t1 tail\n**Event**: A+  \n**Stage**: first\n**Stage**: second\n\n----\n\n## Gate_Approved\n**Event**: GATE_APPROVED\n**Bolt slug**: a-b\n\n----\n\n## X\n**Timestamp**:\tx\n- **Event**: X\n**Bolt slug**: one\n**Details (raw)**: x\n\n----\n\n## X\n**Timestamp**:\t2026-10-08T23:59:59Z\n**Event**: X\n**Bolt slug**: a-b\n\n----\n\n## X\n**Timestamp**:\t2026-10-09T16:22:42.123Z tail\n**Event**: X\n**Bolt slug**: a-b\n**Note**: a\\nb\n"}]}}
+{"id":"audit_find-00010","out":{"found":[]}}
+{"id":"audit_find-00011","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"# Focus Audit Log\n\n## A.B\n**Timestamp**: 2026-10-09T16:22:42Z\n**Event**: A.B\t\n**Bolt slug**: a-b\n\n--- \n\n## A.B\n**Event**: A.B  \n**Bolt slug**:a-b \n\n--- \n\n## Bolt_Started\n**Timestamp**:  2026-10-08T23:59:59Z\n**Event**: BOLT_STARTED\t\n**olt slug**: a-bx\n\n--- \n\n## A.B\n**Timestamp**:  2026-10-09T16:22:43Z\n- **Event**: A.B\n- **Bolt slug**: a-b\n\n--- \n\n## A.B\n**Timestamp**:2026-10-09T16:22:42Z tail\n**Event**: A.B\n**Event**: X\n**Bolt lug**:two \n**Stage** first\n**Stage**: second\n"}]}}
+{"id":"audit_find-00012","out":{"found":[]}}
+{"id":"audit_find-00013","out":{"found":[]}}
+{"id":"audit_find-00014","out":{"found":[]}}
+{"id":"audit_find-00015","out":{"found":[]}}
+{"id":"audit_find-00016","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"\n## Gate_Approved\n**Timestamp**:\t2026-10-09T16:22:42Z\n**Event**: GATE_APPROVED\n**Bolt slug**: one\n"}]}}
+{"id":"audit_find-00017","out":{"found":[]}}
+{"id":"audit_find-00018","out":{"found":[{"timestamp":"1","block":"# Focus Audit Log\n\n## Gate_Approved\n**Timestamp**:1\n**Event**: GATE_APPROVED\n**Bolt slug**: twox\n**Stage**:\n\n----\n\n## Gate_Approved\n**Timestamp**: é\n**Event**:\nGATE_APPROVED\n\n----\n\n## Stage_Completed\n**Timestamp**:é\n**Event**:STAGE_COMPLETED\n\n----\n\n## Gate_Approved\n**Timestamp**:  2026-10-09T16:22:42Z\n**Event**:\nGATE_APPROVED\n**Details (raw)**: x\n\n----\n\n## Gate_Approved\n**Event**: GATE_APPROVED  \n**Bolt slug**: one\n- **Stage**:  spaced  \n\n----\n\n## Gate_Approved\n**Timestamp**: 2026-10-09T16:22:42.123Z tail\n**event**: GATE_APPROVED\n- **Stage**:  spaced  \n"}]}}
+{"id":"audit_find-00019","out":{"found":[{"timestamp":"x","block":"# Focus Audit Log\n\n## Stage_Completed\n**Timestamp**:x\n**Event**: STAGE_COMPLETED  \n- **Bolt slug**: a-b\n**Note**: a\\nb\n\n--- \n\n## Gate_Approved\n**Event**: GATE_APPROVEDx\n\n--- \n\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:43Z tail\n**Event**: STAGE_STARTEDx\n\n--- \n\n## Stage_Completed\n**Timestamp**: x tail\n**Event**:\nSTAGE_COMPLETED\n**Note**: a\\nb\n"}]}}
+{"id":"audit_find-00020","out":{"found":[]}}
+{"id":"audit_find-00021","out":{"found":[]}}
+{"id":"audit_find-00022","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"\n## X\n**Timestamp**: 2026-10-08T23:59:59Z tail\n**Event**: X\n**Bolt slug**: onex\n"},{"timestamp":"2026-10-09T16:22:43Z","block":"\n## X\n**Timestamp**:2026-10-09T16:22:43Z\n**Event**: X\n**Event**: X\n"},{"timestamp":"2026-10-09T16:22:43Z","block":"\n## X\n**Timestamp**:  2026-10-09T16:22:43Z tail\n**Event**:X\n"},{"timestamp":"x","block":"# Focus Audit Log\n\n## X\n**Timestamp**:x\n**Event**: X  \n"}]}}
+{"id":"audit_find-00023","out":{"found":[]}}
+{"id":"audit_find-00024","out":{"found":[]}}
+{"id":"audit_find-00025","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"# Focus Audit Log\n\n## Bolt_Started\n**Timestamp**:\t2026-10-09T16:22:42Z tail\n**Event**:BOLT_STARTED\n- **Bolt slug**: o.e\n\n--- \n\n## Bolt_Started\n**Timestamp**:\t2026-10-09T16:22:43Z\n**Event**: BOLT_STARTED\t\n**Bolt slug**: two\n\n--- \n\n## X\n**Timestamp**: 2026-10-09T16:22:42Z tail\n**Event**: X\t\n- **Stage**:  spaced  \n\n--- \n\n## Bolt_Started\n**Timestamp**:2026-10-09T16:22:43Z tail\n- **Event**: BOLT_STARTED\n**Bolt slug**: a-b\n- **Stage**:  spaced  \n\n--- \n\n## Bolt_Started\n**Event**: BOLT_STARTED\n**Stage**: first\n**Stage**: second\n\n--- \n\n## Bolt_Started\n**Timestamp**:  é\n**Event**: BOLT_STARTED  \n**Bolt slug**: a-bx\n**Note**: a\\nb\n"}]}}
+{"id":"audit_find-00026","out":{"found":[]}}
+{"id":"audit_find-00027","out":{"found":[{"timestamp":"1","block":"\n## Stage_Completed\n**Timestamp**:1\n**Event**: STAGE_COMPLETED\n**Bolt slug**: two\n"},{"timestamp":"2026-10-08T23:59:59Z","block":"# Focus Audit Log\n\n## Stage_Completed\n**Timestamp**:\t2026-10-08T23:59:59Z tail\n**Event**: STAGE_COMPLETED\n**B\nolt slug**:o.e \n- **Stage**:  spaced  \n"}]}}
+{"id":"audit_find-00028","out":{"found":[]}}
+{"id":"audit_find-00029","out":{"found":[]}}
+{"id":"audit_find-00030","out":{"found":[]}}
+{"id":"audit_find-00031","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"# Focus Audit Log\n\n## Gate_Approved\n**Timestamp**:\t2026-10-09T16:22:42.123Z\n**Event**: GATE_APPROVED\t\n**Bolt slug**: twox\nplain line\n"}]}}
+{"id":"audit_find-00032","out":{"found":[]}}
+{"id":"audit_find-00033","out":{"found":[{"timestamp":"x","block":"# Focus Audit Log\n\n## A+\n**Timestamp**:  x\n**Event**:A+\n**Bolt slug**: a-b"},{"timestamp":"é","block":"\n## A+\n**Timestamp**:\té\n**Event**: A+\n**Bolt slug**: a-b\n"}]}}
+{"id":"audit_find-00034","out":{"found":[]}}
+{"id":"audit_find-00035","out":{"found":[{"timestamp":"2026-10-09T16:22:43Z","block":"\n## Gate_Approved\n**Timestamp**:\t2026-10-09T16:22:43Z\n**Event**: GATE_APPROVED  \n**Bolt slug**: 1wo\n**Note**: a\\nb\n"}]}}
+{"id":"audit_find-00036","out":{"found":[]}}
+{"id":"audit_find-00037","out":{"found":[]}}
+{"id":"audit_find-00038","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"\n## Stage_Completed\n**Timestamp**:2026-10-09T16:22:42.123Z tail\n**Event**: STAGE_COMPLETED\n"},{"timestamp":"2026-10-09T16:22:42Z","block":"\n## Stage_Completed\n**Timestamp**:\t2026-10-09T16:22:42Z\n**Event**: STAGE_COMPLETED\n**Event**: X\nplain line"},{"timestamp":"é","block":"# Focus Audit Log\n\n## Stage_Completed\n**Timestamp**: é\n**Event**:STAGE_COMPLETED\n**Stage**:"}]}}
+{"id":"audit_find-00039","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"# Focus Audit Log\n\n## A+\n**Timestamp**: 2026-10-09T16:22:42.123Z\n**Event**:A+\n**Bolt slug**:one \n"}]}}
+{"id":"audit_find-00040","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"# Focus Audit Log\n\n## A.B\n**Timestamp**: 2026-10-09T16:22:42Z\n**Event**:\nA.B\n**Details (raw)**: x\n\n----\n\n## A.B\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**: A.B\n**Event**: X\n- **Bolt slug**: two\n**Details (raw)**: x\n\n----\n\n## A.B\n**Event**: A.Bx\n**Bolt slug**: a-bx\n\n----\n\n## A.B\n**Timestamp**:  é tail\n**Event**: A.B\n\n----\n\n## A.B\n**Timestamp**:2026-10-09T16:22:42Z\n**Event**:A.B\n**Bolt slug**: onex\nplain line\n\n----\n\n## A.B\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**: A.B  \n**Bolt slug**: two\n- **Stage**:  spaced  \n"}]}}
+{"id":"audit_find-00041","out":{"found":[]}}
+{"id":"audit_find-00042","out":{"found":[]}}
+{"id":"audit_find-00043","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"# Focus Audit Log\n\n## A.B\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**: A.B  \n\n--- \n\n## A.B\n**Timestamp**:2026-10-09T16:22:42.123Z tail\n**Event**:A.B\n- **Bolt slug**: two\n"}]}}
+{"id":"audit_find-00044","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"# Focus Audit Log\n\n## Gate_Approved\n**Timestamp**:\t2026-10-09T16:22:42Z\n**Event**: GATE_APPROVED  \n"}]}}
+{"id":"audit_find-00045","out":{"found":[]}}
+{"id":"audit_find-00046","out":{"found":[{"timestamp":"2026-10-09T16:22:43Z","block":"\n## Gate_Approved\n**Timestamp**: 2026-10-09T16:22:43Z tail\n**Event**: GATE_APPROVED\n- **Bolt slug**: one\n**Note**: a\\nb\n"}]}}
+{"id":"audit_find-00047","out":{"found":[{"timestamp":"2026-10-09T16:22:43Z","block":"\n# X\n**Timestamp**: 2026-10-09T16:22:43Z\n**Event**: X\t\n"}]}}
+{"id":"audit_find-00048","out":{"found":[]}}
+{"id":"audit_find-00049","out":{"found":[]}}
+{"id":"audit_find-00050","out":{"found":[{"timestamp":"1","block":"\n## Stage_Started\n**Timestamp**:  1\n**Event**: STAGE_STARTED\n**Bolt slug**: one\nplain line\n"}]}}
+{"id":"audit_find-00051","out":{"found":[]}}
+{"id":"audit_find-00052","out":{"found":[{"timestamp":"2026-10-09T16:22:43Z","block":"\n## Bolt_Started\n**Timestamp**: 2026-10-09T16:22:43Z tail\n**Event**: BOLT_STARTED\n"},{"timestamp":"é","block":"# Focus Audit Log\n\n## Bolt_Started\n**Timestamp**:\té\n**Event**: BOLT_STARTED\t\nplain line"}]}}
+{"id":"audit_find-00053","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"# Focus Audit Log\n\n## X\n**Timestamp**:2026-10-09T16:22:42Z tail\n**Event**: X\n\n--- \n\n## Bolt_Started\n**Event**:BOLT_STARTED\n**Bolt slug**: two\n\n--- \n\n## Gate_Approved\n**Timestamp**: 2026-10-09T16:22:43Z tail\n**Event**: GATE_APPROVEDx\nplain line\n\n--- \n\n## Bolt_Started\n**Timestamp**: 2026-10-09T16:22:43Z tail\n**Event**: BOLT_STARTED\n\n--- \n\n## Bolt_Started\n**Event**: BOLT_STARTED  \n**Stage**: first\n**Stage**: second\n"}]}}
+{"id":"audit_find-00054","out":{"found":[{"timestamp":"1","block":"\n## A.B\n**Timestamp**:1\n**Event**: A.B\n**Bolt slug**: o.e\n"}]}}
+{"id":"audit_find-00055","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"# Focus Audit Log\n\n## A+\n**Timestamp**: 2026-10-09T16:22:42.123Z tail\n**Event**: A+\n**Event**: X\n\n--- \n\n## A+\n**Timestamp**:\tx\n**Event**: A+\n**Event**: X\n**Bolt slug**: two\nplain line\n\n--- \n\n## A+\n**Timestamp**:  x\n**Event**: A+\n"}]}}
+{"id":"audit_find-00056","out":{"found":[]}}
+{"id":"audit_find-00057","out":{"found":[{"timestamp":"2026-10-09T16:22:43Z","block":"# Focus Audit Log\n\n## X\n**Timestamp**:2026-10-09T16:22:43Z\n**Event**:X\n**Bolt slug**: onex\n"}]}}
+{"id":"audit_find-00058","out":{"found":[]}}
+{"id":"audit_find-00059","out":{"found":[]}}
+{"id":"audit_find-00060","out":{"found":[]}}
+{"id":"audit_find-00061","out":{"found":[{"timestamp":"é","block":"# Focus Audit Log\n\n## Bolt_Started\n**Timestamp**: é tail\n**event**: BOLT_STARTED\n**Details (raw)**: x\n\n----\n\n## Bolt_Started\n- **Event**: BOLT_STARTED\n- **Stage**:  spaced  \n\n----\n\n## Bolt_Started\n**Timestamp**:  2026-10-09T16:22:42Z\n**Event**:BOLT_STARTED\n**Bolt slug**: one\n**Stage**: first\n**Stage**: second\n\n----\n\n## Bolt_Started\n**Timestamp**: x\n**Event**:\nBOLT_STARTED\n**Bolt slug**: two\n"}]}}
+{"id":"audit_find-00062","out":{"found":[{"timestamp":"2026-10-09T16:22:43Z","block":"# Focus Audit Log\n\n## Stage_Completed\n**Timestamp**:  2026-10-09T16:22:43Z\n**Event**:STAGE_COMPLETED\n**Bolt slug**: o.ex\nplain line\n\n--- \n\n## Stage_Completed\n**Event**: STAGE_COMPLETED\t\n"}]}}
+{"id":"audit_find-00063","out":{"found":[{"timestamp":"x","block":"# Focus Audit Log\n\n## Stage_Started\n**Timestamp**: x tail\n**Event**: STAGE_STARTED\n\n--- \n\n## Stage_Completed\n**Timestamp**:\té\n**Event**: STAGE_COMPLETED\n**Event**: X\n**Bolt slug**: o.e\n- **Stage**:  spaced  \n\n--- \n\n## Gate_Approved\n**Timestamp**:  é\n**Event**:GATE_APPROVED\n- **Stage**:  spaced  \n\n--- \n\n## Stage_Started\n**Timestamp**:  2026-10-08T23:59:59Z\n**Event**: STAGE_STARTED\t\n**Bolt slug**: a-bx\n**Stage**: code-generation\n\n--- \n\n## Stage_Started\n**Timestamp**:  2026-10-09T16:22:42Z\n**Event**: STAGE_STARTED  \n**Bolt slug**:a-b \n\n--- \n\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:43Z tail\n- **Event**: STAGE_STARTED\n**Bolt slug**: twox\n**Stage**: code-generation\n"}]}}
+{"id":"audit_find-00064","out":{"found":[{"timestamp":"2026-10-008T23:59:59Z","block":"# Focus Audit Log\n\n## A.B\n**Timestamp**: 2026-10-008T23:59:59Z\n**Event**: A.B\n**Stage**: first\n**Stage**: second\n"}]}}
+{"id":"audit_find-00065","out":{"found":[]}}
+{"id":"audit_find-00066","out":{"found":[]}}
+{"id":"audit_find-00067","out":{"found":[{"timestamp":"x","block":"# Focus Audit Log\n\n## Stage_Completed**Timestamp**:  2026-10-09T16:22:42Z\n**Event**: STAGE_COMLETED  \n\n----\n\n## Gate_Approved\n**Timestamp**: x tail\n**event**: GATE_APPROVED\n**Bolt slug**: two\n\n----\n\n## Stage_Completed\n**Timestamp**: 1\n**event**: STAGE_COMPLETED\n\n----\n\n## Stage_Completed\n**Event**: STAGE_COMPLETED\n* *Stage**: first\n**Stage**: second\n\n---\t\n\n## Stage_Completed\n**Event**:\nSTAGE_COMPLETED\n**Bolt slug**:two \n**Note**: a\\nb\n"}]}}
+{"id":"audit_find-00068","out":{"found":[]}}
+{"id":"audit_find-00069","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"\n## Bolt_Started\n**Timestamp**: 2026-10-08T23:59:59Z tail\n**Event**: BOLT_STARTED\t\n**Details (raw)**: x"},{"timestamp":"2026-10-09T16:22:42Z","block":"# Focus Audit Log\n\n## Bolt_Started\n**Timestamp**:  2026-10-09T16:22:42Z\n**Event**: BOLT_STARTED\t\n**Details (raw)**: x"},{"timestamp":"2026-10-09T16:22:42Z","block":"\n## Bolt_Started\n**Timestamp**:  2026-10-09T16:22:42Z\n**Event**:BOLT_STARTED\n**Bolt slug**:o.e "}]}}
+{"id":"audit_find-00070","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"# Focus Audit Log\n\n## Stage_Completed\n**Timestamp**:  2026-10-09T16:22:42Z tail\n**Event**:STAGE_COMPLETED\n**Bolt slug**:one \n**Stage**: code-generation"},{"timestamp":"x","block":"\n## Stage_Completed\n**Timestamp**: x\n**Event**: STAGE_COMPLETED  \n**Bolt slug**: o.e\n**Note**: a\\nb\n"}]}}
+{"id":"audit_find-00071","out":{"found":[{"timestamp":"x","block":"# Focus Audit Log\n\n## Stage_Started\n**Timestamp**:\tx\n**Event**: STAGE_STARTED\n\n----\n\n## Stage_Started\n**Timestamp**:2026-10-09T16:22:42Z\n- **Event**: STAGE_STARTED\n- **Bolt slug**: o.e\n**Stage**: code-generation\n\n----\n\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:43Z\n**Event**:STAGE_STARTED\n**Bolt slug**: one\n\n----\n\n## Stage_Started\n**Timestamp**:2026-10-08T23:59:59Z\n**Event**: STAGE_STARTED\n**Event**: X\n**Bolt slug**: o.e\n**Stage**:\n\n----\n\n## Stage_Started\n**Event**: STAGE_STARTED  \n"}]}}
+{"id":"audit_find-00072","out":{"found":[]}}
+{"id":"audit_find-00073","out":{"found":[]}}
+{"id":"audit_find-00074","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"# Focus Audit Log\n\n## Stage_Completed\n**Timestamp**:\t2026-10-09T16:22:42Z tail\n**Event**: STAGE_COMPLETED\t\n**Bolt slug**: o.ex\n**Details (raw)**: x\n\n--- \n\n## Stage_Completed\n**event**:\n STAGE_COMPLETED\n\n--- \n\n## Stage_Completed\n**Timestamp**:2026-10-09T16:22:42Z tail\n**Event**: STAGE_COMPLETEDx\nplain line\n\n--- \n\n## Stage_Completed\n**Timestamp**:  é\n**Event**: STAGE_COMPLETED\t\n\n--- \n\n# Stage_Completed\n**Timestamp**:\t2026-10-09T16:22:43Z\n**Event**: STAGE_COMPLETED\t\n**Bolt slug**: a-b\n**Stage**: code-generation\n\n--- \n\n## Stage_Completed\n- **Event**: STAGE_COMPLE{TED\n**Bolt slug**:two \n"}]}}
+{"id":"audit_find-00075","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"\n## X\n**Timestamp**: 2026-10-09T16:22:42Z tail\n**Event**: X\t\n"},{"timestamp":"2026-10-09T16:22:42Z","block":"\n## X\n**Timestamp**: 2026-10-09T16:22:42Z\n**Event**:X\n**Bolt slug**: one\n- **Stage**:  spaced  \n"}]}}
+{"id":"audit_find-00076","out":{"found":[{"timestamp":"2026-10-09T16:22:43Z","block":"# Focus Audit Log\n\n## X\n**Timestamp**:\t2026-10-09T16:22:43Z tail\n**Event**: X\n**Bolt slug**: a-b\n**Details (raw)**: x\n\n--- \n\n## X\n**Timestamp**: 2026-10-09T16:22:43Z\n**Event**: X\t\n**Details (raw)**: x\n\n--- \n\n## X\n**Timestamp**: x\n- **Event**: X\n**Bolt slug**:a-b \n\n--- \n\n## X\n**Timestamp**: é tail\n**Event**: X  \n**Bolt slug**: a-b\nplain line\n"}]}}
+{"id":"audit_find-00077","out":{"found":[{"timestamp":"1","block":"# Focus Audit Log\n\n## Gate_Approved\n**Timestamp**: 1\n**Event**: GATE_APPROVED\t\n**Bolt slug**: one\n"}]}}
+{"id":"audit_find-00078","out":{"found":[]}}
+{"id":"audit_find-00079","out":{"found":[]}}
+{"id":"audit_find-00080","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"# Focus Audit Log\n\n## Stage_Started\n**Timestamp**:2026-10-09T16:22:42.123Z tail\n**Event**: STAGE_STARTED\n**Details (raw)**: x\n\n----\n\n## A.B\n**Timestamp**: 2026-10-09T16:22:42Z\n- **Event**: A.B\n\n----\n\n## A.B\n**Timestamp**:2026-10-08T23:59:59Z tail\n**Event**: A.B  \n**Stage**: first\n**Stage**: second\n\n----\n\n## Bolt_Started\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**: BOLT_STARTED  \n**Bolt slug**: twox\n\n----\n\n## A.B\n**Timestamp**: 1\n**Event**: A.B  \n**Bolt slug**: a-bx\n**Stage**:\n\n----\n\n## A.B\n**Event**: A.B\n"}]}}
+{"id":"audit_find-00081","out":{"found":[{"timestamp":"x","block":"# Focus Audit Log\n\n## X\n**Event**: X\t\n**Bolt slug**: twox\n\n----\n\n## X\n**Timestamp**:\tx\n**Event**:\nX\n**Stage**: first\n**Stage**: second\n\n----\n\n## X\n**Timestamp**:2026-10-09T16:22:42Z\n**Event**: X\n**Bolt slug**: one\n"}]}}
+{"id":"audit_find-00082","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"# Focus Audit Log\n\n## A+\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**: A+  \n**Bolt slug**:two \n**Note**: a\\nb\n"}]}}
+{"id":"audit_find-00083","out":{"found":[{"timestamp":"1","block":"\n## A+\n**Timestamp**:\t1 tail\n**Event**: A+\t"}]}}
+{"id":"audit_find-00084","out":{"found":[]}}
+{"id":"audit_find-00085","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"# Focus Audit Log\n\n## Stage_Started\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**: STAGE_STARTED\n**Event**: X\n**Bolt slug**:two \n\n----\n\n## Stage_Started\n**Timestamp**:2026-10-09T16:22:43Z tail\n**Event**: STAGE_STARTED  \n**Bolt slug**: two\n\n----\n\n## Gate_Approved\n**Timestamp**: é\n**Event**: GATE_APPROVED\n**Event**: X\n\n----\n\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:42.123Z\n**Event**: STAGE_STARTEDx\n\n----\n\n## Stage_Started\n**Event**: STAGE_STARTED\n\n----\n\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:42Z tail\n- **Event**: STAGE_STARTED\n**Bolt slug**: a-bx\n**Stage**: first\n**Stage**: second\n"}]}}
+{"id":"audit_find-00086","out":{"found":[{"timestamp":"é","block":"\n## A.B\n**Timestamp**: é tail\n**Event**: A.B\n**Bolt slug**: a-b\n**Stage**: code-generation"}]}}
+{"id":"audit_find-00087","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"# Focus Audit Log\n\n## A+\n**Timestamp**:2026-10-09T16:22:42.123Z\n**Event**:A+\n**Bolt slug**: o.ex\n**Stage**:\n\n--- \n\n## X\n**Timestamp**: 2026-10-08T23:59:59Z tail\n**event**: X\n**Bolt slug**: o.e\n- **Stage**:  spaced  \n\n--- \n\n## A+\n**Event**:\nA+\n**Stage**: code-generation\n\n--- \n\n## A+\n**event**: A+\n**Stage**:\n"}]}}
+{"id":"audit_find-00088","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"# Focus Audit Log\n\n## A.B\n**Timestamp**:  2026-10-09T16:22:42.123Z\n**Event**: A.B\n**Bolt slug**:a-b \n**Stage**:\n"},{"timestamp":"2026-10-09T16:22:43Z","block":"\n## A.B\n**Timestamp**:  2026-10-09T16:22:43Z\n**Event**: A.B  \n**Bolt slug**: one\n"}]}}
+{"id":"audit_find-00089","out":{"found":[]}}
+{"id":"audit_find-00090","out":{"found":[]}}
+{"id":"audit_find-00091","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"# Focus Audit Log\n\n## X\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**: X\n**Event**: X\n- **Stage**:  spaced  \n"},{"timestamp":"2026-10-09T16:22:43Z","block":"\n## X\n**Timestamp**:\t2026-10-09T16:22:43Z\n**Event**: X\n**Event**: X\n- **Stage**:  spaced  \n"}]}}
+{"id":"audit_find-00092","out":{"found":[]}}
+{"id":"audit_find-00093","out":{"found":[{"timestamp":"1","block":"# Focus Audit Log\n\n## Bolt_Started\n**Timestamp**:1\n**Event**: BOLT_STARTED\n**Bolt slug**: twox\n- **Stage**:  spaced  \n"}]}}
+{"id":"audit_find-00094","out":{"found":[]}}
+{"id":"audit_find-00095","out":{"found":[]}}
+{"id":"audit_find-00096","out":{"found":[]}}
+{"id":"audit_find-00097","out":{"found":[{"timestamp":"x","block":"\n## A.B\n**Timestamp**: x tail\n**Event**:A.B\n**Bolt slug**: a-bx\n"},{"timestamp":"x","block":"\n## A.B\n**Timestamp**:\tx\n**Event**: A.B\n**Bolt slug**: o.ex\n**Note**: a\\nb\n"}]}}
+{"id":"audit_find-00098","out":{"found":[]}}
+{"id":"audit_find-00099","out":{"found":[{"timestamp":"1","block":"\n## Gate_Approved\n**Timestamp**:1\n**Event**: GATE_APPROVED\n**Bolt slug**: one\n"}]}}
+{"id":"audit_find-00100","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"# Focus Audit Log\n\n## A+\n**Timestamp**: 2026-10-09T16:22:42.123Z tail\n**Event**: A+  \n**Bolt slug**: onex\n"}]}}
+{"id":"audit_find-00101","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"\n## X\n**Timestamp**:\t2026-10-09T16:22:42.123Z\n**Event**: X\n**Event**: X\n"}]}}
+{"id":"audit_find-00102","out":{"found":[]}}
+{"id":"audit_find-00103","out":{"found":[]}}
+{"id":"audit_find-00104","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"\n## X\n**Timestamp**:\t2026-10-09T16:22:42Z tail\n**Event**: X  \n**Bolt slug**: a-b"},{"timestamp":"2026-10-09T16:22:42Z","block":"\n## X\n**Timestamp**: 2026-10-09T16:22:42Z\n**Event**: X\n**Bolt slug**: a-b"}]}}
+{"id":"audit_find-00105","out":{"found":[]}}
+{"id":"audit_find-00106","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"# Focus Audit Log\n\n## Bolt_Started\n**Timestamp**: 2026-10-09T16:22:42Z tail\n**Event**:BOLT_STARTED\n**Bolt slug**: one\n"}]}}
+{"id":"audit_find-00107","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"\n## Gate_Approved\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**: GATE_APPROVED\n**Event**: X\nplain line\n"}]}}
+{"id":"audit_find-00108","out":{"found":[]}}
+{"id":"audit_find-00109","out":{"found":[]}}
+{"id":"audit_find-00110","out":{"found":[]}}
+{"id":"audit_find-00111","out":{"found":[]}}
+{"id":"audit_find-00112","out":{"found":[]}}
+{"id":"audit_find-00113","out":{"found":[{"timestamp":"2026-10-09T16:","block":"\n## Stage_Started\n**Timestamp**:\t2026-10-09T16: 2:43Z\n**Event**:STAGE_STARTED\n**Bolt slug**: a-b\n"},{"timestamp":"é","block":"# Focus Audit Log\n\n## Stage_Started\n**Timestamp**:  é\n**Event**: STAGE_STARTED\n**Event**: X\n**Bolt slug *: a-b\nplain line\n"}]}}
+{"id":"audit_find-00114","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"\n## Stage_Completed\n**Timestamp**: 2026-10-08T23:59:59Z tail\n**Event**: STAGE_COMPLETED\t\n**Bolt slug**:one "}]}}
+{"id":"audit_find-00115","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"# Focus Audit Log\n\n## Stage_Started\n**Timestamp**:  2026-10-08T23:59:59Z tail\n**Event**: STAGE_STARTED\t\n**Bolt slug**: o.e\n\n--- \n\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:43Z\n- **Event**: STAGE_STARTED\n**Bolt slug**: o.e\n**Stage**: first\n**Stage**: second\n"}]}}
+{"id":"audit_find-00116","out":{"found":[]}}
+{"id":"audit_find-00117","out":{"found":[{"timestamp":"é","block":"# Focus Audit Log\n\n## A+\n**Timestamp**:  é tail\n**Event**: A+\t\n- **Bolt slug**: o.e\n- **Stage**:  spaced  \n"}]}}
+{"id":"audit_find-00118","out":{"found":[]}}
+{"id":"audit_find-00119","out":{"found":[]}}
+{"id":"audit_find-00120","out":{"found":[]}}
+{"id":"audit_find-00121","out":{"found":[]}}
+{"id":"audit_find-00122","out":{"found":[]}}
+{"id":"audit_find-00123","out":{"found":[]}}
+{"id":"audit_find-00124","out":{"found":[{"timestamp":"x","block":"# Focus Audit Log\n\n## Stage_Completed\n**Timestamp**:\tx\n**Event**: STAGE_COMPLETED\n**Event**: X\n**Bolt slug**: one\n**Stage**:"}]}}
+{"id":"audit_find-00125","out":{"found":[]}}
+{"id":"audit_find-00126","out":{"found":[]}}
+{"id":"audit_find-00127","out":{"found":[]}}
+{"id":"audit_find-00128","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"\n## X\n**Timestamp**: 2026-10-09T16:22:42.123Z tail\n**Event**: X\n**Bolt slug**:a-b \n\n--\n\n## X\n**Timestamp**:\té tail\n**Event**:X\nplain line\n"}]}}
+{"id":"audit_find-00129","out":{"found":[{"timestamp":"1","block":"# Focus Audit Log\n\n## X\n**Timestamp**:  1 tail\n**Event**: X\t\n**Bolt slug**: a-bx\n"},{"timestamp":"2026-10-08T23:59:59Z","block":"\n## X\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**: X\n**Event**: X\n**Bolt slug**: two\n**Details (raw)**: x\n"},{"timestamp":"2026-10-08T23:59:59Z","block":"\n## X\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**: X\n**Stage**: code-generation\n"},{"timestamp":"é","block":"\n## X\n**Timestamp**:  é\n**Event**: X\n**Event**: X\n- **Bolt slug**: two\n**Details (raw)**: x\n"}]}}
+{"id":"audit_find-00130","out":{"found":[]}}
+{"id":"audit_find-00131","out":{"found":[]}}
+{"id":"audit_find-00132","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"\n## A+\n**Timestamp**:2026-10-09T16:22:42.123Z tail\n**Event**: A+\t\nplain line\n"},{"timestamp":"x","block":"\n## A+\n**Timestamp**:\tx\n**Event**: A+\n**Bolt slug**: o.e\n"}]}}
+{"id":"audit_find-00133","out":{"found":[]}}
+{"id":"audit_find-00134","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"\n## Stage_Started\n**Timestamp**:2026-10-09T16:22:42Z\n**Event**: STAGE_STARTED  \n"}]}}
+{"id":"audit_find-00135","out":{"found":[]}}
+{"id":"audit_find-00136","out":{"found":[{"timestamp":"1","block":"\n## Bolt_Started\n**Timestamp**:1\n**Event**: BOLT_STARTED\n**Bolt slug**: two"}]}}
+{"id":"audit_find-00137","out":{"found":[]}}
+{"id":"audit_find-00138","out":{"found":[]}}
+{"id":"audit_find-00139","out":{"found":[{"timestamp":"é","block":"\n## Gate_Approved\n**Timestamp**:\té tail\n**Event**: GATE_APPROVED\n**Bolt slug**: two\n"}]}}
+{"id":"audit_find-00140","out":{"found":[]}}
+{"id":"audit_find-00141","out":{"found":[]}}
+{"id":"audit_find-00142","out":{"found":[{"timestamp":"x","block":"# Focus Audit Log\n\n## A.B\n**Timestamp**: x\n**Event**: A.Bx\n- **Bolt slug**: o.e\nplain line\n\n--- \n\n## A.B\n**Timestamp**: 1\n**Event**: A.B\t\n\n--- \n\n## X\n**Timestamp**: 2026-10-09T16:22:42Z tail\n**Event**: X\t\n**Bolt slug**: o.e\n\n--- \n\n## A.B\n**Timestamp**: 2026-10-09T16:22:42Z\n**Event**: A.B\n**Stage**: code-generation\n\n--- \n\n## X\n**Timestamp**:\t2026-10-08T23:59:59Z tail\n**Event**:\nX\n- **Bolt slug**: o.e\n**Stage**: code-generation\n"}]}}
+{"id":"audit_find-00143","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"\n## A+\n**Timestamp**:2026-10-08T23:59:59Z\n**Event**: A+\n**Event**: X\n**Bolt slug**: o.e\n**Stage**:\n"},{"timestamp":"2026-10-09T16:22:42.123Z","block":"\n## A+\n**Timestamp**: 2026-10-09T16:22:42.123Z tail\n**Event**:A+\n**Bolt slug**:one \n"}]}}
+{"id":"audit_find-00144","out":{"found":[{"timestamp":"2026-10-09T16:22:43Z","block":"# Focus Audit Log\n\n## Stage_Completed\n**Timestamp**: 2026-10-09T16:22:43Z\n**Event**: STAGE_COMPLETED  \n**Bolt slug**: o.e\n\n----\n\n## Stage_Completed\n**Timestamp**:  2026-10-09T16:22:43Z\n**event**: STAGE_COMPLETED\n**Bolt slug**: o.e\n**Details (raw)**: x\n\n----\n\n## Stage_Completed\n**Timestamp**:2026-10-09T16:22:42Z\n**Event**: STAGE_COMPLETED\n**Event**: X\n**Bolt slug**: a-bx\n**Details (raw)**: x\n\n----\n\n## Stage_Completed\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**: STAGE_COMPLETED\n**Event**: X\n\n----\n\n## Stage_Completed\n**Timestamp**:  2026-10-09T16:22:43Z\n**Event**: STAGE_COMPLETED\n"}]}}
+{"id":"audit_find-00145","out":{"found":[]}}
+{"id":"audit_find-00146","out":{"found":[]}}
+{"id":"audit_find-00147","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"# Focus Audit Log\n\n## Gate_Approved\n**Timestamp**:  2026-10-09T16:22:42Z\n**Event**: GATE_APPROVED\n**Event**: X\n- **Bolt slug**: one\n"}]}}
+{"id":"audit_find-00148","out":{"found":[]}}
+{"id":"audit_find-00149","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"# Focus Audit Log\n\n## Gate_Approved\n**Timestamp**:  2026-10-08T23:59:59Z\n- **Event**: GATE_APPROVED\n**Bolt slug**: a-bx\n\n--- \n\n## A+\n**Timestamp**: 2026-10-09T16:22:42.123Z\n**Event**: A+  \n- **Bolt slug**: one\nplain line\n\n--- \n\n## Gate_Approved\n**Timestamp**: 2026-10-09T16:22:42.123Z tail\n**Event**: GATE_APPROVED\t\n**Bolt slug**: o.ex\n\n--- \n\n## Gate_Approved\n**Timestamp**:2026-10-09T16:22:42Z tail\n**event**: GATE_APPROVED\n**Note**: a\\nb\n\n--- \n\n## Gate_Approved\n**Timestamp**:\t2026-10-09T16:22:42Z\n**Event**: GATE_APPROVED  \n\n--- \n\n## Gate_Approved\n**Timestamp**:\t1\n**Event**: GATE_APPROVED\n**Bolt slug**: one\n"}]}}
+{"id":"audit_find-00150","out":{"found":[{"timestamp":"1","block":"\n## A.B\n**Timestamp**: 1\n**Event**:A.B\n**Bolt slug**:a-b \n"},{"timestamp":"2026-10-09T16:22:42.123Z","block":"\n## A.B\n**Timestamp**: 2026-10-09T16:22:42.123Z\n**Event**: A.B\t\n- **Stage**:  spaced  \n"},{"timestamp":"2026-10-09T16:22:43Z","block":"# Focus Audit Log\n\n## A.B\n**Timestamp**:\t2026-10-09T16:22:43Z\n**Event**:A.B\n- **Bolt slug**: two\n**Note**: a\\nb\n"},{"timestamp":"é","block":"\n## A.B\n**Timestamp**: é\n**Event**: A.B  \n**Bolt slug**:o.e \n"}]}}
+{"id":"audit_find-00151","out":{"found":[]}}
+{"id":"audit_find-00152","out":{"found":[]}}
+{"id":"audit_find-00153","out":{"found":[]}}
+{"id":"audit_find-00154","out":{"found":[]}}
+{"id":"audit_find-00155","out":{"found":[]}}
+{"id":"audit_find-00156","out":{"found":[]}}
+{"id":"audit_find-00157","out":{"found":[]}}
+{"id":"audit_find-00158","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"\n## A.B\n**Timestamp**:  2026-10-09T16:22:42Z\n**Event**:A.B\n- **Bolt slug**: o.e\nplain line\n"}]}}
+{"id":"audit_find-00159","out":{"found":[]}}
+{"id":"audit_find-00160","out":{"found":[]}}
+{"id":"audit_find-00161","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"\n## Stage_Completed\n**Timestamp**:\t2026-10-09T16:22:42.123Z\n**Event**: STAGE_COMPLETED  \n**Bolt slug**: a-bx\nplain line\n"}]}}
+{"id":"audit_find-00162","out":{"found":[]}}
+{"id":"audit_find-00163","out":{"found":[{"timestamp":"2026-10-09T16:22:43Z","block":"# Focus Audit Log\n\n## A.B\n**Timestamp**:  2026-10-09T16:22:43Z\n**Event**: A.Bx\nplain line\n\n--- \n\n## A.B\n**Timestamp**:\t2026-10-09T16:22:42.123Z\n- **Event**: A.B\n**Bolt slug**: a-b\n\n--- \n\n## A.B\n**Timestamp**: 2026-10-09T16:22:42.123Z\n**Event**: A.B  \n**Bolt slug**: onex\n\n--- \n\n## A.B\n**Timestamp**: 2026-10-09T16:22:42Z\n**Event**: A.B\n**Details (raw)**: x\n\n--- \n\n## A.B\n**Timestamp**:  1 tail\n**Event**: A.B\n**Bolt slug**: two\n**Stage**:\n"}]}}
+{"id":"audit_find-00164","out":{"found":[]}}
+{"id":"audit_find-00165","out":{"found":[]}}
+{"id":"audit_find-00166","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"\n## A+\n**Timestamp**: 2026-10-09T16:22:42Z\n**Event**: A+\nplain line\n"},{"timestamp":"2026-10-09T16:22:42Z","block":"\n## A+\n**Timestamp**: 2026-10-09T16:22:42Z\n**Event**: A+  \n**Bolt slug**: a-b\n**Details (raw)**: x\n"},{"timestamp":"é","block":"\n## A+\n**Timestamp**:é\n**Event**: A+\t\n**Bolt slug**: two\n- **Stage**:  spaced  \n"}]}}
+{"id":"audit_find-00167","out":{"found":[{"timestamp":"1","block":"# Focus Audit Log\n\n## Bolt_Started\n**Timestamp**:  1\n- **Event**: BOLT_STARTED\n**Bolt slug**: twox\n\n----\n\n## Bolt_Started\n**Timestamp**:\t2026-10-09T16:22:42Z\n- **Event**: BOLT_STARTED\n\n----\n\n## Stage_Started\n**Timestamp**:2026-10-09T16:22:43Z\n**Event**:\nSTAGE_STARTED\n\n----\n\n## Bolt_Started\n**Timestamp**:\tx tail\n**Event**: BOLT_STARTED\n**Bolt slug**: two\n"}]}}
+{"id":"audit_find-00168","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"# Focus Audit Log\n\n## Stage_Started\n**Timestamp**:  2026-10-09T16:22:42.123Z tail\n**Event**: STAGE_STARTED\n**Stage**: code-generation\n\n--- \n\n## A+\n**Timestamp**:\t2026-10-09T16:22:42.123Z\n**Event**: A+x\n**Stage**: code-generation\n"}]}}
+{"id":"audit_find-00169","out":{"found":[{"timestamp":"1","block":"# Focus Audit Log\n\n## Gate_Approved\n**Timestamp**:1\n**Event**: GATE_APPROVED  \nplain line\n\n----\n\n## A.B\n**Timestamp**:1 tail\n**Event**:\nA.B\n- **Bolt slug**: two\n\n----\n\n## Gate_Approved\n**Timestamp**:é tail\n**Event**: GATE_APPROVED\n- **Bolt slug**: two\n**Note**: a\\nb\n\n----\n\n## Gate_Approved\n**Timestamp**:\t2026-10-09T16:22:42Z tail\n**Event**:\nGATE_APPROVED\n- **Bolt slug**: two\n\n----\n\n## Stage_Completed\n**Timestamp**:\tx\n**Event**: STAGE_COMPLETED\t\n**Bolt slug**: two\n"}]}}
+{"id":"audit_find-00170","out":{"found":[{"timestamp":"é","block":"# Focus Audit Log\n\n## A.B\n**Timestamp**: é tail\n**Event**: A.B\n**Event**: X\n**Bolt slug**: a-bx\n**Details (raw)**: x\n\n----\n\n## X\n**Timestamp**:2026-10-09T16:22:42Z\n**Event**:\nX\n"}]}}
+{"id":"audit_find-00171","out":{"found":[]}}
+{"id":"audit_find-00172","out":{"found":[]}}
+{"id":"audit_find-00173","out":{"found":[]}}
+{"id":"audit_find-00174","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"# Focus Audit Log\n\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:42Z\n**Event**: STAGE_STARTED\n- **Bolt slug**: one\n\n--- \n\n## Stage_Started\n**Timestamp**:\t2026-10-09T16:22:42Z tail\n**Event**: STAGE_STARTEDx\n**Bolt slug**: one\n\n--- \n\n## Stage_Started\n**Timestamp**:  1\n**Event**: STAGE_STARTED\n**Event**: X\n- **Bolt slug**: one\n"}]}}
+{"id":"audit_find-00175","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"# Focus Audit Log\n\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:42.123Z tail\n**Event**:STAGE_STARTED\n- **Bolt slug**: a-b\n"}]}}
+{"id":"audit_find-00176","out":{"found":[]}}
+{"id":"audit_find-00177","out":{"found":[{"timestamp":"1","block":"# Focus Audit Log\n\n## Stage_Started\n**Timestamp**: 1\n**Event**: STAGE_STARTED  \n"},{"timestamp":"2026-10-09T16:22:43Z","block":"\n## Stage_Started\n**Timestamp**:  2026-10-09T16:22:43Z\n**Event**: STAGE_STARTED\n**Event**: X\n**Details (raw)**: x\n"},{"timestamp":"é","block":"\n## Stage_Started\n**Timestamp**:  é tail\n**Event**: STAGE_STARTED  \n- **Bolt slug**: one\n"}]}}
+{"id":"audit_find-00178","out":{"found":[]}}
+{"id":"audit_find-00179","out":{"found":[{"timestamp":"2026-10-09T16:22:43Z","block":"# Focus Audit Log\n\n## A+\n**Timestamp**:2026-10-09T16:22:43Z tail\n**Event**: A+\n**Bolt slug**:one \n"}]}}
+{"id":"audit_find-00180","out":{"found":[]}}
+{"id":"audit_find-00181","out":{"found":[{"timestamp":"1","block":"# Focus Audit Log\n\n## Bolt_Started\n**Timestamp**:\t1\n**Event**: BOLT_STARTED\t\n"}]}}
+{"id":"audit_find-00182","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"# AI-\nLC Audit Log\n\n## X\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**: X\n**Bolt slug**: o.e\n**Stage**: code-generation\n"}]}}
+{"id":"audit_find-00183","out":{"found":[]}}
+{"id":"audit_find-00184","out":{"found":[]}}
+{"id":"audit_find-00185","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"\n## Stage_Started\n**Timestamp**:\t2026-10-08T23:59:59Z\n**Event**: STAGE_STARTED\t\n**Bolt slug**: o.e\n"},{"timestamp":"2026-10-09T16:22:43Z","block":"\n## Stage_Started\n**Timestamp**:\t2026-10-09T16:22:43Z tail\n**Event**:STAGE_STARTED\n**Bolt slug**: two\n**Note**: a\\nb\n"},{"timestamp":"x","block":"\n## Stage_Started\n**Timestamp**: x\n**Event**: STAGE_STARTED\n**Bolt slug**: a-b\n"}]}}
+{"id":"audit_find-00186","out":{"found":[]}}
+{"id":"audit_find-00187","out":{"found":[{"timestamp":"2026-10-09T16:22:43Z","block":"# Focus Audit Log\n\n## A.B\n**Timestamp**: 2026-10-09T16:22:43Z tail\n**Event**: A.B\n**Bolt slug**: twox\n\n--- \n\n## A.B\n**Timestamp**: é tail\n**Event**: A.B  \n**Bolt slug**: two\n\n--- \n\n## A.B\n**Event**:\nA.B\n**Bolt slug**: a-b\n**Note**: a\\nb\n\n--- \n\n## A.B\n**Timestamp**:\t2026-10-09T16:22:42Z\n**Event**: A.B\n**Bolt slug**:a-b \n"}]}}
+{"id":"audit_find-00188","out":{"found":[]}}
+{"id":"audit_find-00189","out":{"found":[]}}
+{"id":"audit_find-00190","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"\n## Gate_Approved\n**Timestamp**:\t2026-10-09T16:22:42Z\n**Event**: GATE_APPROVED\n**Event**: X\n**Bolt slug**: twox\n"},{"timestamp":"é","block":"# Focus Audit Log\n\n## Gate_Approved\n**Timestamp**:\té\n**Event**: GATE_APPROVED\n**Event**: X\n**Stage**: first\n**Stage**: second\n"},{"timestamp":"é","block":"\n## Gate_Approved\n**Timestamp**:  é tail\n**Event**: GATE_APPROVED\n"}]}}
+{"id":"audit_find-00191","out":{"found":[]}}
+{"id":"audit_find-00192","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"\n## Stage_Started\n**Timestamp**:\t2026-10-09T16:22:42Z\n**Event**: STAGE_STARTED\n**Bolt slug**:two \n"},{"timestamp":"2026-10-09T16:22:42Z","block":"\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:42Z tail\n**Event**: STAGE_STARTED\n**Bolt slug**: two\n"}]}}
+{"id":"audit_find-00193","out":{"found":[]}}
+{"id":"audit_find-00194","out":{"found":[{"timestamp":"2026-10-09T16:22:42.123Z","block":"# Focus Audit Log\n\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:42.123Z\n**Event**:STAGE_STARTED\n**Stage**: code-generation\n\n----\n\n## Stage_Strted\n**Timestamp**:  é\n**Event**: STAGE_STARTED\n\n----\n\n## Stage_Started\n**Timestamp**: 2026-10-09T16: 2:42Z\n**Event**: STAGE_STARTED\n\n----\n\n## Stage_Started\n**Timestmp**: 2026-10-09T16:22:43Z\n**Event**:\nSTAGE_STARTED\n\n----\n\n## Stage_Started\n**Timestamp**:2026-10-09T16:22:43Z\n**Event**: STAGE_STARTEDx\n**Bolt slug**:one \n\n----\n\n## Stage_Started\n**Timestamp**:\té\n**Event**:\nSTAGE_STARTED\n**Bolt slug**: two\nplain line\n"}]}}
+{"id":"audit_find-00195","out":{"found":[]}}
+{"id":"audit_find-00196","out":{"found":[]}}
+{"id":"audit_find-00197","out":{"found":[]}}
+{"id":"audit_find-00198","out":{"found":[]}}
+{"id":"audit_find-00199","out":{"found":[]}}
+{"id":"audit_find-00200","out":{"found":[{"timestamp":"é","block":"# Focus Audit Log\n\n## Bolt_Started\n**Timestamp**:  é\n**Event**: BOLT_STARTED\t\n**Bolt slug**: two\nplain line\n"}]}}
+{"id":"audit_find-00201","out":{"found":[{"timestamp":"2026-10-09T16:22:42","block":"# Focus Audit Log\n\n## Stage_Completed\n**Timestamp*{*:\t2026-10-09T16:22:42Z tail\n**Event**: STAGE_COMPLETED\t\n**Stage**: first\n**Stage**: se:cond\n\n--- \n\n## Bolt_Started\n**Timestamp**: 2026-10-09T16:22:42\n**Event**:BOLT_STARTED\n**Bolt slug**: two\n"}]}}
+{"id":"audit_find-00202","out":{"found":[{"timestamp":"2026-10-0","block":"\n## Bolt_Started\n**Timestamp**:  2026-10-0　T16:22:42.123Z\n**Event**: BOLT_STARTED\n**Event**: X\n**Bolt slug**: a-bx\n"},{"timestamp":"2026-10-08T23:59:59Z","block":"# Focus Audit Log\n\n## Bolt_Started\n**Timestamp**:  2026-10-08T23:59:59Z\n**Event**: BOLT_STARTED\n**Bolt slug**: o.e\nplain line\n"}]}}
+{"id":"audit_find-00203","out":{"found":[]}}
+{"id":"audit_find-00204","out":{"found":[{"timestamp":"2b026-10-09T16:22:42Z","block":"# AI DLC Audit Log\n\n## Stage_Started\n**Timestamp**: 2b026-10-09T16:22:42Z tail\n**Event**: STAGE_STARTED\n**Event**: X\n**Bolt slug**: oe "}]}}
+{"id":"audit_find-00205","out":{"found":[]}}
+{"id":"audit_find-00206","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"\n## A.B\n**Timestamp**:\t2026-10-09T16:22:42Z tail\n**Event**: A.B\n**Event**: X\n**Bolt slug**: one\n**Stage**:\n"},{"timestamp":"é","block":"\n## A.B\n**Timestamp**:  é\n**Event**: A.B\n**Event**: X\n**Bolt slug**:one \n"}]}}
+{"id":"audit_find-00207","out":{"found":[{"timestamp":"2026-10-09T16:22:43Z","block":"\n## Stage_Completed\n**Timestamp**: 2026-10-09T16:22:43Z\n**Event**: STAGE_COMPLETED\n**Bolt slug**: onex\n**Note**: a\\nb\n"},{"timestamp":"é","block":"# Focus Audit Log\n\n## Stage_Completed\n**Timestamp**: é\n**Event**:STAGE_COMPLETED\n"}]}}
+{"id":"audit_find-00208","out":{"found":[{"timestamp":"1","block":"# Focus Audit Log\n\n## Bolt_Started\n**Timestamp**:\t1\n**Event**: BOLT_STARTED\t\n- **Bolt slug**: two\n"}]}}
+{"id":"audit_find-00209","out":{"found":[{"timestamp":"é","block":"\n## A+\n**Timestamp**:é\n**Event**: A+  \n"}]}}
+{"id":"audit_find-00210","out":{"found":[]}}
+{"id":"audit_find-00211","out":{"found":[{"timestamp":"1","block":"\n## Bolt_Started\n**Timestamp**: 1 tail\n**Event**: BOLT_STARTED\n**Event**: X\n**Bolt slug**:a-b \n**Details (raw)**: x\n"},{"timestamp":"é","block":"\n## Bolt_Started\n**Timestamp**:é tail\n**Event**: BOLT_STARTED\n**Bolt slug**:a-b \n**Details (raw)**: x\n"}]}}
+{"id":"audit_find-00212","out":{"found":[]}}
+{"id":"audit_find-00213","out":{"found":[]}}
+{"id":"audit_find-00214","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"# Focus Audit Log\n\n## X\n**Timestamp**: 2026-10-08T23:59:59Z tail\n**Event**: X\n**Bolt slug**: onex\n**Stage**: first\n**Stage**: second\n"}]}}
+{"id":"audit_find-00215","out":{"found":[{"timestamp":"2026-10-09T16:22:43Z","block":"# Focus Audit Log\n\n## Stage_Started\n**Timestamp**:2026-10-09T16:22:43Z\n**Event**: STAGE_STARTED\n**Bolt slug**: one\n**Note**: a\\nb\n"}]}}
+{"id":"audit_find-00216","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"\n## Bolt_Started\n**Timestamp**:2026-10-08T23:59:59Z\n**Event**: BOLT_STARTED  \n**Bolt slug**: one\n**Note**: a\\nb\n"},{"timestamp":"2026-10-09T16:22:42Z","block":"\n## Bolt_Started\n**Timestamp**:\t2026-10-09T16:22:42Z tail\n**Event**: BOLT_STARTED\n- **Bolt slug**: two\n**Stage**: first\n**Stage**: second\n"},{"timestamp":"2026-10-09T16:22:42Z","block":"\n## Bolt_Started\n**Timestamp**:  2026-10-09T16:22:42Z\n**Event**:BOLT_STARTED\n**Bolt slug**: onex\n**Stage**: code-generation\n"},{"timestamp":"x","block":"# Focus Audit Log\n\n## Bolt_Started\n**Timestamp**:\tx tail\n**Event**: BOLT_STARTED  \n**Bolt slug**:a-b \n**Stage**: first\n**Stage**: second\n"}]}}
+{"id":"audit_find-00217","out":{"found":[]}}
+{"id":"audit_find-00218","out":{"found":[]}}
+{"id":"audit_find-00219","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"# Focus Audit Log\n\n## Stage_Completed\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**: STAGE_COMPLETED\n**Event**: X\n**Details (raw)**: x\n\n----\n\n## Stage_Completed\n**Timestamp**:  é\n**Event**:\nSTAGE_COMPLETED\n**Bolt slug**:two \n\n----\n\n## Gate_Approved\n**Event**: GATE_APPROVED\n**Stage**:\n"}]}}
+{"id":"audit_find-00220","out":{"found":[{"timestamp":"1","block":"\n## A.B\n**Timestamp**: 1\n**Event**: A.B\n**Bolt slug**:a-b \n**Details (raw)**: x\n"},{"timestamp":"2026-10-08T23:59:59Z","block":"\n## A.B\n**Timestamp**:\t2026-10-08T23:59:59Z tail\n**Event**: A.B\n**Bolt slug**: a-b"}]}}
+{"id":"audit_find-00221","out":{"found":[]}}
+{"id":"audit_find-00222","out":{"found":[]}}
+{"id":"audit_find-00223","out":{"found":[{"timestamp":"1","block":"\n## X\n**Timestamp**: 1\n**Event**: X\n**Stage**: first\n**Stage**: second\n"},{"timestamp":"2026-10-09T16:22:42Z","block":"\n## X\n**Timestamp**:\t2026-10-09T16:22:42Z\n**Event**: X\n"},{"timestamp":"x","block":"# Focus Audit Log\n\n## X\n**Timestamp**:  x tail\n**Event**: X  \n**Bolt slug**: twox\n**Note**: a\\nb\n"}]}}
+{"id":"audit_find-00224","out":{"found":[]}}
+{"id":"audit_find-00225","out":{"found":[{"timestamp":"2026-10-08T23:59:59Z","block":"\n## Stage_Completed\n**Timestamp**: 2026-10-08T23:59:59Z\n**Event**:STAGE_COMPLETED\n"},{"timestamp":"2026-10-09T16:22:42.123Z","block":"\n## Stage_Completed\n**Timestamp**:\t2026-10-09T16:22:42.123Z\n**Event**: STAGE_COMPLETED\n**Stage**: code-generation\n"}]}}
+{"id":"audit_find-00226","out":{"found":[]}}
+{"id":"audit_find-00227","out":{"found":[]}}
+{"id":"audit_find-00228","out":{"found":[{"timestamp":"é","block":"# Focus Audit Log\n\n## Stage_Completed\n**Timestamp**: é\n**Event**: STAGE_COMPLETED\n**Stage**: code-generation"}]}}
+{"id":"audit_find-00229","out":{"found":[{"timestamp":"1","block":"\n## Stage_Started\n**Timestamp**:1 tail\n**Event**: STAGE_STARTED\t\n**Bolt slug**: a-b\n**Stage**: code-generation\n"},{"timestamp":"1","block":"\n## Stage_Started\n**Timestamp**: 1 tail\n**Event**: STAGE_STARTED\n**Bolt slug**:o.e \n"},{"timestamp":"2026-10-08T23:59:59Z","block":"\n## Stage_Started\n**Timestamp**:\t2026-10-08T23:59:59Z\n**Event**: STAGE_STARTED\n**Bolt slug**: a-b\nplain line\n"},{"timestamp":"x","block":"\n## Stage_Started\n**Timestamp**: x\n**Event**: STAGE_STARTED\n"}]}}
+{"id":"audit_find-00230","out":{"found":[]}}
+{"id":"audit_find-00231","out":{"found":[]}}
+{"id":"audit_find-00232","out":{"found":[]}}
+{"id":"audit_find-00233","out":{"found":[{"timestamp":"2","block":"\n## Stage_Started\n**Timestamp**:2 026-10-08T23:59:59Z\n**Event**: STAGE_STARTED  \n**Stage**:\n"}]}}
+{"id":"audit_find-00234","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"# Focus Audit Log\n\n## Bolt_Started\n**Event**:BOLT_STARTED\n**Stage**:\n\n--- \n\n## Bolt_Started\n**Timestamp**:\t2026-10-09T16:22:42Z tail\n**event**: BOLT_STARTED\n**Bolt slug**: a-b\n- **Stage**:  spaced  \n\n--- \n\n## Bolt_Started\n**Timestamp**:2026-10-08T23:59:59Z\n**Event**: BOLT_STARTED\t\n**Bolt slug**: a-b\n**Details (raw)**: x\n\n--- \n\n## Bolt_Started\n**Timestamp**: x\n**event**: BOLT_STARTED\n"}]}}
+{"id":"audit_find-00235","out":{"found":[{"timestamp":"1","block":"# Focus Audit Log\n\n## A.B\n**Timestamp**:\t1 tail\n**Event**: A.B\n"},{"timestamp":"2026-10-08T23:59:59Z","block":"\n## A.B\n**Timestamp**:\t2026-10-08T23:59:59Z\n**Event**: A.B\n**Stage**: first\n**Stage**: second\n"}]}}
+{"id":"audit_find-00236","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"\n## X\n**Timestamp**:\t2026-10-09T16:22:42Z\n**Event**: X\n**Stage**: first\n**Stage**: second\n"},{"timestamp":"x","block":"\n## X\n**Timestamp**:x\n**Event**: X\n**Stage**: code-generation\n"}]}}
+{"id":"audit_find-00237","out":{"found":[]}}
+{"id":"audit_find-00238","out":{"found":[{"timestamp":"2026-10-09T16:22:42Z","block":"# Focus Audit Log\n\n## Stage_Started\n**Timestamp**:\t2026-10-09T16:22:42Z\n**Event**:\nSTAGE_STARTED\n**Bolt slug**: one\n- **Stage**:  spaced  \n\n--- \n\n## Bolt_Started\n**Timestamp**: é\n**event**: BOLT_STARTED\n**Details (raw)**: x\n\n--- \n\n## Stage_Started\n**Timestamp**:2026-10-09T16:22:42Z tail\n**event**: STAGE_STARTED\n**Bolt slug**: two\n\n--- \n\n## Stage_Started\n**Timestamp**:\t2026-10-08T23:59:59Z tail\n**Event**: STAGE_STARTED  \n**Bolt slug**: twox\n- **Stage**:  spaced  \n\n--- \n\n## Stage_Started\n**Timestamp**:  2026-10-09T16:22:42.123Z tail\n**Event**: STAGE_STARTED\n**Stage**: code-generation\n\n--- \n\n## Stage_Started\n**Timestamp**: 2026-10-09T16:22:42Z tail\n- **Event**: STAGE_STARTED\n**Bolt slug**: two\nplain line\n"}]}}
+{"id":"audit_find-00239","out":{"found":[]}}

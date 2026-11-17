@@ -168,7 +168,9 @@ before they reach Focus or `fixtures/`. Focus's own output is never translated,
 so a name left unchanged shows up as a difference.
 
 - **Oracle corpus** (`fixtures/oracle/`): generated inputs for individual
-  functions, with the reference's answers.
+  functions, with the reference's answers. One file of cases and one of
+  answers for each kind of case (`cases/<kind>.ndjson`,
+  `expected/<kind>.ndjson`); a crate replays the kinds it answers.
 - **Recorded differential** (`fixtures/recorded/`): whole commands run against
   edited project trees, with the reference's exit code, output and written
   files.

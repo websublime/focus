@@ -1,0 +1,2280 @@
+{"id":"guard_operation-00000","out":true}
+{"id":"guard_operation-00001","out":{"route":"orchestrate","args":["next","--stage","9"]}}
+{"id":"guard_operation-00002","out":true}
+{"id":"guard_operation-00003","out":{"route":"config","args":["set","guard.state-transition","off"],"source":{"route":"utility","args":["config-change","--guard.state-transition","off"]}}}
+{"id":"guard_operation-00004","out":true}
+{"id":"guard_operation-00005","out":{"route":"config","args":["set","guard.state-transition","off"],"source":{"route":"utility","args":["config-change","--guard.state-transition","off"]}}}
+{"id":"guard_operation-00006","out":true}
+{"id":"guard_operation-00007","out":{"route":"orchestrate","args":["next","--stage","a"]}}
+{"id":"guard_operation-00008","out":false}
+{"id":"guard_operation-00009","out":null}
+{"id":"guard_operation-00010","out":true}
+{"id":"guard_operation-00011","out":{"route":"bolt","args":["abort","--name","a","--slug","auth","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00012","out":true}
+{"id":"guard_operation-00013","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00014","out":true}
+{"id":"guard_operation-00015","out":{"route":"config","args":["set","guard.state-transition","off"],"source":{"route":"utility","args":["config-change","--guard.state-transition","off"]}}}
+{"id":"guard_operation-00016","out":true}
+{"id":"guard_operation-00017","out":{"route":"orchestrate","args":["next","--stage","unit-1"]}}
+{"id":"guard_operation-00018","out":true}
+{"id":"guard_operation-00019","out":{"route":"orchestrate","args":["next","--stage","a"]}}
+{"id":"guard_operation-00020","out":true}
+{"id":"guard_operation-00021","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00022","out":false}
+{"id":"guard_operation-00023","out":null}
+{"id":"guard_operation-00024","out":true}
+{"id":"guard_operation-00025","out":{"route":"state","args":["unit","complete","--stage","9","--unit","unit-1"]}}
+{"id":"guard_operation-00026","out":true}
+{"id":"guard_operation-00027","out":{"route":"config","args":["set","guard.review-freeze","off"],"source":{"route":"utility","args":["config-change","--guard.review-freeze","off"]}}}
+{"id":"guard_operation-00028","out":true}
+{"id":"guard_operation-00029","out":{"route":"state","args":["unit","complete","--stage","auth","--unit","A-Z"]}}
+{"id":"guard_operation-00030","out":false}
+{"id":"guard_operation-00031","out":null}
+{"id":"guard_operation-00032","out":true}
+{"id":"guard_operation-00033","out":{"route":"config","args":["set","guard.state-transition","off"],"source":{"route":"utility","args":["config-change","--guard.state-transition","off"]}}}
+{"id":"guard_operation-00034","out":false}
+{"id":"guard_operation-00035","out":null}
+{"id":"guard_operation-00036","out":true}
+{"id":"guard_operation-00037","out":{"route":"bolt","args":["abort","--name","auth","--slug","A-Z","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00038","out":true}
+{"id":"guard_operation-00039","out":{"route":"state","args":["unit","complete","--stage","auth","--unit","unit-1"]}}
+{"id":"guard_operation-00040","out":true}
+{"id":"guard_operation-00041","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00042","out":true}
+{"id":"guard_operation-00043","out":{"route":"state","args":["unit","complete","--stage","code-generation","--unit","a_b"]}}
+{"id":"guard_operation-00044","out":false}
+{"id":"guard_operation-00045","out":null}
+{"id":"guard_operation-00046","out":true}
+{"id":"guard_operation-00047","out":{"route":"bolt","args":["abort","--name","unit-1","--slug","unit-1","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00048","out":true}
+{"id":"guard_operation-00049","out":{"route":"bolt","args":["abort","--name","auth","--slug","a","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00050","out":true}
+{"id":"guard_operation-00051","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00052","out":true}
+{"id":"guard_operation-00053","out":{"route":"config","args":["set","guard.state-transition","off"],"source":{"route":"utility","args":["config-change","--guard.state-transition","off"]}}}
+{"id":"guard_operation-00054","out":true}
+{"id":"guard_operation-00055","out":{"route":"orchestrate","args":["next","--stage","a"]}}
+{"id":"guard_operation-00056","out":true}
+{"id":"guard_operation-00057","out":{"route":"bolt","args":["abort","--name","a_b","--slug","CodeGen","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00058","out":true}
+{"id":"guard_operation-00059","out":{"route":"jump","args":["reopen","--target","auth","--units","a_b"]}}
+{"id":"guard_operation-00060","out":true}
+{"id":"guard_operation-00061","out":{"route":"jump","args":["reopen","--target","A-Z","--units","a"]}}
+{"id":"guard_operation-00062","out":true}
+{"id":"guard_operation-00063","out":{"route":"config","args":["set","guard.review-freeze","off"],"source":{"route":"utility","args":["config-change","--guard.review-freeze","off"]}}}
+{"id":"guard_operation-00064","out":false}
+{"id":"guard_operation-00065","out":null}
+{"id":"guard_operation-00066","out":true}
+{"id":"guard_operation-00067","out":{"route":"jump","args":["reopen","--target","unit-1","--units","x.y"]}}
+{"id":"guard_operation-00068","out":true}
+{"id":"guard_operation-00069","out":{"route":"state","args":["unit","complete","--stage","auth","--unit","unit-1"]}}
+{"id":"guard_operation-00070","out":true}
+{"id":"guard_operation-00071","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00072","out":true}
+{"id":"guard_operation-00073","out":{"route":"bolt","args":["abort","--name","a","--slug","x.y","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00074","out":true}
+{"id":"guard_operation-00075","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00076","out":false}
+{"id":"guard_operation-00077","out":null}
+{"id":"guard_operation-00078","out":true}
+{"id":"guard_operation-00079","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00080","out":true}
+{"id":"guard_operation-00081","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00082","out":true}
+{"id":"guard_operation-00083","out":{"route":"state","args":["unit","complete","--stage","a_b","--unit","A-Z"]}}
+{"id":"guard_operation-00084","out":true}
+{"id":"guard_operation-00085","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00086","out":true}
+{"id":"guard_operation-00087","out":{"route":"config","args":["set","guard.state-transition","off"],"source":{"route":"utility","args":["config-change","--guard.state-transition","off"]}}}
+{"id":"guard_operation-00088","out":true}
+{"id":"guard_operation-00089","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00090","out":true}
+{"id":"guard_operation-00091","out":{"route":"bolt","args":["abort","--name","x.y","--slug","A-Z","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00092","out":true}
+{"id":"guard_operation-00093","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00094","out":true}
+{"id":"guard_operation-00095","out":{"route":"config","args":["set","guard.reviewer-scope","off"],"source":{"route":"utility","args":["config-change","--guard.reviewer-scope","off"]}}}
+{"id":"guard_operation-00096","out":true}
+{"id":"guard_operation-00097","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00098","out":true}
+{"id":"guard_operation-00099","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00100","out":true}
+{"id":"guard_operation-00101","out":{"route":"orchestrate","args":["next","--stage","code-generation"]}}
+{"id":"guard_operation-00102","out":true}
+{"id":"guard_operation-00103","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00104","out":false}
+{"id":"guard_operation-00105","out":null}
+{"id":"guard_operation-00106","out":true}
+{"id":"guard_operation-00107","out":{"route":"bolt","args":["abort","--name","9","--slug","a_b","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00108","out":false}
+{"id":"guard_operation-00109","out":null}
+{"id":"guard_operation-00110","out":true}
+{"id":"guard_operation-00111","out":{"route":"state","args":["unit","complete","--stage","unit-1","--unit","ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"]}}
+{"id":"guard_operation-00112","out":true}
+{"id":"guard_operation-00113","out":{"route":"orchestrate","args":["next","--stage","x.y"]}}
+{"id":"guard_operation-00114","out":true}
+{"id":"guard_operation-00115","out":{"route":"config","args":["set","guard.reviewer-scope","off"],"source":{"route":"utility","args":["config-change","--guard.reviewer-scope","off"]}}}
+{"id":"guard_operation-00116","out":false}
+{"id":"guard_operation-00117","out":null}
+{"id":"guard_operation-00118","out":true}
+{"id":"guard_operation-00119","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00120","out":false}
+{"id":"guard_operation-00121","out":null}
+{"id":"guard_operation-00122","out":true}
+{"id":"guard_operation-00123","out":{"route":"orchestrate","args":["next","--stage","a_b"]}}
+{"id":"guard_operation-00124","out":true}
+{"id":"guard_operation-00125","out":{"route":"orchestrate","args":["next","--stage","A-Z"]}}
+{"id":"guard_operation-00126","out":true}
+{"id":"guard_operation-00127","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00128","out":true}
+{"id":"guard_operation-00129","out":{"route":"bolt","args":["abort","--name","A-Z","--slug","A-Z","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00130","out":true}
+{"id":"guard_operation-00131","out":{"route":"config","args":["set","guard.reviewer-scope","off"],"source":{"route":"utility","args":["config-change","--guard.reviewer-scope","off"]}}}
+{"id":"guard_operation-00132","out":true}
+{"id":"guard_operation-00133","out":{"route":"orchestrate","args":["next","--stage","a"]}}
+{"id":"guard_operation-00134","out":true}
+{"id":"guard_operation-00135","out":{"route":"jump","args":["reopen","--target","x.y","--units","auth"]}}
+{"id":"guard_operation-00136","out":true}
+{"id":"guard_operation-00137","out":{"route":"state","args":["unit","complete","--stage","9","--unit","a"]}}
+{"id":"guard_operation-00138","out":true}
+{"id":"guard_operation-00139","out":{"route":"state","args":["unit","complete","--stage","9","--unit","auth"]}}
+{"id":"guard_operation-00140","out":true}
+{"id":"guard_operation-00141","out":{"route":"bolt","args":["abort","--name","auth","--slug","A-Z","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00142","out":true}
+{"id":"guard_operation-00143","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00144","out":true}
+{"id":"guard_operation-00145","out":{"route":"state","args":["unit","complete","--stage","auth","--unit","auth"]}}
+{"id":"guard_operation-00146","out":true}
+{"id":"guard_operation-00147","out":{"route":"orchestrate","args":["next","--stage","unit-1"]}}
+{"id":"guard_operation-00148","out":true}
+{"id":"guard_operation-00149","out":{"route":"state","args":["unit","complete","--stage","9","--unit","a"]}}
+{"id":"guard_operation-00150","out":true}
+{"id":"guard_operation-00151","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00152","out":true}
+{"id":"guard_operation-00153","out":{"route":"orchestrate","args":["next","--stage","code-generation"]}}
+{"id":"guard_operation-00154","out":true}
+{"id":"guard_operation-00155","out":{"route":"bolt","args":["abort","--name","a","--slug","A-Z","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00156","out":false}
+{"id":"guard_operation-00157","out":null}
+{"id":"guard_operation-00158","out":true}
+{"id":"guard_operation-00159","out":{"route":"config","args":["set","guard.review-freeze","off"],"source":{"route":"utility","args":["config-change","--guard.review-freeze","off"]}}}
+{"id":"guard_operation-00160","out":true}
+{"id":"guard_operation-00161","out":{"route":"bolt","args":["abort","--name","9","--slug","unit-1","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00162","out":true}
+{"id":"guard_operation-00163","out":{"route":"state","args":["unit","complete","--stage","9","--unit","A-Z"]}}
+{"id":"guard_operation-00164","out":true}
+{"id":"guard_operation-00165","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00166","out":true}
+{"id":"guard_operation-00167","out":{"route":"config","args":["set","guard.plan-approval","off"],"source":{"route":"utility","args":["config-change","--guard.plan-approval","off"]}}}
+{"id":"guard_operation-00168","out":true}
+{"id":"guard_operation-00169","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00170","out":false}
+{"id":"guard_operation-00171","out":null}
+{"id":"guard_operation-00172","out":true}
+{"id":"guard_operation-00173","out":{"route":"bolt","args":["abort","--name","auth","--slug","code-generation","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00174","out":true}
+{"id":"guard_operation-00175","out":{"route":"state","args":["unit","complete","--stage","A-Z","--unit","A-Z"]}}
+{"id":"guard_operation-00176","out":true}
+{"id":"guard_operation-00177","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00178","out":true}
+{"id":"guard_operation-00179","out":{"route":"bolt","args":["abort","--name","a","--slug","unit-1","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00180","out":false}
+{"id":"guard_operation-00181","out":null}
+{"id":"guard_operation-00182","out":true}
+{"id":"guard_operation-00183","out":{"route":"state","args":["unit","complete","--stage","a","--unit","x.y"]}}
+{"id":"guard_operation-00184","out":true}
+{"id":"guard_operation-00185","out":{"route":"jump","args":["reopen","--target","x.y","--units","unit-1"]}}
+{"id":"guard_operation-00186","out":true}
+{"id":"guard_operation-00187","out":{"route":"bolt","args":["abort","--name","a","--slug","9","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00188","out":true}
+{"id":"guard_operation-00189","out":{"route":"bolt","args":["abort","--name","auth","--slug","a_b","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00190","out":true}
+{"id":"guard_operation-00191","out":{"route":"state","args":["unit","complete","--stage","x.y","--unit","A-Z"]}}
+{"id":"guard_operation-00192","out":true}
+{"id":"guard_operation-00193","out":{"route":"orchestrate","args":["next","--stage","a_b"]}}
+{"id":"guard_operation-00194","out":true}
+{"id":"guard_operation-00195","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00196","out":false}
+{"id":"guard_operation-00197","out":null}
+{"id":"guard_operation-00198","out":true}
+{"id":"guard_operation-00199","out":{"route":"bolt","args":["abort","--name","A-Z","--slug","auth","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00200","out":true}
+{"id":"guard_operation-00201","out":{"route":"orchestrate","args":["next","--stage","auth"]}}
+{"id":"guard_operation-00202","out":true}
+{"id":"guard_operation-00203","out":{"route":"bolt","args":["abort","--name","9","--slug","code-generation","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00204","out":true}
+{"id":"guard_operation-00205","out":{"route":"bolt","args":["abort","--name","a_b","--slug","a_b","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00206","out":false}
+{"id":"guard_operation-00207","out":null}
+{"id":"guard_operation-00208","out":true}
+{"id":"guard_operation-00209","out":{"route":"bolt","args":["abort","--name","a","--slug","a_b","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00210","out":true}
+{"id":"guard_operation-00211","out":{"route":"state","args":["unit","complete","--stage","A-Z","--unit","9"]}}
+{"id":"guard_operation-00212","out":true}
+{"id":"guard_operation-00213","out":{"route":"orchestrate","args":["next","--stage","9"]}}
+{"id":"guard_operation-00214","out":true}
+{"id":"guard_operation-00215","out":{"route":"bolt","args":["abort","--name","A-Z","--slug","A-Z","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00216","out":true}
+{"id":"guard_operation-00217","out":{"route":"orchestrate","args":["next","--stage","a_b"]}}
+{"id":"guard_operation-00218","out":true}
+{"id":"guard_operation-00219","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00220","out":true}
+{"id":"guard_operation-00221","out":{"route":"bolt","args":["abort","--name","auth","--slug","9","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00222","out":true}
+{"id":"guard_operation-00223","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00224","out":true}
+{"id":"guard_operation-00225","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00226","out":true}
+{"id":"guard_operation-00227","out":{"route":"state","args":["unit","complete","--stage","A-Z","--unit","a_b"]}}
+{"id":"guard_operation-00228","out":true}
+{"id":"guard_operation-00229","out":{"route":"state","args":["unit","complete","--stage","unit-1","--unit","9"]}}
+{"id":"guard_operation-00230","out":true}
+{"id":"guard_operation-00231","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00232","out":true}
+{"id":"guard_operation-00233","out":{"route":"config","args":["set","guard.review-freeze","off"],"source":{"route":"utility","args":["config-change","--guard.review-freeze","off"]}}}
+{"id":"guard_operation-00234","out":true}
+{"id":"guard_operation-00235","out":{"route":"state","args":["unit","complete","--stage","9","--unit","9"]}}
+{"id":"guard_operation-00236","out":true}
+{"id":"guard_operation-00237","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00238","out":true}
+{"id":"guard_operation-00239","out":{"route":"config","args":["set","guard.state-transition","off"],"source":{"route":"utility","args":["config-change","--guard.state-transition","off"]}}}
+{"id":"guard_operation-00240","out":true}
+{"id":"guard_operation-00241","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00242","out":true}
+{"id":"guard_operation-00243","out":{"route":"bolt","args":["abort","--name","A-Z","--slug","auth","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00244","out":false}
+{"id":"guard_operation-00245","out":null}
+{"id":"guard_operation-00246","out":true}
+{"id":"guard_operation-00247","out":{"route":"orchestrate","args":["next","--stage","CodeGen"]}}
+{"id":"guard_operation-00248","out":true}
+{"id":"guard_operation-00249","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00250","out":true}
+{"id":"guard_operation-00251","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00252","out":true}
+{"id":"guard_operation-00253","out":{"route":"bolt","args":["abort","--name","code-generation","--slug","a_b","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00254","out":true}
+{"id":"guard_operation-00255","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00256","out":true}
+{"id":"guard_operation-00257","out":{"route":"config","args":["set","guard.review-freeze","off"],"source":{"route":"utility","args":["config-change","--guard.review-freeze","off"]}}}
+{"id":"guard_operation-00258","out":false}
+{"id":"guard_operation-00259","out":null}
+{"id":"guard_operation-00260","out":true}
+{"id":"guard_operation-00261","out":{"route":"config","args":["set","guard.review-freeze","off"],"source":{"route":"utility","args":["config-change","--guard.review-freeze","off"]}}}
+{"id":"guard_operation-00262","out":false}
+{"id":"guard_operation-00263","out":null}
+{"id":"guard_operation-00264","out":true}
+{"id":"guard_operation-00265","out":{"route":"state","args":["unit","complete","--stage","A-Z","--unit","a_b"]}}
+{"id":"guard_operation-00266","out":true}
+{"id":"guard_operation-00267","out":{"route":"state","args":["unit","complete","--stage","a_b","--unit","auth"]}}
+{"id":"guard_operation-00268","out":true}
+{"id":"guard_operation-00269","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00270","out":true}
+{"id":"guard_operation-00271","out":{"route":"bolt","args":["abort","--name","unit-1","--slug","code-generation","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00272","out":false}
+{"id":"guard_operation-00273","out":null}
+{"id":"guard_operation-00274","out":true}
+{"id":"guard_operation-00275","out":{"route":"orchestrate","args":["next","--stage","a"]}}
+{"id":"guard_operation-00276","out":true}
+{"id":"guard_operation-00277","out":{"route":"config","args":["set","guard.review-freeze","off"],"source":{"route":"utility","args":["config-change","--guard.review-freeze","off"]}}}
+{"id":"guard_operation-00278","out":true}
+{"id":"guard_operation-00279","out":{"route":"jump","args":["reopen","--target","A-Z","--units","unit-1"]}}
+{"id":"guard_operation-00280","out":true}
+{"id":"guard_operation-00281","out":{"route":"jump","args":["reopen","--target","a","--units","x.y"]}}
+{"id":"guard_operation-00282","out":true}
+{"id":"guard_operation-00283","out":{"route":"state","args":["unit","complete","--stage","a_b","--unit","auth"]}}
+{"id":"guard_operation-00284","out":true}
+{"id":"guard_operation-00285","out":{"route":"state","args":["unit","complete","--stage","9","--unit","9"]}}
+{"id":"guard_operation-00286","out":false}
+{"id":"guard_operation-00287","out":null}
+{"id":"guard_operation-00288","out":true}
+{"id":"guard_operation-00289","out":{"route":"state","args":["unit","complete","--stage","unit-1","--unit","a_b"]}}
+{"id":"guard_operation-00290","out":true}
+{"id":"guard_operation-00291","out":{"route":"bolt","args":["abort","--name","9","--slug","unit-1","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00292","out":true}
+{"id":"guard_operation-00293","out":{"route":"config","args":["set","guard.plan-approval","off"],"source":{"route":"utility","args":["config-change","--guard.plan-approval","off"]}}}
+{"id":"guard_operation-00294","out":true}
+{"id":"guard_operation-00295","out":{"route":"state","args":["unit","complete","--stage","x.y","--unit","auth"]}}
+{"id":"guard_operation-00296","out":true}
+{"id":"guard_operation-00297","out":{"route":"bolt","args":["abort","--name","9","--slug","auth","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00298","out":true}
+{"id":"guard_operation-00299","out":{"route":"state","args":["unit","complete","--stage","9","--unit","a"]}}
+{"id":"guard_operation-00300","out":true}
+{"id":"guard_operation-00301","out":{"route":"bolt","args":["abort","--name","A-Z","--slug","9","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00302","out":true}
+{"id":"guard_operation-00303","out":{"route":"jump","args":["reopen","--target","unit-1","--units","x.y"]}}
+{"id":"guard_operation-00304","out":false}
+{"id":"guard_operation-00305","out":null}
+{"id":"guard_operation-00306","out":true}
+{"id":"guard_operation-00307","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00308","out":true}
+{"id":"guard_operation-00309","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00310","out":true}
+{"id":"guard_operation-00311","out":{"route":"orchestrate","args":["next","--stage","9"]}}
+{"id":"guard_operation-00312","out":true}
+{"id":"guard_operation-00313","out":{"route":"config","args":["set","guard.plan-approval","off"],"source":{"route":"utility","args":["config-change","--guard.plan-approval","off"]}}}
+{"id":"guard_operation-00314","out":true}
+{"id":"guard_operation-00315","out":{"route":"config","args":["set","guard.state-transition","off"],"source":{"route":"utility","args":["config-change","--guard.state-transition","off"]}}}
+{"id":"guard_operation-00316","out":true}
+{"id":"guard_operation-00317","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00318","out":true}
+{"id":"guard_operation-00319","out":{"route":"state","args":["unit","complete","--stage","a","--unit","9"]}}
+{"id":"guard_operation-00320","out":true}
+{"id":"guard_operation-00321","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00322","out":false}
+{"id":"guard_operation-00323","out":null}
+{"id":"guard_operation-00324","out":false}
+{"id":"guard_operation-00325","out":null}
+{"id":"guard_operation-00326","out":true}
+{"id":"guard_operation-00327","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00328","out":true}
+{"id":"guard_operation-00329","out":{"route":"jump","args":["reopen","--target","a","--units","A-Z"]}}
+{"id":"guard_operation-00330","out":true}
+{"id":"guard_operation-00331","out":{"route":"jump","args":["reopen","--target","a","--units","unit-1"]}}
+{"id":"guard_operation-00332","out":true}
+{"id":"guard_operation-00333","out":{"route":"jump","args":["reopen","--target","x.y","--units","auth"]}}
+{"id":"guard_operation-00334","out":false}
+{"id":"guard_operation-00335","out":null}
+{"id":"guard_operation-00336","out":true}
+{"id":"guard_operation-00337","out":{"route":"config","args":["set","guard.reviewer-scope","off"],"source":{"route":"utility","args":["config-change","--guard.reviewer-scope","off"]}}}
+{"id":"guard_operation-00338","out":false}
+{"id":"guard_operation-00339","out":null}
+{"id":"guard_operation-00340","out":false}
+{"id":"guard_operation-00341","out":null}
+{"id":"guard_operation-00342","out":false}
+{"id":"guard_operation-00343","out":null}
+{"id":"guard_operation-00344","out":true}
+{"id":"guard_operation-00345","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00346","out":true}
+{"id":"guard_operation-00347","out":{"route":"jump","args":["reopen","--target","9","--units","a_b"]}}
+{"id":"guard_operation-00348","out":true}
+{"id":"guard_operation-00349","out":{"route":"orchestrate","args":["next","--stage","unit-1"]}}
+{"id":"guard_operation-00350","out":true}
+{"id":"guard_operation-00351","out":{"route":"state","args":["unit","complete","--stage","x.y","--unit","x.y"]}}
+{"id":"guard_operation-00352","out":true}
+{"id":"guard_operation-00353","out":{"route":"bolt","args":["abort","--name","a_b","--slug","code-generation","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00354","out":true}
+{"id":"guard_operation-00355","out":{"route":"bolt","args":["abort","--name","9","--slug","a","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00356","out":true}
+{"id":"guard_operation-00357","out":{"route":"bolt","args":["abort","--name","a_b","--slug","x.y","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00358","out":true}
+{"id":"guard_operation-00359","out":{"route":"jump","args":["reopen","--target","a","--units","x.y"]}}
+{"id":"guard_operation-00360","out":false}
+{"id":"guard_operation-00361","out":null}
+{"id":"guard_operation-00362","out":true}
+{"id":"guard_operation-00363","out":{"route":"config","args":["set","guard.review-freeze","off"],"source":{"route":"utility","args":["config-change","--guard.review-freeze","off"]}}}
+{"id":"guard_operation-00364","out":true}
+{"id":"guard_operation-00365","out":{"route":"jump","args":["reopen","--target","a_b","--units","unit-1"]}}
+{"id":"guard_operation-00366","out":false}
+{"id":"guard_operation-00367","out":null}
+{"id":"guard_operation-00368","out":true}
+{"id":"guard_operation-00369","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00370","out":false}
+{"id":"guard_operation-00371","out":null}
+{"id":"guard_operation-00372","out":true}
+{"id":"guard_operation-00373","out":{"route":"bolt","args":["abort","--name","9","--slug","code-generation","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00374","out":false}
+{"id":"guard_operation-00375","out":null}
+{"id":"guard_operation-00376","out":true}
+{"id":"guard_operation-00377","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00378","out":true}
+{"id":"guard_operation-00379","out":{"route":"orchestrate","args":["next","--stage","a"]}}
+{"id":"guard_operation-00380","out":true}
+{"id":"guard_operation-00381","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00382","out":true}
+{"id":"guard_operation-00383","out":{"route":"config","args":["set","guard.review-freeze","off"],"source":{"route":"utility","args":["config-change","--guard.review-freeze","off"]}}}
+{"id":"guard_operation-00384","out":true}
+{"id":"guard_operation-00385","out":{"route":"jump","args":["reopen","--target","code-generation","--units","auth"]}}
+{"id":"guard_operation-00386","out":false}
+{"id":"guard_operation-00387","out":null}
+{"id":"guard_operation-00388","out":true}
+{"id":"guard_operation-00389","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00390","out":false}
+{"id":"guard_operation-00391","out":null}
+{"id":"guard_operation-00392","out":false}
+{"id":"guard_operation-00393","out":null}
+{"id":"guard_operation-00394","out":true}
+{"id":"guard_operation-00395","out":{"route":"bolt","args":["abort","--name","a_b","--slug","9","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00396","out":true}
+{"id":"guard_operation-00397","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00398","out":true}
+{"id":"guard_operation-00399","out":{"route":"state","args":["unit","complete","--stage","code-generation","--unit","a_b"]}}
+{"id":"guard_operation-00400","out":true}
+{"id":"guard_operation-00401","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00402","out":true}
+{"id":"guard_operation-00403","out":{"route":"jump","args":["reopen","--target","a","--units","auth"]}}
+{"id":"guard_operation-00404","out":true}
+{"id":"guard_operation-00405","out":{"route":"bolt","args":["abort","--name","9","--slug","unit-1","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00406","out":true}
+{"id":"guard_operation-00407","out":{"route":"jump","args":["reopen","--target","A-Z","--units","code-generation"]}}
+{"id":"guard_operation-00408","out":false}
+{"id":"guard_operation-00409","out":null}
+{"id":"guard_operation-00410","out":false}
+{"id":"guard_operation-00411","out":null}
+{"id":"guard_operation-00412","out":true}
+{"id":"guard_operation-00413","out":{"route":"config","args":["set","guard.review-freeze","off"],"source":{"route":"utility","args":["config-change","--guard.review-freeze","off"]}}}
+{"id":"guard_operation-00414","out":true}
+{"id":"guard_operation-00415","out":{"route":"jump","args":["reopen","--target","a_b","--units","A-Z"]}}
+{"id":"guard_operation-00416","out":true}
+{"id":"guard_operation-00417","out":{"route":"orchestrate","args":["next","--stage","a_b"]}}
+{"id":"guard_operation-00418","out":true}
+{"id":"guard_operation-00419","out":{"route":"state","args":["unit","complete","--stage","code-generation","--unit","auth"]}}
+{"id":"guard_operation-00420","out":true}
+{"id":"guard_operation-00421","out":{"route":"bolt","args":["abort","--name","code-generation","--slug","unit-1","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00422","out":true}
+{"id":"guard_operation-00423","out":{"route":"config","args":["set","guard.reviewer-scope","off"],"source":{"route":"utility","args":["config-change","--guard.reviewer-scope","off"]}}}
+{"id":"guard_operation-00424","out":true}
+{"id":"guard_operation-00425","out":{"route":"jump","args":["reopen","--target","x.y","--units","a_b"]}}
+{"id":"guard_operation-00426","out":true}
+{"id":"guard_operation-00427","out":{"route":"orchestrate","args":["next","--stage","a_b"]}}
+{"id":"guard_operation-00428","out":false}
+{"id":"guard_operation-00429","out":null}
+{"id":"guard_operation-00430","out":true}
+{"id":"guard_operation-00431","out":{"route":"orchestrate","args":["next","--stage","a_b"]}}
+{"id":"guard_operation-00432","out":false}
+{"id":"guard_operation-00433","out":null}
+{"id":"guard_operation-00434","out":true}
+{"id":"guard_operation-00435","out":{"route":"config","args":["set","guard.reviewer-scope","off"],"source":{"route":"utility","args":["config-change","--guard.reviewer-scope","off"]}}}
+{"id":"guard_operation-00436","out":true}
+{"id":"guard_operation-00437","out":{"route":"jump","args":["reopen","--target","unit-1","--units","a"]}}
+{"id":"guard_operation-00438","out":true}
+{"id":"guard_operation-00439","out":{"route":"jump","args":["reopen","--target","a_b","--units","A-Z"]}}
+{"id":"guard_operation-00440","out":true}
+{"id":"guard_operation-00441","out":{"route":"state","args":["unit","complete","--stage","ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss","--unit","ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"]}}
+{"id":"guard_operation-00442","out":true}
+{"id":"guard_operation-00443","out":{"route":"config","args":["set","guard.review-freeze","off"],"source":{"route":"utility","args":["config-change","--guard.review-freeze","off"]}}}
+{"id":"guard_operation-00444","out":true}
+{"id":"guard_operation-00445","out":{"route":"state","args":["unit","complete","--stage","CodeGen","--unit","x.y"]}}
+{"id":"guard_operation-00446","out":true}
+{"id":"guard_operation-00447","out":{"route":"state","args":["unit","complete","--stage","x.y","--unit","A-Z"]}}
+{"id":"guard_operation-00448","out":false}
+{"id":"guard_operation-00449","out":null}
+{"id":"guard_operation-00450","out":true}
+{"id":"guard_operation-00451","out":{"route":"config","args":["set","guard.plan-approval","off"],"source":{"route":"utility","args":["config-change","--guard.plan-approval","off"]}}}
+{"id":"guard_operation-00452","out":true}
+{"id":"guard_operation-00453","out":{"route":"orchestrate","args":["next","--stage","auth"]}}
+{"id":"guard_operation-00454","out":true}
+{"id":"guard_operation-00455","out":{"route":"bolt","args":["abort","--name","a","--slug","a","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00456","out":true}
+{"id":"guard_operation-00457","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00458","out":true}
+{"id":"guard_operation-00459","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00460","out":true}
+{"id":"guard_operation-00461","out":{"route":"jump","args":["reopen","--target","auth","--units","a_b"]}}
+{"id":"guard_operation-00462","out":false}
+{"id":"guard_operation-00463","out":null}
+{"id":"guard_operation-00464","out":true}
+{"id":"guard_operation-00465","out":{"route":"orchestrate","args":["next","--stage","9"]}}
+{"id":"guard_operation-00466","out":true}
+{"id":"guard_operation-00467","out":{"route":"config","args":["set","review","advisory"],"source":{"route":"utility","args":["config-change","--review","advisory"]}}}
+{"id":"guard_operation-00468","out":true}
+{"id":"guard_operation-00469","out":{"route":"orchestrate","args":["next","--stage","a_b"]}}
+{"id":"guard_operation-00470","out":true}
+{"id":"guard_operation-00471","out":{"route":"bolt","args":["abort","--name","9","--slug","unit-1","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00472","out":true}
+{"id":"guard_operation-00473","out":{"route":"config","args":["set","guard.plan-approval","off"],"source":{"route":"utility","args":["config-change","--guard.plan-approval","off"]}}}
+{"id":"guard_operation-00474","out":true}
+{"id":"guard_operation-00475","out":{"route":"bolt","args":["abort","--name","code-generation","--slug","9","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00476","out":true}
+{"id":"guard_operation-00477","out":{"route":"bolt","args":["abort","--name","auth","--slug","9","--reason","stale review recovery exhausted","--discard"]}}
+{"id":"guard_operation-00478","out":true}
+{"id":"guard_operation-00479","out":{"route":"orchestrate","args":["next","--stage","code-generation"]}}
+{"id":"guard_operation-00480","out":"bun .claude/tools/focus-orchestrate.ts next --stage auth"}
+{"id":"guard_operation-00481","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00482","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00483","out":"bun .a-b_c.d/tools/focus-jump.ts reopen --target 9 --units 9"}
+{"id":"guard_operation-00484","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00485","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00486","out":"bun .cursor/tools/focus-jump.ts reopen --target x.y --units a"}
+{"id":"guard_operation-00487","out":"bun .claude/tools/focus-orchestrate.ts next --stage 9"}
+{"id":"guard_operation-00488","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00489","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00490","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00491","out":"bun .cursor/tools/focus-state.ts unit complete --stage auth --unit A-Z"}
+{"id":"guard_operation-00492","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00493","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00494","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00495","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00496","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00497","out":"bun .claude/tools/focus-utility.ts config-change --guard.plan-approval off"}
+{"id":"guard_operation-00498","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00499","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00500","out":"focus engine config set guard.reviewer-scope off"}
+{"id":"guard_operation-00501","out":"bun .a-b_c.d/tools/focus-orchestrate.ts next --stage auth"}
+{"id":"guard_operation-00502","out":"bun .claude/tools/focus-utility.ts config-change --review advisory"}
+{"id":"guard_operation-00503","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00504","out":null}
+{"id":"guard_operation-00505","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00506","out":"bun .cursor/tools/focus-orchestrate.ts next --stage unit-1"}
+{"id":"guard_operation-00507","out":"bun .focus/tools/focus-utility.ts config-change --guard.reviewer-scope off"}
+{"id":"guard_operation-00508","out":"bun .cursor/tools/focus-jump.ts reopen --target 9 --units code-generation"}
+{"id":"guard_operation-00509","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00510","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00511","out":null}
+{"id":"guard_operation-00512","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00513","out":"bun .cursor/tools/focus-jump.ts reopen --target code-generation --units a"}
+{"id":"guard_operation-00514","out":"focus engine state unit complete --stage auth --unit code-generation"}
+{"id":"guard_operation-00515","out":"bun .a-b_c.d/tools/focus-orchestrate.ts next --stage auth"}
+{"id":"guard_operation-00516","out":"focus engine config set review advisory"}
+{"id":"guard_operation-00517","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00518","out":"bun .cursor/tools/focus-state.ts unit complete --stage code-generation --unit unit-1"}
+{"id":"guard_operation-00519","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00520","out":"focus engine config set guard.plan-approval off"}
+{"id":"guard_operation-00521","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00522","out":"bun .claude/tools/focus-utility.ts config-change --guard.state-transition off"}
+{"id":"guard_operation-00523","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00524","out":"focus engine config set review advisory"}
+{"id":"guard_operation-00525","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00526","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00527","out":"bun .claude/tools/focus-jump.ts reopen --target code-generation --units code-generation"}
+{"id":"guard_operation-00528","out":null}
+{"id":"guard_operation-00529","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00530","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00531","out":"bun .focus/tools/focus-orchestrate.ts next --stage auth"}
+{"id":"guard_operation-00532","out":null}
+{"id":"guard_operation-00533","out":"focus engine orchestrate next --stage code-generation"}
+{"id":"guard_operation-00534","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00535","out":null}
+{"id":"guard_operation-00536","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00537","out":"focus engine config set guard.reviewer-scope off"}
+{"id":"guard_operation-00538","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00539","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00540","out":null}
+{"id":"guard_operation-00541","out":"bun .cursor/tools/focus-jump.ts reopen --target 9 --units x.y"}
+{"id":"guard_operation-00542","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00543","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00544","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00545","out":null}
+{"id":"guard_operation-00546","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00547","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00548","out":"bun .a-b_c.d/tools/focus-utility.ts config-change --guard.review-freeze off"}
+{"id":"guard_operation-00549","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00550","out":null}
+{"id":"guard_operation-00551","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00552","out":"bun .a-b_c.d/tools/focus-utility.ts config-change --review advisory"}
+{"id":"guard_operation-00553","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00554","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00555","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00556","out":"bun .focus/tools/focus-utility.ts config-change --review advisory"}
+{"id":"guard_operation-00557","out":"bun .cursor/tools/focus-state.ts unit complete --stage a --unit A-Z"}
+{"id":"guard_operation-00558","out":"focus engine bolt abort --name code-generation --slug code-generation --reason 'stale review recovery exhausted' --discard"}
+{"id":"guard_operation-00559","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00560","out":"focus engine jump reopen --target x.y --units x.y"}
+{"id":"guard_operation-00561","out":"focus engine config set guard.plan-approval off"}
+{"id":"guard_operation-00562","out":"focus engine config set guard.state-transition off"}
+{"id":"guard_operation-00563","out":"focus engine jump reopen --target auth --units unit-1"}
+{"id":"guard_operation-00564","out":"focus engine config set review advisory"}
+{"id":"guard_operation-00565","out":"bun .focus/tools/focus-utility.ts config-change --guard.state-transition off"}
+{"id":"guard_operation-00566","out":"bun .claude/tools/focus-utility.ts config-change --guard.plan-approval off"}
+{"id":"guard_operation-00567","out":"focus engine config set review advisory"}
+{"id":"guard_operation-00568","out":"bun .a-b_c.d/tools/focus-orchestrate.ts next --stage x.y"}
+{"id":"guard_operation-00569","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00570","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00571","out":"bun .cursor/tools/focus-jump.ts reopen --target code-generation --units a_b"}
+{"id":"guard_operation-00572","out":"bun .cursor/tools/focus-state.ts unit complete --stage auth --unit a_b"}
+{"id":"guard_operation-00573","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00574","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00575","out":null}
+{"id":"guard_operation-00576","out":"bun .focus/tools/focus-utility.ts config-change --guard.reviewer-scope off"}
+{"id":"guard_operation-00577","out":"bun .focus/tools/focus-state.ts unit complete --stage 9 --unit unit-1"}
+{"id":"guard_operation-00578","out":"focus engine config set guard.review-freeze off"}
+{"id":"guard_operation-00579","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00580","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00581","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00582","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00583","out":"focus engine jump reopen --target code-generation --units code-generation"}
+{"id":"guard_operation-00584","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00585","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00586","out":"focus engine config set guard.state-transition off"}
+{"id":"guard_operation-00587","out":"bun .cursor/tools/focus-jump.ts reopen --target unit-1 --units a"}
+{"id":"guard_operation-00588","out":"focus engine state unit complete --stage 9 --unit unit-1"}
+{"id":"guard_operation-00589","out":"bun .a-b_c.d/tools/focus-orchestrate.ts next --stage a_b"}
+{"id":"guard_operation-00590","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00591","out":"focus engine jump reopen --target 9 --units 9"}
+{"id":"guard_operation-00592","out":"focus engine config set review advisory"}
+{"id":"guard_operation-00593","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00594","out":null}
+{"id":"guard_operation-00595","out":"focus engine jump reopen --target code-generation --units A-Z"}
+{"id":"guard_operation-00596","out":"focus engine jump reopen --target code-generation --units code-generation"}
+{"id":"guard_operation-00597","out":"focus engine jump reopen --target auth --units unit-1"}
+{"id":"guard_operation-00598","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00599","out":"focus engine jump reopen --target a --units a_b"}
+{"id":"guard_operation-00600","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00601","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00602","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00603","out":"focus engine state unit complete --stage unit-1 --unit auth"}
+{"id":"guard_operation-00604","out":"bun .focus/tools/focus-orchestrate.ts next --stage unit-1"}
+{"id":"guard_operation-00605","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00606","out":"focus engine state unit complete --stage code-generation --unit code-generation"}
+{"id":"guard_operation-00607","out":null}
+{"id":"guard_operation-00608","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00609","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00610","out":"bun .focus/tools/focus-utility.ts config-change --guard.reviewer-scope off"}
+{"id":"guard_operation-00611","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00612","out":null}
+{"id":"guard_operation-00613","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00614","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00615","out":"bun .claude/tools/focus-utility.ts config-change --review advisory"}
+{"id":"guard_operation-00616","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00617","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00618","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00619","out":"bun .cursor/tools/focus-utility.ts config-change --guard.reviewer-scope off"}
+{"id":"guard_operation-00620","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00621","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00622","out":"bun .cursor/tools/focus-bolt.ts abort --name 9 --slug auth --reason 'stale review recovery exhausted' --discard"}
+{"id":"guard_operation-00623","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00624","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00625","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00626","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00627","out":"focus engine config set guard.state-transition off"}
+{"id":"guard_operation-00628","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00629","out":"focus engine bolt abort --name x.y --slug unit-1 --reason 'stale review recovery exhausted' --discard"}
+{"id":"guard_operation-00630","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00631","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00632","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00633","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00634","out":"bun .a-b_c.d/tools/focus-utility.ts config-change --review advisory"}
+{"id":"guard_operation-00635","out":"bun .focus/tools/focus-utility.ts config-change --guard.reviewer-scope off"}
+{"id":"guard_operation-00636","out":"focus engine bolt abort --name code-generation --slug a_b --reason 'stale review recovery exhausted' --discard"}
+{"id":"guard_operation-00637","out":"bun .claude/tools/focus-orchestrate.ts next --stage a"}
+{"id":"guard_operation-00638","out":"focus engine bolt abort --name auth --slug a --reason 'stale review recovery exhausted' --discard"}
+{"id":"guard_operation-00639","out":"bun .claude/tools/focus-utility.ts config-change --review advisory"}
+{"id":"guard_operation-00640","out":"bun .focus/tools/focus-jump.ts reopen --target 9 --units x.y"}
+{"id":"guard_operation-00641","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00642","out":null}
+{"id":"guard_operation-00643","out":null}
+{"id":"guard_operation-00644","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00645","out":"focus engine config set review advisory"}
+{"id":"guard_operation-00646","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00647","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00648","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00649","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00650","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00651","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00652","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00653","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00654","out":"bun .cursor/tools/focus-orchestrate.ts next --stage 9"}
+{"id":"guard_operation-00655","out":null}
+{"id":"guard_operation-00656","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00657","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00658","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00659","out":"bun .cursor/tools/focus-jump.ts reopen --target unit-1 --units x.y"}
+{"id":"guard_operation-00660","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00661","out":"focus engine config set guard.reviewer-scope off"}
+{"id":"guard_operation-00662","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00663","out":"bun .cursor/tools/focus-utility.ts config-change --review advisory"}
+{"id":"guard_operation-00664","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00665","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00666","out":"focus engine config set review advisory"}
+{"id":"guard_operation-00667","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00668","out":"bun .a-b_c.d/tools/focus-utility.ts config-change --guard.reviewer-scope off"}
+{"id":"guard_operation-00669","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00670","out":"bun .a-b_c.d/tools/focus-utility.ts config-change --guard.state-transition off"}
+{"id":"guard_operation-00671","out":"bun .a-b_c.d/tools/focus-utility.ts config-change --review advisory"}
+{"id":"guard_operation-00672","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00673","out":"bun .focus/tools/focus-orchestrate.ts next --stage x.y"}
+{"id":"guard_operation-00674","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00675","out":"focus engine config set review advisory"}
+{"id":"guard_operation-00676","out":"bun .focus/tools/focus-jump.ts reopen --target unit-1 --units x.y"}
+{"id":"guard_operation-00677","out":"bun .a-b_c.d/tools/focus-utility.ts config-change --guard.plan-approval off"}
+{"id":"guard_operation-00678","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00679","out":"bun .cursor/tools/focus-state.ts unit complete --stage code-generation --unit auth"}
+{"id":"guard_operation-00680","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00681","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00682","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00683","out":null}
+{"id":"guard_operation-00684","out":"bun .a-b_c.d/tools/focus-utility.ts config-change --review advisory"}
+{"id":"guard_operation-00685","out":"bun .focus/tools/focus-state.ts unit complete --stage A-Z --unit a_b"}
+{"id":"guard_operation-00686","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00687","out":"focus engine jump reopen --target a_b --units auth"}
+{"id":"guard_operation-00688","out":"focus engine state unit complete --stage a --unit a"}
+{"id":"guard_operation-00689","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00690","out":"focus engine bolt abort --name auth --slug code-generation --reason 'stale review recovery exhausted' --discard"}
+{"id":"guard_operation-00691","out":"bun .focus/tools/focus-jump.ts reopen --target 9 --units a"}
+{"id":"guard_operation-00692","out":null}
+{"id":"guard_operation-00693","out":"bun .claude/tools/focus-orchestrate.ts next --stage auth"}
+{"id":"guard_operation-00694","out":"focus engine bolt abort --name 9 --slug 9 --reason 'stale review recovery exhausted' --discard"}
+{"id":"guard_operation-00695","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00696","out":"focus engine config set review advisory"}
+{"id":"guard_operation-00697","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00698","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00699","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00700","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00701","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00702","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00703","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00704","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00705","out":"bun .claude/tools/focus-orchestrate.ts next --stage code-generation"}
+{"id":"guard_operation-00706","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00707","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00708","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00709","out":"bun .claude/tools/focus-utility.ts config-change --review advisory"}
+{"id":"guard_operation-00710","out":"bun .claude/tools/focus-utility.ts config-change --review advisory"}
+{"id":"guard_operation-00711","out":"bun .focus/tools/focus-utility.ts config-change --review advisory"}
+{"id":"guard_operation-00712","out":"focus engine bolt abort --name x.y --slug auth --reason 'stale review recovery exhausted' --discard"}
+{"id":"guard_operation-00713","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00714","out":"bun .cursor/tools/focus-state.ts unit complete --stage auth --unit x.y"}
+{"id":"guard_operation-00715","out":null}
+{"id":"guard_operation-00716","out":"focus engine config set guard.review-freeze off"}
+{"id":"guard_operation-00717","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00718","out":"focus engine state unit complete --stage a --unit code-generation"}
+{"id":"guard_operation-00719","out":{"error":"Invalid recovery harness directory"}}
+{"id":"guard_operation-00720","out":false}
+{"id":"guard_operation-00721","out":false}
+{"id":"guard_operation-00722","out":false}
+{"id":"guard_operation-00723","out":false}
+{"id":"guard_operation-00724","out":false}
+{"id":"guard_operation-00725","out":true}
+{"id":"guard_operation-00726","out":false}
+{"id":"guard_operation-00727","out":true}
+{"id":"guard_operation-00728","out":false}
+{"id":"guard_operation-00729","out":true}
+{"id":"guard_operation-00730","out":true}
+{"id":"guard_operation-00731","out":true}
+{"id":"guard_operation-00732","out":false}
+{"id":"guard_operation-00733","out":false}
+{"id":"guard_operation-00734","out":true}
+{"id":"guard_operation-00735","out":false}
+{"id":"guard_operation-00736","out":false}
+{"id":"guard_operation-00737","out":false}
+{"id":"guard_operation-00738","out":true}
+{"id":"guard_operation-00739","out":false}
+{"id":"guard_operation-00740","out":true}
+{"id":"guard_operation-00741","out":true}
+{"id":"guard_operation-00742","out":true}
+{"id":"guard_operation-00743","out":false}
+{"id":"guard_operation-00744","out":true}
+{"id":"guard_operation-00745","out":false}
+{"id":"guard_operation-00746","out":false}
+{"id":"guard_operation-00747","out":true}
+{"id":"guard_operation-00748","out":false}
+{"id":"guard_operation-00749","out":false}
+{"id":"guard_operation-00750","out":true}
+{"id":"guard_operation-00751","out":true}
+{"id":"guard_operation-00752","out":false}
+{"id":"guard_operation-00753","out":true}
+{"id":"guard_operation-00754","out":false}
+{"id":"guard_operation-00755","out":false}
+{"id":"guard_operation-00756","out":false}
+{"id":"guard_operation-00757","out":false}
+{"id":"guard_operation-00758","out":true}
+{"id":"guard_operation-00759","out":true}
+{"id":"guard_operation-00760","out":false}
+{"id":"guard_operation-00761","out":true}
+{"id":"guard_operation-00762","out":true}
+{"id":"guard_operation-00763","out":true}
+{"id":"guard_operation-00764","out":false}
+{"id":"guard_operation-00765","out":false}
+{"id":"guard_operation-00766","out":true}
+{"id":"guard_operation-00767","out":true}
+{"id":"guard_operation-00768","out":false}
+{"id":"guard_operation-00769","out":false}
+{"id":"guard_operation-00770","out":false}
+{"id":"guard_operation-00771","out":false}
+{"id":"guard_operation-00772","out":false}
+{"id":"guard_operation-00773","out":true}
+{"id":"guard_operation-00774","out":true}
+{"id":"guard_operation-00775","out":false}
+{"id":"guard_operation-00776","out":true}
+{"id":"guard_operation-00777","out":false}
+{"id":"guard_operation-00778","out":false}
+{"id":"guard_operation-00779","out":false}
+{"id":"guard_operation-00780","out":true}
+{"id":"guard_operation-00781","out":false}
+{"id":"guard_operation-00782","out":false}
+{"id":"guard_operation-00783","out":true}
+{"id":"guard_operation-00784","out":true}
+{"id":"guard_operation-00785","out":true}
+{"id":"guard_operation-00786","out":false}
+{"id":"guard_operation-00787","out":false}
+{"id":"guard_operation-00788","out":true}
+{"id":"guard_operation-00789","out":false}
+{"id":"guard_operation-00790","out":false}
+{"id":"guard_operation-00791","out":true}
+{"id":"guard_operation-00792","out":false}
+{"id":"guard_operation-00793","out":false}
+{"id":"guard_operation-00794","out":false}
+{"id":"guard_operation-00795","out":true}
+{"id":"guard_operation-00796","out":true}
+{"id":"guard_operation-00797","out":false}
+{"id":"guard_operation-00798","out":true}
+{"id":"guard_operation-00799","out":true}
+{"id":"guard_operation-00800","out":true}
+{"id":"guard_operation-00801","out":true}
+{"id":"guard_operation-00802","out":false}
+{"id":"guard_operation-00803","out":false}
+{"id":"guard_operation-00804","out":true}
+{"id":"guard_operation-00805","out":false}
+{"id":"guard_operation-00806","out":false}
+{"id":"guard_operation-00807","out":true}
+{"id":"guard_operation-00808","out":false}
+{"id":"guard_operation-00809","out":false}
+{"id":"guard_operation-00810","out":false}
+{"id":"guard_operation-00811","out":true}
+{"id":"guard_operation-00812","out":false}
+{"id":"guard_operation-00813","out":false}
+{"id":"guard_operation-00814","out":false}
+{"id":"guard_operation-00815","out":true}
+{"id":"guard_operation-00816","out":false}
+{"id":"guard_operation-00817","out":false}
+{"id":"guard_operation-00818","out":true}
+{"id":"guard_operation-00819","out":true}
+{"id":"guard_operation-00820","out":false}
+{"id":"guard_operation-00821","out":true}
+{"id":"guard_operation-00822","out":true}
+{"id":"guard_operation-00823","out":false}
+{"id":"guard_operation-00824","out":false}
+{"id":"guard_operation-00825","out":true}
+{"id":"guard_operation-00826","out":false}
+{"id":"guard_operation-00827","out":true}
+{"id":"guard_operation-00828","out":false}
+{"id":"guard_operation-00829","out":true}
+{"id":"guard_operation-00830","out":false}
+{"id":"guard_operation-00831","out":false}
+{"id":"guard_operation-00832","out":true}
+{"id":"guard_operation-00833","out":true}
+{"id":"guard_operation-00834","out":false}
+{"id":"guard_operation-00835","out":true}
+{"id":"guard_operation-00836","out":true}
+{"id":"guard_operation-00837","out":true}
+{"id":"guard_operation-00838","out":true}
+{"id":"guard_operation-00839","out":true}
+{"id":"guard_operation-00840","out":true}
+{"id":"guard_operation-00841","out":true}
+{"id":"guard_operation-00842","out":false}
+{"id":"guard_operation-00843","out":false}
+{"id":"guard_operation-00844","out":true}
+{"id":"guard_operation-00845","out":false}
+{"id":"guard_operation-00846","out":true}
+{"id":"guard_operation-00847","out":false}
+{"id":"guard_operation-00848","out":true}
+{"id":"guard_operation-00849","out":true}
+{"id":"guard_operation-00850","out":false}
+{"id":"guard_operation-00851","out":true}
+{"id":"guard_operation-00852","out":false}
+{"id":"guard_operation-00853","out":false}
+{"id":"guard_operation-00854","out":true}
+{"id":"guard_operation-00855","out":false}
+{"id":"guard_operation-00856","out":true}
+{"id":"guard_operation-00857","out":true}
+{"id":"guard_operation-00858","out":false}
+{"id":"guard_operation-00859","out":true}
+{"id":"guard_operation-00860","out":true}
+{"id":"guard_operation-00861","out":false}
+{"id":"guard_operation-00862","out":false}
+{"id":"guard_operation-00863","out":true}
+{"id":"guard_operation-00864","out":true}
+{"id":"guard_operation-00865","out":false}
+{"id":"guard_operation-00866","out":false}
+{"id":"guard_operation-00867","out":false}
+{"id":"guard_operation-00868","out":false}
+{"id":"guard_operation-00869","out":true}
+{"id":"guard_operation-00870","out":false}
+{"id":"guard_operation-00871","out":true}
+{"id":"guard_operation-00872","out":true}
+{"id":"guard_operation-00873","out":true}
+{"id":"guard_operation-00874","out":false}
+{"id":"guard_operation-00875","out":true}
+{"id":"guard_operation-00876","out":true}
+{"id":"guard_operation-00877","out":true}
+{"id":"guard_operation-00878","out":true}
+{"id":"guard_operation-00879","out":true}
+{"id":"guard_operation-00880","out":false}
+{"id":"guard_operation-00881","out":true}
+{"id":"guard_operation-00882","out":true}
+{"id":"guard_operation-00883","out":false}
+{"id":"guard_operation-00884","out":false}
+{"id":"guard_operation-00885","out":false}
+{"id":"guard_operation-00886","out":false}
+{"id":"guard_operation-00887","out":true}
+{"id":"guard_operation-00888","out":true}
+{"id":"guard_operation-00889","out":true}
+{"id":"guard_operation-00890","out":true}
+{"id":"guard_operation-00891","out":false}
+{"id":"guard_operation-00892","out":false}
+{"id":"guard_operation-00893","out":false}
+{"id":"guard_operation-00894","out":false}
+{"id":"guard_operation-00895","out":false}
+{"id":"guard_operation-00896","out":true}
+{"id":"guard_operation-00897","out":false}
+{"id":"guard_operation-00898","out":false}
+{"id":"guard_operation-00899","out":true}
+{"id":"guard_operation-00900","out":true}
+{"id":"guard_operation-00901","out":true}
+{"id":"guard_operation-00902","out":false}
+{"id":"guard_operation-00903","out":true}
+{"id":"guard_operation-00904","out":true}
+{"id":"guard_operation-00905","out":false}
+{"id":"guard_operation-00906","out":true}
+{"id":"guard_operation-00907","out":true}
+{"id":"guard_operation-00908","out":true}
+{"id":"guard_operation-00909","out":false}
+{"id":"guard_operation-00910","out":false}
+{"id":"guard_operation-00911","out":false}
+{"id":"guard_operation-00912","out":false}
+{"id":"guard_operation-00913","out":true}
+{"id":"guard_operation-00914","out":false}
+{"id":"guard_operation-00915","out":true}
+{"id":"guard_operation-00916","out":true}
+{"id":"guard_operation-00917","out":true}
+{"id":"guard_operation-00918","out":false}
+{"id":"guard_operation-00919","out":true}
+{"id":"guard_operation-00920","out":false}
+{"id":"guard_operation-00921","out":false}
+{"id":"guard_operation-00922","out":false}
+{"id":"guard_operation-00923","out":true}
+{"id":"guard_operation-00924","out":false}
+{"id":"guard_operation-00925","out":false}
+{"id":"guard_operation-00926","out":false}
+{"id":"guard_operation-00927","out":true}
+{"id":"guard_operation-00928","out":false}
+{"id":"guard_operation-00929","out":false}
+{"id":"guard_operation-00930","out":false}
+{"id":"guard_operation-00931","out":true}
+{"id":"guard_operation-00932","out":true}
+{"id":"guard_operation-00933","out":true}
+{"id":"guard_operation-00934","out":true}
+{"id":"guard_operation-00935","out":false}
+{"id":"guard_operation-00936","out":false}
+{"id":"guard_operation-00937","out":true}
+{"id":"guard_operation-00938","out":false}
+{"id":"guard_operation-00939","out":true}
+{"id":"guard_operation-00940","out":false}
+{"id":"guard_operation-00941","out":false}
+{"id":"guard_operation-00942","out":true}
+{"id":"guard_operation-00943","out":false}
+{"id":"guard_operation-00944","out":false}
+{"id":"guard_operation-00945","out":false}
+{"id":"guard_operation-00946","out":true}
+{"id":"guard_operation-00947","out":false}
+{"id":"guard_operation-00948","out":false}
+{"id":"guard_operation-00949","out":true}
+{"id":"guard_operation-00950","out":true}
+{"id":"guard_operation-00951","out":true}
+{"id":"guard_operation-00952","out":true}
+{"id":"guard_operation-00953","out":false}
+{"id":"guard_operation-00954","out":true}
+{"id":"guard_operation-00955","out":true}
+{"id":"guard_operation-00956","out":false}
+{"id":"guard_operation-00957","out":false}
+{"id":"guard_operation-00958","out":true}
+{"id":"guard_operation-00959","out":true}
+{"id":"guard_operation-00960","out":true}
+{"id":"guard_operation-00961","out":true}
+{"id":"guard_operation-00962","out":true}
+{"id":"guard_operation-00963","out":false}
+{"id":"guard_operation-00964","out":false}
+{"id":"guard_operation-00965","out":false}
+{"id":"guard_operation-00966","out":true}
+{"id":"guard_operation-00967","out":false}
+{"id":"guard_operation-00968","out":false}
+{"id":"guard_operation-00969","out":true}
+{"id":"guard_operation-00970","out":false}
+{"id":"guard_operation-00971","out":true}
+{"id":"guard_operation-00972","out":false}
+{"id":"guard_operation-00973","out":false}
+{"id":"guard_operation-00974","out":true}
+{"id":"guard_operation-00975","out":false}
+{"id":"guard_operation-00976","out":false}
+{"id":"guard_operation-00977","out":true}
+{"id":"guard_operation-00978","out":false}
+{"id":"guard_operation-00979","out":true}
+{"id":"guard_operation-00980","out":false}
+{"id":"guard_operation-00981","out":true}
+{"id":"guard_operation-00982","out":false}
+{"id":"guard_operation-00983","out":true}
+{"id":"guard_operation-00984","out":true}
+{"id":"guard_operation-00985","out":true}
+{"id":"guard_operation-00986","out":false}
+{"id":"guard_operation-00987","out":false}
+{"id":"guard_operation-00988","out":false}
+{"id":"guard_operation-00989","out":false}
+{"id":"guard_operation-00990","out":true}
+{"id":"guard_operation-00991","out":true}
+{"id":"guard_operation-00992","out":false}
+{"id":"guard_operation-00993","out":false}
+{"id":"guard_operation-00994","out":false}
+{"id":"guard_operation-00995","out":false}
+{"id":"guard_operation-00996","out":true}
+{"id":"guard_operation-00997","out":false}
+{"id":"guard_operation-00998","out":true}
+{"id":"guard_operation-00999","out":true}
+{"id":"guard_operation-01000","out":false}
+{"id":"guard_operation-01001","out":true}
+{"id":"guard_operation-01002","out":false}
+{"id":"guard_operation-01003","out":true}
+{"id":"guard_operation-01004","out":false}
+{"id":"guard_operation-01005","out":false}
+{"id":"guard_operation-01006","out":false}
+{"id":"guard_operation-01007","out":false}
+{"id":"guard_operation-01008","out":true}
+{"id":"guard_operation-01009","out":false}
+{"id":"guard_operation-01010","out":true}
+{"id":"guard_operation-01011","out":true}
+{"id":"guard_operation-01012","out":false}
+{"id":"guard_operation-01013","out":false}
+{"id":"guard_operation-01014","out":false}
+{"id":"guard_operation-01015","out":false}
+{"id":"guard_operation-01016","out":false}
+{"id":"guard_operation-01017","out":true}
+{"id":"guard_operation-01018","out":true}
+{"id":"guard_operation-01019","out":false}
+{"id":"guard_operation-01020","out":false}
+{"id":"guard_operation-01021","out":false}
+{"id":"guard_operation-01022","out":true}
+{"id":"guard_operation-01023","out":true}
+{"id":"guard_operation-01024","out":false}
+{"id":"guard_operation-01025","out":false}
+{"id":"guard_operation-01026","out":true}
+{"id":"guard_operation-01027","out":false}
+{"id":"guard_operation-01028","out":true}
+{"id":"guard_operation-01029","out":false}
+{"id":"guard_operation-01030","out":false}
+{"id":"guard_operation-01031","out":false}
+{"id":"guard_operation-01032","out":false}
+{"id":"guard_operation-01033","out":true}
+{"id":"guard_operation-01034","out":false}
+{"id":"guard_operation-01035","out":true}
+{"id":"guard_operation-01036","out":true}
+{"id":"guard_operation-01037","out":true}
+{"id":"guard_operation-01038","out":true}
+{"id":"guard_operation-01039","out":false}
+{"id":"guard_operation-01040","out":false}
+{"id":"guard_operation-01041","out":false}
+{"id":"guard_operation-01042","out":false}
+{"id":"guard_operation-01043","out":true}
+{"id":"guard_operation-01044","out":false}
+{"id":"guard_operation-01045","out":true}
+{"id":"guard_operation-01046","out":true}
+{"id":"guard_operation-01047","out":false}
+{"id":"guard_operation-01048","out":true}
+{"id":"guard_operation-01049","out":false}
+{"id":"guard_operation-01050","out":true}
+{"id":"guard_operation-01051","out":false}
+{"id":"guard_operation-01052","out":true}
+{"id":"guard_operation-01053","out":false}
+{"id":"guard_operation-01054","out":false}
+{"id":"guard_operation-01055","out":true}
+{"id":"guard_operation-01056","out":false}
+{"id":"guard_operation-01057","out":false}
+{"id":"guard_operation-01058","out":false}
+{"id":"guard_operation-01059","out":false}
+{"id":"guard_operation-01060","out":false}
+{"id":"guard_operation-01061","out":true}
+{"id":"guard_operation-01062","out":true}
+{"id":"guard_operation-01063","out":false}
+{"id":"guard_operation-01064","out":true}
+{"id":"guard_operation-01065","out":false}
+{"id":"guard_operation-01066","out":false}
+{"id":"guard_operation-01067","out":false}
+{"id":"guard_operation-01068","out":false}
+{"id":"guard_operation-01069","out":false}
+{"id":"guard_operation-01070","out":false}
+{"id":"guard_operation-01071","out":false}
+{"id":"guard_operation-01072","out":false}
+{"id":"guard_operation-01073","out":false}
+{"id":"guard_operation-01074","out":false}
+{"id":"guard_operation-01075","out":false}
+{"id":"guard_operation-01076","out":false}
+{"id":"guard_operation-01077","out":false}
+{"id":"guard_operation-01078","out":false}
+{"id":"guard_operation-01079","out":false}
+{"id":"guard_operation-01080","out":false}
+{"id":"guard_operation-01081","out":false}
+{"id":"guard_operation-01082","out":true}
+{"id":"guard_operation-01083","out":false}
+{"id":"guard_operation-01084","out":true}
+{"id":"guard_operation-01085","out":false}
+{"id":"guard_operation-01086","out":false}
+{"id":"guard_operation-01087","out":false}
+{"id":"guard_operation-01088","out":true}
+{"id":"guard_operation-01089","out":false}
+{"id":"guard_operation-01090","out":false}
+{"id":"guard_operation-01091","out":false}
+{"id":"guard_operation-01092","out":false}
+{"id":"guard_operation-01093","out":false}
+{"id":"guard_operation-01094","out":false}
+{"id":"guard_operation-01095","out":false}
+{"id":"guard_operation-01096","out":false}
+{"id":"guard_operation-01097","out":false}
+{"id":"guard_operation-01098","out":false}
+{"id":"guard_operation-01099","out":false}
+{"id":"guard_operation-01100","out":false}
+{"id":"guard_operation-01101","out":false}
+{"id":"guard_operation-01102","out":true}
+{"id":"guard_operation-01103","out":false}
+{"id":"guard_operation-01104","out":false}
+{"id":"guard_operation-01105","out":true}
+{"id":"guard_operation-01106","out":true}
+{"id":"guard_operation-01107","out":false}
+{"id":"guard_operation-01108","out":true}
+{"id":"guard_operation-01109","out":false}
+{"id":"guard_operation-01110","out":false}
+{"id":"guard_operation-01111","out":false}
+{"id":"guard_operation-01112","out":false}
+{"id":"guard_operation-01113","out":false}
+{"id":"guard_operation-01114","out":false}
+{"id":"guard_operation-01115","out":true}
+{"id":"guard_operation-01116","out":true}
+{"id":"guard_operation-01117","out":true}
+{"id":"guard_operation-01118","out":false}
+{"id":"guard_operation-01119","out":false}
+{"id":"guard_operation-01120","out":false}
+{"id":"guard_operation-01121","out":false}
+{"id":"guard_operation-01122","out":false}
+{"id":"guard_operation-01123","out":false}
+{"id":"guard_operation-01124","out":true}
+{"id":"guard_operation-01125","out":false}
+{"id":"guard_operation-01126","out":true}
+{"id":"guard_operation-01127","out":true}
+{"id":"guard_operation-01128","out":true}
+{"id":"guard_operation-01129","out":true}
+{"id":"guard_operation-01130","out":false}
+{"id":"guard_operation-01131","out":true}
+{"id":"guard_operation-01132","out":false}
+{"id":"guard_operation-01133","out":false}
+{"id":"guard_operation-01134","out":false}
+{"id":"guard_operation-01135","out":true}
+{"id":"guard_operation-01136","out":false}
+{"id":"guard_operation-01137","out":true}
+{"id":"guard_operation-01138","out":false}
+{"id":"guard_operation-01139","out":false}
+{"id":"guard_operation-01140","out":true}
+{"id":"guard_operation-01141","out":false}
+{"id":"guard_operation-01142","out":false}
+{"id":"guard_operation-01143","out":false}
+{"id":"guard_operation-01144","out":false}
+{"id":"guard_operation-01145","out":false}
+{"id":"guard_operation-01146","out":true}
+{"id":"guard_operation-01147","out":true}
+{"id":"guard_operation-01148","out":true}
+{"id":"guard_operation-01149","out":false}
+{"id":"guard_operation-01150","out":true}
+{"id":"guard_operation-01151","out":false}
+{"id":"guard_operation-01152","out":false}
+{"id":"guard_operation-01153","out":false}
+{"id":"guard_operation-01154","out":false}
+{"id":"guard_operation-01155","out":false}
+{"id":"guard_operation-01156","out":false}
+{"id":"guard_operation-01157","out":false}
+{"id":"guard_operation-01158","out":false}
+{"id":"guard_operation-01159","out":false}
+{"id":"guard_operation-01160","out":false}
+{"id":"guard_operation-01161","out":true}
+{"id":"guard_operation-01162","out":false}
+{"id":"guard_operation-01163","out":false}
+{"id":"guard_operation-01164","out":true}
+{"id":"guard_operation-01165","out":false}
+{"id":"guard_operation-01166","out":false}
+{"id":"guard_operation-01167","out":false}
+{"id":"guard_operation-01168","out":true}
+{"id":"guard_operation-01169","out":false}
+{"id":"guard_operation-01170","out":false}
+{"id":"guard_operation-01171","out":false}
+{"id":"guard_operation-01172","out":false}
+{"id":"guard_operation-01173","out":true}
+{"id":"guard_operation-01174","out":false}
+{"id":"guard_operation-01175","out":false}
+{"id":"guard_operation-01176","out":false}
+{"id":"guard_operation-01177","out":false}
+{"id":"guard_operation-01178","out":false}
+{"id":"guard_operation-01179","out":false}
+{"id":"guard_operation-01180","out":true}
+{"id":"guard_operation-01181","out":false}
+{"id":"guard_operation-01182","out":true}
+{"id":"guard_operation-01183","out":true}
+{"id":"guard_operation-01184","out":true}
+{"id":"guard_operation-01185","out":false}
+{"id":"guard_operation-01186","out":false}
+{"id":"guard_operation-01187","out":false}
+{"id":"guard_operation-01188","out":false}
+{"id":"guard_operation-01189","out":false}
+{"id":"guard_operation-01190","out":true}
+{"id":"guard_operation-01191","out":false}
+{"id":"guard_operation-01192","out":false}
+{"id":"guard_operation-01193","out":false}
+{"id":"guard_operation-01194","out":false}
+{"id":"guard_operation-01195","out":false}
+{"id":"guard_operation-01196","out":false}
+{"id":"guard_operation-01197","out":false}
+{"id":"guard_operation-01198","out":false}
+{"id":"guard_operation-01199","out":false}
+{"id":"guard_operation-01200","out":true}
+{"id":"guard_operation-01201","out":false}
+{"id":"guard_operation-01202","out":false}
+{"id":"guard_operation-01203","out":false}
+{"id":"guard_operation-01204","out":false}
+{"id":"guard_operation-01205","out":true}
+{"id":"guard_operation-01206","out":false}
+{"id":"guard_operation-01207","out":false}
+{"id":"guard_operation-01208","out":false}
+{"id":"guard_operation-01209","out":false}
+{"id":"guard_operation-01210","out":false}
+{"id":"guard_operation-01211","out":false}
+{"id":"guard_operation-01212","out":false}
+{"id":"guard_operation-01213","out":false}
+{"id":"guard_operation-01214","out":true}
+{"id":"guard_operation-01215","out":false}
+{"id":"guard_operation-01216","out":true}
+{"id":"guard_operation-01217","out":true}
+{"id":"guard_operation-01218","out":false}
+{"id":"guard_operation-01219","out":false}
+{"id":"guard_operation-01220","out":false}
+{"id":"guard_operation-01221","out":false}
+{"id":"guard_operation-01222","out":false}
+{"id":"guard_operation-01223","out":true}
+{"id":"guard_operation-01224","out":false}
+{"id":"guard_operation-01225","out":false}
+{"id":"guard_operation-01226","out":false}
+{"id":"guard_operation-01227","out":false}
+{"id":"guard_operation-01228","out":false}
+{"id":"guard_operation-01229","out":false}
+{"id":"guard_operation-01230","out":false}
+{"id":"guard_operation-01231","out":false}
+{"id":"guard_operation-01232","out":false}
+{"id":"guard_operation-01233","out":false}
+{"id":"guard_operation-01234","out":false}
+{"id":"guard_operation-01235","out":false}
+{"id":"guard_operation-01236","out":true}
+{"id":"guard_operation-01237","out":false}
+{"id":"guard_operation-01238","out":false}
+{"id":"guard_operation-01239","out":false}
+{"id":"guard_operation-01240","out":true}
+{"id":"guard_operation-01241","out":false}
+{"id":"guard_operation-01242","out":false}
+{"id":"guard_operation-01243","out":false}
+{"id":"guard_operation-01244","out":false}
+{"id":"guard_operation-01245","out":true}
+{"id":"guard_operation-01246","out":true}
+{"id":"guard_operation-01247","out":false}
+{"id":"guard_operation-01248","out":false}
+{"id":"guard_operation-01249","out":false}
+{"id":"guard_operation-01250","out":false}
+{"id":"guard_operation-01251","out":false}
+{"id":"guard_operation-01252","out":true}
+{"id":"guard_operation-01253","out":false}
+{"id":"guard_operation-01254","out":false}
+{"id":"guard_operation-01255","out":false}
+{"id":"guard_operation-01256","out":false}
+{"id":"guard_operation-01257","out":false}
+{"id":"guard_operation-01258","out":false}
+{"id":"guard_operation-01259","out":false}
+{"id":"guard_operation-01260","out":false}
+{"id":"guard_operation-01261","out":false}
+{"id":"guard_operation-01262","out":true}
+{"id":"guard_operation-01263","out":false}
+{"id":"guard_operation-01264","out":false}
+{"id":"guard_operation-01265","out":false}
+{"id":"guard_operation-01266","out":false}
+{"id":"guard_operation-01267","out":false}
+{"id":"guard_operation-01268","out":false}
+{"id":"guard_operation-01269","out":false}
+{"id":"guard_operation-01270","out":false}
+{"id":"guard_operation-01271","out":false}
+{"id":"guard_operation-01272","out":false}
+{"id":"guard_operation-01273","out":true}
+{"id":"guard_operation-01274","out":false}
+{"id":"guard_operation-01275","out":false}
+{"id":"guard_operation-01276","out":false}
+{"id":"guard_operation-01277","out":false}
+{"id":"guard_operation-01278","out":false}
+{"id":"guard_operation-01279","out":false}
+{"id":"guard_operation-01280","out":true}
+{"id":"guard_operation-01281","out":false}
+{"id":"guard_operation-01282","out":true}
+{"id":"guard_operation-01283","out":false}
+{"id":"guard_operation-01284","out":true}
+{"id":"guard_operation-01285","out":false}
+{"id":"guard_operation-01286","out":false}
+{"id":"guard_operation-01287","out":false}
+{"id":"guard_operation-01288","out":false}
+{"id":"guard_operation-01289","out":false}
+{"id":"guard_operation-01290","out":false}
+{"id":"guard_operation-01291","out":true}
+{"id":"guard_operation-01292","out":false}
+{"id":"guard_operation-01293","out":false}
+{"id":"guard_operation-01294","out":false}
+{"id":"guard_operation-01295","out":false}
+{"id":"guard_operation-01296","out":false}
+{"id":"guard_operation-01297","out":false}
+{"id":"guard_operation-01298","out":false}
+{"id":"guard_operation-01299","out":true}
+{"id":"guard_operation-01300","out":true}
+{"id":"guard_operation-01301","out":true}
+{"id":"guard_operation-01302","out":false}
+{"id":"guard_operation-01303","out":false}
+{"id":"guard_operation-01304","out":true}
+{"id":"guard_operation-01305","out":false}
+{"id":"guard_operation-01306","out":false}
+{"id":"guard_operation-01307","out":false}
+{"id":"guard_operation-01308","out":false}
+{"id":"guard_operation-01309","out":true}
+{"id":"guard_operation-01310","out":false}
+{"id":"guard_operation-01311","out":false}
+{"id":"guard_operation-01312","out":false}
+{"id":"guard_operation-01313","out":true}
+{"id":"guard_operation-01314","out":true}
+{"id":"guard_operation-01315","out":true}
+{"id":"guard_operation-01316","out":false}
+{"id":"guard_operation-01317","out":false}
+{"id":"guard_operation-01318","out":false}
+{"id":"guard_operation-01319","out":true}
+{"id":"guard_operation-01320","out":false}
+{"id":"guard_operation-01321","out":true}
+{"id":"guard_operation-01322","out":false}
+{"id":"guard_operation-01323","out":false}
+{"id":"guard_operation-01324","out":false}
+{"id":"guard_operation-01325","out":false}
+{"id":"guard_operation-01326","out":true}
+{"id":"guard_operation-01327","out":false}
+{"id":"guard_operation-01328","out":false}
+{"id":"guard_operation-01329","out":false}
+{"id":"guard_operation-01330","out":false}
+{"id":"guard_operation-01331","out":false}
+{"id":"guard_operation-01332","out":false}
+{"id":"guard_operation-01333","out":false}
+{"id":"guard_operation-01334","out":false}
+{"id":"guard_operation-01335","out":false}
+{"id":"guard_operation-01336","out":false}
+{"id":"guard_operation-01337","out":false}
+{"id":"guard_operation-01338","out":false}
+{"id":"guard_operation-01339","out":false}
+{"id":"guard_operation-01340","out":false}
+{"id":"guard_operation-01341","out":false}
+{"id":"guard_operation-01342","out":true}
+{"id":"guard_operation-01343","out":true}
+{"id":"guard_operation-01344","out":false}
+{"id":"guard_operation-01345","out":true}
+{"id":"guard_operation-01346","out":true}
+{"id":"guard_operation-01347","out":false}
+{"id":"guard_operation-01348","out":false}
+{"id":"guard_operation-01349","out":false}
+{"id":"guard_operation-01350","out":false}
+{"id":"guard_operation-01351","out":false}
+{"id":"guard_operation-01352","out":true}
+{"id":"guard_operation-01353","out":false}
+{"id":"guard_operation-01354","out":false}
+{"id":"guard_operation-01355","out":false}
+{"id":"guard_operation-01356","out":false}
+{"id":"guard_operation-01357","out":true}
+{"id":"guard_operation-01358","out":true}
+{"id":"guard_operation-01359","out":false}
+{"id":"guard_operation-01360","out":false}
+{"id":"guard_operation-01361","out":false}
+{"id":"guard_operation-01362","out":false}
+{"id":"guard_operation-01363","out":true}
+{"id":"guard_operation-01364","out":false}
+{"id":"guard_operation-01365","out":true}
+{"id":"guard_operation-01366","out":true}
+{"id":"guard_operation-01367","out":false}
+{"id":"guard_operation-01368","out":false}
+{"id":"guard_operation-01369","out":false}
+{"id":"guard_operation-01370","out":false}
+{"id":"guard_operation-01371","out":false}
+{"id":"guard_operation-01372","out":false}
+{"id":"guard_operation-01373","out":false}
+{"id":"guard_operation-01374","out":true}
+{"id":"guard_operation-01375","out":false}
+{"id":"guard_operation-01376","out":false}
+{"id":"guard_operation-01377","out":false}
+{"id":"guard_operation-01378","out":false}
+{"id":"guard_operation-01379","out":true}
+{"id":"guard_operation-01380","out":true}
+{"id":"guard_operation-01381","out":true}
+{"id":"guard_operation-01382","out":false}
+{"id":"guard_operation-01383","out":true}
+{"id":"guard_operation-01384","out":false}
+{"id":"guard_operation-01385","out":false}
+{"id":"guard_operation-01386","out":false}
+{"id":"guard_operation-01387","out":false}
+{"id":"guard_operation-01388","out":false}
+{"id":"guard_operation-01389","out":false}
+{"id":"guard_operation-01390","out":false}
+{"id":"guard_operation-01391","out":false}
+{"id":"guard_operation-01392","out":false}
+{"id":"guard_operation-01393","out":false}
+{"id":"guard_operation-01394","out":false}
+{"id":"guard_operation-01395","out":true}
+{"id":"guard_operation-01396","out":true}
+{"id":"guard_operation-01397","out":true}
+{"id":"guard_operation-01398","out":true}
+{"id":"guard_operation-01399","out":false}
+{"id":"guard_operation-01400","out":true}
+{"id":"guard_operation-01401","out":false}
+{"id":"guard_operation-01402","out":false}
+{"id":"guard_operation-01403","out":false}
+{"id":"guard_operation-01404","out":false}
+{"id":"guard_operation-01405","out":false}
+{"id":"guard_operation-01406","out":false}
+{"id":"guard_operation-01407","out":false}
+{"id":"guard_operation-01408","out":false}
+{"id":"guard_operation-01409","out":false}
+{"id":"guard_operation-01410","out":true}
+{"id":"guard_operation-01411","out":true}
+{"id":"guard_operation-01412","out":false}
+{"id":"guard_operation-01413","out":false}
+{"id":"guard_operation-01414","out":false}
+{"id":"guard_operation-01415","out":true}
+{"id":"guard_operation-01416","out":true}
+{"id":"guard_operation-01417","out":false}
+{"id":"guard_operation-01418","out":false}
+{"id":"guard_operation-01419","out":false}
+{"id":"guard_operation-01420","out":false}
+{"id":"guard_operation-01421","out":true}
+{"id":"guard_operation-01422","out":false}
+{"id":"guard_operation-01423","out":false}
+{"id":"guard_operation-01424","out":false}
+{"id":"guard_operation-01425","out":false}
+{"id":"guard_operation-01426","out":false}
+{"id":"guard_operation-01427","out":false}
+{"id":"guard_operation-01428","out":false}
+{"id":"guard_operation-01429","out":true}
+{"id":"guard_operation-01430","out":false}
+{"id":"guard_operation-01431","out":false}
+{"id":"guard_operation-01432","out":false}
+{"id":"guard_operation-01433","out":false}
+{"id":"guard_operation-01434","out":false}
+{"id":"guard_operation-01435","out":true}
+{"id":"guard_operation-01436","out":false}
+{"id":"guard_operation-01437","out":false}
+{"id":"guard_operation-01438","out":true}
+{"id":"guard_operation-01439","out":false}
+{"id":"guard_operation-01440","out":null}
+{"id":"guard_operation-01441","out":{"operation":{"kind":"restart-stage","stage":"x.y"},"direction":"backward","scope":"unit-1"}}
+{"id":"guard_operation-01442","out":null}
+{"id":"guard_operation-01443","out":null}
+{"id":"guard_operation-01444","out":null}
+{"id":"guard_operation-01445","out":null}
+{"id":"guard_operation-01446","out":null}
+{"id":"guard_operation-01447","out":null}
+{"id":"guard_operation-01448","out":null}
+{"id":"guard_operation-01449","out":null}
+{"id":"guard_operation-01450","out":null}
+{"id":"guard_operation-01451","out":null}
+{"id":"guard_operation-01452","out":null}
+{"id":"guard_operation-01453","out":null}
+{"id":"guard_operation-01454","out":null}
+{"id":"guard_operation-01455","out":null}
+{"id":"guard_operation-01456","out":null}
+{"id":"guard_operation-01457","out":null}
+{"id":"guard_operation-01458","out":null}
+{"id":"guard_operation-01459","out":null}
+{"id":"guard_operation-01460","out":{"operation":{"kind":"restart-stage","stage":"a_b"},"direction":"backward","scope":"a"}}
+{"id":"guard_operation-01461","out":null}
+{"id":"guard_operation-01462","out":null}
+{"id":"guard_operation-01463","out":null}
+{"id":"guard_operation-01464","out":null}
+{"id":"guard_operation-01465","out":null}
+{"id":"guard_operation-01466","out":null}
+{"id":"guard_operation-01467","out":null}
+{"id":"guard_operation-01468","out":null}
+{"id":"guard_operation-01469","out":null}
+{"id":"guard_operation-01470","out":null}
+{"id":"guard_operation-01471","out":null}
+{"id":"guard_operation-01472","out":null}
+{"id":"guard_operation-01473","out":null}
+{"id":"guard_operation-01474","out":null}
+{"id":"guard_operation-01475","out":null}
+{"id":"guard_operation-01476","out":null}
+{"id":"guard_operation-01477","out":null}
+{"id":"guard_operation-01478","out":null}
+{"id":"guard_operation-01479","out":null}
+{"id":"guard_operation-01480","out":null}
+{"id":"guard_operation-01481","out":null}
+{"id":"guard_operation-01482","out":null}
+{"id":"guard_operation-01483","out":null}
+{"id":"guard_operation-01484","out":{"operation":{"kind":"restart-stage","stage":"code-generation"},"direction":"redo","scope":"auth"}}
+{"id":"guard_operation-01485","out":null}
+{"id":"guard_operation-01486","out":null}
+{"id":"guard_operation-01487","out":null}
+{"id":"guard_operation-01488","out":null}
+{"id":"guard_operation-01489","out":null}
+{"id":"guard_operation-01490","out":null}
+{"id":"guard_operation-01491","out":null}
+{"id":"guard_operation-01492","out":null}
+{"id":"guard_operation-01493","out":null}
+{"id":"guard_operation-01494","out":null}
+{"id":"guard_operation-01495","out":null}
+{"id":"guard_operation-01496","out":null}
+{"id":"guard_operation-01497","out":null}
+{"id":"guard_operation-01498","out":null}
+{"id":"guard_operation-01499","out":null}
+{"id":"guard_operation-01500","out":null}
+{"id":"guard_operation-01501","out":null}
+{"id":"guard_operation-01502","out":null}
+{"id":"guard_operation-01503","out":null}
+{"id":"guard_operation-01504","out":null}
+{"id":"guard_operation-01505","out":null}
+{"id":"guard_operation-01506","out":null}
+{"id":"guard_operation-01507","out":null}
+{"id":"guard_operation-01508","out":null}
+{"id":"guard_operation-01509","out":null}
+{"id":"guard_operation-01510","out":null}
+{"id":"guard_operation-01511","out":null}
+{"id":"guard_operation-01512","out":null}
+{"id":"guard_operation-01513","out":null}
+{"id":"guard_operation-01514","out":null}
+{"id":"guard_operation-01515","out":null}
+{"id":"guard_operation-01516","out":null}
+{"id":"guard_operation-01517","out":null}
+{"id":"guard_operation-01518","out":null}
+{"id":"guard_operation-01519","out":null}
+{"id":"guard_operation-01520","out":null}
+{"id":"guard_operation-01521","out":null}
+{"id":"guard_operation-01522","out":null}
+{"id":"guard_operation-01523","out":null}
+{"id":"guard_operation-01524","out":null}
+{"id":"guard_operation-01525","out":null}
+{"id":"guard_operation-01526","out":null}
+{"id":"guard_operation-01527","out":null}
+{"id":"guard_operation-01528","out":null}
+{"id":"guard_operation-01529","out":null}
+{"id":"guard_operation-01530","out":null}
+{"id":"guard_operation-01531","out":null}
+{"id":"guard_operation-01532","out":null}
+{"id":"guard_operation-01533","out":null}
+{"id":"guard_operation-01534","out":null}
+{"id":"guard_operation-01535","out":null}
+{"id":"guard_operation-01536","out":null}
+{"id":"guard_operation-01537","out":null}
+{"id":"guard_operation-01538","out":null}
+{"id":"guard_operation-01539","out":null}
+{"id":"guard_operation-01540","out":{"operation":{"kind":"restart-stage","stage":"auth"},"direction":"backward","scope":"A-Z"}}
+{"id":"guard_operation-01541","out":null}
+{"id":"guard_operation-01542","out":null}
+{"id":"guard_operation-01543","out":null}
+{"id":"guard_operation-01544","out":null}
+{"id":"guard_operation-01545","out":null}
+{"id":"guard_operation-01546","out":null}
+{"id":"guard_operation-01547","out":null}
+{"id":"guard_operation-01548","out":null}
+{"id":"guard_operation-01549","out":null}
+{"id":"guard_operation-01550","out":null}
+{"id":"guard_operation-01551","out":null}
+{"id":"guard_operation-01552","out":null}
+{"id":"guard_operation-01553","out":null}
+{"id":"guard_operation-01554","out":null}
+{"id":"guard_operation-01555","out":null}
+{"id":"guard_operation-01556","out":null}
+{"id":"guard_operation-01557","out":{"operation":{"kind":"restart-stage","stage":"unit-1"},"direction":"backward","scope":"a_b"}}
+{"id":"guard_operation-01558","out":null}
+{"id":"guard_operation-01559","out":{"operation":{"kind":"restart-stage","stage":"auth"},"direction":"backward","scope":"9"}}
+{"id":"guard_operation-01560","out":null}
+{"id":"guard_operation-01561","out":{"operation":{"kind":"restart-stage","stage":"auth"},"direction":"backward","scope":"code-generation"}}
+{"id":"guard_operation-01562","out":null}
+{"id":"guard_operation-01563","out":null}
+{"id":"guard_operation-01564","out":null}
+{"id":"guard_operation-01565","out":null}
+{"id":"guard_operation-01566","out":{"operation":{"kind":"restart-stage","stage":"A-Z"},"direction":"backward","scope":"9"}}
+{"id":"guard_operation-01567","out":null}
+{"id":"guard_operation-01568","out":null}
+{"id":"guard_operation-01569","out":null}
+{"id":"guard_operation-01570","out":null}
+{"id":"guard_operation-01571","out":null}
+{"id":"guard_operation-01572","out":null}
+{"id":"guard_operation-01573","out":null}
+{"id":"guard_operation-01574","out":null}
+{"id":"guard_operation-01575","out":null}
+{"id":"guard_operation-01576","out":null}
+{"id":"guard_operation-01577","out":null}
+{"id":"guard_operation-01578","out":null}
+{"id":"guard_operation-01579","out":{"operation":{"kind":"restart-stage","stage":"CodeGen"},"direction":"backward","scope":"x.y"}}
+{"id":"guard_operation-01580","out":null}
+{"id":"guard_operation-01581","out":null}
+{"id":"guard_operation-01582","out":null}
+{"id":"guard_operation-01583","out":null}
+{"id":"guard_operation-01584","out":null}
+{"id":"guard_operation-01585","out":null}
+{"id":"guard_operation-01586","out":null}
+{"id":"guard_operation-01587","out":null}
+{"id":"guard_operation-01588","out":null}
+{"id":"guard_operation-01589","out":null}
+{"id":"guard_operation-01590","out":null}
+{"id":"guard_operation-01591","out":null}
+{"id":"guard_operation-01592","out":null}
+{"id":"guard_operation-01593","out":null}
+{"id":"guard_operation-01594","out":null}
+{"id":"guard_operation-01595","out":null}
+{"id":"guard_operation-01596","out":null}
+{"id":"guard_operation-01597","out":null}
+{"id":"guard_operation-01598","out":{"operation":{"kind":"restart-stage","stage":"a_b"},"direction":"redo","scope":"x.y"}}
+{"id":"guard_operation-01599","out":null}
+{"id":"guard_operation-01600","out":{"operation":{"kind":"restart-stage","stage":"a_b"},"direction":"redo","scope":"a_b"}}
+{"id":"guard_operation-01601","out":null}
+{"id":"guard_operation-01602","out":null}
+{"id":"guard_operation-01603","out":null}
+{"id":"guard_operation-01604","out":null}
+{"id":"guard_operation-01605","out":null}
+{"id":"guard_operation-01606","out":null}
+{"id":"guard_operation-01607","out":null}
+{"id":"guard_operation-01608","out":null}
+{"id":"guard_operation-01609","out":null}
+{"id":"guard_operation-01610","out":null}
+{"id":"guard_operation-01611","out":null}
+{"id":"guard_operation-01612","out":null}
+{"id":"guard_operation-01613","out":null}
+{"id":"guard_operation-01614","out":{"operation":{"kind":"restart-stage","stage":"auth"},"direction":"redo","scope":"A-Z"}}
+{"id":"guard_operation-01615","out":null}
+{"id":"guard_operation-01616","out":null}
+{"id":"guard_operation-01617","out":null}
+{"id":"guard_operation-01618","out":null}
+{"id":"guard_operation-01619","out":null}
+{"id":"guard_operation-01620","out":false}
+{"id":"guard_operation-01621","out":false}
+{"id":"guard_operation-01622","out":false}
+{"id":"guard_operation-01623","out":false}
+{"id":"guard_operation-01624","out":false}
+{"id":"guard_operation-01625","out":false}
+{"id":"guard_operation-01626","out":false}
+{"id":"guard_operation-01627","out":false}
+{"id":"guard_operation-01628","out":true}
+{"id":"guard_operation-01629","out":false}
+{"id":"guard_operation-01630","out":false}
+{"id":"guard_operation-01631","out":false}
+{"id":"guard_operation-01632","out":false}
+{"id":"guard_operation-01633","out":false}
+{"id":"guard_operation-01634","out":false}
+{"id":"guard_operation-01635","out":false}
+{"id":"guard_operation-01636","out":false}
+{"id":"guard_operation-01637","out":false}
+{"id":"guard_operation-01638","out":false}
+{"id":"guard_operation-01639","out":false}
+{"id":"guard_operation-01640","out":false}
+{"id":"guard_operation-01641","out":false}
+{"id":"guard_operation-01642","out":true}
+{"id":"guard_operation-01643","out":false}
+{"id":"guard_operation-01644","out":false}
+{"id":"guard_operation-01645","out":false}
+{"id":"guard_operation-01646","out":false}
+{"id":"guard_operation-01647","out":false}
+{"id":"guard_operation-01648","out":false}
+{"id":"guard_operation-01649","out":false}
+{"id":"guard_operation-01650","out":false}
+{"id":"guard_operation-01651","out":false}
+{"id":"guard_operation-01652","out":false}
+{"id":"guard_operation-01653","out":false}
+{"id":"guard_operation-01654","out":false}
+{"id":"guard_operation-01655","out":false}
+{"id":"guard_operation-01656","out":false}
+{"id":"guard_operation-01657","out":false}
+{"id":"guard_operation-01658","out":true}
+{"id":"guard_operation-01659","out":false}
+{"id":"guard_operation-01660","out":false}
+{"id":"guard_operation-01661","out":false}
+{"id":"guard_operation-01662","out":false}
+{"id":"guard_operation-01663","out":false}
+{"id":"guard_operation-01664","out":true}
+{"id":"guard_operation-01665","out":true}
+{"id":"guard_operation-01666","out":true}
+{"id":"guard_operation-01667","out":false}
+{"id":"guard_operation-01668","out":false}
+{"id":"guard_operation-01669","out":false}
+{"id":"guard_operation-01670","out":false}
+{"id":"guard_operation-01671","out":false}
+{"id":"guard_operation-01672","out":true}
+{"id":"guard_operation-01673","out":false}
+{"id":"guard_operation-01674","out":true}
+{"id":"guard_operation-01675","out":false}
+{"id":"guard_operation-01676","out":false}
+{"id":"guard_operation-01677","out":false}
+{"id":"guard_operation-01678","out":true}
+{"id":"guard_operation-01679","out":false}
+{"id":"guard_operation-01680","out":false}
+{"id":"guard_operation-01681","out":false}
+{"id":"guard_operation-01682","out":false}
+{"id":"guard_operation-01683","out":false}
+{"id":"guard_operation-01684","out":true}
+{"id":"guard_operation-01685","out":false}
+{"id":"guard_operation-01686","out":true}
+{"id":"guard_operation-01687","out":false}
+{"id":"guard_operation-01688","out":false}
+{"id":"guard_operation-01689","out":false}
+{"id":"guard_operation-01690","out":false}
+{"id":"guard_operation-01691","out":false}
+{"id":"guard_operation-01692","out":false}
+{"id":"guard_operation-01693","out":false}
+{"id":"guard_operation-01694","out":false}
+{"id":"guard_operation-01695","out":false}
+{"id":"guard_operation-01696","out":false}
+{"id":"guard_operation-01697","out":false}
+{"id":"guard_operation-01698","out":true}
+{"id":"guard_operation-01699","out":false}
+{"id":"guard_operation-01700","out":false}
+{"id":"guard_operation-01701","out":false}
+{"id":"guard_operation-01702","out":false}
+{"id":"guard_operation-01703","out":false}
+{"id":"guard_operation-01704","out":false}
+{"id":"guard_operation-01705","out":false}
+{"id":"guard_operation-01706","out":false}
+{"id":"guard_operation-01707","out":false}
+{"id":"guard_operation-01708","out":false}
+{"id":"guard_operation-01709","out":false}
+{"id":"guard_operation-01710","out":false}
+{"id":"guard_operation-01711","out":false}
+{"id":"guard_operation-01712","out":false}
+{"id":"guard_operation-01713","out":false}
+{"id":"guard_operation-01714","out":false}
+{"id":"guard_operation-01715","out":false}
+{"id":"guard_operation-01716","out":false}
+{"id":"guard_operation-01717","out":false}
+{"id":"guard_operation-01718","out":false}
+{"id":"guard_operation-01719","out":false}
+{"id":"guard_operation-01720","out":false}
+{"id":"guard_operation-01721","out":false}
+{"id":"guard_operation-01722","out":false}
+{"id":"guard_operation-01723","out":false}
+{"id":"guard_operation-01724","out":true}
+{"id":"guard_operation-01725","out":false}
+{"id":"guard_operation-01726","out":false}
+{"id":"guard_operation-01727","out":false}
+{"id":"guard_operation-01728","out":false}
+{"id":"guard_operation-01729","out":false}
+{"id":"guard_operation-01730","out":false}
+{"id":"guard_operation-01731","out":false}
+{"id":"guard_operation-01732","out":false}
+{"id":"guard_operation-01733","out":false}
+{"id":"guard_operation-01734","out":false}
+{"id":"guard_operation-01735","out":false}
+{"id":"guard_operation-01736","out":true}
+{"id":"guard_operation-01737","out":false}
+{"id":"guard_operation-01738","out":false}
+{"id":"guard_operation-01739","out":false}
+{"id":"guard_operation-01740","out":false}
+{"id":"guard_operation-01741","out":false}
+{"id":"guard_operation-01742","out":true}
+{"id":"guard_operation-01743","out":false}
+{"id":"guard_operation-01744","out":false}
+{"id":"guard_operation-01745","out":false}
+{"id":"guard_operation-01746","out":true}
+{"id":"guard_operation-01747","out":false}
+{"id":"guard_operation-01748","out":false}
+{"id":"guard_operation-01749","out":false}
+{"id":"guard_operation-01750","out":false}
+{"id":"guard_operation-01751","out":false}
+{"id":"guard_operation-01752","out":false}
+{"id":"guard_operation-01753","out":false}
+{"id":"guard_operation-01754","out":false}
+{"id":"guard_operation-01755","out":false}
+{"id":"guard_operation-01756","out":false}
+{"id":"guard_operation-01757","out":false}
+{"id":"guard_operation-01758","out":false}
+{"id":"guard_operation-01759","out":false}
+{"id":"guard_operation-01760","out":false}
+{"id":"guard_operation-01761","out":false}
+{"id":"guard_operation-01762","out":true}
+{"id":"guard_operation-01763","out":false}
+{"id":"guard_operation-01764","out":true}
+{"id":"guard_operation-01765","out":false}
+{"id":"guard_operation-01766","out":false}
+{"id":"guard_operation-01767","out":false}
+{"id":"guard_operation-01768","out":false}
+{"id":"guard_operation-01769","out":false}
+{"id":"guard_operation-01770","out":false}
+{"id":"guard_operation-01771","out":false}
+{"id":"guard_operation-01772","out":false}
+{"id":"guard_operation-01773","out":false}
+{"id":"guard_operation-01774","out":false}
+{"id":"guard_operation-01775","out":false}
+{"id":"guard_operation-01776","out":false}
+{"id":"guard_operation-01777","out":false}
+{"id":"guard_operation-01778","out":false}
+{"id":"guard_operation-01779","out":false}
+{"id":"guard_operation-01780","out":false}
+{"id":"guard_operation-01781","out":false}
+{"id":"guard_operation-01782","out":false}
+{"id":"guard_operation-01783","out":false}
+{"id":"guard_operation-01784","out":false}
+{"id":"guard_operation-01785","out":false}
+{"id":"guard_operation-01786","out":true}
+{"id":"guard_operation-01787","out":false}
+{"id":"guard_operation-01788","out":false}
+{"id":"guard_operation-01789","out":false}
+{"id":"guard_operation-01790","out":false}
+{"id":"guard_operation-01791","out":false}
+{"id":"guard_operation-01792","out":false}
+{"id":"guard_operation-01793","out":false}
+{"id":"guard_operation-01794","out":false}
+{"id":"guard_operation-01795","out":false}
+{"id":"guard_operation-01796","out":false}
+{"id":"guard_operation-01797","out":false}
+{"id":"guard_operation-01798","out":false}
+{"id":"guard_operation-01799","out":false}
+{"id":"guard_operation-01800","out":false}
+{"id":"guard_operation-01801","out":false}
+{"id":"guard_operation-01802","out":false}
+{"id":"guard_operation-01803","out":false}
+{"id":"guard_operation-01804","out":false}
+{"id":"guard_operation-01805","out":false}
+{"id":"guard_operation-01806","out":false}
+{"id":"guard_operation-01807","out":false}
+{"id":"guard_operation-01808","out":false}
+{"id":"guard_operation-01809","out":false}
+{"id":"guard_operation-01810","out":false}
+{"id":"guard_operation-01811","out":false}
+{"id":"guard_operation-01812","out":false}
+{"id":"guard_operation-01813","out":false}
+{"id":"guard_operation-01814","out":false}
+{"id":"guard_operation-01815","out":false}
+{"id":"guard_operation-01816","out":false}
+{"id":"guard_operation-01817","out":false}
+{"id":"guard_operation-01818","out":false}
+{"id":"guard_operation-01819","out":false}
+{"id":"guard_operation-01820","out":false}
+{"id":"guard_operation-01821","out":false}
+{"id":"guard_operation-01822","out":false}
+{"id":"guard_operation-01823","out":true}
+{"id":"guard_operation-01824","out":false}
+{"id":"guard_operation-01825","out":false}
+{"id":"guard_operation-01826","out":false}
+{"id":"guard_operation-01827","out":false}
+{"id":"guard_operation-01828","out":false}
+{"id":"guard_operation-01829","out":false}
+{"id":"guard_operation-01830","out":false}
+{"id":"guard_operation-01831","out":false}
+{"id":"guard_operation-01832","out":false}
+{"id":"guard_operation-01833","out":false}
+{"id":"guard_operation-01834","out":false}
+{"id":"guard_operation-01835","out":true}
+{"id":"guard_operation-01836","out":false}
+{"id":"guard_operation-01837","out":false}
+{"id":"guard_operation-01838","out":false}
+{"id":"guard_operation-01839","out":false}
+{"id":"guard_operation-01840","out":true}
+{"id":"guard_operation-01841","out":false}
+{"id":"guard_operation-01842","out":false}
+{"id":"guard_operation-01843","out":false}
+{"id":"guard_operation-01844","out":false}
+{"id":"guard_operation-01845","out":false}
+{"id":"guard_operation-01846","out":false}
+{"id":"guard_operation-01847","out":false}
+{"id":"guard_operation-01848","out":true}
+{"id":"guard_operation-01849","out":true}
+{"id":"guard_operation-01850","out":false}
+{"id":"guard_operation-01851","out":false}
+{"id":"guard_operation-01852","out":false}
+{"id":"guard_operation-01853","out":false}
+{"id":"guard_operation-01854","out":false}
+{"id":"guard_operation-01855","out":true}
+{"id":"guard_operation-01856","out":false}
+{"id":"guard_operation-01857","out":false}
+{"id":"guard_operation-01858","out":false}
+{"id":"guard_operation-01859","out":false}
+{"id":"guard_operation-01860","out":true}
+{"id":"guard_operation-01861","out":false}
+{"id":"guard_operation-01862","out":false}
+{"id":"guard_operation-01863","out":false}
+{"id":"guard_operation-01864","out":false}
+{"id":"guard_operation-01865","out":false}
+{"id":"guard_operation-01866","out":false}
+{"id":"guard_operation-01867","out":false}
+{"id":"guard_operation-01868","out":false}
+{"id":"guard_operation-01869","out":false}
+{"id":"guard_operation-01870","out":false}
+{"id":"guard_operation-01871","out":false}
+{"id":"guard_operation-01872","out":false}
+{"id":"guard_operation-01873","out":false}
+{"id":"guard_operation-01874","out":true}
+{"id":"guard_operation-01875","out":false}
+{"id":"guard_operation-01876","out":false}
+{"id":"guard_operation-01877","out":false}
+{"id":"guard_operation-01878","out":false}
+{"id":"guard_operation-01879","out":false}
+{"id":"guard_operation-01880","out":false}
+{"id":"guard_operation-01881","out":false}
+{"id":"guard_operation-01882","out":false}
+{"id":"guard_operation-01883","out":false}
+{"id":"guard_operation-01884","out":false}
+{"id":"guard_operation-01885","out":false}
+{"id":"guard_operation-01886","out":false}
+{"id":"guard_operation-01887","out":false}
+{"id":"guard_operation-01888","out":true}
+{"id":"guard_operation-01889","out":false}
+{"id":"guard_operation-01890","out":false}
+{"id":"guard_operation-01891","out":false}
+{"id":"guard_operation-01892","out":false}
+{"id":"guard_operation-01893","out":false}
+{"id":"guard_operation-01894","out":false}
+{"id":"guard_operation-01895","out":false}
+{"id":"guard_operation-01896","out":false}
+{"id":"guard_operation-01897","out":false}
+{"id":"guard_operation-01898","out":false}
+{"id":"guard_operation-01899","out":false}
+{"id":"guard_operation-01900","out":false}
+{"id":"guard_operation-01901","out":false}
+{"id":"guard_operation-01902","out":false}
+{"id":"guard_operation-01903","out":false}
+{"id":"guard_operation-01904","out":false}
+{"id":"guard_operation-01905","out":false}
+{"id":"guard_operation-01906","out":false}
+{"id":"guard_operation-01907","out":false}
+{"id":"guard_operation-01908","out":true}
+{"id":"guard_operation-01909","out":false}
+{"id":"guard_operation-01910","out":false}
+{"id":"guard_operation-01911","out":false}
+{"id":"guard_operation-01912","out":false}
+{"id":"guard_operation-01913","out":false}
+{"id":"guard_operation-01914","out":true}
+{"id":"guard_operation-01915","out":true}
+{"id":"guard_operation-01916","out":false}
+{"id":"guard_operation-01917","out":false}
+{"id":"guard_operation-01918","out":false}
+{"id":"guard_operation-01919","out":false}
+{"id":"guard_operation-01920","out":false}
+{"id":"guard_operation-01921","out":false}
+{"id":"guard_operation-01922","out":true}
+{"id":"guard_operation-01923","out":false}
+{"id":"guard_operation-01924","out":false}
+{"id":"guard_operation-01925","out":false}
+{"id":"guard_operation-01926","out":false}
+{"id":"guard_operation-01927","out":false}
+{"id":"guard_operation-01928","out":false}
+{"id":"guard_operation-01929","out":false}
+{"id":"guard_operation-01930","out":false}
+{"id":"guard_operation-01931","out":false}
+{"id":"guard_operation-01932","out":false}
+{"id":"guard_operation-01933","out":false}
+{"id":"guard_operation-01934","out":false}
+{"id":"guard_operation-01935","out":false}
+{"id":"guard_operation-01936","out":true}
+{"id":"guard_operation-01937","out":false}
+{"id":"guard_operation-01938","out":false}
+{"id":"guard_operation-01939","out":false}
+{"id":"guard_operation-01940","out":false}
+{"id":"guard_operation-01941","out":false}
+{"id":"guard_operation-01942","out":false}
+{"id":"guard_operation-01943","out":false}
+{"id":"guard_operation-01944","out":false}
+{"id":"guard_operation-01945","out":false}
+{"id":"guard_operation-01946","out":false}
+{"id":"guard_operation-01947","out":false}
+{"id":"guard_operation-01948","out":true}
+{"id":"guard_operation-01949","out":true}
+{"id":"guard_operation-01950","out":false}
+{"id":"guard_operation-01951","out":false}
+{"id":"guard_operation-01952","out":false}
+{"id":"guard_operation-01953","out":false}
+{"id":"guard_operation-01954","out":false}
+{"id":"guard_operation-01955","out":false}
+{"id":"guard_operation-01956","out":false}
+{"id":"guard_operation-01957","out":false}
+{"id":"guard_operation-01958","out":false}
+{"id":"guard_operation-01959","out":false}
+{"id":"guard_operation-01960","out":false}
+{"id":"guard_operation-01961","out":false}
+{"id":"guard_operation-01962","out":false}
+{"id":"guard_operation-01963","out":false}
+{"id":"guard_operation-01964","out":false}
+{"id":"guard_operation-01965","out":false}
+{"id":"guard_operation-01966","out":false}
+{"id":"guard_operation-01967","out":false}
+{"id":"guard_operation-01968","out":false}
+{"id":"guard_operation-01969","out":false}
+{"id":"guard_operation-01970","out":false}
+{"id":"guard_operation-01971","out":false}
+{"id":"guard_operation-01972","out":false}
+{"id":"guard_operation-01973","out":false}
+{"id":"guard_operation-01974","out":false}
+{"id":"guard_operation-01975","out":false}
+{"id":"guard_operation-01976","out":false}
+{"id":"guard_operation-01977","out":false}
+{"id":"guard_operation-01978","out":false}
+{"id":"guard_operation-01979","out":false}
+{"id":"guard_operation-01980","out":false}
+{"id":"guard_operation-01981","out":false}
+{"id":"guard_operation-01982","out":false}
+{"id":"guard_operation-01983","out":false}
+{"id":"guard_operation-01984","out":false}
+{"id":"guard_operation-01985","out":true}
+{"id":"guard_operation-01986","out":false}
+{"id":"guard_operation-01987","out":false}
+{"id":"guard_operation-01988","out":false}
+{"id":"guard_operation-01989","out":false}
+{"id":"guard_operation-01990","out":false}
+{"id":"guard_operation-01991","out":true}
+{"id":"guard_operation-01992","out":false}
+{"id":"guard_operation-01993","out":false}
+{"id":"guard_operation-01994","out":false}
+{"id":"guard_operation-01995","out":false}
+{"id":"guard_operation-01996","out":false}
+{"id":"guard_operation-01997","out":false}
+{"id":"guard_operation-01998","out":false}
+{"id":"guard_operation-01999","out":false}
+{"id":"guard_operation-02000","out":false}
+{"id":"guard_operation-02001","out":false}
+{"id":"guard_operation-02002","out":false}
+{"id":"guard_operation-02003","out":false}
+{"id":"guard_operation-02004","out":false}
+{"id":"guard_operation-02005","out":false}
+{"id":"guard_operation-02006","out":false}
+{"id":"guard_operation-02007","out":false}
+{"id":"guard_operation-02008","out":false}
+{"id":"guard_operation-02009","out":false}
+{"id":"guard_operation-02010","out":true}
+{"id":"guard_operation-02011","out":false}
+{"id":"guard_operation-02012","out":false}
+{"id":"guard_operation-02013","out":false}
+{"id":"guard_operation-02014","out":false}
+{"id":"guard_operation-02015","out":false}
+{"id":"guard_operation-02016","out":false}
+{"id":"guard_operation-02017","out":false}
+{"id":"guard_operation-02018","out":false}
+{"id":"guard_operation-02019","out":false}
+{"id":"guard_operation-02020","out":false}
+{"id":"guard_operation-02021","out":false}
+{"id":"guard_operation-02022","out":false}
+{"id":"guard_operation-02023","out":false}
+{"id":"guard_operation-02024","out":false}
+{"id":"guard_operation-02025","out":false}
+{"id":"guard_operation-02026","out":false}
+{"id":"guard_operation-02027","out":false}
+{"id":"guard_operation-02028","out":false}
+{"id":"guard_operation-02029","out":false}
+{"id":"guard_operation-02030","out":false}
+{"id":"guard_operation-02031","out":false}
+{"id":"guard_operation-02032","out":false}
+{"id":"guard_operation-02033","out":false}
+{"id":"guard_operation-02034","out":true}
+{"id":"guard_operation-02035","out":false}
+{"id":"guard_operation-02036","out":false}
+{"id":"guard_operation-02037","out":false}
+{"id":"guard_operation-02038","out":false}
+{"id":"guard_operation-02039","out":false}
+{"id":"guard_operation-02040","out":false}
+{"id":"guard_operation-02041","out":false}
+{"id":"guard_operation-02042","out":false}
+{"id":"guard_operation-02043","out":false}
+{"id":"guard_operation-02044","out":false}
+{"id":"guard_operation-02045","out":false}
+{"id":"guard_operation-02046","out":false}
+{"id":"guard_operation-02047","out":false}
+{"id":"guard_operation-02048","out":false}
+{"id":"guard_operation-02049","out":false}
+{"id":"guard_operation-02050","out":false}
+{"id":"guard_operation-02051","out":false}
+{"id":"guard_operation-02052","out":false}
+{"id":"guard_operation-02053","out":false}
+{"id":"guard_operation-02054","out":false}
+{"id":"guard_operation-02055","out":false}
+{"id":"guard_operation-02056","out":false}
+{"id":"guard_operation-02057","out":false}
+{"id":"guard_operation-02058","out":true}
+{"id":"guard_operation-02059","out":false}
+{"id":"guard_operation-02060","out":false}
+{"id":"guard_operation-02061","out":false}
+{"id":"guard_operation-02062","out":false}
+{"id":"guard_operation-02063","out":false}
+{"id":"guard_operation-02064","out":false}
+{"id":"guard_operation-02065","out":false}
+{"id":"guard_operation-02066","out":false}
+{"id":"guard_operation-02067","out":true}
+{"id":"guard_operation-02068","out":false}
+{"id":"guard_operation-02069","out":false}
+{"id":"guard_operation-02070","out":false}
+{"id":"guard_operation-02071","out":false}
+{"id":"guard_operation-02072","out":false}
+{"id":"guard_operation-02073","out":false}
+{"id":"guard_operation-02074","out":false}
+{"id":"guard_operation-02075","out":false}
+{"id":"guard_operation-02076","out":false}
+{"id":"guard_operation-02077","out":false}
+{"id":"guard_operation-02078","out":true}
+{"id":"guard_operation-02079","out":false}
+{"id":"guard_operation-02080","out":false}
+{"id":"guard_operation-02081","out":false}
+{"id":"guard_operation-02082","out":false}
+{"id":"guard_operation-02083","out":false}
+{"id":"guard_operation-02084","out":false}
+{"id":"guard_operation-02085","out":false}
+{"id":"guard_operation-02086","out":false}
+{"id":"guard_operation-02087","out":false}
+{"id":"guard_operation-02088","out":false}
+{"id":"guard_operation-02089","out":false}
+{"id":"guard_operation-02090","out":false}
+{"id":"guard_operation-02091","out":false}
+{"id":"guard_operation-02092","out":false}
+{"id":"guard_operation-02093","out":false}
+{"id":"guard_operation-02094","out":false}
+{"id":"guard_operation-02095","out":false}
+{"id":"guard_operation-02096","out":false}
+{"id":"guard_operation-02097","out":false}
+{"id":"guard_operation-02098","out":false}
+{"id":"guard_operation-02099","out":false}
+{"id":"guard_operation-02100","out":{"label":"Request Changes","description":"Tell me what should change in the plan, and I'll revise it."}}
+{"id":"guard_operation-02101","out":{"label":"Restart this Unit","description":"The automatic run for a b is stuck. I'll stop it, set its unfinished work aside, and start it fresh."}}
+{"id":"guard_operation-02102","out":{"label":"Decide at approval","description":"I'll bring it's work to you for approval with what its review raised, instead of asking for another review."}}
+{"id":"guard_operation-02103","out":null}
+{"id":"guard_operation-02104","out":{"label":"Restart the stage","description":"I'll restart s. Your answers are kept, and you'll be asked to confirm them again. This also throws away the work every Unit has finished, and each needs its reviews and approvals again."}}
+{"id":"guard_operation-02105","out":null}
+{"id":"guard_operation-02106","out":{"label":"Restart this Unit","description":"The automatic run for beta is stuck. I'll stop it, set its unfinished work aside, and start it fresh."}}
+{"id":"guard_operation-02107","out":null}
+{"id":"guard_operation-02108","out":null}
+{"id":"guard_operation-02109","out":{"label":"Request Changes","description":"Tell me what should change in it's work, and I'll revise it. This also throws away every Unit's finished Code Generation work, and each needs its review and approval again."}}
+{"id":"guard_operation-02110","out":{"label":"Decide at approval","description":"I'll bring it's work to you for approval with what its review raised, instead of asking for another review."}}
+{"id":"guard_operation-02111","out":{"label":"Do this step again for the Unit","description":"I'll start Code Generation again for a b only. The other Units keep their finished work and approvals."}}
+{"id":"guard_operation-02112","out":{"label":"Restart the stage","description":"I'll restart s. Your answers are kept, and you'll be asked to confirm them again."}}
+{"id":"guard_operation-02113","out":{"label":"Reopen the approved stage","description":"s is already approved, but I can't check the project's source files. I'll reopen it and redo it from the top. To keep the approval instead, fix the list of source folders in .focus-source-paths.json so the files can be checked."}}
+{"id":"guard_operation-02114","out":{"label":"Restart this Unit","description":"The automatic run for a b is stuck. I'll stop it, set its unfinished work aside, and start it fresh."}}
+{"id":"guard_operation-02115","out":null}
+{"id":"guard_operation-02116","out":{"label":"Decide now","description":"I'll stop the review rounds for this piece of work and bring Code Generation for beta to you for approval with the reviewer's open points."}}
+{"id":"guard_operation-02117","out":null}
+{"id":"guard_operation-02118","out":{"label":"Request Changes","description":"Tell me what should change in Code Generation for beta, and I'll revise it. This also throws away every Unit's finished s work, and each needs its review and approval again."}}
+{"id":"guard_operation-02119","out":{"label":"Confirm the summary again","description":"I'll show you the current summary of your answers for it's work to confirm, then save its documents again from it."}}
+{"id":"guard_operation-02120","out":null}
+{"id":"guard_operation-02121","out":null}
+{"id":"guard_operation-02122","out":null}
+{"id":"guard_operation-02123","out":{"label":"Decide now","description":"I'll stop the review rounds for this piece of work and bring Code Generation for beta to you for approval with the reviewer's open points."}}
+{"id":"guard_operation-02124","out":null}
+{"id":"guard_operation-02125","out":null}
+{"id":"guard_operation-02126","out":null}
+{"id":"guard_operation-02127","out":{"label":"Start the stage over","description":"I'll redo s from the top. Your answers are kept, but you'll confirm the summary again and I'll save each of its documents again. This also throws away the work every Unit has finished, and each needs its reviews and approvals again."}}
+{"id":"guard_operation-02128","out":{"label":"Switch to a scope with per-Unit stages","description":"This work's scope (the set of stages it runs) has no Construction stage that runs for each Unit, so nothing can approve this Unit. I'll switch to a scope that has one and try again."}}
+{"id":"guard_operation-02129","out":null}
+{"id":"guard_operation-02130","out":{"label":"Confirm the summary again","description":"I'll show you the current summary of your answers for the plan to confirm, then save its documents again from it."}}
+{"id":"guard_operation-02131","out":{"label":"Decide at approval","description":"I'll bring Code Generation for beta to you for approval with what its review raised, instead of asking for another review."}}
+{"id":"guard_operation-02132","out":null}
+{"id":"guard_operation-02133","out":{"label":"Turn this check off","description":"I'll turn the plan approval check off for this piece of work. It is recorded, and it comes back on for the next piece of work."}}
+{"id":"guard_operation-02134","out":{"label":"Confirm the summary again","description":"I'll show you the current summary of your answers for it's work to confirm, then save its documents again from it."}}
+{"id":"guard_operation-02135","out":null}
+{"id":"guard_operation-02136","out":null}
+{"id":"guard_operation-02137","out":{"label":"Reopen the approved stage","description":"Build is already approved. I'll reopen it and redo it from the top. To keep the approval instead, put the files back the way they were when it was reviewed. This also throws away the work every Unit has finished, and each needs its reviews and approvals again."}}
+{"id":"guard_operation-02138","out":{"label":"Reopen the approved stage","description":"Build is already approved. I'll reopen it and redo it from the top. To keep the approval instead, put the files back the way they were when it was reviewed."}}
+{"id":"guard_operation-02139","out":{"label":"Request Changes","description":"Tell me what should change in Code Generation for beta, and I'll revise it."}}
+{"id":"guard_operation-02140","out":{"label":"Switch to a scope that includes it","description":"s is not part of this work's scope (the set of stages it runs). I'll switch to a scope that includes it and restart it."}}
+{"id":"guard_operation-02141","out":{"label":"Decide at approval","description":"I'll bring it's work to you for approval with what its review raised, instead of asking for another review."}}
+{"id":"guard_operation-02142","out":{"label":"Finish with the review it has","description":"I'll finish Build for a b with the review it already has. What the review raised comes to you when its work is up for approval."}}
+{"id":"guard_operation-02143","out":{"label":"Switch to a scope that includes it","description":"s is not part of this work's scope (the set of stages it runs). I'll switch to a scope that includes it and restart it."}}
+{"id":"guard_operation-02144","out":null}
+{"id":"guard_operation-02145","out":{"label":"Decide at approval","description":"I'll bring Code Generation for beta to you for approval with what its review raised, instead of asking for another review."}}
+{"id":"guard_operation-02146","out":null}
+{"id":"guard_operation-02147","out":{"label":"Do this step again for the Unit","description":"I'll start s again for beta only. The other Units keep their finished work and approvals."}}
+{"id":"guard_operation-02148","out":{"label":"Do this step again for the Unit","description":"I'll start Code Generation again for beta only. The other Units keep their finished work and approvals."}}
+{"id":"guard_operation-02149","out":{"label":"Turn this check off","description":"I'll turn the plan approval check off for this piece of work. It is recorded, and it comes back on for the next piece of work."}}
+{"id":"guard_operation-02150","out":{"label":"Do this step again for the Unit","description":"I'll start Code Generation again for this Unit only. The other Units keep their finished work and approvals."}}
+{"id":"guard_operation-02151","out":null}
+{"id":"guard_operation-02152","out":null}
+{"id":"guard_operation-02153","out":{"label":"Reopen the approved stage","description":"Code Generation is already approved. I'll reopen it and redo it from the top. To keep the approval instead, put the files back the way they were when it was reviewed."}}
+{"id":"guard_operation-02154","out":{"label":"Confirm the summary again","description":"I'll show you the current summary of your answers for it's work to confirm, then save its documents again from it."}}
+{"id":"guard_operation-02155","out":null}
+{"id":"guard_operation-02156","out":{"label":"Switch to a scope with per-Unit stages","description":"This work's scope (the set of stages it runs) has no Construction stage that runs for each Unit, so nothing can approve this Unit. I'll switch to a scope that has one and try again."}}
+{"id":"guard_operation-02157","out":null}
+{"id":"guard_operation-02158","out":null}
+{"id":"guard_operation-02159","out":null}
+{"id":"guard_operation-02160","out":null}
+{"id":"guard_operation-02161","out":{"label":"Do this step again for the Unit","description":"I'll start Build again for this Unit only. The other Units keep their finished work and approvals."}}
+{"id":"guard_operation-02162","out":{"label":"Turn this check off","description":"I'll turn the reviewer read scope check off for this piece of work. It is recorded, and it comes back on for the next piece of work."}}
+{"id":"guard_operation-02163","out":{"label":"Restart the stage","description":"I'll restart s. Your answers are kept, and you'll be asked to confirm them again."}}
+{"id":"guard_operation-02164","out":{"label":"Switch to a scope that includes it","description":"Code Generation is not part of this work's scope (the set of stages it runs). I'll switch to a scope that includes it and restart it."}}
+{"id":"guard_operation-02165","out":{"label":"Start the stage over","description":"I'll redo s from the top. Your answers are kept, but you'll confirm the summary again and I'll save each of its documents again. This also throws away the work every Unit has finished, and each needs its reviews and approvals again."}}
+{"id":"guard_operation-02166","out":{"label":"Restart the stage","description":"I'll restart Build. Your answers are kept, and you'll be asked to confirm them again."}}
+{"id":"guard_operation-02167","out":{"label":"Decide at approval","description":"I'll bring it's work to you for approval with what its review raised, instead of asking for another review."}}
+{"id":"guard_operation-02168","out":null}
+{"id":"guard_operation-02169","out":{"label":"Reopen the approved stage","description":"Build is already approved, but I can't check the project's source files. I'll reopen it and redo it from the top. To keep the approval instead, fix the list of source folders in .focus-source-paths.json so the files can be checked."}}
+{"id":"guard_operation-02170","out":null}
+{"id":"guard_operation-02171","out":null}
+{"id":"guard_operation-02172","out":{"label":"Request Changes","description":"Tell me what should change in it's work, and I'll revise it."}}
+{"id":"guard_operation-02173","out":{"label":"Switch to a scope with per-Unit stages","description":"This work's scope (the set of stages it runs) has no Construction stage that runs for each Unit, so nothing can approve this Unit. I'll switch to a scope that has one and try again."}}
+{"id":"guard_operation-02174","out":null}
+{"id":"guard_operation-02175","out":{"label":"Stop working unattended","description":"I'll stop working on my own and ask you what should change in Code Generation for beta."}}
+{"id":"guard_operation-02176","out":{"label":"Do this step again for the Unit","description":"I'll start Build again for this Unit only. The other Units keep their finished work and approvals."}}
+{"id":"guard_operation-02177","out":{"label":"Stop working unattended","description":"I'll stop working on my own and ask you what should change in the plan."}}
+{"id":"guard_operation-02178","out":null}
+{"id":"guard_operation-02179","out":null}
+{"id":"guard_operation-02180","out":{"label":"Restart this Unit","description":"The automatic run for beta is stuck. I'll stop it, set its unfinished work aside, and start it fresh."}}
+{"id":"guard_operation-02181","out":{"label":"Finish with the review it has","description":"I'll finish s for a b with the review it already has. What the review raised comes to you when its work is up for approval."}}
+{"id":"guard_operation-02182","out":{"label":"Stop working unattended","description":"I'll stop working on my own and ask you what should change in the plan. This also throws away every Unit's finished Code Generation work, and each needs its review and approval again."}}
+{"id":"guard_operation-02183","out":null}
+{"id":"guard_operation-02184","out":null}
+{"id":"guard_operation-02185","out":{"label":"Do this step again for the Unit","description":"I'll start Build again for a b only. The other Units keep their finished work and approvals."}}
+{"id":"guard_operation-02186","out":null}
+{"id":"guard_operation-02187","out":{"label":"Do this step again for the Unit","description":"I'll start Build again for beta only. The other Units keep their finished work and approvals."}}
+{"id":"guard_operation-02188","out":null}
+{"id":"guard_operation-02189","out":{"label":"Decide now","description":"I'll stop the review rounds for this piece of work and bring it's work to you for approval with the reviewer's open points."}}
+{"id":"guard_operation-02190","out":null}
+{"id":"guard_operation-02191","out":{"label":"Switch to a scope with per-Unit stages","description":"This work's scope (the set of stages it runs) has no Construction stage that runs for each Unit, so nothing can approve this Unit. I'll switch to a scope that has one and try again."}}
+{"id":"guard_operation-02192","out":{"label":"Switch to a scope with per-Unit stages","description":"This work's scope (the set of stages it runs) has no Construction stage that runs for each Unit, so nothing can approve this Unit. I'll switch to a scope that has one and try again."}}
+{"id":"guard_operation-02193","out":{"label":"Do this step again for the Unit","description":"I'll start s again for this Unit only. The other Units keep their finished work and approvals."}}
+{"id":"guard_operation-02194","out":{"label":"Restart this Unit","description":"The automatic run for this Unit is stuck. I'll stop it, set its unfinished work aside, and start it fresh."}}
+{"id":"guard_operation-02195","out":{"label":"Decide now","description":"I'll stop the review rounds for this piece of work and bring the plan to you for approval with the reviewer's open points."}}
+{"id":"guard_operation-02196","out":null}
+{"id":"guard_operation-02197","out":{"label":"Request Changes","description":"Tell me what should change in the plan, and I'll revise it. This also throws away every Unit's finished s work, and each needs its review and approval again."}}
+{"id":"guard_operation-02198","out":null}
+{"id":"guard_operation-02199","out":{"label":"Do this step again for the Unit","description":"I'll start s again for beta only. The other Units keep their finished work and approvals."}}
+{"id":"guard_operation-02200","out":{"label":"Stop working unattended","description":"I'll stop working on my own and ask you what should change in the plan. This also throws away every Unit's finished Build work, and each needs its review and approval again."}}
+{"id":"guard_operation-02201","out":{"label":"Decide now","description":"I'll stop the review rounds for this piece of work and bring Code Generation for beta to you for approval with the reviewer's open points."}}
+{"id":"guard_operation-02202","out":{"label":"Stop working unattended","description":"I'll stop working on my own and ask you what should change in it's work."}}
+{"id":"guard_operation-02203","out":null}
+{"id":"guard_operation-02204","out":null}
+{"id":"guard_operation-02205","out":{"label":"Turn this check off","description":"I'll turn this check off for this piece of work. It is recorded, and it comes back on for the next piece of work."}}
+{"id":"guard_operation-02206","out":null}
+{"id":"guard_operation-02207","out":{"label":"Reopen the approved stage","description":"Build is already approved. I'll reopen it and redo it from the top. To keep the approval instead, put the files back the way they were when it was reviewed."}}
+{"id":"guard_operation-02208","out":{"label":"Request Changes","description":"Tell me what should change in Code Generation for beta, and I'll revise it. This also throws away every Unit's finished s work, and each needs its review and approval again."}}
+{"id":"guard_operation-02209","out":null}
+{"id":"guard_operation-02210","out":null}
+{"id":"guard_operation-02211","out":{"label":"Decide at approval","description":"I'll bring the plan to you for approval with what its review raised, instead of asking for another review."}}
+{"id":"guard_operation-02212","out":{"label":"Confirm the summary again","description":"I'll show you the current summary of your answers for Code Generation for beta to confirm, then save its documents again from it."}}
+{"id":"guard_operation-02213","out":{"label":"Stop working unattended","description":"I'll stop working on my own and ask you what should change in it's work. This also throws away every Unit's finished Build work, and each needs its review and approval again."}}
+{"id":"guard_operation-02214","out":null}
+{"id":"guard_operation-02215","out":null}
+{"id":"guard_operation-02216","out":{"label":"Confirm the summary again","description":"I'll show you the current summary of your answers for Code Generation for beta to confirm, then save its documents again from it."}}
+{"id":"guard_operation-02217","out":{"label":"Reopen the approved stage","description":"Build is already approved, but I can't check the project's source files. I'll reopen it and redo it from the top. To keep the approval instead, fix the list of source folders in .focus-source-paths.json so the files can be checked."}}
+{"id":"guard_operation-02218","out":null}
+{"id":"guard_operation-02219","out":{"label":"Confirm the summary again","description":"I'll show you the current summary of your answers for Code Generation for beta to confirm, then save its documents again from it."}}
+{"id":"guard_operation-02220","out":null}
+{"id":"guard_operation-02221","out":null}
+{"id":"guard_operation-02222","out":{"label":"Finish with the review it has","description":"I'll finish Build for a b with the review it already has. What the review raised comes to you when its work is up for approval."}}
+{"id":"guard_operation-02223","out":null}
+{"id":"guard_operation-02224","out":{"label":"Decide now","description":"I'll stop the review rounds for this piece of work and bring the plan to you for approval with the reviewer's open points."}}
+{"id":"guard_operation-02225","out":null}
+{"id":"guard_operation-02226","out":null}
+{"id":"guard_operation-02227","out":{"label":"Switch to a scope that includes it","description":"Code Generation is not part of this work's scope (the set of stages it runs). I'll switch to a scope that includes it and restart it."}}
+{"id":"guard_operation-02228","out":{"label":"Do this step again for the Unit","description":"I'll start Code Generation again for a b only. The other Units keep their finished work and approvals."}}
+{"id":"guard_operation-02229","out":null}
+{"id":"guard_operation-02230","out":null}
+{"id":"guard_operation-02231","out":{"label":"Request Changes","description":"Tell me what should change in the plan, and I'll revise it. This also throws away every Unit's finished Build work, and each needs its review and approval again."}}
+{"id":"guard_operation-02232","out":{"label":"Decide now","description":"I'll stop the review rounds for this piece of work and bring the plan to you for approval with the reviewer's open points."}}
+{"id":"guard_operation-02233","out":null}
+{"id":"guard_operation-02234","out":null}
+{"id":"guard_operation-02235","out":null}
+{"id":"guard_operation-02236","out":null}
+{"id":"guard_operation-02237","out":{"label":"Restart the stage","description":"I'll restart Build. Your answers are kept, and you'll be asked to confirm them again."}}
+{"id":"guard_operation-02238","out":{"label":"Request Changes","description":"Tell me what should change in Code Generation for beta, and I'll revise it. This also throws away every Unit's finished s work, and each needs its review and approval again."}}
+{"id":"guard_operation-02239","out":{"label":"Stop working unattended","description":"I'll stop working on my own and ask you what should change in Code Generation for beta."}}
+{"id":"guard_operation-02240","out":null}
+{"id":"guard_operation-02241","out":{"label":"Turn this check off","description":"I'll turn the review freeze check off for this piece of work. It is recorded, and it comes back on for the next piece of work."}}
+{"id":"guard_operation-02242","out":null}
+{"id":"guard_operation-02243","out":null}
+{"id":"guard_operation-02244","out":{"label":"Stop working unattended","description":"I'll stop working on my own and ask you what should change in it's work. This also throws away every Unit's finished s work, and each needs its review and approval again."}}
+{"id":"guard_operation-02245","out":null}
+{"id":"guard_operation-02246","out":null}
+{"id":"guard_operation-02247","out":null}
+{"id":"guard_operation-02248","out":{"label":"Switch to a scope that includes it","description":"Build is not part of this work's scope (the set of stages it runs). I'll switch to a scope that includes it and restart it."}}
+{"id":"guard_operation-02249","out":{"label":"Decide now","description":"I'll stop the review rounds for this piece of work and bring the plan to you for approval with the reviewer's open points."}}
+{"id":"guard_operation-02250","out":null}
+{"id":"guard_operation-02251","out":{"label":"Start the stage over","description":"I'll redo s from the top. Your answers are kept, but you'll confirm the summary again and I'll save each of its documents again."}}
+{"id":"guard_operation-02252","out":{"label":"Restart the stage","description":"I'll restart Code Generation. Your answers are kept, and you'll be asked to confirm them again. This also throws away the work every Unit has finished, and each needs its reviews and approvals again."}}
+{"id":"guard_operation-02253","out":{"label":"Turn this check off","description":"I'll turn the state transition check off for this piece of work. It is recorded, and it comes back on for the next piece of work."}}
+{"id":"guard_operation-02254","out":{"label":"Confirm the summary again","description":"I'll show you the current summary of your answers for Code Generation for beta to confirm, then save its documents again from it."}}
+{"id":"guard_operation-02255","out":null}
+{"id":"guard_operation-02256","out":null}
+{"id":"guard_operation-02257","out":{"label":"Restart this Unit","description":"The automatic run for this Unit is stuck. I'll stop it, set its unfinished work aside, and start it fresh."}}
+{"id":"guard_operation-02258","out":null}
+{"id":"guard_operation-02259","out":{"label":"Confirm the summary again","description":"I'll show you the current summary of your answers for it's work to confirm, then save its documents again from it."}}
+{"id":"guard_operation-02260","out":null}
+{"id":"guard_operation-02261","out":{"label":"Finish with the review it has","description":"I'll finish s for beta with the review it already has. What the review raised comes to you when its work is up for approval."}}
+{"id":"guard_operation-02262","out":null}
+{"id":"guard_operation-02263","out":{"label":"Decide now","description":"I'll stop the review rounds for this piece of work and bring Code Generation for beta to you for approval with the reviewer's open points."}}
+{"id":"guard_operation-02264","out":{"label":"Finish with the review it has","description":"I'll finish s for beta with the review it already has. What the review raised comes to you when its work is up for approval."}}
+{"id":"guard_operation-02265","out":{"label":"Switch to a scope that includes it","description":"Build is not part of this work's scope (the set of stages it runs). I'll switch to a scope that includes it and restart it."}}
+{"id":"guard_operation-02266","out":null}
+{"id":"guard_operation-02267","out":{"label":"Start the stage over","description":"I'll redo Build from the top. Your answers are kept, but you'll confirm the summary again and I'll save each of its documents again."}}
+{"id":"guard_operation-02268","out":{"label":"Start the stage over","description":"I'll redo s from the top. Your answers are kept, but you'll confirm the summary again and I'll save each of its documents again. This also throws away the work every Unit has finished, and each needs its reviews and approvals again."}}
+{"id":"guard_operation-02269","out":{"label":"Finish with the review it has","description":"I'll finish Code Generation for this Unit with the review it already has. What the review raised comes to you when its work is up for approval."}}
+{"id":"guard_operation-02270","out":null}
+{"id":"guard_operation-02271","out":null}
+{"id":"guard_operation-02272","out":{"label":"Restart the stage","description":"I'll restart Code Generation. Your answers are kept, and you'll be asked to confirm them again."}}
+{"id":"guard_operation-02273","out":{"label":"Restart this Unit","description":"The automatic run for this Unit is stuck. I'll stop it, set its unfinished work aside, and start it fresh."}}
+{"id":"guard_operation-02274","out":{"label":"Turn this check off","description":"I'll turn the state transition check off for this piece of work. It is recorded, and it comes back on for the next piece of work."}}
+{"id":"guard_operation-02275","out":null}
+{"id":"guard_operation-02276","out":null}
+{"id":"guard_operation-02277","out":null}
+{"id":"guard_operation-02278","out":{"label":"Do this step again for the Unit","description":"I'll start Code Generation again for this Unit only. The other Units keep their finished work and approvals."}}
+{"id":"guard_operation-02279","out":null}

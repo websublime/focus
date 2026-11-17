@@ -13,14 +13,22 @@ use serde_json::{Value, json};
 #[test]
 fn every_ledger_case_gets_upstreams_answer() {
     let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../fixtures/oracle");
-    let cases = fs::read_to_string(dir.join("cases.ndjson")).unwrap();
-    let expected = fs::read_to_string(dir.join("expected.ndjson")).unwrap();
+    // The corpus is kept by kind: the kinds this crate answers, each in the
+    // order it was answered in.
+    let read = |part: &str| -> String {
+        KINDS
+            .iter()
+            .map(|kind| fs::read_to_string(dir.join(part).join(format!("{kind}.ndjson"))).unwrap())
+            .collect()
+    };
+    let cases = read("cases");
+    let expected = read("expected");
     let cases: Vec<&str> = cases.lines().filter(|l| !l.is_empty()).collect();
     let expected: Vec<&str> = expected.lines().filter(|l| !l.is_empty()).collect();
     assert_eq!(
         cases.len(),
         expected.len(),
-        "cases.ndjson and expected.ndjson are out of step"
+        "the cases and their answers are out of step"
     );
 
     let mut replayed = std::collections::BTreeMap::new();
@@ -64,7 +72,10 @@ fn every_ledger_case_gets_upstreams_answer() {
 #[test]
 fn the_corpus_shows_both_accepted_and_refused_entries() {
     let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../fixtures/oracle");
-    let expected = fs::read_to_string(dir.join("expected.ndjson")).unwrap();
+    let expected: String = KINDS
+        .iter()
+        .map(|kind| fs::read_to_string(dir.join(format!("expected/{kind}.ndjson"))).unwrap())
+        .collect();
     let entries: Vec<&str> = expected
         .lines()
         .filter(|l| l.starts_with("{\"id\":\"audit_entry-"))
@@ -80,7 +91,10 @@ fn the_corpus_shows_both_accepted_and_refused_entries() {
 #[test]
 fn the_corpus_shows_units_read_and_refused_and_diaries_with_entries() {
     let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../fixtures/oracle");
-    let expected = fs::read_to_string(dir.join("expected.ndjson")).unwrap();
+    let expected: String = KINDS
+        .iter()
+        .map(|kind| fs::read_to_string(dir.join(format!("expected/{kind}.ndjson"))).unwrap())
+        .collect();
     let of = |kind: &str| -> Vec<&str> {
         let start = format!("{{\"id\":\"{kind}-");
         expected.lines().filter(|l| l.starts_with(&start)).collect()

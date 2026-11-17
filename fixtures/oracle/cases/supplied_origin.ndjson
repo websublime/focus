@@ -1,0 +1,25 @@
+{"id": "supplied_origin-00000", "kind": "supplied_origin", "origin": null}
+{"id": "supplied_origin-00001", "kind": "supplied_origin", "origin": "host"}
+{"id": "supplied_origin-00002", "kind": "supplied_origin", "origin": 1}
+{"id": "supplied_origin-00003", "kind": "supplied_origin", "origin": []}
+{"id": "supplied_origin-00004", "kind": "supplied_origin", "origin": {}}
+{"id": "supplied_origin-00005", "kind": "supplied_origin", "origin": {"kind": "person"}}
+{"id": "supplied_origin-00006", "kind": "supplied_origin", "origin": {"kind": "person", "source": "record"}}
+{"id": "supplied_origin-00007", "kind": "supplied_origin", "origin": {"kind": "person", "source": "template"}}
+{"id": "supplied_origin-00008", "kind": "supplied_origin", "origin": {"kind": "person", "source": 1}}
+{"id": "supplied_origin-00009", "kind": "supplied_origin", "origin": {"kind": "host"}}
+{"id": "supplied_origin-00010", "kind": "supplied_origin", "origin": {"kind": "host", "reason": "x"}}
+{"id": "supplied_origin-00011", "kind": "supplied_origin", "origin": {"kind": "host", "reason": "x", "source": "record"}}
+{"id": "supplied_origin-00012", "kind": "supplied_origin", "origin": {"kind": "host", "reason": " x ", "source": "template"}}
+{"id": "supplied_origin-00013", "kind": "supplied_origin", "origin": {"kind": "host", "reason": "", "source": "record"}}
+{"id": "supplied_origin-00014", "kind": "supplied_origin", "origin": {"kind": "host", "reason": "   ", "source": "record"}}
+{"id": "supplied_origin-00015", "kind": "supplied_origin", "origin": {"kind": "host", "reason": 1, "source": "record"}}
+{"id": "supplied_origin-00016", "kind": "supplied_origin", "origin": {"kind": "host", "reason": "x", "source": "other"}}
+{"id": "supplied_origin-00017", "kind": "supplied_origin", "origin": {"kind": "host", "reason": "x", "source": null}}
+{"id": "supplied_origin-00018", "kind": "supplied_origin", "origin": {"kind": "Host", "reason": "x", "source": "record"}}
+{"id": "supplied_origin-00019", "kind": "supplied_origin", "origin": {"kind": "host", "reason": "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr", "source": "record"}}
+{"id": "supplied_origin-00020", "kind": "supplied_origin", "origin": {"kind": "host", "reason": " rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrx ", "source": "record"}}
+{"id": "supplied_origin-00021", "kind": "supplied_origin", "origin": {"kind": "host", "reason": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀", "source": "record"}}
+{"id": "supplied_origin-00022", "kind": "supplied_origin", "origin": {"kind": "host", "reason": "x", "source": "record", "extra": 1}}
+{"id": "supplied_origin-00023", "kind": "supplied_origin", "origin": {"kind": null}}
+{"id": "supplied_origin-00024", "kind": "supplied_origin", "origin": {"source": "record"}}

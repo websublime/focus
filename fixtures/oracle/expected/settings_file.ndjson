@@ -1,0 +1,600 @@
+{"id":"settings_file-00000","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"deciding":{"effort":"low"}},"agents":{"architect":{"effort":"medium"}}},"flags":{"schemaVersion":1,"defaultScope":"a","swarm":true,"sensorTimeoutMs":5}}}}
+{"id":"settings_file-00001","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"models":{"schemaVersion":1,"agents":{"2":{"model":{"codex":"model-a"}}}},"update-check":true,"release-base-url":"https://example.com/a"}}}
+{"id":"settings_file-00002","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"models":{"schemaVersion":1,"groups":{}}}}}
+{"id":"settings_file-00003","out":{"error":"{F}: settings contain unknown key(s): plugins"}}
+{"id":"settings_file-00004","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"writing-up":{"effort":"xhigh"},"reviewing":{"effort":"high"},"deciding":{"effort":"xhigh"}}}}}}
+{"id":"settings_file-00005","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00006","out":{"error":"{F}: settings.ca-bundle must be an absolute path"}}
+{"id":"settings_file-00007","out":{"error":"{F}: models.agents has invalid agent \"10\""}}
+{"id":"settings_file-00008","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1},"flags":{"schemaVersion":1,"sensorTimeoutMs":5}}}}
+{"id":"settings_file-00009","out":{"error":"{F}: settings.$schema must be a non-empty string"}}
+{"id":"settings_file-00010","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":1000,"questionRetentionDays":20}}}}
+{"id":"settings_file-00011","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"agents":{"x1":{"effort":"max","model":{"cursor":"model-b","codex":"model-a"}}},"profiles":{"3":{"groups":{"reviewing":{"effort":"max"},"deciding":{"effort":"max"},"writing-up":{"effort":"low"}}},"careful":{"groups":{"reviewing":{"effort":"low"},"deciding":{"effort":"medium"},"writing-up":{"effort":"max"}}}}},"flags":{"schemaVersion":1,"questionRetentionDays":30}}}}
+{"id":"settings_file-00012","out":{"error":"{F}: models.profiles.fast must contain only groups"}}
+{"id":"settings_file-00013","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"hookDebug":false}}}}
+{"id":"settings_file-00014","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1}}}}
+{"id":"settings_file-00015","out":{"error":"{F}: models.agents.2.model has unknown harness \"vscode\""}}
+{"id":"settings_file-00016","out":{"error":"{F}: settings contain unknown key(s): plugins"}}
+{"id":"settings_file-00017","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"models":{"schemaVersion":1},"flags":{"schemaVersion":1,"defaultScope":"a","swarm":true,"bypasses":["FOCUS_DISABLE_PLAN_APPROVAL_GUARD"]},"update-check":false,"release-base-url":"https://example.com/a"}}}
+{"id":"settings_file-00018","out":{"error":"{F}: flags has unknown key(s): Swarm"}}
+{"id":"settings_file-00019","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"reviewing":{"effort":"low"}},"agents":{"qa-lead":{"effort":"low"}}}}}}
+{"id":"settings_file-00020","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"flags":{"schemaVersion":1,"swarm":true,"bypasses":["FOCUS_DISABLE_SENSORS","FOCUS_DISABLE_USAGE_TRACKING","FOCUS_SKIP_ARTIFACT_GUARD"]}}}}
+{"id":"settings_file-00021","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"swarm":false,"questionRetentionDays":1,"bypasses":["FOCUS_DISABLE_LEARNINGS"]}}}}
+{"id":"settings_file-00022","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00023","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1}}}}
+{"id":"settings_file-00024","out":{"error":"{F}: settings.$schema must be a non-empty string"}}
+{"id":"settings_file-00025","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00026","out":{"error":"{F}: settings must be a JSON object"}}
+{"id":"settings_file-00027","out":{"error":"{F}: flags.sensorTimeoutMs must be a positive integer"}}
+{"id":"settings_file-00028","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00029","out":{"error":"{F}: settings.ca-bundle must be an absolute path"}}
+{"id":"settings_file-00030","out":{"error":"{F}: settings.ca-bundle must be an absolute path"}}
+{"id":"settings_file-00031","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"flags":{"schemaVersion":1,"questionRetentionDays":365,"bypasses":[]}}}}
+{"id":"settings_file-00032","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{}}}}}
+{"id":"settings_file-00033","out":{"value":{"schemaVersion":1,"offline":true}}}
+{"id":"settings_file-00034","out":{"error":"{F}: settings contain unknown key(s): 3, zeta, alpha"}}
+{"id":"settings_file-00035","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"swarm":true,"sensorTimeoutMs":5,"bypasses":["FOCUS_DISABLE_LEARNINGS","FOCUS_DISABLE_PLAN_APPROVAL_GUARD","FOCUS_DISABLE_REVIEWER_SCOPE_HOOK","FOCUS_DISABLE_SENSORS"]}}}}
+{"id":"settings_file-00036","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"minimal","groups":{"writing-up":{"effort":"xhigh"}},"agents":{"2":{"effort":"medium"},"10":{"effort":"medium"},"constructor":{"effort":"low"}},"profiles":{"fast":{"groups":{"deciding":{"effort":"medium"},"reviewing":{"effort":"low"},"writing-up":{"effort":"medium"}}},"night-shift":{"groups":{}}}},"flags":{"schemaVersion":1,"swarm":false,"hookDebug":false,"sensorTimeoutMs":1}}}}
+{"id":"settings_file-00037","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"writing-up":{"effort":"high"}}},"flags":{"schemaVersion":1}}}}
+{"id":"settings_file-00038","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"swarm":false,"hookDebug":false}}}}
+{"id":"settings_file-00039","out":{"error":"{F}: offline, ca-bundle are machine-only; write {M}/focus.settings.json instead"}}
+{"id":"settings_file-00040","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00041","out":{"error":"{F}: models.agents must be an object"}}
+{"id":"settings_file-00042","out":{"error":"{F}: flags.questionRetentionDays must be a positive integer"}}
+{"id":"settings_file-00043","out":{"error":"{F}: settings contain unknown key(s): 7"}}
+{"id":"settings_file-00044","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"x-1","swarm":true,"sensorTimeoutMs":1000}}}}
+{"id":"settings_file-00045","out":{"error":"{F}: settings.schemaVersion must be 1"}}
+{"id":"settings_file-00046","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1}}}}
+{"id":"settings_file-00047","out":{"error":"{F}: settings.schemaVersion must be 1"}}
+{"id":"settings_file-00048","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1},"flags":{"schemaVersion":1,"defaultScope":"bugfix","sensorTimeoutMs":5,"bypasses":[]}}}}
+{"id":"settings_file-00049","out":{"error":"{F}: settings.schemaVersion must be 1"}}
+{"id":"settings_file-00050","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"swarm":true,"sensorTimeoutMs":5,"bypasses":[]},"update-check":false,"offline":false}}}
+{"id":"settings_file-00051","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00052","out":{"error":"{F}: settings.schemaVersion must be 1"}}
+{"id":"settings_file-00053","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1},"flags":{"schemaVersion":1,"defaultScope":"bugfix","swarm":false,"hookDebug":true,"sensorTimeoutMs":1000}}}}
+{"id":"settings_file-00054","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"bypasses":["FOCUS_DISABLE_SENSORS","FOCUS_DISABLE_SUMMARY_CONFIRMATION"]}}}}
+{"id":"settings_file-00055","out":{"error":"{F}: flags has unknown key(s): 3, zeta, alpha"}}
+{"id":"settings_file-00056","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{}},"flags":{"schemaVersion":1,"questionRetentionDays":365}}}}
+{"id":"settings_file-00057","out":{"error":"{F}: models has unknown key(s): model"}}
+{"id":"settings_file-00058","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"x-1","sensorTimeoutMs":1000,"questionRetentionDays":30,"bypasses":["FOCUS_DISABLE_ENSEMBLE_EVIDENCE","FOCUS_SKIP_SUMMARY_CONFIRMATION_GUARD"]}}}}
+{"id":"settings_file-00059","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":5}}}}
+{"id":"settings_file-00060","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"bugfix","hookDebug":false,"bypasses":["FOCUS_DISABLE_ENSEMBLE_EVIDENCE","FOCUS_DISABLE_SUMMARY_CONFIRMATION","FOCUS_SKIP_REVISION_BACKSTOP","FOCUS_SKIP_SUMMARY_CONFIRMATION_GUARD"]}}}}
+{"id":"settings_file-00061","out":{"error":"{F}: models.schemaVersion must be 1"}}
+{"id":"settings_file-00062","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00063","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"a","swarm":false,"hookDebug":false,"bypasses":[]}}}}
+{"id":"settings_file-00064","out":{"error":"{F}: models.profiles.fast must contain only groups"}}
+{"id":"settings_file-00065","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00066","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"questionRetentionDays":365}}}}
+{"id":"settings_file-00067","out":{"error":"{F}: settings.ca-bundle must be an absolute path"}}
+{"id":"settings_file-00068","out":{"error":"<json>"}}
+{"id":"settings_file-00069","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00070","out":{"error":"{F}: settings.release-base-url must be HTTPS without credentials, query, or fragment"}}
+{"id":"settings_file-00071","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"x-1","swarm":true}}}}
+{"id":"settings_file-00072","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1}}}
+{"id":"settings_file-00073","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00074","out":{"error":"{F}: models.agents must be an object"}}
+{"id":"settings_file-00075","out":{"error":"{F}: flags.sensorTimeoutMs must be a positive integer"}}
+{"id":"settings_file-00076","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":60000,"bypasses":["FOCUS_DISABLE_REVIEW_FREEZE_HOOK","FOCUS_SKIP_HUMAN_PRESENCE_GUARD","FOCUS_SKIP_REVISION_BACKSTOP","FOCUS_SKIP_SUMMARY_CONFIRMATION_GUARD"]}}}}
+{"id":"settings_file-00077","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"balanced"},"flags":{"schemaVersion":1,"defaultScope":"a","hookDebug":true}}}}
+{"id":"settings_file-00078","out":{"error":"{F}: settings.release-base-url must be HTTPS without credentials, query, or fragment"}}
+{"id":"settings_file-00079","out":{"error":"<json>"}}
+{"id":"settings_file-00080","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"flags":{"schemaVersion":1,"questionRetentionDays":365}}}}
+{"id":"settings_file-00081","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"balanced","groups":{},"agents":{"2":{"effort":"medium","model":{"copilot":"m"}},"10":{"effort":"max"},"reviewer":{"effort":"high","model":{"opencode":"m"}}}},"flags":{"schemaVersion":1,"bypasses":["FOCUS_DISABLE_ENSEMBLE_EVIDENCE"]}}}}
+{"id":"settings_file-00082","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"agents":{"architect":{"effort":"xhigh"}}},"update-check":true,"offline":true,"release-base-url":"http://localhost:8080"}}}
+{"id":"settings_file-00083","out":{"error":"<json>"}}
+{"id":"settings_file-00084","out":{"error":"<json>"}}
+{"id":"settings_file-00085","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"swarm":true}}}}
+{"id":"settings_file-00086","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"thorough","profiles":{"fast":{"groups":{"reviewing":{"effort":"low"}}},"careful":{"groups":{"reviewing":{"effort":"medium"},"writing-up":{"effort":"high"},"deciding":{"effort":"xhigh"}}}}}}}}
+{"id":"settings_file-00087","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"balanced","groups":{"deciding":{"effort":"high"}}}}}}
+{"id":"settings_file-00088","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00089","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1},"flags":{"schemaVersion":1,"defaultScope":"feature","sensorTimeoutMs":900,"questionRetentionDays":365,"bypasses":["FOCUS_DISABLE_REVIEWER_SCOPE_HOOK"]}}}}
+{"id":"settings_file-00090","out":{"error":"{F}: settings.ca-bundle must be an absolute path"}}
+{"id":"settings_file-00091","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"thorough","groups":{"deciding":{"effort":"high"},"writing-up":{"effort":"max"},"reviewing":{"effort":"medium"}},"agents":{"10":{"model":{"codex":"m"}}}}}}}
+{"id":"settings_file-00092","out":{"value":{"schemaVersion":1,"release-base-url":"https://releases.example.com:8443/focus"}}}
+{"id":"settings_file-00093","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00094","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00095","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"models":{"schemaVersion":1,"preset":"minimal"},"flags":{"schemaVersion":1,"defaultScope":"feature","questionRetentionDays":1}}}}
+{"id":"settings_file-00096","out":{"error":"{F}: settings contain unknown key(s): plugins"}}
+{"id":"settings_file-00097","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00098","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"x-1","swarm":false,"bypasses":["FOCUS_DISABLE_SUMMARY_CONFIRMATION","FOCUS_SKIP_ARTIFACT_GUARD"]}}}}
+{"id":"settings_file-00099","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1}}}
+{"id":"settings_file-00100","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"models":{"schemaVersion":1,"agents":{"2":{"effort":"low"},"constructor":{"effort":"max","model":{"kiro":"model-a"}},"qa-lead":{"effort":"high"}},"profiles":{"night-shift":{"groups":{"writing-up":{"effort":"high"}}}}},"flags":{"schemaVersion":1,"defaultScope":"bugfix","swarm":false}}}}
+{"id":"settings_file-00101","out":{"error":"{F}: settings.ca-bundle must be an absolute path"}}
+{"id":"settings_file-00102","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00103","out":{"error":"{F}: settings.release-base-url must be HTTPS without credentials, query, or fragment"}}
+{"id":"settings_file-00104","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"swarm":true,"hookDebug":true}}}}
+{"id":"settings_file-00105","out":{"error":"{F}: models.groups has unknown group \"2\""}}
+{"id":"settings_file-00106","out":{"value":{"schemaVersion":1,"update-check":true,"ca-bundle":"/"}}}
+{"id":"settings_file-00107","out":{"error":"{F}: models.profiles.fast.groups.deciding must contain one valid effort"}}
+{"id":"settings_file-00108","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00109","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"deciding":{"effort":"xhigh"},"reviewing":{"effort":"medium"},"writing-up":{"effort":"max"}},"profiles":{"fast":{"groups":{"deciding":{"effort":"xhigh"},"reviewing":{"effort":"xhigh"},"writing-up":{"effort":"xhigh"}}}}},"flags":{"schemaVersion":1,"defaultScope":"feature","swarm":false,"questionRetentionDays":30},"update-check":false,"offline":true,"release-base-url":"https://example.com/a"}}}
+{"id":"settings_file-00110","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"flags":{"schemaVersion":1,"swarm":true,"sensorTimeoutMs":1,"bypasses":["FOCUS_DISABLE_REVIEW_FREEZE_HOOK","FOCUS_DISABLE_USAGE_TRACKING","FOCUS_SKIP_REVISION_BACKSTOP","FOCUS_SKIP_SUMMARY_CONFIRMATION_GUARD"]}}}}
+{"id":"settings_file-00111","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{},"profiles":{"night-shift":{"groups":{"writing-up":{"effort":"low"},"reviewing":{"effort":"max"},"deciding":{"effort":"xhigh"}}}}}}}}
+{"id":"settings_file-00112","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"models":{"schemaVersion":1,"groups":{}}}}}
+{"id":"settings_file-00113","out":{"error":"{F}: settings must be a JSON object"}}
+{"id":"settings_file-00114","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"feature"}}}}
+{"id":"settings_file-00115","out":{"error":"{F}: models.profiles.fast must contain only groups"}}
+{"id":"settings_file-00116","out":{"error":"{F}: flags has unknown key(s): Swarm"}}
+{"id":"settings_file-00117","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00118","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"swarm":true}}}}
+{"id":"settings_file-00119","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00120","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"a"},"release-base-url":"https://releases.example.com:8443/focus"}}}
+{"id":"settings_file-00121","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"flags":{"schemaVersion":1,"hookDebug":false,"sensorTimeoutMs":900,"bypasses":["FOCUS_DISABLE_REVIEWER_SCOPE_HOOK","FOCUS_DISABLE_USAGE_TRACKING"]}}}}
+{"id":"settings_file-00122","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00123","out":{"value":{"schemaVersion":1,"update-check":true,"offline":true,"release-base-url":"http://localhost:8080"}}}
+{"id":"settings_file-00124","out":{"error":"{F}: settings contain unknown key(s): 3, zeta, alpha"}}
+{"id":"settings_file-00125","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00126","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":1000,"questionRetentionDays":30,"bypasses":[]}}}}
+{"id":"settings_file-00127","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"hookDebug":false,"sensorTimeoutMs":60000,"questionRetentionDays":30}}}}
+{"id":"settings_file-00128","out":{"error":"{F}: models has unknown key(s): model"}}
+{"id":"settings_file-00129","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00130","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"a","swarm":true,"sensorTimeoutMs":60000,"bypasses":["FOCUS_DISABLE_PLAN_APPROVAL_GUARD"]}}}}
+{"id":"settings_file-00131","out":{"error":"{F}: settings must be a JSON object"}}
+{"id":"settings_file-00132","out":{"error":"{F}: flags.sensorTimeoutMs must be a positive integer"}}
+{"id":"settings_file-00133","out":{"error":"<json>"}}
+{"id":"settings_file-00134","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00135","out":{"error":"{F}: settings.schemaVersion must be 1"}}
+{"id":"settings_file-00136","out":{"error":"{F}: settings.schemaVersion must be 1"}}
+{"id":"settings_file-00137","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1},"flags":{"schemaVersion":1,"swarm":false,"sensorTimeoutMs":60000,"questionRetentionDays":1},"update-check":false}}}
+{"id":"settings_file-00138","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":1,"bypasses":["FOCUS_SKIP_SUMMARY_CONFIRMATION_GUARD"]}}}}
+{"id":"settings_file-00139","out":{"error":"{F}: settings must be a JSON object"}}
+{"id":"settings_file-00140","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"swarm":false,"sensorTimeoutMs":1,"bypasses":[]},"release-base-url":"https://example.com/a/b%20c"}}}
+{"id":"settings_file-00141","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":1}}}}
+{"id":"settings_file-00142","out":{"error":"{F}: settings.schemaVersion must be 1"}}
+{"id":"settings_file-00143","out":{"error":"{F}: flags has unknown key(s): 3, zeta, alpha"}}
+{"id":"settings_file-00144","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"swarm":true,"questionRetentionDays":1,"bypasses":["FOCUS_DISABLE_ENSEMBLE_EVIDENCE","FOCUS_DISABLE_REVIEWER_SCOPE_HOOK","FOCUS_DISABLE_SENSORS"]}}}}
+{"id":"settings_file-00145","out":{"error":"{F}: flags.sensorTimeoutMs must be a positive integer"}}
+{"id":"settings_file-00146","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1}}}}
+{"id":"settings_file-00147","out":{"error":"{F}: offline is machine-only; write {M}/focus.settings.json instead"}}
+{"id":"settings_file-00148","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"x-1","swarm":false,"hookDebug":false,"sensorTimeoutMs":60000,"bypasses":["FOCUS_DISABLE_ENSEMBLE_EVIDENCE","FOCUS_DISABLE_SUMMARY_CONFIRMATION","FOCUS_SKIP_HUMAN_PRESENCE_GUARD","FOCUS_SKIP_REVISION_BACKSTOP"]}}}}
+{"id":"settings_file-00149","out":{"error":"<json>"}}
+{"id":"settings_file-00150","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":5}}}}
+{"id":"settings_file-00151","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00152","out":{"error":"{F}: settings.schemaVersion must be 1"}}
+{"id":"settings_file-00153","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"models":{"schemaVersion":1,"agents":{"reviewer":{"model":{"kiro":"m","cursor":"model-a"}}}}}}}
+{"id":"settings_file-00154","out":{"error":"{F}: models.groups.deciding must contain one valid effort"}}
+{"id":"settings_file-00155","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"thorough"},"flags":{"schemaVersion":1,"defaultScope":"a","swarm":false,"bypasses":[]},"update-check":false,"release-base-url":"http://127.0.0.1/x","ca-bundle":"/etc/ssl/ca.pem"}}}
+{"id":"settings_file-00156","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00157","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00158","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00159","out":{"error":"{F}: flags has unknown key(s): 3, zeta, alpha"}}
+{"id":"settings_file-00160","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"a","bypasses":["FOCUS_DISABLE_SENSORS","FOCUS_DISABLE_SUMMARY_CONFIRMATION","FOCUS_DISABLE_USAGE_TRACKING","FOCUS_SKIP_HUMAN_PRESENCE_GUARD"]}}}}
+{"id":"settings_file-00161","out":{"value":{"schemaVersion":1,"offline":false,"release-base-url":"https://10.0.0.1","ca-bundle":"/"}}}
+{"id":"settings_file-00162","out":{"error":"{F}: settings contain unknown key(s): 7"}}
+{"id":"settings_file-00163","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"bugfix","swarm":true,"hookDebug":false,"bypasses":["FOCUS_DISABLE_REVIEWER_SCOPE_HOOK","FOCUS_DISABLE_SUMMARY_CONFIRMATION"]}}}}
+{"id":"settings_file-00164","out":{"error":"{F}: models.agents.architect has unknown key(s): temperature"}}
+{"id":"settings_file-00165","out":{"error":"{F}: models.groups.reviewing must contain one valid effort"}}
+{"id":"settings_file-00166","out":{"error":"{F}: flags must be an object"}}
+{"id":"settings_file-00167","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00168","out":{"error":"{F}: models.groups has unknown group \"thinking\""}}
+{"id":"settings_file-00169","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1},"flags":{"schemaVersion":1,"questionRetentionDays":30,"bypasses":[]}}}}
+{"id":"settings_file-00170","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1},"flags":{"schemaVersion":1,"defaultScope":"bugfix","bypasses":["FOCUS_DISABLE_ENSEMBLE_EVIDENCE","FOCUS_DISABLE_LEARNINGS","FOCUS_DISABLE_SENSORS","FOCUS_SKIP_SUMMARY_CONFIRMATION_GUARD"]}}}}
+{"id":"settings_file-00171","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"swarm":false,"hookDebug":true,"bypasses":[]}}}}
+{"id":"settings_file-00172","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"minimal","groups":{"writing-up":{"effort":"low"},"deciding":{"effort":"medium"}}}}}}
+{"id":"settings_file-00173","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"reviewing":{"effort":"max"}}}}}}
+{"id":"settings_file-00174","out":{"error":"{F}: flags must be an object"}}
+{"id":"settings_file-00175","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1}}}}
+{"id":"settings_file-00176","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"feature","swarm":false,"questionRetentionDays":30}}}}
+{"id":"settings_file-00177","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"minimal","profiles":{"3":{"groups":{"writing-up":{"effort":"high"},"reviewing":{"effort":"low"}}}}},"flags":{"schemaVersion":1,"defaultScope":"feature"},"update-check":true,"offline":false,"ca-bundle":"/etc/ssl/ca.pem"}}}
+{"id":"settings_file-00178","out":{"error":"{F}: settings.ca-bundle must be an absolute path"}}
+{"id":"settings_file-00179","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"minimal"},"offline":false,"release-base-url":"https://example.com"}}}
+{"id":"settings_file-00180","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1}}}}
+{"id":"settings_file-00181","out":{"error":"{F}: settings.schemaVersion must be 1"}}
+{"id":"settings_file-00182","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":1000,"questionRetentionDays":20}}}}
+{"id":"settings_file-00183","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"reviewing":{"effort":"xhigh"},"deciding":{"effort":"high"},"writing-up":{"effort":"xhigh"}},"agents":{"architect":{"effort":"medium"}},"profiles":{"careful":{"groups":{}}}}}}}
+{"id":"settings_file-00184","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"thorough","groups":{"deciding":{"effort":"high"},"writing-up":{"effort":"low"},"reviewing":{"effort":"high"}}}}}}
+{"id":"settings_file-00185","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"deciding":{"effort":"xhigh"}}}}}}
+{"id":"settings_file-00186","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"feature","swarm":true,"sensorTimeoutMs":60000,"questionRetentionDays":30}}}}
+{"id":"settings_file-00187","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"deciding":{"effort":"max"}},"agents":{"qa-lead":{"effort":"max"}}},"flags":{"schemaVersion":1,"questionRetentionDays":1,"bypasses":["FOCUS_DISABLE_ENSEMBLE_EVIDENCE","FOCUS_DISABLE_SENSORS","FOCUS_SKIP_SUMMARY_CONFIRMATION_GUARD"]}}}}
+{"id":"settings_file-00188","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00189","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1}}}
+{"id":"settings_file-00190","out":{"error":"{F}: update-check, release-base-url are machine-only; write {M}/focus.settings.json instead"}}
+{"id":"settings_file-00191","out":{"error":"{F}: models.agents has invalid agent \"-lead\""}}
+{"id":"settings_file-00192","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"bugfix","hookDebug":true,"bypasses":["FOCUS_DISABLE_REVIEW_FREEZE_HOOK","FOCUS_SKIP_ARTIFACT_GUARD","FOCUS_SKIP_REVISION_BACKSTOP","FOCUS_SKIP_SUMMARY_CONFIRMATION_GUARD"]}}}}
+{"id":"settings_file-00193","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1}}}}
+{"id":"settings_file-00194","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"bugfix","sensorTimeoutMs":1000,"bypasses":[]}}}}
+{"id":"settings_file-00195","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1}}}
+{"id":"settings_file-00196","out":{"error":"<json>"}}
+{"id":"settings_file-00197","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00198","out":{"error":"{F}: settings.update-check must be true or false"}}
+{"id":"settings_file-00199","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"x-1","swarm":true,"bypasses":["FOCUS_DISABLE_ENSEMBLE_EVIDENCE","FOCUS_DISABLE_REVIEWER_SCOPE_HOOK"]}}}}
+{"id":"settings_file-00200","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"minimal"},"offline":true,"release-base-url":"https://example.com","ca-bundle":"/etc/ssl/ca.pem"}}}
+{"id":"settings_file-00201","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"x-1","hookDebug":true}}}}
+{"id":"settings_file-00202","out":{"error":"{F}: settings.ca-bundle must be an absolute path"}}
+{"id":"settings_file-00203","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00204","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"a"}}}}
+{"id":"settings_file-00205","out":{"error":"{F}: settings.schemaVersion must be 1"}}
+{"id":"settings_file-00206","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"swarm":true}}}}
+{"id":"settings_file-00207","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00208","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1}}}}
+{"id":"settings_file-00209","out":{"error":"{F}: models.agents has invalid agent \"Architect\""}}
+{"id":"settings_file-00210","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"models":{"schemaVersion":1,"agents":{"10":{"effort":"low"},"constructor":{"model":{"kiro":"model-b","codex":"model-b"}},"architect":{"effort":"low","model":{"kiro-ide":"m","copilot":"m"}}},"profiles":{"3":{"groups":{"writing-up":{"effort":"max"}}},"fast":{"groups":{"writing-up":{"effort":"xhigh"},"reviewing":{"effort":"medium"},"deciding":{"effort":"max"}}}}},"flags":{"schemaVersion":1,"swarm":false,"hookDebug":true,"bypasses":["FOCUS_DISABLE_SUMMARY_CONFIRMATION","FOCUS_DISABLE_USAGE_TRACKING","FOCUS_SKIP_SUMMARY_CONFIRMATION_GUARD"]}}}}
+{"id":"settings_file-00211","out":{"error":"{F}: flags has unknown key(s): bypass"}}
+{"id":"settings_file-00212","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00213","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"minimal","agents":{"2":{"model":{"opencode":"model-b"}}}},"offline":true,"release-base-url":"https://example.com","ca-bundle":"/"}}}
+{"id":"settings_file-00214","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"minimal","groups":{"reviewing":{"effort":"xhigh"},"deciding":{"effort":"medium"}}},"flags":{"schemaVersion":1,"swarm":false,"bypasses":["FOCUS_SKIP_ARTIFACT_GUARD"]}}}}
+{"id":"settings_file-00215","out":{"error":"{F}: models.schemaVersion must be 1"}}
+{"id":"settings_file-00216","out":{"error":"{F}: update-check, offline, release-base-url, ca-bundle are machine-only; write {M}/focus.settings.json instead"}}
+{"id":"settings_file-00217","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"x-1","swarm":false,"bypasses":["FOCUS_DISABLE_LEARNINGS"]},"update-check":true,"ca-bundle":"/"}}}
+{"id":"settings_file-00218","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"models":{"schemaVersion":1,"groups":{},"agents":{"qa-lead":{"model":{"codex":"model-b"}}}},"flags":{"schemaVersion":1,"defaultScope":"feature","sensorTimeoutMs":60000,"questionRetentionDays":30,"bypasses":["FOCUS_DISABLE_ENSEMBLE_EVIDENCE","FOCUS_DISABLE_SUMMARY_CONFIRMATION"]},"update-check":true,"offline":false}}}
+{"id":"settings_file-00219","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"flags":{"schemaVersion":1,"bypasses":["FOCUS_DISABLE_SUMMARY_CONFIRMATION","FOCUS_DISABLE_USAGE_TRACKING","FOCUS_SKIP_ARTIFACT_GUARD"]}}}}
+{"id":"settings_file-00220","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"questionRetentionDays":1,"bypasses":["FOCUS_DISABLE_SENSORS","FOCUS_SKIP_HUMAN_PRESENCE_GUARD","FOCUS_SKIP_SUMMARY_CONFIRMATION_GUARD"]}}}}
+{"id":"settings_file-00221","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"bugfix","swarm":true,"hookDebug":false,"questionRetentionDays":365},"offline":true,"ca-bundle":"/"}}}
+{"id":"settings_file-00222","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"minimal"}}}}
+{"id":"settings_file-00223","out":{"error":"{F}: settings contain unknown key(s): 3, zeta, alpha"}}
+{"id":"settings_file-00224","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"release-base-url":"https://10.0.0.1","ca-bundle":"/etc/ssl/ca.pem"}}}
+{"id":"settings_file-00225","out":{"error":"{F}: flags has unknown key(s): 3, zeta, alpha"}}
+{"id":"settings_file-00226","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00227","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"writing-up":{"effort":"max"}}}}}}
+{"id":"settings_file-00228","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1}}}}
+{"id":"settings_file-00229","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"deciding":{"effort":"high"},"writing-up":{"effort":"high"}}},"flags":{"schemaVersion":1,"hookDebug":true,"sensorTimeoutMs":1,"bypasses":["FOCUS_DISABLE_LEARNINGS"]}}}}
+{"id":"settings_file-00230","out":{"error":"{F}: settings.ca-bundle must be an absolute path"}}
+{"id":"settings_file-00231","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{},"agents":{"10":{"effort":"medium"}},"profiles":{"night-shift":{"groups":{}},"careful":{"groups":{"writing-up":{"effort":"medium"},"deciding":{"effort":"max"},"reviewing":{"effort":"low"}}}}}}}}
+{"id":"settings_file-00232","out":{"error":"{F}: settings contain unknown key(s): Models"}}
+{"id":"settings_file-00233","out":{"error":"{F}: flags.sensorTimeoutMs must be a positive integer"}}
+{"id":"settings_file-00234","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"balanced"}}}}
+{"id":"settings_file-00235","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"swarm":true,"bypasses":[]}}}}
+{"id":"settings_file-00236","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"hookDebug":true}}}}
+{"id":"settings_file-00237","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"a","swarm":true,"hookDebug":true,"questionRetentionDays":30,"bypasses":["FOCUS_DISABLE_PLAN_APPROVAL_GUARD","FOCUS_DISABLE_REVIEWER_SCOPE_HOOK","FOCUS_DISABLE_USAGE_TRACKING","FOCUS_SKIP_REVISION_BACKSTOP"]}}}}
+{"id":"settings_file-00238","out":{"error":"{F}: flags has unknown key(s): unknown"}}
+{"id":"settings_file-00239","out":{"error":"{F}: settings.ca-bundle must be an absolute path"}}
+{"id":"settings_file-00240","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"bugfix","hookDebug":false}}}}
+{"id":"settings_file-00241","out":{"error":"{F}: settings.release-base-url must be HTTPS without credentials, query, or fragment"}}
+{"id":"settings_file-00242","out":{"error":"{F}: models.schemaVersion must be 1"}}
+{"id":"settings_file-00243","out":{"error":"{F}: update-check, offline, release-base-url are machine-only; write {M}/focus.settings.json instead"}}
+{"id":"settings_file-00244","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"swarm":false,"bypasses":["FOCUS_DISABLE_PLAN_APPROVAL_GUARD"]}}}}
+{"id":"settings_file-00245","out":{"error":"{F}: settings.ca-bundle must be an absolute path"}}
+{"id":"settings_file-00246","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"models":{"schemaVersion":1,"groups":{"writing-up":{"effort":"xhigh"},"reviewing":{"effort":"high"},"deciding":{"effort":"xhigh"}},"agents":{"2":{"effort":"max","model":{"copilot":"model-b"}},"architect":{"effort":"medium","model":{"copilot":"model-b","opencode":"model-a"}}},"profiles":{"fast":{"groups":{"deciding":{"effort":"xhigh"},"writing-up":{"effort":"max"}}}}},"flags":{"schemaVersion":1,"sensorTimeoutMs":5,"bypasses":["FOCUS_DISABLE_REVIEW_FREEZE_HOOK","FOCUS_SKIP_ARTIFACT_GUARD","FOCUS_SKIP_SUMMARY_CONFIRMATION_GUARD"]}}}}
+{"id":"settings_file-00247","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"models":{"schemaVersion":1,"groups":{"deciding":{"effort":"medium"},"writing-up":{"effort":"max"}},"agents":{"architect":{"effort":"medium"},"qa-lead":{"effort":"xhigh"}},"profiles":{"3":{"groups":{"writing-up":{"effort":"high"},"reviewing":{"effort":"low"},"deciding":{"effort":"medium"}}}}}}}}
+{"id":"settings_file-00248","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":1000,"questionRetentionDays":20}}}}
+{"id":"settings_file-00249","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1}}}
+{"id":"settings_file-00250","out":{"error":"{F}: models.profiles.Bad Name must contain only groups"}}
+{"id":"settings_file-00251","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"balanced","agents":{"reviewer":{"effort":"medium","model":{"opencode":"model-b","copilot":"m"}},"constructor":{"model":{"claude":"model-b"}},"qa-lead":{"effort":"low"}}}}}}
+{"id":"settings_file-00252","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"balanced"},"flags":{"schemaVersion":1,"bypasses":["FOCUS_DISABLE_LEARNINGS","FOCUS_DISABLE_SUMMARY_CONFIRMATION","FOCUS_SKIP_SUMMARY_CONFIRMATION_GUARD"]}}}}
+{"id":"settings_file-00253","out":{"error":"{F}: flags.sensorTimeoutMs must be a positive integer"}}
+{"id":"settings_file-00254","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00255","out":{"error":"{F}: flags.questionRetentionDays must be a positive integer"}}
+{"id":"settings_file-00256","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"thorough","groups":{"reviewing":{"effort":"max"},"deciding":{"effort":"high"},"writing-up":{"effort":"xhigh"}}},"flags":{"schemaVersion":1,"sensorTimeoutMs":1,"questionRetentionDays":30,"bypasses":[]}}}}
+{"id":"settings_file-00257","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"models":{"schemaVersion":1,"agents":{"2":{"effort":"medium"}}}}}}
+{"id":"settings_file-00258","out":{"error":"{F}: settings.schemaVersion must be 1"}}
+{"id":"settings_file-00259","out":{"error":"{F}: settings.ca-bundle must be an absolute path"}}
+{"id":"settings_file-00260","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"thorough","groups":{}}}}}
+{"id":"settings_file-00261","out":{"error":"{F}: offline, release-base-url, ca-bundle are machine-only; write {M}/focus.settings.json instead"}}
+{"id":"settings_file-00262","out":{"error":"{F}: update-check is machine-only; write {M}/focus.settings.json instead"}}
+{"id":"settings_file-00263","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00264","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":60000}}}}
+{"id":"settings_file-00265","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":1,"questionRetentionDays":1}}}}
+{"id":"settings_file-00266","out":{"error":"{F}: update-check, release-base-url are machine-only; write {M}/focus.settings.json instead"}}
+{"id":"settings_file-00267","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"hookDebug":false}}}}
+{"id":"settings_file-00268","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"minimal","groups":{"deciding":{"effort":"max"},"writing-up":{"effort":"high"}}},"flags":{"schemaVersion":1,"defaultScope":"a","hookDebug":true,"questionRetentionDays":365,"bypasses":[]}}}}
+{"id":"settings_file-00269","out":{"error":"{F}: models.groups has unknown group \"thinking\""}}
+{"id":"settings_file-00270","out":{"error":"{F}: models.schemaVersion must be 1"}}
+{"id":"settings_file-00271","out":{"error":"{F}: flags.defaultScope must be a scope name"}}
+{"id":"settings_file-00272","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"x-1","sensorTimeoutMs":900,"questionRetentionDays":365}}}}
+{"id":"settings_file-00273","out":{"error":"{F}: flags.schemaVersion must be 1"}}
+{"id":"settings_file-00274","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00275","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"models":{"schemaVersion":1,"preset":"thorough","groups":{"writing-up":{"effort":"xhigh"}}},"flags":{"schemaVersion":1,"defaultScope":"a"},"offline":true,"release-base-url":"https://example.com/a/b%20c"}}}
+{"id":"settings_file-00276","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00277","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"models":{"schemaVersion":1,"groups":{"deciding":{"effort":"low"}},"agents":{"architect":{"model":{"claude":"model-b","copilot":"model-a"}}}},"offline":false,"release-base-url":"https://example.com"}}}
+{"id":"settings_file-00278","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":1000},"release-base-url":"https://10.0.0.1","ca-bundle":"/etc/ssl/ca.pem"}}}
+{"id":"settings_file-00279","out":{"error":"{F}: models.agents.architect.model.claude must be a non-empty model ID"}}
+{"id":"settings_file-00280","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00281","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"reviewing":{"effort":"xhigh"},"deciding":{"effort":"xhigh"}},"profiles":{"3":{"groups":{"writing-up":{"effort":"low"}}},"fast":{"groups":{"writing-up":{"effort":"medium"},"deciding":{"effort":"high"},"reviewing":{"effort":"medium"}}}}},"flags":{"schemaVersion":1,"swarm":false,"hookDebug":false}}}}
+{"id":"settings_file-00282","out":{"value":{"schemaVersion":1,"update-check":true,"release-base-url":"https://10.0.0.1"}}}
+{"id":"settings_file-00283","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"x-1","sensorTimeoutMs":1,"questionRetentionDays":30,"bypasses":["FOCUS_DISABLE_LEARNINGS"]}}}}
+{"id":"settings_file-00284","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00285","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"feature","swarm":true,"sensorTimeoutMs":900,"questionRetentionDays":1,"bypasses":["FOCUS_DISABLE_REVIEWER_SCOPE_HOOK","FOCUS_DISABLE_SUMMARY_CONFIRMATION","FOCUS_SKIP_ARTIFACT_GUARD","FOCUS_SKIP_SUMMARY_CONFIRMATION_GUARD"]}}}}
+{"id":"settings_file-00286","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1}}}
+{"id":"settings_file-00287","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"reviewing":{"effort":"max"},"deciding":{"effort":"high"}}},"flags":{"schemaVersion":1}}}}
+{"id":"settings_file-00288","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"thorough"},"flags":{"schemaVersion":1,"defaultScope":"feature","hookDebug":false,"sensorTimeoutMs":1,"bypasses":["FOCUS_DISABLE_REVIEW_FREEZE_HOOK"]}}}}
+{"id":"settings_file-00289","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"feature","sensorTimeoutMs":1},"update-check":true,"offline":true,"release-base-url":"https://example.com","ca-bundle":"/"}}}
+{"id":"settings_file-00290","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"a","sensorTimeoutMs":1000,"questionRetentionDays":365,"bypasses":["FOCUS_DISABLE_PLAN_APPROVAL_GUARD","FOCUS_SKIP_ARTIFACT_GUARD","FOCUS_SKIP_REVISION_BACKSTOP"]}}}}
+{"id":"settings_file-00291","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"a"},"update-check":true}}}
+{"id":"settings_file-00292","out":{"error":"{F}: settings.ca-bundle must be an absolute path"}}
+{"id":"settings_file-00293","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"swarm":true}}}}
+{"id":"settings_file-00294","out":{"error":"{F}: settings.release-base-url must be HTTPS without credentials, query, or fragment"}}
+{"id":"settings_file-00295","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"models":{"schemaVersion":1,"preset":"minimal","groups":{"writing-up":{"effort":"high"},"reviewing":{"effort":"low"}},"agents":{"10":{"effort":"xhigh","model":{"kiro-ide":"model-b","cursor":"m"}}}}}}}
+{"id":"settings_file-00296","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00297","out":{"error":"{F}: settings.ca-bundle must be an absolute path"}}
+{"id":"settings_file-00298","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"x-1","questionRetentionDays":365,"bypasses":["FOCUS_DISABLE_REVIEWER_SCOPE_HOOK","FOCUS_DISABLE_USAGE_TRACKING"]}}}}
+{"id":"settings_file-00299","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":5}}}}
+{"id":"settings_file-00300","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1},"flags":{"schemaVersion":1}}}}
+{"id":"settings_file-00301","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"deciding":{"effort":"low"},"writing-up":{"effort":"medium"}},"agents":{"2":{"effort":"max"}},"profiles":{"night-shift":{"groups":{"writing-up":{"effort":"low"}}}}},"flags":{"schemaVersion":1,"hookDebug":true,"sensorTimeoutMs":1000,"bypasses":["FOCUS_DISABLE_SUMMARY_CONFIRMATION","FOCUS_DISABLE_USAGE_TRACKING","FOCUS_SKIP_HUMAN_PRESENCE_GUARD"]}}}}
+{"id":"settings_file-00302","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":1000,"questionRetentionDays":30,"bypasses":["FOCUS_DISABLE_ENSEMBLE_EVIDENCE"]},"update-check":true,"offline":false,"release-base-url":"http://127.0.0.1/x","ca-bundle":"/"}}}
+{"id":"settings_file-00303","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"swarm":true,"questionRetentionDays":30,"bypasses":["FOCUS_DISABLE_PLAN_APPROVAL_GUARD","FOCUS_DISABLE_REVIEWER_SCOPE_HOOK","FOCUS_SKIP_HUMAN_PRESENCE_GUARD"]}}}}
+{"id":"settings_file-00304","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"bypasses":["FOCUS_SKIP_SUMMARY_CONFIRMATION_GUARD"]}}}}
+{"id":"settings_file-00305","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00306","out":{"error":"<json>"}}
+{"id":"settings_file-00307","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"thorough","groups":{"reviewing":{"effort":"xhigh"}}},"flags":{"schemaVersion":1,"swarm":true,"questionRetentionDays":1}}}}
+{"id":"settings_file-00308","out":{"error":"{F}: models.agents.qa-lead has unknown key(s): temperature"}}
+{"id":"settings_file-00309","out":{"error":"{F}: settings.release-base-url must be HTTPS without credentials, query, or fragment"}}
+{"id":"settings_file-00310","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"models":{"schemaVersion":1,"preset":"balanced","agents":{"architect":{"effort":"high"}}},"flags":{"schemaVersion":1,"swarm":true,"questionRetentionDays":30},"update-check":false,"release-base-url":"https://example.com/a/b%20c","ca-bundle":"/etc/ssl/ca.pem"}}}
+{"id":"settings_file-00311","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"bugfix"}}}}
+{"id":"settings_file-00312","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"flags":{"schemaVersion":1}}}}
+{"id":"settings_file-00313","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{},"profiles":{"careful":{"groups":{"deciding":{"effort":"high"},"writing-up":{"effort":"xhigh"},"reviewing":{"effort":"high"}}}}}}}}
+{"id":"settings_file-00314","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":5,"questionRetentionDays":30,"bypasses":[]}}}}
+{"id":"settings_file-00315","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"reviewing":{"effort":"medium"}}},"flags":{"schemaVersion":1,"hookDebug":true,"questionRetentionDays":1,"bypasses":["FOCUS_DISABLE_REVIEWER_SCOPE_HOOK"]}}}}
+{"id":"settings_file-00316","out":{"error":"{F}: settings.$schema must be a non-empty string"}}
+{"id":"settings_file-00317","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"profiles":{"careful":{"groups":{"reviewing":{"effort":"xhigh"},"deciding":{"effort":"low"},"writing-up":{"effort":"low"}}}}},"flags":{"schemaVersion":1,"swarm":false,"sensorTimeoutMs":60000,"bypasses":["FOCUS_DISABLE_REVIEW_FREEZE_HOOK","FOCUS_DISABLE_SUMMARY_CONFIRMATION","FOCUS_DISABLE_USAGE_TRACKING","FOCUS_SKIP_HUMAN_PRESENCE_GUARD"]}}}}
+{"id":"settings_file-00318","out":{"error":"{F}: settings contain unknown key(s): Models"}}
+{"id":"settings_file-00319","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00320","out":{"error":"{F}: settings contain unknown key(s): flag"}}
+{"id":"settings_file-00321","out":{"error":"{F}: models.profiles.Fast must contain only groups"}}
+{"id":"settings_file-00322","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":5}}}}
+{"id":"settings_file-00323","out":{"error":"{F}: settings.$schema must be a non-empty string"}}
+{"id":"settings_file-00324","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"feature","hookDebug":false,"sensorTimeoutMs":1,"questionRetentionDays":365}}}}
+{"id":"settings_file-00325","out":{"error":"{F}: models.groups.deciding must contain one valid effort"}}
+{"id":"settings_file-00326","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1}}}
+{"id":"settings_file-00327","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"bugfix","sensorTimeoutMs":1000,"bypasses":["FOCUS_DISABLE_USAGE_TRACKING"]}}}}
+{"id":"settings_file-00328","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"agents":{"2":{"effort":"medium"},"x1":{"effort":"max","model":{"claude":"m","kiro":"model-b"}}}}}}}
+{"id":"settings_file-00329","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"deciding":{"effort":"xhigh"},"reviewing":{"effort":"low"},"writing-up":{"effort":"low"}},"agents":{"10":{"effort":"medium"},"reviewer":{"effort":"low"}},"profiles":{"careful":{"groups":{"writing-up":{"effort":"medium"},"reviewing":{"effort":"medium"}}},"fast":{"groups":{}}}}}}}
+{"id":"settings_file-00330","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"bypasses":["FOCUS_DISABLE_LEARNINGS","FOCUS_DISABLE_REVIEW_FREEZE_HOOK","FOCUS_DISABLE_SENSORS","FOCUS_DISABLE_USAGE_TRACKING"]},"release-base-url":"http://localhost:8080"}}}
+{"id":"settings_file-00331","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1},"release-base-url":"http://localhost:8080","ca-bundle":"/etc/ssl/ca.pem"}}}
+{"id":"settings_file-00332","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"balanced","groups":{}},"flags":{"schemaVersion":1,"defaultScope":"bugfix","swarm":false,"sensorTimeoutMs":60000}}}}
+{"id":"settings_file-00333","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"x-1","swarm":false,"sensorTimeoutMs":60000,"bypasses":["FOCUS_DISABLE_LEARNINGS","FOCUS_DISABLE_REVIEWER_SCOPE_HOOK","FOCUS_DISABLE_SENSORS","FOCUS_SKIP_HUMAN_PRESENCE_GUARD"]}}}}
+{"id":"settings_file-00334","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":5}}}}
+{"id":"settings_file-00335","out":{"error":"{F}: settings.offline must be true or false"}}
+{"id":"settings_file-00336","out":{"error":"{F}: settings contain unknown key(s): plugins"}}
+{"id":"settings_file-00337","out":{"error":"{F}: settings.ca-bundle must be an absolute path"}}
+{"id":"settings_file-00338","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"minimal"},"flags":{"schemaVersion":1,"defaultScope":"x-1","swarm":false,"bypasses":["FOCUS_DISABLE_SUMMARY_CONFIRMATION","FOCUS_SKIP_HUMAN_PRESENCE_GUARD"]}}}}
+{"id":"settings_file-00339","out":{"error":"{F}: settings.ca-bundle must be an absolute path"}}
+{"id":"settings_file-00340","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00341","out":{"error":"{F}: settings.schemaVersion must be 1"}}
+{"id":"settings_file-00342","out":{"error":"{F}: settings.release-base-url must be HTTPS without credentials, query, or fragment"}}
+{"id":"settings_file-00343","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00344","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"swarm":true,"bypasses":["FOCUS_DISABLE_REVIEWER_SCOPE_HOOK","FOCUS_SKIP_SUMMARY_CONFIRMATION_GUARD"]}}}}
+{"id":"settings_file-00345","out":{"error":"{F}: flags.defaultScope must be a scope name"}}
+{"id":"settings_file-00346","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"flags":{"schemaVersion":1,"hookDebug":false,"sensorTimeoutMs":1,"questionRetentionDays":1,"bypasses":["FOCUS_DISABLE_REVIEWER_SCOPE_HOOK","FOCUS_DISABLE_SUMMARY_CONFIRMATION","FOCUS_DISABLE_USAGE_TRACKING"]}}}}
+{"id":"settings_file-00347","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00348","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00349","out":{"error":"{F}: settings.schemaVersion must be 1"}}
+{"id":"settings_file-00350","out":{"error":"{F}: settings.$schema must be a non-empty string"}}
+{"id":"settings_file-00351","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"models":{"schemaVersion":1,"groups":{"reviewing":{"effort":"xhigh"},"deciding":{"effort":"high"}},"agents":{"qa-lead":{"effort":"xhigh","model":{"opencode":"m"}},"x1":{"model":{"codex":"m"}}}},"update-check":false,"release-base-url":"http://127.0.0.1/x"}}}
+{"id":"settings_file-00352","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00353","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":9007199254740992}}}}
+{"id":"settings_file-00354","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"models":{"schemaVersion":1,"groups":{},"agents":{"2":{"effort":"high","model":{"opencode":"m","copilot":"model-b"}},"10":{"effort":"medium","model":{"copilot":"model-a"}},"reviewer":{"model":{"codex":"m"}}}},"flags":{"schemaVersion":1,"defaultScope":"feature","sensorTimeoutMs":1,"bypasses":["FOCUS_DISABLE_ENSEMBLE_EVIDENCE"]},"release-base-url":"https://example.com"}}}
+{"id":"settings_file-00355","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"thorough","groups":{"writing-up":{"effort":"max"},"reviewing":{"effort":"medium"},"deciding":{"effort":"xhigh"}},"profiles":{"night-shift":{"groups":{"deciding":{"effort":"high"},"reviewing":{"effort":"high"},"writing-up":{"effort":"high"}}},"careful":{"groups":{"deciding":{"effort":"high"},"reviewing":{"effort":"medium"}}}}},"flags":{"schemaVersion":1,"defaultScope":"bugfix"},"update-check":true,"offline":false}}}
+{"id":"settings_file-00356","out":{"error":"{F}: models.agents.architect.model has unknown harness \"vscode\""}}
+{"id":"settings_file-00357","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"feature"}}}}
+{"id":"settings_file-00358","out":{"error":"{F}: flags must be an object"}}
+{"id":"settings_file-00359","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00360","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"hookDebug":false,"sensorTimeoutMs":1000},"offline":false,"release-base-url":"https://releases.example.com:8443/focus"}}}
+{"id":"settings_file-00361","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00362","out":{"error":"{F}: settings contain unknown key(s): flag"}}
+{"id":"settings_file-00363","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"balanced"},"flags":{"schemaVersion":1,"sensorTimeoutMs":1,"questionRetentionDays":365,"bypasses":["FOCUS_DISABLE_REVIEW_FREEZE_HOOK","FOCUS_DISABLE_USAGE_TRACKING","FOCUS_SKIP_HUMAN_PRESENCE_GUARD"]}}}}
+{"id":"settings_file-00364","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"reviewing":{"effort":"max"},"deciding":{"effort":"medium"},"writing-up":{"effort":"medium"}}},"flags":{"schemaVersion":1,"defaultScope":"x-1","bypasses":["FOCUS_DISABLE_ENSEMBLE_EVIDENCE"]}}}}
+{"id":"settings_file-00365","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":5}}}}
+{"id":"settings_file-00366","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00367","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00368","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"x-1","swarm":true},"update-check":false,"offline":false}}}
+{"id":"settings_file-00369","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00370","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"thorough"},"flags":{"schemaVersion":1,"defaultScope":"bugfix","swarm":false,"sensorTimeoutMs":1000}}}}
+{"id":"settings_file-00371","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1}}}}
+{"id":"settings_file-00372","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00373","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1}}}}
+{"id":"settings_file-00374","out":{"error":"{F}: settings.schemaVersion must be 1"}}
+{"id":"settings_file-00375","out":{"error":"{F}: models.agents has invalid agent \"\""}}
+{"id":"settings_file-00376","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"minimal"},"update-check":true,"offline":false,"ca-bundle":"/"}}}
+{"id":"settings_file-00377","out":{"error":"{F}: models.schemaVersion must be 1"}}
+{"id":"settings_file-00378","out":{"error":"{F}: models.agents.2 has unknown key(s): temperature"}}
+{"id":"settings_file-00379","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00380","out":{"error":"{F}: flags.questionRetentionDays must be a positive integer"}}
+{"id":"settings_file-00381","out":{"error":"<json>"}}
+{"id":"settings_file-00382","out":{"error":"{F}: flags.questionRetentionDays must be a positive integer"}}
+{"id":"settings_file-00383","out":{"error":"{F}: models.agents.architect.model has unknown harness \"vscode\""}}
+{"id":"settings_file-00384","out":{"error":"{F}: settings contain unknown key(s): 7"}}
+{"id":"settings_file-00385","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"swarm":false,"bypasses":["FOCUS_DISABLE_LEARNINGS"]}}}}
+{"id":"settings_file-00386","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"minimal","profiles":{"3":{"groups":{"writing-up":{"effort":"max"},"reviewing":{"effort":"max"}}}}},"flags":{"schemaVersion":1}}}}
+{"id":"settings_file-00387","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"swarm":true,"hookDebug":false,"questionRetentionDays":1},"ca-bundle":"/etc/ssl/ca.pem"}}}
+{"id":"settings_file-00388","out":{"error":"{F}: models.groups has unknown group \"thinking\""}}
+{"id":"settings_file-00389","out":{"error":"{F}: models.agents.architect.model has unknown harness \"vscode\""}}
+{"id":"settings_file-00390","out":{"error":"{F}: release-base-url, ca-bundle are machine-only; write {M}/focus.settings.json instead"}}
+{"id":"settings_file-00391","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00392","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00393","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1}}}}
+{"id":"settings_file-00394","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1}}}
+{"id":"settings_file-00395","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"x-1","swarm":true,"sensorTimeoutMs":5,"questionRetentionDays":365}}}}
+{"id":"settings_file-00396","out":{"error":"{F}: settings.release-base-url must be HTTPS without credentials, query, or fragment"}}
+{"id":"settings_file-00397","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":9007199254740992}}}}
+{"id":"settings_file-00398","out":{"error":"{F}: settings.ca-bundle must be an absolute path"}}
+{"id":"settings_file-00399","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"swarm":true,"bypasses":[]},"update-check":false,"release-base-url":"https://10.0.0.1"}}}
+{"id":"settings_file-00400","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1},"flags":{"schemaVersion":1,"sensorTimeoutMs":1000,"bypasses":["FOCUS_DISABLE_REVIEW_FREEZE_HOOK"]}}}}
+{"id":"settings_file-00401","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00402","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"a","hookDebug":true,"sensorTimeoutMs":1,"bypasses":["FOCUS_DISABLE_SENSORS"]}}}}
+{"id":"settings_file-00403","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"reviewing":{"effort":"max"},"writing-up":{"effort":"high"},"deciding":{"effort":"xhigh"}}},"flags":{"schemaVersion":1,"swarm":false,"bypasses":["FOCUS_DISABLE_USAGE_TRACKING"]}}}}
+{"id":"settings_file-00404","out":{"error":"{F}: models.agents.x1 has unknown key(s): temperature"}}
+{"id":"settings_file-00405","out":{"error":"{F}: settings.schemaVersion must be 1"}}
+{"id":"settings_file-00406","out":{"error":"{F}: settings contain unknown key(s): plugins"}}
+{"id":"settings_file-00407","out":{"error":"{F}: update-check, offline are machine-only; write {M}/focus.settings.json instead"}}
+{"id":"settings_file-00408","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00409","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1}}}
+{"id":"settings_file-00410","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"flags":{"schemaVersion":1,"hookDebug":true,"questionRetentionDays":1,"bypasses":["FOCUS_DISABLE_SENSORS"]},"ca-bundle":"/etc/ssl/ca.pem"}}}
+{"id":"settings_file-00411","out":{"error":"{F}: flags.defaultScope must be a scope name"}}
+{"id":"settings_file-00412","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{},"agents":{"constructor":{"effort":"xhigh"}}}}}}
+{"id":"settings_file-00413","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"flags":{"schemaVersion":1,"hookDebug":true,"sensorTimeoutMs":900}}}}
+{"id":"settings_file-00414","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"bypasses":["FOCUS_DISABLE_ENSEMBLE_EVIDENCE","FOCUS_DISABLE_REVIEWER_SCOPE_HOOK","FOCUS_DISABLE_REVIEW_FREEZE_HOOK","FOCUS_SKIP_ARTIFACT_GUARD"]}}}}
+{"id":"settings_file-00415","out":{"error":"{F}: settings.$schema must be a non-empty string"}}
+{"id":"settings_file-00416","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00417","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00418","out":{"error":"<json>"}}
+{"id":"settings_file-00419","out":{"error":"{F}: flags.schemaVersion must be 1"}}
+{"id":"settings_file-00420","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1}}}
+{"id":"settings_file-00421","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"flags":{"schemaVersion":1,"swarm":true,"hookDebug":true}}}}
+{"id":"settings_file-00422","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":5}}}}
+{"id":"settings_file-00423","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"feature","swarm":false,"sensorTimeoutMs":5}}}}
+{"id":"settings_file-00424","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"questionRetentionDays":1,"bypasses":["FOCUS_DISABLE_LEARNINGS"]}}}}
+{"id":"settings_file-00425","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"flags":{"schemaVersion":1,"swarm":true,"hookDebug":true,"sensorTimeoutMs":900,"bypasses":[]},"offline":true,"release-base-url":"https://releases.example.com:8443/focus"}}}
+{"id":"settings_file-00426","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00427","out":{"error":"{F}: settings.ca-bundle must be an absolute path"}}
+{"id":"settings_file-00428","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00429","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"hookDebug":true,"sensorTimeoutMs":5,"questionRetentionDays":1,"bypasses":[]}}}}
+{"id":"settings_file-00430","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"balanced","groups":{},"profiles":{"3":{"groups":{"reviewing":{"effort":"max"},"deciding":{"effort":"xhigh"},"writing-up":{"effort":"medium"}}},"night-shift":{"groups":{"deciding":{"effort":"medium"},"reviewing":{"effort":"low"}}}}},"flags":{"schemaVersion":1,"defaultScope":"bugfix","hookDebug":false,"questionRetentionDays":1},"update-check":false,"offline":true,"release-base-url":"https://example.com/a"}}}
+{"id":"settings_file-00431","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"balanced","groups":{}}}}}
+{"id":"settings_file-00432","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00433","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"models":{"schemaVersion":1,"preset":"minimal","groups":{}},"flags":{"schemaVersion":1,"bypasses":["FOCUS_DISABLE_REVIEWER_SCOPE_HOOK"]}}}}
+{"id":"settings_file-00434","out":{"error":"{F}: flags has unknown key(s): bypass"}}
+{"id":"settings_file-00435","out":{"error":"{F}: settings must be a JSON object"}}
+{"id":"settings_file-00436","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"agents":{"2":{"effort":"high"},"10":{"effort":"low"},"b":{"effort":"max"}},"profiles":{"1":{"groups":{}},"z":{"groups":{}}}}}}}
+{"id":"settings_file-00437","out":{"value":{"schemaVersion":1,"release-base-url":"http://127.0.0.1/x"}}}
+{"id":"settings_file-00438","out":{"error":"{F}: models.profiles.careful.groups has unknown group \"Deciding\""}}
+{"id":"settings_file-00439","out":{"error":"{F}: models.profiles.fast must contain only groups"}}
+{"id":"settings_file-00440","out":{"error":"{F}: settings.release-base-url must be HTTPS without credentials, query, or fragment"}}
+{"id":"settings_file-00441","out":{"error":"{F}: models.schemaVersion must be 1"}}
+{"id":"settings_file-00442","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"agents":{"2":{"effort":"medium"},"x1":{"effort":"high"}},"profiles":{"night-shift":{"groups":{}}}},"flags":{"schemaVersion":1,"defaultScope":"feature","swarm":true,"bypasses":["FOCUS_DISABLE_USAGE_TRACKING","FOCUS_SKIP_ARTIFACT_GUARD","FOCUS_SKIP_HUMAN_PRESENCE_GUARD"]}}}}
+{"id":"settings_file-00443","out":{"error":"{F}: settings contain unknown key(s): 7"}}
+{"id":"settings_file-00444","out":{"error":"{F}: settings.ca-bundle must be an absolute path"}}
+{"id":"settings_file-00445","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":1000,"questionRetentionDays":20}}}}
+{"id":"settings_file-00446","out":{"error":"{F}: models.agents.architect.model.claude must be a non-empty model ID"}}
+{"id":"settings_file-00447","out":{"error":"<json>"}}
+{"id":"settings_file-00448","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00449","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"balanced","groups":{"writing-up":{"effort":"max"},"deciding":{"effort":"max"}}},"flags":{"schemaVersion":1,"defaultScope":"bugfix","hookDebug":true,"sensorTimeoutMs":60000,"bypasses":["FOCUS_DISABLE_REVIEWER_SCOPE_HOOK","FOCUS_DISABLE_REVIEW_FREEZE_HOOK","FOCUS_DISABLE_SENSORS"]}}}}
+{"id":"settings_file-00450","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":5}}}}
+{"id":"settings_file-00451","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"models":{"schemaVersion":1,"preset":"minimal","agents":{"constructor":{"effort":"xhigh","model":{"kiro":"model-b"}},"x1":{"effort":"max"},"architect":{"effort":"max"}}},"flags":{"schemaVersion":1,"defaultScope":"a","hookDebug":false,"sensorTimeoutMs":1},"release-base-url":"https://example.com/a/b%20c","ca-bundle":"/etc/ssl/ca.pem"}}}
+{"id":"settings_file-00452","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00453","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"a","swarm":false,"sensorTimeoutMs":900}}}}
+{"id":"settings_file-00454","out":{"error":"{F}: update-check is machine-only; write {M}/focus.settings.json instead"}}
+{"id":"settings_file-00455","out":{"error":"{F}: models.schemaVersion must be 1"}}
+{"id":"settings_file-00456","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"bugfix","hookDebug":true,"sensorTimeoutMs":60000}}}}
+{"id":"settings_file-00457","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"balanced","agents":{"constructor":{"effort":"max","model":{"kiro":"m"}}}}}}}
+{"id":"settings_file-00458","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"models":{"schemaVersion":1,"agents":{"constructor":{"effort":"high"}}},"flags":{"schemaVersion":1,"defaultScope":"x-1","sensorTimeoutMs":5,"bypasses":["FOCUS_DISABLE_REVIEWER_SCOPE_HOOK"]}}}}
+{"id":"settings_file-00459","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"minimal"},"flags":{"schemaVersion":1,"defaultScope":"x-1","swarm":false}}}}
+{"id":"settings_file-00460","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"reviewing":{"effort":"medium"},"deciding":{"effort":"high"}}},"flags":{"schemaVersion":1,"defaultScope":"feature","swarm":true,"sensorTimeoutMs":900,"bypasses":[]}}}}
+{"id":"settings_file-00461","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"flags":{"schemaVersion":1,"swarm":true,"sensorTimeoutMs":1000}}}}
+{"id":"settings_file-00462","out":{"error":"{F}: models.agents.architect has unknown key(s): temperature"}}
+{"id":"settings_file-00463","out":{"error":"{F}: models.groups has unknown group \"thinking\""}}
+{"id":"settings_file-00464","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00465","out":{"error":"{F}: models.preset must be one of thorough, balanced, minimal"}}
+{"id":"settings_file-00466","out":{"error":"{F}: settings.release-base-url must be HTTPS without credentials, query, or fragment"}}
+{"id":"settings_file-00467","out":{"error":"{F}: settings must be a JSON object"}}
+{"id":"settings_file-00468","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"models":{"schemaVersion":1,"groups":{},"profiles":{"3":{"groups":{"deciding":{"effort":"high"}}}}},"flags":{"schemaVersion":1,"bypasses":["FOCUS_DISABLE_REVIEWER_SCOPE_HOOK","FOCUS_DISABLE_USAGE_TRACKING","FOCUS_SKIP_REVISION_BACKSTOP"]}}}}
+{"id":"settings_file-00469","out":{"error":"{F}: settings contain unknown key(s): Models"}}
+{"id":"settings_file-00470","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"swarm":false,"hookDebug":false,"bypasses":["FOCUS_DISABLE_ENSEMBLE_EVIDENCE","FOCUS_DISABLE_SENSORS"]}}}}
+{"id":"settings_file-00471","out":{"error":"{F}: models.groups must be an object"}}
+{"id":"settings_file-00472","out":{"error":"<json>"}}
+{"id":"settings_file-00473","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"minimal","groups":{"reviewing":{"effort":"high"},"deciding":{"effort":"xhigh"},"writing-up":{"effort":"xhigh"}},"profiles":{"fast":{"groups":{"deciding":{"effort":"low"}}}}}}}}
+{"id":"settings_file-00474","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"reviewing":{"effort":"high"},"deciding":{"effort":"low"},"writing-up":{"effort":"medium"}},"profiles":{"night-shift":{"groups":{"writing-up":{"effort":"low"},"reviewing":{"effort":"low"}}}}}}}}
+{"id":"settings_file-00475","out":{"error":"{F}: settings contain unknown key(s): 3, zeta, alpha"}}
+{"id":"settings_file-00476","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"thorough","profiles":{"night-shift":{"groups":{"deciding":{"effort":"low"}}},"careful":{"groups":{"deciding":{"effort":"max"},"writing-up":{"effort":"xhigh"}}}}}}}}
+{"id":"settings_file-00477","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1}}}}
+{"id":"settings_file-00478","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"models":{"schemaVersion":1,"preset":"minimal","groups":{"deciding":{"effort":"low"},"writing-up":{"effort":"low"},"reviewing":{"effort":"xhigh"}}},"offline":false}}}
+{"id":"settings_file-00479","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"x-1","sensorTimeoutMs":1000}}}}
+{"id":"settings_file-00480","out":{"error":"{F}: flags.sensorTimeoutMs must be a positive integer"}}
+{"id":"settings_file-00481","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00482","out":{"error":"{F}: models.profiles.Fast must contain only groups"}}
+{"id":"settings_file-00483","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"models":{"schemaVersion":1}}}}
+{"id":"settings_file-00484","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"x-1","questionRetentionDays":30,"bypasses":[]}}}}
+{"id":"settings_file-00485","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"reviewing":{"effort":"xhigh"},"writing-up":{"effort":"medium"}}}}}}
+{"id":"settings_file-00486","out":{"error":"{F}: models.profiles must be an object"}}
+{"id":"settings_file-00487","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"models":{"schemaVersion":1,"groups":{"deciding":{"effort":"low"},"writing-up":{"effort":"max"},"reviewing":{"effort":"medium"}}},"flags":{"schemaVersion":1,"defaultScope":"x-1","swarm":false,"hookDebug":true}}}}
+{"id":"settings_file-00488","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"bugfix","swarm":true,"bypasses":["FOCUS_DISABLE_LEARNINGS"]}}}}
+{"id":"settings_file-00489","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"feature","hookDebug":false}}}}
+{"id":"settings_file-00490","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00491","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"writing-up":{"effort":"max"}},"profiles":{"3":{"groups":{"reviewing":{"effort":"max"},"deciding":{"effort":"low"},"writing-up":{"effort":"high"}}},"fast":{"groups":{"reviewing":{"effort":"max"},"deciding":{"effort":"xhigh"}}}}},"flags":{"schemaVersion":1,"questionRetentionDays":1,"bypasses":["FOCUS_DISABLE_ENSEMBLE_EVIDENCE","FOCUS_DISABLE_LEARNINGS","FOCUS_DISABLE_REVIEWER_SCOPE_HOOK","FOCUS_SKIP_ARTIFACT_GUARD"]},"update-check":false,"offline":false}}}
+{"id":"settings_file-00492","out":{"error":"{F}: models.groups.deciding must contain one valid effort"}}
+{"id":"settings_file-00493","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"hookDebug":true},"update-check":true,"release-base-url":"http://localhost:8080","ca-bundle":"/etc/ssl/ca.pem"}}}
+{"id":"settings_file-00494","out":{"error":"{F}: models has unknown key(s): default"}}
+{"id":"settings_file-00495","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"swarm":false,"sensorTimeoutMs":1000,"questionRetentionDays":30,"bypasses":["FOCUS_DISABLE_REVIEW_FREEZE_HOOK","FOCUS_DISABLE_SENSORS","FOCUS_DISABLE_SUMMARY_CONFIRMATION","FOCUS_SKIP_HUMAN_PRESENCE_GUARD"]}}}}
+{"id":"settings_file-00496","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"models":{"schemaVersion":1},"flags":{"schemaVersion":1,"defaultScope":"a","sensorTimeoutMs":900,"bypasses":["FOCUS_DISABLE_ENSEMBLE_EVIDENCE","FOCUS_SKIP_ARTIFACT_GUARD","FOCUS_SKIP_HUMAN_PRESENCE_GUARD"]}}}}
+{"id":"settings_file-00497","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1},"flags":{"schemaVersion":1,"sensorTimeoutMs":1},"release-base-url":"https://10.0.0.1"}}}
+{"id":"settings_file-00498","out":{"error":"{F}: flags.schemaVersion must be 1"}}
+{"id":"settings_file-00499","out":{"error":"<json>"}}
+{"id":"settings_file-00500","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00501","out":{"error":"{F}: settings contain unknown key(s): Models"}}
+{"id":"settings_file-00502","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"models":{"schemaVersion":1}}}}
+{"id":"settings_file-00503","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"flags":{"schemaVersion":1,"questionRetentionDays":30,"bypasses":["FOCUS_DISABLE_LEARNINGS","FOCUS_DISABLE_REVIEWER_SCOPE_HOOK","FOCUS_SKIP_HUMAN_PRESENCE_GUARD","FOCUS_SKIP_REVISION_BACKSTOP"]}}}}
+{"id":"settings_file-00504","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"swarm":false,"hookDebug":false,"sensorTimeoutMs":5},"offline":false}}}
+{"id":"settings_file-00505","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1}}}}
+{"id":"settings_file-00506","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00507","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"writing-up":{"effort":"max"},"reviewing":{"effort":"medium"}}},"flags":{"schemaVersion":1}}}}
+{"id":"settings_file-00508","out":{"value":{"schemaVersion":1,"update-check":true}}}
+{"id":"settings_file-00509","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"reviewing":{"effort":"medium"}},"agents":{"2":{"model":{"opencode":"m"}},"architect":{"effort":"max"},"reviewer":{"effort":"high"}}},"ca-bundle":"/etc/ssl/ca.pem"}}}
+{"id":"settings_file-00510","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"minimal","groups":{},"agents":{"qa-lead":{"effort":"xhigh"},"architect":{"effort":"high","model":{"kiro":"m"}}},"profiles":{"night-shift":{"groups":{"writing-up":{"effort":"high"},"reviewing":{"effort":"max"}}},"fast":{"groups":{"writing-up":{"effort":"low"},"deciding":{"effort":"medium"}}}}}}}}
+{"id":"settings_file-00511","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00512","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"swarm":false,"hookDebug":false,"sensorTimeoutMs":60000,"bypasses":[]}}}}
+{"id":"settings_file-00513","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00514","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1}}}}
+{"id":"settings_file-00515","out":{"error":"{F}: settings.update-check must be true or false"}}
+{"id":"settings_file-00516","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":900,"bypasses":["FOCUS_SKIP_HUMAN_PRESENCE_GUARD"]}}}}
+{"id":"settings_file-00517","out":{"error":"{F}: models.agents has invalid agent \"reviewer\""}}
+{"id":"settings_file-00518","out":{"error":"{F}: models.agents.architect.model has unknown harness \"vscode\""}}
+{"id":"settings_file-00519","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{},"agents":{"constructor":{"effort":"low"},"qa-lead":{"effort":"low","model":{"claude":"model-b"}},"reviewer":{"effort":"max","model":{"copilot":"model-a"}}}},"update-check":true,"offline":false,"release-base-url":"http://localhost:8080"}}}
+{"id":"settings_file-00520","out":{"error":"{F}: flags.questionRetentionDays must be a positive integer"}}
+{"id":"settings_file-00521","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"bypasses":["FOCUS_DISABLE_ENSEMBLE_EVIDENCE","FOCUS_DISABLE_REVIEW_FREEZE_HOOK","FOCUS_DISABLE_USAGE_TRACKING"]}}}}
+{"id":"settings_file-00522","out":{"error":"<json>"}}
+{"id":"settings_file-00523","out":{"error":"{F}: models must be an object"}}
+{"id":"settings_file-00524","out":{"error":"{F}: flags has unknown key(s): 3, zeta, alpha"}}
+{"id":"settings_file-00525","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"flags":{"schemaVersion":1,"bypasses":[]}}}}
+{"id":"settings_file-00526","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00527","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00528","out":{"error":"{F}: models must be an object"}}
+{"id":"settings_file-00529","out":{"error":"{F}: settings.schemaVersion must be 1"}}
+{"id":"settings_file-00530","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"feature","swarm":false}}}}
+{"id":"settings_file-00531","out":{"error":"{F}: models.agents.architect.model has unknown harness \"vscode\""}}
+{"id":"settings_file-00532","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"a","swarm":true}}}}
+{"id":"settings_file-00533","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"thorough","agents":{"constructor":{"effort":"max","model":{"opencode":"m","cursor":"model-a"}}}},"flags":{"schemaVersion":1,"swarm":true,"bypasses":["FOCUS_DISABLE_REVIEWER_SCOPE_HOOK","FOCUS_DISABLE_SENSORS","FOCUS_SKIP_REVISION_BACKSTOP"]}}}}
+{"id":"settings_file-00534","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"agents":{"2":{"effort":"high"},"10":{"effort":"low"},"b":{"effort":"max"}},"profiles":{"1":{"groups":{}},"z":{"groups":{}}}}}}}
+{"id":"settings_file-00535","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":1000,"questionRetentionDays":30}}}}
+{"id":"settings_file-00536","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":1000,"questionRetentionDays":365,"bypasses":[]}}}}
+{"id":"settings_file-00537","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"thorough","groups":{"reviewing":{"effort":"low"},"writing-up":{"effort":"max"}}},"flags":{"schemaVersion":1,"defaultScope":"a","sensorTimeoutMs":5}}}}
+{"id":"settings_file-00538","out":{"error":"<json>"}}
+{"id":"settings_file-00539","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00540","out":{"error":"{F}: settings must be a JSON object"}}
+{"id":"settings_file-00541","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00542","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"deciding":{"effort":"low"},"reviewing":{"effort":"high"},"writing-up":{"effort":"low"}}},"flags":{"schemaVersion":1,"defaultScope":"feature","hookDebug":true,"sensorTimeoutMs":1,"questionRetentionDays":30,"bypasses":[]}}}}
+{"id":"settings_file-00543","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"preset":"balanced","groups":{}},"flags":{"schemaVersion":1,"sensorTimeoutMs":1000,"bypasses":["FOCUS_DISABLE_REVIEWER_SCOPE_HOOK","FOCUS_DISABLE_SENSORS"]}}}}
+{"id":"settings_file-00544","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"feature","questionRetentionDays":1},"update-check":true,"offline":false}}}
+{"id":"settings_file-00545","out":{"error":"{F}: flags.schemaVersion must be 1"}}
+{"id":"settings_file-00546","out":{"error":"{F}: settings.ca-bundle must be an absolute path"}}
+{"id":"settings_file-00547","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"agents":{"constructor":{"effort":"max"}}}}}}
+{"id":"settings_file-00548","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00549","out":{"error":"{F}: models.profiles.fast must contain only groups"}}
+{"id":"settings_file-00550","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00551","out":{"error":"{F}: models.groups has unknown group \"thinking\""}}
+{"id":"settings_file-00552","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00553","out":{"error":"{F}: models.agents must be an object"}}
+{"id":"settings_file-00554","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"reviewing":{"effort":"xhigh"},"deciding":{"effort":"max"},"writing-up":{"effort":"high"}}},"flags":{"schemaVersion":1,"swarm":true,"sensorTimeoutMs":1}}}}
+{"id":"settings_file-00555","out":{"error":"{F}: flags.sensorTimeoutMs must be a positive integer"}}
+{"id":"settings_file-00556","out":{"value":{"schemaVersion":1,"update-check":true,"release-base-url":"https://example.com/a/b%20c"}}}
+{"id":"settings_file-00557","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"agents":{"qa-lead":{"effort":"max","model":{"kiro":"model-b","cursor":"model-b"}}},"profiles":{"3":{"groups":{"writing-up":{"effort":"high"}}},"fast":{"groups":{"reviewing":{"effort":"high"},"deciding":{"effort":"medium"}}}}}}}}
+{"id":"settings_file-00558","out":{"error":"{F}: flags.schemaVersion must be 1"}}
+{"id":"settings_file-00559","out":{"error":"{F}: settings.schemaVersion must be 1"}}
+{"id":"settings_file-00560","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"a"}}}}
+{"id":"settings_file-00561","out":{"error":"{F}: models.schemaVersion must be 1"}}
+{"id":"settings_file-00562","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1},"flags":{"schemaVersion":1,"sensorTimeoutMs":1000,"bypasses":["FOCUS_DISABLE_ENSEMBLE_EVIDENCE","FOCUS_DISABLE_PLAN_APPROVAL_GUARD","FOCUS_DISABLE_SENSORS","FOCUS_DISABLE_USAGE_TRACKING"]}}}}
+{"id":"settings_file-00563","out":{"error":"{F}: update-check, offline, release-base-url are machine-only; write {M}/focus.settings.json instead"}}
+{"id":"settings_file-00564","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"questionRetentionDays":365,"bypasses":["FOCUS_SKIP_ARTIFACT_GUARD","FOCUS_SKIP_SUMMARY_CONFIRMATION_GUARD"]}}}}
+{"id":"settings_file-00565","out":{"error":"{F}: settings.schemaVersion must be 1"}}
+{"id":"settings_file-00566","out":{"error":"{F}: flags has unknown key(s): Swarm"}}
+{"id":"settings_file-00567","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"feature","hookDebug":false,"bypasses":["FOCUS_SKIP_ARTIFACT_GUARD"]}}}}
+{"id":"settings_file-00568","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"bugfix","swarm":true,"bypasses":["FOCUS_DISABLE_LEARNINGS"]}}}}
+{"id":"settings_file-00569","out":{"error":"{F}: flags.hookDebug must be true or false"}}
+{"id":"settings_file-00570","out":{"error":"{F}: settings.ca-bundle must be an absolute path"}}
+{"id":"settings_file-00571","out":{"error":"{F}: flags has unknown key(s): 1"}}
+{"id":"settings_file-00572","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"reviewing":{"effort":"medium"},"deciding":{"effort":"max"}},"agents":{"x1":{"effort":"xhigh"},"qa-lead":{"effort":"max"}}},"flags":{"schemaVersion":1,"defaultScope":"a","sensorTimeoutMs":5,"bypasses":["FOCUS_DISABLE_ENSEMBLE_EVIDENCE","FOCUS_DISABLE_USAGE_TRACKING","FOCUS_SKIP_ARTIFACT_GUARD","FOCUS_SKIP_REVISION_BACKSTOP"]}}}}
+{"id":"settings_file-00573","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"profiles":{"fast":{"groups":{"writing-up":{"effort":"medium"},"reviewing":{"effort":"medium"},"deciding":{"effort":"high"}}}}},"flags":{"schemaVersion":1,"sensorTimeoutMs":1000,"questionRetentionDays":365}}}}
+{"id":"settings_file-00574","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1}}}
+{"id":"settings_file-00575","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1,"groups":{"writing-up":{"effort":"max"}}},"flags":{"schemaVersion":1,"bypasses":[]}}}}
+{"id":"settings_file-00576","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"x-1","swarm":true,"sensorTimeoutMs":5,"bypasses":["FOCUS_DISABLE_ENSEMBLE_EVIDENCE","FOCUS_DISABLE_LEARNINGS","FOCUS_DISABLE_REVIEWER_SCOPE_HOOK","FOCUS_DISABLE_SUMMARY_CONFIRMATION"]},"release-base-url":"https://10.0.0.1"}}}
+{"id":"settings_file-00577","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1},"update-check":false,"release-base-url":"http://localhost:8080","ca-bundle":"/"}}}
+{"id":"settings_file-00578","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"feature"}}}}
+{"id":"settings_file-00579","out":{"error":"{F}: settings contain unknown key(s): flag"}}
+{"id":"settings_file-00580","out":{"error":"{F}: flags.questionRetentionDays must be a positive integer"}}
+{"id":"settings_file-00581","out":{"error":"{F}: flags.sensorTimeoutMs must be a positive integer"}}
+{"id":"settings_file-00582","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00583","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"defaultScope":"x-1","bypasses":["FOCUS_DISABLE_ENSEMBLE_EVIDENCE","FOCUS_SKIP_SUMMARY_CONFIRMATION_GUARD"]}}}}
+{"id":"settings_file-00584","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":9007199254740992}}}}
+{"id":"settings_file-00585","out":{"error":"{F}: update-check is machine-only; write {M}/focus.settings.json instead"}}
+{"id":"settings_file-00586","out":{"error":"{F}: settings contain unknown key(s): Models"}}
+{"id":"settings_file-00587","out":{"value":{"schemaVersion":1,"models":{"schemaVersion":1},"update-check":true,"offline":false,"release-base-url":"https://example.com"}}}
+{"id":"settings_file-00588","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"sensorTimeoutMs":1,"bypasses":["FOCUS_DISABLE_ENSEMBLE_EVIDENCE","FOCUS_DISABLE_REVIEW_FREEZE_HOOK","FOCUS_SKIP_HUMAN_PRESENCE_GUARD"]}}}}
+{"id":"settings_file-00589","out":{"value":{"$schema":"./focus-settings.schema.json","schemaVersion":1}}}
+{"id":"settings_file-00590","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"swarm":false,"hookDebug":true,"bypasses":["FOCUS_DISABLE_REVIEWER_SCOPE_HOOK"]},"offline":true}}}
+{"id":"settings_file-00591","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00592","out":{"error":"{F}: settings.schemaVersion must be 1"}}
+{"id":"settings_file-00593","out":{"error":"{F}: flags.defaultScope must be a scope name"}}
+{"id":"settings_file-00594","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00595","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00596","out":{"error":"{F}: models.profiles.fast must contain only groups"}}
+{"id":"settings_file-00597","out":{"error":"{F}: settings.update-check must be true or false"}}
+{"id":"settings_file-00598","out":{"value":{"schemaVersion":1}}}
+{"id":"settings_file-00599","out":{"value":{"schemaVersion":1,"flags":{"schemaVersion":1,"swarm":false,"hookDebug":false,"sensorTimeoutMs":1,"questionRetentionDays":365}}}}

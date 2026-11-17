@@ -1,0 +1,498 @@
+{"id": "engine_directed-00000", "kind": "engine_directed", "args": ["engine", "top", "status"], "asked": true}
+{"id": "engine_directed-00001", "kind": "engine_directed", "args": ["engine", "top", "recompose"], "asked": true}
+{"id": "engine_directed-00002", "kind": "engine_directed", "args": ["engine", "top", "now"], "asked": true}
+{"id": "engine_directed-00003", "kind": "engine_directed", "args": ["engine", "top", "statusline"], "asked": true}
+{"id": "engine_directed-00004", "kind": "engine_directed", "args": ["engine", "top", "adapter"], "asked": true}
+{"id": "engine_directed-00005", "kind": "engine_directed", "args": ["engine", "top"], "asked": true}
+{"id": "engine_directed-00006", "kind": "engine_directed", "args": ["engine", "state", "get"], "asked": true}
+{"id": "engine_directed-00007", "kind": "engine_directed", "args": ["engine", "state", "set"], "asked": true}
+{"id": "engine_directed-00008", "kind": "engine_directed", "args": ["engine", "state", "set-skeleton-stance"], "asked": true}
+{"id": "engine_directed-00009", "kind": "engine_directed", "args": ["engine", "state", "set-construction-iteration"], "asked": true}
+{"id": "engine_directed-00010", "kind": "engine_directed", "args": ["engine", "state", "set-construction-checkpoints"], "asked": true}
+{"id": "engine_directed-00011", "kind": "engine_directed", "args": ["engine", "state", "set-construction-execution"], "asked": true}
+{"id": "engine_directed-00012", "kind": "engine_directed", "args": ["engine", "state", "set-construction-verification-command"], "asked": true}
+{"id": "engine_directed-00013", "kind": "engine_directed", "args": ["engine", "state", "checkbox"], "asked": true}
+{"id": "engine_directed-00014", "kind": "engine_directed", "args": ["engine", "state", "count"], "asked": true}
+{"id": "engine_directed-00015", "kind": "engine_directed", "args": ["engine", "state", "advance"], "asked": true}
+{"id": "engine_directed-00016", "kind": "engine_directed", "args": ["engine", "state", "finalize"], "asked": true}
+{"id": "engine_directed-00017", "kind": "engine_directed", "args": ["engine", "state", "complete-workflow"], "asked": true}
+{"id": "engine_directed-00018", "kind": "engine_directed", "args": ["engine", "state", "gate-start"], "asked": true}
+{"id": "engine_directed-00019", "kind": "engine_directed", "args": ["engine", "state", "approve"], "asked": true}
+{"id": "engine_directed-00020", "kind": "engine_directed", "args": ["engine", "state", "reject"], "asked": true}
+{"id": "engine_directed-00021", "kind": "engine_directed", "args": ["engine", "state", "revise"], "asked": true}
+{"id": "engine_directed-00022", "kind": "engine_directed", "args": ["engine", "state", "skip"], "asked": true}
+{"id": "engine_directed-00023", "kind": "engine_directed", "args": ["engine", "state", "resume"], "asked": true}
+{"id": "engine_directed-00024", "kind": "engine_directed", "args": ["engine", "state", "acknowledge-compaction"], "asked": true}
+{"id": "engine_directed-00025", "kind": "engine_directed", "args": ["engine", "state", "reuse-artifact"], "asked": true}
+{"id": "engine_directed-00026", "kind": "engine_directed", "args": ["engine", "state", "lookup"], "asked": true}
+{"id": "engine_directed-00027", "kind": "engine_directed", "args": ["engine", "state", "practices-event"], "asked": true}
+{"id": "engine_directed-00028", "kind": "engine_directed", "args": ["engine", "state", "practices-promote"], "asked": true}
+{"id": "engine_directed-00029", "kind": "engine_directed", "args": ["engine", "state", "set-unit-ownership"], "asked": true}
+{"id": "engine_directed-00030", "kind": "engine_directed", "args": ["engine", "state", "set-unit-gate-rhythm"], "asked": true}
+{"id": "engine_directed-00031", "kind": "engine_directed", "args": ["engine", "state", "refresh-unit-progress"], "asked": true}
+{"id": "engine_directed-00032", "kind": "engine_directed", "args": ["engine", "state", "sync-unit-scope-stage"], "asked": true}
+{"id": "engine_directed-00033", "kind": "engine_directed", "args": ["engine", "state", "fold-unit-merge"], "asked": true}
+{"id": "engine_directed-00034", "kind": "engine_directed", "args": ["engine", "state", "fork"], "asked": true}
+{"id": "engine_directed-00035", "kind": "engine_directed", "args": ["engine", "state", "merge"], "asked": true}
+{"id": "engine_directed-00036", "kind": "engine_directed", "args": ["engine", "state", "park"], "asked": true}
+{"id": "engine_directed-00037", "kind": "engine_directed", "args": ["engine", "state", "unpark"], "asked": true}
+{"id": "engine_directed-00038", "kind": "engine_directed", "args": ["engine", "state", "unit"], "asked": true}
+{"id": "engine_directed-00039", "kind": "engine_directed", "args": ["engine", "state", "set-status"], "asked": true}
+{"id": "engine_directed-00040", "kind": "engine_directed", "args": ["engine", "state", "init"], "asked": true}
+{"id": "engine_directed-00041", "kind": "engine_directed", "args": ["engine", "state"], "asked": false}
+{"id": "engine_directed-00042", "kind": "engine_directed", "args": ["engine", "audit", "append"], "asked": true}
+{"id": "engine_directed-00043", "kind": "engine_directed", "args": ["engine", "audit", "append-batch"], "asked": true}
+{"id": "engine_directed-00044", "kind": "engine_directed", "args": ["engine", "audit", "append-raw"], "asked": true}
+{"id": "engine_directed-00045", "kind": "engine_directed", "args": ["engine", "audit", "history"], "asked": true}
+{"id": "engine_directed-00046", "kind": "engine_directed", "args": ["engine", "audit", "fork"], "asked": true}
+{"id": "engine_directed-00047", "kind": "engine_directed", "args": ["engine", "audit", "merge"], "asked": true}
+{"id": "engine_directed-00048", "kind": "engine_directed", "args": ["engine", "audit"], "asked": false}
+{"id": "engine_directed-00049", "kind": "engine_directed", "args": ["engine", "graph", "artifacts"], "asked": true}
+{"id": "engine_directed-00050", "kind": "engine_directed", "args": ["engine", "graph", "producers"], "asked": true}
+{"id": "engine_directed-00051", "kind": "engine_directed", "args": ["engine", "graph", "consumers"], "asked": true}
+{"id": "engine_directed-00052", "kind": "engine_directed", "args": ["engine", "graph", "topo"], "asked": true}
+{"id": "engine_directed-00053", "kind": "engine_directed", "args": ["engine", "graph", "cycles"], "asked": true}
+{"id": "engine_directed-00054", "kind": "engine_directed", "args": ["engine", "graph", "scope"], "asked": true}
+{"id": "engine_directed-00055", "kind": "engine_directed", "args": ["engine", "graph", "validate-scope"], "asked": true}
+{"id": "engine_directed-00056", "kind": "engine_directed", "args": ["engine", "graph", "validate-grid"], "asked": true}
+{"id": "engine_directed-00057", "kind": "engine_directed", "args": ["engine", "graph", "ars"], "asked": true}
+{"id": "engine_directed-00058", "kind": "engine_directed", "args": ["engine", "graph", "compile"], "asked": true}
+{"id": "engine_directed-00059", "kind": "engine_directed", "args": ["engine", "graph", "resolve"], "asked": true}
+{"id": "engine_directed-00060", "kind": "engine_directed", "args": ["engine", "graph", "export"], "asked": true}
+{"id": "engine_directed-00061", "kind": "engine_directed", "args": ["engine", "graph"], "asked": true}
+{"id": "engine_directed-00062", "kind": "engine_directed", "args": ["engine", "runtime", "compile"], "asked": true}
+{"id": "engine_directed-00063", "kind": "engine_directed", "args": ["engine", "runtime", "read"], "asked": true}
+{"id": "engine_directed-00064", "kind": "engine_directed", "args": ["engine", "runtime", "summary"], "asked": true}
+{"id": "engine_directed-00065", "kind": "engine_directed", "args": ["engine", "runtime", "fragment-fork"], "asked": true}
+{"id": "engine_directed-00066", "kind": "engine_directed", "args": ["engine", "runtime", "fragment-merge"], "asked": true}
+{"id": "engine_directed-00067", "kind": "engine_directed", "args": ["engine", "runtime"], "asked": false}
+{"id": "engine_directed-00068", "kind": "engine_directed", "args": ["engine", "sensor", "list"], "asked": true}
+{"id": "engine_directed-00069", "kind": "engine_directed", "args": ["engine", "sensor", "describe"], "asked": true}
+{"id": "engine_directed-00070", "kind": "engine_directed", "args": ["engine", "sensor", "fire"], "asked": true}
+{"id": "engine_directed-00071", "kind": "engine_directed", "args": ["engine", "sensor"], "asked": false}
+{"id": "engine_directed-00072", "kind": "engine_directed", "args": ["engine", "swarm", "prepare"], "asked": true}
+{"id": "engine_directed-00073", "kind": "engine_directed", "args": ["engine", "swarm", "check"], "asked": true}
+{"id": "engine_directed-00074", "kind": "engine_directed", "args": ["engine", "swarm", "finalize"], "asked": true}
+{"id": "engine_directed-00075", "kind": "engine_directed", "args": ["engine", "swarm"], "asked": false}
+{"id": "engine_directed-00076", "kind": "engine_directed", "args": ["engine", "bolt", "start"], "asked": true}
+{"id": "engine_directed-00077", "kind": "engine_directed", "args": ["engine", "bolt", "complete"], "asked": true}
+{"id": "engine_directed-00078", "kind": "engine_directed", "args": ["engine", "bolt", "fail"], "asked": true}
+{"id": "engine_directed-00079", "kind": "engine_directed", "args": ["engine", "bolt", "abort"], "asked": true}
+{"id": "engine_directed-00080", "kind": "engine_directed", "args": ["engine", "bolt", "set-autonomy"], "asked": true}
+{"id": "engine_directed-00081", "kind": "engine_directed", "args": ["engine", "bolt", "checkpoint"], "asked": true}
+{"id": "engine_directed-00082", "kind": "engine_directed", "args": ["engine", "bolt", "swarm-checkpoint"], "asked": true}
+{"id": "engine_directed-00083", "kind": "engine_directed", "args": ["engine", "bolt", "dispatch-event"], "asked": true}
+{"id": "engine_directed-00084", "kind": "engine_directed", "args": ["engine", "bolt", "hold-merge"], "asked": true}
+{"id": "engine_directed-00085", "kind": "engine_directed", "args": ["engine", "bolt", "release-merge"], "asked": true}
+{"id": "engine_directed-00086", "kind": "engine_directed", "args": ["engine", "bolt"], "asked": true}
+{"id": "engine_directed-00087", "kind": "engine_directed", "args": ["engine", "worktree", "create"], "asked": true}
+{"id": "engine_directed-00088", "kind": "engine_directed", "args": ["engine", "worktree", "merge"], "asked": true}
+{"id": "engine_directed-00089", "kind": "engine_directed", "args": ["engine", "worktree", "discard"], "asked": true}
+{"id": "engine_directed-00090", "kind": "engine_directed", "args": ["engine", "worktree", "restore"], "asked": true}
+{"id": "engine_directed-00091", "kind": "engine_directed", "args": ["engine", "worktree", "purge"], "asked": true}
+{"id": "engine_directed-00092", "kind": "engine_directed", "args": ["engine", "worktree", "list"], "asked": true}
+{"id": "engine_directed-00093", "kind": "engine_directed", "args": ["engine", "worktree", "verify"], "asked": true}
+{"id": "engine_directed-00094", "kind": "engine_directed", "args": ["engine", "worktree", "info"], "asked": true}
+{"id": "engine_directed-00095", "kind": "engine_directed", "args": ["engine", "worktree"], "asked": false}
+{"id": "engine_directed-00096", "kind": "engine_directed", "args": ["engine", "jump", "resolve"], "asked": true}
+{"id": "engine_directed-00097", "kind": "engine_directed", "args": ["engine", "jump", "execute"], "asked": true}
+{"id": "engine_directed-00098", "kind": "engine_directed", "args": ["engine", "jump", "reopen"], "asked": true}
+{"id": "engine_directed-00099", "kind": "engine_directed", "args": ["engine", "jump"], "asked": false}
+{"id": "engine_directed-00100", "kind": "engine_directed", "args": ["engine", "log", "decision"], "asked": true}
+{"id": "engine_directed-00101", "kind": "engine_directed", "args": ["engine", "log", "answer"], "asked": true}
+{"id": "engine_directed-00102", "kind": "engine_directed", "args": ["engine", "log", "answers"], "asked": true}
+{"id": "engine_directed-00103", "kind": "engine_directed", "args": ["engine", "log", "review"], "asked": true}
+{"id": "engine_directed-00104", "kind": "engine_directed", "args": ["engine", "log", "link"], "asked": true}
+{"id": "engine_directed-00105", "kind": "engine_directed", "args": ["engine", "log"], "asked": true}
+{"id": "engine_directed-00106", "kind": "engine_directed", "args": ["engine", "learnings", "surface"], "asked": true}
+{"id": "engine_directed-00107", "kind": "engine_directed", "args": ["engine", "learnings", "persist"], "asked": true}
+{"id": "engine_directed-00108", "kind": "engine_directed", "args": ["engine", "learnings"], "asked": false}
+{"id": "engine_directed-00109", "kind": "engine_directed", "args": ["engine", "testing-posture", "resolve"], "asked": true}
+{"id": "engine_directed-00110", "kind": "engine_directed", "args": ["engine", "testing-posture", "render"], "asked": true}
+{"id": "engine_directed-00111", "kind": "engine_directed", "args": ["engine", "testing-posture", "fingerprint"], "asked": true}
+{"id": "engine_directed-00112", "kind": "engine_directed", "args": ["engine", "testing-posture", "verify"], "asked": true}
+{"id": "engine_directed-00113", "kind": "engine_directed", "args": ["engine", "testing-posture", "begin"], "asked": true}
+{"id": "engine_directed-00114", "kind": "engine_directed", "args": ["engine", "testing-posture", "brief"], "asked": true}
+{"id": "engine_directed-00115", "kind": "engine_directed", "args": ["engine", "testing-posture", "reply"], "asked": true}
+{"id": "engine_directed-00116", "kind": "engine_directed", "args": ["engine", "testing-posture", "restore"], "asked": true}
+{"id": "engine_directed-00117", "kind": "engine_directed", "args": ["engine", "testing-posture"], "asked": true}
+{"id": "engine_directed-00118", "kind": "engine_directed", "args": ["engine", "validate", "outputs"], "asked": true}
+{"id": "engine_directed-00119", "kind": "engine_directed", "args": ["engine", "validate"], "asked": true}
+{"id": "engine_directed-00120", "kind": "engine_directed", "args": ["engine", "intent", "list"], "asked": true}
+{"id": "engine_directed-00121", "kind": "engine_directed", "args": ["engine", "intent", "switch"], "asked": true}
+{"id": "engine_directed-00122", "kind": "engine_directed", "args": ["engine", "intent", "<name>"], "asked": true}
+{"id": "engine_directed-00123", "kind": "engine_directed", "args": ["engine", "intent", "create"], "asked": true}
+{"id": "engine_directed-00124", "kind": "engine_directed", "args": ["engine", "intent", "archive"], "asked": true}
+{"id": "engine_directed-00125", "kind": "engine_directed", "args": ["engine", "intent", "unarchive"], "asked": true}
+{"id": "engine_directed-00126", "kind": "engine_directed", "args": ["engine", "intent", "add-repo"], "asked": true}
+{"id": "engine_directed-00127", "kind": "engine_directed", "args": ["engine", "intent", "remove-repo"], "asked": true}
+{"id": "engine_directed-00128", "kind": "engine_directed", "args": ["engine", "intent"], "asked": false}
+{"id": "engine_directed-00129", "kind": "engine_directed", "args": ["engine", "space", "list"], "asked": true}
+{"id": "engine_directed-00130", "kind": "engine_directed", "args": ["engine", "space", "switch"], "asked": true}
+{"id": "engine_directed-00131", "kind": "engine_directed", "args": ["engine", "space", "<name>"], "asked": true}
+{"id": "engine_directed-00132", "kind": "engine_directed", "args": ["engine", "space", "create"], "asked": true}
+{"id": "engine_directed-00133", "kind": "engine_directed", "args": ["engine", "space"], "asked": false}
+{"id": "engine_directed-00134", "kind": "engine_directed", "args": ["engine", "scope", "change"], "asked": true}
+{"id": "engine_directed-00135", "kind": "engine_directed", "args": ["engine", "scope", "save"], "asked": true}
+{"id": "engine_directed-00136", "kind": "engine_directed", "args": ["engine", "scope", "detect"], "asked": true}
+{"id": "engine_directed-00137", "kind": "engine_directed", "args": ["engine", "scope", "resolve-env"], "asked": true}
+{"id": "engine_directed-00138", "kind": "engine_directed", "args": ["engine", "scope"], "asked": false}
+{"id": "engine_directed-00139", "kind": "engine_directed", "args": ["engine", "config", "depth"], "asked": true}
+{"id": "engine_directed-00140", "kind": "engine_directed", "args": ["engine", "config", "test-strategy"], "asked": true}
+{"id": "engine_directed-00141", "kind": "engine_directed", "args": ["engine", "config", "review"], "asked": true}
+{"id": "engine_directed-00142", "kind": "engine_directed", "args": ["engine", "config", "guard-policy"], "asked": true}
+{"id": "engine_directed-00143", "kind": "engine_directed", "args": ["engine", "config", "change-control"], "asked": true}
+{"id": "engine_directed-00144", "kind": "engine_directed", "args": ["engine", "config", "sensors"], "asked": true}
+{"id": "engine_directed-00145", "kind": "engine_directed", "args": ["engine", "config", "learnings"], "asked": true}
+{"id": "engine_directed-00146", "kind": "engine_directed", "args": ["engine", "config", "collaborators"], "asked": true}
+{"id": "engine_directed-00147", "kind": "engine_directed", "args": ["engine", "config", "summary-confirmation"], "asked": true}
+{"id": "engine_directed-00148", "kind": "engine_directed", "args": ["engine", "config", "plan-approval"], "asked": true}
+{"id": "engine_directed-00149", "kind": "engine_directed", "args": ["engine", "config", "guard.plan-approval"], "asked": true}
+{"id": "engine_directed-00150", "kind": "engine_directed", "args": ["engine", "config", "guard.review-freeze"], "asked": true}
+{"id": "engine_directed-00151", "kind": "engine_directed", "args": ["engine", "config", "guard.state-transition"], "asked": true}
+{"id": "engine_directed-00152", "kind": "engine_directed", "args": ["engine", "config", "guard.reviewer-scope"], "asked": true}
+{"id": "engine_directed-00153", "kind": "engine_directed", "args": ["engine", "config", "get"], "asked": true}
+{"id": "engine_directed-00154", "kind": "engine_directed", "args": ["engine", "config", "list"], "asked": true}
+{"id": "engine_directed-00155", "kind": "engine_directed", "args": ["engine", "config"], "asked": false}
+{"id": "engine_directed-00156", "kind": "engine_directed", "args": ["engine", "plugin", "select"], "asked": true}
+{"id": "engine_directed-00157", "kind": "engine_directed", "args": ["engine", "plugin", "sync"], "asked": true}
+{"id": "engine_directed-00158", "kind": "engine_directed", "args": ["engine", "plugin", "list"], "asked": true}
+{"id": "engine_directed-00159", "kind": "engine_directed", "args": ["engine", "plugin", "validate"], "asked": true}
+{"id": "engine_directed-00160", "kind": "engine_directed", "args": ["engine", "plugin", "build"], "asked": true}
+{"id": "engine_directed-00161", "kind": "engine_directed", "args": ["engine", "plugin"], "asked": true}
+{"id": "engine_directed-00162", "kind": "engine_directed", "args": ["engine", "knowledge", "onboard"], "asked": true}
+{"id": "engine_directed-00163", "kind": "engine_directed", "args": ["engine", "knowledge", "sync"], "asked": true}
+{"id": "engine_directed-00164", "kind": "engine_directed", "args": ["engine", "knowledge", "list"], "asked": true}
+{"id": "engine_directed-00165", "kind": "engine_directed", "args": ["engine", "knowledge", "show"], "asked": true}
+{"id": "engine_directed-00166", "kind": "engine_directed", "args": ["engine", "knowledge", "associate"], "asked": true}
+{"id": "engine_directed-00167", "kind": "engine_directed", "args": ["engine", "knowledge", "dissociate"], "asked": true}
+{"id": "engine_directed-00168", "kind": "engine_directed", "args": ["engine", "knowledge", "rebind"], "asked": true}
+{"id": "engine_directed-00169", "kind": "engine_directed", "args": ["engine", "knowledge", "summarize"], "asked": true}
+{"id": "engine_directed-00170", "kind": "engine_directed", "args": ["engine", "knowledge", "help"], "asked": true}
+{"id": "engine_directed-00171", "kind": "engine_directed", "args": ["engine", "knowledge"], "asked": false}
+{"id": "engine_directed-00172", "kind": "engine_directed", "args": ["engine", "gen", "runners"], "asked": true}
+{"id": "engine_directed-00173", "kind": "engine_directed", "args": ["engine", "gen", "runners --check"], "asked": true}
+{"id": "engine_directed-00174", "kind": "engine_directed", "args": ["engine", "gen", "runner-list"], "asked": true}
+{"id": "engine_directed-00175", "kind": "engine_directed", "args": ["engine", "gen", "runner-scopes"], "asked": true}
+{"id": "engine_directed-00176", "kind": "engine_directed", "args": ["engine", "gen", "stage-table"], "asked": true}
+{"id": "engine_directed-00177", "kind": "engine_directed", "args": ["engine", "gen", "scope-table"], "asked": true}
+{"id": "engine_directed-00178", "kind": "engine_directed", "args": ["engine", "gen"], "asked": false}
+{"id": "engine_directed-00179", "kind": "engine_directed", "args": ["engine", "workspace", "detect"], "asked": true}
+{"id": "engine_directed-00180", "kind": "engine_directed", "args": ["engine", "workspace", "reclassify"], "asked": true}
+{"id": "engine_directed-00181", "kind": "engine_directed", "args": ["engine", "workspace", "codekb"], "asked": true}
+{"id": "engine_directed-00182", "kind": "engine_directed", "args": ["engine", "workspace", "codekb-scope-diff"], "asked": true}
+{"id": "engine_directed-00183", "kind": "engine_directed", "args": ["engine", "workspace", "codekb-snapshot"], "asked": true}
+{"id": "engine_directed-00184", "kind": "engine_directed", "args": ["engine", "workspace", "codekb-publish"], "asked": true}
+{"id": "engine_directed-00185", "kind": "engine_directed", "args": ["engine", "workspace", "project-description"], "asked": true}
+{"id": "engine_directed-00186", "kind": "engine_directed", "args": ["engine", "workspace", "document-input"], "asked": true}
+{"id": "engine_directed-00187", "kind": "engine_directed", "args": ["engine", "workspace"], "asked": true}
+{"id": "engine_directed-00188", "kind": "engine_directed", "args": ["engine", "review-brief", "review"], "asked": true}
+{"id": "engine_directed-00189", "kind": "engine_directed", "args": ["engine", "review-brief", "context"], "asked": true}
+{"id": "engine_directed-00190", "kind": "engine_directed", "args": ["engine", "review-brief", "summary"], "asked": true}
+{"id": "engine_directed-00191", "kind": "engine_directed", "args": ["engine", "review-brief"], "asked": false}
+{"id": "engine_directed-00192", "kind": "engine_directed", "args": ["engine", "orchestrate", "next"], "asked": true}
+{"id": "engine_directed-00193", "kind": "engine_directed", "args": ["engine", "orchestrate", "continue"], "asked": true}
+{"id": "engine_directed-00194", "kind": "engine_directed", "args": ["engine", "orchestrate", "report"], "asked": true}
+{"id": "engine_directed-00195", "kind": "engine_directed", "args": ["engine", "orchestrate", "park"], "asked": true}
+{"id": "engine_directed-00196", "kind": "engine_directed", "args": ["engine", "orchestrate", "wait"], "asked": true}
+{"id": "engine_directed-00197", "kind": "engine_directed", "args": ["engine", "orchestrate", "team-board"], "asked": true}
+{"id": "engine_directed-00198", "kind": "engine_directed", "args": ["engine", "orchestrate", "help"], "asked": true}
+{"id": "engine_directed-00199", "kind": "engine_directed", "args": ["engine", "orchestrate"], "asked": true}
+{"id": "engine_directed-00200", "kind": "engine_directed", "args": ["engine", "sensor-claim-sources", "<args>"], "asked": true}
+{"id": "engine_directed-00201", "kind": "engine_directed", "args": ["engine", "sensor-claim-sources"], "asked": true}
+{"id": "engine_directed-00202", "kind": "engine_directed", "args": ["engine", "sensor-linter", "<args>"], "asked": true}
+{"id": "engine_directed-00203", "kind": "engine_directed", "args": ["engine", "sensor-linter"], "asked": true}
+{"id": "engine_directed-00204", "kind": "engine_directed", "args": ["engine", "sensor-required-sections", "<args>"], "asked": true}
+{"id": "engine_directed-00205", "kind": "engine_directed", "args": ["engine", "sensor-required-sections"], "asked": false}
+{"id": "engine_directed-00206", "kind": "engine_directed", "args": ["engine", "sensor-traceability", "<args>"], "asked": true}
+{"id": "engine_directed-00207", "kind": "engine_directed", "args": ["engine", "sensor-traceability"], "asked": true}
+{"id": "engine_directed-00208", "kind": "engine_directed", "args": ["engine", "sensor-type-check", "<args>"], "asked": true}
+{"id": "engine_directed-00209", "kind": "engine_directed", "args": ["engine", "sensor-type-check"], "asked": true}
+{"id": "engine_directed-00210", "kind": "engine_directed", "args": ["engine", "sensor-upstream-coverage", "<args>"], "asked": true}
+{"id": "engine_directed-00211", "kind": "engine_directed", "args": ["engine", "sensor-upstream-coverage"], "asked": false}
+{"id": "engine_directed-00212", "kind": "engine_directed", "args": ["engine", "hook", "<name>"], "asked": true}
+{"id": "engine_directed-00213", "kind": "engine_directed", "args": ["engine", "hook"], "asked": false}
+{"id": "engine_directed-00214", "kind": "engine_directed", "args": ["engine", "review-brief", "review"], "asked": true}
+{"id": "engine_directed-00215", "kind": "engine_directed", "args": ["engine", "review-brief", "review"], "asked": false}
+{"id": "engine_directed-00216", "kind": "engine_directed", "args": ["engine", "review-brief", "summary"], "asked": true}
+{"id": "engine_directed-00217", "kind": "engine_directed", "args": ["engine", "review-brief", "review"], "asked": true}
+{"id": "engine_directed-00218", "kind": "engine_directed", "args": ["engine", "review-brief", "nope"], "asked": true}
+{"id": "engine_directed-00219", "kind": "engine_directed", "args": ["engine", "review-brief", "review"], "asked": false}
+{"id": "engine_directed-00220", "kind": "engine_directed", "args": ["engine", "log", "review", "--stage", "Code Generation"], "asked": true}
+{"id": "engine_directed-00221", "kind": "engine_directed", "args": ["engine", "log", "answer", "--stage", "code-generation"], "asked": true}
+{"id": "engine_directed-00222", "kind": "engine_directed", "args": ["engine", "log", "answers", "--stage", "build"], "asked": false}
+{"id": "engine_directed-00223", "kind": "engine_directed", "args": ["engine", "log", "answer", "--stage", ""], "asked": true}
+{"id": "engine_directed-00224", "kind": "engine_directed", "args": ["engine", "log", "answer", "--stage", "code-generation"], "asked": false}
+{"id": "engine_directed-00225", "kind": "engine_directed", "args": ["engine", "log", "decision", "--stage", "Code Generation"], "asked": false}
+{"id": "engine_directed-00226", "kind": "engine_directed", "args": ["engine", "log", "answer", "--stage", "", "--checkpoint", ""], "asked": false}
+{"id": "engine_directed-00227", "kind": "engine_directed", "args": ["engine", "log", "decision", "--stage", "Code Generation", "--checkpoint", "guard-recovery"], "asked": true}
+{"id": "engine_directed-00228", "kind": "engine_directed", "args": ["engine", "log", "answers", "--stage", "code-generation", "--checkpoint", "other"], "asked": false}
+{"id": "engine_directed-00229", "kind": "engine_directed", "args": ["engine", "log", "review", "--stage", "--x", "--checkpoint", "guard-recovery"], "asked": true}
+{"id": "engine_directed-00230", "kind": "engine_directed", "args": ["engine", "log", "decision", "--stage", "--x", "--checkpoint", "guard-recovery"], "asked": false}
+{"id": "engine_directed-00231", "kind": "engine_directed", "args": ["engine", "log", "answer", "--stage", "Code Generation", "--checkpoint", "plan-approval"], "asked": true}
+{"id": "engine_directed-00232", "kind": "engine_directed", "args": ["engine", "log", "answer", "--stage", "build", "--checkpoint={k2}"], "asked": false}
+{"id": "engine_directed-00233", "kind": "engine_directed", "args": ["engine", "log", "decision", "--stage", "Code Generation", "--checkpoint={k2}"], "asked": false}
+{"id": "engine_directed-00234", "kind": "engine_directed", "args": ["engine", "log", "review", "--stage", "code-generation", "--checkpoint={k2}"], "asked": true}
+{"id": "engine_directed-00235", "kind": "engine_directed", "args": ["engine", "log", "decision", "--stage", "Code Generation", "--checkpoint={k2}"], "asked": true}
+{"id": "engine_directed-00236", "kind": "engine_directed", "args": ["engine", "log", "answer", "--stage", "", "--checkpoint={k2}"], "asked": false}
+{"id": "engine_directed-00237", "kind": "engine_directed", "args": ["engine", "log", "decision", "--stage", "code-generation", "--checkpoint={k2}"], "asked": true}
+{"id": "engine_directed-00238", "kind": "engine_directed", "args": ["engine", "log", "answers", "--stage", "--x", "--stage", ""], "asked": false}
+{"id": "engine_directed-00239", "kind": "engine_directed", "args": ["engine", "log", "answer", "--stage", "--x", "--stage", "build"], "asked": false}
+{"id": "engine_directed-00240", "kind": "engine_directed", "args": ["engine", "log", "decision", "--stage", "build", "--stage", ""], "asked": false}
+{"id": "engine_directed-00241", "kind": "engine_directed", "args": ["engine", "log", "answers", "--stage", "--x", "--stage", ""], "asked": false}
+{"id": "engine_directed-00242", "kind": "engine_directed", "args": ["engine", "log", "review", "--stage", "", "--stage", "build"], "asked": false}
+{"id": "engine_directed-00243", "kind": "engine_directed", "args": ["engine", "log", "answers", "--stage", "code-generation", "--stage", "--x"], "asked": false}
+{"id": "engine_directed-00244", "kind": "engine_directed", "args": ["engine", "log", "decision"], "asked": true}
+{"id": "engine_directed-00245", "kind": "engine_directed", "args": ["engine", "log", "decision"], "asked": true}
+{"id": "engine_directed-00246", "kind": "engine_directed", "args": ["engine", "log", "review"], "asked": true}
+{"id": "engine_directed-00247", "kind": "engine_directed", "args": ["engine", "log", "answer"], "asked": true}
+{"id": "engine_directed-00248", "kind": "engine_directed", "args": ["engine", "log", "answer"], "asked": false}
+{"id": "engine_directed-00249", "kind": "engine_directed", "args": ["engine", "log", "review"], "asked": true}
+{"id": "engine_directed-00250", "kind": "engine_directed", "args": ["engine", "status"], "asked": false}
+{"id": "engine_directed-00251", "kind": "engine_directed", "args": ["engine", "status"], "asked": false}
+{"id": "engine_directed-00252", "kind": "engine_directed", "args": ["engine", "status"], "asked": true}
+{"id": "engine_directed-00253", "kind": "engine_directed", "args": ["engine", "status"], "asked": false}
+{"id": "engine_directed-00254", "kind": "engine_directed", "args": ["engine", "status"], "asked": true}
+{"id": "engine_directed-00255", "kind": "engine_directed", "args": ["engine", "status"], "asked": false}
+{"id": "engine_directed-00256", "kind": "engine_directed", "args": ["engine", "status", "--json"], "asked": false}
+{"id": "engine_directed-00257", "kind": "engine_directed", "args": ["engine", "status", "--json"], "asked": false}
+{"id": "engine_directed-00258", "kind": "engine_directed", "args": ["engine", "status", "--json"], "asked": true}
+{"id": "engine_directed-00259", "kind": "engine_directed", "args": ["engine", "status", "--json"], "asked": true}
+{"id": "engine_directed-00260", "kind": "engine_directed", "args": ["engine", "status", "--json"], "asked": true}
+{"id": "engine_directed-00261", "kind": "engine_directed", "args": ["engine", "status", "--json"], "asked": true}
+{"id": "engine_directed-00262", "kind": "engine_directed", "args": ["engine", "orchestrate", "help"], "asked": true}
+{"id": "engine_directed-00263", "kind": "engine_directed", "args": ["engine", "orchestrate", "help"], "asked": true}
+{"id": "engine_directed-00264", "kind": "engine_directed", "args": ["engine", "orchestrate", "help"], "asked": false}
+{"id": "engine_directed-00265", "kind": "engine_directed", "args": ["engine", "orchestrate", "help"], "asked": true}
+{"id": "engine_directed-00266", "kind": "engine_directed", "args": ["engine", "orchestrate", "help"], "asked": false}
+{"id": "engine_directed-00267", "kind": "engine_directed", "args": ["engine", "orchestrate", "help"], "asked": true}
+{"id": "engine_directed-00268", "kind": "engine_directed", "args": ["engine", "orchestrate", "report", "--result", ""], "asked": true}
+{"id": "engine_directed-00269", "kind": "engine_directed", "args": ["engine", "orchestrate", "report", "--result", "approved"], "asked": true}
+{"id": "engine_directed-00270", "kind": "engine_directed", "args": ["engine", "orchestrate", "report", "--result", "resumed"], "asked": true}
+{"id": "engine_directed-00271", "kind": "engine_directed", "args": ["engine", "orchestrate", "report", "--result", "completed"], "asked": false}
+{"id": "engine_directed-00272", "kind": "engine_directed", "args": ["engine", "orchestrate", "report", "--result", "completed"], "asked": true}
+{"id": "engine_directed-00273", "kind": "engine_directed", "args": ["engine", "orchestrate", "report", "--result", ""], "asked": true}
+{"id": "engine_directed-00274", "kind": "engine_directed", "args": ["engine", "orchestrate", "report", "--result", "resumed", "--stage", "--x"], "asked": true}
+{"id": "engine_directed-00275", "kind": "engine_directed", "args": ["engine", "orchestrate", "report", "--result", "rejected", "--stage", "--x"], "asked": true}
+{"id": "engine_directed-00276", "kind": "engine_directed", "args": ["engine", "orchestrate", "report", "--result", "", "--stage", "build"], "asked": true}
+{"id": "engine_directed-00277", "kind": "engine_directed", "args": ["engine", "orchestrate", "report", "--result", "", "--stage", ""], "asked": false}
+{"id": "engine_directed-00278", "kind": "engine_directed", "args": ["engine", "orchestrate", "report", "--result", "completed", "--stage", "--x"], "asked": false}
+{"id": "engine_directed-00279", "kind": "engine_directed", "args": ["engine", "orchestrate", "report", "--result", "resumed", "--stage", ""], "asked": true}
+{"id": "engine_directed-00280", "kind": "engine_directed", "args": ["engine", "orchestrate", "report", "--result", "resumed", "--result", "completed"], "asked": false}
+{"id": "engine_directed-00281", "kind": "engine_directed", "args": ["engine", "orchestrate", "report", "--result", "resumed", "--result", "resumed"], "asked": false}
+{"id": "engine_directed-00282", "kind": "engine_directed", "args": ["engine", "orchestrate", "report", "--result", "resumed", "--result", "rejected"], "asked": false}
+{"id": "engine_directed-00283", "kind": "engine_directed", "args": ["engine", "orchestrate", "report", "--result", "resumed", "--result", "resumed"], "asked": false}
+{"id": "engine_directed-00284", "kind": "engine_directed", "args": ["engine", "orchestrate", "report", "--result", "resumed", "--result", "revised"], "asked": true}
+{"id": "engine_directed-00285", "kind": "engine_directed", "args": ["engine", "orchestrate", "report", "--result", "resumed", "--result", "rejected"], "asked": false}
+{"id": "engine_directed-00286", "kind": "engine_directed", "args": ["engine", "jump", "reopen", "--target", "a"], "asked": true}
+{"id": "engine_directed-00287", "kind": "engine_directed", "args": ["engine", "jump", "resolve", "--target", "a"], "asked": false}
+{"id": "engine_directed-00288", "kind": "engine_directed", "args": ["engine", "jump", "reopen", "--target", "a"], "asked": false}
+{"id": "engine_directed-00289", "kind": "engine_directed", "args": ["engine", "jump", "execute", "--target", "a"], "asked": true}
+{"id": "engine_directed-00290", "kind": "engine_directed", "args": ["engine", "jump", "resolve", "--target", "a"], "asked": true}
+{"id": "engine_directed-00291", "kind": "engine_directed", "args": ["engine", "jump", "execute", "--target", "a"], "asked": true}
+{"id": "engine_directed-00292", "kind": "engine_directed", "args": ["engine", "recompose"], "asked": true}
+{"id": "engine_directed-00293", "kind": "engine_directed", "args": ["engine", "recompose"], "asked": true}
+{"id": "engine_directed-00294", "kind": "engine_directed", "args": ["engine", "recompose"], "asked": true}
+{"id": "engine_directed-00295", "kind": "engine_directed", "args": ["engine", "recompose"], "asked": false}
+{"id": "engine_directed-00296", "kind": "engine_directed", "args": ["engine", "recompose"], "asked": true}
+{"id": "engine_directed-00297", "kind": "engine_directed", "args": ["engine", "recompose"], "asked": true}
+{"id": "engine_directed-00298", "kind": "engine_directed", "args": ["engine", "recompose", "--skip", "a"], "asked": false}
+{"id": "engine_directed-00299", "kind": "engine_directed", "args": ["engine", "recompose", "--skip", "a"], "asked": true}
+{"id": "engine_directed-00300", "kind": "engine_directed", "args": ["engine", "recompose", "--skip", "a"], "asked": false}
+{"id": "engine_directed-00301", "kind": "engine_directed", "args": ["engine", "recompose", "--skip", "a"], "asked": true}
+{"id": "engine_directed-00302", "kind": "engine_directed", "args": ["engine", "recompose", "--skip", "a"], "asked": true}
+{"id": "engine_directed-00303", "kind": "engine_directed", "args": ["engine", "recompose", "--skip", "a"], "asked": true}
+{"id": "engine_directed-00304", "kind": "engine_directed", "args": ["engine", "recompose", "--skip", "a", "--add", "b", "--reason", "c"], "asked": false}
+{"id": "engine_directed-00305", "kind": "engine_directed", "args": ["engine", "recompose", "--skip", "a", "--add", "b", "--reason", "c"], "asked": false}
+{"id": "engine_directed-00306", "kind": "engine_directed", "args": ["engine", "recompose", "--skip", "a", "--add", "b", "--reason", "c"], "asked": true}
+{"id": "engine_directed-00307", "kind": "engine_directed", "args": ["engine", "recompose", "--skip", "a", "--add", "b", "--reason", "c"], "asked": true}
+{"id": "engine_directed-00308", "kind": "engine_directed", "args": ["engine", "recompose", "--skip", "a", "--add", "b", "--reason", "c"], "asked": true}
+{"id": "engine_directed-00309", "kind": "engine_directed", "args": ["engine", "recompose", "--skip", "a", "--add", "b", "--reason", "c"], "asked": true}
+{"id": "engine_directed-00310", "kind": "engine_directed", "args": ["engine", "recompose", "--skip=a", "--reason"], "asked": true}
+{"id": "engine_directed-00311", "kind": "engine_directed", "args": ["engine", "recompose", "--skip=a", "--reason"], "asked": true}
+{"id": "engine_directed-00312", "kind": "engine_directed", "args": ["engine", "recompose", "--skip=a", "--reason"], "asked": false}
+{"id": "engine_directed-00313", "kind": "engine_directed", "args": ["engine", "recompose", "--skip=a", "--reason"], "asked": true}
+{"id": "engine_directed-00314", "kind": "engine_directed", "args": ["engine", "recompose", "--skip=a", "--reason"], "asked": true}
+{"id": "engine_directed-00315", "kind": "engine_directed", "args": ["engine", "recompose", "--skip=a", "--reason"], "asked": true}
+{"id": "engine_directed-00316", "kind": "engine_directed", "args": ["engine", "recompose", "--force"], "asked": true}
+{"id": "engine_directed-00317", "kind": "engine_directed", "args": ["engine", "recompose", "--force"], "asked": false}
+{"id": "engine_directed-00318", "kind": "engine_directed", "args": ["engine", "recompose", "--force"], "asked": true}
+{"id": "engine_directed-00319", "kind": "engine_directed", "args": ["engine", "recompose", "--force"], "asked": false}
+{"id": "engine_directed-00320", "kind": "engine_directed", "args": ["engine", "recompose", "--force"], "asked": true}
+{"id": "engine_directed-00321", "kind": "engine_directed", "args": ["engine", "recompose", "--force"], "asked": true}
+{"id": "engine_directed-00322", "kind": "engine_directed", "args": ["engine", "recompose", "--skip", "a", "extra"], "asked": false}
+{"id": "engine_directed-00323", "kind": "engine_directed", "args": ["engine", "recompose", "--skip", "a", "extra"], "asked": false}
+{"id": "engine_directed-00324", "kind": "engine_directed", "args": ["engine", "recompose", "--skip", "a", "extra"], "asked": true}
+{"id": "engine_directed-00325", "kind": "engine_directed", "args": ["engine", "recompose", "--skip", "a", "extra"], "asked": false}
+{"id": "engine_directed-00326", "kind": "engine_directed", "args": ["engine", "recompose", "--skip", "a", "extra"], "asked": false}
+{"id": "engine_directed-00327", "kind": "engine_directed", "args": ["engine", "recompose", "--skip", "a", "extra"], "asked": true}
+{"id": "engine_directed-00328", "kind": "engine_directed", "args": ["engine", "recompose", "--skip"], "asked": true}
+{"id": "engine_directed-00329", "kind": "engine_directed", "args": ["engine", "recompose", "--skip"], "asked": false}
+{"id": "engine_directed-00330", "kind": "engine_directed", "args": ["engine", "recompose", "--skip"], "asked": true}
+{"id": "engine_directed-00331", "kind": "engine_directed", "args": ["engine", "recompose", "--skip"], "asked": false}
+{"id": "engine_directed-00332", "kind": "engine_directed", "args": ["engine", "recompose", "--skip"], "asked": false}
+{"id": "engine_directed-00333", "kind": "engine_directed", "args": ["engine", "recompose", "--skip"], "asked": true}
+{"id": "engine_directed-00334", "kind": "engine_directed", "args": ["engine", "scope", "change", "--scope", "feature"], "asked": true}
+{"id": "engine_directed-00335", "kind": "engine_directed", "args": ["engine", "scope", "change", "--scope", "feature"], "asked": false}
+{"id": "engine_directed-00336", "kind": "engine_directed", "args": ["engine", "scope", "change", "--scope", "feature"], "asked": false}
+{"id": "engine_directed-00337", "kind": "engine_directed", "args": ["engine", "scope", "change", "--scope", "feature"], "asked": false}
+{"id": "engine_directed-00338", "kind": "engine_directed", "args": ["engine", "scope", "change", "--scope", "feature"], "asked": true}
+{"id": "engine_directed-00339", "kind": "engine_directed", "args": ["engine", "scope", "change", "--scope", "feature"], "asked": true}
+{"id": "engine_directed-00340", "kind": "engine_directed", "args": ["engine", "scope", "change", "--scope", "feature", "--depth", "standard", "--review", "advisory"], "asked": true}
+{"id": "engine_directed-00341", "kind": "engine_directed", "args": ["engine", "scope", "change", "--scope", "feature", "--depth", "standard", "--review", "advisory"], "asked": false}
+{"id": "engine_directed-00342", "kind": "engine_directed", "args": ["engine", "scope", "change", "--scope", "feature", "--depth", "standard", "--review", "advisory"], "asked": true}
+{"id": "engine_directed-00343", "kind": "engine_directed", "args": ["engine", "scope", "change", "--scope", "feature", "--depth", "standard", "--review", "advisory"], "asked": true}
+{"id": "engine_directed-00344", "kind": "engine_directed", "args": ["engine", "scope", "change", "--scope", "feature", "--depth", "standard", "--review", "advisory"], "asked": true}
+{"id": "engine_directed-00345", "kind": "engine_directed", "args": ["engine", "scope", "change", "--scope", "feature", "--depth", "standard", "--review", "advisory"], "asked": true}
+{"id": "engine_directed-00346", "kind": "engine_directed", "args": ["engine", "scope", "change", "--scope=feature", "--sensors=off"], "asked": true}
+{"id": "engine_directed-00347", "kind": "engine_directed", "args": ["engine", "scope", "change", "--scope=feature", "--sensors=off"], "asked": false}
+{"id": "engine_directed-00348", "kind": "engine_directed", "args": ["engine", "scope", "change", "--scope=feature", "--sensors=off"], "asked": false}
+{"id": "engine_directed-00349", "kind": "engine_directed", "args": ["engine", "scope", "change", "--scope=feature", "--sensors=off"], "asked": true}
+{"id": "engine_directed-00350", "kind": "engine_directed", "args": ["engine", "scope", "change", "--scope=feature", "--sensors=off"], "asked": true}
+{"id": "engine_directed-00351", "kind": "engine_directed", "args": ["engine", "scope", "change", "--scope=feature", "--sensors=off"], "asked": true}
+{"id": "engine_directed-00352", "kind": "engine_directed", "args": ["engine", "scope", "change", "--scope", "feature", "--guard-policy", "off"], "asked": true}
+{"id": "engine_directed-00353", "kind": "engine_directed", "args": ["engine", "scope", "change", "--scope", "feature", "--guard-policy", "off"], "asked": false}
+{"id": "engine_directed-00354", "kind": "engine_directed", "args": ["engine", "scope", "change", "--scope", "feature", "--guard-policy", "off"], "asked": true}
+{"id": "engine_directed-00355", "kind": "engine_directed", "args": ["engine", "scope", "change", "--scope", "feature", "--guard-policy", "off"], "asked": false}
+{"id": "engine_directed-00356", "kind": "engine_directed", "args": ["engine", "scope", "change", "--scope", "feature", "--guard-policy", "off"], "asked": false}
+{"id": "engine_directed-00357", "kind": "engine_directed", "args": ["engine", "scope", "change", "--scope", "feature", "--guard-policy", "off"], "asked": true}
+{"id": "engine_directed-00358", "kind": "engine_directed", "args": ["engine", "scope", "save", "--scope", "x"], "asked": true}
+{"id": "engine_directed-00359", "kind": "engine_directed", "args": ["engine", "scope", "save", "--scope", "x"], "asked": true}
+{"id": "engine_directed-00360", "kind": "engine_directed", "args": ["engine", "scope", "save", "--scope", "x"], "asked": false}
+{"id": "engine_directed-00361", "kind": "engine_directed", "args": ["engine", "scope", "save", "--scope", "x"], "asked": true}
+{"id": "engine_directed-00362", "kind": "engine_directed", "args": ["engine", "scope", "save", "--scope", "x"], "asked": true}
+{"id": "engine_directed-00363", "kind": "engine_directed", "args": ["engine", "scope", "save", "--scope", "x"], "asked": false}
+{"id": "engine_directed-00364", "kind": "engine_directed", "args": ["engine", "scope", "change"], "asked": true}
+{"id": "engine_directed-00365", "kind": "engine_directed", "args": ["engine", "scope", "change"], "asked": false}
+{"id": "engine_directed-00366", "kind": "engine_directed", "args": ["engine", "scope", "change"], "asked": true}
+{"id": "engine_directed-00367", "kind": "engine_directed", "args": ["engine", "scope", "change"], "asked": true}
+{"id": "engine_directed-00368", "kind": "engine_directed", "args": ["engine", "scope", "change"], "asked": false}
+{"id": "engine_directed-00369", "kind": "engine_directed", "args": ["engine", "scope", "change"], "asked": true}
+{"id": "engine_directed-00370", "kind": "engine_directed", "args": ["engine", "config", "set", "collaborators", "standard"], "asked": false}
+{"id": "engine_directed-00371", "kind": "engine_directed", "args": ["engine", "config", "set", "sensors", "standard"], "asked": true}
+{"id": "engine_directed-00372", "kind": "engine_directed", "args": ["engine", "config", "set", "sensors", "standard"], "asked": false}
+{"id": "engine_directed-00373", "kind": "engine_directed", "args": ["engine", "config", "set", "depth", "standard"], "asked": false}
+{"id": "engine_directed-00374", "kind": "engine_directed", "args": ["engine", "config", "set", "learnings", "standard"], "asked": true}
+{"id": "engine_directed-00375", "kind": "engine_directed", "args": ["engine", "config", "set", "review", "standard"], "asked": true}
+{"id": "engine_directed-00376", "kind": "engine_directed", "args": ["engine", "config", "set", "collaborators", "standard", "--depth", "x", "--review=y"], "asked": false}
+{"id": "engine_directed-00377", "kind": "engine_directed", "args": ["engine", "config", "set", "collaborators", "standard", "--depth", "x", "--review=y"], "asked": false}
+{"id": "engine_directed-00378", "kind": "engine_directed", "args": ["engine", "config", "set", "review", "standard", "--depth", "x", "--review=y"], "asked": false}
+{"id": "engine_directed-00379", "kind": "engine_directed", "args": ["engine", "config", "set", "depth", "standard", "--depth", "x", "--review=y"], "asked": true}
+{"id": "engine_directed-00380", "kind": "engine_directed", "args": ["engine", "config", "set", "guard-policy", "standard", "--depth", "x", "--review=y"], "asked": true}
+{"id": "engine_directed-00381", "kind": "engine_directed", "args": ["engine", "config", "set", "guard-policy", "standard", "--depth", "x", "--review=y"], "asked": true}
+{"id": "engine_directed-00382", "kind": "engine_directed", "args": ["engine", "config", "set", "plan-approval", "standard", "--guard-policy", "off"], "asked": true}
+{"id": "engine_directed-00383", "kind": "engine_directed", "args": ["engine", "config", "set", "plan-approval", "standard", "--guard-policy", "off"], "asked": false}
+{"id": "engine_directed-00384", "kind": "engine_directed", "args": ["engine", "config", "set", "test-strategy", "standard", "--guard-policy", "off"], "asked": false}
+{"id": "engine_directed-00385", "kind": "engine_directed", "args": ["engine", "config", "set", "collaborators", "standard", "--guard-policy", "off"], "asked": true}
+{"id": "engine_directed-00386", "kind": "engine_directed", "args": ["engine", "config", "set", "sensors", "standard", "--guard-policy", "off"], "asked": true}
+{"id": "engine_directed-00387", "kind": "engine_directed", "args": ["engine", "config", "set", "test-strategy", "standard", "--guard-policy", "off"], "asked": true}
+{"id": "engine_directed-00388", "kind": "engine_directed", "args": ["engine", "config", "set", "sensors"], "asked": true}
+{"id": "engine_directed-00389", "kind": "engine_directed", "args": ["engine", "config", "set", "collaborators"], "asked": true}
+{"id": "engine_directed-00390", "kind": "engine_directed", "args": ["engine", "config", "set", "sensors"], "asked": true}
+{"id": "engine_directed-00391", "kind": "engine_directed", "args": ["engine", "config", "set", "review"], "asked": true}
+{"id": "engine_directed-00392", "kind": "engine_directed", "args": ["engine", "config", "set", "guard-policy"], "asked": true}
+{"id": "engine_directed-00393", "kind": "engine_directed", "args": ["engine", "config", "set", "learnings"], "asked": false}
+{"id": "engine_directed-00394", "kind": "engine_directed", "args": ["engine", "config", "get", "change-control"], "asked": true}
+{"id": "engine_directed-00395", "kind": "engine_directed", "args": ["engine", "config", "get", "sensors"], "asked": true}
+{"id": "engine_directed-00396", "kind": "engine_directed", "args": ["engine", "config", "get", "depth"], "asked": false}
+{"id": "engine_directed-00397", "kind": "engine_directed", "args": ["engine", "config", "get", "guard-policy"], "asked": true}
+{"id": "engine_directed-00398", "kind": "engine_directed", "args": ["engine", "config", "get", "depth"], "asked": true}
+{"id": "engine_directed-00399", "kind": "engine_directed", "args": ["engine", "config", "get", "change-control"], "asked": false}
+{"id": "engine_directed-00400", "kind": "engine_directed", "args": ["engine", "intent", "create", "--scope", "x"], "asked": true}
+{"id": "engine_directed-00401", "kind": "engine_directed", "args": ["engine", "intent", "create", "--scope", "x"], "asked": false}
+{"id": "engine_directed-00402", "kind": "engine_directed", "args": ["engine", "intent", "create", "--scope", "x"], "asked": true}
+{"id": "engine_directed-00403", "kind": "engine_directed", "args": ["engine", "intent", "create", "--scope", "x"], "asked": true}
+{"id": "engine_directed-00404", "kind": "engine_directed", "args": ["engine", "intent", "create", "--scope", "x"], "asked": true}
+{"id": "engine_directed-00405", "kind": "engine_directed", "args": ["engine", "intent", "create", "--scope", "x"], "asked": true}
+{"id": "engine_directed-00406", "kind": "engine_directed", "args": ["engine", "intent", "create", "api"], "asked": true}
+{"id": "engine_directed-00407", "kind": "engine_directed", "args": ["engine", "intent", "remove-repo", "api"], "asked": true}
+{"id": "engine_directed-00408", "kind": "engine_directed", "args": ["engine", "intent", "remove-repo", "api"], "asked": false}
+{"id": "engine_directed-00409", "kind": "engine_directed", "args": ["engine", "intent", "add-repo", "api"], "asked": false}
+{"id": "engine_directed-00410", "kind": "engine_directed", "args": ["engine", "intent", "switch", "api"], "asked": true}
+{"id": "engine_directed-00411", "kind": "engine_directed", "args": ["engine", "intent", "archive", "api"], "asked": true}
+{"id": "engine_directed-00412", "kind": "engine_directed", "args": ["engine", "utility", "intent", "archive", "api"], "asked": false}
+{"id": "engine_directed-00413", "kind": "engine_directed", "args": ["engine", "utility", "intent", "add-repo", "api"], "asked": false}
+{"id": "engine_directed-00414", "kind": "engine_directed", "args": ["engine", "utility", "intent", "add-repo", "api"], "asked": true}
+{"id": "engine_directed-00415", "kind": "engine_directed", "args": ["engine", "utility", "intent", "remove-repo", "api"], "asked": true}
+{"id": "engine_directed-00416", "kind": "engine_directed", "args": ["engine", "utility", "intent", "switch", "api"], "asked": true}
+{"id": "engine_directed-00417", "kind": "engine_directed", "args": ["engine", "utility", "intent", "remove-repo", "api"], "asked": false}
+{"id": "engine_directed-00418", "kind": "engine_directed", "args": ["engine", "intent", "archive", "api", "x"], "asked": true}
+{"id": "engine_directed-00419", "kind": "engine_directed", "args": ["engine", "intent", "archive", "api", "x"], "asked": true}
+{"id": "engine_directed-00420", "kind": "engine_directed", "args": ["engine", "intent", "create", "api", "x"], "asked": true}
+{"id": "engine_directed-00421", "kind": "engine_directed", "args": ["engine", "intent", "create", "api", "x"], "asked": true}
+{"id": "engine_directed-00422", "kind": "engine_directed", "args": ["engine", "intent", "remove-repo", "api", "x"], "asked": true}
+{"id": "engine_directed-00423", "kind": "engine_directed", "args": ["engine", "intent", "switch", "api", "x"], "asked": false}
+{"id": "engine_directed-00424", "kind": "engine_directed", "args": ["engine", "intent", "remove-repo"], "asked": false}
+{"id": "engine_directed-00425", "kind": "engine_directed", "args": ["engine", "intent", "add-repo"], "asked": false}
+{"id": "engine_directed-00426", "kind": "engine_directed", "args": ["engine", "intent", "switch"], "asked": true}
+{"id": "engine_directed-00427", "kind": "engine_directed", "args": ["engine", "intent", "archive"], "asked": false}
+{"id": "engine_directed-00428", "kind": "engine_directed", "args": ["engine", "intent", "add-repo"], "asked": true}
+{"id": "engine_directed-00429", "kind": "engine_directed", "args": ["engine", "intent", "add-repo"], "asked": false}
+{"id": "engine_directed-00430", "kind": "engine_directed", "args": ["engine", "utility", "intent", "add-repo", "api", "x"], "asked": true}
+{"id": "engine_directed-00431", "kind": "engine_directed", "args": ["engine", "utility", "intent", "archive", "api", "x"], "asked": true}
+{"id": "engine_directed-00432", "kind": "engine_directed", "args": ["engine", "utility", "intent", "add-repo", "api", "x"], "asked": true}
+{"id": "engine_directed-00433", "kind": "engine_directed", "args": ["engine", "utility", "intent", "archive", "api", "x"], "asked": true}
+{"id": "engine_directed-00434", "kind": "engine_directed", "args": ["engine", "utility", "intent", "switch", "api", "x"], "asked": false}
+{"id": "engine_directed-00435", "kind": "engine_directed", "args": ["engine", "utility", "intent", "remove-repo", "api", "x"], "asked": false}
+{"id": "engine_directed-00436", "kind": "engine_directed", "args": ["utility", "intent", "archive", "api"], "asked": false}
+{"id": "engine_directed-00437", "kind": "engine_directed", "args": ["utility", "intent", "remove-repo", "api"], "asked": false}
+{"id": "engine_directed-00438", "kind": "engine_directed", "args": ["utility", "intent", "create", "api"], "asked": false}
+{"id": "engine_directed-00439", "kind": "engine_directed", "args": ["utility", "intent", "create", "api"], "asked": false}
+{"id": "engine_directed-00440", "kind": "engine_directed", "args": ["utility", "intent", "remove-repo", "api"], "asked": false}
+{"id": "engine_directed-00441", "kind": "engine_directed", "args": ["utility", "intent", "remove-repo", "api"], "asked": true}
+{"id": "engine_directed-00442", "kind": "engine_directed", "args": ["engine", "workspace", "detect"], "asked": true}
+{"id": "engine_directed-00443", "kind": "engine_directed", "args": ["engine", "workspace", "codekb"], "asked": false}
+{"id": "engine_directed-00444", "kind": "engine_directed", "args": ["engine", "workspace", "reclassify"], "asked": true}
+{"id": "engine_directed-00445", "kind": "engine_directed", "args": ["engine", "workspace", "reclassify"], "asked": false}
+{"id": "engine_directed-00446", "kind": "engine_directed", "args": ["engine", "workspace", "codekb-scope-diff"], "asked": true}
+{"id": "engine_directed-00447", "kind": "engine_directed", "args": ["engine", "workspace", "reclassify"], "asked": true}
+{"id": "engine_directed-00448", "kind": "engine_directed", "args": ["engine", "log", "review", "--stage", "--x"], "asked": true}
+{"id": "engine_directed-00449", "kind": "engine_directed", "args": ["engine", "log", "review", "--stage", "build"], "asked": true}
+{"id": "engine_directed-00450", "kind": "engine_directed", "args": ["engine", "log", "review", "--stage", "code-generation"], "asked": false}
+{"id": "engine_directed-00451", "kind": "engine_directed", "args": ["engine", "log", "review", "--stage", "build"], "asked": true}
+{"id": "engine_directed-00452", "kind": "engine_directed", "args": ["engine", "log", "review", "--stage", ""], "asked": false}
+{"id": "engine_directed-00453", "kind": "engine_directed", "args": ["engine", "log", "review", "--stage", ""], "asked": true}
+{"id": "engine_directed-00454", "kind": "engine_directed", "args": ["status"], "asked": true}
+{"id": "engine_directed-00455", "kind": "engine_directed", "args": ["status"], "asked": true}
+{"id": "engine_directed-00456", "kind": "engine_directed", "args": ["status"], "asked": true}
+{"id": "engine_directed-00457", "kind": "engine_directed", "args": ["status"], "asked": true}
+{"id": "engine_directed-00458", "kind": "engine_directed", "args": ["status"], "asked": true}
+{"id": "engine_directed-00459", "kind": "engine_directed", "args": ["status"], "asked": false}
+{"id": "engine_directed-00460", "kind": "engine_directed", "args": ["engine"], "asked": false}
+{"id": "engine_directed-00461", "kind": "engine_directed", "args": ["engine"], "asked": true}
+{"id": "engine_directed-00462", "kind": "engine_directed", "args": ["engine"], "asked": true}
+{"id": "engine_directed-00463", "kind": "engine_directed", "args": ["engine"], "asked": true}
+{"id": "engine_directed-00464", "kind": "engine_directed", "args": ["engine"], "asked": true}
+{"id": "engine_directed-00465", "kind": "engine_directed", "args": ["engine"], "asked": false}
+{"id": "engine_directed-00466", "kind": "engine_directed", "args": ["engine", "intent", "add-repo", "api"], "asked": true}
+{"id": "engine_directed-00467", "kind": "engine_directed", "args": ["engine", "intent", "add-repo", "api"], "asked": false}
+{"id": "engine_directed-00468", "kind": "engine_directed", "args": ["engine", "intent", "add-repo"], "asked": true}
+{"id": "engine_directed-00469", "kind": "engine_directed", "args": ["engine", "intent", "add-repo", "api", "--x"], "asked": true}
+{"id": "engine_directed-00470", "kind": "engine_directed", "args": ["engine", "intent", "remove-repo", "api"], "asked": true}
+{"id": "engine_directed-00471", "kind": "engine_directed", "args": ["engine", "intent", "remove-repo", "api"], "asked": false}
+{"id": "engine_directed-00472", "kind": "engine_directed", "args": ["engine", "intent", "remove-repo"], "asked": true}
+{"id": "engine_directed-00473", "kind": "engine_directed", "args": ["engine", "intent", "remove-repo", "api", "--x"], "asked": true}
+{"id": "engine_directed-00474", "kind": "engine_directed", "args": ["engine", "utility", "intent", "add-repo", "api"], "asked": true}
+{"id": "engine_directed-00475", "kind": "engine_directed", "args": ["engine", "utility", "intent", "add-repo", "api"], "asked": false}
+{"id": "engine_directed-00476", "kind": "engine_directed", "args": ["engine", "utility", "intent", "add-repo"], "asked": true}
+{"id": "engine_directed-00477", "kind": "engine_directed", "args": ["engine", "utility", "intent", "add-repo", "api", "--x"], "asked": true}
+{"id": "engine_directed-00478", "kind": "engine_directed", "args": ["engine", "utility", "intent", "remove-repo", "api"], "asked": true}
+{"id": "engine_directed-00479", "kind": "engine_directed", "args": ["engine", "utility", "intent", "remove-repo", "api"], "asked": false}
+{"id": "engine_directed-00480", "kind": "engine_directed", "args": ["engine", "utility", "intent", "remove-repo"], "asked": true}
+{"id": "engine_directed-00481", "kind": "engine_directed", "args": ["engine", "utility", "intent", "remove-repo", "api", "--x"], "asked": true}
+{"id": "engine_directed-00482", "kind": "engine_directed", "args": ["utility", "intent", "add-repo", "api"], "asked": true}
+{"id": "engine_directed-00483", "kind": "engine_directed", "args": ["utility", "intent", "add-repo", "api"], "asked": false}
+{"id": "engine_directed-00484", "kind": "engine_directed", "args": ["utility", "intent", "add-repo"], "asked": true}
+{"id": "engine_directed-00485", "kind": "engine_directed", "args": ["utility", "intent", "add-repo", "api", "--x"], "asked": true}
+{"id": "engine_directed-00486", "kind": "engine_directed", "args": ["utility", "intent", "remove-repo", "api"], "asked": true}
+{"id": "engine_directed-00487", "kind": "engine_directed", "args": ["utility", "intent", "remove-repo", "api"], "asked": false}
+{"id": "engine_directed-00488", "kind": "engine_directed", "args": ["utility", "intent", "remove-repo"], "asked": true}
+{"id": "engine_directed-00489", "kind": "engine_directed", "args": ["utility", "intent", "remove-repo", "api", "--x"], "asked": true}
+{"id": "engine_directed-00490", "kind": "engine_directed", "args": ["intent", "add-repo", "api"], "asked": true}
+{"id": "engine_directed-00491", "kind": "engine_directed", "args": ["intent", "add-repo", "api"], "asked": false}
+{"id": "engine_directed-00492", "kind": "engine_directed", "args": ["intent", "add-repo"], "asked": true}
+{"id": "engine_directed-00493", "kind": "engine_directed", "args": ["intent", "add-repo", "api", "--x"], "asked": true}
+{"id": "engine_directed-00494", "kind": "engine_directed", "args": ["intent", "remove-repo", "api"], "asked": true}
+{"id": "engine_directed-00495", "kind": "engine_directed", "args": ["intent", "remove-repo", "api"], "asked": false}
+{"id": "engine_directed-00496", "kind": "engine_directed", "args": ["intent", "remove-repo"], "asked": true}
+{"id": "engine_directed-00497", "kind": "engine_directed", "args": ["intent", "remove-repo", "api", "--x"], "asked": true}

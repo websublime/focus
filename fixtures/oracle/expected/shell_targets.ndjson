@@ -1,0 +1,819 @@
+{"id":"shell_targets-00000","out":{"targets":["{P}/w"],"raw":["{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00001","out":{"targets":["{P}/w"],"raw":["{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00002","out":{"targets":["{P}/w"],"raw":["{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00003","out":{"targets":["{P}/w/v"],"raw":["v"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00004","out":{"targets":["{P}/w/f","{P}/w/v"],"raw":["f","f","v","f"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00005","out":{"targets":["{P}/w/-Path","{P}/w/v","{P}/w/--"],"raw":["-Path","-Path","v","--","-Path"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00006","out":{"targets":["{P}/w","{P}/w/out"],"raw":["{P}/w","out"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00007","out":{"targets":["{P}/w/y"],"raw":["y"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00008","out":{"targets":["{P}/w/z","{P}/w/+1/z"],"raw":["z"],"roots":["{P}/w","{P}/w/+1"],"changes":[{"operand":"+1"}]}}
+{"id":"shell_targets-00009","out":{"targets":["{P}/w/f","{P}/w/g"],"raw":["f","g"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00010","out":{"targets":["{P}/w/a","{P}/w/b","{P}/w/c"],"raw":["a","b","c"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00011","out":{"targets":["{P}/w/d"],"raw":["d"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00012","out":{"targets":["{P}/w/-t","{P}/w/a","{P}/w/b","{P}/w/b/-t","{P}/w/b/a"],"raw":["-t","a","b","{P}/w/b/-t","{P}/w/b/a"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00013","out":{"targets":["{P}/w/x"],"raw":["(\"a`\"b\")","(\"a`\"b\")","x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00014","out":{"targets":[],"raw":["(\"q`\"\")/f","(\"q`\"\")"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00015","out":{"targets":["{P}/w"],"raw":["{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00016","out":{"targets":["{P}/w"],"raw":["{P}/w","{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00017","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00018","out":{"targets":["{P}/w/it\"s","{P}/w/v"],"raw":["it\"s","it\"s","v"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00019","out":{"targets":["{P}/w/'a","{P}/w/b'","{P}/w/c"],"raw":["'a","b'","c"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00020","out":{"targets":["{P}/w/x","{P}/w/y"],"raw":["x","x","y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00021","out":{"targets":["{P}/w/a","{P}/w/b"],"raw":["a","a","b"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00022","out":{"targets":["{P}/w/f"],"raw":["f","f"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00023","out":{"targets":["{P}/w/b"],"raw":["b","b","b"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00024","out":{"targets":["{P}/w/f"],"raw":["f"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00025","out":{"targets":["{P}/w","{P}/w/p","{P}/w/n"],"raw":["{P}/w","p","n","{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00026","out":{"targets":["{P}/w/c","{P}/w/a","{P}/w/b"],"raw":["c","a","b"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00027","out":{"targets":["{P}/w/d"],"raw":["$false","d"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00028","out":{"targets":["{P}/w/-Path"],"raw":["-Path"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00029","out":{"targets":["{P}/w/a","{P}/w/b"],"raw":["a","b"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00030","out":{"targets":["{P}/w/a","{P}/w/b"],"raw":["a","b"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00031","out":{"targets":["{P}/w/x","{P}/w/y","{P}/w/z"],"raw":["x","x","y","z"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00032","out":{"targets":["{P}/w/a","{P}/w/b","{P}/w/c"],"raw":["a","a","b","c","c"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00033","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/Join-Path a b"],"changes":[{"operand":"Join-Path"},{"operand":"$env:TEMP\\x"}]}}
+{"id":"shell_targets-00034","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":["unknown",{"operand":"+"},"unknown"]}}
+{"id":"shell_targets-00035","out":{"targets":["{P}/w/b","{P}/w/a"],"raw":["b","a"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00036","out":{"targets":["{P}/w/b","{P}/w/a"],"raw":["b","a","a"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00037","out":{"targets":["{P}/w/x"],"raw":["$(echo `))","$(echo `))","x","(a`))/n","(a`))"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00038","out":{"targets":["{P}/w/b","{P}/w/z"],"raw":["{ a`} }","b","@(x`)y)","z"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00039","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00040","out":{"targets":["{P}/w/string]'t'","{P}/w/dir/sub"],"raw":["[string]'t'","dir\\sub"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00041","out":{"targets":["{P}/w/y"],"raw":["./y"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00042","out":{"targets":["/up","{P}/w/src","/","{P}/w/~","/home/me"],"raw":["../../../../up","src/","/","~","../../../../up","src/"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00043","out":{"targets":["{P}/w/~/n/s/t","/home/me/n/s/t","{P}/w/x\\ y","{P}/w/dir","{P}/w"],"raw":["~///n/s/t","x\\ y","dir","."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00044","out":{"targets":["{P}/w/dir","/"],"raw":["dir","/"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00045","out":{"targets":["{P}/w/a","{P}/w"],"raw":["a","$PWD"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00046","out":{"targets":["{P}/w/-"],"raw":["$x","-"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00047","out":{"targets":["{P}/x","{P}/w/clc"],"raw":["..\\x","..\\x","..\\x","clc"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00048","out":{"targets":["{P}/w/C:winp"],"raw":["${PWD}","of=C:winp"],"roots":["{P}/w"],"changes":["stay"]}}
+{"id":"shell_targets-00049","out":{"targets":["/home/me/h"],"raw":["${HOME}/h"],"roots":["{P}/w","{P}/w/dir/sub","{P}/w/--","{P}/w/dir/sub/--"],"changes":["home"]}}
+{"id":"shell_targets-00050","out":{"targets":["{P}/w/v","{P}/w/x,y","/home/me/h","{P}/w/dir","{P}/w/x,y/d"],"raw":["{v}","x,y","$HOME/h","dir","x,y","{P}/w/x,y/d"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00051","out":{"targets":["/home/me/`cmd`","{P}/w","/work/q r","{P}/w/z"],"raw":["~/`cmd`","{P}/w","/work/q r","(z)"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00052","out":{"targets":["{P}/w/v","{P}/w/dir"],"raw":["{v}","dir"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00053","out":{"targets":["{P}/w/~/é.md","/home/me/é.md","{P}/w"],"raw":["~/é.md","{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00054","out":{"targets":["{P}/w/build","{P}/w/w","{P}/w/c/build","{P}/w/c/w"],"raw":["build","[w]"],"roots":["{P}/w","{P}/w/c"],"changes":[{"operand":",c,"}]}}
+{"id":"shell_targets-00055","out":{"targets":["{P}/w/@(a"],"raw":["$dir\\'${HOME}/h'","$false","$false","@(a)"],"roots":["{P}/w"],"changes":[{"operand":"$x\\y"}]}}
+{"id":"shell_targets-00056","out":{"targets":["{P}/w/dir/sub"],"raw":["dir/sub"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00057","out":{"targets":["/"],"raw":["/"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00058","out":{"targets":["{P}/w/b.txt","/home/me/h"],"raw":["b.txt","$HOME\\h","$HOME\\h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00059","out":{"targets":["{P}/w/~/h","/home/me/h","{P}/w/w"],"raw":["~/h","of=[w]"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00060","out":{"targets":["{P}/w/~/h","/home/me/h","{P}/w/z","{P}/w","{P}/w/x\\ y","{P}/w/a"],"raw":["~/h","(z)","${HOME}/h","{P}/w","x\\ y","a"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00061","out":{"targets":["/"],"raw":["/"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00062","out":{"targets":["{P}/w/it''s","{P}/w/p","{P}/w/ni"],"raw":["it''s","$PWD/p","ni"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00063","out":{"targets":["/up","{P}/w","{P}/w/~","/home/me"],"raw":["../../../../up","{P}/w"],"roots":["{P}/w","{P}/w/~","/home/me"],"changes":["unknown",{"operand":"~"}]}}
+{"id":"shell_targets-00064","out":{"targets":["{P}"],"raw":[".."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00065","out":{"targets":["{P}/w/~/~/h","/home/me/~/h"],"raw":["~/~/h"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00066","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00067","out":{"targets":["{P}/x"],"raw":["..\\x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00068","out":{"targets":["{P}/w/x\\","{P}/w/y/x\\"],"raw":["x\\"],"roots":["{P}/w","{P}/w/y"],"changes":[{"operand":"y"}]}}
+{"id":"shell_targets-00069","out":{"targets":[],"raw":["$VAR/x","${PWD}"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00070","out":{"targets":["{P}/w/-Value","{P}/w/-Path","{P}/w/Get-Location","{P}/w/File"],"raw":["-Value","-Path","-Path","(Get-Location)","$false","$false","File"],"roots":["{P}/w"],"changes":[{"operand":"+"}]}}
+{"id":"shell_targets-00071","out":{"targets":["{P}/w/-Path","{P}","{P}/w/é.md","{P}/w/–Name=é.md"],"raw":["$x.y","-Path","-Path","..","é.md","–Name=é.md"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00072","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00073","out":{"targets":["{P}/w/src","{P}/w/~/b.txt","/home/me/b.txt","{P}/w/~/src","{P}/w/~/~/b.txt","/home/me/src","/home/me/~/b.txt"],"raw":["src/","~/b.txt"],"roots":["{P}/w","{P}/w/~","/home/me"],"changes":[{"operand":"~"},"unknown"]}}
+{"id":"shell_targets-00074","out":{"targets":["/abs/p"],"raw":["/abs/p"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00075","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00076","out":{"targets":["{P}/w/si -Force","{P}/w/–Value=@('[string]''t'''","/home/me/h"],"raw":["(si -Force)","–Value=@('[string]''t''')","$HOME\\h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00077","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00078","out":{"targets":["{P}/w/w","{P}/w/a b"],"raw":["$VAR/x","[w]","a b"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00079","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/C:/x"],"changes":[{"operand":"C:x"}]}}
+{"id":"shell_targets-00080","out":{"targets":["{P}/w/v","{P}/w/Get-Location","{P}/w/rm","{P}/w/y","{P}/w/it's"],"raw":["{v}","(Get-Location)","rm",".\\y",".\\y","it's","it's"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00081","out":{"targets":["{P}/w/Get-Location","{P}/w/-ea=0","{P}/w","{P}/w/nul","{P}/w/ac"],"raw":["(Get-Location)","-ea=0","-ea=0",".","nul","ac"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00082","out":{"targets":["{P}/w/c","{P}/w/w","{P}/w/b.txt","/dev/null/w","/dev/null/b.txt","{P}/w/build","{P}/w/+1/c","{P}/w/+1/w","{P}/w/+1/b.txt","{P}/w/+1/build"],"raw":[",c,","[w]","b.txt","/dev/null/w","/dev/null/b.txt",",c,","build",",c,"],"roots":["{P}/w","{P}/w/+1"],"changes":[{"operand":"+1"}]}}
+{"id":"shell_targets-00083","out":{"targets":["/n/s/t","{P}/w/dir/sub","{P}/w/2","{P}/w/d","{P}/w/src"],"raw":["//n/s/t","$VAR/x","dir/sub","2","//n/s/t","$VAR/x","of=d","src/"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00084","out":{"targets":["{P}/w","{P}/w/+","{P}/w/a.txt","{P}/w/a","{P}/w/-Path"],"raw":[".","+","a.txt","a","a","$(ac)","$(ac)","-Path"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00085","out":{"targets":["{P}/w/x,y","/up","{P}/w/w","{P}/w/p","/n/s/t","/n/s/t/p","/n/s/t/up","{P}/x"],"raw":["x,y","~/../../../../up","of=[w]","$PWD/p","~/../../../../up","//n/s/t","/n/s/t/p","/n/s/t/up","../x"],"roots":["{P}/w"],"changes":[{"operand":"$X"}]}}
+{"id":"shell_targets-00086","out":{"targets":["{P}/w/set-content @(a","{P}/w/build","{P}/w/@(a"],"raw":["(set-content @(a))","build","@(a)","@(a)"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00087","out":{"targets":["{P}/w/C:/abs/p","{P}/w/a.txt","{P}/w/b.txt","{P}/w/-Path","/home/me/x/C:/abs/p","/home/me/x/a.txt","/home/me/x/b.txt","/home/me/x/-Path"],"raw":["C:\\abs\\p","a.txt","–Value=@(„$x”)","–Value=@(„$x”)","$x.y","b.txt","-Path"],"roots":["{P}/w","/home/me/x"],"changes":[{"operand":"${HOME}/x"}]}}
+{"id":"shell_targets-00088","out":{"targets":["/home/me/h"],"raw":["$dir\\‘build‘","${HOME}/h","$env:TEMP\\x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00089","out":{"targets":[],"raw":["$(clc -Stream: x)","$(clc -Stream: x)"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00090","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/p"],"changes":[{"operand":"$PWD/p"}]}}
+{"id":"shell_targets-00091","out":{"targets":["{P}/w/~/h","/home/me/h","{P}/w/C:/x/~/h"],"raw":["~\\h"],"roots":["{P}/w","{P}/w/C:/x"],"changes":[{"operand":"+"},{"operand":"C:x"}]}}
+{"id":"shell_targets-00092","out":{"targets":["{P}/w/-PSPath=C:/abs/p","{P}/w"],"raw":["-PSPath=C:\\abs\\p","-PSPath=C:\\abs\\p","–Weird=(\"$x\")","."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00093","out":{"targets":["{P}/w"],"raw":["."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00094","out":{"targets":["{P}/w/x,y","{P}/w/dest","{P}/w"],"raw":["$VAR/x","x,y","dest","{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00095","out":{"targets":["{P}/w","{P}/w/a b"],"raw":[".","a b"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00096","out":{"targets":["{P}/w/@(a"],"raw":["$x","a`.txt","@(a)"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00097","out":{"targets":["{P}/w/v","{P}/w/y","{P}/w/x\\"],"raw":["{v}","$VAR/x","y","x\\"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00098","out":{"targets":["{P}/w/-","{P}/w","{P}/w/―PSPath","/","{P}/w/C:/x/-","{P}/w/C:/x","{P}/w/C:/x/―PSPath"],"raw":["-","–lp:${PWD}","${PWD}","–lp:${PWD}","${PWD}","―PSPath","/"],"roots":["{P}/w","{P}/w/C:/x"],"changes":[{"operand":"C:x"}]}}
+{"id":"shell_targets-00099","out":{"targets":["/home/me/h"],"raw":["$HOME\\h","$env:TEMP\\x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00100","out":{"targets":["{P}/w/dir"],"raw":["dir"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00101","out":{"targets":["{P}/w"],"raw":["$PWD","{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00102","out":{"targets":["/up","/up/sub","/up/2","{P}/w/x,y","{P}/w/~/x,y","/home/me/x,y"],"raw":["../../../../up","../../../../up","/up/sub","/up/2","of=x,y"],"roots":["{P}/w","{P}/w/~","/home/me"],"changes":[{"operand":"~"}]}}
+{"id":"shell_targets-00103","out":{"targets":["{P}/w/x,y","{P}/w","/work/q r","/work/q r/w"],"raw":["x,y","${PWD}",".","/work/q r","/work/q r/w","of="],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00104","out":{"targets":["/"],"raw":["/","*.log"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00105","out":{"targets":["{P}/w/c","/home/me/h/c"],"raw":[",c,"],"roots":["{P}/w","/home/me/h"],"changes":[{"operand":"${HOME}/h"}]}}
+{"id":"shell_targets-00106","out":{"targets":["{P}/w/dir/sub","{P}/w/dir/sub/focus-oracle-shell-shell_targets-00106"],"raw":["dir/sub","dir/sub","{P}/w/dir/sub/focus-oracle-shell-shell_targets-00106","{P}/w/dir/sub"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00107","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00108","out":{"targets":["/home/me/h","{P}/w/x\\ y","{P}/w/y","{P}/w/é.md","{P}/w","{P}/w/a b","{P}/w/focus-oracle-shell-shell_targets-00108"],"raw":["$HOME/h","x\\ y","./y","./y","é.md","$HOME/h","./y","é.md","$HOME/h","$PWD","{P}/w/a b","{P}/w/focus-oracle-shell-shell_targets-00108"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00109","out":{"targets":["/abs/p","{P}"],"raw":["/abs/p","/abs/p","..","/abs/p",".."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00110","out":{"targets":["{P}/w/build","{P}/w/D:q"],"raw":["build","D:q","D:q"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00111","out":{"targets":["{P}/w/File","{P}/w","{P}/w/p","{P}/w/C:/abs/p"],"raw":["File","File",".","$PWD/p","C:\\abs\\p"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00112","out":{"targets":["{P}/w/dest; cd ~ >> ~/é.md"],"raw":["dest; cd ~ >> ~/é.md"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00113","out":{"targets":["/up"],"raw":["../../../../up"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00114","out":{"targets":["{P}/w/b.txt"],"raw":["b.txt"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00115","out":{"targets":["{P}/w/v"],"raw":["`cmd`","`cmd`","v"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00116","out":{"targets":["{P}/w/~/h","/home/me/h","{P}/w/~/h/é.md"],"raw":["~/h","{P}/w/~/h/é.md"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00117","out":{"targets":["{P}/w/é.md","{P}/w/y"],"raw":["é.md","./y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00118","out":{"targets":["{P}/w/\"-Path'","{P}/w/nul"],"raw":["(\"-Path')","nul"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00119","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/C:/x"],"changes":[{"operand":"C:x"}]}}
+{"id":"shell_targets-00120","out":{"targets":["{P}/w/src","{P}/w/src/~","{P}/w/src/a b"],"raw":["src/","src/","{P}/w/src/~","{P}/w/src/a b"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00121","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00122","out":{"targets":["/home/me/h"],"raw":["${HOME}/h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00123","out":{"targets":["{P}/w/dir/sub"],"raw":["dir/sub"],"roots":["{P}/w"],"changes":[{"operand":"${PWD}"}]}}
+{"id":"shell_targets-00124","out":{"targets":["{P}/w","{P}/w/x","{P}/w/+1","{P}/w/+1/x"],"raw":["$PWD","$PWD","$PWD","x"],"roots":["{P}/w","{P}/w/+1"],"changes":[{"operand":"+1"},"unknown"]}}
+{"id":"shell_targets-00125","out":{"targets":["{P}/w/x\\ y","{P}/w/z","/n/s/t","/home/me/x\\ y","/home/me/z"],"raw":["x\\ y","z)","//n/s/t"],"roots":["{P}/w","/home/me"],"changes":["home"]}}
+{"id":"shell_targets-00126","out":{"targets":["{P}","{P}/w/-x","{P}/w","{P}/w/2"],"raw":["..","-x","{P}/w","2","$VAR/x"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00127","out":{"targets":["{P}/w/~/h"],"raw":["of=~/h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00128","out":{"targets":["{P}/w/it''s","{P}/w/dest","{P}/w/a b/it''s","{P}/w/a b/dest","{P}/w/@(a/it''s","{P}/w/@(a/dest","{P}/w/a b/@(a/it''s","{P}/w/a b/@(a/dest"],"raw":["it''s","dest","dest"],"roots":["{P}/w","{P}/w/a b","{P}/w/@(a","{P}/w/a b/@(a"],"changes":[{"operand":"a b"}]}}
+{"id":"shell_targets-00129","out":{"targets":["{P}/w/D:q","{P}/w/–Path=(Set-Content","{P}/w/@(a"],"raw":["D:q","–Path=(Set-Content)","–Path=(Set-Content)","@(a)"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00130","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00131","out":{"targets":["{P}/w/-"],"raw":["-"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00132","out":{"targets":["{P}/w/dir","/home/me/h","/work/q r","{P}/x"],"raw":["dir","$VAR/x","${HOME}/h","/work/q r","$VAR/x","../x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00133","out":{"targets":["{P}/w/y","{P}/x","/work/q r","{P}/w/2","/abs/p"],"raw":["./y","../x","/work/q r","2","./y","/abs/p"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00134","out":{"targets":["/home/me/h","{P}/w/+","{P}/w/p"],"raw":["$HOME\\h","+","+","$pwd\\p"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00135","out":{"targets":["{P}/w/-","{P}/w/a b","{P}/w/a","{P}/w"],"raw":["-","a b","a","$PWD","-"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00136","out":{"targets":["{P}/w/-Path","{P}/w/a b/-Path"],"raw":["-Path"],"roots":["{P}/w","{P}/w/a b"],"changes":[{"operand":"a b"}]}}
+{"id":"shell_targets-00137","out":{"targets":[],"raw":[],"roots":["{P}/w","/home/me/h"],"changes":[{"operand":"$HOME/h"}]}}
+{"id":"shell_targets-00138","out":{"targets":[],"raw":["of=${HOME}/h","$(pwd)"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00139","out":{"targets":["/home/me/h","{P}/w/x,y"],"raw":["${HOME}/h","x,y"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00140","out":{"targets":["{P}/w/C:winp","{P}/w/-x","{P}/w/x,y","/home/me/C:winp","/home/me/-x","/home/me/x,y"],"raw":["C:winp","-x","x,y","C:winp"],"roots":["{P}/w","/home/me"],"changes":["home"]}}
+{"id":"shell_targets-00141","out":{"targets":["{P}/w/D:q","{P}","{P}/w/x","{P}/w/y"],"raw":["D:q","..","x","y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00142","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00143","out":{"targets":["{P}/w"],"raw":["{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00144","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/dir"],"changes":[{"operand":"dir"}]}}
+{"id":"shell_targets-00145","out":{"targets":["{P}/w","{P}/w/h","{P}/w/x","{P}/w/2"],"raw":[".",".","{P}/w/h","{P}/w/x","{P}/w/2"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00146","out":{"targets":["{P}/w/c","{P}/w","{P}/w/dir/sub"],"raw":[",c,","{P}/w","dir/sub"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00147","out":{"targets":["{P}/w/y"],"raw":[".\\y",".\\y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00148","out":{"targets":["/work/q r","/n/s/t","{P}/w/~/h","/home/me/h"],"raw":["/work/q r","//n/s/t","~/h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00149","out":{"targets":["{P}/w/C:/abs/p"],"raw":["C:\\abs\\p"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00150","out":{"targets":["{P}/w/h"],"raw":["$dir\\é.md","h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00151","out":{"targets":["{P}/w/v","{P}/w/-","/home/me/h"],"raw":["{v}","-","${HOME}/h","-"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00152","out":{"targets":["{P}/w/x\\ y","{P}/w/~/x\\ y","/home/me/x\\ y"],"raw":["`cmd`","f?","x\\ y","{P}/w/x\\ y"],"roots":["{P}/w","{P}/w/~","/home/me"],"changes":[{"operand":"~/"},"unknown"]}}
+{"id":"shell_targets-00153","out":{"targets":["{P}/w/y","/srv/share/f","{P}/w/~","/home/me"],"raw":[".\\y","\\\\srv\\share\\f","~","~"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00154","out":{"targets":["{P}/w/d","{P}/w/dir/sub","{P}/x","{P}/w/dir/sub/d","{P}/w/dir/sub/dir/sub","{P}/w/dir/x"],"raw":["of=d","dir/sub","../x"],"roots":["{P}/w","{P}/w/dir/sub"],"changes":[{"operand":"dir/sub"}]}}
+{"id":"shell_targets-00155","out":{"targets":["/home/me/h","/abs/p","/up","{P}/w/w"],"raw":["${HOME}/h","/abs/p","../../../../up","[w]"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00156","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00157","out":{"targets":["{P}/w/a b","{P}/w","{P}/w/c"],"raw":["a b",".",",c,"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00158","out":{"targets":["{P}/w/x,y","{P}/w/é.md/x,y"],"raw":["x,y"],"roots":["{P}/w","{P}/w/é.md"],"changes":[{"operand":"é.md"},"unknown"]}}
+{"id":"shell_targets-00159","out":{"targets":["{P}/w/dir/sub","{P}/w"],"raw":["dir\\sub","{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00160","out":{"targets":["{P}/w/x","{P}/w/y"],"raw":["x","y","x","y"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00161","out":{"targets":["{P}/w","{P}/w/a:b","{P}","{P}/w/2","{P}/w/focus-oracle-shell-shell_targets-00161","/home/me","/home/me/a:b","/home","/home/me/2","/home/me/home"],"raw":["$PWD","a:b","..","2","$PWD","{P}/w/a:b","{P}/w/focus-oracle-shell-shell_targets-00161","{P}/w/2"],"roots":["{P}/w","/home/me"],"changes":["home"]}}
+{"id":"shell_targets-00162","out":{"targets":["{P}/w/a b","/","{P}/w","/home/me/h"],"raw":["$dir\\-x","a b","/",".","${HOME}/h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00163","out":{"targets":["{P}/w/v"],"raw":["{v}"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00164","out":{"targets":["{P}/w","{P}/w/~","/home/me"],"raw":["$PWD"],"roots":["{P}/w","{P}/w/~","/home/me"],"changes":[{"operand":"~"},{"operand":"$HOME"}]}}
+{"id":"shell_targets-00165","out":{"targets":[],"raw":["*.log"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00166","out":{"targets":[],"raw":[],"roots":["{P}/w","/home/me/h","/home/me"],"changes":[{"operand":"$HOME/h"},"home"]}}
+{"id":"shell_targets-00167","out":{"targets":["{P}/w/s/a/b","/work/q r","{P}/w","/home/me/h","{P}/w/~/s/a/b","{P}/w/~","/home/me/s/a/b","/home/me"],"raw":["s/a/b/","/work/q r",".","${HOME}/h"],"roots":["{P}/w","{P}/w/~","/home/me"],"changes":[{"operand":"$X"},{"operand":"~/"}]}}
+{"id":"shell_targets-00168","out":{"targets":["/","{P}","{P}/C:winp","{P}/w/dest"],"raw":["/","..","{P}/C:winp","dest"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00169","out":{"targets":["{P}/w"],"raw":["$env:TEMP\\x","$(pwd)","."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00170","out":{"targets":["{P}/w/x'"],"raw":["x'"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00171","out":{"targets":["/"],"raw":["/"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00172","out":{"targets":["{P}/w/File","{P}/w/p"],"raw":["File","File","$PWD/p"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00173","out":{"targets":["{P}/w/~/h","/home/me/h","{P}/w/w","{P}/w/dest","{P}/w/dir","{P}/w/C:\\win\\p"],"raw":["~/h","[w]","dest","dir","C:\\win\\p","dir","C:\\win\\p"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00174","out":{"targets":["{P}/w/-","/home/me/h","{P}/w/s/a/b","{P}/w/~","/home/me","{P}"],"raw":["-","${PWD}","${HOME}/h","s/a/b/","~","..","~"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00175","out":{"targets":["{P}/w"],"raw":["{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00176","out":{"targets":["{P}/w/dest"],"raw":["dest"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00177","out":{"targets":["{P}/w/@(a"],"raw":["@(a)"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00178","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/-~it#ra","{P}/w/build","{P}/w/-~it#ra/build"],"changes":[{"operand":"build"}]}}
+{"id":"shell_targets-00179","out":{"targets":["{P}/w/w","{P}/x/w","/home/me/w"],"raw":["[w]"],"roots":["{P}/w","{P}/x","/home/me"],"changes":[{"operand":"../x"},{"operand":"$HOME"}]}}
+{"id":"shell_targets-00180","out":{"targets":["{P}/w/a b","{P}/w/~/a b","/home/me/a b","/up/a b"],"raw":["a b"],"roots":["{P}/w","{P}/w/~","/home/me","/up"],"changes":[{"operand":"~"},{"operand":"../../../../up"}]}}
+{"id":"shell_targets-00181","out":{"targets":["{P}/w/-Value","{P}/w/v}b","{P}/w"],"raw":["-Value","{v}b","${PWD}","{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00182","out":{"targets":["{P}/w/z","/work/q r","{P}/w/dir/sub"],"raw":["(z)","/work/q r","dir/sub","(z)"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00183","out":{"targets":["{P}/w/c","{P}/w/a b","{P}/w/a b/a","{P}/w/a b/b.txt","{P}/w/a b/2","{P}/w/a b/c"],"raw":[",c,","a b","a b","{P}/w/a b/a","{P}/w/a b/b.txt","{P}/w/a b/2","{P}/w/a b/c"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00184","out":{"targets":["{P}/w/C:/abs/p"],"raw":["C:\\abs\\p","$x.y"],"roots":["{P}/w"],"changes":[{"operand":"+"}]}}
+{"id":"shell_targets-00185","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/~","/home/me"],"changes":[{"operand":"~"}]}}
+{"id":"shell_targets-00186","out":{"targets":["{P}/w/a.txt","{P}/y/a.txt"],"raw":["a.txt","a.txt"],"roots":["{P}/w","{P}/y"],"changes":[{"operand":"..y"}]}}
+{"id":"shell_targets-00187","out":{"targets":["{P}/w/dest","{P}/w/x,y"],"raw":["dest","x,y","x,y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00188","out":{"targets":["{P}/w/C:\\win\\p","{P}/w","{P}/w/v"],"raw":["C:\\win\\p",".","{v}",".","{v}"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00189","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00190","out":{"targets":[],"raw":[],"roots":["{P}/w","/home/me"],"changes":[{"operand":"$HOME"}]}}
+{"id":"shell_targets-00191","out":{"targets":["{P}/w/p","{P}/w"],"raw":["$dir\\'~\\h'","$PWD/p","$(pwd)","${PWD}","('~\") *>&1"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00192","out":{"targets":["/home/me/h","/","{P}/w"],"raw":["${HOME}/h","/","{P}/w","{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00193","out":{"targets":[],"raw":["$(pwd)"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00194","out":{"targets":["{P}/w/p","{P}/w/dir"],"raw":["$PWD/p","dir","$PWD/p"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00195","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00196","out":{"targets":["{P}/w/x,y"],"raw":["x,y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00197","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00198","out":{"targets":["{P}/w/C:/abs/p","{P}/w/Get-Location/C:/abs/p"],"raw":["C:\\abs\\p","$(pwd)"],"roots":["{P}/w","{P}/w/Get-Location"],"changes":[{"operand":"Get-Location"}]}}
+{"id":"shell_targets-00199","out":{"targets":["{P}/w/x","{P}/w/~","/home/me","{P}/w/a","{P}/w/-x","{P}/w"],"raw":["x","x","~","a","-x","-x","."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00200","out":{"targets":[],"raw":["$env:TEMP\\x","$env:TEMP\\x"],"roots":["{P}/w","/"],"changes":[{"operand":""}]}}
+{"id":"shell_targets-00201","out":{"targets":["{P}/w/ /dev/null 2","{P}/w/1 ","{P}/w/x\\\\ y","{P}/w/src","{P}/w/a b","{P}/w/C:\\win\\p","{P}/w/x\\ y"],"raw":[" /dev/null 2","1 ","x\\\\ y","src/","a b","C:\\win\\p","x\\ y","$VAR/x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00202","out":{"targets":["/q","{P}/w/d","{P}/w/a:b","{P}/w/2","{P}/w/p","{P}/w/é.md","/home/me/d","/home/me/a:b","/home/me/2","/home/me/p","/home/me/é.md"],"raw":["f?","/q","of=d","a:b","2","$PWD/p","é.md"],"roots":["{P}/w","/home/me"],"changes":["home"]}}
+{"id":"shell_targets-00203","out":{"targets":["{P}/w/x,y","{P}/w","{P}/w/a b","{P}/w/z"],"raw":["x,y","x,y","$PWD","a b","z"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00204","out":{"targets":["{P}/w/x","{P}/w/y"],"raw":["$x","x","y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00205","out":{"targets":["{P}/w/src","{P}/w/é.md","{P}/w","{P}","{P}/w/dir/sub","{P}/w/z","{P}/w/a/src","{P}/w/a/é.md","{P}/w/a","{P}/w/a/dir/sub","{P}/w/a/z"],"raw":["src/","é.md",".","..","dir/sub","src/","z","é.md","."],"roots":["{P}/w","{P}/w/a"],"changes":[{"operand":"a"}]}}
+{"id":"shell_targets-00206","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00207","out":{"targets":["{P}/w/x,y","{P}/w/a b","{P}/w"],"raw":["x,y","of=x,y","${PWD}","a b","."],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00208","out":{"targets":["{P}/w/-x","{P}/w/w"],"raw":["-x","[w]"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00209","out":{"targets":["{P}/w/dir/sub","{P}/w","{P}/w/-","{P}/w/a b","/home/me/h"],"raw":["dir\\sub","${PWD}","-","$env:TEMP\\x","a b","$(pwd)","$HOME\\h","$HOME\\h"],"roots":["{P}/w"],"changes":[{"operand":"$x\\y"}]}}
+{"id":"shell_targets-00210","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00211","out":{"targets":["/home/me/h"],"raw":["$HOME\\h","$HOME\\h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00212","out":{"targets":["/srv/share/f"],"raw":["-PSPath=(\"a`.txt\")","\\\\srv\\share\\f"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00213","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[{"operand":"${PWD}"}]}}
+{"id":"shell_targets-00214","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00215","out":{"targets":["{P}/w/~/h","/home/me/h","{P}/x","{P}/w/i","{P}/w/i/h","{P}/w/i/x"],"raw":["~\\h","..\\x","i","{P}/w/i/h","{P}/w/i/x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00216","out":{"targets":[],"raw":["$HOME#h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00217","out":{"targets":["{P}/w/c","{P}/w/b.txt"],"raw":[",c,","b.txt"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00218","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00219","out":{"targets":["{P}/w","{P}/w/d","/home/me/h","/home/me/h/d"],"raw":[".","of=d"],"roots":["{P}/w","/home/me/h"],"changes":[{"operand":"${HOME}/h"},"unknown"]}}
+{"id":"shell_targets-00220","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00221","out":{"targets":["{P}/w/dir/sub","{P}/w/+1/dir/sub"],"raw":["dir/sub"],"roots":["{P}/w","{P}/w/+1"],"changes":["unknown",{"operand":"+1"}]}}
+{"id":"shell_targets-00222","out":{"targets":["{P}/w"],"raw":["`cmd`","{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00223","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/~","/home/me"],"changes":[{"operand":"~"}]}}
+{"id":"shell_targets-00224","out":{"targets":["/home/me/h","{P}/x"],"raw":["$HOME/h","../x","`cmd`"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00225","out":{"targets":[],"raw":["${HOME/h"],"roots":["{P}/w"],"changes":[{"operand":"$HOME😀"}]}}
+{"id":"shell_targets-00226","out":{"targets":["{P}/w/~","/home/me","{P}/w","/q","{P}/w/y"],"raw":["~","{P}/w","/q","./y","./y","$VAR/x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00227","out":{"targets":["{P}/w/a b","{P}/w/+","{P}/w/p"],"raw":["a b","+","+","$pwd\\p"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00228","out":{"targets":["{P}/x","{P}/w/a b","{P}/w","{P}/w/c"],"raw":["../x","a b",".",",c,"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00229","out":{"targets":["{P}/w/c"],"raw":["of=,c,"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00230","out":{"targets":["{P}/w","/abs/p"],"raw":["{P}/w","$VAR/x","/abs/p"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00231","out":{"targets":["{P}/w","/home","{P}/w/a:b","{P}/w/~","{P}/w/~/a:b","/home/me","/home/me/a:b"],"raw":["~/..","a:b","~/.."],"roots":["{P}/w","{P}/w/~","/home/me"],"changes":[{"operand":"~"}]}}
+{"id":"shell_targets-00232","out":{"targets":["{P}/w/b.txt","{P}/w/v","/up","{P}/w/build"],"raw":["b.txt","v","b.txt","v","../../../../up","build"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00233","out":{"targets":["{P}/w/-Value"],"raw":["-Value","-Value","(\"$env:TEMP\\x') -NoClobber ; Rename-Item ‚@(a)‘ ('b.txt')"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00234","out":{"targets":["{P}/w/~/-","/home/me/-","/q","{P}/w/a b","{P}/w/+1/~/-","{P}/w/+1/a b","/home/me/~/-","/home/me/a b"],"raw":["~/-","/q","f?","a b"],"roots":["{P}/w","{P}/w/+1","/home/me"],"changes":[{"operand":"+1"},{"operand":"$HOME"}]}}
+{"id":"shell_targets-00235","out":{"targets":["{P}/w/x\\","{P}/w/y","{P}/w/dest","{P}/w/dest/x\\","{P}/w/dest/y"],"raw":["x\\","y","dest","{P}/w/dest/x\\","{P}/w/dest/y","f?"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00236","out":{"targets":["{P}/w/a b"],"raw":["a b"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00237","out":{"targets":["{P}","{P}/w/w","{P}/w/dest","{P}/w/2"],"raw":["..","[w]","dest","2",".."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00238","out":{"targets":["{P}/w/c"],"raw":[",c,"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00239","out":{"targets":["/up","{P}/w/a b","{P}/w"],"raw":["../../../../up","a b",".","{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00240","out":{"targets":["{P}/w/x","/home/x","{P}/w/C:winp","{P}/w/d","{P}/w/~/x","{P}/w/~/C:winp","{P}/w/~/d","/home/me/x","/home/me/C:winp","/home/me/d"],"raw":["~/../x","C:winp","of=d"],"roots":["{P}/w","{P}/w/~","/home/me"],"changes":[{"operand":"~"},{"operand":"$HOME"}]}}
+{"id":"shell_targets-00241","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00242","out":{"targets":["{P}/w/~","/home/me","{P}/w/w","{P}/w/x,y"],"raw":["~/","[w]","[w]","[w]","x,y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00243","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00244","out":{"targets":["{P}/w/~","/home/me","{P}/w/-","{P}/x","/work/q r"],"raw":["~","~","-","../x","~","of=/work/q r"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00245","out":{"targets":[],"raw":["$x.y"],"roots":["{P}/w","/home/me"],"changes":["unknown"]}}
+{"id":"shell_targets-00246","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00247","out":{"targets":["{P}/w","{P}/w/é.md"],"raw":[".","é.md"],"roots":["{P}/w"],"changes":[{"operand":"`cmd`"}]}}
+{"id":"shell_targets-00248","out":{"targets":["{P}/w/y"],"raw":["./y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00249","out":{"targets":["/home/me/h","{P}/w/v"],"raw":["${HOME}/h","{v}"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00250","out":{"targets":["{P}/w/x,y","{P}/w/b.txt"],"raw":["*.log","x,y","b.txt"],"roots":["{P}/w"],"changes":["stay"]}}
+{"id":"shell_targets-00251","out":{"targets":["{P}/w/–Path=.","{P}/w/C:/abs/p","{P}/w/D:q"],"raw":["–Path=.","C:\\abs\\p","D:q","D:q"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00252","out":{"targets":["{P}/w/-","{P}/w/src","/n/s/t","{P}/w/2"],"raw":["-","src/","src/","f?","//n/s/t","2","-"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00253","out":{"targets":["{P}/w/x\\","{P}/w/src","{P}/w/v","{P}/w/y"],"raw":["x\\","src/","src/","v","src/","v","$VAR/x","x\\","y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00254","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/y"],"changes":[{"operand":"./y"}]}}
+{"id":"shell_targets-00255","out":{"targets":["/"],"raw":["$dir\\$(pwd)","/"],"roots":["{P}/w","/home/me/x"],"changes":[{"operand":"$HOMEx"}]}}
+{"id":"shell_targets-00256","out":{"targets":["{P}/w/3"],"raw":["{3"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00257","out":{"targets":["{P}/w/é.md","{P}/w/dest","/abs/p"],"raw":["*.log","é.md","dest","/abs/p"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00258","out":{"targets":["/work/q r","{P}/w/y"],"raw":["/work/q r","./y","./y","./y"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00259","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00260","out":{"targets":["{P}/w/\"dest'","{P}/w/y","{P}/w/-Path"],"raw":["(\"dest')",".\\y","-Path","-Path"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00261","out":{"targets":["{P}/w/dir/sub","/home/me/h"],"raw":["dir/sub","\"dest\" | cp \"../../../../up\" $PWD","${HOME}/h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00262","out":{"targets":["{P}/w/b.txt","{P}/w","{P}/w/a b"],"raw":["b.txt","$PWD","a b"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00263","out":{"targets":["/up","{P}/w/a:b","{P}/w/C:\\win\\p/a:b"],"raw":["../../../../up","a:b"],"roots":["{P}/w","{P}/w/C:\\win\\p"],"changes":[{"operand":"C:\\win\\p"}]}}
+{"id":"shell_targets-00264","out":{"targets":["{P}/w/z","/home/me/h"],"raw":["(z)","$HOME/h"],"roots":["{P}/w"],"changes":[{"operand":"$X"}]}}
+{"id":"shell_targets-00265","out":{"targets":["{P}/w/src","/","{P}/w/dir/sub","/src","/dir/sub"],"raw":["src/","/","dir/sub","$VAR/x"],"roots":["{P}/w","/"],"changes":[{"operand":"/"}]}}
+{"id":"shell_targets-00266","out":{"targets":[],"raw":["$dir\\'$x'","—Confirm=$false","—Confirm=$false","$false"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00267","out":{"targets":["{P}/w/a:b"],"raw":["a:b"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00268","out":{"targets":["{P}"],"raw":[".."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00269","out":{"targets":["{P}/w/~/dir/sub","/home/me/dir/sub","{P}/w/z","{P}/w/z/x,y"],"raw":["~/dir/sub","(z)","{P}/w/z/x,y","*.log"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00270","out":{"targets":["{P}/x"],"raw":["${x}","*","..\\x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00271","out":{"targets":["{P}/w/x\\ y","{P}/w/a","/home/me/h","{P}/w/2","{P}/w/b.txt","{P}/w/b.txt/2","{P}/w/b.txt/x\\ y","{P}/w/b.txt/a","{P}/w/~","{P}/w/a b/x\\ y","{P}/w/a b/a","{P}/w/a b/2","{P}/w/a b/b.txt","{P}/w/a b/b.txt/2","{P}/w/a b/b.txt/x\\ y","{P}/w/a b/b.txt/a","{P}/w/a b/~"],"raw":["x\\ y","a","$HOME/h","2","x\\ y","a","b.txt","{P}/w/b.txt/2","{P}/w/b.txt/x\\ y","{P}/w/b.txt/a","of=~"],"roots":["{P}/w","{P}/w/a b"],"changes":[{"operand":"a b"}]}}
+{"id":"shell_targets-00272","out":{"targets":["{P}/w/-Path=é.md","{P}/w"],"raw":["$(Clear-Content -ea 0 -Path '$x')","$(Clear-Content -ea 0 -Path '$x')","-Path=é.md",".","{P}/w","$x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00273","out":{"targets":["{P}/w/--"],"raw":["—lp=$null","—lp=$null","--"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00274","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00275","out":{"targets":[],"raw":["\"dir\" 2>$HOME/h >-x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00276","out":{"targets":["{P}/w/d","/abs/p"],"raw":["of=d","/abs/p"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00277","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[{"operand":"$pwdp"}]}}
+{"id":"shell_targets-00278","out":{"targets":["{P}/w/-Value"],"raw":["-Value"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00279","out":{"targets":["{P}/w/dest","{P}/w/x,y"],"raw":["dest","of=x,y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00280","out":{"targets":["{P}/w/ké.md"],"raw":["*.lg","ké.md"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00281","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00282","out":{"targets":["{P}/w/-","{P}/w/~","/home/me","{P}/w/~/-","{P}/w/~/~","/home/me/-","/home/me/~"],"raw":["-","~","f?"],"roots":["{P}/w","{P}/w/~","/home/me"],"changes":[{"operand":"~"}]}}
+{"id":"shell_targets-00283","out":{"targets":["{P}/w/-","{P}/x"],"raw":["f?","-","../x"],"roots":["{P}/w"],"changes":[{"operand":"$PWD"}]}}
+{"id":"shell_targets-00284","out":{"targets":["{P}/w"],"raw":["{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00285","out":{"targets":["/home/me/h","/abs/p"],"raw":["$HOME/h","/abs/p","of=$VAR/x"],"roots":["{P}/w","/home/me"],"changes":["home"]}}
+{"id":"shell_targets-00286","out":{"targets":["{P}/w/y","{P}/w/~/h","/home/me/h","{P}/w/dir/sub"],"raw":["./y","~/h","${HOME}/h","dir/sub"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00287","out":{"targets":["{P}/w/dir"],"raw":["dir"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00288","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00289","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/x\\"],"changes":[{"operand":"x\\"}]}}
+{"id":"shell_targets-00290","out":{"targets":["{P}/w/-Path"],"raw":["$x","-Path","-Path"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00291","out":{"targets":[],"raw":["$false","$false"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00292","out":{"targets":["{P}/w/~/a b","/home/me/a b"],"raw":["~/a b"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00293","out":{"targets":["{P}/w/~/dir","/home/me/dir","{P}/w/dir/sub","{P}/w/dir"],"raw":["~/dir","dir/sub","dir"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00294","out":{"targets":["{P}/w/C:winp","{P}/w","{P}/w/~/C:winp","{P}/w/~","/home/me/C:winp","/home/me"],"raw":["C:winp","{P}/w"],"roots":["{P}/w","{P}/w/~","/home/me"],"changes":[{"operand":"~/"}]}}
+{"id":"shell_targets-00295","out":{"targets":[],"raw":["`cmd`"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00296","out":{"targets":["{P}/w/–Path=(SET-CONTENT -Pa \"/\",./y -Append –Force","/","{P}/w/y"],"raw":["–Path=(SET-CONTENT -Pa \"/\",.\\y -Append –Force)","–Path=(SET-CONTENT -Pa \"/\",.\\y -Append –Force)","/",".\\y","/",".\\y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00297","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00298","out":{"targets":["{P}/w/@(a"],"raw":["@(a)","@(a)"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00299","out":{"targets":["{P}/w/a b","{P}/w/a b/x,y","{P}/w/a b/focus-oracle-shell-shell_targets-00299","{P}/w/dir"],"raw":["a b","{P}/w/a b/x,y","{P}/w/a b/focus-oracle-shell-shell_targets-00299","of=dir"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00300","out":{"targets":["{P}/w/1 1","{P}/w/2 2","{P}/w/~/1 1","{P}/w/~/2 2","/home/me/1 1","/home/me/2 2"],"raw":["1 1","2 2","of=`cmd`"],"roots":["{P}/w","{P}/w/~","/home/me"],"changes":[{"operand":"~"}]}}
+{"id":"shell_targets-00301","out":{"targets":["{P}/w/z"],"raw":["z"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00302","out":{"targets":["{P}/w/dir","{P}/w"],"raw":["dir","f?","."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00303","out":{"targets":["{P}/w/-","{P}/w/p","/home/me/h","/"],"raw":["-","$x.y","$pwd\\p","$HOME\\h","/"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00304","out":{"targets":["{P}/w/p","{P}/w/cpi","{P}/w/~","/home/me"],"raw":["$pwd\\p","cpi","cpi","~","$x.y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00305","out":{"targets":["{P}/w/p"],"raw":["$PWD/p"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00306","out":{"targets":["{P}/w/dir/sub","{P}/w/d","{P}/w/src","{P}/w/src/sub","{P}/w/src/d","/up"],"raw":["dir/sub","of=d","src/","{P}/w/src/sub","{P}/w/src/d","../../../../up"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00307","out":{"targets":["{P}/w/C:/abs/p","{P}/w/b.txt"],"raw":["C:\\abs\\p","b.txt"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00308","out":{"targets":["{P}/w/dir/sub","{P}/w/d","{P}/w/a b"],"raw":["f?","dir/sub","of=d","a b"],"roots":["{P}/w"],"changes":[{"operand":"$X"}]}}
+{"id":"shell_targets-00309","out":{"targets":["{P}/w/a b","{P}/w/x,y/a b"],"raw":["a b"],"roots":["{P}/w","{P}/w/x,y"],"changes":[{"operand":"x,y"}]}}
+{"id":"shell_targets-00310","out":{"targets":["/home/me/h","{P}/x","{P}/w/~","/home/me","{P}/w/dest"],"raw":["${HOME}/h","..\\x","~","dest"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00311","out":{"targets":["{P}/w/dest","{P}/w/~/h","/home/me/h","{P}/w/-Path"],"raw":["dest","dest","~\\h","~\\h","$(pwd)","-Path"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00312","out":{"targets":["/home/me/h","{P}/w/Copy-Item","{P}/x","/home/me/Copy-Item","/home/x"],"raw":["${HOME}/h","${HOME}/h","Copy-Item","..\\x"],"roots":["{P}/w","/home/me"],"changes":["home"]}}
+{"id":"shell_targets-00313","out":{"targets":["{P}/w/Get-Location"],"raw":["(Get-Location)"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00314","out":{"targets":["{P}/w/a b","{P}/w/dest","/home/me/h","{P}/w/2"],"raw":["a b","dest","${HOME}/h","2","a b","dest"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00315","out":{"targets":["{P}/w/@(a","{P}/w/a","{P}/w/nul","{P}/w/string]'t'"],"raw":["@(a)","@(a)","a","nul","[string]'t'","nul","[string]'t'"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00316","out":{"targets":[],"raw":["('.\\y\") —Value @(${x})"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00317","out":{"targets":["{P}/w/D:q","{P}","{P}/w/@('[string]''t'''","/home/me/h","/home/me/D:q","/home","/home/me/@('[string]''t'''"],"raw":["D:q","..","@('[string]''t''')","@('[string]''t''')","D:q","${HOME}/h"],"roots":["{P}/w","/home/me"],"changes":["unknown"]}}
+{"id":"shell_targets-00318","out":{"targets":["{P}/w/Get-Location","{P}/w/a.txt","/srv/share/f/Get-Location","/srv/share/f/a.txt"],"raw":["(Get-Location)","a.txt"],"roots":["{P}/w","/srv/share/f"],"changes":[{"operand":"\\srvsharef,"}]}}
+{"id":"shell_targets-00319","out":{"targets":[],"raw":["`cmd`","${PWD}"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00320","out":{"targets":["/srv/share/f","{P}/w/build","/"],"raw":["\\\\srv\\share\\f","build","/"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00321","out":{"targets":["{P}/w/d","/home/me/d"],"raw":["of=d"],"roots":["{P}/w","/home/me"],"changes":["home"]}}
+{"id":"shell_targets-00322","out":{"targets":[],"raw":["C:'winp ${PWD} ~/h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00323","out":{"targets":[],"raw":[],"roots":["{P}/w","/home/me"],"changes":["unknown"]}}
+{"id":"shell_targets-00324","out":{"targets":["{P}/w/dest","{P}/w/dir/sub"],"raw":["dest","dir\\sub"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00325","out":{"targets":["{P}/w/~","/home/me"],"raw":["~/.","~","~/."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00326","out":{"targets":["{P}/w/a:b"],"raw":["a:b"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00327","out":{"targets":["{P}/w/x,y","{P}/w/y","{P}/w/build","{P}/w/p","{P}/w/é.md","{P}/w/é.md/a","{P}/w/é.md/c","{P}/w","/home/me/x,y","/home/me/y","/home/me/build","/home/me/p","/home/me/é.md","/home/me/é.md/a","/home/me/é.md/c","/home/me"],"raw":["x,y","./y","build","$PWD/p","é.md","{P}/w/é.md/a","{P}/w/é.md/c","{P}/w","f?"],"roots":["{P}/w","/home/me"],"changes":["home"]}}
+{"id":"shell_targets-00328","out":{"targets":["{P}/w/é.md","{P}/w/é.md/string]'t'"],"raw":["$dir\\'[string]''t'''","é.md","{P}/w/é.md/string]'t'"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00329","out":{"targets":["{P}/w/p","{P}/w/—Value:build"],"raw":["$pwd\\p","—Value:build","$pwd\\p","—Value:build"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00330","out":{"targets":["/home/me/h","{P}/w/ination"],"raw":["$(pwd)","${HOME}/h","ination"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00331","out":{"targets":["/home/me/h","{P}/w/C:winp","{P}/w/v","{P}/w/z","/abs/p","{P}/w/2","{P}/w/x,y","{P}/w/~/h","{P}/w/~/h/x,y","{P}/w/~/h/v","/home/me/C:winp","/home/me/v","/home/me/z","/home/me/2","/home/me/x,y","/home/me/~/h","/home/me/~/h/x,y","/home/me/~/h/v"],"raw":["${HOME}/h","C:winp","{v}","z","z","/abs/p","2","${HOME}/h","z","/abs/p","2","${HOME}/h","x,y","{v}","~/h","{P}/w/~/h/x,y","{P}/w/~/h/v"],"roots":["{P}/w","/home/me"],"changes":["home"]}}
+{"id":"shell_targets-00332","out":{"targets":["/n/s/t","{P}/w/z","{P}/x","{P}/w/~/h","/home/me/h","{P}/w/2"],"raw":["//n/s/t","(z)","../x","~/h","2","//n/s/t","(z)"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00333","out":{"targets":["{P}/w/Get-Location","{P}/w/~/h","/home/me/h"],"raw":["$x.y","(Get-Location)","~\\h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00334","out":{"targets":["{P}","{P}/sub","{P}/t"],"raw":["..","{P}/sub","{P}/t"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00335","out":{"targets":["{P}/w/-"],"raw":["-"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00336","out":{"targets":["{P}/w"],"raw":["${PWD}","${PWD}"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00337","out":{"targets":["{P}/w/a","{P}/w/b"],"raw":["$false","a","$false","a","b"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00338","out":{"targets":["/srv/share/f","{P}/w","{P}/w/a.txt"],"raw":["(ni , . ―Path: -Variable a`.txt)","\\\\srv\\share\\f",".","a.txt"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00339","out":{"targets":["{P}/w"],"raw":["{P}/w"],"roots":["{P}/w"],"changes":["stay"]}}
+{"id":"shell_targets-00340","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00341","out":{"targets":["{P}/w/y"],"raw":[".\\y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00342","out":{"targets":["{P}/w/-","{P}/w/é.md"],"raw":["-","é.md"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00343","out":{"targets":["/home/me/h","{P}/w/z"],"raw":["${HOME}/h","z"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00344","out":{"targets":["{P}/w","{P}/w/dir/sub","{P}/w/-Stream","{P}/w/x"],"raw":["${PWD}","dir\\sub","-Stream","dir\\sub","-Stream","x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00345","out":{"targets":["{P}/w/~/a:b","/home/me/a:b","{P}/w/a b","/home/me/h","{P}/w/~/a:b/focus-oracle-shell-shell_targets-00345","{P}/w/~/a:b/sub","{P}/w/dest"],"raw":["~/a:b","a b","${HOME}/h","~/a:b","{P}/w/~/a:b/focus-oracle-shell-shell_targets-00345","{P}/w/~/a:b/sub","dest"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00346","out":{"targets":["{P}/w/p","{P}/w/dest"],"raw":["$PWD/p","dest"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00347","out":{"targets":["{P}/w/~/dir/sub","/home/me/dir/sub"],"raw":["~/dir/sub"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00348","out":{"targets":["{P}"],"raw":[".."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00349","out":{"targets":["{P}/w/+"],"raw":["+","+"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00350","out":{"targets":["{P}/w/p","{P}/w/v","{P}/w","{P}/w/a:b/p","{P}/w/a:b/v","{P}/w/a:b","{P}/w/dir/sub/p","{P}/w/dir/sub/v","{P}/w/dir/sub","{P}/w/a:b/dir/sub/p","{P}/w/a:b/dir/sub/v","{P}/w/a:b/dir/sub"],"raw":["$PWD/p","{v}",".","{v}"],"roots":["{P}/w","{P}/w/a:b","{P}/w/dir/sub","{P}/w/a:b/dir/sub"],"changes":[{"operand":"a:b"},{"operand":"dir/sub"}]}}
+{"id":"shell_targets-00351","out":{"targets":["{P}/w/~","/home/me","{P}/w/dest"],"raw":["~","dest","~"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00352","out":{"targets":["{P}/w/File"],"raw":["–Value=$x","–Value=$x","$(pwd)","File"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00353","out":{"targets":["{P}/w/c","/dev/null/t","/dev/null/C:\\win\\p","/dev/null/a:b"],"raw":[",c,","/dev/null/t","/dev/null/C:\\win\\p","/dev/null/a:b"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00354","out":{"targets":["/abs/p","/work/q r","{P}/w/a:b","/up"],"raw":["/abs/p","/work/q r","a:b","of=../../../../up"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00355","out":{"targets":["/home/me/$PWD/p","{P}/w/src","{P}/w","/home/me/h"],"raw":["~/$PWD/p","src/",".","{P}/w","{P}/w","$VAR/x","$HOME/h","src/","{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00356","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00357","out":{"targets":["{P}/w/dir/sub","/up"],"raw":["dir/sub","../../../../up"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00358","out":{"targets":["{P}/w/~","/home/me","{P}/w/é.md","{P}/w/x,y"],"raw":["~","é.md","x,y","~"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00359","out":{"targets":["{P}/w/nul","{P}/w/-Path","{P}/w"],"raw":["nul","-Path","$env:TEMP\\x","-Path","$env:TEMP\\x","{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00360","out":{"targets":["{P}/w/a","/home/me/h","/work/q r","{P}/a"],"raw":["a","`cmd`","$HOME/h","/work/q r","a","`cmd`"],"roots":["{P}/w","{P}"],"changes":[{"operand":".."}]}}
+{"id":"shell_targets-00361","out":{"targets":["{P}","{P}/w/dir","{P}/w/é.md"],"raw":["..","dir","é.md"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00362","out":{"targets":["/home/me/h","{P}/w/File"],"raw":["${HOME}/h","${x}","File"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00363","out":{"targets":["{P}/w/dest"],"raw":["dest","dest"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00364","out":{"targets":["{P}/w/-"],"raw":["f?\nA=1 B=2 cd +1 2>&1 ; dd if=C:\\win\\p of=/work/q\\ r bs=1 | cd -","-"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00365","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00366","out":{"targets":["{P}","{P}/w/x,y","{P}/w/z"],"raw":["..","x,y","(z)"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00367","out":{"targets":["{P}/w/x\\ y"],"raw":["x\\ y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00368","out":{"targets":["/work/q\\ r"],"raw":["/work/q\\ r"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00369","out":{"targets":["{P}/w/y","{P}/w/y/x","{P}/w/y/w"],"raw":["f?","./y","{P}/w/y/x","{P}/w/y/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00370","out":{"targets":["/srv/share/f"],"raw":["$false","$false","\\\\srv\\share\\f","$(pwd)"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00371","out":{"targets":["{P}/w","{P}/w/–Value","{P}/w/dir","{P}/w/ac","{P}/w/-Force"],"raw":["{P}/w","$x.y","–Value","$x.y","–Value","dir","ac","-Force"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00372","out":{"targets":["{P}/w/src","{P}/w/p","{P}/w/~/h","/home/me/h","{P}/w/1","{P}/w/a"],"raw":["src/","src/","of=$PWD/p","f?","~/h","1","a"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00373","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/y","{P}/w/a b","{P}/w/y/a b"],"changes":[{"operand":"s"},{"operand":"a b"}]}}
+{"id":"shell_targets-00374","out":{"targets":["{P}/w/x,y","{P}/w/dir","{P}/w/dir/x,y"],"raw":["x,y","dir","{P}/w/dir/x,y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00375","out":{"targets":["{P}/w/-Path","{P}/w/―Literal"],"raw":["-Path","―Literal","―Literal","a`.txt"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00376","out":{"targets":[],"raw":[],"roots":["{P}/w","/home/me"],"changes":[{"operand":"$HOME"}]}}
+{"id":"shell_targets-00377","out":{"targets":["{P}/w","{P}/w/x\\","{P}/w/y"],"raw":["$PWD","x\\","y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00378","out":{"targets":["{P}/w/dir","{P}/w/p","{P}/w/p/a b","{P}/w/p/q r"],"raw":["dir","$PWD/p","{P}/w/p/a b","{P}/w/p/q r","`cmd`"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00379","out":{"targets":["/home/me/h","{P}/w","{P}/w/a","{P}/w/2"],"raw":["${HOME}/h",".","a","2","${HOME}/h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00380","out":{"targets":["{P}"],"raw":[".."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00381","out":{"targets":[],"raw":[],"roots":["{P}/w","/"],"changes":[{"operand":" *"}]}}
+{"id":"shell_targets-00382","out":{"targets":["{P}/w/+","{P}/w/x","{P}/x","{P}"],"raw":["+","+","x","..\\x",".."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00383","out":{"targets":["{P}/w/a:b"],"raw":["a:b","`cmd`"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00384","out":{"targets":["{P}/w/dir/sub","{P}/w/a","{P}/w/~","/home/me"],"raw":["dir/sub","a","~"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00385","out":{"targets":["/up","/home/me/h","{P}/w/src"],"raw":["../../../../up","${HOME}/h","../../../../up","src/"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00386","out":{"targets":["{P}/w/~","/home/me"],"raw":["~"],"roots":["{P}/w"],"changes":[{"operand":"`cmd`"}]}}
+{"id":"shell_targets-00387","out":{"targets":["{P}/w/D:q","{P}/w/dir/sub","{P}/w/dir/sub/D:q","{P}/w/dir/sub/dir/sub"],"raw":["D:q","D:q","D:q","dir\\sub"],"roots":["{P}/w","{P}/w/dir/sub"],"changes":[]}}
+{"id":"shell_targets-00388","out":{"targets":["{P}/w/string]t"],"raw":["[string]t","[string]t"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00389","out":{"targets":[],"raw":["('x,y\") `\n  Out-File > “-Value” 2>&1 2> D:q 2>> -Value","('x,y\") `\n  Out-File > “-Value” 2>&1 2> D:q 2>> -Value"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00390","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/a b"],"changes":[{"operand":"a b"}]}}
+{"id":"shell_targets-00391","out":{"targets":[],"raw":[],"roots":["{P}/w","/home/me/h"],"changes":[{"operand":"$HOME/h"}]}}
+{"id":"shell_targets-00392","out":{"targets":["{P}/w/x,y","{P}/w/x\\"],"raw":["x,y","of=x\\"],"roots":["{P}/w"],"changes":[{"operand":"$X"}]}}
+{"id":"shell_targets-00393","out":{"targets":["/home/me/f?","{P}/w/a:b","{P}","{P}/w/dir/sub"],"raw":["~/f?","a:b","~/f?","..","dir/sub"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00394","out":{"targets":["{P}/w/p"],"raw":["$PWD/p"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00395","out":{"targets":["/work/q r","{P}/w/p","{P}/x","{P}/w/a b","{P}/w/dest","{P}/w/-Confirm"],"raw":["/work/q r","$PWD/p","../x","a b","a b","dest","a b","-Confirm:"],"roots":["{P}/w"],"changes":[{"operand":"$PWD"}]}}
+{"id":"shell_targets-00396","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/v"],"changes":[]}}
+{"id":"shell_targets-00397","out":{"targets":["{P}/w/é.md","{P}/w/src"],"raw":["é.md","*.log","src/","src/"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00398","out":{"targets":["{P}/w/-","/","{P}/w/-Path"],"raw":["-","-","/","-Path"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00399","out":{"targets":["{P}","{P}/w/a","{P}/w/build","{P}/w/build/focus-oracle-shell-shell_targets-00399","{P}/w/build/a","/dev/null/a","/abs","/abs/p/a","/abs/p/build","/abs/p/build/abs","/abs/p/build/a"],"raw":["..","a","build","{P}/w/build/focus-oracle-shell-shell_targets-00399","{P}/w/build/a","/dev/null/a"],"roots":["{P}/w","/abs/p"],"changes":[{"operand":"/abs/p"}]}}
+{"id":"shell_targets-00400","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00401","out":{"targets":["{P}/w/a:b","{P}/w/a","{P}/w/b.txt"],"raw":["a:b","a","b.txt"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00402","out":{"targets":["{P}/w/v"],"raw":["of={v}"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00403","out":{"targets":["{P}/w/~/h","/home/me/h"],"raw":["~/h","${HOME}/h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00404","out":{"targets":["{P}/w/-Path","{P}/w/build"],"raw":["-Path","build","-Path","build"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00405","out":{"targets":["{P}/w/~/C:winp","/home/me/C:winp","{P}/w/src","{P}/w/x"],"raw":["~/C:winp","src/","src/","~/C:winp","src/","x","~/C:winp"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00406","out":{"targets":["{P}/w"],"raw":["."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00407","out":{"targets":["{P}/w"],"raw":["."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00408","out":{"targets":["{P}/w/dest","{P}/w/dir/sub","{P}/w/—NewName=é.md"],"raw":["dest","dir\\sub","—NewName=é.md"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00409","out":{"targets":["/home/me/h","{P}/w"],"raw":["${HOME}/h","{P}/w"],"roots":["{P}/w"],"changes":[{"operand":"`cmd`"}]}}
+{"id":"shell_targets-00410","out":{"targets":["{P}/x","{P}/w","/work/q r","{P}/w/w"],"raw":["../x","$PWD","/work/q r","[w]"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00411","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00412","out":{"targets":["{P}/w/src","/abs/p","{P}/w"],"raw":["src/","/abs/p","{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00413","out":{"targets":["{P}/w/-x"],"raw":["-x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00414","out":{"targets":[],"raw":[],"roots":["{P}/w","/home/me"],"changes":[{"operand":"$HOME"}]}}
+{"id":"shell_targets-00415","out":{"targets":["{P}/w"],"raw":["{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00416","out":{"targets":["{P}/x","{P}/w/p","{P}/w/-Name=a.txt"],"raw":["$pw\\p","..\\x","$PWD/p","$PWD/p","-Name=a.txt","-Name=a.txt","$x.y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00417","out":{"targets":["{P}/w/dir/sub"],"raw":["dir/sub"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00418","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00419","out":{"targets":["{P}/w/C:/abs/p","{P}/w/ni -Append , (\"dest\") —Value 'a'","{P}/w/-lp=a","{P}/w/b","{P}/w/dest"],"raw":["C:\\abs\\p","(ni -Append , (\"dest\") —Value 'a')","-lp=a","b","dest","dest"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00420","out":{"targets":["{P}/w/—Name=(\"~') ‚dest’, it''s -ItemType File"],"raw":["—Name=(\"~') ‚dest’, it''s -ItemType File","—Name=(\"~') ‚dest’, it''s -ItemType File"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00421","out":{"targets":["{P}"],"raw":["$dir\\$PWD/p",".."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00422","out":{"targets":["{P}/w/v","{P}/w/build"],"raw":["{v}","build","$x","$x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00423","out":{"targets":["{P}/w/@(a","{P}/w/p","{P}/w/–Path=dir","{P}/w/File"],"raw":["@(a)","$pwd\\p","–Path=dir","$env:TEMP\\x","$pwd\\p","–Path=dir","$env:TEMP\\x","File","File"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00424","out":{"targets":["{P}/w/p","{P}/w/Clear-Content","{P}/w/–pa=-Path","/"],"raw":["$pwd\\p","Clear-Content","$pwd\\p","Clear-Content","–pa=-Path","/"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00425","out":{"targets":["/n/s/t","{P}/w/é.md","/home/me/é.md","{P}/w/~/h/é.md","/home/me/~/h/é.md","/home/me/h/é.md"],"raw":["//n/s/t","$VAR/x","é.md"],"roots":["{P}/w","/home/me","{P}/w/~/h","/home/me/~/h","/home/me/h"],"changes":["home",{"operand":"~/h"}]}}
+{"id":"shell_targets-00426","out":{"targets":["{P}/w/v","{P}/w/-"],"raw":["of={v}","-"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00427","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00428","out":{"targets":["{P}/w/x,y","{P}/w","{P}/w/w"],"raw":["x,y","{P}/w","[w]"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00429","out":{"targets":["{P}/w"],"raw":["${PWD}","$PWD"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00430","out":{"targets":["{P}/w/z"],"raw":["(z)"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00431","out":{"targets":[],"raw":["$VAR/x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00432","out":{"targets":["/home/me/h"],"raw":["$HOME/h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00433","out":{"targets":["/"],"raw":["/"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00434","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[{"operand":"$X"}]}}
+{"id":"shell_targets-00435","out":{"targets":["{P}/w"],"raw":["$dir\\it''s","$dir\\C:\\abs\\p","{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00436","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00437","out":{"targets":["{P}","{P}/w/ni","{P}/w/Get-Location","{P}/w/x,y","{P}/w"],"raw":["..","..","(\"$pwd\\p\")","ni","(Get-Location)","x,y","{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00438","out":{"targets":["{P}/w/y","/","{P}/w/~/h","/home/me/h","{P}/w/dir/y","{P}/w/dir/~/h"],"raw":["`cmd`","f?","./y","/","~/h","f?"],"roots":["{P}/w","{P}/w/dir"],"changes":[{"operand":"dir"}]}}
+{"id":"shell_targets-00439","out":{"targets":["{P}/x","{P}/w/dir","{P}/w/a","/home/x","/home/me/dir","/home/me/a"],"raw":["../x","dir","a"],"roots":["{P}/w","/home/me"],"changes":[{"operand":"$HOME"}]}}
+{"id":"shell_targets-00440","out":{"targets":["{P}/w","/abs/p","{P}/w/a b","{P}/w/a b/w","{P}/w/a b/p"],"raw":["$PWD","/abs/p","a b","{P}/w/a b/w","{P}/w/a b/p"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00441","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00442","out":{"targets":["{P}/w/build","{P}/w/é.md","/home/me/h","{P}/w/p","{P}/w/s/a/b","{P}/w/x,y","{P}/w/c"],"raw":["build","é.md","${HOME}/h","$PWD/p","é.md","s/a/b/","x,y",",c,","${HOME}/h"],"roots":["{P}/w"],"changes":[{"operand":"$PWD"}]}}
+{"id":"shell_targets-00443","out":{"targets":["{P}/w/-Path","{P}/w/-Value","{P}/-Path","{P}/-Value"],"raw":["-Path","(Set-Content —Pa ‘-Value‛ ―Confirm:$false -Force)","-Value","-Value"],"roots":["{P}/w","{P}"],"changes":[{"operand":"s"}]}}
+{"id":"shell_targets-00444","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00445","out":{"targets":["{P}/w/dir"],"raw":["dir"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00446","out":{"targets":["{P}/w/its","/srv/share/f","/home/me/h"],"raw":["$(pwd)","its","$(pwd)","its","\\\\srv\\share\\f","${HOME}/h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00447","out":{"targets":["{P}/w/v","/home/me/h"],"raw":["{v}","$HOME/h"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00448","out":{"targets":["{P}/w"],"raw":[".",".","."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00449","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00450","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[{"operand":"`cmd`"}]}}
+{"id":"shell_targets-00451","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00452","out":{"targets":["{P}/w"],"raw":[".","."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00453","out":{"targets":["/home/me/h"],"raw":["${HOME}/h","${HOME}/h","${HOME}/h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00454","out":{"targets":["{P}/w"],"raw":["of=."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00455","out":{"targets":[],"raw":[],"roots":["{P}/w","/n/s/t","/home/me"],"changes":[{"operand":"//n/s/t"},{"operand":"$HOME"}]}}
+{"id":"shell_targets-00456","out":{"targets":["{P}/w/@(a","{P}/w/é.md","{P}/w/―pa:@(a","{P}/w/x","{P}/w"],"raw":["@(a)","é.md","―pa:@(a)","é.md","―pa:@(a)","x","x","${PWD}","${PWD}"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00457","out":{"targets":["{P}/w/a","{P}/w/HO E/h/a"],"raw":["a"],"roots":["{P}/w","{P}/w/HO E/h"],"changes":[{"operand":"HO E/h"}]}}
+{"id":"shell_targets-00458","out":{"targets":["{P}/w/dir/sub","{P}/w/build","{P}/w/y","{P}/w","/home/me/h","{P}/w/2","{P}/w/dir/sub/build","{P}/w/dir/sub/2","{P}/w/~/dir/sub","{P}/w/~/build","{P}/w/~/y","{P}/w/~","{P}/w/~/2","{P}/w/~/dir/sub/build","{P}/w/~/dir/sub/2","/home/me/dir/sub","/home/me/build","/home/me/y","/home/me","/home/me/2","/home/me/dir/sub/build","/home/me/dir/sub/2"],"raw":["dir/sub","build","./y",".","{P}/w/build","{P}/w/y","build","${HOME}/h","2","dir/sub","{P}/w/dir/sub/build","{P}/w/dir/sub/2"],"roots":["{P}/w","{P}/w/~","/home/me"],"changes":[{"operand":"~"}]}}
+{"id":"shell_targets-00459","out":{"targets":["{P}/w/d","/"],"raw":["of=d","/"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00460","out":{"targets":["{P}/w/v","/up","/work/q r","{P}/w","{P}/w/C:\\win\\p"],"raw":["{v}","../../../../up","/work/q r","$PWD","{P}/w/C:\\win\\p"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00461","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00462","out":{"targets":["{P}/w","/home/me/h"],"raw":[".","${HOME}/h","`cmd`"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00463","out":{"targets":["/home/me/h","{P}/w/a b"],"raw":["${HOME}/h","a b"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00464","out":{"targets":["/n/s/t"],"raw":["//n/s/t"],"roots":["{P}/w"],"changes":[{"operand":"."}]}}
+{"id":"shell_targets-00465","out":{"targets":["{P}/w/c","{P}/w/d"],"raw":[",c,","of=d"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00466","out":{"targets":["{P}/w/a:b","{P}/w/é.md"],"raw":["a:b","é.md","`cmd`"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00467","out":{"targets":["/up","{P}/w/w","/n/s/t","{P}/w/2"],"raw":["../../../../up","[w]","//n/s/t","2","../../../../up","[w]"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00468","out":{"targets":["/","/up"],"raw":["/","/up"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00469","out":{"targets":["/home/me/h:"],"raw":["{2> \"$HOME\\h:\" || mi –Path _$x.y\"  < $pwd\\p ; tee 2>> \"$x\"","{2> \"$HOME\\h:\" || mi –Path _$x.y\"  < $pwd\\p ; tee 2>> \"$x\"","$HOME\\h:","_$x.y  < $pwd\\p ; tee 2>> $x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00470","out":{"targets":["{P}/w/x,y","{P}/w/-"],"raw":["x,y","$x.y","$x.y","-"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00471","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00472","out":{"targets":["{P}/w/a b","{P}/w/src"],"raw":["`cmd`","a b","src/"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00473","out":{"targets":["{P}/w/src","{P}/w/dest","/abs/p","/n/s/t"],"raw":["src/","dest","/abs/p","dest","of=//n/s/t"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00474","out":{"targets":["{P}/w/x,y","{P}/w"],"raw":["x,y","{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00475","out":{"targets":["{P}/w","{P}/w/C:/x"],"raw":["${x}","{P}/w"],"roots":["{P}/w","{P}/w/C:/x"],"changes":[{"operand":"C:x"}]}}
+{"id":"shell_targets-00476","out":{"targets":["{P}/w/-Value=nul"],"raw":["-Value=nul","-Value=nul"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00477","out":{"targets":["{P}/w/v"],"raw":["$env:TEMP\\x","{v}"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00478","out":{"targets":[],"raw":["('${HOME}/h\") | cd ., ‚\\\\srv\\share\\f‛","('${HOME}/h\") | cd ., ‚\\\\srv\\share\\f‛"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00479","out":{"targets":["{P}/w/-","{P}/w/C:/abs/p","{P}/w/p","{P}/w/utf8","{P}/w"],"raw":["-","-","C:\\abs\\p","$pwd\\p","utf8","{P}/w","{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00480","out":{"targets":["{P}/w/'[string]'t'\") && New-Ite .."],"raw":["('[string]'t'\") && New-Ite ..,"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00481","out":{"targets":["{P}/w/-x","/home/me/h","{P}/w/build/-x"],"raw":["-x","${HOME}/h"],"roots":["{P}/w","{P}/w/build"],"changes":[{"operand":"build"}]}}
+{"id":"shell_targets-00482","out":{"targets":["{P}/w/a b","{P}/w/d","{P}/w/dir/sub","{P}/w/C:winp"],"raw":["a b","of=d","dir/sub","C:winp","dir/sub"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00483","out":{"targets":["{P}/w/y","{P}/w/x,y"],"raw":["./y","x,y"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00484","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00485","out":{"targets":["/home/me/${HOME}","{P}/w/~/h"],"raw":["~/${HOME}/","of=~/h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00486","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00487","out":{"targets":["{P}/w/b.txt","{P}/w/C:\\win\\p","/n/s/t"],"raw":["b.txt","C:\\win\\p","//n/s/t","b.txt"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00488","out":{"targets":["{P}/w/Get-Location","/home/me/x/Get-Location"],"raw":["$dir\\build","(Get-Location)","(Get-Location)","$false"],"roots":["{P}/w","/home/me/x"],"changes":[{"operand":"${HOME}/x"}]}}
+{"id":"shell_targets-00489","out":{"targets":["{P}/w/C:winp","{P}/x","/home/me/h","{P}/w"],"raw":["C:winp","../x","$HOME/h","{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00490","out":{"targets":["/q","/","{P}/w/dir/sub"],"raw":["/q","/","dir/sub"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00491","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00492","out":{"targets":["/srv/share/f","{P}/w/its"],"raw":["\\\\srv\\share\\f","its"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00493","out":{"targets":["{P}/w/-Path=[string]t","{P}/w/p","{P}/w/build"],"raw":["(Add-Content –pa:\"$(pwd)\")","-Path=[string]t","$pwd\\p","build","build","$(pwd)"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00494","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[{"operand":"$X"}]}}
+{"id":"shell_targets-00495","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/x,y"],"changes":[{"operand":"x,y"}]}}
+{"id":"shell_targets-00496","out":{"targets":["{P}/w/a b","{P}/w/-x","{P}/w/x,y","{P}/w/src","{P}/w/2"],"raw":["a b","-x","x,y","src/","*.log","2","a b"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00497","out":{"targets":["{P}/w/-x","{P}/w/File","{P}/w","{P}","{P}/w/build/-x","{P}/w/build/File","{P}/w/build"],"raw":["-x","(set-content -pa: ‘$env:TEMP\\x‛ —Path: .. -Value '(Get-Location)')","File","{P}/w","..","$env:TEMP\\x"],"roots":["{P}/w","{P}/w/build"],"changes":[{"operand":"s"}]}}
+{"id":"shell_targets-00498","out":{"targets":[],"raw":["${PWD}","f?"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00499","out":{"targets":["/home/me/h","{P}/w","{P}/w/a b","{P}/w/c"],"raw":["${HOME}/h","{P}/w","a b",",c,"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00500","out":{"targets":["{P}/w/-"],"raw":["-"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00501","out":{"targets":["{P}/w/dir","{P}/w"],"raw":["dir","${PWD}","."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00502","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00503","out":{"targets":["{P}/w/build"],"raw":["build"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00504","out":{"targets":["{P}/w","{P}/w/a","{P}","{P}/a"],"raw":[".","a","..","{P}/a"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00505","out":{"targets":["{P}/w/dest","/home/me/x/dest"],"raw":["dest"],"roots":["{P}/w","/home/me/x"],"changes":[{"operand":"$HOMEx"}]}}
+{"id":"shell_targets-00506","out":{"targets":["{P}/w/build"],"raw":["build"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00507","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[{"operand":"$X"},"unknown","unknown"]}}
+{"id":"shell_targets-00508","out":{"targets":["/work/q r"],"raw":["/work/q r"],"roots":["{P}/w","/"],"changes":[{"operand":"/"}]}}
+{"id":"shell_targets-00509","out":{"targets":[],"raw":["$dir\\x,y"],"roots":["{P}/w"],"changes":[{"operand":"$pwd\\p"}]}}
+{"id":"shell_targets-00510","out":{"targets":["{P}/w/p","{P}/w/dir/sub"],"raw":["$pwd\\p","dir\\sub","$x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00511","out":{"targets":["/abs/p"],"raw":["/abs/p"],"roots":["{P}/w","/home/me"],"changes":[{"operand":"$HOME"}]}}
+{"id":"shell_targets-00512","out":{"targets":["{P}/w/a"],"raw":["of=a"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00513","out":{"targets":["{P}"],"raw":[".."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00514","out":{"targets":["{P}/w/a","{P}/w","/home/me/h"],"raw":["a",".","$HOME\\h","${x}","a`.txt"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00515","out":{"targets":["{P}/w/  del -p ~  ","/home/me/  del -p ~  "],"raw":["  del -p ~  "],"roots":["{P}/w","/home/me"],"changes":["home"]}}
+{"id":"shell_targets-00516","out":{"targets":["{P}/w/dest"],"raw":["dest"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00517","out":{"targets":["{P}","{P}/w/build","/abs/p","{P}/w","{P}/w/é.md","{P}/w/c"],"raw":["..","build","/abs/p","{P}/w","é.md",",c,","$VAR/x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00518","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00519","out":{"targets":["{P}/w/y"],"raw":["./y","f?"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00520","out":{"targets":["{P}","{P}/w","/home"],"raw":["`cmd`",".."],"roots":["{P}/w","{P}/w/a b","/home/me"],"changes":[{"operand":"a b"},"home"]}}
+{"id":"shell_targets-00521","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00522","out":{"targets":["{P}/w"],"raw":["."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00523","out":{"targets":["{P}/w/d","{P}/w/v","/d","/v"],"raw":["of=d","{v}"],"roots":["{P}/w","/"],"changes":[{"operand":"`cmd`"},{"operand":"../../../."}]}}
+{"id":"shell_targets-00524","out":{"targets":["{P}/w/@(a","{P}/w"],"raw":["@(a)","{P}/w",".","{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00525","out":{"targets":["{P}/w/x,y"],"raw":["x,y"],"roots":["{P}/w"],"changes":["unknown","stay"]}}
+{"id":"shell_targets-00526","out":{"targets":[],"raw":[],"roots":["{P}/w","/up","{P}/w/~","/up/~","/home/me"],"changes":[{"operand":"../../../../up"},{"operand":"~"}]}}
+{"id":"shell_targets-00527","out":{"targets":["{P}/w","{P}/w/s/x/y","{P}/w/p"],"raw":["$PWD","s/x/y/","$PWD/p"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00528","out":{"targets":["{P}","{P}/w"],"raw":[".."],"roots":["{P}/w","{P}/w/a"],"changes":[{"operand":"a"}]}}
+{"id":"shell_targets-00529","out":{"targets":["/n/s/t"],"raw":["//n/s/t"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00530","out":{"targets":["{P}/w/v","{P}/w/dir/sub","/dev/null/b.txt","{P}/w/C:\\win\\p","{P}/w/p","{P}/w/v/C:\\win\\p","{P}/w/v/p","/work/q r","{P}/w/2"],"raw":["{v}","dir/sub","/dev/null/b.txt","C:\\win\\p","$PWD/p","{v}","{P}/w/v/C:\\win\\p","{P}/w/v/p","{v}","{v}","v","{v}","v","/work/q r","2","dir/sub"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00531","out":{"targets":[],"raw":["a$HOME/h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00532","out":{"targets":["{P}/w","/home/me/h","/home/me"],"raw":[".","$HOME/h"],"roots":["{P}/w","/home/me"],"changes":["home"]}}
+{"id":"shell_targets-00533","out":{"targets":["{P}/w/-Path","{P}/w/Get-Location","{P}/w/a","{P}/w/dest","{P}/w/2","{P}/w/=","{P}/w/tee","{P}/w/nul"],"raw":["$(sc)","-Path","(Get-Location)","a","dest","2","=","tee","$(tee ―FilePath nul)","nul"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00534","out":{"targets":[],"raw":["f?"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00535","out":{"targets":["{P}/w/p","{P}/w/build","{P}/w/a"],"raw":["$pwd\\p","build","a"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00536","out":{"targets":["/work/q r","/abs/p","{P}/w/x,y","{P}/x"],"raw":["/work/q r","/abs/p","x,y","../x"],"roots":["{P}/w"],"changes":[{"operand":"*.log"}]}}
+{"id":"shell_targets-00537","out":{"targets":["{P}/w/y","{P}/w/-Value"],"raw":[".\\y","-Value"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00538","out":{"targets":["{P}/w/string]t","{P}/w/-"],"raw":["[string]t","-"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00539","out":{"targets":["{P}/w/a:b","{P}/w/w","{P}/w/v","{P}/w/v/a:b","{P}/w/v/w","{P}/w"],"raw":["${PWD}","f?","a:b","[w]","{v}","{P}/w/v/a:b","{P}/w/v/w","${PWD}","."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00540","out":{"targets":[],"raw":["of=$VAR/x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00541","out":{"targets":[],"raw":["${PWD}"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00542","out":{"targets":["{P}/w/dir/sub"],"raw":["dir/sub"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00543","out":{"targets":["{P}/w/é.md","{P}/w/utf8"],"raw":["é.md","$(tee)","$(tee)","utf8"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00544","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00545","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/~","/home/me"],"changes":[{"operand":"~"}]}}
+{"id":"shell_targets-00546","out":{"targets":["{P}/w/a","{P}/w","{P}/w/v/a","{P}/w/v"],"raw":["a","{P}/w"],"roots":["{P}/w","{P}/w/v"],"changes":[{"operand":"{v}"}]}}
+{"id":"shell_targets-00547","out":{"targets":["{P}/w/it''s","{P}/w/Get-Location","{P}/w/nul"],"raw":["it''s","(Get-Location)","(Get-Location)","nul","nul","-Variable=${PWD}","$x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00548","out":{"targets":["{P}/w/x\\ y","{P}/w"],"raw":["x\\ y","{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00549","out":{"targets":["{P}/w/+","{P}/w","{P}/w/p"],"raw":["+",".","$pwd\\p","$pwd\\p"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00550","out":{"targets":["{P}/w"],"raw":["."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00551","out":{"targets":["{P}/w/a:b","{P}/w/é.md","/up","{P}/w/y","{P}/w/2","{P}/w/x,y","{P}/w/x","{P}/w/c","{P}/w/src"],"raw":["a:b","é.md","a:b","../../../../up","./y","2","x,y","x","y","x,y","x","y",",c,","c","x,y","x","y","src/","a:b"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00552","out":{"targets":["{P}/w/string]'t'","{P}/w/y"],"raw":["[string]'t'",".\\y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00553","out":{"targets":["{P}/w/a b","{P}/w"],"raw":["of=a b","."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00554","out":{"targets":["{P}/w/~/h","/home/me/h"],"raw":["~\\h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00555","out":{"targets":["{P}/w","{P}","{P}/w/dest"],"raw":[".","..","dest"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00556","out":{"targets":["{P}/w/p","{P}/w/y"],"raw":["${x}","$PWD/p","y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00557","out":{"targets":["{P}/w/y","{P}/w/é.md"],"raw":["$x",".\\y","é.md","é.md"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00558","out":{"targets":["{P}/w/-x; }&&{ env -S make","/home/me/h","{P}/w/test dir; "],"raw":["-x; }&&{ env -S make","${HOME}/h","test dir; }"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00559","out":{"targets":["{P}/w/build","{P}/w","/up","{P}/w/b.txt","{P}/w/b.txt/up","{P}/w/é.md"],"raw":["build","$PWD","../../../../up","b.txt","{P}/w/b.txt/up",".","é.md","$PWD"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00560","out":{"targets":[],"raw":["*.log"],"roots":["{P}/w"],"changes":[{"operand":"$X"}]}}
+{"id":"shell_targets-00561","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/+1"],"changes":[{"operand":"+1"}]}}
+{"id":"shell_targets-00562","out":{"targets":["{P}/w/é.md"],"raw":["é.md"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00563","out":{"targets":["{P}/w/dir/sub"],"raw":["dir\\sub"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00564","out":{"targets":["{P}/w"],"raw":["{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00565","out":{"targets":[],"raw":["$VAR/x","*.log","$VAR/x","`cmd`"],"roots":["{P}/w","{P}/w/~/h","/home/me/h","{P}/w/~","{P}/w/~/h/~","/home/me/h/~","/home/me"],"changes":[{"operand":"~/h"},{"operand":"~/"}]}}
+{"id":"shell_targets-00566","out":{"targets":["{P}/w/~/-","/home/me/-","/work/q r","{P}/w/d"],"raw":["f?","~/-","/work/q r","`cmd`","f?","d"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00567","out":{"targets":["/home/me/h","/up"],"raw":["${HOME}/h","$VAR/x","../../../../up"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00568","out":{"targets":["{P}/w/―ItemType=File","{P}/w/-Value","{P}/w/dir"],"raw":["―ItemType=File","-Value","dir","―ItemType=File","-Value","dir"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00569","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00570","out":{"targets":["{P}/w"],"raw":["{P}/w"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00571","out":{"targets":[],"raw":["$x.y","$x.y"],"roots":["{P}/w","/home/me/x"],"changes":[{"operand":"$HOMEx"}]}}
+{"id":"shell_targets-00572","out":{"targets":["/srv/share/f"],"raw":["\\\\srv\\share\\f"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00573","out":{"targets":["{P}/w"],"raw":["{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00574","out":{"targets":["/srv/share/f","/"],"raw":["\\\\srv\\share\\f","${x}","/"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00575","out":{"targets":[],"raw":["('$x.y\")"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00576","out":{"targets":["{P}/x","{P}/w/y","{P}/w/y/w","{P}/w/y/b.txt"],"raw":["../x","./y","{P}/w/y/w","{P}/w/y/b.txt"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00577","out":{"targets":["{P}/w/string]'t'","{P}/w"],"raw":["[string]'t'",".","."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00578","out":{"targets":["{P}/w/a","{P}/w/b","{P}/w"],"raw":["a","b","{P}/w","{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00579","out":{"targets":["{P}/w/src","{P}/w/y","{P}/x","{P}/w/p","{P}/w/dir"],"raw":["src/","./y","../x","$PWD/p","dir","src/"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00580","out":{"targets":["{P}/w/―ea=0","{P}/w/+","{P}/w/-Value"],"raw":["―ea=0","―ea=0","+","$env:TEMP\\x","-Value","-Value"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00581","out":{"targets":["{P}/w/~","/home/me","/home/me/h","{P}/w","/abs/p","/abs/p/a","{P}/w/~/h"],"raw":["~","$HOME/h","{P}/w","/abs/p","/abs/p/a","/abs/p","of=~/h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00582","out":{"targets":["/abs/p","{P}","{P}/w"],"raw":["/abs/p",".."],"roots":["{P}/w","{P}/w/src"],"changes":[{"operand":"src/"}]}}
+{"id":"shell_targets-00583","out":{"targets":["{P}/w/~/h","/home/me/h","/srv/share/f","{P}/w/p"],"raw":["(New-Item —LiteralPath '$PWD/p' -Liter '~\\h')","~\\h","\\\\srv\\share\\f","\\\\srv\\share\\f","\\\\srv\\share\\f","$PWD/p","$PWD/p","~\\h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00584","out":{"targets":["{P}/w"],"raw":["$PWD"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00585","out":{"targets":["{P}/w/c"],"raw":[",c,"],"roots":["{P}/w"],"changes":[{"operand":"`cmd`"},"unknown"]}}
+{"id":"shell_targets-00586","out":{"targets":["{P}/w/dest","{P}/w","/"],"raw":["dest",".","/"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00587","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/dir/sub"],"changes":[{"operand":"dir/sub"}]}}
+{"id":"shell_targets-00588","out":{"targets":["{P}/w/build","{P}/w/~/-","/home/me/-","{P}/w/x,y","/up","{P}/w/build/up"],"raw":["build","~/-","x,y","*.log","../../../../up","build","{P}/w/build/up","x,y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00589","out":{"targets":["{P}/w/~/h","/home/me/h","{P}/w/+","{P}/w/Out-File","{P}/w/ni","{P}/w/b.txt"],"raw":["~\\h","+","+","Out-File","ni","b.txt"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00590","out":{"targets":["/home/me/h","{P}/x"],"raw":["$HOME/h","../x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00591","out":{"targets":["{P}/w/a:b","{P}/w/y","/n/s/t"],"raw":["a:b","./y","of=//n/s/t"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00592","out":{"targets":["{P}/w/C:winp","{P}/w/~/C:winp","/home/me/C:winp"],"raw":["C:winp"],"roots":["{P}/w","{P}/w/~","/home/me"],"changes":[{"operand":"~/"}]}}
+{"id":"shell_targets-00593","out":{"targets":["{P}/w/~","/home/me","/up"],"raw":["~","../../../../up"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00594","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/+1"],"changes":["unknown",{"operand":"+1"}]}}
+{"id":"shell_targets-00595","out":{"targets":["{P}/w","{P}/w/-","{P}/w/build"],"raw":["`cmd`",".","-","build"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00596","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[{"operand":"s"}]}}
+{"id":"shell_targets-00597","out":{"targets":["{P}/x"],"raw":["../x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00598","out":{"targets":["{P}/w/y"],"raw":["./y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00599","out":{"targets":["{P}/w/~/h","/home/me/h"],"raw":["~\\h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00600","out":{"targets":["{P}/w/-Path","{P}/w/~/-Path","/home/me/-Path"],"raw":["$x","-Path","-Path"],"roots":["{P}/w","{P}/w/~","/home/me"],"changes":[{"operand":"~"}]}}
+{"id":"shell_targets-00601","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/~","/home/me"],"changes":[{"operand":"~"}]}}
+{"id":"shell_targets-00602","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00603","out":{"targets":["{P}"],"raw":["${PWD}","of=${PWD}","${PWD}",".."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00604","out":{"targets":["{P}/w/nul","{P}/w/D:q","{P}/w/string]t","{P}/w/y"],"raw":["nul","D:q","$x.y","$(Set-Item [string]'t', “.\\y”)","$(Set-Item [string]'t', “.\\y”)","$x","[string]t",".\\y","[string]t",".\\y"],"roots":["{P}/w"],"changes":[{"operand":"“${x}”"}]}}
+{"id":"shell_targets-00605","out":{"targets":["{P}/w/~","/home/me","{P}/w/z","{P}/w/+1/~","{P}/w/+1/z"],"raw":["~/","z","f?"],"roots":["{P}/w","{P}/w/+1"],"changes":[{"operand":"+1"}]}}
+{"id":"shell_targets-00606","out":{"targets":["{P}/w/dir","{P}/w/é.md","/home/me/`cmd`","{P}/w/c","{P}/w/c/w","{P}/w/c/y"],"raw":["dir","é.md","~/`cmd`","of=*.log",",c,","{P}/w/c/w","{P}/w/c/y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00607","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00608","out":{"targets":["{P}/w/-Stream=x","{P}/w/clc"],"raw":["-Stream=x","-Stream=x","clc","clc"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00609","out":{"targets":["{P}/w/y","{P}/w/p/y"],"raw":["./y"],"roots":["{P}/w","{P}/w/p"],"changes":[{"operand":"$PWD/p"}]}}
+{"id":"shell_targets-00610","out":{"targets":[],"raw":["$VAR/x"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00611","out":{"targets":["{P}/w/-Value","/home/me/h","{P}/w/-x"],"raw":["-Value","${HOME}/h","-x","-x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00612","out":{"targets":["{P}/w/src"],"raw":["src/"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00613","out":{"targets":[],"raw":["$x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00614","out":{"targets":["{P}/w/~","/home/me","{P}/w/a b/~"],"raw":["~"],"roots":["{P}/w","{P}/w/a b"],"changes":[{"operand":"a b"}]}}
+{"id":"shell_targets-00615","out":{"targets":["{P}/w/b.txt","{P}/w/c/b.txt"],"raw":["b.txt"],"roots":["{P}/w","{P}/w/c"],"changes":[{"operand":",c,"}]}}
+{"id":"shell_targets-00616","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/~","/home/me"],"changes":[{"operand":"~"}]}}
+{"id":"shell_targets-00617","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00618","out":{"targets":["{P}/w/2","{P}/w/~/h","/home/me/h","/work/q r","/home/me/2","/home/me/~/h"],"raw":["2","~/h","/work/q r"],"roots":["{P}/w","/home/me"],"changes":["home"]}}
+{"id":"shell_targets-00619","out":{"targets":[],"raw":["../../../../up || dd if=${HOME}/h of=\"$HOME/h\" bs=1"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00620","out":{"targets":["{P}/w/p","{P}/w","/home/me/h/p","/home/me/h"],"raw":["$PWD/p","."],"roots":["{P}/w","/home/me/h"],"changes":[{"operand":"$HOME/h"}]}}
+{"id":"shell_targets-00621","out":{"targets":["{P}/w/v","{P}/w/x'","{P}/w/a","{P}/w","/home/me/h","{P}/w/é.md/v","{P}/w/é.md/x'","{P}/w/é.md/a","{P}/w/é.md"],"raw":["{v}","x'","a","$PWD","${HOME}/h"],"roots":["{P}/w","{P}/w/é.md"],"changes":[{"operand":"é.md"}]}}
+{"id":"shell_targets-00622","out":{"targets":["{P}/w/c"],"raw":["f?",",c,"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00623","out":{"targets":["{P}/w/dest","{P}/w/a","{P}/w/@(a/dest","{P}/w/@(a/a"],"raw":["dest","a","―NewName=$PWD/p"],"roots":["{P}/w","{P}/w/@(a"],"changes":[{"operand":"@"}]}}
+{"id":"shell_targets-00624","out":{"targets":["{P}/w/b.txt","/home/me/h","{P}/w/x,y/b.txt","/home/me/b.txt"],"raw":["b.txt","${HOME}/h"],"roots":["{P}/w","{P}/w/x,y","/home/me"],"changes":["unknown",{"operand":"x,y"},"home"]}}
+{"id":"shell_targets-00625","out":{"targets":["{P}/w/a b","/home/me/h","{P}/w/--"],"raw":["a b","$HOME/h","$VAR/x","$VAR/x","a b","--","$VAR/x","a b"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00626","out":{"targets":["{P}/w","{P}/w/null"],"raw":[".","{P}/w/null"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00627","out":{"targets":["{P}/w/it''s","{P}/w/dir","{P}/x","{P}/w/é.md","{P}/w/~/h","/home/me/h"],"raw":["it''s","dir","..\\x","..\\x","é.md","~\\h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00628","out":{"targets":["{P}/w/y","{P}/w/a","{P}/w/2","{P}/w/x\\","{P}/w/\"/abs/p\".; \"f clear-item -Destination:x,y ; then install -g \",c,\" \"a :b\"; fi","{P}/w/\"/abs/p\".; \"f clear-item -Destination:x,y ; then install -g \",c,\" \"a :b\"; fi/y","{P}/w/\"/abs/p\".; \"f clear-item -Destination:x,y ; then install -g \",c,\" \"a :b\"; fi/a","{P}/w/\"/abs/p\".; \"f clear-item -Destination:x,y ; then install -g \",c,\" \"a :b\"; fi/2","{P}/w/\"/abs/p\".; \"f clear-item -Destination:x,y ; then install -g \",c,\" \"a :b\"; fi/x\\"],"raw":["$VAR/x","./y","a","2","`cmd`","x\\","y","\"/abs/p\".; \"f clear-item -Destination:x,y ; then install -g \",c,\" \"a :b\"; fi","{P}/w/\"/abs/p\".; \"f clear-item -Destination:x,y ; then install -g \",c,\" \"a :b\"; fi/y","{P}/w/\"/abs/p\".; \"f clear-item -Destination:x,y ; then install -g \",c,\" \"a :b\"; fi/a","{P}/w/\"/abs/p\".; \"f clear-item -Destination:x,y ; then install -g \",c,\" \"a :b\"; fi/2","{P}/w/\"/abs/p\".; \"f clear-item -Destination:x,y ; then install -g \",c,\" \"a :b\"; fi/x\\","{P}/w/\"/abs/p\".; \"f clear-item -Destination:x,y ; then install -g \",c,\" \"a :b\"; fi/y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00629","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00630","out":{"targets":["{P}/w/w","{P}/w/x\\","{P}/w/y","{P}/w/y/w","{P}/w/y/x\\","{P}/w/é.md/w","{P}/w/é.md/x\\","{P}/w/é.md/y","{P}/w/é.md/y/w","{P}/w/é.md/y/x\\"],"raw":["[w]","x\\","y","{P}/w/y/w","{P}/w/y/x\\"],"roots":["{P}/w","{P}/w/é.md"],"changes":[{"operand":"é.md"}]}}
+{"id":"shell_targets-00631","out":{"targets":["/","{P}/w/w","{P}/w/x,y","{P}/w/p","{P}/w/~/h & pushd -n -","/home/me/h & pushd -n -"],"raw":["/","[w]","{P}/w/w","x,y","$PWD/p","~/h & pushd -n -"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00632","out":{"targets":["/up"],"raw":["../../../../up"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00633","out":{"targets":[],"raw":["${PWD}"],"roots":["{P}/w"],"changes":[{"operand":"$X"},"unknown"]}}
+{"id":"shell_targets-00634","out":{"targets":["{P}/w/dir"],"raw":["dir"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00635","out":{"targets":["{P}/w/dir","{P}/w/x","/home/me/dir","/home/me/x"],"raw":["dir","*.log","*.log","dir","*.log","x","dir"],"roots":["{P}/w","/home/me"],"changes":[{"operand":"$HOME"},"unknown"]}}
+{"id":"shell_targets-00636","out":{"targets":["{P}/w/~","/home/me","{P}/w/z"],"raw":["~","z"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00637","out":{"targets":["{P}/w/é.md","{P}/w/c","{P}/w/dir/sub","/","{P}/w/2"],"raw":["é.md",",c,","dir/sub","é.md","/","2",",c,"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00638","out":{"targets":["/work/q r"],"raw":["/work/q r"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00639","out":{"targets":[],"raw":["${x}","a`.txt"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00640","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/\"-x') 2> --","/home/me"],"changes":[{"operand":"—LiteralPath"}]}}
+{"id":"shell_targets-00641","out":{"targets":["{P}/w/v","/work/q r","{P}/w/build/v"],"raw":["{v}","/work/q r"],"roots":["{P}/w","{P}/w/build"],"changes":[{"operand":"build"}]}}
+{"id":"shell_targets-00642","out":{"targets":["{P}/w/dir/sub"],"raw":["dir/sub"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00643","out":{"targets":["{P}/w/~/h","/home/me/h","{P}/w/C:/abs/p","/~/h","/C:/abs/p"],"raw":["~\\h","C:\\abs\\p","C:\\abs\\p"],"roots":["{P}/w","/"],"changes":[{"operand":"“/”"}]}}
+{"id":"shell_targets-00644","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/a:b"],"changes":[{"operand":"a:b"}]}}
+{"id":"shell_targets-00645","out":{"targets":[],"raw":[],"roots":["{P}/w","/abs/p"],"changes":[{"operand":"/abs/p"}]}}
+{"id":"shell_targets-00646","out":{"targets":[],"raw":["${x}"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00647","out":{"targets":[],"raw":["f?"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00648","out":{"targets":["{P}/w/~/h","/home/me/h","{P}/w/C:winp"],"raw":["~/h","C:winp"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00649","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/src"],"changes":[{"operand":"src/"}]}}
+{"id":"shell_targets-00650","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/x\\ y"],"changes":[{"operand":"x\\ y"}]}}
+{"id":"shell_targets-00651","out":{"targets":["/home/me/h"],"raw":["$HOME/h","${HOME}/h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00652","out":{"targets":["{P}/w/a","/","/a"],"raw":["${P:D}","a","/","/a"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00653","out":{"targets":["{P}/w/v"],"raw":["{v}","{v}"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00654","out":{"targets":["{P}/w/v","{P}/w/a:b","/","/a:b"],"raw":["{v}","$VAR/x","a:b","/","/a:b"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00655","out":{"targets":["{P}/w/a b"],"raw":["a b","a b"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00656","out":{"targets":["{P}/x","{P}/w/w"],"raw":["../x","[w]"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00657","out":{"targets":["{P}/w/d","/"],"raw":["of=d","/"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00658","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00659","out":{"targets":["{P}/w/~","/home/me","{P}/w/a b","{P}/w/w","{P}/w/w/c"],"raw":["`cmd`","~","`cmd`","a b","[w]","{P}/w/w/c"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00660","out":{"targets":["{P}/w/a b"],"raw":["a b"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00661","out":{"targets":["/home/me/h"],"raw":["$HOME/h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00662","out":{"targets":["{P}/w/-ath"],"raw":["-ath"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00663","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/~","/home/me"],"changes":[{"operand":"~/"},"stay"]}}
+{"id":"shell_targets-00664","out":{"targets":["/home/me/h"],"raw":["${HOME}/h","${HOME}/h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00665","out":{"targets":["{P}/w/x","{P}/w/File"],"raw":["x","x","File","$false","$false"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00666","out":{"targets":["{P}/w/h","{P}/w/h/+","{P}/w/h/rm","{P}/w/h/y“","{P}/w/h/raw","{P}/w/h/>","{P}/w/h/“b.txt“"],"raw":["h","{P}/w/h/+","{P}/w/h/rm","{P}/w/h/y“","{P}/w/h/raw","{P}/w/h/>","{P}/w/h/“b.txt“"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00667","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00668","out":{"targets":["/work/q r","{P}/w/a:b"],"raw":["/work/q r","a:b"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00669","out":{"targets":["/home/me/h","{P}/w/-","{P}/w/-/v","{P}/w/-/2","{P}/w/w","{P}/w/x,y"],"raw":["$HOME/h","-","-","{P}/w/-/v","{P}/w/-/2","[w]","x,y","`cmd` | ./rm /abs/p"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00670","out":{"targets":["{P}/w/é.md","{P}/w/~/é.md","/home/me/é.md"],"raw":["$x","é.md","$(SET-CONTENT —Append)","$(SET-CONTENT —Append)"],"roots":["{P}/w","{P}/w/~","/home/me"],"changes":[{"operand":"~"}]}}
+{"id":"shell_targets-00671","out":{"targets":["{P}/w/cmd"],"raw":["cmd"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00672","out":{"targets":[],"raw":["of=","`cmd`","${PWD}"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00673","out":{"targets":["{P}/w/dest"],"raw":["dest"],"roots":["{P}/w"],"changes":[{"operand":"$VAR/x"},{"operand":"f?"}]}}
+{"id":"shell_targets-00674","out":{"targets":[],"raw":["$VAR/x","f?"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00675","out":{"targets":["{P}/w/b.txt","{P}/w/~","/home/me","{P}/w/v","{P}/w/~/h","/home/me/h","{P}/w/~/b.txt","{P}/w/~/~","{P}/w/~/v","{P}/w/~/~/h","/home/me/b.txt","/home/me/~","/home/me/v","/home/me/~/h","{P}/x/b.txt","{P}/x/~","{P}/x/v","{P}/x/~/h","{P}/w/x/b.txt","{P}/w/x/~","{P}/w/x/v","{P}/w/x/~/h","/home/x/b.txt","/home/x/~","/home/x/v","/home/x/~/h"],"raw":["b.txt","~","{v}","b.txt","~","~/h"],"roots":["{P}/w","{P}/w/~","/home/me","{P}/x","{P}/w/x","/home/x"],"changes":[{"operand":"~"},{"operand":"../x"}]}}
+{"id":"shell_targets-00676","out":{"targets":["/up","{P}/w/a","{P}/w/b.txt","{P}/w/dest"],"raw":["../../../../up","a","b.txt","dest","a"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00677","out":{"targets":["{P}/w/Get-Location"],"raw":["(Get-Location)"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00678","out":{"targets":["/","{P}/w/é.md"],"raw":["/","$dir\\'/dev/null'","$env:TEMP\\x","é.md"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00679","out":{"targets":[],"raw":["$VAR/x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00680","out":{"targets":["{P}/w/x,y"],"raw":["x,y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00681","out":{"targets":["{P}/w","{P}/w/b.txt","{P}/w/d","{P}/w/z"],"raw":[".","b.txt","of=d","z","{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00682","out":{"targets":["{P}/w/File","{P}/w/a"],"raw":["File","File","a"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00683","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00684","out":{"targets":["{P}/w/Clear-Content -- -Force: /srv/share/f ―pa:b.txt","{P}/w/-Force","/srv/share/f","{P}/w/―pa:b.txt","{P}/w/b.txt"],"raw":["(Clear-Content -- -Force: \\\\srv\\share\\f ―pa:b.txt)","(Clear-Content -- -Force: \\\\srv\\share\\f ―pa:b.txt)","-Force:","-Force:","\\\\srv\\share\\f","―pa:b.txt","b.txt"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00685","out":{"targets":["{P}/w","{P}/w/y","{P}/w/p","{P}/w/x\\"],"raw":["{P}/w","./y","$PWD/p","x\\","y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00686","out":{"targets":["{P}/w/é.md","{P}/w","{P}/w/w","{P}/w/-x/é.md","{P}/w/-x","{P}/w/-x/w"],"raw":["é.md","{P}/w","[w]","é.md"],"roots":["{P}/w","{P}/w/-x"],"changes":[{"operand":"-x"}]}}
+{"id":"shell_targets-00687","out":{"targets":["{P}/w/-","{P}/w/Tee-Object","{P}/w/_et-Location"],"raw":["-","-","Tee-Object","(_et-Location)"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00688","out":{"targets":[],"raw":["$env:TEMP\\x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00689","out":{"targets":["/"],"raw":["/","y || install -d \"a\" $HOME/h; pushd -1"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00690","out":{"targets":["{P}/w/-x"],"raw":["-x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00691","out":{"targets":["/home/me/$VAR/x","{P}/w/~","/home/me","{P}/w/b.txt","/home/me/~","/home/me/b.txt"],"raw":["~/$VAR/x","~","${PWD}","b.txt","~/$VAR/x"],"roots":["{P}/w","/home/me"],"changes":["home"]}}
+{"id":"shell_targets-00692","out":{"targets":["{P}/w/dir/sub","{P}/w/build/dir/sub","/home/me/dir/sub"],"raw":["dir/sub"],"roots":["{P}/w","{P}/w/build","/home/me"],"changes":[{"operand":"build"},"home"]}}
+{"id":"shell_targets-00693","out":{"targets":["/home/me/h"],"raw":["${HOME}/h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00694","out":{"targets":[],"raw":["(\"${PWD}\")"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00695","out":{"targets":["{P}/w/build","{P}","{P}/w/dest","{P}/w/–NoClobber"],"raw":["build","..","dest","–NoClobber","dest","–NoClobber"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00696","out":{"targets":["/home/me/h","{P}/w","{P}/w/v} 2>&1 || cd"],"raw":["${HOME}/h","`cmd`",".","$HOME/h","{v} 2>&1 || cd"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00697","out":{"targets":["{P}/w/—FilePath=(\"-') >"],"raw":["—FilePath=(\"-') >","—FilePath=(\"-') >"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00698","out":{"targets":["/de-/null"],"raw":["/de-/null"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00699","out":{"targets":["{P}/w/a b","{P}/w/~/a b","/home/me/a b"],"raw":["$VAR/x","a b"],"roots":["{P}/w","{P}/w/~","/home/me"],"changes":[{"operand":"~"}]}}
+{"id":"shell_targets-00700","out":{"targets":["/home/me/$VAR/x","{P}/w/p","{P}/w/C:winp","{P}/w/C:winp/c"],"raw":["~/$VAR/x","$PWD/p","C:winp","{P}/w/C:winp/c"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00701","out":{"targets":["{P}/w/dir","{P}/w/~/dir","/home/me/dir","{P}/w/d/dir","{P}/w/~/d/dir","/home/me/d/dir"],"raw":["dir"],"roots":["{P}/w","{P}/w/~","/home/me","{P}/w/d","{P}/w/~/d","/home/me/d"],"changes":[{"operand":"~"},{"operand":"of=d"}]}}
+{"id":"shell_targets-00702","out":{"targets":["{P}/w","{P}/w/x\\\\ y","{P}/w/dir/sub","{P}/w/d","{P}/w/x,y","{P}","{P}/w/2","{P}/w/~","/home/me","{P}/w/+1","{P}/w/+1/x\\\\ y","{P}/w/+1/dir/sub","{P}/w/+1/d","{P}/w/+1/x,y","{P}/w/+1/2","{P}/w/+1/~"],"raw":[".","x\\\\ y","dir/sub","of=d","x,y",".","${PWD}","x\\\\ y",".","dir/sub","..","2","of=d","~"],"roots":["{P}/w","{P}/w/+1"],"changes":[{"operand":"+1"}]}}
+{"id":"shell_targets-00703","out":{"targets":["/up"],"raw":["../../../../up","of=$HOME/h"],"roots":["{P}/w"],"changes":["stay"]}}
+{"id":"shell_targets-00704","out":{"targets":["{P}/w/File","{P}/w/a b/File"],"raw":["$dir\\$HOME\\h","File","File","$x.y"],"roots":["{P}/w","{P}/w/a b"],"changes":[]}}
+{"id":"shell_targets-00705","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/C:/x"],"changes":[]}}
+{"id":"shell_targets-00706","out":{"targets":["{P}/w/―Path","{P}/w/—Force","{P}/w/y","{P}/w/D:q"],"raw":["―Path:","―Path:","—Force:",".\\y","D:q","D:q"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00707","out":{"targets":["{P}/w/~/of=d","/home/me/of=d","/up","{P}/w/dir","{P}/w","/home/me/~/of=d","/home/me/dir","/home/me"],"raw":["~/of=d","../../../../up","dir","."],"roots":["{P}/w","/home/me"],"changes":["home"]}}
+{"id":"shell_targets-00708","out":{"targets":["{P}/w/v","/home/me/h"],"raw":["{v}","(sc -Path '${x}',$HOME\\h –Stream: x --)","${x}","$HOME\\h"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00709","out":{"targets":["{P}/w/~/h","/home/me/h","{P}/w/x,y"],"raw":["~/h","x,y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00710","out":{"targets":["{P}","{P}/w/-x","{P}/w","{P}/w/c/-x"],"raw":["..","-x"],"roots":["{P}/w","{P}/w/c"],"changes":[{"operand":",c,"}]}}
+{"id":"shell_targets-00711","out":{"targets":["{P}/w/z "],"raw":["z "],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00712","out":{"targets":["{P}/w/v","{P}/w/-","/","{P}/w/2","{P}/w/=","{P}/w/Out-File","{P}/w/Get-Location"],"raw":["{v}","-","/","2","=","Out-File","(Get-Location)"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00713","out":{"targets":["{P}/w/dir/sub"],"raw":["dir\\sub","dir\\sub"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00714","out":{"targets":["{P}/w/C:/abs/p"],"raw":["C:\\abs\\p","C:\\abs\\p"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00715","out":{"targets":[],"raw":[],"roots":["{P}/w","/home/me"],"changes":["unknown",{"operand":"$HOME"}]}}
+{"id":"shell_targets-00716","out":{"targets":["{P}/w/--","{P}/w/x","{P}/w/y"],"raw":["$(New-Item -Stream:x -lp x,y —Confirm $false)","$(New-Item -Stream:x -lp x,y —Confirm $false)","--","x","y","x","y","$false","x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00717","out":{"targets":["{P}/w/a","{P}/w","{P}","{P}/w/v"],"raw":["a","{P}/w","..","{v}"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00718","out":{"targets":["{P}/w/-Path","{P}/w/dir/sub","{P}/w/rm","{P}/w/-rf","{P}/w","{P}/w/raw"],"raw":["-Path","-Path","dir\\sub","rm","-rf",".","-Path","raw"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00719","out":{"targets":["{P}/w/C:\\win\\p"],"raw":["C:\\win\\p"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00720","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00721","out":{"targets":["/home/me/h","/","{P}","{P}/w/clc"],"raw":["${HOME}/h","$dir\\$x","/","..","clc"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00722","out":{"targets":["{P}/w/sc","{P}/w/-"],"raw":["sc","-"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00723","out":{"targets":["{P}/w/-Value","{P}/w/é.md"],"raw":["-Value","é.md","é.md","$(pwd)"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00724","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00725","out":{"targets":["{P}/w/~/-","/home/me/-","{P}/w/~/work/q r","/home/me/work/q r","{P}/w","{P}/w/é.md","/home/me/~/-","/home/me/~/work/q r","/home/me","/home/me/é.md"],"raw":["~/-","${PWD}","~//work/q r",".","é.md","${PWD}"],"roots":["{P}/w","/home/me"],"changes":[{"operand":"$HOME"}]}}
+{"id":"shell_targets-00726","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[{"operand":"$X"}]}}
+{"id":"shell_targets-00727","out":{"targets":["/"],"raw":["/"],"roots":["{P}/w","/home/me","{P}/w/y","/home/me/y"],"changes":["home",{"operand":"./y"},"unknown"]}}
+{"id":"shell_targets-00728","out":{"targets":["{P}/w/Get-Location"],"raw":["(Get-Location)","$(pwd)"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00729","out":{"targets":["{P}/w/a b","{P}/w/src"],"raw":["a b","src/"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00730","out":{"targets":["/home/me/$PWD/p","{P}/w/é.md","{P}/w"],"raw":["$VAR/x","~/$PWD/p","é.md","{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00731","out":{"targets":["{P}/w/dest","{P}/w/src","{P}/w/d","{P}/w/dest/d","{P}/w/dest/src","{P}/w/a:b","{P}/x/dest","{P}/x/src","{P}/x/d","{P}/x/dest/d","{P}/x/dest/src","{P}/x/a:b"],"raw":["dest","src/","of=d","src/","dest","{P}/w/dest/d","{P}/w/dest/src","a:b"],"roots":["{P}/w","{P}/x"],"changes":[{"operand":"../x"}]}}
+{"id":"shell_targets-00732","out":{"targets":["{P}/w/dest"],"raw":["$x","dest"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00733","out":{"targets":["{P}/w/y","{P}/w/string]'t'","{P}/w/b.txt","{P}/w/–Append"],"raw":[".\\y","[string]'t'","b.txt","–Append","b.txt","–Append"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00734","out":{"targets":["{P}/w/string]'t'","{P}/w/-Path","{P}/w/File"],"raw":["[string]'t'","-Path","File"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00735","out":{"targets":["{P}/w/p"],"raw":["$pwd\\p","$pwd\\p","('$HOME\\h\") | Out-File —ItemType=File –Value:'-Value'"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00736","out":{"targets":["{P}/w/string]t","{P}/w/p"],"raw":["[string]t","[string]t","$PWD/p","$PWD/p","[string]t"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00737","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00738","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00739","out":{"targets":["{P}/w/x\\","{P}/w/y","/home/me/x\\","/home/me/y"],"raw":["x\\","y"],"roots":["{P}/w","/home/me"],"changes":[{"operand":"$HOME"}]}}
+{"id":"shell_targets-00740","out":{"targets":["/up"],"raw":["../../../../up"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00741","out":{"targets":["{P}/w/-x","{P}/w/x,y/-x"],"raw":["-x"],"roots":["{P}/w","{P}/w/x,y"],"changes":[{"operand":"x,y"}]}}
+{"id":"shell_targets-00742","out":{"targets":[],"raw":["f?"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00743","out":{"targets":["/","/home/me/h"],"raw":["/","$HOME/h"],"roots":["{P}/w","{P}/x"],"changes":[{"operand":"../x"}]}}
+{"id":"shell_targets-00744","out":{"targets":["/work/q r"],"raw":["/work/q r"],"roots":["{P}/w","{P}/w/p"],"changes":[{"operand":"$PWD/p"}]}}
+{"id":"shell_targets-00745","out":{"targets":["{P}/w/~/h","/home/me/h","/home/me/~/h"],"raw":["~/h"],"roots":["{P}/w","/home/me"],"changes":[{"operand":"$HOME"},"unknown"]}}
+{"id":"shell_targets-00746","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/~","/home/me"],"changes":[{"operand":"~"}]}}
+{"id":"shell_targets-00747","out":{"targets":["{P}/w/c"],"raw":[",c,"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00748","out":{"targets":["{P}/w/é.md"],"raw":["$false","of=é.md"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00749","out":{"targets":["{P}/w/dir/sub","{P}/w/dest","/home/me/h","{P}/w"],"raw":["dir/sub","dest","${HOME}/h","f?","{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00750","out":{"targets":["/home/me/h","{P}/w/x,y"],"raw":["${HOME}/h","x,y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00751","out":{"targets":["{P}/w","{P}/w/dir/sub"],"raw":[".","dir/sub","`cmd`"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00752","out":{"targets":["{P}/w","{P}/w/é.md","{P}/w/x","{P}/w/a:b","{P}/w/2"],"raw":[".",".","{P}/w/é.md","{P}/w/x","{P}/w/a:b","{P}/w/2"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00753","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/x"],"changes":[{"operand":"../x"}]}}
+{"id":"shell_targets-00754","out":{"targets":["{P}/w/~/h","{P}/w/dir/sub"],"raw":["of=~/h","dir/sub"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00755","out":{"targets":["/up","{P}/w/2","{P}/w/dir"],"raw":["../../../../up","2","`cmd`","dir"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00756","out":{"targets":["{P}/w","{P}/w/src","/"],"raw":[".","src/","/","."],"roots":["{P}/w"],"changes":[{"operand":"$VAR/x"}]}}
+{"id":"shell_targets-00757","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[{"operand":"${PWD}"}]}}
+{"id":"shell_targets-00758","out":{"targets":["{P}/w/dir","/"],"raw":["dir","`cmd`","dir","/"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00759","out":{"targets":["{P}/w/-x"],"raw":["of=-x"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00760","out":{"targets":["{P}/w/o","{P}/w/-Path","{P}/w/y","{P}/w/C:/abs/p","{P}/w/it''s"],"raw":["o","-Path",".\\y","C:\\abs\\p","it''s"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00761","out":{"targets":["{P}/w/~/h","/home/me/h","{P}/w/x\\ y"],"raw":["~/h","x\\ y","~/h","${PWD}"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00762","out":{"targets":["{P}/w/é.md"],"raw":["é.md"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00763","out":{"targets":[],"raw":["*"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00764","out":{"targets":["{P}/w/dir","{P}/w/dir/w"],"raw":["dir","{P}/w/dir/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00765","out":{"targets":["/abs/p","{P}/w/a","{P}/w/x\\/a"],"raw":["`cmd`","/abs/p","`cmd`","a"],"roots":["{P}/w","{P}/w/x\\"],"changes":[{"operand":"x\\"}]}}
+{"id":"shell_targets-00766","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/é.md"],"changes":[{"operand":"é.md"}]}}
+{"id":"shell_targets-00767","out":{"targets":["{P}/w/C:win\\p","{P}/w/dest"],"raw":["C:win\\p","dest"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00768","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00769","out":{"targets":["{P}/w/utf8"],"raw":["utf8","utf8"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00770","out":{"targets":["{P}/w/Get-Location","{P}/w/a"],"raw":["(Get-Location)","a","a"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00771","out":{"targets":["/work/q r","{P}/w","{P}/w/p","{P}/w/-"],"raw":["/work/q r",".","$PWD/p","-","/work/q r"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00772","out":{"targets":["{P}/w/@(a","{P}/w/―Encoding=utf8"],"raw":["@(a)","―Encoding=utf8","―Encoding=utf8"],"roots":["{P}/w"],"changes":["unknown"]}}
+{"id":"shell_targets-00773","out":{"targets":["/n/s/t"],"raw":["of=//n/s/t"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00774","out":{"targets":[],"raw":[],"roots":["{P}/w","/home/me/x"],"changes":[{"operand":"${HOME}/x"},{"operand":"$x\\y"}]}}
+{"id":"shell_targets-00775","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00776","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/a"],"changes":[{"operand":"―Path"}]}}
+{"id":"shell_targets-00777","out":{"targets":[],"raw":[],"roots":["{P}/w","/home/me"],"changes":["home"]}}
+{"id":"shell_targets-00778","out":{"targets":["/up","{P}/w/src"],"raw":["../../../../up","../../../../up","src/","../../../../up"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00779","out":{"targets":["{P}/w/c","{P}/w/~","/home/me","{P}/w/~/c","{P}/w/~/~","/home/me/c","/home/me/~"],"raw":[",c,","${PWD}","~",",c,"],"roots":["{P}/w","{P}/w/~","/home/me"],"changes":[{"operand":"~"}]}}
+{"id":"shell_targets-00780","out":{"targets":["/","{P}/w/Tee-Object -lp: ‚./y’ –WhatIf","{P}/w/p","{P}/w/y"],"raw":["/","(Tee-Object -lp: ‚.\\y’ –WhatIf)","$PWD/p",".\\y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00781","out":{"targets":["{P}/w/nul"],"raw":["nul","nul"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00782","out":{"targets":["{P}/w","{P}/w/~","/home/me"],"raw":["${PWD}","{P}/w","{P}/w"],"roots":["{P}/w","{P}/w/~","/home/me"],"changes":[{"operand":"~"}]}}
+{"id":"shell_targets-00783","out":{"targets":["{P}/w/a b","{P}/w/w"],"raw":["a b","[w]"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00784","out":{"targets":["{P}/w/Set-Content ―Variable '--'","{P}/w/―Name=a.txt","{P}/w/-Encoding=utf8","{P}/w/File"],"raw":["(Set-Content ―Variable '--')","―Name=a.txt","-Encoding=utf8","-Encoding=utf8","File"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00785","out":{"targets":["{P}/w/é.md","{P}/w/z","{P}/w/dest"],"raw":["é.md","é.md","z","é.md","z","dest"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00786","out":{"targets":["{P}/w/z","/home/me/h","{P}/w/C:\\win\\p","{P}/w/dir/z","{P}/w/dir/C:\\win\\p"],"raw":["(z)","${HOME}/h","C:\\win\\p"],"roots":["{P}/w","{P}/w/dir"],"changes":[{"operand":"dir"}]}}
+{"id":"shell_targets-00787","out":{"targets":["/","{P}/w/w"],"raw":["/","/","[w]","/","[w]"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00788","out":{"targets":["{P}/w/é.md"],"raw":["é.md"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00789","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00790","out":{"targets":["{P}/w/c","/","{P}/w/v"],"raw":[",c,","of=f?","/","{v}","${PWD}"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00791","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00792","out":{"targets":["/up"],"raw":["../../../../up","../../../../up","../../../../up"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00793","out":{"targets":[],"raw":[],"roots":["{P}/w","{P}/w/src"],"changes":[{"operand":"src/"}]}}
+{"id":"shell_targets-00794","out":{"targets":["{P}/w","{P}/w/y"],"raw":["$(pwd)","{P}/w",".\\y"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00795","out":{"targets":["{P}/w/File","{P}/w/dir"],"raw":["(Clear-Content -Weird dir —NoClobber –Force: $x.y)","File","File","dir","dir"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00796","out":{"targets":[],"raw":["$env:TEMP\\x","$env:TEMP\\x","$(pwd)"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00797","out":{"targets":["{P}/w/~","/home/me","{P}/w/~/-","{P}/w/~/a:b"],"raw":["~","~","{P}/w/~/-","{P}/w/~/a:b"],"roots":["{P}/w"],"changes":[{"operand":"$X"}]}}
+{"id":"shell_targets-00798","out":{"targets":["{P}/w/a b","{P}/w/build","{P}/w/y"],"raw":["a b","build","./y"],"roots":["{P}/w"],"changes":[{"operand":"${PWD}"}]}}
+{"id":"shell_targets-00799","out":{"targets":["{P}/w/D:q"],"raw":["D:q"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00800","out":{"targets":["/home/me/h","{P}/w/-Value","{P}/w/x","{P}/w/--","/","/work/q r"],"raw":["${HOME}/h","${HOME}/h","-Value","x","--","${HOME}/h","x","-Value","/","/work/q r"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00801","out":{"targets":["{P}/w/x,y","{P}/w/c","{P}/w/~","/home/me"],"raw":["x,y",",c,","~"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00802","out":{"targets":["{P}/w/~/h","/home/me/h","{P}/w/é.md","{P}/w"],"raw":["~/h","é.md","."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00803","out":{"targets":["{P}/w/é.md","{P}/x","/abs/p"],"raw":["*.log","é.md","../x","é.md","of=/abs/p"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00804","out":{"targets":["{P}/w/~/-","/home/me/-","{P}/w/~/-/-"],"raw":["~/-","~/-","{P}/w/~/-/-"],"roots":["{P}/w"],"changes":[{"operand":"${PWD}"}]}}
+{"id":"shell_targets-00805","out":{"targets":["{P}/w/D:q","{P}/w/2","{P}/w/dir/sub"],"raw":["D:q","$x.y","2","$x.y","2","('D:q\") > ('é.md\") 2>&1; $x += cd \"$x\\y\" >> (\"${HOME}/h\")","D:q","dir\\sub"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00806","out":{"targets":["{P}/w/dir/sub","{P}/w","{P}/w/é.md/dir/sub","{P}/w/é.md"],"raw":["*.log","dir/sub","{P}/w"],"roots":["{P}/w","{P}/w/é.md"],"changes":[{"operand":"é.md"}]}}
+{"id":"shell_targets-00807","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00808","out":{"targets":["/","{P}/w"],"raw":["*.log","/","."],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00809","out":{"targets":["{P}/w/D:q","{P}/w/cp","{P}/w/a.txt"],"raw":["$dir\\‘é.md‘","D:q","$(si)","cp","cp","a.txt","—Destination=$PWD/p"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00810","out":{"targets":["{P}/w/-Value","{P}/w/-Value=@(-x","{P}/w/b.txt","{P}/w/–ea","{P}/w/0","{P}/w"],"raw":["-Value","-Value=@(-x)","-Value=@(-x)","b.txt","–ea","0","{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00811","out":{"targets":["{P}/w/c","{P}/w/~","/home/me","{P}/w"],"raw":[",c,","~","{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00812","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00813","out":{"targets":["{P}/w/dir/sub","{P}/w/a","{P}/w/of=d","{P}/w/~/dir/sub","{P}/w/~/a","{P}/w/~/of=d","/home/me/dir/sub","/home/me/a","/home/me/of=d"],"raw":["dir/sub","a","$VAR/x","of=of=d"],"roots":["{P}/w","{P}/w/~","/home/me"],"changes":[{"operand":"~"}]}}
+{"id":"shell_targets-00814","out":{"targets":["{P}","{P}/w/~/h","/home/me/h","/abs/p","{P}/w/x,y"],"raw":["..","~/h","${PWD}","/abs/p","of=x,y","${PWD}","*.log","*.log","/abs/p","*.log","/abs/p"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00815","out":{"targets":["{P}/w/string]t","{P}/w/File","{P}/w"],"raw":["[string]t","―Confirm=$false","―Confirm=$false","File","$(pwd)","{P}/w"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00816","out":{"targets":["{P}/w/x,y","{P}/w/b.txt"],"raw":["x,y","of=b.txt"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00817","out":{"targets":["{P}/w/C:winp","{P}/w/p","{P}/w/C:winp/h","{P}/w/C:winp/focus-oracle-shell-shell_targets-00817","{P}/w/C:winp/2"],"raw":["$VAR/x","C:winp","$PWD/p","C:winp","{P}/w/C:winp/h","{P}/w/C:winp/focus-oracle-shell-shell_targets-00817","{P}/w/C:winp/2"],"roots":["{P}/w"],"changes":[]}}
+{"id":"shell_targets-00818","out":{"targets":[],"raw":[],"roots":["{P}/w"],"changes":[]}}
