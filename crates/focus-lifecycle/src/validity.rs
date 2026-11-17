@@ -13,6 +13,7 @@
 //! `aggregateArtifactBasis` in `aidlc-validity.ts`, and `committedTextBytes`
 //! in `aidlc-lib.ts`.
 
+use focus_evidence::source::raw as raw_forms;
 use focus_graph::runtime::Stage;
 use focus_graph::vocabulary::artifact_filename;
 use focus_js::json;
@@ -151,34 +152,6 @@ struct Fingerprint {
     present: bool,
 }
 
-/// `RAW_FINGERPRINTS`: a content hash taken over raw line endings of a file
-/// read in this process, mapped to that content's current hash; what a
-/// recorded receipt from before line endings were read as LF reads as now.
-static RAW_FINGERPRINTS: std::sync::Mutex<Vec<(String, String)>> =
-    std::sync::Mutex::new(Vec::new());
-
-/// `rememberRawFingerprint`.
-fn remember_raw_fingerprint(raw: String, current: String) {
-    if raw == current {
-        return;
-    }
-    let mut known = RAW_FINGERPRINTS
-        .lock()
-        .unwrap_or_else(std::sync::PoisonError::into_inner);
-    known.retain(|(known_raw, _)| *known_raw != raw);
-    known.push((raw, current));
-}
-
-/// `currentFingerprintForm`.
-fn current_fingerprint_form(value: &str) -> String {
-    RAW_FINGERPRINTS
-        .lock()
-        .unwrap_or_else(std::sync::PoisonError::into_inner)
-        .iter()
-        .find(|(raw, _)| raw == value)
-        .map_or_else(|| value.to_owned(), |(_, current)| current.clone())
-}
-
 /// `fingerprintInstance`.
 fn fingerprint(instance: Instance) -> Fingerprint {
     let path = &instance.absolute_path;
@@ -304,12 +277,12 @@ fn aggregate(
                 })
             })
             .collect();
-        remember_raw_fingerprint(
-            format!(
+        raw_forms::remember(
+            &format!(
                 "sha256:{}",
                 sha256_hex(canonical_json(&Value::Array(raw)).as_bytes())
             ),
-            content_hash.clone(),
+            &content_hash,
         );
     }
     Some(json!({
@@ -680,7 +653,7 @@ fn basis_in_current_form(basis: &Basis) -> Basis {
         items
             .iter()
             .map(|item| ArtifactBasis {
-                content_hash: current_fingerprint_form(&item.content_hash),
+                content_hash: raw_forms::current_form(&item.content_hash),
                 ..item.clone()
             })
             .collect()

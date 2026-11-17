@@ -83,6 +83,7 @@ const NO_CODE_FOUND_YET: &str = "The scan found no code in this folder yet; Reve
 
 /// The install's scopes and graph, read once. Creation reads it to plan a
 /// piece of work; a transition, to find a stage and the scope's next one.
+#[derive(Clone)]
 pub struct Install {
     /// The enabled stages, in graph order.
     pub graph: Vec<Stage>,

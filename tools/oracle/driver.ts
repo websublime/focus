@@ -7,6 +7,7 @@
 // that owns the kind). The two outputs are compared as text, so key order is
 // part of the answer.
 import { chmodSync, linkSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, utimesSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { referee, second } from "./referee/referee.ts";
@@ -708,6 +709,86 @@ async function answer(c: Record<string, any>): Promise<unknown> {
       } catch (err) {
         return { error: (err as Error).message };
       }
+    case "summary_input":
+      // A stage's questions as a review's input: text, or bytes that are none.
+      return lib.summaryInputReviewFingerprint(c.hex !== undefined ? Buffer.from(c.hex, "hex") : Buffer.from(c.text, "utf-8"));
+    case "review_snapshot": {
+      // What a review is of, in a project of the case's own: the fingerprint
+      // of the stage's declared artifacts, the snapshot with its appendix
+      // view, and what each kind of request would be told of that snapshot.
+      const root = mkdtempSync(join(tmpdir(), "focus-oracle-snapshot-"));
+      const space = join(root, "aidlc", "spaces", "default");
+      mkdirSync(space, { recursive: true });
+      for (const rel of (c.dirs ?? []) as string[]) mkdirSync(join(space, rel), { recursive: true });
+      for (const [rel, text] of Object.entries(c.files as Record<string, string>)) {
+        mkdirSync(dirname(join(space, rel)), { recursive: true });
+        writeFileSync(join(space, rel), text);
+      }
+      for (const [rel, bytes] of Object.entries((c.hex ?? {}) as Record<string, string>)) {
+        mkdirSync(dirname(join(space, rel)), { recursive: true });
+        writeFileSync(join(space, rel), Buffer.from(bytes, "hex"));
+      }
+      if (c.state !== null) {
+        mkdirSync(join(space, "intents", "rec-1a2b3c4d"), { recursive: true });
+        writeFileSync(join(space, "intents", "rec-1a2b3c4d", "aidlc-state.md"), c.state);
+      }
+      for (const [rel, target] of Object.entries((c.links ?? {}) as Record<string, string>)) {
+        mkdirSync(dirname(join(space, rel)), { recursive: true });
+        symlinkSync(join(space, target), join(space, rel));
+      }
+      for (const [rel, target] of Object.entries((c.hard ?? {}) as Record<string, string>)) {
+        mkdirSync(dirname(join(space, rel)), { recursive: true });
+        linkSync(join(space, target), join(space, rel));
+      }
+      const data = resolve(upstream, "dist", "claude", ".claude", "tools", "data");
+      const compiled = JSON.parse(readFileSync(join(data, "stage-graph.json"), "utf-8"));
+      const stage = (Array.isArray(compiled) ? compiled : compiled.stages).find((node: { slug: string }) => node.slug === c.slug);
+      if (stage === undefined) throw new Error(`${c.id}: no stage ${c.slug}`);
+      const before = [process.env.AIDLC_STAGE_GRAPH, process.env.AIDLC_SCOPE_GRID];
+      process.env.AIDLC_STAGE_GRAPH = join(data, "stage-graph.json");
+      process.env.AIDLC_SCOPE_GRID = join(data, "scope-grid.json");
+      try {
+        const asked = { requireRequiredArtifacts: c.require, ...(c.merged === null ? {} : { mergedBoltUnits: new Set<string>(c.merged) }) };
+        const snapshot = lib.reviewArtifactSnapshot(root, stage, c.unit ?? undefined, asked);
+        const fingerprint = lib.reviewArtifactFingerprint(root, stage, c.unit ?? undefined, {
+          ...asked,
+          ...(c.given_state === undefined ? {} : { stateContent: c.given_state }),
+        });
+        if (snapshot === null) return { fingerprint, snapshot: null };
+        const other = `sha256:${"0".repeat(64)}`;
+        const bodies = snapshot.bodyFingerprints as string[];
+        const requested = [snapshot.fingerprint, bodies[0], bodies[bodies.length - 1], other, lib.rawFingerprintForm(snapshot.fingerprint) ?? other];
+        const told = requested.map((artifactFingerprint) =>
+          [null, false, true].map((prior) => {
+            const binding = {
+              artifactFingerprint,
+              requestId: null,
+              legacyAppendix: prior === null ? null : { artifact: snapshot.reviewArtifact, offset: 0, priorDigest: null, priorLength: null, challenge: null, priorAppendix: prior },
+              sourceFingerprint: null,
+              unitSourceFingerprint: null,
+              recoveryCause: null,
+            };
+            return [lib.reviewRequestArtifactsCurrent(binding, snapshot), lib.reviewAppendedAfterRequest(binding, snapshot)];
+          }));
+        return {
+          fingerprint,
+          snapshot: {
+            fingerprint: snapshot.fingerprint,
+            artifact: snapshot.reviewArtifact,
+            bodies,
+            appendix: [snapshot.appendix.length, createHash("sha256").update(snapshot.appendix).digest("hex")],
+            raw: [snapshot.fingerprint, ...bodies].map((value) => lib.rawFingerprintForm(value)),
+          },
+          told,
+        };
+      } finally {
+        for (const [index, name] of ["AIDLC_STAGE_GRAPH", "AIDLC_SCOPE_GRID"].entries()) {
+          if (before[index] === undefined) delete process.env[name];
+          else process.env[name] = before[index];
+        }
+        rmSync(root, { recursive: true, force: true });
+      }
+    }
     case "review_accounting": {
       // The reviews of one attempt, counted, in a project of its own: the
       // record's folder holds the review records the verdicts name.

@@ -47,6 +47,12 @@ pub fn workspace_requires(stage: &Stage) -> bool {
     stage.raw.get("workspace_requires").is_some_and(truthy)
 }
 
+/// `stage.review_artifact`: the artifact a review of the stage is about.
+#[must_use]
+pub fn review_artifact(stage: &Stage) -> Option<&str> {
+    text(stage, "review_artifact")
+}
+
 /// `stage.summary_confirmation`: `required` or `if-present`, when declared.
 #[must_use]
 pub fn summary_confirmation(stage: &Stage) -> Option<&str> {

@@ -15,6 +15,7 @@
 //! `codekbDir`, `usesStageLevelPerUnitArtifacts` and `filterProducesByKind`
 //! in `aidlc-lib.ts`.
 
+use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -829,12 +830,38 @@ pub fn resolve_artifact_instances(
 
 // --- Review artifact entries --------------------------------------------------
 
-/// `ReviewArtifactEntry`, as far as a jump names it: the artifact's logical
-/// path, and its file when one place holds it.
+/// `ReviewArtifactEntry`: one declared artifact of a stage, where it is or
+/// would be.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ReviewEntry {
+    /// The artifact's name within its record or the code knowledge base,
+    /// the same wherever the project is.
     pub logical_path: String,
+    /// Its file, when one place holds it.
     pub path: Option<PathBuf>,
+    /// The folder the file may not be outside of: the record's, or the code
+    /// knowledge base's.
+    pub boundary: PathBuf,
+    /// The stage owes it (`produces`); an optional one is `false`.
+    pub required: bool,
+    /// `reviewAppendixTarget`: it is the stage's `review_artifact`.
+    pub appendix_target: bool,
+    /// `summaryInput`: the stage's questions, whose summary confirmation
+    /// the person answers after the review.
+    pub summary_input: bool,
+}
+
+/// What narrows the entries of a stage.
+#[derive(Debug, Clone, Copy, Default)]
+pub struct ReviewScope<'a> {
+    /// The one unit asked about, for a per-unit stage.
+    pub unit: Option<&'a str>,
+    /// The state to read the scope from: `None` reads the record's, and
+    /// `Some(None)` says there is none.
+    pub state: Option<Option<&'a str>>,
+    /// The units whose bolt is merged, which stand for the units while the
+    /// record has no readable DAG.
+    pub merged_bolt_units: Option<&'a BTreeSet<String>>,
 }
 
 /// The entry's path as the workspace names it (`workspaceArtifactPath`):
@@ -860,141 +887,221 @@ pub fn review_artifact_entries(
     stage: &Stage,
     state: Option<&str>,
 ) -> Result<Option<Vec<ReviewEntry>>> {
-    // Read where upstream reads it, for a stage of the code knowledge
-    // base alone. The one caller, a jump, has read the same row for its
-    // baseline by then, so a row that is refused never gets here.
-    let listed = if KNOWN_CODEKB_STAGES.contains(&stage.slug.as_str()) {
-        intent_repos(
-            &wf.layout,
-            &wf.selection.space,
-            wf.selection.intent.as_deref(),
-        )?
-    } else {
-        Vec::new()
+    let scope = ReviewScope {
+        state: state.map(Some),
+        ..ReviewScope::default()
     };
-    Ok(review_entries(wf, stage, state, listed))
+    // A folder that cannot be listed holds nothing, for a jump: the one
+    // caller that is not asking what a review is of.
+    Ok(review_entries(wf, stage, scope)?.unwrap_or_else(|_| Some(Vec::new())))
 }
 
-fn review_entries(
+/// A folder upstream lists by name, when the name is there and is no
+/// folder that can be listed: upstream falls over on it, and whoever asks
+/// what a review is of gets no answer.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Unlistable;
+
+/// `readdirSync(dir).filter(...)` behind `existsSync(dir)`: the names in
+/// `dir` that `keep` keeps; none when nothing is there.
+fn listed(dir: &Path, keep: impl Fn(&Path) -> bool) -> std::result::Result<Vec<String>, Unlistable> {
+    if !dir.exists() {
+        return Ok(Vec::new());
+    }
+    let mut names: Vec<String> = std::fs::read_dir(dir)
+        .map_err(|_| Unlistable)?
+        .filter_map(std::result::Result::ok)
+        .map(|entry| entry.file_name().to_string_lossy().into_owned())
+        .filter(|name| keep(&dir.join(name)))
+        .collect();
+    // Upstream takes the order the host lists a folder in. Whoever reads
+    // the entries orders them again.
+    names.sort_by(|a, b| cmp_utf16(a, b));
+    Ok(names)
+}
+
+/// `reviewArtifactEntries`, for a reader of what a review is of: the
+/// entries; `None` when no record is selected; and [`Unlistable`] where
+/// upstream falls over.
+///
+/// # Errors
+///
+/// The row's `repos` is not a list of names, for a stage of the code
+/// knowledge base.
+pub fn review_entries(
     wf: &Workflow,
     stage: &Stage,
-    state: Option<&str>,
-    listed: Vec<String>,
-) -> Option<Vec<ReviewEntry>> {
+    scope: ReviewScope<'_>,
+) -> Result<std::result::Result<Option<Vec<ReviewEntry>>, Unlistable>> {
     let kinds = stage::produces_kinds(stage);
-    let artifacts_for_kind = |kind: Option<&str>| -> Vec<String> {
+    let review_artifact = stage::review_artifact(stage);
+    // `summaryOwnedReviewInput`.
+    let summary_owned = |name: &str| {
+        stage::summary_confirmation(stage).is_some()
+            && name.ends_with("-questions")
+            && Some(name) != review_artifact
+    };
+    // (name, required, appendix target, summary input)
+    let artifacts_for_kind = |kind: Option<&str>| -> Vec<(String, bool, bool, bool)> {
         filter_produces_by_kind(kinds, &stage.produces, kind)
             .into_iter()
-            .chain(filter_produces_by_kind(
-                kinds,
-                &stage.optional_produces,
-                kind,
-            ))
-            .cloned()
+            .map(|name| {
+                (
+                    name.clone(),
+                    true,
+                    Some(name.as_str()) == review_artifact,
+                    summary_owned(name),
+                )
+            })
+            .chain(
+                filter_produces_by_kind(kinds, &stage.optional_produces, kind)
+                    .into_iter()
+                    .map(|name| (name.clone(), false, false, summary_owned(name))),
+            )
             .collect()
     };
     let all = artifacts_for_kind(None);
-    let entry = |logical: String, path: Option<PathBuf>| ReviewEntry {
+    let entry = |artifact: &(String, bool, bool, bool),
+                 logical: String,
+                 path: Option<PathBuf>,
+                 boundary: &Path| ReviewEntry {
         logical_path: logical,
         path,
+        boundary: boundary.to_path_buf(),
+        required: artifact.1,
+        appendix_target: artifact.2,
+        summary_input: artifact.3,
     };
     if KNOWN_CODEKB_STAGES.contains(&stage.slug.as_str()) {
         let root = wf.layout.space_dir(&wf.selection.space).join("codekb");
-        let mut repos = listed;
-        if repos.is_empty()
-            && let Ok(entries) = std::fs::read_dir(&root)
-        {
-            repos = entries
-                .filter_map(std::result::Result::ok)
-                .filter(|entry| root.join(entry.file_name()).is_dir())
-                .map(|entry| entry.file_name().to_string_lossy().into_owned())
-                .collect();
+        // Read where upstream reads it, for a stage of the code knowledge
+        // base alone.
+        let mut repos = intent_repos(
+            &wf.layout,
+            &wf.selection.space,
+            wf.selection.intent.as_deref(),
+        )?;
+        if repos.is_empty() {
+            repos = match listed(&root, Path::is_dir) {
+                Ok(names) => names,
+                Err(unlistable) => return Ok(Err(unlistable)),
+            };
         }
         if repos.is_empty() {
-            return Some(
+            return Ok(Ok(Some(
                 all.iter()
-                    .map(|name| entry(format!("codekb/*/{}", artifact_filename(name)), None))
+                    .map(|artifact| {
+                        entry(
+                            artifact,
+                            format!("codekb/*/{}", artifact_filename(&artifact.0)),
+                            None,
+                            &root,
+                        )
+                    })
                     .collect(),
-            );
+            )));
         }
-        return Some(
+        return Ok(Ok(Some(
             repos
                 .iter()
                 .flat_map(|repo| {
-                    all.iter().map(move |name| {
-                        let file = artifact_filename(name);
+                    let root = &root;
+                    all.iter().map(move |artifact| {
+                        let file = artifact_filename(&artifact.0);
                         entry(
+                            artifact,
                             format!("codekb/{repo}/{file}"),
                             Some(codekb_dir(wf, repo).join(file)),
+                            root,
                         )
                     })
                 })
                 .collect(),
-        );
+        )));
     }
-    let record = wf.record_dir()?;
+    let Some(record) = wf.record_dir() else {
+        return Ok(Ok(None));
+    };
     let stage_level = || -> Vec<ReviewEntry> {
         all.iter()
-            .map(|name| {
-                let file = artifact_filename(name);
+            .map(|artifact| {
+                let file = artifact_filename(&artifact.0);
                 entry(
+                    artifact,
                     format!("{}/{}/{file}", stage.phase, stage.slug),
                     Some(record.join(&stage.phase).join(&stage.slug).join(file)),
+                    &record,
                 )
             })
             .collect()
     };
     if !stage::has_unit_marker(stage) {
-        return Some(stage_level());
+        return Ok(Ok(Some(stage_level())));
     }
-    let stage_level_present = all.iter().any(|name| {
+    let stage_level_present = all.iter().any(|artifact| {
         record
             .join(&stage.phase)
             .join(&stage.slug)
-            .join(artifact_filename(name))
+            .join(artifact_filename(&artifact.0))
             .exists()
     });
-    let discovered: Vec<String> = stage_unit_directories(&record, &stage.slug)
-        .into_iter()
-        .map(|(unit, _)| unit)
-        .collect();
-    let state_text = match state {
-        Some(text) => Some(text.to_owned()),
+    // A unit's folder, a link to one included, with anything by the
+    // stage's name in it.
+    let discovered = match listed(&record.join("construction"), |unit| {
+        unit.is_dir() && unit.join(&stage.slug).exists()
+    }) {
+        Ok(names) => names,
+        Err(unlistable) => return Ok(Err(unlistable)),
+    };
+    let state_text = match scope.state {
+        Some(given) => given.map(str::to_owned),
         None => wf.read_state().ok(),
     };
-    if let Some(text) = &state_text
+    if scope.unit.is_none()
+        && let Some(text) = &state_text
         && uses_stage_level_per_unit_artifacts(wf, get_field(text, "Scope").unwrap_or(""), text)
         && (stage_level_present || discovered.is_empty())
     {
-        return Some(stage_level());
+        return Ok(Ok(Some(stage_level())));
     }
     let dag = resolve_bolt_dag(wf);
-    let units: Vec<String> = match &dag {
-        Dag::Ok { units, .. } => units.clone(),
-        _ => {
-            if stage_level_present {
-                return Some(stage_level());
+    let units: Vec<String> = match (scope.unit.filter(|unit| !unit.is_empty()), &dag) {
+        (Some(unit), _) => vec![unit.to_owned()],
+        (None, Dag::Ok { units, .. }) => units.clone(),
+        (None, _) => match scope.merged_bolt_units.filter(|merged| !merged.is_empty()) {
+            Some(merged) => merged.iter().cloned().collect(),
+            None => {
+                if stage_level_present {
+                    return Ok(Ok(Some(stage_level())));
+                }
+                discovered
             }
-            discovered
-        }
+        },
     };
     if units.is_empty() {
-        return Some(
+        return Ok(Ok(Some(
             all.iter()
-                .map(|name| {
+                .map(|artifact| {
                     entry(
-                        format!("construction/*/{}/{}", stage.slug, artifact_filename(name)),
+                        artifact,
+                        format!(
+                            "construction/*/{}/{}",
+                            stage.slug,
+                            artifact_filename(&artifact.0)
+                        ),
                         None,
+                        &record,
                     )
                 })
                 .collect(),
-        );
+        )));
     }
     let mut entries = Vec::new();
     for unit in &units {
-        for name in artifacts_for_kind(dag.kind_of(unit)) {
-            let file = artifact_filename(&name);
+        for artifact in artifacts_for_kind(dag.kind_of(unit)) {
+            let file = artifact_filename(&artifact.0);
             entries.push(entry(
+                &artifact,
                 format!("construction/{unit}/{}/{file}", stage.slug),
                 Some(
                     record
@@ -1003,10 +1110,11 @@ fn review_entries(
                         .join(&stage.slug)
                         .join(file),
                 ),
+                &record,
             ));
         }
     }
-    Some(entries)
+    Ok(Ok(Some(entries)))
 }
 
 #[cfg(test)]

@@ -48,8 +48,8 @@ use focus_graph::vocabulary::heading_key;
 use focus_js::text::{trim, trim_end};
 use focus_js::{Result, re};
 use focus_markdown::{
-    Blocks, COMMENT_MARKER, Line, LineKind, SpanKind, Visible, analyse, source_lines,
-    visible_lines_of,
+    Blocks, COMMENT_MARKER, Line, LineKind, SpanKind, Visible, analyse, restore_markers,
+    source_lines, visible_lines_of,
 };
 use sha2::{Digest, Sha256};
 
@@ -400,6 +400,75 @@ pub fn content_hash(content: &str) -> std::result::Result<String, String> {
     let confirmed = confirmed.join("\n");
     let digest = Sha256::digest(trim_end(&confirmed).as_bytes());
     Ok(digest.iter().map(|byte| format!("{byte:02x}")).collect())
+}
+
+/// A summary section's `[Answer]:` line with nothing chosen, or with one of
+/// the two choices the confirmation offers.
+const CONFIRMATION_LINE: &str = r"^\[Answer\]:[ \t]*(?:Looks correct|Request changes)?[ \t]*$";
+
+/// `summaryInputReviewFingerprint`: the hash of a questions file as a
+/// review's input. The person's answer to the summary confirmation is not
+/// what was reviewed, so the one `[Answer]:` line of the one summary
+/// section reads the same blank, confirmed or sent back; everything else
+/// counts, a comment on that line included. A file with no such section,
+/// or two, or two such lines, is hashed as it is, with line ends made
+/// `\n`; bytes that are not UTF-8, as they are.
+///
+/// # Errors
+///
+/// The file's Markdown cannot be read.
+pub fn review_input_fingerprint(content: &[u8]) -> Result<String> {
+    let hex = |bytes: &[u8]| -> String {
+        Sha256::digest(bytes)
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect()
+    };
+    let Ok(decoded) = std::str::from_utf8(content) else {
+        return Ok(hex(content));
+    };
+    // A byte order mark is not part of the text upstream decodes.
+    let decoded = decoded.strip_prefix('\u{feff}').unwrap_or(decoded);
+    let normalized = decoded.replace("\r\n", "\n").replace('\r', "\n");
+    let mut source: Vec<String> = normalized.split('\n').map(str::to_owned).collect();
+    let blocks = analyse(&normalized)?;
+    let visible = visible_lines_of(&normalized, &blocks, BOUNDARIES);
+    let (mut in_summary, mut summaries, mut answers) = (false, 0, 0);
+    for (index, line) in visible.iter().enumerate() {
+        let title = atx_heading(line, &blocks.lines[index])
+            .filter(|heading| heading.level == 2 && !heading.nested)
+            .map(|heading| heading.title);
+        if let Some(title) = title {
+            in_summary = title == CHECKPOINT;
+            summaries += usize::from(in_summary);
+        }
+        // The answer a reader sees, never an example a fence or a comment
+        // hides.
+        if !in_summary || !re::test(CONFIRMATION_LINE, "", &restore_markers(line)) {
+            continue;
+        }
+        let Some(written) = source.get(index) else {
+            continue;
+        };
+        let (prefix, comments) = written.split_at(written.find("<!--").unwrap_or(written.len()));
+        if !re::test(CONFIRMATION_LINE, "", prefix)
+            || !trim(&re::replace(r"<!--(?:.*?-->|.*$)", "g", comments, "")).is_empty()
+        {
+            continue;
+        }
+        source[index] = if comments.is_empty() {
+            "[Answer]: [summary confirmation]".to_owned()
+        } else {
+            format!("[Answer]: [summary confirmation] {comments}")
+        };
+        answers += 1;
+    }
+    Ok(hex(if summaries == 1 && answers == 1 {
+        source.join("\n")
+    } else {
+        normalized
+    }
+    .as_bytes()))
 }
 
 /// `summaryConfirmationAnswer`: the choice on the summary section's one
