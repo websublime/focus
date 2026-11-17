@@ -46,6 +46,8 @@ fn every_lifecycle_case_gets_upstreams_answer() {
     let (mut ambiguous, mut started_again, mut recovered, mut in_a_bolt) = (0, 0, 0, 0);
     let (mut snapshots, mut fingerprinted, mut whole, mut appended) = (0, 0, 0, 0);
     let (mut two_views, mut converted, mut came_after) = (0, 0, 0);
+    let (mut current, mut unreadable, mut replaceable) = (0, 0, 0);
+    let (mut retried, mut unrecordable) = (0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         let case: Value = focus_js::json::parse(line).unwrap();
@@ -77,6 +79,29 @@ fn every_lifecycle_case_gets_upstreams_answer() {
             converted += usize::from(taken["raw"][0].is_string());
             came_after += usize::from(out["told"][1][0][1] == true);
             assert!(out.get("error").is_none(), "{}: {out}", case["id"]);
+            // What can be done with a pending request: three flags for
+            // each way of asking each request (32 or 16 of a stage that
+            // writes the workspace, 8 of another; two ways, and a third
+            // for the first eight), then four flags for each request as the
+            // oldest pending one.
+            let flags = |key: &str| out["pending"][key].as_str().unwrap_or_default().as_bytes();
+            let (currency, status) = (flags("currency"), flags("status"));
+            assert!(
+                matches!(
+                    (currency.len(), status.len()),
+                    (216, 128) | (120, 64) | (72, 32)
+                ),
+                "{}: {out}",
+                case["id"]
+            );
+            let any = |rows: &[u8], width: usize, wanted: &[u8]| {
+                rows.chunks(width).any(|row| row == wanted)
+            };
+            current += usize::from(any(currency, 3, b"111"));
+            unreadable += usize::from(any(currency, 3, b"100"));
+            replaceable += usize::from(any(status, 4, b"0001"));
+            retried += usize::from(any(status, 4, b"1010"));
+            unrecordable += usize::from(any(status, 4, b"1100"));
         } else if kind == "review_accounting" {
             counts += 1;
             refused += usize::from(out.get("error").is_some());
@@ -129,6 +154,15 @@ fn every_lifecycle_case_gets_upstreams_answer() {
         cfg!(windows)
             || (appended >= 210 && two_views >= 150 && converted >= 240 && came_after >= 210),
         "{appended} {two_views} {converted} {came_after}"
+    );
+    assert!(
+        cfg!(windows)
+            || (current >= 650
+                && unreadable >= 240
+                && replaceable >= 650
+                && retried >= 240
+                && unrecordable >= 650),
+        "{current} {unreadable} {replaceable} {retried} {unrecordable}"
     );
     assert!(
         differing.is_empty(),

@@ -6794,6 +6794,23 @@ for answer in ("[Answer]:", "[Answer]: Looks correct", "[Answer]: Something else
     rv_fixed("requirements-analysis", {f"{RV_REQ}/requirements.md": "# Requirements\n", f"{RV_REQ}/later-questions.md": RV_QUESTIONS + answer + "\n"},
              patch={"optional_produces": ["later-questions"]})
 
+# --- What can be done with a pending request (M5, slice 3b-iii) --------------
+#
+# Every review_snapshot case is also asked what can be done with each kind of
+# request that waits for its verdict (`pendingRequestCurrency`,
+# `pendingReviewRequestStatus`). A stage that writes the workspace binds the
+# project's source as well: these have one (`source`, beside the engine's
+# folder), as it is, as a checkout on Windows leaves it, and with a file an
+# earlier walk recorded and today's leaves out.
+RV_PLAN = {f"{RV_RECORD}/construction/code-generation/code-generation-plan.md": "# Plan of all\n",
+           f"{RV_RECORD}/construction/api/code-generation/code-generation-plan.md": "# Plan of api\n"}
+for source in ({}, {"src/main.ts": "export {};\n"}, {"src/main.ts": "export {};\r\n"}, {"src/main.ts": "export {};\n", ".DS_Store": "x\n"},
+               {"src/main.ts": "export {};\r\n", "Thumbs.db": "x\n", "App.csproj": "<Project/>\n", "bin/a.dll": "b\n"}):
+    for state in (rv_state("bugfix", ""), rv_state("feature", "")):
+        for unit in (None, "api"):
+            rv_fixed("code-generation", RV_PLAN, state=state, unit=unit, source=source)
+            rv_fixed("code-generation", {rel: text + "\n## Review\n\nVerdict: READY\n" for rel, text in RV_PLAN.items()}, state=state, unit=unit, source=source)
+
 # --- The source a decision reads now (M5, slice 3b-ii) ----------------------
 #
 # Every source_walk case is also asked what recorded values are told of the

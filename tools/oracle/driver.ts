@@ -748,6 +748,11 @@ async function answer(c: Record<string, any>): Promise<unknown> {
         mkdirSync(dirname(join(space, rel)), { recursive: true });
         writeFileSync(join(space, rel), Buffer.from(bytes, "hex"));
       }
+      // The project's own source, beside the engine's folder.
+      for (const [rel, text] of Object.entries((c.source ?? {}) as Record<string, string>)) {
+        mkdirSync(dirname(join(root, rel)), { recursive: true });
+        writeFileSync(join(root, rel), text);
+      }
       if (c.state !== null) {
         mkdirSync(join(space, "intents", "rec-1a2b3c4d"), { recursive: true });
         writeFileSync(join(space, "intents", "rec-1a2b3c4d", "aidlc-state.md"), c.state);
@@ -776,7 +781,62 @@ async function answer(c: Record<string, any>): Promise<unknown> {
           ...asked,
           ...(c.given_state === undefined ? {} : { stateContent: c.given_state }),
         });
-        if (snapshot === null) return { fingerprint, snapshot: null };
+        // What can be done with a request that waits for its verdict, for each kind of request: of these artifacts or
+        // of others, of this source, of what an earlier walk gave for it, of another or of none, and of each era.
+        const pending = (() => {
+          const writes = stage.workspace_requires === true;
+          const binds = writes && (c.unit ?? null) !== null && stage.for_each === "unit-of-work";
+          const source = writes ? lib.workspaceSourceState(root) : null;
+          const now = source?.fingerprint ?? "unbindable";
+          const elsewhere = `sha256:${"0".repeat(64)}`;
+          const bits = (...flags: boolean[]) => flags.map((flag) => (flag ? "1" : "0")).join("");
+          const bindings = [snapshot?.fingerprint ?? elsewhere, elsewhere].flatMap((artifactFingerprint) =>
+            // (A stage that does not write the workspace reads no source: one request stands for the four. And a
+            // project the case gives no source to is asked of its source and of none.)
+            (!writes ? [null] : c.source === undefined ? [null, now]
+              : [null, now, lib._legacyWorkspaceSourceFingerprintForTests(now) ?? "1".repeat(40), "2".repeat(40)]).flatMap((sourceFingerprint) =>
+              ([[`review:${"a".repeat(32)}`, null], [null, null], [null, [false, null]], [null, [true, 5]]] as const).map(([requestId, legacy]) => ({
+                artifactFingerprint,
+                requestId,
+                legacyAppendix: legacy === null ? null : {
+                  artifact: snapshot?.reviewArtifact ?? "", offset: 0, priorDigest: null, priorLength: legacy[1], challenge: null, priorAppendix: legacy[0],
+                },
+                sourceFingerprint,
+                unitSourceFingerprint: null,
+                recoveryCause: null,
+              }))));
+          // (A unit of a per-unit stage that writes the workspace also binds the unit's source, which is asked of a
+          // stage run by itself: the other is a later slice's.)
+          const options = { ...asked, single: binds };
+          const unit = c.unit ?? undefined;
+          let currency = "";
+          let status = "";
+          // The source as the caller has already taken it, said to be unreadable, and (for the first requests) left
+          // for the currency to take.
+          const taken = writes ? { ...options, sourceState: source } : options;
+          bindings.forEach((binding, index) => {
+            for (const given of [taken, { ...options, sourceState: null }, ...(index < 8 ? [options] : [])]) {
+              const got = lib.pendingRequestCurrency(root, stage, unit, binding, given);
+              currency += bits(got.requestCurrent, got.readable, got.modernVerdictBinding);
+            }
+            const attempt = {
+              pendingIterations: new Set([10, 9]),
+              pendingRequests: new Map([
+                [10, { binding: { ...binding, artifactFingerprint: elsewhere }, retried: false, ownReviewFile: false }],
+                [9, { binding, retried: Math.floor(index / 4) % 2 === 1, ownReviewFile: false }],
+              ]),
+            };
+            const got = lib.pendingReviewRequestStatus(root, stage, unit, attempt, taken);
+            status += (got.iteration === 9 ? "" : "?") + bits(got.requestCurrent, got.retryable, got.verdictRecordable, got.replaceable);
+          });
+          const none = lib.pendingReviewRequestStatus(root, stage, unit, { pendingIterations: new Set(), pendingRequests: new Map() }, options);
+          const unbound = lib.pendingReviewRequestStatus(root, stage, unit, {
+            pendingIterations: new Set([2, 1]),
+            pendingRequests: new Map([[2, { binding: bindings[0], retried: false, ownReviewFile: false }], [1, { binding: null, retried: false, ownReviewFile: false }]]),
+          }, options);
+          return { currency, status, none, unbound: `${unbound.iteration}:${bits(unbound.requestCurrent, unbound.retryable, unbound.verdictRecordable, unbound.replaceable)}` };
+        })();
+        if (snapshot === null) return { fingerprint, snapshot: null, pending };
         const other = `sha256:${"0".repeat(64)}`;
         const bodies = snapshot.bodyFingerprints as string[];
         // The requests a snapshot is weighed against: of the whole set, of each body view, of something else, and
@@ -805,6 +865,7 @@ async function answer(c: Record<string, any>): Promise<unknown> {
             raw: [snapshot.fingerprint, ...bodies].map((value) => lib.rawFingerprintForm(value)),
           },
           told,
+          pending,
         };
       } finally {
         for (const [index, name] of ["AIDLC_STAGE_GRAPH", "AIDLC_SCOPE_GRID"].entries()) {
