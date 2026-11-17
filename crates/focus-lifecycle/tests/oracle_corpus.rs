@@ -51,12 +51,10 @@ fn every_lifecycle_case_gets_upstreams_answer() {
         if !KINDS.contains(&kind) {
             continue;
         }
-        // A case with a link in it needs a platform where a link is a file.
-        if cfg!(windows)
-            && case["links"]
-                .as_object()
-                .is_some_and(|links| !links.is_empty())
-        {
+        // A case with a link or a second name in it needs a platform where a
+        // link is a file and a file says how many names it has.
+        let has = |key: &str| case[key].as_object().is_some_and(|map| !map.is_empty());
+        if cfg!(windows) && (has("links") || has("hard")) {
             continue;
         }
         let out = run_case(&wf, &case);

@@ -2428,7 +2428,7 @@ A contagem precisa de saber se um veredicto responde ao pedido pendente, e isso 
 | Corpus, `bolt_slug` | 287 nomes, todos iguais: 130 não são nomes de unit |
 | Corpus, tudo | 43 859 casos, 46,8 MB |
 | Mutação | 110 mutantes (a contagem, a leitura do registo, o slug): 104 apanhados (83 à primeira, 21 depois dos casos por construção e do tipo `bolt_slug`), 5 equivalentes anotados onde estão (um empate só com fronteiras do trabalho tem pelo menos uma; a contagem começa depois da fronteira, que não é linha de revisão; uma referência só se faz de um caminho de registo; o comprimento de um slug e os hífens das pontas não mudam slug nenhum de um nome de unit) e 1 em código que saiu. A lista inteira voltou a correr contra o corpus final |
-| `cargo test` | 579 testes; o teste de corpus de `focus-lifecycle` conta as respostas da contagem, e salta em Windows os casos com links |
+| `cargo test` | 579 testes; o teste de corpus de `focus-lifecycle` conta as respostas da contagem, e salta em Windows os casos com links e com um segundo nome, que lá um ficheiro não diz quantos nomes tem |
 
 ### A jornada
 
