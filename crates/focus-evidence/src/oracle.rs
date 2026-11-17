@@ -16,6 +16,7 @@ use crate::review;
 use crate::review_record;
 use crate::source::listing::{self, Listing};
 use crate::source::raw;
+use crate::source::state;
 use crate::source::walk::{self, Budgets, Names, Options, Stop};
 use crate::summary;
 
@@ -136,12 +137,46 @@ fn walk_case(case: &Value) -> Value {
         .flatten()
         .filter_map(|name| name.as_str().map(str::to_owned))
         .collect();
+    let project = at(text("project"));
+    let project = Path::new(&project);
     let walked = walk::workspace_source(
-        Path::new(&at(text("project"))),
+        project,
         &repos,
         case["dotnet"].as_bool().unwrap_or(true),
         &options,
     );
+    // What a recorded value is told of this source, as a decision reads it
+    // now: the value itself, what each earlier walk gives for the same
+    // files, another value, and none.
+    let same = match (
+        &walked,
+        state::workspace_source_state(project, &repos, &options),
+    ) {
+        (Ok(own), Ok(current)) => {
+            let earlier = walk::workspace_source(project, &repos, false, &options).ok();
+            let now = Some(current.fingerprint.as_str());
+            // (The first is this case's own walk, which is the current
+            // source's only when it took the same boundary.)
+            let recorded = [
+                Some(own.fingerprint.clone()),
+                Some(current.fingerprint.clone()),
+                state::legacy_alias(&current.fingerprint),
+                raw::raw_form(&current.fingerprint),
+                earlier.as_ref().map(|walked| walked.fingerprint.clone()),
+                earlier.and_then(|walked| walked.legacy),
+                Some("0".repeat(64)),
+                None,
+            ];
+            let mut told: Vec<bool> = recorded
+                .iter()
+                .map(|value| state::same_workspace_source(value.as_deref(), now))
+                .collect();
+            told.push(state::same_workspace_source(None, None));
+            told.push(state::same_workspace_source(now, None));
+            json!(told)
+        }
+        _ => Value::Null,
+    };
     let _ = std::fs::remove_dir_all(&root);
     let source = match walked {
         Err(Stop::NotPorted(what)) => return json!({ "unsupported": what }),
@@ -193,6 +228,7 @@ fn walk_case(case: &Value) -> Value {
         "raw": before.map(|raw| said(named, raw)),
         "dotnet": source.dotnet_output_seen,
         "rows": rows,
+        "same": same,
     })
 }
 
