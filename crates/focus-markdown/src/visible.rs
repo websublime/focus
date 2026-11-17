@@ -33,8 +33,12 @@ pub struct Visible {
     pub preserve_comment_boundaries: bool,
 }
 
-/// Drop the markers a consumer did not ask to keep.
-fn restore(line: &str) -> String {
+/// `restoreVisibleMarkdownMarkers`: a line of a projection that kept its
+/// markers (see [`Visible::preserve_comment_boundaries`]), as the plain
+/// projection gives it: nothing for a line that is hidden whole, and the
+/// rest without the markers.
+#[must_use]
+pub fn restore_markers(line: &str) -> String {
     if line.starts_with(LINE_MARKER) {
         return String::new();
     }
@@ -68,7 +72,7 @@ pub fn visible_lines_of(content: &str, blocks: &Blocks, options: Visible) -> Vec
         if options.preserve_comment_boundaries {
             visible
         } else {
-            restore(&visible)
+            restore_markers(&visible)
         }
     };
     source_lines(content)

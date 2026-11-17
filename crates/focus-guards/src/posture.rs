@@ -19,6 +19,8 @@
 //! Held to upstream's answers by the oracle corpus (`contract_markers`,
 //! `questions_file`, `review_appendix`).
 
+use std::borrow::Cow;
+
 use focus_js::re;
 use focus_js::text::trim;
 use focus_markdown::{Blocks, LineKind, Visible, analyse, source_lines, visible_lines};
@@ -234,18 +236,35 @@ fn html_carries_h1_h2(html: &str) -> bool {
     re::test(r"<h[12](?=[\s/>]|$)", "i", &visible)
 }
 
-/// `terminalReviewAppendixBoundary`: the byte offset where a plan's
-/// terminal `## Review` appendix begins, when the document has one: an
-/// exact `## Review` line at column 0 that is a level-2 heading, with no h1
-/// or h2 (as Markdown, or in an HTML block) after it. The offset is the
-/// trimmed boundary: the separator white space before the heading reduced
-/// to one line end.
+/// `terminalReviewAppendixBoundary`: where a document's terminal
+/// `## Review` appendix begins, when it has one.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct AppendixBoundary {
+    /// The byte offset of the heading line.
+    pub raw: usize,
+    /// The same boundary with the separator white space before the heading
+    /// reduced to one line end.
+    pub trimmed: usize,
+}
+
+/// `terminalReviewAppendixBoundary`: the terminal `## Review` appendix of
+/// a document, when it has one: an exact `## Review` line at column 0 that
+/// is a level-2 heading, with no h1 or h2 (as Markdown, or in an HTML
+/// block) after it. Bytes that are not UTF-8 have none.
 ///
 /// Upstream confirms the heading by rendering the document; this reads the
 /// same structure from `focus-markdown` and each heading's level from its
 /// own line.
+///
+/// A byte order mark at the start is not part of the text upstream decodes,
+/// and its offsets count that text: in a file that starts with the mark
+/// they fall three bytes short of the heading. The arithmetic is kept, so
+/// what is fingerprinted as the body of such a file is what upstream
+/// fingerprints.
 #[must_use]
-pub fn terminal_review_appendix_offset(body: &str) -> Option<usize> {
+pub fn terminal_review_appendix_boundary(body: &[u8]) -> Option<AppendixBoundary> {
+    let text = std::str::from_utf8(body).ok()?;
+    let body = text.strip_prefix('\u{feff}').unwrap_or(text);
     let source = source_lines(body);
     // Line starts in the original text, which keeps its own line ends.
     let mut line_starts = vec![0usize];
@@ -300,28 +319,49 @@ pub fn terminal_review_appendix_offset(body: &str) -> Option<usize> {
     let (_, heading_start) = candidates[terminal?];
     let prefix = &body[..heading_start];
     let Some(trailing) = re::find(r"\s+$", "", prefix) else {
-        return Some(heading_start);
+        return Some(AppendixBoundary {
+            raw: heading_start,
+            trimmed: heading_start,
+        });
     };
     let content_end = trailing.start();
     let retained = re::find(r"^[ \t]*(?:\r\n|\n|\r)", "", &prefix[content_end..]);
-    Some(content_end + retained.map_or(0, |found| found.end()))
+    Some(AppendixBoundary {
+        raw: heading_start,
+        trimmed: content_end + retained.map_or(0, |found| found.end()),
+    })
+}
+
+/// `existingReviewAppendixOffset`: the trimmed boundary of a text's
+/// terminal `## Review` appendix.
+#[must_use]
+pub fn terminal_review_appendix_offset(body: &str) -> Option<usize> {
+    terminal_review_appendix_boundary(body.as_bytes()).map(|boundary| boundary.trimmed)
 }
 
 /// `contentBeforeTerminalReviewAppendix`: the plan with a terminal
-/// `## Review` appendix removed.
+/// `## Review` appendix removed. The boundary is a count of bytes (see
+/// [`terminal_review_appendix_boundary`]); in a text that starts with a
+/// byte order mark it can fall inside a character, which then reads as the
+/// replacement character, as upstream's decoding of the same bytes does.
 #[must_use]
-pub fn content_before_terminal_review_appendix(body: &str) -> &str {
+pub fn content_before_terminal_review_appendix(body: &str) -> Cow<'_, str> {
     match terminal_review_appendix_offset(body) {
-        Some(offset) => &body[..offset],
-        None => body,
+        Some(offset) => String::from_utf8_lossy(&body.as_bytes()[..offset]),
+        None => Cow::Borrowed(body),
     }
 }
 
 /// `planReviewAppendix`: the terminal `## Review` appendix of a plan, or
-/// `""` when it carries none.
+/// `""` when it carries none: the plan from where the text before the
+/// appendix ends, counted as upstream counts a string (UTF-16 units).
 #[must_use]
-pub fn plan_review_appendix(plan: &str) -> &str {
-    &plan[content_before_terminal_review_appendix(plan).len()..]
+pub fn plan_review_appendix(plan: &str) -> String {
+    let kept = content_before_terminal_review_appendix(plan)
+        .encode_utf16()
+        .count();
+    let rest: Vec<u16> = plan.encode_utf16().skip(kept).collect();
+    String::from_utf16_lossy(&rest)
 }
 
 #[cfg(test)]
@@ -419,5 +459,44 @@ mod tests {
             "x\r\n"
         );
         assert_eq!(plan_review_appendix("## Review ##\n"), "");
+    }
+
+    #[test]
+    fn a_byte_order_mark_is_not_counted_in_the_boundary() {
+        // The mark is not part of the text the heading is looked for in, so
+        // a plan that starts with it and the heading is all appendix.
+        assert_eq!(
+            terminal_review_appendix_boundary("\u{feff}## Review\nx\n".as_bytes()),
+            Some(AppendixBoundary { raw: 0, trimmed: 0 })
+        );
+        // The offsets count the text without the mark: three bytes short
+        // of the heading in the file, as upstream counts them.
+        assert_eq!(
+            terminal_review_appendix_boundary("\u{feff}abc\n\n## Review\nx\n".as_bytes()),
+            Some(AppendixBoundary { raw: 5, trimmed: 4 })
+        );
+        assert_eq!(
+            content_before_terminal_review_appendix("\u{feff}abc\n\n## Review\nx\n"),
+            "\u{feff}a"
+        );
+        assert_eq!(
+            plan_review_appendix("\u{feff}abc\n\n## Review\nx\n"),
+            "bc\n\n## Review\nx\n"
+        );
+        // Cut inside a character: what is left of it reads as the
+        // replacement character, one unit of the plan.
+        assert_eq!(
+            content_before_terminal_review_appendix("\u{feff}\u{20ac}\n## Review\nx\n"),
+            "\u{feff}\u{fffd}"
+        );
+        assert_eq!(
+            plan_review_appendix("\u{feff}\u{20ac}\n## Review\nx\n"),
+            "\n## Review\nx\n"
+        );
+        // Bytes that are not text have no appendix.
+        assert_eq!(
+            terminal_review_appendix_boundary(b"\xff\n## Review\n"),
+            None
+        );
     }
 }

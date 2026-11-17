@@ -44,6 +44,8 @@ fn every_lifecycle_case_gets_upstreams_answer() {
     let (mut windows, mut floored, mut unfloored, mut merged, mut open) = (0, 0, 0, 0, 0);
     let (mut counts, mut refused, mut still_pending, mut closed) = (0, 0, 0, 0);
     let (mut ambiguous, mut started_again, mut recovered, mut in_a_bolt) = (0, 0, 0, 0);
+    let (mut snapshots, mut fingerprinted, mut whole, mut appended) = (0, 0, 0, 0);
+    let (mut two_views, mut converted, mut came_after) = (0, 0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         let case: Value = focus_js::json::parse(line).unwrap();
@@ -54,12 +56,28 @@ fn every_lifecycle_case_gets_upstreams_answer() {
         // A case with a link or a second name in it needs a platform where a
         // link is a file and a file says how many names it has.
         let has = |key: &str| case[key].as_object().is_some_and(|map| !map.is_empty());
-        if cfg!(windows) && (has("links") || has("hard")) {
+        // And one marked `posix` rests on what such a host says of a path
+        // that goes through a file.
+        if cfg!(windows) && (has("links") || has("hard") || case["posix"] == true) {
             continue;
         }
         let out = run_case(&wf, &case);
         let some = |key: &str| out[key].as_array().is_some_and(|list| !list.is_empty());
-        if kind == "review_accounting" {
+        if kind == "review_snapshot" {
+            snapshots += 1;
+            fingerprinted += usize::from(out["fingerprint"].is_string());
+            let taken = &out["snapshot"];
+            whole += usize::from(taken.is_object());
+            appended += usize::from(taken["appendix"][0].as_u64().is_some_and(|len| len > 0));
+            two_views += usize::from(
+                taken["bodies"]
+                    .as_array()
+                    .is_some_and(|views| views.len() == 2),
+            );
+            converted += usize::from(taken["raw"][0].is_string());
+            came_after += usize::from(out["told"][1][0][1] == true);
+            assert!(out.get("error").is_none(), "{}: {out}", case["id"]);
+        } else if kind == "review_accounting" {
             counts += 1;
             refused += usize::from(out.get("error").is_some());
             let waiting = out["pending"].as_array().map_or(0, Vec::len) as u64;
@@ -98,6 +116,19 @@ fn every_lifecycle_case_gets_upstreams_answer() {
     assert!(
         ambiguous >= 200 && started_again >= 20 && recovered >= 40 && in_a_bolt >= 20,
         "{ambiguous} {started_again} {recovered} {in_a_bolt}"
+    );
+    assert!(
+        cfg!(windows)
+            || (snapshots >= 1250
+                && fingerprinted >= 900
+                && snapshots - fingerprinted >= 300
+                && whole >= 640),
+        "{snapshots} {fingerprinted} {whole}"
+    );
+    assert!(
+        cfg!(windows)
+            || (appended >= 210 && two_views >= 150 && converted >= 240 && came_after >= 210),
+        "{appended} {two_views} {converted} {came_after}"
     );
     assert!(
         differing.is_empty(),
