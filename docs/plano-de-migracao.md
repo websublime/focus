@@ -1761,7 +1761,7 @@ Os intervalos de linhas são de `aidlc-orchestrate.ts` no pin, salvo indicação
 | --- | --- | --- | --- | --- |
 | 1. A identidade da fonte | O passeio pelos ficheiros fonte do projeto, a sua impressão digital, o snapshot `baseline-<hash>.tsv` e o campo `Source Baseline`; o snapshot de fonte de uma unit (`workspaceSourceState`, `readUnitSourceSnapshot` e o que está entre eles em `aidlc-lib.ts`) | `SHAPES["source-baseline"]` (criação e saltos passam a comparar o campo e a listagem); o baseline de uma stage que produz código nas transições; o desvio dos observadores na criação | Corpus sobre árvores de scratch (o que conta como fonte, o que se ignora, a ordem, o hash); diferencial | Feito, partida em quatro (abaixo). O snapshot do workspace e os leitores vêm com quem os usa: fatias 2, 3 e 11 |
 | 2. `log` | `focus engine log decision`, `answer`, `answers`, `link` e `review`: as linhas `DECISION_RECORDED`, `QUESTION_ANSWERED`, `SUMMARY_CONFIRMATION_RECORDED`, `REVIEW_REQUESTED` e `REVIEW_COMPLETED`, os handoffs de um pipeline; o registo de mensagens lido (`aidlc-log.ts`, 4 486; `message-store`, 246); o `Source Fingerprint` de um pedido de revisão e o snapshot do workspace atrás dele (`workspaceSourceState`, `writeWorkspaceSourceSnapshot`) | Nada sozinho: é quem escreve o que a fatia 3 pesa. A escolha de uma pergunta de recuperação gravada por `log` fica para a fatia 4 | Diferencial (`log/*`) | Por fazer: partida em cinco (abaixo) |
-| 3. Os recibos pesados | `freshReviewReceipts` (1 066) e `checkSummaryConfirmationEvidence` (647), os handoffs devidos por um pipeline, os pares pedido e conclusão de uma revisão; `review-brief` (2 365: `review`, `summary`, `context`) e os findings que um gate grava na decisão; a baseline lida de volta (`readBaselineSourceSnapshot`, `currentStageSourceBaseline`) para dizer que caminhos mudaram | As recusas pelo nome de `state` (`advance` e os gates com sumário, revisão ou pipeline devidos), de `review-freeze` e do grupo (`review_rows`), do salto para trás com linhas de revisão, e do turno humano com um pedido de revisão sem veredicto. Sem units: a dimensão por unit chega com a fatia 5 | Diferencial; corpus para os leitores puros (a tabela de findings, a secção `## Review`) | Em curso: 3a e 3b feitas. Passa para antes da 2e: `review` chama os dois leitores em todos os caminhos (abaixo) |
+| 3. Os recibos pesados | `freshReviewReceipts` (1 066) e `checkSummaryConfirmationEvidence` (647), os handoffs devidos por um pipeline, os pares pedido e conclusão de uma revisão; `review-brief` (2 365: `review`, `summary`, `context`) e os findings que um gate grava na decisão; a baseline lida de volta (`readBaselineSourceSnapshot`, `currentStageSourceBaseline`) para dizer que caminhos mudaram | As recusas pelo nome de `state` (`advance` e os gates com sumário, revisão ou pipeline devidos), de `review-freeze` e do grupo (`review_rows`), do salto para trás com linhas de revisão, e do turno humano com um pedido de revisão sem veredicto. Sem units: a dimensão por unit chega com a fatia 5 | Diferencial; corpus para os leitores puros (a tabela de findings, a secção `## Review`) | Em curso: 3a, 3b e 3c feitas. Passa para antes da 2e: `review` chama os dois leitores em todos os caminhos (abaixo) |
 | 4. A pergunta de recuperação | `evaluateGuardRefusal` e `guardAttemptState`: depois da frase de um guard, a pergunta com os remédios que o condutor pode oferecer, e a série da recusa em `.focus-engine/guard-refusals/`; a escolha gravada | `SHAPES["guard-ask"]` | Diferencial | Por fazer |
 | 5. Units em série | As units como dados (o bloco de units, o DAG, os lotes de um bolt) e como transições: os verbos de `state` que M3 recusa (`set-skeleton-stance`, `set-construction-*`, `set-unit-gate-rhythm`, `sync-unit-scope-stage`, `acknowledge-compaction`, `reuse-artifact`, `lookup`, `practices-event`, `practices-promote`, `unit`), `jump reopen` e `execute --units`, `skip --unit`, uma stage de Construction em `advance`; `bolt` sem worktree (`start`, `complete`, `fail`, `abort`, `set-autonomy`, `checkpoint`; 1 511; `swarm-checkpoint`, `dispatch-event`, `hold-merge` e `release-merge` recusam pelo nome) e os checkpoints de Construction (`construction-checkpoints`, 1 618: a evidência, as decisões, o comando de verificação) | O limite 1 de M3, menos o que é de equipa ou de worktree (`set-unit-ownership`, `refresh-unit-progress`, `fold-unit-merge`, `fork`, `merge`); os recibos por unit da fatia 3 | Diferencial; o fuzz de transições ganha units. Prende os três chamadores que leem só o marcador de uma stage por unit e que a correção de M5 deixou por prender (os outputs de uma stage de Construction e a unit de um artefacto revisto) | Por fazer |
 | 6. As diretivas e o marcador | `focus-orchestrate::directive` (os onze tipos de diretiva, `validateDirective`, as notas para o agente; `aidlc-directive.ts`, 2 976) e o marcador `active-directive.json`: escrever, ler, limpar, refrescar, pôr fora de data, o lock, e `state-writes.json` ao lado | As recusas pelo nome de um registo com marcador: `state`, `status`, `jump`, os hooks (`directive_marker`), e as admissões que os guards leem dele (as respostas da pergunta de recuperação, a continuação de um restart, o último passo do engine); o cursor que `set-status` preserva | Corpus (`validateDirective` sobre diretivas geradas, boas e estragadas; o parser do marcador); diferencial sobre árvores cujo marcador é o que o original escreveu | Por fazer |
@@ -2563,25 +2563,50 @@ O corpus do oráculo era dois ficheiros, `cases.ndjson` (48,1 MB) e `expected.nd
 
 Verificado: os 45 947 casos e as respostas são os mesmos, com os nomes novos; `cargo test` com 585 testes.
 
-### Fatia 3c: a evidência de sumário (por fazer)
+### Fatia 3c: a evidência de sumário
 
-`checkSummaryConfirmationEvidence` (`aidlc-lib.ts` L13 445, 648 linhas) diz se os outputs de uma stage descendem de uma confirmação de sumário atual e dada por uma pessoa. Lido inteiro para o partir. Responde uma de três coisas: não é devido; está em ordem (com as mudanças que a Guard Policy aceitou); ou uma recusa com código, frase e cobertura (`missing` ou `stale`).
+`checkSummaryConfirmationEvidence` (`aidlc-lib.ts` L13 445, 648 linhas) diz se os outputs de uma stage descendem de uma confirmação de sumário atual e dada por uma pessoa.
 
-O que faz, por ordem: se a stage deve sumário (`summaryConfirmationOwed`, que Focus já tem); que ficheiros de perguntas existem e de que units; numa stage por unit, que units o devem (as do DAG, menos as saltadas, as que acabaram antes de o sumário estar ligado e as que não devem outputs pelo seu kind); o recibo `SUMMARY_CONFIRMATION_RECORDED` mais recente de cada ficheiro, depois das fronteiras da tentativa (`summaryAttemptFloors`, que Focus já tem), com os empates entre shards recusados; a resposta no ficheiro (`Looks correct`); o hash do que foi confirmado, sob o âmbito que o recibo gravou; e, para cada output, que a escrita mais recente leva o id de autorização do recibo, ou, num recibo de antes dos ids, que houve uma escrita depois dele.
+**O que existe.**
 
-| Parte | Leituras do original | O que falta em Focus |
-| --- | --- | --- |
-| 3c-i. Quem deve o sumário e onde estão as perguntas | `stageDeclaresSummaryQuestions`, `summaryQuestionFiles` (L12 858, 40), `summaryArtifactPaths` (14), `summaryAnswerFromFile`, `summaryFlowStartedInAttempt` (27), `unitFinishedBeforeSummaryOn` (L13 338, 23), `unitSkippedUnits` (L35 843, 21), `plainSummaryAttemptRecorded` | Tudo menos a resposta no ficheiro (`focus-evidence::summary::answer`) |
-| 3c-ii. A verificação | O corpo de `checkSummaryConfirmationEvidence`: a seleção do recibo, as fronteiras, os empates, os âmbitos de hash, o conteúdo mudado, a descendência de cada output | `latestEventFrontier`, `isSummaryAuthorizationId`; a Guard Policy lida só quando um output não descende (`resolveChangeControl`, que em Focus é `focus-guards::policy`) e as mudanças aceites (`AcceptedChange`) |
+- **`focus-lifecycle::summary_evidence::check`**: responde uma de três coisas. Não é devido; está em ordem, com as mudanças que a Guard Policy deixou passar; ou uma recusa, com o código, a frase e se a confirmação falta ou está ultrapassada. Por ordem: se a stage deve sumário; os ficheiros de perguntas da stage; o recibo `SUMMARY_CONFIRMATION_RECORDED` mais recente de cada ficheiro, depois das fronteiras da tentativa, com os empates entre shards recusados; a resposta no ficheiro (`Looks correct`); o hash do que foi confirmado, sob o âmbito que o recibo gravou; e, para cada output, que a escrita mais recente leva o id de autorização do recibo, ou, num recibo de antes dos ids, que houve uma escrita depois dele (ou depois de uma confirmação anterior das mesmas respostas).
+- **A Guard Policy é lida só quando alguma coisa mudou.** Com `relaxed` ou `off`, respostas editadas depois da confirmação e um output guardado antes dela são gravados e ditos uma vez em vez de recusados. A política é lida na primeira vez que uma das duas coisas aparece, e a resposta diz se foi lida. Sem estado dado, lê-se do ficheiro de estado do registo. Uma política ilegível é `strict`. A verificação não escreve nada: as mudanças aceites voltam para quem chamou.
+- **`summary_confirmation_owed_of`** e **`guard_policy_accepts_changes_of`**: as duas perguntas para quem pode não ter estado na mão e pode nomear o scope, como uma stage corrida sozinha.
+- Os dois comandos do sumário (`summaryConfirmationCommands`) e os testes de escolha passaram de `focus-log` para aqui, que é quem os usa primeiro.
 
 **O que fica de fora, e porquê.**
 
 | Coisa | Onde chega |
 | --- | --- |
-| O objeto `refusal` da recusa (`evaluateGuardRefusal`, 268 linhas, com `humanAuthorityState`) | Fatia 4, a pergunta de recuperação. Até lá a recusa leva o código, a frase e a cobertura, como as outras recusas de guard (`SHAPES["guard-ask"]`) |
-| O recibo de uma unit sob um claim de equipa (`eventMatchesClaimAttempt`) | `Unit Ownership: team` está adiado: recusado pelo nome |
+| Uma stage por unit que deve sumário | Fatia 5. Que units o devem lê-se das linhas de ciclo de vida das units (`unitSkippedUnits`, `unitFinishedBeforeSummaryOn`, sobre `currentUnitLifecycleRows` e o run floor de cada unit). É o "sem units" que a fatia 3 já tinha; a partição que escrevi antes de ler esses leitores punha-os aqui. Recusada pelo nome quando deve; respondida quando não deve |
+| Uma linha com unit sob um claim de equipa (`eventMatchesClaimAttempt`) | `Unit Ownership: team` está adiado: recusada pelo nome |
+| O objeto `refusal` (`evaluateGuardRefusal`, 268 linhas) | Fatia 4. Até lá a recusa leva o código, a frase e a cobertura |
 
-**Como se verifica.** Pelo corpus, num tipo de caso novo (o corpus por tipo de caso já o permite): um projeto com os ficheiros de perguntas, os outputs e um ledger, e a resposta comparada sem o objeto `refusal`. As frases levam caminhos e comandos com o nome do engine, traduzidos por `names.py` como em todo o corpus.
+**Decisões.**
+
+| Decisão | Porquê |
+| --- | --- |
+| Uma só fatia em vez de 3c-i e 3c-ii | Sem as stages por unit, a parte das perguntas é uma listagem |
+| Focus diz o comando que a pessoa corre (`focus engine log decision …`); o original escreve o script (`aidlc-log.ts decision …`) | É a grafia que o diferencial já normaliza nas outras frases. No corpus, a resposta do original é posta nessa grafia pelo driver antes do mapa de nomes; a de Focus não é tocada |
+| O ficheiro de perguntas é lido como qualquer ficheiro do registo que decide: regular, com um só nome, sem links no caminho | O mesmo desvio deliberado de `focus-log` (2c): o original abre-o pelo nome. Um que não seja assim lê-se como um ficheiro sem resposta. Tem teste marcado; a entrada em `DEVIATIONS` fica para quando um comando o mostrar (3d) |
+| Em Windows o teste de corpus não compara a frase das recusas | Leva caminhos do sistema e os comandos na grafia da shell da plataforma. O código, a cobertura e o resto comparam-se |
+| Os hashes dos casos são postos pelos dois lados | Um recibo diz o hash do que foi confirmado, que só quem lê Markdown calcula. O caso escreve `{NOW}` e `{THEN}` e cada engine põe o seu, que o tipo `summary` já compara |
+
+**O que o corpus encontrou.**
+
+| Achado | Consequência |
+| --- | --- |
+| Sem estado dado, Focus lia a Guard Policy como `strict`; o original lê-a do ficheiro de estado do registo | Três casos. Corrigido |
+| O resto coincidiu à primeira | 1 244 casos na primeira comparação |
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Corpus, `summary_evidence` | 1 382 casos, todos iguais: 252 em ordem (63 com mudanças aceites), 127 sem nada devido, 1 003 recusas (388 por falta, 615 por estar ultrapassada) com os dez códigos: recibo em falta 262, resposta inválida 162, output sem autorização 154, perguntas em falta 126, output fora de ordem 121, conteúdo mudado 45, âmbito de hash inválido 45, ordem ambígua 41, ficheiro que não se valida 32, semântica mudada 15. 1 020 são histórias sorteadas (fronteira, confirmações, escritas, em um ou dois shards, com e sem empates, sob cada política); os outros são escritos caso a caso |
+| Corpus, tudo | 47 329 casos em 77 tipos; o maior ficheiro tem 9,5 MB |
+| Mutação | 89 mutantes: 81 apanhados (70 à primeira, 11 depois de casos novos) e 8 equivalentes anotados no módulo (o lugar de uma linha no seu shard, "ou o mesmo", três vezes; a unit onde se procura uma confirmação simples, duas; o nome de um ficheiro a partir de `<project-dir>`, duas, que a segunda maneira de reconhecer uma escrita já cobre; uma confirmação anterior ter de vir antes do recibo) |
+| `cargo test` | 587 testes: a recusa de uma stage por unit e o ficheiro de perguntas que é um link |
 
 ### A jornada
 
