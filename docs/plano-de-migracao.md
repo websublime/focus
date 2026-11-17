@@ -2563,6 +2563,26 @@ O corpus do oráculo era dois ficheiros, `cases.ndjson` (48,1 MB) e `expected.nd
 
 Verificado: os 45 947 casos e as respostas são os mesmos, com os nomes novos; `cargo test` com 585 testes.
 
+### Fatia 3c: a evidência de sumário (por fazer)
+
+`checkSummaryConfirmationEvidence` (`aidlc-lib.ts` L13 445, 648 linhas) diz se os outputs de uma stage descendem de uma confirmação de sumário atual e dada por uma pessoa. Lido inteiro para o partir. Responde uma de três coisas: não é devido; está em ordem (com as mudanças que a Guard Policy aceitou); ou uma recusa com código, frase e cobertura (`missing` ou `stale`).
+
+O que faz, por ordem: se a stage deve sumário (`summaryConfirmationOwed`, que Focus já tem); que ficheiros de perguntas existem e de que units; numa stage por unit, que units o devem (as do DAG, menos as saltadas, as que acabaram antes de o sumário estar ligado e as que não devem outputs pelo seu kind); o recibo `SUMMARY_CONFIRMATION_RECORDED` mais recente de cada ficheiro, depois das fronteiras da tentativa (`summaryAttemptFloors`, que Focus já tem), com os empates entre shards recusados; a resposta no ficheiro (`Looks correct`); o hash do que foi confirmado, sob o âmbito que o recibo gravou; e, para cada output, que a escrita mais recente leva o id de autorização do recibo, ou, num recibo de antes dos ids, que houve uma escrita depois dele.
+
+| Parte | Leituras do original | O que falta em Focus |
+| --- | --- | --- |
+| 3c-i. Quem deve o sumário e onde estão as perguntas | `stageDeclaresSummaryQuestions`, `summaryQuestionFiles` (L12 858, 40), `summaryArtifactPaths` (14), `summaryAnswerFromFile`, `summaryFlowStartedInAttempt` (27), `unitFinishedBeforeSummaryOn` (L13 338, 23), `unitSkippedUnits` (L35 843, 21), `plainSummaryAttemptRecorded` | Tudo menos a resposta no ficheiro (`focus-evidence::summary::answer`) |
+| 3c-ii. A verificação | O corpo de `checkSummaryConfirmationEvidence`: a seleção do recibo, as fronteiras, os empates, os âmbitos de hash, o conteúdo mudado, a descendência de cada output | `latestEventFrontier`, `isSummaryAuthorizationId`; a Guard Policy lida só quando um output não descende (`resolveChangeControl`, que em Focus é `focus-guards::policy`) e as mudanças aceites (`AcceptedChange`) |
+
+**O que fica de fora, e porquê.**
+
+| Coisa | Onde chega |
+| --- | --- |
+| O objeto `refusal` da recusa (`evaluateGuardRefusal`, 268 linhas, com `humanAuthorityState`) | Fatia 4, a pergunta de recuperação. Até lá a recusa leva o código, a frase e a cobertura, como as outras recusas de guard (`SHAPES["guard-ask"]`) |
+| O recibo de uma unit sob um claim de equipa (`eventMatchesClaimAttempt`) | `Unit Ownership: team` está adiado: recusado pelo nome |
+
+**Como se verifica.** Pelo corpus, num tipo de caso novo (o corpus por tipo de caso já o permite): um projeto com os ficheiros de perguntas, os outputs e um ledger, e a resposta comparada sem o objeto `refusal`. As frases levam caminhos e comandos com o nome do engine, traduzidos por `names.py` como em todo o corpus.
+
 ### A jornada
 
 O original tem uma jornada sem modelo, `tests/harness/scope-run.ts` (1 798 linhas), em três papéis separados: um host que corre o CLI como o skill o corre e dispara os hooks que o harness dispararia; um agente de substituição que faz o que cada diretiva pede (escreve artefactos pequenos, corre os comandos que a diretiva nomeia tal como estão, e acaba o turno em cada pergunta ou gate); e um guião da pessoa, o único que responde, pelo hook do turno humano. O diferencial ganha o mesmo (`tools/oracle/journey.py`), agnóstico do motor: cada lado é conduzido nos seus próprios nomes, e o que o original diz é traduzido por `names.py`, como em tudo o resto.
