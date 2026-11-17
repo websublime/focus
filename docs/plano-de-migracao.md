@@ -2430,6 +2430,18 @@ A contagem precisa de saber se um veredicto responde ao pedido pendente, e isso 
 | Mutação | 110 mutantes (a contagem, a leitura do registo, o slug): 104 apanhados (83 à primeira, 21 depois dos casos por construção e do tipo `bolt_slug`), 5 equivalentes anotados onde estão (um empate só com fronteiras do trabalho tem pelo menos uma; a contagem começa depois da fronteira, que não é linha de revisão; uma referência só se faz de um caminho de registo; o comprimento de um slug e os hífens das pontas não mudam slug nenhum de um nome de unit) e 1 em código que saiu. A lista inteira voltou a correr contra o corpus final |
 | `cargo test` | 579 testes; o teste de corpus de `focus-lifecycle` conta as respostas da contagem, e salta em Windows os casos com links e com um segundo nome, que lá um ficheiro não diz quantos nomes tem |
 
+### Fatia 3b: o que uma revisão revê (por fazer)
+
+O que vem a seguir na fatia 3, lido só até onde chega para o partir. Um pedido pendente pode ser repetido, respondido ou substituído conforme a sua ligação ainda descreve os bytes em disco (`pendingReviewRequestStatus`, 37 linhas, sobre `pendingRequestCurrency`, 70). Isso assenta em três leituras que ainda não existem em Focus:
+
+| Leitura do original (`aidlc-lib.ts`) | Linhas | O que diz | Onde entra |
+| --- | --- | --- | --- |
+| `reviewArtifactSnapshot` (L16 004), `reviewArtifactFingerprint` (L16 072), com `reviewRequestArtifactsCurrent` e `reviewAppendedAfterRequest` | cerca de 110 | O fingerprint dos outputs de uma stage, lidos cada um por uma só identidade de ficheiro, e se a ligação de um pedido ainda é a deles (com a vista do apêndice de revisão, só para os pedidos desse tempo) | 3b-i: é o que `review` grava como `Artifact Fingerprint` e o que os recibos pesam |
+| `workspaceSourceState` (L24 122), `sameWorkspaceSource` | cerca de 40 | O fingerprint da fonte do workspace e se o de um pedido ainda é o mesmo | 3b-ii, sobre a identidade da fonte da fatia 1 |
+| `readUnitSourceManifest` (L25 169), `unitSourceFingerprint` (L25 458) | cerca de 45 | A fonte de uma unit numa stage por unit que escreve no workspace | Fatia 5: até lá uma unit numa stage dessas é recusada pelo nome |
+
+Depois: `pendingReviewRequestStatus` (3b-iii), a evidência de sumário (`checkSummaryConfirmationEvidence`, 648 linhas, 3c) e os recibos pesados (`freshReviewReceipts`, 1 067 linhas, 3d). A 2e (`review`) vem sobre eles.
+
 ### A jornada
 
 O original tem uma jornada sem modelo, `tests/harness/scope-run.ts` (1 798 linhas), em três papéis separados: um host que corre o CLI como o skill o corre e dispara os hooks que o harness dispararia; um agente de substituição que faz o que cada diretiva pede (escreve artefactos pequenos, corre os comandos que a diretiva nomeia tal como estão, e acaba o turno em cada pergunta ou gate); e um guião da pessoa, o único que responde, pelo hook do turno humano. O diferencial ganha o mesmo (`tools/oracle/journey.py`), agnóstico do motor: cada lado é conduzido nos seus próprios nomes, e o que o original diz é traduzido por `names.py`, como em tudo o resto.
