@@ -38,7 +38,8 @@ use crate::shards::{ShardText, copied_blocks, parse_shard_events, parse_shard_no
 use crate::units::parse_bolt_dag;
 
 /// The kinds of case this crate answers.
-pub const KINDS: [&str; 10] = [
+pub const KINDS: [&str; 11] = [
+    "bolt_slug",
     "audit_entry",
     "audit_find",
     "audit_field",
@@ -96,6 +97,10 @@ pub fn run_case(case: &Value) -> Value {
                 "total": counts.total(),
             })
         }
+        "bolt_slug" => match crate::units::bolt_slug_for_unit(text("name")) {
+            Ok(slug) => json!({ "slug": slug }),
+            Err(error) => json!({ "error": error }),
+        },
         "bolt_dag" => match parse_bolt_dag(text("body")) {
             Ok(dag) => {
                 let units: Vec<Value> = dag

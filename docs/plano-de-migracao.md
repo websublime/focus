@@ -2282,7 +2282,7 @@ Lido `handleReview` (`aidlc-log.ts` L2 975 a L4 412, uma função só): não há
 
 **O que a 2e traz, quando vier.** O pedido (`REVIEW_REQUESTED`): o ordinal, que é do engine, o orçamento por classe de revisão e a recuperação única quando se esgota, uma revisão que a pessoa pediu fora do orçamento (`personAskedForReview`), o `Source Fingerprint` com o snapshot atrás, o id do pedido e o sítio onde o revisor escreve. O veredicto (`REVIEW_COMPLETED`): `READY` ou `NOT-READY`, o ficheiro da revisão levado para o registo com os títulos despromovidos, o pedido pendente a que responde, e o registo de despacho do revisor retirado no fim.
 
-### Fatia 3a: a tentativa de revisão, partida em cinco
+### Fatia 3a: a tentativa de revisão, partida em cinco (feita)
 
 A primeira parte da fatia 3, e o que as outras e `review` usam: de que tentativa da stage é um pedido de revisão, quantos pedidos a tentativa já tem, e que pedidos esperam veredicto. São duas funções sobre o ledger e o estado, sem comando próprio: verificam-se pelo corpus do oráculo, com ledgers gerados, e não pelo diferencial.
 
@@ -2300,7 +2300,7 @@ A primeira parte da fatia 3, e o que as outras e `review` usam: de que tentativa
 | 3a-ii. A janela | `focus-lifecycle::review_attempt`: a fronteira da tentativa e os bolts abertos e fundidos (`reviewAttemptWindow`) | Corpus, com ledgers gerados | Feito (abaixo) |
 | 3a-iii. O veredicto contra o pedido | `focus-evidence::review`: se uma linha `REVIEW_COMPLETED` responde a um pedido, e o registo de revisão que nomeia | Corpus | Feito (abaixo) |
 | 3a-iv. O registo de revisão | `focus-evidence::review_record`: a forma do documento que um veredicto deixa no registo, se é a revisão que a linha diz, e se um veredicto traz a revisão verificada que o pedido exige | Corpus | Feito (abaixo) |
-| 3a-v. A contagem | `reviewAttemptAccounting`: o piso, os pedidos contados, os pendentes por iteração, a recuperação gasta, a ambiguidade de um empate; e a leitura do registo de revisão em disco, sem seguir links e com limite de tamanho (`readReviewRecord`) | Corpus, com ledgers gerados e registos em disco num projeto | Por fazer |
+| 3a-v. A contagem | `focus-lifecycle::review_attempt::accounting` (`reviewAttemptAccounting`), a leitura do registo de revisão em disco (`readReviewRecord`) e o slug do bolt de uma unit (`boltSlugForUnit`) | Corpus, com ledgers gerados e registos em disco num projeto | Feito (abaixo) |
 
 Quem as chama no original: `freshReviewReceipts` e `pendingReviewRequestStatus` (o resto da fatia 3), `log review` (2e), os checkpoints de Construction (fatia 5) e `orchestrate` (fatias 6 a 10). Focus já tem as peças de ordem que elas usam: `sort_attempt_events` (`focus-lifecycle::gate`), a fronteira (`focus-evidence::authorization::frontier`) e o salto que alcança uma stage (`jump_reaches`).
 
@@ -2400,6 +2400,35 @@ A contagem precisa de saber se um veredicto responde ao pedido pendente, e isso 
 | Mutação, `review_record` | 69 mutantes: 64 apanhados (58 à primeira, 6 depois dos casos por construção) e 5 equivalentes anotados no módulo (o texto de um `null`, de um booleano ou de um número, sozinho ou numa lista, não é id nem decisão de nenhuma maneira; um veredicto que nomeia mal um registo já não responde ao pedido) |
 | Mutação, outra vez, depois de o corpus encolher | As três varreduras anteriores correram de novo contra o corpus reduzido: `review_completion` 46 de 46; `review_binding` 40 e o equivalente de antes; `review_window` 106 e os cinco equivalentes de antes. Em `review_record` dois mutantes da iteração deixaram de ser apanhados, e os casos por construção da iteração apanham-nos |
 | `cargo test` | 579 testes; os testes de corpus de `focus-evidence` e `focus-lifecycle` contam os casos de cada resposta, com os mínimos baixados para o corpus reduzido |
+
+### Fatia 3a-v: a contagem
+
+**O que existe.**
+
+- **`focus-lifecycle::review_attempt::accounting`** (`reviewAttemptAccounting`): os pedidos de revisão da tentativa em curso, para um revisor e uma unit (ou a stage). As fronteiras são as da janela, lidas outra vez com a unit em vista: o início do bolt da própria unit é um piso mais forte do que o da stage, e o fim dele fecha-o; numa stage corrida sozinha conta-se a partir da sua última conclusão. Diz o piso (o texto que identifica a tentativa, de onde sai o id dos ficheiros de revisão), quantos pedidos houve e quantos o orçamento conta (menos quando a unit recomeçou um passo que tinha terminado, num passeio unit-major a solo), que iterações esperam veredicto e com que ligação, se cada uma foi repetida ou tem ficheiro de revisão próprio, se a recuperação única está gasta, e a ambiguidade de um empate entre shards, que recusa a revisão. Um pedido que substitui o pendente fica com a iteração dele e não conta outra vez; um veredicto fecha o pedido quando traz a revisão verificada.
+- **`focus-evidence::review_record::read`** (`readReviewRecord`): o registo que uma referência nomeia, lido debaixo da pasta do registo sem seguir links, com um só nome e até 4 MiB, e só quando os bytes têm o digest que a referência fixa.
+- **`focus-audit::units::bolt_slug_for_unit`** (`boltSlugForUnit`): o slug do bolt que corre uma unit. Um nome que já é um slug é o seu; outro é posto em minúsculas, com os pontos e sublinhados feitos hífens, e distinguido por um pedaço do seu hash.
+
+**O que fica para a fatia 5.** O filtro de linhas pelo claim em curso de uma unit de equipa (`reviewAttemptEventMatchesCurrentClaim`), que lê claims em disco.
+
+**O que o corpus encontrou.**
+
+| Achado | Consequência |
+| --- | --- |
+| A primeira comparação diferiu em 201 casos: Focus fechava pedidos que o original deixava pendentes | O erro era do driver do oráculo. O registo de teste não tinha ficheiro de estado, o original não o encontrava como registo e nunca lia um registo de revisão. O driver escreve o estado e falha se o registo não for encontrado. Corrigido, os casos coincidem todos, com o registo lido em disco dos dois lados |
+| Oito casos com um registo no limite de tamanho levaram o corpus a 80 MB | Um caso diz quantos espaços acrescentar ao ficheiro (`pad`) em vez de os conter |
+| Um caso por construção não testava o que dizia: `AUDIT_MERGED` não é uma linha que a contagem leia, por isso não empatava com nada | A segunda varredura mostrou-o: o empate passou a ser entre duas conclusões do bolt da unit, com e sem a fusão ao lado |
+| O slug de um bolt só era exercitado com quatro nomes de unit | Tipo de caso próprio, `bolt_slug`, com 287 nomes |
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Corpus, `review_accounting` | 1 290 casos, todos iguais: 837 com pedidos contados, 732 com iterações à espera de veredicto, 358 com pelo menos um pedido fechado por um veredicto, 351 com um empate entre shards, 78 com a recuperação gasta, 39 em que a unit recomeçou o passo, 36 dentro de um bolt, 61 recusados por a unit não ser um nome. 1 200 são ledgers sorteados com as histórias de uma revisão (pedida, respondida, pedida outra vez, repetida, substituída, recuperada) entre fronteiras, bolts e linhas de unit; 32 guardam o registo de cada maneira (tal como foi escrito, atrás de um link, debaixo de uma pasta que é um link, com um segundo nome, editado, desaparecido, um byte acima do limite e no limite: só a primeira e a última fecham o pedido); 58 são ledgers escritos linha a linha para o que um sorteio quase nunca conta |
+| Corpus, `bolt_slug` | 287 nomes, todos iguais: 130 não são nomes de unit |
+| Corpus, tudo | 43 859 casos, 46,8 MB |
+| Mutação | 110 mutantes (a contagem, a leitura do registo, o slug): 104 apanhados (83 à primeira, 21 depois dos casos por construção e do tipo `bolt_slug`), 5 equivalentes anotados onde estão (um empate só com fronteiras do trabalho tem pelo menos uma; a contagem começa depois da fronteira, que não é linha de revisão; uma referência só se faz de um caminho de registo; o comprimento de um slug e os hífens das pontas não mudam slug nenhum de um nome de unit) e 1 em código que saiu. A lista inteira voltou a correr contra o corpus final |
+| `cargo test` | 579 testes; o teste de corpus de `focus-lifecycle` conta as respostas da contagem, e salta em Windows os casos com links e com um segundo nome, que lá um ficheiro não diz quantos nomes tem |
 
 ### A jornada
 
