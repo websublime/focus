@@ -10,4 +10,5 @@ pub mod git;
 pub mod listing;
 pub mod raw;
 pub mod snapshot;
+pub mod state;
 pub mod walk;

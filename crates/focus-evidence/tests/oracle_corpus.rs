@@ -35,6 +35,7 @@ fn every_evidence_case_gets_upstreams_answer() {
     let (mut completions, mut answering, mut naming) = (0, 0, 0);
     let (mut records, mut valid, mut same_review, mut carried) = (0, 0, 0, 0);
     let (mut inputs, mut set_aside) = (0, 0);
+    let (mut same_asked, mut same_alias, mut same_raw, mut same_boundary) = (0, 0, 0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         // Parsed as upstream's driver parses it, so nested objects are in the
@@ -60,6 +61,13 @@ fn every_evidence_case_gets_upstreams_answer() {
         let out = run_case(&case);
         if kind == "source_walk" {
             walked += 1;
+            // What recorded values are told of the source: by which earlier
+            // walk each is the current one's.
+            let same = |at: usize| out["same"][at] == true;
+            same_asked += usize::from(out["same"].is_array());
+            same_alias += usize::from(same(2) && out["legacy"].is_string());
+            same_raw += usize::from(same(3));
+            same_boundary += usize::from(same(4) && out["dotnet"] == true);
             stopped += usize::from(out.get("failure").is_some());
             let hash = |key: &str| out[key].as_str().is_some_and(|value| value.len() == 64);
             exact += usize::from(hash("fingerprint"));
@@ -150,8 +158,13 @@ fn every_evidence_case_gets_upstreams_answer() {
     );
     assert!(
         cfg!(windows)
-            || (walked >= 850 && stopped >= 300 && exact >= 500 && earlier >= 120 && raw >= 30),
+            || (walked >= 870 && stopped >= 300 && exact >= 500 && earlier >= 120 && raw >= 30),
         "{walked} {stopped} {exact} {earlier} {raw}"
+    );
+    assert!(
+        cfg!(windows)
+            || (same_asked >= 540 && same_alias >= 130 && same_raw >= 30 && same_boundary >= 20),
+        "{same_asked} {same_alias} {same_raw} {same_boundary}"
     );
     assert!(
         cfg!(windows) || (embedded >= 120 && unresolved >= 200),

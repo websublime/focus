@@ -1761,7 +1761,7 @@ Os intervalos de linhas são de `aidlc-orchestrate.ts` no pin, salvo indicação
 | --- | --- | --- | --- | --- |
 | 1. A identidade da fonte | O passeio pelos ficheiros fonte do projeto, a sua impressão digital, o snapshot `baseline-<hash>.tsv` e o campo `Source Baseline`; o snapshot de fonte de uma unit (`workspaceSourceState`, `readUnitSourceSnapshot` e o que está entre eles em `aidlc-lib.ts`) | `SHAPES["source-baseline"]` (criação e saltos passam a comparar o campo e a listagem); o baseline de uma stage que produz código nas transições; o desvio dos observadores na criação | Corpus sobre árvores de scratch (o que conta como fonte, o que se ignora, a ordem, o hash); diferencial | Feito, partida em quatro (abaixo). O snapshot do workspace e os leitores vêm com quem os usa: fatias 2, 3 e 11 |
 | 2. `log` | `focus engine log decision`, `answer`, `answers`, `link` e `review`: as linhas `DECISION_RECORDED`, `QUESTION_ANSWERED`, `SUMMARY_CONFIRMATION_RECORDED`, `REVIEW_REQUESTED` e `REVIEW_COMPLETED`, os handoffs de um pipeline; o registo de mensagens lido (`aidlc-log.ts`, 4 486; `message-store`, 246); o `Source Fingerprint` de um pedido de revisão e o snapshot do workspace atrás dele (`workspaceSourceState`, `writeWorkspaceSourceSnapshot`) | Nada sozinho: é quem escreve o que a fatia 3 pesa. A escolha de uma pergunta de recuperação gravada por `log` fica para a fatia 4 | Diferencial (`log/*`) | Por fazer: partida em cinco (abaixo) |
-| 3. Os recibos pesados | `freshReviewReceipts` (1 066) e `checkSummaryConfirmationEvidence` (647), os handoffs devidos por um pipeline, os pares pedido e conclusão de uma revisão; `review-brief` (2 365: `review`, `summary`, `context`) e os findings que um gate grava na decisão; a baseline lida de volta (`readBaselineSourceSnapshot`, `currentStageSourceBaseline`) para dizer que caminhos mudaram | As recusas pelo nome de `state` (`advance` e os gates com sumário, revisão ou pipeline devidos), de `review-freeze` e do grupo (`review_rows`), do salto para trás com linhas de revisão, e do turno humano com um pedido de revisão sem veredicto. Sem units: a dimensão por unit chega com a fatia 5 | Diferencial; corpus para os leitores puros (a tabela de findings, a secção `## Review`) | Em curso: 3a e 3b-i feitas. Passa para antes da 2e: `review` chama os dois leitores em todos os caminhos (abaixo) |
+| 3. Os recibos pesados | `freshReviewReceipts` (1 066) e `checkSummaryConfirmationEvidence` (647), os handoffs devidos por um pipeline, os pares pedido e conclusão de uma revisão; `review-brief` (2 365: `review`, `summary`, `context`) e os findings que um gate grava na decisão; a baseline lida de volta (`readBaselineSourceSnapshot`, `currentStageSourceBaseline`) para dizer que caminhos mudaram | As recusas pelo nome de `state` (`advance` e os gates com sumário, revisão ou pipeline devidos), de `review-freeze` e do grupo (`review_rows`), do salto para trás com linhas de revisão, e do turno humano com um pedido de revisão sem veredicto. Sem units: a dimensão por unit chega com a fatia 5 | Diferencial; corpus para os leitores puros (a tabela de findings, a secção `## Review`) | Em curso: 3a, 3b-i e 3b-ii feitas. Passa para antes da 2e: `review` chama os dois leitores em todos os caminhos (abaixo) |
 | 4. A pergunta de recuperação | `evaluateGuardRefusal` e `guardAttemptState`: depois da frase de um guard, a pergunta com os remédios que o condutor pode oferecer, e a série da recusa em `.focus-engine/guard-refusals/`; a escolha gravada | `SHAPES["guard-ask"]` | Diferencial | Por fazer |
 | 5. Units em série | As units como dados (o bloco de units, o DAG, os lotes de um bolt) e como transições: os verbos de `state` que M3 recusa (`set-skeleton-stance`, `set-construction-*`, `set-unit-gate-rhythm`, `sync-unit-scope-stage`, `acknowledge-compaction`, `reuse-artifact`, `lookup`, `practices-event`, `practices-promote`, `unit`), `jump reopen` e `execute --units`, `skip --unit`, uma stage de Construction em `advance`; `bolt` sem worktree (`start`, `complete`, `fail`, `abort`, `set-autonomy`, `checkpoint`; 1 511; `swarm-checkpoint`, `dispatch-event`, `hold-merge` e `release-merge` recusam pelo nome) e os checkpoints de Construction (`construction-checkpoints`, 1 618: a evidência, as decisões, o comando de verificação) | O limite 1 de M3, menos o que é de equipa ou de worktree (`set-unit-ownership`, `refresh-unit-progress`, `fold-unit-merge`, `fork`, `merge`); os recibos por unit da fatia 3 | Diferencial; o fuzz de transições ganha units. Prende os três chamadores que leem só o marcador de uma stage por unit e que a correção de M5 deixou por prender (os outputs de uma stage de Construction e a unit de um artefacto revisto) | Por fazer |
 | 6. As diretivas e o marcador | `focus-orchestrate::directive` (os onze tipos de diretiva, `validateDirective`, as notas para o agente; `aidlc-directive.ts`, 2 976) e o marcador `active-directive.json`: escrever, ler, limpar, refrescar, pôr fora de data, o lock, e `state-writes.json` ao lado | As recusas pelo nome de um registo com marcador: `state`, `status`, `jump`, os hooks (`directive_marker`), e as admissões que os guards leem dele (as respostas da pergunta de recuperação, a continuação de um restart, o último passo do engine); o cursor que `set-status` preserva | Corpus (`validateDirective` sobre diretivas geradas, boas e estragadas; o parser do marcador); diferencial sobre árvores cujo marcador é o que o original escreveu | Por fazer |
@@ -2430,14 +2430,14 @@ A contagem precisa de saber se um veredicto responde ao pedido pendente, e isso 
 | Mutação | 110 mutantes (a contagem, a leitura do registo, o slug): 104 apanhados (83 à primeira, 21 depois dos casos por construção e do tipo `bolt_slug`), 5 equivalentes anotados onde estão (um empate só com fronteiras do trabalho tem pelo menos uma; a contagem começa depois da fronteira, que não é linha de revisão; uma referência só se faz de um caminho de registo; o comprimento de um slug e os hífens das pontas não mudam slug nenhum de um nome de unit) e 1 em código que saiu. A lista inteira voltou a correr contra o corpus final |
 | `cargo test` | 579 testes; o teste de corpus de `focus-lifecycle` conta as respostas da contagem, e salta em Windows os casos com links e com um segundo nome, que lá um ficheiro não diz quantos nomes tem |
 
-### Fatia 3b: o que uma revisão revê (3b-i feita)
+### Fatia 3b: o que uma revisão revê (3b-i e 3b-ii feitas)
 
 O que vem a seguir na fatia 3, lido só até onde chega para o partir. Um pedido pendente pode ser repetido, respondido ou substituído conforme a sua ligação ainda descreve os bytes em disco (`pendingReviewRequestStatus`, 37 linhas, sobre `pendingRequestCurrency`, 70). Isso assenta em três leituras que ainda não existem em Focus:
 
 | Leitura do original (`aidlc-lib.ts`) | Linhas | O que diz | Onde entra |
 | --- | --- | --- | --- |
 | `reviewArtifactSnapshot` (L16 004), `reviewArtifactFingerprint` (L16 072), com `reviewRequestArtifactsCurrent` e `reviewAppendedAfterRequest` | cerca de 110 | O fingerprint dos outputs de uma stage, lidos cada um por uma só identidade de ficheiro, e se a ligação de um pedido ainda é a deles (com a vista do apêndice de revisão, só para os pedidos desse tempo) | 3b-i, **feita**: é o que `review` grava como `Artifact Fingerprint` e o que os recibos pesam |
-| `workspaceSourceState` (L24 122), `sameWorkspaceSource` | cerca de 40 | O fingerprint da fonte do workspace e se o de um pedido ainda é o mesmo | 3b-ii, sobre a identidade da fonte da fatia 1 |
+| `workspaceSourceState` (L24 122), `sameWorkspaceSource` | cerca de 40 | O fingerprint da fonte do workspace e se o de um pedido ainda é o mesmo | 3b-ii, **feita**, sobre a identidade da fonte da fatia 1 |
 | `readUnitSourceManifest` (L25 169), `unitSourceFingerprint` (L25 458) | cerca de 45 | A fonte de uma unit numa stage por unit que escreve no workspace | Fatia 5: até lá uma unit numa stage dessas é recusada pelo nome |
 
 Depois: `pendingReviewRequestStatus` (3b-iii), a evidência de sumário (`checkSummaryConfirmationEvidence`, 648 linhas, 3c) e os recibos pesados (`freshReviewReceipts`, 1 067 linhas, 3d). A 2e (`review`) vem sobre eles.
@@ -2491,6 +2491,37 @@ Depois: `pendingReviewRequestStatus` (3b-iii), a evidência de sumário (`checkS
 | Repetição da gravação | 3 694 checks sobre 1 429 árvores |
 | Mutação | 118 mutantes (o snapshot e a leitura, as entradas, o fingerprint das perguntas, a fronteira): 108 apanhados (105 à primeira, 3 depois de casos novos: um artefacto opcional em falta numa unit que o pode ter, um título de sumário dentro de um item de lista, um carácter de duas unidades antes da secção) e 10 equivalentes anotados nos módulos (a segunda vista e a comparação de identidades, que só uma corrida com outro processo mostraria; o caminho resolvido dentro da fronteira, duas vezes; o segundo nome, que a leitura recusa por si; as duas guardas do corte no apêndice; a forma em bruto lembrada quando não difere; um pedido do conjunto inteiro com uma secção presente; a linha de resposta perguntada até ao primeiro comentário) |
 | `cargo test` | 584 testes. Os testes de corpus contam as respostas dos tipos novos; o de `focus-lifecycle` salta em Windows os casos com links, com um segundo nome e os marcados `posix` (um caminho que passa por um ficheiro) |
+
+### Fatia 3b-ii: a fonte que uma decisão lê agora
+
+**O que existe.**
+
+- **`focus-evidence::source::state::workspace_source_state`** (`workspaceSourceState`): a fonte do projeto agora, sobre o teto e os repositórios do trabalho, com o que uma comparação posterior precisa guardado pelo fingerprint: o valor que a caminhada anterior dava (antes de haver ficheiros excluídos pelo nome), e, quando a fonte tem uma pasta de saída de .NET, a caminhada a refazer com essas pastas dentro. A baseline de uma linha (`Source Baseline`) passou a tirar a fonte por aqui, como o original.
+- **`same_workspace_source`** (`sameWorkspaceSource`): se um fingerprint gravado descreve a fonte atual. É o atual, ou o que uma das caminhadas anteriores dá para os mesmos ficheiros: a de antes das exclusões pelo nome, a dos fins de linha em bruto de conteúdo lido neste processo, ou a que ainda levava as pastas de saída de .NET. Esta última é refeita uma vez por valor, e só quando nenhuma outra comparação serve.
+
+**Decisões.**
+
+| Decisão | Porquê |
+| --- | --- |
+| Não há tipo de caso novo: cada caso `source_walk` passou a responder também a dez comparações | O corpus está a 2 MB do aviso do GitHub, e as árvores que interessam (com ficheiros excluídos pelo nome, em CRLF, com saídas de .NET) já lá estão. A cada fonte pergunta-se pelo valor da própria caminhada do caso, pelo atual, pelo de cada caminhada anterior, por outro, por nenhum, e pelo que a caminhada anterior deu no caso antes deste |
+| A memória de uma só observação da fonte por transição (`withWorkspaceSourceStateCache`) não foi trazida | É uma poupança, não uma resposta: cada chamada caminha. Fica para quando uma transição a pedir |
+| O canal lateral da última falha (`lastSourceFailure`) continua a ser o `Err` da caminhada | Já era assim na fatia 1 |
+
+**O que a mutação encontrou.**
+
+| Achado | Consequência |
+| --- | --- |
+| Tirar a limpeza do valor anterior quando a fonte deixa de o ter não mudava resposta nenhuma | O que se guarda é pelo fingerprint, e nenhum par de casos tinha a mesma fonte com e sem ficheiros excluídos. Nove casos novos, em três trios |
+| Tirar a limpeza da caminhada a refazer também não | A pergunta que o mostra é pelo valor de outra fonte: a do caso anterior. Passou a ser feita |
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Corpus, `source_walk` | 879 casos, todos iguais: 552 fontes perguntadas (as outras 327 param a caminhada), 142 reconhecidas pelo valor de antes das exclusões, 37 pela forma em bruto, 25 pela caminhada com as saídas de .NET |
+| Corpus, tudo | 45 907 casos, 48,1 MB |
+| Mutação | 19 mutantes: 17 apanhados (16 à primeira, 1 depois da pergunta nova) e 2 equivalentes anotados no módulo (refazer a caminhada para uma fonte sem saídas de .NET dá o que já se tem; guardar o que deu é uma poupança) |
+| `cargo test` | 584 testes; o teste de corpus de `focus-evidence` conta as comparações por cada caminhada anterior |
 
 ### A jornada
 

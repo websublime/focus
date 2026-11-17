@@ -56,6 +56,8 @@ const libShim = tool("aidlc-lib.focus-oracle.ts");
 writeFileSync(libShim, `${readFileSync(tool("aidlc-lib.ts"), "utf-8")}\nexport { walkWorkspaceSource };\n`);
 process.on("exit", () => rmSync(libShim, { force: true }));
 const libPrivate = await import(libShim);
+// What the walk that took the .NET output directories gave for the last source_walk case that was asked.
+let earlierOfTheCaseBefore: string | null = null;
 const dispatcher = await import(tool("aidlc.ts"));
 const guardOperation = await import(tool("aidlc-guard-operation.ts"));
 const posture = await import(tool("aidlc-testing-posture.ts"));
@@ -216,6 +218,23 @@ async function answer(c: Record<string, any>): Promise<unknown> {
             },
           };
         }
+        // What a recorded value is told of this source, as a decision reads
+        // it now: the value itself, what each earlier walk gives for the same
+        // files, another value, and none.
+        const current = libPrivate.workspaceSourceState(join(root, c.project), undefined, undefined, c.repos);
+        let same: boolean[] | null = null;
+        if (current !== null) {
+          const earlier = libPrivate.walkWorkspaceSource(join(root, c.project), c.repos, false);
+          const now = current.fingerprint as string;
+          // (The first is this case's own walk, which is the current source's only when it took the same boundary.)
+          const recorded = [walked.state.fingerprint, now, libPrivate._legacyWorkspaceSourceFingerprintForTests(now), libPrivate.rawFingerprintForm(now),
+            earlier === null ? null : earlier.state.fingerprint, earlier === null ? null : earlier.legacy, "0".repeat(64), null];
+          // (And the last is what the walk that took the .NET output directories gave for the case before this
+          // one: what a walk leaves for a comparison is kept by the fingerprint, and is this source's or nobody's.)
+          same = [...recorded.map((value) => libPrivate.sameWorkspaceSource(value, now)), libPrivate.sameWorkspaceSource(null, null),
+            libPrivate.sameWorkspaceSource(now, null), libPrivate.sameWorkspaceSource(earlierOfTheCaseBefore, now)];
+          earlierOfTheCaseBefore = earlier === null ? null : earlier.state.fingerprint;
+        }
         // A fingerprint is taken over the paths: one that holds the engine's
         // name differs between the engines by construction. The earlier
         // walk's also takes in the files left out by name since, and the
@@ -238,6 +257,7 @@ async function answer(c: Record<string, any>): Promise<unknown> {
           ),
           dotnet: walked.dotnetOutputSeen,
           rows,
+          same,
         };
       } finally {
         for (const [name] of set) delete process.env[name];
