@@ -1,0 +1,460 @@
+{"id": "node_path-00000", "kind": "node_path", "flavour": "win32", "op": "join", "args": ["/", "a", "b"], "cwd": "/work/w"}
+{"id": "node_path-00001", "kind": "node_path", "flavour": "win32", "op": "join", "args": ["\\", "x", "y"], "cwd": "/work/w"}
+{"id": "node_path-00002", "kind": "node_path", "flavour": "win32", "op": "join", "args": ["//", "a", "b"], "cwd": "/work/w"}
+{"id": "node_path-00003", "kind": "node_path", "flavour": "win32", "op": "join", "args": ["/", "/a", "b"], "cwd": "/work/w"}
+{"id": "node_path-00004", "kind": "node_path", "flavour": "win32", "op": "join", "args": ["\\\\srv", "share", "f"], "cwd": "/work/w"}
+{"id": "node_path-00005", "kind": "node_path", "flavour": "win32", "op": "join", "args": ["//srv", "share"], "cwd": "/work/w"}
+{"id": "node_path-00006", "kind": "node_path", "flavour": "win32", "op": "join", "args": ["C:", "a"], "cwd": "/work/w"}
+{"id": "node_path-00007", "kind": "node_path", "flavour": "win32", "op": "join", "args": ["C:/", "..", ".."], "cwd": "/work/w"}
+{"id": "node_path-00008", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["C:\\w", "D:x"], "cwd": "/work/w"}
+{"id": "node_path-00009", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["D:\\a", "d:b"], "cwd": "/work/w"}
+{"id": "node_path-00010", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["\\\\s\\sh\\x", "\\\\S\\SH\\y"], "cwd": "/work/w"}
+{"id": "node_path-00011", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["x", "C:", "y"], "cwd": "/work/w"}
+{"id": "node_path-00012", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["\\x", "C:y"], "cwd": "/work/w"}
+{"id": "node_path-00013", "kind": "node_path", "flavour": "win32", "op": "normalize", "args": ["a\\..\\..\\..\\b"], "cwd": "/work/w"}
+{"id": "node_path-00014", "kind": "node_path", "flavour": "posix", "op": "normalize", "args": ["a/../../../b"], "cwd": "/work/w"}
+{"id": "node_path-00015", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["C:\\"], "cwd": "/work/w"}
+{"id": "node_path-00016", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["C:a"], "cwd": "/work/w"}
+{"id": "node_path-00017", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["\\\\srv\\share\\"], "cwd": "/work/w"}
+{"id": "node_path-00018", "kind": "node_path", "flavour": "posix", "op": "basename", "args": ["/a/b.txt//"], "cwd": "/work/w"}
+{"id": "node_path-00019", "kind": "node_path", "flavour": "win32", "op": "normalize", "args": ["\\\\.\\X\\.."], "cwd": "/work/w"}
+{"id": "node_path-00020", "kind": "node_path", "flavour": "win32", "op": "normalize", "args": ["\\\\?\\UNC\\s\\sh\\f"], "cwd": "/work/w"}
+{"id": "node_path-00021", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["\\\\.\\PHYSICALDRIVE0"], "cwd": "/work/w"}
+{"id": "node_path-00022", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["C:\\foo\\bar", "C:\\foo\\bar\\baz"], "cwd": "/work/w"}
+{"id": "node_path-00023", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["C:\\foo\\bar", "C:\\foo"], "cwd": "/work/w"}
+{"id": "node_path-00024", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["C:\\", "C:\\foo"], "cwd": "/work/w"}
+{"id": "node_path-00025", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["C:\\foo\\bar", "C:\\"], "cwd": "/work/w"}
+{"id": "node_path-00026", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["C:\\a\\b", "D:\\a"], "cwd": "/work/w"}
+{"id": "node_path-00027", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["c:\\A\\b", "C:\\a\\C"], "cwd": "/work/w"}
+{"id": "node_path-00028", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["\\\\s\\sh\\a", "\\\\s\\sh\\b"], "cwd": "/work/w"}
+{"id": "node_path-00029", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["C:\\İ\\x", "C:\\i̇\\y"], "cwd": "/work/w"}
+{"id": "node_path-00030", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["C:\\a", "C:\\ab"], "cwd": "/work/w"}
+{"id": "node_path-00031", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["/a/b/c", "/a/d"], "cwd": "/work/w"}
+{"id": "node_path-00032", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["/", "/foo"], "cwd": "/work/w"}
+{"id": "node_path-00033", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["/foo/bar", "/"], "cwd": "/work/w"}
+{"id": "node_path-00034", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["/a", "/ab"], "cwd": "/work/w"}
+{"id": "node_path-00035", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["//a"], "cwd": "/work/w"}
+{"id": "node_path-00036", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["\\\\s\\sh\\f"], "cwd": "/work/w"}
+{"id": "node_path-00037", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["\\\\s\\sh"], "cwd": "/work/w"}
+{"id": "node_path-00038", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["C:a\\b"], "cwd": "/work/w"}
+{"id": "node_path-00039", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["C:"], "cwd": "/work/w"}
+{"id": "node_path-00040", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["C:x"], "cwd": "/tmp"}
+{"id": "node_path-00041", "kind": "node_path", "flavour": "posix", "op": "normalize", "args": ["a/../.."], "cwd": "/a/b/c"}
+{"id": "node_path-00042", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["/"], "cwd": "/a/b/c"}
+{"id": "node_path-00043", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["./"], "cwd": "/a/b/c"}
+{"id": "node_path-00044", "kind": "node_path", "flavour": "win32", "op": "join", "args": ["CON"], "cwd": "/a/b/c"}
+{"id": "node_path-00045", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["///a//b/"], "cwd": "/a/b/c"}
+{"id": "node_path-00046", "kind": "node_path", "flavour": "posix", "op": "basename", "args": ["a:b"], "cwd": "/tmp"}
+{"id": "node_path-00047", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["\\\\?\\C:\\x"], "cwd": "/tmp"}
+{"id": "node_path-00048", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["\\\\?\\C:\\x"], "cwd": "/tmp"}
+{"id": "node_path-00049", "kind": "node_path", "flavour": "posix", "op": "basename", "args": ["nul:"], "cwd": "/a/b/c"}
+{"id": "node_path-00050", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["\\\\srv\\"], "cwd": "/a/b/c"}
+{"id": "node_path-00051", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["C:/x"], "cwd": "/tmp"}
+{"id": "node_path-00052", "kind": "node_path", "flavour": "posix", "op": "basename", "args": ["C:/x"], "cwd": "/"}
+{"id": "node_path-00053", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": [".."], "cwd": "/tmp"}
+{"id": "node_path-00054", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": [], "cwd": "/"}
+{"id": "node_path-00055", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["\\\\srv\\share"], "cwd": "/a/b/c"}
+{"id": "node_path-00056", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["/a", "_\\\\.\\HYSICALDRIVE0"], "cwd": "/tmp"}
+{"id": "node_path-00057", "kind": "node_path", "flavour": "win32", "op": "normalize", "args": ["/a"], "cwd": "/work/w"}
+{"id": "node_path-00058", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["a/../..", "\\\\srv\\share"], "cwd": "/tmp"}
+{"id": "node_path-00059", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["c:\\A\\..\\b", "a/."], "cwd": "/work/w"}
+{"id": "node_path-00060", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["//a", "///a//b/"], "cwd": "/a/b/c"}
+{"id": "node_path-00061", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["a", "a/../.."], "cwd": "/a/b/c"}
+{"id": "node_path-00062", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["/a"], "cwd": "/work/w"}
+{"id": "node_path-00063", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["\\\\srv\\"], "cwd": "/tmp"}
+{"id": "node_path-00064", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["a", "./"], "cwd": "/tmp"}
+{"id": "node_path-00065", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": [""], "cwd": "/"}
+{"id": "node_path-00066", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["/a"], "cwd": "/"}
+{"id": "node_path-00067", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["./", "a b/c d"], "cwd": "/tmp"}
+{"id": "node_path-00068", "kind": "node_path", "flavour": "win32", "op": "basename", "args": [".."], "cwd": "/"}
+{"id": "node_path-00069", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": ["C:/x"], "cwd": "/a/b/c"}
+{"id": "node_path-00070", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["///a//b/"], "cwd": "/work/w"}
+{"id": "node_path-00071", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": ["a/."], "cwd": "/work/w"}
+{"id": "node_path-00072", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["//a"], "cwd": "/"}
+{"id": "node_path-00073", "kind": "node_path", "flavour": "win32", "op": "join", "args": ["C:/x", "D:..\\y"], "cwd": "/a/b/c"}
+{"id": "node_path-00074", "kind": "node_path", "flavour": "posix", "op": "join", "args": ["", "C:/x", "/"], "cwd": "/work/w"}
+{"id": "node_path-00075", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": ["..\\.a"], "cwd": "/work/w"}
+{"id": "node_path-00076", "kind": "node_path", "flavour": "win32", "op": "join", "args": ["\\\\srv\\share"], "cwd": "/a/b/c"}
+{"id": "node_path-00077", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["\\\\srv\\"], "cwd": "/"}
+{"id": "node_path-00078", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["C:/x"], "cwd": "/tmp"}
+{"id": "node_path-00079", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": ["/a", "C:\\"], "cwd": "/"}
+{"id": "node_path-00080", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["../../../x"], "cwd": "/work/w"}
+{"id": "node_path-00081", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["..\\.."], "cwd": "/a/b/c"}
+{"id": "node_path-00082", "kind": "node_path", "flavour": "win32", "op": "join", "args": ["C:\\", "\\"], "cwd": "/"}
+{"id": "node_path-00083", "kind": "node_path", "flavour": "win32", "op": "normalize", "args": ["C:x"], "cwd": "/"}
+{"id": "node_path-00084", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["\\\\\\a", "\\"], "cwd": "/tmp"}
+{"id": "node_path-00085", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["///a//b/"], "cwd": "/a/b/c"}
+{"id": "node_path-00086", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["..\\..", "///a//b/"], "cwd": "/a/b/c"}
+{"id": "node_path-00087", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": ["C:\\", "C:/x"], "cwd": "/work/w"}
+{"id": "node_path-00088", "kind": "node_path", "flavour": "posix", "op": "normalize", "args": ["a/../.."], "cwd": "/"}
+{"id": "node_path-00089", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["C:/x"], "cwd": "/"}
+{"id": "node_path-00090", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": [], "cwd": "/a/b/c"}
+{"id": "node_path-00091", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["C", "/a", ""], "cwd": "/"}
+{"id": "node_path-00092", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["\\\\srv"], "cwd": "/work/w"}
+{"id": "node_path-00093", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["c:\\A\\..\\b", "///a//b/", ">:..\\"], "cwd": "/a/b/c"}
+{"id": "node_path-00094", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["::-x"], "cwd": "/tmp"}
+{"id": "node_path-00095", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["\\\\srv\\share\\f\\..\\g"], "cwd": "/work/w"}
+{"id": "node_path-00096", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["/", "\\\\srv\\share"], "cwd": "/"}
+{"id": "node_path-00097", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["a/.", "x/..\\y"], "cwd": "/"}
+{"id": "node_path-00098", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["C:"], "cwd": "/work/w"}
+{"id": "node_path-00099", "kind": "node_path", "flavour": "posix", "op": "join", "args": ["C:x", "D:..\\y"], "cwd": "/"}
+{"id": "node_path-00100", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["C:/x", "\\\\.\\PHYSICALDRIVE0"], "cwd": "/"}
+{"id": "node_path-00101", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": ["C:", "C:a/b", "C:/x"], "cwd": "/"}
+{"id": "node_path-00102", "kind": "node_path", "flavour": "posix", "op": "basename", "args": ["\\\\?\\C:\\x"], "cwd": "/a/b/c"}
+{"id": "node_path-00103", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["../../../x", "b"], "cwd": "/tmp"}
+{"id": "node_path-00104", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": [".."], "cwd": "/"}
+{"id": "node_path-00105", "kind": "node_path", "flavour": "posix", "op": "join", "args": ["CON"], "cwd": "/work/w"}
+{"id": "node_path-00106", "kind": "node_path", "flavour": "posix", "op": "join", "args": [], "cwd": "/a/b/c"}
+{"id": "node_path-00107", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["a/."], "cwd": "/"}
+{"id": "node_path-00108", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["C:/x", "a/../.."], "cwd": "/tmp"}
+{"id": "node_path-00109", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": [], "cwd": "/a/b/c"}
+{"id": "node_path-00110", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["\\\\\\a", "\\\\srv\\share"], "cwd": "/"}
+{"id": "node_path-00111", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["C:x"], "cwd": "/"}
+{"id": "node_path-00112", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["//srv/share/f"], "cwd": "/a/b/c"}
+{"id": "node_path-00113", "kind": "node_path", "flavour": "win32", "op": "join", "args": ["a//", "D:..\\y"], "cwd": "/"}
+{"id": "node_path-00114", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["\\\\\\a", ".", "a b/c d"], "cwd": "/tmp"}
+{"id": "node_path-00115", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["a\\b", "a"], "cwd": "/a/b/c"}
+{"id": "node_path-00116", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["../../../x"], "cwd": "/work/w"}
+{"id": "node_path-00117", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["C:/\n﻿"], "cwd": "/work/w"}
+{"id": "node_path-00118", "kind": "node_path", "flavour": "win32", "op": "join", "args": ["/", "\\\\srv\\share"], "cwd": "/a/b/c"}
+{"id": "node_path-00119", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["///a//b/", "//"], "cwd": "/tmp"}
+{"id": "node_path-00120", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["//\r/a/:/b/", "\\\\\\a"], "cwd": "/"}
+{"id": "node_path-00121", "kind": "node_path", "flavour": "posix", "op": "relative", "args": [" ", "\\\\?\\C:\\x"], "cwd": "/a/b/c"}
+{"id": "node_path-00122", "kind": "node_path", "flavour": "posix", "op": "join", "args": [], "cwd": "/"}
+{"id": "node_path-00123", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["a\\b", "C:a/b"], "cwd": "/"}
+{"id": "node_path-00124", "kind": "node_path", "flavour": "posix", "op": "normalize", "args": ["nul:"], "cwd": "/a/b/c"}
+{"id": "node_path-00125", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["a:b"], "cwd": "/"}
+{"id": "node_path-00126", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["//srv/share/f"], "cwd": "/"}
+{"id": "node_path-00127", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["///a//b/"], "cwd": "/tmp"}
+{"id": "node_path-00128", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["../../../x"], "cwd": "/"}
+{"id": "node_path-00129", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["//a", "/a"], "cwd": "/a/b/c"}
+{"id": "node_path-00130", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["CON"], "cwd": "/a/b/c"}
+{"id": "node_path-00131", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": ["a/.", "nul:", "a//"], "cwd": "/work/w"}
+{"id": "node_path-00132", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["C:\\"], "cwd": "/tmp"}
+{"id": "node_path-00133", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": [], "cwd": "/a/b/c"}
+{"id": "node_path-00134", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["\\\\srv"], "cwd": "/a/b/c"}
+{"id": "node_path-00135", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["x/0..y", "\\"], "cwd": "/work/w"}
+{"id": "node_path-00136", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["\\\\srv\\share\\f\\..\\g"], "cwd": "/"}
+{"id": "node_path-00137", "kind": "node_path", "flavour": "win32", "op": "normalize", "args": ["//a"], "cwd": "/"}
+{"id": "node_path-00138", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["\\"], "cwd": "/work/w"}
+{"id": "node_path-00139", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["\\\\srv\\share"], "cwd": "/"}
+{"id": "node_path-00140", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["a/.", "a:b"], "cwd": "/work/w"}
+{"id": "node_path-00141", "kind": "node_path", "flavour": "posix", "op": "join", "args": ["a b/c d", "a\\b"], "cwd": "/a/b/c"}
+{"id": "node_path-00142", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["\\\\?\\C:\\x"], "cwd": "/work/w"}
+{"id": "node_path-00143", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["c:\\A\\..\\b"], "cwd": "/work/w"}
+{"id": "node_path-00144", "kind": "node_path", "flavour": "posix", "op": "normalize", "args": ["\\"], "cwd": "/tmp"}
+{"id": "node_path-00145", "kind": "node_path", "flavour": "posix", "op": "normalize", "args": ["/a"], "cwd": "/work/w"}
+{"id": "node_path-00146", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["c:\\A\\..\\b", "a", "..\\.."], "cwd": "/a/b/c"}
+{"id": "node_path-00147", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["c:\\A\\..\\b", "C:|/\""], "cwd": "/tmp"}
+{"id": "node_path-00148", "kind": "node_path", "flavour": "posix", "op": "normalize", "args": ["\\\\srv\\"], "cwd": "/tmp"}
+{"id": "node_path-00149", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["\\\\srv\\share"], "cwd": "/tmp"}
+{"id": "node_path-00150", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["./"], "cwd": "/work/w"}
+{"id": "node_path-00151", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["\\\\srv\\share"], "cwd": "/a/b/c"}
+{"id": "node_path-00152", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["nul:", "c:\\A\\..\\b"], "cwd": "/"}
+{"id": "node_path-00153", "kind": "node_path", "flavour": "posix", "op": "normalize", "args": ["a:b"], "cwd": "/tmp"}
+{"id": "node_path-00154", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["./"], "cwd": "/a/b/c"}
+{"id": "node_path-00155", "kind": "node_path", "flavour": "win32", "op": "join", "args": ["CON", "\\\\srv\\"], "cwd": "/a/b/c"}
+{"id": "node_path-00156", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["é/ü"], "cwd": "/work/w"}
+{"id": "node_path-00157", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["///a//b/"], "cwd": "/"}
+{"id": "node_path-00158", "kind": "node_path", "flavour": "posix", "op": "join", "args": ["C:/x"], "cwd": "/"}
+{"id": "node_path-00159", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["a\\b", "\\\\.\\PHYSICALDRIVE0"], "cwd": "/tmp"}
+{"id": "node_path-00160", "kind": "node_path", "flavour": "win32", "op": "normalize", "args": ["x/..\\y"], "cwd": "/a/b/c"}
+{"id": "node_path-00161", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["x/..\\y", "C:"], "cwd": "/"}
+{"id": "node_path-00162", "kind": "node_path", "flavour": "posix", "op": "basename", "args": ["/a"], "cwd": "/work/w"}
+{"id": "node_path-00163", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": [], "cwd": "/a/b/c"}
+{"id": "node_path-00164", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["x/.\\"], "cwd": "/a/b/c"}
+{"id": "node_path-00165", "kind": "node_path", "flavour": "win32", "op": "normalize", "args": ["\\\\srv"], "cwd": "/work/w"}
+{"id": "node_path-00166", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["../../../x", "C:x", "C:a/b"], "cwd": "/"}
+{"id": "node_path-00167", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["a/b"], "cwd": "/tmp"}
+{"id": "node_path-00168", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["\\\\srv\\"], "cwd": "/"}
+{"id": "node_path-00169", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": ["x\r/.-.\\y", "", "\\\\srv\\sharb😀\\f\\..\\g"], "cwd": "/a/b/c"}
+{"id": "node_path-00170", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["C:/x"], "cwd": "/tmp"}
+{"id": "node_path-00171", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["nul:", ""], "cwd": "/"}
+{"id": "node_path-00172", "kind": "node_path", "flavour": "win32", "op": "normalize", "args": ["a/../.."], "cwd": "/work/w"}
+{"id": "node_path-00173", "kind": "node_path", "flavour": "posix", "op": "normalize", "args": ["\\"], "cwd": "/work/w"}
+{"id": "node_path-00174", "kind": "node_path", "flavour": "win32", "op": "normalize", "args": ["///a//b/"], "cwd": "/tmp"}
+{"id": "node_path-00175", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["a//"], "cwd": "/tmp"}
+{"id": "node_path-00176", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["\\\\srv\\share\\f\\..\\g"], "cwd": "/tmp"}
+{"id": "node_path-00177", "kind": "node_path", "flavour": "posix", "op": "join", "args": [], "cwd": "/tmp"}
+{"id": "node_path-00178", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["\\\\srv\\shar\\f\\..\\\ng", "\\\\.\\PHYSICALDRIVE0"], "cwd": "/tmp"}
+{"id": "node_path-00179", "kind": "node_path", "flavour": "win32", "op": "normalize", "args": ["C:/x"], "cwd": "/tmp"}
+{"id": "node_path-00180", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["\\\\srv\\share\\f\\..\\g"], "cwd": "/work/w"}
+{"id": "node_path-00181", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["/a", "a/b"], "cwd": "/tmp"}
+{"id": "node_path-00182", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": ["..", "\\\\.\\PHYSICALDRIVE0", "//srv/share/f"], "cwd": "/work/w"}
+{"id": "node_path-00183", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": ["a/~../.", "\\\\srv\\share\\f\\..\\g"], "cwd": "/work/w"}
+{"id": "node_path-00184", "kind": "node_path", "flavour": "posix", "op": "normalize", "args": ["///a//b/"], "cwd": "/tmp"}
+{"id": "node_path-00185", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["C:x"], "cwd": "/work/w"}
+{"id": "node_path-00186", "kind": "node_path", "flavour": "posix", "op": "basename", "args": ["x/..\\y"], "cwd": "/a/b/c"}
+{"id": "node_path-00187", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": ["../../../x", "é/|", "a/../.."], "cwd": "/work/w"}
+{"id": "node_path-00188", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["C:a/b"], "cwd": "/a/b/c"}
+{"id": "node_path-00189", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["C:, "], "cwd": "/work/w"}
+{"id": "node_path-00190", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": ["//srv/share/f"], "cwd": "/"}
+{"id": "node_path-00191", "kind": "node_path", "flavour": "win32", "op": "normalize", "args": ["\\\\srv"], "cwd": "/"}
+{"id": "node_path-00192", "kind": "node_path", "flavour": "win32", "op": "normalize", "args": ["x/..}\\y."], "cwd": "/a/b/c"}
+{"id": "node_path-00193", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["\\\\.\\PHYSICALDRIVE0"], "cwd": "/tmp"}
+{"id": "node_path-00194", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["///a//b/"], "cwd": "/"}
+{"id": "node_path-00195", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["é/ü"], "cwd": "/a/b/c"}
+{"id": "node_path-00196", "kind": "node_path", "flavour": "win32", "op": "normalize", "args": ["C:"], "cwd": "/"}
+{"id": "node_path-00197", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["\\\\srv", "../../../x"], "cwd": "/work/w"}
+{"id": "node_path-00198", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["D:😀..\\\t", "."], "cwd": "/tmp"}
+{"id": "node_path-00199", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["a\\b"], "cwd": "/tmp"}
+{"id": "node_path-00200", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["../../../x", "a/../.."], "cwd": "/tmp"}
+{"id": "node_path-00201", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["/", "C:\\"], "cwd": "/"}
+{"id": "node_path-00202", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["C:\\", "CON"], "cwd": "/work/w"}
+{"id": "node_path-00203", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["a/b"], "cwd": "/a/b/c"}
+{"id": "node_path-00204", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["/", "C:"], "cwd": "/work/w"}
+{"id": "node_path-00205", "kind": "node_path", "flavour": "posix", "op": "normalize", "args": ["\\\\srv"], "cwd": "/a/b/c"}
+{"id": "node_path-00206", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["a/."], "cwd": "/"}
+{"id": "node_path-00207", "kind": "node_path", "flavour": "posix", "op": "normalize", "args": ["\\\\srv"], "cwd": "/tmp"}
+{"id": "node_path-00208", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["\\\\srv\\", ""], "cwd": "/"}
+{"id": "node_path-00209", "kind": "node_path", "flavour": "posix", "op": "normalize", "args": [""], "cwd": "/work/w"}
+{"id": "node_path-00210", "kind": "node_path", "flavour": "posix", "op": "join", "args": ["é/ü", "..\\.."], "cwd": "/tmp"}
+{"id": "node_path-00211", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["C:x", "C:\\"], "cwd": "/tmp"}
+{"id": "node_path-00212", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["a/."], "cwd": "/"}
+{"id": "node_path-00213", "kind": "node_path", "flavour": "posix", "op": "join", "args": ["C:x"], "cwd": "/tmp"}
+{"id": "node_path-00214", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["a"], "cwd": "/work/w"}
+{"id": "node_path-00215", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["é/ü", "C:x"], "cwd": "/work/w"}
+{"id": "node_path-00216", "kind": "node_path", "flavour": "win32", "op": "normalize", "args": ["C:/x"], "cwd": "/tmp"}
+{"id": "node_path-00217", "kind": "node_path", "flavour": "posix", "op": "basename", "args": ["C:/x"], "cwd": "/a/b/c"}
+{"id": "node_path-00218", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["a//"], "cwd": "/"}
+{"id": "node_path-00219", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["\\\\srv\\share", "\\\\?\\C:\\x"], "cwd": "/tmp"}
+{"id": "node_path-00220", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": [], "cwd": "/a/b/c"}
+{"id": "node_path-00221", "kind": "node_path", "flavour": "posix", "op": "join", "args": ["../../../x"], "cwd": "/a/b/c"}
+{"id": "node_path-00222", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["a/../..", "C:"], "cwd": "/a/b/c"}
+{"id": "node_path-00223", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": ["///a//b/"], "cwd": "/tmp"}
+{"id": "node_path-00224", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["///{a//b"], "cwd": "/tmp"}
+{"id": "node_path-00225", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["C:\\"], "cwd": "/a/b/c"}
+{"id": "node_path-00226", "kind": "node_path", "flavour": "posix", "op": "basename", "args": ["a/."], "cwd": "/a/b/c"}
+{"id": "node_path-00227", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": ["a//"], "cwd": "/tmp"}
+{"id": "node_path-00228", "kind": "node_path", "flavour": "win32", "op": "join", "args": ["//srv/share/f"], "cwd": "/"}
+{"id": "node_path-00229", "kind": "node_path", "flavour": "win32", "op": "normalize", "args": ["nul:"], "cwd": "/work/w"}
+{"id": "node_path-00230", "kind": "node_path", "flavour": "win32", "op": "join", "args": ["\\\\\\a"], "cwd": "/a/b/c"}
+{"id": "node_path-00231", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["a/."], "cwd": "/"}
+{"id": "node_path-00232", "kind": "node_path", "flavour": "posix", "op": "normalize", "args": ["\\\\srv\\share"], "cwd": "/"}
+{"id": "node_path-00233", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": [".\\."], "cwd": "/"}
+{"id": "node_path-00234", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["C"], "cwd": "/a/b/c"}
+{"id": "node_path-00235", "kind": "node_path", "flavour": "posix", "op": "join", "args": [], "cwd": "/"}
+{"id": "node_path-00236", "kind": "node_path", "flavour": "posix", "op": "basename", "args": ["\\\\?\\C:\\x"], "cwd": "/a/b/c"}
+{"id": "node_path-00237", "kind": "node_path", "flavour": "posix", "op": "basename", "args": ["\\\\srv"], "cwd": "/a/b/c"}
+{"id": "node_path-00238", "kind": "node_path", "flavour": "win32", "op": "join", "args": [], "cwd": "/a/b/c"}
+{"id": "node_path-00239", "kind": "node_path", "flavour": "posix", "op": "basename", "args": ["\\\\?\\C:\\x"], "cwd": "/work/w"}
+{"id": "node_path-00240", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["a/."], "cwd": "/"}
+{"id": "node_path-00241", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["//"], "cwd": "/work/w"}
+{"id": "node_path-00242", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["", "C:/x"], "cwd": "/tmp"}
+{"id": "node_path-00243", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["_nul1"], "cwd": "/"}
+{"id": "node_path-00244", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["\\\\?\\C:\\x", "\\\\srv\\"], "cwd": "/tmp"}
+{"id": "node_path-00245", "kind": "node_path", "flavour": "win32", "op": "normalize", "args": ["x/..\\y"], "cwd": "/"}
+{"id": "node_path-00246", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["..", "a/b"], "cwd": "/a/b/c"}
+{"id": "node_path-00247", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["//srv/share/f"], "cwd": "/"}
+{"id": "node_path-00248", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["..\\..", "a\\b"], "cwd": "/work/w"}
+{"id": "node_path-00249", "kind": "node_path", "flavour": "posix", "op": "normalize", "args": ["\\\\srv\\"], "cwd": "/tmp"}
+{"id": "node_path-00250", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["\\\\\\a"], "cwd": "/"}
+{"id": "node_path-00251", "kind": "node_path", "flavour": "posix", "op": "normalize", "args": ["./"], "cwd": "/"}
+{"id": "node_path-00252", "kind": "node_path", "flavour": "posix", "op": "join", "args": ["//", "//srv/share/f", "\\"], "cwd": "/work/w"}
+{"id": "node_path-00253", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["a b/c d", ""], "cwd": "/"}
+{"id": "node_path-00254", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": [], "cwd": "/work/w"}
+{"id": "node_path-00255", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["a/."], "cwd": "/tmp"}
+{"id": "node_path-00256", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["c:\\A\\..\\b", "C:"], "cwd": "/a/b/c"}
+{"id": "node_path-00257", "kind": "node_path", "flavour": "posix", "op": "join", "args": [], "cwd": "/"}
+{"id": "node_path-00258", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["../../../x", "c:\\A\\..\\b", "C:/x"], "cwd": "/work/w"}
+{"id": "node_path-00259", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["\\\\.\\PHYSICALDRIVE0"], "cwd": "/work/w"}
+{"id": "node_path-00260", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["C:"], "cwd": "/tmp"}
+{"id": "node_path-00261", "kind": "node_path", "flavour": "win32", "op": "join", "args": ["a//"], "cwd": "/a/b/c"}
+{"id": "node_path-00262", "kind": "node_path", "flavour": "win32", "op": "normalize", "args": ["a:b"], "cwd": "/tmp"}
+{"id": "node_path-00263", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["nul:", "//"], "cwd": "/a/b/c"}
+{"id": "node_path-00264", "kind": "node_path", "flavour": "posix", "op": "basename", "args": ["\t"], "cwd": "/work/w"}
+{"id": "node_path-00265", "kind": "node_path", "flavour": "posix", "op": "normalize", "args": ["x/..\\y"], "cwd": "/a/b/c"}
+{"id": "node_path-00266", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["a/../.."], "cwd": "/tmp"}
+{"id": "node_path-00267", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["c:\\A\\..\\b"], "cwd": "/a/b/c"}
+{"id": "node_path-00268", "kind": "node_path", "flavour": "posix", "op": "normalize", "args": ["nul:"], "cwd": "/work/w"}
+{"id": "node_path-00269", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["\\\\\\a"], "cwd": "/"}
+{"id": "node_path-00270", "kind": "node_path", "flavour": "posix", "op": "basename", "args": ["./b"], "cwd": "/tmp"}
+{"id": "node_path-00271", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["\\\\srv\\", "nul:"], "cwd": "/a/b/c"}
+{"id": "node_path-00272", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["\\\\r"], "cwd": "/"}
+{"id": "node_path-00273", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["\"\\x"], "cwd": "/work/w"}
+{"id": "node_path-00274", "kind": "node_path", "flavour": "posix", "op": "normalize", "args": ["é/ü"], "cwd": "/work/w"}
+{"id": "node_path-00275", "kind": "node_path", "flavour": "posix", "op": "join", "args": ["//a", "\\\\srv\\share", "C:/x"], "cwd": "/"}
+{"id": "node_path-00276", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": [".."], "cwd": "/"}
+{"id": "node_path-00277", "kind": "node_path", "flavour": "posix", "op": "join", "args": [], "cwd": "/tmp"}
+{"id": "node_path-00278", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["//sr/s|hare/f"], "cwd": "/tmp"}
+{"id": "node_path-00279", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["a/.", "c:\\A\\..\\b", "\\\\\\a"], "cwd": "/a/b/c"}
+{"id": "node_path-00280", "kind": "node_path", "flavour": "posix", "op": "normalize", "args": ["\\\\.\\PHYSICALDRIVE0"], "cwd": "/a/b/c"}
+{"id": "node_path-00281", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["C:\\"], "cwd": "/"}
+{"id": "node_path-00282", "kind": "node_path", "flavour": "posix", "op": "join", "args": ["C:\\", ".../../x"], "cwd": "/a/b/c"}
+{"id": "node_path-00283", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["a "], "cwd": "/tmp"}
+{"id": "node_path-00284", "kind": "node_path", "flavour": "win32", "op": "join", "args": ["C:/x", "a:b"], "cwd": "/a/b/c"}
+{"id": "node_path-00285", "kind": "node_path", "flavour": "win32", "op": "basename", "args": [".."], "cwd": "/work/w"}
+{"id": "node_path-00286", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["\\", "\\\\\\a"], "cwd": "/a/b/c"}
+{"id": "node_path-00287", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["//a", "a b/c d"], "cwd": "/a/b/c"}
+{"id": "node_path-00288", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": [], "cwd": "/work/w"}
+{"id": "node_path-00289", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["./"], "cwd": "/"}
+{"id": "node_path-00290", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["CON", "\r\\\\a"], "cwd": "/tmp"}
+{"id": "node_path-00291", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["\\,\\a"], "cwd": "/tmp"}
+{"id": "node_path-00292", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["//srv/share/f"], "cwd": "/"}
+{"id": "node_path-00293", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["."], "cwd": "/tmp"}
+{"id": "node_path-00294", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["x/..\\y"], "cwd": "/"}
+{"id": "node_path-00295", "kind": "node_path", "flavour": "posix", "op": "join", "args": [], "cwd": "/a/b/c"}
+{"id": "node_path-00296", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["./"], "cwd": "/"}
+{"id": "node_path-00297", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["a b/c d"], "cwd": "/a/b/c"}
+{"id": "node_path-00298", "kind": "node_path", "flavour": "posix", "op": "join", "args": ["\\\\?\\C:\\x"], "cwd": "/"}
+{"id": "node_path-00299", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": ["//srv/share/f", "c:\\A\\..\\b", "a b/c d"], "cwd": "/work/w"}
+{"id": "node_path-00300", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["x/..\\y"], "cwd": "/work/w"}
+{"id": "node_path-00301", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["é/ü"], "cwd": "/"}
+{"id": "node_path-00302", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["//a"], "cwd": "/a/b/c"}
+{"id": "node_path-00303", "kind": "node_path", "flavour": "posix", "op": "basename", "args": ["CON"], "cwd": "/tmp"}
+{"id": "node_path-00304", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["a"], "cwd": "/a/b/c"}
+{"id": "node_path-00305", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["../../../x"], "cwd": "/"}
+{"id": "node_path-00306", "kind": "node_path", "flavour": "win32", "op": "normalize", "args": ["a"], "cwd": "/tmp"}
+{"id": "node_path-00307", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["C:/x", "c:\\A\\..\\b"], "cwd": "/tmp"}
+{"id": "node_path-00308", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["\\\\-r[v\\share"], "cwd": "/"}
+{"id": "node_path-00309", "kind": "node_path", "flavour": "posix", "op": "join", "args": ["\\", ".", "k,"], "cwd": "/"}
+{"id": "node_path-00310", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": ["\\", "a//", "C:x"], "cwd": "/"}
+{"id": "node_path-00311", "kind": "node_path", "flavour": "win32", "op": "join", "args": ["a/.", "x/..\\y"], "cwd": "/"}
+{"id": "node_path-00312", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["..\\..", "C:x"], "cwd": "/a/b/c"}
+{"id": "node_path-00313", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["c:\\A\\..\\b", "nul:"], "cwd": "/work/w"}
+{"id": "node_path-00314", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["a//"], "cwd": "/work/w"}
+{"id": "node_path-00315", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["\\\\srv"], "cwd": "/work/w"}
+{"id": "node_path-00316", "kind": "node_path", "flavour": "win32", "op": "normalize", "args": ["\\\\.\\PHYSICALDRIVE0"], "cwd": "/work/w"}
+{"id": "node_path-00317", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["é/ü", "/"], "cwd": "/tmp"}
+{"id": "node_path-00318", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["\\\\srv\\share"], "cwd": "/tmp"}
+{"id": "node_path-00319", "kind": "node_path", "flavour": "posix", "op": "basename", "args": ["C:"], "cwd": "/a/b/c"}
+{"id": "node_path-00320", "kind": "node_path", "flavour": "posix", "op": "normalize", "args": ["CON"], "cwd": "/a/b/c"}
+{"id": "node_path-00321", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["a/b", "Ca/"], "cwd": "/"}
+{"id": "node_path-00322", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["C:\\"], "cwd": "/"}
+{"id": "node_path-00323", "kind": "node_path", "flavour": "win32", "op": "join", "args": ["c:\\A\\..\\b"], "cwd": "/tmp"}
+{"id": "node_path-00324", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["a/b"], "cwd": "/a/b/c"}
+{"id": "node_path-00325", "kind": "node_path", "flavour": "posix", "op": "basename", "args": ["\\\\srv\\share"], "cwd": "/"}
+{"id": "node_path-00326", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["\\\\srv\\share\\f\\..\\g"], "cwd": "/a/b/c"}
+{"id": "node_path-00327", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["\\\\srv\\share\\f\\..\\g", "\\\\?\\C:\\x"], "cwd": "/tmp"}
+{"id": "node_path-00328", "kind": "node_path", "flavour": "posix", "op": "basename", "args": ["CON"], "cwd": "/tmp"}
+{"id": "node_path-00329", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": ["a\\b"], "cwd": "/work/w"}
+{"id": "node_path-00330", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["C:", "///a//b/"], "cwd": "/"}
+{"id": "node_path-00331", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["CON"], "cwd": "/tmp"}
+{"id": "node_path-00332", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["\\"], "cwd": "/work/w"}
+{"id": "node_path-00333", "kind": "node_path", "flavour": "posix", "op": "basename", "args": ["./"], "cwd": "/a/b/c"}
+{"id": "node_path-00334", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["//", "a//"], "cwd": "/"}
+{"id": "node_path-00335", "kind": "node_path", "flavour": "win32", "op": "join", "args": ["é/ü", "\\\\srv\\share\\f\\..\\g", "D:..\\y"], "cwd": "/tmp"}
+{"id": "node_path-00336", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["C:\""], "cwd": "/a/b/c"}
+{"id": "node_path-00337", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["a b/c d", ""], "cwd": "/work/w"}
+{"id": "node_path-00338", "kind": "node_path", "flavour": "posix", "op": "join", "args": ["a//", "D:..\\y"], "cwd": "/"}
+{"id": "node_path-00339", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["C:x", "//a"], "cwd": "/work/w"}
+{"id": "node_path-00340", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["C:", "../../../x"], "cwd": "/work/w"}
+{"id": "node_path-00341", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["nul:"], "cwd": "/a/b/c"}
+{"id": "node_path-00342", "kind": "node_path", "flavour": "win32", "op": "join", "args": [":", "a/b"], "cwd": "/a/b/c"}
+{"id": "node_path-00343", "kind": "node_path", "flavour": "posix", "op": "normalize", "args": ["../.k/..x"], "cwd": "/"}
+{"id": "node_path-00344", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["///a//b/"], "cwd": "/"}
+{"id": "node_path-00345", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["/"], "cwd": "/a/b/c"}
+{"id": "node_path-00346", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["x/..\\y"], "cwd": "/a/b/c"}
+{"id": "node_path-00347", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": [".."], "cwd": "/tmp"}
+{"id": "node_path-00348", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["//", "/"], "cwd": "/a/b/c"}
+{"id": "node_path-00349", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": ["\\\\\\a"], "cwd": "/tmp"}
+{"id": "node_path-00350", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["\\\\\\a"], "cwd": "/"}
+{"id": "node_path-00351", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["a:b"], "cwd": "/"}
+{"id": "node_path-00352", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["///a//b/"], "cwd": "/work/w"}
+{"id": "node_path-00353", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["\r\":/x"], "cwd": "/a/b/c"}
+{"id": "node_path-00354", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["./", "a"], "cwd": "/a/b/c"}
+{"id": "node_path-00355", "kind": "node_path", "flavour": "posix", "op": "basename", "args": ["\\\\\\"], "cwd": "/work/w"}
+{"id": "node_path-00356", "kind": "node_path", "flavour": "posix", "op": "basename", "args": ["CON"], "cwd": "/work/w"}
+{"id": "node_path-00357", "kind": "node_path", "flavour": "win32", "op": "normalize", "args": ["CON"], "cwd": "/"}
+{"id": "node_path-00358", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["./"], "cwd": "/"}
+{"id": "node_path-00359", "kind": "node_path", "flavour": "win32", "op": "normalize", "args": ["\\\\srv\\share\\f\\..\\g"], "cwd": "/"}
+{"id": "node_path-00360", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["..\\..", "D:..\\y"], "cwd": "/a/b/c"}
+{"id": "node_path-00361", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["\\\\srv\\share"], "cwd": "/"}
+{"id": "node_path-00362", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["C:\\"], "cwd": "/tmp"}
+{"id": "node_path-00363", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["a\\b"], "cwd": "/work/w"}
+{"id": "node_path-00364", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["a/b"], "cwd": "/work/w"}
+{"id": "node_path-00365", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["/"], "cwd": "/"}
+{"id": "node_path-00366", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["///a//b/"], "cwd": "/tmp"}
+{"id": "node_path-00367", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["\\\\srv\\"], "cwd": "/tmp"}
+{"id": "node_path-00368", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["C:"], "cwd": "/"}
+{"id": "node_path-00369", "kind": "node_path", "flavour": "posix", "op": "join", "args": [], "cwd": "/"}
+{"id": "node_path-00370", "kind": "node_path", "flavour": "posix", "op": "basename", "args": ["\\\\\\a"], "cwd": "/a/b/c"}
+{"id": "node_path-00371", "kind": "node_path", "flavour": "win32", "op": "join", "args": [], "cwd": "/a/b/c"}
+{"id": "node_path-00372", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["\\\\srv\\share"], "cwd": "/tmp"}
+{"id": "node_path-00373", "kind": "node_path", "flavour": "posix", "op": "join", "args": ["a:b", "C:a/b", "a/b"], "cwd": "/a/b/c"}
+{"id": "node_path-00374", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["x/..\\y"], "cwd": "/work/w"}
+{"id": "node_path-00375", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["\\\\srv\\\\sha.e", "C:"], "cwd": "/tmp"}
+{"id": "node_path-00376", "kind": "node_path", "flavour": "win32", "op": "join", "args": ["x/..\\y", "C:", "/a"], "cwd": "/a/b/c"}
+{"id": "node_path-00377", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["C:"], "cwd": "/a/b/c"}
+{"id": "node_path-00378", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["a:b"], "cwd": "/a/b/c"}
+{"id": "node_path-00379", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": [".."], "cwd": "/"}
+{"id": "node_path-00380", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["\\\\srv"], "cwd": "/"}
+{"id": "node_path-00381", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["\r\n"], "cwd": "/a/b/c"}
+{"id": "node_path-00382", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["\\\\srv\\"], "cwd": "/work/w"}
+{"id": "node_path-00383", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["\n b/c d."], "cwd": "/"}
+{"id": "node_path-00384", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["//a", "a/../..", "c:\\A\\.[.b"], "cwd": "/"}
+{"id": "node_path-00385", "kind": "node_path", "flavour": "posix", "op": "normalize", "args": ["//srv/share/f"], "cwd": "/tmp"}
+{"id": "node_path-00386", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["\\"], "cwd": "/a/b/c"}
+{"id": "node_path-00387", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["\\\\srv\\"], "cwd": "/tmp"}
+{"id": "node_path-00388", "kind": "node_path", "flavour": "posix", "op": "join", "args": [], "cwd": "/work/w"}
+{"id": "node_path-00389", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["x/..\\y"], "cwd": "/work/w"}
+{"id": "node_path-00390", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": ["///a//b/", "//"], "cwd": "/a/b/c"}
+{"id": "node_path-00391", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["\\"], "cwd": "/a/b/c"}
+{"id": "node_path-00392", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["/a", "\\\\?\\C:\\x"], "cwd": "/"}
+{"id": "node_path-00393", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": [], "cwd": "/"}
+{"id": "node_path-00394", "kind": "node_path", "flavour": "posix", "op": "join", "args": ["a b/c d", "C:x"], "cwd": "/tmp"}
+{"id": "node_path-00395", "kind": "node_path", "flavour": "win32", "op": "join", "args": ["/a", "c:\\A\\.\\"], "cwd": "/work/w"}
+{"id": "node_path-00396", "kind": "node_path", "flavour": "win32", "op": "normalize", "args": ["..\\.."], "cwd": "/work/w"}
+{"id": "node_path-00397", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["\\\\srv"], "cwd": "/tmp"}
+{"id": "node_path-00398", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["//s　rv/hare/f", "C:x"], "cwd": "/"}
+{"id": "node_path-00399", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["..", "/"], "cwd": "/work/w"}
+{"id": "node_path-00400", "kind": "node_path", "flavour": "posix", "op": "basename", "args": ["/a"], "cwd": "/"}
+{"id": "node_path-00401", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["C:x"], "cwd": "/a/b/c"}
+{"id": "node_path-00402", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["."], "cwd": "/"}
+{"id": "node_path-00403", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["\\\\\\a", ".."], "cwd": "/work/w"}
+{"id": "node_path-00404", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["a/.", "a/../.."], "cwd": "/a/b/c"}
+{"id": "node_path-00405", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["../../../x"], "cwd": "/a/b/c"}
+{"id": "node_path-00406", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["a:b"], "cwd": "/"}
+{"id": "node_path-00407", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["C:"], "cwd": "/"}
+{"id": "node_path-00408", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": [], "cwd": "/work/w"}
+{"id": "node_path-00409", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["\\\\srv", "a"], "cwd": "/tmp"}
+{"id": "node_path-00410", "kind": "node_path", "flavour": "posix", "op": "join", "args": ["a/../.　", "\\\\\\a"], "cwd": "/"}
+{"id": "node_path-00411", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["//srv/share/f", "\\0sr1\\"], "cwd": "/tmp"}
+{"id": "node_path-00412", "kind": "node_path", "flavour": "posix", "op": "normalize", "args": ["x/..\\y"], "cwd": "/a/b/c"}
+{"id": "node_path-00413", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["nul:"], "cwd": "/"}
+{"id": "node_path-00414", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["\\sr"], "cwd": "/a/b/c"}
+{"id": "node_path-00415", "kind": "node_path", "flavour": "posix", "op": "normalize", "args": ["a b/c d"], "cwd": "/a/b/c"}
+{"id": "node_path-00416", "kind": "node_path", "flavour": "win32", "op": "join", "args": [], "cwd": "/work/w"}
+{"id": "node_path-00417", "kind": "node_path", "flavour": "win32", "op": "isAbsolute", "args": ["C:"], "cwd": "/a/b/c"}
+{"id": "node_path-00418", "kind": "node_path", "flavour": "win32", "op": "normalize", "args": ["C:/x"], "cwd": "/work/w"}
+{"id": "node_path-00419", "kind": "node_path", "flavour": "win32", "op": "join", "args": [], "cwd": "/work/w"}
+{"id": "node_path-00420", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["a:b", "\\\\srv\\"], "cwd": "/"}
+{"id": "node_path-00421", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": ["C:\\", "", "C: /　"], "cwd": "/work/w"}
+{"id": "node_path-00422", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["a/../..", "nul:"], "cwd": "/work/w"}
+{"id": "node_path-00423", "kind": "node_path", "flavour": "posix", "op": "normalize", "args": ["a/b"], "cwd": "/tmp"}
+{"id": "node_path-00424", "kind": "node_path", "flavour": "win32", "op": "normalize", "args": ["/srv/shre/f"], "cwd": "/tmp"}
+{"id": "node_path-00425", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": ["\\}\\\\a", "n\\:"], "cwd": "/tmp"}
+{"id": "node_path-00426", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": ["\\\\\\a"], "cwd": "/work/w"}
+{"id": "node_path-00427", "kind": "node_path", "flavour": "posix", "op": "basename", "args": [".."], "cwd": "/work/w"}
+{"id": "node_path-00428", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["C:", "\\"], "cwd": "/tmp"}
+{"id": "node_path-00429", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": ["a b/c d"], "cwd": "/work/w"}
+{"id": "node_path-00430", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["CON"], "cwd": "/a/b/c"}
+{"id": "node_path-00431", "kind": "node_path", "flavour": "posix", "op": "join", "args": [], "cwd": "/"}
+{"id": "node_path-00432", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": ["a//"], "cwd": "/"}
+{"id": "node_path-00433", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["..", "..\\.."], "cwd": "/work/w"}
+{"id": "node_path-00434", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": [], "cwd": "/work/w"}
+{"id": "node_path-00435", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": [". .\\..é"], "cwd": "/a/b/c"}
+{"id": "node_path-00436", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["../../../x"], "cwd": "/work/w"}
+{"id": "node_path-00437", "kind": "node_path", "flavour": "posix", "op": "relative", "args": ["\\\\srv", "///a//b/"], "cwd": "/work/w"}
+{"id": "node_path-00438", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["/a"], "cwd": "/"}
+{"id": "node_path-00439", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["D:..\\y"], "cwd": "/"}
+{"id": "node_path-00440", "kind": "node_path", "flavour": "win32", "op": "relative", "args": ["a/.", "nul:"], "cwd": "/work/w"}
+{"id": "node_path-00441", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["C:"], "cwd": "/work/w"}
+{"id": "node_path-00442", "kind": "node_path", "flavour": "win32", "op": "relative", "args": [".", ".\\"], "cwd": "/work/w"}
+{"id": "node_path-00443", "kind": "node_path", "flavour": "posix", "op": "resolve", "args": ["//a", "a/../.."], "cwd": "/"}
+{"id": "node_path-00444", "kind": "node_path", "flavour": "win32", "op": "join", "args": [], "cwd": "/"}
+{"id": "node_path-00445", "kind": "node_path", "flavour": "posix", "op": "normalize", "args": ["C:x"], "cwd": "/work/w"}
+{"id": "node_path-00446", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["\n.."], "cwd": "/"}
+{"id": "node_path-00447", "kind": "node_path", "flavour": "win32", "op": "join", "args": ["\\\\srv\\share", "\\\\srv", "\\\\srv"], "cwd": "/a/b/c"}
+{"id": "node_path-00448", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": ["a/../..", "CON"], "cwd": "/a/b/c"}
+{"id": "node_path-00449", "kind": "node_path", "flavour": "win32", "op": "resolve", "args": [], "cwd": "/tmp"}
+{"id": "node_path-00450", "kind": "node_path", "flavour": "posix", "op": "dirname", "args": ["\\\\?\\C: "], "cwd": "/tmp"}
+{"id": "node_path-00451", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["."], "cwd": "/tmp"}
+{"id": "node_path-00452", "kind": "node_path", "flavour": "win32", "op": "normalize", "args": ["\\\\\\a"], "cwd": "/tmp"}
+{"id": "node_path-00453", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["\\\\srv\\share"], "cwd": "/a/b/c"}
+{"id": "node_path-00454", "kind": "node_path", "flavour": "win32", "op": "dirname", "args": ["\\\\.[PHYSICLDRIVE0"], "cwd": "/a/b/c"}
+{"id": "node_path-00455", "kind": "node_path", "flavour": "win32", "op": "basename", "args": ["\\\\srv\\share\\f\\..\\g"], "cwd": "/a/b/c"}
+{"id": "node_path-00456", "kind": "node_path", "flavour": "posix", "op": "isAbsolute", "args": ["C:a/b"], "cwd": "/tmp"}
+{"id": "node_path-00457", "kind": "node_path", "flavour": "posix", "op": "basename", "args": ["a/../.."], "cwd": "/"}
+{"id": "node_path-00458", "kind": "node_path", "flavour": "posix", "op": "join", "args": [], "cwd": "/a/b/c"}
+{"id": "node_path-00459", "kind": "node_path", "flavour": "win32", "op": "normalize", "args": ["a,"], "cwd": "/"}

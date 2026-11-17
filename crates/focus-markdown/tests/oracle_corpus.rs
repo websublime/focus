@@ -265,14 +265,22 @@ fn definitions(answer: &Value) -> BTreeSet<Entry> {
 #[test]
 fn every_line_is_upstreams_or_one_it_misplaced() {
     let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../fixtures/oracle");
-    let cases = fs::read_to_string(dir.join("cases.ndjson")).unwrap();
-    let expected = fs::read_to_string(dir.join("expected.ndjson")).unwrap();
+    // The corpus is kept by kind: the kinds this crate answers, each in the
+    // order it was answered in.
+    let read = |part: &str| -> String {
+        KINDS
+            .iter()
+            .map(|kind| fs::read_to_string(dir.join(part).join(format!("{kind}.ndjson"))).unwrap())
+            .collect()
+    };
+    let cases = read("cases");
+    let expected = read("expected");
     let cases: Vec<&str> = cases.lines().filter(|l| !l.is_empty()).collect();
     let expected: Vec<&str> = expected.lines().filter(|l| !l.is_empty()).collect();
     assert_eq!(
         cases.len(),
         expected.len(),
-        "cases.ndjson and expected.ndjson are out of step"
+        "the cases and their answers are out of step"
     );
 
     let mut documents = 0;

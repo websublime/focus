@@ -74,8 +74,14 @@ BLOCKS = [
 cases = []
 
 
+# A case is named by its kind and its place among the cases of that kind, so a kind's cases keep their names when
+# another kind gains or loses some.
+counted = {}
+
+
 def add(kind, **fields):
-    cases.append({"id": f"{kind}-{len(cases):05d}", "kind": kind, **fields})
+    counted[kind] = counted.get(kind, 0) + 1
+    cases.append({"id": f"{kind}-{counted[kind] - 1:05d}", "kind": kind, **fields})
 
 
 def read(path):

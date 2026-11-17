@@ -2549,6 +2549,20 @@ Depois: `pendingReviewRequestStatus` (3b-iii, **feita**), a evidência de sumár
 | Mutação | 25 mutantes: todos apanhados, 23 à primeira e 2 depois de perguntas novas (um pedido do conjunto sem a secção `## Review`, que só é atual por a secção ter vindo depois; um pedido de uma fonte que não se pôde ligar, com a fonte atual ilegível) |
 | `cargo test` | 585 testes; o teste de corpus conta as respostas, e um teste diz a recusa do pedido de uma unit que liga a fonte da unit |
 
+### O corpus por tipo de caso
+
+O corpus do oráculo era dois ficheiros, `cases.ndjson` (48,1 MB) e `expected.ndjson` (12,5 MB), e o primeiro estava a 2 MB do aviso do GitHub. Passou a ser um ficheiro de casos e um de respostas por tipo de caso: `fixtures/oracle/cases/<tipo>.ndjson` e `fixtures/oracle/expected/<tipo>.ndjson`, 76 de cada. O maior tem 9,5 MB (`source_walk`).
+
+| Decisão | Porquê |
+| --- | --- |
+| Partido por tipo, e não em pedaços de tamanho fixo | Uma mudança num tipo é uma mudança nos seus dois ficheiros; em pedaços, qualquer caso novo deslocava todos os seguintes |
+| O corpus continua a ser gerado e respondido como um só fluxo, numa só ordem, e só depois é partido (`tools/oracle/split.py`) | Uma resposta pode depender dos casos do mesmo tipo que vieram antes (o que um processo lembra das formas em bruto, a fonte do caso anterior). Cada ficheiro guarda a ordem do fluxo |
+| Um caso chama-se pelo tipo e pelo lugar entre os casos do tipo (`review_snapshot-00012`), e não pelo lugar no corpus inteiro | Os casos de um tipo mantêm o nome quando outro tipo ganha ou perde casos |
+| Cada crate lê só os tipos que responde | Antes cada um dos onze testes de corpus lia os 60 MB inteiros para escolher os seus |
+| O teste de CLI que diz que todo o tipo de caso é respondido por algum crate passa a perguntar pelos primeiros vinte casos de cada tipo | Se um tipo é respondido não depende do caso; as respostas todas são do teste de corpus do crate |
+
+Verificado: os 45 947 casos e as respostas são os mesmos, com os nomes novos; `cargo test` com 585 testes.
+
 ### A jornada
 
 O original tem uma jornada sem modelo, `tests/harness/scope-run.ts` (1 798 linhas), em três papéis separados: um host que corre o CLI como o skill o corre e dispara os hooks que o harness dispararia; um agente de substituição que faz o que cada diretiva pede (escreve artefactos pequenos, corre os comandos que a diretiva nomeia tal como estão, e acaba o turno em cada pergunta ou gate); e um guião da pessoa, o único que responde, pelo hook do turno humano. O diferencial ganha o mesmo (`tools/oracle/journey.py`), agnóstico do motor: cada lado é conduzido nos seus próprios nomes, e o que o original diz é traduzido por `names.py`, como em tudo o resto.

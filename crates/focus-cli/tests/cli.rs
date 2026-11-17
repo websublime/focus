@@ -800,26 +800,38 @@ fn an_argument_that_is_not_unicode_is_refused_as_a_mistake() {
 #[test]
 fn every_kind_of_oracle_case_is_answered_by_some_crate() {
     let fixtures = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../fixtures");
-    let cases = fixtures.join("oracle/cases.ndjson");
     // The lifecycle's cases are read against the installed tree of the fixtures.
     let installed = fixtures.join("upstream/installed/claude");
-    let run = focus(&[
-        "dev",
-        "oracle",
-        cases.to_str().unwrap(),
-        "--installed",
-        installed.to_str().unwrap(),
-    ]);
-    assert!(run.status.success(), "{}", text(&run.stderr));
-    let answers = text(&run.stdout);
-    assert_eq!(
-        answers.lines().count(),
-        fs::read_to_string(&cases).unwrap().lines().count()
-    );
-    let orphan = answers
-        .lines()
-        .find(|line| line.contains("\"out\":{\"unsupported\":"));
-    assert_eq!(orphan, None);
+    // The corpus is kept by kind: one file of cases for each.
+    let mut kinds: Vec<std::path::PathBuf> = fs::read_dir(fixtures.join("oracle/cases"))
+        .unwrap()
+        .map(|entry| entry.unwrap().path())
+        .collect();
+    kinds.sort();
+    assert!(kinds.len() > 70, "{} kinds of case", kinds.len());
+    for cases in kinds {
+        // What a case of this kind lays out, and how long its answer takes,
+        // is the replay's to show (the crate that answers the kind): here
+        // the first cases say whether any crate does.
+        let all = fs::read_to_string(&cases).unwrap();
+        let first: Vec<&str> = all.lines().take(20).collect();
+        let sample = scratch("oracle-sample").join(cases.file_name().unwrap());
+        fs::write(&sample, first.join("\n") + "\n").unwrap();
+        let run = focus(&[
+            "dev",
+            "oracle",
+            sample.to_str().unwrap(),
+            "--installed",
+            installed.to_str().unwrap(),
+        ]);
+        assert!(run.status.success(), "{}", text(&run.stderr));
+        let answers = text(&run.stdout);
+        assert_eq!(answers.lines().count(), first.len(), "{}", cases.display());
+        let orphan = answers
+            .lines()
+            .find(|line| line.contains("\"out\":{\"unsupported\":"));
+        assert_eq!(orphan, None);
+    }
 }
 
 #[test]

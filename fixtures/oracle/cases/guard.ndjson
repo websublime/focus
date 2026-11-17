@@ -1,0 +1,913 @@
+{"id": "guard-00000", "kind": "guard", "content": "# Org-Level Rules\n\n> Framework defaults. Read with `team.md` and `project.md` from the active\n> space. The resolver loads every applicable layer; narrower layers add\n> specialisation and must not contradict broader policy.\n\n## Way of Working\n\nWe use **trunk-based development**. All work merges to `main` via\nshort-lived feature branches (typically resolved within 1-2 days).\nLong-lived branches accumulate merge debt; we avoid them.\n\nFor Construction worktrees, the worktree base branch is `main` and the\nmerge target is `main`.\n\nIf our project requires multiple environments (staging, production), we\nstill keep one trunk and gate releases via tags or environment-specific\ndeployment configs — not via long-lived release branches.\n\nWe **squash-merge** Bolt branches into `main`. Each Bolt becomes one\ncommit on the trunk, named by the Bolt slug, with the full Bolt commit\nhistory preserved on the source branch until the worktree is discarded.\n\nSquash gives us a clean linear `main` history that maps 1:1 to\ndelivery-planning's Bolt sequence. We accept the trade-off of losing\nintermediate commits on `main` because the audit log preserves the full\nevent sequence anyway.\n\n## Walking Skeleton\n\nWhen practices are scope-dependent, select the walking skeleton only when the\nactive scope declares `skeleton: on`. In checkpoint-enabled solo work with a\nnon-empty Unit DAG, the first Unit is the smallest working integrated slice.\nRun it through all applicable per-unit stages, including Code Generation, before\nlater Units even if stage-major was selected. Verify it with the intent's recorded,\nhuman-authorized Construction Verification Command, which must demonstrate the\nproject's real end-to-end result, then require the human's skeleton checkpoint\napproval. A first design-stage review does not demonstrate a working skeleton.\n\nFor `skeleton: off`, skip the skeleton ceremony: no bootstrap checkpoint; offer\nthe explicit Construction choice at entry. For skeleton-on, offer it after the verified,\nhuman-approved skeleton. Follow `construction_policy.offer_autonomy`; never\nrepeat a recorded choice. **Continue automatically** records `autonomous`;\n**Review each checkpoint** records `gated`. On-demand requests can grant or\nrevoke autonomy during Construction. Ordinary completion approvals follow that\nchoice; Plan Approval, summary confirmation, verification command selection,\nand failures remain human stops.\n\nExisting workflows without `Construction Checkpoints` retain their legacy\nfirst-stage and late stage approvals. Team-owned Unit gates retain their own\npolicy; no Unit DAG means no skeleton checkpoint ceremony.\n\n## Testing Posture\n\nWe treat tests as a first-class deliverable in every Bolt. The specific\nmethodology (TDD, BDD, ATDD, or classic test-after) is affirmed at\npractices-discovery and recorded in `team.md` under this heading with explicit\n`Methodology` and `Ordering` fields; Code Generation resolves those fields\nindependently from coverage, tooling, and scope notes.\n\nWhen no posture has been affirmed, our default per scope is:\n- **Methodology**: test-after\n- **Ordering**: implement each applicable testable layer, then write and run\n  that layer's tests.\n- `mvp`, `enterprise`, `feature`, `infra`, `classic` add an 80% line-coverage\n  floor and CI execution before merge.\n- `bugfix`, `security-patch` add a targeted regression for the specific\n  bug/vulnerability and require the existing suite to remain green.\n- `express` uses the Minimal strategy: requirement-driven unit tests (one per\n  requirement, with a happy-path floor per component); existing tests remain\n  green.\n- `poc`, `refactor`, `workshop` add no extra new-test floor and require the\n  existing suite to remain green.\n\nThe active `Test Strategy` still applies in every scope and determines test\nvolume/types. Scope floors are additive; they never reduce or replace the\nselected strategy.\n\nBuild and Test verifies defined coverage floors and affirmed quality targets;\nthey may not be weakened to make a step pass.\n\nAffirm a stricter posture in `team.md` if the team commits to one.\n\n## Guard Policy\n\n<!-- Mode: strict, relaxed, or off. Strict here holds for every intent in this space, whatever one person asks in chat; relaxed or off here applies to every intent whose policy came from its scope, unless a narrower layer or the person sets another; changing this line changes it. A section under the retired Change Control heading, written by an earlier release, is still read. -->\n\n## Deployment\n\nWe **deploy on merge** to staging environments. Production deploys gate\non a separate manual approval — typically tech lead + product owner\nsign-off in CodePipeline or a CD platform's environment protection.\n\nTeams that have invested in test coverage and observability sometimes\ngraduate to continuous deployment to production (every commit\nauto-deploys); that's a team decision, not a framework default.\n\n## Code Style\n\nWe defer to project-level configurations:\n- Formatter: Prettier (JS/TS), Black (Python), `gofmt` (Go), or\n  language-default. Configured in repo root (`.prettierrc`,\n  `pyproject.toml`, etc.).\n- Linter: ESLint, Ruff, golangci-lint, etc. Run in CI before merge;\n  failure blocks the PR.\n- Naming conventions: language idiomatic (camelCase for JS/TS,\n  snake_case for Python, etc.). No project-wide rename rules unless\n  team affirms one.\n\nWhen the framework makes a code-style suggestion, agents read the\nproject's linter config first; the agent's suggestion only fires if the\nlinter doesn't already cover it.\n\n## Forbidden\n\n<!-- Things agents must never do -->\n<!-- Example: Do not ask questions about topics already decided in previous stages -->\n\n## Mandated\n\n- **Conversation language — resolution**: Every artifact a person reads or reviews is written in the workflow's established conversation language. The orchestrator resolves that language from the human's substantive prose and MUST state it as a `Conversation language: <language>` line in every delegated brief, because a delegated agent or reviewer never sees the conversation and some stages hand it nothing else (a greenfield run of a stage whose `consumes` are all `conditional_on: brownfield` reaches its lead with no upstream artifact at all). Delegated agents and reviewers resolve the language in this order and stop at the first source that answers: (1) the `Conversation language:` line in your brief — AUTHORITATIVE for delegated work, because the orchestrator regenerates it on every dispatch from the live conversation and it is therefore never staler than a persisted rule; (2) an explicit conversation-language rule in `focus/spaces/<active-space>/memory/project.md` — the FALLBACK for a brief that states no language, and the ONLY file a language switch is ever persisted to, so `project.md` ALWAYS outranks a conversation-language rule in `team.md`, which can only ever be a team default and NEVER the record of a switch (cross-file position is NOT recency: the runtime rule chain concatenates `org → team → project → phase`, so `team.md` reaches you before `project.md` in every bundle no matter which was written last, and the winner is this stated precedence rather than the later position); within `project.md`, when it carries more than one conversation-language rule the LAST one under `## Corrections` is the current one (this tie-break governs conversation-language rules ONLY and leaves the additive rule model untouched; the learnings write path appends and never replaces, so a superseded language rule can still be on disk); (3) the verbatim initial description decoded from `<record>/project-description.json`, falling back to `## Project Information` → `**Project**` in legacy records, when it carries a real language signal (not the `[Project description]` placeholder, not a bare identifier or path); (4) any artifact or draft you were handed — the directive's `consumes[]` contracts, the artifact you were dispatched to review, or the lead draft you were dispatched against. Every source is readable on every harness: the rule bundle carries (2) through the dispatch-rules hook on Claude, Codex, and opencode and through always-included agent resources or workspace steering on Kiro, and neither `focus-state.md` nor the handed artifacts fall inside the per-unit reviewer read-scope bound.\n- **Conversation language — stability**: The established conversation language holds for the whole session, and inside that session for every stage, dispatch, reviewer pass and approval gate of the workflow — nothing but a session boundary ends it. A turn that carries no language signal never changes it — `Approve`, `Looks correct`, an option letter or number, pasted code, a quoted error or stack trace, a bare file path or identifier. Only an explicit human request to switch languages changes it, and that switch takes effect IMMEDIATELY: everything written from that point follows the new language, and the orchestrator states the new language in the `Conversation language:` line of every subsequent delegated brief. Persistence is a separate, later step and never the activation step: the §13 learnings ritual is the ONLY sanctioned write path for persisting a conversation-language switch into `focus/spaces/<active-space>/memory/` and it is human-gated, so NEVER edit a memory file directly to record a switch — a direct write skips the tool's audit event, its duplicate key, and its admission conflict-check, and \"do not wait for persistence\" is never licence to bypass that gate (this bounds the persistence of a language switch and forbids a direct agent edit; it does not govern the deterministic memory writers a stage invokes by contract, such as `focus-state.ts practices-promote`, which own the stamped `## Mandated` / `## Forbidden` rules and the five replaced `team.md` sections rather than the `## Corrections` language record). When `directive.ceremony.learnings` is `off`, no language-switch persistence happens and no direct memory edits replace the ritual; the current session still uses the new language. When the enabled `learnings` protocol module offers it, the switch is recorded as a single-line rule under `## Corrections` in `project.md` and NEVER in `team.md`, so the cross-file precedence in (2) never has to arbitrate one switch against another; when the human declines, it is simply not persisted, and the `Conversation language:` line the orchestrator states in every brief carries it for the rest of the session. A session boundary is where that carrier ends, and a workflow outlives it: the resume context the engine injects at session start carries scope, phase, stage, status, agent and next action but NO language, so on the FIRST turn of a new session the orchestrator MUST re-resolve the language before it dispatches anything — the persisted rule from (2), else the human-readable artifacts this workflow has already produced, which record the language the human was last served in, else the verbatim initial description from (3) — and when every one of those is silent it ASKS the human rather than defaulting to English. Re-resolving is not a switch: it is never announced as one and never persisted as one. An unpersisted switch therefore does not outlive its session, which is exactly what persistence buys — a human who wants a switch to survive a resume accepts the ritual, and a human who declines is served correctly for the rest of the session and re-resolved from disk in the next one. A persisted rule NEVER outranks the brief, and never outranks a later explicit human request to switch: it is the fallback for a brief that states no language, and because the learnings write path appends rather than replaces, a superseded language rule can outlive the switch — the LAST conversation-language rule under `## Corrections` is the current one.\n- **Conversation language — what to localize**: Write in the resolved conversation language every artifact a person reads or reviews — requirements, user stories, plans, specs, reviews, questions, discovered practices, affirmed team and project rules, evidence, decision rationale, and any other explanatory prose — and the agent's own human-facing conversational output in every turn, for the orchestrator and delegated agents alike: conversational chat messages, status updates, progress reports, and transitional narration between tool calls. Structured-question `prompt`, `header`, `options[].description`, and free-text follow-ups are human-facing prose and follow the same rule; only `options[].label` literals the protocol spells verbatim are preserved tokens. This includes the descriptive text of a rule shaped as `ALWAYS …` / `NEVER …`, where the leading marker is a fixed token but the sentence it introduces is not. A Markdown artifact is not English merely because a tool parses part of it: localize the prose that surrounds a preserved token. Verbatim human input echoed into an artifact is always kept exactly as the human wrote it.\n- **Conversation language — preserved tokens**: Any literal a stage file or the stage protocol spells in backticks and tells you to write exactly is a fixed token — keep it English, character for character, and localize only the prose around it. This covers option labels and sentinel VALUES, not just syntax: `[Answer]:` tags with their option letters, the mandatory final option `X. Other (please specify)`, the assumption-confirmation options `A. Accept assumptions` / `B. Convert to follow-up questions` (the engine compares the filled answer against the literal), the `None.` / `None` sentinels under `## Assumptions & Open Questions` and `## Positions`, the `AGREE:` / `OBJECT:` position prefixes, and the `**Collaborator:** <agent-slug>` first line the engine matches exactly before it accepts a stage. Glossing such a literal when you PRESENT it to the human is fine; what you WRITE into an artifact is the literal itself. Also preserved: the source-register tags `[desc]`, `[scope]`, `[assumption]`, `[Q<n>]`, `[memory:M<n>]` with their literal prefixes (`Initial description:`, `Workflow-selected scope:`); the H2 headings the claim-sources sensor matches verbatim (`## Sources`, `## Assumptions & Open Questions`, `## Assumption Confirmation`, `## Review`) plus any other H2 taken from a stage template, which the `required-sections` sensor matches verbatim whenever a template is supplied (the framework ships none, so a team's `focus/spaces/<active-space>/memory/templates/` is what arms that check); the reviewer verdicts `READY` and `NOT-READY`; YAML keys and enum values inside fenced blocks (`units`, `name`, `kind`, `depends_on`, `service | spec | ui | packaging | library`); the field labels, status values, and checkbox states of `focus-state.md` and the audit shards; the verbatim initial description decoded from `<record>/project-description.json` (the `**Project**` state field is only its safe single-line preview); stable IDs (`FR-1`, `ENT-001`, `BR1.1`); enum and classification values; code and identifiers; file paths; mermaid keywords; and cross-references.\n\n## Corrections\n\n<!-- Self-learning loop appends here. -->\n<!-- Use team.md to record team-wide additions and project.md for\n     project-specific specialisation. The loader resolves org → team →\n     project at session start and retains every applicable rule. -->\n"}
+{"id": "guard-00001", "kind": "guard", "content": "# Construction Phase Guardrails\n\nThese rules apply to every stage whose `phase: construction` declaration\nimports them as the matching phase rule.\n\n## Code Completeness\n\n- Generate complete, runnable files — no partial implementations, no placeholder stubs unless explicitly marked TODO with a rationale\n- Every generated module must be independently executable or clearly document its dependencies\n- Do not leave unresolved import errors, missing type definitions, or broken references\n\n## Error Handling\n\n- Always include error handling at integration boundaries (API calls, database operations, file I/O, external services)\n- Errors must be surfaced to the caller or logged — silent failures are not acceptable\n- Distinguish between recoverable errors (retry/fallback) and fatal errors (fail fast)\n\n## Testing Standards\n\n- Test files must cover the happy path and at least two error/edge cases\n- Tests must be runnable without manual setup beyond documented prerequisites\n- Do not generate tests that always pass regardless of implementation (e.g., `assert True`)\n\n## Security\n\n- Never hardcode credentials, API keys, or secrets — use environment variables or a secrets manager\n- Validate and sanitize all inputs at system boundaries\n- Flag any code that bypasses authentication or authorization checks\n\n## Corrections\n"}
+{"id": "guard-00002", "kind": "guard", "content": "# Ideation Phase Guardrails\n\nThese rules apply to every stage whose `phase: ideation` declaration\nimports them as the matching phase rule.\n\n## Focus\n\n- Prioritize user needs and problem definition before proposing solutions\n- Keep ideation artifacts at the problem/opportunity level — no implementation details\n- Explore the problem space broadly before narrowing to solutions\n\n## Evidence Standards\n\n- Market research claims require citations or explicit source attribution\n- Feasibility estimates must be conservative — flag assumptions clearly\n- Do not present speculation as fact; label uncertain claims as \"hypothesis\" or \"assumption\"\n\n## Scope Discipline\n\n- No implementation details (architecture, tech stack, code) in ideation artifacts\n- Do not carry forward scope decisions that have not been explicitly approved\n- If a feasibility concern would block progress, surface it early rather than glossing over it\n\n## Output Quality\n\n- All ideation artifacts must be readable by non-technical stakeholders\n- Avoid jargon unless defined in a glossary\n- Success metrics must be measurable — avoid vague outcomes like \"improved performance\"\n\n## Corrections\n"}
+{"id": "guard-00003", "kind": "guard", "content": "# Inception Phase Guardrails\n\nThese rules apply to every stage whose `phase: inception` declaration\nimports them as the matching phase rule.\n\n## Requirements Quality\n\n- Requirements must be testable and verifiable — each requirement must have a clear pass/fail criterion\n- Avoid ambiguous language (\"fast\", \"easy\", \"user-friendly\") unless paired with a measurable threshold\n- Never carry forward unresolved contradictions between requirements; surface and resolve them explicitly\n\n## Architecture Standards\n\n- Architecture decisions require trade-off analysis — document at least two alternatives considered\n- All ADRs must include: Context, Decision, Consequences, and Alternatives Rejected\n- Security and compliance implications must be addressed for every major architectural decision\n\n## User Stories\n\n- User stories follow Given/When/Then (BDD) format for acceptance criteria\n- Each story must identify the actor, the action, and the business value\n- Stories must be independently testable — avoid stories that only make sense in sequence\n\n## Traceability\n\n- Every requirement must trace back to an ideation artifact (intent, feasibility, or scope)\n- Do not introduce new requirements in inception without documenting their origin\n\n## Corrections\n"}
+{"id": "guard-00004", "kind": "guard", "content": "# Operation Phase Guardrails\n\nThese rules apply to every stage whose `phase: operation` declaration\nimports them as the matching phase rule.\n\n## Infrastructure Safety\n\n- Infrastructure changes require security review — document the security implications of every change\n- Never remove or bypass existing security controls without explicit approval and documented rationale\n- Changes to IAM roles, network policies, or encryption settings must include a risk assessment\n\n## Deployment Procedures\n\n- All deployment procedures must include rollback steps — document how to reverse every change\n- Deployments to production must have a defined smoke test or health check to verify success\n- Blue/green or canary strategies must document traffic-shifting criteria and abort conditions\n\n## Observability\n\n- SLOs must be quantified with specific percentages and time windows (e.g., \"99.9% availability over a 30-day rolling window\")\n- Alerting thresholds must be set below SLO breach to allow time for remediation\n- Every new service or component must have at least one health metric and one error rate metric\n\n## Incident Response\n\n- Runbooks must include escalation paths and contact information\n- Post-incident reviews are required for any P1/P2 incident — document timeline, root cause, and prevention\n\n## Corrections\n"}
+{"id": "guard-00005", "kind": "guard", "content": "# Project-Level Rules\n\n> Project-specific specialisation and corrections. Loaded after `org.md` and\n> `team.md` as strict-additive guidance; contradictions with broader policy\n> are rejected. Populated by practices-discovery and the self-learning loop.\n>\n> Use sparingly: most teams don't need a project layer. Reach for it\n> only when this specific project needs stable, durable guidance beyond the\n> team practice (for example, package-specific release checks or an additional\n> regression suite for a legacy component).\n\n## Way of Working\n\n<!-- Project-specific specialisation. Example: -->\n<!-- This monorepo requires package-scoped branch names and a package owner -->\n<!-- review in addition to the team's normal merge policy. -->\n\n## Walking Skeleton\n\n<!-- Project-specific specialisation. Example: -->\n<!-- The walking skeleton must exercise the legacy service adapter as well -->\n<!-- as the new service boundary. -->\n\n## Testing Posture\n\n<!-- Project-specific specialisation. -->\n\n## Guard Policy\n\n<!-- Project-specific. Mode: strict, relaxed, or off. Strict here holds for every intent, whatever one person asks in chat; relaxed or off here applies to every intent whose policy came from its scope, unless the person sets another; changing this line changes it. A section under the retired Change Control heading, written by an earlier release, is still read. -->\n\n## Deployment\n\n<!-- Project-specific specialisation. -->\n\n## Code Style\n\n<!-- Project-specific specialisation. -->\n\n## Tech Stack\n\n<!-- Technology choices locked for this project. -->\n\n## Decided\n\n<!-- Decisions made in earlier stages that should not be re-asked. -->\n<!-- Format: DECIDED: [decision] (Stage [slug], [date]) -->\n\n## Scope Overrides\n\n<!-- Custom scope rules for this project. -->\n\n## Forbidden\n\n<!-- Populated by practices-discovery affirmation gate. -->\n<!-- Format: NEVER [behavior] (affirmed [date]) -->\n<!-- Example: NEVER throw exceptions across service layer boundaries (affirmed 2026-05-17) -->\n\n## Mandated\n\n<!-- Populated by practices-discovery affirmation gate. -->\n<!-- Format: ALWAYS [behavior] (affirmed [date]) -->\n<!-- Example: ALWAYS use Result<T,E> for fallible operations in service layer (affirmed 2026-05-17) -->\n\n## Corrections\n\n<!-- Project-specific corrections from human feedback. -->\n<!-- Format: NEVER/ALWAYS [behavior] (learned [date]) -->\n"}
+{"id": "guard-00006", "kind": "guard", "content": "# Team-Level Rules\n\n> This team's affirmed practices and corrections. Loaded after `org.md` as\n> strict-additive guidance; contradictions with broader policy are rejected.\n> Populated by the practices-discovery affirmation gate. Edit at the gate,\n> not directly.\n\n## Way of Working\n\n<!-- Affirmed during practices-discovery. Example: -->\n<!-- We use GitHub Flow with feature branches. Branches live 3-5 days max. -->\n<!-- Hotfixes branch from main and merge back via expedited review. -->\n\n## Walking Skeleton\n\n<!-- Affirmed during practices-discovery. Example: -->\n<!-- We don't run a walking skeleton — our deployment pipeline is mature -->\n<!-- and the slice cost outweighs the value at our maturity stage. -->\n\n## Testing Posture\n\n<!-- Affirmed during practices-discovery. Example: -->\n<!-- We use BDD. Specifications drive scenarios; scenarios drive code. -->\n<!-- Each Unit ships with feature files in /features/. -->\n\n## Guard Policy\n\n<!-- Affirmed by the team. Mode: strict, relaxed, or off. Strict here holds for every intent, whatever one person asks in chat; relaxed or off here applies to every intent whose policy came from its scope, unless project.md or the person sets another; changing this line changes it. A section under the retired Change Control heading, written by an earlier release, is still read. -->\n\n## Deployment\n\n<!-- Affirmed during practices-discovery. -->\n\n## Code Style\n\n<!-- Team-specific conventions beyond the linter. Example: -->\n<!-- - Prefer named exports over default exports -->\n<!-- - All async functions return Result<T, E>, never throw -->\n\n## Forbidden\n\n<!-- Team-specific forbidden patterns -->\n\n## Mandated\n\n<!-- Team-specific mandates -->\n\n## Corrections\n\n<!-- Self-learning loop appends here. -->\n"}
+{"id": "guard-00007", "kind": "guard", "content": "  Mode: off\n\nSetext heading\n===\n\nMode: _relaxed_\n"}
+{"id": "guard-00008", "kind": "guard", "content": "A line with a trailing colon:\n"}
+{"id": "guard-00009", "kind": "guard", "content": "<!-- hides\nMode: strict\n--> after it\n\nMode:   \n  \n\n\n  indented two\n\n   indented three\n\n## Change Control\n\n* **Mode**: off\n\nMode: _relaxed_\n\n1. Mode: strict\n"}
+{"id": "guard-00010", "kind": "guard", "content": "MODE: Off\r\n\r\n### Guard Policy\r\n\r\n<!-- a comment -->\r\n\r\n> Mode: strict\r\n\r\n"}
+{"id": "guard-00011", "kind": "guard", "content": "Mode: strict"}
+{"id": "guard-00012", "kind": "guard", "content": "﻿Mode:\n\n---\n\n<!-- multi\nline\ncomment -->\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\nMODE: Off\n\n## Other\nSetext heading\n===\nOrdering: x\nMode: off\n"}
+{"id": "guard-00013", "kind": "guard", "content": "Ordering: x\nMode: off\n\n---\n\n## Change Control\n\n<!-- a comment -->\n\nkey: value\n\nMode: strict # really\n\n"}
+{"id": "guard-00014", "kind": "guard", "content": " ## Guard Policy\nTwo lines\nof prose.\n\n  Mode: off\n\n> a quote\n\n"}
+{"id": "guard-00015", "kind": "guard", "content": "Mode: `off`\n\n## Guard Policy\n\n<!-- hides\nMode: strict\n--> after it\n\n- Mode: strict\n- Other: x\n\n## Guard Policy  "}
+{"id": "guard-00016", "kind": "guard", "content": "+ Mode: strict\n\nMode: strict # really\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n ## Guard Policy\n\nSome prose here.\n\n* **Mode**: off\n\n1. first\n2. second\n\n"}
+{"id": "guard-00017", "kind": "guard", "content": "## Guard Policy  \n\nMode:\n  strict\n## Change Control\n\nkey: value\n\nMode strict\n\nSetext heading\n===\n## Guard Policy:\n> a quote\n- [ ] Mode: strict\nMode: `off`\n"}
+{"id": "guard-00018", "kind": "guard", "content": "<!-- c --> Mode: strict\n\nMode:\n\nSetext heading\n===\n\n   - Mode: strict\n\n"}
+{"id": "guard-00019", "kind": "guard", "content": "<!-- hides\nMode: strict\n--> after it\n\nMODE: Off\n\nMode strict\n\n"}
+{"id": "guard-00020", "kind": "guard", "content": "Mode strict\r\n\r\nA `code span` and `another <tag>` here."}
+{"id": "guard-00021", "kind": "guard", "content": "## Guard Policy\n\n  indented two\n\n1. first\n2. second\nkey: value\n"}
+{"id": "guard-00022", "kind": "guard", "content": "Mode strict\n\n+ Mode: strict\n\n Mode: strict\n\nA line with a trailing colon:\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n"}
+{"id": "guard-00023", "kind": "guard", "content": " ## Guard Policy\n\nkey: value\n\nMode: _relaxed_\n\nA line with a trailing colon:\n\n## Guard Policy\n\n<!-- c --> Mode: strict\n"}
+{"id": "guard-00024", "kind": "guard", "content": "## Guard Policy\r\n\r\n1. Mode: strict\r\n\r\n   - Mode: strict\r\n\r\n## Guard Policy\r\n Mode: strict"}
+{"id": "guard-00025", "kind": "guard", "content": "Mode:\n\n  strict\n\n   - Mode: strict\n\nOrdering: x\nMode: off\n\n### Guard Policy\nSetext heading\n===\n- Mode:\n  relaxed\n  wrapped\n\n\\* not a list\n\n##  Guard Policy\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n"}
+{"id": "guard-00026", "kind": "guard", "content": "Text with *emphasis* and **strong**.\n\n   - Mode: strict\n\n---\n"}
+{"id": "guard-00027", "kind": "guard", "content": "<!----> empty\nkey: value\n## Guard Policy\n- Mode: lenient"}
+{"id": "guard-00028", "kind": "guard", "content": "Modes: strict\n\nMode: strict\nMethodology: tdd"}
+{"id": "guard-00029", "kind": "guard", "content": "﻿- Mode:\n  relaxed\n  wrapped\n\n Mode: strict\n\n<!-- Mode: strict, relaxed, or off. -->\n\n## Guard policy\nMode: strict\n- Mode: lenient\n\n<!-- multi\nline\ncomment -->\n\nMode strict"}
+{"id": "guard-00030", "kind": "guard", "content": "**Mode:** strict\n\nA line with a trailing colon:\n"}
+{"id": "guard-00031", "kind": "guard", "content": "## Deployment\nMode: strict\n* **Mode**: off\nMode: *strict*\n\n   indented three"}
+{"id": "guard-00032", "kind": "guard", "content": "<!-- hides\nMode: strict\n--> after it\n## Guard Policy\n\n> a quote\n\n  indented two\n\nTwo lines\nof prose.\n\n"}
+{"id": "guard-00033", "kind": "guard", "content": "Mode:\n   relaxed\n   - item\n\n ## Guard Policy\n\nA `code span` and `another <tag>` here.\n\n> a quote\n\n- [ ] Mode: strict\n\n<!-- hides\nMode: strict\n--> after it\n\n* **Mode**: off\n\n- Mode:\n  relaxed\n  wrapped\n"}
+{"id": "guard-00034", "kind": "guard", "content": "##  Guard Policy\r\n   indented three\r\nMode strict\r\n"}
+{"id": "guard-00035", "kind": "guard", "content": "<!-- Mode: strict, relaxed, or off. -->\n\n---\n\n# Top heading\n"}
+{"id": "guard-00036", "kind": "guard", "content": "<!-- c --> Mode: strict\r\n\r\n## Deployment\r\n1. Mode: strict\r\n\r\nA `code span` and `another <tag>` here."}
+{"id": "guard-00037", "kind": "guard", "content": " ## Guard Policy\n\n- Mode: strict\n- Other: x\n\n<!-- a comment -->\n\nMode: strict\nMethodology: tdd\n\n## Guard Policy\n\nMode:\n\n## Guard Policy\n"}
+{"id": "guard-00038", "kind": "guard", "content": "- Mode:\r\n  relaxed\r\n  wrapped\r\nTwo lines\r\nof prose.\r\nText with *emphasis* and **strong**.\r\n## Guard Policy:\r\n\r\n> a quote\r\n\r\nOrdering: x\r\nMode: off\r\n"}
+{"id": "guard-00039", "kind": "guard", "content": "## Guard Policy\n\nMode:\n\n  strict\n\n<!-- multi\nline\ncomment -->\n\nSetext heading\n===\n\n## Other\n- Mode: lenient\n- Mode: lenient\n\nMode: strict # really"}
+{"id": "guard-00040", "kind": "guard", "content": "A `code span` and `another <tag>` here.\n\n## Change Control\n Mode: strict\n**Mode:** strict\n\n> Mode: strict\n\n<!-- Mode: strict, relaxed, or off. -->"}
+{"id": "guard-00041", "kind": "guard", "content": "### Guard Policy\r\n"}
+{"id": "guard-00042", "kind": "guard", "content": "## Other\r\n## Guard policy\r\n\r\n<!-- multi\r\nline\r\ncomment -->\r\n##  Guard Policy\r\n\r\nMode:   \r\n  \r\n\r\n- Mode: lenient\r\n"}
+{"id": "guard-00043", "kind": "guard", "content": "\\* not a list\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n<!----> empty\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n## Guard Policy  \n\nMode:   \n  \n\n\nMode:\n  strict\n\nSome prose here.\nText with *emphasis* and **strong**.\n"}
+{"id": "guard-00044", "kind": "guard", "content": "<!----> empty\n\nMODE: Off\n\n"}
+{"id": "guard-00045", "kind": "guard", "content": "##  Guard Policy\n\nMode:\n   relaxed\n   - item\n<!----> empty\nTwo lines\nof prose."}
+{"id": "guard-00046", "kind": "guard", "content": "<!-- Mode: strict, relaxed, or off. -->\r\n## Guard Policy\r\n- [ ] Mode: strict\r\n"}
+{"id": "guard-00047", "kind": "guard", "content": "Mode: strict\n  and more\n\nSome prose here.\n\n## Guard Policy\n\nMode:\n  strict\n\nMode:\n   relaxed\n   - item"}
+{"id": "guard-00048", "kind": "guard", "content": "## Guard Policy\n<!-- multi\nline\ncomment -->\n   indented three\n\n**Mode:** strict\n"}
+{"id": "guard-00049", "kind": "guard", "content": "Mode: *strict*\n\n## Guard Policy\n\n- Mode: relaxed\n\n<!-- Mode: strict, relaxed, or off. -->\n\n## Deployment\n- Mode:\n  relaxed\n  wrapped\nMode strict\nSome prose here.\n\nMode:   \n  \n"}
+{"id": "guard-00050", "kind": "guard", "content": "<!-- c --> Mode: strict\r\n\r\nMode: strict\r\nMethodology: tdd"}
+{"id": "guard-00051", "kind": "guard", "content": "## Deployment\n\nSome prose here.\n\n- Mode: strict\n- Other: x\n\n Mode: strict\n\n1. Mode: strict\n\n##  Guard Policy\nSome prose here.\n### Deeper heading\n* **Mode**: off"}
+{"id": "guard-00052", "kind": "guard", "content": "<!----> empty\nA line with a trailing colon:\n## Guard Policy  \n+ Mode: strict\n- Mode: relaxed\nMode: strict\nMethodology: tdd\n\n"}
+{"id": "guard-00053", "kind": "guard", "content": "<!-- hides\nMode: strict\n--> after it\n\nMode:\n\n  strict\n\n## Other\n Mode: strict\n| a | b |\n|---|---|\n| 1 | 2 |\n- [ ] Mode: strict\n\n<!----> empty\n\n### Deeper heading\n\n## Guard Policy\n\nMode:   \n  \n"}
+{"id": "guard-00054", "kind": "guard", "content": "1. Mode: strict\n## Guard Policy:\n\n   - Mode: strict\n\n> a quote\nText with *emphasis* and **strong**.\n- a list item\n- another\n### Guard Policy\n## Guard Policy  \n# Top heading\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n"}
+{"id": "guard-00055", "kind": "guard", "content": "## Change Control\n\n<!----> empty\n\n# Top heading\n| a | b |\n|---|---|\n| 1 | 2 |\nmode :   STRICT  \nSetext heading\n===\n##  Guard Policy\n\n Mode: strict\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n- Mode: relaxed\n1. Mode: strict"}
+{"id": "guard-00056", "kind": "guard", "content": "<!-- hides\n## Guard Policy\nMode: strict\n-->\n## Guard Policy  \n1. first\n2. second\nMode: _relaxed_\n<!----> empty\n"}
+{"id": "guard-00057", "kind": "guard", "content": "## Guard policy\n\nmode :   STRICT  \n\nMode: off.\n\n\\* not a list\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n##  Guard Policy\nOrdering: x\nMode: off\n\n"}
+{"id": "guard-00058", "kind": "guard", "content": "## Change Control\n   indented three\n Mode: strict\nTwo lines\nof prose.\n\n## Guard Policy:\n   - Mode: strict\nMode: strict\n  and more\n> a quote\n\nMode: strict\n  and more"}
+{"id": "guard-00059", "kind": "guard", "content": "<!----> empty\nMode: strict\n1. Mode: strict\n## Guard Policy:\n\nMode: strict # really\n\n"}
+{"id": "guard-00060", "kind": "guard", "content": "# Top heading"}
+{"id": "guard-00061", "kind": "guard", "content": "> Mode: strict\n\nMode: strict\n\n---\n\n  indented two\n\nModes: strict\n\n## Other\n"}
+{"id": "guard-00062", "kind": "guard", "content": "- [ ] Mode: strict\n\n"}
+{"id": "guard-00063", "kind": "guard", "content": "<!-- Mode: strict, relaxed, or off. -->\n<!-- hides\nMode: strict\n--> after it\n  indented two\n\n"}
+{"id": "guard-00064", "kind": "guard", "content": "- Mode: relaxed\n\n### Deeper heading\n\n## Guard Policy\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\nMode: strict # really\n\n## Guard Policy\n\n<!-- hides\nMode: strict\n--> after it\n\n   indented three\n\nTwo lines\nof prose.\n"}
+{"id": "guard-00065", "kind": "guard", "content": "### Guard Policy\n\n> Mode: strict\n\nMode: strict\n## Guard policy\n\nMODE: Off\n\n"}
+{"id": "guard-00066", "kind": "guard", "content": "Mode: strict\nMethodology: tdd\n\nMode: `off`\n\nMode:\n\n  strict\n\n## Change Control"}
+{"id": "guard-00067", "kind": "guard", "content": "<!----> empty\n\n### Deeper heading\n"}
+{"id": "guard-00068", "kind": "guard", "content": "- a list item\n- another\n\n## Deployment\n- Mode: lenient\n  Mode: off\n\nMODE: Off\n\nMode: _relaxed_\n\nMode:\n   relaxed\n   - item\n\nA line with a trailing colon:"}
+{"id": "guard-00069", "kind": "guard", "content": "## Guard Policy  \n**Mode:** strict\nMode:\n<!-- a comment -->\n---"}
+{"id": "guard-00070", "kind": "guard", "content": "## Guard policy\n  indented two\nMode: strict\nSome prose here.\n<!-- a comment -->\n## Guard Policy:\n\n- Mode:\n  relaxed\n  wrapped\n\nA line with a trailing colon:\n\nMode strict\n## Guard Policy:\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n1. first\n2. second\n\n"}
+{"id": "guard-00071", "kind": "guard", "content": "## Deployment\nA line with a trailing colon:\n  indented two\n> a quote\nA line with a trailing colon:"}
+{"id": "guard-00072", "kind": "guard", "content": "Mode:\r\n  strict\r\n\r\n### Guard Policy\r\n\r\n### Deeper heading\r\n\r\nMode: _relaxed_\r\n\r\nkey: value\r\n\r\n## Other\r\n\r\nMODE: Off\r\n\r\nMode:\r\n   relaxed\r\n   - item\r\n"}
+{"id": "guard-00073", "kind": "guard", "content": "### Guard Policy\n\nMode strict\n\nmode :   STRICT  \n\nTwo lines\nof prose.\n\nMode: strict\n  and more\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->"}
+{"id": "guard-00074", "kind": "guard", "content": "## Guard Policy\n\n- Mode: relaxed\n\nMode: off.\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\nMode: *strict*\n\n<!-- Mode: strict, relaxed, or off. -->\n\n ## Guard Policy"}
+{"id": "guard-00075", "kind": "guard", "content": "1. Mode: strict\n1. first\n2. second\n## Other\n\nMode:\n  strict\n\n<!-- c --> Mode: strict\n\n Mode: strict\n ## Guard Policy\n\nMode: strict # really\n\n   indented three\n\nkey: value\n# Top heading\n"}
+{"id": "guard-00076", "kind": "guard", "content": "## Guard Policy\n\nMode: `off`\n\nMode: _relaxed_\n\nMode:\n   relaxed\n   - item\n| a | b |\n|---|---|\n| 1 | 2 |\n Mode: strict\n\\* not a list\nSome prose here.\n"}
+{"id": "guard-00077", "kind": "guard", "content": "<!-- c --> Mode: strict\n\n- [ ] Mode: strict\n\nMode:\n  strict\n"}
+{"id": "guard-00078", "kind": "guard", "content": "1. first\n2. second\n\n##  Guard Policy\nMode:\n\n  strict\nMode: _relaxed_\n---\n\n## Guard policy\n1. first\n2. second\n| a | b |\n|---|---|\n| 1 | 2 |\n  Mode: off\n\n## Guard Policy  \n\nMode: off.\n\nMode: strict\n\n"}
+{"id": "guard-00079", "kind": "guard", "content": "## Guard Policy\n# Top heading\nMode:\n## Guard Policy  \n\n# Top heading\nMode: strict # really"}
+{"id": "guard-00080", "kind": "guard", "content": "- Mode: strict\r\n- Other: x\r\n\r\n## Change Control\r\n   indented three\r\n<!-- hides\r\n## Guard Policy\r\nMode: strict\r\n-->\r\n   indented three\r\n\r\nSome prose here.\r\n\r\nMode: off.\r\n\r\nMODE: Off\r\n"}
+{"id": "guard-00081", "kind": "guard", "content": "## Other\n   - Mode: strict\n\nmode :   STRICT  \n\n### Guard Policy\n- Mode: relaxed\nMode strict"}
+{"id": "guard-00082", "kind": "guard", "content": "  indented two\n\n ## Guard Policy\n\n> Mode: strict\n\n> a quote\n\n- a list item\n- another\n\n"}
+{"id": "guard-00083", "kind": "guard", "content": "### Guard Policy\n\nModes: strict\n\nkey: value\n\n<!-- c --> Mode: strict"}
+{"id": "guard-00084", "kind": "guard", "content": "## Guard Policy\n<!-- hides\nMode: strict\n--> after it\n- [ ] Mode: strict\nText with *emphasis* and **strong**.\n"}
+{"id": "guard-00085", "kind": "guard", "content": "<!----> empty\n\nkey: value\n\nMode:\n\n  strict"}
+{"id": "guard-00086", "kind": "guard", "content": "### Deeper heading\n\n## Guard Policy\n\nMode: `off`\n\n Mode: strict\n\n"}
+{"id": "guard-00087", "kind": "guard", "content": "### Guard Policy\n\nMode: strict\nMethodology: tdd\n\n1. first\n2. second\n\n## Guard Policy\n\nMode: strict # really\n\n"}
+{"id": "guard-00088", "kind": "guard", "content": " ## Guard Policy\n1. Mode: strict\n"}
+{"id": "guard-00089", "kind": "guard", "content": "<!-- Mode: strict, relaxed, or off. -->\n\n## Guard Policy\n\n### Deeper heading\n\n  indented two\n\n ## Guard Policy\nMode:\n\n  strict\n- a list item\n- another\n   indented three\n"}
+{"id": "guard-00090", "kind": "guard", "content": "   - Mode: strict\r\nA line with a trailing colon:\r\n- Mode: relaxed\r\n\r\n"}
+{"id": "guard-00091", "kind": "guard", "content": "**Mode:** strict\r\n\r\nkey: value"}
+{"id": "guard-00092", "kind": "guard", "content": " Mode: strict\r\n\r\n## Guard Policy\r\n\r\n   - Mode: strict\r\n\r\n+ Mode: strict\r\n\r\nmode :   STRICT  \r\n\r\nkey: value\r\n\r\nmode :   STRICT  "}
+{"id": "guard-00093", "kind": "guard", "content": "## Guard policy\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n<!-- a comment -->\n\n---\n\nMode: strict\n  and more\n\nMode: *strict*\n\n## Deployment\n\nSome prose here.\n"}
+{"id": "guard-00094", "kind": "guard", "content": "## Deployment\n\n> Mode: strict\n\n# Top heading\n\nMode: `off`\n\nSetext heading\n===\n\n## Guard Policy  \n\n# Top heading\n\n<!----> empty\n"}
+{"id": "guard-00095", "kind": "guard", "content": "Mode:\n\n  strict\nMode:\n  strict\n"}
+{"id": "guard-00096", "kind": "guard", "content": "## Guard Policy\n\n## Guard Policy:\n\nModes: strict\n\nSetext heading\n===\n\nMode:\n\n  strict\n\nA `code span` and `another <tag>` here.\n\nOrdering: x\nMode: off\n\n## Deployment\n\nA line with a trailing colon:\n\n<!-- Mode: strict, relaxed, or off. -->\n\nMode:\n  strict\n\n## Guard Policy\n\n"}
+{"id": "guard-00097", "kind": "guard", "content": "| a | b |\r\n|---|---|\r\n| 1 | 2 |\r\n## Guard Policy\r\n\r\n\\* not a list\r\n\r\n   - Mode: strict\r\n\r\nA `code span` and `another <tag>` here.\r\nA `code span` and `another <tag>` here.\r\n\r\n"}
+{"id": "guard-00098", "kind": "guard", "content": "Mode:\n\n  strict\n\n> a quote\n\n"}
+{"id": "guard-00099", "kind": "guard", "content": "  indented two\n\n### Guard Policy\nA `code span` and `another <tag>` here.\n\n<!-- multi\nline\ncomment -->\n\n"}
+{"id": "guard-00100", "kind": "guard", "content": "## Guard Policy\n\nMode: _relaxed_\n\n- Mode: relaxed\n\n---\n\n"}
+{"id": "guard-00101", "kind": "guard", "content": "* **Mode**: off\n\n## Guard policy\n- a list item\n- another\n\\* not a list"}
+{"id": "guard-00102", "kind": "guard", "content": "﻿| a | b |\n|---|---|\n| 1 | 2 |\n\n## Guard Policy\nTwo lines\nof prose.\n  indented two\n<!-- Mode: strict, relaxed, or off. -->\n\nMode: _relaxed_\n\nSetext heading\n===\n\n- Mode: lenient\n\n"}
+{"id": "guard-00103", "kind": "guard", "content": "Modes: strict\n<!-- multi\nline\ncomment -->\n## Guard Policy\n\nA line with a trailing colon:\n\n<!----> empty\n\n\\* not a list\nTwo lines\nof prose.\n### Deeper heading"}
+{"id": "guard-00104", "kind": "guard", "content": "+ Mode: strict\n\n## Other\n\n- Mode: relaxed\n\nMode: strict\n  and more\n\n## Guard Policy:\n<!-- a comment -->\n\n"}
+{"id": "guard-00105", "kind": "guard", "content": "+ Mode: strict\n\nTwo lines\nof prose.\n\n"}
+{"id": "guard-00106", "kind": "guard", "content": "---\n   indented three\n## Guard policy\n## Change Control\n   indented three\n"}
+{"id": "guard-00107", "kind": "guard", "content": "key: value\r\n"}
+{"id": "guard-00108", "kind": "guard", "content": "Some prose here.\n\n<!-- multi\nline\ncomment -->\n\nkey: value\n\n> a quote\n\n"}
+{"id": "guard-00109", "kind": "guard", "content": "# Top heading\n\n"}
+{"id": "guard-00110", "kind": "guard", "content": "<!-- hides\nMode: strict\n--> after it\n## Guard Policy\n### Deeper heading\n* **Mode**: off\n- a list item\n- another\n## Other\n\n<!-- hides\nMode: strict\n--> after it\n\n- a list item\n- another\nA line with a trailing colon:\nMode:\n\n  strict\n\n"}
+{"id": "guard-00111", "kind": "guard", "content": "1. first\n2. second\n\n## Other"}
+{"id": "guard-00112", "kind": "guard", "content": "## Guard Policy\nText with *emphasis* and **strong**.\n**Mode:** strict\n Mode: strict"}
+{"id": "guard-00113", "kind": "guard", "content": "## Guard policy\n\nText with *emphasis* and **strong**.\n"}
+{"id": "guard-00114", "kind": "guard", "content": "> a quote\n\n ## Guard Policy\n\nA `code span` and `another <tag>` here.\n\n  indented two\n\nMode: *strict*\n\n## Change Control\n\n+ Mode: strict\n\n   indented three"}
+{"id": "guard-00115", "kind": "guard", "content": "- Mode: strict\n- Other: x\n\n ## Guard Policy\n\nSetext heading\n===\n"}
+{"id": "guard-00116", "kind": "guard", "content": "## Guard Policy\r\n\r\n| a | b |\r\n|---|---|\r\n| 1 | 2 |\r\n\r\n<!-- hides\r\nMode: strict\r\n--> after it\r\n\r\n- [ ] Mode: strict"}
+{"id": "guard-00117", "kind": "guard", "content": "mode :   STRICT  \n\n| a | b |\n|---|---|\n| 1 | 2 |\n\nMode:   \n  \n\n\nkey: value"}
+{"id": "guard-00118", "kind": "guard", "content": "## Change Control"}
+{"id": "guard-00119", "kind": "guard", "content": "## Guard Policy\n\n## Guard Policy\n\n<!-- c --> Mode: strict\n\n<!-- c --> Mode: strict\n\n### Deeper heading\n\n## Other\n\n## Deployment\n\nA `code span` and `another <tag>` here.\n\nOrdering: x\nMode: off\n\n- [ ] Mode: strict\n"}
+{"id": "guard-00120", "kind": "guard", "content": "<!-- hides\nMode: strict\n--> after it\n\n## Guard Policy\n### Deeper heading\n Mode: strict\n\n## Guard Policy:\n\nMode: *strict*\n\nMode:   \n  \n\n\nMode: strict\n  and more\n\n<!-- multi\nline\ncomment -->\n\n### Deeper heading"}
+{"id": "guard-00121", "kind": "guard", "content": "## Change Control\n\n<!-- multi\nline\ncomment -->\n\nText with *emphasis* and **strong**.\n\n"}
+{"id": "guard-00122", "kind": "guard", "content": "Mode: _relaxed_\n\nA `code span` and `another <tag>` here.\n\nkey: value"}
+{"id": "guard-00123", "kind": "guard", "content": "Modes: strict\n\n"}
+{"id": "guard-00124", "kind": "guard", "content": "<!-- c --> Mode: strict\r\n## Guard Policy\r\n\r\nMode strict\r\n\r\nMode: off.\r\n- Mode:\r\n  relaxed\r\n  wrapped\r\nSetext heading\r\n===\r\n# Top heading\r\n<!-- hides\r\nMode: strict\r\n--> after it"}
+{"id": "guard-00125", "kind": "guard", "content": "<!-- a comment -->\n"}
+{"id": "guard-00126", "kind": "guard", "content": "<!-- c --> Mode: strict\n## Guard Policy  \nSetext heading\n===\n## Guard Policy\n\n   - Mode: strict\nTwo lines\nof prose.\nA line with a trailing colon:"}
+{"id": "guard-00127", "kind": "guard", "content": "Mode: *strict*\n### Deeper heading\n## Guard Policy\nkey: value\nSome prose here.\n## Other\n- Mode: strict\n- Other: x\nTwo lines\nof prose.\n  Mode: off\n"}
+{"id": "guard-00128", "kind": "guard", "content": "### Deeper heading\n\n> a quote\n\n Mode: strict\n\n"}
+{"id": "guard-00129", "kind": "guard", "content": "<!-- Mode: strict, relaxed, or off. -->\r\n\r\n<!-- hides\r\nMode: strict\r\n--> after it\r\n\r\nMode:   \r\n  \r\n\r\n\r\nModes: strict\r\n\r\n## Guard Policy  \r\n\r\n---\r\n\r\n ## Guard Policy\r\n"}
+{"id": "guard-00130", "kind": "guard", "content": "### Guard Policy\n\nMode:\n  strict\n\n- a list item\n- another\n\n- Mode:\n  relaxed\n  wrapped\n\n## Change Control\nkey: value\n* **Mode**: off\nSetext heading\n===\n\n## Guard policy\n\n   - Mode: strict\n\n   - Mode: strict\n\nMode: strict # really\n\n<!-- multi\nline\ncomment -->\n\n"}
+{"id": "guard-00131", "kind": "guard", "content": "﻿1. Mode: strict\n\n\\* not a list\n\nMode: strict\n  and more"}
+{"id": "guard-00132", "kind": "guard", "content": "Some prose here.\n## Guard Policy\nTwo lines\nof prose.\n\\* not a list\n> a quote\nMode:\n  strict\n"}
+{"id": "guard-00133", "kind": "guard", "content": "Two lines\nof prose.\n\nMode: `off`\n"}
+{"id": "guard-00134", "kind": "guard", "content": "  indented two\n\nMode:\n   relaxed\n   - item\n\n<!-- Mode: strict, relaxed, or off. -->\n\nA line with a trailing colon:\n"}
+{"id": "guard-00135", "kind": "guard", "content": "## Guard Policy\n\nMode:\n   relaxed\n   - item\n\n> a quote\n\nMode:\n\n  strict\n"}
+{"id": "guard-00136", "kind": "guard", "content": "Two lines\nof prose.\n\n## Guard policy\n\\* not a list\n<!----> empty\n1. first\n2. second\n\n- Mode:\n  relaxed\n  wrapped\n\nMode: `off`\n\nOrdering: x\nMode: off\n\n## Guard Policy\n\n- a list item\n- another\n\n1. Mode: strict\n\nSome prose here."}
+{"id": "guard-00137", "kind": "guard", "content": "﻿<!-- hides\nMode: strict\n--> after it\nMode:   \n  \n\nMode: strict\nMethodology: tdd\nMode:   \n  \n\n## Other\n# Top heading\n<!-- Mode: strict, relaxed, or off. -->\n"}
+{"id": "guard-00138", "kind": "guard", "content": "Some prose here.\n| a | b |\n|---|---|\n| 1 | 2 |\n"}
+{"id": "guard-00139", "kind": "guard", "content": "﻿Mode:\n\n  strict\n## Guard Policy:\n\n  indented two\n## Guard Policy:\n\n+ Mode: strict\n\n\\* not a list\n<!-- hides\nMode: strict\n--> after it\n## Guard Policy\n  Mode: off\nMode: strict # really\nMode: strict\n"}
+{"id": "guard-00140", "kind": "guard", "content": "- Mode:\n  relaxed\n  wrapped\n\nMode:\n\nSetext heading\n===\n\nOrdering: x\nMode: off\n"}
+{"id": "guard-00141", "kind": "guard", "content": "Mode:\n\n  indented two\n\nMode:\n  strict\n\n1. first\n2. second\n\n## Guard policy\n\n<!-- hides\nMode: strict\n--> after it\n\n ## Guard Policy\n- Mode:\n  relaxed\n  wrapped\n- Mode: relaxed\n\n"}
+{"id": "guard-00142", "kind": "guard", "content": "<!-- hides\nMode: strict\n--> after it\n<!-- hides\nMode: strict\n--> after it\n  Mode: off\n## Guard Policy\n\\* not a list\nMode strict\n### Deeper heading\n<!----> empty\nA line with a trailing colon:"}
+{"id": "guard-00143", "kind": "guard", "content": "## Change Control\n* **Mode**: off\n<!-- c --> Mode: strict\nA `code span` and `another <tag>` here.\n\n"}
+{"id": "guard-00144", "kind": "guard", "content": "A `code span` and `another <tag>` here.\n\n### Deeper heading\n\n## Guard Policy\n\nkey: value\n\n  indented two\n\n  indented two"}
+{"id": "guard-00145", "kind": "guard", "content": "1. Mode: strict\r\n"}
+{"id": "guard-00146", "kind": "guard", "content": "> a quote\n\n<!-- c --> Mode: strict\n\n## Guard Policy\n\n> Mode: strict\n\n Mode: strict\n\n<!-- hides\nMode: strict\n--> after it\n\nMode strict\n\n+ Mode: strict\n"}
+{"id": "guard-00147", "kind": "guard", "content": "##  Guard Policy\n\n## Change Control\n\nMode:\n  strict\n\n## Guard Policy\n\nMode: strict\n\n<!-- hides\nMode: strict\n--> after it\n\nTwo lines\nof prose.\n\n## Guard policy\n\nSetext heading\n==="}
+{"id": "guard-00148", "kind": "guard", "content": "<!-- a comment -->"}
+{"id": "guard-00149", "kind": "guard", "content": "## Other\r\n<!-- c --> Mode: strict\r\n<!-- Mode: strict, relaxed, or off. -->\r\n- a list item\r\n- another\r\n## Change Control\r\n**Mode:** strict\r\n**Mode:** strict\r\n<!-- hides\r\n## Guard Policy\r\nMode: strict\r\n-->\r\n# Top heading\r\n\r\n"}
+{"id": "guard-00150", "kind": "guard", "content": "Mode: strict # really\n\nMode: strict\n\nSome prose here.\n\nMode:   \n  \n\n\n* **Mode**: off"}
+{"id": "guard-00151", "kind": "guard", "content": "Ordering: x\nMode: off\n\nMode: *strict*\n\n## Guard Policy  \n\nkey: value\n\n## Guard Policy\n\n<!-- hides\nMode: strict\n--> after it"}
+{"id": "guard-00152", "kind": "guard", "content": "A line with a trailing colon:\n\n---\n\nMode:   \n  \n\n\n| a | b |\n|---|---|\n| 1 | 2 |"}
+{"id": "guard-00153", "kind": "guard", "content": "* **Mode**: off\n\nMode: strict\nMethodology: tdd\n\n1. first\n2. second\n\n- a list item\n- another\n\nmode :   STRICT  \n\n* **Mode**: off"}
+{"id": "guard-00154", "kind": "guard", "content": "A `code span` and `another <tag>` here.\nModes: strict\n## Guard Policy  \n\n- a list item\n- another\n\nOrdering: x\nMode: off\n\nA line with a trailing colon:\nMode:\n\n  strict"}
+{"id": "guard-00155", "kind": "guard", "content": " ## Guard Policy\n<!-- Mode: strict, relaxed, or off. -->\n- [ ] Mode: strict\n- a list item\n- another\n\n\\* not a list\n\n## Guard Policy\n**Mode:** strict\nTwo lines\nof prose.\n\n- a list item\n- another\n\n### Guard Policy\n\nMode: off.\n\n   indented three\n\nText with *emphasis* and **strong**."}
+{"id": "guard-00156", "kind": "guard", "content": "+ Mode: strict\nMode strict\n1. Mode: strict\n##  Guard Policy\nkey: value\nSome prose here.\n  indented two\nMode: strict\n* **Mode**: off"}
+{"id": "guard-00157", "kind": "guard", "content": "## Change Control\n\n  indented two\n\nSome prose here."}
+{"id": "guard-00158", "kind": "guard", "content": "# Top heading\n\nOrdering: x\nMode: off\n\n"}
+{"id": "guard-00159", "kind": "guard", "content": "### Deeper heading\n\n- Mode: lenient\n\n## Guard policy\n\n<!-- multi\nline\ncomment -->\n\nMode: strict\n  and more\n\n  indented two"}
+{"id": "guard-00160", "kind": "guard", "content": "| a | b |\n|---|---|\n| 1 | 2 |\n\n# Top heading\n\n"}
+{"id": "guard-00161", "kind": "guard", "content": "### Guard Policy\r\n- a list item\r\n- another\r\nMode:\r\n  strict\r\n\r\n"}
+{"id": "guard-00162", "kind": "guard", "content": "- Mode: lenient\n\n# Top heading\n\nMode: strict\nMethodology: tdd\n\n---\n\nMode: _relaxed_\n\n"}
+{"id": "guard-00163", "kind": "guard", "content": "\\* not a list\nMode:\n   relaxed\n   - item\n   indented three\n\n"}
+{"id": "guard-00164", "kind": "guard", "content": "# Top heading\n\n##  Guard Policy\n\n- a list item\n- another\n\n---\n\n## Guard Policy\n\nMODE: Off\n\nkey: value\n\n## Guard Policy:"}
+{"id": "guard-00165", "kind": "guard", "content": "Mode: `off`\n\n<!-- a comment -->\n\n   indented three"}
+{"id": "guard-00166", "kind": "guard", "content": "## Guard Policy\n\nOrdering: x\nMode: off\n\n<!-- multi\nline\ncomment -->\n\nSetext heading\n===\n\n## Guard policy\n\n## Guard Policy  \n\n---\n\n+ Mode: strict\n\n1. Mode: strict\n\n## Guard policy"}
+{"id": "guard-00167", "kind": "guard", "content": "Mode: _relaxed_\n\n## Guard Policy\n\nText with *emphasis* and **strong**.\n\nMode: off.\n\n## Other\n<!-- multi\nline\ncomment -->\n\n Mode: strict"}
+{"id": "guard-00168", "kind": "guard", "content": "  indented two\n\n## Guard Policy"}
+{"id": "guard-00169", "kind": "guard", "content": "## Guard Policy  \n> a quote"}
+{"id": "guard-00170", "kind": "guard", "content": "   indented three\r\n# Top heading\r\n\\* not a list\r\nMode: _relaxed_\r\n## Change Control\r\n\r\n"}
+{"id": "guard-00171", "kind": "guard", "content": "> a quote\n\\* not a list\n"}
+{"id": "guard-00172", "kind": "guard", "content": "## Guard Policy  \nMode:\n  strict\n<!-- hides\nMode: strict\n--> after it\n"}
+{"id": "guard-00173", "kind": "guard", "content": "## Guard Policy:\n\nMode: `off`\n\n### Deeper heading\n\n<!-- hides\nMode: strict\n--> after it\n\n<!----> empty\n\n# Top heading\n\n## Guard Policy:\n\n<!-- a comment -->\n\nMode: `off`\n\nMode: off.\n"}
+{"id": "guard-00174", "kind": "guard", "content": "<!-- multi\nline\ncomment -->\n\nModes: strict\n"}
+{"id": "guard-00175", "kind": "guard", "content": "<!-- Mode: strict, relaxed, or off. -->\r\n\r\n## Guard Policy\r\n\r\nA line with a trailing colon:\r\n\r\nSetext heading\r\n===\r\n\r\n"}
+{"id": "guard-00176", "kind": "guard", "content": "<!-- Mode: strict, relaxed, or off. -->\n\nMode:   \n  \n\n\nMode: strict\nMethodology: tdd\n\n"}
+{"id": "guard-00177", "kind": "guard", "content": "## Other\n\n1. first\n2. second\n\n"}
+{"id": "guard-00178", "kind": "guard", "content": "+ Mode: strict\nA `code span` and `another <tag>` here.\n## Other\n\nModes: strict\n   indented three\n  indented two\n## Change Control\n<!-- Mode: strict, relaxed, or off. -->\n\n"}
+{"id": "guard-00179", "kind": "guard", "content": "  indented two\n## Deployment\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n<!-- multi\nline\ncomment -->\n<!-- hides\nMode: strict\n--> after it\n## Guard Policy\n  indented two\n"}
+{"id": "guard-00180", "kind": "guard", "content": "   indented three\r\n# Top heading\r\n## Guard Policy"}
+{"id": "guard-00181", "kind": "guard", "content": "﻿<!----> empty\n\n<!----> empty\n\n## Change Control\n\n- Mode: strict\n- Other: x\n\nA `code span` and `another <tag>` here.\n\nMode:\n   relaxed\n   - item\n"}
+{"id": "guard-00182", "kind": "guard", "content": "##  Guard Policy\nMode: off.\n   indented three\n+ Mode: strict\n<!----> empty\n\n"}
+{"id": "guard-00183", "kind": "guard", "content": "<!-- Mode: strict, relaxed, or off. -->\n\n## Guard Policy\n\nMode: strict\n\nA `code span` and `another <tag>` here.\n\n<!-- a comment -->\n\n   - Mode: strict\n"}
+{"id": "guard-00184", "kind": "guard", "content": "<!-- hides\nMode: strict\n--> after it\n"}
+{"id": "guard-00185", "kind": "guard", "content": "## Guard Policy\n\nMODE: Off\n\n### Deeper heading\n\nMode: `off`\n\nMode:\n\n  strict\n\n* **Mode**: off\n\n---\n\n<!----> empty\n\n**Mode:** strict"}
+{"id": "guard-00186", "kind": "guard", "content": "1. first\n2. second\nOrdering: x\nMode: off\nText with *emphasis* and **strong**.\nA line with a trailing colon:\n### Deeper heading"}
+{"id": "guard-00187", "kind": "guard", "content": "Mode: off.\nMode:\n\n  strict\nMode:\n\n  strict\n> a quote\n- Mode: strict\n- Other: x\n<!-- multi\nline\ncomment -->"}
+{"id": "guard-00188", "kind": "guard", "content": "Mode: off.\n\nA `code span` and `another <tag>` here.\n\n- Mode:\n  relaxed\n  wrapped\n\n"}
+{"id": "guard-00189", "kind": "guard", "content": "  indented two\n"}
+{"id": "guard-00190", "kind": "guard", "content": "Two lines\r\nof prose.\r\n## Guard Policy\r\n- [ ] Mode: strict\r\n## Guard Policy  \r\n\r\n<!-- Mode: strict, relaxed, or off. -->\r\n\r\n<!-- a comment -->\r\n1. Mode: strict\r\n"}
+{"id": "guard-00191", "kind": "guard", "content": " ## Guard Policy\n> a quote\n1. first\n2. second\n Mode: strict\n\nMode:\n\n  strict\n\n- [ ] Mode: strict\n\n## Guard Policy\nMode: _relaxed_\n\nMode:\n  strict\n"}
+{"id": "guard-00192", "kind": "guard", "content": "## Change Control\nSetext heading\n===\n   - Mode: strict\n1. Mode: strict\n\n ## Guard Policy\n\n Mode: strict\n\n- Mode: relaxed\n\n1. first\n2. second"}
+{"id": "guard-00193", "kind": "guard", "content": "## Guard Policy"}
+{"id": "guard-00194", "kind": "guard", "content": "## Guard Policy  \n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\nModes: strict\n\n### Deeper heading\n\n- Mode: relaxed\n\n## Guard Policy\n\n   - Mode: strict\n"}
+{"id": "guard-00195", "kind": "guard", "content": "## Guard Policy\n\nA line with a trailing colon:\n\n<!-- multi\nline\ncomment -->\n\n\\* not a list\n ## Guard Policy\n<!-- hides\nMode: strict\n--> after it\n## Guard Policy\n\n# Top heading\n\nText with *emphasis* and **strong**.\n\nSetext heading\n===\n\n"}
+{"id": "guard-00196", "kind": "guard", "content": "## Other\n\n**Mode:** strict\n\n1. first\n2. second"}
+{"id": "guard-00197", "kind": "guard", "content": "- Mode: lenient\r\n\r\n  indented two"}
+{"id": "guard-00198", "kind": "guard", "content": "Mode strict\n\n## Guard Policy  \nMode: `off`\nOrdering: x\nMode: off\n> Mode: strict\n\nOrdering: x\nMode: off\n\n##  Guard Policy\n\n   - Mode: strict\n\n   indented three\n\nMode: `off`\n\n ## Guard Policy\n\n<!-- hides\nMode: strict\n--> after it\n\nMode:\n\n  strict\n\n<!----> empty\n\nMode: strict\nMethodology: tdd\n\n"}
+{"id": "guard-00199", "kind": "guard", "content": "mode :   STRICT  \n## Guard Policy  \n\n---\n\n<!-- multi\nline\ncomment -->\n\n### Deeper heading\n  indented two\n> a quote\n## Guard Policy\n\nmode :   STRICT  \n\n- Mode: relaxed\nMode:   \n  \n\n"}
+{"id": "guard-00200", "kind": "guard", "content": "Setext heading\n===\n<!-- c --> Mode: strict"}
+{"id": "guard-00201", "kind": "guard", "content": "﻿1. Mode: strict\r\n"}
+{"id": "guard-00202", "kind": "guard", "content": "## Guard Policy\n\n   indented three\n\nMode: off.\n> a quote"}
+{"id": "guard-00203", "kind": "guard", "content": "Mode: `off`\r\nMode: strict # really"}
+{"id": "guard-00204", "kind": "guard", "content": "Two lines\nof prose.\n\n## Change Control\n### Deeper heading\n\n## Change Control\n\nTwo lines\nof prose.\n\nMode: strict # really\n\n"}
+{"id": "guard-00205", "kind": "guard", "content": "﻿## Change Control\r\n\r\n- Mode: strict\r\n- Other: x\r\n\r\nMode: strict\r\n\r\n+ Mode: strict\r\n\r\nMODE: Off\r\n\r\n> a quote\r\n\r\n"}
+{"id": "guard-00206", "kind": "guard", "content": "## Guard Policy\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n---\nMode strict\n<!----> empty\nMode: strict\nMethodology: tdd\nkey: value\n"}
+{"id": "guard-00207", "kind": "guard", "content": "  Mode: off\n\nSetext heading\n===\n\n  Mode: off\n\nSome prose here.\n\nkey: value"}
+{"id": "guard-00208", "kind": "guard", "content": "\\* not a list\n\n## Guard policy\n\n<!-- c --> Mode: strict\n\n## Other\n\n## Guard Policy:\n\n---\n\nMode: strict\nMethodology: tdd\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n"}
+{"id": "guard-00209", "kind": "guard", "content": "﻿Setext heading\n===\n\n### Deeper heading\n\nTwo lines\nof prose.\n\n## Guard Policy:\n\n  indented two\n\n"}
+{"id": "guard-00210", "kind": "guard", "content": "- Mode: strict\n- Other: x\n\nMode: strict\n\n<!-- a comment -->\n\n\\* not a list\n\n\\* not a list\n\n## Guard Policy\n<!-- Mode: strict, relaxed, or off. -->\nMode: strict\nMethodology: tdd\n> a quote"}
+{"id": "guard-00211", "kind": "guard", "content": "## Guard policy\n\n- Mode: lenient\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n<!-- c --> Mode: strict\n\n## Guard policy\n\n<!-- c --> Mode: strict\n\n### Guard Policy\n\nOrdering: x\nMode: off\n\n"}
+{"id": "guard-00212", "kind": "guard", "content": "Mode:   \n  \n\n"}
+{"id": "guard-00213", "kind": "guard", "content": "<!-- a comment -->\n\n<!-- Mode: strict, relaxed, or off. -->\n\n<!-- multi\nline\ncomment -->"}
+{"id": "guard-00214", "kind": "guard", "content": "﻿Modes: strict\n\n  indented two\n\n\\* not a list\n\n## Guard Policy:\n\n\\* not a list\n\n\\* not a list\n\nMode:\n  strict"}
+{"id": "guard-00215", "kind": "guard", "content": "Ordering: x\nMode: off\n<!-- c --> Mode: strict\nMODE: Off\n### Guard Policy\nSome prose here.\nMode: strict # really\n"}
+{"id": "guard-00216", "kind": "guard", "content": "<!-- c --> Mode: strict\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n## Guard Policy\nSome prose here.\n## Guard Policy\nMode:\n\n  strict\n<!----> empty\n"}
+{"id": "guard-00217", "kind": "guard", "content": "<!----> empty\nText with *emphasis* and **strong**.\n1. Mode: strict"}
+{"id": "guard-00218", "kind": "guard", "content": "\\* not a list\n\nA `code span` and `another <tag>` here.\n\n## Guard Policy:\n<!-- a comment -->\n### Deeper heading\n\\* not a list\n\n<!-- Mode: strict, relaxed, or off. -->\n"}
+{"id": "guard-00219", "kind": "guard", "content": "<!-- hides\n## Guard Policy\nMode: strict\n-->\n"}
+{"id": "guard-00220", "kind": "guard", "content": "> a quote\n\n> Mode: strict\n\n# Top heading\n\nSetext heading\n===\n\n"}
+{"id": "guard-00221", "kind": "guard", "content": "### Guard Policy\n"}
+{"id": "guard-00222", "kind": "guard", "content": "## Guard Policy:\n---\n1. first\n2. second\n\n## Other\n\n Mode: strict\n\n  indented two\n\n"}
+{"id": "guard-00223", "kind": "guard", "content": "<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n<!----> empty\n\n## Guard Policy\n\n---\n\nMode:\n   relaxed\n   - item\n\n ## Guard Policy\nMode: off.\n- [ ] Mode: strict"}
+{"id": "guard-00224", "kind": "guard", "content": "## Change Control\n\nTwo lines\nof prose.\n\n## Guard Policy\n\nMode:\n  strict\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n\\* not a list\n\nkey: value\n\n"}
+{"id": "guard-00225", "kind": "guard", "content": "- a list item\r\n- another\r\n> a quote\r\n## Guard Policy\r\n\r\n<!-- multi\r\nline\r\ncomment -->\r\n\r\n"}
+{"id": "guard-00226", "kind": "guard", "content": "<!-- multi\nline\ncomment -->\n\\* not a list\nMode: `off`\n### Guard Policy\n\nMode: off.\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n"}
+{"id": "guard-00227", "kind": "guard", "content": "- Mode:\n  relaxed\n  wrapped\n\nA `code span` and `another <tag>` here.\n\nModes: strict\n\n<!-- hides\nMode: strict\n--> after it\n\n1. first\n2. second\n\nTwo lines\nof prose.\n"}
+{"id": "guard-00228", "kind": "guard", "content": "## Guard policy\nA `code span` and `another <tag>` here.\n## Guard Policy  \nMode:\n\n  strict\nMode strict\nMode strict\n"}
+{"id": "guard-00229", "kind": "guard", "content": "  Mode: off\n\n### Guard Policy\nmode :   STRICT  \n> a quote\n  indented two"}
+{"id": "guard-00230", "kind": "guard", "content": "Mode: `off`\n\nSetext heading\n===\n\nMode:\n"}
+{"id": "guard-00231", "kind": "guard", "content": "A `code span` and `another <tag>` here.\n\n- Mode: strict\n- Other: x\n\n1. first\n2. second\n\nMode:\n  strict\n\nMode:   \n  \n\n\nMode: strict # really\n"}
+{"id": "guard-00232", "kind": "guard", "content": "- Mode:\n  relaxed\n  wrapped\n\n\\* not a list\n\n## Change Control\n\nMode:   \n  \n\n\n"}
+{"id": "guard-00233", "kind": "guard", "content": "﻿A line with a trailing colon:\n\nMode: _relaxed_\n\nMode:\n\n  strict\n\n## Guard Policy\n\n- Mode: relaxed"}
+{"id": "guard-00234", "kind": "guard", "content": "## Deployment\n\n<!-- multi\nline\ncomment -->\n\nMode: _relaxed_\n1. first\n2. second\n* **Mode**: off\n> Mode: strict\n##  Guard Policy\n- Mode: relaxed\n- a list item\n- another\nSetext heading\n==="}
+{"id": "guard-00235", "kind": "guard", "content": "## Guard Policy\n\\* not a list\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n<!----> empty\n1. first\n2. second\n**Mode:** strict\n## Guard Policy\nMode: strict\nMethodology: tdd\n\n"}
+{"id": "guard-00236", "kind": "guard", "content": "## Deployment\n\n ## Guard Policy\n<!-- Mode: strict, relaxed, or off. -->\nA line with a trailing colon:\n\n## Guard Policy\n\n---\n\n## Change Control\nkey: value\n- [ ] Mode: strict\n- Mode: strict\n- Other: x\n\n  Mode: off"}
+{"id": "guard-00237", "kind": "guard", "content": "## Guard Policy\n\nMode: _relaxed_\n\nMode:\n  strict\n"}
+{"id": "guard-00238", "kind": "guard", "content": "A line with a trailing colon:\n## Guard Policy  \n\n1. Mode: strict\n\n- Mode:\n  relaxed\n  wrapped\n\n- Mode: relaxed"}
+{"id": "guard-00239", "kind": "guard", "content": "### Deeper heading\n"}
+{"id": "guard-00240", "kind": "guard", "content": "---\n\n> Mode: strict\n\n- a list item\n- another\n\n1. first\n2. second\n"}
+{"id": "guard-00241", "kind": "guard", "content": "Mode strict\n<!----> empty\nMode: strict\nMethodology: tdd\nA `code span` and `another <tag>` here.\nSome prose here.\n"}
+{"id": "guard-00242", "kind": "guard", "content": "key: value\r\nSome prose here.\r\n"}
+{"id": "guard-00243", "kind": "guard", "content": "# Top heading\n\n1. first\n2. second\n\n<!-- a comment -->\n\n"}
+{"id": "guard-00244", "kind": "guard", "content": "Two lines\nof prose.\n\n##  Guard Policy\n\nMode: off.\n\nMODE: Off\n\nMode: strict\nMethodology: tdd\n\n## Other\n\nA line with a trailing colon:"}
+{"id": "guard-00245", "kind": "guard", "content": "   - Mode: strict\n\nMode: strict # really\n\n### Guard Policy\n\n> a quote\n\nmode :   STRICT  \n"}
+{"id": "guard-00246", "kind": "guard", "content": "  indented two\n\n  indented two\n"}
+{"id": "guard-00247", "kind": "guard", "content": "Mode:   \n  \n\n\n### Guard Policy\n\nSetext heading\n==="}
+{"id": "guard-00248", "kind": "guard", "content": "## Guard policy\n\nA line with a trailing colon:\n"}
+{"id": "guard-00249", "kind": "guard", "content": "﻿+ Mode: strict\n\n## Guard policy\n\n> a quote\n\n<!-- Mode: strict, relaxed, or off. -->\n\n## Guard Policy\n\nMode:\n\n* **Mode**: off\n\nMode: strict # really\n\n  Mode: off\n\n"}
+{"id": "guard-00250", "kind": "guard", "content": "### Guard Policy\n\nOrdering: x\nMode: off\n\n- [ ] Mode: strict\n\n1. first\n2. second\n\n### Deeper heading\n\nTwo lines\nof prose.\n\n"}
+{"id": "guard-00251", "kind": "guard", "content": "<!-- multi\r\nline\r\ncomment -->\r\n> Mode: strict\r\n### Guard Policy\r\n\r\nTwo lines\r\nof prose.\r\n\r\n Mode: strict\r\n- Mode: relaxed\r\n<!----> empty\r\n| a | b |\r\n|---|---|\r\n| 1 | 2 |\r\n\r\n"}
+{"id": "guard-00252", "kind": "guard", "content": "##  Guard Policy\n\nMode: off.\n\nSetext heading\n===\n\n## Guard Policy\n\n## Other\n> a quote\nmode :   STRICT  \nMODE: Off\n\n## Deployment\n\n## Guard Policy  \n"}
+{"id": "guard-00253", "kind": "guard", "content": "Text with *emphasis* and **strong**.\r\n\r\n---\r\n\r\nA `code span` and `another <tag>` here.\r\n\r\n| a | b |\r\n|---|---|\r\n| 1 | 2 |\r\n\r\nMode:   \r\n  \r\n\r\n\r\n   indented three\r\n\r\n"}
+{"id": "guard-00254", "kind": "guard", "content": "- Mode: strict\n- Other: x\n"}
+{"id": "guard-00255", "kind": "guard", "content": "   - Mode: strict\n ## Guard Policy\n\nMode: strict\nMethodology: tdd\n\n<!----> empty\nText with *emphasis* and **strong**.\n<!----> empty\n\n"}
+{"id": "guard-00256", "kind": "guard", "content": "Mode: strict\nMethodology: tdd\n**Mode:** strict\n<!-- c --> Mode: strict\n# Top heading\n"}
+{"id": "guard-00257", "kind": "guard", "content": "Some prose here.\n##  Guard Policy\n\nkey: value\n\nSome prose here.\n\n<!-- multi\nline\ncomment -->\n## Guard Policy  \n\n- Mode: relaxed"}
+{"id": "guard-00258", "kind": "guard", "content": "Mode: off."}
+{"id": "guard-00259", "kind": "guard", "content": "Mode: strict\n  and more\n\n##  Guard Policy\n\n  indented two\n\nText with *emphasis* and **strong**.\n\nMode: strict # really\n\n## Guard Policy\nMode:\n  strict\n\n## Deployment\n\nMode: strict\n  and more\n\n<!-- c --> Mode: strict\n\n- a list item\n- another\n\n"}
+{"id": "guard-00260", "kind": "guard", "content": "## Other\r\n\r\n<!-- hides\r\n## Guard Policy\r\nMode: strict\r\n-->\r\n<!-- c --> Mode: strict\r\n## Guard policy\r\n   indented three\r\nMode: strict\r\n  and more\r\n1. Mode: strict\r\n"}
+{"id": "guard-00261", "kind": "guard", "content": "## Guard Policy  \n\n<!-- c --> Mode: strict\n\nMode: `off`\n\n\\* not a list\n## Guard Policy\n\n<!-- hides\nMode: strict\n--> after it\n\n<!-- hides\nMode: strict\n--> after it\n\nmode :   STRICT  \n"}
+{"id": "guard-00262", "kind": "guard", "content": "Mode:\n  strict\n\n## Guard Policy\n\n## Deployment\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n"}
+{"id": "guard-00263", "kind": "guard", "content": "   indented three"}
+{"id": "guard-00264", "kind": "guard", "content": "<!-- Mode: strict, relaxed, or off. -->\n\n### Guard Policy\n\nModes: strict\n\n### Deeper heading\n\n<!-- multi\nline\ncomment -->"}
+{"id": "guard-00265", "kind": "guard", "content": "## Guard Policy\n\nA `code span` and `another <tag>` here."}
+{"id": "guard-00266", "kind": "guard", "content": "Mode:   \n  \n\n\n## Deployment\n"}
+{"id": "guard-00267", "kind": "guard", "content": "## Guard Policy  \n\n- Mode: lenient\n\n<!----> empty\n\n## Guard Policy\n- Mode: strict\n- Other: x\nMode: strict\nMethodology: tdd\n\nMode: strict\nMethodology: tdd\n\n# Top heading\n\n---"}
+{"id": "guard-00268", "kind": "guard", "content": "<!-- c --> Mode: strict\n\n---\n\n## Guard Policy\n\n Mode: strict"}
+{"id": "guard-00269", "kind": "guard", "content": "1. first\n2. second\nMode:\n\n  strict\n<!----> empty\nMode: off.\n1. first\n2. second\nText with *emphasis* and **strong**."}
+{"id": "guard-00270", "kind": "guard", "content": "key: value\n Mode: strict\nMode: _relaxed_\n## Guard Policy\n<!-- c --> Mode: strict\nText with *emphasis* and **strong**.\nkey: value\n  Mode: off"}
+{"id": "guard-00271", "kind": "guard", "content": "## Change Control\n\n> Mode: strict\n\n* **Mode**: off\nTwo lines\nof prose.\n"}
+{"id": "guard-00272", "kind": "guard", "content": "## Deployment\n\nMode:   \n  \n\n\n  indented two\n\n<!-- hides\nMode: strict\n--> after it\n\nA `code span` and `another <tag>` here.\n"}
+{"id": "guard-00273", "kind": "guard", "content": "<!-- Mode: strict, relaxed, or off. -->\nA `code span` and `another <tag>` here.\nMode: strict\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n"}
+{"id": "guard-00274", "kind": "guard", "content": "Text with *emphasis* and **strong**.\n\nA line with a trailing colon:\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n## Guard Policy\n\n"}
+{"id": "guard-00275", "kind": "guard", "content": "<!-- hides\nMode: strict\n--> after it\n\n- Mode: relaxed\n\n"}
+{"id": "guard-00276", "kind": "guard", "content": "<!-- c --> Mode: strict\r\n\r\n## Change Control\r\n\r\n---\r\n\r\n### Guard Policy\r\n\r\n- Mode: strict\r\n- Other: x\r\n\r\n\\* not a list\r\n\r\n## Guard Policy:\r\nkey: value\r\nMode: strict\r\n\r\nMode strict\r\n\r\n## Guard Policy\r\n<!-- a comment -->"}
+{"id": "guard-00277", "kind": "guard", "content": "Mode: strict\n  and more\n\n> a quote\n\n### Deeper heading"}
+{"id": "guard-00278", "kind": "guard", "content": "## Guard Policy  \n\n<!-- hides\nMode: strict\n--> after it\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\nmode :   STRICT  \n\n<!----> empty\n\n# Top heading\n\n> a quote\n\nTwo lines\nof prose."}
+{"id": "guard-00279", "kind": "guard", "content": "- a list item\n- another\nTwo lines\nof prose.\n## Guard Policy\nMode: `off`\n\n"}
+{"id": "guard-00280", "kind": "guard", "content": "### Guard Policy\n\n\\* not a list\n\n   indented three\n\n  indented two\n\n   indented three\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n"}
+{"id": "guard-00281", "kind": "guard", "content": "## Guard Policy:\n\nMode strict\n\nMode: strict\n  and more\n\n- a list item\n- another\n\n## Guard policy\n\n<!-- a comment -->\n\n### Deeper heading\n\nkey: value\n\n## Guard Policy\n"}
+{"id": "guard-00282", "kind": "guard", "content": "Some prose here.\n\nMode: off.\n\n ## Guard Policy\n---\nMode:\n\n  strict\n| a | b |\n|---|---|\n| 1 | 2 |\n\n## Guard policy\n\n  indented two\n\n\\* not a list\n\nMode:\n  strict\n\n\\* not a list"}
+{"id": "guard-00283", "kind": "guard", "content": "﻿## Deployment\n\nkey: value\n\n- a list item\n- another\n\n+ Mode: strict\nA `code span` and `another <tag>` here.\n| a | b |\n|---|---|\n| 1 | 2 |\nSetext heading\n===\n## Guard policy\n| a | b |\n|---|---|\n| 1 | 2 |\nMode:\n   relaxed\n   - item\n> Mode: strict\nMode: *strict*"}
+{"id": "guard-00284", "kind": "guard", "content": "<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n"}
+{"id": "guard-00285", "kind": "guard", "content": "## Guard Policy:\n\n ## Guard Policy\n\n---\n\nText with *emphasis* and **strong**.\n\n<!-- multi\nline\ncomment -->"}
+{"id": "guard-00286", "kind": "guard", "content": "Ordering: x\nMode: off\n"}
+{"id": "guard-00287", "kind": "guard", "content": "> a quote\n\n## Guard Policy:\nMode: _relaxed_\nMode: strict # really\nMode:   \n  \n\n"}
+{"id": "guard-00288", "kind": "guard", "content": "##  Guard Policy\n\n Mode: strict\n\n1. first\n2. second\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\nMode: strict\nMethodology: tdd\n\nModes: strict\n\n> Mode: strict\n\n> a quote\n"}
+{"id": "guard-00289", "kind": "guard", "content": "key: value\n\n## Change Control\n<!-- c --> Mode: strict\n  indented two\n<!-- Mode: strict, relaxed, or off. -->\n\n<!-- a comment -->\n\nMode: `off`\n\n"}
+{"id": "guard-00290", "kind": "guard", "content": "Mode:\n"}
+{"id": "guard-00291", "kind": "guard", "content": " ## Guard Policy\n\nMode: `off`\n\n  indented two\n\n- Mode: strict\n- Other: x\n\n## Guard Policy  \n\n  indented two\n\nMode: strict # really\n\nA `code span` and `another <tag>` here.\n\n## Other\n\n## Deployment\n\nMode: off.\n\n"}
+{"id": "guard-00292", "kind": "guard", "content": "   indented three\n\n1. Mode: strict\n\n> Mode: strict\n\nA `code span` and `another <tag>` here.\n\n<!-- c --> Mode: strict\n\n<!-- hides\nMode: strict\n--> after it"}
+{"id": "guard-00293", "kind": "guard", "content": "## Deployment\n\n<!-- hides\nMode: strict\n--> after it\n\nSome prose here.\n\n- Mode: relaxed\n\nMode: *strict*\n\n<!-- a comment -->\n\n### Deeper heading\n\n"}
+{"id": "guard-00294", "kind": "guard", "content": "1. first\r\n2. second\r\n\r\n## Other\r\nMode strict\r\n<!-- multi\r\nline\r\ncomment -->\r\n\r\n"}
+{"id": "guard-00295", "kind": "guard", "content": "<!-- hides\nMode: strict\n--> after it\n\nMode: _relaxed_\n\n* **Mode**: off\n\n<!-- multi\nline\ncomment -->\n\n"}
+{"id": "guard-00296", "kind": "guard", "content": " ## Guard Policy\n\nModes: strict\n\nModes: strict\n\n### Deeper heading\n\n"}
+{"id": "guard-00297", "kind": "guard", "content": "- Mode:\n  relaxed\n  wrapped\n## Change Control\n\n   - Mode: strict\n## Guard Policy  \n<!-- multi\nline\ncomment -->\n<!-- hides\nMode: strict\n--> after it\nMode:\n\n  strict\n> a quote\n---\n"}
+{"id": "guard-00298", "kind": "guard", "content": "   indented three\n## Deployment\n- Mode: strict\n- Other: x\n"}
+{"id": "guard-00299", "kind": "guard", "content": "   indented three\n\nMode:   \n  \n\n\nA `code span` and `another <tag>` here.\n\n ## Guard Policy\n\nMODE: Off\n\nMode:   \n  \n\n\n- [ ] Mode: strict\n\n"}
+{"id": "guard-00300", "kind": "guard", "content": "## Change Control\n<!-- multi\nline\ncomment -->\n\n+ Mode: strict\n\nMode: _relaxed_\n\n  indented two\n"}
+{"id": "guard-00301", "kind": "guard", "content": "# Top heading\n\nText with *emphasis* and **strong**.\n\n# Top heading\n\nSetext heading\n===\n\n+ Mode: strict\n"}
+{"id": "guard-00302", "kind": "guard", "content": "1. first\n2. second\n\n## Other\n\n   - Mode: strict\n\n> a quote\n\n<!-- a comment -->\n\nTwo lines\nof prose.\n\nText with *emphasis* and **strong**."}
+{"id": "guard-00303", "kind": "guard", "content": "Text with *emphasis* and **strong**.\n<!-- hides\nMode: strict\n--> after it\nMode:\n- Mode:\n  relaxed\n  wrapped\n## Guard Policy\nMode:\n| a | b |\n|---|---|\n| 1 | 2 |\nMode:\n   relaxed\n   - item\nA line with a trailing colon:\n"}
+{"id": "guard-00304", "kind": "guard", "content": "<!-- hides\n## Guard Policy\nMode: strict\n-->\nSetext heading\n===\n## Guard Policy:\n- Mode: relaxed\n  indented two\n<!----> empty\n## Guard Policy\n> a quote\n<!-- a comment -->\nSome prose here.\nMode: strict # really\n"}
+{"id": "guard-00305", "kind": "guard", "content": "# Top heading\n## Guard Policy\nMode:\n  strict\n## Guard Policy  \n\n<!-- hides\nMode: strict\n--> after it\n\nMode: *strict*\n- Mode: lenient\nSetext heading\n==="}
+{"id": "guard-00306", "kind": "guard", "content": "##  Guard Policy\nMode: strict\n<!-- Mode: strict, relaxed, or off. -->\n## Guard Policy\n| a | b |\n|---|---|\n| 1 | 2 |\nMode: *strict*\n- Mode: relaxed\nMode: _relaxed_\n<!-- multi\nline\ncomment -->\n## Guard Policy\n\n\\* not a list\n"}
+{"id": "guard-00307", "kind": "guard", "content": "<!-- a comment -->\r\n\r\n- [ ] Mode: strict\r\n\r\n"}
+{"id": "guard-00308", "kind": "guard", "content": "<!-- c --> Mode: strict\r\nModes: strict\r\n\r\n"}
+{"id": "guard-00309", "kind": "guard", "content": "\\* not a list\n\n## Guard Policy:\n<!-- hides\nMode: strict\n--> after it\nMode: strict # really\n   indented three\n\nMode:\n  strict\n\nA `code span` and `another <tag>` here.\n\n   indented three\n\n<!-- multi\nline\ncomment -->\n"}
+{"id": "guard-00310", "kind": "guard", "content": "- Mode: lenient\n\n## Guard Policy\nMode: off.\n   - Mode: strict\n\n### Guard Policy\n\nOrdering: x\nMode: off\n\nMode:\n   relaxed\n   - item\n\n##  Guard Policy\n\nMode:\n\nMode: *strict*\n\nSetext heading\n===\n\n- Mode: relaxed"}
+{"id": "guard-00311", "kind": "guard", "content": "## Other\r\n\r\nMode: `off`\r\n\r\n<!-- hides\r\n## Guard Policy\r\nMode: strict\r\n-->\r\n\r\n1. Mode: strict\r\n\r\n---\r\n\r\nSome prose here.\r\n\r\n\\* not a list\r\n\r\n## Guard Policy\r\n\r\n# Top heading\r\n"}
+{"id": "guard-00312", "kind": "guard", "content": "MODE: Off\nMode:\n  strict"}
+{"id": "guard-00313", "kind": "guard", "content": "> a quote\nA `code span` and `another <tag>` here.\n- Mode: lenient\nA `code span` and `another <tag>` here.\n<!-- c --> Mode: strict\n> a quote"}
+{"id": "guard-00314", "kind": "guard", "content": "Mode:\n\n* **Mode**: off\n"}
+{"id": "guard-00315", "kind": "guard", "content": "﻿## Deployment\n\n### Deeper heading\n\n<!-- hides\nMode: strict\n--> after it\n\n\\* not a list\n\n### Deeper heading\n\n### Deeper heading\n\n1. first\n2. second\n"}
+{"id": "guard-00316", "kind": "guard", "content": "Mode: strict\nMethodology: tdd\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n## Other\n* **Mode**: off\n<!-- a comment -->\n\n ## Guard Policy\n   indented three\n\n<!-- Mode: strict, relaxed, or off. -->\n\n## Guard Policy"}
+{"id": "guard-00317", "kind": "guard", "content": "Text with *emphasis* and **strong**.\n\n"}
+{"id": "guard-00318", "kind": "guard", "content": "## Guard Policy\n\nA `code span` and `another <tag>` here.\n\n"}
+{"id": "guard-00319", "kind": "guard", "content": "- Mode: lenient\n"}
+{"id": "guard-00320", "kind": "guard", "content": "- [ ] Mode: strict\n## Guard Policy  \n\n<!-- a comment -->\n\n<!----> empty\n\n> a quote\n- Mode: relaxed\n| a | b |\n|---|---|\n| 1 | 2 |"}
+{"id": "guard-00321", "kind": "guard", "content": "﻿## Other\n\n<!----> empty\n\nA line with a trailing colon:\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n---\n\nMode: strict\n  and more\n\n## Guard Policy\n\n- Mode: strict\n- Other: x\n\nMode:\n  strict\n\nMode:\n\n  strict"}
+{"id": "guard-00322", "kind": "guard", "content": "Mode: *strict*\n\n## Guard policy\n\n   - Mode: strict\n\n## Guard Policy\n* **Mode**: off\n| a | b |\n|---|---|\n| 1 | 2 |\n- Mode:\n  relaxed\n  wrapped"}
+{"id": "guard-00323", "kind": "guard", "content": "Mode: off.\n\n# Top heading\n\n## Guard Policy\n\nMode:\n\n  strict\n\n1. Mode: strict\n\n  Mode: off\n\n"}
+{"id": "guard-00324", "kind": "guard", "content": "Text with *emphasis* and **strong**.\n\n### Deeper heading\n\nSome prose here."}
+{"id": "guard-00325", "kind": "guard", "content": "Some prose here.\n### Deeper heading\nMode: off.\n\n"}
+{"id": "guard-00326", "kind": "guard", "content": "| a | b |\n|---|---|\n| 1 | 2 |\n"}
+{"id": "guard-00327", "kind": "guard", "content": "##  Guard Policy\n\n1. first\n2. second\n\n"}
+{"id": "guard-00328", "kind": "guard", "content": "## Guard Policy\nSetext heading\n===\n<!-- c --> Mode: strict\n- a list item\n- another\n\nText with *emphasis* and **strong**.\n\nMode: *strict*\n\n**Mode:** strict"}
+{"id": "guard-00329", "kind": "guard", "content": "Mode:\n\nA line with a trailing colon:\n\n**Mode:** strict"}
+{"id": "guard-00330", "kind": "guard", "content": "Mode:   \n  \n\n**Mode:** strict\n"}
+{"id": "guard-00331", "kind": "guard", "content": "> a quote\r\n\r\n### Deeper heading\r\n\r\nA `code span` and `another <tag>` here.\r\n\r\nMODE: Off\r\n\r\n+ Mode: strict\r\n"}
+{"id": "guard-00332", "kind": "guard", "content": "Mode: *strict*\r\n\r\n### Guard Policy\r\n\r\n> a quote\r\n\r\n   - Mode: strict\r\n\r\n- Mode: lenient\r\n\r\n+ Mode: strict\r\n\r\n## Guard Policy\r\n\r\nMode: `off`\r\n\r\nMode: strict\r\n  and more\r\n\r\nMode: strict\r\n\r\n## Deployment\r\n\r\n"}
+{"id": "guard-00333", "kind": "guard", "content": "## Guard Policy:\n\n   indented three\n\n- [ ] Mode: strict\n\n## Guard policy\n- Mode:\n  relaxed\n  wrapped\n- Mode: relaxed"}
+{"id": "guard-00334", "kind": "guard", "content": "* **Mode**: off\n\n<!-- Mode: strict, relaxed, or off. -->\n\n- Mode: relaxed\n\nA line with a trailing colon:\n\nA line with a trailing colon:\n\nMode: strict"}
+{"id": "guard-00335", "kind": "guard", "content": "> Mode: strict\n\n## Guard Policy\n\n1. first\n2. second\n\n##  Guard Policy\n\nA line with a trailing colon:\n\n### Deeper heading\n\n- Mode: lenient\n\n##  Guard Policy\n\n## Change Control\n\nA line with a trailing colon:\n\n"}
+{"id": "guard-00336", "kind": "guard", "content": "   indented three\n\nMode strict\n\n"}
+{"id": "guard-00337", "kind": "guard", "content": "## Guard Policy  \nA `code span` and `another <tag>` here.\n\\* not a list\n<!-- a comment -->\n"}
+{"id": "guard-00338", "kind": "guard", "content": "Mode:\n\n  strict\n"}
+{"id": "guard-00339", "kind": "guard", "content": "Mode:   \n  \n\n### Deeper heading\nSetext heading\n===\n## Guard Policy:\n"}
+{"id": "guard-00340", "kind": "guard", "content": "## Deployment\n\nMode: _relaxed_\n\n> Mode: strict\n\nMode: off.\n\n<!-- a comment -->\n\nText with *emphasis* and **strong**.\n\n---\n"}
+{"id": "guard-00341", "kind": "guard", "content": "### Guard Policy\n\nMode: strict\n## Guard Policy:\n## Guard Policy\n## Guard Policy\n"}
+{"id": "guard-00342", "kind": "guard", "content": "﻿---\nMode:\n\n  strict\n### Deeper heading\n- [ ] Mode: strict"}
+{"id": "guard-00343", "kind": "guard", "content": "## Guard Policy\n\n- Mode: strict\n- Other: x\n\nmode :   STRICT  \n\nMode: _relaxed_\n\n   - Mode: strict\n\nSome prose here.\n\n## Guard Policy  \n\nA `code span` and `another <tag>` here.\n\n<!-- hides\nMode: strict\n--> after it\n"}
+{"id": "guard-00344", "kind": "guard", "content": "Mode: `off`\n\n- Mode: lenient\n\n## Guard Policy  \n\nOrdering: x\nMode: off\n\nSome prose here.\n\n"}
+{"id": "guard-00345", "kind": "guard", "content": "﻿* **Mode**: off\nMode:\n  strict\n##  Guard Policy\n\nMode: `off`\n\n- Mode:\n  relaxed\n  wrapped\n\n- Mode: strict\n- Other: x\n<!----> empty\n"}
+{"id": "guard-00346", "kind": "guard", "content": "## Deployment\n\nMODE: Off\n\nMode:\n\n## Guard Policy\n\n<!-- multi\nline\ncomment -->\n\n\\* not a list\n\n* **Mode**: off\n"}
+{"id": "guard-00347", "kind": "guard", "content": "<!-- a comment -->\n\n"}
+{"id": "guard-00348", "kind": "guard", "content": "Two lines\nof prose.\n\nMODE: Off\n\nMode:\n   relaxed\n   - item\n\n   indented three\n\nOrdering: x\nMode: off"}
+{"id": "guard-00349", "kind": "guard", "content": "## Guard Policy\n\n<!-- Mode: strict, relaxed, or off. -->\n\nMode:\n   relaxed\n   - item\n<!-- multi\nline\ncomment -->\n<!-- hides\nMode: strict\n--> after it\nSome prose here.\n"}
+{"id": "guard-00350", "kind": "guard", "content": "<!-- multi\nline\ncomment -->\n\n## Guard Policy\n\n##  Guard Policy\n\n  indented two\n\n- Mode: relaxed\n\n# Top heading\n\n## Guard policy"}
+{"id": "guard-00351", "kind": "guard", "content": "## Guard Policy\n\n   indented three\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n ## Guard Policy\n\nMode:   \n  \n\n## Guard Policy  \nSome prose here.\n<!-- hides\nMode: strict\n--> after it"}
+{"id": "guard-00352", "kind": "guard", "content": "## Guard Policy:\n\nSome prose here.\n\n1. first\n2. second\n\n- Mode: strict\n- Other: x\n\nMode:\n  strict\n\n### Deeper heading\n\n## Change Control\n\nMode:\n  strict\n\n### Deeper heading\n\n+ Mode: strict"}
+{"id": "guard-00353", "kind": "guard", "content": "## Other\nMode: _relaxed_\n## Guard Policy\n"}
+{"id": "guard-00354", "kind": "guard", "content": "> Mode: strict\n\nSetext heading\n===\n\n## Guard Policy\n1. Mode: strict\nA `code span` and `another <tag>` here.\n- a list item\n- another\n\nmode :   STRICT  "}
+{"id": "guard-00355", "kind": "guard", "content": "  indented two\n\n- Mode: relaxed"}
+{"id": "guard-00356", "kind": "guard", "content": "Modes: strict\n\n## Guard Policy  \n\n##  Guard Policy\n\nkey: value\n\nModes: strict\n"}
+{"id": "guard-00357", "kind": "guard", "content": "##  Guard Policy\n\n   indented three\n\nMode: _relaxed_\n"}
+{"id": "guard-00358", "kind": "guard", "content": "- Mode: lenient\n\nA `code span` and `another <tag>` here.\n\n"}
+{"id": "guard-00359", "kind": "guard", "content": "  indented two\n\n<!-- c --> Mode: strict\n\n  Mode: off\n\n<!-- hides\nMode: strict\n--> after it\n\n  Mode: off\n\nMode: off.\n"}
+{"id": "guard-00360", "kind": "guard", "content": "Mode:\n\nMode: off.\n\n## Change Control\n\n# Top heading\n\n> a quote\n\n<!-- c --> Mode: strict\n\nSetext heading\n===\n"}
+{"id": "guard-00361", "kind": "guard", "content": "+ Mode: strict\n\n## Change Control\n\nMode: off.\n\nMODE: Off\n\n## Guard Policy\n\n- Mode: relaxed"}
+{"id": "guard-00362", "kind": "guard", "content": "<!----> empty\nSetext heading\n===\n+ Mode: strict\n## Guard policy\n\nMode: strict # really\n\n1. Mode: strict\n\n---\n## Guard Policy\n\n<!-- multi\nline\ncomment -->\n\nA `code span` and `another <tag>` here.\nMode: off.\n"}
+{"id": "guard-00363", "kind": "guard", "content": "Setext heading\n===\n\n   indented three\n\n<!-- c --> Mode: strict\n\n"}
+{"id": "guard-00364", "kind": "guard", "content": "<!-- hides\nMode: strict\n--> after it\n\n  Mode: off\n\n"}
+{"id": "guard-00365", "kind": "guard", "content": "key: value\n**Mode:** strict\nMode:   \n  \n\nMode: *strict*\n**Mode:** strict\n Mode: strict\n\n"}
+{"id": "guard-00366", "kind": "guard", "content": "Mode: `off`\n\n## Guard Policy\n\n> Mode: strict\n\n   indented three\n\nA line with a trailing colon:\n\n"}
+{"id": "guard-00367", "kind": "guard", "content": "| a | b |\n|---|---|\n| 1 | 2 |\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n- [ ] Mode: strict\n\n### Guard Policy\n### Deeper heading\n\nSetext heading\n==="}
+{"id": "guard-00368", "kind": "guard", "content": "## Guard Policy\nMODE: Off\nSetext heading\n===\n\nMode:\n"}
+{"id": "guard-00369", "kind": "guard", "content": "Two lines\r\nof prose.\r\n\r\n1. first\r\n2. second\r\n\r\n\\* not a list\r\n\r\n"}
+{"id": "guard-00370", "kind": "guard", "content": "## Guard Policy\n\nMode:\n\n  strict\n\nTwo lines\nof prose.\n##  Guard Policy\nTwo lines\nof prose.\n---\nMode: strict\n  and more\n## Deployment\n\nMode:   \n  \n\nA `code span` and `another <tag>` here."}
+{"id": "guard-00371", "kind": "guard", "content": "<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n## Change Control\n\n**Mode:** strict\n\nA `code span` and `another <tag>` here.\n\n+ Mode: strict\n\n## Guard Policy\n- [ ] Mode: strict\nMode: off.\n\n Mode: strict\n\n**Mode:** strict\n\n"}
+{"id": "guard-00372", "kind": "guard", "content": "##  Guard Policy\n\nmode :   STRICT  \n\n1. first\n2. second\n\nA `code span` and `another <tag>` here.\n\n1. Mode: strict\n\n- Mode: strict\n- Other: x\n\nMode: _relaxed_\n\nMode: _relaxed_\n\n## Change Control\nMode: strict\n  and more\n"}
+{"id": "guard-00373", "kind": "guard", "content": "## Guard policy\n\nModes: strict\n\nSome prose here.\nMode:\n   relaxed\n   - item\n<!-- hides\nMode: strict\n--> after it\n### Guard Policy\n\n"}
+{"id": "guard-00374", "kind": "guard", "content": "﻿1. first\n2. second"}
+{"id": "guard-00375", "kind": "guard", "content": "  Mode: off\n\n- Mode: relaxed\n\n## Guard Policy\n\nMode:\n\n  strict\n\n- [ ] Mode: strict\n\nMode: strict\nMethodology: tdd\n\n# Top heading\n\n## Guard Policy:\n- Mode:\n  relaxed\n  wrapped\n   indented three\n\n## Deployment\n1. first\n2. second\nText with *emphasis* and **strong**.\n\n"}
+{"id": "guard-00376", "kind": "guard", "content": "> a quote\n"}
+{"id": "guard-00377", "kind": "guard", "content": "<!-- Mode: strict, relaxed, or off. -->\r\n"}
+{"id": "guard-00378", "kind": "guard", "content": "Modes: strict\n\n  Mode: off\n\n## Guard Policy\n\nA line with a trailing colon:\n\nMode: strict\n\n<!-- Mode: strict, relaxed, or off. -->\n\n"}
+{"id": "guard-00379", "kind": "guard", "content": "Mode: _relaxed_\n- Mode: lenient\n<!-- multi\nline\ncomment -->\n<!-- a comment -->\n\n"}
+{"id": "guard-00380", "kind": "guard", "content": "A line with a trailing colon:\n"}
+{"id": "guard-00381", "kind": "guard", "content": " Mode: strict\n\n### Deeper heading\n\n"}
+{"id": "guard-00382", "kind": "guard", "content": "## Guard Policy:\n\n<!-- a comment -->\n\nMode: strict\n  and more\n\n<!-- c --> Mode: strict\n\n---\n\n## Guard Policy\n\n   - Mode: strict\n\nTwo lines\nof prose.\n\n"}
+{"id": "guard-00383", "kind": "guard", "content": "<!-- hides\r\nMode: strict\r\n--> after it"}
+{"id": "guard-00384", "kind": "guard", "content": "### Deeper heading"}
+{"id": "guard-00385", "kind": "guard", "content": "<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n## Guard Policy\n\nmode :   STRICT  \n"}
+{"id": "guard-00386", "kind": "guard", "content": "Mode: _relaxed_\n\nSome prose here.\n\n## Deployment\n\n"}
+{"id": "guard-00387", "kind": "guard", "content": "Mode: _relaxed_"}
+{"id": "guard-00388", "kind": "guard", "content": "Text with *emphasis* and **strong**.\n"}
+{"id": "guard-00389", "kind": "guard", "content": "Text with *emphasis* and **strong**.\n"}
+{"id": "guard-00390", "kind": "guard", "content": "- a list item\n- another\n\nOrdering: x\nMode: off\n\n Mode: strict\n"}
+{"id": "guard-00391", "kind": "guard", "content": "Setext heading\n===\n\n1. Mode: strict\n\n## Guard Policy\nSetext heading\n===\n+ Mode: strict\nText with *emphasis* and **strong**.\n\n##  Guard Policy\n\nMode:   \n  \n\n\n  indented two\n\n> Mode: strict\n\nTwo lines\nof prose."}
+{"id": "guard-00392", "kind": "guard", "content": "## Guard Policy:\n\n- Mode: strict\n- Other: x\n\nkey: value\nMode:\n\n  strict\nModes: strict\n## Guard Policy\n## Guard Policy\n\nMode: strict\n\n<!-- hides\nMode: strict\n--> after it\n\nSome prose here.\n<!-- Mode: strict, relaxed, or off. -->\n"}
+{"id": "guard-00393", "kind": "guard", "content": "﻿   indented three\n\n- Mode: lenient\n\n### Deeper heading\n\nmode :   STRICT  \n\n1. first\n2. second\n\n<!-- hides\nMode: strict\n--> after it"}
+{"id": "guard-00394", "kind": "guard", "content": "1. Mode: strict\n\nA line with a trailing colon:\n\n<!-- multi\nline\ncomment -->\n\n<!-- Mode: strict, relaxed, or off. -->\n\n---"}
+{"id": "guard-00395", "kind": "guard", "content": "Setext heading\n===\n\n   indented three\n\n## Deployment\n\n<!-- Mode: strict, relaxed, or off. -->\n\nMode:\n  strict"}
+{"id": "guard-00396", "kind": "guard", "content": "## Other\r\n\r\n- [ ] Mode: strict\r\n\r\n##  Guard Policy\r\n* **Mode**: off\r\n   - Mode: strict\r\nText with *emphasis* and **strong**.\r\n\r\nA `code span` and `another <tag>` here.\r\n\r\n<!-- c --> Mode: strict\r\n\r\n<!-- multi\r\nline\r\ncomment -->\r\n\r\n### Deeper heading\r\n\r\n"}
+{"id": "guard-00397", "kind": "guard", "content": "  indented two\n## Guard Policy:\n\n---\n\nMode:   \n  \n\n\nMode:\nkey: value\n  Mode: off\n+ Mode: strict\nMode:   \n  \n\n\n"}
+{"id": "guard-00398", "kind": "guard", "content": " ## Guard Policy\n\nMODE: Off\nMode:\n   relaxed\n   - item\n## Change Control\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n## Deployment\n<!-- hides\nMode: strict\n--> after it\nMode: `off`\n## Other\nMode: `off`\n\\* not a list\nModes: strict\n\n"}
+{"id": "guard-00399", "kind": "guard", "content": "﻿## Guard Policy\nTwo lines\nof prose.\n- [ ] Mode: strict\n\n- [ ] Mode: strict\n\nMode:\n   relaxed\n   - item\n\n   indented three\n\n<!-- multi\nline\ncomment -->\n\n"}
+{"id": "guard-00400", "kind": "guard", "content": "Two lines\nof prose.\n## Guard Policy\n\nkey: value\n\nA line with a trailing colon:\n<!-- hides\nMode: strict\n--> after it\n"}
+{"id": "guard-00401", "kind": "guard", "content": "### Deeper heading\n## Guard Policy\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n<!----> empty\n\n<!-- a comment -->\nMode: strict # really\nMode: `off`\n<!-- a comment -->\n"}
+{"id": "guard-00402", "kind": "guard", "content": "  indented two\nMODE: Off\nModes: strict\n<!-- hides\nMode: strict\n--> after it"}
+{"id": "guard-00403", "kind": "guard", "content": "MODE: Off"}
+{"id": "guard-00404", "kind": "guard", "content": "* **Mode**: off\n1. Mode: strict\n## Other\n- [ ] Mode: strict"}
+{"id": "guard-00405", "kind": "guard", "content": "## Guard Policy\n\n- a list item\n- another\n\n> a quote"}
+{"id": "guard-00406", "kind": "guard", "content": "# Top heading\n\n## Change Control\n\nTwo lines\nof prose.\n\n## Guard Policy:\n\n<!-- hides\nMode: strict\n--> after it\n\n- [ ] Mode: strict\n\nA line with a trailing colon:\n\n## Guard policy\n<!-- c --> Mode: strict\nMode: strict\n  and more"}
+{"id": "guard-00407", "kind": "guard", "content": "## Guard Policy\n\nSetext heading\n===\n\n- Mode: relaxed\n\n- [ ] Mode: strict\n\n"}
+{"id": "guard-00408", "kind": "guard", "content": "| a | b |\n|---|---|\n| 1 | 2 |\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\nMode: strict\n\n**Mode:** strict"}
+{"id": "guard-00409", "kind": "guard", "content": "Mode strict\n\n## Other\nModes: strict\n---\n| a | b |\n|---|---|\n| 1 | 2 |\n\n## Change Control\n\n  indented two\n\n\\* not a list\n\n| a | b |\n|---|---|\n| 1 | 2 |"}
+{"id": "guard-00410", "kind": "guard", "content": "## Guard Policy\n\nMode:\n  strict\n\n- a list item\n- another\n"}
+{"id": "guard-00411", "kind": "guard", "content": "<!-- c --> Mode: strict\n\n## Guard policy\n\n"}
+{"id": "guard-00412", "kind": "guard", "content": "Some prose here.\n\n# Top heading\n"}
+{"id": "guard-00413", "kind": "guard", "content": "﻿Setext heading\n===\n\n## Guard Policy\n\n  indented two\n\n1. Mode: strict"}
+{"id": "guard-00414", "kind": "guard", "content": "Some prose here.\n\n### Guard Policy\n\nA line with a trailing colon:\n\n+ Mode: strict\n\n- Mode:\n  relaxed\n  wrapped"}
+{"id": "guard-00415", "kind": "guard", "content": "# Top heading\n\n+ Mode: strict"}
+{"id": "guard-00416", "kind": "guard", "content": "- [ ] Mode: strict\n\n### Guard Policy\n\nkey: value\n\n<!----> empty\n\n## Guard Policy\nMode:\n   relaxed\n   - item"}
+{"id": "guard-00417", "kind": "guard", "content": "1. first\n2. second\n## Other\n## Guard Policy:\n\n**Mode:** strict\nTwo lines\nof prose.\nMode: strict"}
+{"id": "guard-00418", "kind": "guard", "content": "<!-- a comment -->\n\nSetext heading\n===\n\n1. first\n2. second\n\n##  Guard Policy\n\n<!-- multi\nline\ncomment -->\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n**Mode:** strict"}
+{"id": "guard-00419", "kind": "guard", "content": "A `code span` and `another <tag>` here.\n\nSome prose here.\n\n## Guard Policy\n\n# Top heading\n\n1. Mode: strict\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->"}
+{"id": "guard-00420", "kind": "guard", "content": " ## Guard Policy\n\n<!-- hides\nMode: strict\n--> after it\n\n   indented three\n- a list item\n- another\n##  Guard Policy\n\n<!-- multi\nline\ncomment -->\n\nOrdering: x\nMode: off\n### Deeper heading\n ## Guard Policy\nMode: strict\nMode:\n  strict\n##  Guard Policy\n\n  Mode: off\n\n# Top heading\n\n"}
+{"id": "guard-00421", "kind": "guard", "content": "Mode: *strict*\n\n<!-- c --> Mode: strict\n\n## Other\nMode:\nModes: strict\nMode: strict\nMethodology: tdd\n\nA line with a trailing colon:\n\n"}
+{"id": "guard-00422", "kind": "guard", "content": "A `code span` and `another <tag>` here.\n\n<!-- Mode: strict, relaxed, or off. -->\n\n<!-- c --> Mode: strict\n\n## Guard Policy:\n\n## Deployment\n\n Mode: strict\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n"}
+{"id": "guard-00423", "kind": "guard", "content": "- Mode:\n  relaxed\n  wrapped\n\n<!----> empty"}
+{"id": "guard-00424", "kind": "guard", "content": "Mode: strict # really\n"}
+{"id": "guard-00425", "kind": "guard", "content": "+ Mode: strict\nMode: strict # really"}
+{"id": "guard-00426", "kind": "guard", "content": "##  Guard Policy\n\nText with *emphasis* and **strong**.\n\n- a list item\n- another\n\nText with *emphasis* and **strong**.\n\n## Deployment\n\n> a quote\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n- a list item\n- another\n"}
+{"id": "guard-00427", "kind": "guard", "content": "﻿## Guard Policy\n\n---\n\n  indented two\n\n"}
+{"id": "guard-00428", "kind": "guard", "content": "<!-- hides\nMode: strict\n--> after it\n\n   - Mode: strict\n\nSetext heading\n===\n\n---\n\n## Guard policy\n\nMode:\n\n### Guard Policy\n\n  Mode: off"}
+{"id": "guard-00429", "kind": "guard", "content": "## Change Control\n\n# Top heading"}
+{"id": "guard-00430", "kind": "guard", "content": "## Guard Policy\n\n# Top heading\n\nMode: `off`\n\nMode: strict # really\n\nSetext heading\n===\n\nSome prose here.\n"}
+{"id": "guard-00431", "kind": "guard", "content": "## Deployment\n"}
+{"id": "guard-00432", "kind": "guard", "content": "Mode:\n   relaxed\n   - item\n\n"}
+{"id": "guard-00433", "kind": "guard", "content": "## Guard Policy\n\n  Mode: off\n\nMode:\n\n  strict\n\nMode:\n   relaxed\n   - item\n\n<!----> empty\n\n**Mode:** strict\n\n## Guard Policy  \nMODE: Off\n\n## Change Control\n\n"}
+{"id": "guard-00434", "kind": "guard", "content": "<!-- hides\n## Guard Policy\nMode: strict\n-->\n<!-- a comment -->\nA `code span` and `another <tag>` here.\nMode:\n"}
+{"id": "guard-00435", "kind": "guard", "content": "---\n<!-- c --> Mode: strict"}
+{"id": "guard-00436", "kind": "guard", "content": "## Guard Policy\r\n\r\n- Mode: lenient\r\n\r\n<!----> empty\r\n\r\n* **Mode**: off\r\n\r\nMode: off.\r\n\r\n# Top heading\r\n\r\nTwo lines\r\nof prose."}
+{"id": "guard-00437", "kind": "guard", "content": "<!-- multi\nline\ncomment -->\nA `code span` and `another <tag>` here.\n## Guard Policy\n\n> a quote\n\n> a quote\n"}
+{"id": "guard-00438", "kind": "guard", "content": "## Guard policy\n\n---\n\n   indented three\n\n# Top heading\n\n<!-- a comment -->\n\n> a quote\n\nOrdering: x\nMode: off\n\n---\n"}
+{"id": "guard-00439", "kind": "guard", "content": "Mode:   \n  \n\n## Guard Policy  \n\nText with *emphasis* and **strong**.\n\n<!-- multi\nline\ncomment -->\n\n<!-- hides\nMode: strict\n--> after it\n<!-- Mode: strict, relaxed, or off. -->\n<!-- c --> Mode: strict\nSetext heading\n===\n## Deployment\n\nMode:   \n  \n"}
+{"id": "guard-00440", "kind": "guard", "content": "Two lines\nof prose.\n\n"}
+{"id": "guard-00441", "kind": "guard", "content": "<!-- hides\r\n## Guard Policy\r\nMode: strict\r\n-->\r\nModes: strict\r\n<!-- hides\r\nMode: strict\r\n--> after it"}
+{"id": "guard-00442", "kind": "guard", "content": "Mode:\n\n  strict\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n## Guard policy\n\n"}
+{"id": "guard-00443", "kind": "guard", "content": "mode :   STRICT  \n\n"}
+{"id": "guard-00444", "kind": "guard", "content": "Mode:\n\n  strict\n\nMode:\n\n  strict\n\n  Mode: off"}
+{"id": "guard-00445", "kind": "guard", "content": "## Deployment\n\n- Mode: lenient\n\nMode: strict # really\n<!-- a comment -->\nSome prose here.\nA `code span` and `another <tag>` here.\n   - Mode: strict\n1. first\n2. second"}
+{"id": "guard-00446", "kind": "guard", "content": "Mode:\n  strict\n\n## Guard Policy\n\n  indented two\n\nA line with a trailing colon:\n\n## Guard Policy\n- [ ] Mode: strict\n- a list item\n- another\n- Mode: lenient\n"}
+{"id": "guard-00447", "kind": "guard", "content": "A `code span` and `another <tag>` here.\n- a list item\n- another\n##  Guard Policy\n\n   indented three\n\nMode: strict\nMethodology: tdd\nMode: strict\nMethodology: tdd\n> Mode: strict\n"}
+{"id": "guard-00448", "kind": "guard", "content": "Ordering: x\nMode: off\n\n## Guard Policy  \n\nMode: strict\n  and more\n\nMode: *strict*\n\n\\* not a list\n\n---\n"}
+{"id": "guard-00449", "kind": "guard", "content": "- a list item\n- another\n\n<!-- c --> Mode: strict"}
+{"id": "guard-00450", "kind": "guard", "content": "Mode:\n   relaxed\n   - item\n"}
+{"id": "guard-00451", "kind": "guard", "content": "  Mode: off\r\n"}
+{"id": "guard-00452", "kind": "guard", "content": "## Other\n\n- a list item\n- another\n\n- [ ] Mode: strict\n\n## Guard Policy:\n\n1. first\n2. second"}
+{"id": "guard-00453", "kind": "guard", "content": " ## Guard Policy\n\n### Deeper heading\n\nA `code span` and `another <tag>` here.\n\nMode:\n  strict\n1. first\n2. second\nMode: _relaxed_\n## Change Control\nSetext heading\n===\n<!-- a comment -->\nText with *emphasis* and **strong**.\nMode: `off`\n"}
+{"id": "guard-00454", "kind": "guard", "content": "Some prose here.\n## Guard Policy\n**Mode:** strict\nOrdering: x\nMode: off\n### Deeper heading\n## Guard policy\n\n1. Mode: strict\n\nTwo lines\nof prose.\n\n<!-- c --> Mode: strict\n<!-- hides\nMode: strict\n--> after it\n   indented three\n\n"}
+{"id": "guard-00455", "kind": "guard", "content": "> a quote\n<!-- Mode: strict, relaxed, or off. -->\n ## Guard Policy\n## Guard Policy\nA line with a trailing colon:\n> a quote\n## Guard Policy  \n"}
+{"id": "guard-00456", "kind": "guard", "content": "- [ ] Mode: strict\r\n\r\n## Guard policy\r\n\r\n<!-- Mode: strict, relaxed, or off. -->\r\n\r\nMode: strict\r\nMethodology: tdd\r\n\r\nMode: strict\r\n  and more\r\n\r\n| a | b |\r\n|---|---|\r\n| 1 | 2 |\r\n\r\n\\* not a list\r\n\r\n   - Mode: strict\r\n"}
+{"id": "guard-00457", "kind": "guard", "content": "Modes: strict\n\n"}
+{"id": "guard-00458", "kind": "guard", "content": "Ordering: x\nMode: off\nMode: off.\n## Deployment\n\n- Mode: strict\n- Other: x"}
+{"id": "guard-00459", "kind": "guard", "content": "Mode:\n  strict\n\n### Guard Policy\n\nSome prose here.\n"}
+{"id": "guard-00460", "kind": "guard", "content": "﻿Mode:\n   relaxed\n   - item\n   - Mode: strict\n1. first\n2. second\n## Guard Policy  \n# Top heading\n<!-- multi\nline\ncomment -->"}
+{"id": "guard-00461", "kind": "guard", "content": "# Top heading\n\n"}
+{"id": "guard-00462", "kind": "guard", "content": "## Guard Policy\n# Top heading\n  indented two\nMode strict\nText with *emphasis* and **strong**.\n\n"}
+{"id": "guard-00463", "kind": "guard", "content": "## Guard Policy\n\n<!-- c --> Mode: strict\n\n<!-- c --> Mode: strict\n<!-- a comment -->\nMode: strict # really\nMode:\n\n  strict\n"}
+{"id": "guard-00464", "kind": "guard", "content": "---\n\n* **Mode**: off\n\n ## Guard Policy\n\n## Guard Policy\n\n# Top heading\n\n## Other\nMode:\n  strict\n| a | b |\n|---|---|\n| 1 | 2 |\n\nMode: strict\n\n"}
+{"id": "guard-00465", "kind": "guard", "content": "## Deployment\n\n<!-- multi\nline\ncomment -->\n\nText with *emphasis* and **strong**.\n\n**Mode:** strict"}
+{"id": "guard-00466", "kind": "guard", "content": "<!-- hides\r\nMode: strict\r\n--> after it\r\nMODE: Off\r\nMode:\r\n  strict"}
+{"id": "guard-00467", "kind": "guard", "content": "> a quote\n\nMode:\n\nmode :   STRICT  "}
+{"id": "guard-00468", "kind": "guard", "content": "> Mode: strict\n\nText with *emphasis* and **strong**.\n\nSome prose here.\n\nA `code span` and `another <tag>` here.\n"}
+{"id": "guard-00469", "kind": "guard", "content": "MODE: Off\nMode strict\n<!-- a comment -->\n ## Guard Policy\n\n**Mode:** strict\n\n---\n\nText with *emphasis* and **strong**.\n> a quote\n\n"}
+{"id": "guard-00470", "kind": "guard", "content": "---\n- Mode:\n  relaxed\n  wrapped\n> a quote\nMode: strict\n+ Mode: strict\nA line with a trailing colon:"}
+{"id": "guard-00471", "kind": "guard", "content": "Ordering: x\r\nMode: off\r\n\r\nMode: strict # really\r\n\r\nTwo lines\r\nof prose.\r\n\r\n"}
+{"id": "guard-00472", "kind": "guard", "content": "<!-- hides\nMode: strict\n--> after it\n"}
+{"id": "guard-00473", "kind": "guard", "content": "- [ ] Mode: strict\n## Change Control\n\n1. Mode: strict\n\nMode: *strict*\n## Guard Policy\n\n<!-- c --> Mode: strict\n\n- a list item\n- another\n\n  indented two\n ## Guard Policy\n\n**Mode:** strict\n"}
+{"id": "guard-00474", "kind": "guard", "content": "Some prose here.\n\n"}
+{"id": "guard-00475", "kind": "guard", "content": "## Guard Policy\n\nMode: strict\nMethodology: tdd\n\nMODE: Off\n\n1. first\n2. second\n\nOrdering: x\nMode: off\n\nMode: *strict*\n\nMode:\n  strict\n"}
+{"id": "guard-00476", "kind": "guard", "content": "## Guard Policy\n<!-- hides\nMode: strict\n--> after it\n## Guard Policy\n\n\\* not a list\n\nMode: strict # really\n## Deployment\n\nMode: *strict*\n\n   - Mode: strict\n\n- a list item\n- another\nOrdering: x\nMode: off"}
+{"id": "guard-00477", "kind": "guard", "content": "1. first\n2. second\n"}
+{"id": "guard-00478", "kind": "guard", "content": "   indented three\n### Guard Policy"}
+{"id": "guard-00479", "kind": "guard", "content": "<!-- hides\nMode: strict\n--> after it"}
+{"id": "guard-00480", "kind": "guard", "content": "### Deeper heading\n\n## Guard Policy\n- a list item\n- another\n- [ ] Mode: strict\n\n##  Guard Policy\n\n## Change Control\n\n- Mode: lenient\n\n# Top heading\n\nkey: value\n\n"}
+{"id": "guard-00481", "kind": "guard", "content": "<!-- hides\nMode: strict\n--> after it\n\n<!----> empty\n\n## Guard Policy\n\nMode: strict\nMethodology: tdd\n\n## Guard Policy"}
+{"id": "guard-00482", "kind": "guard", "content": "1. Mode: strict\n\n## Change Control\n\nMode strict\n\n- Mode: lenient\n\nTwo lines\nof prose.\n\nMode:   \n  \n\n\nA `code span` and `another <tag>` here.\n\n"}
+{"id": "guard-00483", "kind": "guard", "content": "Mode:\n\nSome prose here.\n\n## Guard Policy  \n\n---\n\nMode:\n\nMode: _relaxed_\n\n## Other\nSetext heading\n===\n\n"}
+{"id": "guard-00484", "kind": "guard", "content": " ## Guard Policy\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n<!-- Mode: strict, relaxed, or off. -->\n\n# Top heading\n\n<!-- Mode: strict, relaxed, or off. -->"}
+{"id": "guard-00485", "kind": "guard", "content": "mode :   STRICT  \n\n## Other\n\nSome prose here.\n\n- Mode: relaxed\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n\\* not a list\n\n"}
+{"id": "guard-00486", "kind": "guard", "content": "Setext heading\n===\n\n### Deeper heading"}
+{"id": "guard-00487", "kind": "guard", "content": "<!-- Mode: strict, relaxed, or off. -->\n\nSetext heading\n===\n\nMode: `off`\n\n1. first\n2. second\n\n## Guard Policy\n"}
+{"id": "guard-00488", "kind": "guard", "content": "<!----> empty\n\nSome prose here."}
+{"id": "guard-00489", "kind": "guard", "content": "## Guard Policy  \n\n<!-- multi\nline\ncomment -->\n\n"}
+{"id": "guard-00490", "kind": "guard", "content": "A line with a trailing colon:\nText with *emphasis* and **strong**.\n## Other\n\nModes: strict\n\nSetext heading\n===\n\n- a list item\n- another\n   indented three\nA line with a trailing colon:\n\n"}
+{"id": "guard-00491", "kind": "guard", "content": "## Guard policy\n<!----> empty\nMode:\n\n  strict\n> Mode: strict"}
+{"id": "guard-00492", "kind": "guard", "content": "### Guard Policy\n\n| a | b |\n|---|---|\n| 1 | 2 |\n## Guard Policy\n<!----> empty\n### Deeper heading\n"}
+{"id": "guard-00493", "kind": "guard", "content": "| a | b |\n|---|---|\n| 1 | 2 |\nMode: strict\n  and more\n## Guard Policy\n<!----> empty\nmode :   STRICT  \n"}
+{"id": "guard-00494", "kind": "guard", "content": " ## Guard Policy\n> a quote\n1. first\n2. second\n<!----> empty\n## Guard Policy:\n\n1. Mode: strict\n\n- a list item\n- another\n<!-- multi\nline\ncomment -->"}
+{"id": "guard-00495", "kind": "guard", "content": "## Guard Policy:\r\n\r\nMode: *strict*\r\n\r\n### Deeper heading\r\n\r\n  indented two\r\nMode:   \r\n  \r\n\r\n  indented two"}
+{"id": "guard-00496", "kind": "guard", "content": "A `code span` and `another <tag>` here.\n\n##  Guard Policy\n\n# Top heading\n\n<!-- multi\nline\ncomment -->\n\nSetext heading\n===\n\n### Deeper heading\n"}
+{"id": "guard-00497", "kind": "guard", "content": "# Top heading\n\n## Change Control\n"}
+{"id": "guard-00498", "kind": "guard", "content": "- a list item\n- another\n\n## Other\n\n## Deployment\n\nMode: *strict*\n\nMode: _relaxed_\n\n<!-- c --> Mode: strict\n\n"}
+{"id": "guard-00499", "kind": "guard", "content": "  Mode: off\n### Guard Policy\n\n# Top heading\n"}
+{"id": "guard-00500", "kind": "guard", "content": "1. first\n2. second\n\n## Guard Policy\n\\* not a list\n<!-- a comment -->\n\nSetext heading\n==="}
+{"id": "guard-00501", "kind": "guard", "content": "- Mode: lenient\n\n## Guard Policy\n\n- Mode: strict\n- Other: x\n\n"}
+{"id": "guard-00502", "kind": "guard", "content": "<!-- Mode: strict, relaxed, or off. -->\n\n1. first\n2. second\n\nkey: value\n"}
+{"id": "guard-00503", "kind": "guard", "content": "## Deployment\n\n- a list item\n- another\n\n## Deployment\n\n\\* not a list\n\n<!-- hides\nMode: strict\n--> after it\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n## Other\n\nTwo lines\nof prose.\n\n  Mode: off"}
+{"id": "guard-00504", "kind": "guard", "content": "\\* not a list\n\nkey: value\n\n### Guard Policy\n\nText with *emphasis* and **strong**.\n\n1. first\n2. second\n\n<!-- hides\nMode: strict\n--> after it"}
+{"id": "guard-00505", "kind": "guard", "content": " ## Guard Policy\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n# Top heading\n\n"}
+{"id": "guard-00506", "kind": "guard", "content": "## Other\n\nMode: strict\nMethodology: tdd\n\nMode:\n\n  strict\n"}
+{"id": "guard-00507", "kind": "guard", "content": "### Guard Policy\n\n<!-- multi\nline\ncomment -->\n\nA `code span` and `another <tag>` here.\n## Guard Policy\n\nA line with a trailing colon:\n<!----> empty\nA `code span` and `another <tag>` here.\n"}
+{"id": "guard-00508", "kind": "guard", "content": "## Guard Policy\n\n### Deeper heading"}
+{"id": "guard-00509", "kind": "guard", "content": "### Guard Policy\n\nkey: value\n\nMode: strict\n  and more\n\n1. Mode: strict\n\n  indented two\n\n- Mode: relaxed\n\nModes: strict\n\nmode :   STRICT  \n\nMode: strict # really\n"}
+{"id": "guard-00510", "kind": "guard", "content": "## Guard Policy  \nText with *emphasis* and **strong**.\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n"}
+{"id": "guard-00511", "kind": "guard", "content": "## Other\n  indented two\n\n"}
+{"id": "guard-00512", "kind": "guard", "content": "Mode: *strict*\r\n\r\n<!----> empty\r\n\r\n ## Guard Policy\r\n\r\n1. Mode: strict\r\n\r\n<!-- hides\r\nMode: strict\r\n--> after it\r\n\r\n- a list item\r\n- another\r\n\r\n<!-- Mode: strict, relaxed, or off. -->\r\n\r\n##  Guard Policy\r\n\r\n<!-- multi\r\nline\r\ncomment -->\r\n\r\n- a list item\r\n- another\r\n"}
+{"id": "guard-00513", "kind": "guard", "content": "## Guard policy\n\nMode: strict\n\nA `code span` and `another <tag>` here.\n\n1. Mode: strict\n\nMode: strict\n\nSome prose here.\n\n## Other\n\n# Top heading\n\nMode: strict\n  and more\n\n# Top heading\n\n ## Guard Policy\n\n### Deeper heading\n\n## Guard Policy\nSome prose here."}
+{"id": "guard-00514", "kind": "guard", "content": "Some prose here.\n\n## Guard policy\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n- a list item\n- another\n\n## Guard Policy\nMode:\n  strict\n<!-- c --> Mode: strict\n- a list item\n- another\n\n"}
+{"id": "guard-00515", "kind": "guard", "content": "## Other\n\n<!-- multi\nline\ncomment -->\n\n<!-- a comment -->"}
+{"id": "guard-00516", "kind": "guard", "content": "Text with *emphasis* and **strong**.\r\n\r\n ## Guard Policy\r\n\\* not a list\r\nText with *emphasis* and **strong**.\r\nSetext heading\r\n===\r\n\r\n### Guard Policy\r\n\r\n<!-- multi\r\nline\r\ncomment -->\r\n\r\nSome prose here.\r\n\r\n> a quote\r\n\r\n1. first\r\n2. second\r\n\r\n  Mode: off\r\n\r\n<!----> empty"}
+{"id": "guard-00517", "kind": "guard", "content": "Mode: strict\n  and more\nMode strict\n<!-- a comment -->\n## Guard Policy\n+ Mode: strict\n ## Guard Policy\n1. first\n2. second"}
+{"id": "guard-00518", "kind": "guard", "content": "## Guard Policy\n\n<!-- Mode: strict, relaxed, or off. -->\n\nA line with a trailing colon:\n\n<!-- a comment -->\n\n- Mode: relaxed\n\n<!-- c --> Mode: strict\n\n  Mode: off\n\nText with *emphasis* and **strong**.\n\nMODE: Off"}
+{"id": "guard-00519", "kind": "guard", "content": "Mode:\n\n### Guard Policy\nmode :   STRICT  \n---\n\n##  Guard Policy\n\nMode:\n\nMode: strict\nMethodology: tdd\n\n   indented three"}
+{"id": "guard-00520", "kind": "guard", "content": "- Mode: strict\n- Other: x\n\n1. Mode: strict\n\n## Guard policy\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n<!-- multi\nline\ncomment -->\n\n- Mode:\n  relaxed\n  wrapped\n\n* **Mode**: off\n\nmode :   STRICT  \n\n## Guard Policy  \n\nMode: strict\n\n- Mode: lenient\n\n- Mode:\n  relaxed\n  wrapped"}
+{"id": "guard-00521", "kind": "guard", "content": "##  Guard Policy\n\n* **Mode**: off\n"}
+{"id": "guard-00522", "kind": "guard", "content": "# Top heading\n Mode: strict\n## Guard Policy  \n<!-- c --> Mode: strict\nText with *emphasis* and **strong**."}
+{"id": "guard-00523", "kind": "guard", "content": "Mode: strict\n\n"}
+{"id": "guard-00524", "kind": "guard", "content": "Mode: `off`\n\nTwo lines\nof prose.\n\n"}
+{"id": "guard-00525", "kind": "guard", "content": "  indented two\n\n<!-- multi\nline\ncomment -->\n\n## Guard Policy\n\n  indented two\n\nMode:\n   relaxed\n   - item\n\n<!-- hides\nMode: strict\n--> after it\n\n Mode: strict\n\n"}
+{"id": "guard-00526", "kind": "guard", "content": "- Mode:\n  relaxed\n  wrapped\n\n## Guard Policy\n\n<!----> empty\n\nMode: strict # really\n\nMode: strict\n  and more\n\n"}
+{"id": "guard-00527", "kind": "guard", "content": "* **Mode**: off"}
+{"id": "guard-00528", "kind": "guard", "content": "<!-- a comment -->\n\n<!-- multi\nline\ncomment -->\n\nA `code span` and `another <tag>` here.\n\nMode strict"}
+{"id": "guard-00529", "kind": "guard", "content": "> a quote\n<!-- multi\nline\ncomment -->\n## Guard Policy\nModes: strict\n## Change Control\n\n<!-- multi\nline\ncomment -->\n\n  indented two\n## Guard Policy\n   indented three\nmode :   STRICT  \n   indented three\n"}
+{"id": "guard-00530", "kind": "guard", "content": "## Deployment\n\n- Mode: lenient\n\nText with *emphasis* and **strong**.\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\nMode:\n   relaxed\n   - item\n\n## Deployment\n\n"}
+{"id": "guard-00531", "kind": "guard", "content": "## Other\n\n- [ ] Mode: strict\n"}
+{"id": "guard-00532", "kind": "guard", "content": "## Guard Policy\n\n<!-- hides\nMode: strict\n--> after it\n\n1. Mode: strict\n---\n- Mode: lenient\n* **Mode**: off\n"}
+{"id": "guard-00533", "kind": "guard", "content": "key: value\r\n\r\n"}
+{"id": "guard-00534", "kind": "guard", "content": "## Other\n\n<!-- multi\nline\ncomment -->\n\nMode:\nA `code span` and `another <tag>` here.\nMode:\n   relaxed\n   - item\n## Other\n\n**Mode:** strict"}
+{"id": "guard-00535", "kind": "guard", "content": "1. Mode: strict\n\n**Mode:** strict\n"}
+{"id": "guard-00536", "kind": "guard", "content": "## Guard Policy\nSetext heading\n===\n## Change Control\n\n**Mode:** strict\n\nA `code span` and `another <tag>` here.\n\n- [ ] Mode: strict\n\n"}
+{"id": "guard-00537", "kind": "guard", "content": "﻿## Guard Policy  \r\n\r\n- a list item\r\n- another\r\n\r\nMode: _relaxed_\r\n\r\nSome prose here."}
+{"id": "guard-00538", "kind": "guard", "content": "<!-- Mode: strict, relaxed, or off. -->"}
+{"id": "guard-00539", "kind": "guard", "content": "## Change Control\n\nMode: strict\n\n> Mode: strict\n\n### Deeper heading\n"}
+{"id": "guard-00540", "kind": "guard", "content": "## Guard Policy\n\n   indented three\n\n  Mode: off\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\nMode: *strict*\n\n##  Guard Policy\n\n ## Guard Policy\n\n> a quote\n\nA `code span` and `another <tag>` here.\n\nA `code span` and `another <tag>` here.\n\n"}
+{"id": "guard-00541", "kind": "guard", "content": "## Change Control\n\nA line with a trailing colon:\n\nMode: *strict*\n\nMode: *strict*\n\n<!-- multi\nline\ncomment -->\n"}
+{"id": "guard-00542", "kind": "guard", "content": "## Deployment\n\n<!----> empty\n\nMode:\n\n  strict\n\n## Guard Policy\n\n### Deeper heading\n\nMode: strict # really\n\n<!-- Mode: strict, relaxed, or off. -->\n\n"}
+{"id": "guard-00543", "kind": "guard", "content": "<!-- a comment -->\n"}
+{"id": "guard-00544", "kind": "guard", "content": "> Mode: strict\n\n1. first\n2. second\n\n   indented three\n"}
+{"id": "guard-00545", "kind": "guard", "content": "## Guard Policy\nMode: strict\nMethodology: tdd\n\nSetext heading\n===\n\n<!-- c --> Mode: strict\n\n ## Guard Policy\n\n- Mode: relaxed\n\n"}
+{"id": "guard-00546", "kind": "guard", "content": "- Mode: relaxed\n\n"}
+{"id": "guard-00547", "kind": "guard", "content": "## Guard policy\n\nTwo lines\nof prose.\n\nkey: value\n\n## Guard Policy\n\nA line with a trailing colon:\n\n+ Mode: strict\n\n> a quote\n"}
+{"id": "guard-00548", "kind": "guard", "content": "Mode:   \n  \n\n\nmode :   STRICT  \n\nMode: off."}
+{"id": "guard-00549", "kind": "guard", "content": "---\n\n---\n\nMode: strict\nMethodology: tdd\n\n ## Guard Policy\n\n## Other\nA `code span` and `another <tag>` here.\n1. Mode: strict\n\nMode:   \n  \n\n\n"}
+{"id": "guard-00550", "kind": "guard", "content": "  indented two\n\n<!----> empty\n\n"}
+{"id": "guard-00551", "kind": "guard", "content": "### Deeper heading\n## Guard policy\n\n   - Mode: strict\n\n\\* not a list\nText with *emphasis* and **strong**.\n- a list item\n- another\n## Guard Policy:\n\n<!----> empty\n### Guard Policy\nMode:\n\n"}
+{"id": "guard-00552", "kind": "guard", "content": "Setext heading\n===\n\n ## Guard Policy\n\n> a quote\n\n- Mode:\n  relaxed\n  wrapped\n\n  indented two\n\nSome prose here.\n\n# Top heading\n\n"}
+{"id": "guard-00553", "kind": "guard", "content": "Mode: _relaxed_\n<!----> empty\nOrdering: x\nMode: off\nMode:\n### Deeper heading\n\n"}
+{"id": "guard-00554", "kind": "guard", "content": "| a | b |\n|---|---|\n| 1 | 2 |\n\nMode: off.\n\nModes: strict\n\n\\* not a list\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n"}
+{"id": "guard-00555", "kind": "guard", "content": "Mode: off.\n\n##  Guard Policy\n\nMODE: Off\n\nA `code span` and `another <tag>` here.\n\n<!-- Mode: strict, relaxed, or off. -->\n\n"}
+{"id": "guard-00556", "kind": "guard", "content": "<!-- c --> Mode: strict\n## Deployment\n\n> a quote\nA `code span` and `another <tag>` here.\nA line with a trailing colon:\n"}
+{"id": "guard-00557", "kind": "guard", "content": "## Guard Policy:\n\nMode:\n\nMode: *strict*\n\nMode: strict # really\n<!-- hides\n## Guard Policy\nMode: strict\n-->\nA `code span` and `another <tag>` here."}
+{"id": "guard-00558", "kind": "guard", "content": "<!----> empty\n  indented two\n\n"}
+{"id": "guard-00559", "kind": "guard", "content": "##  Guard Policy\n\nkey: value\n\n- Mode: strict\n- Other: x\n\nMode:\n  strict"}
+{"id": "guard-00560", "kind": "guard", "content": "## Guard Policy\n\n<!----> empty\n<!-- c --> Mode: strict\n<!-- Mode: strict, relaxed, or off. -->\n\n"}
+{"id": "guard-00561", "kind": "guard", "content": "- [ ] Mode: strict\n\n## Guard Policy:\n\nMODE: Off\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n# Top heading"}
+{"id": "guard-00562", "kind": "guard", "content": " ## Guard Policy\nmode :   STRICT  \nA line with a trailing colon:\n<!-- c --> Mode: strict\n- Mode:\n  relaxed\n  wrapped\n## Guard policy\n\n<!-- multi\nline\ncomment -->\n\n"}
+{"id": "guard-00563", "kind": "guard", "content": "\\* not a list\n##  Guard Policy\n\n Mode: strict\n\n**Mode:** strict\nMode: `off`\n# Top heading\n##  Guard Policy\n\nMode:   \n  \n\nMode:"}
+{"id": "guard-00564", "kind": "guard", "content": "## Deployment\n\nMode:   \n  \n"}
+{"id": "guard-00565", "kind": "guard", "content": "<!----> empty\n\nMode: _relaxed_"}
+{"id": "guard-00566", "kind": "guard", "content": "## Guard Policy\nMode: strict\nMethodology: tdd\n**Mode:** strict\nkey: value\n\n## Change Control\n\nMode: off.\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n<!-- a comment -->\n\nA `code span` and `another <tag>` here.\n\nkey: value\n\n## Guard Policy\n\n> a quote\n"}
+{"id": "guard-00567", "kind": "guard", "content": "Mode: _relaxed_\n\nSetext heading\n===\n\nText with *emphasis* and **strong**.\n\n- a list item\n- another\n\n## Guard Policy\n\n- Mode: relaxed\n\nA `code span` and `another <tag>` here.\n\n Mode: strict\n"}
+{"id": "guard-00568", "kind": "guard", "content": "Mode: strict\n  and more\n- Mode: lenient\nSome prose here.\n"}
+{"id": "guard-00569", "kind": "guard", "content": "## Deployment\n\nMode: *strict*\n\n<!-- c --> Mode: strict\n\nMode:\n  strict\n\nText with *emphasis* and **strong**.\n\n# Top heading\n\n##  Guard Policy\n\n- Mode: strict\n- Other: x"}
+{"id": "guard-00570", "kind": "guard", "content": "## Guard Policy\r\n\r\nModes: strict\r\n\r\nMode: *strict*"}
+{"id": "guard-00571", "kind": "guard", "content": "<!-- Mode: strict, relaxed, or off. -->\n\nMode:\n\n  strict\n\nMode: strict # really\n\n ## Guard Policy\n\n<!-- Mode: strict, relaxed, or off. -->\n\n<!-- Mode: strict, relaxed, or off. -->\n\nMODE: Off\n\n"}
+{"id": "guard-00572", "kind": "guard", "content": "---\n\n## Guard Policy\n\n+ Mode: strict\n\n"}
+{"id": "guard-00573", "kind": "guard", "content": "Mode: strict # really"}
+{"id": "guard-00574", "kind": "guard", "content": "## Guard Policy  \n\nSetext heading\n===\n\n1. Mode: strict\n\n<!-- c --> Mode: strict\n\nkey: value\n\n- Mode: strict\n- Other: x\n\n### Guard Policy\n\n<!-- hides\nMode: strict\n--> after it\n\nMode:\n\n  strict\n\n<!-- c --> Mode: strict\n\n Mode: strict\n\n"}
+{"id": "guard-00575", "kind": "guard", "content": "> Mode: strict\n\n1. Mode: strict"}
+{"id": "guard-00576", "kind": "guard", "content": "## Change Control\nMode: off.\nSome prose here.\n- a list item\n- another\n\n"}
+{"id": "guard-00577", "kind": "guard", "content": "# Top heading\n"}
+{"id": "guard-00578", "kind": "guard", "content": "<!----> empty\n\n"}
+{"id": "guard-00579", "kind": "guard", "content": "## Deployment\n\n"}
+{"id": "guard-00580", "kind": "guard", "content": "Two lines\r\nof prose.\r\n<!-- Mode: strict, relaxed, or off. -->\r\n\\* not a list\r\nmode :   STRICT  "}
+{"id": "guard-00581", "kind": "guard", "content": "Mode: *strict*\n\n"}
+{"id": "guard-00582", "kind": "guard", "content": "A line with a trailing colon:\n\nSome prose here.\n\nkey: value\n\n## Guard Policy\n\nMode: strict\n\nMode: strict\n\n"}
+{"id": "guard-00583", "kind": "guard", "content": "## Change Control\nMode: strict\n## Guard Policy  \n\n<!-- Mode: strict, relaxed, or off. -->\n\nText with *emphasis* and **strong**.\n<!-- multi\nline\ncomment -->\n Mode: strict\n## Guard Policy  \nMode: strict\nMode: strict # really\n\n"}
+{"id": "guard-00584", "kind": "guard", "content": "> a quote\n\n"}
+{"id": "guard-00585", "kind": "guard", "content": "A line with a trailing colon:\n##  Guard Policy\n\n<!-- a comment -->\n- Mode: relaxed\n##  Guard Policy\n\nModes: strict\nMode:\nMode:   \n  \n\n"}
+{"id": "guard-00586", "kind": "guard", "content": " ## Guard Policy\n\n- Mode: lenient\n\nMode strict\n\n  Mode: off\n### Guard Policy\nkey: value\n"}
+{"id": "guard-00587", "kind": "guard", "content": "---\nText with *emphasis* and **strong**.\nkey: value\n### Deeper heading"}
+{"id": "guard-00588", "kind": "guard", "content": "# Top heading\r\n\r\n##  Guard Policy\r\n\r\n## Deployment\r\n\r\n"}
+{"id": "guard-00589", "kind": "guard", "content": " Mode: strict\r\n"}
+{"id": "guard-00590", "kind": "guard", "content": "Mode: strict\n\n# Top heading\n\n"}
+{"id": "guard-00591", "kind": "guard", "content": " ## Guard Policy\n\n<!-- multi\nline\ncomment -->\n\n<!-- Mode: strict, relaxed, or off. -->\n\nMode: `off`\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n"}
+{"id": "guard-00592", "kind": "guard", "content": "<!-- hides\n## Guard Policy\nMode: strict\n-->\n"}
+{"id": "guard-00593", "kind": "guard", "content": "### Deeper heading\n\n Mode: strict\n\n## Guard Policy\n\n- Mode: strict\n- Other: x\n\n## Guard Policy\n  Mode: off\n<!-- Mode: strict, relaxed, or off. -->\n\nMODE: Off\n\n"}
+{"id": "guard-00594", "kind": "guard", "content": "# Top heading\n\n<!----> empty\n\n## Deployment\n<!-- hides\n## Guard Policy\nMode: strict\n-->\nMode strict\nMode:   \n  \n\n\n- a list item\n- another\n"}
+{"id": "guard-00595", "kind": "guard", "content": "---\n  Mode: off\nMode: *strict*\n\n"}
+{"id": "guard-00596", "kind": "guard", "content": "## Guard policy\n\n## Deployment\n  indented two\n\n- Mode: lenient\n"}
+{"id": "guard-00597", "kind": "guard", "content": "Two lines\nof prose.\n\n## Deployment\n\n**Mode:** strict\n\n<!-- c --> Mode: strict\n"}
+{"id": "guard-00598", "kind": "guard", "content": "# Top heading\n\n---\n\nMode: strict\n  and more\n\n## Guard Policy\n\nMode: strict # really\n\nMODE: Off\n\n<!-- hides\nMode: strict\n--> after it\n\n> a quote\n\nMode: strict\nMethodology: tdd"}
+{"id": "guard-00599", "kind": "guard", "content": "| a | b |\n|---|---|\n| 1 | 2 |\n> a quote"}
+{"id": "guard-00600", "kind": "guard", "content": "# Top heading\n\n## Guard Policy\n\nText with *emphasis* and **strong**.\n\n**Mode:** strict\n\nTwo lines\nof prose."}
+{"id": "guard-00601", "kind": "guard", "content": "## Change Control\n<!-- hides\n## Guard Policy\nMode: strict\n-->"}
+{"id": "guard-00602", "kind": "guard", "content": "Mode: strict\n"}
+{"id": "guard-00603", "kind": "guard", "content": "### Deeper heading\n## Guard Policy\n\nA line with a trailing colon:\n\n> a quote\n"}
+{"id": "guard-00604", "kind": "guard", "content": "## Change Control"}
+{"id": "guard-00605", "kind": "guard", "content": "mode :   STRICT  \n---\n##  Guard Policy\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n  indented two\n\nMode strict\n ## Guard Policy\n\n   - Mode: strict\n\n   indented three\n\nMode:\n   relaxed\n   - item\n## Other\n\nMode: strict\n\n- a list item\n- another\n\n"}
+{"id": "guard-00606", "kind": "guard", "content": "  Mode: off\n\n## Change Control\n\n> Mode: strict\n"}
+{"id": "guard-00607", "kind": "guard", "content": "# Top heading\n## Change Control\nMode:\nMode: strict\nMethodology: tdd\n## Guard Policy\n## Guard Policy\n\n<!-- hides\nMode: strict\n--> after it\nTwo lines\nof prose.\n## Other\n"}
+{"id": "guard-00608", "kind": "guard", "content": "MODE: Off\r\n\r\nSetext heading\r\n===\r\n\r\n## Change Control\r\n\r\nA line with a trailing colon:\r\n\r\nMode: strict # really\r\n\r\n  indented two\r\n"}
+{"id": "guard-00609", "kind": "guard", "content": "## Guard Policy:\n\n> a quote\n\nMode: off.\n<!-- Mode: strict, relaxed, or off. -->\n\n"}
+{"id": "guard-00610", "kind": "guard", "content": "## Guard Policy  \n\n> a quote\n\n1. Mode: strict\n\n* **Mode**: off\n> a quote\n\n"}
+{"id": "guard-00611", "kind": "guard", "content": "## Guard Policy\nMode: `off`\nMode strict\n> a quote\n\n## Guard Policy\n\nSetext heading\n===\n\n> a quote\n\n"}
+{"id": "guard-00612", "kind": "guard", "content": "## Change Control\n\nMode:   \n  \n\n\nSetext heading\n===\n\nMode strict\n\n## Guard Policy\n\nMode:   \n  \n\n\n- Mode: relaxed\n"}
+{"id": "guard-00613", "kind": "guard", "content": "Setext heading\n===\n"}
+{"id": "guard-00614", "kind": "guard", "content": "| a | b |\r\n|---|---|\r\n| 1 | 2 |\r\n"}
+{"id": "guard-00615", "kind": "guard", "content": "## Other\n\n<!-- multi\nline\ncomment -->\n"}
+{"id": "guard-00616", "kind": "guard", "content": "   indented three\n\nText with *emphasis* and **strong**.\n\n   indented three\n\n## Other\n\n<!-- a comment -->"}
+{"id": "guard-00617", "kind": "guard", "content": "   indented three\n\n"}
+{"id": "guard-00618", "kind": "guard", "content": "A line with a trailing colon:\n\nkey: value\n\n**Mode:** strict\n\n---\n\n1. Mode: strict"}
+{"id": "guard-00619", "kind": "guard", "content": "1. Mode: strict\n\n  indented two\n\n## Guard Policy:\n<!-- a comment -->\n\n---\n\n"}
+{"id": "guard-00620", "kind": "guard", "content": "## Guard Policy  \n\n- Mode:\n  relaxed\n  wrapped\n\nTwo lines\nof prose.\n  indented two\n\n"}
+{"id": "guard-00621", "kind": "guard", "content": "Some prose here.\n## Guard Policy\n\n### Deeper heading\n- [ ] Mode: strict\n### Guard Policy\n> a quote\n### Deeper heading\n\n"}
+{"id": "guard-00622", "kind": "guard", "content": "Text with *emphasis* and **strong**.\nkey: value\n\n"}
+{"id": "guard-00623", "kind": "guard", "content": "﻿Ordering: x\nMode: off\n"}
+{"id": "guard-00624", "kind": "guard", "content": "Mode: _relaxed_\r\n---\r\n## Guard policy\r\n## Change Control\r\n\r\n- a list item\r\n- another\r\n## Guard Policy:\r\n## Other\r\n\r\n**Mode:** strict\r\n\r\n- Mode: relaxed"}
+{"id": "guard-00625", "kind": "guard", "content": "## Change Control\r\n\r\n## Other\r\n\r\nA line with a trailing colon:\r\n\r\n  Mode: off\r\n\r\n## Guard Policy\r\n  indented two\r\n\r\n## Guard Policy  \r\n---\r\n\\* not a list\r\nSome prose here.\r\n"}
+{"id": "guard-00626", "kind": "guard", "content": " ## Guard Policy\nMode:\n   relaxed\n   - item\nMode: strict # really\n##  Guard Policy\nA `code span` and `another <tag>` here.\n\n"}
+{"id": "guard-00627", "kind": "guard", "content": "Two lines\nof prose.\n- Mode: relaxed\n## Guard Policy"}
+{"id": "guard-00628", "kind": "guard", "content": "Ordering: x\nMode: off\n## Other"}
+{"id": "guard-00629", "kind": "guard", "content": "## Guard Policy  \n\n\\* not a list\n\n"}
+{"id": "guard-00630", "kind": "guard", "content": "Two lines\nof prose.\n\n<!-- a comment -->\n\nMode:\n   relaxed\n   - item\n"}
+{"id": "guard-00631", "kind": "guard", "content": "## Other\n- Mode: lenient\n\\* not a list\n##  Guard Policy\n\n# Top heading\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n1. Mode: strict\n## Guard Policy\n\nMode:\n   relaxed\n   - item\n\n<!-- hides\nMode: strict\n--> after it\n\n   indented three\n<!-- c --> Mode: strict\n"}
+{"id": "guard-00632", "kind": "guard", "content": "## Other\nMode: strict\n<!-- Mode: strict, relaxed, or off. -->\n\nText with *emphasis* and **strong**.\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n### Deeper heading\n\n ## Guard Policy\n\n# Top heading"}
+{"id": "guard-00633", "kind": "guard", "content": "Mode: *strict*\n\n> Mode: strict\n"}
+{"id": "guard-00634", "kind": "guard", "content": "<!-- Mode: strict, relaxed, or off. -->\n\n ## Guard Policy\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\nSome prose here.\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\nMode: _relaxed_"}
+{"id": "guard-00635", "kind": "guard", "content": "## Deployment\r\n\r\n## Guard Policy  \r\n\r\nkey: value"}
+{"id": "guard-00636", "kind": "guard", "content": "**Mode:** strict\r\n- Mode: relaxed\r\n ## Guard Policy\r\n- [ ] Mode: strict\r\n<!----> empty\r\nMode:\r\n   relaxed\r\n   - item\r\n\r\n"}
+{"id": "guard-00637", "kind": "guard", "content": "## Guard Policy\n\n**Mode:** strict\n\n##  Guard Policy\n\nMode: strict\nMethodology: tdd\n\n<!-- Mode: strict, relaxed, or off. -->\n\n> Mode: strict\n\n## Change Control\n   indented three\n1. Mode: strict\n\nSetext heading\n===\n\n"}
+{"id": "guard-00638", "kind": "guard", "content": "## Guard policy\n\nMode:\n  strict\n\n> Mode: strict\n<!----> empty\nMode: off.\n## Guard Policy:\n\nMode:   \n  \n\nMode:\n<!-- Mode: strict, relaxed, or off. -->\n"}
+{"id": "guard-00639", "kind": "guard", "content": "Mode:   \n  \n\n\n<!----> empty\n\nkey: value\n"}
+{"id": "guard-00640", "kind": "guard", "content": " ## Guard Policy\n\nSome prose here.\n\nMode:\n\n  strict\n\nA `code span` and `another <tag>` here.\n\n   indented three\n"}
+{"id": "guard-00641", "kind": "guard", "content": "##  Guard Policy\nTwo lines\nof prose.\n> a quote\nA line with a trailing colon:\nkey: value\nkey: value\n<!-- hides\nMode: strict\n--> after it\n<!-- Mode: strict, relaxed, or off. -->"}
+{"id": "guard-00642", "kind": "guard", "content": "key: value\n"}
+{"id": "guard-00643", "kind": "guard", "content": "## Guard Policy\n---\n\nMode: _relaxed_"}
+{"id": "guard-00644", "kind": "guard", "content": "### Guard Policy\n1. first\n2. second\nMode:\n   relaxed\n   - item\nMODE: Off\n\nOrdering: x\nMode: off\n\n## Guard policy\n\nMode:\n\nModes: strict\n\n"}
+{"id": "guard-00645", "kind": "guard", "content": "- Mode: strict\n- Other: x\n| a | b |\n|---|---|\n| 1 | 2 |\n### Guard Policy\n1. Mode: strict\n"}
+{"id": "guard-00646", "kind": "guard", "content": "Mode: off.\n\n  Mode: off\n\n## Guard Policy\n\nText with *emphasis* and **strong**.\n\nMode: strict\n  and more\n\n+ Mode: strict\n\n* **Mode**: off"}
+{"id": "guard-00647", "kind": "guard", "content": "> a quote\n\nSetext heading\n===\n\n"}
+{"id": "guard-00648", "kind": "guard", "content": "Mode:\n  strict\n"}
+{"id": "guard-00649", "kind": "guard", "content": "## Guard Policy\n\nkey: value\n\n**Mode:** strict\n\n### Deeper heading\nOrdering: x\nMode: off\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n"}
+{"id": "guard-00650", "kind": "guard", "content": "key: value\n\n## Guard Policy  \n\n   indented three\n\n Mode: strict\n\n##  Guard Policy\nA line with a trailing colon:\nA line with a trailing colon:\nMode strict\n\n"}
+{"id": "guard-00651", "kind": "guard", "content": "   indented three\n\n## Guard policy\n**Mode:** strict\n1. first\n2. second\n\n## Change Control\n\nSetext heading\n===\n\n"}
+{"id": "guard-00652", "kind": "guard", "content": "### Deeper heading\n\n## Guard Policy\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n Mode: strict\n\n<!-- Mode: strict, relaxed, or off. -->\n\n  Mode: off\n\n   - Mode: strict\n\n<!-- a comment -->\n"}
+{"id": "guard-00653", "kind": "guard", "content": " ## Guard Policy\n   indented three\nSome prose here.\n\n<!-- c --> Mode: strict\n\nMode: _relaxed_\n\nMode:\n  strict\n\n"}
+{"id": "guard-00654", "kind": "guard", "content": "- Mode:\n  relaxed\n  wrapped\n\n## Guard Policy  \n\n## Guard Policy:\n\nText with *emphasis* and **strong**.\n\nMode:\n   relaxed\n   - item"}
+{"id": "guard-00655", "kind": "guard", "content": "Some prose here.\n\nMode: strict # really\n\n## Guard Policy\n\nOrdering: x\nMode: off\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n"}
+{"id": "guard-00656", "kind": "guard", "content": "MODE: Off\n\n+ Mode: strict\n"}
+{"id": "guard-00657", "kind": "guard", "content": "<!-- c --> Mode: strict\n\n   indented three\n\n## Other\n\nMode:   \n  \n\n\nMode: strict\n  and more\n\n- Mode: relaxed\n\n## Guard Policy  \nMode: strict # really\n- Mode:\n  relaxed\n  wrapped\n\n# Top heading\n"}
+{"id": "guard-00658", "kind": "guard", "content": " ## Guard Policy\n\n<!-- hides\nMode: strict\n--> after it\n\n# Top heading\n\nA `code span` and `another <tag>` here.\n  indented two\nMode: `off`\n## Guard Policy\nMode: _relaxed_\n\n"}
+{"id": "guard-00659", "kind": "guard", "content": "##  Guard Policy\n\n> Mode: strict\n\nMode:\n\n  strict\n"}
+{"id": "guard-00660", "kind": "guard", "content": "﻿A line with a trailing colon:\n\n<!-- multi\nline\ncomment -->\n\n- [ ] Mode: strict\n\n## Guard Policy\n\n> a quote\n\n- [ ] Mode: strict\n\n<!----> empty\n\nMode: strict # really\n\n"}
+{"id": "guard-00661", "kind": "guard", "content": "# Top heading\n\n## Other\n\nMode: _relaxed_\n"}
+{"id": "guard-00662", "kind": "guard", "content": "## Guard Policy\n  indented two\n* **Mode**: off\n### Guard Policy\nMode:   \n  \n\n---\nkey: value"}
+{"id": "guard-00663", "kind": "guard", "content": "---\n\n<!-- a comment -->\n\n  indented two\n\nMode:\n\n  strict\n\n---\n"}
+{"id": "guard-00664", "kind": "guard", "content": "  indented two\nMode: *strict*\n- [ ] Mode: strict\n\n"}
+{"id": "guard-00665", "kind": "guard", "content": "## Guard Policy\n ## Guard Policy\n\n<!-- a comment -->\n\n<!-- a comment -->\n"}
+{"id": "guard-00666", "kind": "guard", "content": "Mode: *strict*\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\nkey: value\n\nSome prose here.\n\n   - Mode: strict\n\n  indented two"}
+{"id": "guard-00667", "kind": "guard", "content": "##  Guard Policy\nMode:\n Mode: strict\n* **Mode**: off\n## Guard Policy\n\nMode: `off`\n\n- a list item\n- another"}
+{"id": "guard-00668", "kind": "guard", "content": "  indented two\n\n### Deeper heading"}
+{"id": "guard-00669", "kind": "guard", "content": "Mode: off.\n\nmode :   STRICT  \n\n<!-- c --> Mode: strict\n\n**Mode:** strict\n\nMode: strict\nMethodology: tdd\n\n ## Guard Policy\nMode:\n   relaxed\n   - item\n> Mode: strict\n"}
+{"id": "guard-00670", "kind": "guard", "content": "> Mode: strict\r\nTwo lines\r\nof prose.\r\n\r\n"}
+{"id": "guard-00671", "kind": "guard", "content": "##  Guard Policy\nSetext heading\n===\n"}
+{"id": "guard-00672", "kind": "guard", "content": "<!-- multi\nline\ncomment -->\n\n- Mode: strict\n- Other: x\n\n<!-- c --> Mode: strict\n\n## Deployment\n"}
+{"id": "guard-00673", "kind": "guard", "content": " ## Guard Policy\n\n## Guard Policy  \n\nMode strict\n\n- Mode: strict\n- Other: x\n\nMode:\n  strict\n\nmode :   STRICT  \n\nTwo lines\nof prose.\n\n<!-- hides\nMode: strict\n--> after it\n"}
+{"id": "guard-00674", "kind": "guard", "content": "<!-- a comment -->\n\nMode:\n   relaxed\n   - item\n\n- Mode: strict\n- Other: x\n\n## Guard Policy:\n\n---\n"}
+{"id": "guard-00675", "kind": "guard", "content": "Mode: `off`\n\nMode: off.\n"}
+{"id": "guard-00676", "kind": "guard", "content": " ## Guard Policy\n\nMode: strict\nMethodology: tdd\n  Mode: off\n## Guard Policy:\n\nMode: *strict*\n\nMode: strict # really\n<!-- a comment -->"}
+{"id": "guard-00677", "kind": "guard", "content": "Ordering: x\nMode: off\n\n ## Guard Policy\nMode: strict\nMethodology: tdd\nMode: _relaxed_\nA line with a trailing colon:\n\n<!-- a comment -->\n\n<!-- a comment -->\n\n"}
+{"id": "guard-00678", "kind": "guard", "content": "Mode:\n\n  strict\n# Top heading\nMode: strict # really\nSome prose here.\nMode: strict\n<!-- multi\nline\ncomment -->\n\n"}
+{"id": "guard-00679", "kind": "guard", "content": "> Mode: strict\n1. Mode: strict\n## Guard Policy\nMode:\n   relaxed\n   - item\nMode: strict\nMethodology: tdd\nMode: strict\n\n"}
+{"id": "guard-00680", "kind": "guard", "content": "## Change Control\nMode:\n<!-- c --> Mode: strict\n> a quote\n"}
+{"id": "guard-00681", "kind": "guard", "content": "Setext heading\r\n===\r\n\r\nMode: _relaxed_\r\n\r\n## Guard Policy:\r\n- Mode: relaxed\r\n---\r\n Mode: strict\r\n\r\n- [ ] Mode: strict\r\n\r\nMode: off.\r\n"}
+{"id": "guard-00682", "kind": "guard", "content": "# Top heading\n\n## Other\nMode:\n\n  strict\n\n"}
+{"id": "guard-00683", "kind": "guard", "content": "Some prose here.\n| a | b |\n|---|---|\n| 1 | 2 |\n\n"}
+{"id": "guard-00684", "kind": "guard", "content": " ## Guard Policy\n\nmode :   STRICT  \n\nMode: off.\n\n"}
+{"id": "guard-00685", "kind": "guard", "content": "Ordering: x\nMode: off\n\nText with *emphasis* and **strong**.\n\n1. first\n2. second\n\n- [ ] Mode: strict\n\nSetext heading\n===\n"}
+{"id": "guard-00686", "kind": "guard", "content": "<!-- hides\n## Guard Policy\nMode: strict\n-->\n"}
+{"id": "guard-00687", "kind": "guard", "content": "Some prose here.\nMode: `off`\n<!-- a comment -->\nTwo lines\nof prose.\n##  Guard Policy\n\nA line with a trailing colon:\n\n- a list item\n- another\n\nMode: strict\n  and more\nA `code span` and `another <tag>` here.\n"}
+{"id": "guard-00688", "kind": "guard", "content": "## Guard Policy:\r\nMode:\r\n   relaxed\r\n   - item\r\n\r\n   indented three\r\n\r\n## Deployment\r\n"}
+{"id": "guard-00689", "kind": "guard", "content": "<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n## Guard Policy\n\nOrdering: x\nMode: off\n\nMODE: Off\n\nMode:\n   relaxed\n   - item\n\n* **Mode**: off\n\n- Mode: strict\n- Other: x\n\n"}
+{"id": "guard-00690", "kind": "guard", "content": "Mode strict\n\nMode:\n   relaxed\n   - item\n\n> Mode: strict\n\n### Guard Policy\n\n\\* not a list\n\nA `code span` and `another <tag>` here.\n\n ## Guard Policy\n\nkey: value\n\nA `code span` and `another <tag>` here.\n\n<!-- hides\nMode: strict\n--> after it\n\n"}
+{"id": "guard-00691", "kind": "guard", "content": "- Mode: lenient\n\n"}
+{"id": "guard-00692", "kind": "guard", "content": "1. first\n2. second\n\nMode: _relaxed_\n\n1. Mode: strict\n\n### Guard Policy\n\nMode strict\n\nOrdering: x\nMode: off\n\n   - Mode: strict\n"}
+{"id": "guard-00693", "kind": "guard", "content": "# Top heading\n ## Guard Policy\n\n- a list item\n- another\n## Guard Policy\n## Guard Policy\n\nOrdering: x\nMode: off\n\nMode: strict\n### Guard Policy\n* **Mode**: off\nkey: value\nOrdering: x\nMode: off\n\n"}
+{"id": "guard-00694", "kind": "guard", "content": "Mode strict\n\n- Mode:\n  relaxed\n  wrapped\n\nMode: strict\n  and more\n\n# Top heading\n\n> a quote\n\n| a | b |\n|---|---|\n| 1 | 2 |"}
+{"id": "guard-00695", "kind": "guard", "content": "A line with a trailing colon:\n- a list item\n- another\nMode strict\nMode: strict # really\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n"}
+{"id": "guard-00696", "kind": "guard", "content": "## Guard Policy  \n1. first\n2. second\n   indented three\nmode :   STRICT  \n\nMode: *strict*\n\n### Guard Policy\n\nMode: `off`\n\n## Guard Policy:"}
+{"id": "guard-00697", "kind": "guard", "content": "## Guard Policy:\n\n> a quote\nmode :   STRICT  \n## Guard Policy\nMode strict\n<!-- Mode: strict, relaxed, or off. -->\n"}
+{"id": "guard-00698", "kind": "guard", "content": "## Deployment\n\n## Guard Policy\n# Top heading\n\nMode:   \n  \n\n\n<!-- a comment -->\n\n"}
+{"id": "guard-00699", "kind": "guard", "content": "  indented two\n\nMode: *strict*\n\n<!-- c --> Mode: strict\n\n\\* not a list\n\n### Deeper heading"}
+{"id": "guard-00700", "kind": "guard", "content": "### Deeper heading\n\n# Top heading\n\n<!-- c --> Mode: strict\n\nMode: strict\nMethodology: tdd"}
+{"id": "guard-00701", "kind": "guard", "content": "Mode:   \n  \n\n\n### Guard Policy\nMode: `off`\n- Mode: strict\n- Other: x\n\n"}
+{"id": "guard-00702", "kind": "guard", "content": "## Guard Policy  \n\n<!-- c --> Mode: strict\n\nModes: strict\n\nMode: _relaxed_\n\n<!-- c --> Mode: strict\n\nSome prose here."}
+{"id": "guard-00703", "kind": "guard", "content": "##  Guard Policy\n\n   indented three\n\nMODE: Off\n\n- [ ] Mode: strict\n"}
+{"id": "guard-00704", "kind": "guard", "content": "## Guard policy\n\n### Deeper heading\n\nMode strict\n\n ## Guard Policy\n\\* not a list\nSetext heading\n===\n\n ## Guard Policy\n\nModes: strict\n\n##  Guard Policy\nMode: strict # really\nMode:\n\n  strict\n\n## Guard policy\n\n Mode: strict"}
+{"id": "guard-00705", "kind": "guard", "content": " ## Guard Policy\n\n<!-- a comment -->\n\n+ Mode: strict\n\n   indented three\n\n"}
+{"id": "guard-00706", "kind": "guard", "content": "Mode: *strict*\n\nMode: strict\nMethodology: tdd\n\n ## Guard Policy\n\nA `code span` and `another <tag>` here.\n\n"}
+{"id": "guard-00707", "kind": "guard", "content": "- Mode: lenient\n## Other\n\n   indented three\n\n<!-- Mode: strict, relaxed, or off. -->\n## Guard policy\nMode: _relaxed_\nMode: strict\n  and more\n1. Mode: strict\n\n"}
+{"id": "guard-00708", "kind": "guard", "content": "   - Mode: strict\n\nMode:\n\n  strict\n"}
+{"id": "guard-00709", "kind": "guard", "content": "## Guard Policy  \n\n<!-- hides\nMode: strict\n--> after it\n\n- Mode: strict\n- Other: x\n\n- Mode:\n  relaxed\n  wrapped\nMode: strict # really\n## Guard Policy  \n\n"}
+{"id": "guard-00710", "kind": "guard", "content": "﻿Some prose here.\r\n<!-- hides\r\n## Guard Policy\r\nMode: strict\r\n-->\r\nOrdering: x\r\nMode: off\r\n"}
+{"id": "guard-00711", "kind": "guard", "content": "A line with a trailing colon:\nSetext heading\n===\n# Top heading\n- Mode: relaxed\n## Guard Policy  \n\nMode:\n  strict\n"}
+{"id": "guard-00712", "kind": "guard", "content": "Mode: strict\n  and more\n\nTwo lines\nof prose.\n\nMode: `off`\n\n## Other\n\nMode:\n   relaxed\n   - item\n\n"}
+{"id": "guard-00713", "kind": "guard", "content": "  indented two\nSetext heading\n===\n\n"}
+{"id": "guard-00714", "kind": "guard", "content": "## Other\n\nMODE: Off\n\n"}
+{"id": "guard-00715", "kind": "guard", "content": "# Top heading\r\n\r\n## Change Control\r\n"}
+{"id": "guard-00716", "kind": "guard", "content": "| a | b |\r\n|---|---|\r\n| 1 | 2 |\r\n\r\n## Change Control\r\n\r\n<!-- hides\r\nMode: strict\r\n--> after it\r\n\r\n# Top heading\r\n\r\n<!-- hides\r\nMode: strict\r\n--> after it\r\n\r\n"}
+{"id": "guard-00717", "kind": "guard", "content": "> a quote\n\nText with *emphasis* and **strong**.\n\n+ Mode: strict\n\nMode:   \n  \n\n\n##  Guard Policy\nSome prose here.\n\\* not a list"}
+{"id": "guard-00718", "kind": "guard", "content": "## Guard Policy:\r\nTwo lines\r\nof prose.\r\n- Mode: strict\r\n- Other: x"}
+{"id": "guard-00719", "kind": "guard", "content": "## Other\n\n"}
+{"id": "guard-00720", "kind": "guard", "content": "## Guard Policy  \n\n> Mode: strict\n1. first\n2. second\n### Guard Policy\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n   - Mode: strict\n\n- Mode:\n  relaxed\n  wrapped\n<!-- c --> Mode: strict\n- a list item\n- another"}
+{"id": "guard-00721", "kind": "guard", "content": "Text with *emphasis* and **strong**.\n\n"}
+{"id": "guard-00722", "kind": "guard", "content": "Mode: off."}
+{"id": "guard-00723", "kind": "guard", "content": "A line with a trailing colon:\n\n<!-- multi\nline\ncomment -->\n\n## Change Control\n\nSetext heading\n===\n\n- a list item\n- another\n\n<!----> empty\n\n##  Guard Policy\nMode: strict\nMethodology: tdd\n\n<!----> empty\n"}
+{"id": "guard-00724", "kind": "guard", "content": "## Guard Policy\r\n\r\nSetext heading\r\n===\r\n\r\nModes: strict\r\n\r\nMODE: Off\r\n## Change Control\r\n\r\n1. Mode: strict\r\n+ Mode: strict\r\n## Guard Policy:"}
+{"id": "guard-00725", "kind": "guard", "content": "## Guard Policy\n### Guard Policy\n\n+ Mode: strict\n\n<!----> empty\n\nMode: off.\nA line with a trailing colon:\n<!----> empty\n- [ ] Mode: strict\n  Mode: off\n"}
+{"id": "guard-00726", "kind": "guard", "content": "## Deployment\n| a | b |\n|---|---|\n| 1 | 2 |\nText with *emphasis* and **strong**.\n<!-- multi\nline\ncomment -->\nMode:   \n  \n\n\n"}
+{"id": "guard-00727", "kind": "guard", "content": "- a list item\n- another\n\nMode:\n\n  strict\n"}
+{"id": "guard-00728", "kind": "guard", "content": "<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n<!-- Mode: strict, relaxed, or off. -->\n\n## Change Control\n\n* **Mode**: off\n\n   indented three\n\n<!-- Mode: strict, relaxed, or off. -->"}
+{"id": "guard-00729", "kind": "guard", "content": "# Top heading\n\n## Change Control\n\nMode strict\n\nMODE: Off\n\n"}
+{"id": "guard-00730", "kind": "guard", "content": "### Guard Policy\n\nMode: off.\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n> a quote\n\n### Guard Policy\n"}
+{"id": "guard-00731", "kind": "guard", "content": "Mode:\n\nSetext heading\n===\n\nMode: strict\n\nkey: value\n\n"}
+{"id": "guard-00732", "kind": "guard", "content": "## Guard Policy\n\nSetext heading\n===\n"}
+{"id": "guard-00733", "kind": "guard", "content": "- Mode: relaxed\n\nMode:\n\nA line with a trailing colon:\n\n"}
+{"id": "guard-00734", "kind": "guard", "content": "key: value\n\n### Guard Policy\n\nMode: strict\n"}
+{"id": "guard-00735", "kind": "guard", "content": "Mode:\n   relaxed\n   - item\n**Mode:** strict\n\n"}
+{"id": "guard-00736", "kind": "guard", "content": "**Mode:** strict\n\n<!-- c --> Mode: strict\n\n  indented two\n"}
+{"id": "guard-00737", "kind": "guard", "content": "## Guard policy\n\nMode: strict\nMethodology: tdd\n\n---\n"}
+{"id": "guard-00738", "kind": "guard", "content": "Text with *emphasis* and **strong**.\n\nMode:\n   relaxed\n   - item\n\nmode :   STRICT  \n"}
+{"id": "guard-00739", "kind": "guard", "content": "<!-- a comment -->\n"}
+{"id": "guard-00740", "kind": "guard", "content": "   indented three\nSome prose here.\nMode: _relaxed_\n\n"}
+{"id": "guard-00741", "kind": "guard", "content": "## Other\r\n\r\nMode: `off`\r\nSome prose here.\r\n## Change Control\r\n\r\nMode: strict # really\r\n\r\nkey: value\r\n\r\n1. first\r\n2. second\r\n ## Guard Policy\r\n- a list item\r\n- another\r\n## Change Control\r\n\r\n# Top heading\r\nMode: `off`\r\n\r\n"}
+{"id": "guard-00742", "kind": "guard", "content": "# Top heading\n\nMode: strict\nMethodology: tdd\n\n1. first\n2. second"}
+{"id": "guard-00743", "kind": "guard", "content": "Modes: strict\n## Guard Policy\n## Guard Policy\n\nA line with a trailing colon:\n ## Guard Policy\n\n"}
+{"id": "guard-00744", "kind": "guard", "content": " ## Guard Policy\n<!-- Mode: strict, relaxed, or off. -->\nMode: strict\n  and more\n Mode: strict\n\n## Guard Policy\n\n## Guard Policy:\n<!-- hides\nMode: strict\n--> after it\n<!-- a comment -->\n\n- Mode:\n  relaxed\n  wrapped\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n### Deeper heading\n"}
+{"id": "guard-00745", "kind": "guard", "content": " ## Guard Policy\n\n# Top heading\n\n## Deployment\n"}
+{"id": "guard-00746", "kind": "guard", "content": "  indented two\n\n"}
+{"id": "guard-00747", "kind": "guard", "content": "# Top heading"}
+{"id": "guard-00748", "kind": "guard", "content": "## Change Control\n\n   - Mode: strict\n\n| a | b |\n|---|---|\n| 1 | 2 |\n## Deployment\n<!-- c --> Mode: strict\n<!-- Mode: strict, relaxed, or off. -->\n<!-- hides\nMode: strict\n--> after it"}
+{"id": "guard-00749", "kind": "guard", "content": "Mode: strict\n  and more\n\n<!-- multi\nline\ncomment -->\n\n<!-- Mode: strict, relaxed, or off. -->\n\nMode: off.\n\n### Guard Policy\n\nSetext heading\n===\n"}
+{"id": "guard-00750", "kind": "guard", "content": "Mode:   \n  \n\n\n## Guard Policy\nMode:\n| a | b |\n|---|---|\n| 1 | 2 |\nA line with a trailing colon:\n\nMode:\n"}
+{"id": "guard-00751", "kind": "guard", "content": "Text with *emphasis* and **strong**.\n## Guard policy\n\nMode:   \n  \n\n<!-- Mode: strict, relaxed, or off. -->\n---\n<!----> empty\n"}
+{"id": "guard-00752", "kind": "guard", "content": "- Mode:\n  relaxed\n  wrapped\n- Mode: strict\n- Other: x\n\n"}
+{"id": "guard-00753", "kind": "guard", "content": "## Guard Policy\n\n- Mode: lenient\n## Guard Policy\n\nMode: off.\n# Top heading\n## Change Control\n- Mode: lenient\nMode:\n1. first\n2. second\nA line with a trailing colon:\nMode: off.\n"}
+{"id": "guard-00754", "kind": "guard", "content": "Mode:\n   relaxed\n   - item\n\n<!-- a comment -->\n\n# Top heading\n\n1. Mode: strict\n\n   indented three"}
+{"id": "guard-00755", "kind": "guard", "content": "Mode: strict\nModes: strict\nmode :   STRICT  \n<!-- c --> Mode: strict\n> a quote\n## Deployment"}
+{"id": "guard-00756", "kind": "guard", "content": "> Mode: strict\n## Guard Policy:\nSome prose here.\n> Mode: strict\n> a quote\nOrdering: x\nMode: off\n ## Guard Policy\n\nMode: strict\n  and more\n\n> Mode: strict"}
+{"id": "guard-00757", "kind": "guard", "content": "   - Mode: strict\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n<!----> empty\n\n- Mode:\n  relaxed\n  wrapped\n\n> Mode: strict\n\nmode :   STRICT  \n\n"}
+{"id": "guard-00758", "kind": "guard", "content": " Mode: strict\n<!-- multi\nline\ncomment -->\n"}
+{"id": "guard-00759", "kind": "guard", "content": "<!-- c --> Mode: strict\n\n## Guard Policy:\n\n"}
+{"id": "guard-00760", "kind": "guard", "content": "<!-- hides\nMode: strict\n--> after it\n\nA `code span` and `another <tag>` here.\n\n> a quote\n\n Mode: strict\n\n---"}
+{"id": "guard-00761", "kind": "guard", "content": "- a list item\n- another\n\nTwo lines\nof prose.\n\nMode: strict\nMethodology: tdd\n"}
+{"id": "guard-00762", "kind": "guard", "content": "## Change Control\n\n"}
+{"id": "guard-00763", "kind": "guard", "content": "# Top heading\r\n\r\n<!----> empty\r\n\r\n## Guard Policy  \r\n\r\nMode:   \r\n  \r\n\r\n\r\n- Mode: strict\r\n- Other: x"}
+{"id": "guard-00764", "kind": "guard", "content": "## Guard Policy\n\n<!-- multi\nline\ncomment -->\n\n+ Mode: strict\n\nMode:\n   relaxed\n   - item\nTwo lines\nof prose.\n\n"}
+{"id": "guard-00765", "kind": "guard", "content": " ## Guard Policy\n\nText with *emphasis* and **strong**.\n\n   - Mode: strict\n\n**Mode:** strict\n<!----> empty\nModes: strict\n## Guard Policy  \n\nMode:\n   relaxed\n   - item\n### Guard Policy\n\nMode: `off`\n\n<!-- a comment -->\n\n> a quote\n\n"}
+{"id": "guard-00766", "kind": "guard", "content": "<!-- a comment -->\n\n1. first\n2. second\n\nMode: strict\n  and more\n\nA `code span` and `another <tag>` here.\n\n## Guard Policy  \n\nMode: `off`\n\nMODE: Off\n\n<!-- multi\nline\ncomment -->\n\n<!-- c --> Mode: strict\n"}
+{"id": "guard-00767", "kind": "guard", "content": "## Change Control\n\n## Change Control\n\nMode:\n\n  strict\n\n<!-- Mode: strict, relaxed, or off. -->\n\n<!-- c --> Mode: strict\n\n---\n\n"}
+{"id": "guard-00768", "kind": "guard", "content": "﻿**Mode:** strict\n   indented three\nMode: off.\n\n"}
+{"id": "guard-00769", "kind": "guard", "content": "MODE: Off\n\n"}
+{"id": "guard-00770", "kind": "guard", "content": "## Guard Policy\n\nkey: value\n"}
+{"id": "guard-00771", "kind": "guard", "content": "Ordering: x\nMode: off\n+ Mode: strict\nTwo lines\nof prose.\n\n"}
+{"id": "guard-00772", "kind": "guard", "content": "- [ ] Mode: strict\n\nMode:   \n  \n"}
+{"id": "guard-00773", "kind": "guard", "content": "﻿<!-- hides\n## Guard Policy\nMode: strict\n-->\nMode: `off`\n## Guard Policy  \n\n- Mode: lenient\nMode: strict # really\nMode:   \n  \n\n---\n\n"}
+{"id": "guard-00774", "kind": "guard", "content": "Mode: *strict*\nTwo lines\nof prose.\n   - Mode: strict\nMode:   \n  \n\n\n"}
+{"id": "guard-00775", "kind": "guard", "content": "### Deeper heading\n---\n"}
+{"id": "guard-00776", "kind": "guard", "content": "## Guard Policy\n\n- Mode:\n  relaxed\n  wrapped\n\n<!-- c --> Mode: strict\n\n- Mode: strict\n- Other: x"}
+{"id": "guard-00777", "kind": "guard", "content": "- Mode: lenient\n\n1. first\n2. second\n\n## Deployment\n\n# Top heading\n\nMode:\n  strict\n\n<!-- multi\nline\ncomment -->\n"}
+{"id": "guard-00778", "kind": "guard", "content": "Mode strict\r\n\r\n<!----> empty\r\n\r\n## Deployment\r\n   - Mode: strict\r\n\r\n## Guard Policy\r\n\r\nMode: off.\r\n\r\nMode: off.\r\n\r\n- a list item\r\n- another\r\n\r\n## Guard Policy:\r\n\r\nA line with a trailing colon:\r\n"}
+{"id": "guard-00779", "kind": "guard", "content": "Mode strict\n\n<!-- Mode: strict, relaxed, or off. -->\n\n- Mode: strict\n- Other: x\n\nkey: value\n\n\\* not a list\n\n## Change Control\n\n"}
+{"id": "guard-00780", "kind": "guard", "content": "## Guard Policy\n   indented three\n  indented two\nMode:\n   relaxed\n   - item\n\n---\n\n"}
+{"id": "guard-00781", "kind": "guard", "content": "## Other\n\n> a quote\n\n  indented two\n\nTwo lines\nof prose.\n\n## Guard Policy\n<!-- c --> Mode: strict\n+ Mode: strict\n\n- Mode: relaxed\n"}
+{"id": "guard-00782", "kind": "guard", "content": "<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n<!-- a comment -->\n\nA line with a trailing colon:\n\nText with *emphasis* and **strong**."}
+{"id": "guard-00783", "kind": "guard", "content": "<!-- c --> Mode: strict\r\n"}
+{"id": "guard-00784", "kind": "guard", "content": "Mode: strict\n\nMode: *strict*\n\n## Deployment\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n## Deployment\n---\n Mode: strict\n\n- Mode: strict\n- Other: x\n\n"}
+{"id": "guard-00785", "kind": "guard", "content": "Mode: strict\n\nMode:\n\n  strict\n\n## Other\n\nSome prose here."}
+{"id": "guard-00786", "kind": "guard", "content": "﻿ ## Guard Policy\n- Mode: relaxed\nmode :   STRICT  \n### Deeper heading\n\n"}
+{"id": "guard-00787", "kind": "guard", "content": "1. first\n2. second\n\n### Guard Policy\n\nmode :   STRICT  \n\n- Mode: relaxed\n\n\\* not a list\n\n## Guard Policy\n### Deeper heading\n---\n\n## Guard Policy\n\nSetext heading\n===\n\n<!----> empty\n\n### Deeper heading"}
+{"id": "guard-00788", "kind": "guard", "content": " ## Guard Policy\n> a quote\nMode: _relaxed_\n- Mode: strict\n- Other: x\n### Guard Policy\n\n<!-- a comment -->\n+ Mode: strict\n## Guard Policy  \n\n<!-- hides\nMode: strict\n--> after it"}
+{"id": "guard-00789", "kind": "guard", "content": "A `code span` and `another <tag>` here.\r\nSetext heading\r\n===\r\n## Guard Policy:\r\n\r\nMODE: Off\r\n\r\n<!----> empty\r\n\r\n> a quote"}
+{"id": "guard-00790", "kind": "guard", "content": "### Guard Policy\n\n| a | b |\n|---|---|\n| 1 | 2 |\n"}
+{"id": "guard-00791", "kind": "guard", "content": "## Other\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\nText with *emphasis* and **strong**.\n\n"}
+{"id": "guard-00792", "kind": "guard", "content": "## Other\n\n### Deeper heading\n\nA line with a trailing colon:\n"}
+{"id": "guard-00793", "kind": "guard", "content": "##  Guard Policy\n\n## Guard Policy\n\n# Top heading\n\nMode: strict\nMethodology: tdd\n\n ## Guard Policy\n"}
+{"id": "guard-00794", "kind": "guard", "content": "Some prose here."}
+{"id": "guard-00795", "kind": "guard", "content": "Mode: off.\n\n## Guard Policy\n\n- Mode:\n  relaxed\n  wrapped\n\nSome prose here."}
+{"id": "guard-00796", "kind": "guard", "content": "> Mode: strict\n\nText with *emphasis* and **strong**.\n\n## Guard Policy\n\n<!-- multi\nline\ncomment -->\n\n"}
+{"id": "guard-00797", "kind": "guard", "content": "## Guard Policy\n\n- Mode:\n  relaxed\n  wrapped\n\nkey: value\n- [ ] Mode: strict\nMode:\n  strict\nMode: strict\n##  Guard Policy\nA line with a trailing colon:"}
+{"id": "guard-00798", "kind": "guard", "content": "1. Mode: strict\n\n  indented two"}
+{"id": "guard-00799", "kind": "guard", "content": "| a | b |\n|---|---|\n| 1 | 2 |\n\n- Mode: lenient\n\n## Change Control\n\n- Mode: strict\n- Other: x\n\n## Guard Policy:\n\n- [ ] Mode: strict\n\nMode: off.\n"}
+{"id": "guard-00800", "kind": "guard", "content": "**Mode:** strict\nmode :   STRICT  \n   indented three\n---\n"}
+{"id": "guard-00801", "kind": "guard", "content": "Mode:   \n  \n\n## Other\n\n<!-- a comment -->\n\nText with *emphasis* and **strong**.\n\n| a | b |\n|---|---|\n| 1 | 2 |\n**Mode:** strict"}
+{"id": "guard-00802", "kind": "guard", "content": "Setext heading\r\n===\r\n### Guard Policy\r\n## Change Control\r\n\r\nMode: strict # really\r\n\r\n# Top heading\r\n\r\n### Deeper heading\r\n##  Guard Policy\r\nkey: value\r\n"}
+{"id": "guard-00803", "kind": "guard", "content": "<!-- hides\nMode: strict\n--> after it\n<!-- multi\nline\ncomment -->\n---\n## Deployment\n\n<!----> empty\n\n1. first\n2. second\n\nMODE: Off\n\\* not a list\n### Deeper heading\n\n"}
+{"id": "guard-00804", "kind": "guard", "content": "Mode:   \n  \n\n\n## Guard Policy\nkey: value\nMode: strict # really"}
+{"id": "guard-00805", "kind": "guard", "content": "Mode strict\n\n## Guard Policy\n| a | b |\n|---|---|\n| 1 | 2 |\nMode: `off`\nkey: value\n\n<!-- a comment -->\n\nMode:\n\n- Mode:\n  relaxed\n  wrapped\n\n- [ ] Mode: strict\n"}
+{"id": "guard-00806", "kind": "guard", "content": "﻿> a quote\r\n\r\n+ Mode: strict\r\n\r\n## Guard Policy  \r\n<!-- Mode: strict, relaxed, or off. -->\r\n<!-- Mode: strict, relaxed, or off. -->\r\n- Mode:\r\n  relaxed\r\n  wrapped\r\n\r\n<!-- hides\r\nMode: strict\r\n--> after it\r\n\r\n"}
+{"id": "guard-00807", "kind": "guard", "content": "MODE: Off\n\n"}
+{"id": "guard-00808", "kind": "guard", "content": "## Other\n\n   - Mode: strict\n\nSetext heading\n===\n\n> a quote\n\n   - Mode: strict"}
+{"id": "guard-00809", "kind": "guard", "content": "Mode: _relaxed_\n- Mode: relaxed\nMode strict\n* **Mode**: off\n\n"}
+{"id": "guard-00810", "kind": "guard", "content": "## Guard Policy  \n"}
+{"id": "guard-00811", "kind": "guard", "content": "##  Guard Policy\nSetext heading\n===\n- Mode:\n  relaxed\n  wrapped\n\n"}
+{"id": "guard-00812", "kind": "guard", "content": "## Guard Policy\n\n- [ ] Mode: strict\n\n- Mode:\n  relaxed\n  wrapped\n\n## Other\n# Top heading\n\n## Guard Policy\n\n   - Mode: strict"}
+{"id": "guard-00813", "kind": "guard", "content": "- Mode: lenient\n\n<!----> empty\n"}
+{"id": "guard-00814", "kind": "guard", "content": "<!-- multi\nline\ncomment -->\n##  Guard Policy\nTwo lines\nof prose.\nMode:   \n  \n\nMode:\n\n  strict\n ## Guard Policy\nMode: strict # really\n---\n"}
+{"id": "guard-00815", "kind": "guard", "content": "> a quote"}
+{"id": "guard-00816", "kind": "guard", "content": "## Deployment\n+ Mode: strict\n\nSetext heading\n===\n\n## Guard Policy  \n  Mode: off\n<!-- c --> Mode: strict\nMode: strict\n  and more\n\n## Guard Policy\n\nSetext heading\n===\n\n---\n\n## Change Control\n### Deeper heading\n"}
+{"id": "guard-00817", "kind": "guard", "content": "---\n<!-- Mode: strict, relaxed, or off. -->\nMode: `off`\n  Mode: off\n<!----> empty"}
+{"id": "guard-00818", "kind": "guard", "content": "Two lines\nof prose.\nText with *emphasis* and **strong**.\n## Guard Policy  \nMode:   \n  \n\n## Change Control\n\n- Mode: strict\n- Other: x\n\n<!-- hides\nMode: strict\n--> after it\n\n<!-- multi\nline\ncomment -->"}
+{"id": "guard-00819", "kind": "guard", "content": "Setext heading\n===\n  Mode: off\n## Guard Policy\n##  Guard Policy\n\nA `code span` and `another <tag>` here.\n\n### Deeper heading\n\nMode: _relaxed_\n## Guard Policy\n\nMode: strict\n  and more\n\nMode:\n\n  strict"}
+{"id": "guard-00820", "kind": "guard", "content": "---\nMode: `off`"}
+{"id": "guard-00821", "kind": "guard", "content": "Setext heading\r\n===\r\n\r\n**Mode:** strict"}
+{"id": "guard-00822", "kind": "guard", "content": "## Deployment\n\n> Mode: strict\n\nmode :   STRICT  \n\n### Deeper heading\n\n## Deployment\n\n1. first\n2. second\n\n### Guard Policy\n- Mode:\n  relaxed\n  wrapped\n Mode: strict\n\n"}
+{"id": "guard-00823", "kind": "guard", "content": "## Change Control\n\n Mode: strict\n\n<!-- Mode: strict, relaxed, or off. -->\n\n- Mode: relaxed\n1. Mode: strict\n\n"}
+{"id": "guard-00824", "kind": "guard", "content": "| a | b |\n|---|---|\n| 1 | 2 |\n\n**Mode:** strict\n\n## Guard Policy\n\n> Mode: strict\n\nMode: strict # really\n\nA `code span` and `another <tag>` here.\n\n\\* not a list\n\n### Guard Policy\nMode:\n   relaxed\n   - item\n### Deeper heading\n"}
+{"id": "guard-00825", "kind": "guard", "content": "Setext heading\n===\n- Mode:\n  relaxed\n  wrapped\n## Guard Policy\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n1. first\n2. second\n\n1. Mode: strict\nMode:   \n  \n\n---"}
+{"id": "guard-00826", "kind": "guard", "content": "- Mode:\n  relaxed\n  wrapped\nA `code span` and `another <tag>` here.\nMode:\n  strict\n Mode: strict\n1. first\n2. second\nMode: _relaxed_\n"}
+{"id": "guard-00827", "kind": "guard", "content": "### Deeper heading\n\n"}
+{"id": "guard-00828", "kind": "guard", "content": "## Guard Policy\n\n"}
+{"id": "guard-00829", "kind": "guard", "content": "## Guard Policy  \n\n- Mode: lenient\n\n- Mode: strict\n- Other: x\n"}
+{"id": "guard-00830", "kind": "guard", "content": "- Mode: lenient\n\n## Change Control\n\n   indented three"}
+{"id": "guard-00831", "kind": "guard", "content": "\\* not a list\n\n- Mode:\n  relaxed\n  wrapped\n\n## Other\nA line with a trailing colon:\n### Deeper heading\n\n\\* not a list\n\n# Top heading\n\n# Top heading\n"}
+{"id": "guard-00832", "kind": "guard", "content": "- Mode: strict\n- Other: x\n\nMode: strict # really\n\n---"}
+{"id": "guard-00833", "kind": "guard", "content": "## Guard Policy  \n\n- Mode: relaxed\n\n> Mode: strict\n\n| a | b |\n|---|---|\n| 1 | 2 |"}
+{"id": "guard-00834", "kind": "guard", "content": "Mode:\n   relaxed\n   - item\n\n<!-- multi\nline\ncomment -->\n\nMode: off.\n\nMODE: Off\n\n##  Guard Policy\n\n"}
+{"id": "guard-00835", "kind": "guard", "content": "<!-- a comment -->\n\n"}
+{"id": "guard-00836", "kind": "guard", "content": "## Guard policy\n<!-- Mode: strict, relaxed, or off. -->\n\n  indented two\n\n1. first\n2. second\n\n# Top heading\n\n## Other\n\nMode: *strict*\n\n- Mode:\n  relaxed\n  wrapped\n\n+ Mode: strict\n\n## Guard Policy  \n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n1. Mode: strict\n\nMode:   \n  \n\n\n"}
+{"id": "guard-00837", "kind": "guard", "content": "Mode: off.\nMode: *strict*\nA `code span` and `another <tag>` here.\n| a | b |\n|---|---|\n| 1 | 2 |\nA `code span` and `another <tag>` here.\n   - Mode: strict"}
+{"id": "guard-00838", "kind": "guard", "content": "<!-- a comment -->\nA `code span` and `another <tag>` here.\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n* **Mode**: off\nText with *emphasis* and **strong**."}
+{"id": "guard-00839", "kind": "guard", "content": "<!----> empty\n\n## Guard Policy:\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\nMODE: Off\n\nSetext heading\n===\n\n1. Mode: strict\n\n<!-- multi\nline\ncomment -->"}
+{"id": "guard-00840", "kind": "guard", "content": "## Guard Policy\n\nSome prose here.\n\nMode: `off`\n\n<!-- Mode: strict, relaxed, or off. -->\n\nMode: *strict*\n\n"}
+{"id": "guard-00841", "kind": "guard", "content": "<!-- c --> Mode: strict\nModes: strict"}
+{"id": "guard-00842", "kind": "guard", "content": "## Guard Policy\r\nMode strict\r\nMode:\r\n  strict\r\nA `code span` and `another <tag>` here.\r\nA line with a trailing colon:\r\n## Guard Policy\r\n<!----> empty\r\n<!-- hides\r\n## Guard Policy\r\nMode: strict\r\n-->\r\nMode: *strict*\r\n<!-- c --> Mode: strict\r\n## Change Control\r\n\r\nText with *emphasis* and **strong**.\r\n\r\n   indented three\r\n\r\n"}
+{"id": "guard-00843", "kind": "guard", "content": "**Mode:** strict\n### Deeper heading\n"}
+{"id": "guard-00844", "kind": "guard", "content": "   - Mode: strict\n\n1. first\n2. second\n\n- Mode: strict\n- Other: x\n\n<!----> empty\n\n- Mode: relaxed\n"}
+{"id": "guard-00845", "kind": "guard", "content": "<!-- a comment -->\n\nMode:\n  strict\n\n  indented two\n\n## Guard policy\n\n<!-- hides\nMode: strict\n--> after it\n\n- Mode:\n  relaxed\n  wrapped\n"}
+{"id": "guard-00846", "kind": "guard", "content": "# Top heading\n\n+ Mode: strict\n\nkey: value\n\nModes: strict\n\n"}
+{"id": "guard-00847", "kind": "guard", "content": "### Deeper heading\n\nMode:\n\n  strict\n\n## Guard Policy\n\n- Mode: relaxed\n\n## Guard Policy:\n\nMode:\n"}
+{"id": "guard-00848", "kind": "guard", "content": "<!-- hides\nMode: strict\n--> after it\n\n# Top heading\n\n# Top heading\n\n> a quote\n\n## Guard Policy\n\n<!----> empty\n"}
+{"id": "guard-00849", "kind": "guard", "content": "> a quote\n\n> Mode: strict\n\n## Other\n\n  Mode: off\n\n<!-- multi\nline\ncomment -->\n\n- [ ] Mode: strict\n\n## Guard Policy\n\n"}
+{"id": "guard-00850", "kind": "guard", "content": "   - Mode: strict\nMode: strict\n  and more\n## Guard Policy\n\n1. first\n2. second\n\nOrdering: x\nMode: off\n**Mode:** strict\n<!-- a comment -->\n\n"}
+{"id": "guard-00851", "kind": "guard", "content": "## Guard policy\n\nA line with a trailing colon:\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n ## Guard Policy\n\nMode:\n\nMode:   \n  \n\n\n## Guard Policy  \n\n Mode: strict\n\n"}
+{"id": "guard-00852", "kind": "guard", "content": "Mode:   \n  \n\n\n<!-- a comment -->\n\n1. Mode: strict\n\n"}
+{"id": "guard-00853", "kind": "guard", "content": "Mode: *strict*\n## Change Control\n  indented two\n> Mode: strict\nModes: strict\nMode:\n   relaxed\n   - item\n   - Mode: strict\n## Deployment\nkey: value\n### Guard Policy\n\nOrdering: x\nMode: off\n\n"}
+{"id": "guard-00854", "kind": "guard", "content": "   - Mode: strict\nmode :   STRICT  \n\n"}
+{"id": "guard-00855", "kind": "guard", "content": "﻿\\* not a list\n\n> a quote\n\nMode: strict\nMethodology: tdd\n\n### Guard Policy\nMODE: Off\n---\n\n## Guard Policy"}
+{"id": "guard-00856", "kind": "guard", "content": "## Guard Policy\n\n### Deeper heading\n\n<!----> empty\nText with *emphasis* and **strong**.\n\n"}
+{"id": "guard-00857", "kind": "guard", "content": "Mode: _relaxed_\n\nSetext heading\n===\n\nMode:\n  strict\n\nA `code span` and `another <tag>` here.\n\nkey: value\n\n"}
+{"id": "guard-00858", "kind": "guard", "content": "# Top heading\n\n\\* not a list\n\n## Guard Policy\n\nSome prose here.\n\nMode:\n   relaxed\n   - item\n\nModes: strict\n\n| a | b |\n|---|---|\n| 1 | 2 |\n"}
+{"id": "guard-00859", "kind": "guard", "content": "﻿A line with a trailing colon:\n\n ## Guard Policy\n\nA line with a trailing colon:\n\nMode: `off`\n\nSetext heading\n==="}
+{"id": "guard-00860", "kind": "guard", "content": "## Other\n\n- Mode: lenient\n\n\\* not a list\n\nMode:\nMODE: Off"}
+{"id": "guard-00861", "kind": "guard", "content": "A `code span` and `another <tag>` here.\n\n## Change Control\n\nA `code span` and `another <tag>` here.\n\nTwo lines\nof prose.\n\nSetext heading\n===\n\n## Guard Policy:\n\nText with *emphasis* and **strong**.\n\nSetext heading\n===\n\nMode: strict # really\n"}
+{"id": "guard-00862", "kind": "guard", "content": "<!-- a comment -->\n\n<!-- multi\nline\ncomment -->\n\n## Guard Policy\n\nMode:   \n  \n\n"}
+{"id": "guard-00863", "kind": "guard", "content": "Some prose here.\n"}
+{"id": "guard-00864", "kind": "guard", "content": "- Mode: lenient\nMode: *strict*\nMode: strict\n  and more\nMode: strict\n  and more\n<!----> empty\nmode :   STRICT  \n\n"}
+{"id": "guard-00865", "kind": "guard", "content": "## Other\n\n   indented three\n\n  indented two\n\n---\n"}
+{"id": "guard-00866", "kind": "guard", "content": "<!-- a comment -->\n## Guard Policy\n\nTwo lines\nof prose.\n\nText with *emphasis* and **strong**.\nMode:\n  strict\n\n"}
+{"id": "guard-00867", "kind": "guard", "content": " ## Guard Policy\n\n<!----> empty\n\n### Deeper heading"}
+{"id": "guard-00868", "kind": "guard", "content": "Mode: *strict*\n\\* not a list\n<!-- a comment -->\n- Mode:\n  relaxed\n  wrapped\n## Deployment\n<!----> empty\nText with *emphasis* and **strong**.\nMode:\nMode: *strict*"}
+{"id": "guard-00869", "kind": "guard", "content": "> a quote\r\n\r\n   indented three"}
+{"id": "guard-00870", "kind": "guard", "content": "Text with *emphasis* and **strong**.\n\n1. Mode: strict\n\n ## Guard Policy\n\\* not a list\n<!-- Mode: strict, relaxed, or off. -->\n\nMode: strict\n  and more\n\n1. first\n2. second\n\n## Other\n1. first\n2. second\nmode :   STRICT  \n\n"}
+{"id": "guard-00871", "kind": "guard", "content": "**Mode:** strict\n- Mode: lenient\n---\n### Guard Policy"}
+{"id": "guard-00872", "kind": "guard", "content": "Mode: _relaxed_\n\n### Guard Policy\n<!-- c --> Mode: strict\n<!----> empty\n\n<!-- hides\nMode: strict\n--> after it\n\nMode strict\n\nmode :   STRICT  "}
+{"id": "guard-00873", "kind": "guard", "content": "﻿ Mode: strict\n\n1. first\n2. second\n\n<!-- a comment -->\n\n## Guard Policy\n---\n<!-- Mode: strict, relaxed, or off. -->"}
+{"id": "guard-00874", "kind": "guard", "content": "Mode: strict\nMethodology: tdd\n# Top heading"}
+{"id": "guard-00875", "kind": "guard", "content": "﻿## Guard Policy:\n<!-- c --> Mode: strict\n<!-- Mode: strict, relaxed, or off. -->\n\n## Other\nMODE: Off\nSetext heading\n===\n\n## Deployment\nMode:\n   relaxed\n   - item\n\n## Other\n- a list item\n- another\n+ Mode: strict\n\n ## Guard Policy\n\nSome prose here.\n\n ## Guard Policy\n- [ ] Mode: strict\n<!-- a comment -->\n\n"}
+{"id": "guard-00876", "kind": "guard", "content": "> Mode: strict\n\nMode:\n\nOrdering: x\nMode: off\n\n- Mode: strict\n- Other: x\n\nMode:\n  strict\n\nMode: `off`"}
+{"id": "guard-00877", "kind": "guard", "content": "key: value\n\n> a quote\n\nModes: strict\n\n## Guard Policy\n\nA line with a trailing colon:\n\n"}
+{"id": "guard-00878", "kind": "guard", "content": "Mode: _relaxed_\n\n> Mode: strict\n\n<!-- hides\nMode: strict\n--> after it\n\n"}
+{"id": "guard-00879", "kind": "guard", "content": "## Guard Policy\n<!-- hides\nMode: strict\n--> after it\n> a quote\n\nMode: *strict*\n\n<!-- c --> Mode: strict"}
+{"id": "guard-00880", "kind": "guard", "content": "\\* not a list\n\n## Other\n\nMode: strict\n\n**Mode:** strict\n\n\\* not a list\n\n## Deployment\n\n- Mode: strict\n- Other: x\n\n## Guard Policy:\n\n## Guard Policy  \n\nMode: off.\n\n<!----> empty\n\n"}
+{"id": "guard-00881", "kind": "guard", "content": "## Guard policy\n\n* **Mode**: off\n\n### Deeper heading\n\n<!-- Mode: strict, relaxed, or off. -->\n\n1. Mode: strict\n"}
+{"id": "guard-00882", "kind": "guard", "content": "##  Guard Policy\n\n<!-- a comment -->\n> a quote\n"}
+{"id": "guard-00883", "kind": "guard", "content": "## Change Control\nModes: strict\n"}
+{"id": "guard-00884", "kind": "guard", "content": "<!----> empty\n\nMode: strict\nMethodology: tdd\n\n## Guard Policy\nMode strict\n- Mode: relaxed\nMode: strict\n  and more\n"}
+{"id": "guard-00885", "kind": "guard", "content": "## Guard policy\n\n---\n### Deeper heading\n  indented two\nMode: strict\n## Guard Policy\nMode: `off`\nMode:\n   relaxed\n   - item\nMode:\n  strict\n"}
+{"id": "guard-00886", "kind": "guard", "content": "   - Mode: strict\nMode: strict # really\n## Deployment\n\nText with *emphasis* and **strong**.\n"}
+{"id": "guard-00887", "kind": "guard", "content": "### Guard Policy\r\n\r\nMode strict\r\n\r\n| a | b |\r\n|---|---|\r\n| 1 | 2 |\r\n\r\nMode: strict\r\n\r\n<!----> empty"}
+{"id": "guard-00888", "kind": "guard", "content": "## Guard Policy\n\n<!----> empty\n\nSetext heading\n===\n\nA `code span` and `another <tag>` here.\n\n## Change Control\n* **Mode**: off\n<!-- a comment -->\n\n## Guard policy\n\nModes: strict\n\n# Top heading\n\nMode: _relaxed_\n\n## Guard policy\n\n<!-- a comment -->\n\n### Deeper heading\n\n   indented three\n\nModes: strict\n\n"}
+{"id": "guard-00889", "kind": "guard", "content": "﻿Mode: off.\n\n  Mode: off\n\n## Guard Policy:\n\n\\* not a list\n\nMode:\n  strict\n\n## Other\n\nA line with a trailing colon:\n\n"}
+{"id": "guard-00890", "kind": "guard", "content": "A line with a trailing colon:\n\n"}
+{"id": "guard-00891", "kind": "guard", "content": "Mode: strict\nMethodology: tdd"}
+{"id": "guard-00892", "kind": "guard", "content": "Some prose here.\n\n## Guard Policy  \n\n### Deeper heading\n\nTwo lines\nof prose.\n\nTwo lines\nof prose.\n\n## Other\n<!-- hides\nMode: strict\n--> after it\n<!----> empty\n* **Mode**: off\n"}
+{"id": "guard-00893", "kind": "guard", "content": "key: value\n\n1. Mode: strict\n\n1. first\n2. second\n\nMODE: Off\n\n##  Guard Policy\n\nA `code span` and `another <tag>` here.\n\n## Guard Policy:\n\nMODE: Off\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n"}
+{"id": "guard-00894", "kind": "guard", "content": "<!-- Mode: strict, relaxed, or off. -->\n<!----> empty\n## Guard Policy:\n ## Guard Policy\n Mode: strict\n> Mode: strict\nMode: strict\n## Guard policy\n\nTwo lines\nof prose.\n\n<!-- c --> Mode: strict\n\n---"}
+{"id": "guard-00895", "kind": "guard", "content": "##  Guard Policy\n- [ ] Mode: strict\nA line with a trailing colon:\n---\n\n## Guard Policy:\n\nMode:\n  strict\n\n<!-- Mode: strict, relaxed, or off. -->\n\nMode: strict\n  and more\n\n## Guard policy\n\nSome prose here.\n\n## Guard Policy:\n---\nSetext heading\n===\n### Deeper heading"}
+{"id": "guard-00896", "kind": "guard", "content": "Mode strict\n\nMode: strict # really\n\n   indented three\n"}
+{"id": "guard-00897", "kind": "guard", "content": "A `code span` and `another <tag>` here.\n\n## Guard Policy\nA `code span` and `another <tag>` here.\nMODE: Off\n- Mode:\n  relaxed\n  wrapped\n\n> Mode: strict\n\n---\n\nMode: strict\nMethodology: tdd\n\n"}
+{"id": "guard-00898", "kind": "guard", "content": "> a quote\n\n### Guard Policy\n\n- Mode: strict\n- Other: x\n\nkey: value\n\n## Other\n\nMode strict\n\nMODE: Off\n\nText with *emphasis* and **strong**.\n"}
+{"id": "guard-00899", "kind": "guard", "content": "## Guard Policy  \n\nTwo lines\nof prose.\n\n   indented three\n\n   indented three\n- [ ] Mode: strict"}
+{"id": "guard-00900", "kind": "guard", "content": "### Guard Policy\n\nMode:   \n  \n\n\nkey: value\n\n  Mode: off\n\n<!-- hides\n## Guard Policy\nMode: strict\n-->\n\n<!-- multi\nline\ncomment -->\n\n## Other\n\nA `code span` and `another <tag>` here.\n\n  indented two\n\n## Other\n"}
+{"id": "guard-00901", "kind": "guard", "content": "Ordering: x\nMode: off\n\n## Other\nMode: strict\n  and more\n**Mode:** strict\n> Mode: strict\n\nA line with a trailing colon:\n\n"}
+{"id": "guard-00902", "kind": "guard", "content": "## Guard Policy:\n\n- Mode: strict\n- Other: x\nMode: strict\n  and more\n Mode: strict\n## Deployment\n\n---\n\n   indented three\n\\* not a list\n\\* not a list"}
+{"id": "guard-00903", "kind": "guard", "content": "<!-- c --> Mode: strict\n## Guard Policy  \n\n"}
+{"id": "guard-00904", "kind": "guard", "content": "Mode: off.\n\n# Top heading\n\n<!-- multi\nline\ncomment -->\n\n   indented three\n\nText with *emphasis* and **strong**.\n"}
+{"id": "guard-00905", "kind": "guard", "content": "- Mode: strict\n- Other: x\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n## Guard Policy\n\nmode :   STRICT  \n\nMode:\n\n  strict\n\n"}
+{"id": "guard-00906", "kind": "guard", "content": "Mode: _relaxed_\n\nText with *emphasis* and **strong**.\n\n## Other\n\n+ Mode: strict\n\n**Mode:** strict\n\n---\n\n## Guard policy\n\n- [ ] Mode: strict\n\n## Guard Policy\n<!-- hides\nMode: strict\n--> after it"}
+{"id": "guard-00907", "kind": "guard", "content": "## Guard Policy\n\n> - [a]: b\n\t\n\nMode: off\n"}
+{"id": "guard-00908", "kind": "guard", "content": "## Guard Policy\n<pre>\n</ſtyle>\nMode: strict\n</pre>\n"}
+{"id": "guard-00909", "kind": "guard", "content": "## Guard Policy\n<pre\f>\nMode: strict\n"}
+{"id": "guard-00910", "kind": "guard", "content": "## Guard Policy\n- see [the plan](docs/plan.md\n  \"Mode: strict\")\n- Mode: off\n"}
+{"id": "guard-00911", "kind": "guard", "content": "## Guard Policy\n- a\n  > ```\n  > x\n  > ```\n  Mode: relaxed\n"}
+{"id": "guard-00912", "kind": "guard", "content": "## Guard Policy\r\nMode: strict\r"}

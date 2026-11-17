@@ -1,0 +1,16 @@
+{"id":"reviewer_dispatch-00000","out":{"record":{"reviewer":"focus-architecture-reviewer-agent","stage":"nfr-design","unit":"U01","exempt":["a","b"]}}}
+{"id":"reviewer_dispatch-00001","out":{"record":{"reviewer":"r","stage":"","unit":"u","exempt":[]}}}
+{"id":"reviewer_dispatch-00002","out":{"record":null}}
+{"id":"reviewer_dispatch-00003","out":{"record":null}}
+{"id":"reviewer_dispatch-00004","out":{"record":null}}
+{"id":"reviewer_dispatch-00005","out":{"record":null}}
+{"id":"reviewer_dispatch-00006","out":{"record":null}}
+{"id":"reviewer_dispatch-00007","out":{"record":null}}
+{"id":"reviewer_dispatch-00008","out":{"record":null}}
+{"id":"reviewer_dispatch-00009","out":{"record":null}}
+{"id":"reviewer_dispatch-00010","out":{"record":null}}
+{"id":"reviewer_dispatch-00011","out":{"record":null}}
+{"id":"reviewer_dispatch-00012","out":{"record":null}}
+{"id":"reviewer_dispatch-00013","out":{"record":null}}
+{"id":"reviewer_dispatch-00014","out":{"record":{"reviewer":"r","stage":"s","unit":"u","exempt":[]}}}
+{"id":"reviewer_dispatch-00015","out":{"record":null}}

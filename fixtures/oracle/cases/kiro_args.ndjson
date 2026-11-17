@@ -1,0 +1,430 @@
+{"id": "kiro_args-00000", "kind": "kiro_args", "raw": ""}
+{"id": "kiro_args-00001", "kind": "kiro_args", "raw": " "}
+{"id": "kiro_args-00002", "kind": "kiro_args", "raw": "a b  c"}
+{"id": "kiro_args-00003", "kind": "kiro_args", "raw": "a 'b c' d"}
+{"id": "kiro_args-00004", "kind": "kiro_args", "raw": "a \"b c\" d"}
+{"id": "kiro_args-00005", "kind": "kiro_args", "raw": "a 'b"}
+{"id": "kiro_args-00006", "kind": "kiro_args", "raw": "a \"b"}
+{"id": "kiro_args-00007", "kind": "kiro_args", "raw": "a\\ b"}
+{"id": "kiro_args-00008", "kind": "kiro_args", "raw": "a\\;b"}
+{"id": "kiro_args-00009", "kind": "kiro_args", "raw": "a\\'b"}
+{"id": "kiro_args-00010", "kind": "kiro_args", "raw": "a\\\"b"}
+{"id": "kiro_args-00011", "kind": "kiro_args", "raw": "'a\\'b'"}
+{"id": "kiro_args-00012", "kind": "kiro_args", "raw": "\"a\\\"b\""}
+{"id": "kiro_args-00013", "kind": "kiro_args", "raw": "'a\\\"b'"}
+{"id": "kiro_args-00014", "kind": "kiro_args", "raw": "a\\x"}
+{"id": "kiro_args-00015", "kind": "kiro_args", "raw": "a\\\\b"}
+{"id": "kiro_args-00016", "kind": "kiro_args", "raw": "C:\\Users\\x y"}
+{"id": "kiro_args-00017", "kind": "kiro_args", "raw": "C:\\x\\ y"}
+{"id": "kiro_args-00018", "kind": "kiro_args", "raw": "'C:\\x'"}
+{"id": "kiro_args-00019", "kind": "kiro_args", "raw": "x\\ y C:\\z"}
+{"id": "kiro_args-00020", "kind": "kiro_args", "raw": "users' files"}
+{"id": "kiro_args-00021", "kind": "kiro_args", "raw": "it's fine"}
+{"id": "kiro_args-00022", "kind": "kiro_args", "raw": "'it's' fine"}
+{"id": "kiro_args-00023", "kind": "kiro_args", "raw": "rock 'n' roll"}
+{"id": "kiro_args-00024", "kind": "kiro_args", "raw": "a' b"}
+{"id": "kiro_args-00025", "kind": "kiro_args", "raw": "a 'b' 'c"}
+{"id": "kiro_args-00026", "kind": "kiro_args", "raw": "'a'b"}
+{"id": "kiro_args-00027", "kind": "kiro_args", "raw": "a'b'c"}
+{"id": "kiro_args-00028", "kind": "kiro_args", "raw": "''"}
+{"id": "kiro_args-00029", "kind": "kiro_args", "raw": "\"\""}
+{"id": "kiro_args-00030", "kind": "kiro_args", "raw": "'"}
+{"id": "kiro_args-00031", "kind": "kiro_args", "raw": "\""}
+{"id": "kiro_args-00032", "kind": "kiro_args", "raw": "--output a\\ b --export"}
+{"id": "kiro_args-00033", "kind": "kiro_args", "raw": "--output 'a\\' --export"}
+{"id": "kiro_args-00034", "kind": "kiro_args", "raw": "--output 'a\\'b'"}
+{"id": "kiro_args-00035", "kind": "kiro_args", "raw": "--output a\\ b"}
+{"id": "kiro_args-00036", "kind": "kiro_args", "raw": "--output 'a\\' x"}
+{"id": "kiro_args-00037", "kind": "kiro_args", "raw": "--output \"a\\\" --output"}
+{"id": "kiro_args-00038", "kind": "kiro_args", "raw": "--export a\\ b --export"}
+{"id": "kiro_args-00039", "kind": "kiro_args", "raw": "\\"}
+{"id": "kiro_args-00040", "kind": "kiro_args", "raw": "a\\"}
+{"id": "kiro_args-00041", "kind": "kiro_args", "raw": "a \\"}
+{"id": "kiro_args-00042", "kind": "kiro_args", "raw": "\\ a"}
+{"id": "kiro_args-00043", "kind": "kiro_args", "raw": "\\\\"}
+{"id": "kiro_args-00044", "kind": "kiro_args", "raw": "a\tb"}
+{"id": "kiro_args-00045", "kind": "kiro_args", "raw": "a\nb"}
+{"id": "kiro_args-00046", "kind": "kiro_args", "raw": "a b"}
+{"id": "kiro_args-00047", "kind": "kiro_args", "raw": "a b"}
+{"id": "kiro_args-00048", "kind": "kiro_args", "raw": "é 'café' été's"}
+{"id": "kiro_args-00049", "kind": "kiro_args", "raw": "l'été"}
+{"id": "kiro_args-00050", "kind": "kiro_args", "raw": "😀 '😀' 😀's"}
+{"id": "kiro_args-00051", "kind": "kiro_args", "raw": "😀'😀"}
+{"id": "kiro_args-00052", "kind": "kiro_args", "raw": "a'😀"}
+{"id": "kiro_args-00053", "kind": "kiro_args", "raw": "😀'a"}
+{"id": "kiro_args-00054", "kind": "kiro_args", "raw": "\\😀"}
+{"id": "kiro_args-00055", "kind": "kiro_args", "raw": "'\\😀'"}
+{"id": "kiro_args-00056", "kind": "kiro_args", "raw": "--output \\😀 --export"}
+{"id": "kiro_args-00057", "kind": "kiro_args", "raw": "x; y"}
+{"id": "kiro_args-00058", "kind": "kiro_args", "raw": "x\\; y"}
+{"id": "kiro_args-00059", "kind": "kiro_args", "raw": "'x; y'"}
+{"id": "kiro_args-00060", "kind": "kiro_args", "raw": "a=b c"}
+{"id": "kiro_args-00061", "kind": "kiro_args", "raw": "--k=v w"}
+{"id": "kiro_args-00062", "kind": "kiro_args", "raw": "\"a b\" 'c d' e\\ f g"}
+{"id": "kiro_args-00063", "kind": "kiro_args", "raw": "'a' 'b'"}
+{"id": "kiro_args-00064", "kind": "kiro_args", "raw": "'a''b'"}
+{"id": "kiro_args-00065", "kind": "kiro_args", "raw": "'a'\"b\""}
+{"id": "kiro_args-00066", "kind": "kiro_args", "raw": "a\"b\"c"}
+{"id": "kiro_args-00067", "kind": "kiro_args", "raw": "\"\" ''"}
+{"id": "kiro_args-00068", "kind": "kiro_args", "raw": "''a"}
+{"id": "kiro_args-00069", "kind": "kiro_args", "raw": "a\"\""}
+{"id": "kiro_args-00070", "kind": "kiro_args", "raw": "=v\t--output  bcC:"}
+{"id": "kiro_args-00071", "kind": "kiro_args", "raw": "--export  bcé"}
+{"id": "kiro_args-00072", "kind": "kiro_args", "raw": " "}
+{"id": "kiro_args-00073", "kind": "kiro_args", "raw": "\\\"\tn'😀;aé"}
+{"id": "kiro_args-00074", "kind": "kiro_args", "raw": "\"bc;"}
+{"id": "kiro_args-00075", "kind": "kiro_args", "raw": "  "}
+{"id": "kiro_args-00076", "kind": "kiro_args", "raw": "\\"}
+{"id": "kiro_args-00077", "kind": "kiro_args", "raw": "'sé=v;"}
+{"id": "kiro_args-00078", "kind": "kiro_args", "raw": "\";--outputbcé'sC:\""}
+{"id": "kiro_args-00079", "kind": "kiro_args", "raw": "\\--k"}
+{"id": "kiro_args-00080", "kind": "kiro_args", "raw": "--exportC:a😀';"}
+{"id": "kiro_args-00081", "kind": "kiro_args", "raw": "'s'sa😀😀--export'\\x"}
+{"id": "kiro_args-00082", "kind": "kiro_args", "raw": "\\x's"}
+{"id": "kiro_args-00083", "kind": "kiro_args", "raw": "'sn' bc=v"}
+{"id": "kiro_args-00084", "kind": "kiro_args", "raw": "C:'sa's--output "}
+{"id": "kiro_args-00085", "kind": "kiro_args", "raw": "  'é--export"}
+{"id": "kiro_args-00086", "kind": "kiro_args", "raw": " \t\tébc\\it's"}
+{"id": "kiro_args-00087", "kind": "kiro_args", "raw": "n'--output"}
+{"id": "kiro_args-00088", "kind": "kiro_args", "raw": "--export\t😀--export'"}
+{"id": "kiro_args-00089", "kind": "kiro_args", "raw": "--export\"it's\"a--exportbc--output"}
+{"id": "kiro_args-00090", "kind": "kiro_args", "raw": "bc=v\\C:--output"}
+{"id": "kiro_args-00091", "kind": "kiro_args", "raw": "=v n'it'sn'=v's'"}
+{"id": "kiro_args-00092", "kind": "kiro_args", "raw": "--export'sn'--export😀n'"}
+{"id": "kiro_args-00093", "kind": "kiro_args", "raw": "😀\\😀--k"}
+{"id": "kiro_args-00094", "kind": "kiro_args", "raw": "éit's'"}
+{"id": "kiro_args-00095", "kind": "kiro_args", "raw": "--outputit'sit'sa'"}
+{"id": "kiro_args-00096", "kind": "kiro_args", "raw": "--k'--export';=v"}
+{"id": "kiro_args-00097", "kind": "kiro_args", "raw": "\tC:'bc\"C:\\"}
+{"id": "kiro_args-00098", "kind": "kiro_args", "raw": "n'C:\t\\  C:it's"}
+{"id": "kiro_args-00099", "kind": "kiro_args", "raw": "\\xn'--output"}
+{"id": "kiro_args-00100", "kind": "kiro_args", "raw": "\\ "}
+{"id": "kiro_args-00101", "kind": "kiro_args", "raw": " \té"}
+{"id": "kiro_args-00102", "kind": "kiro_args", "raw": "--output\\x😀--k'=v"}
+{"id": "kiro_args-00103", "kind": "kiro_args", "raw": "\tC:n'n'\t's=v--export"}
+{"id": "kiro_args-00104", "kind": "kiro_args", "raw": " \tC: =vé"}
+{"id": "kiro_args-00105", "kind": "kiro_args", "raw": "it's=v--export😀 it's--export"}
+{"id": "kiro_args-00106", "kind": "kiro_args", "raw": "--export=v--output--output--export  é--k"}
+{"id": "kiro_args-00107", "kind": "kiro_args", "raw": ";C:\t'"}
+{"id": "kiro_args-00108", "kind": "kiro_args", "raw": "n'é--outputC:n'"}
+{"id": "kiro_args-00109", "kind": "kiro_args", "raw": "--ka \t\t"}
+{"id": "kiro_args-00110", "kind": "kiro_args", "raw": "😀it'sa  "}
+{"id": "kiro_args-00111", "kind": "kiro_args", "raw": ";;"}
+{"id": "kiro_args-00112", "kind": "kiro_args", "raw": "  ;a--k--k--outputC:"}
+{"id": "kiro_args-00113", "kind": "kiro_args", "raw": "bcn'--k;😀C:"}
+{"id": "kiro_args-00114", "kind": "kiro_args", "raw": "\\\""}
+{"id": "kiro_args-00115", "kind": "kiro_args", "raw": "\\\"--output--k\\"}
+{"id": "kiro_args-00116", "kind": "kiro_args", "raw": "\\xé--k=v\"--export"}
+{"id": "kiro_args-00117", "kind": "kiro_args", "raw": "é😀\\xit's  =v"}
+{"id": "kiro_args-00118", "kind": "kiro_args", "raw": "  a\t--outputit's--kn'"}
+{"id": "kiro_args-00119", "kind": "kiro_args", "raw": " \" C:C:a  é"}
+{"id": "kiro_args-00120", "kind": "kiro_args", "raw": "  n'n'=v  \\x "}
+{"id": "kiro_args-00121", "kind": "kiro_args", "raw": "\"\\"}
+{"id": "kiro_args-00122", "kind": "kiro_args", "raw": "😀=v\""}
+{"id": "kiro_args-00123", "kind": "kiro_args", "raw": "abc--outputn';"}
+{"id": "kiro_args-00124", "kind": "kiro_args", "raw": "é😀"}
+{"id": "kiro_args-00125", "kind": "kiro_args", "raw": "n'--exportn'é"}
+{"id": "kiro_args-00126", "kind": "kiro_args", "raw": "bc\"\t"}
+{"id": "kiro_args-00127", "kind": "kiro_args", "raw": "n';a"}
+{"id": "kiro_args-00128", "kind": "kiro_args", "raw": "\\x  "}
+{"id": "kiro_args-00129", "kind": "kiro_args", "raw": "it'sbc'sn'a\tan'"}
+{"id": "kiro_args-00130", "kind": "kiro_args", "raw": "it's ;\\x--output"}
+{"id": "kiro_args-00131", "kind": "kiro_args", "raw": "  ;--output"}
+{"id": "kiro_args-00132", "kind": "kiro_args", "raw": "it'séit's's\t"}
+{"id": "kiro_args-00133", "kind": "kiro_args", "raw": "n'"}
+{"id": "kiro_args-00134", "kind": "kiro_args", "raw": "é--output's'\\x's"}
+{"id": "kiro_args-00135", "kind": "kiro_args", "raw": "\\'s\"\\  "}
+{"id": "kiro_args-00136", "kind": "kiro_args", "raw": "é\"--exportC:"}
+{"id": "kiro_args-00137", "kind": "kiro_args", "raw": "bc\t--kit's"}
+{"id": "kiro_args-00138", "kind": "kiro_args", "raw": "\\'"}
+{"id": "kiro_args-00139", "kind": "kiro_args", "raw": "it's\\x bcit'sC:\t"}
+{"id": "kiro_args-00140", "kind": "kiro_args", "raw": "C:\\xC:'--k'sn'"}
+{"id": "kiro_args-00141", "kind": "kiro_args", "raw": "bc--export--output"}
+{"id": "kiro_args-00142", "kind": "kiro_args", "raw": "--k--k\t=v;\\--export;"}
+{"id": "kiro_args-00143", "kind": "kiro_args", "raw": "  =vabc"}
+{"id": "kiro_args-00144", "kind": "kiro_args", "raw": "\tC:"}
+{"id": "kiro_args-00145", "kind": "kiro_args", "raw": "\\C:\"--output"}
+{"id": "kiro_args-00146", "kind": "kiro_args", "raw": "--exportn'😀--k--k--output"}
+{"id": "kiro_args-00147", "kind": "kiro_args", "raw": "n'a"}
+{"id": "kiro_args-00148", "kind": "kiro_args", "raw": "C:"}
+{"id": "kiro_args-00149", "kind": "kiro_args", "raw": "'s--k"}
+{"id": "kiro_args-00150", "kind": "kiro_args", "raw": "=v"}
+{"id": "kiro_args-00151", "kind": "kiro_args", "raw": "--outputC:"}
+{"id": "kiro_args-00152", "kind": "kiro_args", "raw": "'an''s\t\\x'"}
+{"id": "kiro_args-00153", "kind": "kiro_args", "raw": "bcn'\\\tn'a\\x"}
+{"id": "kiro_args-00154", "kind": "kiro_args", "raw": "a\\😀"}
+{"id": "kiro_args-00155", "kind": "kiro_args", "raw": "C:\\x  ';"}
+{"id": "kiro_args-00156", "kind": "kiro_args", "raw": "\t\"'  😀n'\\x"}
+{"id": "kiro_args-00157", "kind": "kiro_args", "raw": "😀"}
+{"id": "kiro_args-00158", "kind": "kiro_args", "raw": "😀--k😀😀\""}
+{"id": "kiro_args-00159", "kind": "kiro_args", "raw": "\\x--export 's's"}
+{"id": "kiro_args-00160", "kind": "kiro_args", "raw": "--output--outputa\\'n'"}
+{"id": "kiro_args-00161", "kind": "kiro_args", "raw": "é--k--export"}
+{"id": "kiro_args-00162", "kind": "kiro_args", "raw": "it's\"😀'it's--k--ka"}
+{"id": "kiro_args-00163", "kind": "kiro_args", "raw": "=v'é\\xn'it's\";"}
+{"id": "kiro_args-00164", "kind": "kiro_args", "raw": "=v"}
+{"id": "kiro_args-00165", "kind": "kiro_args", "raw": "\\--output=vit's=v"}
+{"id": "kiro_args-00166", "kind": "kiro_args", "raw": "bc'sC:\\xn'é"}
+{"id": "kiro_args-00167", "kind": "kiro_args", "raw": "n'"}
+{"id": "kiro_args-00168", "kind": "kiro_args", "raw": "\\xit's\\\t  ;'C:"}
+{"id": "kiro_args-00169", "kind": "kiro_args", "raw": "--export--export'"}
+{"id": "kiro_args-00170", "kind": "kiro_args", "raw": "\"'\\\\x😀--output\\"}
+{"id": "kiro_args-00171", "kind": "kiro_args", "raw": "--output--k😀a--k=v"}
+{"id": "kiro_args-00172", "kind": "kiro_args", "raw": "  a"}
+{"id": "kiro_args-00173", "kind": "kiro_args", "raw": "--output"}
+{"id": "kiro_args-00174", "kind": "kiro_args", "raw": "'s"}
+{"id": "kiro_args-00175", "kind": "kiro_args", "raw": "\\=v  \\x"}
+{"id": "kiro_args-00176", "kind": "kiro_args", "raw": "'s  --output--output's it'sit's"}
+{"id": "kiro_args-00177", "kind": "kiro_args", "raw": "ébc;a\t=v"}
+{"id": "kiro_args-00178", "kind": "kiro_args", "raw": "😀"}
+{"id": "kiro_args-00179", "kind": "kiro_args", "raw": " =v C: --output"}
+{"id": "kiro_args-00180", "kind": "kiro_args", "raw": "C:an'  \\x"}
+{"id": "kiro_args-00181", "kind": "kiro_args", "raw": "bc\\xC: bc"}
+{"id": "kiro_args-00182", "kind": "kiro_args", "raw": "--export"}
+{"id": "kiro_args-00183", "kind": "kiro_args", "raw": "  a'--export"}
+{"id": "kiro_args-00184", "kind": "kiro_args", "raw": "=van''s\\😀\""}
+{"id": "kiro_args-00185", "kind": "kiro_args", "raw": "n''sé'sC:"}
+{"id": "kiro_args-00186", "kind": "kiro_args", "raw": "  😀--exportbcé"}
+{"id": "kiro_args-00187", "kind": "kiro_args", "raw": "'s😀\\=vbc"}
+{"id": "kiro_args-00188", "kind": "kiro_args", "raw": "  ;\""}
+{"id": "kiro_args-00189", "kind": "kiro_args", "raw": "it's'\\😀''s--output"}
+{"id": "kiro_args-00190", "kind": "kiro_args", "raw": "\\"}
+{"id": "kiro_args-00191", "kind": "kiro_args", "raw": "  --exportn'bc--output'"}
+{"id": "kiro_args-00192", "kind": "kiro_args", "raw": "a\\x"}
+{"id": "kiro_args-00193", "kind": "kiro_args", "raw": "--export"}
+{"id": "kiro_args-00194", "kind": "kiro_args", "raw": "it's';--k  =v=v"}
+{"id": "kiro_args-00195", "kind": "kiro_args", "raw": "--output--k's\t\\x--exporté--export"}
+{"id": "kiro_args-00196", "kind": "kiro_args", "raw": "\\xaa\\x\t"}
+{"id": "kiro_args-00197", "kind": "kiro_args", "raw": "C:--k\t"}
+{"id": "kiro_args-00198", "kind": "kiro_args", "raw": "ébc😀\\x"}
+{"id": "kiro_args-00199", "kind": "kiro_args", "raw": "é=v--k\\"}
+{"id": "kiro_args-00200", "kind": "kiro_args", "raw": "\\x\\--k=v's  =v"}
+{"id": "kiro_args-00201", "kind": "kiro_args", "raw": "--export=v--k\\;  \\"}
+{"id": "kiro_args-00202", "kind": "kiro_args", "raw": "--outputa--export'\"  bc"}
+{"id": "kiro_args-00203", "kind": "kiro_args", "raw": ";\\"}
+{"id": "kiro_args-00204", "kind": "kiro_args", "raw": "  "}
+{"id": "kiro_args-00205", "kind": "kiro_args", "raw": "aC: "}
+{"id": "kiro_args-00206", "kind": "kiro_args", "raw": "=v\t"}
+{"id": "kiro_args-00207", "kind": "kiro_args", "raw": "a;;"}
+{"id": "kiro_args-00208", "kind": "kiro_args", "raw": ";\\--export"}
+{"id": "kiro_args-00209", "kind": "kiro_args", "raw": "\\xén'a"}
+{"id": "kiro_args-00210", "kind": "kiro_args", "raw": "'--export"}
+{"id": "kiro_args-00211", "kind": "kiro_args", "raw": ";"}
+{"id": "kiro_args-00212", "kind": "kiro_args", "raw": "😀  it's\"it's--outputén'"}
+{"id": "kiro_args-00213", "kind": "kiro_args", "raw": "--k 's"}
+{"id": "kiro_args-00214", "kind": "kiro_args", "raw": "--output😀n'=vbc's'"}
+{"id": "kiro_args-00215", "kind": "kiro_args", "raw": "n'n'\"bc"}
+{"id": "kiro_args-00216", "kind": "kiro_args", "raw": "  =v--k  --exportbc\\--export"}
+{"id": "kiro_args-00217", "kind": "kiro_args", "raw": "--kC:bc  😀a"}
+{"id": "kiro_args-00218", "kind": "kiro_args", "raw": "=v--k;"}
+{"id": "kiro_args-00219", "kind": "kiro_args", "raw": "n'' é"}
+{"id": "kiro_args-00220", "kind": "kiro_args", "raw": "--output\\'n''abc=v"}
+{"id": "kiro_args-00221", "kind": "kiro_args", "raw": "--export"}
+{"id": "kiro_args-00222", "kind": "kiro_args", "raw": "\"--k"}
+{"id": "kiro_args-00223", "kind": "kiro_args", "raw": ";\"\\😀"}
+{"id": "kiro_args-00224", "kind": "kiro_args", "raw": "  n'"}
+{"id": "kiro_args-00225", "kind": "kiro_args", "raw": "n'--k'a;C:  "}
+{"id": "kiro_args-00226", "kind": "kiro_args", "raw": "C: C:😀n''"}
+{"id": "kiro_args-00227", "kind": "kiro_args", "raw": ";\\=v"}
+{"id": "kiro_args-00228", "kind": "kiro_args", "raw": "\"--exporté--export"}
+{"id": "kiro_args-00229", "kind": "kiro_args", "raw": "é--k"}
+{"id": "kiro_args-00230", "kind": "kiro_args", "raw": "'a\";C:\t\\"}
+{"id": "kiro_args-00231", "kind": "kiro_args", "raw": "a--k n'--output  \\=v"}
+{"id": "kiro_args-00232", "kind": "kiro_args", "raw": "\tn';--k;"}
+{"id": "kiro_args-00233", "kind": "kiro_args", "raw": ";C:C:😀C:"}
+{"id": "kiro_args-00234", "kind": "kiro_args", "raw": "--k😀it's;😀"}
+{"id": "kiro_args-00235", "kind": "kiro_args", "raw": "\\x--output--exporté--output--exportit's"}
+{"id": "kiro_args-00236", "kind": "kiro_args", "raw": "😀😀bc "}
+{"id": "kiro_args-00237", "kind": "kiro_args", "raw": "'"}
+{"id": "kiro_args-00238", "kind": "kiro_args", "raw": "é=v--export\"\\x"}
+{"id": "kiro_args-00239", "kind": "kiro_args", "raw": "  bc"}
+{"id": "kiro_args-00240", "kind": "kiro_args", "raw": "éC:'"}
+{"id": "kiro_args-00241", "kind": "kiro_args", "raw": ";"}
+{"id": "kiro_args-00242", "kind": "kiro_args", "raw": "  it's;"}
+{"id": "kiro_args-00243", "kind": "kiro_args", "raw": "--output😀\"'s  "}
+{"id": "kiro_args-00244", "kind": "kiro_args", "raw": "😀"}
+{"id": "kiro_args-00245", "kind": "kiro_args", "raw": " 's\\é\"a;"}
+{"id": "kiro_args-00246", "kind": "kiro_args", "raw": "\t"}
+{"id": "kiro_args-00247", "kind": "kiro_args", "raw": "--kit's\""}
+{"id": "kiro_args-00248", "kind": "kiro_args", "raw": "\\=v"}
+{"id": "kiro_args-00249", "kind": "kiro_args", "raw": "'s"}
+{"id": "kiro_args-00250", "kind": "kiro_args", "raw": "\"\\\\\t;"}
+{"id": "kiro_args-00251", "kind": "kiro_args", "raw": "\\x--output\tC:'s--k\t'"}
+{"id": "kiro_args-00252", "kind": "kiro_args", "raw": ";--output\"--exportn'"}
+{"id": "kiro_args-00253", "kind": "kiro_args", "raw": ";'ait's😀\""}
+{"id": "kiro_args-00254", "kind": "kiro_args", "raw": "n'\t--k"}
+{"id": "kiro_args-00255", "kind": "kiro_args", "raw": "n'é \\x;"}
+{"id": "kiro_args-00256", "kind": "kiro_args", "raw": "--k=v=v\"aaa"}
+{"id": "kiro_args-00257", "kind": "kiro_args", "raw": "\\C:\t;bc--k''s"}
+{"id": "kiro_args-00258", "kind": "kiro_args", "raw": "\\--k😀 --k;\\x"}
+{"id": "kiro_args-00259", "kind": "kiro_args", "raw": "'s"}
+{"id": "kiro_args-00260", "kind": "kiro_args", "raw": "a--k  bc'"}
+{"id": "kiro_args-00261", "kind": "kiro_args", "raw": "a 'bc  --k\\x"}
+{"id": "kiro_args-00262", "kind": "kiro_args", "raw": "an'  "}
+{"id": "kiro_args-00263", "kind": "kiro_args", "raw": "'s--output     =v;"}
+{"id": "kiro_args-00264", "kind": "kiro_args", "raw": " --outputC:  --kn'"}
+{"id": "kiro_args-00265", "kind": "kiro_args", "raw": "n'bcn'😀\"'"}
+{"id": "kiro_args-00266", "kind": "kiro_args", "raw": "bcé--export "}
+{"id": "kiro_args-00267", "kind": "kiro_args", "raw": "é--output's"}
+{"id": "kiro_args-00268", "kind": "kiro_args", "raw": "it'sn'a"}
+{"id": "kiro_args-00269", "kind": "kiro_args", "raw": ";\\x\"--export"}
+{"id": "kiro_args-00270", "kind": "kiro_args", "raw": "  "}
+{"id": "kiro_args-00271", "kind": "kiro_args", "raw": "C:\\C:\t\"'"}
+{"id": "kiro_args-00272", "kind": "kiro_args", "raw": "\t--k ;\tbc"}
+{"id": "kiro_args-00273", "kind": "kiro_args", "raw": "C:\"--export"}
+{"id": "kiro_args-00274", "kind": "kiro_args", "raw": "--k\\"}
+{"id": "kiro_args-00275", "kind": "kiro_args", "raw": "  C: \\x\\xC:--export"}
+{"id": "kiro_args-00276", "kind": "kiro_args", "raw": ";it's"}
+{"id": "kiro_args-00277", "kind": "kiro_args", "raw": "=v"}
+{"id": "kiro_args-00278", "kind": "kiro_args", "raw": "--output;=v\t'😀"}
+{"id": "kiro_args-00279", "kind": "kiro_args", "raw": "'\\x--k--k  "}
+{"id": "kiro_args-00280", "kind": "kiro_args", "raw": "';''--output'a"}
+{"id": "kiro_args-00281", "kind": "kiro_args", "raw": "it'sbc--outputa\\xé\"a"}
+{"id": "kiro_args-00282", "kind": "kiro_args", "raw": "😀C:--export"}
+{"id": "kiro_args-00283", "kind": "kiro_args", "raw": "'s"}
+{"id": "kiro_args-00284", "kind": "kiro_args", "raw": "n'=v"}
+{"id": "kiro_args-00285", "kind": "kiro_args", "raw": "\t\"C:it's\tn'--output "}
+{"id": "kiro_args-00286", "kind": "kiro_args", "raw": "'s'=v"}
+{"id": "kiro_args-00287", "kind": "kiro_args", "raw": "n'it's"}
+{"id": "kiro_args-00288", "kind": "kiro_args", "raw": "--outputn'\tn'it's \"\""}
+{"id": "kiro_args-00289", "kind": "kiro_args", "raw": "\téit's"}
+{"id": "kiro_args-00290", "kind": "kiro_args", "raw": "a\tn'\t\"C:  ;"}
+{"id": "kiro_args-00291", "kind": "kiro_args", "raw": "=v\\x a\\xéit's"}
+{"id": "kiro_args-00292", "kind": "kiro_args", "raw": "  ;it'sC:--k  \\x"}
+{"id": "kiro_args-00293", "kind": "kiro_args", "raw": "\t--output--outputa"}
+{"id": "kiro_args-00294", "kind": "kiro_args", "raw": "én'\"n'\""}
+{"id": "kiro_args-00295", "kind": "kiro_args", "raw": "--output\t😀"}
+{"id": "kiro_args-00296", "kind": "kiro_args", "raw": "😀é"}
+{"id": "kiro_args-00297", "kind": "kiro_args", "raw": "=v'😀\"--k'"}
+{"id": "kiro_args-00298", "kind": "kiro_args", "raw": "C:bcé\\\"--export"}
+{"id": "kiro_args-00299", "kind": "kiro_args", "raw": "\\\\xan'"}
+{"id": "kiro_args-00300", "kind": "kiro_args", "raw": "C:"}
+{"id": "kiro_args-00301", "kind": "kiro_args", "raw": "ait'sC:\\x 'sé"}
+{"id": "kiro_args-00302", "kind": "kiro_args", "raw": "\\'--exportn'--export\t \t"}
+{"id": "kiro_args-00303", "kind": "kiro_args", "raw": ";"}
+{"id": "kiro_args-00304", "kind": "kiro_args", "raw": "=v\t"}
+{"id": "kiro_args-00305", "kind": "kiro_args", "raw": "--output\\  "}
+{"id": "kiro_args-00306", "kind": "kiro_args", "raw": "--k--k é=v"}
+{"id": "kiro_args-00307", "kind": "kiro_args", "raw": "\t--k--output\""}
+{"id": "kiro_args-00308", "kind": "kiro_args", "raw": "it's;\\x--export   '"}
+{"id": "kiro_args-00309", "kind": "kiro_args", "raw": "'s;  it's😀"}
+{"id": "kiro_args-00310", "kind": "kiro_args", "raw": "'s  "}
+{"id": "kiro_args-00311", "kind": "kiro_args", "raw": "C: it's😀;'s=v\""}
+{"id": "kiro_args-00312", "kind": "kiro_args", "raw": " 's"}
+{"id": "kiro_args-00313", "kind": "kiro_args", "raw": "\t =vit's C:'s--k"}
+{"id": "kiro_args-00314", "kind": "kiro_args", "raw": "'s's\\--output😀;\t"}
+{"id": "kiro_args-00315", "kind": "kiro_args", "raw": "C:"}
+{"id": "kiro_args-00316", "kind": "kiro_args", "raw": "--output😀'"}
+{"id": "kiro_args-00317", "kind": "kiro_args", "raw": "bcn'😀\t=v"}
+{"id": "kiro_args-00318", "kind": "kiro_args", "raw": "\" it's--output"}
+{"id": "kiro_args-00319", "kind": "kiro_args", "raw": "--output=v\tC:😀=vn'"}
+{"id": "kiro_args-00320", "kind": "kiro_args", "raw": "\t\"  😀\tC:"}
+{"id": "kiro_args-00321", "kind": "kiro_args", "raw": "\"'s's\t "}
+{"id": "kiro_args-00322", "kind": "kiro_args", "raw": "  \t\t\\it's"}
+{"id": "kiro_args-00323", "kind": "kiro_args", "raw": "--output\\é"}
+{"id": "kiro_args-00324", "kind": "kiro_args", "raw": "--exporta\t  "}
+{"id": "kiro_args-00325", "kind": "kiro_args", "raw": "é--kbc😀a"}
+{"id": "kiro_args-00326", "kind": "kiro_args", "raw": "C:"}
+{"id": "kiro_args-00327", "kind": "kiro_args", "raw": "C:=v"}
+{"id": "kiro_args-00328", "kind": "kiro_args", "raw": "  --output\"😀"}
+{"id": "kiro_args-00329", "kind": "kiro_args", "raw": ";it's--output\"\\x\\"}
+{"id": "kiro_args-00330", "kind": "kiro_args", "raw": "--export=v's\"--output--outputa\\x"}
+{"id": "kiro_args-00331", "kind": "kiro_args", "raw": "n'é--k\"😀\té\""}
+{"id": "kiro_args-00332", "kind": "kiro_args", "raw": "a\t\\x; "}
+{"id": "kiro_args-00333", "kind": "kiro_args", "raw": "C:;\\;\t's's"}
+{"id": "kiro_args-00334", "kind": "kiro_args", "raw": "  it's\\x--k--k--export"}
+{"id": "kiro_args-00335", "kind": "kiro_args", "raw": "n';--export"}
+{"id": "kiro_args-00336", "kind": "kiro_args", "raw": "it's'\\xn'C:it's--exportbc"}
+{"id": "kiro_args-00337", "kind": "kiro_args", "raw": "'s"}
+{"id": "kiro_args-00338", "kind": "kiro_args", "raw": "😀bc\t\\x--kC:C:é"}
+{"id": "kiro_args-00339", "kind": "kiro_args", "raw": ";bc"}
+{"id": "kiro_args-00340", "kind": "kiro_args", "raw": "   \t\\it'sit's"}
+{"id": "kiro_args-00341", "kind": "kiro_args", "raw": "it'sbc\t --outputé"}
+{"id": "kiro_args-00342", "kind": "kiro_args", "raw": "--output"}
+{"id": "kiro_args-00343", "kind": "kiro_args", "raw": "--kit's"}
+{"id": "kiro_args-00344", "kind": "kiro_args", "raw": "\\x"}
+{"id": "kiro_args-00345", "kind": "kiro_args", "raw": "it's"}
+{"id": "kiro_args-00346", "kind": "kiro_args", "raw": "--k's"}
+{"id": "kiro_args-00347", "kind": "kiro_args", "raw": "😀"}
+{"id": "kiro_args-00348", "kind": "kiro_args", "raw": "é\\ébc"}
+{"id": "kiro_args-00349", "kind": "kiro_args", "raw": "bc😀\t--k  "}
+{"id": "kiro_args-00350", "kind": "kiro_args", "raw": "'\\"}
+{"id": "kiro_args-00351", "kind": "kiro_args", "raw": "é\"\\=v"}
+{"id": "kiro_args-00352", "kind": "kiro_args", "raw": "é   n'bc--k;é"}
+{"id": "kiro_args-00353", "kind": "kiro_args", "raw": "C:😀n'\\  --k"}
+{"id": "kiro_args-00354", "kind": "kiro_args", "raw": "--k'\t--export\"bc\\x"}
+{"id": "kiro_args-00355", "kind": "kiro_args", "raw": "   "}
+{"id": "kiro_args-00356", "kind": "kiro_args", "raw": "--k--k--export "}
+{"id": "kiro_args-00357", "kind": "kiro_args", "raw": "C:;--k\\x's\\x"}
+{"id": "kiro_args-00358", "kind": "kiro_args", "raw": "\\--exporta'sit's😀"}
+{"id": "kiro_args-00359", "kind": "kiro_args", "raw": "\"n'=vC:\\C:  "}
+{"id": "kiro_args-00360", "kind": "kiro_args", "raw": "😀;--exportaéit's"}
+{"id": "kiro_args-00361", "kind": "kiro_args", "raw": "'sit's\"\t  =v"}
+{"id": "kiro_args-00362", "kind": "kiro_args", "raw": "=v   a--output"}
+{"id": "kiro_args-00363", "kind": "kiro_args", "raw": "'s;\ta"}
+{"id": "kiro_args-00364", "kind": "kiro_args", "raw": "--outputa--output--output'éC:bc"}
+{"id": "kiro_args-00365", "kind": "kiro_args", "raw": "--output's'\""}
+{"id": "kiro_args-00366", "kind": "kiro_args", "raw": " \"=v'=v"}
+{"id": "kiro_args-00367", "kind": "kiro_args", "raw": "n'    \t=v--k\\x--export"}
+{"id": "kiro_args-00368", "kind": "kiro_args", "raw": "=v😀n'--kn'\""}
+{"id": "kiro_args-00369", "kind": "kiro_args", "raw": "é\"bc ;"}
+{"id": "kiro_args-00370", "kind": "kiro_args", "raw": "é'it'sit's"}
+{"id": "kiro_args-00371", "kind": "kiro_args", "raw": "bcit'sa'sbc"}
+{"id": "kiro_args-00372", "kind": "kiro_args", "raw": "\"an'"}
+{"id": "kiro_args-00373", "kind": "kiro_args", "raw": "'s--output"}
+{"id": "kiro_args-00374", "kind": "kiro_args", "raw": "\\xit's--outputn'--export=v"}
+{"id": "kiro_args-00375", "kind": "kiro_args", "raw": "it's\"--output\\\"'sé"}
+{"id": "kiro_args-00376", "kind": "kiro_args", "raw": "é--export\\--k'"}
+{"id": "kiro_args-00377", "kind": "kiro_args", "raw": "; "}
+{"id": "kiro_args-00378", "kind": "kiro_args", "raw": "--output\\"}
+{"id": "kiro_args-00379", "kind": "kiro_args", "raw": "\"--outputn'"}
+{"id": "kiro_args-00380", "kind": "kiro_args", "raw": "it'sa;\t';'"}
+{"id": "kiro_args-00381", "kind": "kiro_args", "raw": "--output's--export--output\"é\\"}
+{"id": "kiro_args-00382", "kind": "kiro_args", "raw": "=vC:=vit's\\x"}
+{"id": "kiro_args-00383", "kind": "kiro_args", "raw": "n'\tbc --export;;--k"}
+{"id": "kiro_args-00384", "kind": "kiro_args", "raw": "bca"}
+{"id": "kiro_args-00385", "kind": "kiro_args", "raw": "--export"}
+{"id": "kiro_args-00386", "kind": "kiro_args", "raw": "😀\"--export--export bc'"}
+{"id": "kiro_args-00387", "kind": "kiro_args", "raw": "C:bc;C:n'a😀"}
+{"id": "kiro_args-00388", "kind": "kiro_args", "raw": "--outputbc\"é;éit's\\"}
+{"id": "kiro_args-00389", "kind": "kiro_args", "raw": "bcit'sa"}
+{"id": "kiro_args-00390", "kind": "kiro_args", "raw": "aé=v"}
+{"id": "kiro_args-00391", "kind": "kiro_args", "raw": "n'\\a;  😀\\x"}
+{"id": "kiro_args-00392", "kind": "kiro_args", "raw": "=va'n'n'"}
+{"id": "kiro_args-00393", "kind": "kiro_args", "raw": "it's'sa\"\""}
+{"id": "kiro_args-00394", "kind": "kiro_args", "raw": "'s\\xa--kbc"}
+{"id": "kiro_args-00395", "kind": "kiro_args", "raw": "\t  --k--output"}
+{"id": "kiro_args-00396", "kind": "kiro_args", "raw": "😀--kC:--export bc=v"}
+{"id": "kiro_args-00397", "kind": "kiro_args", "raw": "\\' \\xC:C:"}
+{"id": "kiro_args-00398", "kind": "kiro_args", "raw": "  "}
+{"id": "kiro_args-00399", "kind": "kiro_args", "raw": "--output"}
+{"id": "kiro_args-00400", "kind": "kiro_args", "raw": "\t\tit's\\x😀"}
+{"id": "kiro_args-00401", "kind": "kiro_args", "raw": "\tn'"}
+{"id": "kiro_args-00402", "kind": "kiro_args", "raw": "a--k--exporta's"}
+{"id": "kiro_args-00403", "kind": "kiro_args", "raw": "--output  --kbc  \\"}
+{"id": "kiro_args-00404", "kind": "kiro_args", "raw": "a\t=vbcC: --output"}
+{"id": "kiro_args-00405", "kind": "kiro_args", "raw": "'s"}
+{"id": "kiro_args-00406", "kind": "kiro_args", "raw": "--output's=v"}
+{"id": "kiro_args-00407", "kind": "kiro_args", "raw": "😀--outputn'bcbc "}
+{"id": "kiro_args-00408", "kind": "kiro_args", "raw": "😀😀it'sC:"}
+{"id": "kiro_args-00409", "kind": "kiro_args", "raw": "C:\\=v\""}
+{"id": "kiro_args-00410", "kind": "kiro_args", "raw": ";\\"}
+{"id": "kiro_args-00411", "kind": "kiro_args", "raw": "😀 \"--kn''sC:"}
+{"id": "kiro_args-00412", "kind": "kiro_args", "raw": "\\=v"}
+{"id": "kiro_args-00413", "kind": "kiro_args", "raw": "it'sé \\xbc--output--k--export"}
+{"id": "kiro_args-00414", "kind": "kiro_args", "raw": "\tn'   "}
+{"id": "kiro_args-00415", "kind": "kiro_args", "raw": "\"😀 a--output"}
+{"id": "kiro_args-00416", "kind": "kiro_args", "raw": "😀--k  "}
+{"id": "kiro_args-00417", "kind": "kiro_args", "raw": "😀\t'sé\t"}
+{"id": "kiro_args-00418", "kind": "kiro_args", "raw": "'sbc\"'s"}
+{"id": "kiro_args-00419", "kind": "kiro_args", "raw": "=vn'"}
+{"id": "kiro_args-00420", "kind": "kiro_args", "raw": ";"}
+{"id": "kiro_args-00421", "kind": "kiro_args", "raw": " --export\t's C:"}
+{"id": "kiro_args-00422", "kind": "kiro_args", "raw": "=v\t--k--export😀--export's--export"}
+{"id": "kiro_args-00423", "kind": "kiro_args", "raw": "é'n'--output'éit's"}
+{"id": "kiro_args-00424", "kind": "kiro_args", "raw": "\t'C:  =v"}
+{"id": "kiro_args-00425", "kind": "kiro_args", "raw": "\\\\'  ;;"}
+{"id": "kiro_args-00426", "kind": "kiro_args", "raw": "\\n'😀C:  '"}
+{"id": "kiro_args-00427", "kind": "kiro_args", "raw": "\""}
+{"id": "kiro_args-00428", "kind": "kiro_args", "raw": "a"}
+{"id": "kiro_args-00429", "kind": "kiro_args", "raw": "--export--output--k\\  "}

@@ -1,0 +1,453 @@
+{"id": "engine_command-00000", "kind": "engine_command", "command": "bun .claude/tools/focus.ts engine state approve x"}
+{"id": "engine_command-00001", "kind": "engine_command", "command": "bun '/p q/.claude/tools/focus.ts' engine orchestrate help"}
+{"id": "engine_command-00002", "kind": "engine_command", "command": "bun \"/p/.kiro\\tools\\focus.ts\" engine runtime compile"}
+{"id": "engine_command-00003", "kind": "engine_command", "command": "bun .claude/tools/focus.ts engine state advance && bun .claude/tools/focus-runtime.ts compile"}
+{"id": "engine_command-00004", "kind": "engine_command", "command": "focus engine runtime compile"}
+{"id": "engine_command-00005", "kind": "engine_command", "command": "echo 'focus engine runtime compile'"}
+{"id": "engine_command-00006", "kind": "engine_command", "command": "focus state approve; focus engine runtime compile"}
+{"id": "engine_command-00007", "kind": "engine_command", "command": "bun .claude/tools/focus-utility.ts status"}
+{"id": "engine_command-00008", "kind": "engine_command", "command": "bun .claude/tools/focus-orchestrate.ts report --result done"}
+{"id": "engine_command-00009", "kind": "engine_command", "command": "bun .claude/tools/focus-orchestrate.ts next"}
+{"id": "engine_command-00010", "kind": "engine_command", "command": "focus next --resume && focus report"}
+{"id": "engine_command-00011", "kind": "engine_command", "command": "focus next report"}
+{"id": "engine_command-00012", "kind": "engine_command", "command": "focus engine orchestrate report"}
+{"id": "engine_command-00013", "kind": "engine_command", "command": "focus scope change"}
+{"id": "engine_command-00014", "kind": "engine_command", "command": "focus config set x y"}
+{"id": "engine_command-00015", "kind": "engine_command", "command": "focus config get x"}
+{"id": "engine_command-00016", "kind": "engine_command", "command": "focus intent create"}
+{"id": "engine_command-00017", "kind": "engine_command", "command": "focus workspace status"}
+{"id": "engine_command-00018", "kind": "engine_command", "command": "focus unit"}
+{"id": "engine_command-00019", "kind": "engine_command", "command": "focus recompose"}
+{"id": "engine_command-00020", "kind": "engine_command", "command": "focusx state"}
+{"id": "engine_command-00021", "kind": "engine_command", "command": "xfocus state"}
+{"id": "engine_command-00022", "kind": "engine_command", "command": "cd /p && focus next"}
+{"id": "engine_command-00023", "kind": "engine_command", "command": "cd -- /p && bun .claude/tools/focus.ts engine orchestrate continue 2>&1"}
+{"id": "engine_command-00024", "kind": "engine_command", "command": "cd rel && focus next"}
+{"id": "engine_command-00025", "kind": "engine_command", "command": "cd /p && cd /q && focus next"}
+{"id": "engine_command-00026", "kind": "engine_command", "command": "env X=1 focus report"}
+{"id": "engine_command-00027", "kind": "engine_command", "command": "env -i focus park"}
+{"id": "engine_command-00028", "kind": "engine_command", "command": "env -- focus next"}
+{"id": "engine_command-00029", "kind": "engine_command", "command": "command focus next"}
+{"id": "engine_command-00030", "kind": "engine_command", "command": "command -v focus next"}
+{"id": "engine_command-00031", "kind": "engine_command", "command": "exec -- focus next"}
+{"id": "engine_command-00032", "kind": "engine_command", "command": "exec -x focus next"}
+{"id": "engine_command-00033", "kind": "engine_command", "command": "X=1 bun .claude/tools/focus-orchestrate.ts next"}
+{"id": "engine_command-00034", "kind": "engine_command", "command": "node .claude/tools/focus.ts engine orchestrate next"}
+{"id": "engine_command-00035", "kind": "engine_command", "command": "bun .gemini/tools/focus.ts engine orchestrate next"}
+{"id": "engine_command-00036", "kind": "engine_command", "command": "bun focus.ts engine orchestrate next"}
+{"id": "engine_command-00037", "kind": "engine_command", "command": "focus.ts engine orchestrate next"}
+{"id": "engine_command-00038", "kind": "engine_command", "command": "focus --project-dir /p next"}
+{"id": "engine_command-00039", "kind": "engine_command", "command": "focus --project-dir"}
+{"id": "engine_command-00040", "kind": "engine_command", "command": "focus --project-dir=/p engine orchestrate next --focus-attempt-id a1"}
+{"id": "engine_command-00041", "kind": "engine_command", "command": "focus engine orchestrate next --focus-attempt-id"}
+{"id": "engine_command-00042", "kind": "engine_command", "command": "focus orchestrate --json next"}
+{"id": "engine_command-00043", "kind": "engine_command", "command": "focus -- next"}
+{"id": "engine_command-00044", "kind": "engine_command", "command": "focus next -- --json"}
+{"id": "engine_command-00045", "kind": "engine_command", "command": "bun .claude/tools/focus-orchestrate.ts --json next"}
+{"id": "engine_command-00046", "kind": "engine_command", "command": "bun .claude/tools/focus-orchestrate.ts --project-dir /p next"}
+{"id": "engine_command-00047", "kind": "engine_command", "command": "focus next | cat"}
+{"id": "engine_command-00048", "kind": "engine_command", "command": "focus next > out"}
+{"id": "engine_command-00049", "kind": "engine_command", "command": "focus next; echo"}
+{"id": "engine_command-00050", "kind": "engine_command", "command": "focus 'next'"}
+{"id": "engine_command-00051", "kind": "engine_command", "command": "focus \"next\""}
+{"id": "engine_command-00052", "kind": "engine_command", "command": "focus \"ne\\\"xt\""}
+{"id": "engine_command-00053", "kind": "engine_command", "command": "focus ne\\xt"}
+{"id": "engine_command-00054", "kind": "engine_command", "command": "focus ~/x"}
+{"id": "engine_command-00055", "kind": "engine_command", "command": "focus x~"}
+{"id": "engine_command-00056", "kind": "engine_command", "command": "focus $(x)"}
+{"id": "engine_command-00057", "kind": "engine_command", "command": "focus `x`"}
+{"id": "engine_command-00058", "kind": "engine_command", "command": "focus #x"}
+{"id": "engine_command-00059", "kind": "engine_command", "command": "focus next\n"}
+{"id": "engine_command-00060", "kind": "engine_command", "command": "focus\tnext"}
+{"id": "engine_command-00061", "kind": "engine_command", "command": "  focus next  "}
+{"id": "engine_command-00062", "kind": "engine_command", "command": "focus next 2>&1"}
+{"id": "engine_command-00063", "kind": "engine_command", "command": "focus next 2>&1 2>&1"}
+{"id": "engine_command-00064", "kind": "engine_command", "command": "focus next\t2>&1"}
+{"id": "engine_command-00065", "kind": "engine_command", "command": ""}
+{"id": "engine_command-00066", "kind": "engine_command", "command": "   "}
+{"id": "engine_command-00067", "kind": "engine_command", "command": "cd /p &&"}
+{"id": "engine_command-00068", "kind": "engine_command", "command": "&& focus next"}
+{"id": "engine_command-00069", "kind": "engine_command", "command": "cd /p && && focus next"}
+{"id": "engine_command-00070", "kind": "engine_command", "command": "cd '/p q' && focus next"}
+{"id": "engine_command-00071", "kind": "engine_command", "command": "cd \"C:\\p\" && focus next"}
+{"id": "engine_command-00072", "kind": "engine_command", "command": "cd 'C:/p' && focus next"}
+{"id": "engine_command-00073", "kind": "engine_command", "command": "cd '\\\\srv\\share' && focus next"}
+{"id": "engine_command-00074", "kind": "engine_command", "command": "cd '\\\\srv' && focus next"}
+{"id": "engine_command-00075", "kind": "engine_command", "command": "cd /p -- && focus next"}
+{"id": "engine_command-00076", "kind": "engine_command", "command": "cd -- -- /p && focus next"}
+{"id": "engine_command-00077", "kind": "engine_command", "command": "bun .claude/tools/focus.ts engine"}
+{"id": "engine_command-00078", "kind": "engine_command", "command": "bun .claude/tools/focus.ts"}
+{"id": "engine_command-00079", "kind": "engine_command", "command": "focus"}
+{"id": "engine_command-00080", "kind": "engine_command", "command": "focus engine"}
+{"id": "engine_command-00081", "kind": "engine_command", "command": "focus engine orchestrate"}
+{"id": "engine_command-00082", "kind": "engine_command", "command": "focus orchestrate next"}
+{"id": "engine_command-00083", "kind": "engine_command", "command": "focus continue"}
+{"id": "engine_command-00084", "kind": "engine_command", "command": "focus park"}
+{"id": "engine_command-00085", "kind": "engine_command", "command": "focus swarm x"}
+{"id": "engine_command-00086", "kind": "engine_command", "command": "focus bolt create"}
+{"id": "engine_command-00087", "kind": "engine_command", "command": "bun .claude/tools/focus-swarm.ts next"}
+{"id": "engine_command-00088", "kind": "engine_command", "command": "bun .claude/tools/focus-state.ts next"}
+{"id": "engine_command-00089", "kind": "engine_command", "command": "bun .claude/tools/focus-jump.ts resolve"}
+{"id": "engine_command-00090", "kind": "engine_command", "command": "sudo focus next"}
+{"id": "engine_command-00091", "kind": "engine_command", "command": "sh -c 'focus next'"}
+{"id": "engine_command-00092", "kind": "engine_command", "command": "bash focus next"}
+{"id": "engine_command-00093", "kind": "engine_command", "command": "env -- ls -la next execute --status"}
+{"id": "engine_command-00094", "kind": "engine_command", "command": "pushd /p && \"/p q/.cursor\\tools\\focus-worktree.ts engine scope --resume --verbose"}
+{"id": "engine_command-00095", "kind": "engine_command", "command": "cd ~ && focus.exe next advance"}
+{"id": "engine_command-00096", "kind": "engine_command", "command": "bun \"a/b/.gemini\\tools\\focus-state.ts\" engine jump help 2>&1 "}
+{"id": "engine_command-00097", "kind": "engine_command", "command": "FOCUS orchestrate --json --"}
+{"id": "engine_command-00098", "kind": "engine_command", "command": "bun C:/p/.codex/tools/focus-jump.ts engine continue help"}
+{"id": "engine_command-00099", "kind": "engine_command", "command": "echo runtime create resolve"}
+{"id": "engine_command-00100", "kind": "engine_command", "command": "cd -- /p && env ./focus engine report"}
+{"id": "engine_command-00101", "kind": "engine_command", "command": "focus (x)"}
+{"id": "engine_command-00102", "kind": "engine_command", "command": "focus engine next compile compile"}
+{"id": "engine_command-00103", "kind": "engine_command", "command": "focus  version help 'q' resolve 2>&1"}
+{"id": "engine_command-00104", "kind": "engine_command", "command": "bash bun\t ./.codex\\tools\\focus.ts engine scope --focus-attempt-id"}
+{"id": "engine_command-00105", "kind": "engine_command", "command": "ls -la park help --focus-attempt-id"}
+{"id": "engine_command-00106", "kind": "engine_command", "command": "bun /p/.codex/tools/focus-orchestrate.ts report change --json compile"}
+{"id": "engine_command-00107", "kind": "engine_command", "command": "echo config"}
+{"id": "engine_command-00108", "kind": "engine_command", "command": "ls  -la engine intent --verbose approve a"}
+{"id": "engine_command-00109", "kind": "engine_command", "command": "cd ~ && ls -la engine intent &"}
+{"id": "engine_command-00110", "kind": "engine_command", "command": "cd rel && git status engine scope --yes"}
+{"id": "engine_command-00111", "kind": "engine_command", "command": "cd ~ && bun\t '/p/.cursor\\tools\\focus.ts' engine sensor --quiet #c"}
+{"id": "engine_command-00112", "kind": "engine_command", "command": "ls -la bolt"}
+{"id": "engine_command-00113", "kind": "engine_command", "command": "ls -la engine doctor"}
+{"id": "engine_command-00114", "kind": "engine_command", "command": "/opt/bun .gemini\\tools\\focus-worktree.ts gen resolve create \"two words\""}
+{"id": "engine_command-00115", "kind": "engine_command", "command": "command -- ls -la next create create --no-color #c"}
+{"id": "engine_command-00116", "kind": "engine_command", "command": "focus engine continue --json"}
+{"id": "engine_command-00117", "kind": "engine_command", "command": "sudo /opt/bun /p/.claude2/tools/focus-log.ts config 2>&1 "}
+{"id": "engine_command-00118", "kind": "engine_command", "command": "/usr/bin/bun \"~/.codex/tools/focus.js\" engine utility --status -x"}
+{"id": "engine_command-00119", "kind": "engine_command", "command": "cd rel && command -- bun\t '\\srv\\share\\.codex/tools/focus-state.ts' engine continue change | cat"}
+{"id": "engine_command-00120", "kind": "engine_command", "command": ""}
+{"id": "engine_command-00121", "kind": "engine_command", "command": "focus engine next --project-dir help approve"}
+{"id": "engine_command-00122", "kind": "engine_command", "command": "exec -a x bun '.claude\\tools\\focus.ts' orchestrate"}
+{"id": "engine_command-00123", "kind": "engine_command", "command": "cd \\\\srv\\share && sudo /usr/local/bin/focus intent list && echo done"}
+{"id": "engine_command-00124", "kind": "engine_command", "command": "cd 'C:\\p' && focus engine report report"}
+{"id": "engine_command-00125", "kind": "engine_command", "command": "cd\t~ && ./focus engine next"}
+{"id": "engine_command-00126", "kind": "engine_command", "command": "cd -- /p && /usr/bin/bun \"C:/p/.cursor/tools/focus.js\" state x=y"}
+{"id": "engine_command-00127", "kind": "engine_command", "command": "\n"}
+{"id": "engine_command-00128", "kind": "engine_command", "command": "cd /p || X=1 Y=2 /usr/bin/bun '../.claude/tools/focus-state.ts' report --status 2>&1 "}
+{"id": "engine_command-00129", "kind": "engine_command", "command": "cd /p || bun \"/p q/.gemini\\tools\\focus.ts engine next && echo done"}
+{"id": "engine_command-00130", "kind": "engine_command", "command": "/opt/bun ~/.cursor/tools/focus-jump.ts engine jump 2>&1 "}
+{"id": "engine_command-00131", "kind": "engine_command", "command": "cd /p && sudo focus runtime --project-dir -- --project-dir &"}
+{"id": "engine_command-00132", "kind": "engine_command", "command": "cd /p; command -- ./focus engine orchestrate --json"}
+{"id": "engine_command-00133", "kind": "engine_command", "command": "cd  ~ && bunx '/p q/.focus/tools/focus.ts engine next --offline"}
+{"id": "engine_command-00134", "kind": "engine_command", "command": "sudo bun /p/.focus/tools/focus-swarm.ts state `x`"}
+{"id": "engine_command-00135", "kind": "engine_command", "command": "bun .kiro\\tools\\focus-orchestrate.ts orchestrate list"}
+{"id": "engine_command-00136", "kind": "engine_command", "command": "focusx engine scope compile execute --resume"}
+{"id": "engine_command-00137", "kind": "engine_command", "command": "env bun \".cursor\\tools\\focus.js\" swarm report \"two words\" ideation"}
+{"id": "engine_command-00138", "kind": "engine_command", "command": "command focus engine state"}
+{"id": "engine_command-00139", "kind": "engine_command", "command": "cd -- /p && node FOCUS state execute next 'q'"}
+{"id": "engine_command-00140", "kind": "engine_command", "command": "command -v focus engine gen report"}
+{"id": "engine_command-00141", "kind": "engine_command", "command": "BUN \"\\srv\\share\\.cursor/tools/focus.ts\" bolt --json"}
+{"id": "engine_command-00142", "kind": "engine_command", "command": "sh -c echo recompose resolve list --phase 2>&1"}
+{"id": "engine_command-00143", "kind": "engine_command", "command": "sh -c echo workspace --focus-attempt-id next --json"}
+{"id": "engine_command-00144", "kind": "engine_command", "command": "ls -la bolt create 2>&1 "}
+{"id": "engine_command-00145", "kind": "engine_command", "command": "bun\t'$HOME/.claude2\\tools\\focus' next approve"}
+{"id": "engine_command-00146", "kind": "engine_command", "command": "cd /p && env focusx engine state --verbose $(x)"}
+{"id": "engine_command-00147", "kind": "engine_command", "command": "focus a\\ b"}
+{"id": "engine_command-00148", "kind": "engine_command", "command": "cd 'C:\\p' && /opt/bun .focus/tools/focus-runtime.ts engine help"}
+{"id": "engine_command-00149", "kind": "engine_command", "command": "command -v bun C:/p/.codex/tools/x.ts jump"}
+{"id": "engine_command-00150", "kind": "engine_command", "command": "cd /p; focus engine bolt advance compile next #c"}
+{"id": "engine_command-00151", "kind": "engine_command", "command": "cd 'C:\\p' && command -- echo engine next --project-dir help change $(x)"}
+{"id": "engine_command-00152", "kind": "engine_command", "command": "cd \\\\srv\\share && ./focus engine orchestrate create 2>&1 "}
+{"id": "engine_command-00153", "kind": "engine_command", "command": "env -i BUN '\\srv\\share\\.kiro/tools/focus' engine next --json x=y"}
+{"id": "engine_command-00154", "kind": "engine_command", "command": "node ../.gemini\\tools\\focus-state.ts engine jump --offline \"two words\" intent-capture"}
+{"id": "engine_command-00155", "kind": "engine_command", "command": "cd /p && bun ~/.cursor\\tools\\focus-bolt.ts engine continue ideation 'q' \\\n x"}
+{"id": "engine_command-00156", "kind": "engine_command", "command": "./.claude\\tools\\focus-jump.ts report advance approve"}
+{"id": "engine_command-00157", "kind": "engine_command", "command": "cd 'C:\\p' && env focus sensor --json execute ideation"}
+{"id": "engine_command-00158", "kind": "engine_command", "command": "/p/.gemini/tools/focus-state.ts park report"}
+{"id": "engine_command-00159", "kind": "engine_command", "command": "X=1 ls -la space --status approve"}
+{"id": "engine_command-00160", "kind": "engine_command", "command": "cd rel && bash ls -la version &"}
+{"id": "engine_command-00161", "kind": "engine_command", "command": "bun\t '/p/.kiro\\tools\\focus' jump | cat"}
+{"id": "engine_command-00162", "kind": "engine_command", "command": "cd /p || exec FOCUS engine utility a resolve --offline"}
+{"id": "engine_command-00163", "kind": "engine_command", "command": "exec -a x bun C:/p/.cursor/tools/focus.js version --json"}
+{"id": "engine_command-00164", "kind": "engine_command", "command": "env X=1 Y=2 bun\t \\srv\\share\\.claude/tools/focus next \\\n x"}
+{"id": "engine_command-00165", "kind": "engine_command", "command": "git status swarm --focus-attempt-id --verbose --status \\\n x"}
+{"id": "engine_command-00166", "kind": "engine_command", "command": "/usr/local/bin/focus engine next --no-color list"}
+{"id": "engine_command-00167", "kind": "engine_command", "command": "sh -c FOCUS engine workspace next --resume"}
+{"id": "engine_command-00168", "kind": "engine_command", "command": "env X=1 Y=2 ./focus recompose resolve && echo done"}
+{"id": "engine_command-00169", "kind": "engine_command", "command": "pushd /p && sudo bun ~/.claude/tools/focus.ts workspace `x`"}
+{"id": "engine_command-00170", "kind": "engine_command", "command": "focus engine next `x`"}
+{"id": "engine_command-00171", "kind": "engine_command", "command": "cd ~ && focus engine runtime"}
+{"id": "engine_command-00172", "kind": "engine_command", "command": ".cursor/tools/focus-runtime.ts engine gen --json approve"}
+{"id": "engine_command-00173", "kind": "engine_command", "command": "focus *"}
+{"id": "engine_command-00174", "kind": "engine_command", "command": "/opt/bun /p/.codex/tools/focus-unit.ts orchestrate --focus-attempt-id 2>&1"}
+{"id": "engine_command-00175", "kind": "engine_command", "command": "cd rel && bun \\srv\\share\\.gemini\\tools\\focus-log.ts utility --"}
+{"id": "engine_command-00176", "kind": "engine_command", "command": "command -v ls -la jump 2>&1"}
+{"id": "engine_command-00177", "kind": "engine_command", "command": "cd /p q && /usr/bin/bun \"/p q/.focus\\tools\\focus-state.ts engine bolt | cat"}
+{"id": "engine_command-00178", "kind": "engine_command", "command": "echo intent execute approve -x"}
+{"id": "engine_command-00179", "kind": "engine_command", "command": "cd /p; /usr/local/bin/focus next compile \"two words\" compile"}
+{"id": "engine_command-00180", "kind": "engine_command", "command": " "}
+{"id": "engine_command-00181", "kind": "engine_command", "command": "bun\t \"/p q/.kiro/tools/focus.ts engine doctor --resume"}
+{"id": "engine_command-00182", "kind": "engine_command", "command": "focus engine intent set"}
+{"id": "engine_command-00183", "kind": "engine_command", "command": "cd \\\\srv\\share && ls -la engine space 2>&1"}
+{"id": "engine_command-00184", "kind": "engine_command", "command": "pushd /p && command -v focus engine park"}
+{"id": "engine_command-00185", "kind": "engine_command", "command": "echo engine bolt"}
+{"id": "engine_command-00186", "kind": "engine_command", "command": "cd rel && /usr/bin/bun '$HOME/.gemini/tools/focus.js' engine report resolve execute --status #c"}
+{"id": "engine_command-00187", "kind": "engine_command", "command": "BUN $HOME/.claude2/tools/focus.js version execute"}
+{"id": "engine_command-00188", "kind": "engine_command", "command": "env focus space --json help next $(x)"}
+{"id": "engine_command-00189", "kind": "engine_command", "command": "cd /p q && focus engine status create --phase --no-color"}
+{"id": "engine_command-00190", "kind": "engine_command", "command": "cd\t\\\\srv\\share && command -- echo state list --json"}
+{"id": "engine_command-00191", "kind": "engine_command", "command": "sh -c ./focus engine runtime --focus-attempt-id=a1 resolve --yes ;"}
+{"id": "engine_command-00192", "kind": "engine_command", "command": "cd\t'C:\\p' && bun '/p q/.claude2/tools/focusx.ts engine jump --quiet resolve"}
+{"id": "engine_command-00193", "kind": "engine_command", "command": " "}
+{"id": "engine_command-00194", "kind": "engine_command", "command": "sudo  focus intent"}
+{"id": "engine_command-00195", "kind": "engine_command", "command": "env X=1 Y=2 git status park compile --yes 2>&1 "}
+{"id": "engine_command-00196", "kind": "engine_command", "command": "cd /p || command -v echo engine runtime --yes list"}
+{"id": "engine_command-00197", "kind": "engine_command", "command": "exec -a x /opt/bun C:/p/.claude\\tools\\focus-swarm.ts engine space approve set"}
+{"id": "engine_command-00198", "kind": "engine_command", "command": "/usr/local/bin/focus state `x`"}
+{"id": "engine_command-00199", "kind": "engine_command", "command": "focus orchestrate change"}
+{"id": "engine_command-00200", "kind": "engine_command", "command": "cd /p || focus jump --no-color"}
+{"id": "engine_command-00201", "kind": "engine_command", "command": "echo orchestrate --resume compile --project-dir=/p"}
+{"id": "engine_command-00202", "kind": "engine_command", "command": "node bun $HOME/.cursor/tools/focus-state.ts engine utility help --focus-attempt-id=a1 && echo done"}
+{"id": "engine_command-00203", "kind": "engine_command", "command": "bun C:/p/.focus/tools/focus.ts engine state --yes --no-color --"}
+{"id": "engine_command-00204", "kind": "engine_command", "command": "echo doctor &"}
+{"id": "engine_command-00205", "kind": "engine_command", "command": "bun \".claude/tools/focus.ts\" engine report set compile"}
+{"id": "engine_command-00206", "kind": "engine_command", "command": "x\u0000y"}
+{"id": "engine_command-00207", "kind": "engine_command", "command": "cd rel && /opt/bun '/p q/.codex/tools/focus-bolt.ts help \\\n x"}
+{"id": "engine_command-00208", "kind": "engine_command", "command": "cd /p; env -- focus.exe scope \"two words\" execute --status `x`"}
+{"id": "engine_command-00209", "kind": "engine_command", "command": "cd rel && focus report --verbose resolve ideation $(x)"}
+{"id": "engine_command-00210", "kind": "engine_command", "command": "cd /p && bun a/b/.focus/tools/x.ts engine scope --focus-attempt-id --resume approve"}
+{"id": "engine_command-00211", "kind": "engine_command", "command": "/usr/bin/bun '$HOME/.claude2/tools/focus.ts' version --project-dir"}
+{"id": "engine_command-00212", "kind": "engine_command", "command": "/p/.kiro/tools/focus-jump.ts engine orchestrate help"}
+{"id": "engine_command-00213", "kind": "engine_command", "command": "pushd /p && bun \".kiro/tools/focus.ts\" next compile execute"}
+{"id": "engine_command-00214", "kind": "engine_command", "command": "bun '~/.codex/tools/focus.ts' engine scope --phase --phase ;"}
+{"id": "engine_command-00215", "kind": "engine_command", "command": "cd rel && node focus status execute &"}
+{"id": "engine_command-00216", "kind": "engine_command", "command": "focus a\\ b"}
+{"id": "engine_command-00217", "kind": "engine_command", "command": "pushd /p && sh -c ls -la continue \\\n x"}
+{"id": "engine_command-00218", "kind": "engine_command", "command": "exec focus engine gen"}
+{"id": "engine_command-00219", "kind": "engine_command", "command": "node git status engine scope list --project-dir=/p"}
+{"id": "engine_command-00220", "kind": "engine_command", "command": "./focus  jump --offline resolve list"}
+{"id": "engine_command-00221", "kind": "engine_command", "command": "echo recompose compile change \\\n x"}
+{"id": "engine_command-00222", "kind": "engine_command", "command": "env -- focus.exe next"}
+{"id": "engine_command-00223", "kind": "engine_command", "command": "cd -- /p && env -- focus runtime && echo done"}
+{"id": "engine_command-00224", "kind": "engine_command", "command": "cd \\\\srv\\share && git status config 'q'"}
+{"id": "engine_command-00225", "kind": "engine_command", "command": "cd rel && echo engine report --json && echo done"}
+{"id": "engine_command-00226", "kind": "engine_command", "command": "command -- git status intent --project-dir=/p resolve --project-dir=/p"}
+{"id": "engine_command-00227", "kind": "engine_command", "command": "command  /usr/bin/bun \\srv\\share\\.gemini/tools/focus engine orchestrate --resume --focus-attempt-id --yes $(x)"}
+{"id": "engine_command-00228", "kind": "engine_command", "command": "C:/p/.claude2\\tools\\focus-state.ts engine continue resolve next 2>&1 "}
+{"id": "engine_command-00229", "kind": "engine_command", "command": "env X=1 Y=2 BUN ''/p q/.gemini/tools/focus' engine swarm compile --offline"}
+{"id": "engine_command-00230", "kind": "engine_command", "command": "cd ~ && bun\t '/p q/.claude/tools/focus.ts workspace > out"}
+{"id": "engine_command-00231", "kind": "engine_command", "command": "git status engine next create execute \"two words\" `x`"}
+{"id": "engine_command-00232", "kind": "engine_command", "command": "command focus state report"}
+{"id": "engine_command-00233", "kind": "engine_command", "command": "cd 'C:\\p' && focus runtime --json a"}
+{"id": "engine_command-00234", "kind": "engine_command", "command": "bun\t C:/p/.cursor/tools/focus.js intent report list ;"}
+{"id": "engine_command-00235", "kind": "engine_command", "command": "cd  /p; git status swarm 'q' ;"}
+{"id": "engine_command-00236", "kind": "engine_command", "command": "git status park change approve help && echo done"}
+{"id": "engine_command-00237", "kind": "engine_command", "command": "bun \"../.cursor/tools/focus-state.ts\" engine utility && echo done"}
+{"id": "engine_command-00238", "kind": "engine_command", "command": "sudo git status engine next --status --phase 'q'"}
+{"id": "engine_command-00239", "kind": "engine_command", "command": "env -i ls -la engine jump set --status"}
+{"id": "engine_command-00240", "kind": "engine_command", "command": "X=1 Y=2 ls -la engine state --no-color --json"}
+{"id": "engine_command-00241", "kind": "engine_command", "command": "git status orchestrate --resume intent-capture --resume"}
+{"id": "engine_command-00242", "kind": "engine_command", "command": "focusx engine report intent-capture a 2>&1 "}
+{"id": "engine_command-00243", "kind": "engine_command", "command": "env  -- git status sensor list resolve \"two words\""}
+{"id": "engine_command-00244", "kind": "engine_command", "command": "command -- /usr/bin/bun \"C:/p/.focus/tools/focus.ts\" park create"}
+{"id": "engine_command-00245", "kind": "engine_command", "command": "node BUN \"$HOME/.claude2/tools/focus\" next --json list"}
+{"id": "engine_command-00246", "kind": "engine_command", "command": "bunx \"\\srv\\share\\.kiro/tools/focus.ts\" next compile help"}
+{"id": "engine_command-00247", "kind": "engine_command", "command": "command\tls -la park --yes"}
+{"id": "engine_command-00248", "kind": "engine_command", "command": "pushd /p && focusx recompose advance --no-color help &"}
+{"id": "engine_command-00249", "kind": "engine_command", "command": "/opt/bun a/b/.claude\\tools\\x.ts engine state create"}
+{"id": "engine_command-00250", "kind": "engine_command", "command": "x\u0000y"}
+{"id": "engine_command-00251", "kind": "engine_command", "command": "cd 'C:\\p' && bun '/p q/.claude/tools/focus-state.ts swarm"}
+{"id": "engine_command-00252", "kind": "engine_command", "command": "cd -- /p && env -- git status unit \"two words\" intent-capture"}
+{"id": "engine_command-00253", "kind": "engine_command", "command": "bun\t \"$HOME/.codex/tools/focus.ts\" help --phase \\\n x"}
+{"id": "engine_command-00254", "kind": "engine_command", "command": "bun ~/.claude/tools/focus.ts continue --resume"}
+{"id": "engine_command-00255", "kind": "engine_command", "command": "focus engine orchestrate 'q' intent-capture | cat"}
+{"id": "engine_command-00256", "kind": "engine_command", "command": "command -- ./focus park --project-dir report"}
+{"id": "engine_command-00257", "kind": "engine_command", "command": "focus engine continue create"}
+{"id": "engine_command-00258", "kind": "engine_command", "command": "/usr/bin/bun ../.claude2/tools/focus.ts runtime resolve help &"}
+{"id": "engine_command-00259", "kind": "engine_command", "command": "exec\tgit status orchestrate report report"}
+{"id": "engine_command-00260", "kind": "engine_command", "command": "exec echo gen help &"}
+{"id": "engine_command-00261", "kind": "engine_command", "command": "focus 'unterminated"}
+{"id": "engine_command-00262", "kind": "engine_command", "command": "focus a\\ b"}
+{"id": "engine_command-00263", "kind": "engine_command", "command": "focus swarm --json approve"}
+{"id": "engine_command-00264", "kind": "engine_command", "command": "cd 'C:\\p' && focus runtime next change 2>&1 "}
+{"id": "engine_command-00265", "kind": "engine_command", "command": "BUN '.claude2/tools/focus.ts' engine next"}
+{"id": "engine_command-00266", "kind": "engine_command", "command": "cd  /p; focus next advance help && echo done"}
+{"id": "engine_command-00267", "kind": "engine_command", "command": "focus (x)"}
+{"id": "engine_command-00268", "kind": "engine_command", "command": "git status engine gen set --project-dir=/p $(x)"}
+{"id": "engine_command-00269", "kind": "engine_command", "command": "focus engine state change $(x)"}
+{"id": "engine_command-00270", "kind": "engine_command", "command": "env X=1 Y=2 echo engine workspace"}
+{"id": "engine_command-00271", "kind": "engine_command", "command": "x\u0000y"}
+{"id": "engine_command-00272", "kind": "engine_command", "command": "cd\t/p || git status help --status --project-dir=/p > out"}
+{"id": "engine_command-00273", "kind": "engine_command", "command": "bun '/p q/.claude/tools/focus-jump.ts orchestrate"}
+{"id": "engine_command-00274", "kind": "engine_command", "command": "focus (x)"}
+{"id": "engine_command-00275", "kind": "engine_command", "command": "ls -la engine park create change $(x)"}
+{"id": "engine_command-00276", "kind": "engine_command", "command": "echo bolt --yes resolve set"}
+{"id": "engine_command-00277", "kind": "engine_command", "command": "exec -a x /opt/bun $HOME/.focus\\tools\\focus.ts engine report --focus-attempt-id=a1 create"}
+{"id": "engine_command-00278", "kind": "engine_command", "command": "echo engine config x=y change --no-color #c"}
+{"id": "engine_command-00279", "kind": "engine_command", "command": "focus.exe engine workspace resolve $(x)"}
+{"id": "engine_command-00280", "kind": "engine_command", "command": "./focus next change ideation -- #c"}
+{"id": "engine_command-00281", "kind": "engine_command", "command": "BUN '~/.claude2\\tools\\focus' engine park"}
+{"id": "engine_command-00282", "kind": "engine_command", "command": "bun \\srv\\share\\.kiro\\tools\\focusx.ts swarm \\\n x"}
+{"id": "engine_command-00283", "kind": "engine_command", "command": "git status report change"}
+{"id": "engine_command-00284", "kind": "engine_command", "command": "cd 'C:\\p' && env X=1 Y=2 ls -la space"}
+{"id": "engine_command-00285", "kind": "engine_command", "command": "cd -- /p && echo engine workspace help --status"}
+{"id": "engine_command-00286", "kind": "engine_command", "command": "focus utility list set report"}
+{"id": "engine_command-00287", "kind": "engine_command", "command": "cd 'C:\\p' && focus engine intent change report \\\n x"}
+{"id": "engine_command-00288", "kind": "engine_command", "command": "exec -a x echo engine next compile change"}
+{"id": "engine_command-00289", "kind": "engine_command", "command": "a/b/.codex/tools/focusx.ts engine bolt list report"}
+{"id": "engine_command-00290", "kind": "engine_command", "command": "git status orchestrate"}
+{"id": "engine_command-00291", "kind": "engine_command", "command": "cd /p; .claude2/tools/x.ts space report advance && echo done"}
+{"id": "engine_command-00292", "kind": "engine_command", "command": "/usr/local/bin/focus help x=y"}
+{"id": "engine_command-00293", "kind": "engine_command", "command": "cd \\\\srv\\share && env -i focus gen resolve &"}
+{"id": "engine_command-00294", "kind": "engine_command", "command": "/usr/local/bin/focus engine gen report"}
+{"id": "engine_command-00295", "kind": "engine_command", "command": "/usr/bin/bun '~/.codex/tools/focus.js' engine doctor intent-capture"}
+{"id": "engine_command-00296", "kind": "engine_command", "command": "cd /p && echo space set a advance"}
+{"id": "engine_command-00297", "kind": "engine_command", "command": "exec -a x node \\srv\\share\\.cursor\\tools\\focus-jump.ts engine status compile -x report"}
+{"id": "engine_command-00298", "kind": "engine_command", "command": "\n"}
+{"id": "engine_command-00299", "kind": "engine_command", "command": "focus bolt --yes set execute"}
+{"id": "engine_command-00300", "kind": "engine_command", "command": "\n"}
+{"id": "engine_command-00301", "kind": "engine_command", "command": "cd\trel && exec focus engine state --offline"}
+{"id": "engine_command-00302", "kind": "engine_command", "command": "exec bun \"/p q/.kiro\\tools\\focus-worktree.ts engine unit --verbose list --yes $(x)"}
+{"id": "engine_command-00303", "kind": "engine_command", "command": "'/p q/.focus\\tools\\focus-worktree.ts swarm"}
+{"id": "engine_command-00304", "kind": "engine_command", "command": "pushd  /p && git status space set --project-dir --json"}
+{"id": "engine_command-00305", "kind": "engine_command", "command": "cd -- /p && git status report ;"}
+{"id": "engine_command-00306", "kind": "engine_command", "command": "env -i FOCUS unit advance"}
+{"id": "engine_command-00307", "kind": "engine_command", "command": "focus engine doctor"}
+{"id": "engine_command-00308", "kind": "engine_command", "command": "bunx ''/p q/.claude2/tools/focus.ts' engine sensor resolve &"}
+{"id": "engine_command-00309", "kind": "engine_command", "command": "cd -- /p && exec /opt/bun $HOME/.codex/tools/focus-runtime.ts engine space advance --resume \\\n x"}
+{"id": "engine_command-00310", "kind": "engine_command", "command": "focus scope change create #c"}
+{"id": "engine_command-00311", "kind": "engine_command", "command": "ls -la engine doctor create --status"}
+{"id": "engine_command-00312", "kind": "engine_command", "command": "focus engine doctor --status create"}
+{"id": "engine_command-00313", "kind": "engine_command", "command": "sudo /opt/bun ../.cursor/tools/focus-swarm.ts intent $(x)"}
+{"id": "engine_command-00314", "kind": "engine_command", "command": "command -v C:/p/.codex\\tools\\focus.ts bolt --offline --yes --yes | cat"}
+{"id": "engine_command-00315", "kind": "engine_command", "command": "exec ./focus engine version 2>&1 "}
+{"id": "engine_command-00316", "kind": "engine_command", "command": "cd /p; ls -la engine utility"}
+{"id": "engine_command-00317", "kind": "engine_command", "command": "BUN  './.cursor/tools/focus.ts' state --resume"}
+{"id": "engine_command-00318", "kind": "engine_command", "command": "pushd /p && ./focus state advance --status ;"}
+{"id": "engine_command-00319", "kind": "engine_command", "command": "cd \\\\srv\\share && ./.cursor\\tools\\x.ts next 2>&1"}
+{"id": "engine_command-00320", "kind": "engine_command", "command": "cd rel && bun \"/p q/.cursor\\tools\\focus-state.ts recompose create"}
+{"id": "engine_command-00321", "kind": "engine_command", "command": "command -v ls -la engine status next --resume approve \\\n x"}
+{"id": "engine_command-00322", "kind": "engine_command", "command": "focus engine version -x \"two words\""}
+{"id": "engine_command-00323", "kind": "engine_command", "command": "env -- focus engine recompose --resume --no-color 2>&1"}
+{"id": "engine_command-00324", "kind": "engine_command", "command": "command /opt/bun \"/p q/.claude\\tools\\focus-jump.ts engine next x=y -- list && echo done"}
+{"id": "engine_command-00325", "kind": "engine_command", "command": " "}
+{"id": "engine_command-00326", "kind": "engine_command", "command": "cd ~ && env -- git status bolt list 2>&1 "}
+{"id": "engine_command-00327", "kind": "engine_command", "command": "/opt/bun\t$HOME/.focus/tools/focus-orchestrate.ts engine runtime advance x=y &"}
+{"id": "engine_command-00328", "kind": "engine_command", "command": "cd  ~ && focus orchestrate --status compile next 2>&1"}
+{"id": "engine_command-00329", "kind": "engine_command", "command": "cd \\\\srv\\share && X=1 ./focus gen --json ;"}
+{"id": "engine_command-00330", "kind": "engine_command", "command": "cd  /p q && bun '/p q/.focus/tools/focus-state.ts engine space --json advance"}
+{"id": "engine_command-00331", "kind": "engine_command", "command": "focus 'unterminated"}
+{"id": "engine_command-00332", "kind": "engine_command", "command": "focus intent report --status advance"}
+{"id": "engine_command-00333", "kind": "engine_command", "command": "echo\tengine park && echo done"}
+{"id": "engine_command-00334", "kind": "engine_command", "command": "exec ls -la engine next advance"}
+{"id": "engine_command-00335", "kind": "engine_command", "command": "focus\tconfig --resume approve change #c"}
+{"id": "engine_command-00336", "kind": "engine_command", "command": "focus *"}
+{"id": "engine_command-00337", "kind": "engine_command", "command": "focus (x)"}
+{"id": "engine_command-00338", "kind": "engine_command", "command": "node echo engine version --offline --phase"}
+{"id": "engine_command-00339", "kind": "engine_command", "command": "sh -c echo engine unit approve create 2>&1"}
+{"id": "engine_command-00340", "kind": "engine_command", "command": "bun\t\"\"/p q/.claude2/tools/focus-state.ts\" unit 2>&1"}
+{"id": "engine_command-00341", "kind": "engine_command", "command": "X=1 Y=2 bun\t \"~/.focus/tools/focus.ts\" intent --status \"two words\" help"}
+{"id": "engine_command-00342", "kind": "engine_command", "command": "X=1 Y=2 ../.gemini/tools/focus-unit.ts engine state change 2>&1 "}
+{"id": "engine_command-00343", "kind": "engine_command", "command": "cd \\\\srv\\share && bash ls -la report report --quiet"}
+{"id": "engine_command-00344", "kind": "engine_command", "command": "/usr/local/bin/focus engine config --resume x=y advance"}
+{"id": "engine_command-00345", "kind": "engine_command", "command": "cd \\\\srv\\share && bun .gemini\\tools\\focusx.ts engine space \"two words\" set --resume"}
+{"id": "engine_command-00346", "kind": "engine_command", "command": "cd /p || focus config execute --yes report > out"}
+{"id": "engine_command-00347", "kind": "engine_command", "command": "echo engine doctor"}
+{"id": "engine_command-00348", "kind": "engine_command", "command": "echo\tstate --json --yes --offline"}
+{"id": "engine_command-00349", "kind": "engine_command", "command": "command -v bun $HOME/.claude\\tools\\focus-runtime.ts engine swarm next"}
+{"id": "engine_command-00350", "kind": "engine_command", "command": "pushd /p && echo engine recompose --quiet"}
+{"id": "engine_command-00351", "kind": "engine_command", "command": "env  -i '/p q/.kiro/tools/focus-state.ts next report > out"}
+{"id": "engine_command-00352", "kind": "engine_command", "command": "cd 'C:\\p' && focus engine next"}
+{"id": "engine_command-00353", "kind": "engine_command", "command": "focus *"}
+{"id": "engine_command-00354", "kind": "engine_command", "command": "focus next --status --status resolve"}
+{"id": "engine_command-00355", "kind": "engine_command", "command": "env -i git status engine doctor execute \\\n x"}
+{"id": "engine_command-00356", "kind": "engine_command", "command": "X=1 bun ''/p q/.focus/tools/focus-state.ts' park --phase report"}
+{"id": "engine_command-00357", "kind": "engine_command", "command": "cd /p || bunx \"a/b/.focus\\tools\\focus.ts\" engine runtime --verbose change ;"}
+{"id": "engine_command-00358", "kind": "engine_command", "command": "sudo focus intent --json report"}
+{"id": "engine_command-00359", "kind": "engine_command", "command": "/opt/bun \\srv\\share\\.codex/tools/focus-swarm.ts report create"}
+{"id": "engine_command-00360", "kind": "engine_command", "command": "cd rel && focus jump execute &"}
+{"id": "engine_command-00361", "kind": "engine_command", "command": "ls -la report compile --status > out"}
+{"id": "engine_command-00362", "kind": "engine_command", "command": "env -i git status engine scope -x"}
+{"id": "engine_command-00363", "kind": "engine_command", "command": "env bun ./.codex/tools/focus-runtime.ts engine status `x`"}
+{"id": "engine_command-00364", "kind": "engine_command", "command": "cd /p; bun\t ''/p q/.kiro/tools/focus.js' engine orchestrate `x`"}
+{"id": "engine_command-00365", "kind": "engine_command", "command": "X=1 Y=2 ls -la engine intent \\\n x"}
+{"id": "engine_command-00366", "kind": "engine_command", "command": "X=1 Y=2 ls -la report create"}
+{"id": "engine_command-00367", "kind": "engine_command", "command": "bun \"C:/p/.kiro/tools/focus.js\" next change"}
+{"id": "engine_command-00368", "kind": "engine_command", "command": "git\tstatus engine swarm --json"}
+{"id": "engine_command-00369", "kind": "engine_command", "command": "command bun a/b/.claude2\\tools\\focus state -- --verbose #c"}
+{"id": "engine_command-00370", "kind": "engine_command", "command": "env -i bun ~/.cursor\\tools\\focus-worktree.ts orchestrate #c"}
+{"id": "engine_command-00371", "kind": "engine_command", "command": "cd 'C:\\p' && echo engine version approve && echo done"}
+{"id": "engine_command-00372", "kind": "engine_command", "command": "bun '.codex\\tools\\focus.js' swarm a help create ;"}
+{"id": "engine_command-00373", "kind": "engine_command", "command": "bun ../.kiro/tools/focus-unit.ts orchestrate list ideation --json"}
+{"id": "engine_command-00374", "kind": "engine_command", "command": "env echo engine status list execute report"}
+{"id": "engine_command-00375", "kind": "engine_command", "command": "echo engine state"}
+{"id": "engine_command-00376", "kind": "engine_command", "command": "env\t~/.claude2\\tools\\focus-worktree.ts engine runtime"}
+{"id": "engine_command-00377", "kind": "engine_command", "command": "bash ls -la orchestrate change list --project-dir && echo done"}
+{"id": "engine_command-00378", "kind": "engine_command", "command": "focusx workspace --json"}
+{"id": "engine_command-00379", "kind": "engine_command", "command": "focus report \"two words\""}
+{"id": "engine_command-00380", "kind": "engine_command", "command": "pushd /p && ls -la sensor"}
+{"id": "engine_command-00381", "kind": "engine_command", "command": "/opt/bun $HOME/.claude/tools/focusx.ts engine space --status"}
+{"id": "engine_command-00382", "kind": "engine_command", "command": "cd /p; exec focus engine runtime"}
+{"id": "engine_command-00383", "kind": "engine_command", "command": "git status sensor --quiet #c"}
+{"id": "engine_command-00384", "kind": "engine_command", "command": "bash bun ../.focus\\tools\\focus-utility.ts engine orchestrate --json"}
+{"id": "engine_command-00385", "kind": "engine_command", "command": "git status engine bolt --offline --json"}
+{"id": "engine_command-00386", "kind": "engine_command", "command": "focus continue --no-color list"}
+{"id": "engine_command-00387", "kind": "engine_command", "command": "ls -la engine recompose --offline | cat"}
+{"id": "engine_command-00388", "kind": "engine_command", "command": "\"/p q/.cursor\\tools\\focus-unit.ts engine park list approve"}
+{"id": "engine_command-00389", "kind": "engine_command", "command": "BUN \"$HOME/.codex\\tools\\focus\" report list -- next ;"}
+{"id": "engine_command-00390", "kind": "engine_command", "command": "cd \\\\srv\\share && focus engine bolt execute"}
+{"id": "engine_command-00391", "kind": "engine_command", "command": "bunx \".codex\\tools\\focus-state.ts\" engine state change set"}
+{"id": "engine_command-00392", "kind": "engine_command", "command": "focus engine space --verbose --project-dir intent-capture"}
+{"id": "engine_command-00393", "kind": "engine_command", "command": "cd /p; node echo doctor --no-color"}
+{"id": "engine_command-00394", "kind": "engine_command", "command": ""}
+{"id": "engine_command-00395", "kind": "engine_command", "command": "cd /p && /opt/bun a/b/.focus/tools/focus-bolt.ts engine unit create resolve"}
+{"id": "engine_command-00396", "kind": "engine_command", "command": "cd \\\\srv\\share && env bun\t \"~/.claude2\\tools\\focus.ts\" engine sensor set `x`"}
+{"id": "engine_command-00397", "kind": "engine_command", "command": "echo engine doctor --focus-attempt-id=a1 help"}
+{"id": "engine_command-00398", "kind": "engine_command", "command": "echo engine recompose --no-color"}
+{"id": "engine_command-00399", "kind": "engine_command", "command": "cd /p || ./focus engine space --json"}
+{"id": "engine_command-00400", "kind": "engine_command", "command": "cd /p q && exec focusx engine recompose"}
+{"id": "engine_command-00401", "kind": "engine_command", "command": "sudo echo gen"}
+{"id": "engine_command-00402", "kind": "engine_command", "command": "focus *"}
+{"id": "engine_command-00403", "kind": "engine_command", "command": "cd ~ && env -- focus engine config --focus-attempt-id=a1 --focus-attempt-id create"}
+{"id": "engine_command-00404", "kind": "engine_command", "command": "echo engine bolt approve > out"}
+{"id": "engine_command-00405", "kind": "engine_command", "command": "/usr/local/bin/focus recompose --"}
+{"id": "engine_command-00406", "kind": "engine_command", "command": "/p/.gemini/tools/focus-state.ts engine next --phase --status --json $(x)"}
+{"id": "engine_command-00407", "kind": "engine_command", "command": "git status engine doctor --phase set"}
+{"id": "engine_command-00408", "kind": "engine_command", "command": "cd rel && bun './.gemini/tools/focus-state.ts' engine next help ideation --resume"}
+{"id": "engine_command-00409", "kind": "engine_command", "command": "cd ~ && bun C:/p/.kiro/tools/focusx.ts gen help --json --status && echo done"}
+{"id": "engine_command-00410", "kind": "engine_command", "command": "cd /p && env -i ~/.claude\\tools\\focus-jump.ts runtime --json intent-capture"}
+{"id": "engine_command-00411", "kind": "engine_command", "command": "cd /p && exec bun \\srv\\share\\.focus\\tools\\focus-state.ts continue approve -- $(x)"}
+{"id": "engine_command-00412", "kind": "engine_command", "command": "BUN '\\srv\\share\\.kiro/tools/focus.ts' engine scope"}
+{"id": "engine_command-00413", "kind": "engine_command", "command": "focus next -- `x`"}
+{"id": "engine_command-00414", "kind": "engine_command", "command": "cd /p || /usr/local/bin/focus swarm -- set --offline"}
+{"id": "engine_command-00415", "kind": "engine_command", "command": "echo engine help a > out"}
+{"id": "engine_command-00416", "kind": "engine_command", "command": "cd ~ && echo engine unit"}
+{"id": "engine_command-00417", "kind": "engine_command", "command": "env X=1 Y=2 \\srv\\share\\.claude\\tools\\focusx.ts gen compile set --json 2>&1 "}
+{"id": "engine_command-00418", "kind": "engine_command", "command": "command  -v BUN .claude2/tools/focus-state.ts status advance --quiet a \\\n x"}
+{"id": "engine_command-00419", "kind": "engine_command", "command": "bun ../.cursor/tools/focus-utility.ts engine gen x=y change"}
+{"id": "engine_command-00420", "kind": "engine_command", "command": "cd\t'C:\\p' && git status sensor &"}
+{"id": "engine_command-00421", "kind": "engine_command", "command": "git status status set --focus-attempt-id 2>&1 "}
+{"id": "engine_command-00422", "kind": "engine_command", "command": "ls -la engine runtime advance execute"}
+{"id": "engine_command-00423", "kind": "engine_command", "command": "cd 'C:\\p' && bun '\\srv\\share\\.focus/tools/focus.ts' runtime ;"}
+{"id": "engine_command-00424", "kind": "engine_command", "command": "git status bolt --no-color"}
+{"id": "engine_command-00425", "kind": "engine_command", "command": "cd /p; sudo echo park list --project-dir set"}
+{"id": "engine_command-00426", "kind": "engine_command", "command": "cd /p; X=1 echo engine next | cat"}
+{"id": "engine_command-00427", "kind": "engine_command", "command": "focus runtime set"}
+{"id": "engine_command-00428", "kind": "engine_command", "command": "X=1 focus.exe space help --project-dir=/p create 2>&1"}
+{"id": "engine_command-00429", "kind": "engine_command", "command": "cd \\\\srv\\share && sudo focus doctor resolve"}
+{"id": "engine_command-00430", "kind": "engine_command", "command": "cd /p q && env -- focus utility resolve list #c"}
+{"id": "engine_command-00431", "kind": "engine_command", "command": "exec git status version"}
+{"id": "engine_command-00432", "kind": "engine_command", "command": "bunx C:/p/.claude\\tools\\focus.ts engine park"}
+{"id": "engine_command-00433", "kind": "engine_command", "command": "env  -- focus park set"}
+{"id": "engine_command-00434", "kind": "engine_command", "command": " "}
+{"id": "engine_command-00435", "kind": "engine_command", "command": "exec -a x focusx engine swarm create \"two words\" --yes | cat"}
+{"id": "engine_command-00436", "kind": "engine_command", "command": "ls -la scope --offline advance"}
+{"id": "engine_command-00437", "kind": "engine_command", "command": "env X=1 Y=2 ls -la engine utility list"}
+{"id": "engine_command-00438", "kind": "engine_command", "command": "focus engine state list create --"}
+{"id": "engine_command-00439", "kind": "engine_command", "command": "cd rel && sh -c C:/p/.codex\\tools\\focus-bolt.ts swarm --resume && echo done"}
+{"id": "engine_command-00440", "kind": "engine_command", "command": "focus next resolve change help"}
+{"id": "engine_command-00441", "kind": "engine_command", "command": "BUN \\srv\\share\\.claude2/tools/focus-state.ts engine version --yes approve --status #c"}
+{"id": "engine_command-00442", "kind": "engine_command", "command": "env -i focus doctor next"}
+{"id": "engine_command-00443", "kind": "engine_command", "command": "cd ~ && ls -la engine sensor ideation create compile"}
+{"id": "engine_command-00444", "kind": "engine_command", "command": "cd /p || focus runtime 2>&1"}
+{"id": "engine_command-00445", "kind": "engine_command", "command": "exec  -a x focus help list --offline"}
+{"id": "engine_command-00446", "kind": "engine_command", "command": "focus *"}
+{"id": "engine_command-00447", "kind": "engine_command", "command": "/usr/bin/bun $HOME/.focus/tools/focus.ts jump | cat"}
+{"id": "engine_command-00448", "kind": "engine_command", "command": "/opt/bun \\srv\\share\\.kiro/tools/focus-state.ts engine utility next `x`"}
+{"id": "engine_command-00449", "kind": "engine_command", "command": "cd \\\\srv\\share && env -- focus state --resume report --status &"}
+{"id": "engine_command-00450", "kind": "engine_command", "command": "bun .kiro/tools/focus-state.ts config --project-dir=/p ideation --resume"}
+{"id": "engine_command-00451", "kind": "engine_command", "command": "X=1 node ~/.focus/tools/focus-runtime.ts engine continue"}
+{"id": "engine_command-00452", "kind": "engine_command", "command": "env -- BUN .gemini/tools/focus.ts engine jump list"}

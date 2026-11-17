@@ -1,0 +1,90 @@
+{"id": "write_targets-00000", "kind": "write_targets", "tool": "Bash", "input": {}, "cwd": "{P}/w", "home": "/home/me", "shell": "powershell", "dirs": []}
+{"id": "write_targets-00001", "kind": "write_targets", "tool": "Glob", "input": {"paths": [], "content": "", "file_path": ""}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00002", "kind": "write_targets", "tool": "NotebookEdit", "input": {"content": "/abs/b", "file_path": "C:\\w"}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00003", "kind": "write_targets", "tool": "Bash", "input": {"command": 1}, "cwd": "{P}/w", "home": "/home/me", "shell": "powershell", "dirs": []}
+{"id": "write_targets-00004", "kind": "write_targets", "tool": "Glob", "input": {"notebook_path": "é", "path": "/abs/b"}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00005", "kind": "write_targets", "tool": "Write", "input": {}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00006", "kind": "write_targets", "tool": "Write", "input": {"old_string": 3, "notebook_path": ["x", "", 2, "y"], "content": ""}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00007", "kind": "write_targets", "tool": "Read", "input": {"content": null}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00008", "kind": "write_targets", "tool": "NotebookEdit", "input": {"path": "C:\\w", "paths": null, "content": null}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00009", "kind": "write_targets", "tool": "Edit", "input": {"notebook_path": "C:\\w", "content": "/abs/b", "file_path": ""}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00010", "kind": "write_targets", "tool": "Write", "input": {"old_string": 3, "content": null, "file_path": "é"}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00011", "kind": "write_targets", "tool": "Read", "input": {"notebook_path": 3, "old_string": "/abs/b"}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00012", "kind": "write_targets", "tool": "Edit", "input": {"content": ["x", "", 2, "y"], "file_path": ["x", "", 2, "y"]}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00013", "kind": "write_targets", "tool": "Read", "input": {}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00014", "kind": "write_targets", "tool": "Glob", "input": {}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00015", "kind": "write_targets", "tool": "Glob", "input": {"file_path": null, "path": null}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00016", "kind": "write_targets", "tool": "MultiEdit", "input": {"old_string": "/abs/b", "notebook_path": "a", "file_path": "/abs/b"}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00017", "kind": "write_targets", "tool": "Read", "input": {"paths": [], "content": 3}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00018", "kind": "write_targets", "tool": "Glob", "input": {"file_path": "/abs/b", "content": "C:\\w"}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00019", "kind": "write_targets", "tool": "Bash", "input": {}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00020", "kind": "write_targets", "tool": "Edit", "input": {}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00021", "kind": "write_targets", "tool": "bash", "input": {"content": 3}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00022", "kind": "write_targets", "tool": "bash", "input": null, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00023", "kind": "write_targets", "tool": "Write", "input": {}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00024", "kind": "write_targets", "tool": "NotebookEdit", "input": {"file_path": "C:\\w"}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00025", "kind": "write_targets", "tool": "NotebookEdit", "input": {"file_path": "é"}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00026", "kind": "write_targets", "tool": "bash", "input": {}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00027", "kind": "write_targets", "tool": "Bash", "input": {"command": 1}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00028", "kind": "write_targets", "tool": "Write", "input": {}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00029", "kind": "write_targets", "tool": "Edit", "input": {"paths": null, "notebook_path": "é", "file_path": "é"}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00030", "kind": "write_targets", "tool": "Read", "input": {"paths": ["x", "", 2, "y"]}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00031", "kind": "write_targets", "tool": "Glob", "input": {"file_path": "/abs/b", "paths": ["x", "", 2, "y"]}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00032", "kind": "write_targets", "tool": "NotebookEdit", "input": {}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00033", "kind": "write_targets", "tool": "bash", "input": null, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00034", "kind": "write_targets", "tool": "NotebookEdit", "input": {"file_path": ["x", "", 2, "y"]}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00035", "kind": "write_targets", "tool": "Write", "input": {"file_path": ["x", "", 2, "y"], "old_string": "é"}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00036", "kind": "write_targets", "tool": "MultiEdit", "input": {"path": ["x", "", 2, "y"], "file_path": "C:\\w", "paths": []}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00037", "kind": "write_targets", "tool": "Bash", "input": null, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00038", "kind": "write_targets", "tool": "Glob", "input": {}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00039", "kind": "write_targets", "tool": "Edit", "input": {"file_path": "/abs/b", "content": 3}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00040", "kind": "write_targets", "tool": "Edit", "input": {"paths": "nope", "path": "é", "old_string": ""}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00041", "kind": "write_targets", "tool": "Edit", "input": {"path": "é", "content": "/abs/b", "old_string": "é"}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00042", "kind": "write_targets", "tool": "Bash", "input": {"command": 1}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00043", "kind": "write_targets", "tool": "Edit", "input": {"paths": ["x", "", 2, "y"]}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00044", "kind": "write_targets", "tool": "Read", "input": {"paths": null, "notebook_path": 3, "old_string": "C:\\w"}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00045", "kind": "write_targets", "tool": "NotebookEdit", "input": {"notebook_path": "", "path": 3}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00046", "kind": "write_targets", "tool": "Glob", "input": {}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00047", "kind": "write_targets", "tool": "bash", "input": {"path": "a", "notebook_path": null}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00048", "kind": "write_targets", "tool": "Write", "input": {"content": "a", "notebook_path": "/abs/b", "file_path": null}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00049", "kind": "write_targets", "tool": "Write", "input": {"paths": ["x", "", 2, "y"], "old_string": "a", "path": null}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00050", "kind": "write_targets", "tool": "Edit", "input": {"paths": null}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00051", "kind": "write_targets", "tool": "Write", "input": {}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00052", "kind": "write_targets", "tool": "MultiEdit", "input": {}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00053", "kind": "write_targets", "tool": "bash", "input": {}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00054", "kind": "write_targets", "tool": "NotebookEdit", "input": {"file_path": "", "old_string": "é", "content": "/abs/b"}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00055", "kind": "write_targets", "tool": "NotebookEdit", "input": null, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00056", "kind": "write_targets", "tool": "bash", "input": {"file_path": ""}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00057", "kind": "write_targets", "tool": "Glob", "input": {"content": "/abs/b", "path": "a", "notebook_path": "C:\\w"}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00058", "kind": "write_targets", "tool": "Read", "input": {"file_path": "/abs/b"}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00059", "kind": "write_targets", "tool": "Glob", "input": {"notebook_path": "é"}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00060", "kind": "write_targets", "tool": "Edit", "input": {"content": "", "paths": ["x", "", 2, "y"], "path": null}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00061", "kind": "write_targets", "tool": "NotebookEdit", "input": null, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00062", "kind": "write_targets", "tool": "Read", "input": {"path": null, "notebook_path": "/abs/b"}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00063", "kind": "write_targets", "tool": "Bash", "input": {"command": "find -L -D opt [w] -fprint a >"}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00064", "kind": "write_targets", "tool": "MultiEdit", "input": {"paths": "nope"}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00065", "kind": "write_targets", "tool": "NotebookEdit", "input": {}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00066", "kind": "write_targets", "tool": "NotebookEdit", "input": {"paths": "nope", "notebook_path": "a", "path": ""}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00067", "kind": "write_targets", "tool": "Write", "input": null, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00068", "kind": "write_targets", "tool": "MultiEdit", "input": {}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00069", "kind": "write_targets", "tool": "MultiEdit", "input": {"path": "é", "file_path": ["x", "", 2, "y"]}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00070", "kind": "write_targets", "tool": "Edit", "input": null, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00071", "kind": "write_targets", "tool": "Glob", "input": {}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00072", "kind": "write_targets", "tool": "MultiEdit", "input": {"paths": []}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00073", "kind": "write_targets", "tool": "Bash", "input": {"command": 1}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00074", "kind": "write_targets", "tool": "Write", "input": {"file_path": "/abs/b"}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00075", "kind": "write_targets", "tool": "Write", "input": {"content": "", "path": "/abs/b"}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00076", "kind": "write_targets", "tool": "MultiEdit", "input": {"paths": "nope", "old_string": "C:\\w", "content": "/abs/b"}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00077", "kind": "write_targets", "tool": "bash", "input": {"notebook_path": null, "path": ""}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00078", "kind": "write_targets", "tool": "Read", "input": {"notebook_path": "é"}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00079", "kind": "write_targets", "tool": "Bash", "input": {}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00080", "kind": "write_targets", "tool": "NotebookEdit", "input": {"old_string": null}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00081", "kind": "write_targets", "tool": "Read", "input": null, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00082", "kind": "write_targets", "tool": "Bash", "input": {"command": 1}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00083", "kind": "write_targets", "tool": "Edit", "input": {"notebook_path": 3}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00084", "kind": "write_targets", "tool": "bash", "input": {}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00085", "kind": "write_targets", "tool": "MultiEdit", "input": {}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00086", "kind": "write_targets", "tool": "Edit", "input": {"content": "", "path": null}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00087", "kind": "write_targets", "tool": "Bash", "input": {"command": 1}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}
+{"id": "write_targets-00088", "kind": "write_targets", "tool": "Bash", "input": {"command": 1}, "cwd": "{P}/w", "home": "/home/me", "shell": "powershell", "dirs": []}
+{"id": "write_targets-00089", "kind": "write_targets", "tool": "Glob", "input": {"old_string": "é", "path": ""}, "cwd": "{P}/w", "home": "/home/me", "shell": "posix", "dirs": []}

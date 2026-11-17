@@ -1,0 +1,150 @@
+{"id":"cycles-00000","out":{"cycles":[],"topo":["s2","s1","s0"]}}
+{"id":"cycles-00001","out":{"cycles":[],"topo":["s4","s5","s0","s2","s3","s1"]}}
+{"id":"cycles-00002","out":{"cycles":[["s0","s4"]],"topo":{"error":"topoSort: cycle detected. Processed 3 of 6 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00003","out":{"cycles":[["s3"]],"topo":{"error":"topoSort: cycle detected. Processed 2 of 6 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00004","out":{"cycles":[["s0"]],"topo":{"error":"topoSort: cycle detected. Processed 0 of 2 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00005","out":{"cycles":[],"topo":["s1","s0","s2","s3","s4"]}}
+{"id":"cycles-00006","out":{"cycles":[["s0"]],"topo":{"error":"topoSort: cycle detected. Processed 0 of 1 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00007","out":{"cycles":[["s2"],["s3"]],"topo":{"error":"topoSort: cycle detected. Processed 1 of 4 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00008","out":{"cycles":[["s2"]],"topo":{"error":"topoSort: cycle detected. Processed 4 of 5 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00009","out":{"cycles":[],"topo":["s3","s0","s2","s5","s1","s4"]}}
+{"id":"cycles-00010","out":{"cycles":[["s0"]],"topo":{"error":"topoSort: cycle detected. Processed 1 of 2 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00011","out":{"cycles":[["s6","s1","s5"]],"topo":{"error":"topoSort: cycle detected. Processed 3 of 7 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00012","out":{"cycles":[],"topo":["s2","s1","s0","s3"]}}
+{"id":"cycles-00013","out":{"cycles":[["s3"]],"topo":{"error":"topoSort: cycle detected. Processed 2 of 4 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00014","out":{"cycles":[["s1"]],"topo":{"error":"topoSort: cycle detected. Processed 4 of 5 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00015","out":{"cycles":[["s0"]],"topo":{"error":"topoSort: cycle detected. Processed 1 of 2 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00016","out":{"cycles":[["s2"],["s0","s3"]],"topo":{"error":"topoSort: cycle detected. Processed 0 of 4 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00017","out":{"cycles":[["s2","s4"]],"topo":{"error":"topoSort: cycle detected. Processed 2 of 6 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00018","out":{"cycles":[["s0"]],"topo":{"error":"topoSort: cycle detected. Processed 1 of 3 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00019","out":{"cycles":[["s0"]],"topo":{"error":"topoSort: cycle detected. Processed 1 of 2 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00020","out":{"cycles":[],"topo":["s4","s2","s3","s1","s0"]}}
+{"id":"cycles-00021","out":{"cycles":[["s2"],["s4"]],"topo":{"error":"topoSort: cycle detected. Processed 4 of 6 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00022","out":{"cycles":[],"topo":["s3","s0","s4","s2","s1"]}}
+{"id":"cycles-00023","out":{"cycles":[["s1"],["s0"]],"topo":{"error":"topoSort: cycle detected. Processed 1 of 4 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00024","out":{"cycles":[],"topo":["s3","s1","s2","s0"]}}
+{"id":"cycles-00025","out":{"cycles":[["s1"]],"topo":{"error":"topoSort: cycle detected. Processed 2 of 3 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00026","out":{"cycles":[["s0"],["s2"]],"topo":{"error":"topoSort: cycle detected. Processed 2 of 4 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00027","out":{"cycles":[],"topo":["s0"]}}
+{"id":"cycles-00028","out":{"cycles":[["s2"],["s0"],["s1"]],"topo":{"error":"topoSort: cycle detected. Processed 0 of 3 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00029","out":{"cycles":[],"topo":["s0","s1"]}}
+{"id":"cycles-00030","out":{"cycles":[["s2","s0"],["s1"]],"topo":{"error":"topoSort: cycle detected. Processed 0 of 3 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00031","out":{"cycles":[],"topo":["s1","s0"]}}
+{"id":"cycles-00032","out":{"cycles":[],"topo":["s1","s3","s0","s4","s5","s2"]}}
+{"id":"cycles-00033","out":{"cycles":[],"topo":["s0"]}}
+{"id":"cycles-00034","out":{"cycles":[["s0"]],"topo":{"error":"topoSort: cycle detected. Processed 0 of 1 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00035","out":{"cycles":[],"topo":["s1","s0"]}}
+{"id":"cycles-00036","out":{"cycles":[],"topo":["s1","s0","s2","s3"]}}
+{"id":"cycles-00037","out":{"cycles":[],"topo":["s4","s1","s2","s3","s0"]}}
+{"id":"cycles-00038","out":{"cycles":[["s4","s2"]],"topo":{"error":"topoSort: cycle detected. Processed 2 of 5 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00039","out":{"cycles":[],"topo":["s5","s4","s3","s0","s1","s6","s2"]}}
+{"id":"cycles-00040","out":{"cycles":[],"topo":["s0","s2","s1"]}}
+{"id":"cycles-00041","out":{"cycles":[["s4","s1"]],"topo":{"error":"topoSort: cycle detected. Processed 3 of 5 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00042","out":{"cycles":[],"topo":["s3","s0","s4","s6","s5","s2","s1"]}}
+{"id":"cycles-00043","out":{"cycles":[["s0"],["s3"],["s2"]],"topo":{"error":"topoSort: cycle detected. Processed 1 of 4 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00044","out":{"cycles":[["s2"]],"topo":{"error":"topoSort: cycle detected. Processed 4 of 6 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00045","out":{"cycles":[["s0"]],"topo":{"error":"topoSort: cycle detected. Processed 0 of 1 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00046","out":{"cycles":[["s2"]],"topo":{"error":"topoSort: cycle detected. Processed 5 of 7 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00047","out":{"cycles":[],"topo":["s1","s0","s2"]}}
+{"id":"cycles-00048","out":{"cycles":[],"topo":["s3","s0","s4","s1","s2"]}}
+{"id":"cycles-00049","out":{"cycles":[],"topo":["s0"]}}
+{"id":"cycles-00050","out":{"cycles":[],"topo":["s2","s1","s0","s3"]}}
+{"id":"cycles-00051","out":{"cycles":[["s1"]],"topo":{"error":"topoSort: cycle detected. Processed 3 of 4 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00052","out":{"cycles":[["s0"]],"topo":{"error":"topoSort: cycle detected. Processed 2 of 3 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00053","out":{"cycles":[],"topo":["s3","s5","s6","s4","s0","s1","s2"]}}
+{"id":"cycles-00054","out":{"cycles":[["s1"],["s0"]],"topo":{"error":"topoSort: cycle detected. Processed 0 of 2 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00055","out":{"cycles":[["s0"]],"topo":{"error":"topoSort: cycle detected. Processed 0 of 1 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00056","out":{"cycles":[["s1"]],"topo":{"error":"topoSort: cycle detected. Processed 1 of 2 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00057","out":{"cycles":[["s1","s3"]],"topo":{"error":"topoSort: cycle detected. Processed 3 of 6 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00058","out":{"cycles":[["s2"]],"topo":{"error":"topoSort: cycle detected. Processed 0 of 3 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00059","out":{"cycles":[["s5"],["s4"]],"topo":{"error":"topoSort: cycle detected. Processed 3 of 6 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00060","out":{"cycles":[],"topo":["s1","s0","s2"]}}
+{"id":"cycles-00061","out":{"cycles":[["s2","s0","s6"]],"topo":{"error":"topoSort: cycle detected. Processed 3 of 7 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00062","out":{"cycles":[["s0"]],"topo":{"error":"topoSort: cycle detected. Processed 2 of 4 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00063","out":{"cycles":[["s0","s2"]],"topo":{"error":"topoSort: cycle detected. Processed 3 of 5 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00064","out":{"cycles":[["s0","s2","s1"]],"topo":{"error":"topoSort: cycle detected. Processed 0 of 3 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00065","out":{"cycles":[["s4"],["s3"]],"topo":{"error":"topoSort: cycle detected. Processed 1 of 6 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00066","out":{"cycles":[],"topo":["s0"]}}
+{"id":"cycles-00067","out":{"cycles":[],"topo":["s2","s0","s1"]}}
+{"id":"cycles-00068","out":{"cycles":[],"topo":["s0"]}}
+{"id":"cycles-00069","out":{"cycles":[["s4"]],"topo":{"error":"topoSort: cycle detected. Processed 3 of 6 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00070","out":{"cycles":[["s3"],["s1","s0"]],"topo":{"error":"topoSort: cycle detected. Processed 3 of 6 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00071","out":{"cycles":[],"topo":["s0","s1","s2","s3","s5","s4"]}}
+{"id":"cycles-00072","out":{"cycles":[],"topo":["s2","s6","s0","s4","s1","s5","s3"]}}
+{"id":"cycles-00073","out":{"cycles":[],"topo":["s4","s5","s0","s2","s1","s3"]}}
+{"id":"cycles-00074","out":{"cycles":[["s0"],["s2"]],"topo":{"error":"topoSort: cycle detected. Processed 1 of 4 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00075","out":{"cycles":[["s4","s2"]],"topo":{"error":"topoSort: cycle detected. Processed 3 of 5 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00076","out":{"cycles":[["s3"],["s5"]],"topo":{"error":"topoSort: cycle detected. Processed 4 of 7 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00077","out":{"cycles":[["s0"]],"topo":{"error":"topoSort: cycle detected. Processed 1 of 3 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00078","out":{"cycles":[["s2","s0","s1"]],"topo":{"error":"topoSort: cycle detected. Processed 0 of 4 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00079","out":{"cycles":[],"topo":["s4","s0","s3","s1","s5","s2"]}}
+{"id":"cycles-00080","out":{"cycles":[],"topo":["s2","s0","s1"]}}
+{"id":"cycles-00081","out":{"cycles":[["s1"],["s6"]],"topo":{"error":"topoSort: cycle detected. Processed 3 of 7 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00082","out":{"cycles":[],"topo":["s2","s4","s3","s1","s0"]}}
+{"id":"cycles-00083","out":{"cycles":[["s5","s1"]],"topo":{"error":"topoSort: cycle detected. Processed 3 of 6 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00084","out":{"cycles":[],"topo":["s0"]}}
+{"id":"cycles-00085","out":{"cycles":[],"topo":["s1","s4","s0","s5","s2","s3","s6"]}}
+{"id":"cycles-00086","out":{"cycles":[["s2","s1"]],"topo":{"error":"topoSort: cycle detected. Processed 0 of 3 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00087","out":{"cycles":[["s3"]],"topo":{"error":"topoSort: cycle detected. Processed 4 of 6 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00088","out":{"cycles":[["s6"]],"topo":{"error":"topoSort: cycle detected. Processed 6 of 7 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00089","out":{"cycles":[],"topo":["s0"]}}
+{"id":"cycles-00090","out":{"cycles":[["s0"]],"topo":{"error":"topoSort: cycle detected. Processed 3 of 4 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00091","out":{"cycles":[["s2","s1"]],"topo":{"error":"topoSort: cycle detected. Processed 1 of 4 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00092","out":{"cycles":[],"topo":["s0","s1","s2"]}}
+{"id":"cycles-00093","out":{"cycles":[["s2"],["s3"]],"topo":{"error":"topoSort: cycle detected. Processed 0 of 6 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00094","out":{"cycles":[],"topo":["s0","s1"]}}
+{"id":"cycles-00095","out":{"cycles":[["s0"]],"topo":{"error":"topoSort: cycle detected. Processed 0 of 1 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00096","out":{"cycles":[["s0"]],"topo":{"error":"topoSort: cycle detected. Processed 4 of 5 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00097","out":{"cycles":[],"topo":["s0"]}}
+{"id":"cycles-00098","out":{"cycles":[],"topo":["s0"]}}
+{"id":"cycles-00099","out":{"cycles":[["s1"]],"topo":{"error":"topoSort: cycle detected. Processed 1 of 2 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00100","out":{"cycles":[["s4","s2","s0","s3"]],"topo":{"error":"topoSort: cycle detected. Processed 1 of 5 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00101","out":{"cycles":[["s2"],["s3"]],"topo":{"error":"topoSort: cycle detected. Processed 2 of 4 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00102","out":{"cycles":[["s0"]],"topo":{"error":"topoSort: cycle detected. Processed 1 of 2 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00103","out":{"cycles":[],"topo":{"error":"topoSort: cycle detected. Processed 3 of 4 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00104","out":{"cycles":[],"topo":{"error":"topoSort: cycle detected. Processed 2 of 4 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00105","out":{"cycles":[["s4"],["s3","s6"]],"topo":{"error":"topoSort: cycle detected. Processed 2 of 7 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00106","out":{"cycles":[],"topo":["s0","s1"]}}
+{"id":"cycles-00107","out":{"cycles":[["s4"]],"topo":{"error":"topoSort: cycle detected. Processed 2 of 5 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00108","out":{"cycles":[["s0"],["s1"]],"topo":{"error":"topoSort: cycle detected. Processed 0 of 3 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00109","out":{"cycles":[["s4"]],"topo":{"error":"topoSort: cycle detected. Processed 5 of 6 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00110","out":{"cycles":[["s0"]],"topo":{"error":"topoSort: cycle detected. Processed 3 of 4 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00111","out":{"cycles":[["s0"]],"topo":{"error":"topoSort: cycle detected. Processed 0 of 1 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00112","out":{"cycles":[],"topo":["s0","s2","s1"]}}
+{"id":"cycles-00113","out":{"cycles":[["s4","s2","s5"]],"topo":{"error":"topoSort: cycle detected. Processed 1 of 6 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00114","out":{"cycles":[],"topo":["s3","s2","s0","s1"]}}
+{"id":"cycles-00115","out":{"cycles":[["s3","s4"]],"topo":{"error":"topoSort: cycle detected. Processed 2 of 5 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00116","out":{"cycles":[["s3","s5"]],"topo":{"error":"topoSort: cycle detected. Processed 0 of 7 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00117","out":{"cycles":[["s0"]],"topo":{"error":"topoSort: cycle detected. Processed 5 of 6 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00118","out":{"cycles":[["s2"],["s0"]],"topo":{"error":"topoSort: cycle detected. Processed 0 of 3 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00119","out":{"cycles":[["s4"],["s5","s1","s0","s2"]],"topo":{"error":"topoSort: cycle detected. Processed 1 of 7 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00120","out":{"cycles":[["s3","s0","s4","s1"]],"topo":{"error":"topoSort: cycle detected. Processed 0 of 5 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00121","out":{"cycles":[["s5","s3"],["s0","s4"]],"topo":{"error":"topoSort: cycle detected. Processed 2 of 6 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00122","out":{"cycles":[],"topo":["s1","s2","s0"]}}
+{"id":"cycles-00123","out":{"cycles":[["s3"],["s6"]],"topo":{"error":"topoSort: cycle detected. Processed 1 of 7 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00124","out":{"cycles":[["s2"],["s0","s1"],["s3"]],"topo":{"error":"topoSort: cycle detected. Processed 0 of 5 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00125","out":{"cycles":[["s2"]],"topo":{"error":"topoSort: cycle detected. Processed 1 of 3 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00126","out":{"cycles":[["s1"],["s2"]],"topo":{"error":"topoSort: cycle detected. Processed 4 of 6 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00127","out":{"cycles":[],"topo":["s0"]}}
+{"id":"cycles-00128","out":{"cycles":[["s1"],["s2"]],"topo":{"error":"topoSort: cycle detected. Processed 1 of 3 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00129","out":{"cycles":[["s1"]],"topo":{"error":"topoSort: cycle detected. Processed 1 of 2 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00130","out":{"cycles":[["s3","s2"]],"topo":{"error":"topoSort: cycle detected. Processed 3 of 5 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00131","out":{"cycles":[["s1"],["s3"]],"topo":{"error":"topoSort: cycle detected. Processed 3 of 5 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00132","out":{"cycles":[],"topo":["s0"]}}
+{"id":"cycles-00133","out":{"cycles":[],"topo":["s0","s2","s1"]}}
+{"id":"cycles-00134","out":{"cycles":[],"topo":["s4","s3","s0","s2","s1"]}}
+{"id":"cycles-00135","out":{"cycles":[["s3"],["s2"]],"topo":{"error":"topoSort: cycle detected. Processed 3 of 5 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00136","out":{"cycles":[],"topo":{"error":"topoSort: cycle detected. Processed 1 of 3 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00137","out":{"cycles":[["s1","s0","s3","s4"]],"topo":{"error":"topoSort: cycle detected. Processed 0 of 6 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00138","out":{"cycles":[],"topo":["s0"]}}
+{"id":"cycles-00139","out":{"cycles":[],"topo":{"error":"topoSort: cycle detected. Processed 4 of 7 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00140","out":{"cycles":[["s2"],["s4"],["s1"]],"topo":{"error":"topoSort: cycle detected. Processed 2 of 7 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00141","out":{"cycles":[["s1","s5","s6","s3"]],"topo":{"error":"topoSort: cycle detected. Processed 1 of 7 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00142","out":{"cycles":[["s0"],["s2"]],"topo":{"error":"topoSort: cycle detected. Processed 1 of 3 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00143","out":{"cycles":[["s5"]],"topo":{"error":"topoSort: cycle detected. Processed 3 of 6 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00144","out":{"cycles":[],"topo":["s6","s3","s5","s1","s4","s2","s0"]}}
+{"id":"cycles-00145","out":{"cycles":[],"topo":{"error":"topoSort: cycle detected. Processed 3 of 4 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00146","out":{"cycles":[],"topo":["s1","s0","s2"]}}
+{"id":"cycles-00147","out":{"cycles":[["s0"]],"topo":{"error":"topoSort: cycle detected. Processed 0 of 1 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00148","out":{"cycles":[["s3"],["s1"]],"topo":{"error":"topoSort: cycle detected. Processed 5 of 7 nodes. Use findCycles() to enumerate."}}}
+{"id":"cycles-00149","out":{"cycles":[["s0","s1"]],"topo":{"error":"topoSort: cycle detected. Processed 2 of 4 nodes. Use findCycles() to enumerate."}}}

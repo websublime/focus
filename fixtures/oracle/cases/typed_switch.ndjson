@@ -1,0 +1,1180 @@
+{"id": "typed_switch-00000", "kind": "typed_switch", "prompt": "/focusx --review none fix --nope now.", "words_answer": false}
+{"id": "typed_switch-00001", "kind": "typed_switch", "prompt": "/Focus -- fix --nope now;", "words_answer": false}
+{"id": "typed_switch-00002", "kind": "typed_switch", "prompt": "$focus --", "words_answer": false}
+{"id": "typed_switch-00003", "kind": "typed_switch", "prompt": "/focus --review none --add y -- add a --help flag to the reverser...", "words_answer": false}
+{"id": "typed_switch-00004", "kind": "typed_switch", "prompt": " /focus --guard-policy on --scope approve the plan,", "words_answer": false}
+{"id": "typed_switch-00005", "kind": "typed_switch", "prompt": "focus --plan-approval --test-strategy tdd --guard-policy on approve the plan", "words_answer": false}
+{"id": "typed_switch-00006", "kind": "typed_switch", "prompt": "/focusx --nope value --!", "words_answer": false}
+{"id": "typed_switch-00007", "kind": "typed_switch", "prompt": "/FOCUS --guard-policy --help --sensors on --,", "words_answer": true}
+{"id": "typed_switch-00008", "kind": "typed_switch", "prompt": "/focusx --guard-policy OFF --scope bugfix the plan is fine -- really --learnings off", "words_answer": false}
+{"id": "typed_switch-00009", "kind": "typed_switch", "prompt": "/focus --skip x -- approve the plan;", "words_answer": true}
+{"id": "typed_switch-00010", "kind": "typed_switch", "prompt": "/FOCUS --guard.review-freeze off --summary-confirmation off --scope", "words_answer": false}
+{"id": "typed_switch-00011", "kind": "typed_switch", "prompt": "$focus config set x y z!", "words_answer": false}
+{"id": "typed_switch-00012", "kind": "typed_switch", "prompt": "/focus-runner\n--plan-approval --guard-policy \"\" --GUARD-POLICY off add the export.", "words_answer": false}
+{"id": "typed_switch-00013", "kind": "typed_switch", "prompt": "/focusx --guard-policy --plan-approval off --plan-approval off!", "words_answer": false}
+{"id": "typed_switch-00014", "kind": "typed_switch", "prompt": "focus 1 --depth minimal!", "words_answer": false}
+{"id": "typed_switch-00015", "kind": "typed_switch", "prompt": " /focus --skip x --project-type brownfield --guard.review-freeze on the plan is fine -- really.", "words_answer": true}
+{"id": "typed_switch-00016", "kind": "typed_switch", "prompt": "$focus --collaborators on --guard-policy on --depth -- approve the plan?", "words_answer": false}
+{"id": "typed_switch-00017", "kind": "typed_switch", "prompt": "/focusx --skip x -- fix --nope now ?", "words_answer": false}
+{"id": "typed_switch-00018", "kind": "typed_switch", "prompt": " /focus --sensors use postgres", "words_answer": false}
+{"id": "typed_switch-00019", "kind": "typed_switch", "prompt": "/focus-runner --guard-policy relaxed approve the plan,", "words_answer": false}
+{"id": "typed_switch-00020", "kind": "typed_switch", "prompt": "$focus --test-strategy tdd --guard.state-transition off --.", "words_answer": true}
+{"id": "typed_switch-00021", "kind": "typed_switch", "prompt": "$focus --sensors off -- --guard-policy ''?!", "words_answer": false}
+{"id": "typed_switch-00022", "kind": "typed_switch", "prompt": "/focus --guard.review-freeze on -- add a --help flag to the reverser...", "words_answer": true}
+{"id": "typed_switch-00023", "kind": "typed_switch", "prompt": "   !", "words_answer": false}
+{"id": "typed_switch-00024", "kind": "typed_switch", "prompt": " /focus config set depth minimal?", "words_answer": true}
+{"id": "typed_switch-00025", "kind": "typed_switch", "prompt": "/Focus --plan-approval --guard.state-transition off 1", "words_answer": false}
+{"id": "typed_switch-00026", "kind": "typed_switch", "prompt": " /focus --space s?!", "words_answer": true}
+{"id": "typed_switch-00027", "kind": "typed_switch", "prompt": "change-control off...", "words_answer": false}
+{"id": "typed_switch-00028", "kind": "typed_switch", "prompt": "/focusx approve the plan?", "words_answer": false}
+{"id": "typed_switch-00029", "kind": "typed_switch", "prompt": "x /focus -- use postgres --guard-policy strict...", "words_answer": true}
+{"id": "typed_switch-00030", "kind": "typed_switch", "prompt": "/Focus --guard.reviewer-scope off --guard.plan-approval off -- approve the plan", "words_answer": false}
+{"id": "typed_switch-00031", "kind": "typed_switch", "prompt": "$focus -- --sensors off --space x...", "words_answer": true}
+{"id": "typed_switch-00032", "kind": "typed_switch", "prompt": "skip plan approval;", "words_answer": false}
+{"id": "typed_switch-00033", "kind": "typed_switch", "prompt": "   ?", "words_answer": true}
+{"id": "typed_switch-00034", "kind": "typed_switch", "prompt": "x /focus --learnings off --review none --guard-policy off the plan is fine -- really", "words_answer": false}
+{"id": "typed_switch-00035", "kind": "typed_switch", "prompt": "x /focus --intent i --help.", "words_answer": false}
+{"id": "typed_switch-00036", "kind": "typed_switch", "prompt": "skip plan approval on the rest of this piece of work?!", "words_answer": false}
+{"id": "typed_switch-00037", "kind": "typed_switch", "prompt": "skip plan approval!", "words_answer": false}
+{"id": "typed_switch-00038", "kind": "typed_switch", "prompt": "x /focus the plan is fine -- really...", "words_answer": false}
+{"id": "typed_switch-00039", "kind": "typed_switch", "prompt": "/FOCUS config set guard-policy!", "words_answer": true}
+{"id": "typed_switch-00040", "kind": "typed_switch", "prompt": "/focus -- --guard.plan-approval on add a --help flag to the reverser?!", "words_answer": false}
+{"id": "typed_switch-00041", "kind": "typed_switch", "prompt": "/focusx --intent i --guard.reviewer-scope off fix --nope now --intent i:", "words_answer": false}
+{"id": "typed_switch-00042", "kind": "typed_switch", "prompt": "/focusx --plan-approval on -- the plan is fine -- really;", "words_answer": false}
+{"id": "typed_switch-00043", "kind": "typed_switch", "prompt": "no more plan approvals", "words_answer": true}
+{"id": "typed_switch-00044", "kind": "typed_switch", "prompt": "/focusx --skip x --scope -- fix --nope now --sensors,", "words_answer": false}
+{"id": "typed_switch-00045", "kind": "typed_switch", "prompt": "/focus-runner fix --nope now", "words_answer": false}
+{"id": "typed_switch-00046", "kind": "typed_switch", "prompt": "$focus --plan-approval on --guard-policy OFF --plan-approval approve the plan.", "words_answer": true}
+{"id": "typed_switch-00047", "kind": "typed_switch", "prompt": " /focus fix --nope now:", "words_answer": false}
+{"id": "typed_switch-00048", "kind": "typed_switch", "prompt": "/focus-runner intent switch a", "words_answer": true}
+{"id": "typed_switch-00049", "kind": "typed_switch", "prompt": "/Focus config set guard-policy off", "words_answer": false}
+{"id": "typed_switch-00050", "kind": "typed_switch", "prompt": "/focus intent create a --guard-policy off.", "words_answer": true}
+{"id": "typed_switch-00051", "kind": "typed_switch", "prompt": "$focus --guard.state-transition off --guard.review-freeze on --guard-policy --plan-approval off fix --nope now --add y.", "words_answer": false}
+{"id": "typed_switch-00052", "kind": "typed_switch", "prompt": "$focus --sensors off --summary-confirmation on x!", "words_answer": true}
+{"id": "typed_switch-00053", "kind": "typed_switch", "prompt": "/focus-runner --", "words_answer": false}
+{"id": "typed_switch-00054", "kind": "typed_switch", "prompt": "/Focus -- approve the plan --guard.review-freeze off", "words_answer": false}
+{"id": "typed_switch-00055", "kind": "typed_switch", "prompt": "switch the plan approvals off?!", "words_answer": true}
+{"id": "typed_switch-00056", "kind": "typed_switch", "prompt": "plan approval off;", "words_answer": false}
+{"id": "typed_switch-00057", "kind": "typed_switch", "prompt": " /focus --skip --skip x --guard-policy -- fix --nope now?", "words_answer": true}
+{"id": "typed_switch-00058", "kind": "typed_switch", "prompt": "/focus-runner config set guard-policy off --space s?", "words_answer": true}
+{"id": "typed_switch-00059", "kind": "typed_switch", "prompt": "/Focus add a --help flag to the reverser;", "words_answer": false}
+{"id": "typed_switch-00060", "kind": "typed_switch", "prompt": "/Focus --intent i --guard-policy relaxed --GUARD-POLICY off approve the plan?!", "words_answer": false}
+{"id": "typed_switch-00061", "kind": "typed_switch", "prompt": "x /focus use postgres...", "words_answer": false}
+{"id": "typed_switch-00062", "kind": "typed_switch", "prompt": "/focus --nope value --space s the plan is fine -- really", "words_answer": false}
+{"id": "typed_switch-00063", "kind": "typed_switch", "prompt": "/FOCUS --guard-policy '' --guard.state-transition off -- approve the plan", "words_answer": false}
+{"id": "typed_switch-00064", "kind": "typed_switch", "prompt": "/focus-runner approve the plan...", "words_answer": false}
+{"id": "typed_switch-00065", "kind": "typed_switch", "prompt": "/focus-runner --learnings on --guard-policy \"\" approve the plan.", "words_answer": false}
+{"id": "typed_switch-00066", "kind": "typed_switch", "prompt": "   ?!", "words_answer": false}
+{"id": "typed_switch-00067", "kind": "typed_switch", "prompt": "x /focus CONFIG SET guard-policy off ?", "words_answer": false}
+{"id": "typed_switch-00068", "kind": "typed_switch", "prompt": "focus intent switch a!", "words_answer": true}
+{"id": "typed_switch-00069", "kind": "typed_switch", "prompt": "$focus --depth --guard.review-freeze off --nope approve the plan,", "words_answer": true}
+{"id": "typed_switch-00070", "kind": "typed_switch", "prompt": "/Focus --plan-approval off x", "words_answer": true}
+{"id": "typed_switch-00071", "kind": "typed_switch", "prompt": "$focus --guard-policy strict --guard-policy OFF", "words_answer": false}
+{"id": "typed_switch-00072", "kind": "typed_switch", "prompt": "/focus --space s --guard-policy \"\" -- add the export!", "words_answer": true}
+{"id": "typed_switch-00073", "kind": "typed_switch", "prompt": "/Focus --json -- use postgres;", "words_answer": false}
+{"id": "typed_switch-00074", "kind": "typed_switch", "prompt": "/focus config set plan-approval off!", "words_answer": false}
+{"id": "typed_switch-00075", "kind": "typed_switch", "prompt": "x /focus --sensors on x --change-control off ?", "words_answer": false}
+{"id": "typed_switch-00076", "kind": "typed_switch", "prompt": "focus intent create a --guard-policy off?", "words_answer": true}
+{"id": "typed_switch-00077", "kind": "typed_switch", "prompt": "/FOCUS --guard.review-freeze on --sensors --guard-policy relaxed add the export --skip x?!", "words_answer": false}
+{"id": "typed_switch-00078", "kind": "typed_switch", "prompt": "focus on the login page,", "words_answer": false}
+{"id": "typed_switch-00079", "kind": "typed_switch", "prompt": "x /focus fix --nope now", "words_answer": true}
+{"id": "typed_switch-00080", "kind": "typed_switch", "prompt": "/focus -- use postgres --change-control off?!", "words_answer": true}
+{"id": "typed_switch-00081", "kind": "typed_switch", "prompt": "/FOCUS --skip x --guard.state-transition off,", "words_answer": false}
+{"id": "typed_switch-00082", "kind": "typed_switch", "prompt": "/focus --plan-approval off --learnings on,", "words_answer": false}
+{"id": "typed_switch-00083", "kind": "typed_switch", "prompt": "/FOCUS -- --plan-approval on,", "words_answer": false}
+{"id": "typed_switch-00084", "kind": "typed_switch", "prompt": "x /focus use postgres?!", "words_answer": true}
+{"id": "typed_switch-00085", "kind": "typed_switch", "prompt": "switch off plan-approval?", "words_answer": false}
+{"id": "typed_switch-00086", "kind": "typed_switch", "prompt": "/focus-runner --sensors off add the export", "words_answer": false}
+{"id": "typed_switch-00087", "kind": "typed_switch", "prompt": "/Focus --guard.plan-approval on --json ?", "words_answer": false}
+{"id": "typed_switch-00088", "kind": "typed_switch", "prompt": "x /focus use postgres --guard-policy '':", "words_answer": false}
+{"id": "typed_switch-00089", "kind": "typed_switch", "prompt": "/focus --summary-confirmation on --guard.state-transition off\\ x --learnings off the plan is fine -- really?", "words_answer": false}
+{"id": "typed_switch-00090", "kind": "typed_switch", "prompt": " /focus --guard.plan-approval off fix --nope now:", "words_answer": false}
+{"id": "typed_switch-00091", "kind": "typed_switch", "prompt": "stop asking me to approve each code plan", "words_answer": false}
+{"id": "typed_switch-00092", "kind": "typed_switch", "prompt": "/focus --add y --skip --guard-policy off approve the plan --guard.review-freeze on?!", "words_answer": true}
+{"id": "typed_switch-00093", "kind": "typed_switch", "prompt": "$focus --json --depth minimal --test-strategy tdd the plan is fine -- really?!", "words_answer": false}
+{"id": "typed_switch-00094", "kind": "typed_switch", "prompt": "x /focus -- fix --nope now ?", "words_answer": false}
+{"id": "typed_switch-00095", "kind": "typed_switch", "prompt": "skip plan approval please ?", "words_answer": true}
+{"id": "typed_switch-00096", "kind": "typed_switch", "prompt": "$focus intent --guard-policy off?!", "words_answer": true}
+{"id": "typed_switch-00097", "kind": "typed_switch", "prompt": "/focus --skip x --learnings on --depth -- fix --nope now", "words_answer": false}
+{"id": "typed_switch-00098", "kind": "typed_switch", "prompt": "/Focus approve the plan:", "words_answer": true}
+{"id": "typed_switch-00099", "kind": "typed_switch", "prompt": "/focus config set guard-policy off.", "words_answer": false}
+{"id": "typed_switch-00100", "kind": "typed_switch", "prompt": "focus CONFIG SET guard-policy off?!", "words_answer": false}
+{"id": "typed_switch-00101", "kind": "typed_switch", "prompt": "/focusx next ?", "words_answer": false}
+{"id": "typed_switch-00102", "kind": "typed_switch", "prompt": "/focusx next ?", "words_answer": false}
+{"id": "typed_switch-00103", "kind": "typed_switch", "prompt": "focus -- --nope:", "words_answer": false}
+{"id": "typed_switch-00104", "kind": "typed_switch", "prompt": "skip plan approval for this work", "words_answer": false}
+{"id": "typed_switch-00105", "kind": "typed_switch", "prompt": "/focus-runner  --guard.nope off add the export ?", "words_answer": false}
+{"id": "typed_switch-00106", "kind": "typed_switch", "prompt": "x /focus --guard-policy OFF --sensors on add the export...", "words_answer": false}
+{"id": "typed_switch-00107", "kind": "typed_switch", "prompt": "x\n/focus --summary-confirmation on --depth", "words_answer": false}
+{"id": "typed_switch-00108", "kind": "typed_switch", "prompt": "$focus --json --review none --scope bugfix.", "words_answer": true}
+{"id": "typed_switch-00109", "kind": "typed_switch", "prompt": "x /focus --guard-policy '' approve the plan", "words_answer": false}
+{"id": "typed_switch-00110", "kind": "typed_switch", "prompt": "focus -- --summary-confirmation off", "words_answer": false}
+{"id": "typed_switch-00111", "kind": "typed_switch", "prompt": "/focusx --summary-confirmation on --scope bugfix --change-control off use postgres ?", "words_answer": false}
+{"id": "typed_switch-00112", "kind": "typed_switch", "prompt": "/focusx space-create s --guard-policy off?", "words_answer": false}
+{"id": "typed_switch-00113", "kind": "typed_switch", "prompt": "/focusx --depth minimal -- add a --help flag to the reverser,", "words_answer": false}
+{"id": "typed_switch-00114", "kind": "typed_switch", "prompt": "/focus-runner --GUARD-POLICY off --space s -- add a --help flag to the reverser --guard-policy strict", "words_answer": false}
+{"id": "typed_switch-00115", "kind": "typed_switch", "prompt": "skip plan approval on the rest of this piece of work...", "words_answer": true}
+{"id": "typed_switch-00116", "kind": "typed_switch", "prompt": "/Focus --add y use postgres,", "words_answer": false}
+{"id": "typed_switch-00117", "kind": "typed_switch", "prompt": "/focus --guard.state-transition off -- fix --nope now:", "words_answer": false}
+{"id": "typed_switch-00118", "kind": "typed_switch", "prompt": "/focusx --sensors -- 1...", "words_answer": false}
+{"id": "typed_switch-00119", "kind": "typed_switch", "prompt": "/focus --guard.review-freeze on use postgres ?", "words_answer": true}
+{"id": "typed_switch-00120", "kind": "typed_switch", "prompt": " /focus config set guard-policy?", "words_answer": false}
+{"id": "typed_switch-00121", "kind": "typed_switch", "prompt": " /focus --help --plan-approval o'ff --depth minimal add a --help flag to the reverser;", "words_answer": true}
+{"id": "typed_switch-00122", "kind": "typed_switch", "prompt": "x /focus --guard.reviewer-scope off the plan is fine -- really:", "words_answer": true}
+{"id": "typed_switch-00123", "kind": "typed_switch", "prompt": "focus,", "words_answer": true}
+{"id": "typed_switch-00124", "kind": "typed_switch", "prompt": "focus\n--guard.nope off --review none --guard-policy \"\";", "words_answer": true}
+{"id": "typed_switch-00125", "kind": "typed_switch", "prompt": " /focus --guard-policy strict --depth --add y", "words_answer": true}
+{"id": "typed_switch-00126", "kind": "typed_switch", "prompt": "/focusx  --guard-policy --plan-approval off --guard.nope off -- x:", "words_answer": false}
+{"id": "typed_switch-00127", "kind": "typed_switch", "prompt": "/focus-runner use postgres --guard.review-freeze off...", "words_answer": true}
+{"id": "typed_switch-00128", "kind": "typed_switch", "prompt": "do not ask to approve the plan?", "words_answer": false}
+{"id": "typed_switch-00129", "kind": "typed_switch", "prompt": "x /focus --space s --json,", "words_answer": false}
+{"id": "typed_switch-00130", "kind": "typed_switch", "prompt": " /focus approve the plan", "words_answer": false}
+{"id": "typed_switch-00131", "kind": "typed_switch", "prompt": "/focus-runner --change-control relaxed --guard-policy off -- the plan is fine -- really --guard-policy OFF.", "words_answer": false}
+{"id": "typed_switch-00132", "kind": "typed_switch", "prompt": "the focus tool", "words_answer": false}
+{"id": "typed_switch-00133", "kind": "typed_switch", "prompt": "/FOCUS approve the plan;", "words_answer": false}
+{"id": "typed_switch-00134", "kind": "typed_switch", "prompt": "/focus --guard.plan-approval on --guard.review-freeze off x?!", "words_answer": false}
+{"id": "typed_switch-00135", "kind": "typed_switch", "prompt": "$focus --skip x,", "words_answer": false}
+{"id": "typed_switch-00136", "kind": "typed_switch", "prompt": "drop plan approval?", "words_answer": false}
+{"id": "typed_switch-00137", "kind": "typed_switch", "prompt": "plan approval off ?", "words_answer": true}
+{"id": "typed_switch-00138", "kind": "typed_switch", "prompt": "dont ask to approve every plan", "words_answer": false}
+{"id": "typed_switch-00139", "kind": "typed_switch", "prompt": "/focus-runner --guard.reviewer-scope off fix --nope now!", "words_answer": false}
+{"id": "typed_switch-00140", "kind": "typed_switch", "prompt": "/Focus -- 1?", "words_answer": false}
+{"id": "typed_switch-00141", "kind": "typed_switch", "prompt": "/focus-runner --summary-confirmation off --guard.human-presence off --guard.nope off -- the plan is fine -- really,", "words_answer": false}
+{"id": "typed_switch-00142", "kind": "typed_switch", "prompt": "drop plan approval", "words_answer": true}
+{"id": "typed_switch-00143", "kind": "typed_switch", "prompt": "focus config set?!", "words_answer": false}
+{"id": "typed_switch-00144", "kind": "typed_switch", "prompt": "/Focus --guard-policy off --change-control relaxed --change-control relaxed:", "words_answer": false}
+{"id": "typed_switch-00145", "kind": "typed_switch", "prompt": "skip the plan", "words_answer": true}
+{"id": "typed_switch-00146", "kind": "typed_switch", "prompt": "hello", "words_answer": false}
+{"id": "typed_switch-00147", "kind": "typed_switch", "prompt": "/focusx --guard-policy on -- approve the plan --guard-policy strict?", "words_answer": false}
+{"id": "typed_switch-00148", "kind": "typed_switch", "prompt": " /focus --guard-policy OFF --guard.review-freeze on the plan is fine -- really", "words_answer": false}
+{"id": "typed_switch-00149", "kind": "typed_switch", "prompt": "switch off plan-approval ?", "words_answer": true}
+{"id": "typed_switch-00150", "kind": "typed_switch", "prompt": "focus --test-strategy tdd --guard.review-freeze on;", "words_answer": false}
+{"id": "typed_switch-00151", "kind": "typed_switch", "prompt": "don't ask me to approve plans ?", "words_answer": false}
+{"id": "typed_switch-00152", "kind": "typed_switch", "prompt": "turn off plan approval!", "words_answer": false}
+{"id": "typed_switch-00153", "kind": "typed_switch", "prompt": "/focus config set x y z", "words_answer": true}
+{"id": "typed_switch-00154", "kind": "typed_switch", "prompt": "/focus-runner --guard-policy on", "words_answer": true}
+{"id": "typed_switch-00155", "kind": "typed_switch", "prompt": "/focus --change-control relaxed --add y --guard-policy OFF -- use postgres ?", "words_answer": false}
+{"id": "typed_switch-00156", "kind": "typed_switch", "prompt": " /focus --plan-approval on --skip x --test-strategy tdd -- 1!", "words_answer": false}
+{"id": "typed_switch-00157", "kind": "typed_switch", "prompt": "focus --depth --nope --add y approve the plan:", "words_answer": true}
+{"id": "typed_switch-00158", "kind": "typed_switch", "prompt": "/FOCUS\n-- --json.", "words_answer": false}
+{"id": "typed_switch-00159", "kind": "typed_switch", "prompt": "/focus CONFIG SET guard-policy off,", "words_answer": true}
+{"id": "typed_switch-00160", "kind": "typed_switch", "prompt": "/focusx -- 1,", "words_answer": false}
+{"id": "typed_switch-00161", "kind": "typed_switch", "prompt": "skip plan approval for this thing", "words_answer": false}
+{"id": "typed_switch-00162", "kind": "typed_switch", "prompt": "/focus-runner --add y -- ?", "words_answer": false}
+{"id": "typed_switch-00163", "kind": "typed_switch", "prompt": "/focus?!", "words_answer": false}
+{"id": "typed_switch-00164", "kind": "typed_switch", "prompt": "/focus --guard.reviewer-scope off add the export!", "words_answer": false}
+{"id": "typed_switch-00165", "kind": "typed_switch", "prompt": "plan approval off", "words_answer": false}
+{"id": "typed_switch-00166", "kind": "typed_switch", "prompt": "/focus-runner config set guard-policy off --space s:", "words_answer": false}
+{"id": "typed_switch-00167", "kind": "typed_switch", "prompt": "/focus-runner -- --", "words_answer": true}
+{"id": "typed_switch-00168", "kind": "typed_switch", "prompt": "hello,", "words_answer": false}
+{"id": "typed_switch-00169", "kind": "typed_switch", "prompt": "/focus --guard-policy '' use postgres?!", "words_answer": false}
+{"id": "typed_switch-00170", "kind": "typed_switch", "prompt": "/focus -- --change-control off -- --guard-policy.", "words_answer": false}
+{"id": "typed_switch-00171", "kind": "typed_switch", "prompt": "/focus --summary-confirmation on --guard-policy on x,", "words_answer": false}
+{"id": "typed_switch-00172", "kind": "typed_switch", "prompt": "/focus\n--guard.plan-approval off --guard-policy '' x...", "words_answer": false}
+{"id": "typed_switch-00173", "kind": "typed_switch", "prompt": "no!", "words_answer": false}
+{"id": "typed_switch-00174", "kind": "typed_switch", "prompt": "x /focus x,", "words_answer": false}
+{"id": "typed_switch-00175", "kind": "typed_switch", "prompt": "/focusx config set guard-policy off...", "words_answer": false}
+{"id": "typed_switch-00176", "kind": "typed_switch", "prompt": "/Focus --scope bugfix add the export:", "words_answer": false}
+{"id": "typed_switch-00177", "kind": "typed_switch", "prompt": "$focus --change-control off\\ x use postgres --sensors off,", "words_answer": false}
+{"id": "typed_switch-00178", "kind": "typed_switch", "prompt": "/Focus --space the plan is fine -- really:", "words_answer": false}
+{"id": "typed_switch-00179", "kind": "typed_switch", "prompt": "x /focus --guard-policy --plan-approval off --skip --space s -- add a --help flag to the reverser", "words_answer": false}
+{"id": "typed_switch-00180", "kind": "typed_switch", "prompt": "dont ask to approve every plan!", "words_answer": false}
+{"id": "typed_switch-00181", "kind": "typed_switch", "prompt": " /focus --review none --guard-policy -- fix --nope now...", "words_answer": false}
+{"id": "typed_switch-00182", "kind": "typed_switch", "prompt": "x /focus --...", "words_answer": true}
+{"id": "typed_switch-00183", "kind": "typed_switch", "prompt": "/focus --guard-policy \"\" -- approve the plan,", "words_answer": false}
+{"id": "typed_switch-00184", "kind": "typed_switch", "prompt": "/FOCUS...", "words_answer": false}
+{"id": "typed_switch-00185", "kind": "typed_switch", "prompt": "skip plan approval for this task, please,", "words_answer": true}
+{"id": "typed_switch-00186", "kind": "typed_switch", "prompt": "guard policy  relaxed.", "words_answer": true}
+{"id": "typed_switch-00187", "kind": "typed_switch", "prompt": "$focus!", "words_answer": false}
+{"id": "typed_switch-00188", "kind": "typed_switch", "prompt": "/focus-runner --guard-policy on -- approve the plan?", "words_answer": false}
+{"id": "typed_switch-00189", "kind": "typed_switch", "prompt": "/Focus --json x ?", "words_answer": false}
+{"id": "typed_switch-00190", "kind": "typed_switch", "prompt": "/FOCUS ?", "words_answer": true}
+{"id": "typed_switch-00191", "kind": "typed_switch", "prompt": "   :", "words_answer": false}
+{"id": "typed_switch-00192", "kind": "typed_switch", "prompt": " /focus --test-strategy tdd --guard-policy off --guard.review-freeze on fix --nope now.", "words_answer": false}
+{"id": "typed_switch-00193", "kind": "typed_switch", "prompt": "/Focus fix --nope now", "words_answer": false}
+{"id": "typed_switch-00194", "kind": "typed_switch", "prompt": "/focus --guard-policy \"\".", "words_answer": false}
+{"id": "typed_switch-00195", "kind": "typed_switch", "prompt": "/FOCUS --depth minimal --space --change-control relaxed use postgres...", "words_answer": false}
+{"id": "typed_switch-00196", "kind": "typed_switch", "prompt": "$focus -- --guard-policy strict --depth -- use postgres --guard.plan-approval off:", "words_answer": false}
+{"id": "typed_switch-00197", "kind": "typed_switch", "prompt": "guard policy strict", "words_answer": false}
+{"id": "typed_switch-00198", "kind": "typed_switch", "prompt": "guard-policy off,", "words_answer": false}
+{"id": "typed_switch-00199", "kind": "typed_switch", "prompt": "focus approve the plan", "words_answer": true}
+{"id": "typed_switch-00200", "kind": "typed_switch", "prompt": "no more plan approvals", "words_answer": true}
+{"id": "typed_switch-00201", "kind": "typed_switch", "prompt": "/focus --change-control relaxed --guard.nope off 1...", "words_answer": false}
+{"id": "typed_switch-00202", "kind": "typed_switch", "prompt": "/FOCUS --guard.human-presence off --guard-policy strict --sensors off -- the plan is fine -- really,", "words_answer": true}
+{"id": "typed_switch-00203", "kind": "typed_switch", "prompt": "/focusx --depth -- approve the plan --guard-policy --plan-approval off,", "words_answer": true}
+{"id": "typed_switch-00204", "kind": "typed_switch", "prompt": "$focus --learnings off:", "words_answer": true}
+{"id": "typed_switch-00205", "kind": "typed_switch", "prompt": "/focus --guard-policy --learnings on x --collaborators on", "words_answer": false}
+{"id": "typed_switch-00206", "kind": "typed_switch", "prompt": "turn off plan approval", "words_answer": false}
+{"id": "typed_switch-00207", "kind": "typed_switch", "prompt": "/focus --guard.nope off fix --nope now!", "words_answer": false}
+{"id": "typed_switch-00208", "kind": "typed_switch", "prompt": "guard policy relaxed now?!", "words_answer": false}
+{"id": "typed_switch-00209", "kind": "typed_switch", "prompt": "/FOCUS --intent i the plan is fine -- really --space:", "words_answer": false}
+{"id": "typed_switch-00210", "kind": "typed_switch", "prompt": "no plan approval", "words_answer": true}
+{"id": "typed_switch-00211", "kind": "typed_switch", "prompt": "skip plan approval for this work", "words_answer": false}
+{"id": "typed_switch-00212", "kind": "typed_switch", "prompt": " /focus --help fix --nope now?!", "words_answer": false}
+{"id": "typed_switch-00213", "kind": "typed_switch", "prompt": "/focus-runner --guard.state-transition off --learnings off use postgres:", "words_answer": false}
+{"id": "typed_switch-00214", "kind": "typed_switch", "prompt": "$focus -- use postgres --GUARD-POLICY off", "words_answer": false}
+{"id": "typed_switch-00215", "kind": "typed_switch", "prompt": "/focusx -- add a --help flag to the reverser --guard.review-freeze on...", "words_answer": true}
+{"id": "typed_switch-00216", "kind": "typed_switch", "prompt": "$focus -- approve the plan ?", "words_answer": false}
+{"id": "typed_switch-00217", "kind": "typed_switch", "prompt": "/focusx --GUARD-POLICY off --space add a --help flag to the reverser!", "words_answer": false}
+{"id": "typed_switch-00218", "kind": "typed_switch", "prompt": "turn off plan approval.", "words_answer": false}
+{"id": "typed_switch-00219", "kind": "typed_switch", "prompt": "/FOCUS x?", "words_answer": false}
+{"id": "typed_switch-00220", "kind": "typed_switch", "prompt": "Guard Policy Relaxed;", "words_answer": false}
+{"id": "typed_switch-00221", "kind": "typed_switch", "prompt": "guard policy on:", "words_answer": true}
+{"id": "typed_switch-00222", "kind": "typed_switch", "prompt": "/focus-runner --sensors off --sensors x", "words_answer": true}
+{"id": "typed_switch-00223", "kind": "typed_switch", "prompt": "/Focus --help --guard.plan-approval on --intent i add the export?", "words_answer": true}
+{"id": "typed_switch-00224", "kind": "typed_switch", "prompt": "x /focus -- add the export --skip", "words_answer": false}
+{"id": "typed_switch-00225", "kind": "typed_switch", "prompt": "skip plan approval", "words_answer": false}
+{"id": "typed_switch-00226", "kind": "typed_switch", "prompt": "$focus\n--change-control off -- --guard-policy off 1:", "words_answer": true}
+{"id": "typed_switch-00227", "kind": "typed_switch", "prompt": "guard policy strict...", "words_answer": true}
+{"id": "typed_switch-00228", "kind": "typed_switch", "prompt": "x /focus --summary-confirmation on x --guard.review-freeze off", "words_answer": false}
+{"id": "typed_switch-00229", "kind": "typed_switch", "prompt": "$focus --skip x --learnings on", "words_answer": false}
+{"id": "typed_switch-00230", "kind": "typed_switch", "prompt": "focus --guard-policy relaxed --guard.review-freeze on;", "words_answer": false}
+{"id": "typed_switch-00231", "kind": "typed_switch", "prompt": "/FOCUS --depth --collaborators on approve the plan?!", "words_answer": false}
+{"id": "typed_switch-00232", "kind": "typed_switch", "prompt": "x /focus --nope --skip x add the export --guard-policy --plan-approval off;", "words_answer": false}
+{"id": "typed_switch-00233", "kind": "typed_switch", "prompt": "/focus status?", "words_answer": true}
+{"id": "typed_switch-00234", "kind": "typed_switch", "prompt": "approve the plan,", "words_answer": true}
+{"id": "typed_switch-00235", "kind": "typed_switch", "prompt": "/focus-runner config set guard-policy off extra", "words_answer": false}
+{"id": "typed_switch-00236", "kind": "typed_switch", "prompt": "$focus  --", "words_answer": false}
+{"id": "typed_switch-00237", "kind": "typed_switch", "prompt": "$focus --scope -- use postgres", "words_answer": false}
+{"id": "typed_switch-00238", "kind": "typed_switch", "prompt": "/focusx fix --nope now ?", "words_answer": false}
+{"id": "typed_switch-00239", "kind": "typed_switch", "prompt": "/Focus  --sensors off add a --help flag to the reverser.", "words_answer": true}
+{"id": "typed_switch-00240", "kind": "typed_switch", "prompt": "turn plan approval off:", "words_answer": false}
+{"id": "typed_switch-00241", "kind": "typed_switch", "prompt": "/Focus park", "words_answer": false}
+{"id": "typed_switch-00242", "kind": "typed_switch", "prompt": "focus --summary-confirmation on -- add a --help flag to the reverser...", "words_answer": false}
+{"id": "typed_switch-00243", "kind": "typed_switch", "prompt": " /focus --change-control off --scope -- 1?!", "words_answer": false}
+{"id": "typed_switch-00244", "kind": "typed_switch", "prompt": "no plan approval", "words_answer": true}
+{"id": "typed_switch-00245", "kind": "typed_switch", "prompt": "/Focus --sensors on fix --nope now --scope,", "words_answer": false}
+{"id": "typed_switch-00246", "kind": "typed_switch", "prompt": "focus --space s --review none --nope value", "words_answer": false}
+{"id": "typed_switch-00247", "kind": "typed_switch", "prompt": "/focus-runner --guard-policy off -- use postgres", "words_answer": true}
+{"id": "typed_switch-00248", "kind": "typed_switch", "prompt": "guard policy on!", "words_answer": false}
+{"id": "typed_switch-00249", "kind": "typed_switch", "prompt": "x /focus --skip x -- fix --nope now...", "words_answer": true}
+{"id": "typed_switch-00250", "kind": "typed_switch", "prompt": " /focus --review none the plan is fine -- really?", "words_answer": false}
+{"id": "typed_switch-00251", "kind": "typed_switch", "prompt": "/FOCUS space-create s --guard-policy off", "words_answer": true}
+{"id": "typed_switch-00252", "kind": "typed_switch", "prompt": " /focus --plan-approval off --.", "words_answer": true}
+{"id": "typed_switch-00253", "kind": "typed_switch", "prompt": "/FOCUS --sensors x", "words_answer": false}
+{"id": "typed_switch-00254", "kind": "typed_switch", "prompt": "/focus-runner --plan-approval off --guard-policy off -- fix --nope now", "words_answer": false}
+{"id": "typed_switch-00255", "kind": "typed_switch", "prompt": "/Focus", "words_answer": false}
+{"id": "typed_switch-00256", "kind": "typed_switch", "prompt": "x /focus --json --sensors on --guard-policy relaxed 1", "words_answer": false}
+{"id": "typed_switch-00257", "kind": "typed_switch", "prompt": "/focusx next;", "words_answer": false}
+{"id": "typed_switch-00258", "kind": "typed_switch", "prompt": "/focus --learnings off --guard-policy --json,", "words_answer": false}
+{"id": "typed_switch-00259", "kind": "typed_switch", "prompt": "/FOCUS --guard-policy --guard.review-freeze on fix --nope now:", "words_answer": false}
+{"id": "typed_switch-00260", "kind": "typed_switch", "prompt": "no more plan approvals ?", "words_answer": true}
+{"id": "typed_switch-00261", "kind": "typed_switch", "prompt": "skip plan approval on the rest of this piece of work", "words_answer": true}
+{"id": "typed_switch-00262", "kind": "typed_switch", "prompt": "plan approval;", "words_answer": false}
+{"id": "typed_switch-00263", "kind": "typed_switch", "prompt": "stop plan approval!", "words_answer": true}
+{"id": "typed_switch-00264", "kind": "typed_switch", "prompt": "/focus --guard-policy OFF --space --review none fix --nope now", "words_answer": false}
+{"id": "typed_switch-00265", "kind": "typed_switch", "prompt": "guard policy relaxed now...", "words_answer": true}
+{"id": "typed_switch-00266", "kind": "typed_switch", "prompt": "/FOCUS 1", "words_answer": false}
+{"id": "typed_switch-00267", "kind": "typed_switch", "prompt": "plan-approvals off.", "words_answer": false}
+{"id": "typed_switch-00268", "kind": "typed_switch", "prompt": "x /focus --guard.review-freeze on --test-strategy tdd --space 1,", "words_answer": false}
+{"id": "typed_switch-00269", "kind": "typed_switch", "prompt": "/focus --depth minimal --summary-confirmation off fix --nope now.", "words_answer": false}
+{"id": "typed_switch-00270", "kind": "typed_switch", "prompt": "x /focus the plan is fine -- really!", "words_answer": true}
+{"id": "typed_switch-00271", "kind": "typed_switch", "prompt": " /focus 1", "words_answer": false}
+{"id": "typed_switch-00272", "kind": "typed_switch", "prompt": "focus --guard.review-freeze on --help --guard-policy off --;", "words_answer": false}
+{"id": "typed_switch-00273", "kind": "typed_switch", "prompt": "focus space list --plan-approval off;", "words_answer": false}
+{"id": "typed_switch-00274", "kind": "typed_switch", "prompt": "x /focus -- the plan is fine -- really;", "words_answer": true}
+{"id": "typed_switch-00275", "kind": "typed_switch", "prompt": "focus --test-strategy tdd --depth minimal --guard-policy strict 1?", "words_answer": true}
+{"id": "typed_switch-00276", "kind": "typed_switch", "prompt": "/focus --scope bugfix fix --nope now?", "words_answer": false}
+{"id": "typed_switch-00277", "kind": "typed_switch", "prompt": "/focus-runner --guard.review-freeze on add the export --guard-policy \"\";", "words_answer": true}
+{"id": "typed_switch-00278", "kind": "typed_switch", "prompt": "/focusx --intent i -- add a --help flag to the reverser...", "words_answer": true}
+{"id": "typed_switch-00279", "kind": "typed_switch", "prompt": "/focus --intent i use postgres", "words_answer": false}
+{"id": "typed_switch-00280", "kind": "typed_switch", "prompt": "guard policy relaxed now", "words_answer": true}
+{"id": "typed_switch-00281", "kind": "typed_switch", "prompt": "/FOCUS -- 1.", "words_answer": false}
+{"id": "typed_switch-00282", "kind": "typed_switch", "prompt": "/FOCUS --nope value --space --guard-policy relaxed 1...", "words_answer": true}
+{"id": "typed_switch-00283", "kind": "typed_switch", "prompt": "/focus-runner x;", "words_answer": false}
+{"id": "typed_switch-00284", "kind": "typed_switch", "prompt": "do not ask to approve the plan.", "words_answer": false}
+{"id": "typed_switch-00285", "kind": "typed_switch", "prompt": "/Focus config set plan-approval off?!", "words_answer": true}
+{"id": "typed_switch-00286", "kind": "typed_switch", "prompt": " /focus --guard-policy --nope value --plan-approval x", "words_answer": true}
+{"id": "typed_switch-00287", "kind": "typed_switch", "prompt": "x /focus --skip x --change-control relaxed --change-control off fix --nope now --plan-approval off!", "words_answer": false}
+{"id": "typed_switch-00288", "kind": "typed_switch", "prompt": "...", "words_answer": false}
+{"id": "typed_switch-00289", "kind": "typed_switch", "prompt": "focus intent create a --guard-policy off", "words_answer": false}
+{"id": "typed_switch-00290", "kind": "typed_switch", "prompt": "skip the plan ?", "words_answer": false}
+{"id": "typed_switch-00291", "kind": "typed_switch", "prompt": "/focusx --guard-policy on --guard-policy relaxed approve the plan...", "words_answer": false}
+{"id": "typed_switch-00292", "kind": "typed_switch", "prompt": " /focus --intent i use postgres --summary-confirmation on,", "words_answer": true}
+{"id": "typed_switch-00293", "kind": "typed_switch", "prompt": "/Focus --learnings off fix --nope now,", "words_answer": false}
+{"id": "typed_switch-00294", "kind": "typed_switch", "prompt": "focus intent --guard-policy off", "words_answer": true}
+{"id": "typed_switch-00295", "kind": "typed_switch", "prompt": "/focusx\tx?!", "words_answer": false}
+{"id": "typed_switch-00296", "kind": "typed_switch", "prompt": "/focus-runner --guard.human-presence off --intent i approve the plan!", "words_answer": true}
+{"id": "typed_switch-00297", "kind": "typed_switch", "prompt": "/focus config set guard-policy off?", "words_answer": false}
+{"id": "typed_switch-00298", "kind": "typed_switch", "prompt": "/Focus --guard-policy OFF --sensors --guard.review-freeze off fix --nope now.", "words_answer": false}
+{"id": "typed_switch-00299", "kind": "typed_switch", "prompt": "/focusx --space add a --help flag to the reverser?", "words_answer": false}
+{"id": "typed_switch-00300", "kind": "typed_switch", "prompt": "/focus --guard-policy strict --guard-policy strict fix --nope now.", "words_answer": false}
+{"id": "typed_switch-00301", "kind": "typed_switch", "prompt": "guard policy relaxed.", "words_answer": false}
+{"id": "typed_switch-00302", "kind": "typed_switch", "prompt": "/Focus --depth minimal --scope --guard.plan-approval off -- the plan is fine -- really ?", "words_answer": false}
+{"id": "typed_switch-00303", "kind": "typed_switch", "prompt": "skip plan approval,", "words_answer": false}
+{"id": "typed_switch-00304", "kind": "typed_switch", "prompt": "$focus x:", "words_answer": true}
+{"id": "typed_switch-00305", "kind": "typed_switch", "prompt": "/focus-runner --guard.plan-approval off -- add a --help flag to the reverser ?", "words_answer": false}
+{"id": "typed_switch-00306", "kind": "typed_switch", "prompt": " /focus --guard.nope off --,", "words_answer": false}
+{"id": "typed_switch-00307", "kind": "typed_switch", "prompt": "/focusx intent --guard-policy off?", "words_answer": false}
+{"id": "typed_switch-00308", "kind": "typed_switch", "prompt": "/FOCUS config set", "words_answer": false}
+{"id": "typed_switch-00309", "kind": "typed_switch", "prompt": "x /focus --guard-policy \"\" -- fix --nope now!", "words_answer": false}
+{"id": "typed_switch-00310", "kind": "typed_switch", "prompt": "/focus --guard.review-freeze on --learnings on fix --nope now?", "words_answer": false}
+{"id": "typed_switch-00311", "kind": "typed_switch", "prompt": "skip plan approval on the rest of this piece of work ?", "words_answer": true}
+{"id": "typed_switch-00312", "kind": "typed_switch", "prompt": "x /focus intent switch a;", "words_answer": false}
+{"id": "typed_switch-00313", "kind": "typed_switch", "prompt": "$focus the plan is fine -- really,", "words_answer": false}
+{"id": "typed_switch-00314", "kind": "typed_switch", "prompt": "/focus --guard-policy relaxed --intent i --guard-policy OFF?", "words_answer": true}
+{"id": "typed_switch-00315", "kind": "typed_switch", "prompt": "focus --guard-policy on --guard-policy \"off\" --plan-approval add the export...", "words_answer": false}
+{"id": "typed_switch-00316", "kind": "typed_switch", "prompt": "/Focus --plan-approval fix --nope now;", "words_answer": false}
+{"id": "typed_switch-00317", "kind": "typed_switch", "prompt": "x /focus --change-control relaxed --nope --depth 1 --review none:", "words_answer": false}
+{"id": "typed_switch-00318", "kind": "typed_switch", "prompt": "change-control off?!", "words_answer": false}
+{"id": "typed_switch-00319", "kind": "typed_switch", "prompt": "switch the plan approvals off.", "words_answer": false}
+{"id": "typed_switch-00320", "kind": "typed_switch", "prompt": "/focus -- 1 --json ?", "words_answer": true}
+{"id": "typed_switch-00321", "kind": "typed_switch", "prompt": "$focus space-create s --guard-policy off?!", "words_answer": false}
+{"id": "typed_switch-00322", "kind": "typed_switch", "prompt": "plan approval off", "words_answer": true}
+{"id": "typed_switch-00323", "kind": "typed_switch", "prompt": "/FOCUS --sensors add the export", "words_answer": true}
+{"id": "typed_switch-00324", "kind": "typed_switch", "prompt": "focus config set guard-policy off", "words_answer": false}
+{"id": "typed_switch-00325", "kind": "typed_switch", "prompt": " /focus --depth minimal use postgres:", "words_answer": false}
+{"id": "typed_switch-00326", "kind": "typed_switch", "prompt": "Skip the plan approvals?!", "words_answer": false}
+{"id": "typed_switch-00327", "kind": "typed_switch", "prompt": "focus add a --help flag to the reverser...", "words_answer": true}
+{"id": "typed_switch-00328", "kind": "typed_switch", "prompt": "/FOCUS add the export?!", "words_answer": false}
+{"id": "typed_switch-00329", "kind": "typed_switch", "prompt": " /focus config set change-control relaxed,", "words_answer": false}
+{"id": "typed_switch-00330", "kind": "typed_switch", "prompt": "change control relaxed ?", "words_answer": false}
+{"id": "typed_switch-00331", "kind": "typed_switch", "prompt": "/focusx --guard-policy off?", "words_answer": false}
+{"id": "typed_switch-00332", "kind": "typed_switch", "prompt": "/Focus --guard.review-freeze on --guard.plan-approval off --depth minimal -- the plan is fine -- really?", "words_answer": false}
+{"id": "typed_switch-00333", "kind": "typed_switch", "prompt": "/focusx --plan-approval off --change-control relaxed --learnings off -- add a --help flag to the reverser,", "words_answer": false}
+{"id": "typed_switch-00334", "kind": "typed_switch", "prompt": "/FOCUS --guard-policy relaxed add a --help flag to the reverser --guard-policy relaxed", "words_answer": false}
+{"id": "typed_switch-00335", "kind": "typed_switch", "prompt": " /focus --guard.human-presence off --summary-confirmation off --project-type brownfield --guard-policy \"\";", "words_answer": false}
+{"id": "typed_switch-00336", "kind": "typed_switch", "prompt": "/focus --learnings off --summary-confirmation on add the export;", "words_answer": true}
+{"id": "typed_switch-00337", "kind": "typed_switch", "prompt": "plan-approvals off...", "words_answer": true}
+{"id": "typed_switch-00338", "kind": "typed_switch", "prompt": "/focus --guard-policy on --guard-policy \"\" --project-type brownfield -- add the export", "words_answer": true}
+{"id": "typed_switch-00339", "kind": "typed_switch", "prompt": "/FOCUS --guard.plan-approval on --summary-confirmation on --guard-policy '' 1 ?", "words_answer": false}
+{"id": "typed_switch-00340", "kind": "typed_switch", "prompt": "/focusx --summary-confirmation on --GUARD-POLICY off --learnings on -- fix --nope now...", "words_answer": false}
+{"id": "typed_switch-00341", "kind": "typed_switch", "prompt": " /focus --learnings on -- use postgres?", "words_answer": false}
+{"id": "typed_switch-00342", "kind": "typed_switch", "prompt": "/focusx --space --json --guard.human-presence off -- 1", "words_answer": true}
+{"id": "typed_switch-00343", "kind": "typed_switch", "prompt": " /focus config set x y z?!", "words_answer": false}
+{"id": "typed_switch-00344", "kind": "typed_switch", "prompt": "skip plan approval now!", "words_answer": false}
+{"id": "typed_switch-00345", "kind": "typed_switch", "prompt": "$focus  fix --nope now,", "words_answer": false}
+{"id": "typed_switch-00346", "kind": "typed_switch", "prompt": " /focus space-create s --guard-policy off;", "words_answer": false}
+{"id": "typed_switch-00347", "kind": "typed_switch", "prompt": "/FOCUS --skip x --guard-policy relaxed approve the plan", "words_answer": false}
+{"id": "typed_switch-00348", "kind": "typed_switch", "prompt": "/FOCUS park!", "words_answer": false}
+{"id": "typed_switch-00349", "kind": "typed_switch", "prompt": "/focusx approve the plan --add y.", "words_answer": true}
+{"id": "typed_switch-00350", "kind": "typed_switch", "prompt": "/focusx config set depth minimal", "words_answer": false}
+{"id": "typed_switch-00351", "kind": "typed_switch", "prompt": "plan-approvals off", "words_answer": false}
+{"id": "typed_switch-00352", "kind": "typed_switch", "prompt": "/focus-runner --skip --add y --json -- add a --help flag to the reverser ?", "words_answer": false}
+{"id": "typed_switch-00353", "kind": "typed_switch", "prompt": "drop plan approval", "words_answer": true}
+{"id": "typed_switch-00354", "kind": "typed_switch", "prompt": "$focus --plan-approval on --guard-policy relaxed -- use postgres --skip;", "words_answer": false}
+{"id": "typed_switch-00355", "kind": "typed_switch", "prompt": "plan approval off;", "words_answer": false}
+{"id": "typed_switch-00356", "kind": "typed_switch", "prompt": "please skip plan approval!", "words_answer": true}
+{"id": "typed_switch-00357", "kind": "typed_switch", "prompt": "plan approval off:", "words_answer": false}
+{"id": "typed_switch-00358", "kind": "typed_switch", "prompt": "switch off plan-approval?", "words_answer": false}
+{"id": "typed_switch-00359", "kind": "typed_switch", "prompt": "skip plan approval please...", "words_answer": false}
+{"id": "typed_switch-00360", "kind": "typed_switch", "prompt": "/focus --plan-approval on?!", "words_answer": true}
+{"id": "typed_switch-00361", "kind": "typed_switch", "prompt": "/focus --guard.nope off --guard.nope off --guard.review-freeze off -- use postgres?", "words_answer": false}
+{"id": "typed_switch-00362", "kind": "typed_switch", "prompt": "/focus-runner --guard.review-freeze off --guard.review-freeze off --plan-approval on approve the plan?!", "words_answer": false}
+{"id": "typed_switch-00363", "kind": "typed_switch", "prompt": "/focus-runner -- x ?", "words_answer": false}
+{"id": "typed_switch-00364", "kind": "typed_switch", "prompt": "turn plan approval off?!", "words_answer": false}
+{"id": "typed_switch-00365", "kind": "typed_switch", "prompt": "guard policy  relaxed?", "words_answer": false}
+{"id": "typed_switch-00366", "kind": "typed_switch", "prompt": "x /focus intent switch a!", "words_answer": false}
+{"id": "typed_switch-00367", "kind": "typed_switch", "prompt": "x /focus --sensors on --review none --review none -- approve the plan --json.", "words_answer": false}
+{"id": "typed_switch-00368", "kind": "typed_switch", "prompt": "guard policy  relaxed ?", "words_answer": false}
+{"id": "typed_switch-00369", "kind": "typed_switch", "prompt": " /focus --scope approve the plan", "words_answer": false}
+{"id": "typed_switch-00370", "kind": "typed_switch", "prompt": "switch off plan-approval", "words_answer": false}
+{"id": "typed_switch-00371", "kind": "typed_switch", "prompt": "/focus --json --skip x use postgres!", "words_answer": false}
+{"id": "typed_switch-00372", "kind": "typed_switch", "prompt": " /focus --sensors on --guard.human-presence off ?", "words_answer": false}
+{"id": "typed_switch-00373", "kind": "typed_switch", "prompt": "please skip plan approval ?", "words_answer": false}
+{"id": "typed_switch-00374", "kind": "typed_switch", "prompt": "/focus\tx", "words_answer": true}
+{"id": "typed_switch-00375", "kind": "typed_switch", "prompt": "/focus ?", "words_answer": false}
+{"id": "typed_switch-00376", "kind": "typed_switch", "prompt": "switch off plan-approval", "words_answer": false}
+{"id": "typed_switch-00377", "kind": "typed_switch", "prompt": " /focus the plan is fine -- really?", "words_answer": true}
+{"id": "typed_switch-00378", "kind": "typed_switch", "prompt": "   ", "words_answer": true}
+{"id": "typed_switch-00379", "kind": "typed_switch", "prompt": "/focusx --scope -- 1:", "words_answer": false}
+{"id": "typed_switch-00380", "kind": "typed_switch", "prompt": "/focus-runner  --nope --sensors 1.", "words_answer": false}
+{"id": "typed_switch-00381", "kind": "typed_switch", "prompt": "/FOCUS --scope --project-type brownfield -- use postgres", "words_answer": false}
+{"id": "typed_switch-00382", "kind": "typed_switch", "prompt": "$focus --guard-policy strict --plan-approval on --sensors on -- use postgres?!", "words_answer": true}
+{"id": "typed_switch-00383", "kind": "typed_switch", "prompt": "change control relaxed", "words_answer": true}
+{"id": "typed_switch-00384", "kind": "typed_switch", "prompt": "Guard Policy Relaxed...", "words_answer": false}
+{"id": "typed_switch-00385", "kind": "typed_switch", "prompt": "/focus-runner next:", "words_answer": false}
+{"id": "typed_switch-00386", "kind": "typed_switch", "prompt": "/FOCUS --plan-approval off --guard.state-transition off x --sensors on", "words_answer": true}
+{"id": "typed_switch-00387", "kind": "typed_switch", "prompt": "/focus-runner --GUARD-POLICY off --guard-policy --intent i add a --help flag to the reverser --guard.review-freeze off...", "words_answer": false}
+{"id": "typed_switch-00388", "kind": "typed_switch", "prompt": "focus --sensors --collaborators on -- 1?", "words_answer": true}
+{"id": "typed_switch-00389", "kind": "typed_switch", "prompt": "change control relaxed", "words_answer": false}
+{"id": "typed_switch-00390", "kind": "typed_switch", "prompt": "/Focus the plan is fine -- really,", "words_answer": false}
+{"id": "typed_switch-00391", "kind": "typed_switch", "prompt": "/FOCUS --json --depth --depth minimal -- add a --help flag to the reverser", "words_answer": true}
+{"id": "typed_switch-00392", "kind": "typed_switch", "prompt": "/FOCUS config set guard-policy off --space s", "words_answer": false}
+{"id": "typed_switch-00393", "kind": "typed_switch", "prompt": "/FOCUS --guard.review-freeze on --sensors off -- use postgres --guard.review-freeze off", "words_answer": false}
+{"id": "typed_switch-00394", "kind": "typed_switch", "prompt": "$focus  --nope value --learnings on --depth -- the plan is fine -- really:", "words_answer": false}
+{"id": "typed_switch-00395", "kind": "typed_switch", "prompt": "please skip plan approval", "words_answer": true}
+{"id": "typed_switch-00396", "kind": "typed_switch", "prompt": "$focus add a --help flag to the reverser --space", "words_answer": false}
+{"id": "typed_switch-00397", "kind": "typed_switch", "prompt": "/Focus\n--guard-policy '' --guard-policy --learnings off", "words_answer": false}
+{"id": "typed_switch-00398", "kind": "typed_switch", "prompt": "guard policy relaxed", "words_answer": true}
+{"id": "typed_switch-00399", "kind": "typed_switch", "prompt": "$focus the plan is fine -- really", "words_answer": false}
+{"id": "typed_switch-00400", "kind": "typed_switch", "prompt": "/Focus --guard.human-presence off --depth --guard.review-freeze off -- approve the plan --help...", "words_answer": true}
+{"id": "typed_switch-00401", "kind": "typed_switch", "prompt": "/FOCUS --depth --add y --nope value -- approve the plan?", "words_answer": false}
+{"id": "typed_switch-00402", "kind": "typed_switch", "prompt": "\n/focus --json -- approve the plan --depth,", "words_answer": true}
+{"id": "typed_switch-00403", "kind": "typed_switch", "prompt": "/focus-runner --guard-policy on --summary-confirmation off --guard.human-presence off --,", "words_answer": false}
+{"id": "typed_switch-00404", "kind": "typed_switch", "prompt": "guard policy relaxed now:", "words_answer": true}
+{"id": "typed_switch-00405", "kind": "typed_switch", "prompt": "/Focus --json --guard.reviewer-scope off --project-type brownfield fix --nope now", "words_answer": false}
+{"id": "typed_switch-00406", "kind": "typed_switch", "prompt": "/focus --plan-approval on approve the plan", "words_answer": false}
+{"id": "typed_switch-00407", "kind": "typed_switch", "prompt": "/focusx next?!", "words_answer": false}
+{"id": "typed_switch-00408", "kind": "typed_switch", "prompt": "x /focus --learnings off --intent i --space s x", "words_answer": false}
+{"id": "typed_switch-00409", "kind": "typed_switch", "prompt": ",", "words_answer": true}
+{"id": "typed_switch-00410", "kind": "typed_switch", "prompt": "/focus-runner -- 1", "words_answer": false}
+{"id": "typed_switch-00411", "kind": "typed_switch", "prompt": "skip plan approval for this task, please", "words_answer": false}
+{"id": "typed_switch-00412", "kind": "typed_switch", "prompt": "x /focus --guard.nope off x...", "words_answer": false}
+{"id": "typed_switch-00413", "kind": "typed_switch", "prompt": "/Focus --skip --", "words_answer": false}
+{"id": "typed_switch-00414", "kind": "typed_switch", "prompt": "/focus-runner --guard-policy \"\" --intent i --add y -- add the export --scope bugfix", "words_answer": false}
+{"id": "typed_switch-00415", "kind": "typed_switch", "prompt": "/FOCUS --scope -- approve the plan --change-control relaxed,", "words_answer": false}
+{"id": "typed_switch-00416", "kind": "typed_switch", "prompt": "change control relaxed ?", "words_answer": true}
+{"id": "typed_switch-00417", "kind": "typed_switch", "prompt": " /focus --plan-approval on --guard.review-freeze on", "words_answer": false}
+{"id": "typed_switch-00418", "kind": "typed_switch", "prompt": "/Focus approve the plan --learnings on?!", "words_answer": false}
+{"id": "typed_switch-00419", "kind": "typed_switch", "prompt": "focus --guard-policy '' --guard-policy \"\" --depth minimal;", "words_answer": true}
+{"id": "typed_switch-00420", "kind": "typed_switch", "prompt": "turn off plan approval,", "words_answer": false}
+{"id": "typed_switch-00421", "kind": "typed_switch", "prompt": "guard policy strict", "words_answer": true}
+{"id": "typed_switch-00422", "kind": "typed_switch", "prompt": "no plan approval", "words_answer": true}
+{"id": "typed_switch-00423", "kind": "typed_switch", "prompt": " /focus --project-type brownfield -- x?!", "words_answer": false}
+{"id": "typed_switch-00424", "kind": "typed_switch", "prompt": "/focus config set guard-policy off", "words_answer": false}
+{"id": "typed_switch-00425", "kind": "typed_switch", "prompt": "$focus --skip x...", "words_answer": false}
+{"id": "typed_switch-00426", "kind": "typed_switch", "prompt": "/focusx config set x y z?!", "words_answer": false}
+{"id": "typed_switch-00427", "kind": "typed_switch", "prompt": "turn plan approval off ?", "words_answer": false}
+{"id": "typed_switch-00428", "kind": "typed_switch", "prompt": "disable plan approval", "words_answer": false}
+{"id": "typed_switch-00429", "kind": "typed_switch", "prompt": "/FOCUS the plan is fine -- really", "words_answer": true}
+{"id": "typed_switch-00430", "kind": "typed_switch", "prompt": "guard policy relaxed now...", "words_answer": false}
+{"id": "typed_switch-00431", "kind": "typed_switch", "prompt": "focus\nuse postgres --plan-approval on!", "words_answer": false}
+{"id": "typed_switch-00432", "kind": "typed_switch", "prompt": "/focusx config set x y z:", "words_answer": false}
+{"id": "typed_switch-00433", "kind": "typed_switch", "prompt": "x /focus --add y --plan-approval --help the plan is fine -- really", "words_answer": true}
+{"id": "typed_switch-00434", "kind": "typed_switch", "prompt": "hello ?", "words_answer": true}
+{"id": "typed_switch-00435", "kind": "typed_switch", "prompt": "/focus-runner --json -- fix --nope now!", "words_answer": false}
+{"id": "typed_switch-00436", "kind": "typed_switch", "prompt": " /focus --guard-policy strict --guard.plan-approval on --plan-approval on add a --help flag to the reverser!", "words_answer": false}
+{"id": "typed_switch-00437", "kind": "typed_switch", "prompt": "/focus-runner!", "words_answer": false}
+{"id": "typed_switch-00438", "kind": "typed_switch", "prompt": "focus --guard-policy --learnings on --,", "words_answer": false}
+{"id": "typed_switch-00439", "kind": "typed_switch", "prompt": "/focus --space s", "words_answer": false}
+{"id": "typed_switch-00440", "kind": "typed_switch", "prompt": "/focus-runner --depth --space s --learnings off approve the plan...", "words_answer": true}
+{"id": "typed_switch-00441", "kind": "typed_switch", "prompt": "/focusx --nope --plan-approval off --...", "words_answer": false}
+{"id": "typed_switch-00442", "kind": "typed_switch", "prompt": "$focus --guard-policy on approve the plan?!", "words_answer": false}
+{"id": "typed_switch-00443", "kind": "typed_switch", "prompt": "/focusx --change-control off --guard-policy '' x ?", "words_answer": false}
+{"id": "typed_switch-00444", "kind": "typed_switch", "prompt": "/focus config set", "words_answer": false}
+{"id": "typed_switch-00445", "kind": "typed_switch", "prompt": "/FOCUS --guard-policy --plan-approval off --nope value;", "words_answer": false}
+{"id": "typed_switch-00446", "kind": "typed_switch", "prompt": "$focus --test-strategy tdd the plan is fine -- really", "words_answer": false}
+{"id": "typed_switch-00447", "kind": "typed_switch", "prompt": "/FOCUS --guard-policy strict --guard-policy \"\".", "words_answer": false}
+{"id": "typed_switch-00448", "kind": "typed_switch", "prompt": "/focus --guard.state-transition off x;", "words_answer": true}
+{"id": "typed_switch-00449", "kind": "typed_switch", "prompt": "/Focus,", "words_answer": false}
+{"id": "typed_switch-00450", "kind": "typed_switch", "prompt": "focus fix --nope now:", "words_answer": true}
+{"id": "typed_switch-00451", "kind": "typed_switch", "prompt": "/focus-runner --test-strategy tdd x.", "words_answer": false}
+{"id": "typed_switch-00452", "kind": "typed_switch", "prompt": "/Focus add the export.", "words_answer": true}
+{"id": "typed_switch-00453", "kind": "typed_switch", "prompt": "x /focus --plan-approval --depth minimal --guard-policy on -- approve the plan.", "words_answer": true}
+{"id": "typed_switch-00454", "kind": "typed_switch", "prompt": "/focus;", "words_answer": false}
+{"id": "typed_switch-00455", "kind": "typed_switch", "prompt": "change control relaxed", "words_answer": true}
+{"id": "typed_switch-00456", "kind": "typed_switch", "prompt": "/focus-runner --learnings on -- add a --help flag to the reverser ?", "words_answer": false}
+{"id": "typed_switch-00457", "kind": "typed_switch", "prompt": "Skip the plan approvals,", "words_answer": true}
+{"id": "typed_switch-00458", "kind": "typed_switch", "prompt": "x /focus --guard.plan-approval on --guard.reviewer-scope off add a --help flag to the reverser;", "words_answer": false}
+{"id": "typed_switch-00459", "kind": "typed_switch", "prompt": "/focus --guard.state-transition off the plan is fine -- really,", "words_answer": false}
+{"id": "typed_switch-00460", "kind": "typed_switch", "prompt": "/focus --guard.plan-approval off --nope --summary-confirmation on", "words_answer": true}
+{"id": "typed_switch-00461", "kind": "typed_switch", "prompt": "do not ask to approve the plan?", "words_answer": false}
+{"id": "typed_switch-00462", "kind": "typed_switch", "prompt": "/focusx --depth --plan-approval --collaborators on add the export --guard.plan-approval off!", "words_answer": false}
+{"id": "typed_switch-00463", "kind": "typed_switch", "prompt": "focus:", "words_answer": false}
+{"id": "typed_switch-00464", "kind": "typed_switch", "prompt": " /focus --guard-policy strict --collaborators on -- add the export;", "words_answer": false}
+{"id": "typed_switch-00465", "kind": "typed_switch", "prompt": "/focus\t--json --guard-policy --guard-policy relaxed -- add the export!", "words_answer": false}
+{"id": "typed_switch-00466", "kind": "typed_switch", "prompt": "/focus-runner --plan-approval off --space s --plan-approval on -- x:", "words_answer": false}
+{"id": "typed_switch-00467", "kind": "typed_switch", "prompt": "disable plan approval?!", "words_answer": false}
+{"id": "typed_switch-00468", "kind": "typed_switch", "prompt": "$focus --add y --nope use postgres?!", "words_answer": false}
+{"id": "typed_switch-00469", "kind": "typed_switch", "prompt": "turn off plan approval?", "words_answer": true}
+{"id": "typed_switch-00470", "kind": "typed_switch", "prompt": "guard policy relaxed now...", "words_answer": true}
+{"id": "typed_switch-00471", "kind": "typed_switch", "prompt": "Skip the plan approvals", "words_answer": false}
+{"id": "typed_switch-00472", "kind": "typed_switch", "prompt": " /focus config set plan-approval off?", "words_answer": false}
+{"id": "typed_switch-00473", "kind": "typed_switch", "prompt": "/Focus -- 1 --depth minimal.", "words_answer": false}
+{"id": "typed_switch-00474", "kind": "typed_switch", "prompt": "$focus -- x --skip:", "words_answer": false}
+{"id": "typed_switch-00475", "kind": "typed_switch", "prompt": "skip plan approval for this work...", "words_answer": false}
+{"id": "typed_switch-00476", "kind": "typed_switch", "prompt": " /focus add a --help flag to the reverser,", "words_answer": false}
+{"id": "typed_switch-00477", "kind": "typed_switch", "prompt": "/focusx --guard.plan-approval off --change-control relaxed --change-control relaxed -- the plan is fine -- really;", "words_answer": false}
+{"id": "typed_switch-00478", "kind": "typed_switch", "prompt": "/Focus --learnings off ?", "words_answer": false}
+{"id": "typed_switch-00479", "kind": "typed_switch", "prompt": "switch the plan approvals off...", "words_answer": false}
+{"id": "typed_switch-00480", "kind": "typed_switch", "prompt": "/FOCUS --skip?", "words_answer": false}
+{"id": "typed_switch-00481", "kind": "typed_switch", "prompt": "no", "words_answer": false}
+{"id": "typed_switch-00482", "kind": "typed_switch", "prompt": "/focus --skip x --space --guard.human-presence off add a --help flag to the reverser?!", "words_answer": false}
+{"id": "typed_switch-00483", "kind": "typed_switch", "prompt": "/FOCUS?", "words_answer": false}
+{"id": "typed_switch-00484", "kind": "typed_switch", "prompt": "/focus --guard-policy \"\" ?", "words_answer": false}
+{"id": "typed_switch-00485", "kind": "typed_switch", "prompt": "$focus --skip -- the plan is fine -- really", "words_answer": false}
+{"id": "typed_switch-00486", "kind": "typed_switch", "prompt": "/focus --scope --space s 1,", "words_answer": false}
+{"id": "typed_switch-00487", "kind": "typed_switch", "prompt": "/FOCUS config set guard-policy off extra?", "words_answer": false}
+{"id": "typed_switch-00488", "kind": "typed_switch", "prompt": "/FOCUS --guard-policy strict --space s --guard.plan-approval on ?", "words_answer": true}
+{"id": "typed_switch-00489", "kind": "typed_switch", "prompt": "/focus --", "words_answer": false}
+{"id": "typed_switch-00490", "kind": "typed_switch", "prompt": "$focus --add y --GUARD-POLICY off --guard-policy '' -- the plan is fine -- really;", "words_answer": false}
+{"id": "typed_switch-00491", "kind": "typed_switch", "prompt": "/focus  --project-type brownfield --guard.review-freeze on 1,", "words_answer": true}
+{"id": "typed_switch-00492", "kind": "typed_switch", "prompt": "focus --...", "words_answer": false}
+{"id": "typed_switch-00493", "kind": "typed_switch", "prompt": "/FOCUS --guard.nope o'ff --guard-policy off --", "words_answer": true}
+{"id": "typed_switch-00494", "kind": "typed_switch", "prompt": "/focus -- add a --help flag to the reverser --summary-confirmation off...", "words_answer": false}
+{"id": "typed_switch-00495", "kind": "typed_switch", "prompt": "$focus --intent i --guard-policy --plan-approval off --collaborators on approve the plan?", "words_answer": false}
+{"id": "typed_switch-00496", "kind": "typed_switch", "prompt": "/focus\t--change-control relaxed --GUARD-POLICY off fix --nope now!", "words_answer": true}
+{"id": "typed_switch-00497", "kind": "typed_switch", "prompt": "/focusx -- --guard-policy off?", "words_answer": false}
+{"id": "typed_switch-00498", "kind": "typed_switch", "prompt": "/FOCUS space list --plan-approval off", "words_answer": false}
+{"id": "typed_switch-00499", "kind": "typed_switch", "prompt": "/focus --change-control relaxed --guard.state-transition off x;", "words_answer": false}
+{"id": "typed_switch-00500", "kind": "typed_switch", "prompt": "/focusx --guard-policy on --scope --test-strategy tdd fix --nope now", "words_answer": false}
+{"id": "typed_switch-00501", "kind": "typed_switch", "prompt": "$focus --test-strategy tdd --guard-policy \"\" --learnings on approve the plan", "words_answer": false}
+{"id": "typed_switch-00502", "kind": "typed_switch", "prompt": "/Focus --learnings on --learnings on --plan-approval on use postgres:", "words_answer": false}
+{"id": "typed_switch-00503", "kind": "typed_switch", "prompt": "/focus --test-strategy tdd approve the plan,", "words_answer": false}
+{"id": "typed_switch-00504", "kind": "typed_switch", "prompt": "x /focus -- use postgres,", "words_answer": true}
+{"id": "typed_switch-00505", "kind": "typed_switch", "prompt": "/focusx --guard-policy relaxed?!", "words_answer": false}
+{"id": "typed_switch-00506", "kind": "typed_switch", "prompt": "/focus space create s --plan-approval off?", "words_answer": false}
+{"id": "typed_switch-00507", "kind": "typed_switch", "prompt": "focus -- 1,", "words_answer": false}
+{"id": "typed_switch-00508", "kind": "typed_switch", "prompt": "/focus --help -- add the export:", "words_answer": false}
+{"id": "typed_switch-00509", "kind": "typed_switch", "prompt": "Skip the plan approvals", "words_answer": false}
+{"id": "typed_switch-00510", "kind": "typed_switch", "prompt": "/focus  -- fix --nope now?!", "words_answer": false}
+{"id": "typed_switch-00511", "kind": "typed_switch", "prompt": "plan approval off", "words_answer": false}
+{"id": "typed_switch-00512", "kind": "typed_switch", "prompt": "/Focus --space --depth minimal --guard-policy --plan-approval off -- fix --nope now", "words_answer": true}
+{"id": "typed_switch-00513", "kind": "typed_switch", "prompt": "change control relaxed:", "words_answer": false}
+{"id": "typed_switch-00514", "kind": "typed_switch", "prompt": "guard policy on.", "words_answer": false}
+{"id": "typed_switch-00515", "kind": "typed_switch", "prompt": "?!", "words_answer": false}
+{"id": "typed_switch-00516", "kind": "typed_switch", "prompt": "/focus-runner --guard-policy off add the export.", "words_answer": false}
+{"id": "typed_switch-00517", "kind": "typed_switch", "prompt": "/FOCUS intent --guard-policy off", "words_answer": false}
+{"id": "typed_switch-00518", "kind": "typed_switch", "prompt": "/focus-runner --change-control relaxed -- fix --nope now!", "words_answer": false}
+{"id": "typed_switch-00519", "kind": "typed_switch", "prompt": "$focus config set guard-policy off --space s", "words_answer": false}
+{"id": "typed_switch-00520", "kind": "typed_switch", "prompt": "x /focus config set --guard-policy off!", "words_answer": false}
+{"id": "typed_switch-00521", "kind": "typed_switch", "prompt": "/focus use postgres,", "words_answer": false}
+{"id": "typed_switch-00522", "kind": "typed_switch", "prompt": "no more plan approvals", "words_answer": false}
+{"id": "typed_switch-00523", "kind": "typed_switch", "prompt": "/focus-runner --skip x --guard-policy --plan-approval off --guard-policy '' use postgres!", "words_answer": false}
+{"id": "typed_switch-00524", "kind": "typed_switch", "prompt": "stop plan approval.", "words_answer": false}
+{"id": "typed_switch-00525", "kind": "typed_switch", "prompt": "focusx next", "words_answer": false}
+{"id": "typed_switch-00526", "kind": "typed_switch", "prompt": "/focus --guard-policy relaxed --collaborators on --nope -- the plan is fine -- really --guard-policy relaxed?!", "words_answer": false}
+{"id": "typed_switch-00527", "kind": "typed_switch", "prompt": "/FOCUS --guard-policy OFF x --scope...", "words_answer": true}
+{"id": "typed_switch-00528", "kind": "typed_switch", "prompt": "$focus CONFIG SET guard-policy off", "words_answer": false}
+{"id": "typed_switch-00529", "kind": "typed_switch", "prompt": "no more plan approvals", "words_answer": false}
+{"id": "typed_switch-00530", "kind": "typed_switch", "prompt": "/FOCUS fix --nope now", "words_answer": false}
+{"id": "typed_switch-00531", "kind": "typed_switch", "prompt": "disable plan approval?!", "words_answer": false}
+{"id": "typed_switch-00532", "kind": "typed_switch", "prompt": "/focus x --scope bugfix", "words_answer": false}
+{"id": "typed_switch-00533", "kind": "typed_switch", "prompt": "x /focus --summary-confirmation on --guard.state-transition off --change-control relaxed --?!", "words_answer": false}
+{"id": "typed_switch-00534", "kind": "typed_switch", "prompt": "/focus --space s --sensors off --test-strategy tdd -- use postgres;", "words_answer": false}
+{"id": "typed_switch-00535", "kind": "typed_switch", "prompt": "focus on the login page?!", "words_answer": true}
+{"id": "typed_switch-00536", "kind": "typed_switch", "prompt": "$focus --guard-policy --plan-approval off approve the plan --GUARD-POLICY off...", "words_answer": true}
+{"id": "typed_switch-00537", "kind": "typed_switch", "prompt": "/FOCUS --guard-policy strict -- use postgres,", "words_answer": true}
+{"id": "typed_switch-00538", "kind": "typed_switch", "prompt": "/focus  ?", "words_answer": false}
+{"id": "typed_switch-00539", "kind": "typed_switch", "prompt": "$focus --plan-approval off --space s 1", "words_answer": true}
+{"id": "typed_switch-00540", "kind": "typed_switch", "prompt": "/focus config set guard-policy off --space s!", "words_answer": false}
+{"id": "typed_switch-00541", "kind": "typed_switch", "prompt": " /focus config set guard-policy?!", "words_answer": true}
+{"id": "typed_switch-00542", "kind": "typed_switch", "prompt": "/FOCUS --skip x --guard-policy OFF add the export?", "words_answer": true}
+{"id": "typed_switch-00543", "kind": "typed_switch", "prompt": "/focus --guard-policy \"\" --guard.plan-approval on --plan-approval on --:", "words_answer": false}
+{"id": "typed_switch-00544", "kind": "typed_switch", "prompt": "/focusx --guard-policy '' fix --nope now?!", "words_answer": false}
+{"id": "typed_switch-00545", "kind": "typed_switch", "prompt": "drop plan approval,", "words_answer": false}
+{"id": "typed_switch-00546", "kind": "typed_switch", "prompt": "/focus-runner --guard-policy \"\" --sensors off -- add the export;", "words_answer": false}
+{"id": "typed_switch-00547", "kind": "typed_switch", "prompt": "/focus-runner  x --guard-policy --plan-approval off?!", "words_answer": false}
+{"id": "typed_switch-00548", "kind": "typed_switch", "prompt": "/FOCUS --intent i --sensors -- add the export ?", "words_answer": true}
+{"id": "typed_switch-00549", "kind": "typed_switch", "prompt": "$focus --guard-policy use postgres,", "words_answer": true}
+{"id": "typed_switch-00550", "kind": "typed_switch", "prompt": ".", "words_answer": false}
+{"id": "typed_switch-00551", "kind": "typed_switch", "prompt": "stop asking me to approve each code plan", "words_answer": true}
+{"id": "typed_switch-00552", "kind": "typed_switch", "prompt": "/focus-runner config set guard-policy...", "words_answer": false}
+{"id": "typed_switch-00553", "kind": "typed_switch", "prompt": "switch the plan approvals off", "words_answer": true}
+{"id": "typed_switch-00554", "kind": "typed_switch", "prompt": "/focus config set plan-approval off.", "words_answer": false}
+{"id": "typed_switch-00555", "kind": "typed_switch", "prompt": "/Focus --change-control off --guard.reviewer-scope off x:", "words_answer": false}
+{"id": "typed_switch-00556", "kind": "typed_switch", "prompt": "skip plan approval on the rest of this piece of work?", "words_answer": true}
+{"id": "typed_switch-00557", "kind": "typed_switch", "prompt": "x /focus --learnings off add the export?!", "words_answer": true}
+{"id": "typed_switch-00558", "kind": "typed_switch", "prompt": "please skip plan approval?", "words_answer": true}
+{"id": "typed_switch-00559", "kind": "typed_switch", "prompt": "$focus --guard-policy \"\" --guard.state-transition o'ff -- add the export --space", "words_answer": false}
+{"id": "typed_switch-00560", "kind": "typed_switch", "prompt": "$focus!", "words_answer": true}
+{"id": "typed_switch-00561", "kind": "typed_switch", "prompt": "/FOCUS --space --guard.nope off --sensors on --;", "words_answer": true}
+{"id": "typed_switch-00562", "kind": "typed_switch", "prompt": "/focus-runner the plan is fine -- really?", "words_answer": false}
+{"id": "typed_switch-00563", "kind": "typed_switch", "prompt": "skip plan approval on the rest of this piece of work?!", "words_answer": false}
+{"id": "typed_switch-00564", "kind": "typed_switch", "prompt": "guard policy  relaxed:", "words_answer": true}
+{"id": "typed_switch-00565", "kind": "typed_switch", "prompt": " /focus --add y --summary-confirmation off -- add the export;", "words_answer": false}
+{"id": "typed_switch-00566", "kind": "typed_switch", "prompt": "...", "words_answer": false}
+{"id": "typed_switch-00567", "kind": "typed_switch", "prompt": "skip plan approval on the rest of this piece of work...", "words_answer": true}
+{"id": "typed_switch-00568", "kind": "typed_switch", "prompt": "/FOCUS --guard.reviewer-scope off --learnings off --guard-policy strict use postgres.", "words_answer": true}
+{"id": "typed_switch-00569", "kind": "typed_switch", "prompt": " /focus --skip x --guard.reviewer-scope off add a --help flag to the reverser", "words_answer": true}
+{"id": "typed_switch-00570", "kind": "typed_switch", "prompt": "no more plan approvals,", "words_answer": false}
+{"id": "typed_switch-00571", "kind": "typed_switch", "prompt": "x /focus --space s fix --nope now", "words_answer": false}
+{"id": "typed_switch-00572", "kind": "typed_switch", "prompt": "/Focus", "words_answer": false}
+{"id": "typed_switch-00573", "kind": "typed_switch", "prompt": "$focus --summary-confirmation on --guard-policy OFF?!", "words_answer": false}
+{"id": "typed_switch-00574", "kind": "typed_switch", "prompt": "plan approval off:", "words_answer": false}
+{"id": "typed_switch-00575", "kind": "typed_switch", "prompt": "focus -- x --learnings of\\f:", "words_answer": false}
+{"id": "typed_switch-00576", "kind": "typed_switch", "prompt": "x /focus config set depth minimal ?", "words_answer": false}
+{"id": "typed_switch-00577", "kind": "typed_switch", "prompt": "/focus\t--guard-policy -- use postgres --guard-policy relaxed?", "words_answer": true}
+{"id": "typed_switch-00578", "kind": "typed_switch", "prompt": "/focus config set guard-policy off extra", "words_answer": false}
+{"id": "typed_switch-00579", "kind": "typed_switch", "prompt": "guard policy relaxed?!", "words_answer": true}
+{"id": "typed_switch-00580", "kind": "typed_switch", "prompt": "/Focus --test-strategy tdd --guard.reviewer-scope off --sensors add the export?", "words_answer": false}
+{"id": "typed_switch-00581", "kind": "typed_switch", "prompt": "guard policy strict", "words_answer": false}
+{"id": "typed_switch-00582", "kind": "typed_switch", "prompt": "no plan approval.", "words_answer": false}
+{"id": "typed_switch-00583", "kind": "typed_switch", "prompt": "/focusx --sensors off --learnings off --json fix --nope now.", "words_answer": false}
+{"id": "typed_switch-00584", "kind": "typed_switch", "prompt": "focus\n-- use postgres", "words_answer": false}
+{"id": "typed_switch-00585", "kind": "typed_switch", "prompt": "$focus config set x y z", "words_answer": false}
+{"id": "typed_switch-00586", "kind": "typed_switch", "prompt": "focus  --nope --sensors on --guard-policy strict add the export?", "words_answer": true}
+{"id": "typed_switch-00587", "kind": "typed_switch", "prompt": "x /focus --guard.plan-approval off --summary-confirmation off.", "words_answer": false}
+{"id": "typed_switch-00588", "kind": "typed_switch", "prompt": "/focus-runner --guard.reviewer-scope off add the export?", "words_answer": false}
+{"id": "typed_switch-00589", "kind": "typed_switch", "prompt": "/focus space list --plan-approval off:", "words_answer": false}
+{"id": "typed_switch-00590", "kind": "typed_switch", "prompt": "/Focus 1!", "words_answer": false}
+{"id": "typed_switch-00591", "kind": "typed_switch", "prompt": "/focus approve the plan.", "words_answer": false}
+{"id": "typed_switch-00592", "kind": "typed_switch", "prompt": "/focus.", "words_answer": true}
+{"id": "typed_switch-00593", "kind": "typed_switch", "prompt": "/FOCUS park", "words_answer": false}
+{"id": "typed_switch-00594", "kind": "typed_switch", "prompt": "switch the plan approvals off;", "words_answer": false}
+{"id": "typed_switch-00595", "kind": "typed_switch", "prompt": "x /focus --guard.review-freeze off --learnings off add the export --add y ?", "words_answer": false}
+{"id": "typed_switch-00596", "kind": "typed_switch", "prompt": "/FOCUS the plan is fine -- really...", "words_answer": false}
+{"id": "typed_switch-00597", "kind": "typed_switch", "prompt": "/focus --guard-policy --plan-approval off --guard-policy on --sensors on -- the plan is fine -- really?!", "words_answer": true}
+{"id": "typed_switch-00598", "kind": "typed_switch", "prompt": "/focus --plan-approval", "words_answer": false}
+{"id": "typed_switch-00599", "kind": "typed_switch", "prompt": "/focus config set guard-policy.", "words_answer": false}
+{"id": "typed_switch-00600", "kind": "typed_switch", "prompt": "/focus-runner -- add the export --guard.human-presence off?", "words_answer": true}
+{"id": "typed_switch-00601", "kind": "typed_switch", "prompt": "/focus --summary-confirmation 'off' --space --skip x", "words_answer": false}
+{"id": "typed_switch-00602", "kind": "typed_switch", "prompt": "$focus use postgres", "words_answer": false}
+{"id": "typed_switch-00603", "kind": "typed_switch", "prompt": "/FOCUS --space s --change-control off --skip x -- add the export ?", "words_answer": false}
+{"id": "typed_switch-00604", "kind": "typed_switch", "prompt": "/focus-runner\t--scope bugfix the plan is fine -- really", "words_answer": false}
+{"id": "typed_switch-00605", "kind": "typed_switch", "prompt": "focus\t--test-strategy tdd --scope --skip ?", "words_answer": false}
+{"id": "typed_switch-00606", "kind": "typed_switch", "prompt": "focus?", "words_answer": false}
+{"id": "typed_switch-00607", "kind": "typed_switch", "prompt": "/focus CONFIG SET guard-policy off?!", "words_answer": false}
+{"id": "typed_switch-00608", "kind": "typed_switch", "prompt": "$focus --scope --review none --guard.reviewer-scope off", "words_answer": true}
+{"id": "typed_switch-00609", "kind": "typed_switch", "prompt": "approve the plan...", "words_answer": true}
+{"id": "typed_switch-00610", "kind": "typed_switch", "prompt": "skip plan approval for this task, please.", "words_answer": false}
+{"id": "typed_switch-00611", "kind": "typed_switch", "prompt": "please skip plan approval:", "words_answer": false}
+{"id": "typed_switch-00612", "kind": "typed_switch", "prompt": "turn plan approval off;", "words_answer": true}
+{"id": "typed_switch-00613", "kind": "typed_switch", "prompt": "/focus-runner -- use postgres --guard-policy --plan-approval off,", "words_answer": false}
+{"id": "typed_switch-00614", "kind": "typed_switch", "prompt": "/focus-runner --scope bugfix --depth minimal...", "words_answer": true}
+{"id": "typed_switch-00615", "kind": "typed_switch", "prompt": "/focusx -- --summary-confirmation on approve the plan --sensors on", "words_answer": false}
+{"id": "typed_switch-00616", "kind": "typed_switch", "prompt": "don't ask me to approve plans!", "words_answer": false}
+{"id": "typed_switch-00617", "kind": "typed_switch", "prompt": "the focus tool", "words_answer": false}
+{"id": "typed_switch-00618", "kind": "typed_switch", "prompt": "   ", "words_answer": true}
+{"id": "typed_switch-00619", "kind": "typed_switch", "prompt": "$focus --guard.review-freeze on fix --nope now.", "words_answer": false}
+{"id": "typed_switch-00620", "kind": "typed_switch", "prompt": "/focus --scope 1:", "words_answer": false}
+{"id": "typed_switch-00621", "kind": "typed_switch", "prompt": "x /focus --guard-policy OFF --guard.nope off --add y 1,", "words_answer": false}
+{"id": "typed_switch-00622", "kind": "typed_switch", "prompt": "/FOCUS --scope --skip x the plan is fine -- really ?", "words_answer": false}
+{"id": "typed_switch-00623", "kind": "typed_switch", "prompt": "/focus --nope --guard-policy strict --sensors off -- add the export ?", "words_answer": false}
+{"id": "typed_switch-00624", "kind": "typed_switch", "prompt": "/focus --guard-policy add a --help flag to the reverser;", "words_answer": false}
+{"id": "typed_switch-00625", "kind": "typed_switch", "prompt": "/focus --learnings of\\f --json --skip -- 1?!", "words_answer": false}
+{"id": "typed_switch-00626", "kind": "typed_switch", "prompt": "/focusx --skip x --add y add the export ?", "words_answer": false}
+{"id": "typed_switch-00627", "kind": "typed_switch", "prompt": "x /focus --guard-policy off x", "words_answer": false}
+{"id": "typed_switch-00628", "kind": "typed_switch", "prompt": "$focus\n--guard-policy --plan-approval off --scope...", "words_answer": false}
+{"id": "typed_switch-00629", "kind": "typed_switch", "prompt": "/FOCUS -- add the export!", "words_answer": true}
+{"id": "typed_switch-00630", "kind": "typed_switch", "prompt": "focus on the login page!", "words_answer": true}
+{"id": "typed_switch-00631", "kind": "typed_switch", "prompt": "/focus the plan is fine -- really", "words_answer": false}
+{"id": "typed_switch-00632", "kind": "typed_switch", "prompt": "drop plan approval", "words_answer": false}
+{"id": "typed_switch-00633", "kind": "typed_switch", "prompt": "turn off plan approval", "words_answer": false}
+{"id": "typed_switch-00634", "kind": "typed_switch", "prompt": "/focus-runner --guard-policy strict add a --help flag to the reverser --guard.plan-approval on;", "words_answer": false}
+{"id": "typed_switch-00635", "kind": "typed_switch", "prompt": "/focus --guard-policy '' --project-type brownfield approve the plan;", "words_answer": true}
+{"id": "typed_switch-00636", "kind": "typed_switch", "prompt": "guard policy  relaxed?", "words_answer": false}
+{"id": "typed_switch-00637", "kind": "typed_switch", "prompt": "change-control off,", "words_answer": false}
+{"id": "typed_switch-00638", "kind": "typed_switch", "prompt": "/focusx --plan-approval", "words_answer": false}
+{"id": "typed_switch-00639", "kind": "typed_switch", "prompt": "Skip the plan approvals ?", "words_answer": true}
+{"id": "typed_switch-00640", "kind": "typed_switch", "prompt": "/focusx --intent i --guard.human-presence off --guard.state-transition off use postgres,", "words_answer": true}
+{"id": "typed_switch-00641", "kind": "typed_switch", "prompt": "skip plan approval:", "words_answer": false}
+{"id": "typed_switch-00642", "kind": "typed_switch", "prompt": "focus --guard.human-presence off --skip x --summary-confirmation off?", "words_answer": false}
+{"id": "typed_switch-00643", "kind": "typed_switch", "prompt": "/FOCUS -- fix --nope now", "words_answer": true}
+{"id": "typed_switch-00644", "kind": "typed_switch", "prompt": " /focus --sensors on -- fix --nope now;", "words_answer": true}
+{"id": "typed_switch-00645", "kind": "typed_switch", "prompt": "/focusx --depth minimal --sensors add a --help flag to the reverser;", "words_answer": true}
+{"id": "typed_switch-00646", "kind": "typed_switch", "prompt": "x /focus --guard.reviewer-scope off --test-strategy tdd --test-strategy tdd approve the plan!", "words_answer": false}
+{"id": "typed_switch-00647", "kind": "typed_switch", "prompt": " /focus --test-strategy tdd add the export --guard-policy:", "words_answer": false}
+{"id": "typed_switch-00648", "kind": "typed_switch", "prompt": "guard policy strict;", "words_answer": false}
+{"id": "typed_switch-00649", "kind": "typed_switch", "prompt": "/FOCUS --sensors --learnings 'off' -- the plan is fine -- really.", "words_answer": false}
+{"id": "typed_switch-00650", "kind": "typed_switch", "prompt": "focus --depth --nope value --guard.review-freeze off the plan is fine -- really.", "words_answer": true}
+{"id": "typed_switch-00651", "kind": "typed_switch", "prompt": "/FOCUS\tthe plan is fine -- really --guard.nope off...", "words_answer": false}
+{"id": "typed_switch-00652", "kind": "typed_switch", "prompt": "/FOCUS approve the plan:", "words_answer": false}
+{"id": "typed_switch-00653", "kind": "typed_switch", "prompt": "/focusx --plan-approval off --guard-policy strict --intent i the plan is fine -- really?!", "words_answer": false}
+{"id": "typed_switch-00654", "kind": "typed_switch", "prompt": "the focus tool:", "words_answer": false}
+{"id": "typed_switch-00655", "kind": "typed_switch", "prompt": "focus --add y add a --help flag to the reverser --learnings on", "words_answer": false}
+{"id": "typed_switch-00656", "kind": "typed_switch", "prompt": "/focus-runner 1 --collaborators on", "words_answer": true}
+{"id": "typed_switch-00657", "kind": "typed_switch", "prompt": "/Focus --scope bugfix --guard-policy --test-strategy tdd -- add a --help flag to the reverser --guard-policy \"\"?", "words_answer": true}
+{"id": "typed_switch-00658", "kind": "typed_switch", "prompt": "/focus-runner --guard-policy \"\" approve the plan;", "words_answer": false}
+{"id": "typed_switch-00659", "kind": "typed_switch", "prompt": "/FOCUS --help x.", "words_answer": false}
+{"id": "typed_switch-00660", "kind": "typed_switch", "prompt": " /focus --review none approve the plan --sensors on...", "words_answer": false}
+{"id": "typed_switch-00661", "kind": "typed_switch", "prompt": "$focus --plan-approval --guard.review-freeze off --guard-policy relaxed fix --nope now --summary-confirmation on", "words_answer": true}
+{"id": "typed_switch-00662", "kind": "typed_switch", "prompt": "$focus --guard-policy --plan-approval off --summary-confirmation off --summary-confirmation off fix --nope now", "words_answer": false}
+{"id": "typed_switch-00663", "kind": "typed_switch", "prompt": "$focus\t--depth --guard.reviewer-scope off -- approve the plan --guard-policy ''", "words_answer": false}
+{"id": "typed_switch-00664", "kind": "typed_switch", "prompt": "/FOCUS --plan-approval", "words_answer": true}
+{"id": "typed_switch-00665", "kind": "typed_switch", "prompt": "focus --collaborators on --sensors -- x;", "words_answer": false}
+{"id": "typed_switch-00666", "kind": "typed_switch", "prompt": "skip plan approval please ?", "words_answer": false}
+{"id": "typed_switch-00667", "kind": "typed_switch", "prompt": "guard policy  relaxed?", "words_answer": false}
+{"id": "typed_switch-00668", "kind": "typed_switch", "prompt": "skip plan approval;", "words_answer": false}
+{"id": "typed_switch-00669", "kind": "typed_switch", "prompt": "focus --review none --guard-policy --summary-confirmation on -- x --space", "words_answer": false}
+{"id": "typed_switch-00670", "kind": "typed_switch", "prompt": "/focus --plan-approval off the plan is fine -- really", "words_answer": false}
+{"id": "typed_switch-00671", "kind": "typed_switch", "prompt": "/focus --json 1", "words_answer": true}
+{"id": "typed_switch-00672", "kind": "typed_switch", "prompt": "/FOCUS --json fix --nope now ?", "words_answer": false}
+{"id": "typed_switch-00673", "kind": "typed_switch", "prompt": "/Focus --skip x -- add the export;", "words_answer": true}
+{"id": "typed_switch-00674", "kind": "typed_switch", "prompt": "focus?!", "words_answer": true}
+{"id": "typed_switch-00675", "kind": "typed_switch", "prompt": "guard policy relaxed", "words_answer": false}
+{"id": "typed_switch-00676", "kind": "typed_switch", "prompt": "x /focus config set plan-approval off?!", "words_answer": false}
+{"id": "typed_switch-00677", "kind": "typed_switch", "prompt": "stop plan approval", "words_answer": false}
+{"id": "typed_switch-00678", "kind": "typed_switch", "prompt": "/focus-runner config set guard-policy.", "words_answer": false}
+{"id": "typed_switch-00679", "kind": "typed_switch", "prompt": "/FOCUS fix --nope now", "words_answer": false}
+{"id": "typed_switch-00680", "kind": "typed_switch", "prompt": "   ?", "words_answer": true}
+{"id": "typed_switch-00681", "kind": "typed_switch", "prompt": "/Focus?!", "words_answer": true}
+{"id": "typed_switch-00682", "kind": "typed_switch", "prompt": "/focus -- x?!", "words_answer": false}
+{"id": "typed_switch-00683", "kind": "typed_switch", "prompt": "focus --sensors on --learnings on --review none fix --nope now", "words_answer": true}
+{"id": "typed_switch-00684", "kind": "typed_switch", "prompt": "/Focus approve the plan.", "words_answer": false}
+{"id": "typed_switch-00685", "kind": "typed_switch", "prompt": "hello?!", "words_answer": false}
+{"id": "typed_switch-00686", "kind": "typed_switch", "prompt": "$focus intent switch a;", "words_answer": true}
+{"id": "typed_switch-00687", "kind": "typed_switch", "prompt": "focus on the login page...", "words_answer": false}
+{"id": "typed_switch-00688", "kind": "typed_switch", "prompt": "x /focus --summary-confirmation off --help -- 1.", "words_answer": true}
+{"id": "typed_switch-00689", "kind": "typed_switch", "prompt": "   :", "words_answer": true}
+{"id": "typed_switch-00690", "kind": "typed_switch", "prompt": "focus --sensors off --project-type brownfield --guard-policy \"\" --change-control off?", "words_answer": true}
+{"id": "typed_switch-00691", "kind": "typed_switch", "prompt": "x /focus CONFIG SET guard-policy off;", "words_answer": true}
+{"id": "typed_switch-00692", "kind": "typed_switch", "prompt": "$focus -- --guard-policy off", "words_answer": true}
+{"id": "typed_switch-00693", "kind": "typed_switch", "prompt": "focus  --guard.plan-approval off add the export...", "words_answer": false}
+{"id": "typed_switch-00694", "kind": "typed_switch", "prompt": "/Focus x:", "words_answer": false}
+{"id": "typed_switch-00695", "kind": "typed_switch", "prompt": "change control relaxed,", "words_answer": false}
+{"id": "typed_switch-00696", "kind": "typed_switch", "prompt": "skip plan approval for this thing ?", "words_answer": true}
+{"id": "typed_switch-00697", "kind": "typed_switch", "prompt": " /focus status", "words_answer": false}
+{"id": "typed_switch-00698", "kind": "typed_switch", "prompt": "/focus-runner --nope value -- add the export ?", "words_answer": false}
+{"id": "typed_switch-00699", "kind": "typed_switch", "prompt": "/Focus -- add the export?", "words_answer": false}
+{"id": "typed_switch-00700", "kind": "typed_switch", "prompt": "x /focus --intent i --review none --guard.reviewer-scope off -- 1 --depth,", "words_answer": false}
+{"id": "typed_switch-00701", "kind": "typed_switch", "prompt": "/focus --guard.review-freeze off --guard.plan-approval off --guard.nope off -- fix --nope now --json?", "words_answer": true}
+{"id": "typed_switch-00702", "kind": "typed_switch", "prompt": "/focusx next:", "words_answer": true}
+{"id": "typed_switch-00703", "kind": "typed_switch", "prompt": "$focus --guard.review-freeze off --space ?", "words_answer": false}
+{"id": "typed_switch-00704", "kind": "typed_switch", "prompt": "/focus-runner --nope value --guard.human-presence off --guard-policy --plan-approval off:", "words_answer": false}
+{"id": "typed_switch-00705", "kind": "typed_switch", "prompt": "skip plan approval on the rest of this piece of work ?", "words_answer": true}
+{"id": "typed_switch-00706", "kind": "typed_switch", "prompt": "/Focus --scope bugfix --project-type brownfield the plan is fine -- really.", "words_answer": true}
+{"id": "typed_switch-00707", "kind": "typed_switch", "prompt": "/focus-runner --guard.review-freeze off --guard-policy off --guard.state-transition off use postgres...", "words_answer": false}
+{"id": "typed_switch-00708", "kind": "typed_switch", "prompt": "$focus --change-control relaxed,", "words_answer": false}
+{"id": "typed_switch-00709", "kind": "typed_switch", "prompt": "/focusx --depth --plan-approval on --guard.plan-approval on -- fix --nope now", "words_answer": true}
+{"id": "typed_switch-00710", "kind": "typed_switch", "prompt": "   !", "words_answer": false}
+{"id": "typed_switch-00711", "kind": "typed_switch", "prompt": "skip plan approval now", "words_answer": false}
+{"id": "typed_switch-00712", "kind": "typed_switch", "prompt": "plan approval off", "words_answer": false}
+{"id": "typed_switch-00713", "kind": "typed_switch", "prompt": "turn off plan approval?!", "words_answer": false}
+{"id": "typed_switch-00714", "kind": "typed_switch", "prompt": "guard policy relaxed;", "words_answer": false}
+{"id": "typed_switch-00715", "kind": "typed_switch", "prompt": "focus", "words_answer": false}
+{"id": "typed_switch-00716", "kind": "typed_switch", "prompt": "/FOCUS --guard.plan-approval on --guard.state-transition off --change-control off 1;", "words_answer": false}
+{"id": "typed_switch-00717", "kind": "typed_switch", "prompt": "/focus -- approve the plan --sensors on,", "words_answer": false}
+{"id": "typed_switch-00718", "kind": "typed_switch", "prompt": "don't ask me to approve plans ?", "words_answer": false}
+{"id": "typed_switch-00719", "kind": "typed_switch", "prompt": "turn off plan approval?", "words_answer": false}
+{"id": "typed_switch-00720", "kind": "typed_switch", "prompt": "/focus --space a --space b --guard-policy off", "words_answer": false}
+{"id": "typed_switch-00721", "kind": "typed_switch", "prompt": "/focus --space a --space b --guard-policy off", "words_answer": true}
+{"id": "typed_switch-00722", "kind": "typed_switch", "prompt": "/focus --intent a --intent b --plan-approval off", "words_answer": false}
+{"id": "typed_switch-00723", "kind": "typed_switch", "prompt": "/focus --intent a --intent b --plan-approval off", "words_answer": true}
+{"id": "typed_switch-00724", "kind": "typed_switch", "prompt": "/focus --scope x --scope y --guard-policy off", "words_answer": false}
+{"id": "typed_switch-00725", "kind": "typed_switch", "prompt": "/focus --scope x --scope y --guard-policy off", "words_answer": true}
+{"id": "typed_switch-00726", "kind": "typed_switch", "prompt": "/focus --plan-approval off --plan-approval on", "words_answer": false}
+{"id": "typed_switch-00727", "kind": "typed_switch", "prompt": "/focus --plan-approval off --plan-approval on", "words_answer": true}
+{"id": "typed_switch-00728", "kind": "typed_switch", "prompt": "/focus --summary-confirmation off --summary-confirmation on", "words_answer": false}
+{"id": "typed_switch-00729", "kind": "typed_switch", "prompt": "/focus --summary-confirmation off --summary-confirmation on", "words_answer": true}
+{"id": "typed_switch-00730", "kind": "typed_switch", "prompt": "/focus --guard.review-freeze off --guard.review-freeze on", "words_answer": false}
+{"id": "typed_switch-00731", "kind": "typed_switch", "prompt": "/focus --guard.review-freeze off --guard.review-freeze on", "words_answer": true}
+{"id": "typed_switch-00732", "kind": "typed_switch", "prompt": "/focus --plan-approval on --plan-approval off", "words_answer": false}
+{"id": "typed_switch-00733", "kind": "typed_switch", "prompt": "/focus --plan-approval on --plan-approval off", "words_answer": true}
+{"id": "typed_switch-00734", "kind": "typed_switch", "prompt": "/focus --guard-policy off --guard-policy strict", "words_answer": false}
+{"id": "typed_switch-00735", "kind": "typed_switch", "prompt": "/focus --guard-policy off --guard-policy strict", "words_answer": true}
+{"id": "typed_switch-00736", "kind": "typed_switch", "prompt": "/focus --guard-policy strict --guard-policy off", "words_answer": false}
+{"id": "typed_switch-00737", "kind": "typed_switch", "prompt": "/focus --guard-policy strict --guard-policy off", "words_answer": true}
+{"id": "typed_switch-00738", "kind": "typed_switch", "prompt": "/focus config set guard-policy", "words_answer": false}
+{"id": "typed_switch-00739", "kind": "typed_switch", "prompt": "/focus config set guard-policy", "words_answer": true}
+{"id": "typed_switch-00740", "kind": "typed_switch", "prompt": "/focus config set", "words_answer": false}
+{"id": "typed_switch-00741", "kind": "typed_switch", "prompt": "/focus config set", "words_answer": true}
+{"id": "typed_switch-00742", "kind": "typed_switch", "prompt": "/focus config set guard-policy off x", "words_answer": false}
+{"id": "typed_switch-00743", "kind": "typed_switch", "prompt": "/focus config set guard-policy off x", "words_answer": true}
+{"id": "typed_switch-00744", "kind": "typed_switch", "prompt": "/focus --guard.plan-approval off add the export", "words_answer": false}
+{"id": "typed_switch-00745", "kind": "typed_switch", "prompt": "/focus --guard.plan-approval off add the export", "words_answer": true}
+{"id": "typed_switch-00746", "kind": "typed_switch", "prompt": "/focus --plan-approval off --guard.plan-approval on add x", "words_answer": false}
+{"id": "typed_switch-00747", "kind": "typed_switch", "prompt": "/focus --plan-approval off --guard.plan-approval on add x", "words_answer": true}
+{"id": "typed_switch-00748", "kind": "typed_switch", "prompt": "/focus --nope --plan-approval off", "words_answer": false}
+{"id": "typed_switch-00749", "kind": "typed_switch", "prompt": "/focus --nope --plan-approval off", "words_answer": true}
+{"id": "typed_switch-00750", "kind": "typed_switch", "prompt": "/focus --nope v --nope w --plan-approval off", "words_answer": false}
+{"id": "typed_switch-00751", "kind": "typed_switch", "prompt": "/focus --nope v --nope w --plan-approval off", "words_answer": true}
+{"id": "typed_switch-00752", "kind": "typed_switch", "prompt": "skip plan approval", "words_answer": false}
+{"id": "typed_switch-00753", "kind": "typed_switch", "prompt": "skip plan approval", "words_answer": true}
+{"id": "typed_switch-00754", "kind": "typed_switch", "prompt": "Skip the plan approvals", "words_answer": false}
+{"id": "typed_switch-00755", "kind": "typed_switch", "prompt": "Skip the plan approvals", "words_answer": true}
+{"id": "typed_switch-00756", "kind": "typed_switch", "prompt": "please skip plan approval", "words_answer": false}
+{"id": "typed_switch-00757", "kind": "typed_switch", "prompt": "please skip plan approval", "words_answer": true}
+{"id": "typed_switch-00758", "kind": "typed_switch", "prompt": "stop plan approval", "words_answer": false}
+{"id": "typed_switch-00759", "kind": "typed_switch", "prompt": "stop plan approval", "words_answer": true}
+{"id": "typed_switch-00760", "kind": "typed_switch", "prompt": "drop plan approval", "words_answer": false}
+{"id": "typed_switch-00761", "kind": "typed_switch", "prompt": "drop plan approval", "words_answer": true}
+{"id": "typed_switch-00762", "kind": "typed_switch", "prompt": "disable plan approval", "words_answer": false}
+{"id": "typed_switch-00763", "kind": "typed_switch", "prompt": "disable plan approval", "words_answer": true}
+{"id": "typed_switch-00764", "kind": "typed_switch", "prompt": "turn off plan approval", "words_answer": false}
+{"id": "typed_switch-00765", "kind": "typed_switch", "prompt": "turn off plan approval", "words_answer": true}
+{"id": "typed_switch-00766", "kind": "typed_switch", "prompt": "switch off plan-approval", "words_answer": false}
+{"id": "typed_switch-00767", "kind": "typed_switch", "prompt": "switch off plan-approval", "words_answer": true}
+{"id": "typed_switch-00768", "kind": "typed_switch", "prompt": "no more plan approvals", "words_answer": false}
+{"id": "typed_switch-00769", "kind": "typed_switch", "prompt": "no more plan approvals", "words_answer": true}
+{"id": "typed_switch-00770", "kind": "typed_switch", "prompt": "no plan approval", "words_answer": false}
+{"id": "typed_switch-00771", "kind": "typed_switch", "prompt": "no plan approval", "words_answer": true}
+{"id": "typed_switch-00772", "kind": "typed_switch", "prompt": "turn plan approval off", "words_answer": false}
+{"id": "typed_switch-00773", "kind": "typed_switch", "prompt": "turn plan approval off", "words_answer": true}
+{"id": "typed_switch-00774", "kind": "typed_switch", "prompt": "switch the plan approvals off", "words_answer": false}
+{"id": "typed_switch-00775", "kind": "typed_switch", "prompt": "switch the plan approvals off", "words_answer": true}
+{"id": "typed_switch-00776", "kind": "typed_switch", "prompt": "plan approval off", "words_answer": false}
+{"id": "typed_switch-00777", "kind": "typed_switch", "prompt": "plan approval off", "words_answer": true}
+{"id": "typed_switch-00778", "kind": "typed_switch", "prompt": "plan-approvals off", "words_answer": false}
+{"id": "typed_switch-00779", "kind": "typed_switch", "prompt": "plan-approvals off", "words_answer": true}
+{"id": "typed_switch-00780", "kind": "typed_switch", "prompt": "don't ask me to approve plans", "words_answer": false}
+{"id": "typed_switch-00781", "kind": "typed_switch", "prompt": "don't ask me to approve plans", "words_answer": true}
+{"id": "typed_switch-00782", "kind": "typed_switch", "prompt": "do not ask to approve the plan", "words_answer": false}
+{"id": "typed_switch-00783", "kind": "typed_switch", "prompt": "do not ask to approve the plan", "words_answer": true}
+{"id": "typed_switch-00784", "kind": "typed_switch", "prompt": "stop asking me to approve each code plan", "words_answer": false}
+{"id": "typed_switch-00785", "kind": "typed_switch", "prompt": "stop asking me to approve each code plan", "words_answer": true}
+{"id": "typed_switch-00786", "kind": "typed_switch", "prompt": "dont ask to approve every plan", "words_answer": false}
+{"id": "typed_switch-00787", "kind": "typed_switch", "prompt": "dont ask to approve every plan", "words_answer": true}
+{"id": "typed_switch-00788", "kind": "typed_switch", "prompt": "skip plan approval for this work", "words_answer": false}
+{"id": "typed_switch-00789", "kind": "typed_switch", "prompt": "skip plan approval for this work", "words_answer": true}
+{"id": "typed_switch-00790", "kind": "typed_switch", "prompt": "skip plan approval on the rest of this piece of work", "words_answer": false}
+{"id": "typed_switch-00791", "kind": "typed_switch", "prompt": "skip plan approval on the rest of this piece of work", "words_answer": true}
+{"id": "typed_switch-00792", "kind": "typed_switch", "prompt": "skip plan approval for this task, please", "words_answer": false}
+{"id": "typed_switch-00793", "kind": "typed_switch", "prompt": "skip plan approval for this task, please", "words_answer": true}
+{"id": "typed_switch-00794", "kind": "typed_switch", "prompt": "skip plan approval please", "words_answer": false}
+{"id": "typed_switch-00795", "kind": "typed_switch", "prompt": "skip plan approval please", "words_answer": true}
+{"id": "typed_switch-00796", "kind": "typed_switch", "prompt": "skip plan approval for this thing", "words_answer": false}
+{"id": "typed_switch-00797", "kind": "typed_switch", "prompt": "skip plan approval for this thing", "words_answer": true}
+{"id": "typed_switch-00798", "kind": "typed_switch", "prompt": "skip plan approval now", "words_answer": false}
+{"id": "typed_switch-00799", "kind": "typed_switch", "prompt": "skip plan approval now", "words_answer": true}
+{"id": "typed_switch-00800", "kind": "typed_switch", "prompt": "guard policy relaxed", "words_answer": false}
+{"id": "typed_switch-00801", "kind": "typed_switch", "prompt": "guard policy relaxed", "words_answer": true}
+{"id": "typed_switch-00802", "kind": "typed_switch", "prompt": "guard-policy off", "words_answer": false}
+{"id": "typed_switch-00803", "kind": "typed_switch", "prompt": "guard-policy off", "words_answer": true}
+{"id": "typed_switch-00804", "kind": "typed_switch", "prompt": "change control relaxed", "words_answer": false}
+{"id": "typed_switch-00805", "kind": "typed_switch", "prompt": "change control relaxed", "words_answer": true}
+{"id": "typed_switch-00806", "kind": "typed_switch", "prompt": "change-control off", "words_answer": false}
+{"id": "typed_switch-00807", "kind": "typed_switch", "prompt": "change-control off", "words_answer": true}
+{"id": "typed_switch-00808", "kind": "typed_switch", "prompt": "Guard Policy Relaxed", "words_answer": false}
+{"id": "typed_switch-00809", "kind": "typed_switch", "prompt": "Guard Policy Relaxed", "words_answer": true}
+{"id": "typed_switch-00810", "kind": "typed_switch", "prompt": "guard policy strict", "words_answer": false}
+{"id": "typed_switch-00811", "kind": "typed_switch", "prompt": "guard policy strict", "words_answer": true}
+{"id": "typed_switch-00812", "kind": "typed_switch", "prompt": "guard policy on", "words_answer": false}
+{"id": "typed_switch-00813", "kind": "typed_switch", "prompt": "guard policy on", "words_answer": true}
+{"id": "typed_switch-00814", "kind": "typed_switch", "prompt": "guard policy relaxed now", "words_answer": false}
+{"id": "typed_switch-00815", "kind": "typed_switch", "prompt": "guard policy relaxed now", "words_answer": true}
+{"id": "typed_switch-00816", "kind": "typed_switch", "prompt": "guard policy  relaxed", "words_answer": false}
+{"id": "typed_switch-00817", "kind": "typed_switch", "prompt": "guard policy  relaxed", "words_answer": true}
+{"id": "typed_switch-00818", "kind": "typed_switch", "prompt": "plan approval", "words_answer": false}
+{"id": "typed_switch-00819", "kind": "typed_switch", "prompt": "plan approval", "words_answer": true}
+{"id": "typed_switch-00820", "kind": "typed_switch", "prompt": "approve the plan", "words_answer": false}
+{"id": "typed_switch-00821", "kind": "typed_switch", "prompt": "approve the plan", "words_answer": true}
+{"id": "typed_switch-00822", "kind": "typed_switch", "prompt": "skip the plan", "words_answer": false}
+{"id": "typed_switch-00823", "kind": "typed_switch", "prompt": "skip the plan", "words_answer": true}
+{"id": "typed_switch-00824", "kind": "typed_switch", "prompt": "no", "words_answer": false}
+{"id": "typed_switch-00825", "kind": "typed_switch", "prompt": "no", "words_answer": true}
+{"id": "typed_switch-00826", "kind": "typed_switch", "prompt": "", "words_answer": false}
+{"id": "typed_switch-00827", "kind": "typed_switch", "prompt": "", "words_answer": true}
+{"id": "typed_switch-00828", "kind": "typed_switch", "prompt": "   ", "words_answer": false}
+{"id": "typed_switch-00829", "kind": "typed_switch", "prompt": "   ", "words_answer": true}
+{"id": "typed_switch-00830", "kind": "typed_switch", "prompt": "focus", "words_answer": false}
+{"id": "typed_switch-00831", "kind": "typed_switch", "prompt": "focus", "words_answer": true}
+{"id": "typed_switch-00832", "kind": "typed_switch", "prompt": "focus on the login page", "words_answer": false}
+{"id": "typed_switch-00833", "kind": "typed_switch", "prompt": "focus on the login page", "words_answer": true}
+{"id": "typed_switch-00834", "kind": "typed_switch", "prompt": "focusx next", "words_answer": false}
+{"id": "typed_switch-00835", "kind": "typed_switch", "prompt": "focusx next", "words_answer": true}
+{"id": "typed_switch-00836", "kind": "typed_switch", "prompt": "/focusx next", "words_answer": false}
+{"id": "typed_switch-00837", "kind": "typed_switch", "prompt": "/focusx next", "words_answer": true}
+{"id": "typed_switch-00838", "kind": "typed_switch", "prompt": "the focus tool", "words_answer": false}
+{"id": "typed_switch-00839", "kind": "typed_switch", "prompt": "the focus tool", "words_answer": true}
+{"id": "typed_switch-00840", "kind": "typed_switch", "prompt": "hello", "words_answer": false}
+{"id": "typed_switch-00841", "kind": "typed_switch", "prompt": "hello", "words_answer": true}
+{"id": "typed_switch-00842", "kind": "typed_switch", "prompt": "/focus next", "words_answer": false}
+{"id": "typed_switch-00843", "kind": "typed_switch", "prompt": "/focus next", "words_answer": true}
+{"id": "typed_switch-00844", "kind": "typed_switch", "prompt": "/focus report --stage x", "words_answer": false}
+{"id": "typed_switch-00845", "kind": "typed_switch", "prompt": "/focus report --stage x", "words_answer": true}
+{"id": "typed_switch-00846", "kind": "typed_switch", "prompt": "/focus intent switch a", "words_answer": false}
+{"id": "typed_switch-00847", "kind": "typed_switch", "prompt": "/focus intent switch a", "words_answer": true}
+{"id": "typed_switch-00848", "kind": "typed_switch", "prompt": "/focus intent create a --guard-policy off", "words_answer": false}
+{"id": "typed_switch-00849", "kind": "typed_switch", "prompt": "/focus intent create a --guard-policy off", "words_answer": true}
+{"id": "typed_switch-00850", "kind": "typed_switch", "prompt": "/focus space create s --plan-approval off", "words_answer": false}
+{"id": "typed_switch-00851", "kind": "typed_switch", "prompt": "/focus space create s --plan-approval off", "words_answer": true}
+{"id": "typed_switch-00852", "kind": "typed_switch", "prompt": "/focus space-create s --guard-policy off", "words_answer": false}
+{"id": "typed_switch-00853", "kind": "typed_switch", "prompt": "/focus space-create s --guard-policy off", "words_answer": true}
+{"id": "typed_switch-00854", "kind": "typed_switch", "prompt": "/focus intent --guard-policy off", "words_answer": false}
+{"id": "typed_switch-00855", "kind": "typed_switch", "prompt": "/focus intent --guard-policy off", "words_answer": true}
+{"id": "typed_switch-00856", "kind": "typed_switch", "prompt": "/focus space list --plan-approval off", "words_answer": false}
+{"id": "typed_switch-00857", "kind": "typed_switch", "prompt": "/focus space list --plan-approval off", "words_answer": true}
+{"id": "typed_switch-00858", "kind": "typed_switch", "prompt": "/focus config set guard-policy off", "words_answer": false}
+{"id": "typed_switch-00859", "kind": "typed_switch", "prompt": "/focus config set guard-policy off", "words_answer": true}
+{"id": "typed_switch-00860", "kind": "typed_switch", "prompt": "/focus config set guard-policy", "words_answer": false}
+{"id": "typed_switch-00861", "kind": "typed_switch", "prompt": "/focus config set guard-policy", "words_answer": true}
+{"id": "typed_switch-00862", "kind": "typed_switch", "prompt": "/focus config set", "words_answer": false}
+{"id": "typed_switch-00863", "kind": "typed_switch", "prompt": "/focus config set", "words_answer": true}
+{"id": "typed_switch-00864", "kind": "typed_switch", "prompt": "/focus config set x y z", "words_answer": false}
+{"id": "typed_switch-00865", "kind": "typed_switch", "prompt": "/focus config set x y z", "words_answer": true}
+{"id": "typed_switch-00866", "kind": "typed_switch", "prompt": "/focus config set change-control relaxed", "words_answer": false}
+{"id": "typed_switch-00867", "kind": "typed_switch", "prompt": "/focus config set change-control relaxed", "words_answer": true}
+{"id": "typed_switch-00868", "kind": "typed_switch", "prompt": "/focus config set guard.review-freeze off", "words_answer": false}
+{"id": "typed_switch-00869", "kind": "typed_switch", "prompt": "/focus config set guard.review-freeze off", "words_answer": true}
+{"id": "typed_switch-00870", "kind": "typed_switch", "prompt": "/focus config set plan-approval off", "words_answer": false}
+{"id": "typed_switch-00871", "kind": "typed_switch", "prompt": "/focus config set plan-approval off", "words_answer": true}
+{"id": "typed_switch-00872", "kind": "typed_switch", "prompt": "/focus config set depth minimal", "words_answer": false}
+{"id": "typed_switch-00873", "kind": "typed_switch", "prompt": "/focus config set depth minimal", "words_answer": true}
+{"id": "typed_switch-00874", "kind": "typed_switch", "prompt": "/focus config set --guard-policy off", "words_answer": false}
+{"id": "typed_switch-00875", "kind": "typed_switch", "prompt": "/focus config set --guard-policy off", "words_answer": true}
+{"id": "typed_switch-00876", "kind": "typed_switch", "prompt": "/focus CONFIG SET guard-policy off", "words_answer": false}
+{"id": "typed_switch-00877", "kind": "typed_switch", "prompt": "/focus CONFIG SET guard-policy off", "words_answer": true}
+{"id": "typed_switch-00878", "kind": "typed_switch", "prompt": "/focus config set guard-policy off extra", "words_answer": false}
+{"id": "typed_switch-00879", "kind": "typed_switch", "prompt": "/focus config set guard-policy off extra", "words_answer": true}
+{"id": "typed_switch-00880", "kind": "typed_switch", "prompt": "/focus config set guard-policy off --space s", "words_answer": false}
+{"id": "typed_switch-00881", "kind": "typed_switch", "prompt": "/focus config set guard-policy off --space s", "words_answer": true}
+{"id": "typed_switch-00882", "kind": "typed_switch", "prompt": "/focus status", "words_answer": false}
+{"id": "typed_switch-00883", "kind": "typed_switch", "prompt": "/focus status", "words_answer": true}
+{"id": "typed_switch-00884", "kind": "typed_switch", "prompt": "/focus park", "words_answer": false}
+{"id": "typed_switch-00885", "kind": "typed_switch", "prompt": "/focus park", "words_answer": true}
+{"id": "typed_switch-00886", "kind": "typed_switch", "prompt": "/focus --guard-policy off", "words_answer": false}
+{"id": "typed_switch-00887", "kind": "typed_switch", "prompt": "/focus --guard-policy off", "words_answer": true}
+{"id": "typed_switch-00888", "kind": "typed_switch", "prompt": "/focus --guard-policy relaxed", "words_answer": false}
+{"id": "typed_switch-00889", "kind": "typed_switch", "prompt": "/focus --guard-policy relaxed", "words_answer": true}
+{"id": "typed_switch-00890", "kind": "typed_switch", "prompt": "/focus --guard-policy strict", "words_answer": false}
+{"id": "typed_switch-00891", "kind": "typed_switch", "prompt": "/focus --guard-policy strict", "words_answer": true}
+{"id": "typed_switch-00892", "kind": "typed_switch", "prompt": "/focus --guard-policy on", "words_answer": false}
+{"id": "typed_switch-00893", "kind": "typed_switch", "prompt": "/focus --guard-policy on", "words_answer": true}
+{"id": "typed_switch-00894", "kind": "typed_switch", "prompt": "/focus --guard-policy OFF", "words_answer": false}
+{"id": "typed_switch-00895", "kind": "typed_switch", "prompt": "/focus --guard-policy OFF", "words_answer": true}
+{"id": "typed_switch-00896", "kind": "typed_switch", "prompt": "/focus --GUARD-POLICY off", "words_answer": false}
+{"id": "typed_switch-00897", "kind": "typed_switch", "prompt": "/focus --GUARD-POLICY off", "words_answer": true}
+{"id": "typed_switch-00898", "kind": "typed_switch", "prompt": "/focus --change-control relaxed", "words_answer": false}
+{"id": "typed_switch-00899", "kind": "typed_switch", "prompt": "/focus --change-control relaxed", "words_answer": true}
+{"id": "typed_switch-00900", "kind": "typed_switch", "prompt": "/focus --change-control off", "words_answer": false}
+{"id": "typed_switch-00901", "kind": "typed_switch", "prompt": "/focus --change-control off", "words_answer": true}
+{"id": "typed_switch-00902", "kind": "typed_switch", "prompt": "/focus --plan-approval off", "words_answer": false}
+{"id": "typed_switch-00903", "kind": "typed_switch", "prompt": "/focus --plan-approval off", "words_answer": true}
+{"id": "typed_switch-00904", "kind": "typed_switch", "prompt": "/focus --plan-approval on", "words_answer": false}
+{"id": "typed_switch-00905", "kind": "typed_switch", "prompt": "/focus --plan-approval on", "words_answer": true}
+{"id": "typed_switch-00906", "kind": "typed_switch", "prompt": "/focus --guard.plan-approval off", "words_answer": false}
+{"id": "typed_switch-00907", "kind": "typed_switch", "prompt": "/focus --guard.plan-approval off", "words_answer": true}
+{"id": "typed_switch-00908", "kind": "typed_switch", "prompt": "/focus --guard.plan-approval on", "words_answer": false}
+{"id": "typed_switch-00909", "kind": "typed_switch", "prompt": "/focus --guard.plan-approval on", "words_answer": true}
+{"id": "typed_switch-00910", "kind": "typed_switch", "prompt": "/focus --guard.review-freeze off", "words_answer": false}
+{"id": "typed_switch-00911", "kind": "typed_switch", "prompt": "/focus --guard.review-freeze off", "words_answer": true}
+{"id": "typed_switch-00912", "kind": "typed_switch", "prompt": "/focus --guard.review-freeze on", "words_answer": false}
+{"id": "typed_switch-00913", "kind": "typed_switch", "prompt": "/focus --guard.review-freeze on", "words_answer": true}
+{"id": "typed_switch-00914", "kind": "typed_switch", "prompt": "/focus --guard.state-transition off", "words_answer": false}
+{"id": "typed_switch-00915", "kind": "typed_switch", "prompt": "/focus --guard.state-transition off", "words_answer": true}
+{"id": "typed_switch-00916", "kind": "typed_switch", "prompt": "/focus --guard.reviewer-scope off", "words_answer": false}
+{"id": "typed_switch-00917", "kind": "typed_switch", "prompt": "/focus --guard.reviewer-scope off", "words_answer": true}
+{"id": "typed_switch-00918", "kind": "typed_switch", "prompt": "/focus --guard.human-presence off", "words_answer": false}
+{"id": "typed_switch-00919", "kind": "typed_switch", "prompt": "/focus --guard.human-presence off", "words_answer": true}
+{"id": "typed_switch-00920", "kind": "typed_switch", "prompt": "/focus --guard.nope off", "words_answer": false}
+{"id": "typed_switch-00921", "kind": "typed_switch", "prompt": "/focus --guard.nope off", "words_answer": true}
+{"id": "typed_switch-00922", "kind": "typed_switch", "prompt": "/focus --summary-confirmation off", "words_answer": false}
+{"id": "typed_switch-00923", "kind": "typed_switch", "prompt": "/focus --summary-confirmation off", "words_answer": true}
+{"id": "typed_switch-00924", "kind": "typed_switch", "prompt": "/focus --summary-confirmation on", "words_answer": false}
+{"id": "typed_switch-00925", "kind": "typed_switch", "prompt": "/focus --summary-confirmation on", "words_answer": true}
+{"id": "typed_switch-00926", "kind": "typed_switch", "prompt": "/focus --sensors off", "words_answer": false}
+{"id": "typed_switch-00927", "kind": "typed_switch", "prompt": "/focus --sensors off", "words_answer": true}
+{"id": "typed_switch-00928", "kind": "typed_switch", "prompt": "/focus --sensors on", "words_answer": false}
+{"id": "typed_switch-00929", "kind": "typed_switch", "prompt": "/focus --sensors on", "words_answer": true}
+{"id": "typed_switch-00930", "kind": "typed_switch", "prompt": "/focus --learnings off", "words_answer": false}
+{"id": "typed_switch-00931", "kind": "typed_switch", "prompt": "/focus --learnings off", "words_answer": true}
+{"id": "typed_switch-00932", "kind": "typed_switch", "prompt": "/focus --learnings on", "words_answer": false}
+{"id": "typed_switch-00933", "kind": "typed_switch", "prompt": "/focus --learnings on", "words_answer": true}
+{"id": "typed_switch-00934", "kind": "typed_switch", "prompt": "/focus --depth minimal", "words_answer": false}
+{"id": "typed_switch-00935", "kind": "typed_switch", "prompt": "/focus --depth minimal", "words_answer": true}
+{"id": "typed_switch-00936", "kind": "typed_switch", "prompt": "/focus --depth", "words_answer": false}
+{"id": "typed_switch-00937", "kind": "typed_switch", "prompt": "/focus --depth", "words_answer": true}
+{"id": "typed_switch-00938", "kind": "typed_switch", "prompt": "/focus --test-strategy tdd", "words_answer": false}
+{"id": "typed_switch-00939", "kind": "typed_switch", "prompt": "/focus --test-strategy tdd", "words_answer": true}
+{"id": "typed_switch-00940", "kind": "typed_switch", "prompt": "/focus --review none", "words_answer": false}
+{"id": "typed_switch-00941", "kind": "typed_switch", "prompt": "/focus --review none", "words_answer": true}
+{"id": "typed_switch-00942", "kind": "typed_switch", "prompt": "/focus --skip x", "words_answer": false}
+{"id": "typed_switch-00943", "kind": "typed_switch", "prompt": "/focus --skip x", "words_answer": true}
+{"id": "typed_switch-00944", "kind": "typed_switch", "prompt": "/focus --add y", "words_answer": false}
+{"id": "typed_switch-00945", "kind": "typed_switch", "prompt": "/focus --add y", "words_answer": true}
+{"id": "typed_switch-00946", "kind": "typed_switch", "prompt": "/focus --project-type brownfield", "words_answer": false}
+{"id": "typed_switch-00947", "kind": "typed_switch", "prompt": "/focus --project-type brownfield", "words_answer": true}
+{"id": "typed_switch-00948", "kind": "typed_switch", "prompt": "/focus --collaborators on", "words_answer": false}
+{"id": "typed_switch-00949", "kind": "typed_switch", "prompt": "/focus --collaborators on", "words_answer": true}
+{"id": "typed_switch-00950", "kind": "typed_switch", "prompt": "/focus --space s", "words_answer": false}
+{"id": "typed_switch-00951", "kind": "typed_switch", "prompt": "/focus --space s", "words_answer": true}
+{"id": "typed_switch-00952", "kind": "typed_switch", "prompt": "/focus --intent i", "words_answer": false}
+{"id": "typed_switch-00953", "kind": "typed_switch", "prompt": "/focus --intent i", "words_answer": true}
+{"id": "typed_switch-00954", "kind": "typed_switch", "prompt": "/focus --scope bugfix", "words_answer": false}
+{"id": "typed_switch-00955", "kind": "typed_switch", "prompt": "/focus --scope bugfix", "words_answer": true}
+{"id": "typed_switch-00956", "kind": "typed_switch", "prompt": "/focus --nope", "words_answer": false}
+{"id": "typed_switch-00957", "kind": "typed_switch", "prompt": "/focus --nope", "words_answer": true}
+{"id": "typed_switch-00958", "kind": "typed_switch", "prompt": "/focus --nope value", "words_answer": false}
+{"id": "typed_switch-00959", "kind": "typed_switch", "prompt": "/focus --nope value", "words_answer": true}
+{"id": "typed_switch-00960", "kind": "typed_switch", "prompt": "/focus --help", "words_answer": false}
+{"id": "typed_switch-00961", "kind": "typed_switch", "prompt": "/focus --help", "words_answer": true}
+{"id": "typed_switch-00962", "kind": "typed_switch", "prompt": "/focus --json", "words_answer": false}
+{"id": "typed_switch-00963", "kind": "typed_switch", "prompt": "/focus --json", "words_answer": true}
+{"id": "typed_switch-00964", "kind": "typed_switch", "prompt": "/focus --", "words_answer": false}
+{"id": "typed_switch-00965", "kind": "typed_switch", "prompt": "/focus --", "words_answer": true}
+{"id": "typed_switch-00966", "kind": "typed_switch", "prompt": "/focus --guard-policy", "words_answer": false}
+{"id": "typed_switch-00967", "kind": "typed_switch", "prompt": "/focus --guard-policy", "words_answer": true}
+{"id": "typed_switch-00968", "kind": "typed_switch", "prompt": "/focus --guard-policy ''", "words_answer": false}
+{"id": "typed_switch-00969", "kind": "typed_switch", "prompt": "/focus --guard-policy ''", "words_answer": true}
+{"id": "typed_switch-00970", "kind": "typed_switch", "prompt": "/focus --guard-policy \"\"", "words_answer": false}
+{"id": "typed_switch-00971", "kind": "typed_switch", "prompt": "/focus --guard-policy \"\"", "words_answer": true}
+{"id": "typed_switch-00972", "kind": "typed_switch", "prompt": "/focus --guard-policy --plan-approval off", "words_answer": false}
+{"id": "typed_switch-00973", "kind": "typed_switch", "prompt": "/focus --guard-policy --plan-approval off", "words_answer": true}
+{"id": "typed_switch-00974", "kind": "typed_switch", "prompt": "/focus --plan-approval", "words_answer": false}
+{"id": "typed_switch-00975", "kind": "typed_switch", "prompt": "/focus --plan-approval", "words_answer": true}
+{"id": "typed_switch-00976", "kind": "typed_switch", "prompt": "/focus --sensors", "words_answer": false}
+{"id": "typed_switch-00977", "kind": "typed_switch", "prompt": "/focus --sensors", "words_answer": true}
+{"id": "typed_switch-00978", "kind": "typed_switch", "prompt": "/focus --space", "words_answer": false}
+{"id": "typed_switch-00979", "kind": "typed_switch", "prompt": "/focus --space", "words_answer": true}
+{"id": "typed_switch-00980", "kind": "typed_switch", "prompt": "/focus --scope", "words_answer": false}
+{"id": "typed_switch-00981", "kind": "typed_switch", "prompt": "/focus --scope", "words_answer": true}
+{"id": "typed_switch-00982", "kind": "typed_switch", "prompt": "/focus --skip", "words_answer": false}
+{"id": "typed_switch-00983", "kind": "typed_switch", "prompt": "/focus --skip", "words_answer": true}
+{"id": "typed_switch-00984", "kind": "typed_switch", "prompt": "/focus --guard-policy off add the export", "words_answer": false}
+{"id": "typed_switch-00985", "kind": "typed_switch", "prompt": "/focus --guard-policy off add the export", "words_answer": true}
+{"id": "typed_switch-00986", "kind": "typed_switch", "prompt": "/focus --guard-policy relaxed add the export", "words_answer": false}
+{"id": "typed_switch-00987", "kind": "typed_switch", "prompt": "/focus --guard-policy relaxed add the export", "words_answer": true}
+{"id": "typed_switch-00988", "kind": "typed_switch", "prompt": "/focus --guard-policy strict add the export", "words_answer": false}
+{"id": "typed_switch-00989", "kind": "typed_switch", "prompt": "/focus --guard-policy strict add the export", "words_answer": true}
+{"id": "typed_switch-00990", "kind": "typed_switch", "prompt": "/focus --guard-policy on add the export", "words_answer": false}
+{"id": "typed_switch-00991", "kind": "typed_switch", "prompt": "/focus --guard-policy on add the export", "words_answer": true}
+{"id": "typed_switch-00992", "kind": "typed_switch", "prompt": "/focus --guard-policy OFF add the export", "words_answer": false}
+{"id": "typed_switch-00993", "kind": "typed_switch", "prompt": "/focus --guard-policy OFF add the export", "words_answer": true}
+{"id": "typed_switch-00994", "kind": "typed_switch", "prompt": "/focus --GUARD-POLICY off add the export", "words_answer": false}
+{"id": "typed_switch-00995", "kind": "typed_switch", "prompt": "/focus --GUARD-POLICY off add the export", "words_answer": true}
+{"id": "typed_switch-00996", "kind": "typed_switch", "prompt": "/focus --change-control relaxed add the export", "words_answer": false}
+{"id": "typed_switch-00997", "kind": "typed_switch", "prompt": "/focus --change-control relaxed add the export", "words_answer": true}
+{"id": "typed_switch-00998", "kind": "typed_switch", "prompt": "/focus --change-control off add the export", "words_answer": false}
+{"id": "typed_switch-00999", "kind": "typed_switch", "prompt": "/focus --change-control off add the export", "words_answer": true}
+{"id": "typed_switch-01000", "kind": "typed_switch", "prompt": "/focus --plan-approval off add the export", "words_answer": false}
+{"id": "typed_switch-01001", "kind": "typed_switch", "prompt": "/focus --plan-approval off add the export", "words_answer": true}
+{"id": "typed_switch-01002", "kind": "typed_switch", "prompt": "/focus --plan-approval on add the export", "words_answer": false}
+{"id": "typed_switch-01003", "kind": "typed_switch", "prompt": "/focus --plan-approval on add the export", "words_answer": true}
+{"id": "typed_switch-01004", "kind": "typed_switch", "prompt": "/focus --guard.plan-approval off add the export", "words_answer": false}
+{"id": "typed_switch-01005", "kind": "typed_switch", "prompt": "/focus --guard.plan-approval off add the export", "words_answer": true}
+{"id": "typed_switch-01006", "kind": "typed_switch", "prompt": "/focus --guard.plan-approval on add the export", "words_answer": false}
+{"id": "typed_switch-01007", "kind": "typed_switch", "prompt": "/focus --guard.plan-approval on add the export", "words_answer": true}
+{"id": "typed_switch-01008", "kind": "typed_switch", "prompt": "/focus --guard.review-freeze off add the export", "words_answer": false}
+{"id": "typed_switch-01009", "kind": "typed_switch", "prompt": "/focus --guard.review-freeze off add the export", "words_answer": true}
+{"id": "typed_switch-01010", "kind": "typed_switch", "prompt": "/focus --guard.review-freeze on add the export", "words_answer": false}
+{"id": "typed_switch-01011", "kind": "typed_switch", "prompt": "/focus --guard.review-freeze on add the export", "words_answer": true}
+{"id": "typed_switch-01012", "kind": "typed_switch", "prompt": "/focus --guard.state-transition off add the export", "words_answer": false}
+{"id": "typed_switch-01013", "kind": "typed_switch", "prompt": "/focus --guard.state-transition off add the export", "words_answer": true}
+{"id": "typed_switch-01014", "kind": "typed_switch", "prompt": "/focus --guard.reviewer-scope off add the export", "words_answer": false}
+{"id": "typed_switch-01015", "kind": "typed_switch", "prompt": "/focus --guard.reviewer-scope off add the export", "words_answer": true}
+{"id": "typed_switch-01016", "kind": "typed_switch", "prompt": "/focus --guard.human-presence off add the export", "words_answer": false}
+{"id": "typed_switch-01017", "kind": "typed_switch", "prompt": "/focus --guard.human-presence off add the export", "words_answer": true}
+{"id": "typed_switch-01018", "kind": "typed_switch", "prompt": "/focus --guard.nope off add the export", "words_answer": false}
+{"id": "typed_switch-01019", "kind": "typed_switch", "prompt": "/focus --guard.nope off add the export", "words_answer": true}
+{"id": "typed_switch-01020", "kind": "typed_switch", "prompt": "/focus --summary-confirmation off add the export", "words_answer": false}
+{"id": "typed_switch-01021", "kind": "typed_switch", "prompt": "/focus --summary-confirmation off add the export", "words_answer": true}
+{"id": "typed_switch-01022", "kind": "typed_switch", "prompt": "/focus --summary-confirmation on add the export", "words_answer": false}
+{"id": "typed_switch-01023", "kind": "typed_switch", "prompt": "/focus --summary-confirmation on add the export", "words_answer": true}
+{"id": "typed_switch-01024", "kind": "typed_switch", "prompt": "/focus --sensors off add the export", "words_answer": false}
+{"id": "typed_switch-01025", "kind": "typed_switch", "prompt": "/focus --sensors off add the export", "words_answer": true}
+{"id": "typed_switch-01026", "kind": "typed_switch", "prompt": "/focus --sensors on add the export", "words_answer": false}
+{"id": "typed_switch-01027", "kind": "typed_switch", "prompt": "/focus --sensors on add the export", "words_answer": true}
+{"id": "typed_switch-01028", "kind": "typed_switch", "prompt": "/focus --learnings off add the export", "words_answer": false}
+{"id": "typed_switch-01029", "kind": "typed_switch", "prompt": "/focus --learnings off add the export", "words_answer": true}
+{"id": "typed_switch-01030", "kind": "typed_switch", "prompt": "/focus --learnings on add the export", "words_answer": false}
+{"id": "typed_switch-01031", "kind": "typed_switch", "prompt": "/focus --learnings on add the export", "words_answer": true}
+{"id": "typed_switch-01032", "kind": "typed_switch", "prompt": "/focus --depth minimal add the export", "words_answer": false}
+{"id": "typed_switch-01033", "kind": "typed_switch", "prompt": "/focus --depth minimal add the export", "words_answer": true}
+{"id": "typed_switch-01034", "kind": "typed_switch", "prompt": "/focus --depth add the export", "words_answer": false}
+{"id": "typed_switch-01035", "kind": "typed_switch", "prompt": "/focus --depth add the export", "words_answer": true}
+{"id": "typed_switch-01036", "kind": "typed_switch", "prompt": "/focus --test-strategy tdd add the export", "words_answer": false}
+{"id": "typed_switch-01037", "kind": "typed_switch", "prompt": "/focus --test-strategy tdd add the export", "words_answer": true}
+{"id": "typed_switch-01038", "kind": "typed_switch", "prompt": "/focus --review none add the export", "words_answer": false}
+{"id": "typed_switch-01039", "kind": "typed_switch", "prompt": "/focus --review none add the export", "words_answer": true}
+{"id": "typed_switch-01040", "kind": "typed_switch", "prompt": "/focus --skip x add the export", "words_answer": false}
+{"id": "typed_switch-01041", "kind": "typed_switch", "prompt": "/focus --skip x add the export", "words_answer": true}
+{"id": "typed_switch-01042", "kind": "typed_switch", "prompt": "/focus --add y add the export", "words_answer": false}
+{"id": "typed_switch-01043", "kind": "typed_switch", "prompt": "/focus --add y add the export", "words_answer": true}
+{"id": "typed_switch-01044", "kind": "typed_switch", "prompt": "/focus --project-type brownfield add the export", "words_answer": false}
+{"id": "typed_switch-01045", "kind": "typed_switch", "prompt": "/focus --project-type brownfield add the export", "words_answer": true}
+{"id": "typed_switch-01046", "kind": "typed_switch", "prompt": "/focus --collaborators on add the export", "words_answer": false}
+{"id": "typed_switch-01047", "kind": "typed_switch", "prompt": "/focus --collaborators on add the export", "words_answer": true}
+{"id": "typed_switch-01048", "kind": "typed_switch", "prompt": "/focus --space s add the export", "words_answer": false}
+{"id": "typed_switch-01049", "kind": "typed_switch", "prompt": "/focus --space s add the export", "words_answer": true}
+{"id": "typed_switch-01050", "kind": "typed_switch", "prompt": "/focus --intent i add the export", "words_answer": false}
+{"id": "typed_switch-01051", "kind": "typed_switch", "prompt": "/focus --intent i add the export", "words_answer": true}
+{"id": "typed_switch-01052", "kind": "typed_switch", "prompt": "/focus --scope bugfix add the export", "words_answer": false}
+{"id": "typed_switch-01053", "kind": "typed_switch", "prompt": "/focus --scope bugfix add the export", "words_answer": true}
+{"id": "typed_switch-01054", "kind": "typed_switch", "prompt": "/focus --nope add the export", "words_answer": false}
+{"id": "typed_switch-01055", "kind": "typed_switch", "prompt": "/focus --nope add the export", "words_answer": true}
+{"id": "typed_switch-01056", "kind": "typed_switch", "prompt": "/focus --nope value add the export", "words_answer": false}
+{"id": "typed_switch-01057", "kind": "typed_switch", "prompt": "/focus --nope value add the export", "words_answer": true}
+{"id": "typed_switch-01058", "kind": "typed_switch", "prompt": "/focus --help add the export", "words_answer": false}
+{"id": "typed_switch-01059", "kind": "typed_switch", "prompt": "/focus --help add the export", "words_answer": true}
+{"id": "typed_switch-01060", "kind": "typed_switch", "prompt": "/focus --json add the export", "words_answer": false}
+{"id": "typed_switch-01061", "kind": "typed_switch", "prompt": "/focus --json add the export", "words_answer": true}
+{"id": "typed_switch-01062", "kind": "typed_switch", "prompt": "/focus -- add the export", "words_answer": false}
+{"id": "typed_switch-01063", "kind": "typed_switch", "prompt": "/focus -- add the export", "words_answer": true}
+{"id": "typed_switch-01064", "kind": "typed_switch", "prompt": "/focus --guard-policy add the export", "words_answer": false}
+{"id": "typed_switch-01065", "kind": "typed_switch", "prompt": "/focus --guard-policy add the export", "words_answer": true}
+{"id": "typed_switch-01066", "kind": "typed_switch", "prompt": "/focus --guard-policy '' add the export", "words_answer": false}
+{"id": "typed_switch-01067", "kind": "typed_switch", "prompt": "/focus --guard-policy '' add the export", "words_answer": true}
+{"id": "typed_switch-01068", "kind": "typed_switch", "prompt": "/focus --guard-policy \"\" add the export", "words_answer": false}
+{"id": "typed_switch-01069", "kind": "typed_switch", "prompt": "/focus --guard-policy \"\" add the export", "words_answer": true}
+{"id": "typed_switch-01070", "kind": "typed_switch", "prompt": "/focus --guard-policy --plan-approval off add the export", "words_answer": false}
+{"id": "typed_switch-01071", "kind": "typed_switch", "prompt": "/focus --guard-policy --plan-approval off add the export", "words_answer": true}
+{"id": "typed_switch-01072", "kind": "typed_switch", "prompt": "/focus --plan-approval add the export", "words_answer": false}
+{"id": "typed_switch-01073", "kind": "typed_switch", "prompt": "/focus --plan-approval add the export", "words_answer": true}
+{"id": "typed_switch-01074", "kind": "typed_switch", "prompt": "/focus --sensors add the export", "words_answer": false}
+{"id": "typed_switch-01075", "kind": "typed_switch", "prompt": "/focus --sensors add the export", "words_answer": true}
+{"id": "typed_switch-01076", "kind": "typed_switch", "prompt": "/focus --space add the export", "words_answer": false}
+{"id": "typed_switch-01077", "kind": "typed_switch", "prompt": "/focus --space add the export", "words_answer": true}
+{"id": "typed_switch-01078", "kind": "typed_switch", "prompt": "/focus --scope add the export", "words_answer": false}
+{"id": "typed_switch-01079", "kind": "typed_switch", "prompt": "/focus --scope add the export", "words_answer": true}
+{"id": "typed_switch-01080", "kind": "typed_switch", "prompt": "/focus --skip add the export", "words_answer": false}
+{"id": "typed_switch-01081", "kind": "typed_switch", "prompt": "/focus --skip add the export", "words_answer": true}
+{"id": "typed_switch-01082", "kind": "typed_switch", "prompt": "/focus --guard-policy off -- add the export", "words_answer": false}
+{"id": "typed_switch-01083", "kind": "typed_switch", "prompt": "/focus --guard-policy off -- add the export", "words_answer": true}
+{"id": "typed_switch-01084", "kind": "typed_switch", "prompt": "/focus --guard-policy relaxed -- add the export", "words_answer": false}
+{"id": "typed_switch-01085", "kind": "typed_switch", "prompt": "/focus --guard-policy relaxed -- add the export", "words_answer": true}
+{"id": "typed_switch-01086", "kind": "typed_switch", "prompt": "/focus --guard-policy strict -- add the export", "words_answer": false}
+{"id": "typed_switch-01087", "kind": "typed_switch", "prompt": "/focus --guard-policy strict -- add the export", "words_answer": true}
+{"id": "typed_switch-01088", "kind": "typed_switch", "prompt": "/focus --guard-policy on -- add the export", "words_answer": false}
+{"id": "typed_switch-01089", "kind": "typed_switch", "prompt": "/focus --guard-policy on -- add the export", "words_answer": true}
+{"id": "typed_switch-01090", "kind": "typed_switch", "prompt": "/focus --guard-policy OFF -- add the export", "words_answer": false}
+{"id": "typed_switch-01091", "kind": "typed_switch", "prompt": "/focus --guard-policy OFF -- add the export", "words_answer": true}
+{"id": "typed_switch-01092", "kind": "typed_switch", "prompt": "/focus --GUARD-POLICY off -- add the export", "words_answer": false}
+{"id": "typed_switch-01093", "kind": "typed_switch", "prompt": "/focus --GUARD-POLICY off -- add the export", "words_answer": true}
+{"id": "typed_switch-01094", "kind": "typed_switch", "prompt": "/focus --change-control relaxed -- add the export", "words_answer": false}
+{"id": "typed_switch-01095", "kind": "typed_switch", "prompt": "/focus --change-control relaxed -- add the export", "words_answer": true}
+{"id": "typed_switch-01096", "kind": "typed_switch", "prompt": "/focus --change-control off -- add the export", "words_answer": false}
+{"id": "typed_switch-01097", "kind": "typed_switch", "prompt": "/focus --change-control off -- add the export", "words_answer": true}
+{"id": "typed_switch-01098", "kind": "typed_switch", "prompt": "/focus --plan-approval off -- add the export", "words_answer": false}
+{"id": "typed_switch-01099", "kind": "typed_switch", "prompt": "/focus --plan-approval off -- add the export", "words_answer": true}
+{"id": "typed_switch-01100", "kind": "typed_switch", "prompt": "/focus --plan-approval on -- add the export", "words_answer": false}
+{"id": "typed_switch-01101", "kind": "typed_switch", "prompt": "/focus --plan-approval on -- add the export", "words_answer": true}
+{"id": "typed_switch-01102", "kind": "typed_switch", "prompt": "/focus --guard.plan-approval off -- add the export", "words_answer": false}
+{"id": "typed_switch-01103", "kind": "typed_switch", "prompt": "/focus --guard.plan-approval off -- add the export", "words_answer": true}
+{"id": "typed_switch-01104", "kind": "typed_switch", "prompt": "/focus --guard.plan-approval on -- add the export", "words_answer": false}
+{"id": "typed_switch-01105", "kind": "typed_switch", "prompt": "/focus --guard.plan-approval on -- add the export", "words_answer": true}
+{"id": "typed_switch-01106", "kind": "typed_switch", "prompt": "/focus --guard.review-freeze off -- add the export", "words_answer": false}
+{"id": "typed_switch-01107", "kind": "typed_switch", "prompt": "/focus --guard.review-freeze off -- add the export", "words_answer": true}
+{"id": "typed_switch-01108", "kind": "typed_switch", "prompt": "/focus --guard.review-freeze on -- add the export", "words_answer": false}
+{"id": "typed_switch-01109", "kind": "typed_switch", "prompt": "/focus --guard.review-freeze on -- add the export", "words_answer": true}
+{"id": "typed_switch-01110", "kind": "typed_switch", "prompt": "/focus --guard.state-transition off -- add the export", "words_answer": false}
+{"id": "typed_switch-01111", "kind": "typed_switch", "prompt": "/focus --guard.state-transition off -- add the export", "words_answer": true}
+{"id": "typed_switch-01112", "kind": "typed_switch", "prompt": "/focus --guard.reviewer-scope off -- add the export", "words_answer": false}
+{"id": "typed_switch-01113", "kind": "typed_switch", "prompt": "/focus --guard.reviewer-scope off -- add the export", "words_answer": true}
+{"id": "typed_switch-01114", "kind": "typed_switch", "prompt": "/focus --guard.human-presence off -- add the export", "words_answer": false}
+{"id": "typed_switch-01115", "kind": "typed_switch", "prompt": "/focus --guard.human-presence off -- add the export", "words_answer": true}
+{"id": "typed_switch-01116", "kind": "typed_switch", "prompt": "/focus --guard.nope off -- add the export", "words_answer": false}
+{"id": "typed_switch-01117", "kind": "typed_switch", "prompt": "/focus --guard.nope off -- add the export", "words_answer": true}
+{"id": "typed_switch-01118", "kind": "typed_switch", "prompt": "/focus --summary-confirmation off -- add the export", "words_answer": false}
+{"id": "typed_switch-01119", "kind": "typed_switch", "prompt": "/focus --summary-confirmation off -- add the export", "words_answer": true}
+{"id": "typed_switch-01120", "kind": "typed_switch", "prompt": "/focus --summary-confirmation on -- add the export", "words_answer": false}
+{"id": "typed_switch-01121", "kind": "typed_switch", "prompt": "/focus --summary-confirmation on -- add the export", "words_answer": true}
+{"id": "typed_switch-01122", "kind": "typed_switch", "prompt": "/focus --sensors off -- add the export", "words_answer": false}
+{"id": "typed_switch-01123", "kind": "typed_switch", "prompt": "/focus --sensors off -- add the export", "words_answer": true}
+{"id": "typed_switch-01124", "kind": "typed_switch", "prompt": "/focus --sensors on -- add the export", "words_answer": false}
+{"id": "typed_switch-01125", "kind": "typed_switch", "prompt": "/focus --sensors on -- add the export", "words_answer": true}
+{"id": "typed_switch-01126", "kind": "typed_switch", "prompt": "/focus --learnings off -- add the export", "words_answer": false}
+{"id": "typed_switch-01127", "kind": "typed_switch", "prompt": "/focus --learnings off -- add the export", "words_answer": true}
+{"id": "typed_switch-01128", "kind": "typed_switch", "prompt": "/focus --learnings on -- add the export", "words_answer": false}
+{"id": "typed_switch-01129", "kind": "typed_switch", "prompt": "/focus --learnings on -- add the export", "words_answer": true}
+{"id": "typed_switch-01130", "kind": "typed_switch", "prompt": "/focus --depth minimal -- add the export", "words_answer": false}
+{"id": "typed_switch-01131", "kind": "typed_switch", "prompt": "/focus --depth minimal -- add the export", "words_answer": true}
+{"id": "typed_switch-01132", "kind": "typed_switch", "prompt": "/focus --depth -- add the export", "words_answer": false}
+{"id": "typed_switch-01133", "kind": "typed_switch", "prompt": "/focus --depth -- add the export", "words_answer": true}
+{"id": "typed_switch-01134", "kind": "typed_switch", "prompt": "/focus --test-strategy tdd -- add the export", "words_answer": false}
+{"id": "typed_switch-01135", "kind": "typed_switch", "prompt": "/focus --test-strategy tdd -- add the export", "words_answer": true}
+{"id": "typed_switch-01136", "kind": "typed_switch", "prompt": "/focus --review none -- add the export", "words_answer": false}
+{"id": "typed_switch-01137", "kind": "typed_switch", "prompt": "/focus --review none -- add the export", "words_answer": true}
+{"id": "typed_switch-01138", "kind": "typed_switch", "prompt": "/focus --skip x -- add the export", "words_answer": false}
+{"id": "typed_switch-01139", "kind": "typed_switch", "prompt": "/focus --skip x -- add the export", "words_answer": true}
+{"id": "typed_switch-01140", "kind": "typed_switch", "prompt": "/focus --add y -- add the export", "words_answer": false}
+{"id": "typed_switch-01141", "kind": "typed_switch", "prompt": "/focus --add y -- add the export", "words_answer": true}
+{"id": "typed_switch-01142", "kind": "typed_switch", "prompt": "/focus --project-type brownfield -- add the export", "words_answer": false}
+{"id": "typed_switch-01143", "kind": "typed_switch", "prompt": "/focus --project-type brownfield -- add the export", "words_answer": true}
+{"id": "typed_switch-01144", "kind": "typed_switch", "prompt": "/focus --collaborators on -- add the export", "words_answer": false}
+{"id": "typed_switch-01145", "kind": "typed_switch", "prompt": "/focus --collaborators on -- add the export", "words_answer": true}
+{"id": "typed_switch-01146", "kind": "typed_switch", "prompt": "/focus --space s -- add the export", "words_answer": false}
+{"id": "typed_switch-01147", "kind": "typed_switch", "prompt": "/focus --space s -- add the export", "words_answer": true}
+{"id": "typed_switch-01148", "kind": "typed_switch", "prompt": "/focus --intent i -- add the export", "words_answer": false}
+{"id": "typed_switch-01149", "kind": "typed_switch", "prompt": "/focus --intent i -- add the export", "words_answer": true}
+{"id": "typed_switch-01150", "kind": "typed_switch", "prompt": "/focus --scope bugfix -- add the export", "words_answer": false}
+{"id": "typed_switch-01151", "kind": "typed_switch", "prompt": "/focus --scope bugfix -- add the export", "words_answer": true}
+{"id": "typed_switch-01152", "kind": "typed_switch", "prompt": "/focus --nope -- add the export", "words_answer": false}
+{"id": "typed_switch-01153", "kind": "typed_switch", "prompt": "/focus --nope -- add the export", "words_answer": true}
+{"id": "typed_switch-01154", "kind": "typed_switch", "prompt": "/focus --nope value -- add the export", "words_answer": false}
+{"id": "typed_switch-01155", "kind": "typed_switch", "prompt": "/focus --nope value -- add the export", "words_answer": true}
+{"id": "typed_switch-01156", "kind": "typed_switch", "prompt": "/focus --help -- add the export", "words_answer": false}
+{"id": "typed_switch-01157", "kind": "typed_switch", "prompt": "/focus --help -- add the export", "words_answer": true}
+{"id": "typed_switch-01158", "kind": "typed_switch", "prompt": "/focus --json -- add the export", "words_answer": false}
+{"id": "typed_switch-01159", "kind": "typed_switch", "prompt": "/focus --json -- add the export", "words_answer": true}
+{"id": "typed_switch-01160", "kind": "typed_switch", "prompt": "/focus -- -- add the export", "words_answer": false}
+{"id": "typed_switch-01161", "kind": "typed_switch", "prompt": "/focus -- -- add the export", "words_answer": true}
+{"id": "typed_switch-01162", "kind": "typed_switch", "prompt": "/focus --guard-policy -- add the export", "words_answer": false}
+{"id": "typed_switch-01163", "kind": "typed_switch", "prompt": "/focus --guard-policy -- add the export", "words_answer": true}
+{"id": "typed_switch-01164", "kind": "typed_switch", "prompt": "/focus --guard-policy '' -- add the export", "words_answer": false}
+{"id": "typed_switch-01165", "kind": "typed_switch", "prompt": "/focus --guard-policy '' -- add the export", "words_answer": true}
+{"id": "typed_switch-01166", "kind": "typed_switch", "prompt": "/focus --guard-policy \"\" -- add the export", "words_answer": false}
+{"id": "typed_switch-01167", "kind": "typed_switch", "prompt": "/focus --guard-policy \"\" -- add the export", "words_answer": true}
+{"id": "typed_switch-01168", "kind": "typed_switch", "prompt": "/focus --guard-policy --plan-approval off -- add the export", "words_answer": false}
+{"id": "typed_switch-01169", "kind": "typed_switch", "prompt": "/focus --guard-policy --plan-approval off -- add the export", "words_answer": true}
+{"id": "typed_switch-01170", "kind": "typed_switch", "prompt": "/focus --plan-approval -- add the export", "words_answer": false}
+{"id": "typed_switch-01171", "kind": "typed_switch", "prompt": "/focus --plan-approval -- add the export", "words_answer": true}
+{"id": "typed_switch-01172", "kind": "typed_switch", "prompt": "/focus --sensors -- add the export", "words_answer": false}
+{"id": "typed_switch-01173", "kind": "typed_switch", "prompt": "/focus --sensors -- add the export", "words_answer": true}
+{"id": "typed_switch-01174", "kind": "typed_switch", "prompt": "/focus --space -- add the export", "words_answer": false}
+{"id": "typed_switch-01175", "kind": "typed_switch", "prompt": "/focus --space -- add the export", "words_answer": true}
+{"id": "typed_switch-01176", "kind": "typed_switch", "prompt": "/focus --scope -- add the export", "words_answer": false}
+{"id": "typed_switch-01177", "kind": "typed_switch", "prompt": "/focus --scope -- add the export", "words_answer": true}
+{"id": "typed_switch-01178", "kind": "typed_switch", "prompt": "/focus --skip -- add the export", "words_answer": false}
+{"id": "typed_switch-01179", "kind": "typed_switch", "prompt": "/focus --skip -- add the export", "words_answer": true}

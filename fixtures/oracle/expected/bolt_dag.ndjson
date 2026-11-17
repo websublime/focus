@@ -1,0 +1,333 @@
+{"id":"bolt_dag-00000","out":{"ok":false,"reason":"malformed","detail":"unit \"web\" has invalid kind \"Service\" (expected service|spec|ui|packaging|library)"}}
+{"id":"bolt_dag-00001","out":{"ok":true,"units":[{"name":"api","depends_on":[],"kind":"library"},{"name":"with.dot","depends_on":[]}],"batches":[["api","with.dot"]]}}
+{"id":"bolt_dag-00002","out":{"ok":false,"reason":"malformed","detail":"kind: before any - name: entry"}}
+{"id":"bolt_dag-00003","out":{"ok":false,"reason":"malformed","detail":"unit \"web\" depends on unknown unit \"it,s\""}}
+{"id":"bolt_dag-00004","out":{"ok":true,"units":[{"name":"a-b","depends_on":[]},{"name":"under_score","depends_on":["a-b"],"kind":"library"},{"name":"with.dot","depends_on":[]},{"name":"a","depends_on":["with.dot","under_score"],"kind":"spec"}],"batches":[["a-b","with.dot"],["under_score"],["a"]]}}
+{"id":"bolt_dag-00005","out":{"ok":false,"reason":"malformed","detail":"units: must be a block list, not an inline value"}}
+{"id":"bolt_dag-00006","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: trailing prose"}}
+{"id":"bolt_dag-00007","out":{"ok":true,"units":[{"name":"x1","depends_on":[],"kind":"spec"},{"name":"web","depends_on":[]},{"name":"api","depends_on":[]},{"name":"under_score","depends_on":["api"]},{"name":"a-b","depends_on":["api","web","under_score"]}],"batches":[["api","web","x1"],["under_score"],["a-b"]]}}
+{"id":"bolt_dag-00008","out":{"ok":true,"units":[{"name":"store","depends_on":[]},{"name":"api","depends_on":["store"],"kind":"packaging"}],"batches":[["store"],["api"]]}}
+{"id":"bolt_dag-00009","out":{"ok":true,"units":[{"name":"x1","depends_on":[],"kind":"spec"}],"batches":[["x1"]]}}
+{"id":"bolt_dag-00010","out":{"ok":true,"units":[{"name":"under_score","depends_on":[]},{"name":"with.dot","depends_on":[]},{"name":"a","depends_on":[]}],"batches":[["a","under_score","with.dot"]]}}
+{"id":"bolt_dag-00011","out":{"ok":true,"units":[{"name":"with.dot","depends_on":[]},{"name":"under_score","depends_on":[]},{"name":"x1","depends_on":["with.dot","under_score"]},{"name":"api","depends_on":[]},{"name":"a-b","depends_on":[]},{"name":"auth","depends_on":["a-b","x1","api"],"kind":"ui"}],"batches":[["a-b","api","under_score","with.dot"],["x1"],["auth"]]}}
+{"id":"bolt_dag-00012","out":{"ok":true,"units":[{"name":"api","depends_on":[]},{"name":"x1","depends_on":[]},{"name":"a","depends_on":["api","x1"]}],"batches":[["api","x1"],["a"]]}}
+{"id":"bolt_dag-00013","out":{"ok":true,"units":[{"name":"web","depends_on":[]},{"name":"store","depends_on":[]},{"name":"with.dot","depends_on":[],"kind":"service"},{"name":"9lives","depends_on":["web"]},{"name":"a-b","depends_on":["store","with.dot","web"]},{"name":"auth","depends_on":["9lives","with.dot"]}],"batches":[["store","web","with.dot"],["9lives","a-b"],["auth"]]}}
+{"id":"bolt_dag-00014","out":{"ok":true,"units":[{"name":"a","depends_on":[],"kind":"ui"},{"name":"web","depends_on":["a"]},{"name":"auth","depends_on":["web","a"]},{"name":"9lives","depends_on":[]},{"name":"under_score","depends_on":["a"]}],"batches":[["9lives","a"],["under_score","web"],["auth"]]}}
+{"id":"bolt_dag-00015","out":{"ok":true,"units":[{"name":"under_score","depends_on":[],"kind":"spec"},{"name":"a","depends_on":["under_score"]}],"batches":[["under_score"],["a"]]}}
+{"id":"bolt_dag-00016","out":{"ok":true,"units":[{"name":"api","depends_on":[]},{"name":"auth","depends_on":["api"],"kind":"spec"},{"name":"with.dot","depends_on":[]},{"name":"web","depends_on":["api","auth","with.dot"]}],"batches":[["api","with.dot"],["auth"],["web"]]}}
+{"id":"bolt_dag-00017","out":{"ok":true,"units":[{"name":"store","depends_on":[],"kind":"ui"},{"name":"x1","depends_on":["store"]}],"batches":[["store"],["x1"]]}}
+{"id":"bolt_dag-00018","out":{"ok":true,"units":[{"name":"api","depends_on":[],"kind":"packaging"},{"name":"9lives","depends_on":[]}],"batches":[["9lives","api"]]}}
+{"id":"bolt_dag-00019","out":{"ok":true,"units":[{"name":"web","depends_on":[]}],"batches":[["web"]]}}
+{"id":"bolt_dag-00020","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: -name: with.dot"}}
+{"id":"bolt_dag-00021","out":{"ok":true,"units":[{"name":"auth","depends_on":[]}],"batches":[["auth"]]}}
+{"id":"bolt_dag-00022","out":{"ok":true,"units":[{"name":"web","depends_on":[]},{"name":"store","depends_on":[]},{"name":"x1","depends_on":["web","store"],"kind":"ui"},{"name":"with.dot","depends_on":["x1","store"]},{"name":"9lives","depends_on":[]}],"batches":[["9lives","store","web"],["x1"],["with.dot"]]}}
+{"id":"bolt_dag-00023","out":{"ok":true,"units":[{"name":"auth","depends_on":[]}],"batches":[["auth"]]}}
+{"id":"bolt_dag-00024","out":{"ok":true,"units":[{"name":"auth","depends_on":[]}],"batches":[["auth"]]}}
+{"id":"bolt_dag-00025","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00026","out":{"ok":true,"units":[{"name":"with.dot","depends_on":[]},{"name":"x1","depends_on":[]},{"name":"store","depends_on":["x1","with.dot"]},{"name":"9lives","depends_on":["x1","with.dot","store"]}],"batches":[["with.dot","x1"],["store"],["9lives"]]}}
+{"id":"bolt_dag-00027","out":{"ok":true,"units":[{"name":"api","depends_on":[]},{"name":"web","depends_on":["api"]},{"name":"a","depends_on":[]},{"name":"under_score","depends_on":[],"kind":"service"},{"name":"a-b","depends_on":[]}],"batches":[["a","a-b","api","under_score"],["web"]]}}
+{"id":"bolt_dag-00028","out":{"ok":true,"units":[{"name":"with.dot","depends_on":[]},{"name":"web","depends_on":["with.dot"],"kind":"packaging"}],"batches":[["with.dot"],["web"]]}}
+{"id":"bolt_dag-00029","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: ````"}}
+{"id":"bolt_dag-00030","out":{"ok":false,"reason":"malformed","detail":"depends_on: before any - name: entry"}}
+{"id":"bolt_dag-00031","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: trailing prose"}}
+{"id":"bolt_dag-00032","out":{"ok":true,"units":[{"name":"web","depends_on":[],"kind":"ui"},{"name":"a","depends_on":["web"]},{"name":"under_score","depends_on":["web","a"],"kind":"spec"}],"batches":[["web"],["a"],["under_score"]]}}
+{"id":"bolt_dag-00033","out":{"ok":true,"units":[{"name":"web","depends_on":[],"kind":"packaging"},{"name":"api","depends_on":["web"],"kind":"library"},{"name":"9lives","depends_on":[],"kind":"spec"}],"batches":[["9lives","web"],["api"]]}}
+{"id":"bolt_dag-00034","out":{"ok":false,"reason":"malformed","detail":"units: must be a block list, not an inline value"}}
+{"id":"bolt_dag-00035","out":{"ok":true,"units":[{"name":"web","depends_on":[]},{"name":"auth","depends_on":["web"]},{"name":"with.dot","depends_on":[]}],"batches":[["web","with.dot"],["auth"]]}}
+{"id":"bolt_dag-00036","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: -name: store"}}
+{"id":"bolt_dag-00037","out":{"ok":true,"units":[{"name":"a","depends_on":[]}],"batches":[["a"]]}}
+{"id":"bolt_dag-00038","out":{"ok":true,"units":[{"name":"a","depends_on":[]},{"name":"auth","depends_on":[],"kind":"ui"},{"name":"9lives","depends_on":[]}],"batches":[["9lives","a","auth"]]}}
+{"id":"bolt_dag-00039","out":{"ok":true,"units":[{"name":"under_score","depends_on":[]},{"name":"web","depends_on":[]},{"name":"x1","depends_on":["web","under_score"]}],"batches":[["under_score","web"],["x1"]]}}
+{"id":"bolt_dag-00040","out":{"ok":true,"units":[{"name":"9lives","depends_on":[],"kind":"spec"},{"name":"api","depends_on":[]},{"name":"store","depends_on":["api","9lives"],"kind":"packaging"},{"name":"auth","depends_on":[]}],"batches":[["9lives","api","auth"],["store"]]}}
+{"id":"bolt_dag-00041","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: ~~~"}}
+{"id":"bolt_dag-00042","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00043","out":{"ok":false,"reason":"malformed","detail":"units: must be a block list, not an inline value"}}
+{"id":"bolt_dag-00044","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00045","out":{"ok":true,"units":[{"name":"under_score","depends_on":[],"kind":"spec"},{"name":"with.dot","depends_on":[]},{"name":"a","depends_on":["under_score","with.dot"]},{"name":"web","depends_on":["a"]},{"name":"auth","depends_on":["with.dot"]},{"name":"api","depends_on":[]}],"batches":[["api","under_score","with.dot"],["a","auth"],["web"]]}}
+{"id":"bolt_dag-00046","out":{"ok":true,"units":[{"name":"x1","depends_on":[]},{"name":"under_score","depends_on":[],"kind":"service"}],"batches":[["under_score","x1"]]}}
+{"id":"bolt_dag-00047","out":{"ok":true,"units":[{"name":"a-b","depends_on":[]},{"name":"under_score","depends_on":["a-b"]},{"name":"9lives","depends_on":[]},{"name":"web","depends_on":[]},{"name":"store","depends_on":[]},{"name":"x1","depends_on":[]}],"batches":[["9lives","a-b","store","web","x1"],["under_score"]]}}
+{"id":"bolt_dag-00048","out":{"ok":true,"units":[{"name":"a-b","depends_on":[]},{"name":"9lives","depends_on":["a-b"],"kind":"service"},{"name":"x1","depends_on":["a-b"]}],"batches":[["a-b"],["9lives","x1"]]}}
+{"id":"bolt_dag-00049","out":{"ok":true,"units":[{"name":"auth","depends_on":[]},{"name":"with.dot","depends_on":["auth"],"kind":"ui"}],"batches":[["auth"],["with.dot"]]}}
+{"id":"bolt_dag-00050","out":{"ok":true,"units":[{"name":"with.dot","depends_on":[]},{"name":"api","depends_on":["with.dot"]},{"name":"a-b","depends_on":[]},{"name":"under_score","depends_on":[]},{"name":"x1","depends_on":["with.dot","api","a-b"]}],"batches":[["a-b","under_score","with.dot"],["api"],["x1"]]}}
+{"id":"bolt_dag-00051","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: - Name: a"}}
+{"id":"bolt_dag-00052","out":{"ok":true,"units":[{"name":"web","depends_on":[]},{"name":"auth","depends_on":[],"kind":"ui"},{"name":"store","depends_on":["auth","web"]},{"name":"with.dot","depends_on":["web","store","auth"]},{"name":"9lives","depends_on":[]}],"batches":[["9lives","auth","web"],["store"],["with.dot"]]}}
+{"id":"bolt_dag-00053","out":{"ok":true,"units":[{"name":"a","depends_on":[]},{"name":"9lives","depends_on":[],"kind":"spec"},{"name":"under_score","depends_on":["a"],"kind":"ui"},{"name":"web","depends_on":[]}],"batches":[["9lives","a","web"],["under_score"]]}}
+{"id":"bolt_dag-00054","out":{"ok":true,"units":[{"name":"a-b","depends_on":[]}],"batches":[["a-b"]]}}
+{"id":"bolt_dag-00055","out":{"ok":true,"units":[{"name":"with.dot","depends_on":[]},{"name":"a-b","depends_on":[]},{"name":"api","depends_on":[]}],"batches":[["a-b","api","with.dot"]]}}
+{"id":"bolt_dag-00056","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00057","out":{"ok":true,"units":[{"name":"web","depends_on":[]},{"name":"under_score","depends_on":["web"]}],"batches":[["web"],["under_score"]]}}
+{"id":"bolt_dag-00058","out":{"ok":false,"reason":"malformed","detail":"unit \"auth\" has invalid kind \"big\" (expected service|spec|ui|packaging|library)"}}
+{"id":"bolt_dag-00059","out":{"ok":false,"reason":"malformed","detail":"kind: before any - name: entry"}}
+{"id":"bolt_dag-00060","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00061","out":{"ok":false,"reason":"malformed","detail":"Invalid Unit name \"tab\tbed\" - must match /^[A-Za-z0-9][A-Za-z0-9._-]*$/ (ASCII letter/digit, then ASCII letters/digits/dot/underscore/hyphen)"}}
+{"id":"bolt_dag-00062","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00063","out":{"ok":true,"units":[{"name":"api","depends_on":[]},{"name":"a","depends_on":[]},{"name":"auth","depends_on":[]},{"name":"9lives","depends_on":[]},{"name":"web","depends_on":[]},{"name":"store","depends_on":[],"kind":"spec"}],"batches":[["9lives","a","api","auth","store","web"]]}}
+{"id":"bolt_dag-00064","out":{"ok":true,"units":[{"name":"with.dot","depends_on":[]}],"batches":[["with.dot"]]}}
+{"id":"bolt_dag-00065","out":{"ok":true,"units":[{"name":"web","depends_on":[]},{"name":"auth","depends_on":["web"],"kind":"service"},{"name":"9lives","depends_on":["auth","web"]}],"batches":[["web"],["auth"],["9lives"]]}}
+{"id":"bolt_dag-00066","out":{"ok":true,"units":[{"name":"under_score","depends_on":[]},{"name":"9lives","depends_on":["under_score"]},{"name":"a","depends_on":[],"kind":"spec"},{"name":"auth","depends_on":[]},{"name":"with.dot","depends_on":["auth","under_score","a"]},{"name":"a-b","depends_on":["auth","with.dot","9lives"]}],"batches":[["a","auth","under_score"],["9lives","with.dot"],["a-b"]]}}
+{"id":"bolt_dag-00067","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00068","out":{"ok":true,"units":[{"name":"api","depends_on":[]},{"name":"9lives","depends_on":["api"],"kind":"service"},{"name":"auth","depends_on":[]},{"name":"under_score","depends_on":[],"kind":"spec"},{"name":"with.dot","depends_on":["9lives","under_score"],"kind":"service"},{"name":"x1","depends_on":["auth","under_score","9lives"]}],"batches":[["api","auth","under_score"],["9lives"],["with.dot","x1"]]}}
+{"id":"bolt_dag-00069","out":{"ok":false,"reason":"malformed","detail":"unit \"😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀\" has invalid kind \"big\" (expected service|spec|ui|packaging|library)"}}
+{"id":"bolt_dag-00070","out":{"ok":true,"units":[{"name":"under_score","depends_on":[]},{"name":"web","depends_on":[]}],"batches":[["under_score","web"]]}}
+{"id":"bolt_dag-00071","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: [-\tname: x1"}}
+{"id":"bolt_dag-00072","out":{"ok":true,"units":[{"name":"under_score","depends_on":[]},{"name":"x1","depends_on":[]},{"name":"web","depends_on":[],"kind":"packaging"},{"name":"9lives","depends_on":[]}],"batches":[["9lives","under_score","web","x1"]]}}
+{"id":"bolt_dag-00073","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: * name: store"}}
+{"id":"bolt_dag-00074","out":{"ok":true,"units":[{"name":"store","depends_on":[],"kind":"library"},{"name":"under_score","depends_on":[]}],"batches":[["store","under_score"]]}}
+{"id":"bolt_dag-00075","out":{"ok":true,"units":[{"name":"store","depends_on":[]},{"name":"x1","depends_on":[]}],"batches":[["store","x1"]]}}
+{"id":"bolt_dag-00076","out":{"ok":true,"units":[{"name":"9lives","depends_on":[],"kind":"ui"},{"name":"under_score","depends_on":[]},{"name":"api","depends_on":["9lives"]},{"name":"a-b","depends_on":[]}],"batches":[["9lives","a-b","under_score"],["api"]]}}
+{"id":"bolt_dag-00077","out":{"ok":true,"units":[{"name":"x1","depends_on":[]},{"name":"a","depends_on":["x1"]},{"name":"a-b","depends_on":["x1"]}],"batches":[["x1"],["a","a-b"]]}}
+{"id":"bolt_dag-00078","out":{"ok":true,"units":[{"name":"with.dot","depends_on":[]},{"name":"a","depends_on":[]}],"batches":[["a","with.dot"]]}}
+{"id":"bolt_dag-00079","out":{"ok":true,"units":[{"name":"api","depends_on":[],"kind":"spec"},{"name":"auth","depends_on":[],"kind":"packaging"},{"name":"store","depends_on":[]},{"name":"9lives","depends_on":[]},{"name":"a-b","depends_on":["auth"]},{"name":"a","depends_on":[]}],"batches":[["9lives","a","api","auth","store"],["a-b"]]}}
+{"id":"bolt_dag-00080","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00081","out":{"ok":true,"units":[{"name":"auth","depends_on":[],"kind":"service"},{"name":"9lives","depends_on":["auth"]}],"batches":[["auth"],["9lives"]]}}
+{"id":"bolt_dag-00082","out":{"ok":false,"reason":"malformed","detail":"kind: before any - name: entry"}}
+{"id":"bolt_dag-00083","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: :```"}}
+{"id":"bolt_dag-00084","out":{"ok":true,"units":[{"name":"a","depends_on":[]},{"name":"x1","depends_on":["a"]},{"name":"auth","depends_on":[]}],"batches":[["a","auth"],["x1"]]}}
+{"id":"bolt_dag-00085","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: trailing prose"}}
+{"id":"bolt_dag-00086","out":{"ok":true,"units":[{"name":"with.dot","depends_on":[]},{"name":"auth","depends_on":["with.dot"]},{"name":"web","depends_on":[]},{"name":"store","depends_on":[]},{"name":"9lives","depends_on":["auth","store","web"],"kind":"library"}],"batches":[["store","web","with.dot"],["auth"],["9lives"]]}}
+{"id":"bolt_dag-00087","out":{"ok":true,"units":[{"name":"x1","depends_on":[]},{"name":"api","depends_on":["x1"],"kind":"packaging"},{"name":"web","depends_on":["api","x1"],"kind":"packaging"},{"name":"with.dot","depends_on":[]}],"batches":[["with.dot","x1"],["api"],["web"]]}}
+{"id":"bolt_dag-00088","out":{"ok":true,"units":[{"name":"api","depends_on":[],"kind":"spec"}],"batches":[["api"]]}}
+{"id":"bolt_dag-00089","out":{"ok":true,"units":[{"name":"web","depends_on":[]},{"name":"a-b","depends_on":[]}],"batches":[["a-b","web"]]}}
+{"id":"bolt_dag-00090","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00091","out":{"ok":true,"units":[{"name":"web","depends_on":[],"kind":"ui"},{"name":"under_score","depends_on":["web"]},{"name":"x1","depends_on":["web","under_score"],"kind":"library"},{"name":"9lives","depends_on":[]}],"batches":[["9lives","web"],["under_score"],["x1"]]}}
+{"id":"bolt_dag-00092","out":{"ok":true,"units":[{"name":"store","depends_on":[]},{"name":"with.dot","depends_on":[],"kind":"library"},{"name":"web","depends_on":[]}],"batches":[["store","web","with.dot"]]}}
+{"id":"bolt_dag-00093","out":{"ok":true,"units":[{"name":"a","depends_on":[]},{"name":"a-b","depends_on":[]},{"name":"store","depends_on":["a","a-b"],"kind":"service"},{"name":"auth","depends_on":[]},{"name":"with.dot","depends_on":["a"]},{"name":"x1","depends_on":["with.dot"]}],"batches":[["a","a-b","auth"],["store","with.dot"],["x1"]]}}
+{"id":"bolt_dag-00094","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: random #words"}}
+{"id":"bolt_dag-00095","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: * name: auth"}}
+{"id":"bolt_dag-00096","out":{"ok":true,"units":[{"name":"with.dot","depends_on":[]},{"name":"api","depends_on":[]},{"name":"store","depends_on":[]},{"name":"under_score","depends_on":[]}],"batches":[["api","store","under_score","with.dot"]]}}
+{"id":"bolt_dag-00097","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: * name: 9lives"}}
+{"id":"bolt_dag-00098","out":{"ok":false,"reason":"malformed","detail":"units: must be a block list, not an inline value"}}
+{"id":"bolt_dag-00099","out":{"ok":false,"reason":"malformed","detail":"units: must be a block list, not an inline value"}}
+{"id":"bolt_dag-00100","out":{"ok":true,"units":[{"name":"a-b","depends_on":[]},{"name":"store","depends_on":[]},{"name":"auth","depends_on":[]},{"name":"api","depends_on":["a-b"]},{"name":"web","depends_on":["auth","store"]}],"batches":[["a-b","auth","store"],["api","web"]]}}
+{"id":"bolt_dag-00101","out":{"ok":false,"reason":"malformed","detail":"unit \"web\" has invalid kind \"big\" (expected service|spec|ui|packaging|library)"}}
+{"id":"bolt_dag-00102","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: - Name: 9lives"}}
+{"id":"bolt_dag-00103","out":{"ok":true,"units":[{"name":"a-b","depends_on":[]},{"name":"web","depends_on":[],"kind":"library"},{"name":"9lives","depends_on":[],"kind":"packaging"},{"name":"a","depends_on":["a-b","web","9lives"],"kind":"library"},{"name":"auth","depends_on":[],"kind":"ui"},{"name":"api","depends_on":["a","a-b"]}],"batches":[["9lives","a-b","auth","web"],["a"],["api"]]}}
+{"id":"bolt_dag-00104","out":{"ok":false,"reason":"malformed","detail":"unit \"a-b\" has invalid kind \"ui # k\" (expected service|spec|ui|packaging|library)"}}
+{"id":"bolt_dag-00105","out":{"ok":true,"units":[{"name":"auth","depends_on":[]},{"name":"store","depends_on":[]},{"name":"web","depends_on":[]}],"batches":[["auth","store","web"]]}}
+{"id":"bolt_dag-00106","out":{"ok":true,"units":[{"name":"a-b","depends_on":[]},{"name":"api","depends_on":[]},{"name":"web","depends_on":["a-b","api"]}],"batches":[["a-b","api"],["web"]]}}
+{"id":"bolt_dag-00107","out":{"ok":true,"units":[{"name":"a-b","depends_on":[]},{"name":"9lives","depends_on":["a-b"]}],"batches":[["a-b"],["9lives"]]}}
+{"id":"bolt_dag-00108","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: ---"}}
+{"id":"bolt_dag-00109","out":{"ok":true,"units":[{"name":"a-b","depends_on":[],"kind":"ui"},{"name":"store","depends_on":[]},{"name":"9lives","depends_on":[]},{"name":"auth","depends_on":[],"kind":"service"},{"name":"api","depends_on":[]}],"batches":[["9lives","a-b","api","auth","store"]]}}
+{"id":"bolt_dag-00110","out":{"ok":false,"reason":"malformed","detail":"kind: before any - name: entry"}}
+{"id":"bolt_dag-00111","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00112","out":{"ok":true,"units":[{"name":"web","depends_on":[]},{"name":"with.dot","depends_on":[]},{"name":"a","depends_on":[],"kind":"ui"},{"name":"auth","depends_on":["with.dot","a"],"kind":"ui"},{"name":"under_score","depends_on":["auth","with.dot"]},{"name":"9lives","depends_on":["under_score","with.dot","auth"]}],"batches":[["a","web","with.dot"],["auth"],["under_score"],["9lives"]]}}
+{"id":"bolt_dag-00113","out":{"ok":false,"reason":"malformed","detail":"kind: before any - name: entry"}}
+{"id":"bolt_dag-00114","out":{"ok":true,"units":[{"name":"x1","depends_on":[]},{"name":"web","depends_on":[]},{"name":"under_score","depends_on":[],"kind":"ui"},{"name":"a","depends_on":["x1","under_score","web"]},{"name":"a-b","depends_on":["under_score","x1"]},{"name":"auth","depends_on":[],"kind":"spec"}],"batches":[["auth","under_score","web","x1"],["a","a-b"]]}}
+{"id":"bolt_dag-00115","out":{"ok":true,"units":[{"name":"x1","depends_on":[],"kind":"service"}],"batches":[["x1"]]}}
+{"id":"bolt_dag-00116","out":{"ok":true,"units":[{"name":"store","depends_on":[]},{"name":"x1","depends_on":[]},{"name":"under_score","depends_on":["store","x1"]},{"name":"a-b","depends_on":[]},{"name":"api","depends_on":[]}],"batches":[["a-b","api","store","x1"],["under_score"]]}}
+{"id":"bolt_dag-00117","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: * name: auth"}}
+{"id":"bolt_dag-00118","out":{"ok":true,"units":[{"name":"under_score","depends_on":[]}],"batches":[["under_score"]]}}
+{"id":"bolt_dag-00119","out":{"ok":true,"units":[{"name":"auth","depends_on":[]},{"name":"a","depends_on":["auth"]}],"batches":[["auth"],["a"]]}}
+{"id":"bolt_dag-00120","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: - Name: web"}}
+{"id":"bolt_dag-00121","out":{"ok":true,"units":[{"name":"a-b","depends_on":[]},{"name":"store","depends_on":["a-b"]}],"batches":[["a-b"],["store"]]}}
+{"id":"bolt_dag-00122","out":{"ok":true,"units":[{"name":"store","depends_on":[]},{"name":"a","depends_on":["store"],"kind":"library"}],"batches":[["store"],["a"]]}}
+{"id":"bolt_dag-00123","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00124","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00125","out":{"ok":false,"reason":"malformed","detail":"unit \"web\" has invalid kind \"ui # k\" (expected service|spec|ui|packaging|library)"}}
+{"id":"bolt_dag-00126","out":{"ok":true,"units":[{"name":"with.dot","depends_on":[],"kind":"spec"},{"name":"a","depends_on":["with.dot"]},{"name":"under_score","depends_on":[]},{"name":"store","depends_on":["under_score","with.dot"]},{"name":"web","depends_on":[]}],"batches":[["under_score","web","with.dot"],["a","store"]]}}
+{"id":"bolt_dag-00127","out":{"ok":true,"units":[{"name":"store","depends_on":[]},{"name":"x1","depends_on":[],"kind":"library"}],"batches":[["store","x1"]]}}
+{"id":"bolt_dag-00128","out":{"ok":true,"units":[{"name":"a","depends_on":[]},{"name":"api","depends_on":["a"],"kind":"ui"}],"batches":[["a"],["api"]]}}
+{"id":"bolt_dag-00129","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: trailing prose"}}
+{"id":"bolt_dag-00130","out":{"ok":false,"reason":"malformed","detail":"kind: before any - name: entry"}}
+{"id":"bolt_dag-00131","out":{"ok":true,"units":[{"name":"a-b","depends_on":[]},{"name":"9lives","depends_on":[],"kind":"ui"},{"name":"api","depends_on":[]},{"name":"a","depends_on":["9lives","api","a-b"]},{"name":"with.dot","depends_on":[],"kind":"ui"}],"batches":[["9lives","a-b","api","with.dot"],["a"]]}}
+{"id":"bolt_dag-00132","out":{"ok":true,"units":[{"name":"store","depends_on":[]}],"batches":[["store"]]}}
+{"id":"bolt_dag-00133","out":{"ok":true,"units":[{"name":"api","depends_on":[]},{"name":"with.dot","depends_on":["api"]}],"batches":[["api"],["with.dot"]]}}
+{"id":"bolt_dag-00134","out":{"ok":true,"units":[{"name":"9lives","depends_on":[]},{"name":"web","depends_on":["9lives"]}],"batches":[["9lives"],["web"]]}}
+{"id":"bolt_dag-00135","out":{"ok":true,"units":[{"name":"under_score","depends_on":[]},{"name":"api","depends_on":["under_score"]},{"name":"9lives","depends_on":["api","under_score"]},{"name":"a-b","depends_on":["api"],"kind":"ui"}],"batches":[["under_score"],["api"],["9lives","a-b"]]}}
+{"id":"bolt_dag-00136","out":{"ok":true,"units":[{"name":"auth","depends_on":[],"kind":"spec"},{"name":"a","depends_on":[]},{"name":"web","depends_on":[]},{"name":"a-b","depends_on":[],"kind":"ui"}],"batches":[["a","a-b","auth","web"]]}}
+{"id":"bolt_dag-00137","out":{"ok":true,"units":[{"name":"x1","depends_on":[],"kind":"packaging"},{"name":"a-b","depends_on":[],"kind":"spec"},{"name":"web","depends_on":[]},{"name":"store","depends_on":["a-b"]},{"name":"9lives","depends_on":["a-b"],"kind":"spec"},{"name":"api","depends_on":[]}],"batches":[["a-b","api","web","x1"],["9lives","store"]]}}
+{"id":"bolt_dag-00138","out":{"ok":true,"units":[{"name":"store","depends_on":[]},{"name":"a","depends_on":["store"]},{"name":"under_score","depends_on":[]},{"name":"with.dot","depends_on":[]},{"name":"a-b","depends_on":[],"kind":"library"}],"batches":[["a-b","store","under_score","with.dot"],["a"]]}}
+{"id":"bolt_dag-00139","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: # a~comment"}}
+{"id":"bolt_dag-00140","out":{"ok":true,"units":[{"name":"store","depends_on":[],"kind":"packaging"},{"name":"api","depends_on":["store"]},{"name":"a-b","depends_on":[]},{"name":"under_score","depends_on":["a-b"]},{"name":"x1","depends_on":["under_score"]},{"name":"with.dot","depends_on":["x1","under_score"]}],"batches":[["a-b","store"],["api","under_score"],["x1"],["with.dot"]]}}
+{"id":"bolt_dag-00141","out":{"ok":true,"units":[{"name":"auth","depends_on":[]},{"name":"x1","depends_on":[],"kind":"ui"},{"name":"store","depends_on":[]},{"name":"9lives","depends_on":["x1","auth","store"],"kind":"service"},{"name":"api","depends_on":["auth","store","9lives"],"kind":"spec"},{"name":"a","depends_on":["9lives"]}],"batches":[["auth","store","x1"],["9lives"],["a","api"]]}}
+{"id":"bolt_dag-00142","out":{"ok":true,"units":[{"name":"9lives","depends_on":[],"kind":"library"},{"name":"under_score","depends_on":[]},{"name":"a-b","depends_on":[]}],"batches":[["9lives","a-b","under_score"]]}}
+{"id":"bolt_dag-00143","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: ```yaml"}}
+{"id":"bolt_dag-00144","out":{"ok":true,"units":[{"name":"with.dot","depends_on":[],"kind":"spec"},{"name":"a","depends_on":["with.dot"]},{"name":"web","depends_on":["with.dot","a"],"kind":"service"}],"batches":[["with.dot"],["a"],["web"]]}}
+{"id":"bolt_dag-00145","out":{"ok":true,"units":[{"name":"a","depends_on":[]},{"name":"a-b","depends_on":[],"kind":"ui"},{"name":"with.dot","depends_on":[]},{"name":"x1","depends_on":["with.dot","a","a-b"],"kind":"spec"}],"batches":[["a","a-b","with.dot"],["x1"]]}}
+{"id":"bolt_dag-00146","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: ````"}}
+{"id":"bolt_dag-00147","out":{"ok":true,"units":[{"name":"a-b","depends_on":[],"kind":"spec"},{"name":"under_score","depends_on":[]},{"name":"api","depends_on":[]},{"name":"web","depends_on":["under_score","a-b"]},{"name":"x1","depends_on":[],"kind":"library"},{"name":"with.dot","depends_on":["under_score"]}],"batches":[["a-b","api","under_score","x1"],["web","with.dot"]]}}
+{"id":"bolt_dag-00148","out":{"ok":true,"units":[{"name":"under_score","depends_on":[]},{"name":"web","depends_on":["under_score"]},{"name":"api","depends_on":[]},{"name":"a","depends_on":[]}],"batches":[["a","api","under_score"],["web"]]}}
+{"id":"bolt_dag-00149","out":{"ok":true,"units":[{"name":"9lives","depends_on":[]},{"name":"under_score","depends_on":["9lives"],"kind":"spec"},{"name":"auth","depends_on":["under_score","9lives"]}],"batches":[["9lives"],["under_score"],["auth"]]}}
+{"id":"bolt_dag-00150","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00151","out":{"ok":true,"units":[{"name":"x1","depends_on":[],"kind":"spec"},{"name":"9lives","depends_on":[]},{"name":"web","depends_on":[]},{"name":"a-b","depends_on":["x1"]}],"batches":[["9lives","web","x1"],["a-b"]]}}
+{"id":"bolt_dag-00152","out":{"ok":true,"units":[{"name":"store","depends_on":[]}],"batches":[["store"]]}}
+{"id":"bolt_dag-00153","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00154","out":{"ok":false,"reason":"malformed","detail":"units: must be a block list, not an inline value"}}
+{"id":"bolt_dag-00155","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00156","out":{"ok":false,"reason":"malformed","detail":"depends_on: before any - name: entry"}}
+{"id":"bolt_dag-00157","out":{"ok":true,"units":[{"name":"auth","depends_on":[]}],"batches":[["auth"]]}}
+{"id":"bolt_dag-00158","out":{"ok":true,"units":[{"name":"api","depends_on":[],"kind":"ui"},{"name":"auth","depends_on":[]}],"batches":[["api","auth"]]}}
+{"id":"bolt_dag-00159","out":{"ok":false,"reason":"malformed","detail":"kind: before any - name: entry"}}
+{"id":"bolt_dag-00160","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00161","out":{"ok":false,"reason":"malformed","detail":"unit \"😀'😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀\" has invalid kind \"big\" (expected service|spec|ui|packaging|library)"}}
+{"id":"bolt_dag-00162","out":{"ok":true,"units":[{"name":"auth","depends_on":[]},{"name":"store","depends_on":[]}],"batches":[["auth","store"]]}}
+{"id":"bolt_dag-00163","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00164","out":{"ok":true,"units":[{"name":"9lives","depends_on":[],"kind":"ui"},{"name":"with.dot","depends_on":["9lives"]},{"name":"under_score","depends_on":["9lives"]},{"name":"web","depends_on":["with.dot","under_score","9lives"],"kind":"service"},{"name":"store","depends_on":[]},{"name":"auth","depends_on":["9lives"]}],"batches":[["9lives","store"],["auth","under_score","with.dot"],["web"]]}}
+{"id":"bolt_dag-00165","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00166","out":{"ok":true,"units":[{"name":"a-b","depends_on":[],"kind":"ui"},{"name":"with.dot","depends_on":[],"kind":"library"}],"batches":[["a-b","with.dot"]]}}
+{"id":"bolt_dag-00167","out":{"ok":true,"units":[{"name":"9lives","depends_on":[]},{"name":"auth","depends_on":[]}],"batches":[["9lives","auth"]]}}
+{"id":"bolt_dag-00168","out":{"ok":false,"reason":"malformed","detail":"kind: before any - name: entry"}}
+{"id":"bolt_dag-00169","out":{"ok":true,"units":[{"name":"api","depends_on":[]},{"name":"under_score","depends_on":["api"],"kind":"spec"}],"batches":[["api"],["under_score"]]}}
+{"id":"bolt_dag-00170","out":{"ok":false,"reason":"malformed","detail":"unit \"with.dot\" has invalid kind \"\" (expected service|spec|ui|packaging|library)"}}
+{"id":"bolt_dag-00171","out":{"ok":true,"units":[{"name":"auth","depends_on":[],"kind":"service"},{"name":"a","depends_on":[],"kind":"packaging"},{"name":"9lives","depends_on":["a","auth"],"kind":"service"},{"name":"under_score","depends_on":[],"kind":"ui"},{"name":"with.dot","depends_on":["auth","a"]}],"batches":[["a","auth","under_score"],["9lives","with.dot"]]}}
+{"id":"bolt_dag-00172","out":{"ok":true,"units":[{"name":"x1","depends_on":[]},{"name":"a-b","depends_on":[]}],"batches":[["a-b","x1"]]}}
+{"id":"bolt_dag-00173","out":{"ok":true,"units":[{"name":"store","depends_on":[]},{"name":"9lives","depends_on":[]},{"name":"under_score","depends_on":["9lives","store"]},{"name":"auth","depends_on":[]},{"name":"web","depends_on":[]}],"batches":[["9lives","auth","store","web"],["under_score"]]}}
+{"id":"bolt_dag-00174","out":{"ok":true,"units":[{"name":"under_score","depends_on":[]},{"name":"a","depends_on":["under_score"],"kind":"spec"},{"name":"auth","depends_on":[],"kind":"ui"},{"name":"api","depends_on":[]},{"name":"9lives","depends_on":[]},{"name":"with.dot","depends_on":[],"kind":"ui"}],"batches":[["9lives","api","auth","under_score","with.dot"],["a"]]}}
+{"id":"bolt_dag-00175","out":{"ok":true,"units":[{"name":"x1","depends_on":[],"kind":"spec"},{"name":"store","depends_on":["x1"]},{"name":"a","depends_on":["store"]},{"name":"with.dot","depends_on":[]}],"batches":[["with.dot","x1"],["store"],["a"]]}}
+{"id":"bolt_dag-00176","out":{"ok":true,"units":[{"name":"9lives","depends_on":[]},{"name":"auth","depends_on":[]}],"batches":[["9lives","auth"]]}}
+{"id":"bolt_dag-00177","out":{"ok":true,"units":[{"name":"x1","depends_on":[]},{"name":"web","depends_on":["x1"],"kind":"spec"},{"name":"auth","depends_on":[]}],"batches":[["auth","x1"],["web"]]}}
+{"id":"bolt_dag-00178","out":{"ok":true,"units":[{"name":"under_score","depends_on":[],"kind":"spec"}],"batches":[["under_score"]]}}
+{"id":"bolt_dag-00179","out":{"ok":true,"units":[{"name":"a","depends_on":[]},{"name":"api","depends_on":["a"]},{"name":"auth","depends_on":["api","a"],"kind":"spec"},{"name":"store","depends_on":["api","auth","a"],"kind":"library"}],"batches":[["a"],["api"],["auth"],["store"]]}}
+{"id":"bolt_dag-00180","out":{"ok":true,"units":[{"name":"under_score","depends_on":[],"kind":"spec"},{"name":"a","depends_on":[]},{"name":"web","depends_on":["under_score","a"]}],"batches":[["a","under_score"],["web"]]}}
+{"id":"bolt_dag-00181","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: trailing prose"}}
+{"id":"bolt_dag-00182","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: note: free text"}}
+{"id":"bolt_dag-00183","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: ---"}}
+{"id":"bolt_dag-00184","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00185","out":{"ok":false,"reason":"malformed","detail":"unit \"store\" has invalid kind \"big\" (expected service|spec|ui|packaging|library)"}}
+{"id":"bolt_dag-00186","out":{"ok":true,"units":[{"name":"api","depends_on":[]}],"batches":[["api"]]}}
+{"id":"bolt_dag-00187","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: trailing prose"}}
+{"id":"bolt_dag-00188","out":{"ok":false,"reason":"malformed","detail":"unit \"a#b\" has invalid kind \"\" (expected service|spec|ui|packaging|library)"}}
+{"id":"bolt_dag-00189","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: ~~~"}}
+{"id":"bolt_dag-00190","out":{"ok":true,"units":[{"name":"under_score","depends_on":[],"kind":"packaging"},{"name":"a-b","depends_on":["under_score"],"kind":"ui"},{"name":"9lives","depends_on":["under_score","a-b"]}],"batches":[["under_score"],["a-b"],["9lives"]]}}
+{"id":"bolt_dag-00191","out":{"ok":true,"units":[{"name":"with.dot","depends_on":[]},{"name":"under_score","depends_on":["with.dot"]},{"name":"web","depends_on":["with.dot","under_score"],"kind":"ui"},{"name":"a","depends_on":[]},{"name":"x1","depends_on":[],"kind":"packaging"}],"batches":[["a","with.dot","x1"],["under_score"],["web"]]}}
+{"id":"bolt_dag-00192","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00193","out":{"ok":true,"units":[{"name":"store","depends_on":[]},{"name":"under_score","depends_on":[],"kind":"ui"},{"name":"9lives","depends_on":[]}],"batches":[["9lives","store","under_score"]]}}
+{"id":"bolt_dag-00194","out":{"ok":false,"reason":"malformed","detail":"unit \"a-b\" has invalid kind \"\" (expected service|spec|ui|packaging|library)"}}
+{"id":"bolt_dag-00195","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: ````"}}
+{"id":"bolt_dag-00196","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: * name: store"}}
+{"id":"bolt_dag-00197","out":{"ok":true,"units":[{"name":"auth","depends_on":[]},{"name":"9lives","depends_on":["auth"],"kind":"ui"},{"name":"store","depends_on":["9lives","auth"]},{"name":"with.dot","depends_on":[]},{"name":"api","depends_on":["9lives","auth"]}],"batches":[["auth","with.dot"],["9lives"],["api","store"]]}}
+{"id":"bolt_dag-00198","out":{"ok":true,"units":[{"name":"api","depends_on":[]},{"name":"x1","depends_on":["api"]}],"batches":[["api"],["x1"]]}}
+{"id":"bolt_dag-00199","out":{"ok":true,"units":[{"name":"api","depends_on":[]},{"name":"web","depends_on":[]},{"name":"store","depends_on":["api","web"]},{"name":"x1","depends_on":["store","api","web"],"kind":"spec"},{"name":"9lives","depends_on":[]}],"batches":[["9lives","api","web"],["store"],["x1"]]}}
+{"id":"bolt_dag-00200","out":{"ok":true,"units":[{"name":"store","depends_on":[]},{"name":"under_score","depends_on":[]}],"batches":[["store","under_score"]]}}
+{"id":"bolt_dag-00201","out":{"ok":true,"units":[{"name":"a","depends_on":[]},{"name":"web","depends_on":[]},{"name":"api","depends_on":["web","a"]},{"name":"a-b","depends_on":["a","api"]},{"name":"9lives","depends_on":[]},{"name":"store","depends_on":["a-b"]}],"batches":[["9lives","a","web"],["api"],["a-b"],["store"]]}}
+{"id":"bolt_dag-00202","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00203","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00204","out":{"ok":true,"units":[{"name":"under_score","depends_on":[]}],"batches":[["under_score"]]}}
+{"id":"bolt_dag-00205","out":{"ok":true,"units":[{"name":"auth","depends_on":[],"kind":"spec"},{"name":"x1","depends_on":[]}],"batches":[["auth","x1"]]}}
+{"id":"bolt_dag-00206","out":{"ok":true,"units":[{"name":"a","depends_on":[],"kind":"ui"},{"name":"api","depends_on":[]},{"name":"under_score","depends_on":[],"kind":"packaging"},{"name":"9lives","depends_on":["api","under_score","a"]}],"batches":[["a","api","under_score"],["9lives"]]}}
+{"id":"bolt_dag-00207","out":{"ok":true,"units":[{"name":"store","depends_on":[],"kind":"ui"},{"name":"with.dot","depends_on":[]},{"name":"web","depends_on":["with.dot"],"kind":"ui"},{"name":"api","depends_on":[],"kind":"spec"}],"batches":[["api","store","with.dot"],["web"]]}}
+{"id":"bolt_dag-00208","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: depen0ds_on: []  # why"}}
+{"id":"bolt_dag-00209","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00210","out":{"ok":true,"units":[{"name":"a-b","depends_on":[]},{"name":"a","depends_on":[]},{"name":"with.dot","depends_on":[]},{"name":"auth","depends_on":["a","with.dot"]},{"name":"x1","depends_on":["auth"],"kind":"library"}],"batches":[["a","a-b","with.dot"],["auth"],["x1"]]}}
+{"id":"bolt_dag-00211","out":{"ok":true,"units":[{"name":"under_score","depends_on":[],"kind":"spec"},{"name":"a","depends_on":["under_score"]},{"name":"a-b","depends_on":[]},{"name":"api","depends_on":["under_score","a-b"],"kind":"spec"}],"batches":[["a-b","under_score"],["a","api"]]}}
+{"id":"bolt_dag-00212","out":{"ok":true,"units":[{"name":"auth","depends_on":[]}],"batches":[["auth"]]}}
+{"id":"bolt_dag-00213","out":{"ok":true,"units":[{"name":"under_score","depends_on":[]},{"name":"api","depends_on":[]},{"name":"with.dot","depends_on":[]}],"batches":[["api","under_score","with.dot"]]}}
+{"id":"bolt_dag-00214","out":{"ok":true,"units":[{"name":"x1","depends_on":[]},{"name":"9lives","depends_on":["x1"]},{"name":"under_score","depends_on":["9lives","x1"]}],"batches":[["x1"],["9lives"],["under_score"]]}}
+{"id":"bolt_dag-00215","out":{"ok":true,"units":[{"name":"9lives","depends_on":[],"kind":"service"},{"name":"auth","depends_on":["9lives"]},{"name":"under_score","depends_on":["9lives","auth"],"kind":"library"}],"batches":[["9lives"],["auth"],["under_score"]]}}
+{"id":"bolt_dag-00216","out":{"ok":true,"units":[{"name":"a-b","depends_on":[],"kind":"packaging"}],"batches":[["a-b"]]}}
+{"id":"bolt_dag-00217","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: random words"}}
+{"id":"bolt_dag-00218","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: trailing prose"}}
+{"id":"bolt_dag-00219","out":{"ok":true,"units":[{"name":"a","depends_on":[]},{"name":"web","depends_on":["a"]}],"batches":[["a"],["web"]]}}
+{"id":"bolt_dag-00220","out":{"ok":true,"units":[{"name":"with.dot","depends_on":[]},{"name":"9lives","depends_on":[]},{"name":"api","depends_on":[],"kind":"packaging"},{"name":"a","depends_on":[]}],"batches":[["9lives","a","api","with.dot"]]}}
+{"id":"bolt_dag-00221","out":{"ok":true,"units":[{"name":"auth","depends_on":[]},{"name":"under_score","depends_on":["auth"]},{"name":"a","depends_on":["auth"],"kind":"ui"},{"name":"a-b","depends_on":[]}],"batches":[["a-b","auth"],["a","under_score"]]}}
+{"id":"bolt_dag-00222","out":{"ok":true,"units":[{"name":"9lives","depends_on":[]},{"name":"auth","depends_on":["9lives"]},{"name":"web","depends_on":["auth","9lives"]},{"name":"api","depends_on":[]},{"name":"with.dot","depends_on":[]},{"name":"x1","depends_on":["with.dot","api","auth"],"kind":"spec"}],"batches":[["9lives","api","with.dot"],["auth"],["web","x1"]]}}
+{"id":"bolt_dag-00223","out":{"ok":true,"units":[{"name":"web","depends_on":[]},{"name":"a","depends_on":["web"]},{"name":"x1","depends_on":[]}],"batches":[["web","x1"],["a"]]}}
+{"id":"bolt_dag-00224","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: # a comment"}}
+{"id":"bolt_dag-00225","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: * name: a#b"}}
+{"id":"bolt_dag-00226","out":{"ok":true,"units":[{"name":"x1","depends_on":[]},{"name":"under_score","depends_on":["x1"]},{"name":"store","depends_on":[]}],"batches":[["store","x1"],["under_score"]]}}
+{"id":"bolt_dag-00227","out":{"ok":true,"units":[{"name":"web","depends_on":[],"kind":"spec"},{"name":"x1","depends_on":["web"]}],"batches":[["web"],["x1"]]}}
+{"id":"bolt_dag-00228","out":{"ok":true,"units":[{"name":"with.dot","depends_on":[]},{"name":"9lives","depends_on":["with.dot"]}],"batches":[["with.dot"],["9lives"]]}}
+{"id":"bolt_dag-00229","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00230","out":{"ok":true,"units":[{"name":"with.dot","depends_on":[],"kind":"service"},{"name":"a","depends_on":[]}],"batches":[["a","with.dot"]]}}
+{"id":"bolt_dag-00231","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: random words"}}
+{"id":"bolt_dag-00232","out":{"ok":true,"units":[{"name":"api","depends_on":[],"kind":"spec"},{"name":"auth","depends_on":[]},{"name":"with.dot","depends_on":["auth","api"]}],"batches":[["api","auth"],["with.dot"]]}}
+{"id":"bolt_dag-00233","out":{"ok":true,"units":[{"name":"9lives","depends_on":[]},{"name":"a","depends_on":["9lives"]},{"name":"with.dot","depends_on":["9lives","a"]},{"name":"a-b","depends_on":[]}],"batches":[["9lives","a-b"],["a"],["with.dot"]]}}
+{"id":"bolt_dag-00234","out":{"ok":true,"units":[{"name":"store","depends_on":[]},{"name":"under_score","depends_on":[]},{"name":"x1","depends_on":["under_score","store"],"kind":"ui"},{"name":"with.dot","depends_on":["under_score","store","x1"]},{"name":"a-b","depends_on":[]}],"batches":[["a-b","store","under_score"],["x1"],["with.dot"]]}}
+{"id":"bolt_dag-00235","out":{"ok":true,"units":[{"name":"web","depends_on":[],"kind":"ui"},{"name":"store","depends_on":["web"],"kind":"spec"},{"name":"a","depends_on":[]}],"batches":[["a","web"],["store"]]}}
+{"id":"bolt_dag-00236","out":{"ok":true,"units":[{"name":"auth","depends_on":[],"kind":"service"},{"name":"store","depends_on":["auth"],"kind":"ui"}],"batches":[["auth"],["store"]]}}
+{"id":"bolt_dag-00237","out":{"ok":false,"reason":"malformed","detail":"units: must be a block list, not an inline value"}}
+{"id":"bolt_dag-00238","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00239","out":{"ok":true,"units":[{"name":"a-b","depends_on":[]},{"name":"with.dot","depends_on":["a-b"],"kind":"packaging"},{"name":"under_score","depends_on":[]},{"name":"9lives","depends_on":["a-b","under_score"]},{"name":"web","depends_on":[]}],"batches":[["a-b","under_score","web"],["9lives","with.dot"]]}}
+{"id":"bolt_dag-00240","out":{"ok":true,"units":[{"name":"store","depends_on":[],"kind":"service"}],"batches":[["store"]]}}
+{"id":"bolt_dag-00241","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00242","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00243","out":{"ok":true,"units":[{"name":"a-b","depends_on":[]}],"batches":[["a-b"]]}}
+{"id":"bolt_dag-00244","out":{"ok":true,"units":[{"name":"with.dot","depends_on":[]},{"name":"9lives","depends_on":["with.dot"]},{"name":"api","depends_on":["9lives","with.dot"],"kind":"ui"},{"name":"x1","depends_on":["9lives","api","with.dot"]},{"name":"a-b","depends_on":["x1","9lives","api"],"kind":"library"},{"name":"under_score","depends_on":["a-b","9lives"]}],"batches":[["with.dot"],["9lives"],["api"],["x1"],["a-b"],["under_score"]]}}
+{"id":"bolt_dag-00245","out":{"ok":false,"reason":"malformed","detail":"depends_on: before any - name: entry"}}
+{"id":"bolt_dag-00246","out":{"ok":false,"reason":"malformed","detail":"kind: before any - name: entry"}}
+{"id":"bolt_dag-00247","out":{"ok":true,"units":[{"name":"api","depends_on":[],"kind":"ui"},{"name":"a","depends_on":[],"kind":"packaging"},{"name":"with.dot","depends_on":["a","api"]},{"name":"auth","depends_on":["api","a"],"kind":"library"},{"name":"web","depends_on":["with.dot","auth"]}],"batches":[["a","api"],["auth","with.dot"],["web"]]}}
+{"id":"bolt_dag-00248","out":{"ok":true,"units":[{"name":"store","depends_on":[],"kind":"library"},{"name":"under_score","depends_on":[]},{"name":"with.dot","depends_on":["under_score","store"]},{"name":"x1","depends_on":[],"kind":"service"},{"name":"9lives","depends_on":["x1"]},{"name":"api","depends_on":["x1","with.dot"]}],"batches":[["store","under_score","x1"],["9lives","with.dot"],["api"]]}}
+{"id":"bolt_dag-00249","out":{"ok":true,"units":[{"name":"a-b","depends_on":[]},{"name":"api","depends_on":[],"kind":"spec"}],"batches":[["a-b","api"]]}}
+{"id":"bolt_dag-00250","out":{"ok":true,"units":[{"name":"a","depends_on":[]}],"batches":[["a"]]}}
+{"id":"bolt_dag-00251","out":{"ok":true,"units":[{"name":"api","depends_on":[]}],"batches":[["api"]]}}
+{"id":"bolt_dag-00252","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: * name: with.dot"}}
+{"id":"bolt_dag-00253","out":{"ok":true,"units":[{"name":"auth","depends_on":[],"kind":"service"},{"name":"store","depends_on":["auth"]},{"name":"a-b","depends_on":[]},{"name":"web","depends_on":["auth","a-b","store"]},{"name":"a","depends_on":["store","auth"]}],"batches":[["a-b","auth"],["store"],["a","web"]]}}
+{"id":"bolt_dag-00254","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00255","out":{"ok":true,"units":[{"name":"with.dot","depends_on":[],"kind":"spec"},{"name":"store","depends_on":["with.dot"]},{"name":"9lives","depends_on":[]}],"batches":[["9lives","with.dot"],["store"]]}}
+{"id":"bolt_dag-00256","out":{"ok":false,"reason":"malformed","detail":"unit \"api\" has invalid kind \"\" (expected service|spec|ui|packaging|library)"}}
+{"id":"bolt_dag-00257","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00258","out":{"ok":true,"units":[{"name":"auth","depends_on":[]}],"batches":[["auth"]]}}
+{"id":"bolt_dag-00259","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: depends_on: ['it,s', \"g ost\" , a , \"wit1h.dot\"]"}}
+{"id":"bolt_dag-00260","out":{"ok":true,"units":[{"name":"with.dot","depends_on":[]}],"batches":[["with.dot"]]}}
+{"id":"bolt_dag-00261","out":{"ok":true,"units":[{"name":"under_score","depends_on":[]}],"batches":[["under_score"]]}}
+{"id":"bolt_dag-00262","out":{"ok":true,"units":[{"name":"auth","depends_on":[]},{"name":"under_score","depends_on":[]},{"name":"api","depends_on":["under_score"],"kind":"ui"}],"batches":[["auth","under_score"],["api"]]}}
+{"id":"bolt_dag-00263","out":{"ok":true,"units":[{"name":"web","depends_on":[]},{"name":"auth","depends_on":["web"]},{"name":"a-b","depends_on":["auth"],"kind":"spec"},{"name":"9lives","depends_on":[]},{"name":"x1","depends_on":[],"kind":"ui"}],"batches":[["9lives","web","x1"],["auth"],["a-b"]]}}
+{"id":"bolt_dag-00264","out":{"ok":true,"units":[{"name":"with.dot","depends_on":[]},{"name":"store","depends_on":[]},{"name":"a-b","depends_on":[]},{"name":"9lives","depends_on":[]},{"name":"auth","depends_on":[]},{"name":"x1","depends_on":["9lives"]}],"batches":[["9lives","a-b","auth","store","with.dot"],["x1"]]}}
+{"id":"bolt_dag-00265","out":{"ok":true,"units":[{"name":"web","depends_on":[]},{"name":"auth","depends_on":[],"kind":"packaging"},{"name":"a","depends_on":[]},{"name":"a-b","depends_on":["auth","a","web"]},{"name":"under_score","depends_on":["a-b","web","a"],"kind":"ui"},{"name":"with.dot","depends_on":["auth","a-b"],"kind":"packaging"}],"batches":[["a","auth","web"],["a-b"],["under_score","with.dot"]]}}
+{"id":"bolt_dag-00266","out":{"ok":false,"reason":"malformed","detail":"unit \"a-b\" has invalid kind \"Service\" (expected service|spec|ui|packaging|library)"}}
+{"id":"bolt_dag-00267","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00268","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: -name: store"}}
+{"id":"bolt_dag-00269","out":{"ok":false,"reason":"malformed","detail":"units: must be a block list, not an inline value"}}
+{"id":"bolt_dag-00270","out":{"ok":true,"units":[{"name":"store","depends_on":[]},{"name":"api","depends_on":[]},{"name":"with.dot","depends_on":[]}],"batches":[["api","store","with.dot"]]}}
+{"id":"bolt_dag-00271","out":{"ok":true,"units":[{"name":"x1","depends_on":[]},{"name":"auth","depends_on":[],"kind":"spec"},{"name":"api","depends_on":["auth","x1"],"kind":"service"},{"name":"web","depends_on":[],"kind":"ui"},{"name":"store","depends_on":[],"kind":"ui"}],"batches":[["auth","store","web","x1"],["api"]]}}
+{"id":"bolt_dag-00272","out":{"ok":true,"units":[{"name":"x1","depends_on":[]},{"name":"auth","depends_on":[]},{"name":"a-b","depends_on":[]},{"name":"under_score","depends_on":["auth"]}],"batches":[["a-b","auth","x1"],["under_score"]]}}
+{"id":"bolt_dag-00273","out":{"ok":true,"units":[{"name":"store","depends_on":[],"kind":"service"},{"name":"under_score","depends_on":["store"]},{"name":"a-b","depends_on":["store","under_score"]},{"name":"x1","depends_on":[]},{"name":"api","depends_on":["store"]}],"batches":[["store","x1"],["api","under_score"],["a-b"]]}}
+{"id":"bolt_dag-00274","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: \"``yaml"}}
+{"id":"bolt_dag-00275","out":{"ok":true,"units":[{"name":"a-b","depends_on":[]},{"name":"api","depends_on":["a-b"]},{"name":"web","depends_on":["a-b"]},{"name":"store","depends_on":["api"],"kind":"spec"},{"name":"a","depends_on":[]},{"name":"9lives","depends_on":[],"kind":"spec"}],"batches":[["9lives","a","a-b"],["api","web"],["store"]]}}
+{"id":"bolt_dag-00276","out":{"ok":true,"units":[{"name":"9lives","depends_on":[]},{"name":"with.dot","depends_on":[]},{"name":"web","depends_on":[]},{"name":"under_score","depends_on":[]}],"batches":[["9lives","under_score","web","with.dot"]]}}
+{"id":"bolt_dag-00277","out":{"ok":true,"units":[{"name":"api","depends_on":[]},{"name":"web","depends_on":[]},{"name":"with.dot","depends_on":[]},{"name":"a","depends_on":["api","web","with.dot"],"kind":"spec"},{"name":"under_score","depends_on":["a","web"],"kind":"service"},{"name":"store","depends_on":["with.dot"],"kind":"library"}],"batches":[["api","web","with.dot"],["a","store"],["under_score"]]}}
+{"id":"bolt_dag-00278","out":{"ok":false,"reason":"malformed","detail":"units: must be a block list, not an inline value"}}
+{"id":"bolt_dag-00279","out":{"ok":true,"units":[{"name":"under_score","depends_on":[]}],"batches":[["under_score"]]}}
+{"id":"bolt_dag-00280","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: ````"}}
+{"id":"bolt_dag-00281","out":{"ok":true,"units":[{"name":"api","depends_on":[]},{"name":"auth","depends_on":[]},{"name":"9lives","depends_on":["api"],"kind":"service"}],"batches":[["api","auth"],["9lives"]]}}
+{"id":"bolt_dag-00282","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: * name: 9lives"}}
+{"id":"bolt_dag-00283","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: * name: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}}
+{"id":"bolt_dag-00284","out":{"ok":true,"units":[{"name":"9lives","depends_on":[],"kind":"ui"},{"name":"x1","depends_on":[]},{"name":"a","depends_on":["9lives","x1"]},{"name":"with.dot","depends_on":["9lives","x1","a"]},{"name":"auth","depends_on":[]},{"name":"under_score","depends_on":["x1","with.dot","9lives"]}],"batches":[["9lives","auth","x1"],["a"],["with.dot"],["under_score"]]}}
+{"id":"bolt_dag-00285","out":{"ok":true,"units":[{"name":"a-b","depends_on":[],"kind":"library"},{"name":"under_score","depends_on":[],"kind":"ui"},{"name":"x1","depends_on":[],"kind":"ui"},{"name":"store","depends_on":[]},{"name":"a","depends_on":["a-b","under_score"]}],"batches":[["a-b","store","under_score","x1"],["a"]]}}
+{"id":"bolt_dag-00286","out":{"ok":true,"units":[{"name":"api","depends_on":[],"kind":"library"},{"name":"auth","depends_on":[],"kind":"service"},{"name":"x1","depends_on":["auth","api"]},{"name":"store","depends_on":["auth","x1","api"]},{"name":"web","depends_on":[]},{"name":"with.dot","depends_on":[]}],"batches":[["api","auth","web","with.dot"],["x1"],["store"]]}}
+{"id":"bolt_dag-00287","out":{"ok":true,"units":[{"name":"a-b","depends_on":[]},{"name":"x1","depends_on":["a-b"]},{"name":"under_score","depends_on":[]},{"name":"a","depends_on":[],"kind":"spec"}],"batches":[["a","a-b","under_score"],["x1"]]}}
+{"id":"bolt_dag-00288","out":{"ok":true,"units":[{"name":"auth","depends_on":[]},{"name":"x1","depends_on":[]},{"name":"a","depends_on":[],"kind":"spec"},{"name":"api","depends_on":[]}],"batches":[["a","api","auth","x1"]]}}
+{"id":"bolt_dag-00289","out":{"ok":true,"units":[{"name":"store","depends_on":[]},{"name":"api","depends_on":["store"],"kind":"spec"}],"batches":[["store"],["api"]]}}
+{"id":"bolt_dag-00290","out":{"ok":false,"reason":"malformed","detail":"units: must be a block list, not an inline value"}}
+{"id":"bolt_dag-00291","out":{"ok":true,"units":[{"name":"store","depends_on":[],"kind":"library"},{"name":"api","depends_on":[]},{"name":"with.dot","depends_on":["store"]},{"name":"a","depends_on":[]},{"name":"a-b","depends_on":[]}],"batches":[["a","a-b","api","store"],["with.dot"]]}}
+{"id":"bolt_dag-00292","out":{"ok":true,"units":[{"name":"under_score","depends_on":[]},{"name":"api","depends_on":[],"kind":"library"},{"name":"a","depends_on":["under_score","api"],"kind":"spec"}],"batches":[["api","under_score"],["a"]]}}
+{"id":"bolt_dag-00293","out":{"ok":true,"units":[{"name":"with.dot","depends_on":[]},{"name":"a-b","depends_on":["with.dot"],"kind":"ui"},{"name":"x1","depends_on":["a-b","with.dot"]},{"name":"auth","depends_on":[]}],"batches":[["auth","with.dot"],["a-b"],["x1"]]}}
+{"id":"bolt_dag-00294","out":{"ok":true,"units":[{"name":"x1","depends_on":[]},{"name":"a-b","depends_on":[],"kind":"spec"},{"name":"under_score","depends_on":[]},{"name":"web","depends_on":[]},{"name":"auth","depends_on":[]}],"batches":[["a-b","auth","under_score","web","x1"]]}}
+{"id":"bolt_dag-00295","out":{"ok":true,"units":[{"name":"x1","depends_on":[]},{"name":"a","depends_on":["x1"]},{"name":"under_score","depends_on":["a"]}],"batches":[["x1"],["a"],["under_score"]]}}
+{"id":"bolt_dag-00296","out":{"ok":false,"reason":"malformed","detail":"kind: before any - name: entry"}}
+{"id":"bolt_dag-00297","out":{"ok":true,"units":[{"name":"api","depends_on":[]},{"name":"web","depends_on":[]},{"name":"with.dot","depends_on":["web"]}],"batches":[["api","web"],["with.dot"]]}}
+{"id":"bolt_dag-00298","out":{"ok":true,"units":[{"name":"under_score","depends_on":[]},{"name":"x1","depends_on":["under_score"]},{"name":"a","depends_on":[]},{"name":"9lives","depends_on":[]},{"name":"api","depends_on":["a","9lives","x1"],"kind":"ui"}],"batches":[["9lives","a","under_score"],["x1"],["api"]]}}
+{"id":"bolt_dag-00299","out":{"ok":false,"reason":"malformed","detail":"kind: before any - name: entry"}}
+{"id":"bolt_dag-00300","out":{"ok":false,"reason":"absent","detail":"no fenced ```yaml units: block found"}}
+{"id":"bolt_dag-00301","out":{"ok":false,"reason":"malformed","detail":"units: block has no entries"}}
+{"id":"bolt_dag-00302","out":{"ok":false,"reason":"malformed","detail":"missing units: key"}}
+{"id":"bolt_dag-00303","out":{"ok":false,"reason":"cyclic","detail":"dependency cycle detected"}}
+{"id":"bolt_dag-00304","out":{"ok":false,"reason":"malformed","detail":"unit \"a\" depends on itself"}}
+{"id":"bolt_dag-00305","out":{"ok":true,"units":[{"name":"c","depends_on":[]},{"name":"b","depends_on":["c"]},{"name":"a","depends_on":[]},{"name":"d","depends_on":["a","b"]}],"batches":[["a","c"],["b"],["d"]]}}
+{"id":"bolt_dag-00306","out":{"ok":false,"reason":"malformed","detail":"depends_on: before any - name: entry"}}
+{"id":"bolt_dag-00307","out":{"ok":false,"reason":"malformed","detail":"kind: before any - name: entry"}}
+{"id":"bolt_dag-00308","out":{"ok":false,"reason":"malformed","detail":"duplicate unit name: a"}}
+{"id":"bolt_dag-00309","out":{"ok":false,"reason":"malformed","detail":"case-folding unit name collision: \"Api\" and \"api\""}}
+{"id":"bolt_dag-00310","out":{"ok":false,"reason":"malformed","detail":"unit \"a\" depends on unknown unit \"kind: ui\""}}
+{"id":"bolt_dag-00311","out":{"ok":false,"reason":"malformed","detail":"unit \"a\" depends on unknown unit \"\""}}
+{"id":"bolt_dag-00312","out":{"ok":false,"reason":"malformed","detail":"unit \"a\" depends on unknown unit \"\""}}
+{"id":"bolt_dag-00313","out":{"ok":false,"reason":"cyclic","detail":"dependency cycle detected"}}
+{"id":"bolt_dag-00314","out":{"ok":false,"reason":"cyclic","detail":"dependency cycle detected"}}
+{"id":"bolt_dag-00315","out":{"ok":false,"reason":"cyclic","detail":"dependency cycle detected"}}
+{"id":"bolt_dag-00316","out":{"ok":false,"reason":"malformed","detail":"Invalid Unit name \"a b\" - must match /^[A-Za-z0-9][A-Za-z0-9._-]*$/ (ASCII letter/digit, then ASCII letters/digits/dot/underscore/hyphen)"}}
+{"id":"bolt_dag-00317","out":{"ok":false,"reason":"malformed","detail":"Unit name \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...\" is 65 chars; max is 64"}}
+{"id":"bolt_dag-00318","out":{"ok":false,"reason":"malformed","detail":"Unit name \"😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀...\" is 66 chars; max is 64"}}
+{"id":"bolt_dag-00319","out":{"ok":false,"reason":"malformed","detail":"Unit name is empty"}}
+{"id":"bolt_dag-00320","out":{"ok":false,"reason":"malformed","detail":"Unit name is empty"}}
+{"id":"bolt_dag-00321","out":{"ok":false,"reason":"malformed","detail":"Invalid Unit name \"-a\" - must match /^[A-Za-z0-9][A-Za-z0-9._-]*$/ (ASCII letter/digit, then ASCII letters/digits/dot/underscore/hyphen)"}}
+{"id":"bolt_dag-00322","out":{"ok":false,"reason":"malformed","detail":"units: must be a block list, not an inline value"}}
+{"id":"bolt_dag-00323","out":{"ok":false,"reason":"malformed","detail":"unit \"a\" has invalid kind \"big\" (expected service|spec|ui|packaging|library)"}}
+{"id":"bolt_dag-00324","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: depends_on: []"}}
+{"id":"bolt_dag-00325","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: depends_on: [a]"}}
+{"id":"bolt_dag-00326","out":{"ok":true,"units":[{"name":"a","depends_on":[]}],"batches":[["a"]]}}
+{"id":"bolt_dag-00327","out":{"ok":true,"units":[{"name":"a","depends_on":[]}],"batches":[["a"]]}}
+{"id":"bolt_dag-00328","out":{"ok":false,"reason":"malformed","detail":"unit \"b\" depends on unknown unit \"a\\\""}}
+{"id":"bolt_dag-00329","out":{"ok":true,"units":[{"name":"a","depends_on":[]},{"name":"b","depends_on":[]}],"batches":[["a","b"]]}}
+{"id":"bolt_dag-00330","out":{"ok":false,"reason":"malformed","detail":"unit \"b\" depends on unknown unit \"x\\\"]\""}}
+{"id":"bolt_dag-00331","out":{"ok":false,"reason":"malformed","detail":"unrecognised line in units block: note: x"}}
+{"id":"bolt_dag-00332","out":{"ok":false,"reason":"malformed","detail":"unit \"a\" depends on unknown unit \"ghost\""}}

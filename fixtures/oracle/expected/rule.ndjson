@@ -1,0 +1,127 @@
+{"id":"rule-00000","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00001","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00002","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00003","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00004","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00005","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00006","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00007","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00008","out":{"frontmatter":{"pairing":"active"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"active\""}}
+{"id":"rule-00009","out":{"frontmatter":{"status":"Active","stale_after":"feedforward-only"},"invalid":"FILE: status must be one of \"active\", \"deprecated\", or \"draft\"; got \"Active\""}}
+{"id":"rule-00010","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00011","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00012","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00013","out":{"frontmatter":{"pairing":"26-01-01","status":"2026-02-28","stale_after":"feedforward-only"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"26-01-01\""}}
+{"id":"rule-00014","out":{"frontmatter":{"pairing":"2026-06-30 # note","status":"2026-04-31","stale_after":"deprecated"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"2026-06-30 # note\""}}
+{"id":"rule-00015","out":{"frontmatter":{"pairing":"2026-02-28","status":"2024-02-29"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"2026-02-28\""}}
+{"id":"rule-00016","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00017","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00018","out":{"frontmatter":{"pairing":"2026-02-28","status":"2026-00-10"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"2026-02-28\""}}
+{"id":"rule-00019","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00020","out":{"frontmatter":{"pairing":"2026-1-1"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"2026-1-1\""}}
+{"id":"rule-00021","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00022","out":{"frontmatter":{"stale_after":">2"},"invalid":"FILE: stale_after must be a real calendar date in YYYY-MM-DD format; got \">2\""}}
+{"id":"rule-00023","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00024","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00025","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00026","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00027","out":{"frontmatter":{"pairing":"deprecated","stale_after":"pairing:deprecated"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"deprecated\""}}
+{"id":"rule-00028","out":{"frontmatter":{"pairing":"linter","status":"2026-02-28","stale_after":"2024-02-29"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"linter\""}}
+{"id":"rule-00029","out":{"frontmatter":{"status":"26-01-01","stale_after":""},"invalid":"FILE: status must be one of \"active\", \"deprecated\", or \"draft\"; got \"26-01-01\""}}
+{"id":"rule-00030","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00031","out":{"frontmatter":{"pairing":"focus-linter","status":"stale_after:  deprecated","stale_after":"deprecated"},"invalid":"FILE: status must be one of \"active\", \"deprecated\", or \"draft\"; got \"stale_after:  deprecated\""}}
+{"id":"rule-00032","out":{"frontmatter":{"pairing":"draft","status":"2026-04-31"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"draft\""}}
+{"id":"rule-00033","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00034","out":{"frontmatter":{"pairing":"2026-02-29","status":"linter","stale_after":"Active"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"2026-02-29\""}}
+{"id":"rule-00035","out":{"frontmatter":{"pairing":"deprecated","stale_after":"focus-linter"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"deprecated\""}}
+{"id":"rule-00036","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00037","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00038","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00039","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00040","out":{"frontmatter":{"pairing":"deprecated","status":"focus-x","stale_after":"2026-13-01"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"deprecated\""}}
+{"id":"rule-00041","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00042","out":{"frontmatter":{"pairing":"2026-02-29","status":"deprecated","stale_after":"0000-01-01"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"2026-02-29\""}}
+{"id":"rule-00043","out":{"frontmatter":{"pairing":"draft","status":"2026-02-29"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"draft\""}}
+{"id":"rule-00044","out":{"frontmatter":{"status":"2026-06-30 # note","stale_after":""},"invalid":"FILE: status must be one of \"active\", \"deprecated\", or \"draft\"; got \"2026-06-30 # note\""}}
+{"id":"rule-00045","out":{"frontmatter":{"stale_after":"2026-1-1"},"invalid":"FILE: stale_after must be a real calendar date in YYYY-MM-DD format; got \"2026-1-1\""}}
+{"id":"rule-00046","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00047","out":{"frontmatter":{"pairing":"2026-02-29","stale_after":"focus-x"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"2026-02-29\""}}
+{"id":"rule-00048","out":{"frontmatter":{"pairing":"deprecated","status":"focus-linter","stale_after":"draft"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"deprecated\""}}
+{"id":"rule-00049","out":{"frontmatter":{"status":"2026-02-29","stale_after":"2026k04-31"},"invalid":"FILE: status must be one of \"active\", \"deprecated\", or \"draft\"; got \"2026-02-29\""}}
+{"id":"rule-00050","out":{"frontmatter":{"pairing":"26-01-01","stale_after":"focus-linter"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"26-01-01\""}}
+{"id":"rule-00051","out":{"frontmatter":{"pairing":"deprecated","stale_after":"2026-13-01"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"deprecated\""}}
+{"id":"rule-00052","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00053","out":{"frontmatter":{"pairing":"active","stale_after":"Active"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"active\""}}
+{"id":"rule-00054","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00055","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00056","out":{"frontmatter":{"status":"2026-00-10"},"invalid":"FILE: status must be one of \"active\", \"deprecated\", or \"draft\"; got \"2026-00-10\""}}
+{"id":"rule-00057","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00058","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00059","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00060","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00061","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00062","out":{"frontmatter":{"stale_after":"deprecated"},"invalid":"FILE: stale_after must be a real calendar date in YYYY-MM-DD format; got \"deprecated\""}}
+{"id":"rule-00063","out":{"frontmatter":{"pairing":"2026-02-29","status":"focus-linter","stale_after":"2026-02-28"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"2026-02-29\""}}
+{"id":"rule-00064","out":{"frontmatter":{"status":"2026-04-31","stale_after":"2026-13-01"},"invalid":"FILE: status must be one of \"active\", \"deprecated\", or \"draft\"; got \"2026-04-31\""}}
+{"id":"rule-00065","out":{"frontmatter":{"pairing":"Active","status":""},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"Active\""}}
+{"id":"rule-00066","out":{"frontmatter":{"status":""},"invalid":"FILE: status must be one of \"active\", \"deprecated\", or \"draft\"; got \"\""}}
+{"id":"rule-00067","out":{"frontmatter":{"pairing":"9999-12-31","status":"0000-01-01"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"9999-12-31\""}}
+{"id":"rule-00068","out":{"frontmatter":{"pairing":"linter","status":"26-01-01","stale_after":"feedforward-only"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"linter\""}}
+{"id":"rule-00069","out":{"frontmatter":{"pairing":"status:","status":""},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"status:\""}}
+{"id":"rule-00070","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00071","out":{"frontmatter":{"pairing":"2[024-02-29","status":"Active"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"2[024-02-29\""}}
+{"id":"rule-00072","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00073","out":{"frontmatter":{"status":"piring:"},"invalid":"FILE: status must be one of \"active\", \"deprecated\", or \"draft\"; got \"piring:\""}}
+{"id":"rule-00074","out":{"frontmatter":{"pairing":"2026-04-31"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"2026-04-31\""}}
+{"id":"rule-00075","out":{"frontmatter":{"status":"draft","stale_after":"focus-linter"},"invalid":"FILE: stale_after must be a real calendar date in YYYY-MM-DD format; got \"focus-linter\""}}
+{"id":"rule-00076","out":{"frontmatter":{"pairing":"2026-04-31","status":"26-01-01"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"2026-04-31\""}}
+{"id":"rule-00077","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00078","out":{"frontmatter":{"pairing":"tale_after:\"focus-x\"","status":""},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"tale_after:\"focus-x\"\""}}
+{"id":"rule-00079","out":{"frontmatter":{"pairing":"2026-00-10","status":"2026-13-01","stale_after":"0000-01-01"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"2026-00-10\""}}
+{"id":"rule-00080","out":{"frontmatter":{"pairing":"focus-linter","status":"Active","stale_after":"active"},"invalid":"FILE: status must be one of \"active\", \"deprecated\", or \"draft\"; got \"Active\""}}
+{"id":"rule-00081","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00082","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00083","out":{"frontmatter":{"pairing":"2026--1-1"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"2026--1-1\""}}
+{"id":"rule-00084","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00085","out":{"frontmatter":{"pairing":"2026-13-01","status":"2026-06-30 # note"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"2026-13-01\""}}
+{"id":"rule-00086","out":{"frontmatter":{"pairing":"linter","status":"2026-04-31","stale_after":"Active"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"linter\""}}
+{"id":"rule-00087","out":{"frontmatter":{"status":"feedforward-only","stale_after":"2026-13-01"},"invalid":"FILE: status must be one of \"active\", \"deprecated\", or \"draft\"; got \"feedforward-only\""}}
+{"id":"rule-00088","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00089","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00090","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00091","out":{"frontmatter":{"pairing":"2026-02-2"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"2026-02-2\""}}
+{"id":"rule-00092","out":{"frontmatter":{"status":"linter"},"invalid":"FILE: status must be one of \"active\", \"deprecated\", or \"draft\"; got \"linter\""}}
+{"id":"rule-00093","out":{"frontmatter":{"stale_after":":deprecated"},"invalid":"FILE: stale_after must be a real calendar date in YYYY-MM-DD format; got \":deprecated\""}}
+{"id":"rule-00094","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00095","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00096","out":{"frontmatter":{"pairing":"2024-02-29","status":"2026-04-31","stale_after":"draft"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"2024-02-29\""}}
+{"id":"rule-00097","out":{"frontmatter":{"status":"2026-02-29"},"invalid":"FILE: status must be one of \"active\", \"deprecated\", or \"draft\"; got \"2026-02-29\""}}
+{"id":"rule-00098","out":{"frontmatter":{"pairing":"d","status":"feedforward-only"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"d\""}}
+{"id":"rule-00099","out":{"frontmatter":{"pairing":"linter","status":"2026-13-01","stale_after":"deprecated"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"linter\""}}
+{"id":"rule-00100","out":{"frontmatter":{"pairing":"linter","status":"focus-x","stale_after":"2026-02-29"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"linter\""}}
+{"id":"rule-00101","out":{"frontmatter":{"status":"","stale_after":"focus-x"},"invalid":"FILE: status must be one of \"active\", \"deprecated\", or \"draft\"; got \"\""}}
+{"id":"rule-00102","out":{"frontmatter":{"status":"linter"},"invalid":"FILE: status must be one of \"active\", \"deprecated\", or \"draft\"; got \"linter\""}}
+{"id":"rule-00103","out":{"frontmatter":{"status":"2026-02-29"},"invalid":"FILE: status must be one of \"active\", \"deprecated\", or \"draft\"; got \"2026-02-29\""}}
+{"id":"rule-00104","out":{"frontmatter":{"status":"","stale_after":"2024-02-29"},"invalid":"FILE: status must be one of \"active\", \"deprecated\", or \"draft\"; got \"\""}}
+{"id":"rule-00105","out":{"frontmatter":{"status":"2026-02-29","stale_after":"status: 2026-02-29"},"invalid":"FILE: status must be one of \"active\", \"deprecated\", or \"draft\"; got \"2026-02-29\""}}
+{"id":"rule-00106","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00107","out":{"frontmatter":{"pairing":"focus-x","stale_after":"pairing:\"focus-x\""},"invalid":"FILE: stale_after must be a real calendar date in YYYY-MM-DD format; got \"pairing:\"focus-x\"\""}}
+{"id":"rule-00108","out":{"frontmatter":{"pairing":"2026-00-10","stale_after":"2026-00-10"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"2026-00-10\""}}
+{"id":"rule-00109","out":{"frontmatter":{"pairing":"2026-13-01","status":"2026-06-30 # note","stale_after":""},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"2026-13-01\""}}
+{"id":"rule-00110","out":{"frontmatter":{"pairing":"0000-01-01","status":"2024-02-29#"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"0000-01-01\""}}
+{"id":"rule-00111","out":{"frontmatter":{"pairing":"focus-linter"},"invalid":null}}
+{"id":"rule-00112","out":{"frontmatter":{"pairing":"deprecated","status":"focus-linter"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"deprecated\""}}
+{"id":"rule-00113","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00114","out":{"frontmatter":{"pairing":"2026-02-29","status":"2026-02-29","stale_after":"2026-00-10"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"2026-02-29\""}}
+{"id":"rule-00115","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00116","out":{"frontmatter":{"pairing":"feedforward-only","status":"2026-02-29","stale_after":"pairing:feedforward-only"},"invalid":"FILE: status must be one of \"active\", \"deprecated\", or \"draft\"; got \"2026-02-29\""}}
+{"id":"rule-00117","out":{"frontmatter":{"status":""},"invalid":"FILE: status must be one of \"active\", \"deprecated\", or \"draft\"; got \"\""}}
+{"id":"rule-00118","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00119","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00120","out":{"frontmatter":{"status":"2026-04[31","stale_after":"2026-1-1"},"invalid":"FILE: status must be one of \"active\", \"deprecated\", or \"draft\"; got \"2026-04[31\""}}
+{"id":"rule-00121","out":{"frontmatter":{"status":"linter"},"invalid":"FILE: status must be one of \"active\", \"deprecated\", or \"draft\"; got \"linter\""}}
+{"id":"rule-00122","out":{"frontmatter":{"pairing":"2026-02-29","status":"deprecated","stale_after":"draft"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"2026-02-29\""}}
+{"id":"rule-00123","out":{"frontmatter":{"pairing":"2026-04-31","status":"linter","stale_after":"2026-04-31"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"2026-04-31\""}}
+{"id":"rule-00124","out":{"frontmatter":{},"invalid":null}}
+{"id":"rule-00125","out":{"frontmatter":{"pairing":"0000-01-01","stale_after":"focus-x"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"0000-01-01\""}}
+{"id":"rule-00126","out":{"frontmatter":{"pairing":"other:2026-13-01","status":"linter","stale_after":"2026-13-01"},"invalid":"FILE: pairing must be \"feedforward-only\" or start with \"focus-\" (sensor id shape); got \"other:2026-13-01\""}}

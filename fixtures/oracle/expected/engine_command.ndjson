@@ -1,0 +1,453 @@
+{"id":"engine_command-00000","out":{"classify":"fire","literal":{"directory":null,"command":"bun .claude/tools/focus.ts engine state approve x","argv":["bun",".claude/tools/focus.ts","engine","state","approve","x"],"rawWords":["bun",".claude/tools/focus.ts","engine","state","approve","x"]},"verb":null}}
+{"id":"engine_command-00001","out":{"classify":"fire","literal":{"directory":null,"command":"bun '/p q/.claude/tools/focus.ts' engine orchestrate help","argv":["bun","/p q/.claude/tools/focus.ts","engine","orchestrate","help"],"rawWords":["bun","'/p q/.claude/tools/focus.ts'","engine","orchestrate","help"]},"verb":null}}
+{"id":"engine_command-00002","out":{"classify":"reject","literal":{"directory":null,"command":"bun \"/p/.kiro\\tools\\focus.ts\" engine runtime compile","argv":["bun","/p/.kiro\\tools\\focus.ts","engine","runtime","compile"],"rawWords":["bun","\"/p/.kiro\\tools\\focus.ts\"","engine","runtime","compile"]},"verb":null}}
+{"id":"engine_command-00003","out":{"classify":"reject","literal":null,"verb":null}}
+{"id":"engine_command-00004","out":{"classify":"reject","literal":{"directory":null,"command":"focus engine runtime compile","argv":["focus","engine","runtime","compile"],"rawWords":["focus","engine","runtime","compile"]},"verb":null}}
+{"id":"engine_command-00005","out":{"classify":"pass","literal":{"directory":null,"command":"echo 'focus engine runtime compile'","argv":["echo","focus engine runtime compile"],"rawWords":["echo","'focus engine runtime compile'"]},"verb":null}}
+{"id":"engine_command-00006","out":{"classify":"reject","literal":null,"verb":null}}
+{"id":"engine_command-00007","out":{"classify":"fire","literal":{"directory":null,"command":"bun .claude/tools/focus-utility.ts status","argv":["bun",".claude/tools/focus-utility.ts","status"],"rawWords":["bun",".claude/tools/focus-utility.ts","status"]},"verb":null}}
+{"id":"engine_command-00008","out":{"classify":"fire","literal":{"directory":null,"command":"bun .claude/tools/focus-orchestrate.ts report --result done","argv":["bun",".claude/tools/focus-orchestrate.ts","report","--result","done"],"rawWords":["bun",".claude/tools/focus-orchestrate.ts","report","--result","done"]},"verb":"report"}}
+{"id":"engine_command-00009","out":{"classify":"pass","literal":{"directory":null,"command":"bun .claude/tools/focus-orchestrate.ts next","argv":["bun",".claude/tools/focus-orchestrate.ts","next"],"rawWords":["bun",".claude/tools/focus-orchestrate.ts","next"]},"verb":"next"}}
+{"id":"engine_command-00010","out":{"classify":"fire","literal":null,"verb":null}}
+{"id":"engine_command-00011","out":{"classify":"fire","literal":{"directory":null,"command":"focus next report","argv":["focus","next","report"],"rawWords":["focus","next","report"]},"verb":"next"}}
+{"id":"engine_command-00012","out":{"classify":"fire","literal":{"directory":null,"command":"focus engine orchestrate report","argv":["focus","engine","orchestrate","report"],"rawWords":["focus","engine","orchestrate","report"]},"verb":"report"}}
+{"id":"engine_command-00013","out":{"classify":"fire","literal":{"directory":null,"command":"focus scope change","argv":["focus","scope","change"],"rawWords":["focus","scope","change"]},"verb":null}}
+{"id":"engine_command-00014","out":{"classify":"fire","literal":{"directory":null,"command":"focus config set x y","argv":["focus","config","set","x","y"],"rawWords":["focus","config","set","x","y"]},"verb":null}}
+{"id":"engine_command-00015","out":{"classify":"pass","literal":{"directory":null,"command":"focus config get x","argv":["focus","config","get","x"],"rawWords":["focus","config","get","x"]},"verb":null}}
+{"id":"engine_command-00016","out":{"classify":"pass","literal":{"directory":null,"command":"focus intent create","argv":["focus","intent","create"],"rawWords":["focus","intent","create"]},"verb":null}}
+{"id":"engine_command-00017","out":{"classify":"pass","literal":{"directory":null,"command":"focus workspace status","argv":["focus","workspace","status"],"rawWords":["focus","workspace","status"]},"verb":null}}
+{"id":"engine_command-00018","out":{"classify":"fire","literal":{"directory":null,"command":"focus unit","argv":["focus","unit"],"rawWords":["focus","unit"]},"verb":null}}
+{"id":"engine_command-00019","out":{"classify":"fire","literal":{"directory":null,"command":"focus recompose","argv":["focus","recompose"],"rawWords":["focus","recompose"]},"verb":null}}
+{"id":"engine_command-00020","out":{"classify":"pass","literal":{"directory":null,"command":"focusx state","argv":["focusx","state"],"rawWords":["focusx","state"]},"verb":null}}
+{"id":"engine_command-00021","out":{"classify":"pass","literal":{"directory":null,"command":"xfocus state","argv":["xfocus","state"],"rawWords":["xfocus","state"]},"verb":null}}
+{"id":"engine_command-00022","out":{"classify":"pass","literal":{"directory":"/p","command":"focus next","argv":["focus","next"],"rawWords":["focus","next"]},"verb":"next"}}
+{"id":"engine_command-00023","out":{"classify":"pass","literal":{"directory":"/p","command":"bun .claude/tools/focus.ts engine orchestrate continue","argv":["bun",".claude/tools/focus.ts","engine","orchestrate","continue"],"rawWords":["bun",".claude/tools/focus.ts","engine","orchestrate","continue"]},"verb":"continue"}}
+{"id":"engine_command-00024","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00025","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00026","out":{"classify":"fire","literal":{"directory":null,"command":"env X=1 focus report","argv":["env","X=1","focus","report"],"rawWords":["env","X=1","focus","report"]},"verb":"report"}}
+{"id":"engine_command-00027","out":{"classify":"pass","literal":{"directory":null,"command":"env -i focus park","argv":["env","-i","focus","park"],"rawWords":["env","-i","focus","park"]},"verb":null}}
+{"id":"engine_command-00028","out":{"classify":"pass","literal":{"directory":null,"command":"env -- focus next","argv":["env","--","focus","next"],"rawWords":["env","--","focus","next"]},"verb":"next"}}
+{"id":"engine_command-00029","out":{"classify":"pass","literal":{"directory":null,"command":"command focus next","argv":["command","focus","next"],"rawWords":["command","focus","next"]},"verb":"next"}}
+{"id":"engine_command-00030","out":{"classify":"pass","literal":{"directory":null,"command":"command -v focus next","argv":["command","-v","focus","next"],"rawWords":["command","-v","focus","next"]},"verb":null}}
+{"id":"engine_command-00031","out":{"classify":"pass","literal":{"directory":null,"command":"exec -- focus next","argv":["exec","--","focus","next"],"rawWords":["exec","--","focus","next"]},"verb":"next"}}
+{"id":"engine_command-00032","out":{"classify":"pass","literal":{"directory":null,"command":"exec -x focus next","argv":["exec","-x","focus","next"],"rawWords":["exec","-x","focus","next"]},"verb":null}}
+{"id":"engine_command-00033","out":{"classify":"pass","literal":{"directory":null,"command":"X=1 bun .claude/tools/focus-orchestrate.ts next","argv":["X=1","bun",".claude/tools/focus-orchestrate.ts","next"],"rawWords":["X=1","bun",".claude/tools/focus-orchestrate.ts","next"]},"verb":"next"}}
+{"id":"engine_command-00034","out":{"classify":"pass","literal":{"directory":null,"command":"node .claude/tools/focus.ts engine orchestrate next","argv":["node",".claude/tools/focus.ts","engine","orchestrate","next"],"rawWords":["node",".claude/tools/focus.ts","engine","orchestrate","next"]},"verb":null}}
+{"id":"engine_command-00035","out":{"classify":"pass","literal":{"directory":null,"command":"bun .gemini/tools/focus.ts engine orchestrate next","argv":["bun",".gemini/tools/focus.ts","engine","orchestrate","next"],"rawWords":["bun",".gemini/tools/focus.ts","engine","orchestrate","next"]},"verb":null}}
+{"id":"engine_command-00036","out":{"classify":"pass","literal":{"directory":null,"command":"bun focus.ts engine orchestrate next","argv":["bun","focus.ts","engine","orchestrate","next"],"rawWords":["bun","focus.ts","engine","orchestrate","next"]},"verb":null}}
+{"id":"engine_command-00037","out":{"classify":"pass","literal":{"directory":null,"command":"focus.ts engine orchestrate next","argv":["focus.ts","engine","orchestrate","next"],"rawWords":["focus.ts","engine","orchestrate","next"]},"verb":null}}
+{"id":"engine_command-00038","out":{"classify":"pass","literal":{"directory":null,"command":"focus --project-dir /p next","argv":["focus","--project-dir","/p","next"],"rawWords":["focus","--project-dir","/p","next"]},"verb":"next"}}
+{"id":"engine_command-00039","out":{"classify":"pass","literal":{"directory":null,"command":"focus --project-dir","argv":["focus","--project-dir"],"rawWords":["focus","--project-dir"]},"verb":null}}
+{"id":"engine_command-00040","out":{"classify":"pass","literal":{"directory":null,"command":"focus --project-dir=/p engine orchestrate next --focus-attempt-id a1","argv":["focus","--project-dir=/p","engine","orchestrate","next","--focus-attempt-id","a1"],"rawWords":["focus","--project-dir=/p","engine","orchestrate","next","--focus-attempt-id","a1"]},"verb":"next"}}
+{"id":"engine_command-00041","out":{"classify":"pass","literal":{"directory":null,"command":"focus engine orchestrate next --focus-attempt-id","argv":["focus","engine","orchestrate","next","--focus-attempt-id"],"rawWords":["focus","engine","orchestrate","next","--focus-attempt-id"]},"verb":null}}
+{"id":"engine_command-00042","out":{"classify":"pass","literal":{"directory":null,"command":"focus orchestrate --json next","argv":["focus","orchestrate","--json","next"],"rawWords":["focus","orchestrate","--json","next"]},"verb":"next"}}
+{"id":"engine_command-00043","out":{"classify":"pass","literal":{"directory":null,"command":"focus -- next","argv":["focus","--","next"],"rawWords":["focus","--","next"]},"verb":null}}
+{"id":"engine_command-00044","out":{"classify":"pass","literal":{"directory":null,"command":"focus next -- --json","argv":["focus","next","--","--json"],"rawWords":["focus","next","--","--json"]},"verb":"next"}}
+{"id":"engine_command-00045","out":{"classify":"pass","literal":{"directory":null,"command":"bun .claude/tools/focus-orchestrate.ts --json next","argv":["bun",".claude/tools/focus-orchestrate.ts","--json","next"],"rawWords":["bun",".claude/tools/focus-orchestrate.ts","--json","next"]},"verb":null}}
+{"id":"engine_command-00046","out":{"classify":"pass","literal":{"directory":null,"command":"bun .claude/tools/focus-orchestrate.ts --project-dir /p next","argv":["bun",".claude/tools/focus-orchestrate.ts","--project-dir","/p","next"],"rawWords":["bun",".claude/tools/focus-orchestrate.ts","--project-dir","/p","next"]},"verb":"next"}}
+{"id":"engine_command-00047","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00048","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00049","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00050","out":{"classify":"pass","literal":{"directory":null,"command":"focus 'next'","argv":["focus","next"],"rawWords":["focus","'next'"]},"verb":"next"}}
+{"id":"engine_command-00051","out":{"classify":"pass","literal":{"directory":null,"command":"focus \"next\"","argv":["focus","next"],"rawWords":["focus","\"next\""]},"verb":"next"}}
+{"id":"engine_command-00052","out":{"classify":"pass","literal":{"directory":null,"command":"focus \"ne\\\"xt\"","argv":["focus","ne\"xt"],"rawWords":["focus","\"ne\\\"xt\""]},"verb":null}}
+{"id":"engine_command-00053","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00054","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00055","out":{"classify":"pass","literal":{"directory":null,"command":"focus x~","argv":["focus","x~"],"rawWords":["focus","x~"]},"verb":null}}
+{"id":"engine_command-00056","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00057","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00058","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00059","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00060","out":{"classify":"pass","literal":{"directory":null,"command":"focus\tnext","argv":["focus","next"],"rawWords":["focus","next"]},"verb":"next"}}
+{"id":"engine_command-00061","out":{"classify":"pass","literal":{"directory":null,"command":"focus next","argv":["focus","next"],"rawWords":["focus","next"]},"verb":"next"}}
+{"id":"engine_command-00062","out":{"classify":"pass","literal":{"directory":null,"command":"focus next","argv":["focus","next"],"rawWords":["focus","next"]},"verb":"next"}}
+{"id":"engine_command-00063","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00064","out":{"classify":"pass","literal":{"directory":null,"command":"focus next","argv":["focus","next"],"rawWords":["focus","next"]},"verb":"next"}}
+{"id":"engine_command-00065","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00066","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00067","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00068","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00069","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00070","out":{"classify":"pass","literal":{"directory":"/p q","command":"focus next","argv":["focus","next"],"rawWords":["focus","next"]},"verb":"next"}}
+{"id":"engine_command-00071","out":{"classify":"pass","literal":{"directory":"C:\\p","command":"focus next","argv":["focus","next"],"rawWords":["focus","next"]},"verb":"next"}}
+{"id":"engine_command-00072","out":{"classify":"pass","literal":{"directory":"C:/p","command":"focus next","argv":["focus","next"],"rawWords":["focus","next"]},"verb":"next"}}
+{"id":"engine_command-00073","out":{"classify":"pass","literal":{"directory":"\\\\srv\\share","command":"focus next","argv":["focus","next"],"rawWords":["focus","next"]},"verb":"next"}}
+{"id":"engine_command-00074","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00075","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00076","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00077","out":{"classify":"pass","literal":{"directory":null,"command":"bun .claude/tools/focus.ts engine","argv":["bun",".claude/tools/focus.ts","engine"],"rawWords":["bun",".claude/tools/focus.ts","engine"]},"verb":null}}
+{"id":"engine_command-00078","out":{"classify":"pass","literal":{"directory":null,"command":"bun .claude/tools/focus.ts","argv":["bun",".claude/tools/focus.ts"],"rawWords":["bun",".claude/tools/focus.ts"]},"verb":null}}
+{"id":"engine_command-00079","out":{"classify":"pass","literal":{"directory":null,"command":"focus","argv":["focus"],"rawWords":["focus"]},"verb":null}}
+{"id":"engine_command-00080","out":{"classify":"pass","literal":{"directory":null,"command":"focus engine","argv":["focus","engine"],"rawWords":["focus","engine"]},"verb":null}}
+{"id":"engine_command-00081","out":{"classify":"pass","literal":{"directory":null,"command":"focus engine orchestrate","argv":["focus","engine","orchestrate"],"rawWords":["focus","engine","orchestrate"]},"verb":null}}
+{"id":"engine_command-00082","out":{"classify":"pass","literal":{"directory":null,"command":"focus orchestrate next","argv":["focus","orchestrate","next"],"rawWords":["focus","orchestrate","next"]},"verb":"next"}}
+{"id":"engine_command-00083","out":{"classify":"pass","literal":{"directory":null,"command":"focus continue","argv":["focus","continue"],"rawWords":["focus","continue"]},"verb":"continue"}}
+{"id":"engine_command-00084","out":{"classify":"pass","literal":{"directory":null,"command":"focus park","argv":["focus","park"],"rawWords":["focus","park"]},"verb":"park"}}
+{"id":"engine_command-00085","out":{"classify":"pass","literal":{"directory":null,"command":"focus swarm x","argv":["focus","swarm","x"],"rawWords":["focus","swarm","x"]},"verb":null}}
+{"id":"engine_command-00086","out":{"classify":"fire","literal":{"directory":null,"command":"focus bolt create","argv":["focus","bolt","create"],"rawWords":["focus","bolt","create"]},"verb":null}}
+{"id":"engine_command-00087","out":{"classify":"pass","literal":{"directory":null,"command":"bun .claude/tools/focus-swarm.ts next","argv":["bun",".claude/tools/focus-swarm.ts","next"],"rawWords":["bun",".claude/tools/focus-swarm.ts","next"]},"verb":null}}
+{"id":"engine_command-00088","out":{"classify":"fire","literal":{"directory":null,"command":"bun .claude/tools/focus-state.ts next","argv":["bun",".claude/tools/focus-state.ts","next"],"rawWords":["bun",".claude/tools/focus-state.ts","next"]},"verb":null}}
+{"id":"engine_command-00089","out":{"classify":"fire","literal":{"directory":null,"command":"bun .claude/tools/focus-jump.ts resolve","argv":["bun",".claude/tools/focus-jump.ts","resolve"],"rawWords":["bun",".claude/tools/focus-jump.ts","resolve"]},"verb":null}}
+{"id":"engine_command-00090","out":{"classify":"pass","literal":{"directory":null,"command":"sudo focus next","argv":["sudo","focus","next"],"rawWords":["sudo","focus","next"]},"verb":null}}
+{"id":"engine_command-00091","out":{"classify":"pass","literal":{"directory":null,"command":"sh -c 'focus next'","argv":["sh","-c","focus next"],"rawWords":["sh","-c","'focus next'"]},"verb":null}}
+{"id":"engine_command-00092","out":{"classify":"pass","literal":{"directory":null,"command":"bash focus next","argv":["bash","focus","next"],"rawWords":["bash","focus","next"]},"verb":null}}
+{"id":"engine_command-00093","out":{"classify":"pass","literal":{"directory":null,"command":"env -- ls -la next execute --status","argv":["env","--","ls","-la","next","execute","--status"],"rawWords":["env","--","ls","-la","next","execute","--status"]},"verb":null}}
+{"id":"engine_command-00094","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00095","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00096","out":{"classify":"pass","literal":{"directory":null,"command":"bun \"a/b/.gemini\\tools\\focus-state.ts\" engine jump help","argv":["bun","a/b/.gemini\\tools\\focus-state.ts","engine","jump","help"],"rawWords":["bun","\"a/b/.gemini\\tools\\focus-state.ts\"","engine","jump","help"]},"verb":null}}
+{"id":"engine_command-00097","out":{"classify":"pass","literal":{"directory":null,"command":"FOCUS orchestrate --json --","argv":["FOCUS","orchestrate","--json","--"],"rawWords":["FOCUS","orchestrate","--json","--"]},"verb":null}}
+{"id":"engine_command-00098","out":{"classify":"fire","literal":{"directory":null,"command":"bun C:/p/.codex/tools/focus-jump.ts engine continue help","argv":["bun","C:/p/.codex/tools/focus-jump.ts","engine","continue","help"],"rawWords":["bun","C:/p/.codex/tools/focus-jump.ts","engine","continue","help"]},"verb":null}}
+{"id":"engine_command-00099","out":{"classify":"pass","literal":{"directory":null,"command":"echo runtime create resolve","argv":["echo","runtime","create","resolve"],"rawWords":["echo","runtime","create","resolve"]},"verb":null}}
+{"id":"engine_command-00100","out":{"classify":"pass","literal":{"directory":"/p","command":"env ./focus engine report","argv":["env","./focus","engine","report"],"rawWords":["env","./focus","engine","report"]},"verb":"report"}}
+{"id":"engine_command-00101","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00102","out":{"classify":"pass","literal":{"directory":null,"command":"focus engine next compile compile","argv":["focus","engine","next","compile","compile"],"rawWords":["focus","engine","next","compile","compile"]},"verb":"next"}}
+{"id":"engine_command-00103","out":{"classify":"fire","literal":{"directory":null,"command":"focus  version help 'q' resolve","argv":["focus","version","help","q","resolve"],"rawWords":["focus","version","help","'q'","resolve"]},"verb":null}}
+{"id":"engine_command-00104","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00105","out":{"classify":"pass","literal":{"directory":null,"command":"ls -la park help --focus-attempt-id","argv":["ls","-la","park","help","--focus-attempt-id"],"rawWords":["ls","-la","park","help","--focus-attempt-id"]},"verb":null}}
+{"id":"engine_command-00106","out":{"classify":"fire","literal":{"directory":null,"command":"bun /p/.codex/tools/focus-orchestrate.ts report change --json compile","argv":["bun","/p/.codex/tools/focus-orchestrate.ts","report","change","--json","compile"],"rawWords":["bun","/p/.codex/tools/focus-orchestrate.ts","report","change","--json","compile"]},"verb":"report"}}
+{"id":"engine_command-00107","out":{"classify":"pass","literal":{"directory":null,"command":"echo config","argv":["echo","config"],"rawWords":["echo","config"]},"verb":null}}
+{"id":"engine_command-00108","out":{"classify":"pass","literal":{"directory":null,"command":"ls  -la engine intent --verbose approve a","argv":["ls","-la","engine","intent","--verbose","approve","a"],"rawWords":["ls","-la","engine","intent","--verbose","approve","a"]},"verb":null}}
+{"id":"engine_command-00109","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00110","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00111","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00112","out":{"classify":"pass","literal":{"directory":null,"command":"ls -la bolt","argv":["ls","-la","bolt"],"rawWords":["ls","-la","bolt"]},"verb":null}}
+{"id":"engine_command-00113","out":{"classify":"pass","literal":{"directory":null,"command":"ls -la engine doctor","argv":["ls","-la","engine","doctor"],"rawWords":["ls","-la","engine","doctor"]},"verb":null}}
+{"id":"engine_command-00114","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00115","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00116","out":{"classify":"pass","literal":{"directory":null,"command":"focus engine continue --json","argv":["focus","engine","continue","--json"],"rawWords":["focus","engine","continue","--json"]},"verb":"continue"}}
+{"id":"engine_command-00117","out":{"classify":"pass","literal":{"directory":null,"command":"sudo /opt/bun /p/.claude2/tools/focus-log.ts config","argv":["sudo","/opt/bun","/p/.claude2/tools/focus-log.ts","config"],"rawWords":["sudo","/opt/bun","/p/.claude2/tools/focus-log.ts","config"]},"verb":null}}
+{"id":"engine_command-00118","out":{"classify":"pass","literal":{"directory":null,"command":"/usr/bin/bun \"~/.codex/tools/focus.js\" engine utility --status -x","argv":["/usr/bin/bun","~/.codex/tools/focus.js","engine","utility","--status","-x"],"rawWords":["/usr/bin/bun","\"~/.codex/tools/focus.js\"","engine","utility","--status","-x"]},"verb":null}}
+{"id":"engine_command-00119","out":{"classify":"fire","literal":null,"verb":null}}
+{"id":"engine_command-00120","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00121","out":{"classify":"pass","literal":{"directory":null,"command":"focus engine next --project-dir help approve","argv":["focus","engine","next","--project-dir","help","approve"],"rawWords":["focus","engine","next","--project-dir","help","approve"]},"verb":"next"}}
+{"id":"engine_command-00122","out":{"classify":"pass","literal":{"directory":null,"command":"exec -a x bun '.claude\\tools\\focus.ts' orchestrate","argv":["exec","-a","x","bun",".claude\\tools\\focus.ts","orchestrate"],"rawWords":["exec","-a","x","bun","'.claude\\tools\\focus.ts'","orchestrate"]},"verb":null}}
+{"id":"engine_command-00123","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00124","out":{"classify":"pass","literal":{"directory":"C:\\p","command":"focus engine report report","argv":["focus","engine","report","report"],"rawWords":["focus","engine","report","report"]},"verb":"report"}}
+{"id":"engine_command-00125","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00126","out":{"classify":"pass","literal":{"directory":"/p","command":"/usr/bin/bun \"C:/p/.cursor/tools/focus.js\" state x=y","argv":["/usr/bin/bun","C:/p/.cursor/tools/focus.js","state","x=y"],"rawWords":["/usr/bin/bun","\"C:/p/.cursor/tools/focus.js\"","state","x=y"]},"verb":null}}
+{"id":"engine_command-00127","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00128","out":{"classify":"fire","literal":null,"verb":null}}
+{"id":"engine_command-00129","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00130","out":{"classify":"fire","literal":null,"verb":null}}
+{"id":"engine_command-00131","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00132","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00133","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00134","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00135","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00136","out":{"classify":"pass","literal":{"directory":null,"command":"focusx engine scope compile execute --resume","argv":["focusx","engine","scope","compile","execute","--resume"],"rawWords":["focusx","engine","scope","compile","execute","--resume"]},"verb":null}}
+{"id":"engine_command-00137","out":{"classify":"pass","literal":{"directory":null,"command":"env bun \".cursor\\tools\\focus.js\" swarm report \"two words\" ideation","argv":["env","bun",".cursor\\tools\\focus.js","swarm","report","two words","ideation"],"rawWords":["env","bun","\".cursor\\tools\\focus.js\"","swarm","report","\"two words\"","ideation"]},"verb":null}}
+{"id":"engine_command-00138","out":{"classify":"fire","literal":{"directory":null,"command":"command focus engine state","argv":["command","focus","engine","state"],"rawWords":["command","focus","engine","state"]},"verb":null}}
+{"id":"engine_command-00139","out":{"classify":"pass","literal":{"directory":"/p","command":"node FOCUS state execute next 'q'","argv":["node","FOCUS","state","execute","next","q"],"rawWords":["node","FOCUS","state","execute","next","'q'"]},"verb":null}}
+{"id":"engine_command-00140","out":{"classify":"pass","literal":{"directory":null,"command":"command -v focus engine gen report","argv":["command","-v","focus","engine","gen","report"],"rawWords":["command","-v","focus","engine","gen","report"]},"verb":null}}
+{"id":"engine_command-00141","out":{"classify":"pass","literal":{"directory":null,"command":"BUN \"\\srv\\share\\.cursor/tools/focus.ts\" bolt --json","argv":["BUN","\\srv\\share\\.cursor/tools/focus.ts","bolt","--json"],"rawWords":["BUN","\"\\srv\\share\\.cursor/tools/focus.ts\"","bolt","--json"]},"verb":null}}
+{"id":"engine_command-00142","out":{"classify":"pass","literal":{"directory":null,"command":"sh -c echo recompose resolve list --phase","argv":["sh","-c","echo","recompose","resolve","list","--phase"],"rawWords":["sh","-c","echo","recompose","resolve","list","--phase"]},"verb":null}}
+{"id":"engine_command-00143","out":{"classify":"pass","literal":{"directory":null,"command":"sh -c echo workspace --focus-attempt-id next --json","argv":["sh","-c","echo","workspace","--focus-attempt-id","next","--json"],"rawWords":["sh","-c","echo","workspace","--focus-attempt-id","next","--json"]},"verb":null}}
+{"id":"engine_command-00144","out":{"classify":"pass","literal":{"directory":null,"command":"ls -la bolt create","argv":["ls","-la","bolt","create"],"rawWords":["ls","-la","bolt","create"]},"verb":null}}
+{"id":"engine_command-00145","out":{"classify":"pass","literal":{"directory":null,"command":"bun\t'$HOME/.claude2\\tools\\focus' next approve","argv":["bun","$HOME/.claude2\\tools\\focus","next","approve"],"rawWords":["bun","'$HOME/.claude2\\tools\\focus'","next","approve"]},"verb":"next"}}
+{"id":"engine_command-00146","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00147","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00148","out":{"classify":"reject","literal":{"directory":"C:\\p","command":"/opt/bun .focus/tools/focus-runtime.ts engine help","argv":["/opt/bun",".focus/tools/focus-runtime.ts","engine","help"],"rawWords":["/opt/bun",".focus/tools/focus-runtime.ts","engine","help"]},"verb":null}}
+{"id":"engine_command-00149","out":{"classify":"pass","literal":{"directory":null,"command":"command -v bun C:/p/.codex/tools/x.ts jump","argv":["command","-v","bun","C:/p/.codex/tools/x.ts","jump"],"rawWords":["command","-v","bun","C:/p/.codex/tools/x.ts","jump"]},"verb":null}}
+{"id":"engine_command-00150","out":{"classify":"fire","literal":null,"verb":null}}
+{"id":"engine_command-00151","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00152","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00153","out":{"classify":"pass","literal":{"directory":null,"command":"env -i BUN '\\srv\\share\\.kiro/tools/focus' engine next --json x=y","argv":["env","-i","BUN","\\srv\\share\\.kiro/tools/focus","engine","next","--json","x=y"],"rawWords":["env","-i","BUN","'\\srv\\share\\.kiro/tools/focus'","engine","next","--json","x=y"]},"verb":null}}
+{"id":"engine_command-00154","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00155","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00156","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00157","out":{"classify":"pass","literal":{"directory":"C:\\p","command":"env focus sensor --json execute ideation","argv":["env","focus","sensor","--json","execute","ideation"],"rawWords":["env","focus","sensor","--json","execute","ideation"]},"verb":null}}
+{"id":"engine_command-00158","out":{"classify":"pass","literal":{"directory":null,"command":"/p/.gemini/tools/focus-state.ts park report","argv":["/p/.gemini/tools/focus-state.ts","park","report"],"rawWords":["/p/.gemini/tools/focus-state.ts","park","report"]},"verb":null}}
+{"id":"engine_command-00159","out":{"classify":"pass","literal":{"directory":null,"command":"X=1 ls -la space --status approve","argv":["X=1","ls","-la","space","--status","approve"],"rawWords":["X=1","ls","-la","space","--status","approve"]},"verb":null}}
+{"id":"engine_command-00160","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00161","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00162","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00163","out":{"classify":"pass","literal":{"directory":null,"command":"exec -a x bun C:/p/.cursor/tools/focus.js version --json","argv":["exec","-a","x","bun","C:/p/.cursor/tools/focus.js","version","--json"],"rawWords":["exec","-a","x","bun","C:/p/.cursor/tools/focus.js","version","--json"]},"verb":null}}
+{"id":"engine_command-00164","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00165","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00166","out":{"classify":"pass","literal":{"directory":null,"command":"/usr/local/bin/focus engine next --no-color list","argv":["/usr/local/bin/focus","engine","next","--no-color","list"],"rawWords":["/usr/local/bin/focus","engine","next","--no-color","list"]},"verb":"next"}}
+{"id":"engine_command-00167","out":{"classify":"pass","literal":{"directory":null,"command":"sh -c FOCUS engine workspace next --resume","argv":["sh","-c","FOCUS","engine","workspace","next","--resume"],"rawWords":["sh","-c","FOCUS","engine","workspace","next","--resume"]},"verb":null}}
+{"id":"engine_command-00168","out":{"classify":"fire","literal":null,"verb":null}}
+{"id":"engine_command-00169","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00170","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00171","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00172","out":{"classify":"pass","literal":{"directory":null,"command":".cursor/tools/focus-runtime.ts engine gen --json approve","argv":[".cursor/tools/focus-runtime.ts","engine","gen","--json","approve"],"rawWords":[".cursor/tools/focus-runtime.ts","engine","gen","--json","approve"]},"verb":null}}
+{"id":"engine_command-00173","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00174","out":{"classify":"fire","literal":{"directory":null,"command":"/opt/bun /p/.codex/tools/focus-unit.ts orchestrate --focus-attempt-id","argv":["/opt/bun","/p/.codex/tools/focus-unit.ts","orchestrate","--focus-attempt-id"],"rawWords":["/opt/bun","/p/.codex/tools/focus-unit.ts","orchestrate","--focus-attempt-id"]},"verb":null}}
+{"id":"engine_command-00175","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00176","out":{"classify":"pass","literal":{"directory":null,"command":"command -v ls -la jump","argv":["command","-v","ls","-la","jump"],"rawWords":["command","-v","ls","-la","jump"]},"verb":null}}
+{"id":"engine_command-00177","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00178","out":{"classify":"pass","literal":{"directory":null,"command":"echo intent execute approve -x","argv":["echo","intent","execute","approve","-x"],"rawWords":["echo","intent","execute","approve","-x"]},"verb":null}}
+{"id":"engine_command-00179","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00180","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00181","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00182","out":{"classify":"pass","literal":{"directory":null,"command":"focus engine intent set","argv":["focus","engine","intent","set"],"rawWords":["focus","engine","intent","set"]},"verb":null}}
+{"id":"engine_command-00183","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00184","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00185","out":{"classify":"pass","literal":{"directory":null,"command":"echo engine bolt","argv":["echo","engine","bolt"],"rawWords":["echo","engine","bolt"]},"verb":null}}
+{"id":"engine_command-00186","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00187","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00188","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00189","out":{"classify":"fire","literal":null,"verb":null}}
+{"id":"engine_command-00190","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00191","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00192","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00193","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00194","out":{"classify":"pass","literal":{"directory":null,"command":"sudo  focus intent","argv":["sudo","focus","intent"],"rawWords":["sudo","focus","intent"]},"verb":null}}
+{"id":"engine_command-00195","out":{"classify":"pass","literal":{"directory":null,"command":"env X=1 Y=2 git status park compile --yes","argv":["env","X=1","Y=2","git","status","park","compile","--yes"],"rawWords":["env","X=1","Y=2","git","status","park","compile","--yes"]},"verb":null}}
+{"id":"engine_command-00196","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00197","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00198","out":{"classify":"fire","literal":null,"verb":null}}
+{"id":"engine_command-00199","out":{"classify":"pass","literal":{"directory":null,"command":"focus orchestrate change","argv":["focus","orchestrate","change"],"rawWords":["focus","orchestrate","change"]},"verb":null}}
+{"id":"engine_command-00200","out":{"classify":"fire","literal":null,"verb":null}}
+{"id":"engine_command-00201","out":{"classify":"pass","literal":{"directory":null,"command":"echo orchestrate --resume compile --project-dir=/p","argv":["echo","orchestrate","--resume","compile","--project-dir=/p"],"rawWords":["echo","orchestrate","--resume","compile","--project-dir=/p"]},"verb":null}}
+{"id":"engine_command-00202","out":{"classify":"fire","literal":null,"verb":null}}
+{"id":"engine_command-00203","out":{"classify":"fire","literal":{"directory":null,"command":"bun C:/p/.focus/tools/focus.ts engine state --yes --no-color --","argv":["bun","C:/p/.focus/tools/focus.ts","engine","state","--yes","--no-color","--"],"rawWords":["bun","C:/p/.focus/tools/focus.ts","engine","state","--yes","--no-color","--"]},"verb":null}}
+{"id":"engine_command-00204","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00205","out":{"classify":"pass","literal":{"directory":null,"command":"bun \".claude/tools/focus.ts\" engine report set compile","argv":["bun",".claude/tools/focus.ts","engine","report","set","compile"],"rawWords":["bun","\".claude/tools/focus.ts\"","engine","report","set","compile"]},"verb":"report"}}
+{"id":"engine_command-00206","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00207","out":{"classify":"fire","literal":null,"verb":null}}
+{"id":"engine_command-00208","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00209","out":{"classify":"fire","literal":null,"verb":null}}
+{"id":"engine_command-00210","out":{"classify":"pass","literal":{"directory":"/p","command":"bun a/b/.focus/tools/x.ts engine scope --focus-attempt-id --resume approve","argv":["bun","a/b/.focus/tools/x.ts","engine","scope","--focus-attempt-id","--resume","approve"],"rawWords":["bun","a/b/.focus/tools/x.ts","engine","scope","--focus-attempt-id","--resume","approve"]},"verb":null}}
+{"id":"engine_command-00211","out":{"classify":"pass","literal":{"directory":null,"command":"/usr/bin/bun '$HOME/.claude2/tools/focus.ts' version --project-dir","argv":["/usr/bin/bun","$HOME/.claude2/tools/focus.ts","version","--project-dir"],"rawWords":["/usr/bin/bun","'$HOME/.claude2/tools/focus.ts'","version","--project-dir"]},"verb":null}}
+{"id":"engine_command-00212","out":{"classify":"pass","literal":{"directory":null,"command":"/p/.kiro/tools/focus-jump.ts engine orchestrate help","argv":["/p/.kiro/tools/focus-jump.ts","engine","orchestrate","help"],"rawWords":["/p/.kiro/tools/focus-jump.ts","engine","orchestrate","help"]},"verb":null}}
+{"id":"engine_command-00213","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00214","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00215","out":{"classify":"fire","literal":null,"verb":null}}
+{"id":"engine_command-00216","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00217","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00218","out":{"classify":"pass","literal":{"directory":null,"command":"exec focus engine gen","argv":["exec","focus","engine","gen"],"rawWords":["exec","focus","engine","gen"]},"verb":null}}
+{"id":"engine_command-00219","out":{"classify":"pass","literal":{"directory":null,"command":"node git status engine scope list --project-dir=/p","argv":["node","git","status","engine","scope","list","--project-dir=/p"],"rawWords":["node","git","status","engine","scope","list","--project-dir=/p"]},"verb":null}}
+{"id":"engine_command-00220","out":{"classify":"fire","literal":{"directory":null,"command":"./focus  jump --offline resolve list","argv":["./focus","jump","--offline","resolve","list"],"rawWords":["./focus","jump","--offline","resolve","list"]},"verb":null}}
+{"id":"engine_command-00221","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00222","out":{"classify":"pass","literal":{"directory":null,"command":"env -- focus.exe next","argv":["env","--","focus.exe","next"],"rawWords":["env","--","focus.exe","next"]},"verb":null}}
+{"id":"engine_command-00223","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00224","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00225","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00226","out":{"classify":"pass","literal":{"directory":null,"command":"command -- git status intent --project-dir=/p resolve --project-dir=/p","argv":["command","--","git","status","intent","--project-dir=/p","resolve","--project-dir=/p"],"rawWords":["command","--","git","status","intent","--project-dir=/p","resolve","--project-dir=/p"]},"verb":null}}
+{"id":"engine_command-00227","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00228","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00229","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00230","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00231","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00232","out":{"classify":"fire","literal":{"directory":null,"command":"command focus state report","argv":["command","focus","state","report"],"rawWords":["command","focus","state","report"]},"verb":null}}
+{"id":"engine_command-00233","out":{"classify":"pass","literal":{"directory":"C:\\p","command":"focus runtime --json a","argv":["focus","runtime","--json","a"],"rawWords":["focus","runtime","--json","a"]},"verb":null}}
+{"id":"engine_command-00234","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00235","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00236","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00237","out":{"classify":"fire","literal":null,"verb":null}}
+{"id":"engine_command-00238","out":{"classify":"pass","literal":{"directory":null,"command":"sudo git status engine next --status --phase 'q'","argv":["sudo","git","status","engine","next","--status","--phase","q"],"rawWords":["sudo","git","status","engine","next","--status","--phase","'q'"]},"verb":null}}
+{"id":"engine_command-00239","out":{"classify":"pass","literal":{"directory":null,"command":"env -i ls -la engine jump set --status","argv":["env","-i","ls","-la","engine","jump","set","--status"],"rawWords":["env","-i","ls","-la","engine","jump","set","--status"]},"verb":null}}
+{"id":"engine_command-00240","out":{"classify":"pass","literal":{"directory":null,"command":"X=1 Y=2 ls -la engine state --no-color --json","argv":["X=1","Y=2","ls","-la","engine","state","--no-color","--json"],"rawWords":["X=1","Y=2","ls","-la","engine","state","--no-color","--json"]},"verb":null}}
+{"id":"engine_command-00241","out":{"classify":"pass","literal":{"directory":null,"command":"git status orchestrate --resume intent-capture --resume","argv":["git","status","orchestrate","--resume","intent-capture","--resume"],"rawWords":["git","status","orchestrate","--resume","intent-capture","--resume"]},"verb":null}}
+{"id":"engine_command-00242","out":{"classify":"pass","literal":{"directory":null,"command":"focusx engine report intent-capture a","argv":["focusx","engine","report","intent-capture","a"],"rawWords":["focusx","engine","report","intent-capture","a"]},"verb":null}}
+{"id":"engine_command-00243","out":{"classify":"pass","literal":{"directory":null,"command":"env  -- git status sensor list resolve \"two words\"","argv":["env","--","git","status","sensor","list","resolve","two words"],"rawWords":["env","--","git","status","sensor","list","resolve","\"two words\""]},"verb":null}}
+{"id":"engine_command-00244","out":{"classify":"pass","literal":{"directory":null,"command":"command -- /usr/bin/bun \"C:/p/.focus/tools/focus.ts\" park create","argv":["command","--","/usr/bin/bun","C:/p/.focus/tools/focus.ts","park","create"],"rawWords":["command","--","/usr/bin/bun","\"C:/p/.focus/tools/focus.ts\"","park","create"]},"verb":"park"}}
+{"id":"engine_command-00245","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00246","out":{"classify":"pass","literal":{"directory":null,"command":"bunx \"\\srv\\share\\.kiro/tools/focus.ts\" next compile help","argv":["bunx","\\srv\\share\\.kiro/tools/focus.ts","next","compile","help"],"rawWords":["bunx","\"\\srv\\share\\.kiro/tools/focus.ts\"","next","compile","help"]},"verb":null}}
+{"id":"engine_command-00247","out":{"classify":"pass","literal":{"directory":null,"command":"command\tls -la park --yes","argv":["command","ls","-la","park","--yes"],"rawWords":["command","ls","-la","park","--yes"]},"verb":null}}
+{"id":"engine_command-00248","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00249","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00250","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00251","out":{"classify":"fire","literal":null,"verb":null}}
+{"id":"engine_command-00252","out":{"classify":"pass","literal":{"directory":"/p","command":"env -- git status unit \"two words\" intent-capture","argv":["env","--","git","status","unit","two words","intent-capture"],"rawWords":["env","--","git","status","unit","\"two words\"","intent-capture"]},"verb":null}}
+{"id":"engine_command-00253","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00254","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00255","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00256","out":{"classify":"pass","literal":{"directory":null,"command":"command -- ./focus park --project-dir report","argv":["command","--","./focus","park","--project-dir","report"],"rawWords":["command","--","./focus","park","--project-dir","report"]},"verb":"park"}}
+{"id":"engine_command-00257","out":{"classify":"pass","literal":{"directory":null,"command":"focus engine continue create","argv":["focus","engine","continue","create"],"rawWords":["focus","engine","continue","create"]},"verb":"continue"}}
+{"id":"engine_command-00258","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00259","out":{"classify":"pass","literal":{"directory":null,"command":"exec\tgit status orchestrate report report","argv":["exec","git","status","orchestrate","report","report"],"rawWords":["exec","git","status","orchestrate","report","report"]},"verb":null}}
+{"id":"engine_command-00260","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00261","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00262","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00263","out":{"classify":"pass","literal":{"directory":null,"command":"focus swarm --json approve","argv":["focus","swarm","--json","approve"],"rawWords":["focus","swarm","--json","approve"]},"verb":null}}
+{"id":"engine_command-00264","out":{"classify":"pass","literal":{"directory":"C:\\p","command":"focus runtime next change","argv":["focus","runtime","next","change"],"rawWords":["focus","runtime","next","change"]},"verb":null}}
+{"id":"engine_command-00265","out":{"classify":"pass","literal":{"directory":null,"command":"BUN '.claude2/tools/focus.ts' engine next","argv":["BUN",".claude2/tools/focus.ts","engine","next"],"rawWords":["BUN","'.claude2/tools/focus.ts'","engine","next"]},"verb":null}}
+{"id":"engine_command-00266","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00267","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00268","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00269","out":{"classify":"fire","literal":null,"verb":null}}
+{"id":"engine_command-00270","out":{"classify":"pass","literal":{"directory":null,"command":"env X=1 Y=2 echo engine workspace","argv":["env","X=1","Y=2","echo","engine","workspace"],"rawWords":["env","X=1","Y=2","echo","engine","workspace"]},"verb":null}}
+{"id":"engine_command-00271","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00272","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00273","out":{"classify":"fire","literal":null,"verb":null}}
+{"id":"engine_command-00274","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00275","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00276","out":{"classify":"pass","literal":{"directory":null,"command":"echo bolt --yes resolve set","argv":["echo","bolt","--yes","resolve","set"],"rawWords":["echo","bolt","--yes","resolve","set"]},"verb":null}}
+{"id":"engine_command-00277","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00278","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00279","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00280","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00281","out":{"classify":"pass","literal":{"directory":null,"command":"BUN '~/.claude2\\tools\\focus' engine park","argv":["BUN","~/.claude2\\tools\\focus","engine","park"],"rawWords":["BUN","'~/.claude2\\tools\\focus'","engine","park"]},"verb":null}}
+{"id":"engine_command-00282","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00283","out":{"classify":"pass","literal":{"directory":null,"command":"git status report change","argv":["git","status","report","change"],"rawWords":["git","status","report","change"]},"verb":null}}
+{"id":"engine_command-00284","out":{"classify":"pass","literal":{"directory":"C:\\p","command":"env X=1 Y=2 ls -la space","argv":["env","X=1","Y=2","ls","-la","space"],"rawWords":["env","X=1","Y=2","ls","-la","space"]},"verb":null}}
+{"id":"engine_command-00285","out":{"classify":"pass","literal":{"directory":"/p","command":"echo engine workspace help --status","argv":["echo","engine","workspace","help","--status"],"rawWords":["echo","engine","workspace","help","--status"]},"verb":null}}
+{"id":"engine_command-00286","out":{"classify":"pass","literal":{"directory":null,"command":"focus utility list set report","argv":["focus","utility","list","set","report"],"rawWords":["focus","utility","list","set","report"]},"verb":null}}
+{"id":"engine_command-00287","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00288","out":{"classify":"pass","literal":{"directory":null,"command":"exec -a x echo engine next compile change","argv":["exec","-a","x","echo","engine","next","compile","change"],"rawWords":["exec","-a","x","echo","engine","next","compile","change"]},"verb":null}}
+{"id":"engine_command-00289","out":{"classify":"pass","literal":{"directory":null,"command":"a/b/.codex/tools/focusx.ts engine bolt list report","argv":["a/b/.codex/tools/focusx.ts","engine","bolt","list","report"],"rawWords":["a/b/.codex/tools/focusx.ts","engine","bolt","list","report"]},"verb":null}}
+{"id":"engine_command-00290","out":{"classify":"pass","literal":{"directory":null,"command":"git status orchestrate","argv":["git","status","orchestrate"],"rawWords":["git","status","orchestrate"]},"verb":null}}
+{"id":"engine_command-00291","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00292","out":{"classify":"fire","literal":{"directory":null,"command":"/usr/local/bin/focus help x=y","argv":["/usr/local/bin/focus","help","x=y"],"rawWords":["/usr/local/bin/focus","help","x=y"]},"verb":null}}
+{"id":"engine_command-00293","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00294","out":{"classify":"pass","literal":{"directory":null,"command":"/usr/local/bin/focus engine gen report","argv":["/usr/local/bin/focus","engine","gen","report"],"rawWords":["/usr/local/bin/focus","engine","gen","report"]},"verb":null}}
+{"id":"engine_command-00295","out":{"classify":"pass","literal":{"directory":null,"command":"/usr/bin/bun '~/.codex/tools/focus.js' engine doctor intent-capture","argv":["/usr/bin/bun","~/.codex/tools/focus.js","engine","doctor","intent-capture"],"rawWords":["/usr/bin/bun","'~/.codex/tools/focus.js'","engine","doctor","intent-capture"]},"verb":null}}
+{"id":"engine_command-00296","out":{"classify":"pass","literal":{"directory":"/p","command":"echo space set a advance","argv":["echo","space","set","a","advance"],"rawWords":["echo","space","set","a","advance"]},"verb":null}}
+{"id":"engine_command-00297","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00298","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00299","out":{"classify":"fire","literal":{"directory":null,"command":"focus bolt --yes set execute","argv":["focus","bolt","--yes","set","execute"],"rawWords":["focus","bolt","--yes","set","execute"]},"verb":null}}
+{"id":"engine_command-00300","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00301","out":{"classify":"fire","literal":null,"verb":null}}
+{"id":"engine_command-00302","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00303","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00304","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00305","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00306","out":{"classify":"pass","literal":{"directory":null,"command":"env -i FOCUS unit advance","argv":["env","-i","FOCUS","unit","advance"],"rawWords":["env","-i","FOCUS","unit","advance"]},"verb":null}}
+{"id":"engine_command-00307","out":{"classify":"pass","literal":{"directory":null,"command":"focus engine doctor","argv":["focus","engine","doctor"],"rawWords":["focus","engine","doctor"]},"verb":null}}
+{"id":"engine_command-00308","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00309","out":{"classify":"reject","literal":null,"verb":null}}
+{"id":"engine_command-00310","out":{"classify":"fire","literal":null,"verb":null}}
+{"id":"engine_command-00311","out":{"classify":"pass","literal":{"directory":null,"command":"ls -la engine doctor create --status","argv":["ls","-la","engine","doctor","create","--status"],"rawWords":["ls","-la","engine","doctor","create","--status"]},"verb":null}}
+{"id":"engine_command-00312","out":{"classify":"pass","literal":{"directory":null,"command":"focus engine doctor --status create","argv":["focus","engine","doctor","--status","create"],"rawWords":["focus","engine","doctor","--status","create"]},"verb":null}}
+{"id":"engine_command-00313","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00314","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00315","out":{"classify":"pass","literal":{"directory":null,"command":"exec ./focus engine version","argv":["exec","./focus","engine","version"],"rawWords":["exec","./focus","engine","version"]},"verb":null}}
+{"id":"engine_command-00316","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00317","out":{"classify":"pass","literal":{"directory":null,"command":"BUN  './.cursor/tools/focus.ts' state --resume","argv":["BUN","./.cursor/tools/focus.ts","state","--resume"],"rawWords":["BUN","'./.cursor/tools/focus.ts'","state","--resume"]},"verb":null}}
+{"id":"engine_command-00318","out":{"classify":"fire","literal":null,"verb":null}}
+{"id":"engine_command-00319","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00320","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00321","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00322","out":{"classify":"pass","literal":{"directory":null,"command":"focus engine version -x \"two words\"","argv":["focus","engine","version","-x","two words"],"rawWords":["focus","engine","version","-x","\"two words\""]},"verb":null}}
+{"id":"engine_command-00323","out":{"classify":"fire","literal":{"directory":null,"command":"env -- focus engine recompose --resume --no-color","argv":["env","--","focus","engine","recompose","--resume","--no-color"],"rawWords":["env","--","focus","engine","recompose","--resume","--no-color"]},"verb":null}}
+{"id":"engine_command-00324","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00325","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00326","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00327","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00328","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00329","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00330","out":{"classify":"fire","literal":null,"verb":null}}
+{"id":"engine_command-00331","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00332","out":{"classify":"pass","literal":{"directory":null,"command":"focus intent report --status advance","argv":["focus","intent","report","--status","advance"],"rawWords":["focus","intent","report","--status","advance"]},"verb":null}}
+{"id":"engine_command-00333","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00334","out":{"classify":"pass","literal":{"directory":null,"command":"exec ls -la engine next advance","argv":["exec","ls","-la","engine","next","advance"],"rawWords":["exec","ls","-la","engine","next","advance"]},"verb":null}}
+{"id":"engine_command-00335","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00336","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00337","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00338","out":{"classify":"pass","literal":{"directory":null,"command":"node echo engine version --offline --phase","argv":["node","echo","engine","version","--offline","--phase"],"rawWords":["node","echo","engine","version","--offline","--phase"]},"verb":null}}
+{"id":"engine_command-00339","out":{"classify":"pass","literal":{"directory":null,"command":"sh -c echo engine unit approve create","argv":["sh","-c","echo","engine","unit","approve","create"],"rawWords":["sh","-c","echo","engine","unit","approve","create"]},"verb":null}}
+{"id":"engine_command-00340","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00341","out":{"classify":"pass","literal":{"directory":null,"command":"X=1 Y=2 bun\t \"~/.focus/tools/focus.ts\" intent --status \"two words\" help","argv":["X=1","Y=2","bun","~/.focus/tools/focus.ts","intent","--status","two words","help"],"rawWords":["X=1","Y=2","bun","\"~/.focus/tools/focus.ts\"","intent","--status","\"two words\"","help"]},"verb":null}}
+{"id":"engine_command-00342","out":{"classify":"pass","literal":{"directory":null,"command":"X=1 Y=2 ../.gemini/tools/focus-unit.ts engine state change","argv":["X=1","Y=2","../.gemini/tools/focus-unit.ts","engine","state","change"],"rawWords":["X=1","Y=2","../.gemini/tools/focus-unit.ts","engine","state","change"]},"verb":null}}
+{"id":"engine_command-00343","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00344","out":{"classify":"pass","literal":{"directory":null,"command":"/usr/local/bin/focus engine config --resume x=y advance","argv":["/usr/local/bin/focus","engine","config","--resume","x=y","advance"],"rawWords":["/usr/local/bin/focus","engine","config","--resume","x=y","advance"]},"verb":null}}
+{"id":"engine_command-00345","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00346","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00347","out":{"classify":"pass","literal":{"directory":null,"command":"echo engine doctor","argv":["echo","engine","doctor"],"rawWords":["echo","engine","doctor"]},"verb":null}}
+{"id":"engine_command-00348","out":{"classify":"pass","literal":{"directory":null,"command":"echo\tstate --json --yes --offline","argv":["echo","state","--json","--yes","--offline"],"rawWords":["echo","state","--json","--yes","--offline"]},"verb":null}}
+{"id":"engine_command-00349","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00350","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00351","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00352","out":{"classify":"pass","literal":{"directory":"C:\\p","command":"focus engine next","argv":["focus","engine","next"],"rawWords":["focus","engine","next"]},"verb":"next"}}
+{"id":"engine_command-00353","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00354","out":{"classify":"pass","literal":{"directory":null,"command":"focus next --status --status resolve","argv":["focus","next","--status","--status","resolve"],"rawWords":["focus","next","--status","--status","resolve"]},"verb":"next"}}
+{"id":"engine_command-00355","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00356","out":{"classify":"fire","literal":null,"verb":null}}
+{"id":"engine_command-00357","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00358","out":{"classify":"pass","literal":{"directory":null,"command":"sudo focus intent --json report","argv":["sudo","focus","intent","--json","report"],"rawWords":["sudo","focus","intent","--json","report"]},"verb":null}}
+{"id":"engine_command-00359","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00360","out":{"classify":"fire","literal":null,"verb":null}}
+{"id":"engine_command-00361","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00362","out":{"classify":"pass","literal":{"directory":null,"command":"env -i git status engine scope -x","argv":["env","-i","git","status","engine","scope","-x"],"rawWords":["env","-i","git","status","engine","scope","-x"]},"verb":null}}
+{"id":"engine_command-00363","out":{"classify":"reject","literal":null,"verb":null}}
+{"id":"engine_command-00364","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00365","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00366","out":{"classify":"pass","literal":{"directory":null,"command":"X=1 Y=2 ls -la report create","argv":["X=1","Y=2","ls","-la","report","create"],"rawWords":["X=1","Y=2","ls","-la","report","create"]},"verb":null}}
+{"id":"engine_command-00367","out":{"classify":"pass","literal":{"directory":null,"command":"bun \"C:/p/.kiro/tools/focus.js\" next change","argv":["bun","C:/p/.kiro/tools/focus.js","next","change"],"rawWords":["bun","\"C:/p/.kiro/tools/focus.js\"","next","change"]},"verb":null}}
+{"id":"engine_command-00368","out":{"classify":"pass","literal":{"directory":null,"command":"git\tstatus engine swarm --json","argv":["git","status","engine","swarm","--json"],"rawWords":["git","status","engine","swarm","--json"]},"verb":null}}
+{"id":"engine_command-00369","out":{"classify":"fire","literal":null,"verb":null}}
+{"id":"engine_command-00370","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00371","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00372","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00373","out":{"classify":"fire","literal":{"directory":null,"command":"bun ../.kiro/tools/focus-unit.ts orchestrate list ideation --json","argv":["bun","../.kiro/tools/focus-unit.ts","orchestrate","list","ideation","--json"],"rawWords":["bun","../.kiro/tools/focus-unit.ts","orchestrate","list","ideation","--json"]},"verb":null}}
+{"id":"engine_command-00374","out":{"classify":"pass","literal":{"directory":null,"command":"env echo engine status list execute report","argv":["env","echo","engine","status","list","execute","report"],"rawWords":["env","echo","engine","status","list","execute","report"]},"verb":null}}
+{"id":"engine_command-00375","out":{"classify":"pass","literal":{"directory":null,"command":"echo engine state","argv":["echo","engine","state"],"rawWords":["echo","engine","state"]},"verb":null}}
+{"id":"engine_command-00376","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00377","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00378","out":{"classify":"pass","literal":{"directory":null,"command":"focusx workspace --json","argv":["focusx","workspace","--json"],"rawWords":["focusx","workspace","--json"]},"verb":null}}
+{"id":"engine_command-00379","out":{"classify":"fire","literal":{"directory":null,"command":"focus report \"two words\"","argv":["focus","report","two words"],"rawWords":["focus","report","\"two words\""]},"verb":"report"}}
+{"id":"engine_command-00380","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00381","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00382","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00383","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00384","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00385","out":{"classify":"pass","literal":{"directory":null,"command":"git status engine bolt --offline --json","argv":["git","status","engine","bolt","--offline","--json"],"rawWords":["git","status","engine","bolt","--offline","--json"]},"verb":null}}
+{"id":"engine_command-00386","out":{"classify":"pass","literal":{"directory":null,"command":"focus continue --no-color list","argv":["focus","continue","--no-color","list"],"rawWords":["focus","continue","--no-color","list"]},"verb":"continue"}}
+{"id":"engine_command-00387","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00388","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00389","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00390","out":{"classify":"fire","literal":null,"verb":null}}
+{"id":"engine_command-00391","out":{"classify":"pass","literal":{"directory":null,"command":"bunx \".codex\\tools\\focus-state.ts\" engine state change set","argv":["bunx",".codex\\tools\\focus-state.ts","engine","state","change","set"],"rawWords":["bunx","\".codex\\tools\\focus-state.ts\"","engine","state","change","set"]},"verb":null}}
+{"id":"engine_command-00392","out":{"classify":"pass","literal":{"directory":null,"command":"focus engine space --verbose --project-dir intent-capture","argv":["focus","engine","space","--verbose","--project-dir","intent-capture"],"rawWords":["focus","engine","space","--verbose","--project-dir","intent-capture"]},"verb":null}}
+{"id":"engine_command-00393","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00394","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00395","out":{"classify":"fire","literal":{"directory":"/p","command":"/opt/bun a/b/.focus/tools/focus-bolt.ts engine unit create resolve","argv":["/opt/bun","a/b/.focus/tools/focus-bolt.ts","engine","unit","create","resolve"],"rawWords":["/opt/bun","a/b/.focus/tools/focus-bolt.ts","engine","unit","create","resolve"]},"verb":null}}
+{"id":"engine_command-00396","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00397","out":{"classify":"pass","literal":{"directory":null,"command":"echo engine doctor --focus-attempt-id=a1 help","argv":["echo","engine","doctor","--focus-attempt-id=a1","help"],"rawWords":["echo","engine","doctor","--focus-attempt-id=a1","help"]},"verb":null}}
+{"id":"engine_command-00398","out":{"classify":"pass","literal":{"directory":null,"command":"echo engine recompose --no-color","argv":["echo","engine","recompose","--no-color"],"rawWords":["echo","engine","recompose","--no-color"]},"verb":null}}
+{"id":"engine_command-00399","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00400","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00401","out":{"classify":"pass","literal":{"directory":null,"command":"sudo echo gen","argv":["sudo","echo","gen"],"rawWords":["sudo","echo","gen"]},"verb":null}}
+{"id":"engine_command-00402","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00403","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00404","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00405","out":{"classify":"fire","literal":{"directory":null,"command":"/usr/local/bin/focus recompose --","argv":["/usr/local/bin/focus","recompose","--"],"rawWords":["/usr/local/bin/focus","recompose","--"]},"verb":null}}
+{"id":"engine_command-00406","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00407","out":{"classify":"pass","literal":{"directory":null,"command":"git status engine doctor --phase set","argv":["git","status","engine","doctor","--phase","set"],"rawWords":["git","status","engine","doctor","--phase","set"]},"verb":null}}
+{"id":"engine_command-00408","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00409","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00410","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00411","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00412","out":{"classify":"pass","literal":{"directory":null,"command":"BUN '\\srv\\share\\.kiro/tools/focus.ts' engine scope","argv":["BUN","\\srv\\share\\.kiro/tools/focus.ts","engine","scope"],"rawWords":["BUN","'\\srv\\share\\.kiro/tools/focus.ts'","engine","scope"]},"verb":null}}
+{"id":"engine_command-00413","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00414","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00415","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00416","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00417","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00418","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00419","out":{"classify":"fire","literal":{"directory":null,"command":"bun ../.cursor/tools/focus-utility.ts engine gen x=y change","argv":["bun","../.cursor/tools/focus-utility.ts","engine","gen","x=y","change"],"rawWords":["bun","../.cursor/tools/focus-utility.ts","engine","gen","x=y","change"]},"verb":null}}
+{"id":"engine_command-00420","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00421","out":{"classify":"pass","literal":{"directory":null,"command":"git status status set --focus-attempt-id","argv":["git","status","status","set","--focus-attempt-id"],"rawWords":["git","status","status","set","--focus-attempt-id"]},"verb":null}}
+{"id":"engine_command-00422","out":{"classify":"pass","literal":{"directory":null,"command":"ls -la engine runtime advance execute","argv":["ls","-la","engine","runtime","advance","execute"],"rawWords":["ls","-la","engine","runtime","advance","execute"]},"verb":null}}
+{"id":"engine_command-00423","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00424","out":{"classify":"pass","literal":{"directory":null,"command":"git status bolt --no-color","argv":["git","status","bolt","--no-color"],"rawWords":["git","status","bolt","--no-color"]},"verb":null}}
+{"id":"engine_command-00425","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00426","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00427","out":{"classify":"pass","literal":{"directory":null,"command":"focus runtime set","argv":["focus","runtime","set"],"rawWords":["focus","runtime","set"]},"verb":null}}
+{"id":"engine_command-00428","out":{"classify":"pass","literal":{"directory":null,"command":"X=1 focus.exe space help --project-dir=/p create","argv":["X=1","focus.exe","space","help","--project-dir=/p","create"],"rawWords":["X=1","focus.exe","space","help","--project-dir=/p","create"]},"verb":null}}
+{"id":"engine_command-00429","out":{"classify":"fire","literal":null,"verb":null}}
+{"id":"engine_command-00430","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00431","out":{"classify":"pass","literal":{"directory":null,"command":"exec git status version","argv":["exec","git","status","version"],"rawWords":["exec","git","status","version"]},"verb":null}}
+{"id":"engine_command-00432","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00433","out":{"classify":"pass","literal":{"directory":null,"command":"env  -- focus park set","argv":["env","--","focus","park","set"],"rawWords":["env","--","focus","park","set"]},"verb":"park"}}
+{"id":"engine_command-00434","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00435","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00436","out":{"classify":"pass","literal":{"directory":null,"command":"ls -la scope --offline advance","argv":["ls","-la","scope","--offline","advance"],"rawWords":["ls","-la","scope","--offline","advance"]},"verb":null}}
+{"id":"engine_command-00437","out":{"classify":"pass","literal":{"directory":null,"command":"env X=1 Y=2 ls -la engine utility list","argv":["env","X=1","Y=2","ls","-la","engine","utility","list"],"rawWords":["env","X=1","Y=2","ls","-la","engine","utility","list"]},"verb":null}}
+{"id":"engine_command-00438","out":{"classify":"fire","literal":{"directory":null,"command":"focus engine state list create --","argv":["focus","engine","state","list","create","--"],"rawWords":["focus","engine","state","list","create","--"]},"verb":null}}
+{"id":"engine_command-00439","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00440","out":{"classify":"pass","literal":{"directory":null,"command":"focus next resolve change help","argv":["focus","next","resolve","change","help"],"rawWords":["focus","next","resolve","change","help"]},"verb":"next"}}
+{"id":"engine_command-00441","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00442","out":{"classify":"fire","literal":{"directory":null,"command":"env -i focus doctor next","argv":["env","-i","focus","doctor","next"],"rawWords":["env","-i","focus","doctor","next"]},"verb":null}}
+{"id":"engine_command-00443","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00444","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00445","out":{"classify":"fire","literal":{"directory":null,"command":"exec  -a x focus help list --offline","argv":["exec","-a","x","focus","help","list","--offline"],"rawWords":["exec","-a","x","focus","help","list","--offline"]},"verb":null}}
+{"id":"engine_command-00446","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00447","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00448","out":{"classify":"fire","literal":null,"verb":null}}
+{"id":"engine_command-00449","out":{"classify":"fire","literal":null,"verb":null}}
+{"id":"engine_command-00450","out":{"classify":"fire","literal":{"directory":null,"command":"bun .kiro/tools/focus-state.ts config --project-dir=/p ideation --resume","argv":["bun",".kiro/tools/focus-state.ts","config","--project-dir=/p","ideation","--resume"],"rawWords":["bun",".kiro/tools/focus-state.ts","config","--project-dir=/p","ideation","--resume"]},"verb":null}}
+{"id":"engine_command-00451","out":{"classify":"pass","literal":null,"verb":null}}
+{"id":"engine_command-00452","out":{"classify":"pass","literal":{"directory":null,"command":"env -- BUN .gemini/tools/focus.ts engine jump list","argv":["env","--","BUN",".gemini/tools/focus.ts","engine","jump","list"],"rawWords":["env","--","BUN",".gemini/tools/focus.ts","engine","jump","list"]},"verb":null}}

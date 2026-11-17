@@ -1,0 +1,613 @@
+{"id": "shell_invocations-00000", "kind": "shell_invocations", "command": "xargs sed --in-place 's/a/b/'"}
+{"id": "shell_invocations-00001", "kind": "shell_invocations", "command": "xargs -0 perl --in-place -pe x"}
+{"id": "shell_invocations-00002", "kind": "shell_invocations", "command": "find . | xargs sed -i"}
+{"id": "shell_invocations-00003", "kind": "shell_invocations", "command": "tee-object -Variable:v"}
+{"id": "shell_invocations-00004", "kind": "shell_invocations", "command": "tee-object -Variable:v f"}
+{"id": "shell_invocations-00005", "kind": "shell_invocations", "command": "tee-object -Var v -- -Path"}
+{"id": "shell_invocations-00006", "kind": "shell_invocations", "command": "cat a | xargs -I{} find {} -fprint out"}
+{"id": "shell_invocations-00007", "kind": "shell_invocations", "command": "pushd +2 && echo x > y"}
+{"id": "shell_invocations-00008", "kind": "shell_invocations", "command": "cd +1; touch z"}
+{"id": "shell_invocations-00009", "kind": "shell_invocations", "command": "sed --in-place=.bak s/a/b/ f g"}
+{"id": "shell_invocations-00010", "kind": "shell_invocations", "command": "install -d a b c"}
+{"id": "shell_invocations-00011", "kind": "shell_invocations", "command": "cp -t d"}
+{"id": "shell_invocations-00012", "kind": "shell_invocations", "command": "mv -- -t a b"}
+{"id": "shell_invocations-00013", "kind": "shell_invocations", "command": "ionice --class=idle ! touch -t 202001010000 build 1>&- | ! ls -la > $HOME/h"}
+{"id": "shell_invocations-00014", "kind": "shell_invocations", "command": "set-location b.txt|time -f x unlink build"}
+{"id": "shell_invocations-00015", "kind": "shell_invocations", "command": "cp --suffix=.o -x (z) >> '${PWD}' || cd -P"}
+{"id": "shell_invocations-00016", "kind": "shell_invocations", "command": "builtin -x dd if=- of=f? bs=1 >> '../x' > || builtin  truncate -s0 \"{v}\" 2 > /work/q\\ r | mi -NewName=\"f?\" '`cmd`' < -x & done 2 > di'r'"}
+{"id": "shell_invocations-00017", "kind": "shell_invocations", "command": "grep -r x \"b.txt\" | dd of=x\\\\ y if=../x > /dev/null 2>&1 || cp a ${PWD} a >> ,c, | cat ${HOME}/h >b.txt"}
+{"id": "shell_invocations-00018", "kind": "shell_invocations", "command": "python3 $PWD/p > x,'y' 2>&1"}
+{"id": "shell_invocations-00019", "kind": "shell_invocations", "command": "cd $HOME 2 > '${PWD}' || setsid --fork } > 'C:\\win\\p >&2"}
+{"id": "shell_invocations-00020", "kind": "shell_invocations", "command": "tee  $PWD"}
+{"id": "shell_invocations-00021", "kind": "shell_invocations", "command": "timeut --signal=TERM 10s CD \"/\" 2>&1 || ls -la | cp //n/s/ \"(z)\" ; install -o root 'build' (z)"}
+{"id": "shell_invocations-00022", "kind": "shell_invocations", "command": "while make test >> ~/\"f?\"; do find -delete '$PWD/p' > '\"C:\\win\\p\">~; done"}
+{"id": "shell_invocations-00023", "kind": "shell_invocations", "command": "truncate-r di'r' $PWD/p && cd-L 'x\\ y'"}
+{"id": "shell_invocations-00024", "kind": "shell_invocations", "command": "find -L -D opt $PWD -fprint build|xargs -d \\n unlink '[w]'"}
+{"id": "shell_invocations-00025", "kind": "shell_invocations", "command": "cd \"$X\" 2 > `cmd` && perl -Mstrict -i x /work/q\\ r; cd build|builtin   2>\"-x\" >//n/s/t"}
+{"id": "shell_invocations-00026", "kind": "shell_invocations", "command": "rm -rf \"b.txt\" & cp -r \"$HOME/h\" src/"}
+{"id": "shell_invocations-00027", "kind": "shell_invocations", "command": "set-item -Force ${PWD} -Force;truncate -s0 $PWD"}
+{"id": "shell_invocations-00028", "kind": "shell_invocations", "command": "then stdbuf -o0 truncate -s 0 -"}
+{"id": "shell_invocations-00029", "kind": "shell_invocations", "command": "add-content -Value $PWD/p -Name \"x,y\"; cp d'ir' ${PWD} $PW'D' > '\"*.log\" | case x in a) fi;; esac 3>&1 1>&2 2>&3 | cd -L a:b"}
+{"id": "shell_invocations-00030", "kind": "shell_invocations", "command": "git status\nif true; then  >> '/work/q r'; else grep -r x ./y >\"$VAR/x\"; fi 3>&1 1>&2 2>&3"}
+{"id": "shell_invocations-00031", "kind": "shell_invocations", "command": "find -delete dest"}
+{"id": "shell_invocations-00032", "kind": "shell_invocations", "command": " &> b.txt >&$'{HOME}/h' || Rm ~>'/'&&rm -f é.md"}
+{"id": "shell_invocations-00033", "kind": "shell_invocations", "command": "doas -C \"..\" while dd if=b.txt of=\",c,\" bs=1; do find -delete $PWD > /dev/null 2>&1; done>${HOME}/h"}
+{"id": "shell_invocations-00034", "kind": "shell_invocations", "command": "while cd `cmd` >*.log; do pushd; done"}
+{"id": "shell_invocations-00035", "kind": "shell_invocations", "command": "until false; o touch -t 202001010000 [w]; done;install -d /work/q\\ r //n/st; dd if=\"*.log\" of=f? bs=1 3>&1 1>&2 2>&3"}
+{"id": "shell_invocations-00036", "kind": "shell_invocations", "command": "toybox  path=x cd -L -;sudo env -i nice -n 3 python3 /abs/p;find -H '/' -fprintf 'dir' %p"}
+{"id": "shell_invocations-00037", "kind": "shell_invocations", "command": "perl -i.bak -pe 's/a/b/' '$HOME/h' > of=d 2>&1 2>\"of=d\" >'/'"}
+{"id": "shell_invocations-00038", "kind": "shell_invocations", "command": "sudo env -i nice -n 3 busybox -x make test"}
+{"id": "shell_invocations-00039", "kind": "shell_invocations", "command": "sed -l 5 -i s/a/b/ \"of=d\" ,c,&&xargs -x cp -S .bak [w] \"x,y\" & cp -S .bak 'a' a:b"}
+{"id": "shell_invocations-00040", "kind": "shell_invocations", "command": "builtin  xargs -d \\n >$VAR/x\nsed -e x -i 's/x/y/' \"src/\" '(z)' 2 > '*.log'"}
+{"id": "shell_invocations-00041", "kind": "shell_invocations", "command": "grep -r x b.txt >&\"../../../../up\""}
+{"id": "shell_invocations-00042", "kind": "shell_invocations", "command": "Rm x',y' 2>&1 || rsync -}va \"dest\" b.txtpushd [w] >\ncat '~'"}
+{"id": "shell_invocations-00043", "kind": "shell_invocations", "command": "make test > /dev/null 2>&1"}
+{"id": "shell_invocations-00044", "kind": "shell_invocations", "command": "grep -r x '.'; ionice -c3 -n7 cp -r *.log '//n/s/t'\npushd \"//n/s/t\" >'$VAR/x'&&mv -n (z) \"$PWD\""}
+{"id": "shell_invocations-00045", "kind": "shell_invocations", "command": "busybox -x unlink \"/abs/p\"\ndoas -n cp --suffix=.o b.txt 'dir' || python3 $PWD > x\\\\ y 2>&1&&dd of=\"a b\" if=é'.md'"}
+{"id": "shell_invocations-00046", "kind": "shell_invocations", "command": "rm -- ',c,'&&path=x cp x,y '${HOME}/h'"}
+{"id": "shell_invocations-00047", "kind": "shell_invocations", "command": "pushd +1"}
+{"id": "shell_invocations-00048", "kind": "shell_invocations", "command": "rm 'é.md' x\\\\ y >> ~/\"$PWD/p\"|make test > \".\" 2>&1"}
+{"id": "shell_invocations-00049", "kind": "shell_invocations", "command": "unlink b'.txt' > '/work/q r' & mv '.' ${HOME}/h"}
+{"id": "shell_invocations-00050", "kind": "shell_invocations", "command": "pushd -- '${HOME}/h' && c.py-item .\n {v　"}
+{"id": "shell_invocations-00051", "kind": "shell_invocations", "command": "! sed -e x -i  .. \"x,y\""}
+{"id": "shell_invocations-00052", "kind": "shell_invocations", "command": "cd //n/s/t 2>&1 ; pushd -1 > \"C:\\win\\p\";stdbuf -i pushd -1 1>&->/ && time  echo \"/abs/p\" >"}
+{"id": "shell_invocations-00053", "kind": "shell_invocations", "command": "cd 'a' 2>&1\npython3 dir 3>&1 1>&2 2>&3 & select x in a; do find -delete '/work/q r' >buil'd'; done\npushd +1 >"}
+{"id": "shell_invocations-00054", "kind": "shell_invocations", "command": "copy-item \"build\" -Destination:'{v}' 2>&1"}
+{"id": "shell_invocations-00055", "kind": "shell_invocations", "command": "cp 'src/' b.'txt' \"$HOME/h\" &> a;sed --expression=s/a/b/ -i s/a/b/ \"../x\" "}
+{"id": "shell_invocations-00056", "kind": "shell_invocations", "command": "setsid --fork perl -p -i -e  /abs/p < *.log &> '../../../../up' || xargs -d \\n install -d \"../../../../up\" \"${PWD}\""}
+{"id": "shell_invocations-00057", "kind": "shell_invocations", "command": "RM \"$PWD\"; sudo -Hn builtin -x rsync -av é.m'd' $PWD/p >> ~/*'.log' >&$VAR/x"}
+{"id": "shell_invocations-00058", "kind": "shell_invocations", "command": "rm -f 'x,y' >> -&&cp \"`cmd`\" a; { FOO=1 rm \"build\" of=d; } >"}
+{"id": "shell_invocations-00059", "kind": "shell_invocations", "command": "cat '[w]' >&&cd '~'"}
+{"id": "shell_invocations-00060", "kind": "shell_invocations", "command": "copy-item {v} -Destination:~/h >> ~/../x ; busybox  cd -L \".\""}
+{"id": "shell_invocations-00061", "kind": "shell_invocations", "command": "cp . '${PWD}' - >> '/' || env -S exec a:b"}
+{"id": "shell_invocations-00062", "kind": "shell_invocations", "command": "sed -i  \"é.md\"  2>f? >a:b|builtin -x env -S'true >' &> '[w]'"}
+{"id": "shell_invocations-00063", "kind": "shell_invocations", "command": "rsync --remove-source-files -a \"f?\" - || nohup --help cd +1"}
+{"id": "shell_invocations-00064", "kind": "shell_invocations", "command": "python3 dest 3>&1 1>&2 2>&3"}
+{"id": "shell_invocations-00065", "kind": "shell_invocations", "command": "echo ~/h;clear-content -FilePath \"a:b\" -Force 3>&1 1>&2 2>&3"}
+{"id": "shell_invocations-00066", "kind": "shell_invocations", "command": "grep -r x 'C:\\win\\p'"}
+{"id": "shell_invocations-00067", "kind": "shell_invocations", "command": "rsync -av 'dir' \"-\" > '\"-x\"|env -S }\\ 2>&1\\ >&2 src/"}
+{"id": "shell_invocations-00068", "kind": "shell_invocations", "command": "cd -- - ; cd | esac > /dev/null 2>&1"}
+{"id": "shell_invocations-00069", "kind": "shell_invocations", "command": "ionice -t rm -r -- 'x\\ y'"}
+{"id": "shell_invocations-00070", "kind": "shell_invocations", "command": "new-item -Path é.md -Value x | sed -i -e 's/x/y/' \"dir\" {v}|cd 2>/dev/null \"$VAR/x\""}
+{"id": "shell_invocations-00071", "kind": "shell_invocations", "command": "env -S 'unlink é.md >&\"a\"' a:b"}
+{"id": "shell_invocations-00072", "kind": "shell_invocations", "command": "elif dd of=\"dir/sub\" if=//n/s/t > '\"//n/s/t\"; then perl -I lib -pi x é.md >> \"//n/s/t\""}
+{"id": "shell_invocations-00073", "kind": "shell_invocations", "command": "unlink build&&cd -- -"}
+{"id": "shell_invocations-00074", "kind": "shell_invocations", "command": "set-item -Force 'f?'  & rsync -a \"dir\" o'f=d'; find -delete dest >&${PWD}"}
+{"id": "shell_invocations-00075", "kind": "shell_invocations", "command": "esac >&'dest' && find -delete ~/'h'"}
+{"id": "shell_invocations-00076", "kind": "shell_invocations", "command": "setsid  xargs -d \\n install -d `cm'd`' $PWD"}
+{"id": "shell_invocations-00077", "kind": "shell_invocations", "command": "a\\ke testa"}
+{"id": "shell_invocations-00078", "kind": "shell_invocations", "command": "unlink '(z)'"}
+{"id": "shell_invocations-00079", "kind": "shell_invocations", "command": ";dd of=$HOME/h if=b.txt|cp ~/h .. ~/h 1>&- & stdbuf -oL -eL doas -n true >> ~/x,y"}
+{"id": "shell_invocations-00080", "kind": "shell_invocations", "command": "env -S nohup\\ -x\\ rename-item\\ -Path:\"é.md\"\\ ../x\\ >\"a\" ../x >&2&&mv -t \"/\" (z); time -o -x popd >& ${PWD} ; dd of='$VAR/x' if=\"../../../../up\" > -x"}
+{"id": "shell_invocations-00081", "kind": "shell_invocations", "command": "unlink '-x' & pushd +1 && tee -a /abs/p"}
+{"id": "shell_invocations-00082", "kind": "shell_invocations", "command": "|esac 3>&1 1>&2 2>&3 || chdir a' b' ; copy-item dir/sub -Destination=C:\\win\\p"}
+{"id": "shell_invocations-00083", "kind": "shell_invocations", "command": "sed --expression=s/a/b/ -i  ..  >&dir && nohup  timeout --signal=TERM 10s unlink \"${PWD}\" >&'f?' 2 > [w] & toybox -x python3 \",c,\" 2>'é.md' >-; sed -n s/a/b/ './y' \"a b\""}
+{"id": "shell_invocations-00084", "kind": "shell_invocations", "command": "ls -la &> '/work/q r'&&( true 2>'*.log' >'-' ) >&2"}
+{"id": "shell_invocations-00085", "kind": "shell_invocations", "command": "find -delete />(z) && cd \"../../../../up\" >~"}
+{"id": "shell_invocations-00086", "kind": "shell_invocations", "command": "cp 'build' $PWD - >| \"/\""}
+{"id": "shell_invocations-00087", "kind": "shell_invocations", "command": "time -p cat \"~\" 2> ~/'h'; mv -n build //n/s/t 2>&1 &  &> \"{v}\" < \"..\""}
+{"id": "shell_invocations-00088", "kind": "shell_invocations", "command": "cp --target-directory=b.txt \"f?\" \"-x\" ; ren -p \"$PWD/p\"  >&*.log ; ls -la\nfind  dest -delete"}
+{"id": "shell_invocations-00089", "kind": "shell_invocations", "command": "sudo -E sed -e x -i  ..  | add-content -Force \"x\\ y\" "}
+{"id": "shell_invocations-00090", "kind": "shell_invocations", "command": "set-item -Name '/work/q r' -Value x;find -delete *.log >-"}
+{"id": "shell_invocations-00091", "kind": "shell_invocations", "command": "rm -- {v} > \",c,\" 2>&1\nfind -delete src/; env -S 'sudo env -i nice -n 3 unlink '\\''C:\\win\\p'\\'' >'\\''src/'\\'' > ./y' ~/h 2>\"b.txt\" >$PWD/p; true"}
+{"id": "shell_invocations-00092", "kind": "shell_invocations", "command": "cp \"dir/sub\" /work/q\\ r &> dir/sub"}
+{"id": "shell_invocations-00093", "kind": "shell_invocations", "command": "stdbuf --output=0 perl -I lib -pi 's/a/b/' -x"}
+{"id": "shell_invocations-00094", "kind": "shell_invocations", "command": "cd -P;select x in a; do timeout 5 true 2>\".\" >'`cmd`'; done >a\\ b\nclear-content -Force x'\\ y' -Value x 2> x,y"}
+{"id": "shell_invocations-00095", "kind": "shell_invocations", "command": "touch -a \"-\"; setsid -w pushd \"dir\" >\"src/\""}
+{"id": "shell_invocations-00096", "kind": "shell_invocations", "command": "ionice -c 3 { FOO=1  2>x\\\\ y >f?; } & unlink '$HOME/h' &> ../'../../../up' | ionice -c3 -n7 env -S dd\\ of='${HOME}/h'\\ if=`cmd`\\ >&2 '../../../../up'"}
+{"id": "shell_invocations-00097", "kind": "shell_invocations", "command": "del  $VAR/x "}
+{"id": "shell_invocations-00098", "kind": "shell_invocations", "command": "doas -u x rsync -a dir 'a b'"}
+{"id": "shell_invocations-00099", "kind": "shell_invocations", "command": "! ( copy-item 'dir' dir ) >> ~/`cmd`&&pushd"}
+{"id": "shell_invocations-00100", "kind": "shell_invocations", "command": "cp C:\\win\\p 'f?'&&cp ${PWD} 'f?' $HOME/h;sed -e x -i 's/x/y/' .  >"}
+{"id": "shell_invocations-00101", "kind": "shell_invocations", "command": "pushd || |perl -I lib -pi 's/a/b/' ../../../../up > 'dir"}
+{"id": "shell_invocations-00102", "kind": "shell_invocations", "command": "env -0 cd of=d >'a'"}
+{"id": "shell_invocations-00103", "kind": "shell_invocations", "command": "pushd -1 2>&1;sudo --weird sl a >&2"}
+{"id": "shell_invocations-00104", "kind": "shell_invocations", "command": "stdbuf -oL -eL cd x\\\\ y >*.log ; ls -la & xargs --null pushd / >| x',y' | dd if='é.md' of=. bs=1 >&\"dir\" 3>&1 1>&2 2>&3"}
+{"id": "shell_invocations-00105", "kind": "shell_invocations", "command": "rm.exe $HOME/h"}
+{"id": "shell_invocations-00106", "kind": "shell_invocations", "command": "true\nunlink `c'md`' | pushd ${HOME}/h"}
+{"id": "shell_invocations-00107", "kind": "shell_invocations", "command": "{ cd . 2>&1; }>/;{ FOO=1 git status>x\\\\ y; } >"}
+{"id": "shell_invocations-00108", "kind": "shell_invocations", "command": "find -delete f? > a':b';cd '~' >'~'"}
+{"id": "shell_invocations-00109", "kind": "shell_invocations", "command": "touch --date=now '{v}' || mv -n . dest | truncate -s x\\\\ y"}
+{"id": "shell_invocations-00110", "kind": "shell_invocations", "command": "grep -r x \"*.log\">a\\ b; python3 build"}
+{"id": "shell_invocations-00111", "kind": "shell_invocations", "command": "cd -P && cli -Recurse "}
+{"id": "shell_invocations-00112", "kind": "shell_invocations", "command": "clear-content -LiteralPath build -Value x | setsid -x command -v make test >& \"${PWD}\""}
+{"id": "shell_invocations-00113", "kind": "shell_invocations", "command": "cd -P | perl -Mstrict -i 's/a/b/' build"}
+{"id": "shell_invocations-00114", "kind": "shell_invocations", "command": "env -S \"find -O2 'build' ! -name a -delete\" \"-\""}
+{"id": "shell_invocations-00115", "kind": "shell_invocations", "command": "cp (z')' $HOME/h 2> f? | sed -ie 's/x/y/' '..' f? 2>&1"}
+{"id": "shell_invocations-00116", "kind": "shell_invocations", "command": "cd -- -;find -P 'src/' ( -name a ) -delete | toybox -x git status 3>&1 1>&2 2>&3 > /dev/null 2>&1 > '/work/q r' & python3 /work/q\\ r"}
+{"id": "shell_invocations-00117", "kind": "shell_invocations", "command": "cp -a ../../../../u'p' //n/s/t > é.'md' > ${'HOME}/h'&&pushd -- .."}
+{"id": "shell_invocations-00118", "kind": "shell_invocations", "command": "cd -L //n/s/t | cd 2>/dev/null - 2>../x >C:\\win\\p|sudo env -i nice -n 3 cd $HOME &> x,y >&/"}
+{"id": "shell_invocations-00119", "kind": "shell_invocations", "command": "dd if=.. of=//n/s/t bs=1 > \"`cmd`\""}
+{"id": "shell_invocations-00120", "kind": "shell_invocations", "command": "truncate -s 0 x,y >'a'"}
+{"id": "shell_invocations-00121", "kind": "shell_invocations", "command": "cd -- -"}
+{"id": "shell_invocations-00122", "kind": "shell_invocations", "command": "cd ${PWD} 2>&1"}
+{"id": "shell_invocations-00123", "kind": "shell_invocations", "command": "install -m755 \"(z)\" x,y > dir 2>&1 > 'f?' 2>&1;dd of=$PWD if=[w] && find -delete ${PWD} >> ~/(z)\ncat f?"}
+{"id": "shell_invocations-00124", "kind": "shell_invocations", "command": "mv -n '-' \"x,y\" &> 'dest'"}
+{"id": "shell_invocations-00125", "kind": "shell_invocations", "command": "stdbuf -i pushd -1 2>build >'/work/q r' | mv '.' ~/h > '\"b.txt\""}
+{"id": "shell_invocations-00126", "kind": "shell_invocations", "command": "exec -a for x in a b; do cp --target-directory=~ buil'd' a\\ b >> ~/',c,'; done>${PWD} & dd of=',c,' if=$HOME/h >~/h"}
+{"id": "shell_invocations-00127", "kind": "shell_invocations", "command": "! sed -l 5 -i 's/x/y/' \"dest\" src/"}
+{"id": "shell_invocations-00128", "kind": "shell_invocations", "command": "time -x cd +1"}
+{"id": "shell_invocations-00129", "kind": "shell_invocations", "command": "dd of=$VAR/x if=./y >> \"a b\""}
+{"id": "shell_invocations-00130", "kind": "shell_invocations", "command": "} >&${PWD};pushd $HOME/h ; cd -L x,y"}
+{"id": "shell_invocations-00131", "kind": "shell_invocations", "command": "builtin -x install -m 644 \"dest\" \"{v}\"; pushd -n \"[w]\""}
+{"id": "shell_invocations-00132", "kind": "shell_invocations", "command": "git status >;popd"}
+{"id": "shell_invocations-00133", "kind": "shell_invocations", "command": "env  pushd -n ./y >;time  cp '${PWD}' x\\\\ y -x 2 > $HOME/h"}
+{"id": "shell_invocations-00134", "kind": "shell_invocations", "command": "mv --target-directory=\"../x\" [w] ../../../../up | if A=1 B=2 make test >| f? 2>'of=d' >$PWD/p; then del -p -  2>build >${HOME}/h; fi"}
+{"id": "shell_invocations-00135", "kind": "shell_invocations", "command": "CD /work/q\\ r"}
+{"id": "shell_invocations-00136", "kind": "shell_invocations", "command": "setsid --fork cd \"$X\"\nenv -S'find -delete src/'&&cp $VAR/x /abs/p >"}
+{"id": "shell_invocations-00137", "kind": "shell_invocations", "command": "env -S set-location\\ x,y C:\\win\\p ; cat \"../x\""}
+{"id": "shell_invocations-00138", "kind": "shell_invocations", "command": "then find -L -D opt $VAR/x ( -name a ) -delete 2> $VAR/x"}
+{"id": "shell_invocations-00139", "kind": "shell_invocations", "command": "env -S'cd 2>/dev/null ~ > '~'; unbuffer -p cp -t x',y' \"-\" 3>&1 1>&2 2>&3"}
+{"id": "shell_invocations-00140", "kind": "shell_invocations", "command": "cp -r '../x' .. | git status 1>&-\ntrue&&while mv -f a:b\" {v}; do g t status; done"}
+{"id": "shell_invocations-00141", "kind": "shell_invocations", "command": "builtin -x if truncate -s 0 \"`cmd`\" 2 > a\\ b; then find -O2 \"a\" -fprint0 'dest' 1>&-; fi 2 > '-'|perl -I lib -pi x \".\" > '/"}
+{"id": "shell_invocations-00142", "kind": "shell_invocations", "command": "truncate -s\"aa b\" || rm -r f?"}
+{"id": "shell_invocations-00143", "kind": "shell_invocations", "command": "git status"}
+{"id": "shell_invocations-00144", "kind": "shell_invocations", "command": "perl -F, -i x \"${PWD}\" >& \"$PWD/p\"&&find -delete ${PWD}"}
+{"id": "shell_invocations-00145", "kind": "shell_invocations", "command": "ren -f \"*.log\"  < '/' | env -S'sudo -S -k cp *.log 'dir' >&'src/''"}
+{"id": "shell_invocations-00146", "kind": "shell_invocations", "command": "cd '{v}' 2>&1 && nohup  move -f $PWD \"$PWD/p\"\ntee --append dest; then cd dir/sub 2>&1 2>é.md >{'v}'"}
+{"id": "shell_invocations-00147", "kind": "shell_invocations", "command": "move-item -Recurse b.txt"}
+{"id": "shell_invocations-00148", "kind": "shell_invocations", "command": "perl -p -i -e x f?"}
+{"id": "shell_invocations-00149", "kind": "shell_invocations", "command": "cd \"/\" 2>&1"}
+{"id": "shell_invocations-00150", "kind": "shell_invocations", "command": "cp {v} f?&&cd -L '`cmd`' ; { exec\r\n -a fi 1>&-; }&&cd -- $PWD > 'f?"}
+{"id": "shell_invocations-00151", "kind": "shell_invocations", "command": "git status >&\"f?\" > '{v} & env -S 'nohup --help cd \"-x\" 2>&1' ${PWD}"}
+{"id": "shell_invocations-00152", "kind": "shell_invocations", "command": "install --directory '/' x\\' y' 2> 'dir'"}
+{"id": "shell_invocations-00153", "kind": "shell_invocations", "command": "sed -e x -i 's/x/y/' -  >> $'{HOME}/h';dd of=/ if=a:b > 'é.md' > $PWD 2>&1; cd '~' 2> *.log"}
+{"id": "shell_invocations-00154", "kind": "shell_invocations", "command": "then for x in a b; do true; done"}
+{"id": "shell_invocations-00155", "kind": "shell_invocations", "command": "{ Rm *.log >> ~/x\\\\ y >',c,'; }"}
+{"id": "shell_invocations-00156", "kind": "shell_invocations", "command": "cp \"f?\" ./y >'//n/s/t'"}
+{"id": "shell_invocations-00157", "kind": "shell_invocations", "command": "command -v cd '~' > /dev/null 2>&1 & timeout -x 5 nohup --help cd - >&."}
+{"id": "shell_invocations-00158", "kind": "shell_invocations", "command": "while mv -f b.txt C:\\w'in\\p' 2 > '/'; do cp -a './y' \"b.txt\" 2 > ~/h; done | move-item -LiteralPath=../../../../up "}
+{"id": "shell_invocations-00159", "kind": "shell_invocations", "command": "ls -la>/abs/p"}
+{"id": "shell_invocations-00160", "kind": "shell_invocations", "command": "popd\nren -f \"${PWD}\" a > /dev/null 2>&1 | case x in a) cp 'a b' $PWD/p 'dir';; esac >| \"*.log\""}
+{"id": "shell_invocations-00161", "kind": "shell_invocations", "command": "cp \"build\" -x C:\\win\\p'"}
+{"id": "shell_invocations-00162", "kind": "shell_invocations", "command": "ls -la & sed -i -e 's/x/y/' '$PWD/p' "}
+{"id": "shell_invocations-00163", "kind": "shell_invocations", "command": "set-location \"[w]\" 2>&1\ndd of='$PWD' if='${PWD}'"}
+{"id": "shell_invocations-00164", "kind": "shell_invocations", "command": "cd '~' > ',c',';rni -LiteralPath=../../../../up "}
+{"id": "shell_invocations-00165", "kind": "shell_invocations", "command": "cd x\\\\ y >*.lo'g' > 'x\\\\ y\ngrep -r x ',c,' >&-"}
+{"id": "shell_invocations-00166", "kind": "shell_invocations", "command": "dd if='{v}' of=\"C:\\win\\p\" bs=1|if true; then { FOO=1 cp a \"*.log\" 3>&1 1>&2 2>&3; }; else rm -r -- ~; fi"}
+{"id": "shell_invocations-00167", "kind": "shell_invocations", "command": "nice --adjustment 2 sudo -g adm -u x rm  -f \"C:\\win\\p\" 2>& || timeout -k if rm -r /abs/p\r; then cp '*.log' $VAR/x src/>a\\ b; fi"}
+{"id": "shell_invocations-00168", "kind": "shell_invocations", "command": "cat ../x | git status < ,c,>/ || touch -a \"C:\\win\\p\" &> '{v}' ; cd 2>/dev/null $PWD/p > dir/sub"}
+{"id": "shell_invocations-00169", "kind": "shell_invocations", "command": "find -delete //n/s/t ; sudo  cd -- ,c, >\"/\""}
+{"id": "shell_invocations-00170", "kind": "shell_invocations", "command": "make test || rm .. (z);cd ~/ 2> './y' && mv -n '-x' dir/sub"}
+{"id": "shell_invocations-00171", "kind": "shell_invocations", "command": "echo build > 'f?; dd if=src/ of=\"x\\ y\" bs=1"}
+{"id": "shell_invocations-00172", "kind": "shell_invocations", "command": "case x in a) cp --suffix=.o $PWD/p \"of=d\";; esac & rm (z) 'C:\\win\\p'"}
+{"id": "shell_invocations-00173", "kind": "shell_invocations", "command": "mv a\\ b \"*.log\"; &> '/work/q r' > [w] 2>&1"}
+{"id": "shell_invocations-00174", "kind": "shell_invocations", "command": "cler-item -Pat:a  ; pushd|touch -d \"2020-01-01\" ,c,"}
+{"id": "shell_invocations-00175", "kind": "shell_invocations", "command": "( while cd \"$X\"; do perl -pi 's/a/b/' \"x,y\"; done < - "}
+{"id": "shell_invocations-00176", "kind": "shell_invocations", "command": "ri -Recurse C:\\win\\p\n{ FOO=1 env --default-signal bin\\\\cp.cmd 'x,y' < '../../../../up'; } ; unbuffer -x for x in a b; do cp $PWD/p ../x &> dir/'sub' 2>\"{v}\" >\"C:\\win\\p\"; done"}
+{"id": "shell_invocations-00177", "kind": "shell_invocations", "command": "git status > '\"${HOME}/h\""}
+{"id": "shell_invocations-00178", "kind": "shell_invocations", "command": "stdbuf -oL -eL rm .. dir/sub & select x in a; do cd '~'>~; done|for x in a b; do stdbuf -oL -eL cp ${P'WD}' 'x,y' 'build' > '${PWD}; done | cd $VAR/x"}
+{"id": "shell_invocations-00179", "kind": "shell_invocations", "command": "popd >&&pushd"}
+{"id": "shell_invocations-00180", "kind": "shell_invocations", "command": "grep -r x 'a:b'; cd '~' || grep -r x \"of=d\" > '\"of=d\" >& ..'/x'"}
+{"id": "shell_invocations-00181", "kind": "shell_invocations", "command": "bin\\\\cp.cmd \"[w]\"&&rm *.log [w]"}
+{"id": "shell_invocations-00182", "kind": "shell_invocations", "command": "new-item -Weird 'dir' -Value x; stdbuf -oL -eL dd if=\"build\" of='$PWD' bs=1>\"../x\" >| ~"}
+{"id": "shell_invocations-00183", "kind": "shell_invocations", "command": "cd ~/|sudo -u root exec -cl install -o root ${PWD} a' b' 3>&1 1>&2 2>&3 && copy-item ~ -Destination=f?"}
+{"id": "shell_invocations-00184", "kind": "shell_invocations", "command": "find -P [w] -name x -delete&&sudo --weird cd \"$X\" & CD '.' >> f? && set-location \"`cmd`\""}
+{"id": "shell_invocations-00185", "kind": "shell_invocations", "command": "time -f x cp --suffix=.o 'a:b' b.txt >&2"}
+{"id": "shell_invocations-00186", "kind": "shell_invocations", "command": "!\t nohup  unlink \"src/\">'\r/h' &> 'f?' 2>x\\\\ y >'/'"}
+{"id": "shell_invocations-00187", "kind": "shell_invocations", "command": "cli -LiteralPath=${HOME}/h '/work/q r'"}
+{"id": "shell_invocations-00188", "kind": "shell_invocations", "command": "until false; do CD '-'; done"}
+{"id": "shell_invocations-00189", "kind": "shell_invocations", "command": "true >| /\ncp dest /work/q\\ r /abs/p|elif rm -rf é.md; then :make test"}
+{"id": "shell_invocations-00190", "kind": "shell_invocations", "command": "install -d dest build; nice; cp *.log \"(z)\" /work/q\\ r 1>&- & del  ../../../../up "}
+{"id": "shell_invocations-00191", "kind": "shell_invocations", "command": "done;cp /work/q\\ r ,'c,' 'b.txt'\ncd\ntruncate --size=0 $VAR/x < `cmd`"}
+{"id": "shell_invocations-00192", "kind": "shell_invocations", "command": "dd if=\"a b\" of=,c, bs=1 || chdir \"C:\\win\\p\""}
+{"id": "shell_invocations-00193", "kind": "shell_invocations", "command": "nice -n dd of=../../../../up if=${PWD'}' 1>&-;dd if=é.md of=\"${HOME}/h\" bs=1"}
+{"id": "shell_invocations-00194", "kind": "shell_invocations", "command": "if true; then time -v make test; else cd ~/; fi"}
+{"id": "shell_invocations-00195", "kind": "shell_invocations", "command": "cd src/ >$HOME/h || dd of=../../../../up if=a\\ b | copy-item a:'b' a\\ 'b'; >"}
+{"id": "shell_invocations-00196", "kind": "shell_invocations", "command": "find -L -D opt \"$PWD\" -fprintf 'src/' %p"}
+{"id": "shell_invocations-00197", "kind": "shell_invocations", "command": "rm \"~/h\" b.txt;cp of=d `cmd'`' > ${HOME}/h >&1"}
+{"id": "shell_invocations-00198", "kind": "shell_invocations", "command": "rsync -a ../x dir"}
+{"id": "shell_invocations-00199", "kind": "shell_invocations", "command": "set-location -x 2>&1"}
+{"id": "shell_invocations-00200", "kind": "shell_invocations", "command": "make test >> ~/\"*.log\" || cd -; pushd '$PWD'"}
+{"id": "shell_invocations-00201", "kind": "shell_invocations", "command": "cd -L x\\\\ 'y';unlink .. > ,c, 2>&1\ngrep -r x \"-x\" | env -S'mv \"x\\ y\" a\\ b' > b.txt"}
+{"id": "shell_invocations-00202", "kind": "shell_invocations", "command": "env -S then\\ dd\\ of=$HOME/h\\ if='`cmd`'\\ >\\ 'of=d' [w]\nrename-item -NewName=/abs/p "}
+{"id": "shell_invocations-00203", "kind": "shell_invocations", "command": "mv d'ir/sub' `cmd` 2 > 'x,y' && cp -a \"C:\\win\\p\" '*.log'"}
+{"id": "shell_invocations-00204", "kind": "shell_invocations", "command": "cp 'a b' ${PWD} a:b 3>&1 1>&2 2>&3 2>b.t'xt' >~/h"}
+{"id": "shell_invocations-00205", "kind": "shell_invocations", "command": "toybox -x timeout --signal=TERM 10s rm -i ~/h"}
+{"id": "shell_invocations-00206", "kind": "shell_invocations", "command": "grep -r  /work/q\\ k"}
+{"id": "shell_invocations-00207", "kind": "shell_invocations", "command": "then touch -r \"$VAR/x\" ('z)'"}
+{"id": "shell_invocations-00208", "kind": "shell_invocations", "command": "sudo -- time -p erase  a:b [w] >> ~/'}uild' 1\r\n&-"}
+{"id": "shell_invocations-00209", "kind": "shell_invocations", "command": "! ionice -c3 -n7 find -D ../x -print >~ | git status 2> é.md >| \"//n/s/t\""}
+{"id": "shell_invocations-00210", "kind": "shell_invocations", "command": "perl -p -i -e  'a b' > '$PWD' & truncate --size=0 \"a:b\" 2> build;make test>a"}
+{"id": "shell_invocations-00211", "kind": "shell_invocations", "command": "git status > dir/sub 2>&1 > ; cd -L \"dest\" & cd -- \"[w]\" >build"}
+{"id": "shell_invocations-00212", "kind": "shell_invocations", "command": "dd of=b.t'xt' if=é.md"}
+{"id": "shell_invocations-00213", "kind": "shell_invocations", "command": "cd \"$X\";dd of='[w]' if=/wo'rk/q r' 2>//n/s/t >'*.log'"}
+{"id": "shell_invocations-00214", "kind": "shell_invocations", "command": "cd src/ >$PWD/p&& &> (z) || find -H 'of=d' -fprint $PWD 2 > of=d|while touch -t 202001010000 '(z)'; do mv -t \"$VAR/x\" ,c, < 'of=d'; done"}
+{"id": "shell_invocations-00215", "kind": "shell_invocations", "command": "case x in a) chdir 'dir/sub';; esac"}
+{"id": "shell_invocations-00216", "kind": "shell_invocations", "command": "cd -P | env -S rm {v} ../../../../up >| '[w]' || mv \"${PWD}\"  'build' || cp '' \"/abs/p\""}
+{"id": "shell_invocations-00217", "kind": "shell_invocations", "command": "find -H x\\\\ y ( -name a ) -delete 1>&-&&{ FOO=1 cd -- -; } < C:\\win\\p; { rd /q 'dest' ; } 2> 'dir/sub'"}
+{"id": "shell_invocations-00218", "kind": "shell_invocations", "command": "CD '[w]' | cat ~/h | busybox  git status 2>&1 >& '$VAR/x'\nrm src/ é.md"}
+{"id": "shell_invocations-00219", "kind": "shell_invocations", "command": "unbuffer -p ri -NewName=../../../../up  < x,y & mv $PWD \"x,y\"&&rm '{v}' [w]"}
+{"id": "shell_invocations-00220", "kind": "shell_invocations", "command": "xargs -x make test & git status 2> '/'"}
+{"id": "shell_invocations-00221", "kind": "shell_invocations", "command": ""}
+{"id": "shell_invocations-00222", "kind": "shell_invocations", "command": "cp ./y of='d'>~'/h'\ndd of=b.txt if=of=d >& '~'"}
+{"id": "shell_invocations-00223", "kind": "shell_invocations", "command": "find -P (z')' -name x -delete"}
+{"id": "shell_invocations-00224", "kind": "shell_invocations", "command": "python3 ('z)' 2 > ~ >&2"}
+{"id": "shell_invocations-00225", "kind": "shell_invocations", "command": "select x in a; do make test > \"a\"; done"}
+{"id": "shell_invocations-00226", "kind": "shell_invocations", "command": " && sudo env -i nice -n 3 rm 'x,y' ,c, 2>&1"}
+{"id": "shell_invocations-00227", "kind": "shell_invocations", "command": "install -d \"build\" dir/sub"}
+{"id": "shell_invocations-00228", "kind": "shell_invocations", "command": "copy-item \"x,y\" ../../../../up || cd $HOME || touch -r \"$HOME/h\" -x >&\"x\\ y\"; if true; then sed -f 's/x/y/' ~ ; else env -S'cat / 3>&1 1>&2 2>&3 2> ..'; fi 2>\"dest\" >\"/\""}
+{"id": "shell_invocations-00229", "kind": "shell_invocations", "command": "pushd -1 & } 2 > of=d\nbuiltin -- mv --target-directory=x\\' y' \"./y\" '/abs/p'"}
+{"id": "shell_invocations-00230", "kind": "shell_invocations", "command": "unlink x,y > /dev/null 2>&1 && busybox  echo $HOME/h &> *.log & unlink -x"}
+{"id": "shell_invocations-00231", "kind": "shell_invocations", "command": "dd if=\"../../../../up\" of='C:\\win\\p' bs=1 >> ~/src/\nrmdir -f x\\\\ y \"~/h\""}
+{"id": "shell_invocations-00232", "kind": "shell_invocations", "command": "cp '(z)' x\\\\ y >| 'x,y'"}
+{"id": "shell_invocations-00233", "kind": "shell_invocations", "command": "cp \"é.md\" b.'txt' >-x|unlink '/'"}
+{"id": "shell_invocations-00234", "kind": "shell_invocations", "command": "set-content -Force of=d -Variable v 2 > \"${HOME}/h\";cd -L \"$PWD/p\" || timeout -x 5 for x in a b; do sl -; done"}
+{"id": "shell_invocations-00235", "kind": "shell_invocations", "command": "rm $P'WD/p' '../x' && dd of=. if='`cmd`'"}
+{"id": "shell_invocations-00236", "kind": "shell_invocations", "command": "xargs -I dd if=C:\\win\\p of=C:\\win\\p bs=1 && case x in a) sed -ie 's/x/y/' (z) -;; esac >&é.md\nfi ; ( cd '~' )"}
+{"id": "shell_invocations-00237", "kind": "shell_invocations", "command": "time -f x cp ~ $VAR/x ~"}
+{"id": "shell_invocations-00238", "kind": "shell_invocations", "command": "exec > f?"}
+{"id": "shell_invocations-00239", "kind": "shell_invocations", "command": "truncate -s0 \"a:b\""}
+{"id": "shell_invocations-00240", "kind": "shell_invocations", "command": "dd if=a:b of='../../../../up' bs=1; rd  . 'C:\\win\\p' ; cp dir/sub '/work/q r'"}
+{"id": "shell_invocations-00241", "kind": "shell_invocations", "command": "rsync --remove-source-files -a $VAR/x \",c,\" >/abs/p"}
+{"id": "shell_invocations-00242", "kind": "shell_invocations", "command": "stdbuf -o0 find -delete \"${PWD}\" 2>&1 > /dev/null 2>&1 < *.log"}
+{"id": "shell_invocations-00243", "kind": "shell_invocations", "command": "CD \",c,\""}
+{"id": "shell_invocations-00244", "kind": "shell_invocations", "command": "mv '/' of'=d' < a\ntrue|rm -f \"x\\ y\" >> ."}
+{"id": "shell_invocations-00245", "kind": "shell_invocations", "command": "until false; do touch --date=now \"{v}\" 2>\"*.log\" >\"C:\\win\\p\"; done>\"$PWD/p\"|dd of=é.md if=../../../../up >.;sudo env -i nice -n 3 cd -L ${HOME}/h\necho -"}
+{"id": "shell_invocations-00246", "kind": "shell_invocations", "command": "A=1 B=2 cd -P ; unlink $VAR/x | unlink //n/s/t;dd of=b.txt if=$PWD 2>&1"}
+{"id": "shell_invocations-00247", "kind": "shell_invocations", "command": "cd -L \"C:\\win\\p\" & { exec -a name true >&(z); } 1>&-"}
+{"id": "shell_invocations-00248", "kind": "shell_invocations", "command": "rsync --remove-source-files -a x,'y' ./y 3>&1 1>&2 2>&3&&tee -a \"$VAR/x\" 2>&1"}
+{"id": "shell_invocations-00249", "kind": "shell_invocations", "command": "find -delete {v} 2>&1 2>&1|find -D ~ -fls `cmd`; set-item -Force `cmd` \ntee  '.' > \"..\" 2>&1"}
+{"id": "shell_invocations-00250", "kind": "shell_invocations", "command": "then C:\\\\tools\\\\rm.EXE $HOM'E/h' >"}
+{"id": "shell_invocations-00251", "kind": "shell_invocations", "command": "env -i pushd $VAR/x > ',c,"}
+{"id": "shell_invocations-00252", "kind": "shell_invocations", "command": "unbuffer  (  2> $PWD/p )"}
+{"id": "shell_invocations-00253", "kind": "shell_invocations", "command": "shred -f '$PWD/p' \"/\" || dd of=- if=*.log"}
+{"id": "shell_invocations-00254", "kind": "shell_invocations", "command": "truncate -s 0 [w] >> ~/'x,y' ; toybox -x sed --expression=s/a/b/ -i s/a/b/ \"/\" / >> //n/s/t > && make test >'/work/q r' 2>'~/h' >a\\ b"}
+{"id": "shell_invocations-00255", "kind": "shell_invocations", "command": "rm buil'd' [w]"}
+{"id": "shell_invocations-00256", "kind": "shell_invocations", "command": "unlink 'x,y'"}
+{"id": "shell_invocations-00257", "kind": "shell_invocations", "command": "echo (z)"}
+{"id": "shell_invocations-00258", "kind": "shell_invocations", "command": "cd '~'"}
+{"id": "shell_invocations-00259", "kind": "shell_invocations", "command": "make test 2 > \"~\" ; mv \"f?\" a\\ b | copy-item \"~\" -Destination:$HOME/h > f? > /dev/null 2>&1"}
+{"id": "shell_invocations-00260", "kind": "shell_invocations", "command": "nice -n time -x sed -i -e 's/x/y/' .. a:b>(z) 2> ~/h|cd '~' 1>&-"}
+{"id": "shell_invocations-00261", "kind": "shell_invocations", "command": "rsync --remove-source-files 'of=d' ~ < 'dir/sub'"}
+{"id": "shell_invocations-00262", "kind": "shell_invocations", "command": "ls -la\n 2> $HOME/h ; true"}
+{"id": "shell_invocations-00263", "kind": "shell_invocations", "command": "ls -la 2 > {'v}'; mv \"../x\" -"}
+{"id": "shell_invocations-00264", "kind": "shell_invocations", "command": "grep -r x '`cmd`' >> \"./y\" || CD ,c,"}
+{"id": "shell_invocations-00265", "kind": "shell_invocations", "command": "CD src/|cd -P >| $PWD"}
+{"id": "shell_invocations-00266", "kind": "shell_invocations", "command": "touch -r ${HOME}/h a 2 > ..;pushd -n \"a:b\" ; mv --target-directory=\".\" '-' 'of=d';find  ',c,' -print>../x"}
+{"id": "shell_invocations-00267", "kind": "shell_invocations", "command": "make test > /dev/null 2>&1"}
+{"id": "shell_invocations-00268", "kind": "shell_invocations", "command": "cp \"[w]\" 'a:b' 2>&1 >"}
+{"id": "shell_invocations-00269", "kind": "shell_invocations", "command": "cd -P 3>&1 1>&2 2>&3&&mv C:\\win\\p /'abs/p' > \"/work/q r\" 2>&1 2> src/ && mv --target-directory=a\\ b x\\\\ y '$HOME/h'"}
+{"id": "shell_invocations-00270", "kind": "shell_invocations", "command": "cd {v}&&cd ~/ > /dev/null 2>&1"}
+{"id": "shell_invocations-00271", "kind": "shell_invocations", "command": "dd of=a' b' if=-"}
+{"id": "shell_invocations-00272", "kind": "shell_invocations", "command": "mv -t \"dir/sub\" /abs/p\ncat '-x' >| ../x"}
+{"id": "shell_invocations-00273", "kind": "shell_invocations", "command": "dd if='`cmd`' of='$VAR/x' bs=1"}
+{"id": "shell_invocations-00274", "kind": "shell_invocations", "command": "rm \"../x\" \"(z)\""}
+{"id": "shell_invocations-00275", "kind": "shell_invocations", "command": "ls﻿ _-la"}
+{"id": "shell_invocations-00276", "kind": "shell_invocations", "command": "nice 3>&1 1>&2 2>&3\nren  '-'  ; timeout --signal=TERM 10s cd ~/"}
+{"id": "shell_invocations-00277", "kind": "shell_invocations", "command": "cp --target-directory=../'x' /'work/q r' ~/h || |cd 2>/dev/null ./y; find -O2 dest ( -name a ) -delete > /dev/null 2>&1"}
+{"id": "shell_invocations-00278", "kind": "shell_invocations", "command": "Rm /work/q\\ r >&'..'; while ren -p //n/s/t ; do cp of=d / ${PWD}; done | rm - C:\\win\\p 3>&1 1>&2 2>&3 || ri -LiteralPath=./y "}
+{"id": "shell_invocations-00279", "kind": "shell_invocations", "command": "cd - | true >> of=d 2>\"$PWD\" >'~/h'\nls -la"}
+{"id": "shell_invocations-00280", "kind": "shell_invocations", "command": "rm -i //n/s/t ; sudo env -i nice -n 3 sed -i.bak s/a/b/ \"b.txt\"  > - 2>&1&&done 1>&- ; cat ${PWD} >&2"}
+{"id": "shell_invocations-00281", "kind": "shell_invocations", "command": "sudo env -i nice -n 3 nice -x ren  \"a\" x\\\\ y >> .. | env -S \"( perl -Mstrict -i x d'ir' > /dev/null 2>&1 )\" ../../'../../up'|dd if=x\\\\ y of='$PWD/p' bs=1 & sudo env -i nice -n 3 cli -Recurse `cmd'`' >"}
+{"id": "shell_invocations-00282", "kind": "shell_invocations", "command": "cd +1 &> x\\\\ y"}
+{"id": "shell_invocations-00283", "kind": "shell_invocations", "command": "{ perl -I lib -pi x [w]; } & { cd -- -; }|tee --append \"dest\" >| of=d | sed -\\ 's/x/y/ ../'x' "}
+{"id": "shell_invocations-00284", "kind": "shell_invocations", "command": "if echo src/ >> ~/*.log; then tee --append /; fi >| .. && until false; do grep -r x \"[w]\"; done"}
+{"id": "shell_invocations-00285", "kind": "shell_invocations", "command": "env -S'pushd -- build >> ~/-x' | truncate -s C:\\win\\p"}
+{"id": "shell_invocations-00286", "kind": "shell_invocations", "command": "python3 'a' ; cat -x ; ri -NewName=\"a:b\"  >b.txt & cd ~"}
+{"id": "shell_invocations-00287", "kind": "shell_invocations", "command": "if PATH=/x grep -r x ../../../../up; then ! copy-item . $PWD/p 2>$PWD >\"$VAR/x\"; fi; true && mv b.txt / >> '.' > & nohup --help mv -n '-x' \"dest\" 1>&- >&~"}
+{"id": "shell_invocations-00288", "kind": "shell_invocations", "command": "ls -la >&'.'"}
+{"id": "shell_invocations-00289", "kind": "shell_invocations", "command": "pusd -\r\n&&env -:C \"`cmd`\" cd \"a b\""}
+{"id": "shell_invocations-00290", "kind": "shell_invocations", "command": "PATHEXT=.exe mv --target-directory=//n/s/t $PWD \"/work/q r\"&&perl -Mstrict -i 's/a/b/' \"$PWD\""}
+{"id": "shell_invocations-00291", "kind": "shell_invocations", "command": "PATHEXT=.exe dd if=\"é.md\" of=\"*.log\" bs=1 > .'/y' 2>&1\ndoas -C ${PWD} grep -r x ../x"}
+{"id": "shell_invocations-00292", "kind": "shell_invocations", "command": "install -m755 . \"C:\\win\\p\" >& \"[w]\"\nrm of=d '-x' >\"a:b\" 1>&- ; copy-item (z)  2>.. >\",c,\""}
+{"id": "shell_invocations-00293", "kind": "shell_invocations", "command": " >> ',c,'&&true > ; perl -p -i -e  '..' 2> '${PWD}'"}
+{"id": "shell_invocations-00294", "kind": "shell_invocations", "command": "cd -L *.log || esac>'é.md'; select x in a; do cd -- dest; done"}
+{"id": "shell_invocations-00295", "kind": "shell_invocations", "command": "ls -la;git status >&x\\\\ y"}
+{"id": "shell_invocations-00296", "kind": "shell_invocations", "command": "Rm ../x"}
+{"id": "shell_invocations-00297", "kind": "shell_invocations", "command": "xargs -r rm -- /abs'/p' > /dev/null 2>&1 2>dir/sub >//n/s/t && rm //n/s/t /\npushd +1 >$'PWD/p'"}
+{"id": "shell_invocations-00298", "kind": "shell_invocations", "command": "cd -- - || truncate --size=0 é'.md'"}
+{"id": "shell_invocations-00299", "kind": "shell_invocations", "command": "pushd -- 'dir'&&find -delete x\\\\ y"}
+{"id": "shell_invocations-00300", "kind": "shell_invocations", "command": "find -delete \"-x\""}
+{"id": "shell_invocations-00301", "kind": "shell_invocations", "command": "cd -|perl -e 's/a/b/' x,y 2>&1\n;python3 ..>~"}
+{"id": "shell_invocations-00302", "kind": "shell_invocations", "command": "tee --append .. && timeout --foreground 2 mv ./y ~ > \"dir\" & find -H . -delete > $VAR/x 2>&1"}
+{"id": "shell_invocations-00303", "kind": "shell_invocations", "command": "if truncate -s 0 *.log; then env --chdir=//n/s/t pushd -- \"dir\"; fi"}
+{"id": "shell_invocations-00304", "kind": "shell_invocations", "command": "cp - '/abs/p' '{v}' >;unbuffer -p pushd -n \"of=d\" >& '*.log' 3>&1 1>&2 2>&3"}
+{"id": "shell_invocations-00305", "kind": "shell_invocations", "command": "exec >& a; clear-content -Variable ,'c,'  || dd of=$HOME/h if=\"x\\ y\" >> \"of=d\" ; rsync --remove-source-files -a //n/s/t x,y"}
+{"id": "shell_invocations-00306", "kind": "shell_invocations", "command": "nice -5 nohup --help mv 'f?' \"-x\" >| f? >&a\\ 'b'; CD `cmd` >& '../../../../up' || pushd +1 >&2;done 2> /ab's/p'"}
+{"id": "shell_invocations-00307", "kind": "shell_invocations", "command": "true 2> [w] >& \"~\""}
+{"id": "shell_invocations-00308", "kind": "shell_invocations", "command": "exec -a setsid  cd 2> b.tx't'&&esac"}
+{"id": "shell_invocations-00309", "kind": "shell_invocations", "command": "while cd -L 'of=d'; do cd \"a b\" >['w]'; done; dd of=. if=\"$HOMEh\""}
+{"id": "shell_invocations-00310", "kind": "shell_invocations", "command": "pushd +1"}
+{"id": "shell_invocations-00311", "kind": "shell_invocations", "command": "cd -&&busybox  sudo -- bin\\\\cp.cmd a&&dd if='{v}' of=\"~\" bs=1 2> ../../../../up;time  cd '~'"}
+{"id": "shell_invocations-00312", "kind": "shell_invocations", "command": "cd $HOME && mv -t \"./y\" -x ; echo '..' >&2 && rm $VAR/x \"${PWD}\""}
+{"id": "shell_invocations-00313", "kind": "shell_invocations", "command": "rm -i x,y > /dev/null 2>&1; make test 2>&1"}
+{"id": "shell_invocations-00314", "kind": "shell_invocations", "command": "ls -la"}
+{"id": "shell_invocations-00315", "kind": "shell_invocations", "command": "ls -la & move /q \"/work/q r\" \"f?\" | move-item -Destination:b'uild'  && cd $PWD/p >\"*.log\""}
+{"id": "shell_invocations-00316", "kind": "shell_invocations", "command": "cd 2> f?; move -p 'x\\ y' \ncp a x\\\\ y '-' >&2"}
+{"id": "shell_invocations-00317", "kind": "shell_invocations", "command": "ren /q \"../x\"  < dir || cd \"$VAR/x\""}
+{"id": "shell_invocations-00318", "kind": "shell_invocations", "command": "popd"}
+{"id": "shell_invocations-00319", "kind": "shell_invocations", "command": "nohup --help true 2>\"/work/q r\" >dest && { FOO=1 sudo -- ri -Destination:\".\" '-x'; }"}
+{"id": "shell_invocations-00320", "kind": "shell_invocations", "command": "while mv $HOME/h of=d; do select x in a; do pushd -- build; done; done|perl -Mstrict -i 's/a/b/' [w] | python3 \"..\" >&2 && truncate -s 'é.md' 1>&-"}
+{"id": "shell_invocations-00321", "kind": "shell_invocations", "command": "pushd -1 ; for x in a b; do unbuffer  dd of=src/ if=(z); done| >> ~/b.txt;unlink 'build' >&'a b'"}
+{"id": "shell_invocations-00322", "kind": "shell_invocations", "command": "ls -la"}
+{"id": "shell_invocations-00323", "kind": "shell_invocations", "command": "echo $'PWD' ; grep -r x ../../../../up | cd ~&&"}
+{"id": "shell_invocations-00324", "kind": "shell_invocations", "command": "builtin -x fi 2> ."}
+{"id": "shell_invocations-00325", "kind": "shell_invocations", "command": "select x in a; do git status; done"}
+{"id": "shell_invocations-00326", "kind": "shell_invocations", "command": "pus,ahd 1"}
+{"id": "shell_invocations-00327", "kind": "shell_invocations", "command": "pushd +1\nmake test|dd of=\"/\" if=x,y"}
+{"id": "shell_invocations-00328", "kind": "shell_invocations", "command": "dd of=-x if='dir'"}
+{"id": "shell_invocations-00329", "kind": "shell_invocations", "command": "cd +1"}
+{"id": "shell_invocations-00330", "kind": "shell_invocations", "command": "sed -f s/a/b/ .. '/abs/p' & cd +1"}
+{"id": "shell_invocations-00331", "kind": "shell_invocations", "command": "sed -i -e 's/x/y/' \"`cmd`\" -x || then mi -Recurse -x >> \"//n/s/t\""}
+{"id": "shell_invocations-00332", "kind": "shell_invocations", "command": "sl $VAR/x || dd if='*.log' of=../../../../up bs=1 >> é.md;cd 2>/dev/null $PWD >& {v};rm dir/sub /abs/p"}
+{"id": "shell_invocations-00333", "kind": "shell_invocations", "command": "sl 'of=d' | ionice -c 3 cd -L C:\\win\\'p';cp --target-directory=//n/s/t 'dir/sub' \"b.txt\" || env -S'cd 'a''"}
+{"id": "shell_invocations-00334", "kind": "shell_invocations", "command": "truncate -s 0 '../../../../up'|rsync --remove-source-files -a \"[w]\" \"~/h\" > /dev/null 2>&1 1>&- || true ; python3 \",c,\""}
+{"id": "shell_invocations-00335", "kind": "shell_invocations", "command": "del /q \"a b\" /work/q\\ r|dd if=*.'log' of=$VAR/x bs=1 >& ./y"}
+{"id": "shell_invocations-00336", "kind": "shell_invocations", "command": "elif cd; then sudo -g adm -u x cd - < [w]|select x in a; do echo dest >> ~/a\\ b >> ~/dir/sub; done ; install -t ,c, build /abs/p"}
+{"id": "shell_invocations-00337", "kind": "shell_invocations", "command": "grep -r x '/work/q r'"}
+{"id": "shell_invocations-00338", "kind": "shell_invocations", "command": "perl -Mstrict -i  ../../../..'/up'>'a:b' & env FOO=1 stdbuf -o0 ./rm './y' >&2 >&2"}
+{"id": "shell_invocations-00339", "kind": "shell_invocations", "command": "env -S env\\ -0\\ rm\\ x,'y'\\ f?\\ 2>\\ src/ \"dir\""}
+{"id": "shell_invocations-00340", "kind": "shell_invocations", "command": "make test >> x\\\\ y > /dev/null 2>&1 | unbuffer -p ! unlink '[w]' 2>./y >\"of=d\"|grep -r x \"$PWD\" | command -x exec -a make test >& \"/work/q r\""}
+{"id": "shell_invocations-00341", "kind": "shell_invocations", "command": "ls -la | cd -- ~ >"}
+{"id": "shell_invocations-00342", "kind": "shell_invocations", "command": "cp é.md \"~/h\" ../../../../up ; sed -l 5 -i  -x "}
+{"id": "shell_invocations-00343", "kind": "shell_invocations", "command": "cd -- \"*.log\""}
+{"id": "shell_invocations-00344", "kind": "shell_invocations", "command": "exec > '-' 2>&1"}
+{"id": "shell_invocations-00345", "kind": "shell_invocations", "command": "tee --append of=d"}
+{"id": "shell_invocations-00346", "kind": "shell_invocations", "command": "rm é.md [w] > //n/s/t"}
+{"id": "shell_invocations-00347", "kind": "shell_invocations", "command": "python3 a\\ b > /dev/null 2>&1\nsudo env -i nice -n 3 cli -Destinati n:${HOME}/h 'C:\\win\\p' >&/abs/p > $'{HOME}/h' 2>&1"}
+{"id": "shell_invocations-00348", "kind": "shell_invocations", "command": "echo x\\\\ y"}
+{"id": "shell_invocations-00349", "kind": "shell_invocations", "command": "rm //n/s/t `cmd`;{ FOO=1 git status; } > ~ 2>&1\nunlink $VA'R/x'|unbuffer -p stdbuf -o0 install -m 644 'dest' '-x'"}
+{"id": "shell_invocations-00350", "kind": "shell_invocations", "command": "time  doas -C \"-\" cp '$PWD' build"}
+{"id": "shell_invocations-00351", "kind": "shell_invocations", "command": "select x in a; do elif install --directory ~/h 'dest' >> ~/[w]; then rsync --remove-source-files -a ../x /w'ork/q r' > 'C:\\win\\p &> \"$HOME/h\"; done"}
+{"id": "shell_invocations-00352", "kind": "shell_invocations", "command": "PATHEXT=.exe ! cd -P ; pushd +1"}
+{"id": "shell_invocations-00353", "kind": "shell_invocations", "command": "busybox  pushd -n \"-\" || "}
+{"id": "shell_invocations-00354", "kind": "shell_invocations", "command": "echo ../../../../up"}
+{"id": "shell_invocations-00355", "kind": "shell_invocations", "command": "nohup -x mi -Destination:'$PWD/p'  2>&1 & cat ${PWD}"}
+{"id": "shell_invocations-00356", "kind": "shell_invocations", "command": "rm -rf / > a 2>&1 | install -g \"x\\ y\" a:b\ntime -x ls -la"}
+{"id": "shell_invocations-00357", "kind": "shell_invocations", "command": "unlink $PWD; sed -i.bak  [w] ~/h & then make test > 2 > dir/sub 3>&1 1>&2 2>&3;( xargs -n1 new-item -- '../x' a' b' 2>build >x,'y' 2> (z) ) 3>&1 1>&2 2>&3"}
+{"id": "shell_invocations-00358", "kind": "shell_invocations", "command": "cd\r\n +1| >"}
+{"id": "shell_invocations-00359", "kind": "shell_invocations", "command": "time --format=x dd of=x\\\\ y if=-x"}
+{"id": "shell_invocations-00360", "kind": "shell_invocations", "command": "busybox  xargs --max-args=2 rename  'x\\ y' dir;cp \"$HOME/h\" '`cmd`' ,'c,' > /dev/null 2>&1 || mv '$PWD' \"../../../../up\" 3>&1 1>&2 2>&3 2> '*.log'"}
+{"id": "shell_invocations-00361", "kind": "shell_invocations", "command": "command  rsync -a dir $VAR'/x' || mv -n \"b.txt\" \"~/h\"|{ find -D ${HOME}/h ! -name a -delete; }"}
+{"id": "shell_invocations-00362", "kind": "shell_invocations", "command": "toybox -x mv \"${PWD}\" \"dest\""}
+{"id": "shell_invocations-00363", "kind": "shell_invocations", "command": "popd; install --mode=600 (z) é.'md' < dir/sub"}
+{"id": "shell_invocations-00364", "kind": "shell_invocations", "command": "grep -r x ~ > '[w]'\nnice -n 5 cd $HOME >&'${HOME}/h'"}
+{"id": "shell_invocations-00365", "kind": "shell_invocations", "command": "sed --expression=s/a/b/ -i  a\\ b ',c,' 2> dir/s'ub' & dd if=//n/s/t of=.. bs=1 2 > '$HOME/h'"}
+{"id": "shell_invocations-00366", "kind": "shell_invocations", "command": "sed -ie 's/x/y/' ../x  >\ntrue > .|rm.exe .|cd -P"}
+{"id": "shell_invocations-00367", "kind": "shell_invocations", "command": "perl -e 's/a/b/' {v}\nsudo env -i nice -n 3  ; unlink C:\\win\\p"}
+{"id": "shell_invocations-00368", "kind": "shell_invocations", "command": "truncate -s 0 \"b.txt\" > | until false; do install -o root dir (z); done>\"$VAR/x\" && pushd \"{v}\"\ndd if=./y of=/work/q\\ r bs=1"}
+{"id": "shell_invocations-00369", "kind": "shell_invocations", "command": "mi -Dstination:..  & dd if=\"x\\ y\" of=src/ bs=1 && CD *.l'og' > 'x'\\ y'"}
+{"id": "shell_invocations-00370", "kind": "shell_invocations", "command": "until false; do nice --adjustment=3 sed --expression=s/a/b/ -i 's/x/y/' $H'OME/h' dir >&./y; done 2>&1 || touch -d ~"}
+{"id": "shell_invocations-00371", "kind": "shell_invocations", "command": "C:\\\\tools\\\\rm.EXE '//n/s/t' &> '*.log';sudo -Hn cp dest dir $HOME/h >| build"}
+{"id": "shell_invocations-00372", "kind": "shell_invocations", "command": "env -u PATH python3 ['w]' ; &&cd ~ && rm -r -- di'r'"}
+{"id": "shell_invocations-00373", "kind": "shell_invocations", "command": "echo ../../../../up|( touch -d '$HOME/h' ) >> \"a b\""}
+{"id": "shell_invocations-00374", "kind": "shell_invocations", "command": "fi 3>&1 1>&2 2>&3 || Rm ~ >> '${HOME}/h' & chdir \"[w]\" & cd '~' 2>&1"}
+{"id": "shell_invocations-00375", "kind": "shell_invocations", "command": "dd of=. if=/abs/p&&xargs -x setsid  bin\\\\cp.cmd '-x' >& ../x"}
+{"id": "shell_invocations-00376", "kind": "shell_invocations", "command": "env -S'rm f? \"${HOME}/h\"'"}
+{"id": "shell_invocations-00377", "kind": "shell_invocations", "command": "ls -la"}
+{"id": "shell_invocations-00378", "kind": "shell_invocations", "command": "true >> ~/$HOME/h\nset-item -Variable / -Force 2> '[w]' && fid -P $VR/x ( -name a ) -delete > a\\ b"}
+{"id": "shell_invocations-00379", "kind": "shell_invocations", "command": "touch -t 202001010000 /work/q\\ r && git status 3>&1 1>&2 2>&3\npushd ~"}
+{"id": "shell_invocations-00380", "kind": "shell_invocations", "command": "find  ~/h ! -name a -delete ; cp -a \"$PWD\" a\\ b >| -;tee-object -Force \"*.log\" -Name \"*.log\" >'$PWD' >> ~/\"é.md\""}
+{"id": "shell_invocations-00381", "kind": "shell_invocations", "command": "usybox  popd>C:\\win\\p & unbuffer -p ls -la 2>de'st >a >> 'dir'"}
+{"id": "shell_invocations-00382", "kind": "shell_invocations", "command": "builtin -x rmdir -p '/abs/p' \".\"; exec -a rmdir -p ${HOME}/h  >| buil'd' ; cd -L ,c,\nls -la >> ~/a"}
+{"id": "shell_invocations-00383", "kind": "shell_invocations", "command": "exec  truncate -s 0 \"/abs/p\" | setsid -w copy-item \"a:b\" dir/sub"}
+{"id": "shell_invocations-00384", "kind": "shell_invocations", "command": "busybox  sudo env -i nice -n 3  > \"./y\" ; popd >&b.txt; touch  \"../x\" > /dev/null 2>&1 >| ./'y'"}
+{"id": "shell_invocations-00385", "kind": "shell_invocations", "command": "find -delete \"a:b\""}
+{"id": "shell_invocations-00386", "kind": "shell_invocations", "command": "rm -r é.md"}
+{"id": "shell_invocations-00387", "kind": "shell_invocations", "command": "cp src/ \"..\";cp -r '-x' '-' > ../x"}
+{"id": "shell_invocations-00388", "kind": "shell_invocations", "command": "time  dd if=$PWD/p of=$V'AR/x' bs=1 < é'.md' && env -S'unbuffer -p true < -x >&2'"}
+{"id": "shell_invocations-00389", "kind": "shell_invocations", "command": "timeout  python3 /abs/p >& f?\ntime -o of=d ls -la || mv -n f? ['w]'; sed -l 5 -i 's/x/y/' é.m'd'  2>../'x' >'~'"}
+{"id": "shell_invocations-00390", "kind": "shell_invocations", "command": "setsid --fork make test >> ~/buil'd' ; if true; then dd of=//n/s/t if=*.log; else dd if=\"$PWD\" of=. bs=1 >&'x,y'; fi"}
+{"id": "shell_invocations-00391", "kind": "shell_invocations", "command": "rsync -a \"[w]\" .. 2>*.log >/abs/p & unlink ${PWD'}' >> $PWD/p"}
+{"id": "shell_invocations-00392", "kind": "shell_invocations", "command": "nohup -x cp x\\\\ y é.md || sed -e x -i 's/x/y/' \"$PWD/p\" / 2>\"a b\" >b.txt"}
+{"id": "shell_invocations-00393", "kind": "shell_invocations", "command": "pushd -- bui'ld' &> x\\\\ y|Rm 'x\\ y' 2> 'x\\ y' 2>&1; cp \"dir\" 'dir/sub' {v'}' && pushd +~"}
+{"id": "shell_invocations-00394", "kind": "shell_invocations", "command": "rm -r ${PWD}&&toybox -x tee-object -Weird \"x\\ y\" -Value x"}
+{"id": "shell_invocations-00395", "kind": "shell_invocations", "command": "cd -- 'a'&&mv f? b.txt 2>//n/s/t >/work/q\\ r >> ~/build"}
+{"id": "shell_invocations-00396", "kind": "shell_invocations", "command": "cd -- -"}
+{"id": "shell_invocations-00397", "kind": "shell_invocations", "command": "ls -la > ${HOME}/h 2>'dir' >\"a b\""}
+{"id": "shell_invocations-00398", "kind": "shell_invocations", "command": "PATHEXT=.exe setsid -x find -H \"~/h\" ! -name a -delete >src/|tee --append *.log 2> *.log"}
+{"id": "shell_invocations-00399", "kind": "shell_invocations", "command": "git status >&2 ; pushd -n \"$PWD/p\""}
+{"id": "shell_invocations-00400", "kind": "shell_invocations", "command": "find -P 'dest' -fprint ${PWD}\nionice -c 3 timeout --signal=TERM 10s cp 'a:b' ,c, '$PWD/p' 2>&1 || timeout --signal=TERM 10s rm -rf ..&&cd 2>&1"}
+{"id": "shell_invocations-00401", "kind": "shell_invocations", "command": "unbuffer  ls -la\ndel  '../x' \nsudo env -i nice -n 3 touch -d \"2020-01-01\" *.'log' > \"[w]\"&&git status 3>&1 1>&2 2>&3"}
+{"id": "shell_invocations-00402", "kind": "shell_invocations", "command": "cd +1"}
+{"id": "shell_invocations-00403", "kind": "shell_invocations", "command": "then env -S'cd -' > && sl 'dir'\ncp b.txt . 'b.txt' >'a:b'"}
+{"id": "shell_invocations-00404", "kind": "shell_invocations", "command": "rsync -a ../x . & mv -f dir/sub ~/'h' 1>&-; grep -r x \"/\" | true 3>&1 1>&2 2>&3"}
+{"id": "shell_invocations-00405", "kind": "shell_invocations", "command": "dd of='a' if=a:b; ls -la"}
+{"id": "shell_invocations-00406", "kind": "shell_invocations", "command": "copy-item \"/abs/p\" -Destination=(z)>$PWD && { FOO=1 timeout -x 5 find -delete - > > /dev/null 2>&1 < 'é.md'; }"}
+{"id": "shell_invocations-00407", "kind": "shell_invocations", "command": "doas -x cd - < dir >& ./y"}
+{"id": "shell_invocations-00408", "kind": "shell_invocations", "command": "env -S rm\\ '-- $VAR/x' \"//n/s/t\" 2>&1; ! new-item -Path x,'y' \"${PWD}\"; pushd\nadd-content -Path '../../../../up' "}
+{"id": "shell_invocations-00409", "kind": "shell_invocations", "command": "pushd -1 &  > /dev/null 2-&1\ndd f=\"dest\" of=b.txt bs=1 2> \"$PWD/p\" & truncate -s0 dir/sub 2>&1"}
+{"id": "shell_invocations-00410", "kind": "shell_invocations", "command": "cp (z) 'of=d'\nmv -f \".\" '~' >> ~/C:\\win\\p;tee -a src/ &> 'a:b'"}
+{"id": "shell_invocations-00411", "kind": "shell_invocations", "command": "perl -I lib -pi  '~'"}
+{"id": "shell_invocations-00412", "kind": "shell_invocations", "command": "perl -i  *.log\nsed -i -e 's/x/y/' \"-\" C:\\win\\p >&b.txt"}
+{"id": "shell_invocations-00413", "kind": "shell_invocations", "command": "del -p f? \"~\" >> \"b.txt\" ; python3 '{v}' > 'dir'; xargs -r find -P '$VAR/x' -name x -delete >&2"}
+{"id": "shell_invocations-00414", "kind": "shell_invocations", "command": "touch -r 'of=d' f?"}
+{"id": "shell_invocations-00415", "kind": "shell_invocations", "command": "cd;nohup --hel exec -cl rm -r -- ./y 2>&1 && stdbf --output=0 truncate -s \"é.md\" ; instal\nl -m755 $PWD/p \"~\""}
+{"id": "shell_invocations-00416", "kind": "shell_invocations", "command": "perl -I lib -pi 's/a/b/' \"dir\" & pushd -n '{v}'\nCD sr'c/'"}
+{"id": "shell_invocations-00417", "kind": "shell_invocations", "command": "setsid -w echo \"é.md\";busybox -x nohup -x move-item -LiteralPath=\"$PWD/p\"  >&2 ;  < b.txt >> ~/o'f=d'&&env -S'erase /q .. a > (z')' 2>&1'"}
+{"id": "shell_invocations-00418", "kind": "shell_invocations", "command": "popd"}
+{"id": "shell_invocations-00419", "kind": "shell_invocations", "command": "! cd - >$PWD"}
+{"id": "shell_invocations-00420", "kind": "shell_invocations", "command": "nohup  timeout 5 grep -r x //n/s/t"}
+{"id": "shell_invocations-00421", "kind": "shell_invocations", "command": "copy-item $V'AR/x' -Destination=//n/s/t; cd ~"}
+{"id": "shell_invocations-00422", "kind": "shell_invocations", "command": "cd $HOME >&x,y"}
+{"id": "shell_invocations-00423", "kind": "shell_invocations", "command": "move-item -Path:~ C:\\win\\p"}
+{"id": "shell_invocations-00424", "kind": "shell_invocations", "command": "cd ~&&unlink './y' 2 > *.log"}
+{"id": "shell_invocations-00425", "kind": "shell_invocations", "command": "setsid  xargs -0 dd of=$VAR/x if=$PWD/p & git status 2 > '../x'"}
+{"id": "shell_invocations-00426", "kind": "shell_invocations", "command": "xargs -I unlink \"é.md\" > a 2>&1|sl '(z)' || unbuffer  find -delete '{v}'>*'.log' || sudo env -i nice -n 3 touch  '`cmd`'"}
+{"id": "shell_invocations-00427", "kind": "shell_invocations", "command": "cd '~' && unlink '[w]'"}
+{"id": "shell_invocations-00428", "kind": "shell_invocations", "command": "make test | cd -- \"//n/s/t\" 2> '/'\ntee-object -Force \"~/h\"  ; touch -r ../x $VAR/x"}
+{"id": "shell_invocations-00429", "kind": "shell_invocations", "command": "rsync -av '${HOME}/h' 'dest' >sr'c/' | cd -- - 1>&-"}
+{"id": "shell_invocations-00430", "kind": "shell_invocations", "command": "install -m 644 //n/s/t ${PWD}&&copy-item b.txt -Destination='//n/s/t' >| /work/q\\ r"}
+{"id": "shell_invocations-00431", "kind": "shell_invocations", "command": "stdbuf -o0 sed -i.bak  '`cmd`'  || { FOO=1 env -S'rsync --remove-source-files \"$PWD/p\" \"~\"'; }&&cd -\ncd '~'"}
+{"id": "shell_invocations-00432", "kind": "shell_invocations", "command": "xargs -I python3 'a:b'"}
+{"id": "shell_invocations-00433", "kind": "shell_invocations", "command": "exec -x for x in a b; do dd of='x\\ y' if=a &> ~; done &> \"`cmd`\""}
+{"id": "shell_invocations-00434", "kind": "shell_invocations", "command": "xargs -I env -S'cp - '/abs/p':';rm '`cmd`' {v} >& \"of=d\"; true"}
+{"id": "shell_invocations-00435", "kind": "shell_invocations", "command": "builtin -- mv -t *.log '/work/q r'"}
+{"id": "shell_invocations-00436", "kind": "shell_invocations", "command": "nohup  cd /work/q\\ r >'of=d'"}
+{"id": "shell_invocations-00437", "kind": "shell_invocations", "command": "\nset-location buil'd' 2>`cmd` >~/h&&find  '(z)' -name x -delete; cd \"$X\""}
+{"id": "shell_invocations-00438", "kind": "shell_invocations", "command": "select x in a; do dd if=.'/y' of=[w] bs=1; done >| 'dir' && env -a name setsid -f copy-item ../../..'/../up' x,y &> 'é.md'"}
+{"id": "shell_invocations-00439", "kind": "shell_invocations", "command": "time -p rni -LiteralPath='x,y' '$VAR/x'"}
+{"id": "shell_invocations-00440", "kind": "shell_invocations", "command": "sed -l 5 -i s/a/b/ \"f?\" |env -x { cp $PWD '[w]' f?; }"}
+{"id": "shell_invocations-00441", "kind": "shell_invocations", "command": "cp '../x' s'rc/' > '\"a\";rm -r 'a b'\nls -la&&case x in a) exec -x  2>&1 > ../../../../up;; esac"}
+{"id": "shell_invocations-00442", "kind": "shell_invocations", "command": "dd if=dir of=['w]' bs=1 & truncate -s 0 a"}
+{"id": "shell_invocations-00443", "kind": "shell_invocations", "command": "touch -d ~>\"dir\""}
+{"id": "shell_invocations-00444", "kind": "shell_invocations", "command": "exec  env -0 find -delete ,c','&&case x in a) python3 x\\\\ y > '-x';; esac >~ ; cd '~' >&$PWD/p | timeout --signal=TERM 10s cd -- -"}
+{"id": "shell_invocations-00445", "kind": "shell_invocations", "command": "unlink ~ 2> '-'|command -p pushd -1 1>&->./y"}
+{"id": "shell_invocations-00446", "kind": "shell_invocations", "command": "tee --append {v}|r\\ -r (z)x,y"}
+{"id": "shell_invocations-00447", "kind": "shell_invocations", "command": "builtin -x cd -L . >&2 & rm -rf '/abs/p' >&2 || touch -t 202001010000 $PWD | truncate -s 0 \"-x\""}
+{"id": "shell_invocations-00448", "kind": "shell_invocations", "command": "cp \"x,y\" 'b.txt' ./y; perl -I lib -pi 's/a/b/' '//n/s/t'"}
+{"id": "shell_invocations-00449", "kind": "shell_invocations", "command": "ionice -c3 -n7 truncate -r (z) $'HOME/h'|grep -r x a\\ b >> \"$PWD/p\""}
+{"id": "shell_invocations-00450", "kind": "shell_invocations", "command": "cp é.md '..' && rm of=d f?&&pushd -1"}
+{"id": "shell_invocations-00451", "kind": "shell_invocations", "command": "setsid -w cd \"C:\\win\\p\" >->a"}
+{"id": "shell_invocations-00452", "kind": "shell_invocations", "command": "pushd"}
+{"id": "shell_invocations-00453", "kind": "shell_invocations", "command": "dd if='/' of=f? bs=1 3>&1 1>&2 2>&3 && rm f? '/' 1>&-\nfind -O2 /work/'q r' -print&&cd .. >{v}"}
+{"id": "shell_invocations-00454", "kind": "shell_invocations", "command": "time  --format=x if grep -r x \"~/h\" &> a; then make test >&2; fi && ls -la"}
+{"id": "shell_invocations-00455", "kind": "shell_invocations", "command": "ls -la&&dd of=/abs/p if=\"{v}\""}
+{"id": "shell_invocations-00456", "kind": "shell_invocations", "command": "unlink f? 2>~ >f?;sudo env -i nice -n 3 unbuffer -p dd if='dir/sub' of=/ bs=1 >&\"/\"&&pushd -1"}
+{"id": "shell_invocations-00457", "kind": "shell_invocations", "command": "rm ,c, ~/h 2> $HOME/h"}
+{"id": "shell_invocations-00458", "kind": "shell_invocations", "command": "timeout --foreground 2 mv (z) ${PWD}\nnohup -x cd -P>'//n/s/t'"}
+{"id": "shell_invocations-00459", "kind": "shell_invocations", "command": "rsy#c -av \"sarc/\" '${HOME}/h'"}
+{"id": "shell_invocations-00460", "kind": "shell_invocations", "command": "find -H (z) -fprintf \"//n/s/t\" %p && truncate -s 'build'"}
+{"id": "shell_invocations-00461", "kind": "shell_invocations", "command": "cd '${HOME}/h' 2>&1\npushd ; cp é.md build >| a\\ b\nrm '$PWD' \"$PWD/p\""}
+{"id": "shell_invocations-00462", "kind": "shell_invocations", "command": "for x in a b; do find -delete \"dir\" > /dev/null 2>&1; done;remove-item -Destination:dest  > `cmd` 2>&1"}
+{"id": "shell_invocations-00463", "kind": "shell_invocations", "command": "nohup  cd \"$X\" > '\"a:b\""}
+{"id": "shell_invocations-00464", "kind": "shell_invocations", "command": "cd ('z)' >\"../../../../up\" >"}
+{"id": "shell_invocations-00465", "kind": "shell_invocations", "command": "rm -- \"..\"; cp '*.log' dir/s'ub' | perl -i  b.txt"}
+{"id": "shell_invocations-00466", "kind": "shell_invocations", "command": "cat ../../../../up >> ~/'x,y' & truncate -s 0 ~'/h'"}
+{"id": "shell_invocations-00467", "kind": "shell_invocations", "command": "{ FOO=1 nohup --help touch -t 202001010000 \"${HOME}/h\" &> ..; } 2> '-x'\ntrue"}
+{"id": "shell_invocations-00468", "kind": "shell_invocations", "command": "install -g ~/h $PW'D'"}
+{"id": "shell_invocations-00469", "kind": "shell_invocations", "command": "tee --append x,y 2 > 'dest' && find -O2 dir/sub -fprint0 . 2> '-x';mv --target-directory=\"~\" $PWD/p ,c,"}
+{"id": "shell_invocations-00470", "kind": "shell_invocations", "command": "set-content -Path: x\\\\ y  & CD \"/abs/p\"; for x in a b; do rsync -av 'src/' //n/s/t; done > '[w]; true 1>&-"}
+{"id": "shell_invocations-00471", "kind": "shell_invocations", "command": "make test &> ../x | touch -r $PWD/p `cmd`"}
+{"id": "shell_invocations-00472", "kind": "shell_invocations", "command": "cd -- -;exec -a name rm \"~/h\" 'b.txt'"}
+{"id": "shell_invocations-00473", "kind": "shell_invocations", "command": "find -O2 (z) ( -name a ) -delete; rm -r -- a\\ b"}
+{"id": "shell_invocations-00474", "kind": "shell_invocations", "command": "perl -i.bak -pe x \"é.md\"\ncp /work/q\\ r '${HOME}/h'"}
+{"id": "shell_invocations-00475", "kind": "shell_invocations", "command": "cd $HOME\nunlink \"$HOME/h\" 2>&1 >& '$PWD/p'"}
+{"id": "shell_invocations-00476", "kind": "shell_invocations", "command": "{ FOO=1 cd -- -; } & make test ; sed -ie 's/x/y/' f? di'r'|cp \"x,y\" ./y"}
+{"id": "shell_invocations-00477", "kind": "shell_invocations", "command": "dd if=~/h of=$P'WD' bs=1 > '$HOME/h>x,y || ls -la 1>&-"}
+{"id": "shell_invocations-00478", "kind": "shell_invocations", "command": "builtin -x cli -Destination://'n/s/t'  1>&- 2>/work/q\\ r >x,y\nmv {'v}' $'PWD/p' 1>&-"}
+{"id": "shell_invocations-00479", "kind": "shell_invocations", "command": "cp .. {v} (z) & for x in a b; do sudo env -i nice -n 3 echo ',c,'; done"}
+{"id": "shell_invocations-00480", "kind": "shell_invocations", "command": "add-content -- '$PWD' "}
+{"id": "shell_invocations-00481", "kind": "shell_invocations", "command": "sl f?;unbuffer  popd >b.txt&&sudo -E touch -d é.md"}
+{"id": "shell_invocations-00482", "kind": "shell_invocations", "command": "true\nnice>a\\ b"}
+{"id": "shell_invocations-00483", "kind": "shell_invocations", "command": "unlink é.md\ntrue >| '*.log'"}
+{"id": "shell_invocations-00484", "kind": "shell_invocations", "command": "builtin  pushd ../../../../up; env FOO=1 pushd -- *.log"}
+{"id": "shell_invocations-00485", "kind": "shell_invocations", "command": "copy-item 'build' "}
+{"id": "shell_invocations-00486", "kind": "shell_invocations", "command": "copy-item $VAR/x -Destination:{v}"}
+{"id": "shell_invocations-00487", "kind": "shell_invocations", "command": "cd -- -&&rm -i \"//n/s/t\">a\\ b"}
+{"id": "shell_invocations-00488", "kind": "shell_invocations", "command": "new-item -Encoding -x -Value x ; pushd +1 >> ~/',c,'"}
+{"id": "shell_invocations-00489", "kind": "shell_invocations", "command": "while nice -n 5 cd ~ > $VAR/x 2>&1; do new-item -Path dir/sub -Force; done && python3 'é.md'"}
+{"id": "shell_invocations-00490", "kind": "shell_invocations", "command": "nice  copy-item \"x\\ y\" -Destination:/abs/p || cd -"}
+{"id": "shell_invocations-00491", "kind": "shell_invocations", "command": "cp '$PWD/p' a>\"(z)\" | true"}
+{"id": "shell_invocations-00492", "kind": "shell_invocations", "command": "cp -x \"/work/q r\"\n\nunlink f?|( cd . ) 1>&-"}
+{"id": "shell_invocations-00493", "kind": "shell_invocations", "command": "sudo"}
+{"id": "shell_invocations-00494", "kind": "shell_invocations", "command": "builtin  install -g '{v}' ${PWD}>dir/sub &> 'build'\nrsync --remove-source-files -a {v} a':b';builtin  add-content -Force 'f?' -Force 2 > \".\""}
+{"id": "shell_invocations-00495", "kind": "shell_invocations", "command": "mv 'src/' \"/abs/p\" & touch --date=now '../x'"}
+{"id": "shell_invocations-00496", "kind": "shell_invocations", "command": "fi >> ~/-"}
+{"id": "shell_invocations-00497", "kind": "shell_invocations", "command": "cd - 2 > x\\\\ y"}
+{"id": "shell_invocations-00498", "kind": "shell_invocations", "command": "cd \"$X\"\nls -la > ./y 2>&1 ; until false; do sed -n 's/x/y/' 'a b' f? >&src'/' 2>&1; done >& a':b'"}
+{"id": "shell_invocations-00499", "kind": "shell_invocations", "command": "timeout -k 3 5 if perl -i x b.txt >&$PW'D'; then dd of=~/h if=é.md>\"{v}\"; fi;ionice -p 1 { FOO=1 cp -S .bak '$PWD' of=d; } 2>x\\\\ y >//n/s/t"}
+{"id": "shell_invocations-00500", "kind": "shell_invocations", "command": "elif sl \"//n/s/t\"; then dd of=src/ if=\"/abs/p\""}
+{"id": "shell_invocations-00501", "kind": "shell_invocations", "command": "pushd -n dir/su'b'"}
+{"id": "shell_invocations-00502", "kind": "shell_invocations", "command": "touch -a of=d\ncp a':b' ~"}
+{"id": "shell_invocations-00503", "kind": "shell_invocations", "command": "time -x truncate -r {v} build &> ../x&&for x in a b; do stdbuf -o0 pushd -- \"$HOME/h\" >& a; done|perl -I lib -pi  '${PWD}' 2 > \"f?\"|cp \"$PWD/p\" /work/q\\ r dir &> /work/q\\ r 3>&1 1>&2 2>&3"}
+{"id": "shell_invocations-00504", "kind": "shell_invocations", "command": "remove-item -NewName=//n/s/t ~/h 2 > ~/h"}
+{"id": "shell_invocations-00505", "kind": "shell_invocations", "command": "cat ../../../../up 2> dir"}
+{"id": "shell_invocations-00506", "kind": "shell_invocations", "command": "env -S move\\ /q\\ ./y\\  \"//n/s/t\" || builtin -- git status"}
+{"id": "shell_invocations-00507", "kind": "shell_invocations", "command": "ls -la"}
+{"id": "shell_invocations-00508", "kind": "shell_invocations", "command": "./rm *.log:"}
+{"id": "shell_invocations-00509", "kind": "shell_invocations", "command": "unlink .'./x' >| of=d && time -o '$PWD/p' setsid -f cp -x '.' &> \"..\" 3>&1 1>&2 2>&3"}
+{"id": "shell_invocations-00510", "kind": "shell_invocations", "command": "touch --date=now '`cmd`' 2 > 'é.md';cp -x of=d|touch -r dir/sub build ; stdbuf -o0 stdbuf -o0 git status > ~ 2>&1 > -x 2>&1 >| \"-\""}
+{"id": "shell_invocations-00511", "kind": "shell_invocations", "command": "if sl *.log > 'x,y; then echo $PWD/p; fi"}
+{"id": "shell_invocations-00512", "kind": "shell_invocations", "command": "./rm dest 2> '${HOME}/h' | case x in a) unbuffer -p set-item -Force //n/s/t -Variable v 3>&1 1>&2 2>&3;; esac"}
+{"id": "shell_invocations-00513", "kind": "shell_invocations", "command": "( 'grep -r x C:\\win\\p ) grep -r x '$VARx'"}
+{"id": "shell_invocations-00514", "kind": "shell_invocations", "command": "mv --target-directory=`cmd` ../../../../up 'of=d' > ..;rm -r \",c,\" > \"-x\""}
+{"id": "shell_invocations-00515", "kind": "shell_invocations", "command": "ls -la > /dev/null 2>&1"}
+{"id": "shell_invocations-00516", "kind": "shell_invocations", "command": "pushd -1 > f? 2>&1|clear-content -LiteralPath \"(z)\" -Value x\nrsync --remove-source-files -a \"$PWD\" \"x\\ y\" || cd -- ..>x\\\\ y"}
+{"id": "shell_invocations-00517", "kind": "shell_invocations", "command": "chdir ~ >& $PWD ; cd 'a'&&pushd -1"}
+{"id": "shell_invocations-00518", "kind": "shell_invocations", "command": "cp --suffix=.o ${HOME}/h \"*.log\""}
+{"id": "shell_invocations-00519", "kind": "shell_invocations", "command": "touch -t 202001010000 x\\\\ y >&x',y'"}
+{"id": "shell_invocations-00520", "kind": "shell_invocations", "command": "C:\\\\tols\r\\\\rm.EXE \"/a\\s/p\""}
+{"id": "shell_invocations-00521", "kind": "shell_invocations", "command": "mv \"-x\" '~'\ncd -L /work/q\\ r"}
+{"id": "shell_invocations-00522", "kind": "shell_invocations", "command": "sudo env -i nice -n 3 echo $VAR/x | cp --suffix=.o f? \"a b\" & for x in a b; do }; done & unlink -x"}
+{"id": "shell_invocations-00523", "kind": "shell_invocations", "command": "tee-object -Weird //n/s/t / ; doas -x find -delete ../../../../up 2 > of='d'"}
+{"id": "shell_invocations-00524", "kind": "shell_invocations", "command": "env -S'timeout --signal=TERM 10s cp \"$HOME/h\" 'a:b' of=d'|env -C dir tee  \"of=d\""}
+{"id": "shell_invocations-00525", "kind": "shell_invocations", "command": "busybox -x true 2> {'v}'"}
+{"id": "shell_invocations-00526", "kind": "shell_invocations", "command": "tee -a build"}
+{"id": "shell_invocations-00527", "kind": "shell_invocations", "command": "env -S'cd 'x\\ y' 3>&1 1>&2 2>&3';cd ~/ & grep -r x - >&2"}
+{"id": "shell_invocations-00528", "kind": "shell_invocations", "command": "clear-content -Force ${P'WD}'  | sudo -u true < dir 3>&1 1>&2 2>&3; perl -pi x b.'txt'"}
+{"id": "shell_invocations-00529", "kind": "shell_invocations", "command": "grep -r x \"é.md\" ; sl 'f?'"}
+{"id": "shell_invocations-00530", "kind": "shell_invocations", "command": "copy-item a\\ b -Destination=.>\",c,\" & stdbuf -o0 ionice -t mv \"$VAR/x\" '.' &> f?"}
+{"id": "shell_invocations-00531", "kind": "shell_invocations", "command": "erase -f bui'ld' "}
+{"id": "shell_invocations-00532", "kind": "shell_invocations", "command": "clear-content -Value \"b.txt\" -Name ${PWD} & cp ('z)' b.txt /work/q\\ r; PATHEXT=.exe install -m755 b.'txt' . 3>&1 1>&2 2>&3|tee --append /work/q\\ r > < 'a b'"}
+{"id": "shell_invocations-00533", "kind": "shell_invocations", "command": "mv ../../../../'up' {v}"}
+{"id": "shell_invocations-00534", "kind": "shell_invocations", "command": "cp -a a \".\" >& ."}
+{"id": "shell_invocations-00535", "kind": "shell_invocations", "command": "( dd if='/work/q r' of=. bs=1 )&& | ! touch -d \"2020-01-01\" -x; cp '//n/s/t' '(z)' -x"}
+{"id": "shell_invocations-00536", "kind": "shell_invocations", "command": "dd of=/ if=f?"}
+{"id": "shell_invocations-00537", "kind": "shell_invocations", "command": "mv -f '/' 'x\\ y'; sed --in-place s/a/b/ '../../../../up'  &> \"b.txt\""}
+{"id": "shell_invocations-00538", "kind": "shell_invocations", "command": "cp \"a b\" $PWD&&toybox -x perl -pi x C:\\win\\p >"}
+{"id": "shell_invocations-00539", "kind": "shell_invocations", "command": "grep -r x ${PWD} & cp 'a b' dest \"x,y\" | copy-item {v} a' b' < 'of=d'"}
+{"id": "shell_invocations-00540", "kind": "shell_invocations", "command": "ls -la 2> '$PWD/p' ; rm \"[w]\" \"*.log\" 3>&1 1>&2 2>&3\npython3 \"[w]\""}
+{"id": "shell_invocations-00541", "kind": "shell_invocations", "command": "select x in a; do toybox  find -H 'é.md' -fls a\\ b >& ${PWD}; done"}
+{"id": "shell_invocations-00542", "kind": "shell_invocations", "command": "copy-item 'x,y' "}
+{"id": "shell_invocations-00543", "kind": "shell_invocations", "command": "ionice --class=idle python3 \"é.md\" >> ~/.. 2 > ('z)'"}
+{"id": "shell_invocations-00544", "kind": "shell_invocations", "command": "cd -P >'src/'"}
+{"id": "shell_invocations-00545", "kind": "shell_invocations", "command": "chdir \"$HOME/h\"; dd if=build of='-' bs=1 1>&- | remove-item -LiteralPath='a b' '/' >&\"b.txt\""}
+{"id": "shell_invocations-00546", "kind": "shell_invocations", "command": "touch -t 202001010000 f? > /dev/null 2>&1"}
+{"id": "shell_invocations-00547", "kind": "shell_invocations", "command": "pushd -- [w]"}
+{"id": "shell_invocations-00548", "kind": "shell_invocations", "command": "! grep -r x \"/work/q r\" | toybox -x mv //n/s/t ./y | find -delete ${HOME}/h\nfind -delete dest"}
+{"id": "shell_invocations-00549", "kind": "shell_invocations", "command": "rm ${HOME}/h \"C:\\win\\p\"; mv *.log \"../x\" || then cd 1>&-"}
+{"id": "shell_invocations-00550", "kind": "shell_invocations", "command": "echo \"f?\" >;nice  rm ${PWD} dir'/sub' > f?\nmake test > /dev/null 2>&1"}
+{"id": "shell_invocations-00551", "kind": "shell_invocations", "command": "python3 ',c,'&&nohup -x env -S move-item\\ -Destination:\"x\\\\ y\"\\ 'of=d'\\ >>\\ ~/\"b.txt\"\\ 2>\\ '${HOME}/h' - >&2|cp dir \"~/h\""}
+{"id": "shell_invocations-00552", "kind": "shell_invocations", "command": "for x in a b; do stdbuf -i set-location '${HOME}/h' >; done; perl -F, -i x '.'"}
+{"id": "shell_invocations-00553", "kind": "shell_invocations", "command": "dd if=a\\ b of=../x bs=1 && if stdbuf -oL -eL cp /abs/p dir/sub dir/sub >| dest; then command -x bin\\\\cp.cmd build >| $PWD; fi > of=d"}
+{"id": "shell_invocations-00554", "kind": "shell_invocations", "command": "echo of=d < \"dir\""}
+{"id": "shell_invocations-00555", "kind": "shell_invocations", "command": "cd '.' >,c','"}
+{"id": "shell_invocations-00556", "kind": "shell_invocations", "command": "command  rm -i 'C:\\win\\p' >& {v}"}
+{"id": "shell_invocations-00557", "kind": "shell_invocations", "command": "nice -x chdir é.md < '$PWD/p' | cd dest >\"-\""}
+{"id": "shell_invocations-00558", "kind": "shell_invocations", "command": "git status >& $VAR/x >&2;doas -x cp '${HOME}/h' '$PWD' >> of=d"}
+{"id": "shell_invocations-00559", "kind": "shell_invocations", "command": "dd of=dest if=b.txt || nice & stdbuf -oL -eL true>'~/h'"}
+{"id": "shell_invocations-00560", "kind": "shell_invocations", "command": "true"}
+{"id": "shell_invocations-00561", "kind": "shell_invocations", "command": "copy-item $PWD/p /ab's/p'; FOO=bar sudo ; unlink \"$VAR/x\" || cp -S .bak é'.md' \"$PWD\""}
+{"id": "shell_invocations-00562", "kind": "shell_invocations", "command": "tee  é.md > \"/abs/p\""}
+{"id": "shell_invocations-00563", "kind": "shell_invocations", "command": "cd -P > /dev/null 2>&1"}
+{"id": "shell_invocations-00564", "kind": "shell_invocations", "command": "xargs --null set-location \"${HOME}/h\"|env --default-signal /bin/rm \"$HOME/h\" >| \"/abs/p\" >> ~/."}
+{"id": "shell_invocations-00565", "kind": "shell_invocations", "command": "find -delete '-' && rm -r f?>x,y"}
+{"id": "shell_invocations-00566", "kind": "shell_invocations", "command": "sed -i -e 's/x/y/' \"of=d\"  2>&1 < ../x; cd ~;set-item -pa \"dir\" é.md"}
+{"id": "shell_invocations-00567", "kind": "shell_invocations", "command": "cp \"*.log\" src/ dir/sub 3>&1 1>&2 2>&3"}
+{"id": "shell_invocations-00568", "kind": "shell_invocations", "command": "nohup -x cd $HOME 2 > \"~\"; xargs -n1 ls -la >> dir>dir/sub"}
+{"id": "shell_invocations-00569", "kind": "shell_invocations", "command": "! nice --adjustment=3 unlink ${PWD} &> /abs/p 1>&-\nsed --in-place  /work/q\\ r a >&'//n/s/t'|cd ~/|! nice --adjustment=3 unlink ${HOME}/h 2> x'\\ y' >& *.log >& /'abs/p'"}
+{"id": "shell_invocations-00570", "kind": "shell_invocations", "command": "nohup  dd of=dest if=//n/s/t 1>&- | RM /'abs/p' 2 > C:\\win\\p 2>&1\necho (z) > 'é.md > /dev/null 2>&1"}
+{"id": "shell_invocations-00571", "kind": "shell_invocations", "command": "select x in a; do grep -r x \"*.log\" 2 > s'rc/'; done"}
+{"id": "shell_invocations-00572", "kind": "shell_invocations", "command": "until false; do rsync --remove-source-files \"$PWD\" 'dest' > \"/work/q r\" 2>&1; done >&'of=d'"}
+{"id": "shell_invocations-00573", "kind": "shell_invocations", "command": "cat $PW'D/p' 2>'..' >$V}AR/x 2 > ' $VAR/x ' ; "}
+{"id": "shell_invocations-00574", "kind": "shell_invocations", "command": "xargs -0 pushd&&cd '/abs/p' 2>&1"}
+{"id": "shell_invocations-00575", "kind": "shell_invocations", "command": "nohup  git status >> ~/\"$HOME/h\"\nrename -p a:b /"}
+{"id": "shell_invocations-00576", "kind": "shell_invocations", "command": "time -p pushd {v}"}
+{"id": "shell_invocations-00577", "kind": "shell_invocations", "command": "while time -o '`cmd`' find -delete \"x,y\" 2 > /abs/p; do git status > /dev/null 2>&1; done 1>&-"}
+{"id": "shell_invocations-00578", "kind": "shell_invocations", "command": "find -delete /abs/'p' >&2&&cd -P"}
+{"id": "shell_invocations-00579", "kind": "shell_invocations", "command": "dd of=$PWD if=`cmd`"}
+{"id": "shell_invocations-00580", "kind": "shell_invocations", "command": "dd of='build' if=C:\\win\\p|sed -i -e  dir/sub 'b.txt'"}
+{"id": "shell_invocations-00581", "kind": "shell_invocations", "command": "exec -x env  cd - 3>&1 1>&2 2>&3 2>&1"}
+{"id": "shell_invocations-00582", "kind": "shell_invocations", "command": "cd😀 | trun{ate -r '${HOME}/h' *.log > /dev/null 2>&1"}
+{"id": "shell_invocations-00583", "kind": "shell_invocations", "command": "rm ../../../../up '~'"}
+{"id": "shell_invocations-00584", "kind": "shell_invocations", "command": "find -delete ${PWD} 2>&1;touch  ,c,"}
+{"id": "shell_invocations-00585", "kind": "shell_invocations", "command": "nice >& '$VAR/x'"}
+{"id": "shell_invocations-00586", "kind": "shell_invocations", "command": "mv --target-directory=\"é.md\" /abs/p \"/work/q r\" > '${PWD}'\nclear-content -- ./y -Variable v & tee --append dir >&$VAR/x&&find -delete (z)"}
+{"id": "shell_invocations-00587", "kind": "shell_invocations", "command": "unlink \"~/[h\""}
+{"id": "shell_invocations-00588", "kind": "shell_invocations", "command": "ls -la 2> \"a:b\""}
+{"id": "shell_invocations-00589", "kind": "shell_invocations", "command": "elif rm \"./y\" \"x\\ y\"; then python3 b.txt >> ~/$PWD > dir; rsync --remove-source-files -a dest \"../x\" & grep -r x /work/q\\ r &> \"..\"&&pushd \"x\\ y\""}
+{"id": "shell_invocations-00590", "kind": "shell_invocations", "command": "copy-item x,y ${PWD} ; for x in a b; do cd -L /work/q\\ r 2>&1; done"}
+{"id": "shell_invocations-00591", "kind": "shell_invocations", "command": "rsync --remove-source-files \"../x\" \"of=d\" >> '${PWD}' >& ../../../../up & add-content -- ',c,' -Value x"}
+{"id": "shell_invocations-00592", "kind": "shell_invocations", "command": "cp {v'}' '$VAR/x' || pushd -1"}
+{"id": "shell_invocations-00593", "kind": "shell_invocations", "command": "cp -t x\\' y' \"dest\" 2 > \"a\" | python3 \"../../../../up\" > /dev/null 2>&1|cat ,c,|popd > f? 2>&1"}
+{"id": "shell_invocations-00594", "kind": "shell_invocations", "command": "cli --path:,c','  3>&1 1>&2 2>&3\ntime -f x cp b'.txt' \"`cmd`\" | time -f x find -delete ~/h || find -H ~ -fprint0 x,y"}
+{"id": "shell_invocations-00595", "kind": "shell_invocations", "command": "clear-content -Variable x'\\ y' -Name ./y > /dev/null 2>&1; copy-item $VAR/x -Destination:\"[w]\" & cd -; truncate -s0 'b.txt' 2>&1"}
+{"id": "shell_invocations-00596", "kind": "shell_invocations", "command": "tee -a src/ >& build;xargs -r true 2>&1"}
+{"id": "shell_invocations-00597", "kind": "shell_invocations", "command": "cd - >& ${PWD} & make test >| {v}"}
+{"id": "shell_invocations-00598", "kind": "shell_invocations", "command": "copy-item \"dir/sub\" -Destination:\"of=d\""}
+{"id": "shell_invocations-00599", "kind": "shell_invocations", "command": "cd -L C:\\win\\p && env -S \"sl '/' >> '../x'\" \"/\" >& ${HOME}/h\npushd"}
+{"id": "shell_invocations-00600", "kind": "shell_invocations", "command": "tee -a '.' || Rm 'dir/sub'>'C:\\win\\p'&&install --directory \"~\" a >> build && unlink {v'}'"}
+{"id": "shell_invocations-00601", "kind": "shell_invocations", "command": "make test && true 2>&1"}
+{"id": "shell_invocations-00602", "kind": "shell_invocations", "command": "pushd +1 >> ~/$PWD"}
+{"id": "shell_invocations-00603", "kind": "shell_invocations", "command": "new-item -Weird é.m'd' -Variable v >> \"${PWD}\""}
+{"id": "shell_invocations-00604", "kind": "shell_invocations", "command": "rm $PWD dir & rm ,c, \"$PWD\" > ''[w]-|make test"}
+{"id": "shell_invocations-00605", "kind": "shell_invocations", "command": "builtin -x cp é'.md' \"/abs/p\" 2 > \"x\\ y\" ; sudo env -i nice -n 3 dd if=~ of=dir/sub bs=1|rm ${HOME}/h src/ >&\"${PWD}\""}
+{"id": "shell_invocations-00606", "kind": "shell_invocations", "command": "mv -f ,c, \"-x\";pushd -- \"f?\""}
+{"id": "shell_invocations-00607", "kind": "shell_invocations", "command": "cp - '../x' ${PWD} & set-location 'dir/sub';find -L -D opt $PWD/p -fprint0 ~ 2>\"x\\ y\" >src/ >> ~/é.md"}
+{"id": "shell_invocations-00608", "kind": "shell_invocations", "command": "cd é.md 3>&1 1>&2 2>&3 || find  \"$VAR/x\" -name x -delete&&cp '$PWD/p' ./'y' & pushd -n ../x"}
+{"id": "shell_invocations-00609", "kind": "shell_invocations", "command": "dd if='..' of=`cmd` bs=1 >| '-' ; nice --adjustment=3 git status 2 > \"..\" && unbuffer -x perl -F, -i  `cmd`"}
+{"id": "shell_invocations-00610", "kind": "shell_invocations", "command": "echo C:\\win\\'p'>[w] ; touch -r '${PWD}' \"[w]\" 1>&-|ionice -c 3 pushd -1 2>'x\\ y' >dest; mv --target-directory='$PWD' ../x {v'}'"}
+{"id": "shell_invocations-00611", "kind": "shell_invocations", "command": "select x in a; do busybox -x dd if=\"C:\\win\\p\" of=f? bs=1; done 2>./y >f?"}
+{"id": "shell_invocations-00612", "kind": "shell_invocations", "command": "env -S select\\ x\\ in\\ a;\\ do\\ ls\\ -la>\"{v}\";\\ done\\ <\\ 'dest' \"dir\" 2>&1;time -o ${HOME}/h copy-item ${PWD} -Destination:../x ; cd 2>/dev/null ${HOME}/h"}

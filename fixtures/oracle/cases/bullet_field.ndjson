@@ -1,0 +1,180 @@
+{"id": "bullet_field-00000", "kind": "bullet_field", "content": "**Scope**: bare - **Scope**: bugfix", "field": "Depth (x)"}
+{"id": "bullet_field-00001", "kind": "bullet_field", "content": "", "field": "Scope**"}
+{"id": "bullet_field-00002", "kind": "bullet_field", "content": "", "field": "Scope"}
+{"id": "bullet_field-00003", "kind": "bullet_field", "content": "  - **Scope**: indented", "field": "scope"}
+{"id": "bullet_field-00004", "kind": "bullet_field", "content": "- **Scope**: second\n-  **Scope**: two spaces\n- **Scope**: second\n- **Scope**:   ", "field": ""}
+{"id": "bullet_field-00005", "kind": "bullet_field", "content": "- **Scope**:\tfeature\t -  **Scope**: two spaces - **Scope**:\tfeature\t - **Scope**:\tfeature\t - **Scope** : spaced colon - **Scope** : spaced colon", "field": "Sc.pe"}
+{"id": "bullet_field-00006", "kind": "bullet_field", "content": "**Scope**: bare", "field": "Depth"}
+{"id": "bullet_field-00007", "kind": "bullet_field", "content": "", "field": "Scope"}
+{"id": "bullet_field-00008", "kind": "bullet_field", "content": ":# 　eading\r\r- \n*Scope**:", "field": "scope"}
+{"id": "bullet_field-00009", "kind": "bullet_field", "content": "-  **Scope**: two spaces\n- **Depth**: standard # 'ote\n- **Scope**:\n- **Scope** : spaced colon\n-- ** Scope**: bugfix\n- **Scope**:\tfeature　\t", "field": "Depth (x)"}
+{"id": "bullet_field-00010", "kind": "bullet_field", "content": "- **Depth (x)**: standard\n-  **Scope**: two spaces\n- **Scope**:\n- **Scope** : spaced colon\n- **Depth (x)**: standard\n**Scope**: bare", "field": "Scope**"}
+{"id": "bullet_field-00011", "kind": "bullet_field", "content": "- **Scope**: bugfix\r- **Scope** : spaced colon\r- **Scope**:   \r- **Scope**:\tfeature\t\r- **scope**: lower", "field": "Sc.pe"}
+{"id": "bullet_field-00012", "kind": "bullet_field", "content": "# heading\r\n  - **Scope**: indented\r\n- **Scope**:\tfeature\t\r\n**Scope**: bare\r\n- **scope**: lower", "field": "Sc.pe"}
+{"id": "bullet_field-00013", "kind": "bullet_field", "content": "- **Scope**:\tfeature\t\n- **Depth (x)**: standard\n- **Scope**:\n- **Scope**:\n- **Scope** : spaced colon\n- **Scope**:   ", "field": "Sc.pe"}
+{"id": "bullet_field-00014", "kind": "bullet_field", "content": "- **Scope**:   ", "field": "Scope"}
+{"id": "bullet_field-00015", "kind": "bullet_field", "content": "- **Scope**: second - **Scope** : spaced colon - **Scope**:    - **Scope**:", "field": "scope"}
+{"id": "bullet_field-00016", "kind": "bullet_field", "content": "", "field": ""}
+{"id": "bullet_field-00017", "kind": "bullet_field", "content": "- **Scope** : spaced colon - **Depth (x)**: standard -  **Scope**: two spaces - **Scope**: second   - **Scope**: indented # heading", "field": "Depth (x)"}
+{"id": "bullet_field-00018", "kind": "bullet_field", "content": "- **Scope**:\r\n- **scope**: lower\r\n\r\n- **Scope**:\tfeature\t\r\n**Scope**: bare\r\n-  **Scope**: two spaces", "field": "Scope"}
+{"id": "bullet_field-00019", "kind": "bullet_field", "content": "- **Scope**:", "field": "Sc.pe"}
+{"id": "bullet_field-00020", "kind": "bullet_field", "content": "- **Scope**: second ", "field": "Depth"}
+{"id": "bullet_field-00021", "kind": "bullet_field", "content": "- **Scope**:    - **Scope** : spaced colon - **Scope**:\tfeature\t -  **Scope**: two spaces   - **Scope**: indented", "field": ""}
+{"id": "bullet_field-00022", "kind": "bullet_field", "content": "]", "field": "Depth"}
+{"id": "bullet_field-00023", "kind": "bullet_field", "content": "  - **Scope**: inented\n- **Scope**: second\n- **Scope\r**: bugfix\n- **Depth**: standard # note\n\n- **Depth (x)**: standard", "field": "Scope"}
+{"id": "bullet_field-00024", "kind": "bullet_field", "content": "-  **Scope**: two spaces\r\n**Scope**: bare\r\n-   **Scope**: two spaces", "field": "Depth (x)"}
+{"id": "bullet_field-00025", "kind": "bullet_field", "content": "\n-  **Scope**:two s-aces\n  - **Scope**: indented\n  - **Scope**: indent~d", "field": "Scope**"}
+{"id": "bullet_field-00026", "kind": "bullet_field", "content": "# heading\n- **Depth (x)**: standard\n- **Depth (x)**: standard\n- **Scope**:\n- **Scope0**: bugfix", "field": ""}
+{"id": "bullet_field-00027", "kind": "bullet_field", "content": "\r# heading\r\r", "field": "scope"}
+{"id": "bullet_field-00028", "kind": "bullet_field", "content": "- **Scope**:   ", "field": "Scope"}
+{"id": "bullet_field-00029", "kind": "bullet_field", "content": "**Scope**: bare", "field": "Scope"}
+{"id": "bullet_field-00030", "kind": "bullet_field", "content": "**Scope**: bre\r\n- **Depth x)**: standard\r\n**Scope**: bare\r\n- **scope**: lower", "field": "scope"}
+{"id": "bullet_field-00031", "kind": "bullet_field", "content": "- **scope**: lower", "field": "Scope**"}
+{"id": "bullet_field-00032", "kind": "bullet_field", "content": "", "field": "Scope"}
+{"id": "bullet_field-00033", "kind": "bullet_field", "content": "- **Depth (x)**: standard\n- **Scope**:   ", "field": "scope"}
+{"id": "bullet_field-00034", "kind": "bullet_field", "content": "  - **Scope**: indented\n  - **Scope**:indented\n- **Scope**:\n**Scope**: bare\n  - **Scope**: indented\n**Scope**: bare", "field": "Scope**"}
+{"id": "bullet_field-00035", "kind": "bullet_field", "content": "", "field": "Scope"}
+{"id": "bullet_field-00036", "kind": "bullet_field", "content": "﻿", "field": "Scope"}
+{"id": "bullet_field-00037", "kind": "bullet_field", "content": "- **Scope**: second\r- **Scope** : spaced colon\r**Sc\\ope**: bare", "field": "Scope"}
+{"id": "bullet_field-00038", "kind": "bullet_field", "content": "- **Depth (x)**: standard\n**Scope**: bare\n- **Scope**:   \n", "field": "Scope"}
+{"id": "bullet_field-00039", "kind": "bullet_field", "content": "# hading\r\n# heading\r\n- *﻿Scope**:   ", "field": "Sc.pe"}
+{"id": "bullet_field-00040", "kind": "bullet_field", "content": "\r- **Scope**:   \r- **Scope**: bugfix\r- **Depth (x)**: standard\r- **Scope**: second", "field": "Sc.pe"}
+{"id": "bullet_field-00041", "kind": "bullet_field", "content": "- **Scope**: bugfix\n- **Scope**:\tfeature\t\n**Scope**: bare", "field": "Depth (x)"}
+{"id": "bullet_field-00042", "kind": "bullet_field", "content": "- **Scope**: bugf﻿x\n**Sco:e**: bare", "field": "Scope"}
+{"id": "bullet_field-00043", "kind": "bullet_field", "content": "", "field": "Depth (x)"}
+{"id": "bullet_field-00044", "kind": "bullet_field", "content": "**Scope**: bare\n- **Depth (x)**: standard\n- **scope**: lower\n- **Scope**: bugfix\n", "field": "Depth (x)"}
+{"id": "bullet_field-00045", "kind": "bullet_field", "content": "- **Scope**: second\n- **Scope**: bugfx\n- **Depth (x)**: standard\n\n# heading", "field": ""}
+{"id": "bullet_field-00046", "kind": "bullet_field", "content": "", "field": "Scope"}
+{"id": "bullet_field-00047", "kind": "bullet_field", "content": "- **Scope**: second", "field": "Scope"}
+{"id": "bullet_field-00048", "kind": "bullet_field", "content": "**Scope**: bare\n-  **Scope**: two spaces\n# heading\n- **Depth (x)**: standard\n# heading\n- **Scope**:   ", "field": "Scope"}
+{"id": "bullet_field-00049", "kind": "bullet_field", "content": "- **scope**: lower -  **Scope**: two spaces - **Scope**:    - **Scope**:", "field": "scope"}
+{"id": "bullet_field-00050", "kind": "bullet_field", "content": "- **Scope**: bugfix\n  - **Scope**: indented\n- **Scope** : spaced colon\n- **scope**: lower", "field": "Scope"}
+{"id": "bullet_field-00051", "kind": "bullet_field", "content": "", "field": "Scope**"}
+{"id": "bullet_field-00052", "kind": "bullet_field", "content": "  - **Scope**: indented\r\n- **Scope**:\r\n- **Scope**:   \r\n# heading\r\n- **Depth (x)**: standard", "field": ""}
+{"id": "bullet_field-00053", "kind": "bullet_field", "content": "", "field": "Scope**"}
+{"id": "bullet_field-00054", "kind": "bullet_field", "content": "**Scope**: bare\n# heading", "field": "scope"}
+{"id": "bullet_field-00055", "kind": "bullet_field", "content": "\n# heading\n- **Depth (x)**: standard\n- **Scope**:\tfeature\t", "field": "Scope"}
+{"id": "bullet_field-00056", "kind": "bullet_field", "content": "- **Scope**:   ", "field": "Scope"}
+{"id": "bullet_field-00057", "kind": "bullet_field", "content": "# heading - **Scope** : spaced colon", "field": ""}
+{"id": "bullet_field-00058", "kind": "bullet_field", "content": "- **Scope**:\n  - **Scope**: indented", "field": "Depth (x)"}
+{"id": "bullet_field-00059", "kind": "bullet_field", "content": "1 -\r *.S.cope**: indented\n# heading", "field": "Depth (x)"}
+{"id": "bullet_field-00060", "kind": "bullet_field", "content": "- **Scope**: second - **Scope**: - **Scope**: bugfix", "field": "Depth"}
+{"id": "bullet_field-00061", "kind": "bullet_field", "content": "  - **Scope**: indented\n- **Scope**: bugfix\n\n- **Scope** : spaced colon\n-  **Scope**: two spaces", "field": "Depth"}
+{"id": "bullet_field-00062", "kind": "bullet_field", "content": "", "field": ""}
+{"id": "bullet_field-00063", "kind": "bullet_field", "content": "- **Depth**: standard # note\n# heading\n# heading\n**Scope**: bare", "field": "Scope"}
+{"id": "bullet_field-00064", "kind": "bullet_field", "content": "- **Depth**: standard # note\r- **Scope** : spaced colon", "field": "Scope"}
+{"id": "bullet_field-00065", "kind": "bullet_field", "content": "# heading\n- **Scope** : spaced colon", "field": "Scope"}
+{"id": "bullet_field-00066", "kind": "bullet_field", "content": "- **Depth (x)**: standard\n- **Scope**:\tfeature\t\n- **scope**: lower\n- **Scope**:   \n- **Depth**: standard # note\n", "field": ""}
+{"id": "bullet_field-00067", "kind": "bullet_field", "content": "- **Scope** : spaced colon", "field": "Scope"}
+{"id": "bullet_field-00068", "kind": "bullet_field", "content": "  - **Scope**: indented\r\n- **Sc:ope**:\tfeature\t", "field": "scope"}
+{"id": "bullet_field-00069", "kind": "bullet_field", "content": "**Scope**: bare\n  - **Scope**: indented", "field": "Scope"}
+{"id": "bullet_field-00070", "kind": "bullet_field", "content": "- **scope**: lower\n- **Scope**: second\n- **scope**: lower\n- **Scope**:\tfeature\t", "field": "Sc.pe"}
+{"id": "bullet_field-00071", "kind": "bullet_field", "content": "- **Depth (x)**: standard\r\n- **Depth (x)**: standard\r\n- **Scope** : spaced colon\r\n# heading\r\n- **scope**: lower\r\n**Scope**: bare", "field": "Scope"}
+{"id": "bullet_field-00072", "kind": "bullet_field", "content": "-  **Scope**: two spaces", "field": "Scope**"}
+{"id": "bullet_field-00073", "kind": "bullet_field", "content": "**Scope**: bare\r  - **Scope**: indented\r- **Scope**:   \r- **Scope**:\tfeature\t\r- **scope**: lower", "field": "Depth (x)"}
+{"id": "bullet_field-00074", "kind": "bullet_field", "content": "- **Depth**: standard # note - **Depth**: standard # note", "field": "Depth (x)"}
+{"id": "bullet_field-00075", "kind": "bullet_field", "content": "- **Scope**:   \n- **Depth (x)**: standard\n- **scope**: lower\n**Scope**: bare\n  - **Scope**: indented\n-  **Scope**: two spaces", "field": "Sc.pe"}
+{"id": "bullet_field-00076", "kind": "bullet_field", "content": " - **Scope**: indented\r\n\r\n- **Scope**:   \r\n- **D epth**: standard # note\r\n- **Depth (x)**: standard\r\n- **Scope**:   ", "field": ""}
+{"id": "bullet_field-00077", "kind": "bullet_field", "content": "- **Scope**:\tfeature\t", "field": "scope"}
+{"id": "bullet_field-00078", "kind": "bullet_field", "content": "**Scope**: bare\n- **Scope**: second\n- **Depth (x)**: standard\n\n\n- **Scope**:", "field": "Scope**"}
+{"id": "bullet_field-00079", "kind": "bullet_field", "content": "- **Scope**:   ", "field": "Scope"}
+{"id": "bullet_field-00080", "kind": "bullet_field", "content": "- **Scope**:\r\n- **Scope**: bugfix\r\n  - **Scope**: indented\r\n  - **Scope**: indented\r\n-  **Scope**: two spaces\r\n- **Scope**:   ", "field": "Depth"}
+{"id": "bullet_field-00081", "kind": "bullet_field", "content": "", "field": "Scope"}
+{"id": "bullet_field-00082", "kind": "bullet_field", "content": "- **Scope** : spaced colon\r\n-  **Scope**: two spaces\r\n- **Depth**: standard # note\r\n- **Scope**:\r\n  - **Scope**: indented\r\n**Scope**: bare", "field": "Sc.pe"}
+{"id": "bullet_field-00083", "kind": "bullet_field", "content": " ", "field": "Scope"}
+{"id": "bullet_field-00084", "kind": "bullet_field", "content": "- **Scope**: second\r\n- **scop**: lower\r\n**Scope*{*: bare\r\n  - **Scope**: indened", "field": "scope"}
+{"id": "bullet_field-00085", "kind": "bullet_field", "content": "\r\n}", "field": "Scope"}
+{"id": "bullet_field-00086", "kind": "bullet_field", "content": "- *Scope**: second\r\r  -:**Scpe**: indented\r# heading\r- **Scope**:   \r# heading", "field": "Sc.pe"}
+{"id": "bullet_field-00087", "kind": "bullet_field", "content": "- **Depth**: standard # note -  **Scope**: two spaces - **scope**: lower - **Scope**:    - **Scope**: - **Scope**:   ", "field": "Scope"}
+{"id": "bullet_field-00088", "kind": "bullet_field", "content": "-  **Scope**: two space", "field": "Depth"}
+{"id": "bullet_field-00089", "kind": "bullet_field", "content": "**Scope**: bare - **Scope**:\tfeature\t - **Scope** : spaced colon -  **Scope**: two spaces", "field": "Scope**"}
+{"id": "bullet_field-00090", "kind": "bullet_field", "content": "  - **Scope**: indented\r\n- **Scope**: bugfix\r\n- **Depth**: standard # note\r\n- **Scope**: bugfix\r\n- **scope**: lower", "field": "Scope"}
+{"id": "bullet_field-00091", "kind": "bullet_field", "content": "", "field": "Sc.pe"}
+{"id": "bullet_field-00092", "kind": "bullet_field", "content": "- **Scope**:\n- **Scope**:\tfeature\t\n- **Scope**:   \n- **Depth**: standard # note\n  - **Scope**: indented", "field": "Depth"}
+{"id": "bullet_field-00093", "kind": "bullet_field", "content": "", "field": "Depth"}
+{"id": "bullet_field-00094", "kind": "bullet_field", "content": "- **Depth (x)**: standard\n- **scpe**: loer\n- **Scope*a*: second\n-  **Scope**: to spaces\n- **Scope**: bugfix\n- **Scope** : spaced colon", "field": "Depth (x)"}
+{"id": "bullet_field-00095", "kind": "bullet_field", "content": "- **Scope**: bugfix\r-  **Scope**: two spaces", "field": "Scope"}
+{"id": "bullet_field-00096", "kind": "bullet_field", "content": "' **Scope**:   ", "field": "scope"}
+{"id": "bullet_field-00097", "kind": "bullet_field", "content": "", "field": "Scope**"}
+{"id": "bullet_field-00098", "kind": "bullet_field", "content": "# head'ing - **Scope**: second # heading", "field": "Sc.pe"}
+{"id": "bullet_field-00099", "kind": "bullet_field", "content": "  - **Scope**: indented", "field": "scope"}
+{"id": "bullet_field-00100", "kind": "bullet_field", "content": "- **Scope**: bugfix\r\n- **Scope**: bugfix", "field": "Scope"}
+{"id": "bullet_field-00101", "kind": "bullet_field", "content": "", "field": "scope"}
+{"id": "bullet_field-00102", "kind": "bullet_field", "content": "- **Scope**: bugfix\r-  **Scope**: two spaces\r- **Depth**: standard > note\r **Scope**: second\r- **Scop e**: second", "field": "Scope"}
+{"id": "bullet_field-00103", "kind": "bullet_field", "content": "- **Scope**:\r- **Depth (x)**: standard\r- **scope**: lower\r- **Depth (x)**: standard\r", "field": "scope"}
+{"id": "bullet_field-00104", "kind": "bullet_field", "content": "- **Depth**: standard # note\r- **Depth**: standard # note\r- **Scope**:   \r  - **Scope**: indented", "field": "Scope**"}
+{"id": "bullet_field-00105", "kind": "bullet_field", "content": "-  **Scope**: two spaces", "field": "Sc.pe"}
+{"id": "bullet_field-00106", "kind": "bullet_field", "content": "\r\n- **scope**: lower\r\n- **Depth**: standard # note\r\n- **scope**: lower\r\n- **Scope**: bugfix", "field": "Scope"}
+{"id": "bullet_field-00107", "kind": "bullet_field", "content": "-  **Scope**: two spaces", "field": "Depth (x)"}
+{"id": "bullet_field-00108", "kind": "bullet_field", "content": "- **Scope**:    - **Scope**:    - **Depth (x)**: standard - **Scope**: second", "field": "Depth (x)"}
+{"id": "bullet_field-00109", "kind": "bullet_field", "content": "- **Depth**: standard # note\r- **scope**: lower\r- **Scope**: bugfix\r-  **Scope**: two spaces", "field": "Depth (x)"}
+{"id": "bullet_field-00110", "kind": "bullet_field", "content": "- **Depth**: standard # note", "field": "Scope"}
+{"id": "bullet_field-00111", "kind": "bullet_field", "content": "  :**Sco e**: two space", "field": "Depth"}
+{"id": "bullet_field-00112", "kind": "bullet_field", "content": "# heading\n\n- **Scope**:\n# heading", "field": "Scope**"}
+{"id": "bullet_field-00113", "kind": "bullet_field", "content": "- **Depth**: standard # note\r\n# heading", "field": "Depth"}
+{"id": "bullet_field-00114", "kind": "bullet_field", "content": "# heading\r- **scope**: lower\r**Scope**: bare\r- **Depth**: standard # note\r# heading\r- **Scope** : spaced colon", "field": "Scope"}
+{"id": "bullet_field-00115", "kind": "bullet_field", "content": "", "field": "Scope"}
+{"id": "bullet_field-00116", "kind": "bullet_field", "content": "-  **Scope**: two spaces\n# heading\n- **Scope**:\n- **Scope**:\tfeature\t\n- **Scope**:\tfeature\t\n- **Scope**: second", "field": "Scope"}
+{"id": "bullet_field-00117", "kind": "bullet_field", "content": "- **Scope**: bugfix\n- **Scope**: bugfix\n- **Depth (x)**: standard\n- **Scope** : spaced colon\n- **Scope**:", "field": "Depth (x)"}
+{"id": "bullet_field-00118", "kind": "bullet_field", "content": "# heading\n- **scope**: lower\n**Scope**: bare\n- **Scope**: second\n-  **Scope**: two spaces\n- **Depth**: standard # note", "field": "scope"}
+{"id": "bullet_field-00119", "kind": "bullet_field", "content": "**Scope**: bare\n  - **Scope**: indented\n- **Scope** : spaced colon\n- **Scope**: bugfix", "field": "Sc.pe"}
+{"id": "bullet_field-00120", "kind": "bullet_field", "content": "- **Scope**:", "field": "Scope"}
+{"id": "bullet_field-00121", "kind": "bullet_field", "content": "", "field": "Depth"}
+{"id": "bullet_field-00122", "kind": "bullet_field", "content": "- **Scop~**:    - **Scope** : space.d coln  **Scope**: second", "field": "Scope"}
+{"id": "bullet_field-00123", "kind": "bullet_field", "content": "- **Depth**: standard # note", "field": "Scope**"}
+{"id": "bullet_field-00124", "kind": "bullet_field", "content": "] - **Scope**: indented😀\r\r- **Scope**:\r**Scope**: bare", "field": "Depth (x)"}
+{"id": "bullet_field-00125", "kind": "bullet_field", "content": "", "field": "Depth (x)"}
+{"id": "bullet_field-00126", "kind": "bullet_field", "content": "", "field": "Scope"}
+{"id": "bullet_field-00127", "kind": "bullet_field", "content": "  - **Scope**: indented - **Depth**: standard # note - **Scope**:", "field": "Sc.pe"}
+{"id": "bullet_field-00128", "kind": "bullet_field", "content": "  - **Scope**: indented\r\n- **Depth**: standard # note\r\n- **Scope**:\tfeature\t\r\n# heading", "field": "Depth"}
+{"id": "bullet_field-00129", "kind": "bullet_field", "content": "  - **Sc\tpe**: indented - **Scope**: second - **Depth**: standa rd # note - **Depth**: standard# note", "field": "Depth (x)"}
+{"id": "bullet_field-00130", "kind": "bullet_field", "content": "**Scope**: bare - **Depth**: standard # note **Scope**: bare - **Scope**:\tfeature\t", "field": "Scope"}
+{"id": "bullet_field-00131", "kind": "bullet_field", "content": "- **Scope**: second\r- **Scope** : spaced colon\r\r- **Scope**: second\r  - **Scope**: indented", "field": "scope"}
+{"id": "bullet_field-00132", "kind": "bullet_field", "content": "", "field": "Depth"}
+{"id": "bullet_field-00133", "kind": "bullet_field", "content": "# heading - **Scope**: second - **Scope**:\tfeature\t # heading - **Scope**:\tfeature\t   - **Scope**: indented", "field": "Scope"}
+{"id": "bullet_field-00134", "kind": "bullet_field", "content": "- **Scope**: bugfix", "field": "Scope"}
+{"id": "bullet_field-00135", "kind": "bullet_field", "content": "- **Scope**: second\r- **Scope**:   \r# heading", "field": "Scope"}
+{"id": "bullet_field-00136", "kind": "bullet_field", "content": "**Scope**: bare - **Scope**:    - **Scope**: - **Scope**: # heading - **scope**: lower", "field": "Scope"}
+{"id": "bullet_field-00137", "kind": "bullet_field", "content": "", "field": "Scope**"}
+{"id": "bullet_field-00138", "kind": "bullet_field", "content": "- **scope**: lower -  **Scope**: two spaces -1**Scope**:\t feature\t **Scope**: bare - **Scope**: bugfix\"", "field": "Scope**"}
+{"id": "bullet_field-00139", "kind": "bullet_field", "content": "- **Scope**:   ", "field": "Scope"}
+{"id": "bullet_field-00140", "kind": "bullet_field", "content": "\n**Scope**: bare\n- **scope**: lower\n- **scope**: low r\n", "field": "scope"}
+{"id": "bullet_field-00141", "kind": "bullet_field", "content": "", "field": ""}
+{"id": "bullet_field-00142", "kind": "bullet_field", "content": "**Scope**: bare - **Scope**:   - **Scope**: indented - **Scope**:\tfeature\t - **Scope**: -  **Scope**: two spaces", "field": "Scope"}
+{"id": "bullet_field-00143", "kind": "bullet_field", "content": "**Scope**: bare", "field": "Depth"}
+{"id": "bullet_field-00144", "kind": "bullet_field", "content": "\n- **Scope**:\tfeature\t", "field": ""}
+{"id": "bullet_field-00145", "kind": "bullet_field", "content": "- **Scope**:    - **Depth (x)**: standard - **Scope**: bugfix - **Scope**:  - **Scope**: second", "field": "Scope"}
+{"id": "bullet_field-00146", "kind": "bullet_field", "content": "# heading", "field": "Sc.pe"}
+{"id": "bullet_field-00147", "kind": "bullet_field", "content": "  - **Scope_**: indented - **Scope**:   - **Scope**: indented - **Depth**: standard # note - **Scope**   - **Depth**: standard # note", "field": "Sc.pe"}
+{"id": "bullet_field-00148", "kind": "bullet_field", "content": "# heading\n- **Depth**: standard # note\n  - **Scope**: indented\n- **Scope**:\tf\teature\t", "field": "Depth"}
+{"id": "bullet_field-00149", "kind": "bullet_field", "content": "- **scope*\"*, ]lower\n**Scope**: bare", "field": ""}
+{"id": "bullet_field-00150", "kind": "bullet_field", "content": "- **scope**: lower\r- **Depth**: standard # note\r- **Depth**: standard # note\r", "field": "scope"}
+{"id": "bullet_field-00151", "kind": "bullet_field", "content": "- **Scope**: second\n- **Scope**:", "field": "Depth (x)"}
+{"id": "bullet_field-00152", "kind": "bullet_field", "content": "- **Scope**:\n- **Scope**: bugfix- *-*Scope**:   ", "field": "Scope"}
+{"id": "bullet_field-00153", "kind": "bullet_field", "content": "- **D_pth ( x)**: standrd", "field": "Sc.pe"}
+{"id": "bullet_field-00154", "kind": "bullet_field", "content": "  - **Scpe*|: indeted\r\n- **Scope** : spaced colon", "field": "Scope**"}
+{"id": "bullet_field-00155", "kind": "bullet_field", "content": "  - **Scope**: indented\r\n- **Scope**:\r\n- **Scope** : spaced colon\r\n  - **Scope**: indented\r\n", "field": "Sc.pe"}
+{"id": "bullet_field-00156", "kind": "bullet_field", "content": "  - **Scope**: indented - **Depth (x)**: standard   - **Scope**: indented - **Scope**: bugfix", "field": "Sc.pe"}
+{"id": "bullet_field-00157", "kind": "bullet_field", "content": "- **scope**: lower", "field": "scope"}
+{"id": "bullet_field-00158", "kind": "bullet_field", "content": "- **Scope** : spaced colon\r  - **Scope**: indented", "field": "Scope"}
+{"id": "bullet_field-00159", "kind": "bullet_field", "content": "- **Scope**:   ", "field": "Scope**"}
+{"id": "bullet_field-00160", "kind": "bullet_field", "content": "- **Scope**:\tfeature\t\n**Scope**: bare", "field": "Scope**"}
+{"id": "bullet_field-00161", "kind": "bullet_field", "content": "# heading\r\n- **Scope**:   \r\n-  **Scope**: two spaces\r\n-  **Scope**: two spaces\r\n- **Depth (x)**: standard", "field": "Scope**"}
+{"id": "bullet_field-00162", "kind": "bullet_field", "content": "   **Scope**: indented\n- **Scope**:   \n#\r\n h\r:eading\n- **Scope**:   ", "field": "Depth"}
+{"id": "bullet_field-00163", "kind": "bullet_field", "content": "# heading\r**Scope**: bare\r- **Scope**:", "field": ""}
+{"id": "bullet_field-00164", "kind": "bullet_field", "content": "- **scope**: lower\r- **Depth (x)**: standard", "field": ""}
+{"id": "bullet_field-00165", "kind": "bullet_field", "content": "- **Scope**: scond\n- **Scope**: bugfix\n-  **Scop**: two spaces\n**Scope**: bare\n- **Scope**: second\n- **Scope**:\tfeatur😀e", "field": ""}
+{"id": "bullet_field-00166", "kind": "bullet_field", "content": "  - **Scope**: indented", "field": "Scope"}
+{"id": "bullet_field-00167", "kind": "bullet_field", "content": "- **Scope**: bugfix", "field": "Scope**"}
+{"id": "bullet_field-00168", "kind": "bullet_field", "content": "", "field": "Depth (x)"}
+{"id": "bullet_field-00169", "kind": "bullet_field", "content": "- **S.ope**:\tfeature\t  - **Scoe** - **Scope**:", "field": "Scope"}
+{"id": "bullet_field-00170", "kind": "bullet_field", "content": "\r- **Depth**: standard # note\r# heading\r- **scope**: lower\r-  **Scope**: two spaces\r**Scope**: bare", "field": "Sc.pe"}
+{"id": "bullet_field-00171", "kind": "bullet_field", "content": "", "field": ""}
+{"id": "bullet_field-00172", "kind": "bullet_field", "content": "~~", "field": "Sc.pe"}
+{"id": "bullet_field-00173", "kind": "bullet_field", "content": "- **Depth**: standard # note\n# heading\n-  **Scope**: two spaces", "field": "Scope"}
+{"id": "bullet_field-00174", "kind": "bullet_field", "content": "- **Scope** : spaced colon\r\n\r\n- **Scope**: second\r\n- **Scope** : spaced colon\r\n- **Scope**: bugfix\r\n- **Scope** : spaced colon", "field": "scope"}
+{"id": "bullet_field-00175", "kind": "bullet_field", "content": "- **Scope** : spaced colon - **Depth (x)**: standard   - **scope**: lower - **Scope** : spaced colon", "field": "scope"}
+{"id": "bullet_field-00176", "kind": "bullet_field", "content": "- **Depth**: standard # note - **Depth (x)**: standard **Scope**: bare - **Scope**:\tfeature\t -  **Scope**: two spaces # heading", "field": "Scope"}
+{"id": "bullet_field-00177", "kind": "bullet_field", "content": "- **Depth**: standard # note", "field": "Scope**"}
+{"id": "bullet_field-00178", "kind": "bullet_field", "content": "- **scope**: lower", "field": "scope"}
+{"id": "bullet_field-00179", "kind": "bullet_field", "content": "**Scope**: bare\n- **Scope** : spaced colon\n- **Scope**:\n- **Scope**:", "field": "Scope"}

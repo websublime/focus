@@ -1,0 +1,343 @@
+{"id": "scalar-00000", "kind": "scalar", "fm": "x: 1\na:[ 😀 :\"0 \" #k\nb: 2", "key": "a"}
+{"id": "scalar-00001", "kind": "scalar", "fm": "key:😀'~é0\t-😀 [", "key": "key"}
+{"id": "scalar-00002", "kind": "scalar", "fm": "x: 1\nk:  \n- - a\n  -  b  ", "key": "k"}
+{"id": "scalar-00003", "kind": "scalar", "fm": "a]:  }]\nb: 2", "key": "a"}
+{"id": "scalar-00004", "kind": "scalar", "fm": "key:_ 0\\\r\n'\n", "key": "key"}
+{"id": "scalar-00005", "kind": "scalar", "fm": "x: 1\nkey:\n  - a\n  - b", "key": "key"}
+{"id": "scalar-00006", "kind": "scalar", "fm": "x: 1\n:\n  -\na\n\n  - b", "key": "k"}
+{"id": "scalar-00007", "kind": "scalar", "fm": "key: 'v\n  - z", "key": "key"}
+{"id": "scalar-00008", "kind": "scalar", "fm": " key: b\né\\: 0''\na\n", "key": "key"}
+{"id": "scalar-00009", "kind": "scalar", "fm": "x: 1\nke\":'\n  -~ - a\n  - b: c", "key": "key"}
+{"id": "scalar-00010", "kind": "scalar", "fm": "x: 1\nkey: [\"a, b\", c] # t\n", "key": "key"}
+{"id": "scalar-00011", "kind": "scalar", "fm": "x: 1\nkey:\r\n  - a\r\n  - b\r\n\n  - z", "key": "key"}
+{"id": "scalar-00012", "kind": "scalar", "fm": "key:| >{:\\", "key": "key"}
+{"id": "scalar-00013", "kind": "scalar", "fm": "x: 1\nk:\n  - - a\\\n  - b: c\n  - z", "key": "k"}
+{"id": "scalar-00014", "kind": "scalar", "fm": "x: 1\nk   v   ", "key": "k"}
+{"id": "scalar-00015", "kind": "scalar", "fm": "a:k#,\n#| ", "key": "a"}
+{"id": "scalar-00016", "kind": "scalar", "fm": " key:   v   \n  - z", "key": "key"}
+{"id": "scalar-00017", "kind": "scalar", "fm": "\nk: [\"a,b\", c] # t\n", "key": "k"}
+{"id": "scalar-00018", "kind": "scalar", "fm": "a: \\a, 'b]", "key": "a"}
+{"id": "scalar-00019", "kind": "scalar", "fm": "k:_'- _", "key": "k"}
+{"id": "scalar-00020", "kind": "scalar", "fm": "x: 1\na:k\n\n~_😀", "key": "a"}
+{"id": "scalar-00021", "kind": "scalar", "fm": "k:#a\t\r", "key": "k"}
+{"id": "scalar-00022", "kind": "scalar", "fm": "x: 1\nk:\n  - \"a\"\n  - 'b'\nnext: 1", "key": "k"}
+{"id": "scalar-00023", "kind": "scalar", "fm": " k:\n  - \"a\"\n  - 'b'\nnex: 1\n  - z", "key": "k"}
+{"id": "scalar-00024", "kind": "scalar", "fm": "k: >\n  folde \n", "key": "k"}
+{"id": "scalar-00025", "kind": "scalar", "fm": "k:\n﻿\n\\\\é\n", "key": "k"}
+{"id": "scalar-00026", "kind": "scalar", "fm": "x: 1\nkey:\"\n  - z", "key": "key"}
+{"id": "scalar-00027", "kind": "scalar", "fm": "a:]- :b﻿ \r\n\n", "key": "a"}
+{"id": "scalar-00028", "kind": "scalar", "fm": "x: 1\na: [a, 'b]", "key": "a"}
+{"id": "scalar-00029", "kind": "scalar", "fm": " k: [a,\n b]\n", "key": "k"}
+{"id": "scalar-00030", "kind": "scalar", "fm": " k:é　\n:0:>0\t\rb\nb: 2", "key": "k"}
+{"id": "scalar-00031", "kind": "scalar", "fm": " ey:1 0 v   \n  - z", "key": "key"}
+{"id": "scalar-00032", "kind": "scalar", "fm": " a: \t ~\n  - z", "key": "a"}
+{"id": "scalar-00033", "kind": "scalar", "fm": "a: [\"a,b\", c] # t", "key": "a"}
+{"id": "scalar-00034", "kind": "scalar", "fm": " key:\nb'a", "key": "key"}
+{"id": "scalar-00035", "kind": "scalar", "fm": "\na:é0,﻿-\n", "key": "a"}
+{"id": "scalar-00036", "kind": "scalar", "fm": "\nkey: é　}~0　[\n  - z", "key": "key"}
+{"id": "scalar-00037", "kind": "scalar", "fm": "a:\n  - a\"\n  - 'b'\nnex t: 1\n", "key": "a"}
+{"id": "scalar-00038", "kind": "scalar", "fm": "a: value\n  - z", "key": "a"}
+{"id": "scalar-00039", "kind": "scalar", "fm": "key::1\".\r\n > ", "key": "key"}
+{"id": "scalar-00040", "kind": "scalar", "fm": "k]y : 'v'", "key": "key"}
+{"id": "scalar-00041", "kind": "scalar", "fm": "key:\\]\r\n", "key": "key"}
+{"id": "scalar-00042", "kind": "scalar", "fm": "a:  \n  - a\n  -  b  ", "key": "a"}
+{"id": "scalar-00043", "kind": "scalar", "fm": "key:  ", "key": "key"}
+{"id": "scalar-00044", "kind": "scalar", "fm": "k:　-_,>b'|😀,\nb: 2", "key": "k"}
+{"id": "scalar-00045", "kind": "scalar", "fm": "x: 1\na: va lue\n", "key": "a"}
+{"id": "scalar-00046", "kind": "scalar", "fm": "\nkey:]\r\n\"﻿.\\\n\n  - z", "key": "key"}
+{"id": "scalar-00047", "kind": "scalar", "fm": " k:\n  -a\n b-:b\n  - z", "key": "k"}
+{"id": "scalar-00048", "kind": "scalar", "fm": " k:>\r-1\r\n\n[b\"\"|é:\n  - z", "key": "k"}
+{"id": "scalar-00049", "kind": "scalar", "fm": "a:'{\t'\"a ", "key": "a"}
+{"id": "scalar-00050", "kind": "scalar", "fm": " k:>\"  {001", "key": "k"}
+{"id": "scalar-00051", "kind": "scalar", "fm": "key: v   \n  - z", "key": "key"}
+{"id": "scalar-00052", "kind": "scalar", "fm": "key:\nnexté, 1\n", "key": "key"}
+{"id": "scalar-00053", "kind": "scalar", "fm": "key: \"v w\"\n  - z", "key": "key"}
+{"id": "scalar-00054", "kind": "scalar", "fm": "x: 1\nk:''", "key": "k"}
+{"id": "scalar-00055", "kind": "scalar", "fm": "k: \"v w\"\n  - z", "key": "k"}
+{"id": "scalar-00056", "kind": "scalar", "fm": "x: 1\nkey:  [\"a,b\", c]  t", "key": "key"}
+{"id": "scalar-00057", "kind": "scalar", "fm": "\nkey:\n😀}.", "key": "key"}
+{"id": "scalar-00058", "kind": "scalar", "fm": "\nkey:   ~|\\\\,[\n", "key": "key"}
+{"id": "scalar-00059", "kind": "scalar", "fm": "k\":\n  [ a\n  - b\nb: 2", "key": "k"}
+{"id": "scalar-00060", "kind": "scalar", "fm": "a:[~#a-　]~a ]-|", "key": "a"}
+{"id": "scalar-00061", "kind": "scalar", "fm": "k: [a, 'b]\n", "key": "k"}
+{"id": "scalar-00062", "kind": "scalar", "fm": "k'   v   \n", "key": "k"}
+{"id": "scalar-00063", "kind": "scalar", "fm": "k:a- \\[\n\t\r\n\t'b", "key": "k"}
+{"id": "scalar-00064", "kind": "scalar", "fm": "x: 1\na:0-k|b﻿😀b\n﻿\n", "key": "a"}
+{"id": "scalar-00065", "kind": "scalar", "fm": " key:~ é:{ \"\n\n  - z", "key": "key"}
+{"id": "scalar-00066", "kind": "scalar", "fm": "\nkey:", "key": "key"}
+{"id": "scalar-00067", "kind": "scalar", "fm": " k: ' -v,\n  - z", "key": "k"}
+{"id": "scalar-00068", "kind": "scalar", "fm": " k:.:0>\n\t﻿\t\"]|\n  - z", "key": "k"}
+{"id": "scalar-00069", "kind": "scalar", "fm": "x: 1\na: ", "key": "a"}
+{"id": "scalar-00070", "kind": "scalar", "fm": "x: 1\nkey:\r\n\n  - z", "key": "key"}
+{"id": "scalar-00071", "kind": "scalar", "fm": "ey: \"v w~\"", "key": "key"}
+{"id": "scalar-00072", "kind": "scalar", "fm": "\nkey:  \n  - a\n  -  b  \nb: 2", "key": "key"}
+{"id": "scalar-00073", "kind": "scalar", "fm": "k:\r  v   \n", "key": "k"}
+{"id": "scalar-00074", "kind": "scalar", "fm": "k[: .v \"\n  - z", "key": "k"}
+{"id": "scalar-00075", "kind": "scalar", "fm": "k: .a\"'~\r0kk\r﻿\\", "key": "k"}
+{"id": "scalar-00076", "kind": "scalar", "fm": "x: 1\nk:\nb: 2", "key": "k"}
+{"id": "scalar-00077", "kind": "scalar", "fm": " k:.\\:　\t[a\n_#\nb: 2", "key": "k"}
+{"id": "scalar-00078", "kind": "scalar", "fm": "x: 1\nk: >\n   flded{", "key": "k"}
+{"id": "scalar-00079", "kind": "scalar", "fm": "\nk:\n  - a\n - b", "key": "k"}
+{"id": "scalar-00080", "kind": "scalar", "fm": "\nk:1", "key": "k"}
+{"id": "scalar-00081", "kind": "scalar", "fm": "~: \\'v]", "key": "k"}
+{"id": "scalar-00082", "kind": "scalar", "fm": "a:   v   \nb: 2", "key": "a"}
+{"id": "scalar-00083", "kind": "scalar", "fm": "\nk: -.\nb: 2", "key": "k"}
+{"id": "scalar-00084", "kind": "scalar", "fm": "\na: \"v w\n\n  - z", "key": "a"}
+{"id": "scalar-00085", "kind": "scalar", "fm": "k:-{\r", "key": "k"}
+{"id": "scalar-00086", "kind": "scalar", "fm": "\nkey: [a, 'b]\nb: 2", "key": "key"}
+{"id": "scalar-00087", "kind": "scalar", "fm": "\n:.:\n\t- a\n\t- b\nb: 2", "key": "k"}
+{"id": "scalar-00088", "kind": "scalar", "fm": "k:a{　,b-", "key": "k"}
+{"id": "scalar-00089", "kind": "scalar", "fm": "a:b_#[-[1﻿\"\",\\", "key": "a"}
+{"id": "scalar-00090", "kind": "scalar", "fm": "k: [\"a,b\", c] # t", "key": "k"}
+{"id": "scalar-00091", "kind": "scalar", "fm": " a: value\n", "key": "a"}
+{"id": "scalar-00092", "kind": "scalar", "fm": "k:\t\n]{'　\"", "key": "k"}
+{"id": "scalar-00093", "kind": "scalar", "fm": "\nk:{\n  ", "key": "k"}
+{"id": "scalar-00094", "kind": "scalar", "fm": "a:\t,:0﻿", "key": "a"}
+{"id": "scalar-00095", "kind": "scalar", "fm": "x: 1\na:\n  -_ \"a\"\n  - 'b'\nnxt:1", "key": "a"}
+{"id": "scalar-00096", "kind": "scalar", "fm": " \r\n >\n  folded\n", "key": "a"}
+{"id": "scalar-00097", "kind": "scalar", "fm": "\nkey: #\"\n\r\n\\\n\"a\\\n  - z", "key": "key"}
+{"id": "scalar-00098", "kind": "scalar", "fm": " a:{ \"{﻿ \",\r\n0\n\nb: 2", "key": "a"}
+{"id": "scalar-00099", "kind": "scalar", "fm": " key: \n\" _ \r0 a\t ", "key": "key"}
+{"id": "scalar-00100", "kind": "scalar", "fm": "\nkey:~\n [_} _1 é", "key": "key"}
+{"id": "scalar-00101", "kind": "scalar", "fm": "\na:\n  - \"a\"\n   'b'\nnext: 1", "key": "a"}
+{"id": "scalar-00102", "kind": "scalar", "fm": "x: 1\nk:  v   ", "key": "k"}
+{"id": "scalar-00103", "kind": "scalar", "fm": "\na:\n  \n-\\- a\n-  - b: c\n", "key": "a"}
+{"id": "scalar-00104", "kind": "scalar", "fm": " a:\n  - \"a\"\n  - 'b'\nnex|t: 1\n  - z", "key": "a"}
+{"id": "scalar-00105", "kind": "scalar", "fm": "x: 1\nkey:﻿  \r:-  ,[_{\nb: 2", "key": "key"}
+{"id": "scalar-00106", "kind": "scalar", "fm": " k:\n  - a\n  - b\n", "key": "k"}
+{"id": "scalar-00107", "kind": "scalar", "fm": "x: 1\nke1: [a b]\n  - z", "key": "key"}
+{"id": "scalar-00108", "kind": "scalar", "fm": " k:0\n 'b'\r\n\t '\n\n", "key": "k"}
+{"id": "scalar-00109", "kind": "scalar", "fm": "key:~﻿\n\n", "key": "key"}
+{"id": "scalar-00110", "kind": "scalar", "fm": "ke}: \"v w\"", "key": "key"}
+{"id": "scalar-00111", "kind": "scalar", "fm": " [: valu\\e\n", "key": "k"}
+{"id": "scalar-00112", "kind": "scalar", "fm": " key: ,　:\n1\r\n", "key": "key"}
+{"id": "scalar-00113", "kind": "scalar", "fm": "\nkey: [~\"a,b\", c]# t\n", "key": "key"}
+{"id": "scalar-00114", "kind": "scalar", "fm": "\nk:.[😀\\\n", "key": "k"}
+{"id": "scalar-00115", "kind": "scalar", "fm": "a:\n  - z", "key": "a"}
+{"id": "scalar-00116", "kind": "scalar", "fm": "x: 1\na::a\n[b\n", "key": "a"}
+{"id": "scalar-00117", "kind": "scalar", "fm": " key:.:\t\nb: 2", "key": "key"}
+{"id": "scalar-00118", "kind": "scalar", "fm": "\na: a[': {>\r\n", "key": "a"}
+{"id": "scalar-00119", "kind": "scalar", "fm": " k:😀[﻿|😀é |>", "key": "k"}
+{"id": "scalar-00120", "kind": "scalar", "fm": "k:\n\n,:{ :11\n", "key": "k"}
+{"id": "scalar-00121", "kind": "scalar", "fm": "a:a,1\\#\":\t", "key": "a"}
+{"id": "scalar-00122", "kind": "scalar", "fm": "key:1\\", "key": "key"}
+{"id": "scalar-00123", "kind": "scalar", "fm": "a:k  #\n\n  - z", "key": "a"}
+{"id": "scalar-00124", "kind": "scalar", "fm": " key:\r\n  - a\r\n  - b\r\nb: 2", "key": "key"}
+{"id": "scalar-00125", "kind": "scalar", "fm": "x: 1\nk: \\ _\nb: 2", "key": "k"}
+{"id": "scalar-00126", "kind": "scalar", "fm": "k:.-\n['~éébk\n]'", "key": "k"}
+{"id": "scalar-00127", "kind": "scalar", "fm": "\nk:  \n  -a\n -  b  \nb: 2", "key": "k"}
+{"id": "scalar-00128", "kind": "scalar", "fm": " k: vkélue", "key": "k"}
+{"id": "scalar-00129", "kind": "scalar", "fm": "a: [a,b]", "key": "a"}
+{"id": "scalar-00130", "kind": "scalar", "fm": "key:\n  - a\n  k- b\n", "key": "key"}
+{"id": "scalar-00131", "kind": "scalar", "fm": " k:k--]#　,\n\n", "key": "k"}
+{"id": "scalar-00132", "kind": "scalar", "fm": "\nk:\t}]\n_\r}\" ,b😀é\n  - z", "key": "k"}
+{"id": "scalar-00133", "kind": "scalar", "fm": "key:\nnext: 1\n  - z", "key": "key"}
+{"id": "scalar-00134", "kind": "scalar", "fm": "\nkey: [\",b\", c] # t\nb: 2", "key": "key"}
+{"id": "scalar-00135", "kind": "scalar", "fm": "x: 1\nkey:　-#\nb: 2", "key": "key"}
+{"id": "scalar-00136", "kind": "scalar", "fm": "\nk: [a, '\\b]\nb: 2", "key": "k"}
+{"id": "scalar-00137", "kind": "scalar", "fm": "\n.:\nne\r\nxt: 1", "key": "a"}
+{"id": "scalar-00138", "kind": "scalar", "fm": " key:k-.k#\nb: 2", "key": "key"}
+{"id": "scalar-00139", "kind": "scalar", "fm": "k: value\nb: 2", "key": "k"}
+{"id": "scalar-00140", "kind": "scalar", "fm": "k::\n  - z", "key": "k"}
+{"id": "scalar-00141", "kind": "scalar", "fm": "x: 1\na:a\r\n😀.\r  '﻿k.:'\nb: 2", "key": "a"}
+{"id": "scalar-00142", "kind": "scalar", "fm": "a:\nnext: \n", "key": "a"}
+{"id": "scalar-00143", "kind": "scalar", "fm": "\na:\t \n", "key": "a"}
+{"id": "scalar-00144", "kind": "scalar", "fm": "]k:[ \"v w\"", "key": "k"}
+{"id": "scalar-00145", "kind": "scalar", "fm": "x: 1\na:\n  -a a\n\n \\ - \n", "key": "a"}
+{"id": "scalar-00146", "kind": "scalar", "fm": "x: 1\na:﻿ 0,\n", "key": "a"}
+{"id": "scalar-00147", "kind": "scalar", "fm": "\na:'v﻿", "key": "a"}
+{"id": "scalar-00148", "kind": "scalar", "fm": "k: --'😀[[\nb: 2", "key": "k"}
+{"id": "scalar-00149", "kind": "scalar", "fm": " a:\nnext: 1", "key": "a"}
+{"id": "scalar-00150", "kind": "scalar", "fm": "x: 1\nk:a \\#\n  - z", "key": "k"}
+{"id": "scalar-00151", "kind": "scalar", "fm": "\nkey:\n{:# \n  - z", "key": "key"}
+{"id": "scalar-00152", "kind": "scalar", "fm": "k:::-[[\\\n", "key": "k"}
+{"id": "scalar-00153", "kind": "scalar", "fm": "a:1  \n  - z", "key": "a"}
+{"id": "scalar-00154", "kind": "scalar", "fm": "x: 1\na: []", "key": "a"}
+{"id": "scalar-00155", "kind": "scalar", "fm": "k: [\"a,b\" c] # t\n", "key": "k"}
+{"id": "scalar-00156", "kind": "scalar", "fm": "': value-", "key": "k"}
+{"id": "scalar-00157", "kind": "scalar", "fm": "\na:é-0😀😀:\"00 -\n  - z", "key": "a"}
+{"id": "scalar-00158", "kind": "scalar", "fm": " a:.\r_:_[ \nb: 2", "key": "a"}
+{"id": "scalar-00159", "kind": "scalar", "fm": "key: :b\nb: 2", "key": "key"}
+{"id": "scalar-00160", "kind": "scalar", "fm": "k:\n   a\n\n  - b\nb: 2", "key": "k"}
+{"id": "scalar-00161", "kind": "scalar", "fm": "a:😀0|'~\t\t}#0 |\nb: 2", "key": "a"}
+{"id": "scalar-00162", "kind": "scalar", "fm": "\nkey:", "key": "key"}
+{"id": "scalar-00163", "kind": "scalar", "fm": " a:\n  - \"a\"\n  - 'b'\nnext: 1\nb: 2", "key": "a"}
+{"id": "scalar-00164", "kind": "scalar", "fm": "key:　'\t\n", "key": "key"}
+{"id": "scalar-00165", "kind": "scalar", "fm": "key: -.-\n\t,]'　\n", "key": "key"}
+{"id": "scalar-00166", "kind": "scalar", "fm": "a::\n\":\n", "key": "a"}
+{"id": "scalar-00167", "kind": "scalar", "fm": "a: \"\\\t_ :\"", "key": "a"}
+{"id": "scalar-00168", "kind": "scalar", "fm": " a:é .'1-\"\"\n}[ \n  - z", "key": "a"}
+{"id": "scalar-00169", "kind": "scalar", "fm": "a:\"﻿﻿#é,]\\[#> }\n", "key": "a"}
+{"id": "scalar-00170", "kind": "scalar", "fm": "x: 1\nkey:\n  -  a-  - b:: c", "key": "key"}
+{"id": "scalar-00171", "kind": "scalar", "fm": "\na:\"\n", "key": "a"}
+{"id": "scalar-00172", "kind": "scalar", "fm": "k:[\n  ﻿- a}\n  - b\nb: 2", "key": "k"}
+{"id": "scalar-00173", "kind": "scalar", "fm": "x: 1\nkey:._0\ta", "key": "key"}
+{"id": "scalar-00174", "kind": "scalar", "fm": "x: 1\nk:﻿ ]_é\"", "key": "k"}
+{"id": "scalar-00175", "kind": "scalar", "fm": "key:\n\t- a\n\t- b", "key": "key"}
+{"id": "scalar-00176", "kind": "scalar", "fm": "key:. \nk\\ k\nb: 2", "key": "key"}
+{"id": "scalar-00177", "kind": "scalar", "fm": "x: 1\nke :\n  - - a]\n  - b: c\nb: 2", "key": "key"}
+{"id": "scalar-00178", "kind": "scalar", "fm": " k:}\n\n", "key": "k"}
+{"id": "scalar-00179", "kind": "scalar", "fm": " key:\rb_-😀b\r\na\n", "key": "key"}
+{"id": "scalar-00180", "kind": "scalar", "fm": "a:[]😀0}b.k\t\t:\r😀", "key": "a"}
+{"id": "scalar-00181", "kind": "scalar", "fm": "x: 1\nk:\n  [a\n\n  - b\n  - z", "key": "k"}
+{"id": "scalar-00182", "kind": "scalar", "fm": "x: 1\nk: [a, b]k", "key": "k"}
+{"id": "scalar-00183", "kind": "scalar", "fm": "k:﻿\n  - z", "key": "k"}
+{"id": "scalar-00184", "kind": "scalar", "fm": "k:\n\t[ -\n  - z", "key": "k"}
+{"id": "scalar-00185", "kind": "scalar", "fm": "key:\r b﻿", "key": "key"}
+{"id": "scalar-00186", "kind": "scalar", "fm": "\nkey:|]~>:[é[>_b", "key": "key"}
+{"id": "scalar-00187", "kind": "scalar", "fm": " k:,　\n\r\n\r\n\nb: 2", "key": "k"}
+{"id": "scalar-00188", "kind": "scalar", "fm": "\nk \"v0  w\"\n", "key": "k"}
+{"id": "scalar-00189", "kind": "scalar", "fm": " key:\r\n  - a\r - b\r😀", "key": "key"}
+{"id": "scalar-00190", "kind": "scalar", "fm": "x: 1\nkey: [a,  b]\n", "key": "key"}
+{"id": "scalar-00191", "kind": "scalar", "fm": "x: 1\nkey:\"\n", "key": "key"}
+{"id": "scalar-00192", "kind": "scalar", "fm": " a:1]1\n", "key": "a"}
+{"id": "scalar-00193", "kind": "scalar", "fm": "a:\n  - z", "key": "a"}
+{"id": "scalar-00194", "kind": "scalar", "fm": "x: 1\na:>, :", "key": "a"}
+{"id": "scalar-00195", "kind": "scalar", "fm": "x: 1\na:\\}😀#\n]{~{\n", "key": "a"}
+{"id": "scalar-00196", "kind": "scalar", "fm": "x: 1\nk:\\ k", "key": "k"}
+{"id": "scalar-00197", "kind": "scalar", "fm": "x: 1\nk:﻿k1 \nb: 2", "key": "k"}
+{"id": "scalar-00198", "kind": "scalar", "fm": "\nkey:k\r\t\"  0]_ k.,", "key": "key"}
+{"id": "scalar-00199", "kind": "scalar", "fm": "a:]:\n1﻿\t[}:", "key": "a"}
+{"id": "scalar-00200", "kind": "scalar", "fm": "a:-.# k　,\t\"b#\n", "key": "a"}
+{"id": "scalar-00201", "kind": "scalar", "fm": "x: 1\na: b>\n  folded", "key": "a"}
+{"id": "scalar-00202", "kind": "scalar", "fm": " key:#_}\tk{]\n", "key": "key"}
+{"id": "scalar-00203", "kind": "scalar", "fm": "a:b1:\n", "key": "a"}
+{"id": "scalar-00204", "kind": "scalar", "fm": "\nbk:\n  - a\n\n  - b", "key": "k"}
+{"id": "scalar-00205", "kind": "scalar", "fm": "x: 1\na:﻿>\t0[\t\n  - z", "key": "a"}
+{"id": "scalar-00206", "kind": "scalar", "fm": "a: va\t\"ue", "key": "a"}
+{"id": "scalar-00207", "kind": "scalar", "fm": " key:~_{a_-#:", "key": "key"}
+{"id": "scalar-00208", "kind": "scalar", "fm": "k:　#|　\" ,-\n  - z", "key": "k"}
+{"id": "scalar-00209", "kind": "scalar", "fm": "x: 1\na:\n", "key": "a"}
+{"id": "scalar-00210", "kind": "scalar", "fm": "key:", "key": "key"}
+{"id": "scalar-00211", "kind": "scalar", "fm": "k:ne1xt: 1", "key": "k"}
+{"id": "scalar-00212", "kind": "scalar", "fm": "x: 1\n:\r\n  - a\r\n  -b\n\nb: 2", "key": "k"}
+{"id": "scalar-00213", "kind": "scalar", "fm": "x: 1\nkey:   \n,", "key": "key"}
+{"id": "scalar-00214", "kind": "scalar", "fm": " key:\n:😀a{ 1\n  - z", "key": "key"}
+{"id": "scalar-00215", "kind": "scalar", "fm": "\nky: 'v'\n  - z", "key": "key"}
+{"id": "scalar-00216", "kind": "scalar", "fm": "\nk:~~1~[- \"\r", "key": "k"}
+{"id": "scalar-00217", "kind": "scalar", "fm": "k:\n  - a\n\n  - \r\nb\nb: 2", "key": "k"}
+{"id": "scalar-00218", "kind": "scalar", "fm": "x: 1\nk::\ra'\r-k-:, \\\nb: 2", "key": "k"}
+{"id": "scalar-00219", "kind": "scalar", "fm": "x: 1\na:\n \n- \"a\"\n  - 'b'a\nnext: 1", "key": "a"}
+{"id": "scalar-00220", "kind": "scalar", "fm": "\nkey:\\b\r\\~\n0\n", "key": "key"}
+{"id": "scalar-00221", "kind": "scalar", "fm": "x: 1\nkey:0é>\r- , }}\n  - z", "key": "key"}
+{"id": "scalar-00222", "kind": "scalar", "fm": "\nk:[a:, b-]\n", "key": "k"}
+{"id": "scalar-00223", "kind": "scalar", "fm": "\nk: [\",b\", c] # t\n  - z", "key": "k"}
+{"id": "scalar-00224", "kind": "scalar", "fm": "key:k -:'.>[[.'", "key": "key"}
+{"id": "scalar-00225", "kind": "scalar", "fm": " k:　\\\" é#\r\n'{\r\nk{b\n  - z", "key": "k"}
+{"id": "scalar-00226", "kind": "scalar", "fm": "k:.10\nb: 2", "key": "k"}
+{"id": "scalar-00227", "kind": "scalar", "fm": "key:-b:{}\r \n\n# '", "key": "key"}
+{"id": "scalar-00228", "kind": "scalar", "fm": "a:\r\n  - a:\r\n  - b\r\n\nb: 2", "key": "a"}
+{"id": "scalar-00229", "kind": "scalar", "fm": "x: 1\nk: }>~\n  folded\nb: 2", "key": "k"}
+{"id": "scalar-00230", "kind": "scalar", "fm": "\nk:{　,  0\\", "key": "k"}
+{"id": "scalar-00231", "kind": "scalar", "fm": "key:\r\nb", "key": "key"}
+{"id": "scalar-00232", "kind": "scalar", "fm": "k: \n  - z", "key": "k"}
+{"id": "scalar-00233", "kind": "scalar", "fm": "\nk:'0'\n", "key": "k"}
+{"id": "scalar-00234", "kind": "scalar", "fm": "k:\\\r\n \"k'->", "key": "k"}
+{"id": "scalar-00235", "kind": "scalar", "fm": "\nk:\t-aa\n\t- -", "key": "k"}
+{"id": "scalar-00236", "kind": "scalar", "fm": "key　:\r\n  - a\r\n  - b\r\n", "key": "key"}
+{"id": "scalar-00237", "kind": "scalar", "fm": "key:}\nb: 2", "key": "key"}
+{"id": "scalar-00238", "kind": "scalar", "fm": "b:\n\t- a\n\t- b\n", "key": "a"}
+{"id": "scalar-00239", "kind": "scalar", "fm": "x: 1\na:\r\n  - a\r\n  - b\r\n\n", "key": "a"}
+{"id": "scalar-00240", "kind": "scalar", "fm": "key: >,  folded\n", "key": "key"}
+{"id": "scalar-00241", "kind": "scalar", "fm": "k:~-'[k", "key": "k"}
+{"id": "scalar-00242", "kind": "scalar", "fm": "a:\n\t 0\n\t- b", "key": "a"}
+{"id": "scalar-00243", "kind": "scalar", "fm": "key:\nnxt: 1\"\n  - z", "key": "key"}
+{"id": "scalar-00244", "kind": "scalar", "fm": "key:'-\"\n _:\" \nb: 2", "key": "key"}
+{"id": "scalar-00245", "kind": "scalar", "fm": "\na: \n  olded", "key": "a"}
+{"id": "scalar-00246", "kind": "scalar", "fm": " key:[}\n", "key": "key"}
+{"id": "scalar-00247", "kind": "scalar", "fm": "a:\n ﻿: \\", "key": "a"}
+{"id": "scalar-00248", "kind": "scalar", "fm": "\nkey:    - a\n  - : b  \nb: 2", "key": "key"}
+{"id": "scalar-00249", "kind": "scalar", "fm": "\na:~'v'", "key": "a"}
+{"id": "scalar-00250", "kind": "scalar", "fm": "k:\n  - a\n\n  - b", "key": "k"}
+{"id": "scalar-00251", "kind": "scalar", "fm": "]:- value", "key": "k"}
+{"id": "scalar-00252", "kind": "scalar", "fm": " k:\n\nk|{", "key": "k"}
+{"id": "scalar-00253", "kind": "scalar", "fm": " k:", "key": "k"}
+{"id": "scalar-00254", "kind": "scalar", "fm": "x: 1\nk:\n\r\naa\nb: 2", "key": "k"}
+{"id": "scalar-00255", "kind": "scalar", "fm": "\na:\r.\r\n\n  - z", "key": "a"}
+{"id": "scalar-00256", "kind": "scalar", "fm": " key:, k\r\n--\n", "key": "key"}
+{"id": "scalar-00257", "kind": "scalar", "fm": "x: 1\nkey: [\"a,b\", c] # t\n", "key": "key"}
+{"id": "scalar-00258", "kind": "scalar", "fm": " a:0''\n\\﻿é}]0\n  - z", "key": "a"}
+{"id": "scalar-00259", "kind": "scalar", "fm": "key:1\"é\ra#", "key": "key"}
+{"id": "scalar-00260", "kind": "scalar", "fm": " ka:\n\t- \\\n\t-﻿b\n  - z", "key": "k"}
+{"id": "scalar-00261", "kind": "scalar", "fm": " key:- :\nb: 2", "key": "key"}
+{"id": "scalar-00262", "kind": "scalar", "fm": "x: 1\nk: [a, 'b]\nb: 2", "key": "k"}
+{"id": "scalar-00263", "kind": "scalar", "fm": "k:}'", "key": "k"}
+{"id": "scalar-00264", "kind": "scalar", "fm": "k:\r\n - a\r\n  -\nb\r|", "key": "k"}
+{"id": "scalar-00265", "kind": "scalar", "fm": "key:\n  - \"a\"\n  - '　'\nne\"t:﻿ 1", "key": "key"}
+{"id": "scalar-00266", "kind": "scalar", "fm": "a:\n  - \"a\"\n  - 'b'\nnext: 1\n", "key": "a"}
+{"id": "scalar-00267", "kind": "scalar", "fm": "x: 1\nkey:}-b,'😀", "key": "key"}
+{"id": "scalar-00268", "kind": "scalar", "fm": " key:] ~\\,﻿\r\n-'-😀\n", "key": "key"}
+{"id": "scalar-00269", "kind": "scalar", "fm": "x: 1\nk:\\\r\n' \\1 \n  - z", "key": "k"}
+{"id": "scalar-00270", "kind": "scalar", "fm": "x: 1\na:k }", "key": "a"}
+{"id": "scalar-00271", "kind": "scalar", "fm": " \na:[]\nb: 2", "key": "a"}
+{"id": "scalar-00272", "kind": "scalar", "fm": "k:_😀~}1 [\nb: 2", "key": "k"}
+{"id": "scalar-00273", "kind": "scalar", "fm": "\na: 1],[", "key": "a"}
+{"id": "scalar-00274", "kind": "scalar", "fm": "key:\r\"\n", "key": "key"}
+{"id": "scalar-00275", "kind": "scalar", "fm": "\na:\n\\next~: 1", "key": "a"}
+{"id": "scalar-00276", "kind": "scalar", "fm": "\nkey:\n\t- a\n\t- b\n", "key": "key"}
+{"id": "scalar-00277", "kind": "scalar", "fm": " k:", "key": "k"}
+{"id": "scalar-00278", "kind": "scalar", "fm": "\nkey:#", "key": "key"}
+{"id": "scalar-00279", "kind": "scalar", "fm": "\na: [\"a,b\", c] : t\n", "key": "a"}
+{"id": "scalar-00280", "kind": "scalar", "fm": "\na:1é\\\r\n: b#\t#'", "key": "a"}
+{"id": "scalar-00281", "kind": "scalar", "fm": "x: 1\na:\n\t- a\n\t- b\n", "key": "a"}
+{"id": "scalar-00282", "kind": "scalar", "fm": " 'ey:\r\n  - a\r\n  - b\r\n", "key": "key"}
+{"id": "scalar-00283", "kind": "scalar", "fm": "key: -\nb: 2", "key": "key"}
+{"id": "scalar-00284", "kind": "scalar", "fm": "\nk: \"v w\"\n  - z", "key": "k"}
+{"id": "scalar-00285", "kind": "scalar", "fm": "k:'　[  :~　\nb: 2", "key": "k"}
+{"id": "scalar-00286", "kind": "scalar", "fm": " key:}:\\_#", "key": "key"}
+{"id": "scalar-00287", "kind": "scalar", "fm": "x: 1\nkey:-1a ", "key": "key"}
+{"id": "scalar-00288", "kind": "scalar", "fm": "\nkay😀: valu\n  - z", "key": "key"}
+{"id": "scalar-00289", "kind": "scalar", "fm": "a:", "key": "a"}
+{"id": "scalar-00290", "kind": "scalar", "fm": "\n--: \"v :\"", "key": "a"}
+{"id": "scalar-00291", "kind": "scalar", "fm": " k: [\"a,\n\"{ \n] # t", "key": "k"}
+{"id": "scalar-00292", "kind": "scalar", "fm": "key:. #-'\n", "key": "key"}
+{"id": "scalar-00293", "kind": "scalar", "fm": " key: >\n  folde\nd", "key": "key"}
+{"id": "scalar-00294", "kind": "scalar", "fm": " k:-　aa#-:b]-\n#\nb: 2", "key": "k"}
+{"id": "scalar-00295", "kind": "scalar", "fm": "k:\n  -- a\n  - b:a c", "key": "k"}
+{"id": "scalar-00296", "kind": "scalar", "fm": "x: 1\na:  \n  - \n  -  b \nb: 2", "key": "a"}
+{"id": "scalar-00297", "kind": "scalar", "fm": "x: 1\nk: >\n  folded\nb: 2", "key": "k"}
+{"id": "scalar-00298", "kind": "scalar", "fm": "x: 1\na:   v   \n", "key": "a"}
+{"id": "scalar-00299", "kind": "scalar", "fm": "\na: {  v\\  a\n", "key": "a"}
+{"id": "scalar-00300", "kind": "scalar", "fm": "x: 1\nkey:'}#1a", "key": "key"}
+{"id": "scalar-00301", "kind": "scalar", "fm": "a:\\ []~", "key": "a"}
+{"id": "scalar-00302", "kind": "scalar", "fm": "\nkey:]1\r\n-]b _\\.\n", "key": "key"}
+{"id": "scalar-00303", "kind": "scalar", "fm": "key:   v,   \n  - z", "key": "key"}
+{"id": "scalar-00304", "kind": "scalar", "fm": "k:# 　}\r {[:}　k]\n  - z", "key": "k"}
+{"id": "scalar-00305", "kind": "scalar", "fm": "a: []\n", "key": "a"}
+{"id": "scalar-00306", "kind": "scalar", "fm": "k:\n  - - a\n  - b: c\n  - z", "key": "k"}
+{"id": "scalar-00307", "kind": "scalar", "fm": "\nk:b　:]]{_\n}:\n", "key": "k"}
+{"id": "scalar-00308", "kind": "scalar", "fm": "x: 1\na: ké\n", "key": "a"}
+{"id": "scalar-00309", "kind": "scalar", "fm": " key:_> \t b0\nb: 2", "key": "key"}
+{"id": "scalar-00310", "kind": "scalar", "fm": " a:]", "key": "a"}
+{"id": "scalar-00311", "kind": "scalar", "fm": "key:\n  - - a\n  - b: c", "key": "key"}
+{"id": "scalar-00312", "kind": "scalar", "fm": "key:　\\]😀\n {\t#\r\n", "key": "key"}
+{"id": "scalar-00313", "kind": "scalar", "fm": " key:   v   ", "key": "key"}
+{"id": "scalar-00314", "kind": "scalar", "fm": " k:\n\t- a\n\t- b]\n  - z", "key": "k"}
+{"id": "scalar-00315", "kind": "scalar", "fm": " ﻿: >\n folded\n", "key": "a"}
+{"id": "scalar-00316", "kind": "scalar", "fm": "key:>}\\[\n", "key": "key"}
+{"id": "scalar-00317", "kind": "scalar", "fm": "x: 1\nk: .'# \r:\"　,a>\n", "key": "k"}
+{"id": "scalar-00318", "kind": "scalar", "fm": "key:\nb: 2", "key": "key"}
+{"id": "scalar-00319", "kind": "scalar", "fm": "x: 1\na:\n  - \"a\"\n  - 'b'\nnext: 1", "key": "a"}
+{"id": "scalar-00320", "kind": "scalar", "fm": "x: 1\nk:0\r'﻿}\\ é0﻿\nb: 2", "key": "k"}
+{"id": "scalar-00321", "kind": "scalar", "fm": "a:\n  - a\n  - \n", "key": "a"}
+{"id": "scalar-00322", "kind": "scalar", "fm": "k:| -#\n, |\nb: 2", "key": "k"}
+{"id": "scalar-00323", "kind": "scalar", "fm": "\nk:\n  - \"a\"\n \r\n- 'b'\nnext.: \n1\nb: 2", "key": "k"}
+{"id": "scalar-00324", "kind": "scalar", "fm": "\nk:\\😀:aé> ﻿}\nb: 2", "key": "k"}
+{"id": "scalar-00325", "kind": "scalar", "fm": "\nkey:   v  ", "key": "key"}
+{"id": "scalar-00326", "kind": "scalar", "fm": "x: 1\na:ne't: 1", "key": "a"}
+{"id": "scalar-00327", "kind": "scalar", "fm": "\na: ~: \r_b\n", "key": "a"}
+{"id": "scalar-00328", "kind": "scalar", "fm": "\nkey:\r:a\na﻿:>\" \n", "key": "key"}
+{"id": "scalar-00329", "kind": "scalar", "fm": " key:~~:k", "key": "key"}
+{"id": "scalar-00330", "kind": "scalar", "fm": "a [", "key": "a"}
+{"id": "scalar-00331", "kind": "scalar", "fm": "k:-[':　01a﻿_", "key": "k"}
+{"id": "scalar-00332", "kind": "scalar", "fm": " a::]}\\﻿0b] :\"\nb: 2", "key": "a"}
+{"id": "scalar-00333", "kind": "scalar", "fm": " anext: ", "key": "a"}
+{"id": "scalar-00334", "kind": "scalar", "fm": " a:,　> >:|\\-|.\n  - z", "key": "a"}
+{"id": "scalar-00335", "kind": "scalar", "fm": "\n:\n  - - a,\n  - b: c\nb: 2", "key": "k"}
+{"id": "scalar-00336", "kind": "scalar", "fm": "\nkey: \":.' ", "key": "key"}
+{"id": "scalar-00337", "kind": "scalar", "fm": "k:é}　._k\"\n", "key": "k"}
+{"id": "scalar-00338", "kind": "scalar", "fm": "\nkey: >\n  folded\n", "key": "key"}
+{"id": "scalar-00339", "kind": "scalar", "fm": "\n\na:\nnex:-: 1", "key": "a"}
+{"id": "scalar-00340", "kind": "scalar", "fm": "key:\"vé\"\n  - z", "key": "key"}
+{"id": "scalar-00341", "kind": "scalar", "fm": "key:\n  - \"a\"\n  - 'b'\nnéext: 1\nb: 2", "key": "key"}
+{"id": "scalar-00342", "kind": "scalar", "fm": "a:﻿:\n#:\t:\nb: 2", "key": "a"}

@@ -1,0 +1,343 @@
+{"id":"scalar-00000","out":{"value":"[ 😀"}}
+{"id":"scalar-00001","out":{"value":"😀'~é0\t-😀 ["}}
+{"id":"scalar-00002","out":{"value":"- - a"}}
+{"id":"scalar-00003","out":{"value":""}}
+{"id":"scalar-00004","out":{"value":"_"}}
+{"id":"scalar-00005","out":{"value":"- a"}}
+{"id":"scalar-00006","out":{"value":""}}
+{"id":"scalar-00007","out":{"value":"'v"}}
+{"id":"scalar-00008","out":{"value":""}}
+{"id":"scalar-00009","out":{"value":""}}
+{"id":"scalar-00010","out":{"value":"[\"a,"}}
+{"id":"scalar-00011","out":{"value":"- a"}}
+{"id":"scalar-00012","out":{"value":""}}
+{"id":"scalar-00013","out":{"value":"- - a\\"}}
+{"id":"scalar-00014","out":{"value":""}}
+{"id":"scalar-00015","out":{"value":"k#,"}}
+{"id":"scalar-00016","out":{"value":""}}
+{"id":"scalar-00017","out":{"value":"[\"a,b\", c] # t"}}
+{"id":"scalar-00018","out":{"value":"\\a, 'b]"}}
+{"id":"scalar-00019","out":{"value":"_'- _"}}
+{"id":"scalar-00020","out":{"value":"k"}}
+{"id":"scalar-00021","out":{"value":"#a"}}
+{"id":"scalar-00022","out":{"value":"- \"a\""}}
+{"id":"scalar-00023","out":{"value":""}}
+{"id":"scalar-00024","out":{"value":""}}
+{"id":"scalar-00025","out":{"value":""}}
+{"id":"scalar-00026","out":{"value":""}}
+{"id":"scalar-00027","out":{"value":"]-"}}
+{"id":"scalar-00028","out":{"value":"[a, 'b]"}}
+{"id":"scalar-00029","out":{"value":""}}
+{"id":"scalar-00030","out":{"value":""}}
+{"id":"scalar-00031","out":{"value":""}}
+{"id":"scalar-00032","out":{"value":""}}
+{"id":"scalar-00033","out":{"value":"[\"a,b\", c] # t"}}
+{"id":"scalar-00034","out":{"value":""}}
+{"id":"scalar-00035","out":{"value":"é0,﻿-"}}
+{"id":"scalar-00036","out":{"value":"é　}~0　["}}
+{"id":"scalar-00037","out":{"value":"- a\""}}
+{"id":"scalar-00038","out":{"value":"value"}}
+{"id":"scalar-00039","out":{"value":":1\"."}}
+{"id":"scalar-00040","out":{"value":""}}
+{"id":"scalar-00041","out":{"value":"\\]"}}
+{"id":"scalar-00042","out":{"value":"- a"}}
+{"id":"scalar-00043","out":{"value":""}}
+{"id":"scalar-00044","out":{"value":"-_,>b'|😀,"}}
+{"id":"scalar-00045","out":{"value":"va lue"}}
+{"id":"scalar-00046","out":{"value":"]"}}
+{"id":"scalar-00047","out":{"value":""}}
+{"id":"scalar-00048","out":{"value":""}}
+{"id":"scalar-00049","out":{"value":"'{\t'\"a"}}
+{"id":"scalar-00050","out":{"value":""}}
+{"id":"scalar-00051","out":{"value":"v"}}
+{"id":"scalar-00052","out":{"value":""}}
+{"id":"scalar-00053","out":{"value":"v w"}}
+{"id":"scalar-00054","out":{"value":""}}
+{"id":"scalar-00055","out":{"value":"v w"}}
+{"id":"scalar-00056","out":{"value":"[\"a,b\", c]  t"}}
+{"id":"scalar-00057","out":{"value":"😀}."}}
+{"id":"scalar-00058","out":{"value":"~|\\\\,["}}
+{"id":"scalar-00059","out":{"value":""}}
+{"id":"scalar-00060","out":{"value":"[~#a-　]~a ]-|"}}
+{"id":"scalar-00061","out":{"value":"[a, 'b]"}}
+{"id":"scalar-00062","out":{"value":""}}
+{"id":"scalar-00063","out":{"value":"a- \\["}}
+{"id":"scalar-00064","out":{"value":"0-k|b﻿😀b"}}
+{"id":"scalar-00065","out":{"value":""}}
+{"id":"scalar-00066","out":{"value":""}}
+{"id":"scalar-00067","out":{"value":""}}
+{"id":"scalar-00068","out":{"value":""}}
+{"id":"scalar-00069","out":{"value":""}}
+{"id":"scalar-00070","out":{"value":"- z"}}
+{"id":"scalar-00071","out":{"value":""}}
+{"id":"scalar-00072","out":{"value":"- a"}}
+{"id":"scalar-00073","out":{"value":"v"}}
+{"id":"scalar-00074","out":{"value":""}}
+{"id":"scalar-00075","out":{"value":".a\"'~"}}
+{"id":"scalar-00076","out":{"value":"b: 2"}}
+{"id":"scalar-00077","out":{"value":""}}
+{"id":"scalar-00078","out":{"value":""}}
+{"id":"scalar-00079","out":{"value":"- a"}}
+{"id":"scalar-00080","out":{"value":"1"}}
+{"id":"scalar-00081","out":{"value":""}}
+{"id":"scalar-00082","out":{"value":"v"}}
+{"id":"scalar-00083","out":{"value":"-."}}
+{"id":"scalar-00084","out":{"value":"\"v w"}}
+{"id":"scalar-00085","out":{"value":"-{"}}
+{"id":"scalar-00086","out":{"value":"[a, 'b]"}}
+{"id":"scalar-00087","out":{"value":""}}
+{"id":"scalar-00088","out":{"value":"a{　,b-"}}
+{"id":"scalar-00089","out":{"value":"b_#[-[1﻿\"\",\\"}}
+{"id":"scalar-00090","out":{"value":"[\"a,b\", c] # t"}}
+{"id":"scalar-00091","out":{"value":""}}
+{"id":"scalar-00092","out":{"value":"]{'　\""}}
+{"id":"scalar-00093","out":{"value":"{"}}
+{"id":"scalar-00094","out":{"value":",:0"}}
+{"id":"scalar-00095","out":{"value":"-_ \"a\""}}
+{"id":"scalar-00096","out":{"value":""}}
+{"id":"scalar-00097","out":{"value":"#\""}}
+{"id":"scalar-00098","out":{"value":""}}
+{"id":"scalar-00099","out":{"value":""}}
+{"id":"scalar-00100","out":{"value":"~"}}
+{"id":"scalar-00101","out":{"value":"- \"a\""}}
+{"id":"scalar-00102","out":{"value":"v"}}
+{"id":"scalar-00103","out":{"value":"-\\- a"}}
+{"id":"scalar-00104","out":{"value":""}}
+{"id":"scalar-00105","out":{"value":":-  ,[_{"}}
+{"id":"scalar-00106","out":{"value":""}}
+{"id":"scalar-00107","out":{"value":""}}
+{"id":"scalar-00108","out":{"value":""}}
+{"id":"scalar-00109","out":{"value":"~"}}
+{"id":"scalar-00110","out":{"value":""}}
+{"id":"scalar-00111","out":{"value":""}}
+{"id":"scalar-00112","out":{"value":""}}
+{"id":"scalar-00113","out":{"value":"[~\"a,b\", c]# t"}}
+{"id":"scalar-00114","out":{"value":".[😀\\"}}
+{"id":"scalar-00115","out":{"value":"- z"}}
+{"id":"scalar-00116","out":{"value":":a"}}
+{"id":"scalar-00117","out":{"value":""}}
+{"id":"scalar-00118","out":{"value":"a[': {>"}}
+{"id":"scalar-00119","out":{"value":""}}
+{"id":"scalar-00120","out":{"value":",:{ :11"}}
+{"id":"scalar-00121","out":{"value":"a,1\\#\":"}}
+{"id":"scalar-00122","out":{"value":"1\\"}}
+{"id":"scalar-00123","out":{"value":"k"}}
+{"id":"scalar-00124","out":{"value":""}}
+{"id":"scalar-00125","out":{"value":"\\ _"}}
+{"id":"scalar-00126","out":{"value":".-"}}
+{"id":"scalar-00127","out":{"value":"-a"}}
+{"id":"scalar-00128","out":{"value":""}}
+{"id":"scalar-00129","out":{"value":"[a,b]"}}
+{"id":"scalar-00130","out":{"value":"- a"}}
+{"id":"scalar-00131","out":{"value":""}}
+{"id":"scalar-00132","out":{"value":"}]"}}
+{"id":"scalar-00133","out":{"value":"next: 1"}}
+{"id":"scalar-00134","out":{"value":"[\",b\", c] # t"}}
+{"id":"scalar-00135","out":{"value":"-#"}}
+{"id":"scalar-00136","out":{"value":"[a, '\\b]"}}
+{"id":"scalar-00137","out":{"value":""}}
+{"id":"scalar-00138","out":{"value":""}}
+{"id":"scalar-00139","out":{"value":"value"}}
+{"id":"scalar-00140","out":{"value":":"}}
+{"id":"scalar-00141","out":{"value":"a"}}
+{"id":"scalar-00142","out":{"value":"next:"}}
+{"id":"scalar-00143","out":{"value":""}}
+{"id":"scalar-00144","out":{"value":""}}
+{"id":"scalar-00145","out":{"value":"-a a"}}
+{"id":"scalar-00146","out":{"value":"0,"}}
+{"id":"scalar-00147","out":{"value":"'v"}}
+{"id":"scalar-00148","out":{"value":"--'😀[["}}
+{"id":"scalar-00149","out":{"value":""}}
+{"id":"scalar-00150","out":{"value":"a \\#"}}
+{"id":"scalar-00151","out":{"value":"{:#"}}
+{"id":"scalar-00152","out":{"value":"::-[[\\"}}
+{"id":"scalar-00153","out":{"value":"1"}}
+{"id":"scalar-00154","out":{"value":"[]"}}
+{"id":"scalar-00155","out":{"value":"[\"a,b\" c] # t"}}
+{"id":"scalar-00156","out":{"value":""}}
+{"id":"scalar-00157","out":{"value":"é-0😀😀:\"00"}}
+{"id":"scalar-00158","out":{"value":""}}
+{"id":"scalar-00159","out":{"value":":b"}}
+{"id":"scalar-00160","out":{"value":"a"}}
+{"id":"scalar-00161","out":{"value":"😀0|'~\t\t}#0"}}
+{"id":"scalar-00162","out":{"value":""}}
+{"id":"scalar-00163","out":{"value":""}}
+{"id":"scalar-00164","out":{"value":""}}
+{"id":"scalar-00165","out":{"value":"-.-"}}
+{"id":"scalar-00166","out":{"value":":"}}
+{"id":"scalar-00167","out":{"value":"\\\t_ :"}}
+{"id":"scalar-00168","out":{"value":""}}
+{"id":"scalar-00169","out":{"value":"\"﻿﻿#é,]\\[#>"}}
+{"id":"scalar-00170","out":{"value":"-  a-  - b:: c"}}
+{"id":"scalar-00171","out":{"value":""}}
+{"id":"scalar-00172","out":{"value":"["}}
+{"id":"scalar-00173","out":{"value":"._0\ta"}}
+{"id":"scalar-00174","out":{"value":"]_é\""}}
+{"id":"scalar-00175","out":{"value":"- a"}}
+{"id":"scalar-00176","out":{"value":"."}}
+{"id":"scalar-00177","out":{"value":""}}
+{"id":"scalar-00178","out":{"value":""}}
+{"id":"scalar-00179","out":{"value":""}}
+{"id":"scalar-00180","out":{"value":"[]😀0}b.k\t\t:"}}
+{"id":"scalar-00181","out":{"value":"[a"}}
+{"id":"scalar-00182","out":{"value":"[a, b]k"}}
+{"id":"scalar-00183","out":{"value":"- z"}}
+{"id":"scalar-00184","out":{"value":"["}}
+{"id":"scalar-00185","out":{"value":"b"}}
+{"id":"scalar-00186","out":{"value":"|]~>:[é[>_b"}}
+{"id":"scalar-00187","out":{"value":""}}
+{"id":"scalar-00188","out":{"value":""}}
+{"id":"scalar-00189","out":{"value":""}}
+{"id":"scalar-00190","out":{"value":"[a,"}}
+{"id":"scalar-00191","out":{"value":""}}
+{"id":"scalar-00192","out":{"value":""}}
+{"id":"scalar-00193","out":{"value":"- z"}}
+{"id":"scalar-00194","out":{"value":">, :"}}
+{"id":"scalar-00195","out":{"value":"\\}😀#"}}
+{"id":"scalar-00196","out":{"value":"\\ k"}}
+{"id":"scalar-00197","out":{"value":"k1"}}
+{"id":"scalar-00198","out":{"value":"k"}}
+{"id":"scalar-00199","out":{"value":"]:"}}
+{"id":"scalar-00200","out":{"value":"-.# k　,\t\"b#"}}
+{"id":"scalar-00201","out":{"value":"b>"}}
+{"id":"scalar-00202","out":{"value":""}}
+{"id":"scalar-00203","out":{"value":"b1:"}}
+{"id":"scalar-00204","out":{"value":""}}
+{"id":"scalar-00205","out":{"value":">\t0["}}
+{"id":"scalar-00206","out":{"value":"va\t\"ue"}}
+{"id":"scalar-00207","out":{"value":""}}
+{"id":"scalar-00208","out":{"value":"#|　\" ,-"}}
+{"id":"scalar-00209","out":{"value":""}}
+{"id":"scalar-00210","out":{"value":""}}
+{"id":"scalar-00211","out":{"value":"ne1xt: 1"}}
+{"id":"scalar-00212","out":{"value":""}}
+{"id":"scalar-00213","out":{"value":","}}
+{"id":"scalar-00214","out":{"value":""}}
+{"id":"scalar-00215","out":{"value":""}}
+{"id":"scalar-00216","out":{"value":"~~1~[-"}}
+{"id":"scalar-00217","out":{"value":"- a"}}
+{"id":"scalar-00218","out":{"value":":"}}
+{"id":"scalar-00219","out":{"value":"- \"a\""}}
+{"id":"scalar-00220","out":{"value":"\\b"}}
+{"id":"scalar-00221","out":{"value":"0é>"}}
+{"id":"scalar-00222","out":{"value":"[a:, b-]"}}
+{"id":"scalar-00223","out":{"value":"[\",b\", c] # t"}}
+{"id":"scalar-00224","out":{"value":"k"}}
+{"id":"scalar-00225","out":{"value":""}}
+{"id":"scalar-00226","out":{"value":".10"}}
+{"id":"scalar-00227","out":{"value":"-b:{}"}}
+{"id":"scalar-00228","out":{"value":"- a:"}}
+{"id":"scalar-00229","out":{"value":"}>~"}}
+{"id":"scalar-00230","out":{"value":"{　,"}}
+{"id":"scalar-00231","out":{"value":"b"}}
+{"id":"scalar-00232","out":{"value":"- z"}}
+{"id":"scalar-00233","out":{"value":"0"}}
+{"id":"scalar-00234","out":{"value":"\\"}}
+{"id":"scalar-00235","out":{"value":"-aa"}}
+{"id":"scalar-00236","out":{"value":""}}
+{"id":"scalar-00237","out":{"value":"}"}}
+{"id":"scalar-00238","out":{"value":""}}
+{"id":"scalar-00239","out":{"value":"- a"}}
+{"id":"scalar-00240","out":{"value":">,  folded"}}
+{"id":"scalar-00241","out":{"value":"~-'[k"}}
+{"id":"scalar-00242","out":{"value":"0"}}
+{"id":"scalar-00243","out":{"value":"nxt: 1\""}}
+{"id":"scalar-00244","out":{"value":"'-\""}}
+{"id":"scalar-00245","out":{"value":"olded"}}
+{"id":"scalar-00246","out":{"value":""}}
+{"id":"scalar-00247","out":{"value":": \\"}}
+{"id":"scalar-00248","out":{"value":"  - a"}}
+{"id":"scalar-00249","out":{"value":"~'v'"}}
+{"id":"scalar-00250","out":{"value":"- a"}}
+{"id":"scalar-00251","out":{"value":""}}
+{"id":"scalar-00252","out":{"value":""}}
+{"id":"scalar-00253","out":{"value":""}}
+{"id":"scalar-00254","out":{"value":"aa"}}
+{"id":"scalar-00255","out":{"value":""}}
+{"id":"scalar-00256","out":{"value":""}}
+{"id":"scalar-00257","out":{"value":"[\"a,b\", c] # t"}}
+{"id":"scalar-00258","out":{"value":""}}
+{"id":"scalar-00259","out":{"value":"1\"é"}}
+{"id":"scalar-00260","out":{"value":""}}
+{"id":"scalar-00261","out":{"value":""}}
+{"id":"scalar-00262","out":{"value":"[a, 'b]"}}
+{"id":"scalar-00263","out":{"value":"}'"}}
+{"id":"scalar-00264","out":{"value":"- a"}}
+{"id":"scalar-00265","out":{"value":"- \"a\""}}
+{"id":"scalar-00266","out":{"value":"- \"a\""}}
+{"id":"scalar-00267","out":{"value":"}-b,'😀"}}
+{"id":"scalar-00268","out":{"value":""}}
+{"id":"scalar-00269","out":{"value":"\\"}}
+{"id":"scalar-00270","out":{"value":"k }"}}
+{"id":"scalar-00271","out":{"value":"[]"}}
+{"id":"scalar-00272","out":{"value":"_😀~}1"}}
+{"id":"scalar-00273","out":{"value":"1],["}}
+{"id":"scalar-00274","out":{"value":""}}
+{"id":"scalar-00275","out":{"value":"\\next~: 1"}}
+{"id":"scalar-00276","out":{"value":"- a"}}
+{"id":"scalar-00277","out":{"value":""}}
+{"id":"scalar-00278","out":{"value":"#"}}
+{"id":"scalar-00279","out":{"value":"[\"a,b\", c] : t"}}
+{"id":"scalar-00280","out":{"value":"1é\\"}}
+{"id":"scalar-00281","out":{"value":"- a"}}
+{"id":"scalar-00282","out":{"value":""}}
+{"id":"scalar-00283","out":{"value":"-"}}
+{"id":"scalar-00284","out":{"value":"v w"}}
+{"id":"scalar-00285","out":{"value":"'　["}}
+{"id":"scalar-00286","out":{"value":""}}
+{"id":"scalar-00287","out":{"value":"-1a"}}
+{"id":"scalar-00288","out":{"value":""}}
+{"id":"scalar-00289","out":{"value":""}}
+{"id":"scalar-00290","out":{"value":""}}
+{"id":"scalar-00291","out":{"value":""}}
+{"id":"scalar-00292","out":{"value":"."}}
+{"id":"scalar-00293","out":{"value":""}}
+{"id":"scalar-00294","out":{"value":""}}
+{"id":"scalar-00295","out":{"value":"-- a"}}
+{"id":"scalar-00296","out":{"value":"-"}}
+{"id":"scalar-00297","out":{"value":""}}
+{"id":"scalar-00298","out":{"value":"v"}}
+{"id":"scalar-00299","out":{"value":"{  v\\  a"}}
+{"id":"scalar-00300","out":{"value":"'}#1a"}}
+{"id":"scalar-00301","out":{"value":"\\ []~"}}
+{"id":"scalar-00302","out":{"value":"]1"}}
+{"id":"scalar-00303","out":{"value":"v,"}}
+{"id":"scalar-00304","out":{"value":"# 　}"}}
+{"id":"scalar-00305","out":{"value":"[]"}}
+{"id":"scalar-00306","out":{"value":"- - a"}}
+{"id":"scalar-00307","out":{"value":"b　:]]{_"}}
+{"id":"scalar-00308","out":{"value":"ké"}}
+{"id":"scalar-00309","out":{"value":""}}
+{"id":"scalar-00310","out":{"value":""}}
+{"id":"scalar-00311","out":{"value":"- - a"}}
+{"id":"scalar-00312","out":{"value":"\\]😀"}}
+{"id":"scalar-00313","out":{"value":""}}
+{"id":"scalar-00314","out":{"value":""}}
+{"id":"scalar-00315","out":{"value":""}}
+{"id":"scalar-00316","out":{"value":">}\\["}}
+{"id":"scalar-00317","out":{"value":".'#"}}
+{"id":"scalar-00318","out":{"value":"b: 2"}}
+{"id":"scalar-00319","out":{"value":"- \"a\""}}
+{"id":"scalar-00320","out":{"value":"0"}}
+{"id":"scalar-00321","out":{"value":"- a"}}
+{"id":"scalar-00322","out":{"value":"| -#"}}
+{"id":"scalar-00323","out":{"value":"- \"a\""}}
+{"id":"scalar-00324","out":{"value":"\\😀:aé> ﻿}"}}
+{"id":"scalar-00325","out":{"value":"v"}}
+{"id":"scalar-00326","out":{"value":"ne't: 1"}}
+{"id":"scalar-00327","out":{"value":"~:"}}
+{"id":"scalar-00328","out":{"value":":a"}}
+{"id":"scalar-00329","out":{"value":""}}
+{"id":"scalar-00330","out":{"value":""}}
+{"id":"scalar-00331","out":{"value":"-[':　01a﻿_"}}
+{"id":"scalar-00332","out":{"value":""}}
+{"id":"scalar-00333","out":{"value":""}}
+{"id":"scalar-00334","out":{"value":""}}
+{"id":"scalar-00335","out":{"value":""}}
+{"id":"scalar-00336","out":{"value":"\":.'"}}
+{"id":"scalar-00337","out":{"value":"é}　._k\""}}
+{"id":"scalar-00338","out":{"value":""}}
+{"id":"scalar-00339","out":{"value":"nex:-: 1"}}
+{"id":"scalar-00340","out":{"value":"vé"}}
+{"id":"scalar-00341","out":{"value":"- \"a\""}}
+{"id":"scalar-00342","out":{"value":":"}}

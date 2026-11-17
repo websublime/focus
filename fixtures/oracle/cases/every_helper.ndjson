@@ -1,0 +1,1228 @@
+{"id": "every_helper-00000", "kind": "every_helper", "args": ["engine", "top", "status"]}
+{"id": "every_helper-00001", "kind": "every_helper", "args": ["engine", "top", "status", "--unit", "auth", "--quiet"]}
+{"id": "every_helper-00002", "kind": "every_helper", "args": ["engine", "top", "recompose"]}
+{"id": "every_helper-00003", "kind": "every_helper", "args": ["engine", "top", "recompose", "--help"]}
+{"id": "every_helper-00004", "kind": "every_helper", "args": ["engine", "top", "now"]}
+{"id": "every_helper-00005", "kind": "every_helper", "args": ["engine", "top", "now", "--help"]}
+{"id": "every_helper-00006", "kind": "every_helper", "args": ["engine", "top", "statusline"]}
+{"id": "every_helper-00007", "kind": "every_helper", "args": ["engine", "top", "statusline", "--project-dir=/oracle/x"]}
+{"id": "every_helper-00008", "kind": "every_helper", "args": ["engine", "top", "adapter"]}
+{"id": "every_helper-00009", "kind": "every_helper", "args": ["engine", "top", "adapter", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-00010", "kind": "every_helper", "args": ["engine", "top"]}
+{"id": "every_helper-00011", "kind": "every_helper", "args": ["engine", "top", "nope"]}
+{"id": "every_helper-00012", "kind": "every_helper", "args": ["engine", "state", "get"]}
+{"id": "every_helper-00013", "kind": "every_helper", "args": ["engine", "state", "get", "--no-color", "--offline"]}
+{"id": "every_helper-00014", "kind": "every_helper", "args": ["engine", "state", "set"]}
+{"id": "every_helper-00015", "kind": "every_helper", "args": ["engine", "state", "set", "--intent", "a"]}
+{"id": "every_helper-00016", "kind": "every_helper", "args": ["engine", "state", "set-skeleton-stance"]}
+{"id": "every_helper-00017", "kind": "every_helper", "args": ["engine", "state", "set-skeleton-stance", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-00018", "kind": "every_helper", "args": ["engine", "state", "set-construction-iteration"]}
+{"id": "every_helper-00019", "kind": "every_helper", "args": ["engine", "state", "set-construction-iteration", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-00020", "kind": "every_helper", "args": ["engine", "state", "set-construction-checkpoints"]}
+{"id": "every_helper-00021", "kind": "every_helper", "args": ["engine", "state", "set-construction-checkpoints", "--unit", "auth", "--quiet"]}
+{"id": "every_helper-00022", "kind": "every_helper", "args": ["engine", "state", "set-construction-execution"]}
+{"id": "every_helper-00023", "kind": "every_helper", "args": ["engine", "state", "set-construction-execution", "x"]}
+{"id": "every_helper-00024", "kind": "every_helper", "args": ["engine", "state", "set-construction-verification-command"]}
+{"id": "every_helper-00025", "kind": "every_helper", "args": ["engine", "state", "set-construction-verification-command", "", "x"]}
+{"id": "every_helper-00026", "kind": "every_helper", "args": ["engine", "state", "checkbox"]}
+{"id": "every_helper-00027", "kind": "every_helper", "args": ["engine", "state", "checkbox", "--space=b"]}
+{"id": "every_helper-00028", "kind": "every_helper", "args": ["engine", "state", "count"]}
+{"id": "every_helper-00029", "kind": "every_helper", "args": ["engine", "state", "count", "", "x"]}
+{"id": "every_helper-00030", "kind": "every_helper", "args": ["engine", "state", "advance"]}
+{"id": "every_helper-00031", "kind": "every_helper", "args": ["engine", "state", "advance", "--json"]}
+{"id": "every_helper-00032", "kind": "every_helper", "args": ["engine", "state", "finalize"]}
+{"id": "every_helper-00033", "kind": "every_helper", "args": ["engine", "state", "finalize", "a", "--", "b"]}
+{"id": "every_helper-00034", "kind": "every_helper", "args": ["engine", "state", "complete-workflow"]}
+{"id": "every_helper-00035", "kind": "every_helper", "args": ["engine", "state", "complete-workflow", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-00036", "kind": "every_helper", "args": ["engine", "state", "gate-start"]}
+{"id": "every_helper-00037", "kind": "every_helper", "args": ["engine", "state", "gate-start", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-00038", "kind": "every_helper", "args": ["engine", "state", "approve"]}
+{"id": "every_helper-00039", "kind": "every_helper", "args": ["engine", "state", "approve", "--project-dir=/oracle/x"]}
+{"id": "every_helper-00040", "kind": "every_helper", "args": ["engine", "state", "reject"]}
+{"id": "every_helper-00041", "kind": "every_helper", "args": ["engine", "state", "reject", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-00042", "kind": "every_helper", "args": ["engine", "state", "revise"]}
+{"id": "every_helper-00043", "kind": "every_helper", "args": ["engine", "state", "revise", "", "x"]}
+{"id": "every_helper-00044", "kind": "every_helper", "args": ["engine", "state", "skip"]}
+{"id": "every_helper-00045", "kind": "every_helper", "args": ["engine", "state", "skip", "--yes", "--", "--json"]}
+{"id": "every_helper-00046", "kind": "every_helper", "args": ["engine", "state", "resume"]}
+{"id": "every_helper-00047", "kind": "every_helper", "args": ["engine", "state", "resume", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-00048", "kind": "every_helper", "args": ["engine", "state", "acknowledge-compaction"]}
+{"id": "every_helper-00049", "kind": "every_helper", "args": ["engine", "state", "acknowledge-compaction", "--project-dir"]}
+{"id": "every_helper-00050", "kind": "every_helper", "args": ["engine", "state", "reuse-artifact"]}
+{"id": "every_helper-00051", "kind": "every_helper", "args": ["engine", "state", "reuse-artifact", "--json"]}
+{"id": "every_helper-00052", "kind": "every_helper", "args": ["engine", "state", "lookup"]}
+{"id": "every_helper-00053", "kind": "every_helper", "args": ["engine", "state", "lookup", "", "x"]}
+{"id": "every_helper-00054", "kind": "every_helper", "args": ["engine", "state", "practices-event"]}
+{"id": "every_helper-00055", "kind": "every_helper", "args": ["engine", "state", "practices-event", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-00056", "kind": "every_helper", "args": ["engine", "state", "practices-promote"]}
+{"id": "every_helper-00057", "kind": "every_helper", "args": ["engine", "state", "practices-promote", "--json"]}
+{"id": "every_helper-00058", "kind": "every_helper", "args": ["engine", "state", "set-unit-ownership"]}
+{"id": "every_helper-00059", "kind": "every_helper", "args": ["engine", "state", "set-unit-ownership", "", "x"]}
+{"id": "every_helper-00060", "kind": "every_helper", "args": ["engine", "state", "set-unit-gate-rhythm"]}
+{"id": "every_helper-00061", "kind": "every_helper", "args": ["engine", "state", "set-unit-gate-rhythm", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-00062", "kind": "every_helper", "args": ["engine", "state", "refresh-unit-progress"]}
+{"id": "every_helper-00063", "kind": "every_helper", "args": ["engine", "state", "refresh-unit-progress", "--help"]}
+{"id": "every_helper-00064", "kind": "every_helper", "args": ["engine", "state", "sync-unit-scope-stage"]}
+{"id": "every_helper-00065", "kind": "every_helper", "args": ["engine", "state", "sync-unit-scope-stage", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-00066", "kind": "every_helper", "args": ["engine", "state", "fold-unit-merge"]}
+{"id": "every_helper-00067", "kind": "every_helper", "args": ["engine", "state", "fold-unit-merge", "--space=b"]}
+{"id": "every_helper-00068", "kind": "every_helper", "args": ["engine", "state", "fork"]}
+{"id": "every_helper-00069", "kind": "every_helper", "args": ["engine", "state", "fork", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-00070", "kind": "every_helper", "args": ["engine", "state", "merge"]}
+{"id": "every_helper-00071", "kind": "every_helper", "args": ["engine", "state", "merge", "", "x"]}
+{"id": "every_helper-00072", "kind": "every_helper", "args": ["engine", "state", "park"]}
+{"id": "every_helper-00073", "kind": "every_helper", "args": ["engine", "state", "park", "--space=b"]}
+{"id": "every_helper-00074", "kind": "every_helper", "args": ["engine", "state", "unpark"]}
+{"id": "every_helper-00075", "kind": "every_helper", "args": ["engine", "state", "unpark", "--project-dir", "--json"]}
+{"id": "every_helper-00076", "kind": "every_helper", "args": ["engine", "state", "unit"]}
+{"id": "every_helper-00077", "kind": "every_helper", "args": ["engine", "state", "unit", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-00078", "kind": "every_helper", "args": ["engine", "state", "set-status"]}
+{"id": "every_helper-00079", "kind": "every_helper", "args": ["engine", "state", "set-status", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-00080", "kind": "every_helper", "args": ["engine", "state", "init"]}
+{"id": "every_helper-00081", "kind": "every_helper", "args": ["engine", "state", "init", "--intent", "a"]}
+{"id": "every_helper-00082", "kind": "every_helper", "args": ["engine", "state"]}
+{"id": "every_helper-00083", "kind": "every_helper", "args": ["engine", "state", "--help"]}
+{"id": "every_helper-00084", "kind": "every_helper", "args": ["engine", "audit", "append"]}
+{"id": "every_helper-00085", "kind": "every_helper", "args": ["engine", "audit", "append", "--help"]}
+{"id": "every_helper-00086", "kind": "every_helper", "args": ["engine", "audit", "append-batch"]}
+{"id": "every_helper-00087", "kind": "every_helper", "args": ["engine", "audit", "append-batch", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-00088", "kind": "every_helper", "args": ["engine", "audit", "append-raw"]}
+{"id": "every_helper-00089", "kind": "every_helper", "args": ["engine", "audit", "append-raw", "--project-dir"]}
+{"id": "every_helper-00090", "kind": "every_helper", "args": ["engine", "audit", "history"]}
+{"id": "every_helper-00091", "kind": "every_helper", "args": ["engine", "audit", "history", "--project-dir=/oracle/x"]}
+{"id": "every_helper-00092", "kind": "every_helper", "args": ["engine", "audit", "fork"]}
+{"id": "every_helper-00093", "kind": "every_helper", "args": ["engine", "audit", "fork", "--project-dir", "--json"]}
+{"id": "every_helper-00094", "kind": "every_helper", "args": ["engine", "audit", "merge"]}
+{"id": "every_helper-00095", "kind": "every_helper", "args": ["engine", "audit", "merge", "", "x"]}
+{"id": "every_helper-00096", "kind": "every_helper", "args": ["engine", "audit"]}
+{"id": "every_helper-00097", "kind": "every_helper", "args": ["engine", "audit", ""]}
+{"id": "every_helper-00098", "kind": "every_helper", "args": ["engine", "graph", "artifacts"]}
+{"id": "every_helper-00099", "kind": "every_helper", "args": ["engine", "graph", "artifacts", "--project-dir=/oracle/x"]}
+{"id": "every_helper-00100", "kind": "every_helper", "args": ["engine", "graph", "producers"]}
+{"id": "every_helper-00101", "kind": "every_helper", "args": ["engine", "graph", "producers", "", "x"]}
+{"id": "every_helper-00102", "kind": "every_helper", "args": ["engine", "graph", "consumers"]}
+{"id": "every_helper-00103", "kind": "every_helper", "args": ["engine", "graph", "consumers", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-00104", "kind": "every_helper", "args": ["engine", "graph", "topo"]}
+{"id": "every_helper-00105", "kind": "every_helper", "args": ["engine", "graph", "topo", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-00106", "kind": "every_helper", "args": ["engine", "graph", "cycles"]}
+{"id": "every_helper-00107", "kind": "every_helper", "args": ["engine", "graph", "cycles", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-00108", "kind": "every_helper", "args": ["engine", "graph", "scope"]}
+{"id": "every_helper-00109", "kind": "every_helper", "args": ["engine", "graph", "scope", "--intent", "a"]}
+{"id": "every_helper-00110", "kind": "every_helper", "args": ["engine", "graph", "validate-scope"]}
+{"id": "every_helper-00111", "kind": "every_helper", "args": ["engine", "graph", "validate-scope", "--help"]}
+{"id": "every_helper-00112", "kind": "every_helper", "args": ["engine", "graph", "validate-grid"]}
+{"id": "every_helper-00113", "kind": "every_helper", "args": ["engine", "graph", "validate-grid", "--help"]}
+{"id": "every_helper-00114", "kind": "every_helper", "args": ["engine", "graph", "ars"]}
+{"id": "every_helper-00115", "kind": "every_helper", "args": ["engine", "graph", "ars", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-00116", "kind": "every_helper", "args": ["engine", "graph", "compile"]}
+{"id": "every_helper-00117", "kind": "every_helper", "args": ["engine", "graph", "compile", "--project-dir", "--json"]}
+{"id": "every_helper-00118", "kind": "every_helper", "args": ["engine", "graph", "resolve"]}
+{"id": "every_helper-00119", "kind": "every_helper", "args": ["engine", "graph", "resolve", "--space=b"]}
+{"id": "every_helper-00120", "kind": "every_helper", "args": ["engine", "graph", "export"]}
+{"id": "every_helper-00121", "kind": "every_helper", "args": ["engine", "graph", "export", "--project-dir"]}
+{"id": "every_helper-00122", "kind": "every_helper", "args": ["engine", "graph"]}
+{"id": "every_helper-00123", "kind": "every_helper", "args": ["engine", "graph", "--help"]}
+{"id": "every_helper-00124", "kind": "every_helper", "args": ["engine", "runtime", "compile"]}
+{"id": "every_helper-00125", "kind": "every_helper", "args": ["engine", "runtime", "compile", "--verbose", "a b"]}
+{"id": "every_helper-00126", "kind": "every_helper", "args": ["engine", "runtime", "read"]}
+{"id": "every_helper-00127", "kind": "every_helper", "args": ["engine", "runtime", "read", "--space=b"]}
+{"id": "every_helper-00128", "kind": "every_helper", "args": ["engine", "runtime", "summary"]}
+{"id": "every_helper-00129", "kind": "every_helper", "args": ["engine", "runtime", "summary", "--verbose", "a b"]}
+{"id": "every_helper-00130", "kind": "every_helper", "args": ["engine", "runtime", "fragment-fork"]}
+{"id": "every_helper-00131", "kind": "every_helper", "args": ["engine", "runtime", "fragment-fork", "--project-dir"]}
+{"id": "every_helper-00132", "kind": "every_helper", "args": ["engine", "runtime", "fragment-merge"]}
+{"id": "every_helper-00133", "kind": "every_helper", "args": ["engine", "runtime", "fragment-merge", "--stage", "code-generation"]}
+{"id": "every_helper-00134", "kind": "every_helper", "args": ["engine", "runtime"]}
+{"id": "every_helper-00135", "kind": "every_helper", "args": ["engine", "runtime", ""]}
+{"id": "every_helper-00136", "kind": "every_helper", "args": ["engine", "sensor", "list"]}
+{"id": "every_helper-00137", "kind": "every_helper", "args": ["engine", "sensor", "list", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-00138", "kind": "every_helper", "args": ["engine", "sensor", "describe"]}
+{"id": "every_helper-00139", "kind": "every_helper", "args": ["engine", "sensor", "describe", "", "x"]}
+{"id": "every_helper-00140", "kind": "every_helper", "args": ["engine", "sensor", "fire"]}
+{"id": "every_helper-00141", "kind": "every_helper", "args": ["engine", "sensor", "fire", "--unit", "auth", "--quiet"]}
+{"id": "every_helper-00142", "kind": "every_helper", "args": ["engine", "sensor"]}
+{"id": "every_helper-00143", "kind": "every_helper", "args": ["engine", "sensor", "--help"]}
+{"id": "every_helper-00144", "kind": "every_helper", "args": ["engine", "swarm", "prepare"]}
+{"id": "every_helper-00145", "kind": "every_helper", "args": ["engine", "swarm", "prepare", "--unit", "auth", "--quiet"]}
+{"id": "every_helper-00146", "kind": "every_helper", "args": ["engine", "swarm", "check"]}
+{"id": "every_helper-00147", "kind": "every_helper", "args": ["engine", "swarm", "check", "a", "--", "b"]}
+{"id": "every_helper-00148", "kind": "every_helper", "args": ["engine", "swarm", "finalize"]}
+{"id": "every_helper-00149", "kind": "every_helper", "args": ["engine", "swarm", "finalize", "--verbose", "a b"]}
+{"id": "every_helper-00150", "kind": "every_helper", "args": ["engine", "swarm"]}
+{"id": "every_helper-00151", "kind": "every_helper", "args": ["engine", "swarm", "-h"]}
+{"id": "every_helper-00152", "kind": "every_helper", "args": ["engine", "bolt", "start"]}
+{"id": "every_helper-00153", "kind": "every_helper", "args": ["engine", "bolt", "start", "--intent", "a"]}
+{"id": "every_helper-00154", "kind": "every_helper", "args": ["engine", "bolt", "complete"]}
+{"id": "every_helper-00155", "kind": "every_helper", "args": ["engine", "bolt", "complete", "--yes", "--", "--json"]}
+{"id": "every_helper-00156", "kind": "every_helper", "args": ["engine", "bolt", "fail"]}
+{"id": "every_helper-00157", "kind": "every_helper", "args": ["engine", "bolt", "fail", "--verbose", "a b"]}
+{"id": "every_helper-00158", "kind": "every_helper", "args": ["engine", "bolt", "abort"]}
+{"id": "every_helper-00159", "kind": "every_helper", "args": ["engine", "bolt", "abort", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-00160", "kind": "every_helper", "args": ["engine", "bolt", "set-autonomy"]}
+{"id": "every_helper-00161", "kind": "every_helper", "args": ["engine", "bolt", "set-autonomy", "--project-dir", "--json"]}
+{"id": "every_helper-00162", "kind": "every_helper", "args": ["engine", "bolt", "checkpoint"]}
+{"id": "every_helper-00163", "kind": "every_helper", "args": ["engine", "bolt", "checkpoint", "--json"]}
+{"id": "every_helper-00164", "kind": "every_helper", "args": ["engine", "bolt", "swarm-checkpoint"]}
+{"id": "every_helper-00165", "kind": "every_helper", "args": ["engine", "bolt", "swarm-checkpoint", "--unit", "auth", "--quiet"]}
+{"id": "every_helper-00166", "kind": "every_helper", "args": ["engine", "bolt", "dispatch-event"]}
+{"id": "every_helper-00167", "kind": "every_helper", "args": ["engine", "bolt", "dispatch-event", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-00168", "kind": "every_helper", "args": ["engine", "bolt", "hold-merge"]}
+{"id": "every_helper-00169", "kind": "every_helper", "args": ["engine", "bolt", "hold-merge", "a", "--", "b"]}
+{"id": "every_helper-00170", "kind": "every_helper", "args": ["engine", "bolt", "release-merge"]}
+{"id": "every_helper-00171", "kind": "every_helper", "args": ["engine", "bolt", "release-merge", "--intent", "a"]}
+{"id": "every_helper-00172", "kind": "every_helper", "args": ["engine", "bolt"]}
+{"id": "every_helper-00173", "kind": "every_helper", "args": ["engine", "bolt", "--help"]}
+{"id": "every_helper-00174", "kind": "every_helper", "args": ["engine", "worktree", "create"]}
+{"id": "every_helper-00175", "kind": "every_helper", "args": ["engine", "worktree", "create", "--project-dir", "--json"]}
+{"id": "every_helper-00176", "kind": "every_helper", "args": ["engine", "worktree", "merge"]}
+{"id": "every_helper-00177", "kind": "every_helper", "args": ["engine", "worktree", "merge", "--verbose", "a b"]}
+{"id": "every_helper-00178", "kind": "every_helper", "args": ["engine", "worktree", "discard"]}
+{"id": "every_helper-00179", "kind": "every_helper", "args": ["engine", "worktree", "discard", "--space=b"]}
+{"id": "every_helper-00180", "kind": "every_helper", "args": ["engine", "worktree", "restore"]}
+{"id": "every_helper-00181", "kind": "every_helper", "args": ["engine", "worktree", "restore", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-00182", "kind": "every_helper", "args": ["engine", "worktree", "purge"]}
+{"id": "every_helper-00183", "kind": "every_helper", "args": ["engine", "worktree", "purge", "--space=b"]}
+{"id": "every_helper-00184", "kind": "every_helper", "args": ["engine", "worktree", "list"]}
+{"id": "every_helper-00185", "kind": "every_helper", "args": ["engine", "worktree", "list", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-00186", "kind": "every_helper", "args": ["engine", "worktree", "verify"]}
+{"id": "every_helper-00187", "kind": "every_helper", "args": ["engine", "worktree", "verify", "", "x"]}
+{"id": "every_helper-00188", "kind": "every_helper", "args": ["engine", "worktree", "info"]}
+{"id": "every_helper-00189", "kind": "every_helper", "args": ["engine", "worktree", "info", "--yes", "--", "--json"]}
+{"id": "every_helper-00190", "kind": "every_helper", "args": ["engine", "worktree"]}
+{"id": "every_helper-00191", "kind": "every_helper", "args": ["engine", "worktree", "nope"]}
+{"id": "every_helper-00192", "kind": "every_helper", "args": ["engine", "jump", "resolve"]}
+{"id": "every_helper-00193", "kind": "every_helper", "args": ["engine", "jump", "resolve", "x"]}
+{"id": "every_helper-00194", "kind": "every_helper", "args": ["engine", "jump", "execute"]}
+{"id": "every_helper-00195", "kind": "every_helper", "args": ["engine", "jump", "execute", "--help"]}
+{"id": "every_helper-00196", "kind": "every_helper", "args": ["engine", "jump", "reopen"]}
+{"id": "every_helper-00197", "kind": "every_helper", "args": ["engine", "jump", "reopen", "--verbose", "a b"]}
+{"id": "every_helper-00198", "kind": "every_helper", "args": ["engine", "jump"]}
+{"id": "every_helper-00199", "kind": "every_helper", "args": ["engine", "jump", "--help"]}
+{"id": "every_helper-00200", "kind": "every_helper", "args": ["engine", "log", "decision"]}
+{"id": "every_helper-00201", "kind": "every_helper", "args": ["engine", "log", "decision", "--project-dir=/oracle/x"]}
+{"id": "every_helper-00202", "kind": "every_helper", "args": ["engine", "log", "answer"]}
+{"id": "every_helper-00203", "kind": "every_helper", "args": ["engine", "log", "answer", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-00204", "kind": "every_helper", "args": ["engine", "log", "answers"]}
+{"id": "every_helper-00205", "kind": "every_helper", "args": ["engine", "log", "answers", "--project-dir=/oracle/x"]}
+{"id": "every_helper-00206", "kind": "every_helper", "args": ["engine", "log", "review"]}
+{"id": "every_helper-00207", "kind": "every_helper", "args": ["engine", "log", "review", "--project-dir"]}
+{"id": "every_helper-00208", "kind": "every_helper", "args": ["engine", "log", "link"]}
+{"id": "every_helper-00209", "kind": "every_helper", "args": ["engine", "log", "link", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-00210", "kind": "every_helper", "args": ["engine", "log"]}
+{"id": "every_helper-00211", "kind": "every_helper", "args": ["engine", "log", "nope"]}
+{"id": "every_helper-00212", "kind": "every_helper", "args": ["engine", "learnings", "surface"]}
+{"id": "every_helper-00213", "kind": "every_helper", "args": ["engine", "learnings", "surface", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-00214", "kind": "every_helper", "args": ["engine", "learnings", "persist"]}
+{"id": "every_helper-00215", "kind": "every_helper", "args": ["engine", "learnings", "persist", "", "x"]}
+{"id": "every_helper-00216", "kind": "every_helper", "args": ["engine", "learnings"]}
+{"id": "every_helper-00217", "kind": "every_helper", "args": ["engine", "learnings", "-h"]}
+{"id": "every_helper-00218", "kind": "every_helper", "args": ["engine", "testing-posture", "resolve"]}
+{"id": "every_helper-00219", "kind": "every_helper", "args": ["engine", "testing-posture", "resolve", "--help"]}
+{"id": "every_helper-00220", "kind": "every_helper", "args": ["engine", "testing-posture", "render"]}
+{"id": "every_helper-00221", "kind": "every_helper", "args": ["engine", "testing-posture", "render", "--no-color", "--offline"]}
+{"id": "every_helper-00222", "kind": "every_helper", "args": ["engine", "testing-posture", "fingerprint"]}
+{"id": "every_helper-00223", "kind": "every_helper", "args": ["engine", "testing-posture", "fingerprint", "--unit", "auth", "--quiet"]}
+{"id": "every_helper-00224", "kind": "every_helper", "args": ["engine", "testing-posture", "verify"]}
+{"id": "every_helper-00225", "kind": "every_helper", "args": ["engine", "testing-posture", "verify", "--no-color", "--offline"]}
+{"id": "every_helper-00226", "kind": "every_helper", "args": ["engine", "testing-posture", "begin"]}
+{"id": "every_helper-00227", "kind": "every_helper", "args": ["engine", "testing-posture", "begin", "--project-dir"]}
+{"id": "every_helper-00228", "kind": "every_helper", "args": ["engine", "testing-posture", "brief"]}
+{"id": "every_helper-00229", "kind": "every_helper", "args": ["engine", "testing-posture", "brief", "--project-dir", "--json"]}
+{"id": "every_helper-00230", "kind": "every_helper", "args": ["engine", "testing-posture", "reply"]}
+{"id": "every_helper-00231", "kind": "every_helper", "args": ["engine", "testing-posture", "reply", "--json"]}
+{"id": "every_helper-00232", "kind": "every_helper", "args": ["engine", "testing-posture", "restore"]}
+{"id": "every_helper-00233", "kind": "every_helper", "args": ["engine", "testing-posture", "restore", "--json"]}
+{"id": "every_helper-00234", "kind": "every_helper", "args": ["engine", "testing-posture"]}
+{"id": "every_helper-00235", "kind": "every_helper", "args": ["engine", "testing-posture", "help"]}
+{"id": "every_helper-00236", "kind": "every_helper", "args": ["engine", "validate", "outputs"]}
+{"id": "every_helper-00237", "kind": "every_helper", "args": ["engine", "validate", "outputs", "--json"]}
+{"id": "every_helper-00238", "kind": "every_helper", "args": ["engine", "validate"]}
+{"id": "every_helper-00239", "kind": "every_helper", "args": ["engine", "validate", "-h"]}
+{"id": "every_helper-00240", "kind": "every_helper", "args": ["engine", "intent", "list"]}
+{"id": "every_helper-00241", "kind": "every_helper", "args": ["engine", "intent", "list", "--verbose", "a b"]}
+{"id": "every_helper-00242", "kind": "every_helper", "args": ["engine", "intent", "switch"]}
+{"id": "every_helper-00243", "kind": "every_helper", "args": ["engine", "intent", "switch", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-00244", "kind": "every_helper", "args": ["engine", "intent", "<name>"]}
+{"id": "every_helper-00245", "kind": "every_helper", "args": ["engine", "intent", "<name>", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-00246", "kind": "every_helper", "args": ["engine", "intent", "create"]}
+{"id": "every_helper-00247", "kind": "every_helper", "args": ["engine", "intent", "create", "--unit", "auth", "--quiet"]}
+{"id": "every_helper-00248", "kind": "every_helper", "args": ["engine", "intent", "archive"]}
+{"id": "every_helper-00249", "kind": "every_helper", "args": ["engine", "intent", "archive", "--intent", "a"]}
+{"id": "every_helper-00250", "kind": "every_helper", "args": ["engine", "intent", "unarchive"]}
+{"id": "every_helper-00251", "kind": "every_helper", "args": ["engine", "intent", "unarchive", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-00252", "kind": "every_helper", "args": ["engine", "intent", "add-repo"]}
+{"id": "every_helper-00253", "kind": "every_helper", "args": ["engine", "intent", "add-repo", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-00254", "kind": "every_helper", "args": ["engine", "intent", "remove-repo"]}
+{"id": "every_helper-00255", "kind": "every_helper", "args": ["engine", "intent", "remove-repo", "--no-color", "--offline"]}
+{"id": "every_helper-00256", "kind": "every_helper", "args": ["engine", "intent"]}
+{"id": "every_helper-00257", "kind": "every_helper", "args": ["engine", "intent", "help"]}
+{"id": "every_helper-00258", "kind": "every_helper", "args": ["engine", "space", "list"]}
+{"id": "every_helper-00259", "kind": "every_helper", "args": ["engine", "space", "list", "x"]}
+{"id": "every_helper-00260", "kind": "every_helper", "args": ["engine", "space", "switch"]}
+{"id": "every_helper-00261", "kind": "every_helper", "args": ["engine", "space", "switch", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-00262", "kind": "every_helper", "args": ["engine", "space", "<name>"]}
+{"id": "every_helper-00263", "kind": "every_helper", "args": ["engine", "space", "<name>", "--help"]}
+{"id": "every_helper-00264", "kind": "every_helper", "args": ["engine", "space", "create"]}
+{"id": "every_helper-00265", "kind": "every_helper", "args": ["engine", "space", "create", "--project-dir", "--json"]}
+{"id": "every_helper-00266", "kind": "every_helper", "args": ["engine", "space"]}
+{"id": "every_helper-00267", "kind": "every_helper", "args": ["engine", "space", ""]}
+{"id": "every_helper-00268", "kind": "every_helper", "args": ["engine", "scope", "change"]}
+{"id": "every_helper-00269", "kind": "every_helper", "args": ["engine", "scope", "change", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-00270", "kind": "every_helper", "args": ["engine", "scope", "save"]}
+{"id": "every_helper-00271", "kind": "every_helper", "args": ["engine", "scope", "save", "--yes", "--", "--json"]}
+{"id": "every_helper-00272", "kind": "every_helper", "args": ["engine", "scope", "detect"]}
+{"id": "every_helper-00273", "kind": "every_helper", "args": ["engine", "scope", "detect", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-00274", "kind": "every_helper", "args": ["engine", "scope", "resolve-env"]}
+{"id": "every_helper-00275", "kind": "every_helper", "args": ["engine", "scope", "resolve-env", "--project-dir"]}
+{"id": "every_helper-00276", "kind": "every_helper", "args": ["engine", "scope"]}
+{"id": "every_helper-00277", "kind": "every_helper", "args": ["engine", "scope", "-h"]}
+{"id": "every_helper-00278", "kind": "every_helper", "args": ["engine", "config", "depth"]}
+{"id": "every_helper-00279", "kind": "every_helper", "args": ["engine", "config", "depth", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-00280", "kind": "every_helper", "args": ["engine", "config", "test-strategy"]}
+{"id": "every_helper-00281", "kind": "every_helper", "args": ["engine", "config", "test-strategy", "--project-dir"]}
+{"id": "every_helper-00282", "kind": "every_helper", "args": ["engine", "config", "review"]}
+{"id": "every_helper-00283", "kind": "every_helper", "args": ["engine", "config", "review", "--intent", "a"]}
+{"id": "every_helper-00284", "kind": "every_helper", "args": ["engine", "config", "guard-policy"]}
+{"id": "every_helper-00285", "kind": "every_helper", "args": ["engine", "config", "guard-policy", "--yes", "--", "--json"]}
+{"id": "every_helper-00286", "kind": "every_helper", "args": ["engine", "config", "change-control"]}
+{"id": "every_helper-00287", "kind": "every_helper", "args": ["engine", "config", "change-control", "--no-color", "--offline"]}
+{"id": "every_helper-00288", "kind": "every_helper", "args": ["engine", "config", "sensors"]}
+{"id": "every_helper-00289", "kind": "every_helper", "args": ["engine", "config", "sensors", "--yes", "--", "--json"]}
+{"id": "every_helper-00290", "kind": "every_helper", "args": ["engine", "config", "learnings"]}
+{"id": "every_helper-00291", "kind": "every_helper", "args": ["engine", "config", "learnings", "a", "--", "b"]}
+{"id": "every_helper-00292", "kind": "every_helper", "args": ["engine", "config", "collaborators"]}
+{"id": "every_helper-00293", "kind": "every_helper", "args": ["engine", "config", "collaborators", "--project-dir", "--json"]}
+{"id": "every_helper-00294", "kind": "every_helper", "args": ["engine", "config", "summary-confirmation"]}
+{"id": "every_helper-00295", "kind": "every_helper", "args": ["engine", "config", "summary-confirmation", "--help"]}
+{"id": "every_helper-00296", "kind": "every_helper", "args": ["engine", "config", "plan-approval"]}
+{"id": "every_helper-00297", "kind": "every_helper", "args": ["engine", "config", "plan-approval", "", "x"]}
+{"id": "every_helper-00298", "kind": "every_helper", "args": ["engine", "config", "guard.plan-approval"]}
+{"id": "every_helper-00299", "kind": "every_helper", "args": ["engine", "config", "guard.plan-approval", "--space=b"]}
+{"id": "every_helper-00300", "kind": "every_helper", "args": ["engine", "config", "guard.review-freeze"]}
+{"id": "every_helper-00301", "kind": "every_helper", "args": ["engine", "config", "guard.review-freeze", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-00302", "kind": "every_helper", "args": ["engine", "config", "guard.state-transition"]}
+{"id": "every_helper-00303", "kind": "every_helper", "args": ["engine", "config", "guard.state-transition", "--help"]}
+{"id": "every_helper-00304", "kind": "every_helper", "args": ["engine", "config", "guard.reviewer-scope"]}
+{"id": "every_helper-00305", "kind": "every_helper", "args": ["engine", "config", "guard.reviewer-scope", "--project-dir=/oracle/x"]}
+{"id": "every_helper-00306", "kind": "every_helper", "args": ["engine", "config", "get"]}
+{"id": "every_helper-00307", "kind": "every_helper", "args": ["engine", "config", "get", "x"]}
+{"id": "every_helper-00308", "kind": "every_helper", "args": ["engine", "config", "list"]}
+{"id": "every_helper-00309", "kind": "every_helper", "args": ["engine", "config", "list", "--space=b"]}
+{"id": "every_helper-00310", "kind": "every_helper", "args": ["engine", "config"]}
+{"id": "every_helper-00311", "kind": "every_helper", "args": ["engine", "config", "-h"]}
+{"id": "every_helper-00312", "kind": "every_helper", "args": ["engine", "plugin", "select"]}
+{"id": "every_helper-00313", "kind": "every_helper", "args": ["engine", "plugin", "select", "--verbose", "a b"]}
+{"id": "every_helper-00314", "kind": "every_helper", "args": ["engine", "plugin", "sync"]}
+{"id": "every_helper-00315", "kind": "every_helper", "args": ["engine", "plugin", "sync", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-00316", "kind": "every_helper", "args": ["engine", "plugin", "list"]}
+{"id": "every_helper-00317", "kind": "every_helper", "args": ["engine", "plugin", "list", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-00318", "kind": "every_helper", "args": ["engine", "plugin", "validate"]}
+{"id": "every_helper-00319", "kind": "every_helper", "args": ["engine", "plugin", "validate", "--no-color", "--offline"]}
+{"id": "every_helper-00320", "kind": "every_helper", "args": ["engine", "plugin", "build"]}
+{"id": "every_helper-00321", "kind": "every_helper", "args": ["engine", "plugin", "build", "--no-color", "--offline"]}
+{"id": "every_helper-00322", "kind": "every_helper", "args": ["engine", "plugin"]}
+{"id": "every_helper-00323", "kind": "every_helper", "args": ["engine", "plugin", "nope"]}
+{"id": "every_helper-00324", "kind": "every_helper", "args": ["engine", "knowledge", "onboard"]}
+{"id": "every_helper-00325", "kind": "every_helper", "args": ["engine", "knowledge", "onboard", "--space=b"]}
+{"id": "every_helper-00326", "kind": "every_helper", "args": ["engine", "knowledge", "sync"]}
+{"id": "every_helper-00327", "kind": "every_helper", "args": ["engine", "knowledge", "sync", "--yes", "--", "--json"]}
+{"id": "every_helper-00328", "kind": "every_helper", "args": ["engine", "knowledge", "list"]}
+{"id": "every_helper-00329", "kind": "every_helper", "args": ["engine", "knowledge", "list", "a", "--", "b"]}
+{"id": "every_helper-00330", "kind": "every_helper", "args": ["engine", "knowledge", "show"]}
+{"id": "every_helper-00331", "kind": "every_helper", "args": ["engine", "knowledge", "show", "--verbose", "a b"]}
+{"id": "every_helper-00332", "kind": "every_helper", "args": ["engine", "knowledge", "associate"]}
+{"id": "every_helper-00333", "kind": "every_helper", "args": ["engine", "knowledge", "associate", "--json"]}
+{"id": "every_helper-00334", "kind": "every_helper", "args": ["engine", "knowledge", "dissociate"]}
+{"id": "every_helper-00335", "kind": "every_helper", "args": ["engine", "knowledge", "dissociate", "--yes", "--", "--json"]}
+{"id": "every_helper-00336", "kind": "every_helper", "args": ["engine", "knowledge", "rebind"]}
+{"id": "every_helper-00337", "kind": "every_helper", "args": ["engine", "knowledge", "rebind", "", "x"]}
+{"id": "every_helper-00338", "kind": "every_helper", "args": ["engine", "knowledge", "summarize"]}
+{"id": "every_helper-00339", "kind": "every_helper", "args": ["engine", "knowledge", "summarize", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-00340", "kind": "every_helper", "args": ["engine", "knowledge", "help"]}
+{"id": "every_helper-00341", "kind": "every_helper", "args": ["engine", "knowledge", "help", "a", "--", "b"]}
+{"id": "every_helper-00342", "kind": "every_helper", "args": ["engine", "knowledge"]}
+{"id": "every_helper-00343", "kind": "every_helper", "args": ["engine", "knowledge", ""]}
+{"id": "every_helper-00344", "kind": "every_helper", "args": ["engine", "gen", "runners"]}
+{"id": "every_helper-00345", "kind": "every_helper", "args": ["engine", "gen", "runners", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-00346", "kind": "every_helper", "args": ["engine", "gen", "runners --check"]}
+{"id": "every_helper-00347", "kind": "every_helper", "args": ["engine", "gen", "runners --check", "x"]}
+{"id": "every_helper-00348", "kind": "every_helper", "args": ["engine", "gen", "runner-list"]}
+{"id": "every_helper-00349", "kind": "every_helper", "args": ["engine", "gen", "runner-list", "--yes", "--", "--json"]}
+{"id": "every_helper-00350", "kind": "every_helper", "args": ["engine", "gen", "runner-scopes"]}
+{"id": "every_helper-00351", "kind": "every_helper", "args": ["engine", "gen", "runner-scopes", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-00352", "kind": "every_helper", "args": ["engine", "gen", "stage-table"]}
+{"id": "every_helper-00353", "kind": "every_helper", "args": ["engine", "gen", "stage-table", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-00354", "kind": "every_helper", "args": ["engine", "gen", "scope-table"]}
+{"id": "every_helper-00355", "kind": "every_helper", "args": ["engine", "gen", "scope-table", "--verbose", "a b"]}
+{"id": "every_helper-00356", "kind": "every_helper", "args": ["engine", "gen"]}
+{"id": "every_helper-00357", "kind": "every_helper", "args": ["engine", "gen", "nope"]}
+{"id": "every_helper-00358", "kind": "every_helper", "args": ["engine", "workspace", "detect"]}
+{"id": "every_helper-00359", "kind": "every_helper", "args": ["engine", "workspace", "detect", "--stage", "code-generation"]}
+{"id": "every_helper-00360", "kind": "every_helper", "args": ["engine", "workspace", "reclassify"]}
+{"id": "every_helper-00361", "kind": "every_helper", "args": ["engine", "workspace", "reclassify", "--unit", "auth", "--quiet"]}
+{"id": "every_helper-00362", "kind": "every_helper", "args": ["engine", "workspace", "codekb"]}
+{"id": "every_helper-00363", "kind": "every_helper", "args": ["engine", "workspace", "codekb", "--project-dir", "--json"]}
+{"id": "every_helper-00364", "kind": "every_helper", "args": ["engine", "workspace", "codekb-scope-diff"]}
+{"id": "every_helper-00365", "kind": "every_helper", "args": ["engine", "workspace", "codekb-scope-diff", "--yes", "--", "--json"]}
+{"id": "every_helper-00366", "kind": "every_helper", "args": ["engine", "workspace", "codekb-snapshot"]}
+{"id": "every_helper-00367", "kind": "every_helper", "args": ["engine", "workspace", "codekb-snapshot", "--stage", "code-generation"]}
+{"id": "every_helper-00368", "kind": "every_helper", "args": ["engine", "workspace", "codekb-publish"]}
+{"id": "every_helper-00369", "kind": "every_helper", "args": ["engine", "workspace", "codekb-publish", "", "x"]}
+{"id": "every_helper-00370", "kind": "every_helper", "args": ["engine", "workspace", "project-description"]}
+{"id": "every_helper-00371", "kind": "every_helper", "args": ["engine", "workspace", "project-description", "--unit", "auth", "--quiet"]}
+{"id": "every_helper-00372", "kind": "every_helper", "args": ["engine", "workspace", "document-input"]}
+{"id": "every_helper-00373", "kind": "every_helper", "args": ["engine", "workspace", "document-input", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-00374", "kind": "every_helper", "args": ["engine", "workspace"]}
+{"id": "every_helper-00375", "kind": "every_helper", "args": ["engine", "workspace", "help"]}
+{"id": "every_helper-00376", "kind": "every_helper", "args": ["engine", "review-brief", "review"]}
+{"id": "every_helper-00377", "kind": "every_helper", "args": ["engine", "review-brief", "review", "--space=b"]}
+{"id": "every_helper-00378", "kind": "every_helper", "args": ["engine", "review-brief", "context"]}
+{"id": "every_helper-00379", "kind": "every_helper", "args": ["engine", "review-brief", "context", "--space=b"]}
+{"id": "every_helper-00380", "kind": "every_helper", "args": ["engine", "review-brief", "summary"]}
+{"id": "every_helper-00381", "kind": "every_helper", "args": ["engine", "review-brief", "summary", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-00382", "kind": "every_helper", "args": ["engine", "review-brief"]}
+{"id": "every_helper-00383", "kind": "every_helper", "args": ["engine", "review-brief", "-h"]}
+{"id": "every_helper-00384", "kind": "every_helper", "args": ["engine", "orchestrate", "next"]}
+{"id": "every_helper-00385", "kind": "every_helper", "args": ["engine", "orchestrate", "next", "a", "--", "b"]}
+{"id": "every_helper-00386", "kind": "every_helper", "args": ["engine", "orchestrate", "continue"]}
+{"id": "every_helper-00387", "kind": "every_helper", "args": ["engine", "orchestrate", "continue", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-00388", "kind": "every_helper", "args": ["engine", "orchestrate", "report"]}
+{"id": "every_helper-00389", "kind": "every_helper", "args": ["engine", "orchestrate", "report", "--project-dir"]}
+{"id": "every_helper-00390", "kind": "every_helper", "args": ["engine", "orchestrate", "park"]}
+{"id": "every_helper-00391", "kind": "every_helper", "args": ["engine", "orchestrate", "park", "--project-dir=/oracle/x"]}
+{"id": "every_helper-00392", "kind": "every_helper", "args": ["engine", "orchestrate", "wait"]}
+{"id": "every_helper-00393", "kind": "every_helper", "args": ["engine", "orchestrate", "wait", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-00394", "kind": "every_helper", "args": ["engine", "orchestrate", "team-board"]}
+{"id": "every_helper-00395", "kind": "every_helper", "args": ["engine", "orchestrate", "team-board", "--project-dir=/oracle/x"]}
+{"id": "every_helper-00396", "kind": "every_helper", "args": ["engine", "orchestrate", "help"]}
+{"id": "every_helper-00397", "kind": "every_helper", "args": ["engine", "orchestrate", "help", "--project-dir"]}
+{"id": "every_helper-00398", "kind": "every_helper", "args": ["engine", "orchestrate"]}
+{"id": "every_helper-00399", "kind": "every_helper", "args": ["engine", "orchestrate", "-h"]}
+{"id": "every_helper-00400", "kind": "every_helper", "args": ["engine", "sensor-claim-sources", "<args>"]}
+{"id": "every_helper-00401", "kind": "every_helper", "args": ["engine", "sensor-claim-sources", "<args>", "--intent", "a"]}
+{"id": "every_helper-00402", "kind": "every_helper", "args": ["engine", "sensor-claim-sources"]}
+{"id": "every_helper-00403", "kind": "every_helper", "args": ["engine", "sensor-claim-sources", "-h"]}
+{"id": "every_helper-00404", "kind": "every_helper", "args": ["engine", "sensor-linter", "<args>"]}
+{"id": "every_helper-00405", "kind": "every_helper", "args": ["engine", "sensor-linter", "<args>", "--unit", "auth", "--quiet"]}
+{"id": "every_helper-00406", "kind": "every_helper", "args": ["engine", "sensor-linter"]}
+{"id": "every_helper-00407", "kind": "every_helper", "args": ["engine", "sensor-linter", ""]}
+{"id": "every_helper-00408", "kind": "every_helper", "args": ["engine", "sensor-required-sections", "<args>"]}
+{"id": "every_helper-00409", "kind": "every_helper", "args": ["engine", "sensor-required-sections", "<args>", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-00410", "kind": "every_helper", "args": ["engine", "sensor-required-sections"]}
+{"id": "every_helper-00411", "kind": "every_helper", "args": ["engine", "sensor-required-sections", "--help"]}
+{"id": "every_helper-00412", "kind": "every_helper", "args": ["engine", "sensor-traceability", "<args>"]}
+{"id": "every_helper-00413", "kind": "every_helper", "args": ["engine", "sensor-traceability", "<args>", "--project-dir", "--json"]}
+{"id": "every_helper-00414", "kind": "every_helper", "args": ["engine", "sensor-traceability"]}
+{"id": "every_helper-00415", "kind": "every_helper", "args": ["engine", "sensor-traceability", ""]}
+{"id": "every_helper-00416", "kind": "every_helper", "args": ["engine", "sensor-type-check", "<args>"]}
+{"id": "every_helper-00417", "kind": "every_helper", "args": ["engine", "sensor-type-check", "<args>", "--intent", "a"]}
+{"id": "every_helper-00418", "kind": "every_helper", "args": ["engine", "sensor-type-check"]}
+{"id": "every_helper-00419", "kind": "every_helper", "args": ["engine", "sensor-type-check", "nope"]}
+{"id": "every_helper-00420", "kind": "every_helper", "args": ["engine", "sensor-upstream-coverage", "<args>"]}
+{"id": "every_helper-00421", "kind": "every_helper", "args": ["engine", "sensor-upstream-coverage", "<args>", "--intent", "a"]}
+{"id": "every_helper-00422", "kind": "every_helper", "args": ["engine", "sensor-upstream-coverage"]}
+{"id": "every_helper-00423", "kind": "every_helper", "args": ["engine", "sensor-upstream-coverage", "-h"]}
+{"id": "every_helper-00424", "kind": "every_helper", "args": ["engine", "hook", "<name>"]}
+{"id": "every_helper-00425", "kind": "every_helper", "args": ["engine", "hook", "<name>", "--project-dir", "--json"]}
+{"id": "every_helper-00426", "kind": "every_helper", "args": ["engine", "hook"]}
+{"id": "every_helper-00427", "kind": "every_helper", "args": ["engine", "hook", "nope"]}
+{"id": "every_helper-00428", "kind": "every_helper", "args": ["engine", "utility", "help"]}
+{"id": "every_helper-00429", "kind": "every_helper", "args": ["engine", "utility", "help", "--verbose", "a b"]}
+{"id": "every_helper-00430", "kind": "every_helper", "args": ["engine", "utility", "version"]}
+{"id": "every_helper-00431", "kind": "every_helper", "args": ["engine", "utility", "version", "--yes", "--", "--json"]}
+{"id": "every_helper-00432", "kind": "every_helper", "args": ["engine", "utility", "now"]}
+{"id": "every_helper-00433", "kind": "every_helper", "args": ["engine", "utility", "now", "", "x"]}
+{"id": "every_helper-00434", "kind": "every_helper", "args": ["engine", "utility", "status"]}
+{"id": "every_helper-00435", "kind": "every_helper", "args": ["engine", "utility", "status", "x"]}
+{"id": "every_helper-00436", "kind": "every_helper", "args": ["engine", "utility", "detect"]}
+{"id": "every_helper-00437", "kind": "every_helper", "args": ["engine", "utility", "detect", "x"]}
+{"id": "every_helper-00438", "kind": "every_helper", "args": ["engine", "utility", "project-description"]}
+{"id": "every_helper-00439", "kind": "every_helper", "args": ["engine", "utility", "project-description", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-00440", "kind": "every_helper", "args": ["engine", "utility", "codekb-path"]}
+{"id": "every_helper-00441", "kind": "every_helper", "args": ["engine", "utility", "codekb-path", "--yes", "--", "--json"]}
+{"id": "every_helper-00442", "kind": "every_helper", "args": ["engine", "utility", "codekb-scope-diff"]}
+{"id": "every_helper-00443", "kind": "every_helper", "args": ["engine", "utility", "codekb-scope-diff", "", "x"]}
+{"id": "every_helper-00444", "kind": "every_helper", "args": ["engine", "utility", "codekb-snapshot"]}
+{"id": "every_helper-00445", "kind": "every_helper", "args": ["engine", "utility", "codekb-snapshot", "--project-dir=/oracle/x"]}
+{"id": "every_helper-00446", "kind": "every_helper", "args": ["engine", "utility", "codekb-publish"]}
+{"id": "every_helper-00447", "kind": "every_helper", "args": ["engine", "utility", "codekb-publish", "--stage", "code-generation"]}
+{"id": "every_helper-00448", "kind": "every_helper", "args": ["engine", "utility", "plugin-list"]}
+{"id": "every_helper-00449", "kind": "every_helper", "args": ["engine", "utility", "plugin-list", "--space=b"]}
+{"id": "every_helper-00450", "kind": "every_helper", "args": ["engine", "utility", "plugin-validate"]}
+{"id": "every_helper-00451", "kind": "every_helper", "args": ["engine", "utility", "plugin-validate", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-00452", "kind": "every_helper", "args": ["engine", "utility", "config-get"]}
+{"id": "every_helper-00453", "kind": "every_helper", "args": ["engine", "utility", "config-get", "--stage", "code-generation"]}
+{"id": "every_helper-00454", "kind": "every_helper", "args": ["engine", "utility", "config-list"]}
+{"id": "every_helper-00455", "kind": "every_helper", "args": ["engine", "utility", "config-list", "--json"]}
+{"id": "every_helper-00456", "kind": "every_helper", "args": ["engine", "utility", "resolve-env-scope"]}
+{"id": "every_helper-00457", "kind": "every_helper", "args": ["engine", "utility", "resolve-env-scope", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-00458", "kind": "every_helper", "args": ["engine", "utility", "scope-table"]}
+{"id": "every_helper-00459", "kind": "every_helper", "args": ["engine", "utility", "scope-table", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-00460", "kind": "every_helper", "args": ["engine", "utility", "stage-table"]}
+{"id": "every_helper-00461", "kind": "every_helper", "args": ["engine", "utility", "stage-table", "--space=b"]}
+{"id": "every_helper-00462", "kind": "every_helper", "args": ["engine", "utility", "select-plugins"]}
+{"id": "every_helper-00463", "kind": "every_helper", "args": ["engine", "utility", "select-plugins", "--json"]}
+{"id": "every_helper-00464", "kind": "every_helper", "args": ["engine", "utility", "document-input"]}
+{"id": "every_helper-00465", "kind": "every_helper", "args": ["engine", "utility", "document-input", "--intent", "a"]}
+{"id": "every_helper-00466", "kind": "every_helper", "args": ["engine", "utility", "config-change"]}
+{"id": "every_helper-00467", "kind": "every_helper", "args": ["engine", "utility", "config-change", "", "x"]}
+{"id": "every_helper-00468", "kind": "every_helper", "args": ["engine", "utility", "intent-create"]}
+{"id": "every_helper-00469", "kind": "every_helper", "args": ["engine", "utility", "intent-create", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-00470", "kind": "every_helper", "args": ["engine", "utility", "state-init"]}
+{"id": "every_helper-00471", "kind": "every_helper", "args": ["engine", "utility", "state-init", "--help"]}
+{"id": "every_helper-00472", "kind": "every_helper", "args": ["engine", "utility", "claim"]}
+{"id": "every_helper-00473", "kind": "every_helper", "args": ["engine", "utility", "claim", "--project-dir=/oracle/x"]}
+{"id": "every_helper-00474", "kind": "every_helper", "args": ["engine", "utility", "intent"]}
+{"id": "every_helper-00475", "kind": "every_helper", "args": ["engine", "utility", "intent", "x"]}
+{"id": "every_helper-00476", "kind": "every_helper", "args": ["engine", "state", "get"]}
+{"id": "every_helper-00477", "kind": "every_helper", "args": ["engine", "state", "get", "a", "--", "b"]}
+{"id": "every_helper-00478", "kind": "every_helper", "args": ["engine", "state", "count"]}
+{"id": "every_helper-00479", "kind": "every_helper", "args": ["engine", "state", "count", "--yes", "--", "--json"]}
+{"id": "every_helper-00480", "kind": "every_helper", "args": ["engine", "state", "resume"]}
+{"id": "every_helper-00481", "kind": "every_helper", "args": ["engine", "state", "resume", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-00482", "kind": "every_helper", "args": ["engine", "state", "lookup"]}
+{"id": "every_helper-00483", "kind": "every_helper", "args": ["engine", "state", "lookup", "a", "--", "b"]}
+{"id": "every_helper-00484", "kind": "every_helper", "args": ["engine", "orchestrate", "wait"]}
+{"id": "every_helper-00485", "kind": "every_helper", "args": ["engine", "orchestrate", "wait", "", "x"]}
+{"id": "every_helper-00486", "kind": "every_helper", "args": ["engine", "orchestrate", "team-board"]}
+{"id": "every_helper-00487", "kind": "every_helper", "args": ["engine", "orchestrate", "team-board", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-00488", "kind": "every_helper", "args": ["engine", "jump", "resolve"]}
+{"id": "every_helper-00489", "kind": "every_helper", "args": ["engine", "jump", "resolve", "--yes", "--", "--json"]}
+{"id": "every_helper-00490", "kind": "every_helper", "args": ["engine", "unit", "merge-status"]}
+{"id": "every_helper-00491", "kind": "every_helper", "args": ["engine", "unit", "merge-status", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-00492", "kind": "every_helper", "args": ["engine", "unit", "status"]}
+{"id": "every_helper-00493", "kind": "every_helper", "args": ["engine", "unit", "status", "--space=b"]}
+{"id": "every_helper-00494", "kind": "every_helper", "args": ["engine", "unit", "claim"]}
+{"id": "every_helper-00495", "kind": "every_helper", "args": ["engine", "unit", "claim", "--verbose", "a b"]}
+{"id": "every_helper-00496", "kind": "every_helper", "args": ["engine", "log", "answers"]}
+{"id": "every_helper-00497", "kind": "every_helper", "args": ["engine", "log", "answers", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-00498", "kind": "every_helper", "args": ["engine", "learnings", "surface"]}
+{"id": "every_helper-00499", "kind": "every_helper", "args": ["engine", "learnings", "surface", "a", "--", "b"]}
+{"id": "every_helper-00500", "kind": "every_helper", "args": ["engine", "runtime", "read"]}
+{"id": "every_helper-00501", "kind": "every_helper", "args": ["engine", "runtime", "read", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-00502", "kind": "every_helper", "args": ["engine", "runtime", "summary"]}
+{"id": "every_helper-00503", "kind": "every_helper", "args": ["engine", "runtime", "summary", "x"]}
+{"id": "every_helper-00504", "kind": "every_helper", "args": ["engine", "testing-posture", "resolve"]}
+{"id": "every_helper-00505", "kind": "every_helper", "args": ["engine", "testing-posture", "resolve", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-00506", "kind": "every_helper", "args": ["engine", "testing-posture", "render"]}
+{"id": "every_helper-00507", "kind": "every_helper", "args": ["engine", "testing-posture", "render", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-00508", "kind": "every_helper", "args": ["engine", "testing-posture", "verify"]}
+{"id": "every_helper-00509", "kind": "every_helper", "args": ["engine", "testing-posture", "verify", "--yes", "--", "--json"]}
+{"id": "every_helper-00510", "kind": "every_helper", "args": ["engine", "testing-posture", "reply"]}
+{"id": "every_helper-00511", "kind": "every_helper", "args": ["engine", "testing-posture", "reply", "--help"]}
+{"id": "every_helper-00512", "kind": "every_helper", "args": ["engine", "testing-posture", "brief"]}
+{"id": "every_helper-00513", "kind": "every_helper", "args": ["engine", "testing-posture", "brief", "--space=b"]}
+{"id": "every_helper-00514", "kind": "every_helper", "args": ["engine", "worktree", "list"]}
+{"id": "every_helper-00515", "kind": "every_helper", "args": ["engine", "worktree", "list", "--verbose", "a b"]}
+{"id": "every_helper-00516", "kind": "every_helper", "args": ["engine", "worktree", "verify"]}
+{"id": "every_helper-00517", "kind": "every_helper", "args": ["engine", "worktree", "verify", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-00518", "kind": "every_helper", "args": ["engine", "worktree", "info"]}
+{"id": "every_helper-00519", "kind": "every_helper", "args": ["engine", "worktree", "info", "--help"]}
+{"id": "every_helper-00520", "kind": "every_helper", "args": ["engine", "audit", "history"]}
+{"id": "every_helper-00521", "kind": "every_helper", "args": ["engine", "audit", "history", "--intent", "a"]}
+{"id": "every_helper-00522", "kind": "every_helper", "args": ["engine", "plugin", "list"]}
+{"id": "every_helper-00523", "kind": "every_helper", "args": ["engine", "plugin", "list", "--json"]}
+{"id": "every_helper-00524", "kind": "every_helper", "args": ["engine", "graph", "artifacts"]}
+{"id": "every_helper-00525", "kind": "every_helper", "args": ["engine", "graph", "artifacts", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-00526", "kind": "every_helper", "args": ["engine", "graph", "producers"]}
+{"id": "every_helper-00527", "kind": "every_helper", "args": ["engine", "graph", "producers", "--space=b"]}
+{"id": "every_helper-00528", "kind": "every_helper", "args": ["engine", "graph", "consumers"]}
+{"id": "every_helper-00529", "kind": "every_helper", "args": ["engine", "graph", "consumers", "", "x"]}
+{"id": "every_helper-00530", "kind": "every_helper", "args": ["engine", "graph", "topo"]}
+{"id": "every_helper-00531", "kind": "every_helper", "args": ["engine", "graph", "topo", "--intent", "a"]}
+{"id": "every_helper-00532", "kind": "every_helper", "args": ["engine", "graph", "cycles"]}
+{"id": "every_helper-00533", "kind": "every_helper", "args": ["engine", "graph", "cycles", "a", "--", "b"]}
+{"id": "every_helper-00534", "kind": "every_helper", "args": ["engine", "graph", "scope"]}
+{"id": "every_helper-00535", "kind": "every_helper", "args": ["engine", "graph", "scope", "--yes", "--", "--json"]}
+{"id": "every_helper-00536", "kind": "every_helper", "args": ["engine", "graph", "validate-scope"]}
+{"id": "every_helper-00537", "kind": "every_helper", "args": ["engine", "graph", "validate-scope", "--help"]}
+{"id": "every_helper-00538", "kind": "every_helper", "args": ["engine", "graph", "validate-grid"]}
+{"id": "every_helper-00539", "kind": "every_helper", "args": ["engine", "graph", "validate-grid", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-00540", "kind": "every_helper", "args": ["engine", "graph", "ars"]}
+{"id": "every_helper-00541", "kind": "every_helper", "args": ["engine", "graph", "ars", "", "x"]}
+{"id": "every_helper-00542", "kind": "every_helper", "args": ["engine", "graph", "export"]}
+{"id": "every_helper-00543", "kind": "every_helper", "args": ["engine", "graph", "export", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-00544", "kind": "every_helper", "args": ["engine", "sensor", "list"]}
+{"id": "every_helper-00545", "kind": "every_helper", "args": ["engine", "sensor", "list", "a", "--", "b"]}
+{"id": "every_helper-00546", "kind": "every_helper", "args": ["engine", "sensor", "describe"]}
+{"id": "every_helper-00547", "kind": "every_helper", "args": ["engine", "sensor", "describe", "", "x"]}
+{"id": "every_helper-00548", "kind": "every_helper", "args": ["engine", "sensor", "fire"]}
+{"id": "every_helper-00549", "kind": "every_helper", "args": ["engine", "sensor", "fire", "--json"]}
+{"id": "every_helper-00550", "kind": "every_helper", "args": ["engine", "validate", "outputs"]}
+{"id": "every_helper-00551", "kind": "every_helper", "args": ["engine", "validate", "outputs", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-00552", "kind": "every_helper", "args": ["engine", "review-brief", "review"]}
+{"id": "every_helper-00553", "kind": "every_helper", "args": ["engine", "review-brief", "review", "--unit", "auth", "--quiet"]}
+{"id": "every_helper-00554", "kind": "every_helper", "args": ["engine", "review-brief", "context"]}
+{"id": "every_helper-00555", "kind": "every_helper", "args": ["engine", "review-brief", "context", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-00556", "kind": "every_helper", "args": ["engine", "review-brief", "summary"]}
+{"id": "every_helper-00557", "kind": "every_helper", "args": ["engine", "review-brief", "summary", "x"]}
+{"id": "every_helper-00558", "kind": "every_helper", "args": ["engine", "attest", "resolve"]}
+{"id": "every_helper-00559", "kind": "every_helper", "args": ["engine", "attest", "resolve", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-00560", "kind": "every_helper", "args": ["engine", "attest", "record"]}
+{"id": "every_helper-00561", "kind": "every_helper", "args": ["engine", "attest", "record", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-00562", "kind": "every_helper", "args": ["engine", "knowledge", "list"]}
+{"id": "every_helper-00563", "kind": "every_helper", "args": ["engine", "knowledge", "list", "--project-dir=/oracle/x"]}
+{"id": "every_helper-00564", "kind": "every_helper", "args": ["engine", "knowledge", "show"]}
+{"id": "every_helper-00565", "kind": "every_helper", "args": ["engine", "knowledge", "show", "--project-dir=/oracle/x"]}
+{"id": "every_helper-00566", "kind": "every_helper", "args": ["engine", "doctor", "doctor"]}
+{"id": "every_helper-00567", "kind": "every_helper", "args": ["engine", "doctor", "doctor", "a", "--", "b"]}
+{"id": "every_helper-00568", "kind": "every_helper", "args": ["engine", "machine-config", "global"]}
+{"id": "every_helper-00569", "kind": "every_helper", "args": ["engine", "machine-config", "global", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-00570", "kind": "every_helper", "args": ["engine", "status"]}
+{"id": "every_helper-00571", "kind": "every_helper", "args": ["engine", "status", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-00572", "kind": "every_helper", "args": ["status", "graph", "topo"]}
+{"id": "every_helper-00573", "kind": "every_helper", "args": ["engine", "recompose"]}
+{"id": "every_helper-00574", "kind": "every_helper", "args": ["engine", "recompose", "--project-dir=/oracle/x"]}
+{"id": "every_helper-00575", "kind": "every_helper", "args": ["recompose", "graph", "topo"]}
+{"id": "every_helper-00576", "kind": "every_helper", "args": ["engine", "now"]}
+{"id": "every_helper-00577", "kind": "every_helper", "args": ["engine", "now", "--unit", "auth", "--quiet"]}
+{"id": "every_helper-00578", "kind": "every_helper", "args": ["now", "graph", "topo"]}
+{"id": "every_helper-00579", "kind": "every_helper", "args": ["engine", "statusline"]}
+{"id": "every_helper-00580", "kind": "every_helper", "args": ["engine", "statusline", "--space=b"]}
+{"id": "every_helper-00581", "kind": "every_helper", "args": ["statusline", "graph", "topo"]}
+{"id": "every_helper-00582", "kind": "every_helper", "args": ["engine", "adapter"]}
+{"id": "every_helper-00583", "kind": "every_helper", "args": ["engine", "adapter", "--no-color", "--offline"]}
+{"id": "every_helper-00584", "kind": "every_helper", "args": ["adapter", "graph", "topo"]}
+{"id": "every_helper-00585", "kind": "every_helper", "args": ["engine", "help"]}
+{"id": "every_helper-00586", "kind": "every_helper", "args": ["engine", "help", "--project-dir"]}
+{"id": "every_helper-00587", "kind": "every_helper", "args": ["help", "graph", "topo"]}
+{"id": "every_helper-00588", "kind": "every_helper", "args": ["engine", "--help"]}
+{"id": "every_helper-00589", "kind": "every_helper", "args": ["engine", "--help", "--help"]}
+{"id": "every_helper-00590", "kind": "every_helper", "args": ["--help", "graph", "topo"]}
+{"id": "every_helper-00591", "kind": "every_helper", "args": ["engine", "-h"]}
+{"id": "every_helper-00592", "kind": "every_helper", "args": ["engine", "-h", "--project-dir"]}
+{"id": "every_helper-00593", "kind": "every_helper", "args": ["-h", "graph", "topo"]}
+{"id": "every_helper-00594", "kind": "every_helper", "args": ["engine", "--status"]}
+{"id": "every_helper-00595", "kind": "every_helper", "args": ["engine", "--status", "--unit", "auth", "--quiet"]}
+{"id": "every_helper-00596", "kind": "every_helper", "args": ["--status", "graph", "topo"]}
+{"id": "every_helper-00597", "kind": "every_helper", "args": ["engine", "--claim"]}
+{"id": "every_helper-00598", "kind": "every_helper", "args": ["engine", "--claim", "--json"]}
+{"id": "every_helper-00599", "kind": "every_helper", "args": ["--claim", "graph", "topo"]}
+{"id": "every_helper-00600", "kind": "every_helper", "args": ["engine", "--release"]}
+{"id": "every_helper-00601", "kind": "every_helper", "args": ["engine", "--release", "--unit", "auth", "--quiet"]}
+{"id": "every_helper-00602", "kind": "every_helper", "args": ["--release", "graph", "topo"]}
+{"id": "every_helper-00603", "kind": "every_helper", "args": ["engine", "--doctor"]}
+{"id": "every_helper-00604", "kind": "every_helper", "args": ["engine", "--doctor", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-00605", "kind": "every_helper", "args": ["--doctor", "graph", "topo"]}
+{"id": "every_helper-00606", "kind": "every_helper", "args": ["engine", "--version"]}
+{"id": "every_helper-00607", "kind": "every_helper", "args": ["engine", "--version", "--yes", "--", "--json"]}
+{"id": "every_helper-00608", "kind": "every_helper", "args": ["--version", "graph", "topo"]}
+{"id": "every_helper-00609", "kind": "every_helper", "args": ["engine", "--resume"]}
+{"id": "every_helper-00610", "kind": "every_helper", "args": ["engine", "--resume", "--json"]}
+{"id": "every_helper-00611", "kind": "every_helper", "args": ["--resume", "graph", "topo"]}
+{"id": "every_helper-00612", "kind": "every_helper", "args": ["engine", "--scope"]}
+{"id": "every_helper-00613", "kind": "every_helper", "args": ["engine", "--scope", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-00614", "kind": "every_helper", "args": ["--scope", "graph", "topo"]}
+{"id": "every_helper-00615", "kind": "every_helper", "args": ["engine", "__sensor-script"]}
+{"id": "every_helper-00616", "kind": "every_helper", "args": ["engine", "__sensor-script", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-00617", "kind": "every_helper", "args": ["__sensor-script", "graph", "topo"]}
+{"id": "every_helper-00618", "kind": "every_helper", "args": ["engine", "__sensor-script-file"]}
+{"id": "every_helper-00619", "kind": "every_helper", "args": ["engine", "__sensor-script-file", "--intent", "a"]}
+{"id": "every_helper-00620", "kind": "every_helper", "args": ["__sensor-script-file", "graph", "topo"]}
+{"id": "every_helper-00621", "kind": "every_helper", "args": ["engine", "nope"]}
+{"id": "every_helper-00622", "kind": "every_helper", "args": ["engine", "nope", "--project-dir", "--json"]}
+{"id": "every_helper-00623", "kind": "every_helper", "args": ["nope", "graph", "topo"]}
+{"id": "every_helper-00624", "kind": "every_helper", "args": ["engine", "top"]}
+{"id": "every_helper-00625", "kind": "every_helper", "args": ["engine", "top", "--stage", "code-generation"]}
+{"id": "every_helper-00626", "kind": "every_helper", "args": ["top", "graph", "topo"]}
+{"id": "every_helper-00627", "kind": "every_helper", "args": ["engine", "hook"]}
+{"id": "every_helper-00628", "kind": "every_helper", "args": ["engine", "hook", "--help"]}
+{"id": "every_helper-00629", "kind": "every_helper", "args": ["hook", "graph", "topo"]}
+{"id": "every_helper-00630", "kind": "every_helper", "args": ["engine", "unit"]}
+{"id": "every_helper-00631", "kind": "every_helper", "args": ["engine", "unit", "", "x"]}
+{"id": "every_helper-00632", "kind": "every_helper", "args": ["unit", "graph", "topo"]}
+{"id": "every_helper-00633", "kind": "every_helper", "args": ["engine", "doctor"]}
+{"id": "every_helper-00634", "kind": "every_helper", "args": ["engine", "doctor", "--json"]}
+{"id": "every_helper-00635", "kind": "every_helper", "args": ["doctor", "graph", "topo"]}
+{"id": "every_helper-00636", "kind": "every_helper", "args": ["engine", "version"]}
+{"id": "every_helper-00637", "kind": "every_helper", "args": ["engine", "version", "x"]}
+{"id": "every_helper-00638", "kind": "every_helper", "args": ["version", "graph", "topo"]}
+{"id": "every_helper-00639", "kind": "every_helper", "args": ["engine", "config"]}
+{"id": "every_helper-00640", "kind": "every_helper", "args": ["engine", "config", "--unit", "auth", "--quiet"]}
+{"id": "every_helper-00641", "kind": "every_helper", "args": ["config", "graph", "topo"]}
+{"id": "every_helper-00642", "kind": "every_helper", "args": ["engine", "park"]}
+{"id": "every_helper-00643", "kind": "every_helper", "args": ["engine", "park", "a", "--", "b"]}
+{"id": "every_helper-00644", "kind": "every_helper", "args": ["park", "graph", "topo"]}
+{"id": "every_helper-00645", "kind": "every_helper", "args": ["engine", "next"]}
+{"id": "every_helper-00646", "kind": "every_helper", "args": ["engine", "next", "--project-dir=/oracle/x"]}
+{"id": "every_helper-00647", "kind": "every_helper", "args": ["next", "graph", "topo"]}
+{"id": "every_helper-00648", "kind": "every_helper", "args": ["engine", ""]}
+{"id": "every_helper-00649", "kind": "every_helper", "args": ["engine", "", "--stage", "code-generation"]}
+{"id": "every_helper-00650", "kind": "every_helper", "args": ["", "graph", "topo"]}
+{"id": "every_helper-00651", "kind": "every_helper", "args": ["engine", "__sensor-script", "claim-sources", "a"]}
+{"id": "every_helper-00652", "kind": "every_helper", "args": ["engine", "__sensor-script-file", "claim-sources", "a"]}
+{"id": "every_helper-00653", "kind": "every_helper", "args": ["engine", "__sensor-script", "linter", "a"]}
+{"id": "every_helper-00654", "kind": "every_helper", "args": ["engine", "__sensor-script-file", "linter", "a"]}
+{"id": "every_helper-00655", "kind": "every_helper", "args": ["engine", "__sensor-script", "required-sections", "a"]}
+{"id": "every_helper-00656", "kind": "every_helper", "args": ["engine", "__sensor-script-file", "required-sections", "a"]}
+{"id": "every_helper-00657", "kind": "every_helper", "args": ["engine", "__sensor-script", "traceability", "a"]}
+{"id": "every_helper-00658", "kind": "every_helper", "args": ["engine", "__sensor-script-file", "traceability", "a"]}
+{"id": "every_helper-00659", "kind": "every_helper", "args": ["engine", "__sensor-script", "type-check", "a"]}
+{"id": "every_helper-00660", "kind": "every_helper", "args": ["engine", "__sensor-script-file", "type-check", "a"]}
+{"id": "every_helper-00661", "kind": "every_helper", "args": ["engine", "__sensor-script", "upstream-coverage", "a"]}
+{"id": "every_helper-00662", "kind": "every_helper", "args": ["engine", "__sensor-script-file", "upstream-coverage", "a"]}
+{"id": "every_helper-00663", "kind": "every_helper", "args": ["engine", "__sensor-script", "nope", "a"]}
+{"id": "every_helper-00664", "kind": "every_helper", "args": ["engine", "__sensor-script-file", "nope", "a"]}
+{"id": "every_helper-00665", "kind": "every_helper", "args": ["engine", "__sensor-script", "", "a"]}
+{"id": "every_helper-00666", "kind": "every_helper", "args": ["engine", "__sensor-script-file", "", "a"]}
+{"id": "every_helper-00667", "kind": "every_helper", "args": ["engine", "intent", "list"]}
+{"id": "every_helper-00668", "kind": "every_helper", "args": ["engine", "intent", "list", "a"]}
+{"id": "every_helper-00669", "kind": "every_helper", "args": ["engine", "intent", "list", "a", "--all", "y"]}
+{"id": "every_helper-00670", "kind": "every_helper", "args": ["engine", "intent", "switch"]}
+{"id": "every_helper-00671", "kind": "every_helper", "args": ["engine", "intent", "switch", "b c"]}
+{"id": "every_helper-00672", "kind": "every_helper", "args": ["engine", "intent", "switch", "a", "--json", "y"]}
+{"id": "every_helper-00673", "kind": "every_helper", "args": ["engine", "intent", "create"]}
+{"id": "every_helper-00674", "kind": "every_helper", "args": ["engine", "intent", "create", ""]}
+{"id": "every_helper-00675", "kind": "every_helper", "args": ["engine", "intent", "create", "a", "--all", "y"]}
+{"id": "every_helper-00676", "kind": "every_helper", "args": ["engine", "intent", "archive"]}
+{"id": "every_helper-00677", "kind": "every_helper", "args": ["engine", "intent", "archive", "a"]}
+{"id": "every_helper-00678", "kind": "every_helper", "args": ["engine", "intent", "archive", "a", "--json", "y"]}
+{"id": "every_helper-00679", "kind": "every_helper", "args": ["engine", "intent", "unarchive"]}
+{"id": "every_helper-00680", "kind": "every_helper", "args": ["engine", "intent", "unarchive", "b c"]}
+{"id": "every_helper-00681", "kind": "every_helper", "args": ["engine", "intent", "unarchive", "a", "--json", "y"]}
+{"id": "every_helper-00682", "kind": "every_helper", "args": ["engine", "intent", "add-repo"]}
+{"id": "every_helper-00683", "kind": "every_helper", "args": ["engine", "intent", "add-repo", ""]}
+{"id": "every_helper-00684", "kind": "every_helper", "args": ["engine", "intent", "add-repo", "a", "x", "y"]}
+{"id": "every_helper-00685", "kind": "every_helper", "args": ["engine", "intent", "remove-repo"]}
+{"id": "every_helper-00686", "kind": "every_helper", "args": ["engine", "intent", "remove-repo", "b c"]}
+{"id": "every_helper-00687", "kind": "every_helper", "args": ["engine", "intent", "remove-repo", "a", "--json", "y"]}
+{"id": "every_helper-00688", "kind": "every_helper", "args": ["engine", "intent", "help"]}
+{"id": "every_helper-00689", "kind": "every_helper", "args": ["engine", "intent", "help", "a"]}
+{"id": "every_helper-00690", "kind": "every_helper", "args": ["engine", "intent", "help", "a", "--all", "y"]}
+{"id": "every_helper-00691", "kind": "every_helper", "args": ["engine", "intent", "-h"]}
+{"id": "every_helper-00692", "kind": "every_helper", "args": ["engine", "intent", "-h", "a"]}
+{"id": "every_helper-00693", "kind": "every_helper", "args": ["engine", "intent", "-h", "a", "--all", "y"]}
+{"id": "every_helper-00694", "kind": "every_helper", "args": ["engine", "intent", "--help"]}
+{"id": "every_helper-00695", "kind": "every_helper", "args": ["engine", "intent", "--help", ""]}
+{"id": "every_helper-00696", "kind": "every_helper", "args": ["engine", "intent", "--help", "a", "x", "y"]}
+{"id": "every_helper-00697", "kind": "every_helper", "args": ["engine", "intent", "--json"]}
+{"id": "every_helper-00698", "kind": "every_helper", "args": ["engine", "intent", "--json", "b c"]}
+{"id": "every_helper-00699", "kind": "every_helper", "args": ["engine", "intent", "--json", "a", "x", "y"]}
+{"id": "every_helper-00700", "kind": "every_helper", "args": ["engine", "intent", "--all"]}
+{"id": "every_helper-00701", "kind": "every_helper", "args": ["engine", "intent", "--all", ""]}
+{"id": "every_helper-00702", "kind": "every_helper", "args": ["engine", "intent", "--all", "a", "--reason", "y"]}
+{"id": "every_helper-00703", "kind": "every_helper", "args": ["engine", "intent", "rename"]}
+{"id": "every_helper-00704", "kind": "every_helper", "args": ["engine", "intent", "rename", ""]}
+{"id": "every_helper-00705", "kind": "every_helper", "args": ["engine", "intent", "rename", "a", "--reason", "y"]}
+{"id": "every_helper-00706", "kind": "every_helper", "args": ["engine", "intent", "show"]}
+{"id": "every_helper-00707", "kind": "every_helper", "args": ["engine", "intent", "show", "--x"]}
+{"id": "every_helper-00708", "kind": "every_helper", "args": ["engine", "intent", "show", "a", "--reason", "y"]}
+{"id": "every_helper-00709", "kind": "every_helper", "args": ["engine", "intent", "birth"]}
+{"id": "every_helper-00710", "kind": "every_helper", "args": ["engine", "intent", "birth", "--x"]}
+{"id": "every_helper-00711", "kind": "every_helper", "args": ["engine", "intent", "birth", "a", "--json", "y"]}
+{"id": "every_helper-00712", "kind": "every_helper", "args": ["engine", "intent", "my-intent"]}
+{"id": "every_helper-00713", "kind": "every_helper", "args": ["engine", "intent", "my-intent", "a"]}
+{"id": "every_helper-00714", "kind": "every_helper", "args": ["engine", "intent", "my-intent", "a", "--reason", "y"]}
+{"id": "every_helper-00715", "kind": "every_helper", "args": ["engine", "intent", "--x"]}
+{"id": "every_helper-00716", "kind": "every_helper", "args": ["engine", "intent", "--x", "--x"]}
+{"id": "every_helper-00717", "kind": "every_helper", "args": ["engine", "intent", "--x", "a", "--json", "y"]}
+{"id": "every_helper-00718", "kind": "every_helper", "args": ["engine", "intent", "space-create"]}
+{"id": "every_helper-00719", "kind": "every_helper", "args": ["engine", "intent", "space-create", ""]}
+{"id": "every_helper-00720", "kind": "every_helper", "args": ["engine", "intent", "space-create", "a", "--json", "y"]}
+{"id": "every_helper-00721", "kind": "every_helper", "args": ["engine", "space", "list"]}
+{"id": "every_helper-00722", "kind": "every_helper", "args": ["engine", "space", "list", "a"]}
+{"id": "every_helper-00723", "kind": "every_helper", "args": ["engine", "space", "list", "a", "--all", "y"]}
+{"id": "every_helper-00724", "kind": "every_helper", "args": ["engine", "space", "switch"]}
+{"id": "every_helper-00725", "kind": "every_helper", "args": ["engine", "space", "switch", "--x"]}
+{"id": "every_helper-00726", "kind": "every_helper", "args": ["engine", "space", "switch", "a", "x", "y"]}
+{"id": "every_helper-00727", "kind": "every_helper", "args": ["engine", "space", "create"]}
+{"id": "every_helper-00728", "kind": "every_helper", "args": ["engine", "space", "create", "a"]}
+{"id": "every_helper-00729", "kind": "every_helper", "args": ["engine", "space", "create", "a", "--all", "y"]}
+{"id": "every_helper-00730", "kind": "every_helper", "args": ["engine", "space", "archive"]}
+{"id": "every_helper-00731", "kind": "every_helper", "args": ["engine", "space", "archive", "b c"]}
+{"id": "every_helper-00732", "kind": "every_helper", "args": ["engine", "space", "archive", "a", "x", "y"]}
+{"id": "every_helper-00733", "kind": "every_helper", "args": ["engine", "space", "unarchive"]}
+{"id": "every_helper-00734", "kind": "every_helper", "args": ["engine", "space", "unarchive", "b c"]}
+{"id": "every_helper-00735", "kind": "every_helper", "args": ["engine", "space", "unarchive", "a", "--json", "y"]}
+{"id": "every_helper-00736", "kind": "every_helper", "args": ["engine", "space", "add-repo"]}
+{"id": "every_helper-00737", "kind": "every_helper", "args": ["engine", "space", "add-repo", "b c"]}
+{"id": "every_helper-00738", "kind": "every_helper", "args": ["engine", "space", "add-repo", "a", "--all", "y"]}
+{"id": "every_helper-00739", "kind": "every_helper", "args": ["engine", "space", "remove-repo"]}
+{"id": "every_helper-00740", "kind": "every_helper", "args": ["engine", "space", "remove-repo", "--x"]}
+{"id": "every_helper-00741", "kind": "every_helper", "args": ["engine", "space", "remove-repo", "a", "--reason", "y"]}
+{"id": "every_helper-00742", "kind": "every_helper", "args": ["engine", "space", "help"]}
+{"id": "every_helper-00743", "kind": "every_helper", "args": ["engine", "space", "help", "b c"]}
+{"id": "every_helper-00744", "kind": "every_helper", "args": ["engine", "space", "help", "a", "--json", "y"]}
+{"id": "every_helper-00745", "kind": "every_helper", "args": ["engine", "space", "-h"]}
+{"id": "every_helper-00746", "kind": "every_helper", "args": ["engine", "space", "-h", "a"]}
+{"id": "every_helper-00747", "kind": "every_helper", "args": ["engine", "space", "-h", "a", "--all", "y"]}
+{"id": "every_helper-00748", "kind": "every_helper", "args": ["engine", "space", "--help"]}
+{"id": "every_helper-00749", "kind": "every_helper", "args": ["engine", "space", "--help", "a"]}
+{"id": "every_helper-00750", "kind": "every_helper", "args": ["engine", "space", "--help", "a", "--json", "y"]}
+{"id": "every_helper-00751", "kind": "every_helper", "args": ["engine", "space", "--json"]}
+{"id": "every_helper-00752", "kind": "every_helper", "args": ["engine", "space", "--json", "a"]}
+{"id": "every_helper-00753", "kind": "every_helper", "args": ["engine", "space", "--json", "a", "--json", "y"]}
+{"id": "every_helper-00754", "kind": "every_helper", "args": ["engine", "space", "--all"]}
+{"id": "every_helper-00755", "kind": "every_helper", "args": ["engine", "space", "--all", "b c"]}
+{"id": "every_helper-00756", "kind": "every_helper", "args": ["engine", "space", "--all", "a", "--reason", "y"]}
+{"id": "every_helper-00757", "kind": "every_helper", "args": ["engine", "space", "rename"]}
+{"id": "every_helper-00758", "kind": "every_helper", "args": ["engine", "space", "rename", "--x"]}
+{"id": "every_helper-00759", "kind": "every_helper", "args": ["engine", "space", "rename", "a", "--reason", "y"]}
+{"id": "every_helper-00760", "kind": "every_helper", "args": ["engine", "space", "show"]}
+{"id": "every_helper-00761", "kind": "every_helper", "args": ["engine", "space", "show", "a"]}
+{"id": "every_helper-00762", "kind": "every_helper", "args": ["engine", "space", "show", "a", "--reason", "y"]}
+{"id": "every_helper-00763", "kind": "every_helper", "args": ["engine", "space", "birth"]}
+{"id": "every_helper-00764", "kind": "every_helper", "args": ["engine", "space", "birth", "b c"]}
+{"id": "every_helper-00765", "kind": "every_helper", "args": ["engine", "space", "birth", "a", "x", "y"]}
+{"id": "every_helper-00766", "kind": "every_helper", "args": ["engine", "space", "my-intent"]}
+{"id": "every_helper-00767", "kind": "every_helper", "args": ["engine", "space", "my-intent", "a"]}
+{"id": "every_helper-00768", "kind": "every_helper", "args": ["engine", "space", "my-intent", "a", "--json", "y"]}
+{"id": "every_helper-00769", "kind": "every_helper", "args": ["engine", "space", "--x"]}
+{"id": "every_helper-00770", "kind": "every_helper", "args": ["engine", "space", "--x", "a"]}
+{"id": "every_helper-00771", "kind": "every_helper", "args": ["engine", "space", "--x", "a", "--reason", "y"]}
+{"id": "every_helper-00772", "kind": "every_helper", "args": ["engine", "space", "space-create"]}
+{"id": "every_helper-00773", "kind": "every_helper", "args": ["engine", "space", "space-create", "b c"]}
+{"id": "every_helper-00774", "kind": "every_helper", "args": ["engine", "space", "space-create", "a", "--all", "y"]}
+{"id": "every_helper-00775", "kind": "every_helper", "args": ["engine", "config", "set", "depth"]}
+{"id": "every_helper-00776", "kind": "every_helper", "args": ["engine", "config", "set", "depth", ""]}
+{"id": "every_helper-00777", "kind": "every_helper", "args": ["engine", "config", "set", "depth", "off", "--depth", "standard"]}
+{"id": "every_helper-00778", "kind": "every_helper", "args": ["engine", "config", "set", "test-strategy"]}
+{"id": "every_helper-00779", "kind": "every_helper", "args": ["engine", "config", "set", "test-strategy", ""]}
+{"id": "every_helper-00780", "kind": "every_helper", "args": ["engine", "config", "set", "test-strategy", "off", "--depth", "standard"]}
+{"id": "every_helper-00781", "kind": "every_helper", "args": ["engine", "config", "set", "review"]}
+{"id": "every_helper-00782", "kind": "every_helper", "args": ["engine", "config", "set", "review", "on"]}
+{"id": "every_helper-00783", "kind": "every_helper", "args": ["engine", "config", "set", "review", "off", "--depth", "standard"]}
+{"id": "every_helper-00784", "kind": "every_helper", "args": ["engine", "config", "set", "guard-policy"]}
+{"id": "every_helper-00785", "kind": "every_helper", "args": ["engine", "config", "set", "guard-policy", "standard"]}
+{"id": "every_helper-00786", "kind": "every_helper", "args": ["engine", "config", "set", "guard-policy", "off", "--depth", "standard"]}
+{"id": "every_helper-00787", "kind": "every_helper", "args": ["engine", "config", "set", "change-control"]}
+{"id": "every_helper-00788", "kind": "every_helper", "args": ["engine", "config", "set", "change-control", "standard"]}
+{"id": "every_helper-00789", "kind": "every_helper", "args": ["engine", "config", "set", "change-control", "off", "--depth", "standard"]}
+{"id": "every_helper-00790", "kind": "every_helper", "args": ["engine", "config", "set", "sensors"]}
+{"id": "every_helper-00791", "kind": "every_helper", "args": ["engine", "config", "set", "sensors", "standard"]}
+{"id": "every_helper-00792", "kind": "every_helper", "args": ["engine", "config", "set", "sensors", "off", "--depth", "standard"]}
+{"id": "every_helper-00793", "kind": "every_helper", "args": ["engine", "config", "set", "learnings"]}
+{"id": "every_helper-00794", "kind": "every_helper", "args": ["engine", "config", "set", "learnings", "standard"]}
+{"id": "every_helper-00795", "kind": "every_helper", "args": ["engine", "config", "set", "learnings", "off", "--depth", "standard"]}
+{"id": "every_helper-00796", "kind": "every_helper", "args": ["engine", "config", "set", "collaborators"]}
+{"id": "every_helper-00797", "kind": "every_helper", "args": ["engine", "config", "set", "collaborators", ""]}
+{"id": "every_helper-00798", "kind": "every_helper", "args": ["engine", "config", "set", "collaborators", "off", "--depth", "standard"]}
+{"id": "every_helper-00799", "kind": "every_helper", "args": ["engine", "config", "set", "summary-confirmation"]}
+{"id": "every_helper-00800", "kind": "every_helper", "args": ["engine", "config", "set", "summary-confirmation", "off"]}
+{"id": "every_helper-00801", "kind": "every_helper", "args": ["engine", "config", "set", "summary-confirmation", "off", "--depth", "standard"]}
+{"id": "every_helper-00802", "kind": "every_helper", "args": ["engine", "config", "set", "plan-approval"]}
+{"id": "every_helper-00803", "kind": "every_helper", "args": ["engine", "config", "set", "plan-approval", "off"]}
+{"id": "every_helper-00804", "kind": "every_helper", "args": ["engine", "config", "set", "plan-approval", "off", "--depth", "standard"]}
+{"id": "every_helper-00805", "kind": "every_helper", "args": ["engine", "config", "set", "guard.plan-approval"]}
+{"id": "every_helper-00806", "kind": "every_helper", "args": ["engine", "config", "set", "guard.plan-approval", "off"]}
+{"id": "every_helper-00807", "kind": "every_helper", "args": ["engine", "config", "set", "guard.plan-approval", "off", "--depth", "standard"]}
+{"id": "every_helper-00808", "kind": "every_helper", "args": ["engine", "config", "set", "guard.review-freeze"]}
+{"id": "every_helper-00809", "kind": "every_helper", "args": ["engine", "config", "set", "guard.review-freeze", "standard"]}
+{"id": "every_helper-00810", "kind": "every_helper", "args": ["engine", "config", "set", "guard.review-freeze", "off", "--depth", "standard"]}
+{"id": "every_helper-00811", "kind": "every_helper", "args": ["engine", "config", "set", "guard.state-transition"]}
+{"id": "every_helper-00812", "kind": "every_helper", "args": ["engine", "config", "set", "guard.state-transition", "on"]}
+{"id": "every_helper-00813", "kind": "every_helper", "args": ["engine", "config", "set", "guard.state-transition", "off", "--depth", "standard"]}
+{"id": "every_helper-00814", "kind": "every_helper", "args": ["engine", "config", "set", "guard.reviewer-scope"]}
+{"id": "every_helper-00815", "kind": "every_helper", "args": ["engine", "config", "set", "guard.reviewer-scope", "standard"]}
+{"id": "every_helper-00816", "kind": "every_helper", "args": ["engine", "config", "set", "guard.reviewer-scope", "off", "--depth", "standard"]}
+{"id": "every_helper-00817", "kind": "every_helper", "args": ["engine", "config", "set", "guard.human-presence"]}
+{"id": "every_helper-00818", "kind": "every_helper", "args": ["engine", "config", "set", "guard.human-presence", "off"]}
+{"id": "every_helper-00819", "kind": "every_helper", "args": ["engine", "config", "set", "guard.human-presence", "off", "--depth", "standard"]}
+{"id": "every_helper-00820", "kind": "every_helper", "args": ["engine", "config", "set", "nope"]}
+{"id": "every_helper-00821", "kind": "every_helper", "args": ["engine", "config", "set", "nope", "on"]}
+{"id": "every_helper-00822", "kind": "every_helper", "args": ["engine", "config", "set", "nope", "off", "--depth", "standard"]}
+{"id": "every_helper-00823", "kind": "every_helper", "args": ["engine", "config", "set", ""]}
+{"id": "every_helper-00824", "kind": "every_helper", "args": ["engine", "config", "set", "", "on"]}
+{"id": "every_helper-00825", "kind": "every_helper", "args": ["engine", "config", "set", "", "off", "--depth", "standard"]}
+{"id": "every_helper-00826", "kind": "every_helper", "args": ["engine", "config", "get", "depth"]}
+{"id": "every_helper-00827", "kind": "every_helper", "args": ["engine", "config", "list", "depth"]}
+{"id": "every_helper-00828", "kind": "every_helper", "args": ["engine", "config", "help", "depth"]}
+{"id": "every_helper-00829", "kind": "every_helper", "args": ["engine", "config", "--help", "depth"]}
+{"id": "every_helper-00830", "kind": "every_helper", "args": ["engine", "config", "-h", "depth"]}
+{"id": "every_helper-00831", "kind": "every_helper", "args": ["engine", "config", "nope", "depth"]}
+{"id": "every_helper-00832", "kind": "every_helper", "args": ["engine", "plugin", "select"]}
+{"id": "every_helper-00833", "kind": "every_helper", "args": ["engine", "plugin", "select", "a"]}
+{"id": "every_helper-00834", "kind": "every_helper", "args": ["engine", "plugin", "sync"]}
+{"id": "every_helper-00835", "kind": "every_helper", "args": ["engine", "plugin", "sync", "a"]}
+{"id": "every_helper-00836", "kind": "every_helper", "args": ["engine", "plugin", "list"]}
+{"id": "every_helper-00837", "kind": "every_helper", "args": ["engine", "plugin", "list", "a"]}
+{"id": "every_helper-00838", "kind": "every_helper", "args": ["engine", "plugin", "validate"]}
+{"id": "every_helper-00839", "kind": "every_helper", "args": ["engine", "plugin", "validate", "a"]}
+{"id": "every_helper-00840", "kind": "every_helper", "args": ["engine", "plugin", "build"]}
+{"id": "every_helper-00841", "kind": "every_helper", "args": ["engine", "plugin", "build", "a"]}
+{"id": "every_helper-00842", "kind": "every_helper", "args": ["engine", "plugin", "help"]}
+{"id": "every_helper-00843", "kind": "every_helper", "args": ["engine", "plugin", "help", "a"]}
+{"id": "every_helper-00844", "kind": "every_helper", "args": ["engine", "plugin", "-h"]}
+{"id": "every_helper-00845", "kind": "every_helper", "args": ["engine", "plugin", "-h", "a"]}
+{"id": "every_helper-00846", "kind": "every_helper", "args": ["engine", "plugin", "--help"]}
+{"id": "every_helper-00847", "kind": "every_helper", "args": ["engine", "plugin", "--help", "a"]}
+{"id": "every_helper-00848", "kind": "every_helper", "args": ["engine", "plugin", "nope"]}
+{"id": "every_helper-00849", "kind": "every_helper", "args": ["engine", "plugin", "nope", "a"]}
+{"id": "every_helper-00850", "kind": "every_helper", "args": ["engine", "gen", "runners"]}
+{"id": "every_helper-00851", "kind": "every_helper", "args": ["engine", "gen", "runners", "--check"]}
+{"id": "every_helper-00852", "kind": "every_helper", "args": ["engine", "gen", "runners", "--check", "x"]}
+{"id": "every_helper-00853", "kind": "every_helper", "args": ["engine", "gen", "runners", "x"]}
+{"id": "every_helper-00854", "kind": "every_helper", "args": ["engine", "gen", "runner-list"]}
+{"id": "every_helper-00855", "kind": "every_helper", "args": ["engine", "gen", "runner-scopes", "a"]}
+{"id": "every_helper-00856", "kind": "every_helper", "args": ["engine", "gen", "stage-table"]}
+{"id": "every_helper-00857", "kind": "every_helper", "args": ["engine", "gen", "scope-table", "--json"]}
+{"id": "every_helper-00858", "kind": "every_helper", "args": ["engine", "gen", "nope"]}
+{"id": "every_helper-00859", "kind": "every_helper", "args": ["engine", "gen"]}
+{"id": "every_helper-00860", "kind": "every_helper", "args": ["engine", "space", "list", "--all"]}
+{"id": "every_helper-00861", "kind": "every_helper", "args": ["engine", "intent", "list", "--all"]}
+{"id": "every_helper-00862", "kind": "every_helper", "args": ["engine", "space", "list", "--all", "x"]}
+{"id": "every_helper-00863", "kind": "every_helper", "args": ["engine", "intent", "list", "x", "--all"]}
+{"id": "every_helper-00864", "kind": "every_helper", "args": ["engine", "graph", "topo", "--project-dir", ""]}
+{"id": "every_helper-00865", "kind": "every_helper", "args": ["engine", "graph", "topo", "--project-dir", "", "x"]}
+{"id": "every_helper-00866", "kind": "every_helper", "args": ["engine", "log", "answer", "--", "a", "--project-dir", "/oracle/y"]}
+{"id": "every_helper-00867", "kind": "every_helper", "args": ["engine", "log", "answer", "--", "--project-dir"]}
+{"id": "every_helper-00868", "kind": "every_helper", "args": ["engine", "log", "answer", "--", "--project-dir=/oracle/y", "--json"]}
+{"id": "every_helper-00869", "kind": "every_helper", "args": ["engine", "utility", "--project-dir", "/oracle/other", "status"]}
+{"id": "every_helper-00870", "kind": "every_helper", "args": ["engine", "utility", "--project-dir", "/oracle/other", "config-change"]}
+{"id": "every_helper-00871", "kind": "every_helper", "args": ["engine", "utility", "status", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-00872", "kind": "every_helper", "args": ["engine", "doctor", "--project-dir", "/oracle/other", "doctor"]}
+{"id": "every_helper-00873", "kind": "every_helper", "args": ["engine", "attest", "--project-dir", "/oracle/other", "resolve", "x"]}
+{"id": "every_helper-00874", "kind": "every_helper", "args": ["engine", "state", "practices-event", "--unit", "auth", "--quiet", "--yes", "--", "--json"]}
+{"id": "every_helper-00875", "kind": "every_helper", "args": ["engine", "sensor-linter", "<args>", "--help"]}
+{"id": "every_helper-00876", "kind": "every_helper", "args": ["engine", "sensor", "describe", "--stage", "code-generation", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-00877", "kind": "every_helper", "args": ["engine", "audit", "--intent", "a", "--json", "--unit", "auth", "--quiet"]}
+{"id": "every_helper-00878", "kind": "every_helper", "args": ["engine", "space", "set-construction-verification-command", "x"]}
+{"id": "every_helper-00879", "kind": "every_helper", "args": ["engine", "state"]}
+{"id": "every_helper-00880", "kind": "every_helper", "args": ["engine", "gen", "runner-scopes", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-00881", "kind": "every_helper", "args": ["engine", "park", "depth", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-00882", "kind": "every_helper", "args": ["engine", "hook", "answer", "--intent", "--quiet", "a"]}
+{"id": "every_helper-00883", "kind": "every_helper", "args": ["engine", "testing-posture", "reply", "", "x"]}
+{"id": "every_helper-00884", "kind": "every_helper", "args": ["engine", "machine-config", "global"]}
+{"id": "every_helper-00885", "kind": "every_helper", "args": ["engine", "__sensor-script-file", "export", "--no-color", "--offline", "a", "--", "b"]}
+{"id": "every_helper-00886", "kind": "every_helper", "args": ["engine", "config", "review", "--yes"]}
+{"id": "every_helper-00887", "kind": "every_helper", "args": ["engine", "sensor", "describe"]}
+{"id": "every_helper-00888", "kind": "every_helper", "args": ["engine", "--scope", "init"]}
+{"id": "every_helper-00889", "kind": "every_helper", "args": ["engine", "review-brief", "report", "--json", "--stage", "code-generation", "--yes", "--", "--json"]}
+{"id": "every_helper-00890", "kind": "every_helper", "args": ["engine", "validate", "outputs", "--project-dir", "--quiet", "/oracle/other", "x"]}
+{"id": "every_helper-00891", "kind": "every_helper", "args": ["engine", "nope", "onboard"]}
+{"id": "every_helper-00892", "kind": "every_helper", "args": ["engine", "recompose", "switch", "--no-color", "--offline"]}
+{"id": "every_helper-00893", "kind": "every_helper", "args": ["engine", "next", "archive"]}
+{"id": "every_helper-00894", "kind": "every_helper", "args": ["engine", "nope", "change-control", "--project-dir", "--json"]}
+{"id": "every_helper-00895", "kind": "every_helper", "args": ["engine", "sensor-claim-sources", "<args>", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-00896", "kind": "every_helper", "args": ["engine", "swarm", "check"]}
+{"id": "every_helper-00897", "kind": "every_helper", "args": ["engine", "swarm", "prepare", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-00898", "kind": "every_helper", "args": ["engine", "gen", "select"]}
+{"id": "every_helper-00899", "kind": "every_helper", "args": ["engine", "plugin", "build"]}
+{"id": "every_helper-00900", "kind": "every_helper", "args": ["engine", "doctor", "doctor"]}
+{"id": "every_helper-00901", "kind": "every_helper", "args": ["engine", "audit", "append", "--intent", "a"]}
+{"id": "every_helper-00902", "kind": "every_helper", "args": ["engine", "sensor-traceability", "review", "--project-dir", "--json"]}
+{"id": "every_helper-00903", "kind": "every_helper", "args": ["engine", "state", "set-unit-ownership", "--unit", "auth", "--quiet", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-00904", "kind": "every_helper", "args": ["engine", "audit", "--intent", "a"]}
+{"id": "every_helper-00905", "kind": "every_helper", "args": ["engine", "adapter", "--help", "--no-color", "--offline"]}
+{"id": "every_helper-00906", "kind": "every_helper", "args": ["engine", "--quiet", "doctor", "render", "", "x"]}
+{"id": "every_helper-00907", "kind": "every_helper", "args": ["engine", "intent", "create"]}
+{"id": "every_helper-00908", "kind": "every_helper", "args": ["engine", "plugin", "sync", "--no-color", "--offline"]}
+{"id": "every_helper-00909", "kind": "every_helper", "args": ["--json", "engine", "intent", "--no-color", "--offline", "--yes", "--", "--json"]}
+{"id": "every_helper-00910", "kind": "every_helper", "args": ["engine", "__sensor-script", "remove-repo"]}
+{"id": "every_helper-00911", "kind": "every_helper", "args": ["engine", "help", "fire", "--space=b"]}
+{"id": "every_helper-00912", "kind": "every_helper", "args": ["engine", "statusline", "show", "x", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-00913", "kind": "every_helper", "args": ["engine", "top", "adapter", "", "x"]}
+{"id": "every_helper-00914", "kind": "every_helper", "args": ["engine", "sensor-type-check", "plan-approval", "", "x"]}
+{"id": "every_helper-00915", "kind": "every_helper", "args": ["engine", "learnings", "surface", "--quiet", "--intent", "a", "--project-dir"]}
+{"id": "every_helper-00916", "kind": "every_helper", "args": ["engine", "park", "swarm-checkpoint", "--project-dir", "--project-dir", "/a", "--project-dir", "/b", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-00917", "kind": "every_helper", "args": ["engine", "nope", "validate-scope"]}
+{"id": "every_helper-00918", "kind": "every_helper", "args": ["engine", "jump", "resolve"]}
+{"id": "every_helper-00919", "kind": "every_helper", "args": ["engine", "log", "--yes", "sensors"]}
+{"id": "every_helper-00920", "kind": "every_helper", "args": ["engine", "learnings", "surface"]}
+{"id": "every_helper-00921", "kind": "every_helper", "args": ["engine", "scope", "detect", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-00922", "kind": "every_helper", "args": ["engine", "intent", "add-repo", "--project-dir"]}
+{"id": "every_helper-00923", "kind": "every_helper", "args": ["engine", "help", "set-construction-verification-command", "--project-dir"]}
+{"id": "every_helper-00924", "kind": "every_helper", "args": ["engine", "audit", "history"]}
+{"id": "every_helper-00925", "kind": "every_helper", "args": ["engine", "swarm", "prepare"]}
+{"id": "every_helper-00926", "kind": "every_helper", "args": ["engine", "runtime", "read", "--project-dir", "/oracle/other", "x", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-00927", "kind": "every_helper", "args": ["engine", "sensor-claim-sources", "runner-list", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-00928", "kind": "every_helper", "args": ["engine", "graph", "export", "--json"]}
+{"id": "every_helper-00929", "kind": "every_helper", "args": ["engine", "jump", "reopen", "--project-dir=/oracle/x", "--json"]}
+{"id": "every_helper-00930", "kind": "every_helper", "args": ["engine", "log", "--verbose", "a b"]}
+{"id": "every_helper-00931", "kind": "every_helper", "args": ["engine", "scope", "change", "--", "literal", "--project-dir", "y", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-00932", "kind": "every_helper", "args": ["engine", "sensor-type-check", "next", "--space=b", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-00933", "kind": "every_helper", "args": ["engine", "--help", "detect"]}
+{"id": "every_helper-00934", "kind": "every_helper", "args": ["engine", "gen", "runner-list"]}
+{"id": "every_helper-00935", "kind": "every_helper", "args": ["engine", "sensor-type-check", "summarize", "--project-dir"]}
+{"id": "every_helper-00936", "kind": "every_helper", "args": ["engine", "sensor-claim-sources", "acknowledge-compaction", "--project-dir", "--json", "--help"]}
+{"id": "every_helper-00937", "kind": "every_helper", "args": ["engine", "state", "practices-event", "--unit", "auth", "--quiet", "--intent", "a"]}
+{"id": "every_helper-00938", "kind": "every_helper", "args": ["engine", "config", "guard.reviewer-scope"]}
+{"id": "every_helper-00939", "kind": "every_helper", "args": ["engine", "recompose", "sync", "--json"]}
+{"id": "every_helper-00940", "kind": "every_helper", "args": ["engine", "worktree", "verify"]}
+{"id": "every_helper-00941", "kind": "every_helper", "args": ["engine", "status", "cycles"]}
+{"id": "every_helper-00942", "kind": "every_helper", "args": ["engine", "statusline", "stage-table", "--project-dir", "/oracle/other", "x", "--help"]}
+{"id": "every_helper-00943", "kind": "every_helper", "args": ["engine", "--doctor", "purge"]}
+{"id": "every_helper-00944", "kind": "every_helper", "args": ["engine", "audit", "append", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-00945", "kind": "every_helper", "args": ["engine", "testing-posture", "resolve"]}
+{"id": "every_helper-00946", "kind": "every_helper", "args": ["engine", "testing-posture", "brief"]}
+{"id": "every_helper-00947", "kind": "every_helper", "args": ["engine", "__sensor-script-file", "--quiet", "--project-dir", "--json", "--space=b"]}
+{"id": "every_helper-00948", "kind": "every_helper", "args": ["engine", "--release", "now"]}
+{"id": "every_helper-00949", "kind": "every_helper", "args": ["engine", "recompose", "continue", "--no-color", "--offline", "--project-dir=/oracle/x"]}
+{"id": "every_helper-00950", "kind": "every_helper", "args": ["engine", "knowledge", "onboard", "--project-dir=/oracle/x", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-00951", "kind": "every_helper", "args": ["engine", "state", "practices-promote", "--project-dir=/oracle/x", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-00952", "kind": "every_helper", "args": ["engine", "worktree", "info", "--intent", "a"]}
+{"id": "every_helper-00953", "kind": "every_helper", "args": ["engine", "swarm", "learnings", "--yes", "--", "--json", "--project-dir"]}
+{"id": "every_helper-00954", "kind": "every_helper", "args": ["engine", "--help", "set-autonomy", "", "x", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-00955", "kind": "every_helper", "args": ["engine", "runtime", "fire"]}
+{"id": "every_helper-00956", "kind": "every_helper", "args": ["engine", "learnings", "--yes", "brief", "--project-dir=/oracle/x", "--json"]}
+{"id": "every_helper-00957", "kind": "every_helper", "args": ["engine", "", "learnings"]}
+{"id": "every_helper-00958", "kind": "every_helper", "args": ["engine", "sensor-claim-sources", "decision", "--stage", "code-generation"]}
+{"id": "every_helper-00959", "kind": "every_helper", "args": ["engine", "jump", "execute", "--space=b"]}
+{"id": "every_helper-00960", "kind": "every_helper", "args": ["engine", "runtime", "read", "--verbose", "a b"]}
+{"id": "every_helper-00961", "kind": "every_helper", "args": ["engine", "orchestrate", "continue"]}
+{"id": "every_helper-00962", "kind": "every_helper", "args": ["engine", "sensor", "describe", "--json", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-00963", "kind": "every_helper", "args": ["engine", "review-brief"]}
+{"id": "every_helper-00964", "kind": "every_helper", "args": ["engine", "sensor-claim-sources", "--yes", "<args>"]}
+{"id": "every_helper-00965", "kind": "every_helper", "args": ["engine", "knowledge", "associate", "--project-dir", "/oracle/other", "x", "x"]}
+{"id": "every_helper-00966", "kind": "every_helper", "args": ["engine", "doctor", "doctor", "--space=b", "--project-dir=/oracle/x"]}
+{"id": "every_helper-00967", "kind": "every_helper", "args": ["engine", "config", "list", "--verbose", "a b", "x"]}
+{"id": "every_helper-00968", "kind": "every_helper", "args": ["engine", "top", "adapter"]}
+{"id": "every_helper-00969", "kind": "every_helper", "args": ["engine", "space", "create", "--json", "--no-color", "--offline"]}
+{"id": "every_helper-00970", "kind": "every_helper", "args": ["engine", "plugin", "list", "--space=b"]}
+{"id": "every_helper-00971", "kind": "every_helper", "args": ["engine", "park", "fingerprint", "--project-dir", "/oracle/other", "x", "--project-dir=/oracle/x"]}
+{"id": "every_helper-00972", "kind": "every_helper", "args": ["engine", "adapter", "begin", "--help"]}
+{"id": "every_helper-00973", "kind": "every_helper", "args": ["--yes", "engine", "park", "recompose"]}
+{"id": "every_helper-00974", "kind": "every_helper", "args": ["engine", "config", "get"]}
+{"id": "every_helper-00975", "kind": "every_helper", "args": ["engine", "status", "verify"]}
+{"id": "every_helper-00976", "kind": "every_helper", "args": ["engine", "doctor", "doctor"]}
+{"id": "every_helper-00977", "kind": "every_helper", "args": ["engine", "version", "restore"]}
+{"id": "every_helper-00978", "kind": "every_helper", "args": ["engine", "plugin", "list", "--space=b"]}
+{"id": "every_helper-00979", "kind": "every_helper", "args": ["engine", "__sensor-script", "export"]}
+{"id": "every_helper-00980", "kind": "every_helper", "args": ["engine", "runtime", "compile", "--yes", "--", "--json"]}
+{"id": "every_helper-00981", "kind": "every_helper", "args": ["engine", "validate", "outputs"]}
+{"id": "every_helper-00982", "kind": "every_helper", "args": ["engine", "runtime", "summary", "x"]}
+{"id": "every_helper-00983", "kind": "every_helper", "args": ["engine", "--version", "practices-event", "--json", "--yes", "--", "--json"]}
+{"id": "every_helper-00984", "kind": "every_helper", "args": ["engine", "config", "plan-approval", "--stage", "code-generation", "--yes", "", "x"]}
+{"id": "every_helper-00985", "kind": "every_helper", "args": ["engine", "recompose", "set-construction-iteration"]}
+{"id": "every_helper-00986", "kind": "every_helper", "args": ["engine", "--release", "--json", "recompose"]}
+{"id": "every_helper-00987", "kind": "every_helper", "args": ["engine", "space", "scope-table"]}
+{"id": "every_helper-00988", "kind": "every_helper", "args": ["engine", "learnings", "reuse-artifact", "--intent", "a"]}
+{"id": "every_helper-00989", "kind": "every_helper", "args": ["--", "engine", "--status", "checkpoint"]}
+{"id": "every_helper-00990", "kind": "every_helper", "args": ["engine", "bolt", "start", "--stage", "code-generation", "--json"]}
+{"id": "every_helper-00991", "kind": "every_helper", "args": ["engine", "recompose", "runners", "--space=b", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-00992", "kind": "every_helper", "args": ["engine", "bolt", "complete", "--project-dir"]}
+{"id": "every_helper-00993", "kind": "every_helper", "args": ["engine", "learnings", "surface", "--verbose", "a b", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-00994", "kind": "every_helper", "args": ["engine", "sensor-linter", "<args>"]}
+{"id": "every_helper-00995", "kind": "every_helper", "args": ["engine", "unit", "merge-status", "--help", "--stage", "code-generation"]}
+{"id": "every_helper-00996", "kind": "every_helper", "args": ["engine", "--help", "link"]}
+{"id": "every_helper-00997", "kind": "every_helper", "args": ["engine", "jump", "sync-unit-scope-stage"]}
+{"id": "every_helper-00998", "kind": "every_helper", "args": ["engine", "runtime", "fragment-fork"]}
+{"id": "every_helper-00999", "kind": "every_helper", "args": ["engine", "version", "<args>", "--stage", "code-generation"]}
+{"id": "every_helper-01000", "kind": "every_helper", "args": ["engine", "runtime", "revise", "--unit", "auth", "--quiet"]}
+{"id": "every_helper-01001", "kind": "every_helper", "args": ["engine", "audit", "append-batch", "--project-dir", "/oracle/other", "x", "--intent", "a"]}
+{"id": "every_helper-01002", "kind": "every_helper", "args": ["engine", "sensor", "list"]}
+{"id": "every_helper-01003", "kind": "every_helper", "args": ["engine", "attest", "resolve", "--unit", "auth", "--quiet"]}
+{"id": "every_helper-01004", "kind": "every_helper", "args": ["engine", "sensor", "show"]}
+{"id": "every_helper-01005", "kind": "every_helper", "args": ["engine", "sensor", "checkbox", "--project-dir", "/a", "--project-dir", "/b", "--project-dir"]}
+{"id": "every_helper-01006", "kind": "every_helper", "args": ["engine", "hook", "<name>", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-01007", "kind": "every_helper", "args": ["engine", "knowledge", "list", "--yes", "--json", "--project-dir=/oracle/x"]}
+{"id": "every_helper-01008", "kind": "every_helper", "args": ["engine", "validate", "outputs", "--quiet", "--project-dir", "--json"]}
+{"id": "every_helper-01009", "kind": "every_helper", "args": ["engine", "--resume", "guard.reviewer-scope", "--space=b", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-01010", "kind": "every_helper", "args": ["engine", "hook", "<name>", "--unit", "auth", "--quiet"]}
+{"id": "every_helper-01011", "kind": "every_helper", "args": ["engine", "runtime", "summary"]}
+{"id": "every_helper-01012", "kind": "every_helper", "args": ["engine", "scope", "detect"]}
+{"id": "every_helper-01013", "kind": "every_helper", "args": ["engine", "config", "summary-confirmation"]}
+{"id": "every_helper-01014", "kind": "every_helper", "args": ["--", "engine", "nope", "codekb-publish"]}
+{"id": "every_helper-01015", "kind": "every_helper", "args": ["engine", "worktree", "info"]}
+{"id": "every_helper-01016", "kind": "every_helper", "args": ["engine", "--claim", "codekb", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-01017", "kind": "every_helper", "args": ["engine", "scope", "resolve-env", "--project-dir", "/oracle/other", "a", "--", "b", "--"]}
+{"id": "every_helper-01018", "kind": "every_helper", "args": ["engine", "--release", "answer", "--intent", "a"]}
+{"id": "every_helper-01019", "kind": "every_helper", "args": ["engine", "machine-config", "scope", "--quiet"]}
+{"id": "every_helper-01020", "kind": "every_helper", "args": ["engine", "hook", "<name>", "--project-dir", "--json", "--help"]}
+{"id": "every_helper-01021", "kind": "every_helper", "args": ["engine", "learnings", "surface", "--unit", "auth", "--quiet"]}
+{"id": "every_helper-01022", "kind": "every_helper", "args": ["engine", "sensor-traceability", "<args>", "--project-dir", "--space=b"]}
+{"id": "every_helper-01023", "kind": "every_helper", "args": ["engine", "hook", "<name>"]}
+{"id": "every_helper-01024", "kind": "every_helper", "args": ["engine", "review-brief", "context", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-01025", "kind": "every_helper", "args": ["engine", "worktree", "create"]}
+{"id": "every_helper-01026", "kind": "every_helper", "args": ["--quiet", "engine", "sensor", "describe", "--", "literal", "--project-dir", "y", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-01027", "kind": "every_helper", "args": ["engine", "knowledge", "onboard"]}
+{"id": "every_helper-01028", "kind": "every_helper", "args": ["engine", "--version", "fire", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-01029", "kind": "every_helper", "args": ["engine", "doctor", "unpark", "--intent", "a", "--space=b"]}
+{"id": "every_helper-01030", "kind": "every_helper", "args": ["engine", "jump", "execute", "--unit", "auth", "--quiet"]}
+{"id": "every_helper-01031", "kind": "every_helper", "args": ["engine", "utility", "status"]}
+{"id": "every_helper-01032", "kind": "every_helper", "args": ["engine", "top", "--verbose", "a b", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-01033", "kind": "every_helper", "args": ["engine", "--status", "start", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-01034", "kind": "every_helper", "args": ["engine", "sensor", "describe", "--project-dir"]}
+{"id": "every_helper-01035", "kind": "every_helper", "args": ["engine", "worktree", "resolve", "--unit", "auth", "--quiet"]}
+{"id": "every_helper-01036", "kind": "every_helper", "args": ["engine", "knowledge", "--json"]}
+{"id": "every_helper-01037", "kind": "every_helper", "args": ["engine", "testing-posture", "render", "--project-dir", "/oracle/other", "x", "--project-dir=/oracle/x"]}
+{"id": "every_helper-01038", "kind": "every_helper", "args": ["engine", "sensor-required-sections"]}
+{"id": "every_helper-01039", "kind": "every_helper", "args": ["engine", "sensor-type-check", "lookup", "x"]}
+{"id": "every_helper-01040", "kind": "every_helper", "args": ["engine", "log", "answer"]}
+{"id": "every_helper-01041", "kind": "every_helper", "args": ["engine", "jump", "execute"]}
+{"id": "every_helper-01042", "kind": "every_helper", "args": ["engine", "log", "answers", "--unit", "auth", "--quiet", "--help"]}
+{"id": "every_helper-01043", "kind": "every_helper", "args": ["engine", "worktree", "verify"]}
+{"id": "every_helper-01044", "kind": "every_helper", "args": ["engine", "jump", "resolve", "x"]}
+{"id": "every_helper-01045", "kind": "every_helper", "args": ["engine", "__sensor-script", "statusline", "--no-color", "--offline"]}
+{"id": "every_helper-01046", "kind": "every_helper", "args": ["engine", "-h", "render"]}
+{"id": "every_helper-01047", "kind": "every_helper", "args": ["engine", "help", "codekb-publish"]}
+{"id": "every_helper-01048", "kind": "every_helper", "args": ["--", "engine", "review-brief", "review"]}
+{"id": "every_helper-01049", "kind": "every_helper", "args": ["engine", "testing-posture", "verify", "--project-dir=/oracle/x"]}
+{"id": "every_helper-01050", "kind": "every_helper", "args": ["engine", "config", "depth"]}
+{"id": "every_helper-01051", "kind": "every_helper", "args": ["engine", "audit", "append-raw"]}
+{"id": "every_helper-01052", "kind": "every_helper", "args": ["engine", "__sensor-script-file", "review", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-01053", "kind": "every_helper", "args": ["engine", "--resume", "park", "--project-dir=/oracle/x"]}
+{"id": "every_helper-01054", "kind": "every_helper", "args": ["engine", "worktree", "list"]}
+{"id": "every_helper-01055", "kind": "every_helper", "args": ["engine", "knowledge", "sync"]}
+{"id": "every_helper-01056", "kind": "every_helper", "args": ["engine", "unit", "status", "--project-dir", "--verbose", "a b"]}
+{"id": "every_helper-01057", "kind": "every_helper", "args": ["engine", "--status", "render"]}
+{"id": "every_helper-01058", "kind": "every_helper", "args": ["engine", "knowledge", "list", "--project-dir", "--json", "", "x"]}
+{"id": "every_helper-01059", "kind": "every_helper", "args": ["engine", "bolt", "dispatch-event", "--help", "--quiet"]}
+{"id": "every_helper-01060", "kind": "every_helper", "args": ["engine", "--scope", "abort", "--project-dir", "/a", "--project-dir", "/b", "--yes", "--", "--json"]}
+{"id": "every_helper-01061", "kind": "every_helper", "args": ["engine", "sensor-traceability", "scope"]}
+{"id": "every_helper-01062", "kind": "every_helper", "args": ["engine", "hook", "--quiet", "<name>", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-01063", "kind": "every_helper", "args": ["engine", "nope", "save", "--project-dir", "--json", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-01064", "kind": "every_helper", "args": ["engine", "attest", "record", "--intent", "a"]}
+{"id": "every_helper-01065", "kind": "every_helper", "args": ["engine", "state", "unpark"]}
+{"id": "every_helper-01066", "kind": "every_helper", "args": ["engine", "next", "remove-repo", "--quiet", "--unit", "auth", "--quiet"]}
+{"id": "every_helper-01067", "kind": "every_helper", "args": ["engine", "sensor-traceability", "summarize", "x"]}
+{"id": "every_helper-01068", "kind": "every_helper", "args": ["engine", "doctor", "project-description", "--intent", "a", "--project-dir=/oracle/x"]}
+{"id": "every_helper-01069", "kind": "every_helper", "args": ["engine", "sensor-upstream-coverage", "<args>", "--project-dir", "/oracle/other", "x", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-01070", "kind": "every_helper", "args": ["engine", "testing-posture", "--no-color", "--offline"]}
+{"id": "every_helper-01071", "kind": "every_helper", "args": ["engine", "sensor", "fire", "--project-dir", "--no-color", "--offline"]}
+{"id": "every_helper-01072", "kind": "every_helper", "args": ["engine", "learnings", "surface", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-01073", "kind": "every_helper", "args": ["engine", "testing-posture", "reply", "--project-dir", "/a", "--project-dir", "/b", "--project-dir", "--json"]}
+{"id": "every_helper-01074", "kind": "every_helper", "args": ["engine", "recompose", "dissociate", "--yes", "--", "--json"]}
+{"id": "every_helper-01075", "kind": "every_helper", "args": ["engine", "help", "init", "--project-dir", "--json"]}
+{"id": "every_helper-01076", "kind": "every_helper", "args": ["engine", "statusline", "append", "--intent", "a"]}
+{"id": "every_helper-01077", "kind": "every_helper", "args": ["engine", "runtime"]}
+{"id": "every_helper-01078", "kind": "every_helper", "args": ["engine", "--claim", "test-strategy"]}
+{"id": "every_helper-01079", "kind": "every_helper", "args": ["engine", "state", "lookup", "--project-dir", "/a", "--project-dir", "/b", "--project-dir", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-01080", "kind": "every_helper", "args": ["engine", "worktree", "merge", "--project-dir", "/oracle/other", "a", "--", "b"]}
+{"id": "every_helper-01081", "kind": "every_helper", "args": ["engine", "--", "adapter"]}
+{"id": "every_helper-01082", "kind": "every_helper", "args": ["engine", "worktree", "restore", "--intent", "a"]}
+{"id": "every_helper-01083", "kind": "every_helper", "args": ["engine", "__sensor-script", "set"]}
+{"id": "every_helper-01084", "kind": "every_helper", "args": ["engine", "learnings", "surface", "--stage", "code-generation"]}
+{"id": "every_helper-01085", "kind": "every_helper", "args": ["engine", "intent", "create", "--project-dir", "--json"]}
+{"id": "every_helper-01086", "kind": "every_helper", "args": ["engine", "statusline", "summary", "--stage", "code-generation"]}
+{"id": "every_helper-01087", "kind": "every_helper", "args": ["--json", "engine", "hook", "gate-start"]}
+{"id": "every_helper-01088", "kind": "every_helper", "args": ["engine", "sensor-linter", "<args>", "--stage", "code-generation", "--intent", "a"]}
+{"id": "every_helper-01089", "kind": "every_helper", "args": ["engine", "doctor", "check"]}
+{"id": "every_helper-01090", "kind": "every_helper", "args": ["engine", "orchestrate", "codekb-snapshot"]}
+{"id": "every_helper-01091", "kind": "every_helper", "args": ["engine", "park", "next", "--help"]}
+{"id": "every_helper-01092", "kind": "every_helper", "args": ["engine", "sensor-traceability", "fragment-merge"]}
+{"id": "every_helper-01093", "kind": "every_helper", "args": ["engine", "help", "status", "--no-color", "--offline"]}
+{"id": "every_helper-01094", "kind": "every_helper", "args": ["engine", "next", "reclassify", "--intent", "a"]}
+{"id": "every_helper-01095", "kind": "every_helper", "args": ["engine", "--release", "<args>", "--project-dir", "--json", "--"]}
+{"id": "every_helper-01096", "kind": "every_helper", "args": ["engine", "learnings", "--yes", "--", "--json", "--intent", "a"]}
+{"id": "every_helper-01097", "kind": "every_helper", "args": ["engine", "testing-posture", "info"]}
+{"id": "every_helper-01098", "kind": "every_helper", "args": ["engine", "--release", "create"]}
+{"id": "every_helper-01099", "kind": "every_helper", "args": ["engine", "__sensor-script", "purge", "x"]}
+{"id": "every_helper-01100", "kind": "every_helper", "args": ["engine", "sensor-traceability", "--", "practices-promote"]}
+{"id": "every_helper-01101", "kind": "every_helper", "args": ["engine", "--help", "context"]}
+{"id": "every_helper-01102", "kind": "every_helper", "args": ["engine", "runtime", "summary", "--project-dir", "--json", "--stage", "code-generation"]}
+{"id": "every_helper-01103", "kind": "every_helper", "args": ["engine", "sensor-type-check", "<args>", "x", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-01104", "kind": "every_helper", "args": ["engine", "sensor", "unarchive", "--no-color", "--offline", "--project-dir"]}
+{"id": "every_helper-01105", "kind": "every_helper", "args": ["engine", "plugin", "build"]}
+{"id": "every_helper-01106", "kind": "every_helper", "args": ["--json", "engine", "sensor-traceability", "checkbox"]}
+{"id": "every_helper-01107", "kind": "every_helper", "args": ["engine", "review-brief", "review"]}
+{"id": "every_helper-01108", "kind": "every_helper", "args": ["engine", "--help", "set-skeleton-stance"]}
+{"id": "every_helper-01109", "kind": "every_helper", "args": ["engine", "park", "x"]}
+{"id": "every_helper-01110", "kind": "every_helper", "args": ["engine", "--release", "--json"]}
+{"id": "every_helper-01111", "kind": "every_helper", "args": ["--quiet", "engine", "log", "--yes", "--", "--json"]}
+{"id": "every_helper-01112", "kind": "every_helper", "args": ["engine", "unit", "status", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-01113", "kind": "every_helper", "args": ["engine", "__sensor-script-file", "switch", "--project-dir", "--project-dir", "--json"]}
+{"id": "every_helper-01114", "kind": "every_helper", "args": ["engine", "intent", "<name>"]}
+{"id": "every_helper-01115", "kind": "every_helper", "args": ["engine", "plugin", "select", "--help"]}
+{"id": "every_helper-01116", "kind": "every_helper", "args": ["engine", "graph", "validate-grid", "--no-color", "--offline", "--yes", "--yes", "--", "--json"]}
+{"id": "every_helper-01117", "kind": "every_helper", "args": ["engine", "--status", "set-autonomy"]}
+{"id": "every_helper-01118", "kind": "every_helper", "args": ["engine", "__sensor-script", "link"]}
+{"id": "every_helper-01119", "kind": "every_helper", "args": ["engine", "--resume", "cycles", "--yes", "--", "--json"]}
+{"id": "every_helper-01120", "kind": "every_helper", "args": ["engine", "--doctor", "--project-dir", "--json"]}
+{"id": "every_helper-01121", "kind": "every_helper", "args": ["engine", "--claim", "abort"]}
+{"id": "every_helper-01122", "kind": "every_helper", "args": ["engine", "swarm", "prepare", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-01123", "kind": "every_helper", "args": ["engine", "review-brief", "summary"]}
+{"id": "every_helper-01124", "kind": "every_helper", "args": ["engine", "statusline", "guard.review-freeze"]}
+{"id": "every_helper-01125", "kind": "every_helper", "args": ["engine", "state", "set-status"]}
+{"id": "every_helper-01126", "kind": "every_helper", "args": ["engine", "knowledge", "--json", "", "x"]}
+{"id": "every_helper-01127", "kind": "every_helper", "args": ["engine", "knowledge", "sync", "--json", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-01128", "kind": "every_helper", "args": ["engine", "--release", "surface"]}
+{"id": "every_helper-01129", "kind": "every_helper", "args": ["engine", "sensor-traceability", "gate-start", "--help", "--unit", "auth", "--quiet"]}
+{"id": "every_helper-01130", "kind": "every_helper", "args": ["engine", "unit", "status", "--help", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-01131", "kind": "every_helper", "args": ["engine", "jump", "execute", "--space=b"]}
+{"id": "every_helper-01132", "kind": "every_helper", "args": ["engine", "bolt", "dispatch-event", "--intent", "a"]}
+{"id": "every_helper-01133", "kind": "every_helper", "args": ["engine", "unit", "status"]}
+{"id": "every_helper-01134", "kind": "every_helper", "args": ["engine", "utility", "--space=b", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-01135", "kind": "every_helper", "args": ["engine", "knowledge", "--space=b"]}
+{"id": "every_helper-01136", "kind": "every_helper", "args": ["engine", "sensor", "list"]}
+{"id": "every_helper-01137", "kind": "every_helper", "args": ["engine", "plugin", "list", "--intent", "a", "a", "--", "b"]}
+{"id": "every_helper-01138", "kind": "every_helper", "args": ["engine", "utility", "status"]}
+{"id": "every_helper-01139", "kind": "every_helper", "args": ["engine", "jump", "--help", "--json"]}
+{"id": "every_helper-01140", "kind": "every_helper", "args": ["engine", "--claim", "resolve", "x"]}
+{"id": "every_helper-01141", "kind": "every_helper", "args": ["engine", "log", "--yes", "--", "--json", "--json"]}
+{"id": "every_helper-01142", "kind": "every_helper", "args": ["engine", "review-brief", "summary", "--space=b"]}
+{"id": "every_helper-01143", "kind": "every_helper", "args": ["engine", "orchestrate", "wait", "--project-dir=/oracle/x"]}
+{"id": "every_helper-01144", "kind": "every_helper", "args": ["engine", "plugin", "select", "--project-dir=/oracle/x"]}
+{"id": "every_helper-01145", "kind": "every_helper", "args": ["engine", "--resume", "set-construction-checkpoints", "--project-dir", "--", "/oracle/other"]}
+{"id": "every_helper-01146", "kind": "every_helper", "args": ["engine", "sensor-type-check", "<args>", "--space=b", "--help"]}
+{"id": "every_helper-01147", "kind": "every_helper", "args": ["engine", "status", "codekb-snapshot", "--project-dir", "/a", "--project-dir", "/b", "--space=b"]}
+{"id": "every_helper-01148", "kind": "every_helper", "args": ["engine", "audit", "--", "merge"]}
+{"id": "every_helper-01149", "kind": "every_helper", "args": ["engine", "validate", "unit", "--yes", "--", "--json"]}
+{"id": "every_helper-01150", "kind": "every_helper", "args": ["engine", "__sensor-script", "summarize", "--stage", "code-generation"]}
+{"id": "every_helper-01151", "kind": "every_helper", "args": ["engine", "--claim", "--no-color", "--offline", "a", "--", "b"]}
+{"id": "every_helper-01152", "kind": "every_helper", "args": ["engine", "next", "reclassify", "a", "--project-dir", "--", "b"]}
+{"id": "every_helper-01153", "kind": "every_helper", "args": ["engine", "park", "start"]}
+{"id": "every_helper-01154", "kind": "every_helper", "args": ["engine", "graph", "artifacts", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-01155", "kind": "every_helper", "args": ["engine", "__sensor-script", "surface", "--project-dir", "--stage", "code-generation"]}
+{"id": "every_helper-01156", "kind": "every_helper", "args": ["engine", "top", "recompose", "--no-color", "--offline"]}
+{"id": "every_helper-01157", "kind": "every_helper", "args": ["engine", "nope", "discard", "--stage", "code-generation"]}
+{"id": "every_helper-01158", "kind": "every_helper", "args": ["engine", "jump", "reopen", "x"]}
+{"id": "every_helper-01159", "kind": "every_helper", "args": ["engine", "help", "park", "--project-dir", "/a", "--project-dir", "/b", "--intent", "a"]}
+{"id": "every_helper-01160", "kind": "every_helper", "args": ["engine", "doctor", "doctor", "--project-dir=/oracle/x", "--stage", "code-generation"]}
+{"id": "every_helper-01161", "kind": "every_helper", "args": ["engine", "sensor-required-sections", "reclassify"]}
+{"id": "every_helper-01162", "kind": "every_helper", "args": ["engine", "recompose", "start", "--no-color", "--offline"]}
+{"id": "every_helper-01163", "kind": "every_helper", "args": ["engine", "machine-config", "global", "x", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-01164", "kind": "every_helper", "args": ["engine", "learnings", "runners", "--json"]}
+{"id": "every_helper-01165", "kind": "every_helper", "args": ["engine", "sensor-upstream-coverage", "team-board", "--project-dir=/oracle/x", "--project-dir"]}
+{"id": "every_helper-01166", "kind": "every_helper", "args": ["engine", "swarm", "prepare"]}
+{"id": "every_helper-01167", "kind": "every_helper", "args": ["engine", "graph", "export"]}
+{"id": "every_helper-01168", "kind": "every_helper", "args": ["engine", "--help", "set"]}
+{"id": "every_helper-01169", "kind": "every_helper", "args": ["engine", "now", "decision"]}
+{"id": "every_helper-01170", "kind": "every_helper", "args": ["engine", "state", "checkbox", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-01171", "kind": "every_helper", "args": ["engine", "--resume", "add-repo"]}
+{"id": "every_helper-01172", "kind": "every_helper", "args": ["engine", "log", "answers"]}
+{"id": "every_helper-01173", "kind": "every_helper", "args": ["engine", "status", "set-construction-iteration", "--unit", "auth", "--quiet", "--json"]}
+{"id": "every_helper-01174", "kind": "every_helper", "args": ["engine", "--release", "fork"]}
+{"id": "every_helper-01175", "kind": "every_helper", "args": ["engine", "orchestrate", "report"]}
+{"id": "every_helper-01176", "kind": "every_helper", "args": ["engine", "gen", "validate", "x", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-01177", "kind": "every_helper", "args": ["engine", "worktree", "verify"]}
+{"id": "every_helper-01178", "kind": "every_helper", "args": ["engine", "-h"]}
+{"id": "every_helper-01179", "kind": "every_helper", "args": ["engine", "--release", "start"]}
+{"id": "every_helper-01180", "kind": "every_helper", "args": ["engine", "space", "create", "--project-dir", "/oracle/other", "x", "--unit", "auth", "--quiet"]}
+{"id": "every_helper-01181", "kind": "every_helper", "args": ["engine", "now", "merge"]}
+{"id": "every_helper-01182", "kind": "every_helper", "args": ["engine", "config", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-01183", "kind": "every_helper", "args": ["engine", "graph", "producers", "--help"]}
+{"id": "every_helper-01184", "kind": "every_helper", "args": ["engine", "worktree", "list", "--intent", "a", "--stage", "code-generation"]}
+{"id": "every_helper-01185", "kind": "every_helper", "args": ["engine", "sensor-required-sections", "<args>"]}
+{"id": "every_helper-01186", "kind": "every_helper", "args": ["engine", "review-brief", "review"]}
+{"id": "every_helper-01187", "kind": "every_helper", "args": ["engine", "status", "topo"]}
+{"id": "every_helper-01188", "kind": "every_helper", "args": ["engine", "runtime", "fragment-fork", "--help"]}
+{"id": "every_helper-01189", "kind": "every_helper", "args": ["engine", "--claim", "runner-list", "--verbose", "a b"]}
+{"id": "every_helper-01190", "kind": "every_helper", "args": ["engine", "validate", "outputs"]}
+{"id": "every_helper-01191", "kind": "every_helper", "args": ["engine", "orchestrate", "wait", "--json", "--project-dir", "--json"]}
+{"id": "every_helper-01192", "kind": "every_helper", "args": ["--", "engine", "config", "guard.state-transition", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-01193", "kind": "every_helper", "args": ["engine", "sensor", "--yes", "--", "--json", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-01194", "kind": "every_helper", "args": ["engine", "runtime", "export", "--verbose", "a b", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-01195", "kind": "every_helper", "args": ["engine", "unit", "status", "--unit", "auth", "--quiet"]}
+{"id": "every_helper-01196", "kind": "every_helper", "args": ["engine", "unit", "test-strategy"]}
+{"id": "every_helper-01197", "kind": "every_helper", "args": ["engine", "workspace", "document-input", "--json", "--project-dir", "--json"]}
+{"id": "every_helper-01198", "kind": "every_helper", "args": ["engine", "sensor-linter", "--", "literal", "--project-dir", "y"]}
+{"id": "every_helper-01199", "kind": "every_helper", "args": ["engine", "adapter", "set-construction-checkpoints", "--", "literal", "--project-dir", "y", "--", "--quiet", "literal", "--project-dir", "y"]}
+{"id": "every_helper-01200", "kind": "every_helper", "args": ["engine", "worktree", "list"]}
+{"id": "every_helper-01201", "kind": "every_helper", "args": ["engine", "unit", "--yes", "set-autonomy"]}
+{"id": "every_helper-01202", "kind": "every_helper", "args": ["engine", "--claim", "archive"]}
+{"id": "every_helper-01203", "kind": "every_helper", "args": ["engine", "sensor-traceability", "<args>"]}
+{"id": "every_helper-01204", "kind": "every_helper", "args": ["engine", "workspace", "detect", "--project-dir=/oracle/x"]}
+{"id": "every_helper-01205", "kind": "every_helper", "args": ["engine", "__sensor-script-file", "fire", "--project-dir=/oracle/x", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-01206", "kind": "every_helper", "args": ["engine", "jump", "resolve", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-01207", "kind": "every_helper", "args": ["engine", "sensor", "--verbose", "a b"]}
+{"id": "every_helper-01208", "kind": "every_helper", "args": ["engine", "validate"]}
+{"id": "every_helper-01209", "kind": "every_helper", "args": ["engine", "sensor-upstream-coverage", "<args>", "--verbose", "a b", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-01210", "kind": "every_helper", "args": ["engine", "status", "init"]}
+{"id": "every_helper-01211", "kind": "every_helper", "args": ["engine", "runtime", "--stage", "code-generation", "--stage", "code-generation"]}
+{"id": "every_helper-01212", "kind": "every_helper", "args": ["engine", "learnings", "surface", "--project-dir", "/a", "--project-dir", "/b", "--project-dir", "/a", "--project-dir", "/b"]}
+{"id": "every_helper-01213", "kind": "every_helper", "args": ["engine", "knowledge", "sync", "--space=b"]}
+{"id": "every_helper-01214", "kind": "every_helper", "args": ["engine", "top", "recompose"]}
+{"id": "every_helper-01215", "kind": "every_helper", "args": ["engine", "help", "stage-table", "--space=b", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-01216", "kind": "every_helper", "args": ["engine", "--claim", "create", "--project-dir", "/oracle/other", "x"]}
+{"id": "every_helper-01217", "kind": "every_helper", "args": ["engine", "--resume", "decision", "a", "--", "b"]}
+{"id": "every_helper-01218", "kind": "every_helper", "args": ["engine", "--version", "--json", "dispatch-event"]}
+{"id": "every_helper-01219", "kind": "every_helper", "args": ["engine", "top", "status", "--stage", "code-generation", "a", "--", "b"]}
+{"id": "every_helper-01220", "kind": "every_helper", "args": ["engine", "top", "statusline"]}
+{"id": "every_helper-01221", "kind": "every_helper", "args": ["engine", "validate", "discard", "--json"]}
+{"id": "every_helper-01222", "kind": "every_helper", "args": ["engine", "space", "resume"]}
+{"id": "every_helper-01223", "kind": "every_helper", "args": ["engine", "attest", "--json"]}
+{"id": "every_helper-01224", "kind": "every_helper", "args": ["engine", "unit", "artifacts", "--stage", "--quiet", "code-generation", "--project-dir", "/oracle/other"]}
+{"id": "every_helper-01225", "kind": "every_helper", "args": ["engine", "unit", "merge-status", "--json"]}
+{"id": "every_helper-01226", "kind": "every_helper", "args": ["engine", "now", "runners --check"]}
+{"id": "every_helper-01227", "kind": "every_helper", "args": ["engine", "--resume", "wait", "--verbose", "a b", "x"]}

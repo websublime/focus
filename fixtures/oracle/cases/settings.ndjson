@@ -1,0 +1,186 @@
+{"id": "settings-00000", "kind": "settings", "raw": null}
+{"id": "settings-00001", "kind": "settings", "raw": []}
+{"id": "settings-00002", "kind": "settings", "raw": "on"}
+{"id": "settings-00003", "kind": "settings", "raw": 3}
+{"id": "settings-00004", "kind": "settings", "raw": {}}
+{"id": "settings-00005", "kind": "settings", "raw": {"sensors": "on", "learnings": "on", "summary_confirmation": "on", "plan_approval": "on", "collaborators": "on", "review_cap": "on"}}
+{"id": "settings-00006", "kind": "settings", "raw": {"extra": "on", "Sensors": "off"}}
+{"id": "settings-00007", "kind": "settings", "raw": {"extra": "on", "10": "adversarial", "collaborators": 0.5, "learnings": "off", "summary_confirmation": "off", "sensors": "on", "plan_approval": "on", "Sensors": "off"}}
+{"id": "settings-00008", "kind": "settings", "raw": {}}
+{"id": "settings-00009", "kind": "settings", "raw": {"sensors": "off", "extra": "off"}}
+{"id": "settings-00010", "kind": "settings", "raw": {"extra": "ON"}}
+{"id": "settings-00011", "kind": "settings", "raw": {"learnings": "on"}}
+{"id": "settings-00012", "kind": "settings", "raw": {"10": "off", "learnings": "off", "plan_approval": "off"}}
+{"id": "settings-00013", "kind": "settings", "raw": {}}
+{"id": "settings-00014", "kind": "settings", "raw": {"extra": "on", "learnings": "off", "10": "off", "collaborators": "on", "review_cap": "adversarial"}}
+{"id": "settings-00015", "kind": "settings", "raw": {"extra": "off", "learnings": "off", "sensors": "ON", "summary_confirmation": "off", "collaborators": "off", "review_cap": "advisory", "Sensors": "off"}}
+{"id": "settings-00016", "kind": "settings", "raw": {"summary_confirmation": "off", "Sensors": "on", "collaborators": "off", "extra": "off"}}
+{"id": "settings-00017", "kind": "settings", "raw": {"summary_confirmation": "off", "plan_approval": "on"}}
+{"id": "settings-00018", "kind": "settings", "raw": {"summary_confirmation": "off", "learnings": "off", "sensors": "on", "Sensors": "on", "extra": "off"}}
+{"id": "settings-00019", "kind": "settings", "raw": {}}
+{"id": "settings-00020", "kind": "settings", "raw": {"extra": "ON", "sensors": "off", "plan_approval": "off", "summary_confirmation": "on", "review_cap": "on", "Sensors": "off", "learnings": "off", "collaborators": "on"}}
+{"id": "settings-00021", "kind": "settings", "raw": {"extra": "on", "review_cap": "none", "plan_approval": "off", "collaborators": "off", "summary_confirmation": "off", "Sensors": "on"}}
+{"id": "settings-00022", "kind": "settings", "raw": {"sensors": true, "collaborators": "advisory", "review_cap": "adversarial"}}
+{"id": "settings-00023", "kind": "settings", "raw": {"Sensors": "on"}}
+{"id": "settings-00024", "kind": "settings", "raw": {"learnings": ["on"], "review_cap": "off", "plan_approval": "on"}}
+{"id": "settings-00025", "kind": "settings", "raw": {"learnings": "on", "Sensors": "off", "sensors": ["on"]}}
+{"id": "settings-00026", "kind": "settings", "raw": {"review_cap": "on", "10": "on", "plan_approval": "on", "summary_confirmation": "off", "sensors": "on", "collaborators": "off"}}
+{"id": "settings-00027", "kind": "settings", "raw": {"extra": "on", "sensors": "off", "collaborators": "off", "10": "on", "review_cap": "none"}}
+{"id": "settings-00028", "kind": "settings", "raw": {"summary_confirmation": "on", "learnings": "on", "extra": ["on"]}}
+{"id": "settings-00029", "kind": "settings", "raw": {"Sensors": "on", "extra": "off", "review_cap": "none"}}
+{"id": "settings-00030", "kind": "settings", "raw": {}}
+{"id": "settings-00031", "kind": "settings", "raw": {"summary_confirmation": 0.5, "review_cap": "adversarial", "Sensors": "off", "learnings": "on", "collaborators": "on", "10": "off"}}
+{"id": "settings-00032", "kind": "settings", "raw": {}}
+{"id": "settings-00033", "kind": "settings", "raw": {"Sensors": "on", "extra": "on"}}
+{"id": "settings-00034", "kind": "settings", "raw": {"Sensors": "off", "summary_confirmation": "on", "plan_approval": "off", "review_cap": "none", "sensors": "on", "10": "off"}}
+{"id": "settings-00035", "kind": "settings", "raw": {"summary_confirmation": "on", "plan_approval": "on"}}
+{"id": "settings-00036", "kind": "settings", "raw": {}}
+{"id": "settings-00037", "kind": "settings", "raw": {"learnings": "off", "Sensors": "adversarial", "sensors": "on", "plan_approval": 1, "collaborators": "", "review_cap": "advisory", "extra": "on"}}
+{"id": "settings-00038", "kind": "settings", "raw": {"extra": null, "sensors": "off"}}
+{"id": "settings-00039", "kind": "settings", "raw": {"summary_confirmation": "off", "10": "on", "extra": "off", "Sensors": "off", "sensors": "on"}}
+{"id": "settings-00040", "kind": "settings", "raw": {"collaborators": "on", "10": "on"}}
+{"id": "settings-00041", "kind": "settings", "raw": {}}
+{"id": "settings-00042", "kind": "settings", "raw": {"Sensors": "on", "learnings": "off", "extra": "on", "10": {"a": 1}}}
+{"id": "settings-00043", "kind": "settings", "raw": {}}
+{"id": "settings-00044", "kind": "settings", "raw": {"learnings": "off", "collaborators": ""}}
+{"id": "settings-00045", "kind": "settings", "raw": {"Sensors": "on", "sensors": "on", "extra": "off", "review_cap": "off", "summary_confirmation": "on", "collaborators": "off", "learnings": "on", "10": "on"}}
+{"id": "settings-00046", "kind": "settings", "raw": {"sensors": "off", "plan_approval": 0.5, "extra": "on", "Sensors": "on", "10": "on"}}
+{"id": "settings-00047", "kind": "settings", "raw": {"learnings": "none", "sensors": "off", "review_cap": 1, "10": "on", "Sensors": "off", "extra": "off", "collaborators": "on"}}
+{"id": "settings-00048", "kind": "settings", "raw": {"Sensors": "on", "plan_approval": "off", "10": "on", "sensors": "on", "extra": "on", "collaborators": "off"}}
+{"id": "settings-00049", "kind": "settings", "raw": {"collaborators": true, "review_cap": "off", "learnings": "on", "extra": "off"}}
+{"id": "settings-00050", "kind": "settings", "raw": {"summary_confirmation": "on"}}
+{"id": "settings-00051", "kind": "settings", "raw": {}}
+{"id": "settings-00052", "kind": "settings", "raw": {"learnings": "off", "collaborators": "off", "review_cap": "adversarial", "sensors": "off", "extra": 1, "10": "on"}}
+{"id": "settings-00053", "kind": "settings", "raw": {"10": "on", "collaborators": "off", "review_cap": "none", "learnings": "on", "summary_confirmation": "on"}}
+{"id": "settings-00054", "kind": "settings", "raw": {"Sensors": "off", "plan_approval": "on"}}
+{"id": "settings-00055", "kind": "settings", "raw": {"extra": "off", "plan_approval": "off", "sensors": "off"}}
+{"id": "settings-00056", "kind": "settings", "raw": {"plan_approval": "on", "review_cap": "off", "10": "off", "extra": "off", "Sensors": "off", "sensors": 1, "learnings": "on", "summary_confirmation": "on"}}
+{"id": "settings-00057", "kind": "settings", "raw": {"sensors": {"a": 1}}}
+{"id": "settings-00058", "kind": "settings", "raw": {"summary_confirmation": "off", "sensors": "off"}}
+{"id": "settings-00059", "kind": "settings", "raw": {"summary_confirmation": "on", "plan_approval": "off", "10": "off", "review_cap": "off", "sensors": "off"}}
+{"id": "settings-00060", "kind": "settings", "raw": {"plan_approval": "on", "collaborators": "on", "summary_confirmation": "on"}}
+{"id": "settings-00061", "kind": "settings", "raw": {"sensors": "on", "summary_confirmation": "on", "extra": "on", "Sensors": "off", "collaborators": "off", "plan_approval": "off", "learnings": "off", "10": "advisory"}}
+{"id": "settings-00062", "kind": "settings", "raw": {"collaborators": "on", "review_cap": "on", "summary_confirmation": "off", "Sensors": "on", "plan_approval": "off", "sensors": "on", "extra": "on"}}
+{"id": "settings-00063", "kind": "settings", "raw": {"extra": "on", "learnings": "off", "Sensors": "off", "10": "on", "collaborators": "on"}}
+{"id": "settings-00064", "kind": "settings", "raw": {"plan_approval": "on"}}
+{"id": "settings-00065", "kind": "settings", "raw": {"10": "off", "extra": "off", "learnings": "on", "plan_approval": "ON"}}
+{"id": "settings-00066", "kind": "settings", "raw": {"learnings": "none", "plan_approval": "on", "collaborators": "on", "Sensors": "on", "10": "off", "review_cap": "advisory"}}
+{"id": "settings-00067", "kind": "settings", "raw": {"Sensors": "on", "sensors": "off", "collaborators": "on", "plan_approval": "off", "learnings": "off", "10": "off"}}
+{"id": "settings-00068", "kind": "settings", "raw": {"summary_confirmation": "on", "learnings": "advisory"}}
+{"id": "settings-00069", "kind": "settings", "raw": {"learnings": "ON", "summary_confirmation": "off"}}
+{"id": "settings-00070", "kind": "settings", "raw": {"plan_approval": "off", "extra": "off", "learnings": "off", "sensors": "off"}}
+{"id": "settings-00071", "kind": "settings", "raw": {"summary_confirmation": "on", "10": "on", "review_cap": "adversarial", "learnings": "on", "sensors": "on", "extra": "on", "collaborators": "on"}}
+{"id": "settings-00072", "kind": "settings", "raw": {"extra": "on"}}
+{"id": "settings-00073", "kind": "settings", "raw": {"review_cap": "on", "Sensors": "off", "collaborators": "off", "plan_approval": "on", "summary_confirmation": "off", "sensors": true, "extra": "on"}}
+{"id": "settings-00074", "kind": "settings", "raw": {"collaborators": "on", "sensors": "off", "summary_confirmation": "on"}}
+{"id": "settings-00075", "kind": "settings", "raw": {}}
+{"id": "settings-00076", "kind": "settings", "raw": {"Sensors": "on", "summary_confirmation": "on", "learnings": "off", "sensors": "advisory", "collaborators": "off", "10": "on"}}
+{"id": "settings-00077", "kind": "settings", "raw": {"sensors": "off", "plan_approval": "on", "summary_confirmation": "on", "Sensors": "on", "collaborators": "off", "learnings": "on"}}
+{"id": "settings-00078", "kind": "settings", "raw": {"Sensors": "off", "collaborators": "on", "sensors": "on", "review_cap": "adversarial"}}
+{"id": "settings-00079", "kind": "settings", "raw": {"sensors": "off", "plan_approval": "on", "collaborators": "on", "10": "off", "extra": "off"}}
+{"id": "settings-00080", "kind": "settings", "raw": {"Sensors": "on"}}
+{"id": "settings-00081", "kind": "settings", "raw": {"learnings": "off", "10": "on", "summary_confirmation": "off", "review_cap": "none", "plan_approval": "on", "extra": "on"}}
+{"id": "settings-00082", "kind": "settings", "raw": {"plan_approval": {"a": 1}, "extra": "ON", "collaborators": "on", "Sensors": "off", "review_cap": "none", "learnings": "on", "summary_confirmation": "advisory", "10": "on"}}
+{"id": "settings-00083", "kind": "settings", "raw": {"review_cap": "adversarial", "sensors": "on", "learnings": "off", "plan_approval": 1, "Sensors": "on"}}
+{"id": "settings-00084", "kind": "settings", "raw": {"plan_approval": 0.5, "extra": "on", "collaborators": 0.5, "sensors": "off", "summary_confirmation": "on", "Sensors": "off", "review_cap": "off"}}
+{"id": "settings-00085", "kind": "settings", "raw": {"plan_approval": "on", "review_cap": "adversarial", "summary_confirmation": "off", "collaborators": "off", "Sensors": "on", "10": "off"}}
+{"id": "settings-00086", "kind": "settings", "raw": {"extra": "off", "review_cap": "adversarial", "10": "off", "collaborators": "off", "learnings": "off", "plan_approval": "on"}}
+{"id": "settings-00087", "kind": "settings", "raw": {"sensors": "on", "review_cap": "none", "collaborators": "off", "10": "off", "learnings": "advisory"}}
+{"id": "settings-00088", "kind": "settings", "raw": {}}
+{"id": "settings-00089", "kind": "settings", "raw": {"summary_confirmation": {"a": 1}, "plan_approval": "off"}}
+{"id": "settings-00090", "kind": "settings", "raw": {"summary_confirmation": "on", "10": "on", "plan_approval": "on", "review_cap": "adversarial", "Sensors": "adversarial", "learnings": "off", "collaborators": "on"}}
+{"id": "settings-00091", "kind": "settings", "raw": {"learnings": "off", "Sensors": "off", "plan_approval": "off", "summary_confirmation": "off"}}
+{"id": "settings-00092", "kind": "settings", "raw": {}}
+{"id": "settings-00093", "kind": "settings", "raw": {"learnings": "on", "10": "on", "review_cap": "off", "sensors": "adversarial", "Sensors": "on", "extra": "on", "plan_approval": 0.5, "collaborators": "off"}}
+{"id": "settings-00094", "kind": "settings", "raw": {"extra": "on", "plan_approval": "advisory", "learnings": "off"}}
+{"id": "settings-00095", "kind": "settings", "raw": {"Sensors": "on", "10": "off", "sensors": 1}}
+{"id": "settings-00096", "kind": "settings", "raw": {}}
+{"id": "settings-00097", "kind": "settings", "raw": {"Sensors": "off", "sensors": "advisory", "extra": "off", "review_cap": "adversarial", "summary_confirmation": "on", "plan_approval": "on", "10": "on", "collaborators": ""}}
+{"id": "settings-00098", "kind": "settings", "raw": {"sensors": "off", "learnings": "on", "plan_approval": "off", "extra": "on", "summary_confirmation": ["on"], "collaborators": "off"}}
+{"id": "settings-00099", "kind": "settings", "raw": {"Sensors": true, "sensors": "on", "summary_confirmation": "off", "extra": 0.5, "plan_approval": "off"}}
+{"id": "settings-00100", "kind": "settings", "raw": {"Sensors": "off", "summary_confirmation": "on", "sensors": "off", "10": "off", "plan_approval": "on", "collaborators": "off", "review_cap": "none"}}
+{"id": "settings-00101", "kind": "settings", "raw": {"summary_confirmation": "", "review_cap": "advisory"}}
+{"id": "settings-00102", "kind": "settings", "raw": {"learnings": "off", "collaborators": "off"}}
+{"id": "settings-00103", "kind": "settings", "raw": {}}
+{"id": "settings-00104", "kind": "settings", "raw": {"Sensors": "on", "plan_approval": "on", "sensors": "off", "summary_confirmation": "on", "collaborators": "on", "learnings": "on"}}
+{"id": "settings-00105", "kind": "settings", "raw": {}}
+{"id": "settings-00106", "kind": "settings", "raw": {"sensors": "off", "extra": "", "collaborators": 1}}
+{"id": "settings-00107", "kind": "settings", "raw": {"extra": "off", "Sensors": "ON"}}
+{"id": "settings-00108", "kind": "settings", "raw": {"Sensors": "off", "sensors": "on", "extra": "on"}}
+{"id": "settings-00109", "kind": "settings", "raw": {}}
+{"id": "settings-00110", "kind": "settings", "raw": {"Sensors": "on", "review_cap": "advisory", "10": "on"}}
+{"id": "settings-00111", "kind": "settings", "raw": {"sensors": "off", "extra": "off", "review_cap": "on", "10": "off", "learnings": "off", "plan_approval": "off", "collaborators": "on"}}
+{"id": "settings-00112", "kind": "settings", "raw": {"summary_confirmation": "on", "Sensors": ""}}
+{"id": "settings-00113", "kind": "settings", "raw": {"Sensors": "off"}}
+{"id": "settings-00114", "kind": "settings", "raw": {"learnings": {"a": 1}, "10": "on", "plan_approval": "off", "review_cap": "off", "collaborators": true}}
+{"id": "settings-00115", "kind": "settings", "raw": {"10": "on", "review_cap": "on", "Sensors": "advisory", "sensors": "off", "plan_approval": "advisory"}}
+{"id": "settings-00116", "kind": "settings", "raw": {"summary_confirmation": "", "Sensors": 0.5, "plan_approval": "on", "sensors": "off"}}
+{"id": "settings-00117", "kind": "settings", "raw": {}}
+{"id": "settings-00118", "kind": "settings", "raw": {"Sensors": 1, "sensors": "on", "plan_approval": ["on"], "summary_confirmation": "on"}}
+{"id": "settings-00119", "kind": "settings", "raw": {"10": "off", "Sensors": "on", "collaborators": "off", "review_cap": "on", "plan_approval": "off", "extra": "off", "summary_confirmation": "on"}}
+{"id": "settings-00120", "kind": "settings", "raw": {"Sensors": "off", "plan_approval": "on", "sensors": "on", "extra": "on", "review_cap": "adversarial", "summary_confirmation": "on", "learnings": "off"}}
+{"id": "settings-00121", "kind": "settings", "raw": {}}
+{"id": "settings-00122", "kind": "settings", "raw": {"sensors": "none", "summary_confirmation": "on", "collaborators": "on", "10": "off"}}
+{"id": "settings-00123", "kind": "settings", "raw": {"extra": "on", "learnings": "none"}}
+{"id": "settings-00124", "kind": "settings", "raw": {"summary_confirmation": 1, "sensors": "on", "learnings": "on", "extra": "on", "review_cap": "adversarial"}}
+{"id": "settings-00125", "kind": "settings", "raw": {"learnings": "off", "10": "off", "summary_confirmation": "on"}}
+{"id": "settings-00126", "kind": "settings", "raw": {}}
+{"id": "settings-00127", "kind": "settings", "raw": {"review_cap": "none", "sensors": "off", "extra": "ON", "Sensors": "on", "collaborators": "on", "10": "off", "summary_confirmation": "off"}}
+{"id": "settings-00128", "kind": "settings", "raw": {"collaborators": "off", "Sensors": "off", "review_cap": "advisory", "plan_approval": ["on"], "extra": "on", "10": "off"}}
+{"id": "settings-00129", "kind": "settings", "raw": {"learnings": 1, "review_cap": "advisory", "plan_approval": "on", "collaborators": "off", "summary_confirmation": "on", "Sensors": 0.5, "extra": "on"}}
+{"id": "settings-00130", "kind": "settings", "raw": {"summary_confirmation": "on", "extra": "off", "Sensors": "off", "review_cap": "advisory", "collaborators": "on", "plan_approval": "off"}}
+{"id": "settings-00131", "kind": "settings", "raw": {"plan_approval": "off", "review_cap": "advisory", "summary_confirmation": "on", "learnings": "off", "10": "off", "Sensors": "off", "extra": "off", "sensors": "off"}}
+{"id": "settings-00132", "kind": "settings", "raw": {}}
+{"id": "settings-00133", "kind": "settings", "raw": {"plan_approval": "on"}}
+{"id": "settings-00134", "kind": "settings", "raw": {"extra": "on", "collaborators": "on", "learnings": "on", "sensors": "advisory", "review_cap": "on", "Sensors": "on", "summary_confirmation": "off", "10": "on"}}
+{"id": "settings-00135", "kind": "settings", "raw": {"summary_confirmation": "on", "learnings": 0.5, "extra": "off", "collaborators": "on", "Sensors": "on", "sensors": "on"}}
+{"id": "settings-00136", "kind": "settings", "raw": {"learnings": "on", "Sensors": "off", "10": "on", "summary_confirmation": "on", "review_cap": "none", "sensors": "on"}}
+{"id": "settings-00137", "kind": "settings", "raw": {"collaborators": null, "sensors": "off", "10": "on", "plan_approval": "off"}}
+{"id": "settings-00138", "kind": "settings", "raw": {"extra": "on", "sensors": "off"}}
+{"id": "settings-00139", "kind": "settings", "raw": {"learnings": 0.5, "review_cap": "adversarial", "Sensors": "on", "sensors": "none", "extra": "off"}}
+{"id": "settings-00140", "kind": "settings", "raw": {"sensors": "off", "Sensors": "off", "plan_approval": "off", "10": "off", "extra": "on"}}
+{"id": "settings-00141", "kind": "settings", "raw": {"summary_confirmation": "off"}}
+{"id": "settings-00142", "kind": "settings", "raw": {}}
+{"id": "settings-00143", "kind": "settings", "raw": {"review_cap": "on", "plan_approval": "ON", "sensors": "on", "summary_confirmation": "on", "collaborators": "on", "extra": "off"}}
+{"id": "settings-00144", "kind": "settings", "raw": {"extra": "off", "Sensors": "on", "summary_confirmation": "on", "learnings": "on", "collaborators": "off", "sensors": "on", "review_cap": "adversarial"}}
+{"id": "settings-00145", "kind": "settings", "raw": {"10": true, "sensors": 0.5, "extra": "off"}}
+{"id": "settings-00146", "kind": "settings", "raw": {}}
+{"id": "settings-00147", "kind": "settings", "raw": {"plan_approval": "on", "summary_confirmation": "on", "extra": "off", "10": "on", "collaborators": "off", "learnings": "on"}}
+{"id": "settings-00148", "kind": "settings", "raw": {"extra": "off", "plan_approval": "on", "summary_confirmation": "on", "review_cap": "none", "10": "on"}}
+{"id": "settings-00149", "kind": "settings", "raw": {"plan_approval": "on"}}
+{"id": "settings-00150", "kind": "settings", "raw": {"10": "on"}}
+{"id": "settings-00151", "kind": "settings", "raw": {}}
+{"id": "settings-00152", "kind": "settings", "raw": {"learnings": {"a": 1}, "plan_approval": "advisory"}}
+{"id": "settings-00153", "kind": "settings", "raw": {"10": "on", "review_cap": "off", "learnings": ["on"], "Sensors": "off", "plan_approval": "on", "extra": ["on"], "collaborators": "on"}}
+{"id": "settings-00154", "kind": "settings", "raw": {"Sensors": "on", "learnings": null, "sensors": "off", "10": "on", "review_cap": "on", "summary_confirmation": "on", "plan_approval": "on", "collaborators": "off"}}
+{"id": "settings-00155", "kind": "settings", "raw": {"Sensors": "off", "10": "on", "collaborators": "off", "learnings": "off", "extra": "off"}}
+{"id": "settings-00156", "kind": "settings", "raw": {}}
+{"id": "settings-00157", "kind": "settings", "raw": {"extra": "off", "learnings": "on"}}
+{"id": "settings-00158", "kind": "settings", "raw": {"sensors": "off", "summary_confirmation": "off", "plan_approval": "on", "collaborators": "off", "extra": "off"}}
+{"id": "settings-00159", "kind": "settings", "raw": {"summary_confirmation": "on", "plan_approval": "on", "learnings": "on", "collaborators": "off", "Sensors": "on"}}
+{"id": "settings-00160", "kind": "settings", "raw": {}}
+{"id": "settings-00161", "kind": "settings", "raw": {"learnings": "on", "collaborators": "on", "Sensors": "off", "review_cap": "adversarial", "sensors": "on", "plan_approval": "on", "extra": "on"}}
+{"id": "settings-00162", "kind": "settings", "raw": {"10": "on", "review_cap": "advisory"}}
+{"id": "settings-00163", "kind": "settings", "raw": {"collaborators": "off"}}
+{"id": "settings-00164", "kind": "settings", "raw": {"sensors": "on", "summary_confirmation": "on", "collaborators": "off", "learnings": "on", "plan_approval": "off", "Sensors": "on", "review_cap": "advisory", "10": "off"}}
+{"id": "settings-00165", "kind": "settings", "raw": {"10": "on", "collaborators": "off", "Sensors": "on", "summary_confirmation": "on"}}
+{"id": "settings-00166", "kind": "settings", "raw": {"collaborators": "on", "Sensors": "on", "learnings": "off", "10": "on", "plan_approval": "off", "review_cap": "adversarial"}}
+{"id": "settings-00167", "kind": "settings", "raw": {"review_cap": "on", "extra": "on", "sensors": "off", "summary_confirmation": "off"}}
+{"id": "settings-00168", "kind": "settings", "raw": {"sensors": "off", "10": "on", "extra": "off", "collaborators": "off"}}
+{"id": "settings-00169", "kind": "settings", "raw": {"review_cap": "adversarial", "Sensors": "on", "10": "off", "plan_approval": "off", "sensors": "off", "collaborators": "ON"}}
+{"id": "settings-00170", "kind": "settings", "raw": {"sensors": "on", "Sensors": "off", "10": "", "summary_confirmation": "off", "collaborators": "on"}}
+{"id": "settings-00171", "kind": "settings", "raw": {"extra": "on", "summary_confirmation": "off"}}
+{"id": "settings-00172", "kind": "settings", "raw": {"collaborators": "off"}}
+{"id": "settings-00173", "kind": "settings", "raw": {"10": "on", "learnings": {"a": 1}}}
+{"id": "settings-00174", "kind": "settings", "raw": {"learnings": "on", "summary_confirmation": "off", "Sensors": "off", "sensors": null}}
+{"id": "settings-00175", "kind": "settings", "raw": {}}
+{"id": "settings-00176", "kind": "settings", "raw": {"review_cap": "advisory", "Sensors": "on"}}
+{"id": "settings-00177", "kind": "settings", "raw": {"Sensors": ["on"], "summary_confirmation": "off", "collaborators": "on"}}
+{"id": "settings-00178", "kind": "settings", "raw": {"collaborators": "off", "summary_confirmation": "on", "sensors": "off", "plan_approval": "off", "review_cap": "none", "learnings": {"a": 1}, "10": 0.5}}
+{"id": "settings-00179", "kind": "settings", "raw": {"extra": "off", "summary_confirmation": "off", "Sensors": "on", "learnings": "on", "sensors": "on"}}
+{"id": "settings-00180", "kind": "settings", "raw": {"extra": "on", "Sensors": "off", "10": "on"}}
+{"id": "settings-00181", "kind": "settings", "raw": {"summary_confirmation": "off"}}
+{"id": "settings-00182", "kind": "settings", "raw": {"sensors": 1, "learnings": "off", "10": 1, "review_cap": "adversarial", "extra": "off", "plan_approval": "off"}}
+{"id": "settings-00183", "kind": "settings", "raw": {"10": "off", "review_cap": "advisory", "plan_approval": "on", "learnings": "off", "sensors": "on", "Sensors": "off", "collaborators": "off", "summary_confirmation": "off"}}
+{"id": "settings-00184", "kind": "settings", "raw": {"collaborators": "on", "extra": "off", "learnings": "off"}}
+{"id": "settings-00185", "kind": "settings", "raw": {"review_cap": "off", "10": "on", "learnings": "off", "Sensors": "on", "sensors": "on", "plan_approval": "on"}}
