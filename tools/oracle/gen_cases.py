@@ -6694,6 +6694,9 @@ def rv_codekb():
         case["files"]["codekb"] = "Not a folder.\n"
         case["dirs"], case["hard"], case["links"], case["hex"] = [], {}, {}, {}
         case.pop("blocked", None), case.pop("posix", None)
+        if json.loads(case["files"].get("intents/intents.json", "[{}]"))[0].get("repos"):
+            # The repositories are listed, so nothing lists the folder: their files are looked for through a file.
+            case["posix"] = True
     elif odd < 0.10:
         case["files"]["codekb/README.md"] = "Not a repository.\n"
     elif odd < 0.14:
