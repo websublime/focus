@@ -240,7 +240,20 @@ fn review_snapshot_case(wf: &Workflow, case: &Value) -> Value {
             install: wf.install.clone(),
         };
         let slug = case["slug"].as_str().unwrap_or_default();
-        let stage = wf.stage(slug).map_err(|refusal| refusal.to_string())?;
+        // A stage no install has: the compiled one with what the case says
+        // of it (`null` takes a field away).
+        let mut stage = wf
+            .stage(slug)
+            .map_err(|refusal| refusal.to_string())?
+            .clone();
+        for (field, value) in case["patch"].as_object().into_iter().flatten() {
+            if value.is_null() {
+                stage.raw.remove(field);
+            } else {
+                stage.raw.insert(field.clone(), value.clone());
+            }
+        }
+        let stage = &stage;
         let unit = case["unit"].as_str();
         let merged: Option<BTreeSet<String>> = case["merged"].as_array().map(|units| {
             units

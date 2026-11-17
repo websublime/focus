@@ -6444,7 +6444,8 @@ SI_ANSWERS = ["[Answer]:", "[Answer]: ", "[Answer]: Looks correct", "[Answer]: R
               "[Answer]: Something else", "[Answer]: looks correct", "[Answer]: Looks correct.", " [Answer]: Looks correct", "[Answer]:Looks correct",
               "[Answer]: Looks correct <!-- chosen -->", "[Answer]: <!-- pick one -->", "[Answer]: Looks correct <!-- a --> <!-- b -->",
               "[Answer]: Looks correct <!-- a --> tail", "[Answer]: <!-- open", "[Answer]: Looks <!-- x --> correct", "<!-- lead --> [Answer]: Looks correct",
-              "[Answer]: Request changes<!--c-->", "[Answer]: Looks correctRequest changes", "[Answer]: Request changes <!-- a --> <!-- open", "[answer]: Looks correct"]
+              "[Answer]: Request changes<!--c-->", "[Answer]: Looks correctRequest changes", "[Answer]: Request changes <!-- a --> <!-- open", "[answer]: Looks correct",
+              "[Answer]: Looks<!-- x --> correct", "[Answer]: <!-- x -->Looks correct", "[Answer]:<!-- x --> Request changes", "[Answer]: Request<!----> changes"]
 SI_BODY = ["Some text.", "- one\n- two", "## Q1\n\nWhat?\n\n[Answer]: A", "## Assumption Confirmation\n\n[Answer]: Looks correct", "```\n[Answer]: Looks correct\n```",
            "<!--\n[Answer]: Looks correct\n-->", "    [Answer]: Looks correct", "### Detail", "<div>\n[Answer]: Looks correct\n</div>",
            "```\n" + SI_SUMMARY + "\n```", "<!--\n" + SI_SUMMARY + "\n-->", "## Requested Changes Feedback\n\nNone."]
@@ -6753,6 +6754,26 @@ for state in (rv_state("feature", ""), rv_state("bugfix", ""), rv_state("bugfix"
             rv_fixed("code-generation", files, state=state, merged=merged, given_state=rv_state("bugfix", ""))
             rv_fixed("code-generation", files, state=state, merged=merged, given_state=None)
             rv_fixed("code-generation", files, state=state, merged=merged, unit="web")
+RV_OTHER_STAGE = {f"{RV_RECORD}/construction/api/functional-design/functional-spec.md": "# Spec of api\n",
+                  f"{RV_RECORD}/construction/web/code-generation/code-generation-plan.md": "# Plan of web\n"}
+for state in (rv_state("feature", ""), rv_state("bugfix", ""), None):
+    # A unit's folder with another stage's work in it and none of this one's is not a unit of this stage.
+    for merged in (None, [], ["api"]):
+        rv_fixed("code-generation", RV_OTHER_STAGE, state=state, merged=merged)
+        rv_fixed("functional-design", RV_OTHER_STAGE, state=state, merged=merged)
+RV_ASKED = {f"{RV_REQ}/requirements.md": "# Requirements\n\nBody.\n\n## Review\n\nVerdict: READY\n"}
+for answer in ("[Answer]:", "[Answer]: Looks correct", "[Answer]: Something else"):
+    # The questions as the artifact a review is about are read as any artifact is; and so are a stage's that asks
+    # for no confirmation.
+    files = {**RV_ASKED, f"{RV_REQ}/requirements-analysis-questions.md": RV_QUESTIONS + answer + "\n\n## Review\n\nVerdict: READY\n"}
+    for patch in ({"review_artifact": "requirements-analysis-questions"}, {"summary_confirmation": None}, {"summary_confirmation": "if-present"},
+                  {"review_artifact": None}, {"review_artifact": "nothing-declared"}):
+        rv_fixed("requirements-analysis", files, patch=patch)
+for patch in ({"produces_kinds": None}, {"produces_kinds": {"functional-spec": ["ui"]}}, {"produces_kinds": {"frontend-components": ["service", "ui"]}}):
+    rv_fixed("functional-design", {f"{RV_RECORD}/inception/units-generation/unit-of-work-dependency.md": rv_dag([("web", "ui"), ("api", "service"), ("lib", None)]),
+                                   f"{RV_RECORD}/construction/web/functional-design/functional-spec.md": "# Web\n",
+                                   f"{RV_RECORD}/construction/api/functional-design/functional-spec.md": "# Api\n",
+                                   f"{RV_RECORD}/construction/lib/functional-design/functional-spec.md": "# Lib\n"}, patch=patch)
 
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

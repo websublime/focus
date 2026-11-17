@@ -742,8 +742,10 @@ async function answer(c: Record<string, any>): Promise<unknown> {
       }
       const data = resolve(upstream, "dist", "claude", ".claude", "tools", "data");
       const compiled = JSON.parse(readFileSync(join(data, "stage-graph.json"), "utf-8"));
-      const stage = (Array.isArray(compiled) ? compiled : compiled.stages).find((node: { slug: string }) => node.slug === c.slug);
-      if (stage === undefined) throw new Error(`${c.id}: no stage ${c.slug}`);
+      const compiledStage = (Array.isArray(compiled) ? compiled : compiled.stages).find((node: { slug: string }) => node.slug === c.slug);
+      if (compiledStage === undefined) throw new Error(`${c.id}: no stage ${c.slug}`);
+      // A stage no install has: the compiled one with what the case says of it (`null` takes a field away).
+      const stage = Object.fromEntries(Object.entries({ ...compiledStage, ...(c.patch ?? {}) }).filter(([, value]) => value !== null));
       const before = [process.env.AIDLC_STAGE_GRAPH, process.env.AIDLC_SCOPE_GRID];
       process.env.AIDLC_STAGE_GRAPH = join(data, "stage-graph.json");
       process.env.AIDLC_SCOPE_GRID = join(data, "scope-grid.json");
