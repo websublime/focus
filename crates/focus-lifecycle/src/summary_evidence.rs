@@ -288,6 +288,12 @@ fn from_project(wf: &Workflow, path: &str) -> String {
     jspath::relative(Flavour::host(), &project, &project, path).replace('\\', "/")
 }
 
+/// The file a row names, as a path from the project with forward slashes
+/// (`toPosix(relative(projectDir, resolveAuditProjectPath(projectDir, file)))`).
+pub(crate) fn row_path_from_project(wf: &Workflow, recorded: &str) -> String {
+    from_project(wf, &row_path(&shown(&wf.layout.project), recorded))
+}
+
 /// `questionFilesInDir`: the `-questions.md` files of a folder, by name.
 fn question_files_in(dir: &Path) -> Vec<Question> {
     let Ok(entries) = std::fs::read_dir(dir) else {

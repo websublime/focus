@@ -16,12 +16,14 @@ use crate::review_attempt;
 use crate::workflow::Workflow;
 
 /// The case kinds this crate answers.
-pub const KINDS: [&str; 5] = [
+pub const KINDS: [&str; 7] = [
     "review_window",
     "review_accounting",
     "review_snapshot",
     "summary_evidence",
     "source_snapshot",
+    "review_receipts",
+    "review_rows",
 ];
 
 /// The ledger a case gives as its shards, read as a project's would be.
@@ -80,6 +82,31 @@ pub fn run_case(wf: &Workflow, case: &Value) -> Value {
         "review_snapshot" => review_snapshot_case(wf, case),
         "summary_evidence" => summary_evidence_case(wf, case),
         "source_snapshot" => source_snapshot_case(wf, case),
+        "review_receipts" => review_receipts_case(wf, case),
+        "review_rows" => {
+            // What a review's row and a gate's say, read alone.
+            use crate::review_receipts::{gate_stages, terminal_review_verdict, unit_plain_name};
+            let listed = |key: &str| case[key].as_array().cloned().unwrap_or_default();
+            json!({
+                "terminal": listed("verdicts")
+                    .iter()
+                    .map(|asked| terminal_review_verdict(
+                        asked[0].as_str(),
+                        asked[1].as_str(),
+                        asked[2].as_str().unwrap_or_default(),
+                        asked[3].as_f64().unwrap_or(2.0),
+                    ))
+                    .collect::<Vec<_>>(),
+                "gates": listed("blocks")
+                    .iter()
+                    .map(|block| gate_stages(block.as_str().unwrap_or_default()))
+                    .collect::<Vec<_>>(),
+                "names": listed("units")
+                    .iter()
+                    .map(|unit| unit_plain_name(unit.as_str().unwrap_or_default()))
+                    .collect::<Vec<_>>(),
+            })
+        }
         other => json!({ "unsupported": other }),
     }
 }
@@ -1019,4 +1046,289 @@ fn source_snapshot_case(wf: &Workflow, case: &Value) -> Value {
     })();
     let _ = std::fs::remove_dir_all(&root);
     answer.unwrap_or_else(|error| json!({ "error": error }))
+}
+
+/// The reviews of a stage that still stand, in a project of the case's own.
+/// The ledger and the review records name what each engine computes for
+/// itself: `{ART}` and `{ART:<unit>}` (the artifacts' fingerprint as laid
+/// out), `{SRC}` (the source's) and `{DIGEST:<record>}` (a review
+/// record's, once written). What the case changes `after` is done once
+/// those are taken.
+fn review_receipts_case(wf: &Workflow, case: &Value) -> Value {
+    use focus_workspace::records::{Invoker, Selector, resolve_selection};
+    use sha2::{Digest, Sha256};
+
+    use crate::review_artifacts::{self, Options as Asked};
+    use crate::review_receipts::{self, Baseline, Options, Pending, StaleProgress};
+
+    let (root, layout) = lay_project(wf, case);
+    let space = layout.space_dir("default");
+    let record = space.join("intents/rec-1a2b3c4d");
+    // The one variable a case sets is handed over, never set: the oracle
+    // answers in a process that may be answering another case.
+    let skip_source_freshness =
+        case["env"][focus_workspace::env::full_name("SKIP_SOURCE_FRESHNESS").as_str()] == "1";
+    let answer = (|| -> Result<Value, String> {
+        let selection = resolve_selection(&layout, &Selector::default(), &Invoker::default())
+            .map_err(|refusal| refusal.to_string())?;
+        let scratch = Workflow {
+            layout: layout.clone(),
+            selection,
+            invoker: Invoker::default(),
+            install: wf.install.clone(),
+        };
+        let slug = case["slug"].as_str().unwrap_or_default();
+        let mut stage = wf
+            .stage(slug)
+            .map_err(|refusal| refusal.to_string())?
+            .clone();
+        for (field, value) in case["patch"].as_object().into_iter().flatten() {
+            if value.is_null() {
+                stage.raw.remove(field);
+            } else {
+                stage.raw.insert(field.clone(), value.clone());
+            }
+        }
+        // What the compiled stage keeps apart from its node.
+        let names = |value: &Value| -> Vec<String> {
+            value
+                .as_array()
+                .into_iter()
+                .flatten()
+                .filter_map(|name| name.as_str().map(str::to_owned))
+                .collect()
+        };
+        if let Some(listed) = case["patch"].get("produces") {
+            stage.produces = names(listed);
+        }
+        if let Some(listed) = case["patch"].get("optional_produces") {
+            stage.optional_produces = names(listed);
+        }
+        if let Some(marker) = case["patch"].get("for_each") {
+            stage.for_each = marker.as_str().map(str::to_owned);
+        }
+        let state = case["state"].as_str().unwrap_or_default();
+        let none = format!("sha256:{}", "0".repeat(64));
+        let fingerprint = |unit: Option<&str>| {
+            review_artifacts::fingerprint(
+                &scratch,
+                &stage,
+                unit,
+                Some(Some(state)),
+                Asked::default(),
+            )
+            .unwrap_or_else(|| none.clone())
+        };
+        let mut filled: Vec<(String, String)> = Vec::new();
+        for unit in case["units"].as_array().into_iter().flatten() {
+            let unit = unit.as_str().unwrap_or_default();
+            filled.push((format!("{{ART:{unit}}}"), fingerprint(Some(unit))));
+        }
+        let whole = fingerprint(None);
+        // (The same fingerprint as it was taken over the raw line ends,
+        // when the two differ; and the source's as the earlier walk gave
+        // it, when that walk can be told.)
+        filled.push((
+            "{ARTRAW}".to_owned(),
+            focus_evidence::source::raw::raw_form(&whole).unwrap_or_else(|| none.clone()),
+        ));
+        filled.push(("{ART}".to_owned(), whole));
+        let taken = crate::review_pending::current_source(&scratch)
+            .ok()
+            .flatten();
+        // The listing behind the source's fingerprint, kept as a review
+        // request keeps it.
+        if case["keep"] == true
+            && let Some(source) = &taken
+        {
+            let _ = focus_evidence::source::snapshot::write_workspace_snapshot(
+                &scratch.layout,
+                &scratch.selection,
+                slug,
+                source,
+            );
+        }
+        let source = taken.as_ref().map_or_else(
+            || "unbindable".to_owned(),
+            |source| source.fingerprint.clone(),
+        );
+        filled.push((
+            "{SRCOLD}".to_owned(),
+            focus_evidence::source::state::legacy_alias(&source)
+                .unwrap_or_else(|| "unbindable".to_owned()),
+        ));
+        filled.push(("{SRC}".to_owned(), source));
+        let fill = |filled: &[(String, String)], text: &str| {
+            filled.iter().fold(text.to_owned(), |out, (name, value)| {
+                out.replace(name, value)
+            })
+        };
+        let put = |path: &std::path::Path, text: &str| {
+            std::fs::create_dir_all(path.parent().expect("a name has a folder")).expect("a folder");
+            std::fs::write(path, text).expect("a file");
+        };
+        for (rel, text) in case["records"].as_object().into_iter().flatten() {
+            let text = fill(&filled, text.as_str().unwrap_or_default());
+            put(&record.join(rel), &text);
+            let digest: String = Sha256::digest(text.as_bytes())
+                .iter()
+                .map(|byte| format!("{byte:02x}"))
+                .collect();
+            filled.push((format!("{{DIGEST:{rel}}}"), format!("sha256:{digest}")));
+        }
+        for (name, text) in case["shards"].as_object().into_iter().flatten() {
+            put(
+                &record.join("audit").join(name),
+                &fill(&filled, text.as_str().unwrap_or_default()),
+            );
+        }
+        for (within, key) in [(&space, "files"), (&root, "source")] {
+            for (rel, text) in case["after"][key].as_object().into_iter().flatten() {
+                let path = within.join(rel);
+                // (Whatever was at the name goes first: a file can take a
+                // folder's place.)
+                let _ = std::fs::remove_dir_all(&path);
+                let _ = std::fs::remove_file(&path);
+                if let Some(text) = text.as_str() {
+                    put(&path, text);
+                }
+            }
+        }
+        // (A name of the space made a link to another, once everything is
+        // written.)
+        #[cfg(unix)]
+        for (rel, target) in case["after"]["links"].as_object().into_iter().flatten() {
+            let path = space.join(rel);
+            let _ = std::fs::remove_dir_all(&path);
+            let _ = std::fs::remove_file(&path);
+            std::os::unix::fs::symlink(space.join(target.as_str().unwrap_or_default()), &path)
+                .expect("a link");
+        }
+        // (And the source as it is once the case changed it: `{NOW}`.)
+        let now = crate::review_pending::current_source(&scratch)
+            .ok()
+            .flatten();
+        filled.push((
+            "{NOW}".to_owned(),
+            now.as_ref().map_or_else(
+                || "unbindable".to_owned(),
+                |source| source.fingerprint.clone(),
+            ),
+        ));
+        // (A snapshot kept under the earlier fingerprint that lists what is
+        // there now: a moved fingerprint with no path to name.)
+        if case["keep"] == "now"
+            && let (Some(taken), Some(now)) = (&taken, &now)
+        {
+            let _ = focus_evidence::source::snapshot::write_workspace_snapshot(
+                &scratch.layout,
+                &scratch.selection,
+                slug,
+                &focus_evidence::source::walk::WorkspaceSource {
+                    fingerprint: taken.fingerprint.clone(),
+                    ..now.clone()
+                },
+            );
+        }
+        // An answer names what each engine computed as the case does.
+        let named = |value: &str| -> String {
+            filled
+                .iter()
+                .fold(value.to_owned(), |out, (name, computed)| {
+                    if *computed == none || computed == "unbindable" {
+                        out
+                    } else {
+                        out.replace(computed, name)
+                    }
+                })
+        };
+        let got = review_receipts::fresh(
+            &scratch,
+            state,
+            &stage,
+            Options {
+                review_class: case["class"].as_str(),
+                skip_source_freshness: Some(skip_source_freshness),
+                skip_artifact_guard: (case["env"]
+                    [focus_workspace::env::full_name("SKIP_ARTIFACT_GUARD").as_str()]
+                    == "1")
+                    .then_some(true),
+                ..Options::default()
+            },
+        )
+        .map_err(|refusal| refusal.to_string())?;
+        let progress =
+            |at: Option<&StaleProgress>| at.map(|at| json!([at.next_iteration, at.recovery_spent]));
+        let pending = |at: Option<&Pending>| {
+            at.map(|at| {
+                json!([
+                    at.state.as_str(),
+                    at.iteration,
+                    at.recovery,
+                    at.did_not_finish,
+                    at.verification_failed
+                ])
+            })
+        };
+        let keys =
+            |names: &review_receipts::Names| names.keys().map(str::to_owned).collect::<Vec<_>>();
+        Ok(json!({
+            "stage": [
+                got.stage_verdict,
+                got.stage_stale,
+                got.stage_iteration,
+                progress(got.stage_stale_progress.as_ref()),
+                pending(got.stage_pending.as_ref()),
+            ],
+            "units": {
+                "verdicts": got.unit_verdicts.iter().map(|(unit, said)| json!([unit, said])).collect::<Vec<_>>(),
+                "stale": keys(&got.unit_stale),
+                "progress": got.unit_stale_progress.iter().map(|(unit, at)| json!([unit, progress(Some(at))])).collect::<Vec<_>>(),
+                "iterations": got.unit_iterations.iter().map(|(unit, at)| json!([unit, at])).collect::<Vec<_>>(),
+                "pending": got.unit_pending.iter().map(|(unit, at)| json!([unit, pending(Some(at))])).collect::<Vec<_>>(),
+                "kept": keys(&got.unit_source_kept),
+                "reopened": keys(&got.unit_recheck_reopened),
+            },
+            "source": [
+                got.newest_source_fingerprint.as_deref().map(named),
+                got.newest_source_unit,
+                got.source_stale,
+                got.source_stale_reason,
+                progress(got.source_stale_progress.as_ref()),
+                got.source_recovery_spent,
+            ],
+            "baseline": match &got.source_baseline {
+                Baseline::Legacy => json!("legacy"),
+                Baseline::Unbindable => json!("unbindable"),
+                Baseline::Invalid => json!("invalid"),
+                Baseline::Ready(listing) => json!([
+                    "ready",
+                    listing.iter().map(|(key, entry)| json!([key, entry])).collect::<Vec<_>>()
+                ]),
+            },
+            "listing": got.current_source_listing.as_ref().map(focus_evidence::source::listing::Listing::len),
+            "awaiting": keys(&got.awaiting_verdict),
+            "unfinished": keys(&got.unfinished_verdicts),
+            "bolts": [got.merged_bolt_units, got.open_bolt_units],
+            "accepted": got
+                .accepted_changes
+                .iter()
+                .map(|change| json!([
+                    "review-receipt",
+                    change.stage,
+                    change.unit,
+                    change.changed,
+                    named(&change.recorded),
+                    named(&change.current),
+                    change.notice,
+                ]))
+                .collect::<Vec<_>>(),
+            "read": got.change_control_read,
+            // What only the reading of a unit's own source fills.
+            "unit_source": [0, 0, 0],
+        }))
+    })();
+    let shown_root = root.to_string_lossy().into_owned();
+    let _ = std::fs::remove_dir_all(&root);
+    answer.unwrap_or_else(|error| json!({ "error": error.replace(&shown_root, "{P}") }))
 }

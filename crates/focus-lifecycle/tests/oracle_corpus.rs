@@ -60,6 +60,8 @@ fn every_lifecycle_case_gets_upstreams_answer() {
     let (mut let_through, mut missing, mut stale) = (0, 0, 0);
     let (mut kept, mut written, mut read_back, mut unverified) = (0, 0, 0, 0);
     let (mut collided, mut behind_a_link, mut told_paths, mut earlier_place) = (0, 0, 0, 0);
+    let (mut receipts, mut standing, mut fallen, mut waiting) = (0, 0, 0, 0);
+    let (mut moved_source, mut let_pass, mut started_from) = (0, 0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         let case: Value = focus_js::json::parse(line).unwrap();
@@ -77,7 +79,21 @@ fn every_lifecycle_case_gets_upstreams_answer() {
         }
         let out = run_case(&wf, &case);
         let some = |key: &str| out[key].as_array().is_some_and(|list| !list.is_empty());
-        if kind == "source_snapshot" {
+        if kind == "review_receipts" {
+            // The reviews that still stand: a verdict for the stage or a
+            // unit, one a later write made stale, a request that waits, the
+            // source moved since, a change the policy let through, and the
+            // baseline read back.
+            receipts += 1;
+            assert!(out.get("error").is_none(), "{}: {out}", case["id"]);
+            let any = |value: &Value| value.as_array().is_some_and(|list| !list.is_empty());
+            standing += usize::from(out["stage"][0].is_string() || any(&out["units"]["verdicts"]));
+            fallen += usize::from(out["stage"][1] == true || any(&out["units"]["stale"]));
+            waiting += usize::from(any(&out["awaiting"]));
+            moved_source += usize::from(out["source"][2] == true);
+            let_pass += usize::from(any(&out["accepted"]));
+            started_from += usize::from(out["baseline"].is_array());
+        } else if kind == "source_snapshot" {
             // The two snapshots of a stage: written, read back under the
             // row's fingerprint, refused when the bytes are not the ones it
             // names, never written over or through a link, and told as
@@ -226,6 +242,14 @@ fn every_lifecycle_case_gets_upstreams_answer() {
         "{evidence} {in_order} {not_owed} {let_through}"
     );
     assert!(missing >= 380 && stale >= 600, "{missing} {stale}");
+    assert!(
+        receipts >= 1500 && standing >= 600 && fallen >= 250 && waiting >= 450,
+        "{receipts} {standing} {fallen} {waiting}"
+    );
+    assert!(
+        moved_source >= 100 && let_pass >= 300 && started_from >= 240,
+        "{moved_source} {let_pass} {started_from}"
+    );
     assert!(
         kept >= if cfg!(windows) { 450 } else { 550 }
             && written >= 400

@@ -43,6 +43,7 @@ pub mod reply;
 pub mod review_artifacts;
 pub mod review_attempt;
 pub mod review_pending;
+pub mod review_receipts;
 pub mod stage;
 pub mod status;
 pub mod summary_evidence;
