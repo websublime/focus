@@ -8202,5 +8202,171 @@ for prior_digest in (None, "none", "sha256:" + "a" * 64):
             rq_add("echo", legacy={"artifact": rq.choice(["requirements.md", "inception/requirements-analysis/requirements.md", ""]), "offset": rq.choice([0, 1, 4096, 2 ** 53]),
                                    "priorDigest": prior_digest, "priorLength": prior_length, "challenge": challenge, "priorAppendix": rq.random() < 0.5})
 
+# --- What a reviewer wrote, checked before it is recorded (focus-evidence) ----
+#
+# `validateReviewAppendix`: the review states one verdict, its reviewer and its pass in lines a reader of the
+# rendered review sees as such, and is one section with nothing of the document's own rank after it.
+# `demoteReviewHeadings`: a review file's own `#` and `##` headings made `###`.
+
+rt = random.Random(seed * 7919 + 35)
+RT_REVIEWER = "aidlc-architecture-reviewer-agent"
+
+
+def rt_expected(verdict="READY", reviewer=RT_REVIEWER, iteration=1, challenge=None, standalone=None):
+    expected = {"verdict": verdict, "reviewer": reviewer, "iteration": iteration, "reviewChallenge": challenge}
+    if standalone is not None:
+        expected["standalone"] = standalone
+    return expected
+
+
+def rt_validate(text, expected=None, raw=None):
+    if raw is not None:
+        add("review_text", op="validate", hex=raw.hex(), expected=expected or rt_expected())
+    else:
+        add("review_text", op="validate", text=text, expected=expected or rt_expected())
+
+
+def rt_demote(text, raw=None):
+    if raw is not None:
+        add("review_text", op="demote", hex=raw.hex())
+    else:
+        add("review_text", op="demote", text=text)
+
+
+RT_FIELDS = f"**Verdict:** READY\n**Reviewer:** {RT_REVIEWER}\n**Iteration:** 1\n"
+RT_TABLE = "### Findings\n\n| ID | Severity | Location | Finding | Required action | Status |\n|---|---|---|---|---|---|\n| R-01 | Major | a.md | It is wrong | Fix it | Open |\n"
+RT_REVIEW = f"## Review\n\n{RT_FIELDS}\n{RT_TABLE}"
+# How a value may be written, where plain words are the only ones that count.
+RT_VALUES = ["READY", "NOT-READY", "READY ", "READY\t", "READY  ", "READY\\", " READY", "ready", "READY.", "*READY*", "**READY**", "`READY`", "~~READY~~", "~READY~", "[READY](x)",
+             "<b>READY</b>", "READY <!-- note -->", "RE&#65;DY", "RE&#x41;DY", "READ\\Y", "\\READY", "READY &amp; more", "READY\u2028x", "READY &#13; x", "READY\x0bx", "READY\x0cx",
+             "READY\x00", "READY\x01", "READY\x02\x03", "![READY](x)", "<READY>", "<http://ready>", "READY NOT-READY", "", " ", "\t", "READY https://x.example", "READY[^1]",
+             "RE\u00adADY", "ＲＥＡＤＹ", "READY \\| x", "READY\\\nmore", "READY  \nmore"]
+# How a label may be written: only bold, the label and its colon alone inside it, at the start of the line.
+RT_LABELS = ["**Verdict:**", "__Verdict:__", "**Verdict**:", "*Verdict:*", "**verdict:**", "** Verdict:**", "**Verdict: **", "**Verdict:**\u00a0", "Verdict:", "<strong>Verdict:</strong>",
+             "**Verdict :**", "***Verdict:***", "**`Verdict:`**", "**Verd*ict*:**", "**Verdict\\:**", "**Verdict&#58;**", "**Verdict:** **Verdict:**", "x **Verdict:**", "\\**Verdict:**",
+             "**\x01Verdict:**", "**Ver\ndict:**", "**[Verdict:](x)**", "~~**Verdict:**~~"]
+# Where a line may sit: only a paragraph of the document itself is read.
+RT_PLACES = ["{line}\n", "  {line}\n", "   {line}\n", "    {line}\n", "\t{line}\n", "> {line}\n", "- {line}\n", "1. {line}\n", "* text\n\n  {line}\n", "```\n{line}\n```\n", "~~~md\n{line}\n~~~\n",
+             "<div>\n{line}\n</div>\n", "<div>\n\n{line}\n\n</div>\n", "<!--\n{line}\n-->\n", "<!-- {line} -->\n", "| a |\n|---|\n| {line} |\n", "| a |\n|---|\n{line}\n",
+             "text before\n{line}\n", "{line}\ntext after\n", "{line}\n===\n", "{line}\n---\n", "### {line}\n", "> quoted\n{line}\n", "- item\n{line}\n", "- item\n\n{line}\n",
+             "<details>\n{line}\n", "<span>x</span>\n{line}\n", "[ref]: http://x\n{line}\n", "***\n{line}\n", "<pre>\n{line}\n</pre>\n", "<script>\n{line}\n</script>\n", "{line}\\\n", "{line}  \n"]
+RT_REST = f"**Reviewer:** {RT_REVIEWER}\n\n**Iteration:** 1\n"
+
+rt_validate(RT_REVIEW)
+rt_validate(RT_REVIEW, rt_expected("NOT-READY"))
+rt_validate(RT_REVIEW, rt_expected(reviewer="someone-else"))
+rt_validate(RT_REVIEW, rt_expected(iteration=2))
+for value in RT_VALUES:
+    for label in ("**Verdict:**",):
+        rt_validate(f"## Review\n\n{label} {value}\n\n{RT_REST}")
+        rt_validate(f"## Review\n\n{label} {value}\n\n{RT_REST}", rt_expected("NOT-READY"))
+    rt_validate(f"## Review\n\n**Verdict:** READY\n\n**Reviewer:** {value}\n\n**Iteration:** 1\n", rt_expected(reviewer="READY"))
+    rt_validate(f"## Review\n\n**Verdict:** READY\n\n**Reviewer:** READY\n\n**Iteration:** {value}\n", rt_expected(reviewer="READY"))
+for label in RT_LABELS:
+    rt_validate(f"## Review\n\n{label} READY\n\n{RT_REST}")
+    rt_validate(f"## Review\n\n{label}READY\n\n{RT_REST}")
+    rt_validate(f"## Review\n\n{label}\tREADY\n\n{RT_REST}")
+for place in RT_PLACES:
+    for line in ("**Verdict:** READY", "**Verdict:** NOT-READY"):
+        # The line alone where it sits, and beside a line that counts.
+        rt_validate("## Review\n\n" + place.format(line=line) + "\n" + RT_REST)
+        rt_validate("## Review\n\n**Verdict:** READY\n\n" + place.format(line=line) + "\n" + RT_REST)
+# The same line twice is one line; two values are two.
+for pair in (("READY", "READY"), ("READY", "NOT-READY"), ("READY", "READY "), ("READY", "ready"), ("READY", "*READY*")):
+    rt_validate(f"## Review\n\n**Verdict:** {pair[0]}\n\n{RT_REST}\n**Verdict:** {pair[1]}\n")
+    rt_validate(f"## Review\n\n**Verdict:** READY\n\n**Reviewer:** {pair[0]}\n**Reviewer:** {pair[1]}\n\n**Iteration:** 1\n", rt_expected(reviewer="READY"))
+    rt_validate(f"## Review\n\n**Verdict:** READY\n\n**Reviewer:** x\n\n**Iteration:** 1\n**Iteration:** {'1' if pair[0] == pair[1] else '2'}\n", rt_expected(reviewer="x"))
+# The pass, as the request counts it.
+for written, asked in (("1", 1), ("01", 1), ("1.0", 1), ("2", 2), ("10", 10), ("1e+21", 10 ** 21), ("1000000000000000000000", 10 ** 21), ("9007199254740993", 2 ** 53 + 1), ("9007199254740992", 2 ** 53 + 1),
+                       ("1", 2), ("١", 1), ("+1", 1)):
+    rt_validate(f"## Review\n\n**Verdict:** READY\n**Reviewer:** x\n**Iteration:** {written}\n", rt_expected(reviewer="x", iteration=asked))
+# The challenge of a request of the retired protocol: omitted when none was issued, once and the same when one was.
+RT_CHALLENGE = "review:" + "0123456789abcdef" * 2
+for lines in ("", f"**Request Challenge:** {RT_CHALLENGE}\n", f"**Request Challenge:** {RT_CHALLENGE}\n**Request Challenge:** {RT_CHALLENGE}\n", "**Request Challenge:** review:" + "f" * 32 + "\n",
+              f"**Request challenge:** {RT_CHALLENGE}\n", f"> **Request Challenge:** {RT_CHALLENGE}\n", f"**Request Challenge:** `{RT_CHALLENGE}`\n"):
+    for challenge in (None, RT_CHALLENGE):
+        rt_validate(f"## Review\n\n{RT_FIELDS}{lines}", rt_expected(challenge=challenge))
+# How the review opens: only blank lines, then the exact heading; a file of its own need not open with it.
+RT_OPENINGS = ["## Review\n", "\n\n## Review\n", " \t\n## Review \t\n", "## Review", "##  Review\n", "## review\n", " ## Review\n", "## Review #\n", "## Reviewed\n", "# Review\n", "### Review\n",
+               "Review\n------\n", "intro\n\n## Review\n", "", "\ufeff## Review\n", "<!-- x -->\n## Review\n", "## Review\r\n", "## Review\r", "\r\n## Review\n", "## Review\x0b\n", "## Review\u00a0\n"]
+for opening in RT_OPENINGS:
+    for standalone in (None, False, True):
+        rt_validate(f"{opening}\n{RT_FIELDS}", rt_expected(standalone=standalone))
+# Nothing of the document's own rank after the heading, as Markdown or as HTML; and one Review section.
+RT_AFTER = ["# Top\n", "## Next\n", "### Third\n", "#### Fourth\n", "Next\n====\n", "Next\n----\n", "   ## Indented\n", "    ## Code\n", "> ## Quoted\n", "- ## Listed\n", "```\n## Fenced\n```\n",
+            "<!-- ## Comment -->\n", "<h1>Top</h1>\n", "<h2 class=\"x\">Next</h2>\n", "<H2>Next</H2>\n", "<h3>Third</h3>\n", "<div><h1>In</h1></div>\n", "<!-- <h1>x</h1> -->\n",
+            "<script><h1>x</h1></script>\n", "<div>\n<!-- <h2> -->\n</div>\n", "text <h1>inline</h1> text\n", "<h1\n", "<h10>x</h10>\n", "<header>x</header>\n", "\\## Escaped\n", "##NoSpace\n",
+            "## \n", "##\n", "#\t\n", "| a |\n|---|\n## After a table\n", "text\n## After text\n", "<div>\n## Inside a block\n</div>\n", "<div>\n\n## After a blank in a block\n\n</div>\n",
+            "### Review\n", "### review\n", "#### REVIEW  \n", "### **Review**\n", "### *Review*\n", "### `Review`\n", "### Review notes\n", "### Re\\view\n", "### Review ###\n",
+            "### &#82;eview\n", "###### Review\n", "### \u00a0Review\u00a0\n", "### [Review](x)\n", "### <b>Review</b>\n", "> ### Review\n", "### Review\n\n### Review\n"]
+for after in RT_AFTER:
+    rt_validate(f"## Review\n\n{RT_FIELDS}\n{after}")
+    rt_validate(f"{RT_FIELDS}\n{after}", rt_expected(standalone=True))
+    rt_validate(f"## Review\n\n{after}\n{RT_FIELDS}")
+    rt_demote(f"## Review\n\n{RT_FIELDS}\n{after}")
+    rt_demote(f"{after}\n## Review\n\n{RT_FIELDS}")
+    rt_demote(after)
+# Bytes that are not text, a byte order mark, and each kind of line end. (The reviewer's name is none an engine has:
+# bytes are not translated.)
+RT_PLAIN = "**Verdict:** READY\n**Reviewer:** the-reviewer\n**Iteration:** 1\n"
+for raw in (b"\xff\xfe", b"## Review\n\n**Verdict:** READY\xc3\n", b"\xef\xbb\xbf## Review\n\n" + RT_PLAIN.encode(), b"\xed\xa0\x80", b"", b"\xef\xbb\xbf", b"\xef\xbb\xbf\xef\xbb\xbf## Review\n\n" + RT_PLAIN.encode(),
+            ("## Review\r\n\r\n" + RT_PLAIN.replace("\n", "\r\n")).encode(), ("## Review\r\r" + RT_PLAIN.replace("\n", "\r")).encode(), b"\xef\xbb\xbf# Top\r\n## Next\rtext\n### Third\n",
+            b"# Top\r\n\r\n## Review\r\n", b"\xff# Top\n", ("## Review\n\n" + RT_PLAIN).encode() + b"\xef\xbb\xbf", RT_PLAIN.encode(), b"\xef\xbb\xbf" + RT_PLAIN.encode(),
+            ("## Review\n\n" + RT_PLAIN.replace("\n", "\n\r")).encode(), b"\xef\xbb\xbf## Top\n", b"\xef\xbb\xbf\n## Review\n## Top\r\n"):
+    rt_validate(None, rt_expected(reviewer="the-reviewer"), raw=raw)
+    rt_validate(None, rt_expected(reviewer="the-reviewer", standalone=True), raw=raw)
+    rt_demote(None, raw=raw)
+# A byte order mark where the section starts, which the renderer takes for itself, once.
+for mark in ("\ufeff", "\ufeff\ufeff", " \ufeff", "\ufeff "):
+    rt_validate(f"## Review\n{mark}{RT_FIELDS}")
+    rt_validate(f"## Review\n{mark}## Next\n\n{RT_FIELDS}")
+    rt_validate(f"{mark}## Next\n\n{RT_FIELDS}", rt_expected(standalone=True))
+    rt_validate(f"{mark}{RT_FIELDS}", rt_expected(standalone=True))
+    rt_validate(f"{RT_FIELDS}\n{mark}## Next\n", rt_expected(standalone=True))
+    rt_demote(f"{mark}## Next\n\n{RT_FIELDS}")
+# A heading line as it is named in the row that says it was changed.
+for heading in ("# " + "x" * 200, "## " + "é" * 130, "## 😀" * 70, "#  two  spaces  ", "## tab\there", "## ctrl\x01\x1f\x7f", "# #", "## Review", "  ## Review  ", "## Review now", "#", "##", "# a #", "## a ##   "):
+    rt_demote(f"{heading}\n\ntext\n")
+    rt_demote(f"## Review\n\n{heading}\n")
+    rt_demote(f"\n\n{heading}\n## Second\n")
+# Reviews drawn from the pieces above.
+for _ in range(150 * scale):
+    parts = []
+    if rt.random() < 0.8:
+        parts.append(rt.choice(RT_OPENINGS[:6]))
+    for _ in range(rt.randint(1, 6)):
+        kind = rt.random()
+        if kind < 0.45:
+            label = rt.choice(["**Verdict:**", "**Reviewer:**", "**Iteration:**", "**Request Challenge:**"] * 4 + RT_LABELS)
+            value = rt.choice(["READY", "NOT-READY", RT_REVIEWER, "1", "2", RT_CHALLENGE] * 5 + RT_VALUES)
+            parts.append(rt.choice(RT_PLACES[:3] * 6 + RT_PLACES).format(line=f"{label} {value}"))
+        elif kind < 0.6:
+            parts.append(rt.choice(RT_AFTER))
+        elif kind < 0.75:
+            parts.append(RT_FIELDS)
+        elif kind < 0.85:
+            parts.append(RT_TABLE)
+        else:
+            parts.append(rt.choice(["Some prose about the work.\n", "- a point\n- another\n", "> a quote\n", "```ts\nconst x = 1;\n```\n", "\n", "---\n"]))
+        if rt.random() < 0.7:
+            parts.append("\n")
+    review = "".join(parts)
+    rt_validate(review, rt_expected(rt.choice(["READY", "READY", "NOT-READY"]), rt.choice([RT_REVIEWER, RT_REVIEWER, "READY"]), rt.choice([1, 1, 2]),
+                                    rt.choice([None, None, None, RT_CHALLENGE]), rt.choice([None, True, False])))
+    if rt.random() < 0.5:
+        rt_demote(review)
+# Reviews made of the marks Markdown reads, in no order a person would write: what counts is still what a reader
+# of the rendering sees.
+RT_SOUP = ["**", "**", "*", "_", "__", "~~", "~", "`", "``", "[", "]", "(x)", "<b>", "</b>", "<!--", "-->", "&amp;", "\\", "|", "# ", "## ", "### ", "> ", "- ", "1. ", "```\n", "    ", "\t",
+           "Verdict:", "Verdict:", "READY", "READY", "NOT-READY", "Reviewer:", "x", "Iteration:", "1", " ", " ", " ", "\n", "\n", "\n\n", "\n\n", "===\n", "---\n", "<div>", "</div>", "<h1>",
+           "Review", "| a |\n|---|\n", "  \n", "![", "<http://x>", "\\\n"]
+for _ in range(200 * scale):
+    soup = "".join(rt.choice(RT_SOUP) for _ in range(rt.randint(4, 30)))
+    tail = rt.choice(["", "", f"\n\n**Verdict:** READY\n**Reviewer:** x\n**Iteration:** 1\n", "\n**Verdict:** READY\n\n**Reviewer:** x\n\n**Iteration:** 1\n"])
+    head = rt.choice(["## Review\n\n", "## Review\n", ""])
+    rt_validate(head + soup + tail, rt_expected(rt.choice(["READY", "READY", "NOT-READY"]), "x", 1, None, rt.choice([None, True])))
+    if rt.random() < 0.4:
+        rt_demote(head + soup + tail)
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

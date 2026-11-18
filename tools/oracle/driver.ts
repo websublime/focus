@@ -59,6 +59,11 @@ const libShim = tool("aidlc-lib.focus-oracle.ts");
 writeFileSync(libShim, `${readFileSync(tool("aidlc-lib.ts"), "utf-8")}\nexport { walkWorkspaceSource, gateStagesFromBlock };\n`);
 process.on("exit", () => rmSync(libShim, { force: true }));
 const libPrivate = await import(libShim);
+// The log tool's own reader of a review file's headings is asked the same way.
+const logShim = tool("aidlc-log.focus-oracle.ts");
+writeFileSync(logShim, `${readFileSync(tool("aidlc-log.ts"), "utf-8")}\nexport { demoteReviewHeadings };\n`);
+process.on("exit", () => rmSync(logShim, { force: true }));
+const logPrivate = await import(logShim);
 // A project of a case's own, under a scratch root: `files`, `hex` (bytes), `dirs`, `links` and `hard` under the
 // space's folder, `source` beside the engine's folder, and `state` as the record's state file.
 function layProject(c: any): string {
@@ -949,6 +954,16 @@ async function answer(c: Record<string, any>): Promise<unknown> {
           else process.env[name] = before[index];
         }
       }
+    }
+    case "review_text": {
+      // What a reviewer wrote: whether it can be recorded, and a review file with its own `#` and `##` headings
+      // made `###`. The bytes are the case's.
+      const bytes = c.hex === undefined ? Buffer.from(c.text, "utf-8") : Buffer.from(c.hex, "hex");
+      if (c.op === "demote") {
+        const demoted = logPrivate.demoteReviewHeadings(bytes);
+        return demoted === null ? null : { text: Buffer.from(demoted.bytes).toString("utf-8"), changed: demoted.changed };
+      }
+      return lib.validateReviewAppendix(bytes, c.expected);
     }
     case "review_request": {
       // What a review request says back and where a review's files go: the attempt's name, the record and the
