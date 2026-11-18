@@ -7558,5 +7558,49 @@ for _ in range(40 * scale):
         story.after["source"][".aidlc-source-paths.json"] = "{"
     story.add(fr_state(fr.choice(FR_POLICIES), units="x] units-generation — EXECUTE", more=fr.choice(FR_WALKS)), patch={**fr_patch(), "workspace_requires": True}, keep=fr.random() < 0.5)
 
+# What says a piece of work was ever bound to its source: a row of its ledger, or a file beside it. A stage that writes
+# code then owes a baseline, and with none to read the answer is that it cannot be: each sign by itself, and its
+# near misses.
+def fr_evidence(rows=(), files=None, source=None, opened=True, slug="code-generation", patch=None):
+    story = FrStory(slug, two=False)
+    if opened:
+        story.row("WORKFLOW_STARTED", Scope="feature")
+        story.row("STAGE_STARTED", Stage=slug)
+    for event, fields in rows:
+        story.row(event, **fields)
+    story.files.update(files or {})
+    story.source = source or {}
+    story.add(fr_state(units=" ] units-generation — SKIP"), patch={"workspace_requires": True, **(patch or {})})
+
+
+FR_HERE = "aidlc/spaces/default/intents/rec-1a2b3c4d"
+FR_META = json.dumps({"intentRecord": FR_HERE}) + "\n"
+FR_ENGINE = f"{RV_RECORD}/.aidlc-engine"
+for opened in (True, False):
+    fr_evidence(opened=opened)
+    fr_evidence(opened=opened, patch={"workspace_requires": None})
+    for rows in ([("STAGE_STARTED", {"Stage": "build-and-test", "Source_Baseline": "sha256:" + "e" * 64})],
+                 [("REVIEW_COMPLETED", {"Unit": "api", "Unit_Source_Fingerprint": "unbindable"})], [("REVIEW_COMPLETED", {"Unit_Source_Fingerprint": "unbindable"})],
+                 [("REVIEW_COMPLETED", {"Unit": "api", "Unit_Source_Binding_Bypass": "false"})], [("REVIEW_COMPLETED", {"Unit": "api"})],
+                 [("REVIEW_REQUESTED", {"Unit": "api", "Unit_Source_Fingerprint": "unbindable"})],
+                 [("WORKTREE_CREATED", {"Base_commit": "a" * 40})], [("WORKTREE_CREATED", {"Base_Source_Listing": "x"})], [("WORKTREE_CREATED", {})],
+                 [("BOLT_STARTED", {"Base_commit": "a" * 40})], [("BOLT_STARTED", {"Base_Source_Listing": "x"})], [("BOLT_COMPLETED", {"Base_commit": "a" * 40})],
+                 [("SWARM_UNIT_CONVERGED", {"Source_Commit": "a" * 40})], [("SWARM_UNIT_CONVERGED", {"Source_Freshness_Bypass": "true"})], [("SWARM_UNIT_CONVERGED", {})],
+                 [("SWARM_UNIT_STARTED", {"Source_Commit": "a" * 40})], [("SWARM_SOURCE_MERGED", {})]):
+        fr_evidence(rows, opened=opened)
+    for files in ({f"{FR_ENGINE}/source-review/code-generation/workspace-111111111111.tsv": "x\n"}, {f"{FR_ENGINE}/source-review/a/b/c.tsv": ""},
+                  {f"{FR_ENGINE}/source-review/code-generation/notes.txt": "x\n"}, {f"{FR_ENGINE}/source-review.tsv": "x\n"}, {f"{FR_ENGINE}/reviews/x.tsv": "x\n"},
+                  {f"{RV_RECORD}/construction/api/code-generation/source-manifest.json": "{}\n"}, {f"{RV_RECORD}/construction/api/source-manifest.json": "{}\n"},
+                  {f"{RV_RECORD}/construction/api/functional-design/source-manifest.json": "{}\n"}, {f"{RV_RECORD}/construction/source-manifest.json": "{}\n"}):
+        fr_evidence(files=files, opened=opened)
+    for source in ({".aidlc/worktrees/bolt-1a2b3c4d_api/.aidlc/worktree-meta.json": FR_META}, {".aidlc/worktrees/bolt-api/.aidlc/worktree-meta.json": FR_META},
+                   {".aidlc/worktrees/other/.aidlc/worktree-meta.json": FR_META}, {".aidlc/worktrees/bolt-1A2B3C4D_api/.aidlc/worktree-meta.json": FR_META},
+                   {".aidlc/worktrees/bolt-1a2b3c4d_api/.aidlc/worktree-meta.json": FR_META.replace("rec-1a2b3c4d", "rec-other")},
+                   {".aidlc/worktrees/bolt-1a2b3c4d_api/.aidlc/worktree-meta.json": "{"}, {".aidlc/worktrees/bolt-1a2b3c4d_api/.aidlc/worktree-meta.json": '{"intentRecord": 1}\n'},
+                   {".aidlc/worktrees/bolt-1a2b3c4d_api/worktree-meta.json": FR_META}, {".aidlc/worktrees/bolt-1a2b3c4d_api": FR_META}):
+        # (The checkout's own `.aidlc/worktree-meta.json` is not asked: a checkout that has one is a delegated worktree,
+        # which Focus refuses by name before it reads anything.)
+        fr_evidence(source=source, opened=opened)
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

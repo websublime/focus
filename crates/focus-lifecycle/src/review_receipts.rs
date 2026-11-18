@@ -418,8 +418,11 @@ fn has_durable_source_binding_evidence(wf: &Workflow) -> bool {
     let Some(expected) = wf.selection.relative_record_dir() else {
         return false;
     };
+    // (Upstream also reads the checkout's own `worktree-meta.json`. A
+    // checkout that has one is a delegated worktree, and Focus refuses to
+    // work in one before anything is read.)
     let hidden = wf.layout.project.join(HIDDEN_WORKSPACE_DIR);
-    let mut candidates = vec![hidden.join("worktree-meta.json")];
+    let mut candidates = Vec::new();
     if let Ok(worktrees) = std::fs::read_dir(hidden.join("worktrees")) {
         for entry in worktrees.flatten() {
             let name = entry.file_name().to_string_lossy().into_owned();
