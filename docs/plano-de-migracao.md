@@ -2288,7 +2288,7 @@ Lido `handleReview` (`aidlc-log.ts` L2 975 a L4 412, uma função só): não há
 | --- | --- | --- | --- |
 | 2e-i. O pedido | As flags e o arranque (`loadContext`: o reviewer e o `review_artifact` declarados, a classe e o orçamento, a tentativa ambígua); a admissão do sumário, com a frase e sem a pergunta de recuperação; o ordinal, que é do engine; o orçamento; o pedido que ainda espera veredicto; a recuperação única de um recibo ultrapassado e a sua causa; a substituição de um pedido que já não pode acabar; `--retry-pending`, com a modernização de um pedido antigo; o fingerprint dos artefactos, o id do pedido, o `Source Fingerprint` com o snapshot do workspace atrás, o sítio onde o revisor escreve; a linha `REVIEW_REQUESTED` e o JSON que o comando imprime, com o comando que fecha o pedido | Corpus (as peças); diferencial (`log/review/request/*`) | Feita, em duas partes (abaixo) |
 | 2e-ii. As mudanças aceites | `governedChangeControl` e `recordAcceptedChanges`: quando um dos leitores da fatia 3 leu a Guard Policy, as mudanças que ela deixou passar gravam-se (`CHANGE_ACCEPTED`) e dizem-se uma vez | Diferencial, nos checks do pedido e do veredicto com a política relaxada | Feita, no pedido (abaixo); o veredicto usa-a na 2e-iv |
-| 2e-iii. O texto de uma revisão | `validateReviewAppendix`, `demoteReviewHeadings`, `readFindingsTable`, `deriveReviewFindingsList` e o registo (`serializeReviewRecord`, `renderReadableReviewCopy`): o que um revisor escreveu, lido, validado e posto na forma que o registo guarda | Corpus (funções puras sobre texto de revisões) | Por fazer |
+| 2e-iii. O texto de uma revisão | `validateReviewAppendix`, `demoteReviewHeadings`, `readFindingsTable`, `deriveReviewFindingsList` e o registo (`serializeReviewRecord`, `renderReadableReviewCopy`): o que um revisor escreveu, lido, validado e posto na forma que o registo guarda | Corpus (funções puras sobre texto de revisões) | Em curso: partida em três (abaixo); a validade está feita |
 | 2e-iv. O veredicto | O pedido pendente a que responde; a admissão do sumário outra vez; os artefactos ou a fonte que mudaram enquanto o revisor trabalhava (recusa, ou aceite pela política); o ficheiro da revisão (o do pedido, `--review-file`, um ficheiro que não é plano); o `NOT-READY` sem revisão de um pedido já repetido; o registo escrito, a linha `REVIEW_COMPLETED`, o rascunho retirado, a cópia legível ao lado do artefacto, e o registo de despacho do revisor retirado no fim | Diferencial (`log/review/verdict/*`) | Por fazer |
 
 **A ordem, outra vez: a 4a antes da 2e-i.** A tabela acima dava o avaliador como coisa da pergunta, que pode esperar. Não é só isso: as frases de `REVIEW_RECOVERY_SPENT` e de `REVIEW_RECOVERY_ALREADY_REQUESTED` acabam no que `recoveryGuidance` responde, e `recoveryGuidance` corre o avaliador e diz o primeiro remédio que se pode fazer agora. Sem ele, a 2e-i tinha de recusar pelo nome duas recusas do pedido, ou de escrever a frase à mão sem a comparar. O avaliador é uma função do seu input e do estado, não lê nada do projeto, e compara-se por corpus já: é a fatia 4a, feita antes da 2e-i (abaixo). A ordem fica 2a a 2d, 3, 4a, 2e, e o resto da 4.
@@ -2417,6 +2417,45 @@ O caminho do pedido são 560 linhas de `handleReview` e uma dúzia de funções 
 | Mutação | 22 mutantes sobre `change_control.rs` e o que o pedido lhe passa, contra o diferencial ao vivo: 18 apanhados (10 à primeira, 8 depois das verificações da linha que já lá está e da linha reformada) e 4 que nenhuma verificação distingue ainda, anotados no módulo: a unit na linha (fatia 5), o caminho como parte da mudança de um sumário (acima), e as duas perguntas por um registo sem ficheiro de estado, a que o pedido não chega porque lê o estado antes |
 | Gravação | 3 768 verificações gravadas, 76 delas de `log/review/request`; a repetição dá igual |
 | `cargo test` | 591 testes: saiu o da recusa pelo nome que a fatia levantou |
+
+### Fatia 2e-iii: o texto de uma revisão, partido em três
+
+Lidas as funções. São três leituras do mesmo texto, cada uma com o seu modo de falhar:
+
+| Parte | O que traz | Como se verifica | Estado |
+| --- | --- | --- | --- |
+| 2e-iii-a. A validade | `validateReviewAppendix` (e o renderer por trás, `renderReviewMarkdownAuthority`): a revisão diz um veredicto, o seu reviewer e o seu passe em linhas que um leitor da revisão renderizada vê como tais, e é uma secção só, sem nada da categoria do documento depois. `demoteReviewHeadings`: os títulos `#` e `##` de um ficheiro de revisão passados a `###` | Corpus | Feita |
+| 2e-iii-b. As tabelas e o registo | A tabela de seis colunas (`parseReviewSection`, `splitMarkdownRow`, o estado e o fingerprint de um finding) e o relatório de findings (`parseReviewerFindingsReport`, `reportTable`); `readFindingsTable`, que lê uma ou outra ou diz porque não se lê, e `unreadableFindingsTableFinding`; `serializeReviewRecord` | Corpus | Por fazer |
+| 2e-iii-c. A lista derivada | `deriveReviewFindingsList` (`aidlc-review-brief.ts`): os findings desta revisão juntos com os das anteriores; `derivedRecordFinding`; `renderReadableReviewCopy`, a cópia que a pessoa lê | Corpus | Por fazer |
+
+### Fatia 2e-iii-a: a validade do que um reviewer escreveu
+
+**O que existe.**
+
+- **`focus-markdown::rendered::render`**: a revisão como um leitor da sua renderização a toma por autoridade. Uma linha de texto por cada linha de um parágrafo do próprio documento, com o negrito entre U+0001 e U+0002 e tudo o que não é texto simples nem negrito (ênfase, rasurado, link, imagem, código) como U+0003; nada do texto de uma citação, de uma lista ou de uma tabela; e, à parte, todos os títulos e todos os blocos de HTML, estejam onde estiverem. `html_carries_h1_h2` veio de `focus-guards::posture` para aqui.
+- **`focus-evidence::review_text::validate_review_appendix`**: os bytes são UTF-8; abrem só com linhas em branco e o título exato `## Review` (um ficheiro próprio não precisa); nenhum título de nível 1 ou 2 depois, em Markdown ou num bloco de HTML; uma só secção Review; exatamente um veredicto, um reviewer e um passe, os que o pedido espera (uma linha repetida palavra por palavra é uma linha; dois valores diferentes são duas); e o desafio do protocolo antigo, omitido quando o pedido não o emitiu e igual quando emitiu. As frases são as do original, e a recusa por um título diz que o é.
+- **`demote_review_headings`**: as linhas de título `#` e `##` de topo (fora de código, citações e listas, e tirando o `## Review` que abre) passam a `###`, com todos os outros bytes como estavam, o BOM e cada fim de linha incluídos, e uma linha a nomear cada título mudado.
+
+**Como o original o faz, e porque Focus não faz igual.** O original renderiza a revisão com o `Bun.markdown` e callbacks que escrevem marcas, e procura as linhas no texto que sai. Focus escreve o mesmo texto a partir da estrutura que o `pulldown-cmark` lê, e aplica-lhe os mesmos padrões. O que o renderer do original faz com cada construção foi-lhe perguntado, construção a construção, antes de escrever uma linha: uma quebra de linha de qualquer tipo acaba a linha renderizada; entidades e escapes saem descodificados; o HTML dentro de um parágrafo é texto simples (só um bloco de HTML é HTML); um endereço solto não é um link; U+0000 lê-se U+FFFD.
+
+**O que o corpus encontrou.**
+
+| Achado | O que mudou |
+| --- | --- |
+| Os callbacks de título e de HTML do original disparam dentro de citações e de listas: um `> ## Título` ou um `- <h1>` conta como título da categoria do documento, embora o texto da citação não se leia | `render` passou a dar todos os títulos e blocos de HTML, estejam onde estiverem; só o texto é que se cala dentro de um contentor |
+| O renderer do original tira um BOM do início do que lhe dão. Um ficheiro com dois (o descodificador tira o primeiro) abre, para ele, com um título | `render` tira um BOM do início da secção |
+| A resposta do original põe `heading` antes de `reason` | A ordem das chaves, no oráculo |
+
+Depois disso, 3 927 casos iguais, 1 675 deles revisões feitas das marcas do Markdown sem ordem nenhuma. Nenhum desvio de leitura entre os dois parsers apareceu nesta função: o que ela pergunta ao documento (há um título de nível 1 ou 2, que linhas de parágrafo começam por um rótulo a negrito) é grosso o suficiente para os dois concordarem em tudo o que o corpus lhes deu.
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Corpus, `review_text` | @@RT_CASES@@ |
+| Corpus, tudo | 62 686 casos em 85 tipos |
+| Mutação | @@RT_MUT@@ |
+| `cargo test` | @@RT_TESTS@@ |
 
 ### Fatia 3a: a tentativa de revisão, partida em cinco (feita)
 

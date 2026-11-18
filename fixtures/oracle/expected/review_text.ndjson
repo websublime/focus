@@ -3925,3 +3925,1673 @@
 {"id":"review_text-03924","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
 {"id":"review_text-03925","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
 {"id":"review_text-03926","out":null}
+{"id":"review_text-03927","out":{"valid":true}}
+{"id":"review_text-03928","out":{"valid":true}}
+{"id":"review_text-03929","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-03930","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-03931","out":{"valid":true}}
+{"id":"review_text-03932","out":{"valid":true}}
+{"id":"review_text-03933","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-03934","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-03935","out":{"valid":true}}
+{"id":"review_text-03936","out":{"valid":true}}
+{"id":"review_text-03937","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-03938","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-03939","out":{"valid":true}}
+{"id":"review_text-03940","out":{"valid":true}}
+{"id":"review_text-03941","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-03942","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-03943","out":{"valid":true}}
+{"id":"review_text-03944","out":{"valid":true}}
+{"id":"review_text-03945","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-03946","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-03947","out":{"valid":true}}
+{"id":"review_text-03948","out":{"valid":true}}
+{"id":"review_text-03949","out":{"valid":true}}
+{"id":"review_text-03950","out":{"valid":true}}
+{"id":"review_text-03951","out":{"valid":true}}
+{"id":"review_text-03952","out":{"valid":true}}
+{"id":"review_text-03953","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-03954","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-03955","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-03956","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-03957","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-03958","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-03959","out":{"valid":true}}
+{"id":"review_text-03960","out":{"valid":true}}
+{"id":"review_text-03961","out":{"valid":true}}
+{"id":"review_text-03962","out":{"valid":true}}
+{"id":"review_text-03963","out":{"valid":true}}
+{"id":"review_text-03964","out":{"valid":true}}
+{"id":"review_text-03965","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-03966","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-03967","out":{"valid":true}}
+{"id":"review_text-03968","out":{"valid":true}}
+{"id":"review_text-03969","out":null}
+{"id":"review_text-03970","out":null}
+{"id":"review_text-03971","out":{"valid":true}}
+{"id":"review_text-03972","out":{"valid":true}}
+{"id":"review_text-03973","out":null}
+{"id":"review_text-03974","out":null}
+{"id":"review_text-03975","out":{"valid":true}}
+{"id":"review_text-03976","out":{"valid":true}}
+{"id":"review_text-03977","out":null}
+{"id":"review_text-03978","out":null}
+{"id":"review_text-03979","out":{"valid":true}}
+{"id":"review_text-03980","out":{"valid":true}}
+{"id":"review_text-03981","out":null}
+{"id":"review_text-03982","out":null}
+{"id":"review_text-03983","out":{"valid":true}}
+{"id":"review_text-03984","out":{"valid":true}}
+{"id":"review_text-03985","out":null}
+{"id":"review_text-03986","out":null}
+{"id":"review_text-03987","out":{"valid":true}}
+{"id":"review_text-03988","out":{"valid":true}}
+{"id":"review_text-03989","out":null}
+{"id":"review_text-03990","out":null}
+{"id":"review_text-03991","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-03992","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-03993","out":null}
+{"id":"review_text-03994","out":null}
+{"id":"review_text-03995","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-03996","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-03997","out":null}
+{"id":"review_text-03998","out":null}
+{"id":"review_text-03999","out":{"valid":true}}
+{"id":"review_text-04000","out":{"valid":true}}
+{"id":"review_text-04001","out":null}
+{"id":"review_text-04002","out":null}
+{"id":"review_text-04003","out":{"valid":true}}
+{"id":"review_text-04004","out":{"valid":true}}
+{"id":"review_text-04005","out":null}
+{"id":"review_text-04006","out":null}
+{"id":"review_text-04007","out":{"valid":true}}
+{"id":"review_text-04008","out":{"valid":true}}
+{"id":"review_text-04009","out":null}
+{"id":"review_text-04010","out":null}
+{"id":"review_text-04011","out":{"valid":true}}
+{"id":"review_text-04012","out":{"valid":true}}
+{"id":"review_text-04013","out":null}
+{"id":"review_text-04014","out":null}
+{"id":"review_text-04015","out":{"valid":true}}
+{"id":"review_text-04016","out":{"valid":true}}
+{"id":"review_text-04017","out":null}
+{"id":"review_text-04018","out":null}
+{"id":"review_text-04019","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-04020","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-04021","out":null}
+{"id":"review_text-04022","out":null}
+{"id":"review_text-04023","out":{"valid":true}}
+{"id":"review_text-04024","out":{"valid":true}}
+{"id":"review_text-04025","out":null}
+{"id":"review_text-04026","out":null}
+{"id":"review_text-04027","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-04028","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-04029","out":null}
+{"id":"review_text-04030","out":null}
+{"id":"review_text-04031","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-04032","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-04033","out":null}
+{"id":"review_text-04034","out":null}
+{"id":"review_text-04035","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-04036","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-04037","out":null}
+{"id":"review_text-04038","out":null}
+{"id":"review_text-04039","out":{"valid":true}}
+{"id":"review_text-04040","out":{"valid":true}}
+{"id":"review_text-04041","out":null}
+{"id":"review_text-04042","out":null}
+{"id":"review_text-04043","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no later rendered H1 or H2 heading"}}
+{"id":"review_text-04044","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no later rendered H1 or H2 heading"}}
+{"id":"review_text-04045","out":null}
+{"id":"review_text-04046","out":null}
+{"id":"review_text-04047","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no later rendered H1 or H2 heading"}}
+{"id":"review_text-04048","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no later rendered H1 or H2 heading"}}
+{"id":"review_text-04049","out":null}
+{"id":"review_text-04050","out":null}
+{"id":"review_text-04051","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04052","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04053","out":null}
+{"id":"review_text-04054","out":null}
+{"id":"review_text-04055","out":{"valid":true}}
+{"id":"review_text-04056","out":{"valid":true}}
+{"id":"review_text-04057","out":null}
+{"id":"review_text-04058","out":null}
+{"id":"review_text-04059","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no later rendered H1 or H2 heading"}}
+{"id":"review_text-04060","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no later rendered H1 or H2 heading"}}
+{"id":"review_text-04061","out":{"text":"## Review\n\n**Verdict:** READY\n**Reviewer:** focus-architecture-reviewer-agent\n**Iteration:** 1\n\n### Next\u000b\n","changed":["line 7: ## Next"]}}
+{"id":"review_text-04062","out":{"text":"**Verdict:** READY\n**Reviewer:** focus-architecture-reviewer-agent\n**Iteration:** 1\n\n### Next\u000b\n","changed":["line 5: ## Next"]}}
+{"id":"review_text-04063","out":{"valid":false,"reason":"the review has two Review sections; keep one and write it whole"}}
+{"id":"review_text-04064","out":{"valid":true}}
+{"id":"review_text-04065","out":null}
+{"id":"review_text-04066","out":null}
+{"id":"review_text-04067","out":{"valid":true}}
+{"id":"review_text-04068","out":{"valid":true}}
+{"id":"review_text-04069","out":null}
+{"id":"review_text-04070","out":null}
+{"id":"review_text-04071","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no later rendered H1 or H2 heading"}}
+{"id":"review_text-04072","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no later rendered H1 or H2 heading"}}
+{"id":"review_text-04073","out":{"text":"## Review\n\n**Verdict:** READY\n**Reviewer:** focus-architecture-reviewer-agent\n**Iteration:** 1\n\n\n### Next\u000b\n","changed":["line 8: ## Next"]}}
+{"id":"review_text-04074","out":{"text":"**Verdict:** READY\n**Reviewer:** focus-architecture-reviewer-agent\n**Iteration:** 1\n\n\n### Next\u000b\n","changed":["line 6: ## Next"]}}
+{"id":"review_text-04075","out":{"valid":true}}
+{"id":"review_text-04076","out":{"valid":true}}
+{"id":"review_text-04077","out":null}
+{"id":"review_text-04078","out":null}
+{"id":"review_text-04079","out":{"valid":true}}
+{"id":"review_text-04080","out":{"valid":true}}
+{"id":"review_text-04081","out":null}
+{"id":"review_text-04082","out":null}
+{"id":"review_text-04083","out":{"valid":true}}
+{"id":"review_text-04084","out":{"valid":true}}
+{"id":"review_text-04085","out":null}
+{"id":"review_text-04086","out":null}
+{"id":"review_text-04087","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04088","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04089","out":null}
+{"id":"review_text-04090","out":null}
+{"id":"review_text-04091","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04092","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04093","out":null}
+{"id":"review_text-04094","out":null}
+{"id":"review_text-04095","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04096","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04097","out":null}
+{"id":"review_text-04098","out":null}
+{"id":"review_text-04099","out":{"valid":true}}
+{"id":"review_text-04100","out":{"valid":true}}
+{"id":"review_text-04101","out":null}
+{"id":"review_text-04102","out":null}
+{"id":"review_text-04103","out":{"valid":true}}
+{"id":"review_text-04104","out":{"valid":true}}
+{"id":"review_text-04105","out":null}
+{"id":"review_text-04106","out":null}
+{"id":"review_text-04107","out":{"valid":true}}
+{"id":"review_text-04108","out":{"valid":true}}
+{"id":"review_text-04109","out":null}
+{"id":"review_text-04110","out":null}
+{"id":"review_text-04111","out":{"valid":true}}
+{"id":"review_text-04112","out":{"valid":true}}
+{"id":"review_text-04113","out":null}
+{"id":"review_text-04114","out":null}
+{"id":"review_text-04115","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04116","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04117","out":null}
+{"id":"review_text-04118","out":null}
+{"id":"review_text-04119","out":{"valid":true}}
+{"id":"review_text-04120","out":{"valid":true}}
+{"id":"review_text-04121","out":null}
+{"id":"review_text-04122","out":null}
+{"id":"review_text-04123","out":{"valid":true}}
+{"id":"review_text-04124","out":{"valid":true}}
+{"id":"review_text-04125","out":null}
+{"id":"review_text-04126","out":null}
+{"id":"review_text-04127","out":{"valid":true}}
+{"id":"review_text-04128","out":{"valid":true}}
+{"id":"review_text-04129","out":null}
+{"id":"review_text-04130","out":null}
+{"id":"review_text-04131","out":{"valid":true}}
+{"id":"review_text-04132","out":{"valid":true}}
+{"id":"review_text-04133","out":null}
+{"id":"review_text-04134","out":null}
+{"id":"review_text-04135","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04136","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04137","out":null}
+{"id":"review_text-04138","out":null}
+{"id":"review_text-04139","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04140","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04141","out":null}
+{"id":"review_text-04142","out":null}
+{"id":"review_text-04143","out":{"valid":true}}
+{"id":"review_text-04144","out":{"valid":true}}
+{"id":"review_text-04145","out":null}
+{"id":"review_text-04146","out":null}
+{"id":"review_text-04147","out":{"valid":true}}
+{"id":"review_text-04148","out":{"valid":true}}
+{"id":"review_text-04149","out":null}
+{"id":"review_text-04150","out":null}
+{"id":"review_text-04151","out":{"valid":true}}
+{"id":"review_text-04152","out":{"valid":true}}
+{"id":"review_text-04153","out":null}
+{"id":"review_text-04154","out":null}
+{"id":"review_text-04155","out":{"valid":true}}
+{"id":"review_text-04156","out":{"valid":true}}
+{"id":"review_text-04157","out":null}
+{"id":"review_text-04158","out":null}
+{"id":"review_text-04159","out":{"valid":true}}
+{"id":"review_text-04160","out":{"valid":true}}
+{"id":"review_text-04161","out":null}
+{"id":"review_text-04162","out":null}
+{"id":"review_text-04163","out":{"valid":true}}
+{"id":"review_text-04164","out":{"valid":true}}
+{"id":"review_text-04165","out":null}
+{"id":"review_text-04166","out":null}
+{"id":"review_text-04167","out":{"valid":true}}
+{"id":"review_text-04168","out":{"valid":true}}
+{"id":"review_text-04169","out":null}
+{"id":"review_text-04170","out":null}
+{"id":"review_text-04171","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no later rendered H1 or H2 heading"}}
+{"id":"review_text-04172","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no later rendered H1 or H2 heading"}}
+{"id":"review_text-04173","out":{"text":"## Review\n\n**Verdict:** READY\n**Reviewer:** focus-architecture-reviewer-agent\n**Iteration:** 1\n  \n\t\n### Next\n","changed":["line 8: ## Next"]}}
+{"id":"review_text-04174","out":{"text":"**Verdict:** READY\n**Reviewer:** focus-architecture-reviewer-agent\n**Iteration:** 1\n  \n\t\n### Next\n","changed":["line 6: ## Next"]}}
+{"id":"review_text-04175","out":{"valid":true}}
+{"id":"review_text-04176","out":{"valid":true}}
+{"id":"review_text-04177","out":null}
+{"id":"review_text-04178","out":null}
+{"id":"review_text-04179","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-04180","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-04181","out":null}
+{"id":"review_text-04182","out":null}
+{"id":"review_text-04183","out":{"valid":true}}
+{"id":"review_text-04184","out":{"valid":true}}
+{"id":"review_text-04185","out":null}
+{"id":"review_text-04186","out":null}
+{"id":"review_text-04187","out":{"valid":true}}
+{"id":"review_text-04188","out":{"valid":true}}
+{"id":"review_text-04189","out":null}
+{"id":"review_text-04190","out":null}
+{"id":"review_text-04191","out":{"valid":true}}
+{"id":"review_text-04192","out":{"valid":true}}
+{"id":"review_text-04193","out":null}
+{"id":"review_text-04194","out":null}
+{"id":"review_text-04195","out":{"valid":true}}
+{"id":"review_text-04196","out":{"valid":true}}
+{"id":"review_text-04197","out":null}
+{"id":"review_text-04198","out":null}
+{"id":"review_text-04199","out":{"valid":true}}
+{"id":"review_text-04200","out":{"valid":true}}
+{"id":"review_text-04201","out":null}
+{"id":"review_text-04202","out":null}
+{"id":"review_text-04203","out":{"valid":true}}
+{"id":"review_text-04204","out":{"valid":true}}
+{"id":"review_text-04205","out":null}
+{"id":"review_text-04206","out":null}
+{"id":"review_text-04207","out":{"valid":true}}
+{"id":"review_text-04208","out":{"valid":true}}
+{"id":"review_text-04209","out":null}
+{"id":"review_text-04210","out":null}
+{"id":"review_text-04211","out":{"valid":true}}
+{"id":"review_text-04212","out":{"valid":true}}
+{"id":"review_text-04213","out":null}
+{"id":"review_text-04214","out":null}
+{"id":"review_text-04215","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-04216","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-04217","out":null}
+{"id":"review_text-04218","out":null}
+{"id":"review_text-04219","out":{"valid":true}}
+{"id":"review_text-04220","out":{"valid":true}}
+{"id":"review_text-04221","out":null}
+{"id":"review_text-04222","out":null}
+{"id":"review_text-04223","out":{"valid":true}}
+{"id":"review_text-04224","out":{"valid":true}}
+{"id":"review_text-04225","out":null}
+{"id":"review_text-04226","out":null}
+{"id":"review_text-04227","out":{"valid":true}}
+{"id":"review_text-04228","out":{"valid":true}}
+{"id":"review_text-04229","out":null}
+{"id":"review_text-04230","out":null}
+{"id":"review_text-04231","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04232","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04233","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04234","out":{"valid":true}}
+{"id":"review_text-04235","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04236","out":{"valid":true}}
+{"id":"review_text-04237","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04238","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04239","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04240","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04241","out":{"valid":true}}
+{"id":"review_text-04242","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04243","out":{"valid":true}}
+{"id":"review_text-04244","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04245","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04246","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04247","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04248","out":{"valid":true}}
+{"id":"review_text-04249","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04250","out":{"valid":true}}
+{"id":"review_text-04251","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04252","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04253","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04254","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04255","out":{"valid":true}}
+{"id":"review_text-04256","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04257","out":{"valid":true}}
+{"id":"review_text-04258","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04259","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04260","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04261","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04262","out":{"valid":true}}
+{"id":"review_text-04263","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04264","out":{"valid":true}}
+{"id":"review_text-04265","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04266","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04267","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04268","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04269","out":{"valid":true}}
+{"id":"review_text-04270","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04271","out":{"valid":true}}
+{"id":"review_text-04272","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04273","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04274","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04275","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04276","out":{"valid":true}}
+{"id":"review_text-04277","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04278","out":{"valid":true}}
+{"id":"review_text-04279","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04280","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04281","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04282","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-04283","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-04284","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04285","out":{"valid":true}}
+{"id":"review_text-04286","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04287","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04288","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04289","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04290","out":{"valid":true}}
+{"id":"review_text-04291","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04292","out":{"valid":true}}
+{"id":"review_text-04293","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04294","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04295","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04296","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04297","out":{"valid":true}}
+{"id":"review_text-04298","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04299","out":{"valid":true}}
+{"id":"review_text-04300","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04301","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04302","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04303","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04304","out":{"valid":true}}
+{"id":"review_text-04305","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04306","out":{"valid":true}}
+{"id":"review_text-04307","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04308","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04309","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04310","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04311","out":{"valid":true}}
+{"id":"review_text-04312","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04313","out":{"valid":true}}
+{"id":"review_text-04314","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04315","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04316","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04317","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04318","out":{"valid":true}}
+{"id":"review_text-04319","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04320","out":{"valid":true}}
+{"id":"review_text-04321","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04322","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04323","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04324","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04325","out":{"valid":true}}
+{"id":"review_text-04326","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04327","out":{"valid":true}}
+{"id":"review_text-04328","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04329","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04330","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04331","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04332","out":{"valid":true}}
+{"id":"review_text-04333","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04334","out":{"valid":true}}
+{"id":"review_text-04335","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04336","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04337","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04338","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04339","out":{"valid":true}}
+{"id":"review_text-04340","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04341","out":{"valid":true}}
+{"id":"review_text-04342","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04343","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04344","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04345","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04346","out":{"valid":true}}
+{"id":"review_text-04347","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04348","out":{"valid":true}}
+{"id":"review_text-04349","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04350","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04351","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04352","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04353","out":{"valid":true}}
+{"id":"review_text-04354","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04355","out":{"valid":true}}
+{"id":"review_text-04356","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04357","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04358","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04359","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04360","out":{"valid":true}}
+{"id":"review_text-04361","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04362","out":{"valid":true}}
+{"id":"review_text-04363","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04364","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04365","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04366","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04367","out":{"valid":true}}
+{"id":"review_text-04368","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04369","out":{"valid":true}}
+{"id":"review_text-04370","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04371","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04372","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04373","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04374","out":{"valid":true}}
+{"id":"review_text-04375","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04376","out":{"valid":true}}
+{"id":"review_text-04377","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04378","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04379","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04380","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04381","out":{"valid":true}}
+{"id":"review_text-04382","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04383","out":{"valid":true}}
+{"id":"review_text-04384","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04385","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04386","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04387","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04388","out":{"valid":true}}
+{"id":"review_text-04389","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04390","out":{"valid":true}}
+{"id":"review_text-04391","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04392","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04393","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04394","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04395","out":{"valid":true}}
+{"id":"review_text-04396","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04397","out":{"valid":true}}
+{"id":"review_text-04398","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04399","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04400","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04401","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04402","out":{"valid":true}}
+{"id":"review_text-04403","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04404","out":{"valid":true}}
+{"id":"review_text-04405","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04406","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04407","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04408","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04409","out":{"valid":true}}
+{"id":"review_text-04410","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04411","out":{"valid":true}}
+{"id":"review_text-04412","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04413","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04414","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04415","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04416","out":{"valid":true}}
+{"id":"review_text-04417","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04418","out":{"valid":true}}
+{"id":"review_text-04419","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04420","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04421","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04422","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04423","out":{"valid":true}}
+{"id":"review_text-04424","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04425","out":{"valid":true}}
+{"id":"review_text-04426","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04427","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04428","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04429","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04430","out":{"valid":true}}
+{"id":"review_text-04431","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04432","out":{"valid":true}}
+{"id":"review_text-04433","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04434","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04435","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04436","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04437","out":{"valid":true}}
+{"id":"review_text-04438","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04439","out":{"valid":true}}
+{"id":"review_text-04440","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04441","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04442","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04443","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04444","out":{"valid":true}}
+{"id":"review_text-04445","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04446","out":{"valid":true}}
+{"id":"review_text-04447","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04448","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04449","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04450","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04451","out":{"valid":true}}
+{"id":"review_text-04452","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04453","out":{"valid":true}}
+{"id":"review_text-04454","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04455","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04456","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04457","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04458","out":{"valid":true}}
+{"id":"review_text-04459","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04460","out":{"valid":true}}
+{"id":"review_text-04461","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04462","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04463","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04464","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04465","out":{"valid":true}}
+{"id":"review_text-04466","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04467","out":{"valid":true}}
+{"id":"review_text-04468","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04469","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04470","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04471","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04472","out":{"valid":true}}
+{"id":"review_text-04473","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04474","out":{"valid":true}}
+{"id":"review_text-04475","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04476","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04477","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04478","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-04479","out":{"valid":true}}
+{"id":"review_text-04480","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04481","out":{"valid":true}}
+{"id":"review_text-04482","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04483","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04484","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04485","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04486","out":{"valid":true}}
+{"id":"review_text-04487","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04488","out":{"valid":true}}
+{"id":"review_text-04489","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04490","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04491","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04492","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04493","out":{"valid":true}}
+{"id":"review_text-04494","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04495","out":{"valid":true}}
+{"id":"review_text-04496","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04497","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04498","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04499","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04500","out":{"valid":true}}
+{"id":"review_text-04501","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04502","out":{"valid":true}}
+{"id":"review_text-04503","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04504","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04505","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04506","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04507","out":{"valid":true}}
+{"id":"review_text-04508","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04509","out":{"valid":true}}
+{"id":"review_text-04510","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04511","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04512","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04513","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04514","out":{"valid":true}}
+{"id":"review_text-04515","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04516","out":{"valid":true}}
+{"id":"review_text-04517","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04518","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04519","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04520","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04521","out":{"valid":true}}
+{"id":"review_text-04522","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04523","out":{"valid":true}}
+{"id":"review_text-04524","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04525","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04526","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04527","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04528","out":{"valid":true}}
+{"id":"review_text-04529","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04530","out":{"valid":true}}
+{"id":"review_text-04531","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04532","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04533","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04534","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04535","out":{"valid":true}}
+{"id":"review_text-04536","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04537","out":{"valid":true}}
+{"id":"review_text-04538","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04539","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04540","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04541","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04542","out":{"valid":true}}
+{"id":"review_text-04543","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04544","out":{"valid":true}}
+{"id":"review_text-04545","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04546","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04547","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04548","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04549","out":{"valid":true}}
+{"id":"review_text-04550","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04551","out":{"valid":true}}
+{"id":"review_text-04552","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04553","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04554","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04555","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04556","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04557","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04558","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04559","out":{"valid":true}}
+{"id":"review_text-04560","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04561","out":{"valid":true}}
+{"id":"review_text-04562","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04563","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04564","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04565","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04566","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04567","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04568","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04569","out":{"valid":true}}
+{"id":"review_text-04570","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04571","out":{"valid":true}}
+{"id":"review_text-04572","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04573","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04574","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04575","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04576","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04577","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04578","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04579","out":{"valid":true}}
+{"id":"review_text-04580","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04581","out":{"valid":true}}
+{"id":"review_text-04582","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04583","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04584","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04585","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04586","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04587","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04588","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04589","out":{"valid":true}}
+{"id":"review_text-04590","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04591","out":{"valid":true}}
+{"id":"review_text-04592","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04593","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04594","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04595","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04596","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04597","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04598","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04599","out":{"valid":true}}
+{"id":"review_text-04600","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04601","out":{"valid":true}}
+{"id":"review_text-04602","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04603","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04604","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04605","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04606","out":{"valid":true}}
+{"id":"review_text-04607","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04608","out":{"valid":true}}
+{"id":"review_text-04609","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04610","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04611","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04612","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04613","out":{"valid":true}}
+{"id":"review_text-04614","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04615","out":{"valid":true}}
+{"id":"review_text-04616","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04617","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04618","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04619","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04620","out":{"valid":true}}
+{"id":"review_text-04621","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04622","out":{"valid":true}}
+{"id":"review_text-04623","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04624","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04625","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04626","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04627","out":{"valid":true}}
+{"id":"review_text-04628","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04629","out":{"valid":true}}
+{"id":"review_text-04630","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04631","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04632","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04633","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04634","out":{"valid":true}}
+{"id":"review_text-04635","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04636","out":{"valid":true}}
+{"id":"review_text-04637","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04638","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04639","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04640","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04641","out":{"valid":true}}
+{"id":"review_text-04642","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04643","out":{"valid":true}}
+{"id":"review_text-04644","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04645","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04646","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04647","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04648","out":{"valid":true}}
+{"id":"review_text-04649","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04650","out":{"valid":true}}
+{"id":"review_text-04651","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04652","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04653","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04654","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04655","out":{"valid":true}}
+{"id":"review_text-04656","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04657","out":{"valid":true}}
+{"id":"review_text-04658","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04659","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04660","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04661","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04662","out":{"valid":true}}
+{"id":"review_text-04663","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04664","out":{"valid":true}}
+{"id":"review_text-04665","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04666","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04667","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04668","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04669","out":{"valid":true}}
+{"id":"review_text-04670","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04671","out":{"valid":true}}
+{"id":"review_text-04672","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04673","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04674","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04675","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04676","out":{"valid":true}}
+{"id":"review_text-04677","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04678","out":{"valid":true}}
+{"id":"review_text-04679","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04680","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04681","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04682","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04683","out":{"valid":true}}
+{"id":"review_text-04684","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04685","out":{"valid":true}}
+{"id":"review_text-04686","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04687","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04688","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04689","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04690","out":{"valid":true}}
+{"id":"review_text-04691","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04692","out":{"valid":true}}
+{"id":"review_text-04693","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04694","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04695","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04696","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04697","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04698","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04699","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04700","out":{"valid":true}}
+{"id":"review_text-04701","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04702","out":{"valid":true}}
+{"id":"review_text-04703","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04704","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04705","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04706","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04707","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04708","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04709","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04710","out":{"valid":true}}
+{"id":"review_text-04711","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04712","out":{"valid":true}}
+{"id":"review_text-04713","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04714","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04715","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04716","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04717","out":{"valid":true}}
+{"id":"review_text-04718","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04719","out":{"valid":true}}
+{"id":"review_text-04720","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04721","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04722","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04723","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04724","out":{"valid":true}}
+{"id":"review_text-04725","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04726","out":{"valid":true}}
+{"id":"review_text-04727","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04728","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04729","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04730","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04731","out":{"valid":true}}
+{"id":"review_text-04732","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04733","out":{"valid":true}}
+{"id":"review_text-04734","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04735","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04736","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04737","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04738","out":{"valid":true}}
+{"id":"review_text-04739","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04740","out":{"valid":true}}
+{"id":"review_text-04741","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04742","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04743","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04744","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04745","out":{"valid":true}}
+{"id":"review_text-04746","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04747","out":{"valid":true}}
+{"id":"review_text-04748","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04749","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04750","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04751","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04752","out":{"valid":true}}
+{"id":"review_text-04753","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04754","out":{"valid":true}}
+{"id":"review_text-04755","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04756","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04757","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04758","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04759","out":{"valid":true}}
+{"id":"review_text-04760","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04761","out":{"valid":true}}
+{"id":"review_text-04762","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04763","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04764","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04765","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04766","out":{"valid":true}}
+{"id":"review_text-04767","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04768","out":{"valid":true}}
+{"id":"review_text-04769","out":{"valid":false,"reason":"the appended bytes must begin with only blank lines followed by an exact `## Review` heading"}}
+{"id":"review_text-04770","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04771","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04772","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04773","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04774","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04775","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04776","out":{"valid":true}}
+{"id":"review_text-04777","out":{"valid":true}}
+{"id":"review_text-04778","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04779","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04780","out":{"valid":true}}
+{"id":"review_text-04781","out":{"valid":true}}
+{"id":"review_text-04782","out":{"valid":true}}
+{"id":"review_text-04783","out":{"valid":true}}
+{"id":"review_text-04784","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04785","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04786","out":{"valid":true}}
+{"id":"review_text-04787","out":{"valid":true}}
+{"id":"review_text-04788","out":{"valid":true}}
+{"id":"review_text-04789","out":{"valid":true}}
+{"id":"review_text-04790","out":{"valid":true}}
+{"id":"review_text-04791","out":{"valid":true}}
+{"id":"review_text-04792","out":{"valid":true}}
+{"id":"review_text-04793","out":{"valid":true}}
+{"id":"review_text-04794","out":{"valid":true}}
+{"id":"review_text-04795","out":{"valid":true}}
+{"id":"review_text-04796","out":{"valid":true}}
+{"id":"review_text-04797","out":{"valid":true}}
+{"id":"review_text-04798","out":{"valid":true}}
+{"id":"review_text-04799","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04800","out":{"valid":true}}
+{"id":"review_text-04801","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04802","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04803","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04804","out":{"valid":true}}
+{"id":"review_text-04805","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04806","out":{"valid":true}}
+{"id":"review_text-04807","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04808","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04809","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04810","out":{"valid":true}}
+{"id":"review_text-04811","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04812","out":{"valid":true}}
+{"id":"review_text-04813","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04814","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04815","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04816","out":{"valid":true}}
+{"id":"review_text-04817","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04818","out":{"valid":true}}
+{"id":"review_text-04819","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04820","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04821","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04822","out":{"valid":true}}
+{"id":"review_text-04823","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04824","out":{"valid":true}}
+{"id":"review_text-04825","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04826","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04827","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04828","out":{"valid":true}}
+{"id":"review_text-04829","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04830","out":{"valid":true}}
+{"id":"review_text-04831","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04832","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04833","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04834","out":{"valid":true}}
+{"id":"review_text-04835","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no rendered HTML H1 or H2 heading"}}
+{"id":"review_text-04836","out":{"valid":true}}
+{"id":"review_text-04837","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04838","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04839","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04840","out":{"valid":true}}
+{"id":"review_text-04841","out":{"valid":true}}
+{"id":"review_text-04842","out":null}
+{"id":"review_text-04843","out":{"valid":true}}
+{"id":"review_text-04844","out":{"valid":true}}
+{"id":"review_text-04845","out":null}
+{"id":"review_text-04846","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-04847","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-04848","out":null}
+{"id":"review_text-04849","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04850","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04851","out":null}
+{"id":"review_text-04852","out":{"valid":true}}
+{"id":"review_text-04853","out":{"valid":true}}
+{"id":"review_text-04854","out":null}
+{"id":"review_text-04855","out":{"valid":true}}
+{"id":"review_text-04856","out":{"valid":true}}
+{"id":"review_text-04857","out":null}
+{"id":"review_text-04858","out":{"valid":true}}
+{"id":"review_text-04859","out":{"valid":true}}
+{"id":"review_text-04860","out":null}
+{"id":"review_text-04861","out":{"valid":true}}
+{"id":"review_text-04862","out":{"valid":true}}
+{"id":"review_text-04863","out":null}
+{"id":"review_text-04864","out":{"valid":true}}
+{"id":"review_text-04865","out":{"valid":true}}
+{"id":"review_text-04866","out":null}
+{"id":"review_text-04867","out":{"valid":true}}
+{"id":"review_text-04868","out":{"valid":true}}
+{"id":"review_text-04869","out":null}
+{"id":"review_text-04870","out":{"valid":true}}
+{"id":"review_text-04871","out":{"valid":true}}
+{"id":"review_text-04872","out":null}
+{"id":"review_text-04873","out":{"valid":true}}
+{"id":"review_text-04874","out":{"valid":true}}
+{"id":"review_text-04875","out":null}
+{"id":"review_text-04876","out":{"valid":true}}
+{"id":"review_text-04877","out":{"valid":true}}
+{"id":"review_text-04878","out":null}
+{"id":"review_text-04879","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04880","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04881","out":null}
+{"id":"review_text-04882","out":{"valid":true}}
+{"id":"review_text-04883","out":{"valid":true}}
+{"id":"review_text-04884","out":null}
+{"id":"review_text-04885","out":{"valid":true}}
+{"id":"review_text-04886","out":{"valid":true}}
+{"id":"review_text-04887","out":null}
+{"id":"review_text-04888","out":{"valid":true}}
+{"id":"review_text-04889","out":{"valid":true}}
+{"id":"review_text-04890","out":null}
+{"id":"review_text-04891","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no later rendered H1 or H2 heading"}}
+{"id":"review_text-04892","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no later rendered H1 or H2 heading"}}
+{"id":"review_text-04893","out":{"text":"**Verdict:** READY\n**Reviewer:** focus-architecture-reviewer-agent\n**Iteration:** 1\n~~\n### Next\n~~\n","changed":["line 5: ## Next"]}}
+{"id":"review_text-04894","out":{"valid":true}}
+{"id":"review_text-04895","out":{"valid":true}}
+{"id":"review_text-04896","out":null}
+{"id":"review_text-04897","out":{"valid":true}}
+{"id":"review_text-04898","out":{"valid":true}}
+{"id":"review_text-04899","out":null}
+{"id":"review_text-04900","out":{"valid":true}}
+{"id":"review_text-04901","out":{"valid":true}}
+{"id":"review_text-04902","out":null}
+{"id":"review_text-04903","out":{"valid":true}}
+{"id":"review_text-04904","out":{"valid":true}}
+{"id":"review_text-04905","out":null}
+{"id":"review_text-04906","out":{"valid":false,"reason":"the review has two Review sections; keep one and write it whole"}}
+{"id":"review_text-04907","out":{"valid":true}}
+{"id":"review_text-04908","out":null}
+{"id":"review_text-04909","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04910","out":{"valid":true}}
+{"id":"review_text-04911","out":{"valid":true}}
+{"id":"review_text-04912","out":{"valid":true}}
+{"id":"review_text-04913","out":{"valid":true}}
+{"id":"review_text-04914","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04915","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04916","out":{"valid":true}}
+{"id":"review_text-04917","out":{"valid":true}}
+{"id":"review_text-04918","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04919","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04920","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04921","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04922","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04923","out":{"valid":true}}
+{"id":"review_text-04924","out":{"valid":true}}
+{"id":"review_text-04925","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04926","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04927","out":{"valid":true}}
+{"id":"review_text-04928","out":{"valid":true}}
+{"id":"review_text-04929","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04930","out":{"valid":true}}
+{"id":"review_text-04931","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04932","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04933","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04934","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04935","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04936","out":{"valid":true}}
+{"id":"review_text-04937","out":{"valid":true}}
+{"id":"review_text-04938","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04939","out":{"valid":true}}
+{"id":"review_text-04940","out":{"valid":true}}
+{"id":"review_text-04941","out":{"valid":true}}
+{"id":"review_text-04942","out":{"valid":true}}
+{"id":"review_text-04943","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04944","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04945","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04946","out":{"valid":true}}
+{"id":"review_text-04947","out":{"valid":true}}
+{"id":"review_text-04948","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04949","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04950","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04951","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04952","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04953","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-04954","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04955","out":{"valid":true}}
+{"id":"review_text-04956","out":{"valid":true}}
+{"id":"review_text-04957","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04958","out":{"valid":true}}
+{"id":"review_text-04959","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04960","out":{"valid":true}}
+{"id":"review_text-04961","out":{"valid":true}}
+{"id":"review_text-04962","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04963","out":{"valid":true}}
+{"id":"review_text-04964","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04965","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04966","out":{"valid":true}}
+{"id":"review_text-04967","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04968","out":{"valid":true}}
+{"id":"review_text-04969","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04970","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04971","out":{"valid":true}}
+{"id":"review_text-04972","out":{"valid":true}}
+{"id":"review_text-04973","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04974","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04975","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04976","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04977","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04978","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04979","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04980","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04981","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04982","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04983","out":{"valid":true}}
+{"id":"review_text-04984","out":{"valid":true}}
+{"id":"review_text-04985","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04986","out":{"valid":true}}
+{"id":"review_text-04987","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04988","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04989","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04990","out":{"valid":true}}
+{"id":"review_text-04991","out":{"valid":true}}
+{"id":"review_text-04992","out":{"valid":true}}
+{"id":"review_text-04993","out":{"valid":true}}
+{"id":"review_text-04994","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04995","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-04996","out":{"valid":true}}
+{"id":"review_text-04997","out":{"valid":true}}
+{"id":"review_text-04998","out":{"valid":true}}
+{"id":"review_text-04999","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05000","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05001","out":{"valid":true}}
+{"id":"review_text-05002","out":{"valid":true}}
+{"id":"review_text-05003","out":{"valid":true}}
+{"id":"review_text-05004","out":{"valid":true}}
+{"id":"review_text-05005","out":{"valid":true}}
+{"id":"review_text-05006","out":{"valid":true}}
+{"id":"review_text-05007","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05008","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05009","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05010","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05011","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05012","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05013","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05014","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05015","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05016","out":{"valid":true}}
+{"id":"review_text-05017","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05018","out":{"valid":true}}
+{"id":"review_text-05019","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05020","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05021","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05022","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no later rendered H1 or H2 heading"}}
+{"id":"review_text-05023","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05024","out":{"valid":true}}
+{"id":"review_text-05025","out":{"valid":true}}
+{"id":"review_text-05026","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05027","out":{"valid":true}}
+{"id":"review_text-05028","out":{"valid":true}}
+{"id":"review_text-05029","out":{"valid":true}}
+{"id":"review_text-05030","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05031","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05032","out":{"valid":true}}
+{"id":"review_text-05033","out":{"valid":true}}
+{"id":"review_text-05034","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05035","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05036","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05037","out":{"valid":true}}
+{"id":"review_text-05038","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05039","out":{"valid":true}}
+{"id":"review_text-05040","out":{"valid":true}}
+{"id":"review_text-05041","out":{"valid":true}}
+{"id":"review_text-05042","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05043","out":{"valid":true}}
+{"id":"review_text-05044","out":{"valid":true}}
+{"id":"review_text-05045","out":{"valid":true}}
+{"id":"review_text-05046","out":{"valid":true}}
+{"id":"review_text-05047","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05048","out":{"valid":true}}
+{"id":"review_text-05049","out":{"valid":true}}
+{"id":"review_text-05050","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05051","out":{"valid":true}}
+{"id":"review_text-05052","out":{"valid":true}}
+{"id":"review_text-05053","out":{"valid":true}}
+{"id":"review_text-05054","out":{"valid":true}}
+{"id":"review_text-05055","out":{"valid":true}}
+{"id":"review_text-05056","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05057","out":{"valid":true}}
+{"id":"review_text-05058","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05059","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05060","out":{"valid":true}}
+{"id":"review_text-05061","out":{"valid":true}}
+{"id":"review_text-05062","out":{"valid":true}}
+{"id":"review_text-05063","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05064","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05065","out":{"valid":true}}
+{"id":"review_text-05066","out":{"valid":true}}
+{"id":"review_text-05067","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05068","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05069","out":{"valid":true}}
+{"id":"review_text-05070","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05071","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05072","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05073","out":{"valid":true}}
+{"id":"review_text-05074","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05075","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05076","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05077","out":{"valid":true}}
+{"id":"review_text-05078","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05079","out":{"valid":true}}
+{"id":"review_text-05080","out":{"valid":true}}
+{"id":"review_text-05081","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05082","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05083","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05084","out":{"valid":true}}
+{"id":"review_text-05085","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05086","out":{"valid":true}}
+{"id":"review_text-05087","out":{"valid":true}}
+{"id":"review_text-05088","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05089","out":{"valid":true}}
+{"id":"review_text-05090","out":{"valid":true}}
+{"id":"review_text-05091","out":{"valid":true}}
+{"id":"review_text-05092","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05093","out":{"valid":true}}
+{"id":"review_text-05094","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05095","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05096","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05097","out":{"valid":true}}
+{"id":"review_text-05098","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05099","out":{"valid":true}}
+{"id":"review_text-05100","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05101","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05102","out":{"valid":true}}
+{"id":"review_text-05103","out":{"valid":true}}
+{"id":"review_text-05104","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05105","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05106","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05107","out":{"valid":true}}
+{"id":"review_text-05108","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05109","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05110","out":{"valid":true}}
+{"id":"review_text-05111","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05112","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05113","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05114","out":{"valid":true}}
+{"id":"review_text-05115","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05116","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05117","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05118","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05119","out":{"valid":true}}
+{"id":"review_text-05120","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05121","out":{"valid":true}}
+{"id":"review_text-05122","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05123","out":{"valid":true}}
+{"id":"review_text-05124","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05125","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05126","out":{"valid":true}}
+{"id":"review_text-05127","out":{"valid":true}}
+{"id":"review_text-05128","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05129","out":{"valid":true}}
+{"id":"review_text-05130","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05131","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05132","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05133","out":{"valid":true}}
+{"id":"review_text-05134","out":{"valid":true}}
+{"id":"review_text-05135","out":{"valid":true}}
+{"id":"review_text-05136","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05137","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05138","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05139","out":{"valid":true}}
+{"id":"review_text-05140","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05141","out":{"valid":true}}
+{"id":"review_text-05142","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05143","out":{"valid":true}}
+{"id":"review_text-05144","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05145","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05146","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05147","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05148","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05149","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05150","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05151","out":{"valid":true}}
+{"id":"review_text-05152","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05153","out":{"valid":true}}
+{"id":"review_text-05154","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05155","out":{"valid":true}}
+{"id":"review_text-05156","out":{"valid":true}}
+{"id":"review_text-05157","out":{"valid":true}}
+{"id":"review_text-05158","out":{"valid":true}}
+{"id":"review_text-05159","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05160","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05161","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05162","out":{"valid":true}}
+{"id":"review_text-05163","out":{"valid":true}}
+{"id":"review_text-05164","out":{"valid":true}}
+{"id":"review_text-05165","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05166","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05167","out":{"valid":true}}
+{"id":"review_text-05168","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05169","out":{"valid":true}}
+{"id":"review_text-05170","out":{"valid":true}}
+{"id":"review_text-05171","out":{"valid":true}}
+{"id":"review_text-05172","out":{"valid":true}}
+{"id":"review_text-05173","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05174","out":{"valid":true}}
+{"id":"review_text-05175","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05176","out":{"valid":true}}
+{"id":"review_text-05177","out":{"valid":true}}
+{"id":"review_text-05178","out":{"valid":true}}
+{"id":"review_text-05179","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05180","out":{"valid":true}}
+{"id":"review_text-05181","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05182","out":{"valid":true}}
+{"id":"review_text-05183","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05184","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05185","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05186","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05187","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05188","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05189","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05190","out":{"valid":true}}
+{"id":"review_text-05191","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05192","out":{"valid":true}}
+{"id":"review_text-05193","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05194","out":{"valid":true}}
+{"id":"review_text-05195","out":{"valid":true}}
+{"id":"review_text-05196","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05197","out":{"valid":true}}
+{"id":"review_text-05198","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05199","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05200","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05201","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05202","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05203","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05204","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05205","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05206","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05207","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05208","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05209","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05210","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05211","out":{"valid":true}}
+{"id":"review_text-05212","out":{"valid":true}}
+{"id":"review_text-05213","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05214","out":{"valid":true}}
+{"id":"review_text-05215","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-05216","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05217","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05218","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05219","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05220","out":{"valid":true}}
+{"id":"review_text-05221","out":{"valid":true}}
+{"id":"review_text-05222","out":{"valid":true}}
+{"id":"review_text-05223","out":{"valid":true}}
+{"id":"review_text-05224","out":{"valid":true}}
+{"id":"review_text-05225","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05226","out":{"valid":true}}
+{"id":"review_text-05227","out":{"valid":true}}
+{"id":"review_text-05228","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05229","out":{"valid":true}}
+{"id":"review_text-05230","out":{"valid":true}}
+{"id":"review_text-05231","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05232","out":{"valid":true}}
+{"id":"review_text-05233","out":{"valid":true}}
+{"id":"review_text-05234","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05235","out":{"valid":true}}
+{"id":"review_text-05236","out":{"valid":true}}
+{"id":"review_text-05237","out":{"valid":true}}
+{"id":"review_text-05238","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05239","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-05240","out":{"valid":true}}
+{"id":"review_text-05241","out":{"valid":true}}
+{"id":"review_text-05242","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05243","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05244","out":{"valid":true}}
+{"id":"review_text-05245","out":{"valid":true}}
+{"id":"review_text-05246","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05247","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05248","out":{"valid":true}}
+{"id":"review_text-05249","out":{"valid":true}}
+{"id":"review_text-05250","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05251","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05252","out":{"valid":true}}
+{"id":"review_text-05253","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05254","out":{"valid":true}}
+{"id":"review_text-05255","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05256","out":{"valid":true}}
+{"id":"review_text-05257","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05258","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05259","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05260","out":{"valid":true}}
+{"id":"review_text-05261","out":{"valid":true}}
+{"id":"review_text-05262","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05263","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05264","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05265","out":{"valid":true}}
+{"id":"review_text-05266","out":{"valid":true}}
+{"id":"review_text-05267","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05268","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-05269","out":{"valid":true}}
+{"id":"review_text-05270","out":{"valid":true}}
+{"id":"review_text-05271","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05272","out":{"valid":true}}
+{"id":"review_text-05273","out":{"valid":true}}
+{"id":"review_text-05274","out":{"valid":true}}
+{"id":"review_text-05275","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05276","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05277","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05278","out":{"valid":true}}
+{"id":"review_text-05279","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05280","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05281","out":{"valid":true}}
+{"id":"review_text-05282","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05283","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05284","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05285","out":{"valid":true}}
+{"id":"review_text-05286","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05287","out":{"valid":true}}
+{"id":"review_text-05288","out":{"valid":true}}
+{"id":"review_text-05289","out":{"valid":true}}
+{"id":"review_text-05290","out":{"valid":true}}
+{"id":"review_text-05291","out":{"valid":true}}
+{"id":"review_text-05292","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05293","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05294","out":{"valid":true}}
+{"id":"review_text-05295","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05296","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05297","out":{"valid":true}}
+{"id":"review_text-05298","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05299","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05300","out":{"valid":true}}
+{"id":"review_text-05301","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05302","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05303","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05304","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05305","out":{"valid":true}}
+{"id":"review_text-05306","out":{"valid":true}}
+{"id":"review_text-05307","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05308","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05309","out":{"valid":true}}
+{"id":"review_text-05310","out":{"valid":true}}
+{"id":"review_text-05311","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05312","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05313","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05314","out":{"valid":true}}
+{"id":"review_text-05315","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05316","out":{"valid":true}}
+{"id":"review_text-05317","out":{"valid":true}}
+{"id":"review_text-05318","out":{"valid":true}}
+{"id":"review_text-05319","out":{"valid":true}}
+{"id":"review_text-05320","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05321","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05322","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05323","out":{"valid":true}}
+{"id":"review_text-05324","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05325","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05326","out":{"valid":true}}
+{"id":"review_text-05327","out":{"valid":true}}
+{"id":"review_text-05328","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05329","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05330","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05331","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05332","out":{"valid":true}}
+{"id":"review_text-05333","out":{"valid":true}}
+{"id":"review_text-05334","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05335","out":{"valid":true}}
+{"id":"review_text-05336","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05337","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05338","out":{"valid":true}}
+{"id":"review_text-05339","out":{"valid":true}}
+{"id":"review_text-05340","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05341","out":{"valid":true}}
+{"id":"review_text-05342","out":{"valid":true}}
+{"id":"review_text-05343","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05344","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05345","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05346","out":{"valid":true}}
+{"id":"review_text-05347","out":{"valid":true}}
+{"id":"review_text-05348","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05349","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05350","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-05351","out":{"valid":true}}
+{"id":"review_text-05352","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05353","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05354","out":{"valid":true}}
+{"id":"review_text-05355","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05356","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05357","out":{"valid":true}}
+{"id":"review_text-05358","out":{"valid":true}}
+{"id":"review_text-05359","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05360","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05361","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05362","out":{"valid":false,"heading":true,"reason":"the reviewer appendix must be terminal and contain no later rendered H1 or H2 heading"}}
+{"id":"review_text-05363","out":{"valid":true}}
+{"id":"review_text-05364","out":{"valid":true}}
+{"id":"review_text-05365","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05366","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05367","out":{"valid":true}}
+{"id":"review_text-05368","out":{"valid":true}}
+{"id":"review_text-05369","out":{"valid":true}}
+{"id":"review_text-05370","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05371","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05372","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05373","out":{"valid":true}}
+{"id":"review_text-05374","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05375","out":{"valid":true}}
+{"id":"review_text-05376","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05377","out":{"valid":true}}
+{"id":"review_text-05378","out":{"valid":true}}
+{"id":"review_text-05379","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05380","out":{"valid":true}}
+{"id":"review_text-05381","out":{"valid":true}}
+{"id":"review_text-05382","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05383","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05384","out":{"valid":true}}
+{"id":"review_text-05385","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05386","out":{"valid":true}}
+{"id":"review_text-05387","out":{"valid":true}}
+{"id":"review_text-05388","out":{"valid":true}}
+{"id":"review_text-05389","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05390","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05391","out":{"valid":true}}
+{"id":"review_text-05392","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05393","out":{"valid":true}}
+{"id":"review_text-05394","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-05395","out":{"valid":true}}
+{"id":"review_text-05396","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05397","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05398","out":{"valid":true}}
+{"id":"review_text-05399","out":{"valid":true}}
+{"id":"review_text-05400","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05401","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05402","out":{"valid":true}}
+{"id":"review_text-05403","out":{"valid":true}}
+{"id":"review_text-05404","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05405","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05406","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05407","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05408","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05409","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05410","out":{"valid":true}}
+{"id":"review_text-05411","out":{"valid":true}}
+{"id":"review_text-05412","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05413","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05414","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05415","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05416","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05417","out":{"valid":true}}
+{"id":"review_text-05418","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05419","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05420","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05421","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05422","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05423","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05424","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05425","out":{"valid":true}}
+{"id":"review_text-05426","out":{"valid":true}}
+{"id":"review_text-05427","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05428","out":{"valid":true}}
+{"id":"review_text-05429","out":{"valid":true}}
+{"id":"review_text-05430","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05431","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05432","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05433","out":{"valid":true}}
+{"id":"review_text-05434","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05435","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-05436","out":{"valid":true}}
+{"id":"review_text-05437","out":{"valid":true}}
+{"id":"review_text-05438","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05439","out":{"valid":true}}
+{"id":"review_text-05440","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05441","out":{"valid":true}}
+{"id":"review_text-05442","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05443","out":{"valid":true}}
+{"id":"review_text-05444","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05445","out":{"valid":true}}
+{"id":"review_text-05446","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05447","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05448","out":{"valid":true}}
+{"id":"review_text-05449","out":{"valid":true}}
+{"id":"review_text-05450","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05451","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05452","out":{"valid":true}}
+{"id":"review_text-05453","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05454","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05455","out":{"valid":true}}
+{"id":"review_text-05456","out":{"valid":true}}
+{"id":"review_text-05457","out":{"valid":true}}
+{"id":"review_text-05458","out":{"valid":true}}
+{"id":"review_text-05459","out":{"valid":true}}
+{"id":"review_text-05460","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05461","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05462","out":{"valid":true}}
+{"id":"review_text-05463","out":{"valid":true}}
+{"id":"review_text-05464","out":{"valid":true}}
+{"id":"review_text-05465","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05466","out":{"valid":true}}
+{"id":"review_text-05467","out":{"valid":true}}
+{"id":"review_text-05468","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05469","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05470","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05471","out":{"valid":true}}
+{"id":"review_text-05472","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05473","out":{"valid":true}}
+{"id":"review_text-05474","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05475","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05476","out":{"valid":true}}
+{"id":"review_text-05477","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05478","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05479","out":{"valid":true}}
+{"id":"review_text-05480","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05481","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05482","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05483","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05484","out":{"valid":true}}
+{"id":"review_text-05485","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-05486","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05487","out":{"valid":true}}
+{"id":"review_text-05488","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05489","out":{"valid":true}}
+{"id":"review_text-05490","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05491","out":{"valid":true}}
+{"id":"review_text-05492","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05493","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05494","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05495","out":{"valid":true}}
+{"id":"review_text-05496","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05497","out":{"valid":true}}
+{"id":"review_text-05498","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05499","out":{"valid":true}}
+{"id":"review_text-05500","out":{"valid":true}}
+{"id":"review_text-05501","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05502","out":{"valid":true}}
+{"id":"review_text-05503","out":{"valid":true}}
+{"id":"review_text-05504","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05505","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05506","out":{"valid":true}}
+{"id":"review_text-05507","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05508","out":{"valid":true}}
+{"id":"review_text-05509","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05510","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05511","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05512","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05513","out":{"valid":true}}
+{"id":"review_text-05514","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05515","out":{"valid":true}}
+{"id":"review_text-05516","out":{"valid":true}}
+{"id":"review_text-05517","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05518","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05519","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05520","out":{"valid":true}}
+{"id":"review_text-05521","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05522","out":{"valid":true}}
+{"id":"review_text-05523","out":{"valid":true}}
+{"id":"review_text-05524","out":{"valid":true}}
+{"id":"review_text-05525","out":{"valid":true}}
+{"id":"review_text-05526","out":{"valid":true}}
+{"id":"review_text-05527","out":{"valid":true}}
+{"id":"review_text-05528","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05529","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05530","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05531","out":{"valid":true}}
+{"id":"review_text-05532","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one canonical verdict line matching --verdict"}}
+{"id":"review_text-05533","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05534","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05535","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05536","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05537","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05538","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05539","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05540","out":{"valid":true}}
+{"id":"review_text-05541","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05542","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05543","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05544","out":{"valid":true}}
+{"id":"review_text-05545","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05546","out":{"valid":true}}
+{"id":"review_text-05547","out":{"valid":true}}
+{"id":"review_text-05548","out":{"valid":true}}
+{"id":"review_text-05549","out":{"valid":true}}
+{"id":"review_text-05550","out":{"valid":true}}
+{"id":"review_text-05551","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05552","out":{"valid":true}}
+{"id":"review_text-05553","out":{"valid":true}}
+{"id":"review_text-05554","out":{"valid":true}}
+{"id":"review_text-05555","out":{"valid":true}}
+{"id":"review_text-05556","out":{"valid":true}}
+{"id":"review_text-05557","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05558","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05559","out":{"valid":true}}
+{"id":"review_text-05560","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05561","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05562","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05563","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05564","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05565","out":{"valid":true}}
+{"id":"review_text-05566","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05567","out":{"valid":true}}
+{"id":"review_text-05568","out":{"valid":true}}
+{"id":"review_text-05569","out":{"valid":true}}
+{"id":"review_text-05570","out":{"valid":true}}
+{"id":"review_text-05571","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05572","out":{"valid":true}}
+{"id":"review_text-05573","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05574","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05575","out":{"valid":true}}
+{"id":"review_text-05576","out":{"valid":true}}
+{"id":"review_text-05577","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05578","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05579","out":{"valid":true}}
+{"id":"review_text-05580","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05581","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05582","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05583","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05584","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05585","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05586","out":{"valid":true}}
+{"id":"review_text-05587","out":{"valid":true}}
+{"id":"review_text-05588","out":{"valid":true}}
+{"id":"review_text-05589","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05590","out":{"valid":true}}
+{"id":"review_text-05591","out":{"valid":true}}
+{"id":"review_text-05592","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05593","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05594","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05595","out":{"valid":false,"reason":"the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer"}}
+{"id":"review_text-05596","out":{"valid":true}}

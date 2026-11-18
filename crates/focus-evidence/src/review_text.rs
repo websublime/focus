@@ -11,7 +11,7 @@
 //! the analysis places.
 
 use focus_js::{num, re, text as js_text};
-use focus_markdown::rendered::{self, MARK_CLOSE, MARK_OPEN};
+use focus_markdown::rendered::{self, MARK_CLOSE, MARK_OPEN, NON_AUTHORITY};
 use focus_markdown::{LineKind, analyse};
 
 /// What the request the review answers expects of it.
@@ -38,6 +38,10 @@ pub enum Validity {
         heading: bool,
     },
 }
+
+/// Why a review that holds a tilde is refused when a value it must state
+/// holds one too: Focus's own sentence, for a deliberate deviation.
+pub const STRUCK_TEXT_NOT_READ: &str = "the review holds a tilde, and a value it must state holds a tilde or U+0003: text struck through is not read, so the two cannot be matched";
 
 const fn invalid(reason: &'static str) -> Validity {
     Validity::Invalid {
@@ -123,6 +127,22 @@ pub fn validate_review_appendix(appendix: &[u8], expected: &Expected<'_>) -> Val
         .count();
     if sections + usize::from(opening.is_some()) >= 2 {
         return invalid("the review has two Review sections; keep one and write it whole");
+    }
+    // A value that holds a tilde reads one way here and another upstream,
+    // where the tilde may strike text (see `focus_markdown::rendered`). It
+    // matters only to an expected value that holds a tilde itself, or the
+    // mark struck text is rendered as: that review is refused, not judged.
+    if section.contains('~')
+        && [
+            Some(expected.verdict),
+            Some(expected.reviewer),
+            expected.review_challenge,
+        ]
+        .into_iter()
+        .flatten()
+        .any(|value| value.contains(['~', NON_AUTHORITY]))
+    {
+        return invalid(STRUCK_TEXT_NOT_READ);
     }
     // Inside the one section a line repeated word for word is one line; two
     // different values are still two lines, and refused.
@@ -231,4 +251,90 @@ pub fn demote_review_headings(body: &[u8]) -> Option<Demoted> {
         bytes: out.into_bytes(),
         changed,
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{Expected, STRUCK_TEXT_NOT_READ, Validity, validate_review_appendix};
+
+    fn expecting(reviewer: &str) -> Expected<'_> {
+        Expected {
+            verdict: "READY",
+            reviewer,
+            iteration: 1.0,
+            review_challenge: None,
+            standalone: false,
+        }
+    }
+
+    fn review(reviewer: &str, after: &str) -> Vec<u8> {
+        format!(
+            "## Review\n\n**Verdict:** READY\n**Reviewer:** {reviewer}\n**Iteration:** 1\n{after}"
+        )
+        .into_bytes()
+    }
+
+    /// Deliberate deviation. Upstream's renderer strikes text between
+    /// tildes, so a reviewer named `a~b~c` is not the one a review states
+    /// by writing the name, and one named `a~b` is until a later tilde in
+    /// the paragraph strikes the rest. Focus does not read struck text (the
+    /// parser's rule for it is another, see `focus_markdown::rendered`), so
+    /// it does not say which: a review that holds a tilde is refused when a
+    /// value it must state holds a tilde, or the mark struck text is
+    /// rendered as, in a sentence of Focus's own.
+    #[test]
+    fn a_tilde_in_the_review_and_in_a_value_it_must_state_is_refused() {
+        let refused = Validity::Invalid {
+            reason: STRUCK_TEXT_NOT_READ,
+            heading: false,
+        };
+        for (reviewer, written, after) in [
+            ("a~b~c", "a~b~c", ""),
+            ("a~b", "a~b", ""),
+            ("a~b", "a~b", "and c~d\n"),
+            ("a\u{3}b\u{3}c", "a~b~c", ""),
+            ("a~b", "the-reviewer", "about ~/work\n"),
+        ] {
+            assert_eq!(
+                validate_review_appendix(&review(written, after), &expecting(reviewer)),
+                refused,
+                "{reviewer:?} stated as {written:?}"
+            );
+        }
+        // Whichever value it is.
+        let struck = review("the-reviewer", "~~struck~~\n");
+        for expected in [
+            Expected {
+                verdict: "RE~ADY",
+                ..expecting("the-reviewer")
+            },
+            Expected {
+                review_challenge: Some("review:~"),
+                ..expecting("the-reviewer")
+            },
+        ] {
+            assert_eq!(validate_review_appendix(&struck, &expected), refused);
+        }
+        // What does not turn on struck text is answered as upstream answers
+        // it: a tilde on one side only, and whatever is refused before the
+        // values are compared.
+        assert_eq!(
+            validate_review_appendix(
+                &review("the-reviewer", "~~struck~~\n"),
+                &expecting("the-reviewer")
+            ),
+            Validity::Valid
+        );
+        assert_eq!(
+            validate_review_appendix(&review("the-reviewer", ""), &expecting("a~b")),
+            Validity::Invalid {
+                reason: "the reviewer appendix must contain exactly one Reviewer line matching the requested reviewer",
+                heading: false,
+            }
+        );
+        assert!(matches!(
+            validate_review_appendix(&review("a~b", "\n## Next\n"), &expecting("a~b")),
+            Validity::Invalid { heading: true, .. }
+        ));
+    }
 }
