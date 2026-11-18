@@ -812,6 +812,8 @@ async function answer(c: Record<string, any>): Promise<unknown> {
           } catch {
             return;
           }
+          // (A folder with nothing in it is said: one made and left is something a write did.)
+          if (names.length === 0) found[relative(record, dir)] = "empty";
           for (const name of names) {
             const path = join(dir, name);
             const stat = lstatSync(path);
@@ -841,6 +843,14 @@ async function answer(c: Record<string, any>): Promise<unknown> {
           if (op === "legacy-write") {
             mkdirSync(dirname(place(which, true)), { recursive: true });
             writeFileSync(place(which, true), text);
+            continue;
+          }
+          if (op === "rootlink") {
+            // The folder of every stage's snapshots behind a link, with this stage's folder not there.
+            if (!existsSync(dirs[0]) || lstatSync(dirs[0]).isSymbolicLink()) continue;
+            renameSync(dirs[0], join(record, "moved-root"));
+            rmSync(join(record, "moved-root", c.slug), { recursive: true, force: true });
+            symlinkSync(join(record, "moved-root"), dirs[0]);
             continue;
           }
           // (A name made a folder is left one.)

@@ -7295,7 +7295,7 @@ for which, ops in (("baseline", SS_BASELINE_OPS), ("workspace", SS_WORKSPACE_OPS
 
 # A snapshot lying where a stage's name that is none would put it is not read.
 SS_EMPTY = "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-for slug in ("a/b", "..", "Code", "code-generation"):
+for slug in ("a/b", "1a", "Code", "code-generation"):
     for folder in (".aidlc-engine/source-review", ".aidlc-source-review"):
         ss_add([], slug=slug, fingerprint="1" * 64, current=SS_NOW, asks=[SS_EMPTY],
                files={**RV_ACTIVE, f"{RV_RECORD}/{folder}/{slug}/workspace-111111111111.tsv": "workspace\t" + "1" * 64 + "\t-\n" + SS_ROW,
@@ -7303,6 +7303,20 @@ for slug in ("a/b", "..", "Code", "code-generation"):
 # An entry whose mode only ends as a file's does.
 for entry in ("0100644 " + SC_OID, "x100755 " + SC_OID, " 100644 " + SC_OID):
     sc_add([["\x00src/.DS_Store", entry], ["\x00zeta", SC_OID]], [["\x00zeta", SC_OID]], paths=[])
+
+# A baseline a row names by the hash of its bytes as they lie: with CRLF line ends, which read as the same listing, and
+# with a path no key can be made of.
+for content in ("\tsrc/a.ts\t100644\t" + "c" * 40 + "\r\n\tsrc/b.ts\t" + "d" * 40 + "\r\n", "\tsrc/a\x00b\t100644\t" + "c" * 40 + "\n",
+                "\tsrc/a.ts\t100644\t" + "c" * 40 + "\n\tsrc/a\x00b\t" + "d" * 40 + "\r\n"):
+    digest = hashlib.sha256(content.encode("utf-8")).hexdigest()
+    for folder in (".aidlc-engine/source-review", ".aidlc-source-review"):
+        ss_add([], fingerprint="1" * 64, current=SS_NOW, asks=["sha256:" + digest],
+               files={**RV_ACTIVE, f"{RV_RECORD}/{folder}/code-generation/baseline-{digest[:12]}.tsv": content})
+
+# The folder of every stage's snapshots behind a link: nothing is made through it, the stage's own folder included.
+for steps in ([("baseline", "rootlink", None)], [("workspace", "rootlink", None)], [("baseline", "remove", None), ("workspace", "remove", None)],
+              [("baseline", "rootlink", None), ("baseline", "legacy-write", "garbage\n")]):
+    ss_add(SS_LISTING, fingerprint="1" * 64, tamper=steps, current=SS_NOW, posix=any(op == "rootlink" for _, op, _ in steps))
 
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

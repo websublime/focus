@@ -780,6 +780,12 @@ fn source_snapshot_case(wf: &Workflow, case: &Value) -> Value {
             };
             let mut names: Vec<_> = listed.flatten().map(|entry| entry.file_name()).collect();
             names.sort();
+            // (A folder with nothing in it is said: one made and left is
+            // something a write did.)
+            if names.is_empty() {
+                let rel = dir.strip_prefix(record).unwrap_or(dir);
+                found.insert(rel.to_string_lossy().replace('\\', "/"), json!("empty"));
+            }
             for name in names {
                 let path = dir.join(&name);
                 let Ok(meta) = std::fs::symlink_metadata(&path) else {
@@ -878,6 +884,20 @@ fn source_snapshot_case(wf: &Workflow, case: &Value) -> Value {
             if op == "legacy-write" {
                 folder(&earlier);
                 std::fs::write(&earlier, text).expect("a file");
+                continue;
+            }
+            // The folder of every stage's snapshots behind a link, with
+            // this stage's folder not there.
+            #[cfg(unix)]
+            if op == "rootlink" {
+                let linked = std::fs::symlink_metadata(&dirs[0])
+                    .is_ok_and(|meta| meta.file_type().is_symlink());
+                if dirs[0].exists() && !linked {
+                    let moved = record.join("moved-root");
+                    std::fs::rename(&dirs[0], &moved).expect("moved");
+                    let _ = std::fs::remove_dir_all(moved.join(slug));
+                    std::os::unix::fs::symlink(&moved, &dirs[0]).expect("a link");
+                }
                 continue;
             }
             // (A name made a folder is left one.)
