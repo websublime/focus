@@ -7376,12 +7376,12 @@ class FrStory:
     def row(self, event, shard=None, at=None, **fields):
         self.rows.append(se_row(self.shard() if shard is None else shard, self.tick() if at is None else at, event, **fields))
 
-    def write(self, unit=None, name=None, event=None, stray=False):
+    def write(self, unit=None, name=None, event=None, stray=False, shard=None, at=None):
         rel = self.path(name or fr.choice(self.produces), unit)
         if stray:
             # A path that names the stage's file under no one unit.
             rel = rel.replace(f"/{unit}/", "/")
-        self.row(event or fr.choice(["ARTIFACT_CREATED", "ARTIFACT_UPDATED"]), Stage=self.slug, File="aidlc/spaces/default/" + rel)
+        self.row(event or fr.choice(["ARTIFACT_CREATED", "ARTIFACT_UPDATED"]), shard=shard, at=at, Stage=self.slug, File="aidlc/spaces/default/" + rel)
 
     def edit(self, unit=None, name=None):
         """The file changes with no row to say so."""
@@ -7392,7 +7392,7 @@ class FrStory:
                tie=False, unit_source=None, bypass=False, reviewer=RA_REVIEWER, workflow=None, shard=None, at=None, answer=None, echo=None):
         """A request, and the verdict that answers it when there is one."""
         era = era or fr.choice(["record", "record", "bare"])
-        art = art or ("{ART:%s}" % unit if unit else "{ART}")
+        art = art or ("{ART:%s}" % unit if unit and self.per_unit else "{ART}")
         base = {"Stage": self.slug, "Reviewer": reviewer, "Iteration": str(iteration), "Unit": unit, "Workflow": workflow}
         request = dict(base, Artifact_Fingerprint=art)
         if era == "record":
@@ -7732,6 +7732,10 @@ for patch in ({"review_class": None}, {"reviewer_max_iterations": None}, {"revie
 for walk in ("", CHECKPOINTS, UNIT_MAJOR):
     fr_case(RQ, lambda story: (story.review(1, None, unit="api", shard=0, at=3), story.row("GATE_REJECTED", shard=0, at=4, Unit="api", Stage=RQ)), walk=walk)
     fr_case(RQ, lambda story: (story.review(1, None, unit="api", shard=0, at=3), story.row("BOLT_STARTED", shard=0, at=4, Bolt_names="api")), walk=walk)
+    fr_case(RQ, lambda story: (story.review(1, None, unit="api", shard=0, at=3),
+                               story.row("GATE_REJECTED", shard=0, at=4, Unit="api", Stage="intent-capture", Gate_Stages=f"intent-capture, {RQ}")), walk=walk)
+    fr_case(RQ, lambda story: (story.review(1, "READY", unit="api", era="bare", shard=0, at=3, answer=(0, 4)),
+                               story.row("GATE_REJECTED", shard=0, at=5, Unit="api", Stage="intent-capture", Gate_Stages=f"intent-capture, {RQ}")), walk=walk)
     fr_case(RQ, lambda story: (story.review(1, None, shard=0, at=3), story.row("ARTIFACT_CREATED", shard=1, at=3, Stage="intent-capture", File="x.md")), walk=walk)
     fr_case(RQ, lambda story: (story.review(1, "READY", shard=0, at=3, answer=(0, 4)), story.row("ARTIFACT_CREATED", shard=1, at=4, Stage="intent-capture", File="x.md")), walk=walk)
 # Rows at one instant in two shards, under the rules of units checked one by one.
@@ -7797,13 +7801,13 @@ for policy in (STRICT, RELAXED):
     # A unit's verdict that falls to a write takes what it recorded of the source with it: nothing is left to take
     # the source for.
     for stray in (False, True):
-        fr_case(CG, lambda story: (story.review(1, "READY", unit="api", era="bare", shard=0, at=3, answer=(0, 4)), story.write("api", stray=stray)), policy=policy, per_unit=True,
-                workspace=True)
+        fr_case(CG, lambda story: (story.review(1, "READY", unit="api", era="bare", shard=0, at=3, answer=(0, 4)), story.write("api", stray=stray, shard=0, at=5)), policy=policy,
+                per_unit=True, workspace=True)
     # A change the policy accepts names a path once, however often it was written.
     def twice(story):
         story.review(1, "READY", era="bare", said=FR_OTHER, shard=0, at=3, answer=(0, 4))
-        story.write(name="requirements")
-        story.write(name="requirements")
+        story.write(name="requirements", shard=0, at=5)
+        story.write(name="requirements", shard=0, at=6)
 
     fr_case(RQ, twice, policy=policy)
     # A review that stands, taken again and sent back below the last pass.
@@ -7818,14 +7822,14 @@ for policy in (STRICT, RELAXED):
             story.files["elsewhere/kept.md"] = "Kept elsewhere.\n"
             story.after["links"] = {story.path("requirements"): "elsewhere/kept.md"}
 
-        fr_case(RQ, unreadable_artifacts, policy=policy, posix=True)
+        fr_case(RQ, unreadable_artifacts, policy=policy, posix=True, patch={"reviewer_max_iterations": 3})
     # A request that waits while an output the stage owes goes missing: with the check of owed outputs on, and off.
     for env in (None, {"AIDLC_SKIP_ARTIFACT_GUARD": "1"}):
         def missing_output(story):
             story.review(1, None, shard=0, at=3)
-            story.after["files"][story.path("requirements")] = None
+            story.after["files"][story.path("personas")] = None
 
-        fr_case(RQ, missing_output, policy=policy, env=env)
+        fr_case("user-stories", missing_output, policy=policy, env=env)
     # The artifacts' fingerprint as it was taken over the raw line ends, and the source's as the earlier walk gave it.
     def raw_form(story):
         story.files[story.path("requirements")] = "# Requirements\r\n\r\nBody.\r\n"
@@ -7860,7 +7864,7 @@ def fr_recheck(later=None, approval=None):
     def build(story):
         story.review(1, "READY", unit="api", era="bare", recovery=True, shard=0, at=3, answer=(0, 4))
         story.row("GATE_APPROVED", shard=0, at=5, **{"Unit": "api", "User_Input": "Approve", "Checkpoint": "construction-unit", "Stage": FD, **(approval or {})})
-        story.write("api")
+        story.write("api", shard=0, at=6)
         if later:
             story.row("REVIEW_REQUESTED", shard=0, at=20, **{"Stage": FD, "Unit": "api", "Reviewer": RA_REVIEWER, "Iteration": "1", "Recovery": "stale-receipt", **later})
     return build
