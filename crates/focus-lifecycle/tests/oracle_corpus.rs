@@ -62,6 +62,9 @@ fn every_lifecycle_case_gets_upstreams_answer() {
     let (mut collided, mut behind_a_link, mut told_paths, mut earlier_place) = (0, 0, 0, 0);
     let (mut receipts, mut standing, mut fallen, mut waiting) = (0, 0, 0, 0);
     let (mut moved_source, mut let_pass, mut started_from) = (0, 0, 0);
+    let (mut refusals, mut for_the_person, mut as_a_command, mut no_way_now) = (0, 0, 0, 0);
+    let (mut thrown, mut sentences, mut named_a_command, mut asked_which) = (0, 0, 0, 0);
+    let mut resettable = 0;
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         let case: Value = focus_js::json::parse(line).unwrap();
@@ -79,7 +82,29 @@ fn every_lifecycle_case_gets_upstreams_answer() {
         }
         let out = run_case(&wf, &case);
         let some = |key: &str| out[key].as_array().is_some_and(|list| !list.is_empty());
-        if kind == "review_receipts" {
+        if kind == "guard_refusal" {
+            // The ways on of a guard that refuses: put to the person, run as
+            // a command, none that can be done now, and the operation that
+            // names what none may.
+            refusals += 1;
+            let remedies = out["remedies"].as_array().cloned().unwrap_or_default();
+            let any =
+                |key: &str, value: &Value| remedies.iter().any(|remedy| remedy[key] == *value);
+            for_the_person += usize::from(any("requiresHuman", &json!(true)));
+            as_a_command += usize::from(any("interaction", &json!("command")));
+            no_way_now +=
+                usize::from(out.get("error").is_none() && !any("executableNow", &json!(true)));
+            thrown += usize::from(out["error"] == "Invalid guard recovery operation");
+        } else if kind == "recovery_guidance" {
+            // The sentence a prose refusal ends with: a way on, the unit's
+            // own command, or a question for the person.
+            let sentence = out["guidance"].as_str().unwrap_or_default();
+            sentences += usize::from(!sentence.is_empty());
+            named_a_command += usize::from(sentence.contains("When the person says so, run `"));
+            asked_which += usize::from(sentence.starts_with("Ask the person"));
+            thrown += usize::from(out["guidance"]["error"].is_string());
+            resettable += usize::from(out["reset"] == true);
+        } else if kind == "review_receipts" {
             // The reviews that still stand: a verdict for the stage or a
             // unit, one a later write made stale, a request that waits, the
             // source moved since, a change the policy let through, and the
@@ -264,6 +289,15 @@ fn every_lifecycle_case_gets_upstreams_answer() {
             && earlier_place >= 100,
         "{collided} {behind_a_link} {told_paths} {earlier_place}"
     );
+    assert!(
+        refusals >= 2700 && for_the_person >= 2400 && as_a_command >= 1500 && no_way_now >= 60,
+        "{refusals} {for_the_person} {as_a_command} {no_way_now}"
+    );
+    assert!(
+        sentences >= 2000 && named_a_command >= 40 && asked_which >= 50 && resettable >= 500,
+        "{sentences} {named_a_command} {asked_which} {resettable}"
+    );
+    assert!(thrown >= 90, "{thrown}");
     assert!(
         differing.is_empty(),
         "{} lifecycle cases differ from upstream; first:\n{}",
