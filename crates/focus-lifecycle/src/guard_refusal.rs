@@ -259,6 +259,16 @@ impl Spelling<'_> {
     }
 }
 
+/// The shell a command is quoted for when the caller names none: this
+/// platform's.
+fn platform_shell() -> RenderShell {
+    if cfg!(windows) {
+        RenderShell::PowerShell
+    } else {
+        RenderShell::Posix
+    }
+}
+
 /// `aidlcToolInvocation("orchestrate")`.
 fn orchestrate() -> String {
     format!("{NATIVE_INVOCATION} engine orchestrate")
@@ -644,11 +654,7 @@ pub fn evaluate(wf: &Workflow, input: &Input<'_>) -> Result<Refusal, String> {
     let attempt = input.attempt;
     let spell = Spelling {
         wf,
-        shell: input.shell.unwrap_or(if cfg!(windows) {
-            RenderShell::PowerShell
-        } else {
-            RenderShell::Posix
-        }),
+        shell: input.shell.unwrap_or_else(platform_shell),
         project_dir: input.project_dir.filter(|project| !project.is_empty()),
     };
     let open_for_work = matches!(
@@ -1004,7 +1010,7 @@ pub fn recovery_guidance(
     }
     let spell = Spelling {
         wf,
-        shell: shell.unwrap_or(RenderShell::Posix),
+        shell: shell.unwrap_or_else(platform_shell),
         project_dir: None,
     };
     Ok(restart_stage(&spell, stage)?.action)
