@@ -163,7 +163,10 @@ SHAPES = {
         "is written: the row, the reviewer's file, the answer. An attempt's name is recomputed here from the rows "
         "of the tree's own ledger, and one that matches is compared as <attempt>; one that does not is compared as "
         "it is. And a review record names its reviewer in the engine's own name, so its digest differs: one that "
-        "is the digest of a record the tree holds is compared as the record's",
+        "is the digest of a record the tree holds is compared as the record's. The source a request of a stage that "
+        "writes the workspace is bound to is the tree's own too (see source-baseline): the listing the request "
+        "keeps is verified row by row against the tree's files, and a fingerprint that names it is compared as the "
+        "tree's",
     "summary-authorization":
         "a summary's authorization id is a hash over the attempt, the stage, the workflow, the questions file's "
         "name, what was confirmed and the choice, and the name carries the workspace directory's (aidlc/ there, "
@@ -1492,6 +1495,8 @@ def workspace_files(tree, top="aidlc"):
                     text = own_hashes(tree, text)
                 if BASELINE_SNAPSHOT.search(rel):
                     rel, text = own_baseline(tree, rel, path, say)
+                elif WORKSPACE_SNAPSHOT.search(rel):
+                    rel, text = own_workspace_snapshot(tree, rel, path, say)
                     files[rel] = text
                     continue
                 files[rel] = say(text)
@@ -1542,6 +1547,46 @@ def own_baseline(tree, rel, path, say):
     # In an order that does not depend on the engine's name.
     rows.sort(key=lambda row: re.sub("focus", "\x01", row, flags=re.I))
     return BASELINE_SNAPSHOT.sub(lambda m: m.group(0).replace(m.group(1), "<verified>"), rel), "".join(row + "\n" for row in rows)
+
+
+# The listing a review request keeps behind its `Source Fingerprint` is kept under the fingerprint's own start, and
+# says it on its first line. One that does is `workspace-<source>.tsv`, its rows verified as a baseline's are, and a
+# row's field naming that fingerprint reads `<the tree's source>`.
+WORKSPACE_SNAPSHOT = re.compile(r"/source-review/[a-z][a-z0-9-]*/workspace-([0-9a-f]{12})\.tsv$")
+
+
+def own_workspace_snapshot(tree, rel, path, say):
+    with open(path, "rb") as handle:
+        raw = handle.read().decode("utf-8", errors="replace")
+    head = re.match(r"workspace\t([0-9a-f]{64})\t([^\n]*)\n", raw)
+    if head is None or head.group(1)[:12] != WORKSPACE_SNAPSHOT.search(rel).group(1):
+        return rel, say(raw)
+    if not hasattr(tree, "sources"):
+        tree.sources = set()
+    tree.sources.add(head.group(1))
+
+    def own(row):
+        found = BASELINE_ROW.match(row)
+        if found is None:
+            return row
+        repo, name, mode, sha = found.groups()
+        target = os.path.join(tree.root, repo, name) if repo else os.path.join(tree.root, name)
+        try:
+            if mode == "120000":
+                held = [os.readlink(target).encode("utf-8")]
+            else:
+                with open(target, "rb") as handle:
+                    content = handle.read()
+                held = [content, content.replace(b"\r\n", b"\n")]
+        except OSError:
+            return row
+        hashes = {hashlib.sha256(one).hexdigest() for one in held} | getattr(tree, "source_before", {}).get(target, set())
+        return f"{repo}\t{name}\t{mode}\t<own>" if sha in hashes else row
+
+    rows = [say(own(row)) for row in raw[head.end():].split("\n") if row]
+    rows.sort(key=lambda row: re.sub("focus", "\x01", row, flags=re.I))
+    return (WORKSPACE_SNAPSHOT.sub(lambda m: m.group(0).replace(m.group(1), "<source>"), rel),
+            f"workspace\t<the tree's source>\t{head.group(2)}\n" + "".join(row + "\n" for row in rows))
 
 
 def source_hashes(tree):
@@ -1637,6 +1682,12 @@ def settle_review_ids(tree, outcome):
             text = text.replace(raw, name)
         text = REVIEW_ATTEMPT.sub(lambda m: m.group(1) + ("<attempt>" if m.group(2) in attempts else m.group(2)), text)
         text = re.sub(r"(?<=\*\*Review Record Digest\*\*: )sha256:[0-9a-f]{64}", lambda m: "sha256:<the record's>" if m.group(0) in records else m.group(0), text)
+        settled |= text != outcome[key]
+        outcome[key] = text
+    # The source a request is bound to: its fingerprint is the tree's own (SHAPES: source-baseline says why). One
+    # that is the fingerprint of a snapshot the tree keeps is compared as the tree's.
+    for key in list(outcome):
+        text = re.sub(r"(?<=\*\*Source Fingerprint\*\*: )[0-9a-f]{64}", lambda m: "<the tree's source>" if m.group(0) in getattr(tree, "sources", set()) else m.group(0), outcome[key])
         settled |= text != outcome[key]
         outcome[key] = text
     return settled
@@ -5438,6 +5489,21 @@ def log_checks():
     check_("review/request/recovery_spent_person_asked", created(reviewed, **OUTPUTS), [asks(3), asks(4)],
            edits=[spent, lambda tree: tree.edit(CREATED_SHARD, lambda text: text + block("HUMAN_TURN", T(9), "**Session**: s1"))])
     reviewed = lenient
+    # A stage that writes the workspace: the request is bound to the project's source, and the listing behind the
+    # fingerprint is kept.
+    def graph_edit(**given):
+        def edit(tree):
+            graph = tree.json(".claude/tools/data/stage-graph.json")
+            for stage in graph:
+                if stage["slug"] == "intent-capture":
+                    stage.update(given)
+            tree.write_json(".claude/tools/data/stage-graph.json", graph)
+        return edit
+    check_("review/request/source_bound", created(reviewed, **{**OUTPUTS, "src/app.py": "print('hello')\n"}), [asks(1), asks(1, "--retry-pending")], edits=[graph_edit(workspace_requires=True)])
+    # A stage whose class allows two passes.
+    check_("review/request/two_passes", created(reviewed.replace("- **Review Override**: advisory", "- **Review Override**: adversarial"), **OUTPUTS), [asks(1), asks(2)],
+           edits=[graph_edit(review_class="adversarial")])
+    check_("review/request/no_review_artifact", created(reviewed, **OUTPUTS), [asks(1)], edits=[graph_edit(review_artifact="")])
     # The summary the stage owes comes first.
     check_("review/request/summary_owed", created(reviewed.replace("- **Summary Confirmation**: off (set by a command)", "- **Summary Confirmation**: on (from scope feature)"), **OUTPUTS),
            [asks(1), asks(1, "--retry-pending")])
