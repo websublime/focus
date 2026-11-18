@@ -56,7 +56,7 @@ const planGuardPrivate = await import(planGuardShim);
 const libShim = tool("aidlc-lib.focus-oracle.ts");
 // (`rawFingerprintForm` and `lastWorkspaceSourceFailure` are asked of the copy too: what a walk remembers is the
 // module's own.)
-writeFileSync(libShim, `${readFileSync(tool("aidlc-lib.ts"), "utf-8")}\nexport { walkWorkspaceSource, gateStagesFromBlock };\n`);
+writeFileSync(libShim, `${readFileSync(tool("aidlc-lib.ts"), "utf-8")}\nexport { walkWorkspaceSource, gateStagesFromBlock, splitMarkdownRow };\n`);
 process.on("exit", () => rmSync(libShim, { force: true }));
 const libPrivate = await import(libShim);
 // The log tool's own reader of a review file's headings is asked the same way.
@@ -964,6 +964,45 @@ async function answer(c: Record<string, any>): Promise<unknown> {
         return demoted === null ? null : { text: Buffer.from(demoted.bytes).toString("utf-8"), changed: demoted.changed };
       }
       return lib.validateReviewAppendix(bytes, c.expected);
+    }
+    case "review_findings": {
+      // The findings a review states: a row's cells (the splitter is private to the library, and asked of its
+      // copy), a status, the section, the report, the six-column table, either as a record admits it, the finding
+      // that stands in for a table that cannot be read, a fingerprint, and the record's bytes. A throw is the
+      // answer.
+      const thrown = (make: () => unknown) => {
+        try {
+          return make();
+        } catch (error) {
+          return { error: (error as Error).message };
+        }
+      };
+      const unit = c.unit === null ? undefined : c.unit;
+      switch (c.op) {
+        case "row":
+          return libPrivate.splitMarkdownRow(c.line);
+        case "status":
+          return lib.validReviewFindingStatus(c.value);
+        case "fingerprint":
+          return lib.reviewFindingFingerprint({ id: c.id, location: c.location, finding: c.finding, requiredAction: c.requiredAction });
+        case "section":
+          return { verdict: lib.reviewSectionVerdict(c.text), lines: lib.reviewFindingsSectionLines(c.text) };
+        case "report":
+          return thrown(() => lib.parseReviewerFindingsReport(c.text));
+        case "parse":
+          return thrown(() => lib.parseReviewSection(c.text, c.artifact, unit));
+        case "read":
+          return lib.readFindingsTable(c.text, c.artifact, c.verdict, unit);
+        case "unreadable":
+          return {
+            finding: lib.unreadableFindingsTableFinding(c.artifact, c.reason, unit),
+            is: lib.isUnreadableFindingsTableFinding({ id: c.id, location: c.location }),
+          };
+        case "serialize":
+          return lib.serializeReviewRecord(c.record);
+        default:
+          throw new Error(`unknown review_findings op ${c.op}`);
+      }
     }
     case "review_request": {
       // What a review request says back and where a review's files go: the attempt's name, the record and the

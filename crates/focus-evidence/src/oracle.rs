@@ -23,7 +23,7 @@ use crate::source::walk::{self, Budgets, Names, Options, Stop};
 use crate::summary;
 
 /// The kinds of case this crate answers.
-pub const KINDS: [&str; 10] = [
+pub const KINDS: [&str; 11] = [
     "source_listing_parse",
     "source_listing",
     "source_changed",
@@ -34,6 +34,7 @@ pub const KINDS: [&str; 10] = [
     "review_completion",
     "review_record",
     "review_text",
+    "review_findings",
 ];
 
 /// Lay the case's project out and walk it.
@@ -383,6 +384,7 @@ pub fn run_case(case: &Value) -> Value {
                 }
             }
         }
+        "review_findings" => review_findings_case(case),
         "review_record" => {
             let bytes = text("text").as_bytes();
             let completion = text("completion");
@@ -460,4 +462,180 @@ pub fn unhex(hex: &str) -> Vec<u8> {
     (0..hex.len() / 2)
         .filter_map(|at| u8::from_str_radix(hex.get(at * 2..at * 2 + 2)?, 16).ok())
         .collect()
+}
+
+/// A finding a review states, as upstream's object is written.
+fn stated_finding(finding: &crate::review_findings::Finding) -> Value {
+    let mut out = serde_json::Map::new();
+    let mut put = |key: &str, value: &str| {
+        out.insert(key.to_owned(), json!(value));
+    };
+    put("artifact", &finding.artifact);
+    if let Some(unit) = &finding.unit {
+        put("unit", unit);
+    }
+    put("id", &finding.id);
+    put("severity", &finding.severity);
+    put("location", &finding.location);
+    put("finding", &finding.finding);
+    put("requiredAction", &finding.required_action);
+    put("status", &finding.status);
+    put("fingerprint", &finding.fingerprint);
+    Value::Object(out)
+}
+
+/// A findings report, as upstream's object is written.
+fn findings_report(report: &crate::review_findings::Report) -> Value {
+    let prior: Vec<Value> = report
+        .prior
+        .iter()
+        .map(|row| {
+            json!({
+                "id": row.id,
+                "now": row.now.name(),
+                "severity": row.severity,
+                "note": row.note,
+            })
+        })
+        .collect();
+    let new_findings: Vec<Value> = report
+        .new_findings
+        .iter()
+        .map(|row| {
+            let mut out = serde_json::Map::new();
+            if let Some(id) = &row.supplied_id {
+                out.insert("suppliedId".to_owned(), json!(id));
+            }
+            out.insert("severity".to_owned(), json!(row.severity));
+            out.insert("location".to_owned(), json!(row.location));
+            out.insert("finding".to_owned(), json!(row.finding));
+            out.insert("requiredAction".to_owned(), json!(row.required_action));
+            Value::Object(out)
+        })
+        .collect();
+    let mut out = serde_json::Map::new();
+    out.insert("prior".to_owned(), Value::Array(prior));
+    out.insert("newFindings".to_owned(), Value::Array(new_findings));
+    if report.prior_missing {
+        out.insert("priorMissing".to_owned(), json!(true));
+    }
+    Value::Object(out)
+}
+
+/// The record a `serialize` case holds, as a verdict would hand it over.
+fn written_record(record: &Value) -> review_record::Written {
+    let text = |value: &Value, key: &str| value[key].as_str().unwrap_or_default().to_owned();
+    let maybe = |value: &Value, key: &str| value[key].as_str().map(str::to_owned);
+    let stored = |finding: &Value| review_record::StoredFinding {
+        id: text(finding, "id"),
+        severity: text(finding, "severity"),
+        location: text(finding, "location"),
+        finding: text(finding, "finding"),
+        required_action: text(finding, "required_action"),
+        status: text(finding, "status"),
+    };
+    let listed = |key: &str| record[key].as_array().cloned();
+    review_record::Written {
+        stage: text(record, "stage"),
+        unit: maybe(record, "unit"),
+        workflow: maybe(record, "workflow"),
+        attempt: text(record, "attempt"),
+        iteration: record["iteration"].as_f64().unwrap_or_default(),
+        reviewer: text(record, "reviewer"),
+        verdict: text(record, "verdict"),
+        request_id: maybe(record, "request_id"),
+        request_challenge: maybe(record, "request_challenge"),
+        artifact_fingerprint: text(record, "artifact_fingerprint"),
+        source_fingerprint: maybe(record, "source_fingerprint"),
+        unit_source_fingerprint: maybe(record, "unit_source_fingerprint"),
+        findings: listed("findings")
+            .unwrap_or_default()
+            .iter()
+            .map(stored)
+            .collect(),
+        derived_findings: listed("derived_findings").map(|derived| {
+            derived
+                .iter()
+                .map(|finding| review_record::DerivedFinding {
+                    stored: stored(finding),
+                    decided_at_severity: maybe(finding, "decided_at_severity"),
+                    reviewer_note: maybe(finding, "reviewer_note"),
+                    not_rechecked: finding["not_rechecked"].as_bool(),
+                    resolved_by_reviewer: finding["resolved_by_reviewer"].as_bool(),
+                    resolved_in_review: finding["resolved_in_review"].as_bool(),
+                    earlier_decision: maybe(finding, "earlier_decision"),
+                    reopened_reason: maybe(finding, "reopened_reason"),
+                    related_finding_id: maybe(finding, "related_finding_id"),
+                    introduced_in_review: finding["introduced_in_review"].as_bool(),
+                })
+                .collect()
+        }),
+        body: text(record, "body"),
+        recorded_at: text(record, "recorded_at"),
+    }
+}
+
+/// The findings a review states: a row's cells, a status, the section, the
+/// report, the six-column table, either of them as a record admits it, the
+/// finding that stands in for a table that cannot be read, a finding's
+/// fingerprint, and the record's bytes.
+fn review_findings_case(case: &Value) -> Value {
+    use crate::review_findings as findings;
+    let text = |key: &str| case[key].as_str().unwrap_or_default();
+    let unit = case["unit"].as_str();
+    let thrown = |error: String| json!({ "error": error });
+    match text("op") {
+        "row" => json!(findings::split_markdown_row(text("line"))),
+        "status" => json!(findings::valid_status(text("value"))),
+        "fingerprint" => json!(findings::fingerprint(
+            text("id"),
+            text("location"),
+            text("finding"),
+            text("requiredAction"),
+        )),
+        "section" => json!({
+            "verdict": findings::section_verdict(text("text")),
+            "lines": findings::findings_section_lines(text("text")),
+        }),
+        "report" => match findings::parse_findings_report(text("text")) {
+            Ok(report) => report.as_ref().map_or(Value::Null, findings_report),
+            Err(error) => thrown(error),
+        },
+        "parse" => match findings::parse_review_section(text("text"), text("artifact"), unit) {
+            Ok(section) => json!({
+                "verdict": section.verdict,
+                "findings": section.findings.iter().map(stated_finding).collect::<Vec<_>>(),
+                "tablePresent": section.table_present,
+            }),
+            Err(error) => thrown(error),
+        },
+        "read" => {
+            let table = findings::read_findings_table(
+                text("text"),
+                text("artifact"),
+                case["verdict"].as_str(),
+                unit,
+            );
+            let mut out = serde_json::Map::new();
+            out.insert(
+                "findings".to_owned(),
+                Value::Array(table.findings.iter().map(stated_finding).collect()),
+            );
+            out.insert("unreadable".to_owned(), json!(table.unreadable));
+            if let Some(report) = &table.report {
+                out.insert("report".to_owned(), findings_report(report));
+            }
+            Value::Object(out)
+        }
+        "unreadable" => json!({
+            "finding": stated_finding(&findings::unreadable_findings_table_finding(
+                text("artifact"),
+                text("reason"),
+                unit,
+            )),
+            "is": findings::is_unreadable_findings_table_finding(text("id"), text("location")),
+        }),
+        "serialize" => json!(review_record::serialize(&written_record(&case["record"]))),
+        other => json!({ "error": format!("unknown op {other}") }),
+    }
 }

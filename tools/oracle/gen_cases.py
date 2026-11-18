@@ -8467,5 +8467,239 @@ for _ in range(150 * scale):
                        "**Verdict:** READY\n**Reviewer:** {s}\n**Iteration:** 1\n", "**Verdict:** READY\n**Reviewer:** x {s}\n**Reviewer:** x\n**Iteration:** 1\n", "**Verdict:** READY\n{s} **Reviewer:** x\n**Iteration:** 1\n"])
     rt_validate(rt.choice(["## Review\n\n", ""]) + place.format(s=struck), rt_expected(reviewer=rt.choice(["x", "x", struck.strip(" ")]), standalone=True))
 
+# --- The findings a review states (slice 2e-iii-b of M5) ---
+# `readFindingsTable` and what it reads with: the engine's report of two tables, the six-column table before it, the
+# rows' cells, a finding's status and fingerprint, the finding that stands in for a table that cannot be read, and
+# the bytes a record is written as (`serializeReviewRecord`).
+
+rf = random.Random(seed * 7919 + 36)
+
+
+def rf_add(op, **given):
+    add("review_findings", op=op, **given)
+
+
+RF_ROWS = ["| a | b | c |", "a | b | c", "| a | b | c", "a | b | c |", "|a|b|c|", "  | a |  b  | c |  ", "\t| a | b |\t", "| a \\| b | c |", "| a \\\\| b | c |", "| a \\\\\\| b |", "| a | b \\", "| a | b \\|", "| a | b \\\\",
+           "|", "||", "|||", "", " ", "a", "| |", "|  |  |", "\\|", "\\", "\\\\", "| \\a | \\n |", "| `a|b` | c |", "| `a\\|b` | c |", "|  a  | ﻿b﻿ |  c  |", " | a | b | ", "| a\tb | c |",
+           "| é | 😀 |   |", "| a | b |\r", "| a | b | \n", "x | | y", "| R-01 | Major | a.md > X | It is wrong | Fix it | New |", "|---|---|", "| :--- | ---: | :---: |", "| a || b |", "| \\\\ | \\| | \\ |",
+           "| a |b\\", "|\\|", "| a | b |  |", "| a | b | |"]
+for line in RF_ROWS:
+    rf_add("row", line=line)
+for _ in range(60 * scale):
+    rf_add("row", line="".join(rf.choice(["|", "|", " ", " ", "\\", "a", "b", "é", "\t", " ", "-", ":", "`", "|"]) for _ in range(rf.randint(0, 14))))
+for value in ("New", "Unresolved", "Resolved", "Accepted risk", "new", "NEW", "New ", " New", "Accepted Risk", "Accepted", "Rejected", "Rejected:", "Rejected: ", "Rejected: x", "Rejected:  x", "Rejected: \tx", "Rejected:x",
+              "Rejected: x\ny", "Rejected: \nx", "Rejected: x ", "rejected: x", "Rejected:  x", "Rejected:  ", "Rejected: .", "Fixed", "Open", "Still applies", "", " ", "Rejected: Rejected: ", "Resolved.", "Unresolved\n",
+              "Rejected: not a defect, the plan says so"):
+    rf_add("status", value=value)
+for said in (("R-01", "a.md > X", "It is wrong", "Fix it"), ("", "", "", ""), ("R-01", "a \"q\" b", "back\\slash", "tab\there"), ("R-02", "é😀", "line\nbreak", "  "), ("R-00", "x > review findings table", "\x00\x01\x1f\x7f", "<>&'"),
+             ("R-10", "a.md", "It is wrong", "Fix it"), ("R-01", "a.md > X", "It is wrong", "Fix it "), ("r-01", "A.MD > X", "it is wrong", "fix it"), ("R-01", "", "It is wrong", "Fix it"), ("R-01", "😀", "é", "é")):
+    rf_add("fingerprint", id=said[0], location=said[1], finding=said[2], requiredAction=said[3])
+
+RF_SIX_HEAD = "| ID | Severity | Location | Finding | Required action | Status |"
+RF_SIX_RULE = "|---|---|---|---|---|---|"
+RF_SIX_ROW = "| R-01 | Major | a.md > Design | It is wrong | Fix it | New |"
+RF_SIX = f"### Findings\n\n{RF_SIX_HEAD}\n{RF_SIX_RULE}\n{RF_SIX_ROW}\n| R-02 | Minor | b.md | It is unclear | Say which | Unresolved |\n"
+RF_PRIOR_HEAD = "| ID | Now | Severity | Note |"
+RF_NEW_HEAD = "| Severity | Location | Finding | Required action |"
+RF_REPORT = (f"### Findings\n\n**Prior findings**\n\n{RF_PRIOR_HEAD}\n|---|---|---|---|\n| R-01 | Fixed | Major | Now right |\n| R-02 | Still applies | Minor | Still unclear |\n\n"
+             f"**New findings**\n\n{RF_NEW_HEAD}\n|---|---|---|---|\n| Major | c.md > API | It leaks | Close it |\n")
+RF_TOP = "**Verdict:** NOT-READY\n**Reviewer:** the-reviewer\n**Iteration:** 2\n\n"
+
+
+def rf_review(text, artifact="design/architecture.md", unit=None, verdicts=("READY", "NOT-READY", None)):
+    rf_add("section", text=text)
+    rf_add("report", text=text)
+    rf_add("parse", text=text, artifact=artifact, unit=unit)
+    for verdict in verdicts:
+        rf_add("read", text=text, artifact=artifact, verdict=verdict, unit=unit)
+
+
+# The section: where it starts, where it ends, and the verdict line beside it.
+for heading in ("### Findings", "### Findings ", "### Findings\t", "### Findings \t ", "###Findings", "### findings", "### FINDINGS", "#### Findings", "## Findings", " ### Findings", "   ### Findings", "### Findings ###",
+                "### Findings:", "### Findings ", "### Findings ", "### Findings\r", "###  Findings", "### Findings and more", "> ### Findings", "- ### Findings", "```\n### Findings\n```", "<!-- ### Findings -->",
+                "<!--\n### Findings\n-->", "Findings\n--------", "### Findings\n### Findings"):
+    for body in (f"\n{RF_SIX_HEAD}\n{RF_SIX_RULE}\n{RF_SIX_ROW}\n", f"\n**New findings**\n\n{RF_NEW_HEAD}\n|---|---|---|---|\n| Major | c.md | It leaks | Close it |\n"):
+        rf_review(f"{RF_TOP}{heading}\n{body}", verdicts=("NOT-READY",))
+for after in ("### Notes\n", "###\n", "### \n", "###Notes\n", "## Notes\n", "#### Notes\n", "# Notes\n", " ### Notes\n", "### Findings\n", "> ### Notes\n", "```\n### Notes\n```\n", "Notes\n-----\n", "---\n", "\n\n", "prose\n",
+              "<!-- ### Notes -->\n"):
+    more = "| R-03 | Major | c.md | Late | Fix it | New |\n"
+    rf_review(f"{RF_TOP}{RF_SIX}{after}{more}", verdicts=("NOT-READY",))
+    rf_review(f"{RF_TOP}{RF_REPORT}{after}| Minor | d.md | Late | Fix it |\n", verdicts=("NOT-READY",))
+for verdict in ("**Verdict:** READY", "**Verdict:** NOT-READY", "**Verdict:**READY", "**Verdict:**  READY  ", "**Verdict:**\tREADY\t", "**Verdict:**\nREADY", "**Verdict:** READY\n\n**Verdict:** NOT-READY",
+                "**Verdict:** NOT-READY\n**Verdict:** READY", "**Verdict:** ready", "**Verdict:** READY.", "**Verdict:** NOT READY", "**Verdict:** NOTREADY", " **Verdict:** READY", "**verdict:** READY", "__Verdict:__ READY",
+                "**Verdict**: READY", "Verdict: READY", "**Verdict:** READY\r", "**Verdict:** READY ", "**Verdict:** READY \n\n\n", "> **Verdict:** READY", "```\n**Verdict:** NOT-READY\n```", "<!-- **Verdict:** READY -->",
+                "<!--\n**Verdict:** READY\n-->", "**Verdict:** NOT-READY-ish", "x **Verdict:** READY", "**Verdict:** *READY*", ""):
+    rf_add("section", text=f"{verdict}\n\n{RF_SIX}")
+    rf_add("section", text=f"intro\n{verdict}")
+    rf_add("parse", text=f"{verdict}\n\n{RF_SIX}", artifact="a.md", unit=None)
+for text in ("", "\n", "### Findings", "### Findings\n", "### Findings\n\n", "no heading\n" + RF_SIX_HEAD + "\n" + RF_SIX_RULE + "\n" + RF_SIX_ROW + "\n", RF_SIX.replace("\n", "\r\n"), RF_REPORT.replace("\n", "\r\n"), RF_SIX.replace("\n", "\r"),
+             RF_REPORT.replace("\n", "\r"), "﻿" + RF_SIX, "﻿" + RF_REPORT, RF_SIX + RF_REPORT, RF_REPORT + RF_SIX, RF_SIX + "\n" + RF_REPORT.replace("### Findings\n", ""), RF_REPORT + "\n" + RF_SIX.replace("### Findings\n", "")):
+    rf_review(text)
+    rf_review(text, unit="orders")
+    rf_review(text, artifact="a b|c.md", unit="")
+
+# The six-column table: its header, its rows, and what a row may not be.
+RF_SIX_HEADS = [RF_SIX_HEAD, "| ID | Severity | Location | Finding | Required action | Status", "ID | Severity | Location | Finding | Required action | Status", "| Status | Required action | Finding | Location | Severity | ID |",
+                "| ID | Severity | Location | Finding | Required action | Status | Note |", "| # | ID | Severity | Location | Finding | Required action | Status |", "| ID | Severity | Location | Finding | Required action |",
+                "| ID | Severity | Location | Finding | Status |", "| Severity | Location | Finding | Required action | Status |", "| id | severity | location | finding | required action | status |",
+                "| ID | Severity | Location | Finding | Required Action | Status |", "| ID | Severity | Location | Finding | Action | State |", "| ID | ID | Severity | Location | Finding | Required action | Status |",
+                "| ID | Severity | Location | Finding | Required action | Status | Status |", "| **ID** | Severity | Location | Finding | Required action | Status |", "| ID | Severity | Location | Finding | Required\\|action | Status |",
+                "|ID|Severity|Location|Finding|Required action|Status|", "|  ID  | Severity |\tLocation\t| Finding | Required action | Status |", "| |", "|", "| ID |", "| Status | ID | Severity | Location | Finding | Required action |"]
+RF_SIX_ROWS = [RF_SIX_ROW, "| R-1 | Major | a.md | It is wrong | Fix it | New |", "| R-001 | major | a.md | It is wrong | Fix it | Resolved |", "| R-01 | Major | a.md | It is wrong | Fix it | Accepted risk |",
+               "| R-01 | Major | a.md | It is wrong | Fix it | Rejected: not a defect |", "| R-01 | Major | a.md | It is wrong | Fix it | Rejected: |", "| R-01 | Major | a.md | It is wrong | Fix it | Fixed |",
+               "| R-01 | Major | a.md | It is wrong | Fix it | Open |", "| R-01 | Major | a.md | It is wrong | Fix it | new |", "| R-01 | Major | a.md | It is wrong | Fix it |  |", "| R-01 | Major | a.md | It is wrong | Fix it |",
+               "| R-01 | Major | a.md | It is wrong | New |", "| R-01 | Major | a.md | It is wrong | Rejected: no |", "| R-01 | Major | a.md | It is wrong |", "| R-01 |", "| | Major | a.md | It is wrong | New |", "|",
+               "| R-01 | Major | a.md | It is wrong | Fix it | New | extra |", "| R-01 | Major | a.md | It is | wrong | Fix it | New | extra |", "| R-01 | Major | a.md \\| b.md | It is `a\\|b` | Fix it | New |",
+               "| r-01 | Major | a.md | It is wrong | Fix it | New |", "| F-01 | Major | a.md | It is wrong | Fix it | New |", "| R- | Major | a.md | It is wrong | Fix it | New |", "| R-01a | Major | a.md | It is wrong | Fix it | New |",
+               "| 1 | Major | a.md | It is wrong | Fix it | New |", "|  | Major | a.md | It is wrong | Fix it | New |", "| R-01 |  |  |  |  | New |", "| R-01 | Major | a.md | It is \"quoted\" \\\\ | Fix it | Unresolved |",
+               "R-01 | Major | a.md | It is wrong | Fix it | New", "| R-01 | Major | a.md | It is wrong | Fix it | New", "  | R-02 | Minor | b.md | Indented | Fix it | New |  ", "| R-01 | Major | a.md | é😀 |   | New |",
+               "| R-01 | Major | a.md | It is wrong | Fix it | New \\", "| R-02 | Minor | b.md | Second | Do it | Unresolved |", "| R-01 | Major | a.md | Twice | Fix it | New |", "|||||||", "| | | | | | |", "| - | - | - | - | - | - |"]
+for head in RF_SIX_HEADS:
+    for rows in (RF_SIX_ROW + "\n", "", "| R-01 | Major | a.md | It is wrong | Fix it |\n", "| New | Fix it | It is wrong | a.md | Major | R-01 |\n", "| R-01 | Major | a.md | It is wrong | Fix it | New | note |\n",
+                 "| 1 | R-01 | Major | a.md | It is wrong | Fix it | New |\n", "| R-01 | R-02 | Major | a.md | It is wrong | Fix it | New |\n", "| R-01 | Major | a.md | It is wrong | Fix it | New | Resolved |\n"):
+        rf_review(f"{RF_TOP}### Findings\n\n{head}\n{RF_SIX_RULE}\n{rows}", verdicts=("NOT-READY", "READY"))
+for row in RF_SIX_ROWS:
+    rf_review(f"{RF_TOP}### Findings\n\n{RF_SIX_HEAD}\n{RF_SIX_RULE}\n{row}\n", verdicts=("NOT-READY",))
+    rf_review(f"### Findings\n{RF_SIX_HEAD}\n{RF_SIX_RULE}\n{RF_SIX_ROW}\n{row}\n", unit="orders", verdicts=("READY",))
+for body in (f"{RF_SIX_HEAD}\n", f"{RF_SIX_HEAD}\n{RF_SIX_RULE}\n", f"{RF_SIX_HEAD}\n{RF_SIX_ROW}\n", f"{RF_SIX_HEAD}\nnot a rule\n{RF_SIX_ROW}\n", f"{RF_SIX_HEAD}\n\n{RF_SIX_RULE}\n\n{RF_SIX_ROW}\n", "No findings.\n", "",
+             f"prose\n{RF_SIX_HEAD}\nmore prose\n{RF_SIX_RULE}\n- a list\n{RF_SIX_ROW}\n> | R-09 | Major | q.md | Quoted | Fix it | New |\n", f"```\n{RF_SIX_HEAD}\n{RF_SIX_RULE}\n{RF_SIX_ROW}\n```\n",
+             f"<!--\n{RF_SIX_HEAD}\n{RF_SIX_RULE}\n{RF_SIX_ROW}\n-->\n", f"{RF_SIX_HEAD}\n{RF_SIX_RULE}\n{RF_SIX_ROW}\n\n| a | b |\n|---|---|\n| c | d |\n", f"| a | b |\n|---|---|\n{RF_SIX_HEAD}\n{RF_SIX_RULE}\n{RF_SIX_ROW}\n",
+             f"    {RF_SIX_HEAD}\n    {RF_SIX_RULE}\n    {RF_SIX_ROW}\n", f"{RF_SIX_HEAD}\n{RF_SIX_RULE}\n|\n", f"{RF_SIX_HEAD}\n{RF_SIX_RULE}\n| |\n", f" {RF_SIX_HEAD}\n {RF_SIX_RULE}\n {RF_SIX_ROW}\n"):
+    rf_review(f"{RF_TOP}### Findings\n\n{body}")
+
+# The report: its two headings, each table's header and rule, and what a row may not be.
+RF_PRIOR_HEADS = [RF_PRIOR_HEAD, "| Now | ID | Note | Severity |", "| ID | Now | Severity |", "| ID | Now | Severity | Note | Extra |", "| ID | ID | Now | Severity | Note |", "| id | now | severity | note |", "ID | Now | Severity | Note",
+                  "| ID | Now | Severity | Note | Now |", "| ID | Status | Severity | Note |", "| |", "|", "| ID | Now | Severity | Note | ID |"]
+RF_PRIOR_RULES = ["|---|---|---|---|", "| --- | --- | --- | --- |", "|:---|---:|:---:|-----|", "|--|---|---|---|", "|---|---|---|", "|---|---|---|---|---|", "| - | - | - | - |", "|---|---|---| |", "| ID | Now | Severity | Note |", "|:-:|---|---|---|",
+                  "|---|---|---|---|---|---|", "---|---|---|---"]
+RF_PRIOR_ROWS = ["| R-01 | Fixed | Major | Now right |", "| R-01 | fixed | Major | |", "| R-02 | RESOLVED | Minor | ok |", "| R-03 | Still applies | Major | no |", "| R-03 | still applies | Major | no |", "| R-04 | Open | Major | no |",
+                 "| R-05 | Unresolved | Major | no |", "| R-06 | still-applies | Major | no |", "| R-06 | Still  applies | Major | no |", "| R-07 |  | Major | no |", "| R-07 | New | Major | no |", "| R-07 | Accepted risk | Major | no |",
+                 "| R-1 | Fixed | Major | short id |", "| r-01 | Fixed | Major | case |", "| 01 | Fixed | Major | bare |", "|  | Fixed | Major | none |", "| R-01 | Fixed |", "| R-01 |", "| R-01 | Fixed | Major | a | b |",
+                 "| R-01 | Fixed | Major | a \\| b |", "| | | | |", "|", "||||", "| R-08 | Fixed | | |", "| R-09 | Fixed | Major | `a|b` |", "R-10 | Fixed | Major | no bars", "| R-11 | Fixed | Major | nbsp |", "| R-12 | Bad | Major | x |"]
+RF_NEW_HEADS = [RF_NEW_HEAD, "| ID | Severity | Location | Finding | Required action |", "| Severity | Location | Finding | Required action | ID |", "| Location | Severity | Required action | Finding |", "| Severity | Location | Finding |",
+                "| Severity | Location | Finding | Required action | Status |", "| ID | ID | Severity | Location | Finding | Required action |", "| severity | location | finding | required action |",
+                "| Severity | Location | Finding | Required Action |", "| Severity | Severity | Location | Finding | Required action |", "Severity | Location | Finding | Required action", "| |"]
+RF_NEW_ROWS = ["| Major | c.md > API | It leaks | Close it |", "| Minor | d.md | It is slow | Measure it |", "| Major | c.md | It leaks |", "| Major | c.md |", "| Major |", "| - | - | - | - |", "| Major | c.md | - | Close it |",
+               "| Major | c.md | It leaks | -- |", "| Major | n/a | It leaks | Close it |", "| Major | c.md | NA | Close it |", "| N/A | c.md | It leaks | Close it |", "| Major | c.md | none | Close it |", "| Major | c.md | None. | Close it |",
+               "| Major | c.md | No findings | Close it |", "| Major | c.md | no findings | Close it |", "| No findings | | | |", "| Major | c.md | It leaks | Close it | extra |", "| Major | c.md \\| d.md | It `a\\|b` leaks | Close it |",
+               "| | | | |", "|", "| Major | c.md | nan | Close it |", "| Major | c.md | It leaks | n/a/b |", "| Major |  | It leaks | Close it |", "| Major | c.md | It leaks | Close it | |", "| Critical | é.md | 😀 |  x  |",
+               "Major | c.md | It leaks | Close it", "| Major | c.md | -x | Close it |", "| Major | c.md | --- | Close it |"]
+RF_NEW_ID_ROWS = ["| R-07 | Major | c.md | It leaks | Close it |", "| | Major | c.md | It leaks | Close it |", "| anything | Major | c.md | It leaks | Close it |", "| - | Major | c.md | It leaks | Close it |",
+                  "| Major | c.md | It leaks | Close it |", "| R-07 | Major | c.md | It leaks | Close it | extra |"]
+
+
+def rf_report(prior, new):
+    return f"{RF_TOP}### Findings\n\n{prior}{new}"
+
+
+RF_PRIOR_OK = f"**Prior findings**\n\n{RF_PRIOR_HEAD}\n|---|---|---|---|\n| R-01 | Fixed | Major | Now right |\n\n"
+RF_NEW_OK = f"**New findings**\n\n{RF_NEW_HEAD}\n|---|---|---|---|\n| Major | c.md > API | It leaks | Close it |\n"
+for head in RF_PRIOR_HEADS:
+    rf_review(rf_report(f"**Prior findings**\n\n{head}\n|---|---|---|---|\n| R-01 | Fixed | Major | Now right |\n\n", RF_NEW_OK), verdicts=("NOT-READY",))
+    rf_review(rf_report(f"**Prior findings**\n\n{head}\n|---|---|---|---|---|\n| R-01 | R-02 | Fixed | Major | Now right |\n\n", RF_NEW_OK), verdicts=("NOT-READY",))
+for rule in RF_PRIOR_RULES:
+    rf_review(rf_report(f"**Prior findings**\n\n{RF_PRIOR_HEAD}\n{rule}\n| R-01 | Fixed | Major | Now right |\n\n", RF_NEW_OK), verdicts=("NOT-READY",))
+    rf_review(rf_report(RF_PRIOR_OK, f"**New findings**\n\n{RF_NEW_HEAD}\n{rule}\n| Major | c.md | It leaks | Close it |\n"), verdicts=("NOT-READY",))
+for row in RF_PRIOR_ROWS:
+    rf_review(rf_report(f"**Prior findings**\n\n{RF_PRIOR_HEAD}\n|---|---|---|---|\n{row}\n\n", RF_NEW_OK), verdicts=("NOT-READY",))
+    rf_review(rf_report(f"**Prior findings**\n\n{RF_PRIOR_HEAD}\n|---|---|---|---|\n| R-01 | Fixed | Major | Now right |\n{row}\n| R-99 | Open | Minor | after |\n\n", RF_NEW_OK), verdicts=("READY",))
+for head in RF_NEW_HEADS:
+    rf_review(rf_report(RF_PRIOR_OK, f"**New findings**\n\n{head}\n|---|---|---|---|\n| Major | c.md | It leaks | Close it |\n"), verdicts=("NOT-READY",))
+    rf_review(rf_report(RF_PRIOR_OK, f"**New findings**\n\n{head}\n|---|---|---|---|---|\n| R-07 | Major | c.md | It leaks | Close it |\n"), verdicts=("NOT-READY",))
+    rf_review(rf_report("", f"**New findings**\n\n{head}\n|---|---|---|---|---|---|\n| R-07 | R-08 | Major | c.md | It leaks | Close it |\n"), verdicts=("NOT-READY",))
+for row in RF_NEW_ROWS:
+    rf_review(rf_report(RF_PRIOR_OK, f"**New findings**\n\n{RF_NEW_HEAD}\n|---|---|---|---|\n{row}\n"), verdicts=("NOT-READY",))
+    rf_review(rf_report("", f"**New findings**\n\n{RF_NEW_HEAD}\n|---|---|---|---|\n| Minor | a.md | First | Do it |\n{row}\n| Minor | z.md | After | Do it |\n"), unit="orders", verdicts=("READY",))
+for row in RF_NEW_ID_ROWS:
+    rf_review(rf_report(RF_PRIOR_OK, f"**New findings**\n\n| ID | Severity | Location | Finding | Required action |\n|---|---|---|---|---|\n{row}\n"), verdicts=("NOT-READY",))
+    rf_review(rf_report(RF_PRIOR_OK, f"**New findings**\n\n| Severity | Location | Finding | Required action | ID |\n|---|---|---|---|---|\n{row}\n"), verdicts=("NOT-READY",))
+RF_EMPTY_PRIOR = f"**Prior findings**\n\n{RF_PRIOR_HEAD}\n|---|---|---|---|\n\n"
+RF_EMPTY_NEW = f"**New findings**\n\n{RF_NEW_HEAD}\n|---|---|---|---|\n"
+for prior, new in ((RF_PRIOR_OK, RF_NEW_OK), (RF_EMPTY_PRIOR, RF_EMPTY_NEW), (RF_PRIOR_OK, RF_EMPTY_NEW), (RF_EMPTY_PRIOR, RF_NEW_OK), ("", RF_NEW_OK), ("", RF_EMPTY_NEW), (RF_PRIOR_OK, ""), (RF_EMPTY_PRIOR, ""), ("", ""),
+                   (RF_NEW_OK, RF_PRIOR_OK), (RF_PRIOR_OK + RF_PRIOR_OK, RF_NEW_OK), (RF_PRIOR_OK, RF_NEW_OK + RF_NEW_OK), (RF_PRIOR_OK.replace("**Prior findings**", "**PRIOR FINDINGS**"), RF_NEW_OK.replace("**New findings**", "  **new findings**  ")),
+                   (RF_PRIOR_OK.replace("**Prior findings**", "Prior findings"), RF_NEW_OK), (RF_PRIOR_OK, RF_NEW_OK.replace("**New findings**", "__New findings__")), (RF_PRIOR_OK.replace("**Prior findings**", "**Prior findings:**"), RF_NEW_OK),
+                   (RF_PRIOR_OK.replace("**Prior findings**", "#### Prior findings"), RF_NEW_OK.replace("**New findings**", "#### New findings")), (RF_PRIOR_OK.replace("**Prior findings**\n\n", "**Prior findings**\n"), RF_NEW_OK.replace("**New findings**\n\n", "**New findings**\n\n\n\n")),
+                   (RF_PRIOR_OK.replace("**Prior findings**\n\n", "**Prior findings**\nNone were carried.\n\n"), RF_NEW_OK), (RF_PRIOR_OK, "**New findings**\n\nNothing new.\n"), (RF_PRIOR_OK, "**New findings**\n"), (RF_PRIOR_OK, "**New findings**"),
+                   (RF_PRIOR_OK, f"**New findings**\n\n{RF_NEW_HEAD}\n"), (RF_PRIOR_OK, f"**New findings**\n\n{RF_NEW_HEAD}"), ("**Prior findings**\n\n", RF_NEW_OK), (f"**Prior findings**\n\n{RF_PRIOR_HEAD}\n\n", RF_NEW_OK),
+                   (f"<!-- **Prior findings** -->\n\n{RF_PRIOR_HEAD}\n|---|---|---|---|\n| R-01 | Fixed | Major | Now right |\n\n", RF_NEW_OK), (RF_PRIOR_OK, f"<!--\n{RF_NEW_OK}-->\n"), (f"```\n{RF_PRIOR_OK}```\n\n", RF_NEW_OK),
+                   (RF_PRIOR_OK, f"```\n{RF_NEW_OK}```\n"), (RF_PRIOR_OK, RF_NEW_OK + "<!-- | Minor | hidden.md | Hidden | Do it | -->\n"), (RF_PRIOR_OK, RF_NEW_OK + "\n| Minor | late.md | After a blank line | Do it |\n"),
+                   (RF_PRIOR_OK, RF_NEW_OK + "prose\n| Minor | late.md | After prose | Do it |\n"), (RF_PRIOR_OK + "prose between\n\n", RF_NEW_OK), (f"> {RF_PRIOR_OK}".replace("\n", "\n> "), RF_NEW_OK),
+                   (RF_PRIOR_OK, RF_NEW_OK.replace("\n", "\n  ")), (RF_PRIOR_OK.replace("| R-01 |", "| R-01 <!-- c --> |"), RF_NEW_OK.replace("It leaks", "It <!-- really --> leaks"))):
+    rf_review(rf_report(prior, new))
+    rf_review(rf_report(prior, new), unit="orders", verdicts=("NOT-READY",))
+
+# The finding that stands in for a table that cannot be read.
+for reason in ("a.md: findings table header declares ID | Severity. Expected columns: ID | Severity | Location | Finding | Required action | Status. Missing: Location, Finding, Required action, Status", "plain reason", "",
+               "a|b", "a | b", "a  |  b", "a\t|\nb", "|", " | ", "||", "a |", "| a", "a \\| b", "a | b", "the findings report could not be read: the New findings heading (**New findings**) is missing. Write the whole review again"):
+    for artifact, unit in (("design/architecture.md", None), ("a b.md", "orders"), ("", "")):
+        rf_add("unreadable", artifact=artifact, reason=reason, unit=unit, id="R-00", location=f"{artifact} > review findings table")
+for found, location in (("R-00", "a.md > review findings table"), ("R-00", "review findings table"), ("R-00", " > review findings table"), ("R-00", "a.md > review findings table "), ("R-00", "a.md >review findings table"),
+                        ("R-01", "a.md > review findings table"), ("R-0", "a.md > review findings table"), ("r-00", "a.md > review findings table"), ("R-00", "a.md > Review findings table"), ("R-00", ""), ("", "")):
+    rf_add("unreadable", artifact="a.md", reason="x", unit=None, id=found, location=location)
+
+# The bytes a record is written as.
+RF_FINDING = {"id": "R-01", "severity": "Major", "location": "a.md > X", "finding": "It is wrong", "required_action": "Fix it", "status": "New"}
+RF_RECORD = {"version": 1, "stage": "application-design", "unit": None, "workflow": None, "attempt": "0123456789abcdef", "iteration": 1, "reviewer": "the-reviewer", "verdict": "NOT-READY",
+             "request_id": "review:" + "0123456789abcdef" * 2, "request_challenge": None, "artifact_fingerprint": "sha256:" + "ab" * 32, "source_fingerprint": None, "unit_source_fingerprint": None,
+             "findings": [RF_FINDING], "body": "**Verdict:** NOT-READY\n\n### Findings\n", "recorded_at": "2026-11-18T21:08:00.000Z"}
+RF_DERIVED = [("decided_at_severity", "Major"), ("reviewer_note", "Still there"), ("not_rechecked", True), ("resolved_by_reviewer", False), ("resolved_in_review", True), ("earlier_decision", "Rejected: not a defect"),
+              ("reopened_reason", "Severity rose"), ("related_finding_id", "R-02"), ("introduced_in_review", False)]
+
+
+def rf_record(**given):
+    record = dict(RF_RECORD)
+    record.update(given)
+    keys = list(record)
+    rf.shuffle(keys)
+    rf_add("serialize", record={key: record[key] for key in keys})
+
+
+rf_record()
+for given in ({"unit": "orders"}, {"workflow": "feature"}, {"iteration": 2}, {"iteration": 10}, {"verdict": "READY", "findings": []}, {"request_id": None, "request_challenge": "review:" + "f" * 32}, {"source_fingerprint": "a" * 40},
+              {"source_fingerprint": "unbindable", "unit_source_fingerprint": "sha256:" + "c" * 64}, {"findings": [RF_FINDING, dict(RF_FINDING, id="R-02", status="Rejected: no \"quotes\" \\ here")]},
+              {"body": "line one\r\nline two\ttab \"q\" \\ é 😀   \x00\x1f\x7f"}, {"body": ""}, {"derived_findings": []}, {"derived_findings": [RF_FINDING]}, {"derived_findings": [dict(RF_FINDING, **dict(RF_DERIVED))]},
+              {"derived_findings": [dict(RF_FINDING, **dict(reversed(RF_DERIVED)))]}, {"findings": [], "derived_findings": [dict(RF_FINDING, status="Accepted risk", earlier_decision="Accepted risk")]},
+              {"findings": [{key: RF_FINDING[key] for key in reversed(list(RF_FINDING))}]}, {"recorded_at": "", "attempt": "", "stage": "s", "reviewer": ""}):
+    rf_record(**given)
+for _ in range(40 * scale):
+    derived = []
+    for index in range(rf.randint(0, 3)):
+        finding = dict(RF_FINDING, id=f"R-{index + 1:02}", status=rf.choice(["New", "Unresolved", "Resolved", "Accepted risk", "Rejected: because"]))
+        chosen = [pair for pair in RF_DERIVED if rf.random() < 0.4]
+        rf.shuffle(chosen)
+        finding.update(chosen)
+        items = list(finding.items())
+        rf.shuffle(items)
+        derived.append(dict(items))
+    given = {"iteration": rf.randint(1, 12), "unit": rf.choice([None, "orders"]), "workflow": rf.choice([None, "feature"]), "findings": [dict(RF_FINDING, id=f"R-{n + 1:02}") for n in range(rf.randint(0, 3))]}
+    if rf.random() < 0.7:
+        given["derived_findings"] = derived
+    rf_record(**given)
+
+# Reviews drawn from the pieces above: a report or a six-column table, with what gets in the way of either.
+RF_NOISE = ["", "", "", "\n", "prose\n", "<!-- a comment -->\n", "```\n| in | code |\n```\n", "> | in | a quote |\n", "- | in | a list |\n", "| a | b |\n", "|\n", "   \n", "#### Deeper\n", "**Bold line**\n"]
+for _ in range(120 * scale):
+    kind = rf.random()
+    parts = [rf.choice([RF_TOP, "**Verdict:** READY\n\n", "", "**Verdict:** NOT-READY\n"]), rf.choice(["### Findings\n", "### Findings\n\n", "### Findings \n", "### findings\n", ""])]
+    if kind < 0.5:
+        if rf.random() < 0.85:
+            parts += [rf.choice(["**Prior findings**\n", "**Prior findings**\n\n", "**prior findings**\n\n"]), rf.choice(RF_NOISE[:6]), rf.choice(RF_PRIOR_HEADS[:4] + [RF_PRIOR_HEAD] * 8) + "\n", rf.choice(RF_PRIOR_RULES[:6] + ["|---|---|---|---|"] * 8) + "\n"]
+            for _ in range(rf.randint(0, 3)):
+                parts.append(rf.choice(RF_PRIOR_ROWS[:8] * 3 + RF_PRIOR_ROWS) + "\n")
+            parts.append(rf.choice(["\n", "\n", ""]))
+            parts.append(rf.choice(RF_NOISE))
+        if rf.random() < 0.9:
+            parts += [rf.choice(["**New findings**\n", "**New findings**\n\n", "**NEW FINDINGS**\n\n"]), rf.choice(RF_NOISE[:6]), rf.choice(RF_NEW_HEADS[:4] + [RF_NEW_HEAD] * 8) + "\n", rf.choice(RF_PRIOR_RULES[:6] + ["|---|---|---|---|"] * 8) + "\n"]
+            for _ in range(rf.randint(0, 3)):
+                parts.append(rf.choice(RF_NEW_ROWS[:2] * 8 + RF_NEW_ROWS) + "\n")
+            parts.append(rf.choice(RF_NOISE))
+    else:
+        parts += [rf.choice(RF_NOISE[:6]), rf.choice(RF_SIX_HEADS[:6] + [RF_SIX_HEAD] * 10) + "\n", rf.choice([RF_SIX_RULE] * 6 + ["|---|", "not a rule", ""]) + "\n"]
+        for _ in range(rf.randint(0, 4)):
+            parts.append(rf.choice(RF_SIX_ROWS[:5] * 4 + RF_SIX_ROWS) + "\n")
+            parts.append(rf.choice(RF_NOISE))
+    parts.append(rf.choice(["", "", "### Notes\n\n| R-09 | Major | z.md | After | Fix it | New |\n", "## Notes\n", "\nprose\n"]))
+    rf_review("".join(parts), artifact=rf.choice(["design/architecture.md", "a.md"]), unit=rf.choice([None, None, "orders"]), verdicts=(rf.choice(["READY", "NOT-READY", None]),))
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

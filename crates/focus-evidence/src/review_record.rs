@@ -7,7 +7,8 @@
 //! the review its row describes (`reviewRecordMatchesCompletion`) and whether
 //! a completion carries the verified review its request needs
 //! (`completionCarriesVerifiedReview`, `aidlc-lib.ts` L17 324 to L17 427,
-//! L17 663 and L17 509).
+//! L17 663 and L17 509). And it writes the document a verdict leaves
+//! (`serializeReviewRecord`, L17 256).
 //!
 //! # A value as text
 //!
@@ -35,6 +36,7 @@ use serde_json::{Map, Value};
 use sha2::{Digest, Sha256};
 
 use crate::review::{self, RequestBinding};
+use crate::review_findings::valid_status;
 
 /// `ReviewRecord`, with the fields a completion is held to. The document is
 /// kept whole for the readers of its findings.
@@ -84,15 +86,6 @@ fn as_text(value: &Value) -> String {
     }
 }
 
-/// `validReviewFindingStatus`: one of the four fixed statuses, or a
-/// rejection with its reason.
-fn finding_status(status: &str) -> bool {
-    matches!(status, "New" | "Unresolved" | "Resolved" | "Accepted risk")
-        || status
-            .strip_prefix("Rejected: ")
-            .is_some_and(|reason| re::test(r"^\S[\s\S]*$", "", reason))
-}
-
 fn stored_finding(value: &Value) -> Option<&Map<String, Value>> {
     let finding = value.as_object()?;
     let text = |key: &str| finding.get(key).and_then(Value::as_str);
@@ -103,7 +96,7 @@ fn stored_finding(value: &Value) -> Option<&Map<String, Value>> {
         && ["severity", "location", "finding", "required_action"]
             .iter()
             .all(|key| text(key).is_some())
-        && text("status").is_some_and(finding_status))
+        && text("status").is_some_and(valid_status))
     .then_some(finding)
 }
 
@@ -252,4 +245,135 @@ pub fn read(record: Option<&Path>, named: &review::RecordRef) -> Option<Record> 
     (digest(&bytes) == named.digest)
         .then(|| parse(&bytes))
         .flatten()
+}
+
+/// `ReviewRecordFinding`: a finding as a record keeps it. The artifact and
+/// the unit are the record's.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct StoredFinding {
+    pub id: String,
+    pub severity: String,
+    pub location: String,
+    pub finding: String,
+    pub required_action: String,
+    pub status: String,
+}
+
+/// `ReviewRecordDerivedFinding`: a finding of the list derived from this
+/// review and the ones before it, with what was decided about it since.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DerivedFinding {
+    pub stored: StoredFinding,
+    pub decided_at_severity: Option<String>,
+    pub reviewer_note: Option<String>,
+    pub not_rechecked: Option<bool>,
+    pub resolved_by_reviewer: Option<bool>,
+    pub resolved_in_review: Option<bool>,
+    pub earlier_decision: Option<String>,
+    pub reopened_reason: Option<String>,
+    pub related_finding_id: Option<String>,
+    pub introduced_in_review: Option<bool>,
+}
+
+/// `ReviewRecord`, as a verdict writes it.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Written {
+    pub stage: String,
+    pub unit: Option<String>,
+    pub workflow: Option<String>,
+    pub attempt: String,
+    pub iteration: f64,
+    pub reviewer: String,
+    pub verdict: String,
+    pub request_id: Option<String>,
+    pub request_challenge: Option<String>,
+    pub artifact_fingerprint: String,
+    pub source_fingerprint: Option<String>,
+    pub unit_source_fingerprint: Option<String>,
+    pub findings: Vec<StoredFinding>,
+    pub derived_findings: Option<Vec<DerivedFinding>>,
+    pub body: String,
+    pub recorded_at: String,
+}
+
+fn stored(finding: &StoredFinding) -> Map<String, Value> {
+    let mut out = Map::new();
+    for (key, value) in [
+        ("id", &finding.id),
+        ("severity", &finding.severity),
+        ("location", &finding.location),
+        ("finding", &finding.finding),
+        ("required_action", &finding.required_action),
+        ("status", &finding.status),
+    ] {
+        out.insert(key.to_owned(), Value::String(value.clone()));
+    }
+    out
+}
+
+/// `serializeReviewRecord`: the record's canonical bytes: its keys in one
+/// order, two spaces of indentation, one line end after it. A row names the
+/// record by the hash of these bytes.
+#[must_use]
+pub fn serialize(record: &Written) -> String {
+    let text = |value: &Option<String>| value.clone().map_or(Value::Null, Value::String);
+    let mut out = Map::new();
+    let mut put = |key: &str, value: Value| {
+        out.insert(key.to_owned(), value);
+    };
+    put("version", Value::from(1));
+    put("stage", Value::String(record.stage.clone()));
+    put("unit", text(&record.unit));
+    put("workflow", text(&record.workflow));
+    put("attempt", Value::String(record.attempt.clone()));
+    put("iteration", Value::from(record.iteration));
+    put("reviewer", Value::String(record.reviewer.clone()));
+    put("verdict", Value::String(record.verdict.clone()));
+    put("request_id", text(&record.request_id));
+    put("request_challenge", text(&record.request_challenge));
+    put(
+        "artifact_fingerprint",
+        Value::String(record.artifact_fingerprint.clone()),
+    );
+    put("source_fingerprint", text(&record.source_fingerprint));
+    put(
+        "unit_source_fingerprint",
+        text(&record.unit_source_fingerprint),
+    );
+    put(
+        "findings",
+        Value::Array(
+            record
+                .findings
+                .iter()
+                .map(|finding| Value::Object(stored(finding)))
+                .collect(),
+        ),
+    );
+    if let Some(derived) = &record.derived_findings {
+        let derived = derived.iter().map(|finding| {
+            let mut out = stored(&finding.stored);
+            let mut put = |key: &str, value: Option<Value>| {
+                if let Some(value) = value {
+                    out.insert(key.to_owned(), value);
+                }
+            };
+            let said = |value: &Option<String>| value.clone().map(Value::String);
+            let flag = |value: Option<bool>| value.map(Value::Bool);
+            put("decided_at_severity", said(&finding.decided_at_severity));
+            put("reviewer_note", said(&finding.reviewer_note));
+            put("not_rechecked", flag(finding.not_rechecked));
+            put("resolved_by_reviewer", flag(finding.resolved_by_reviewer));
+            put("resolved_in_review", flag(finding.resolved_in_review));
+            put("earlier_decision", said(&finding.earlier_decision));
+            put("reopened_reason", said(&finding.reopened_reason));
+            put("related_finding_id", said(&finding.related_finding_id));
+            put("introduced_in_review", flag(finding.introduced_in_review));
+            Value::Object(out)
+        });
+        put("derived_findings", Value::Array(derived.collect()));
+    }
+    put("body", Value::String(record.body.clone()));
+    put("recorded_at", Value::String(record.recorded_at.clone()));
+    format!("{}\n", json::stringify_pretty(&Value::Object(out)))
 }
