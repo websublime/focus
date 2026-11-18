@@ -162,8 +162,7 @@ SHAPES = {
         "id is compared by the order in which each engine first writes it (<request-1>, <request-2>), wherever it "
         "is written: the row, the reviewer's file, the answer. An attempt's name is recomputed here from the rows "
         "of the tree's own ledger, and one that matches is compared as <attempt>; one that does not is compared as "
-        "it is. And a review record names its reviewer in the engine's own name, so its digest differs: one that "
-        "is the digest of a record the tree holds is compared as the record's. The source a request of a stage that "
+        "it is. The source a request of a stage that "
         "writes the workspace is bound to is the tree's own too (see source-baseline): the listing the request "
         "keeps is verified row by row against the tree's files, and a fingerprint that names it is compared as the "
         "tree's",
@@ -1666,22 +1665,12 @@ def settle_review_ids(tree, outcome):
         for found in REVIEW_REQUEST_FILE.finditer(outcome.get(key, "")):
             numbered.setdefault(found.group(1) or found.group(2), f"<request-{len(numbered) + 1}>")
     attempts = review_attempt_ids(tree)
-    # A review record's digest is of the tree's own bytes, which name the reviewer in the engine's own name.
-    records = set()
-    for folder, _, names in os.walk(tree.root):
-        if "/reviews/" not in folder.replace(os.sep, "/") + "/":
-            continue
-        for name in names:
-            if re.fullmatch(r"[1-9][0-9]*\.json", name):
-                with open(os.path.join(folder, name), "rb") as handle:
-                    records.add("sha256:" + hashlib.sha256(handle.read()).hexdigest())
     settled = False
     for key in list(outcome):
         text = outcome[key]
         for raw, name in numbered.items():
             text = text.replace(raw, name)
         text = REVIEW_ATTEMPT.sub(lambda m: m.group(1) + ("<attempt>" if m.group(2) in attempts else m.group(2)), text)
-        text = re.sub(r"(?<=\*\*Review Record Digest\*\*: )sha256:[0-9a-f]{64}", lambda m: "sha256:<the record's>" if m.group(0) in records else m.group(0), text)
         settled |= text != outcome[key]
         outcome[key] = text
     # The source a request is bound to: its fingerprint is the tree's own (SHAPES: source-baseline says why). One
@@ -5438,59 +5427,6 @@ def log_checks():
     check_("review/request/two_pending", created(reviewed, CREATED_AUDIT + requested(1, 2, "sha256:" + "a" * 64, old_id) + requested(2, 1, "sha256:" + "b" * 64, "**Request Id**: review:" + "2" * 32), **OUTPUTS),
            [asks(3), asks(1), asks(2)])
     check_("review/request/a_row_with_no_binding", created(reviewed, CREATED_AUDIT + requested(1, 1, "nope"), **OUTPUTS), [asks(1, "--retry-pending"), asks(1), asks(2)])
-    # A review that was completed: its rows and its record, written by hand in each tree's own names (the record's
-    # digest is of the tree's own bytes). The fingerprint it reviewed is none the outputs have, so a write came
-    # after it and the review is stale.
-    def reviewed_once(passes=((1, "READY", ()),), workflow=None, minute=1):
-        def edit(tree):
-            rows = ""
-            for index, (n, verdict, more) in enumerate(passes):
-                ident, fingerprint = "review:" + f"{n}" * 32, "sha256:" + "a" * 64
-                scope = [f"**Stage**: intent-capture", f"**Reviewer**: {lead}", f"**Iteration**: {n}"] + ([f"**Workflow**: {workflow}"] if workflow else [])
-                rows += block("REVIEW_REQUESTED", T(minute + 2 * index), *scope, f"**Artifact Fingerprint**: {fingerprint}", f"**Request Id**: {ident}", *more)
-                if verdict is None:
-                    continue
-                record = f".aidlc-engine/reviews/intent-capture/stage/{'0' * 16}/{n}.json"
-                tree.write(f"{CREATED_DIR}/{record}", json.dumps({
-                    "version": 1, "stage": "intent-capture", "unit": None, "workflow": workflow, "attempt": "0" * 16, "iteration": n, "reviewer": lead, "verdict": verdict,
-                    "request_id": ident, "request_challenge": None, "artifact_fingerprint": fingerprint, "source_fingerprint": None, "unit_source_fingerprint": None,
-                    "findings": [], "body": "It reads well.\n", "recorded_at": "2026-01-05T10:00:00Z"}, indent=2) + "\n")
-                with open(tree.path(f"{CREATED_DIR}/{record}"), "rb") as handle:
-                    digest = "sha256:" + hashlib.sha256(handle.read()).hexdigest()
-                rows += block("REVIEW_COMPLETED", T(minute + 2 * index + 1), *scope, f"**Verdict**: {verdict}", f"**Request Fingerprint**: {fingerprint}",
-                              f"**Artifact Fingerprint**: {fingerprint}", f"**Request Id**: {ident}", f"**Review Record**: {record}", f"**Review Record Digest**: {digest}")
-            tree.edit(CREATED_SHARD, lambda text: text + rows)
-        return edit
-    recovery = ("**Recovery**: stale-receipt", "**Recovery Cause**: artifact")
-    # A created record's Guard Policy is off, which lets a change after a review through; under strict the change
-    # makes the review stale.
-    lenient, reviewed = reviewed, reviewed.replace("- **Guard Policy**: off (from scope feature)", "- **Guard Policy**: strict (set by you)")
-    check_("review/request/policy_off_not_ported", created(lenient, **OUTPUTS), [asks(2), asks(1)], edits=[reviewed_once()])
-    check_("review/request/policy_relaxed_not_ported", created(lenient.replace("- **Guard Policy**: off (from scope feature)", "- **Guard Policy**: relaxed (set by you)"), **OUTPUTS), [asks(2)],
-           edits=[reviewed_once()])
-    # The one recovery pass of an attempt: asked for, waiting, and with no retry of the review it recovers.
-    check_("review/request/recovery", created(reviewed, **OUTPUTS), [asks(1), asks(3), asks(2), asks(2), asks(3)], edits=[reviewed_once()])
-    check_("review/request/recovery_no_retry_of_the_stale_review", created(reviewed, **OUTPUTS), [asks(1, "--retry-pending"), asks(2, "--retry-pending")], edits=[reviewed_once()])
-    check_("review/request/recovery_not_ready", created(reviewed, **OUTPUTS), [asks(2)], edits=[reviewed_once(((1, "NOT-READY", ()),))])
-    # The recovery was used and the output changed again: only the person resets the attempt.
-    spent = reviewed_once(((1, "READY", ()), (2, "READY", recovery)))
-    check_("review/request/recovery_spent", created(reviewed, **OUTPUTS), [asks(3), asks(3, "--retry-pending"), asks(2, "--retry-pending")], edits=[spent])
-    for label, mark in (("at_its_gate", "?"), ("revising", "R"), ("approved", "x"), ("not_started", " ")):
-        check_(f"review/request/recovery_spent_{label}", created(reviewed.replace("- [-] intent-capture ", f"- [{mark}] intent-capture "), **OUTPUTS), [asks(3)], edits=[spent])
-    check_("review/request/recovery_spent_unattended", created(reviewed, **OUTPUTS), [asks(3)], {"UNATTENDED": "1"}, edits=[spent])
-    # A stage run by itself has no stale source or output to recover: the recovery its rows say was used stays used.
-    alone = "single-stage:intent-capture"
-    check_("review/request/recovery_already_requested", created(reviewed, **OUTPUTS), [asks(3, "--single", "--retry-pending"), asks(3, "--single"), asks(2, "--single", "--retry-pending")],
-           edits=[reviewed_once(((1, "READY", ()), (2, "READY", recovery)), workflow=alone)])
-    # No pass left, and none refused to a person who asked.
-    check_("review/request/no_pass_left", created(reviewed, **OUTPUTS), [asks(2, "--single"), asks(1, "--single")], edits=[reviewed_once(workflow=alone)])
-    check_("review/request/no_pass_left_person_asked", created(reviewed, **OUTPUTS), [asks(2, "--single"), asks(3, "--single")],
-           edits=[reviewed_once(workflow=alone), lambda tree: tree.edit(CREATED_SHARD, lambda text: text + block("HUMAN_TURN", T(9), "**Session**: s1"))])
-    check_("review/request/recovery_spent_person_asked", created(reviewed, **OUTPUTS), [asks(3), asks(4)],
-           edits=[spent, lambda tree: tree.edit(CREATED_SHARD, lambda text: text + block("HUMAN_TURN", T(9), "**Session**: s1"))])
-    reviewed = lenient
-    # A stage that writes the workspace: the request is bound to the project's source, and the listing behind the
-    # fingerprint is kept.
     def graph_edit(**given):
         def edit(tree):
             graph = tree.json(".claude/tools/data/stage-graph.json")
@@ -5499,6 +5435,62 @@ def log_checks():
                     stage.update(given)
             tree.write_json(".claude/tools/data/stage-graph.json", graph)
         return edit
+    # A review that was completed: its rows and its record, written by hand. The fingerprint it reviewed is none
+    # the outputs have, so a write came after it and the review is stale. The reviewer is given a name that is not
+    # the engine's, so the record's bytes, and the digest its row carries, are the same in a replayed tree.
+    plain = "lead-reviewer"
+    def reviewed_once(passes=((1, "READY", ()),), workflow=None, minute=1):
+        def edit(tree):
+            rows = ""
+            for index, (n, verdict, more) in enumerate(passes):
+                ident, fingerprint = "review:" + f"{n}" * 32, "sha256:" + "a" * 64
+                scope = [f"**Stage**: intent-capture", f"**Reviewer**: {plain}", f"**Iteration**: {n}"] + ([f"**Workflow**: {workflow}"] if workflow else [])
+                rows += block("REVIEW_REQUESTED", T(minute + 2 * index), *scope, f"**Artifact Fingerprint**: {fingerprint}", f"**Request Id**: {ident}", *more)
+                if verdict is None:
+                    continue
+                record = f".aidlc-engine/reviews/intent-capture/stage/{'0' * 16}/{n}.json"
+                tree.write(f"{CREATED_DIR}/{record}", json.dumps({
+                    "version": 1, "stage": "intent-capture", "unit": None, "workflow": workflow, "attempt": "0" * 16, "iteration": n, "reviewer": plain, "verdict": verdict,
+                    "request_id": ident, "request_challenge": None, "artifact_fingerprint": fingerprint, "source_fingerprint": None, "unit_source_fingerprint": None,
+                    "findings": [], "body": "It reads well.\n", "recorded_at": "2026-01-05T10:00:00Z"}, indent=2) + "\n")
+                with open(tree.path(f"{CREATED_DIR}/{record}"), "rb") as handle:
+                    digest = "sha256:" + hashlib.sha256(handle.read()).hexdigest()
+                rows += block("REVIEW_COMPLETED", T(minute + 2 * index + 1), *scope, f"**Verdict**: {verdict}", f"**Request Fingerprint**: {fingerprint}",
+                              f"**Artifact Fingerprint**: {fingerprint}", f"**Request Id**: {ident}", f"**Review Record**: {record}", f"**Review Record Digest**: {digest}")
+            tree.edit(CREATED_SHARD, lambda text: text + rows)
+            graph_edit(reviewer=plain)(tree)
+        return edit
+    asks_plain = lambda n, *more: ["review", "--stage", "intent-capture", "--reviewer", plain, "--iteration", str(n), *more]
+    recovery = ("**Recovery**: stale-receipt", "**Recovery Cause**: artifact")
+    # A created record's Guard Policy is off, which lets a change after a review through; under strict the change
+    # makes the review stale.
+    lenient, reviewed = reviewed, reviewed.replace("- **Guard Policy**: off (from scope feature)", "- **Guard Policy**: strict (set by you)")
+    check_("review/request/policy_off_not_ported", created(lenient, **OUTPUTS), [asks_plain(2), asks_plain(1)], edits=[reviewed_once()])
+    check_("review/request/policy_relaxed_not_ported", created(lenient.replace("- **Guard Policy**: off (from scope feature)", "- **Guard Policy**: relaxed (set by you)"), **OUTPUTS), [asks_plain(2)],
+           edits=[reviewed_once()])
+    # The one recovery pass of an attempt: asked for, waiting, and with no retry of the review it recovers.
+    check_("review/request/recovery", created(reviewed, **OUTPUTS), [asks_plain(1), asks_plain(3), asks_plain(2), asks_plain(2), asks_plain(3)], edits=[reviewed_once()])
+    check_("review/request/recovery_no_retry_of_the_stale_review", created(reviewed, **OUTPUTS), [asks_plain(1, "--retry-pending"), asks_plain(2, "--retry-pending")], edits=[reviewed_once()])
+    check_("review/request/recovery_not_ready", created(reviewed, **OUTPUTS), [asks_plain(2)], edits=[reviewed_once(((1, "NOT-READY", ()),))])
+    # The recovery was used and the output changed again: only the person resets the attempt.
+    spent = reviewed_once(((1, "READY", ()), (2, "READY", recovery)))
+    check_("review/request/recovery_spent", created(reviewed, **OUTPUTS), [asks_plain(3), asks_plain(3, "--retry-pending"), asks_plain(2, "--retry-pending")], edits=[spent])
+    for label, mark in (("at_its_gate", "?"), ("revising", "R"), ("approved", "x"), ("not_started", " ")):
+        check_(f"review/request/recovery_spent_{label}", created(reviewed.replace("- [-] intent-capture ", f"- [{mark}] intent-capture "), **OUTPUTS), [asks_plain(3)], edits=[spent])
+    check_("review/request/recovery_spent_unattended", created(reviewed, **OUTPUTS), [asks_plain(3)], {"UNATTENDED": "1"}, edits=[spent])
+    # A stage run by itself has no stale source or output to recover: the recovery its rows say was used stays used.
+    alone = "single-stage:intent-capture"
+    check_("review/request/recovery_already_requested", created(reviewed, **OUTPUTS), [asks_plain(3, "--single", "--retry-pending"), asks_plain(3, "--single"), asks_plain(2, "--single", "--retry-pending")],
+           edits=[reviewed_once(((1, "READY", ()), (2, "READY", recovery)), workflow=alone)])
+    # No pass left, and none refused to a person who asked.
+    check_("review/request/no_pass_left", created(reviewed, **OUTPUTS), [asks_plain(2, "--single"), asks_plain(1, "--single")], edits=[reviewed_once(workflow=alone)])
+    check_("review/request/no_pass_left_person_asked", created(reviewed, **OUTPUTS), [asks_plain(2, "--single"), asks_plain(3, "--single")],
+           edits=[reviewed_once(workflow=alone), lambda tree: tree.edit(CREATED_SHARD, lambda text: text + block("HUMAN_TURN", T(9), "**Session**: s1"))])
+    check_("review/request/recovery_spent_person_asked", created(reviewed, **OUTPUTS), [asks_plain(3), asks_plain(4)],
+           edits=[spent, lambda tree: tree.edit(CREATED_SHARD, lambda text: text + block("HUMAN_TURN", T(9), "**Session**: s1"))])
+    reviewed = lenient
+    # A stage that writes the workspace: the request is bound to the project's source, and the listing behind the
+    # fingerprint is kept.
     check_("review/request/source_bound", created(reviewed, **{**OUTPUTS, "src/app.py": "print('hello')\n"}), [asks(1), asks(1, "--retry-pending")], edits=[graph_edit(workspace_requires=True)])
     # A stage whose class allows two passes.
     check_("review/request/two_passes", created(reviewed.replace("- **Review Override**: advisory", "- **Review Override**: adversarial"), **OUTPUTS), [asks(1), asks(2)],

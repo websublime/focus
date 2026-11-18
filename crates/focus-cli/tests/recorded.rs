@@ -219,6 +219,8 @@ fn normalise_audit(text: &str, root: &Path) -> String {
         "Run focus engine runtime --help",
         "Run <cli> runtime --help",
     );
+    // A review's two commands, in a sentence and as a value of their own.
+    text = text.replace("focus engine log review ", "<cli> log review ");
     text = replace_all(
         &text,
         r"^(runtime (?:read|summary): )[^\n]* at line \d+ column \d+$",
@@ -428,6 +430,14 @@ fn workspace_files(root: &Path) -> BTreeMap<String, String> {
                     files.insert(rel, text);
                     continue;
                 }
+                if rel.contains("source-review")
+                    && name.starts_with("workspace-")
+                    && name.ends_with(".tsv")
+                    && let Some(settled) = own_workspace_snapshot(&rel, &name, &text)
+                {
+                    files.insert(settled.0, settled.1);
+                    continue;
+                }
                 files.insert(rel, text);
             }
         }
@@ -462,6 +472,122 @@ fn own_baseline(rel: &str, name: &str, text: &str) -> (String, String) {
         rel.strip_suffix(name).unwrap_or_default()
     );
     (rel, rows.iter().map(|row| format!("{row}\n")).collect())
+}
+
+/// The fingerprint a workspace snapshot says on its first line, when the
+/// snapshot is kept under that fingerprint's own start.
+fn workspace_snapshot_source<'a>(name: &str, text: &'a str) -> Option<&'a str> {
+    let head = text.split('\n').next()?;
+    let mut cells = head.split('\t');
+    let (kind, source) = (cells.next()?, cells.next()?);
+    let hex = source.len() == 64 && source.bytes().all(|byte| byte.is_ascii_hexdigit());
+    (kind == "workspace" && hex && name == format!("workspace-{}.tsv", &source[..12]))
+        .then_some(source)
+}
+
+/// The listing a review request keeps behind its `Source Fingerprint`: kept
+/// under the fingerprint's own start, which its first line says. The
+/// recorder verified it against its own tree and recorded the name as
+/// `workspace-<source>.tsv`, the fingerprint as the tree's, and the rows as
+/// a baseline's; the replay writes Focus's the same way.
+fn own_workspace_snapshot(rel: &str, name: &str, text: &str) -> Option<(String, String)> {
+    let source = workspace_snapshot_source(name, text)?;
+    let (head, rest) = text.split_once('\n')?;
+    let (_, rows) = own_baseline(rel, name, rest);
+    let rel = format!(
+        "{}workspace-<source>.tsv",
+        rel.strip_suffix(name).unwrap_or_default()
+    );
+    Some((
+        rel,
+        format!("{}\n{rows}", head.replace(source, "<the tree's source>")),
+    ))
+}
+
+/// The recorder's `settle_review_ids`: a review's request ids numbered in
+/// the order they are first written (the ledger, then what the commands
+/// said, then the other files), the name of its attempt as `<attempt>`
+/// (it carries the tree's path, and the recorder verified it), and the
+/// source a request is bound to as the tree's when the tree keeps its
+/// listing.
+fn settle_review_ids(
+    root: &Path,
+    mut outcome: BTreeMap<String, String>,
+) -> BTreeMap<String, String> {
+    let mut order: Vec<&String> = outcome
+        .keys()
+        .filter(|key| key.contains("/audit/"))
+        .collect();
+    let said = ["stdout".to_owned(), "stderr".to_owned()];
+    order.extend(said.iter());
+    order.extend(
+        outcome
+            .keys()
+            .filter(|key| key.contains('/') && !key.contains("/audit/")),
+    );
+    let request =
+        regress::Regex::new(r"review:([0-9a-f]{32})(?![0-9a-f])|\.([0-9a-f]{32})(?=\.review\.md)")
+            .unwrap();
+    let mut numbered: Vec<String> = Vec::new();
+    for key in order {
+        let Some(text) = outcome.get(key) else {
+            continue;
+        };
+        for found in request.find_iter(text) {
+            let raw = match group(&found, text, 1) {
+                "" => group(&found, text, 2),
+                id => id,
+            };
+            if !numbered.iter().any(|known| known == raw) {
+                numbered.push(raw.to_owned());
+            }
+        }
+    }
+    let mut sources: Vec<String> = Vec::new();
+    fn snapshots(dir: &Path, sources: &mut Vec<String>) {
+        let Ok(entries) = fs::read_dir(dir) else {
+            return;
+        };
+        for entry in entries {
+            let path = entry.unwrap().path();
+            let name = path.file_name().unwrap().to_string_lossy().into_owned();
+            if path.is_dir() {
+                snapshots(&path, sources);
+            } else if name.starts_with("workspace-")
+                && name.ends_with(".tsv")
+                && path.to_string_lossy().contains("source-review")
+            {
+                let text = String::from_utf8_lossy(&fs::read(&path).unwrap()).into_owned();
+                if let Some(source) = workspace_snapshot_source(&name, &text) {
+                    sources.push(source.to_owned());
+                }
+            }
+        }
+    }
+    snapshots(root, &mut sources);
+    for text in outcome.values_mut() {
+        for (index, raw) in numbered.iter().enumerate() {
+            *text = text.replace(raw, &format!("<request-{}>", index + 1));
+        }
+        *text = replace_all(
+            text,
+            r#"(/reviews/[^/\s"`]+/(?:stage|units/[^/\s"`]+)/)[0-9a-f]{16}(?=/)"#,
+            |found, text| format!("{}<attempt>", group(found, text, 1)),
+        );
+        *text = replace_all(
+            text,
+            r"(\*\*Source Fingerprint\*\*: )([0-9a-f]{64})",
+            |found, text| {
+                let source = group(found, text, 2);
+                if sources.iter().any(|known| known == source) {
+                    format!("{}<the tree's source>", group(found, text, 1))
+                } else {
+                    text[found.range()].to_owned()
+                }
+            },
+        );
+    }
+    outcome
 }
 
 /// A rules record hashes the memory files as each engine ships them, which
@@ -657,7 +783,7 @@ fn replay_audit(check: &Value, root: &Path) -> BTreeMap<String, String> {
         let (shown, text) = minted(rel, text);
         actual.insert(shown, text.unwrap_or_else(|| "<removed>".to_owned()));
     }
-    placeholder_messages(actual)
+    placeholder_messages(settle_review_ids(root, actual))
 }
 
 /// The recorder's `placeholder_messages`: the message records minted during
