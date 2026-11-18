@@ -770,7 +770,11 @@ fn source_snapshot_case(wf: &Workflow, case: &Value) -> Value {
         json!({ "error": if own { text } else { "<host>".to_owned() } })
     };
     let kept = || -> Value {
-        fn walk(dir: &std::path::Path, record: &std::path::Path, found: &mut serde_json::Map<String, Value>) {
+        fn walk(
+            dir: &std::path::Path,
+            record: &std::path::Path,
+            found: &mut serde_json::Map<String, Value>,
+        ) {
             let Ok(listed) = std::fs::read_dir(dir) else {
                 return;
             };
@@ -807,7 +811,10 @@ fn source_snapshot_case(wf: &Workflow, case: &Value) -> Value {
     };
     let listed = |listing: Option<Listing>| -> Value {
         listing.map_or(Value::Null, |listing| {
-            listing.iter().map(|(key, entry)| json!([key, entry])).collect()
+            listing
+                .iter()
+                .map(|(key, entry)| json!([key, entry]))
+                .collect()
         })
     };
     let answer = (|| -> Result<Value, String> {
@@ -839,27 +846,34 @@ fn source_snapshot_case(wf: &Workflow, case: &Value) -> Value {
         };
         let first = write();
         let files = kept();
-        let hash = first[0]
-            .as_str()
-            .map_or_else(|| "0".repeat(64), |written| written["sha256:".len()..].to_owned());
+        let hash = first[0].as_str().map_or_else(
+            || "0".repeat(64),
+            |written| written["sha256:".len()..].to_owned(),
+        );
         // (A fingerprint that is no hash names no file: its first twelve
         // characters are taken as upstream's driver takes them.)
         let head = |text: &str| text.chars().take(12).collect::<String>();
         let place = |which: &str, legacy: bool| {
-            dirs[usize::from(legacy)].join(slug).join(if which == "baseline" {
-                format!("baseline-{}.tsv", head(&hash))
-            } else {
-                format!("workspace-{}.tsv", head(fingerprint))
-            })
+            dirs[usize::from(legacy)]
+                .join(slug)
+                .join(if which == "baseline" {
+                    format!("baseline-{}.tsv", head(&hash))
+                } else {
+                    format!("workspace-{}.tsv", head(fingerprint))
+                })
         };
         for step in case["tamper"].as_array().into_iter().flatten() {
             let which = step[0].as_str().unwrap_or_default();
             let op = step[1].as_str().unwrap_or_default();
-            let text = step[2].as_str().unwrap_or_default().replace("{FP}", fingerprint);
+            let text = step[2]
+                .as_str()
+                .unwrap_or_default()
+                .replace("{FP}", fingerprint);
             let path = place(which, false);
             let earlier = place(which, true);
             let folder = |path: &std::path::Path| {
-                std::fs::create_dir_all(path.parent().expect("a name has a folder")).expect("a folder");
+                std::fs::create_dir_all(path.parent().expect("a name has a folder"))
+                    .expect("a folder");
             };
             if op == "legacy-write" {
                 folder(&earlier);
@@ -880,12 +894,15 @@ fn source_snapshot_case(wf: &Workflow, case: &Value) -> Value {
             {
                 continue;
             }
-            let read = || String::from_utf8_lossy(&std::fs::read(&path).unwrap_or_default()).into_owned();
+            let read =
+                || String::from_utf8_lossy(&std::fs::read(&path).unwrap_or_default()).into_owned();
             match op {
                 "crlf" => std::fs::write(&path, read().replace('\n', "\r\n")).expect("a file"),
                 "append" => std::fs::write(&path, read() + &text).expect("a file"),
                 "write" => std::fs::write(&path, text).expect("a file"),
-                "hex" => std::fs::write(&path, focus_evidence::oracle::unhex(&text)).expect("a file"),
+                "hex" => {
+                    std::fs::write(&path, focus_evidence::oracle::unhex(&text)).expect("a file")
+                }
                 "bom" => {
                     let mut bytes = vec![0xef, 0xbb, 0xbf];
                     bytes.extend(std::fs::read(&path).unwrap_or_default());

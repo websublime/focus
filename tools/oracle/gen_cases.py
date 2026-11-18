@@ -7293,5 +7293,16 @@ for which, ops in (("baseline", SS_BASELINE_OPS), ("workspace", SS_WORKSPACE_OPS
         ss_add(SS_LISTING, fingerprint="1" * 64, tamper=[(which, op, arg)], current=SS_NOW, posix=True)
         ss_add(SS_LISTING, fingerprint="1" * 64, tamper=[(which, op, arg), (which, "legacy-write", "garbage\n")], current=SS_NOW, posix=True)
 
+# A snapshot lying where a stage's name that is none would put it is not read.
+SS_EMPTY = "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+for slug in ("a/b", "..", "Code", "code-generation"):
+    for folder in (".aidlc-engine/source-review", ".aidlc-source-review"):
+        ss_add([], slug=slug, fingerprint="1" * 64, current=SS_NOW, asks=[SS_EMPTY],
+               files={**RV_ACTIVE, f"{RV_RECORD}/{folder}/{slug}/workspace-111111111111.tsv": "workspace\t" + "1" * 64 + "\t-\n" + SS_ROW,
+                      f"{RV_RECORD}/{folder}/{slug}/baseline-e3b0c44298fc.tsv": ""})
+# An entry whose mode only ends as a file's does.
+for entry in ("0100644 " + SC_OID, "x100755 " + SC_OID, " 100644 " + SC_OID):
+    sc_add([["\x00src/.DS_Store", entry], ["\x00zeta", SC_OID]], [["\x00zeta", SC_OID]], paths=[])
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

@@ -299,7 +299,8 @@ pub fn run_case(case: &Value) -> Value {
             // changed between it and the current one, and paths as a
             // person is told them.
             let current = pairs(&case["current"]);
-            let kept = listing::recorded_under_current_boundary(&pairs(&case["recorded"]), &current);
+            let kept =
+                listing::recorded_under_current_boundary(&pairs(&case["recorded"]), &current);
             let changed = listing::changed_paths(&kept, &current);
             let paths: Vec<String> = case["paths"]
                 .as_array()

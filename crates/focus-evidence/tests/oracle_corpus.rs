@@ -44,6 +44,7 @@ fn every_evidence_case_gets_upstreams_answer() {
     let (mut records, mut valid, mut same_review, mut carried) = (0, 0, 0, 0);
     let (mut inputs, mut set_aside) = (0, 0);
     let (mut same_asked, mut same_alias, mut same_raw, mut same_boundary) = (0, 0, 0, 0);
+    let (mut boundaries, mut left_out, mut escaped, mut cut_short) = (0, 0, 0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         // Parsed as upstream's driver parses it, so nested objects are in the
@@ -138,6 +139,20 @@ fn every_evidence_case_gets_upstreams_answer() {
             listings += usize::from(out["size"].as_u64().is_some_and(|size| size > 1));
             refused += usize::from(out.get("listing").is_some_and(Value::is_null));
             thrown += usize::from(out.get("error").is_some());
+        } else if kind == "source_changed" {
+            boundaries += 1;
+            let count = |value: &Value| value.as_array().map_or(0, Vec::len);
+            left_out += usize::from(count(&out["kept"]) < count(&case["recorded"]));
+            escaped += usize::from(
+                out["paths"]
+                    .as_str()
+                    .is_some_and(|told| told.contains("\\u")),
+            );
+            cut_short += usize::from(["told", "paths"].iter().any(|key| {
+                out[key]
+                    .as_str()
+                    .is_some_and(|told| told.ends_with(" more)"))
+            }));
         } else {
             pairs += 1;
             unwritten += usize::from(out["before"].get("error").is_some());
@@ -214,6 +229,10 @@ fn every_evidence_case_gets_upstreams_answer() {
     assert!(
         inputs >= 740 && set_aside >= 150 && inputs - set_aside >= 500,
         "{inputs} {set_aside}"
+    );
+    assert!(
+        boundaries >= 1500 && left_out >= 300 && escaped >= 120 && cut_short >= 100,
+        "{boundaries} {left_out} {escaped} {cut_short}"
     );
     assert!(
         differing.is_empty(),
