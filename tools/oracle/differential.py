@@ -5442,8 +5442,8 @@ def log_checks():
     def reviewed_once(passes=((1, "READY", ()),), workflow=None, minute=1):
         def edit(tree):
             rows = ""
-            for index, (n, verdict, more) in enumerate(passes):
-                ident, fingerprint = "review:" + f"{n}" * 32, "sha256:" + "a" * 64
+            for index, (n, verdict, more, *named) in enumerate(passes):
+                ident, fingerprint = "review:" + f"{n}" * 32, named[0] if named else "sha256:" + "a" * 64
                 scope = [f"**Stage**: intent-capture", f"**Reviewer**: {plain}", f"**Iteration**: {n}"] + ([f"**Workflow**: {workflow}"] if workflow else [])
                 rows += block("REVIEW_REQUESTED", T(minute + 2 * index), *scope, f"**Artifact Fingerprint**: {fingerprint}", f"**Request Id**: {ident}", *more)
                 if verdict is None:
@@ -5488,7 +5488,30 @@ def log_checks():
            edits=[reviewed_once(workflow=alone), lambda tree: tree.edit(CREATED_SHARD, lambda text: text + block("HUMAN_TURN", T(9), "**Session**: s1"))])
     check_("review/request/recovery_spent_person_asked", created(reviewed, **OUTPUTS), [asks_plain(3), asks_plain(4)],
            edits=[spent, lambda tree: tree.edit(CREATED_SHARD, lambda text: text + block("HUMAN_TURN", T(9), "**Session**: s1"))])
+    # A review of the bytes the outputs have: nothing is stale. No pass is left, the one recovery stays used, and a
+    # person who asks is not refused.
+    CURRENT = "sha256:ecf999829890d21d716a816b7d5988926939797038877a5c26afeaee7da1d192"
+    standing = reviewed_once(((1, "READY", (), CURRENT),))
+    check_("review/request/reviewed_no_pass_left", created(reviewed, **OUTPUTS), [asks_plain(2), asks_plain(1), asks_plain(2, "--retry-pending")], edits=[standing])
+    check_("review/request/reviewed_person_asked", created(reviewed, **OUTPUTS), [asks_plain(2), asks_plain(3)],
+           edits=[standing, lambda tree: tree.edit(CREATED_SHARD, lambda text: text + block("HUMAN_TURN", T(9), "**Session**: s1"))])
+    recovered = reviewed_once(((1, "READY", ()), (2, "READY", recovery, CURRENT)))
+    check_("review/request/recovered_already_requested", created(reviewed, **OUTPUTS), [asks_plain(3), asks_plain(3, "--retry-pending")], edits=[recovered])
+    check_("review/request/recovery_source_freshness_off", created(reviewed, **OUTPUTS), [asks_plain(2)], {"SKIP_SOURCE_FRESHNESS": "1"}, edits=[reviewed_once()])
     reviewed = lenient
+    # A request the ledger holds of the bytes on disk: dispatched again once, keeping its id; one written before
+    # requests had ids gains one, and is marked.
+    check_("review/request/retry_keeps_the_id", created(reviewed, CREATED_AUDIT + requested(1, 1, CURRENT, old_id), **OUTPUTS), [asks(1, "--retry-pending"), asks(1, "--retry-pending"), asks(1)])
+    check_("review/request/retry_modernises", created(reviewed, CREATED_AUDIT + requested(1, 1, CURRENT), **OUTPUTS), [asks(1, "--retry-pending"), asks(1, "--retry-pending"), asks(2)])
+    check_("review/request/retry_keeps_a_recovery", created(reviewed, CREATED_AUDIT + requested(1, 1, CURRENT, old_id, "**Recovery**: stale-receipt", "**Recovery Cause**: artifact+source"), **OUTPUTS),
+           [asks(1, "--retry-pending")])
+    check_("review/request/pending_of_the_bytes_on_disk", created(reviewed, CREATED_AUDIT + requested(1, 1, CURRENT, old_id), **OUTPUTS), [asks(1), asks(2)])
+    # The passes a stage allows: its own number, two when it says none, and the check of owed outputs switched off.
+    check_("review/request/three_passes", created(reviewed.replace("- **Review Override**: advisory", "- **Review Override**: adversarial"), **OUTPUTS), [asks_plain(3), asks_plain(4)],
+           edits=[graph_edit(review_class="adversarial", reviewer_max_iterations=3), reviewed_once(((1, "NOT-READY", (), CURRENT), (2, "NOT-READY", (), CURRENT)))])
+    check_("review/request/passes_not_said", created(reviewed.replace("- **Review Override**: advisory", "- **Review Override**: adversarial"), **OUTPUTS), [asks_plain(3), asks_plain(4)],
+           edits=[graph_edit(review_class="adversarial", reviewer_max_iterations=None), reviewed_once(((1, "NOT-READY", (), CURRENT), (2, "NOT-READY", (), CURRENT)))])
+    check_("review/request/owed_outputs_not_checked", created(reviewed, **{**OUTPUTS, f"{cap}/stakeholder-map.md": None}), [asks(1)], {"SKIP_ARTIFACT_GUARD": "1"})
     # A stage that writes the workspace: the request is bound to the project's source, and the listing behind the
     # fingerprint is kept.
     check_("review/request/source_bound", created(reviewed, **{**OUTPUTS, "src/app.py": "print('hello')\n"}), [asks(1), asks(1, "--retry-pending")], edits=[graph_edit(workspace_requires=True)])
