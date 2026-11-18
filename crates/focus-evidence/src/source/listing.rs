@@ -9,6 +9,12 @@
 //! row ended by a line feed (`serializeSourceListing`, `aidlc-lib.ts`
 //! L24 376). It is what a snapshot file holds and what its hash is taken
 //! over, so it is reproduced to the byte.
+//!
+//! A recorded listing is compared with today's under today's boundary:
+//! what the walk has left out since is no change
+//! (`recordedSourceListingUnderCurrentBoundary`, L20 839). The paths that
+//! changed are told to a person as inert text (`renderChangedPaths`,
+//! L40 233).
 
 use std::collections::HashMap;
 

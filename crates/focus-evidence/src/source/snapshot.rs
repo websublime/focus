@@ -25,15 +25,25 @@
 //! is only ever told to a person as the paths that changed; the decision
 //! compares the two fingerprints and never reads these bytes.
 //!
-//! # Tests that another test covers
+//! # Tests that change no answer
 //!
-//! Two questions of the writer change no answer when taken out, and are
-//! kept where upstream has them. The record's directory is made before
-//! anything else, and no row reaches the writer without a record there
-//! already. The snapshot's place is checked for a link twice, before its
-//! directory is made and after: nothing but another process can put a link
-//! there in between, and the first check is the one that keeps the
-//! directory from being made through a link.
+//! Kept where upstream has them, and no case can tell them apart from
+//! their absence:
+//!
+//! - The record's directory is made before anything else: no row reaches
+//!   the writer without a record there already.
+//! - The snapshot's place is checked for a link a second time, after its
+//!   directory is made: nothing but another process can put a link there
+//!   in between. (The first check is the one that keeps a directory from
+//!   being made through a link, and the corpus holds that case.)
+//! - A file already at the snapshot's place is asked for by `exists`: a
+//!   directory there fails either way, in the host's words.
+//! - A row's fingerprint must be 64 lowercase hex digits before a file is
+//!   looked for. Any other text of twelve characters or more names a file
+//!   whose bytes cannot hash to it: the comparison with the whole hash
+//!   decides the same.
+//! - Where neither the engine's directory nor the earlier one holds the
+//!   file, the path answered is the engine's: nothing is read from either.
 
 use std::path::{Path, PathBuf};
 
