@@ -2263,7 +2263,7 @@ O checkpoint de sumário atravessa `decision` e `answer`, e assenta em duas leit
 | Mutação | 118 mutantes (o verbo, a cadeia, a fronteira da tentativa, os recibos, o ficheiro de um recibo, a cerimónia): 110 apanhados (99 à primeira, 11 depois de 25 checks escritos para eles: o estado que não se lê, a cadeia de três, o outro pipeline, as linhas da corrida de outra stage, os recibos sem fronteira, os empates com o recibo muito abaixo no shard, o recibo anterior de outra stage, elo ou repositório, os repositórios intercalados) e 8 equivalentes anotados nos dois módulos (o shard e a posição numa ordenação estável de linhas que já chegam por essa ordem; um recibo sem elo ou sem caminho; o registo como caminho; a cadeia vazia; a cerimónia só tem dois valores; só os recibos do primeiro elo são perguntados pelo ficheiro) |
 | `cargo test` | 578 testes. A suite inteira leva 207 s onde levava 1 342 (a repetição da gravação, 89 s onde levava 1 168) |
 
-### Fatia 2e: `review` fica para depois da fatia 3
+### Fatia 2e: `review`, depois da fatia 3 e partida em quatro
 
 Lido `handleReview` (`aidlc-log.ts` L2 975 a L4 412, uma função só): não há caminho de `review`, pedido ou veredicto, que não passe pelos dois leitores que a fatia 3 traz. A ordem das fatias troca, e a 2e faz-se sobre eles.
 
@@ -2281,6 +2281,30 @@ Lido `handleReview` (`aidlc-log.ts` L2 975 a L4 412, uma função só): não há
 **Decisão.** Portar `review` agora obrigava a ler os recibos por fora, sem os comparar, ou a recusar pelo nome todos os pedidos, o que deixava o verbo sem nada para comparar. A fatia 3 não precisa de `review` para ser verificada: os pares `REVIEW_REQUESTED` e `REVIEW_COMPLETED` que ela pesa escrevem-se à mão nos checks, como os recibos de um pipeline na 2d. A ordem passa a ser 2a a 2d, 3, 2e, 4. A fatia 3 parte-se quando for lida; a primeira parte é a tentativa de revisão (`reviewAttemptWindow` e `reviewAttemptAccounting`), que os outros leitores e `review` usam.
 
 **O que a 2e traz, quando vier.** O pedido (`REVIEW_REQUESTED`): o ordinal, que é do engine, o orçamento por classe de revisão e a recuperação única quando se esgota, uma revisão que a pessoa pediu fora do orçamento (`personAskedForReview`), o `Source Fingerprint` com o snapshot atrás, o id do pedido e o sítio onde o revisor escreve. O veredicto (`REVIEW_COMPLETED`): `READY` ou `NOT-READY`, o ficheiro da revisão levado para o registo com os títulos despromovidos, o pedido pendente a que responde, e o registo de despacho do revisor retirado no fim.
+
+**A 2e, lida outra vez com a fatia 3 feita, parte-se em quatro.** `handleReview` são 1 438 linhas numa função só, com dois caminhos que só partilham o arranque: o pedido (sem `--verdict`) e o veredicto. Nenhuma das funções que só `review` chama existe em Focus; as da fatia 3 existem todas.
+
+| Parte | O que traz | Como se verifica | Estado |
+| --- | --- | --- | --- |
+| 2e-i. O pedido | As flags e o arranque (`loadContext`: o reviewer e o `review_artifact` declarados, a classe e o orçamento, a tentativa ambígua); a admissão do sumário, com a frase e sem a pergunta de recuperação; o ordinal, que é do engine; o orçamento; o pedido que ainda espera veredicto; a recuperação única de um recibo ultrapassado e a sua causa; a substituição de um pedido que já não pode acabar; `--retry-pending`, com a modernização de um pedido antigo; o fingerprint dos artefactos, o id do pedido, o `Source Fingerprint` com o snapshot do workspace atrás, o sítio onde o revisor escreve; a linha `REVIEW_REQUESTED` e o JSON que o comando imprime, com o comando que fecha o pedido | Diferencial (`log/review/request/*`) | Por fazer |
+| 2e-ii. As mudanças aceites | `governedChangeControl` e `recordAcceptedChanges`: quando um dos leitores da fatia 3 leu a Guard Policy, as mudanças que ela deixou passar gravam-se (`CHANGE_ACCEPTED`) e dizem-se uma vez | Diferencial, nos checks do pedido e do veredicto com a política relaxada | Por fazer |
+| 2e-iii. O texto de uma revisão | `validateReviewAppendix`, `demoteReviewHeadings`, `readFindingsTable`, `deriveReviewFindingsList` e o registo (`serializeReviewRecord`, `renderReadableReviewCopy`): o que um revisor escreveu, lido, validado e posto na forma que o registo guarda | Corpus (funções puras sobre texto de revisões) | Por fazer |
+| 2e-iv. O veredicto | O pedido pendente a que responde; a admissão do sumário outra vez; os artefactos ou a fonte que mudaram enquanto o revisor trabalhava (recusa, ou aceite pela política); o ficheiro da revisão (o do pedido, `--review-file`, um ficheiro que não é plano); o `NOT-READY` sem revisão de um pedido já repetido; o registo escrito, a linha `REVIEW_COMPLETED`, o rascunho retirado, a cópia legível ao lado do artefacto, e o registo de despacho do revisor retirado no fim | Diferencial (`log/review/verdict/*`) | Por fazer |
+
+**O que a 2e recusa pelo nome.** `--unit` (o claim da unit, o DAG, a unit saltada, a fonte e o manifesto da unit: fatia 5) e um bolt autónomo (o swarm responde sempre que não). A pergunta de recuperação depois da frase de um guard é da fatia 4: até lá a recusa leva a frase, como nas outras (`SHAPES["guard-ask"]`).
+
+**O que `review` chama e ainda não existe**, tirado da leitura, para cada parte começar por onde falta:
+
+| De que parte | Funções |
+| --- | --- |
+| 2e-i | `personAskedForReview`, `renderReviewRequestCommand`, `renderReviewVerdictCommand`, `reviewRequestNote`, `reviewSummaryEvidenceMessage`, `reviewBudgetMessage`, `reviewRecoverySpentMessage`, `reviewRecoveryAlreadyRequestedMessage`, `reviewRecoveryGuidance`, `requestChangesResetIsExecutable`, `unitsBlockRepair`, `reviewAttemptId`, `reviewDraftRelativePath`, `reviewRecordRelativePath`, `removeRecordFileNoFollow`, `recordFileTargetOrThrow`, `legacyReviewAppendixEchoFields` |
+| 2e-ii | `governedChangeControl`, `recordAcceptedChanges` |
+| 2e-iii | `validateReviewAppendix`, `demoteReviewHeadings`, `readFindingsTable`, `deriveReviewFindingsList`, `unreadableFindingsTableFinding`, `derivedRecordFinding`, `serializeReviewRecord`, `renderReadableReviewCopy` |
+| 2e-iv | `writeRecordFileNoFollow`, `reviewerDispatchPath`, `removeParentReviewerDispatch` |
+| Fatia 4 | `guardAttemptState`, `evaluateGuardRefusal`, `humanAuthorityState`, `refuseReviewGuard` |
+| Fatia 5 | `validateLiveUnitScope`, `claimAttemptFields`, `isAutonomousSwarmStage`, `reviewAttemptEventMatchesCurrentClaim`, `unitSkippedUnits`, `teamUnitGateStatus`, `readUnitSourceManifest`, `writeUnitSourceSnapshot`, `unitSourceFingerprint`, `unitManifestRefusal` |
+
+O que a fatia 3 ainda deve aos comandos (as recusas pelo nome de `state`, de `review-freeze` e do grupo, do salto para trás com linhas de revisão, e do turno humano com um pedido sem veredicto; os handoffs devidos por um pipeline; `review-brief` e os findings que um gate grava) faz-se depois da 2e-i: é com `review` a escrever os recibos que o diferencial os consegue pôr nos dois lados da mesma maneira.
 
 ### Fatia 3a: a tentativa de revisão, partida em cinco (feita)
 
