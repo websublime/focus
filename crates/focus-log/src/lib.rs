@@ -15,4 +15,5 @@ pub mod decision;
 pub mod flags;
 pub mod link;
 pub mod message;
+pub mod review;
 mod summary;

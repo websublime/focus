@@ -148,11 +148,7 @@ fn answer(filtered: &[String], raw: &[String], context: &Context) -> Result<Stri
             focus_log::answer::answer(&|| open(context), rest)?
         }
         Some("link") => focus_log::link::link(&|| open(context), rest)?,
-        Some("review") => {
-            return Err(Refusal::of(
-                "log review is not ported yet: Focus records the questions of a stage, their answers and a pipeline's handoffs (log decision, log answer, log answers, log link), and not yet the reviews.",
-            ));
-        }
+        Some("review") => focus_log::review::review(&|| open(context), rest)?,
         other => {
             return Err(Refusal::of(format!(
                 "Unknown subcommand: {}. Valid: decision, answer, answers, link, review",

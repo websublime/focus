@@ -10,6 +10,7 @@ publish.workspace = true
 
 [dependencies]
 serde_json.workspace = true
+getrandom.workspace = true
 focus-audit.workspace = true
 focus-evidence.workspace = true
 focus-graph.workspace = true
