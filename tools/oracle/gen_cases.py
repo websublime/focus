@@ -7602,5 +7602,97 @@ for opened in (True, False):
         # which Focus refuses by name before it reads anything.)
         fr_evidence(source=source, opened=opened)
 
+# What a review's row and a gate's say, read alone.
+FR_VERDICTS = ["READY", "NOT-READY", "ready", "NOT READY", "", None, "PASS"]
+FR_ITERATIONS = ["1", "2", "3", "10", "0", "01", "1.0", "x", "", None, " 2", "9007199254740993"]
+FR_GATE_FIELDS = ["**Gate Stages**: a, b", "**Gate Stages**:  a ,, b  ", "**Gate Stages**:", "**Gate Stages**: ,", "**Gate Stages**: a,b,a", "**Stage**: code-generation",
+                  "**Stage**:", "**Stage**:  x ", "**Gate Stage**: a", "**Gate Stages**: \tcode-generation\t", "**Gate stages**: a"]
+FR_NAMES = ["api", "u01-auth_service", "U2_x", "u-1", "u1", "u1-", "u1_-", "a--b__c", "-_-", "_", "", " a ", "u12-u3-x", "xu1-y", "u１-a", "u1-a b", "é_ü", "a-b", "U007_Bond"]
+for _ in range(20 * scale):
+    add("review_rows", verdicts=[[fr.choice(FR_VERDICTS), fr.choice(FR_ITERATIONS), fr.choice(["adversarial", "advisory", "none"]), fr.choice([None, 1, 2, 3])] for _ in range(6)],
+        blocks=["\n## Gate\n**Event**: GATE_REJECTED\n" + "\n".join(fr.sample(FR_GATE_FIELDS, fr.randint(0, 3))) + "\n" for _ in range(4)], units=fr.sample(FR_NAMES, 4))
+add("review_rows", verdicts=[[verdict, iteration, review_class, most] for verdict in FR_VERDICTS for iteration in ("1", "2", "3", None, "x") for review_class in ("adversarial", "advisory", "none")
+                             for most in (None, 1, 2, 3)],
+    blocks=["\n## Gate\n" + field + "\n" for field in FR_GATE_FIELDS] + ["\n## Gate\n" + first + "\n" + second + "\n" for first in FR_GATE_FIELDS[:4] for second in FR_GATE_FIELDS[5:8]],
+    units=FR_NAMES)
+
+
+# What the readers of one row decide, each by itself, in a stage reviewed as a whole.
+def fr_one(build, policy="- **Guard Policy**: relaxed\n", slug="requirements-analysis", posix=False, patch=None, workspace=False):
+    story = FrStory(slug, two=False)
+    story.row("WORKFLOW_STARTED", Scope="feature")
+    story.row("STAGE_STARTED", Stage=slug)
+    build(story)
+    story.add(fr_state(policy, units=" ] units-generation — SKIP" if workspace else None), patch={**(patch or {}), **({"workspace_requires": True} if workspace else {})}, posix=posix)
+
+
+def fr_record_of(story):
+    return next(iter(story.records))
+
+
+for policy in ("", "- **Guard Policy**: relaxed\n"):
+    # A review's record that is a link, or behind a file where its folder was, is not a record that is simply not here.
+    def linked(story):
+        story.review(1, "READY", era="record")
+        story.files["elsewhere/kept.json"] = "{}\n"
+        story.after["links"] = {f"{RV_RECORD}/{fr_record_of(story)}": "elsewhere/kept.json"}
+
+    def blocked(story):
+        story.review(1, "READY", era="record")
+        folder = fr_record_of(story).rsplit("/", 1)[0]
+        story.after["files"][f"{RV_RECORD}/{folder}"] = "a file where the folder was\n"
+
+    def folder_gone(story):
+        story.review(1, "READY", era="record")
+        story.after["files"][f"{RV_RECORD}/.aidlc-engine/reviews"] = None
+
+    fr_one(linked, policy, posix=True)
+    fr_one(blocked, policy, posix=True)
+    fr_one(folder_gone, policy)
+    # A verdict no reviewer gave: by the row's own word, whatever it is, and by the empty record of a row with none.
+    for finished in ("no", "yes", "maybe", "", "No"):
+        fr_one(lambda story: story.review(2, "NOT-READY", finished=finished), policy)
+        fr_one(lambda story: story.review(1, "NOT-READY", finished=finished), policy)
+        fr_one(lambda story: story.review(1, "READY", finished=finished), policy)
+    for body in ("", "It reads well.\n"):
+        fr_one(lambda story: story.review(2, "NOT-READY", era="record", body=body), policy)
+        fr_one(lambda story: story.review(1, "NOT-READY", era="record", body=body), policy)
+        fr_one(lambda story: story.review(1, "READY", era="record", body=body), policy)
+# The rows that can open the stage's work on the source, and the ones that only look like them.
+FR_KEPT = {f"{RV_RECORD}/.aidlc-engine/source-review/code-generation/baseline-{FR_BASELINE[:12]}.tsv": FR_LISTING}
+FR_VALUE = "sha256:" + FR_BASELINE
+for rows in ([("STAGE_STARTED", {"Stage": "code-generation", "Source_Baseline": FR_VALUE})],
+             [("STAGE_STARTED", {"Stage": "build-and-test", "Source_Baseline": FR_VALUE})],
+             [("STAGE_STARTED", {"Stage": "code-generation", "Source_Baseline": FR_VALUE, "Workflow": "single-stage:code-generation"})],
+             [("WORKFLOW_STARTED", {"Source_Baseline": FR_VALUE, "Workflow": "single-stage:code-generation"})],
+             [("STAGE_JUMPED", {"Target": "build-and-test", "Source_Baseline": FR_VALUE})], [("STAGE_JUMPED", {"Target": "code-generation", "Source_Baseline": FR_VALUE})],
+             [("STAGE_JUMPED", {"Target": "requirements-analysis", "Source_Baseline": FR_VALUE})], [("STAGE_JUMPED", {"Source_Baseline": FR_VALUE})],
+             [("STAGE_COMPLETED", {"Stage": "code-generation", "Source_Baseline": FR_VALUE})],
+             [("STAGE_STARTED", {"Stage": "code-generation", "Source_Baseline": FR_VALUE}), ("STAGE_STARTED", {"Stage": "code-generation"})],
+             [("STAGE_STARTED", {"Stage": "code-generation", "Source_Baseline": FR_VALUE}), ("STAGE_STARTED", {"Stage": "code-generation", "Source_Baseline": "unbindable"})],
+             [("REVIEW_REQUESTED", {"Stage": "code-generation", "Reviewer": RA_REVIEWER, "Iteration": "1", "Artifact_Fingerprint": "{ART}"}),
+              ("STAGE_STARTED", {"Stage": "code-generation", "Source_Baseline": FR_VALUE})],
+             [("ARTIFACT_CREATED", {"Stage": "code-generation", "File": f"aidlc/spaces/default/{RV_RECORD}/construction/code-generation/code-summary.md"}),
+              ("STAGE_STARTED", {"Stage": "code-generation", "Source_Baseline": FR_VALUE})],
+             [("ARTIFACT_CREATED", {"Stage": "code-generation", "File": "src/a.ts"}), ("STAGE_STARTED", {"Stage": "code-generation", "Source_Baseline": FR_VALUE})],
+             [("ARTIFACT_CREATED", {"Stage": "build-and-test", "File": f"aidlc/spaces/default/{RV_RECORD}/construction/code-generation/code-summary.md"}),
+              ("STAGE_STARTED", {"Stage": "code-generation", "Source_Baseline": FR_VALUE})],
+             [("REVIEW_REQUESTED", {"Stage": "code-generation", "Workflow": "single-stage:code-generation"}), ("STAGE_STARTED", {"Stage": "code-generation", "Source_Baseline": FR_VALUE})]):
+    for walk in ("", "- **Construction Iteration**: unit-major\n"):
+        story = FrStory("code-generation", two=False)
+        story.row("WORKFLOW_STARTED", Scope="feature")
+        for event, fields in rows:
+            story.row(event, **fields)
+        story.files.update(FR_KEPT)
+        story.add(fr_state(units=" ] units-generation — SKIP", more=walk), patch={"workspace_requires": True})
+        # (Unit by unit, a stage's own start is no boundary: source can be written before it.)
+        story = FrStory("code-generation", per_unit=True, two=False)
+        story.row("WORKFLOW_STARTED", Scope="feature")
+        for event, fields in rows:
+            if event != "REVIEW_REQUESTED":
+                story.row(event, **fields)
+        story.files.update(FR_KEPT)
+        story.add(fr_state(units="x] units-generation — EXECUTE", more=walk), patch={"workspace_requires": True})
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

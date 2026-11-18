@@ -16,13 +16,14 @@ use crate::review_attempt;
 use crate::workflow::Workflow;
 
 /// The case kinds this crate answers.
-pub const KINDS: [&str; 6] = [
+pub const KINDS: [&str; 7] = [
     "review_window",
     "review_accounting",
     "review_snapshot",
     "summary_evidence",
     "source_snapshot",
     "review_receipts",
+    "review_rows",
 ];
 
 /// The ledger a case gives as its shards, read as a project's would be.
@@ -82,6 +83,30 @@ pub fn run_case(wf: &Workflow, case: &Value) -> Value {
         "summary_evidence" => summary_evidence_case(wf, case),
         "source_snapshot" => source_snapshot_case(wf, case),
         "review_receipts" => review_receipts_case(wf, case),
+        "review_rows" => {
+            // What a review's row and a gate's say, read alone.
+            use crate::review_receipts::{gate_stages, terminal_review_verdict, unit_plain_name};
+            let listed = |key: &str| case[key].as_array().cloned().unwrap_or_default();
+            json!({
+                "terminal": listed("verdicts")
+                    .iter()
+                    .map(|asked| terminal_review_verdict(
+                        asked[0].as_str(),
+                        asked[1].as_str(),
+                        asked[2].as_str().unwrap_or_default(),
+                        asked[3].as_f64().unwrap_or(2.0),
+                    ))
+                    .collect::<Vec<_>>(),
+                "gates": listed("blocks")
+                    .iter()
+                    .map(|block| gate_stages(block.as_str().unwrap_or_default()))
+                    .collect::<Vec<_>>(),
+                "names": listed("units")
+                    .iter()
+                    .map(|unit| unit_plain_name(unit.as_str().unwrap_or_default()))
+                    .collect::<Vec<_>>(),
+            })
+        }
         other => json!({ "unsupported": other }),
     }
 }
@@ -1146,14 +1171,24 @@ fn review_receipts_case(wf: &Workflow, case: &Value) -> Value {
         for (within, key) in [(&space, "files"), (&root, "source")] {
             for (rel, text) in case["after"][key].as_object().into_iter().flatten() {
                 let path = within.join(rel);
-                match text.as_str() {
-                    Some(text) => put(&path, text),
-                    None => {
-                        let _ = std::fs::remove_dir_all(&path);
-                        let _ = std::fs::remove_file(&path);
-                    }
+                // (Whatever was at the name goes first: a file can take a
+                // folder's place.)
+                let _ = std::fs::remove_dir_all(&path);
+                let _ = std::fs::remove_file(&path);
+                if let Some(text) = text.as_str() {
+                    put(&path, text);
                 }
             }
+        }
+        // (A name of the space made a link to another, once everything is
+        // written.)
+        #[cfg(unix)]
+        for (rel, target) in case["after"]["links"].as_object().into_iter().flatten() {
+            let path = space.join(rel);
+            let _ = std::fs::remove_dir_all(&path);
+            let _ = std::fs::remove_file(&path);
+            std::os::unix::fs::symlink(space.join(target.as_str().unwrap_or_default()), &path)
+                .expect("a link");
         }
         // (And the source as it is once the case changed it: `{NOW}`.)
         filled.push((

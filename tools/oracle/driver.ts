@@ -56,7 +56,7 @@ const planGuardPrivate = await import(planGuardShim);
 const libShim = tool("aidlc-lib.focus-oracle.ts");
 // (`rawFingerprintForm` and `lastWorkspaceSourceFailure` are asked of the copy too: what a walk remembers is the
 // module's own.)
-writeFileSync(libShim, `${readFileSync(tool("aidlc-lib.ts"), "utf-8")}\nexport { walkWorkspaceSource };\n`);
+writeFileSync(libShim, `${readFileSync(tool("aidlc-lib.ts"), "utf-8")}\nexport { walkWorkspaceSource, gateStagesFromBlock };\n`);
 process.on("exit", () => rmSync(libShim, { force: true }));
 const libPrivate = await import(libShim);
 // A project of a case's own, under a scratch root: `files`, `hex` (bytes), `dirs`, `links` and `hard` under the
@@ -898,6 +898,15 @@ async function answer(c: Record<string, any>): Promise<unknown> {
         rmSync(root, { recursive: true, force: true });
       }
     }
+    case "review_rows":
+      // What a review's row and a gate's say, read alone: the verdict that ends a review, the stages a gate is
+      // about, and a unit's name as a person says it.
+      return {
+        terminal: (c.verdicts as Array<[string | null, string | null, string, number | null]>).map(([verdict, iteration, reviewClass, most]) =>
+          most === null ? lib.terminalReviewVerdict(verdict, iteration, reviewClass) : lib.terminalReviewVerdict(verdict, iteration, reviewClass, most)),
+        gates: (c.blocks as string[]).map((block) => libPrivate.gateStagesFromBlock(block)),
+        names: (c.units as string[]).map((unit) => lib.unitPlainName(unit)),
+      };
     case "review_receipts": {
       // The reviews of a stage that still stand, in a project of the case's own. The ledger and the review records
       // name what each engine computes for itself: `{ART}` and `{ART:<unit>}` (the artifacts' fingerprint as laid
@@ -936,8 +945,9 @@ async function answer(c: Record<string, any>): Promise<unknown> {
         mkdirSync(join(record, "audit"), { recursive: true });
         for (const [name, text] of Object.entries(c.shards as Record<string, string>)) writeFileSync(join(record, "audit", name), fill(text));
         for (const [rel, text] of Object.entries((c.after?.files ?? {}) as Record<string, string | null>)) {
-          if (text === null) rmSync(join(space, rel), { recursive: true, force: true });
-          else {
+          // (Whatever was at the name goes first: a file can take a folder's place.)
+          rmSync(join(space, rel), { recursive: true, force: true });
+          if (text !== null) {
             mkdirSync(dirname(join(space, rel)), { recursive: true });
             writeFileSync(join(space, rel), text);
           }
@@ -948,6 +958,11 @@ async function answer(c: Record<string, any>): Promise<unknown> {
             mkdirSync(dirname(join(root, rel)), { recursive: true });
             writeFileSync(join(root, rel), text);
           }
+        }
+        // (A name of the space made a link to another, once everything is written.)
+        for (const [rel, target] of Object.entries((c.after?.links ?? {}) as Record<string, string>)) {
+          rmSync(join(space, rel), { recursive: true, force: true });
+          symlinkSync(join(space, target), join(space, rel));
         }
         // (And the source as it is once the case changed it: `{NOW}`.)
         filled.push(["{NOW}", lib.workspaceSourceState(root)?.fingerprint ?? "unbindable"]);
