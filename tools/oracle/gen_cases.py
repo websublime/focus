@@ -8143,5 +8143,64 @@ for stage in ("bad stage", "", "nfr-design"):
             for fields in ({}, {"Construction Iteration": "unit-major"}):
                 rg_add(stage, gr_plain([(mark, stage, "EXECUTE")], fields), unit=unit)
 
+# --- What a review request says back, and where a review's files go ----------
+#
+# `reviewAttemptId`, `reviewRecordRelativePath`, `reviewDraftRelativePath`, the two review commands, the note for
+# the conductor, the sentence of a spent recovery, the repair of the units block, and the fields a row repeats for a
+# request from before review records.
+
+rq = random.Random(seed * 7919 + 34)
+RQ_STAGES = ["requirements-analysis", "code-generation", "a.b_c-d", "9lives", "", "a b", "-x", ".x", "x/y", "ç", "st@ge"]
+RQ_UNITS = [None, None, "api", "u1-auth", "A.b_c-9", "", "-bad", "a b", ".x", "x/y", "a" * 64, "a" * 65, "é"]
+RQ_ATTEMPTS = ["0123456789abcdef", "ffffffffffffffff", "", "not-hex", "../x"]
+RQ_ITERATIONS = [1, 2, 3, 10, 99, 0, 2 ** 53, 2 ** 53 + 1, 10 ** 21, 10 ** 22]
+RQ_REQUESTS = [None, None, "review:" + "0123456789abcdef" * 2, "review:" + "f" * 32, "review:" + "f" * 31, "review:" + "F" * 32, "review:", "", "x" * 40,
+               "review:" + "0" * 33, " review:" + "0" * 32]
+RQ_FLOORS = ["", "unstarted", "2026-11-18T10:00:00.000Z|shard-a|12", "x", "é ü", "a\nb", " ", "0"]
+
+
+def rq_add(op, **given):
+    add("review_request", op=op, **given)
+
+
+for floor in RQ_FLOORS:
+    rq_add("attempt", floor=floor)
+for _ in range(20 * scale):
+    rq_add("attempt", floor="".join(rq.choice("abc|: -0159ZT.é\n") for _ in range(rq.randint(1, 40))))
+for stage in RQ_STAGES:
+    for unit in RQ_UNITS:
+        rq_add("record", stage=stage, unit=unit, attempt=rq.choice(RQ_ATTEMPTS), iteration=rq.choice(RQ_ITERATIONS))
+        for request in RQ_REQUESTS:
+            rq_add("draft", stage=stage, unit=unit, attempt=rq.choice(RQ_ATTEMPTS), iteration=rq.choice(RQ_ITERATIONS), request=request)
+for iteration in RQ_ITERATIONS:
+    for attempt in RQ_ATTEMPTS:
+        rq_add("record", stage="code-generation", unit=rq.choice([None, "api"]), attempt=attempt, iteration=iteration)
+        rq_add("draft", stage="code-generation", unit=rq.choice([None, "api"]), attempt=attempt, iteration=iteration, request=rq.choice(RQ_REQUESTS[:4]))
+RQ_PROJECTS = ["/work/project", "/work/my project", "/work/it's", "C:\\work\\project", "", "/work/$HOME", "relative/dir", "/work/a;b"]
+RQ_REVIEWERS = ["architecture-reviewer-agent", "product-reviewer-agent", "a reviewer", "", "it's"]
+for _ in range(40 * scale):
+    rq_add("command", verdict=rq.random() < 0.5, project=rq.choice(RQ_PROJECTS), stage=rq.choice(RQ_STAGES), reviewer=rq.choice(RQ_REVIEWERS),
+           unit=rq.choice(RQ_UNITS), single=rq.choice([None, None, True, False]), iteration=rq.choice(RQ_ITERATIONS), retry=rq.choice([None, None, True, False]))
+for verdict in (True, False):
+    for unit in (None, "", "api"):
+        for single in (None, True, False):
+            for retry in (None, True, False):
+                rq_add("command", verdict=verdict, project="/work/project", stage="code-generation", reviewer="architecture-reviewer-agent", unit=unit, single=single,
+                       iteration=2, retry=retry)
+for reviewer in RQ_REVIEWERS:
+    for file in ("aidlc/spaces/default/intents/rec-1a2b3c4d/.aidlc-engine/reviews/code-generation/stage/0123456789abcdef/1.review.md", "the review file this request opened", ""):
+        rq_add("note", reviewer=reviewer, file=file, verdict=rq.choice(["aidlc engine log review --stage code-generation --reviewer x --iteration 1 --verdict '<READY|NOT-READY>' --project-dir /work/project", ""]))
+for stage in ("code-generation", "", "a b"):
+    for guidance in (None, "", "Restart this stage with /aidlc --stage code-generation; the recorded answers survive, and the stage will ask for confirmation again."):
+        for valid in (None, True, False):
+            rq_add("spent", stage=stage, guidance=guidance, valid=valid)
+for reason, detail in (("missing-block", "no fenced yaml block starts with units:"), ("invalid-yaml", "line 3: bad indentation"), ("", ""), ("cycle", "a -> b -> a")):
+    rq_add("units_block", reason=reason, detail=detail)
+for prior_digest in (None, "none", "sha256:" + "a" * 64):
+    for prior_length in (None, 0, 120, 2 ** 53):
+        for challenge in (None, "review:" + "1" * 32, ""):
+            rq_add("echo", legacy={"artifact": rq.choice(["requirements.md", "inception/requirements-analysis/requirements.md", ""]), "offset": rq.choice([0, 1, 4096, 2 ** 53]),
+                                   "priorDigest": prior_digest, "priorLength": prior_length, "challenge": challenge, "priorAppendix": rq.random() < 0.5})
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

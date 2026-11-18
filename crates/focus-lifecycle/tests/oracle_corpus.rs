@@ -65,6 +65,7 @@ fn every_lifecycle_case_gets_upstreams_answer() {
     let (mut refusals, mut for_the_person, mut as_a_command, mut no_way_now) = (0, 0, 0, 0);
     let (mut thrown, mut sentences, mut named_a_command, mut asked_which) = (0, 0, 0, 0);
     let mut resettable = 0;
+    let (mut parts, mut placed, mut unplaceable, mut spelled) = (0, 0, 0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         let case: Value = focus_js::json::parse(line).unwrap();
@@ -95,6 +96,14 @@ fn every_lifecycle_case_gets_upstreams_answer() {
             no_way_now +=
                 usize::from(out.get("error").is_none() && !any("executableNow", &json!(true)));
             thrown += usize::from(out["error"] == "Invalid guard recovery operation");
+        } else if kind == "review_request" {
+            // Where a review's files go, a name no path may carry, and the
+            // two commands.
+            parts += 1;
+            let op = case["op"].as_str().unwrap_or_default();
+            placed += usize::from(matches!(op, "record" | "draft") && out.is_string());
+            unplaceable += usize::from(out["error"].is_string());
+            spelled += usize::from(op == "command" && out.is_string());
         } else if kind == "recovery_guidance" {
             // The sentence a prose refusal ends with: a way on, the unit's
             // own command, or a question for the person.
@@ -298,6 +307,10 @@ fn every_lifecycle_case_gets_upstreams_answer() {
         "{sentences} {named_a_command} {asked_which} {resettable}"
     );
     assert!(thrown >= 90, "{thrown}");
+    assert!(
+        parts >= 2300 && placed >= 200 && unplaceable >= 1500 && spelled >= 280,
+        "{parts} {placed} {unplaceable} {spelled}"
+    );
     assert!(
         differing.is_empty(),
         "{} lifecycle cases differ from upstream; first:\n{}",
