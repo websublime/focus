@@ -16,7 +16,7 @@ use crate::review_attempt;
 use crate::workflow::Workflow;
 
 /// The case kinds this crate answers.
-pub const KINDS: [&str; 9] = [
+pub const KINDS: [&str; 10] = [
     "review_window",
     "review_accounting",
     "review_snapshot",
@@ -26,6 +26,7 @@ pub const KINDS: [&str; 9] = [
     "review_rows",
     "guard_refusal",
     "recovery_guidance",
+    "review_request",
 ];
 
 /// The ledger a case gives as its shards, read as a project's would be.
@@ -86,6 +87,7 @@ pub fn run_case(wf: &Workflow, case: &Value) -> Value {
         "source_snapshot" => source_snapshot_case(wf, case),
         "review_receipts" => review_receipts_case(wf, case),
         "guard_refusal" => guard_refusal_case(wf, case),
+        "review_request" => review_request_case(wf, case),
         "recovery_guidance" => {
             // The sentence a prose refusal ends with, and whether a Request
             // Changes can reset the attempt now. The operator's variable is
@@ -1364,6 +1366,89 @@ fn review_receipts_case(wf: &Workflow, case: &Value) -> Value {
 
 /// The ways on a refusing guard offers, for the attempt and the state the
 /// case gives. Commands are quoted for one shell on every platform.
+/// What a review request says back and where a review's files go.
+fn review_request_case(wf: &Workflow, case: &Value) -> Value {
+    use focus_evidence::review::{
+        LegacyAppendix, attempt_id, draft_relative_path, legacy_appendix_echo_fields,
+        record_relative_path,
+    };
+    use focus_guards::guard_operation::RenderShell;
+
+    use crate::review_request::{
+        ReviewCommand, recovery_spent_message, request_command, request_note, units_block_repair,
+        verdict_command,
+    };
+
+    let text = |key: &str| case[key].as_str().unwrap_or_default();
+    let iteration = case["iteration"].as_f64().unwrap_or_default();
+    let path = |made: Result<String, String>| match made {
+        Ok(path) => json!(path),
+        Err(error) => json!({ "error": error }),
+    };
+    match text("op") {
+        "attempt" => json!(attempt_id(text("floor"))),
+        "record" => path(record_relative_path(
+            text("stage"),
+            case["unit"].as_str(),
+            text("attempt"),
+            iteration,
+        )),
+        "draft" => path(draft_relative_path(
+            text("stage"),
+            case["unit"].as_str(),
+            text("attempt"),
+            iteration,
+            case["request"].as_str(),
+        )),
+        "command" => {
+            let input = ReviewCommand {
+                project_dir: text("project"),
+                stage: text("stage"),
+                reviewer: text("reviewer"),
+                unit: case["unit"].as_str(),
+                single: case["single"] == true,
+                iteration,
+                retry_pending: case["retry"] == true,
+            };
+            // Asked for a POSIX shell on every platform, as upstream ran.
+            json!(if case["verdict"] == true {
+                verdict_command(wf, &input, RenderShell::Posix)
+            } else {
+                request_command(wf, &input, RenderShell::Posix)
+            })
+        }
+        "note" => json!(request_note(
+            text("reviewer"),
+            text("file"),
+            text("verdict")
+        )),
+        "spent" => json!(recovery_spent_message(
+            text("stage"),
+            case["guidance"].as_str(),
+            case["valid"].as_bool().unwrap_or(true),
+        )),
+        "units_block" => json!(units_block_repair(text("reason"), text("detail"))),
+        "echo" => {
+            let legacy = &case["legacy"];
+            let fields = legacy_appendix_echo_fields(&LegacyAppendix {
+                artifact: legacy["artifact"].as_str().unwrap_or_default().to_owned(),
+                offset: legacy["offset"].as_u64().unwrap_or_default(),
+                prior_digest: legacy["priorDigest"].as_str().map(str::to_owned),
+                prior_length: legacy["priorLength"].as_u64(),
+                challenge: legacy["challenge"].as_str().map(str::to_owned),
+                prior_appendix: legacy["priorAppendix"] == true,
+            });
+            json!(
+                fields
+                    .into_iter()
+                    .map(|(name, value)| json!([name, value]))
+                    .collect::<Vec<_>>()
+            )
+        }
+        other => json!({ "error": format!("unknown op {other}") }),
+    }
+}
+
 fn guard_refusal_case(wf: &Workflow, case: &Value) -> Value {
     use focus_guards::fences::Fence;
     use focus_guards::guard_operation::{self, RenderShell};
