@@ -156,6 +156,13 @@ SHAPES = {
         "focus/ here), so the two engines' hashes differ by construction. Each engine's hashes are recomputed "
         "here from its own tree and names, and a hash that matches is compared as <verified>; one that does not "
         "is compared as it is",
+    "review-ids":
+        "a review request mints its id from random bytes, and names its attempt by a hash over the row the attempt "
+        "starts at, which carries the path the shard was read from, so neither is the same in two trees. A request "
+        "id is compared by the order in which each engine first writes it (<request-1>, <request-2>), wherever it "
+        "is written: the row, the reviewer's file, the answer. An attempt's name is recomputed here from the rows "
+        "of the tree's own ledger, and one that matches is compared as <attempt>; one that does not is compared as "
+        "it is",
     "summary-authorization":
         "a summary's authorization id is a hash over the attempt, the stage, the workflow, the questions file's "
         "name, what was confirmed and the choice, and the name carries the workspace directory's (aidlc/ there, "
@@ -1371,6 +1378,9 @@ def normalise_audit(text, tree, engine):
     text = text.replace("Usage: aidlc-audit ", "Usage: <cli> audit ").replace("Usage: focus engine audit ",
                                                                              "Usage: <cli> audit ")
     # A command of the log tool rendered for the agent to run next: each engine's own spelling of the same route.
+    # A review's two commands, in a sentence and as a value of their own.
+    text = re.sub(r"bun \.claude/tools/(?:aidlc|focus)-log\.ts review ", "<cli> log review ", text)
+    text = text.replace("focus engine log review ", "<cli> log review ")
     text = re.sub(r"`bun \.claude/tools/(?:aidlc|focus)-log\.ts ((?:decision|answer) [^`]*)`", r"<run log \1>", text)
     text = re.sub(r"`focus engine log ((?:decision|answer) [^`]*)`", r"<run log \1>", text)
     for tool in ("orchestrate", "log"):
@@ -1388,6 +1398,8 @@ def normalise_audit(text, tree, engine):
     # The entry script naming a tool's verb in a sentence (`<next>` in a hook-activation step).
     text = re.sub(r"`bun \.claude/tools/(?:aidlc|focus)\.ts engine (state|orchestrate|log)(?: ([^`]*))?`",
                   lambda m: f"<cli> {m.group(1)}" + (f" {m.group(2)}" if m.group(2) else ""), text)
+    # A review's slot that cannot be opened: each runtime's own words for why.
+    text = re.sub(r"(\.review\.md cannot be opened \()(?:E[A-Z]+: [^)]*'|[^()]*\(os error \d+\))(\))", r"\1<runtime>\2", text)
     # A file where a folder is to be made: each runtime's own words.
     text = re.sub(r"(?:EEXIST: file already exists, mkdir '[^']*'|(?:<project-dir>/)?[^\s\"(]*: File exists \(os error 17\))", "<runtime>", text)
     # A state file that is a directory: each runtime's own words.
@@ -1571,6 +1583,52 @@ def authorization_ids(tree):
         if hashlib.sha256(named.encode("utf-8")).hexdigest() == kept.get("id"):
             known.add(kept["id"])
     return known
+
+
+REVIEW_REQUEST_FILE = re.compile(r"review:([0-9a-f]{32})(?![0-9a-f])|(?<=\.)([0-9a-f]{32})(?=\.review\.md)")
+REVIEW_ATTEMPT = re.compile(r"(/reviews/[^/\s\"`]+/(?:stage|units/[^/\s\"`]+)/)([0-9a-f]{16})(?=/)")
+
+
+def review_attempt_ids(tree):
+    """The names a review attempt may have in a tree: the hash of `unstarted`, and of each row of its own ledger
+    as an attempt's floor is written (`EVENT:timestamp:<shard as read>:<position>`)."""
+    known = {hashlib.sha256(b"unstarted").hexdigest()[:16]}
+    for folder, _, names in os.walk(tree.root):
+        if os.path.basename(folder) != "audit":
+            continue
+        for name in names:
+            path = os.path.join(folder, name)
+            try:
+                with open(path, encoding="utf-8") as handle:
+                    text = handle.read()
+            except (OSError, ValueError):
+                continue
+            rows = re.findall(r"^\*\*Timestamp\*\*: ([^\n]*)\n\*\*Event\*\*: ([^\n]*)$", text, flags=re.M)
+            for at, event in rows:
+                for position in range(len(rows) + 2):
+                    for shard in {path, os.path.realpath(path)}:
+                        known.add(hashlib.sha256(f"{event}:{at}:{shard}:{position}".encode("utf-8")).hexdigest()[:16])
+    return known
+
+
+def settle_review_ids(tree, outcome):
+    """`outcome` with a review's request ids numbered as first written and its attempt names verified (SHAPES:
+    review-ids); and whether anything was settled."""
+    order = sorted((key for key in outcome if "/audit/" in key)) + ["stdout", "stderr"] + sorted(key for key in outcome if "/" in key and "/audit/" not in key)
+    numbered = {}
+    for key in order:
+        for found in REVIEW_REQUEST_FILE.finditer(outcome.get(key, "")):
+            numbered.setdefault(found.group(1) or found.group(2), f"<request-{len(numbered) + 1}>")
+    attempts = review_attempt_ids(tree)
+    settled = False
+    for key in list(outcome):
+        text = outcome[key]
+        for raw, name in numbered.items():
+            text = text.replace(raw, name)
+        text = REVIEW_ATTEMPT.sub(lambda m: m.group(1) + ("<attempt>" if m.group(2) in attempts else m.group(2)), text)
+        settled |= text != outcome[key]
+        outcome[key] = text
+    return settled
 
 
 def own_hashes(tree, text):
@@ -1900,6 +1958,7 @@ def compare_audit(name, trees, steps, env, tool="audit"):
     ts, rs = trees
     outcome, shaped, shaped_ask, shaped_basis = {}, False, False, False
     shaped_authorization = False
+    shaped_review = False
     shaped_offsets = shaped_thrown = False
     started_from = None
     if RECORD and not has_links(ts.root) and name not in UNRECORDED and not name.startswith("fuzz/"):
@@ -1962,6 +2021,9 @@ def compare_audit(name, trees, steps, env, tool="audit"):
             outcome[engine][shown] = "<removed>" if text is None else text
         # A summary's authorization id is taken over the questions file's name, which carries the workspace
         # directory's (SHAPES: summary-authorization).
+        # A review's request id is random and its attempt's name carries the tree's path (SHAPES: review-ids).
+        settled = settle_review_ids(tree, outcome[engine])
+        shaped_review |= settled and engine == "ts"
         own_ids = authorization_ids(tree)
         if own_ids:
             shaped_authorization |= engine == "ts"
@@ -1998,6 +2060,9 @@ def compare_audit(name, trees, steps, env, tool="audit"):
         if shaped_authorization:
             shapes["summary-authorization"] += 1
             detail += "  (authorization id verified)"
+        if shaped_review:
+            shapes["review-ids"] += 1
+            detail += "  (review ids settled)"
         if shaped_budget:
             shapes["process-map-budget"] += 1
             detail += "  (a process-map slot missed its budget)"
@@ -2418,9 +2483,14 @@ DEVIATIONS.update({
         "what an answer may carry that focus has not ported: the engine's own questions (the recovery question, "
         "slice 4; a summary confirmation, 2c; Construction's checkpoints and a unit of work, 5; Plan Approval, 11). "
         "Upstream reads what each needs and records or refuses on its own terms; focus refuses each by name",
-    r"log/usage/review_not_ported":
-        "the verbs of the log tool that focus has not ported (M5, slices 2b to 2e): upstream runs them; focus "
-        "refuses each by name",
+    r"log/review/request/(unit|verdict)_not_ported":
+        "what a review may carry that focus has not ported: one unit's review (its claim, the plan of units, its "
+        "source and its manifest: slice 5) and the verdict, the other half of the command (slice 2e-iv). Upstream "
+        "reads what each needs and records or refuses on its own terms; focus refuses each by name",
+    r"log/review/request/policy_\w+_not_ported":
+        "a request made while the Guard Policy let a change through, or was changed since the ledger last "
+        "recorded it: upstream writes the rows that record it (CHANGE_ACCEPTED, GUARD_POLICY_SET) and goes on; "
+        "focus does not write those rows yet (slice 2e-ii) and refuses the request by name",
     r"log/decision/checkpoint_\w+_not_ported":
         "a question the engine pairs with a record of its own: the verification command and the policy of "
         "Construction (slice 5), Plan Approval (slice 11). Upstream reads "
@@ -4625,8 +4695,6 @@ def log_checks():
     check_("usage/unknown", created(), [["nope"], ["Decision", "--stage", "x"]])
     check_("usage/no_workflow", CLONE, [ask, ["nope"]])
     check_("usage/no_state_file", created(**{f"{CREATED_DIR}/aidlc-state.md": None}), [ask])
-    for verb in ("link", "review"):
-        check_(f"usage/{verb}_not_ported", created(), [[verb, "--stage", "intent-capture"]])
 
     # The flags: one with no value, one followed by another flag, the two a question needs, and an empty value.
     check_("decision/flags", created(), [["decision", "--stage"], ["decision", "--stage", "intent-capture", "--decision"], ["decision", "--stage", "--decision", "x"],
@@ -5262,6 +5330,72 @@ def log_checks():
            edits=[lambda tree: (os.makedirs(tree.path(scan_dir), exist_ok=True), os.symlink(tree.path("elsewhere.md"), tree.path(scan)))])
     check_("link/handoff_behind_a_link", created(chained, **{"elsewhere/developer-scan.md": SCAN}), [scanned()],
            edits=[lambda tree: (os.makedirs(os.path.dirname(tree.path(scan_dir)), exist_ok=True), os.symlink(tree.path("elsewhere"), tree.path(scan_dir)))])
+    # --- review: a review of a stage's output is asked for ---
+    # Intent Capture is reviewed by the product lead, of its intent statement; a created record is at work on it.
+    lead = "aidlc-product-lead-agent"
+    cap = f"{CREATED_DIR}/ideation/intent-capture"
+    OUTPUTS = {f"{cap}/intent-statement.md": "# Intent\n\nAdd login to the app.\n", f"{cap}/stakeholder-map.md": "# Stakeholders\n\nThe team.\n",
+               f"{cap}/intent-capture-questions.md": "# Questions\n\nNone.\n"}
+    asks = lambda n, *more: ["review", "--stage", "intent-capture", "--reviewer", lead, "--iteration", str(n), *more]
+    check_("review/request/usage", created(**OUTPUTS), [["review"], ["review", "--stage", "intent-capture"], ["review", "--reviewer", lead], ["review", "--stage", "", "--reviewer", lead],
+                                                       ["review", "--stage", "intent-capture", "--reviewer", ""], asks(1, "--intent", "x"), asks(1, "--space", "x"), asks(1, "--intent", ""),
+                                                       ["review", "--stage", "intent-capture", "--reviewer", lead], asks(0), asks("x"), asks("01"), asks("1.5"), asks("")])
+    # A created record caps reviews at none: no pass is allowed. With the cap lifted the stage's own class gives one.
+    check_("review/request/no_pass_allowed", created(**OUTPUTS), [asks(1), asks(2)])
+    reviewed = CREATED_STATE.replace("- **Review Override**: none", "- **Review Override**: advisory")
+    check_("review/request/a_pass", created(reviewed, **OUTPUTS), [asks(1)])
+    check_("review/request/waits_for_its_verdict", created(reviewed, **OUTPUTS), [asks(1), asks(1), asks(2)])
+    check_("review/request/not_the_next_pass", created(reviewed, **OUTPUTS), [asks(2), asks(3), asks(10 ** 21), asks("1" + "0" * 400)])
+    check_("review/request/single", created(reviewed, **OUTPUTS), [asks(1, "--single"), asks(1), asks(1, "--single")])
+    check_("review/request/not_the_reviewer", created(reviewed, **OUTPUTS), [["review", "--stage", "intent-capture", "--reviewer", "aidlc-architecture-reviewer-agent", "--iteration", "1"],
+                                                                             ["review", "--stage", "intent-capture", "--reviewer", lead.upper(), "--iteration", "1"]])
+    check_("review/request/no_reviewer", created(reviewed, **OUTPUTS), [["review", "--stage", "market-research", "--reviewer", lead, "--iteration", "1"],
+                                                                        ["review", "--stage", "nope", "--reviewer", lead, "--iteration", "1"]])
+    check_("review/request/no_outputs", created(reviewed), [asks(1)])
+    check_("review/request/an_output_missing", created(reviewed, **{**OUTPUTS, f"{cap}/stakeholder-map.md": None}), [asks(1)])
+    check_("review/request/observer", created(reviewed, **OUTPUTS), [asks(1)], {"STOP_HOOK_PROBE": "1"})
+    check_("review/request/no_state_file", created(reviewed, **{**OUTPUTS, f"{CREATED_DIR}/aidlc-state.md": None}), [asks(1)])
+    check_("review/request/flag_twice", created(reviewed, **OUTPUTS), [asks(2, "--iteration", "1", "--reviewer", "x", "--reviewer", lead)])
+    # The same pass again: once, against the bytes it was asked of.
+    check_("review/request/retry_none_pending", created(reviewed, **OUTPUTS), [asks(1, "--retry-pending"), asks(2, "--retry-pending")])
+    check_("review/request/retry", created(reviewed, **OUTPUTS), [asks(1), asks(1, "--retry-pending"), asks(1, "--retry-pending"), asks(2, "--retry-pending"), asks(1)])
+    changed = lambda tree: tree.write(f"{cap}/intent-statement.md", "# Intent\n\nAdd login, and logout.\n")
+    # A request the ledger already holds, whose bytes are not the ones on disk: it can never finish. A new request
+    # takes its pass, a retry cannot, and any other pass is told which one to ask for.
+    requested = lambda minute, n=1, fingerprint="sha256:" + "a" * 64, *more: block(
+        "REVIEW_REQUESTED", T(minute), "**Stage**: intent-capture", f"**Reviewer**: {lead}", f"**Iteration**: {n}", f"**Artifact Fingerprint**: {fingerprint}", *more)
+    old_id = "**Request Id**: review:" + "1" * 32
+    check_("review/request/replaces_one_that_cannot_finish", created(reviewed, CREATED_AUDIT + requested(1, 1, "sha256:" + "a" * 64, old_id), **OUTPUTS), [asks(2), asks(1), asks(1), asks(2)])
+    check_("review/request/retry_of_one_that_cannot_finish", created(reviewed, CREATED_AUDIT + requested(1, 1, "sha256:" + "a" * 64, old_id), **OUTPUTS),
+           [asks(1, "--retry-pending"), asks(2, "--retry-pending")])
+    check_("review/request/replaces_one_with_no_id", created(reviewed, CREATED_AUDIT + requested(1), **OUTPUTS), [asks(1)])
+    check_("review/request/replaces_a_recovery", created(reviewed, CREATED_AUDIT + requested(1, 1, "sha256:" + "a" * 64, old_id, "**Recovery**: stale-receipt", "**Recovery Cause**: artifact"), **OUTPUTS),
+           [asks(1), asks(2)])
+    check_("review/request/pending_with_an_output_missing", created(reviewed, CREATED_AUDIT + requested(1, 1, "sha256:" + "a" * 64, old_id), **{**OUTPUTS, f"{cap}/stakeholder-map.md": None}),
+           [asks(1), asks(1, "--retry-pending"), asks(2)])
+    check_("review/request/two_pending", created(reviewed, CREATED_AUDIT + requested(1, 2, "sha256:" + "a" * 64, old_id) + requested(2, 1, "sha256:" + "b" * 64, "**Request Id**: review:" + "2" * 32), **OUTPUTS),
+           [asks(3), asks(1), asks(2)])
+    check_("review/request/a_row_with_no_binding", created(reviewed, CREATED_AUDIT + requested(1, 1, "nope"), **OUTPUTS), [asks(1, "--retry-pending"), asks(1), asks(2)])
+    # The summary the stage owes comes first.
+    check_("review/request/summary_owed", created(reviewed.replace("- **Summary Confirmation**: off (set by a command)", "- **Summary Confirmation**: on (from scope feature)"), **OUTPUTS),
+           [asks(1), asks(1, "--retry-pending")])
+    # Units Generation's units block is read before the review: one that cannot be read is the agent's step.
+    arch = "aidlc-architecture-reviewer-agent"
+    units_dir = f"{CREATED_DIR}/inception/units-generation"
+    at_units = at_stage(reviewed, "units-generation", done=["intent-capture"], phase="INCEPTION")
+    check_("review/request/units_block_unreadable", created(at_units, **{f"{units_dir}/unit-of-work-dependency.md": "# Dependencies\n\nNo block here.\n"}),
+           [["review", "--stage", "units-generation", "--reviewer", arch, "--iteration", "1"], ["review", "--stage", "units-generation", "--reviewer", arch, "--iteration", "2", "--retry-pending"],
+            ["review", "--stage", "units-generation", "--reviewer", arch, "--iteration", "1", "--single"]])
+    check_("review/request/units_block_absent", created(at_units), [["review", "--stage", "units-generation", "--reviewer", arch, "--iteration", "1"]])
+    # The slot the reviewer writes into: a draft an earlier dispatch left is not this one's, and a link is no slot.
+    check_("review/request/slot_behind_a_link", created(reviewed, **OUTPUTS), [asks(1)],
+           edits=[lambda tree: (os.makedirs(tree.path(f"{CREATED_DIR}/.aidlc-engine"), exist_ok=True), os.makedirs(tree.path("elsewhere"), exist_ok=True),
+                                os.symlink(tree.path("elsewhere"), tree.path(f"{CREATED_DIR}/.aidlc-engine/reviews")))])
+    # What a host says of a path that goes through a file is its own: compared live.
+    UNRECORDED.add("log/review/request/slot_folder_a_file")
+    check_("review/request/slot_folder_a_file", created(reviewed, **{**OUTPUTS, f"{CREATED_DIR}/.aidlc-engine/reviews": "x"}), [asks(1)])
+    check_("review/request/unit_not_ported", created(reviewed, **OUTPUTS), [asks(1, "--unit", "api")])
+    check_("review/request/verdict_not_ported", created(reviewed, **OUTPUTS), [asks(1, "--verdict", "READY"), asks(1, "--verdict", "nope")])
     # A second name is a link no recording carries, the project's own name is the replay's own, and a state that is
     # not text is no text a recording holds: compared live.
     UNRECORDED.update({"log/link/handoff_a_second_name", "log/link/root_handoff_by_its_name", "log/link/state_not_text"})
