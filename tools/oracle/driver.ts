@@ -898,6 +898,49 @@ async function answer(c: Record<string, any>): Promise<unknown> {
         rmSync(root, { recursive: true, force: true });
       }
     }
+    case "guard_refusal": {
+      // The ways on a refusing guard offers. Upstream spells a command as the install runs it (from the source
+      // tree, `bun <harness>/tools/aidlc-<tool>.ts`, with a tool's own spelling of an operation); Focus has one
+      // spelling. Each command is put in its native form here, as names.py translates the name: an operation's
+      // by its own renderer, any other by its route.
+      const data = resolve(upstream, "dist", "claude", ".claude", "tools", "data");
+      const names = ["AIDLC_STAGE_GRAPH", "AIDLC_SCOPE_GRID", "AIDLC_HARNESS_DIR"];
+      const before = names.map((name) => process.env[name]);
+      process.env.AIDLC_STAGE_GRAPH = join(data, "stage-graph.json");
+      process.env.AIDLC_SCOPE_GRID = join(data, "scope-grid.json");
+      process.env.AIDLC_HARNESS_DIR = ".claude";
+      try {
+        const got = lib.evaluateGuardRefusal({
+          code: c.code,
+          blockedAction: c.blocked,
+          stage: c.stage,
+          ...(c.unit === null ? {} : { unit: c.unit }),
+          ...(c.project === null ? {} : { projectDir: c.project }),
+          stateContent: c.state,
+          invariant: c.invariant,
+          userMessage: c.message,
+          attempt: c.attempt,
+          humanAuthority: { freshTurn: false, unattended: c.unattended },
+          ...(c.fence === null ? {} : { fence: c.fence }),
+          ...(c.fence_switch === null ? {} : { fenceSwitch: c.fence_switch }),
+          ...(c.isolated === null ? {} : { summary: { stage: { slug: c.stage }, isolated: c.isolated } }),
+        });
+        const routed = (text: string) => text.replace(/bun \.[A-Za-z0-9_.-]+\/tools\/aidlc-([a-z-]+)\.ts/g, "aidlc engine $1");
+        return {
+          ...got,
+          remedies: got.remedies.map((remedy: any) => {
+            if (remedy.operation === undefined) return { ...remedy, action: routed(remedy.action) };
+            const native = guardOperation.renderGuardOperation(remedy.operation, { mode: "native", harnessDir: ".claude", shell: "posix" });
+            return { ...remedy, action: routed(remedy.action.split(remedy.command).join(native)), command: native };
+          }),
+        };
+      } finally {
+        for (const [index, name] of names.entries()) {
+          if (before[index] === undefined) delete process.env[name];
+          else process.env[name] = before[index];
+        }
+      }
+    }
     case "review_rows":
       // What a review's row and a gate's say, read alone: the verdict that ends a review, the stages a gate is
       // about, and a unit's name as a person says it.

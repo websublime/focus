@@ -7907,5 +7907,122 @@ for after in ([("STAGE_JUMPED", {"Target": "build-and-test"})], [("STAGE_JUMPED"
 fr_evidence(files={f"{FR_ENGINE}/source-review/a/b/c.tsv": ""}, opened=False, patch={"workspace_requires": None})
 fr_evidence(files={f"{FR_ENGINE}/source-review/a/b/c.tsv": ""}, opened=False, slug=RQ, patch={"workspace_requires": None})
 
+# --- What a guard that refuses offers as the way on (focus-lifecycle) --------
+#
+# `evaluateGuardRefusal`: the code, the stage's state and what the attempt looks like, to the remedies in the order
+# they are offered. It reads nothing of a project, so a case is the input alone.
+
+gr = random.Random(seed * 7919 + 32)
+GR_STAGES = ["code-generation", "functional-design", "nfr-design", "build-and-test", "requirements-analysis", "nope"]
+GR_SCOPES = ["feature", "feature", "feature", "bugfix", "mvp", "poc", "nope", ""]
+GR_CODES = ["REVIEW_FREEZE_ACTIVE", "UNIT_COMPLETION_MISSING", "REVIEW_BUDGET_EXHAUSTED", "REVIEW_EVIDENCE_MISSING", "SUMMARY_EVIDENCE_MISSING", "PLAN_APPROVAL_MISSING",
+            "SOURCE_STALE", "X"]
+GR_MARKS = [" ", "-", "?", "R", "x", "S"]
+GR_COVERAGE = ["current", "stale", "missing"]
+GR_FENCES = [None, None, None, "review-freeze", "plan-approval", "state-transition", "reviewer-scope"]
+GR_RECORD = "aidlc engine log review --stage code-generation --reviewer architecture-reviewer-agent --iteration 1 --verdict '<READY|NOT-READY>' --project-dir /work/project"
+GR_REQUEST = "aidlc engine log review --stage code-generation --reviewer architecture-reviewer-agent --iteration 2 --project-dir /work/project"
+
+
+def gr_state(stage, mark=None, suffix="EXECUTE", scope="feature", fields=None, more=""):
+    head = "".join(f"- **{name}**: {value}\n" for name, value in (fields or {}).items())
+    line = "" if mark is None else f"- [{mark}] {stage} — {suffix}\n"
+    return f"# AI-DLC State\n\n## Workflow\n- **Scope**: {scope}\n{head}\n## Stage Progress\n- [x] intent-capture — EXECUTE\n{line}{more}"
+
+
+def gr_attempt(**given):
+    attempt = {"recovery": "available", "summaryCoverage": "current", "reviewCoverage": "current", "sourceCoverage": "current"}
+    attempt.update(given)
+    return attempt
+
+
+def gr_add(stage, state, attempt, code="REVIEW_EVIDENCE_MISSING", unit=None, project=None, unattended=False, fence=None, fence_switch=None, isolated=None):
+    add("guard_refusal", code=code, blocked="approve", stage=stage, unit=unit, project=project, state=state, invariant="A stage is approved on current evidence.",
+        message=f"Refusing to approve \"{stage}\": the evidence is not current.", attempt=attempt, unattended=unattended, fence=fence, fence_switch=fence_switch,
+        isolated=isolated)
+
+
+def gr_fields():
+    fields = {}
+    if gr.random() < 0.55:
+        fields["Construction Iteration"] = gr.choice(["unit-major", "unit-major", "unit-major", " unit-major ", "stage-major", "Unit-Major"])
+    if gr.random() < 0.3:
+        fields["Construction Checkpoints"] = gr.choice(["enabled", "enabled", "disabled"])
+    if gr.random() < 0.08:
+        fields["Unit Ownership"] = gr.choice(["team", "solo"])
+    if gr.random() < 0.5:
+        fields["Active Unit"] = gr.choice(["api", "api", "web", "-bad", "", "u1-auth"])
+        if gr.random() < 0.8:
+            fields["Unit Stage"] = gr.choice(GR_STAGES[:3] + ["code-generation"])
+        if gr.random() < 0.7:
+            fields["Unit State"] = gr.choice(["in-progress", "in-progress", "done", "awaiting-approval"])
+    return fields
+
+
+def gr_random_attempt():
+    attempt = {"recovery": gr.choice(["available", "pending", "spent"]), "summaryCoverage": gr.choice(GR_COVERAGE + ["current"]),
+               "reviewCoverage": gr.choice(GR_COVERAGE), "sourceCoverage": gr.choice(GR_COVERAGE + ["unbindable", "current"])}
+    if gr.random() < 0.5:
+        attempt["reviewBudget"] = {"used": gr.choice([0, 1, 2]), "limit": gr.choice([0, 1, 2])}
+    if gr.random() < 0.25:
+        pending = {"iteration": gr.choice([1, 2, 3]), "retryable": gr.random() < 0.5}
+        if gr.random() < 0.5:
+            pending["verdictRecordable"] = gr.random() < 0.5
+        if gr.random() < 0.5:
+            pending["recordVerdict"] = gr.choice([GR_RECORD, ""])
+        attempt["pendingReview"] = pending
+    if gr.random() < 0.2:
+        attempt["repairReview"] = {"iteration": gr.choice([1, 2])}
+    if gr.random() < 0.2:
+        attempt["nextReview"] = {"iteration": gr.choice([1, 2, 3]), **({"request": GR_REQUEST} if gr.random() < 0.5 else {})}
+    if gr.random() < 0.3:
+        attempt["requestReview"] = GR_REQUEST
+    return attempt
+
+
+for _ in range(160 * scale):
+    stage = gr.choice(GR_STAGES)
+    more = "".join(f"- [{gr.choice(GR_MARKS)}] {other} — {gr.choice(['EXECUTE', 'EXECUTE', 'SKIP: not needed'])}\n"
+                   for other in gr.sample(["functional-design", "nfr-design", "code-generation", "infrastructure-design", "nfr-requirements"], gr.randint(0, 3)) if other != stage)
+    state = gr_state(stage, gr.choice(GR_MARKS + [None]), gr.choice(["EXECUTE", "EXECUTE", "EXECUTE", "SKIP: not needed", "SKIP", "skip"]), gr.choice(GR_SCOPES), gr_fields(), more)
+    project = gr.choice([None, None, "/work/project", "/work/my project"])
+    gr_add(stage, state, gr_random_attempt(), code=gr.choice(GR_CODES), unit=gr.choice([None, None, "api", "u1-auth", "web"]), project=project,
+           unattended=gr.random() < 0.1, fence=gr.choice(GR_FENCES), fence_switch=gr.choice([None, None, "offer", "withhold"]),
+           isolated=gr.choice([None, None, True, False]) if project is None else None)
+# Each state of a stage's checkbox under each coverage, with nothing else in play.
+for mark in GR_MARKS + [None]:
+    for suffix in ("EXECUTE", "SKIP: not needed"):
+        for summary in GR_COVERAGE:
+            for review in GR_COVERAGE:
+                for source in GR_COVERAGE + ["unbindable"]:
+                    gr_add("requirements-analysis", gr_state("requirements-analysis", mark, suffix), gr_attempt(summaryCoverage=summary, reviewCoverage=review, sourceCoverage=source))
+
+# A solo walk one unit at a time: the stage is one of the block, a unit is on a step of it or is not, and the ways on
+# are the unit's own or reach every unit.
+GR_BLOCK = ["functional-design", "nfr-requirements", "nfr-design", "infrastructure-design", "code-generation"]
+for _ in range(140 * scale):
+    stage = gr.choice(GR_BLOCK)
+    fields = {"Construction Iteration": gr.choice(["unit-major"] * 9 + ["stage-major"])}
+    if gr.random() < 0.4:
+        fields["Construction Checkpoints"] = gr.choice(["enabled", "enabled", "disabled"])
+    if gr.random() < 0.05:
+        fields["Unit Ownership"] = "team"
+    if gr.random() < 0.75:
+        fields["Active Unit"] = gr.choice(["api", "api", "api", "web", "-bad"])
+        fields["Unit Stage"] = stage if gr.random() < 0.7 else gr.choice(GR_BLOCK)
+        if gr.random() < 0.8:
+            fields["Unit State"] = gr.choice(["in-progress", "in-progress", "in-progress", "done"])
+    more = "".join(f"- [{gr.choice([' ', ' ', '-', 'x', 'S'])}] {other} — {gr.choice(['EXECUTE', 'EXECUTE', 'EXECUTE', 'SKIP: not needed'])}\n"
+                   for other in GR_BLOCK if other != stage and gr.random() < 0.7)
+    attempt = gr_random_attempt()
+    if gr.random() < 0.4:
+        attempt.update(reviewCoverage="current", reviewBudget={"used": gr.choice([1, 2]), "limit": gr.choice([1, 1, 2])})
+    if gr.random() < 0.5:
+        attempt.pop("pendingReview", None)
+    gr_add(stage, gr_state(stage, gr.choice([" ", " ", "-", "?", "R", "x", "S", None]), gr.choice(["EXECUTE", "EXECUTE", "EXECUTE", "SKIP: not needed"]),
+                           gr.choice(["feature", "feature", "mvp", "nope"]), fields, more),
+           attempt, code=gr.choice(GR_CODES), unit=gr.choice([None, None, "api", "web"]), project=gr.choice([None, "/work/project"]), unattended=gr.random() < 0.08,
+           fence=gr.choice(GR_FENCES), fence_switch=gr.choice([None, "withhold"]))
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

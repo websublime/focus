@@ -137,6 +137,31 @@ pub fn parse_operation(value: &Value) -> Option<GuardRecoveryOperation> {
     }
 }
 
+/// The operation as upstream writes it down: its `kind`, then what it
+/// names.
+#[must_use]
+pub fn to_value(operation: &GuardRecoveryOperation) -> Value {
+    use serde_json::json;
+    match operation {
+        GuardRecoveryOperation::RestartStage { stage } => {
+            json!({"kind": "restart-stage", "stage": stage})
+        }
+        GuardRecoveryOperation::AbortBolt { unit, slug } => {
+            json!({"kind": "abort-bolt", "unit": unit, "slug": slug})
+        }
+        GuardRecoveryOperation::LowerFence { fence } => {
+            json!({"kind": "lower-fence", "fence": fence.name()})
+        }
+        GuardRecoveryOperation::RecordUnitCompletion { stage, unit } => {
+            json!({"kind": "record-unit-completion", "stage": stage, "unit": unit})
+        }
+        GuardRecoveryOperation::ReopenUnit { stage, unit } => {
+            json!({"kind": "reopen-unit", "stage": stage, "unit": unit})
+        }
+        GuardRecoveryOperation::ReviewAdvisory => json!({"kind": "review-advisory"}),
+    }
+}
+
 /// `guardOperationInvocation`: the engine command an operation runs as.
 #[must_use]
 pub fn invocation(operation: &GuardRecoveryOperation) -> GuardOperationInvocation {

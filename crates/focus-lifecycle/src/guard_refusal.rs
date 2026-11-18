@@ -244,7 +244,12 @@ impl Spelling<'_> {
     }
 
     /// A remedy the person picks, run as the operation's command.
-    fn command(&self, op: &'static str, action: String, operation: GuardRecoveryOperation) -> Offer {
+    fn command(
+        &self,
+        op: &'static str,
+        action: String,
+        operation: GuardRecoveryOperation,
+    ) -> Offer {
         Offer {
             command: Some(self.operation(&operation)),
             operation: Some(operation),
@@ -316,13 +321,18 @@ fn construction_checkpoints_apply(wf: &Workflow, state: &str) -> bool {
     {
         return false;
     }
-    unit_major_stage_slugs(wf, get_field(state, "Scope").unwrap_or_default(), state, true)
-        .iter()
-        .any(|slug| {
-            wf.install
-                .stage(slug)
-                .is_some_and(stage::workspace_requires)
-        })
+    unit_major_stage_slugs(
+        wf,
+        get_field(state, "Scope").unwrap_or_default(),
+        state,
+        true,
+    )
+    .iter()
+    .any(|slug| {
+        wf.install
+            .stage(slug)
+            .is_some_and(stage::workspace_requires)
+    })
 }
 
 /// Where a refusal sits in a solo walk one unit at a time.
@@ -343,18 +353,13 @@ fn solo_unit_major(wf: &Workflow, input: &Input<'_>) -> Option<Walk> {
     {
         return None;
     }
-    let block = unit_major_stage_slugs(
-        wf,
-        field("Scope").unwrap_or_default(),
-        input.state,
-        true,
-    );
+    let block = unit_major_stage_slugs(wf, field("Scope").unwrap_or_default(), input.state, true);
     if !block.contains(&input.stage) {
         return None;
     }
     // Read from the state file, so only a valid unit name counts.
-    let active = field("Active Unit")
-        .filter(|unit| re::test("^[A-Za-z0-9][A-Za-z0-9._-]*$", "", unit));
+    let active =
+        field("Active Unit").filter(|unit| re::test("^[A-Za-z0-9][A-Za-z0-9._-]*$", "", unit));
     let active_here = active.is_some() && field("Unit Stage") == Some(input.stage);
     let unit = input.unit.or(if active_here { active } else { None });
     Some(Walk {
@@ -673,9 +678,15 @@ pub fn evaluate(wf: &Workflow, input: &Input<'_>) -> Refusal {
             // The closing call is spelled out: asking for a review and
             // recording its verdict are one command with `--verdict` added,
             // which the request's own output does not let anyone guess.
-            let how = match pending.record_verdict.as_deref().filter(|command| !command.is_empty()) {
+            let how = match pending
+                .record_verdict
+                .as_deref()
+                .filter(|command| !command.is_empty())
+            {
                 Some(command) => format!(": `{command}`."),
-                None => " using the recordVerdict command returned by the review request.".to_owned(),
+                None => {
+                    " using the recordVerdict command returned by the review request.".to_owned()
+                }
             };
             offers.push(Offer::work(
                 "record-verdict",
@@ -843,7 +854,10 @@ pub fn evaluate(wf: &Workflow, input: &Input<'_>) -> Refusal {
         ));
     }
 
-    let stage_name = wf.install.stage(input.stage).map_or(input.stage, stage::name);
+    let stage_name = wf
+        .install
+        .stage(input.stage)
+        .map_or(input.stage, stage::name);
     let target = match unit {
         Some(unit) => format!("{stage_name} for {unit}"),
         None => stage_name.to_owned(),

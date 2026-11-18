@@ -16,7 +16,7 @@ use crate::review_attempt;
 use crate::workflow::Workflow;
 
 /// The case kinds this crate answers.
-pub const KINDS: [&str; 7] = [
+pub const KINDS: [&str; 8] = [
     "review_window",
     "review_accounting",
     "review_snapshot",
@@ -24,6 +24,7 @@ pub const KINDS: [&str; 7] = [
     "source_snapshot",
     "review_receipts",
     "review_rows",
+    "guard_refusal",
 ];
 
 /// The ledger a case gives as its shards, read as a project's would be.
@@ -83,6 +84,7 @@ pub fn run_case(wf: &Workflow, case: &Value) -> Value {
         "summary_evidence" => summary_evidence_case(wf, case),
         "source_snapshot" => source_snapshot_case(wf, case),
         "review_receipts" => review_receipts_case(wf, case),
+        "guard_refusal" => guard_refusal_case(wf, case),
         "review_rows" => {
             // What a review's row and a gate's say, read alone.
             use crate::review_receipts::{gate_stages, terminal_review_verdict, unit_plain_name};
@@ -1331,4 +1333,109 @@ fn review_receipts_case(wf: &Workflow, case: &Value) -> Value {
     let shown_root = root.to_string_lossy().into_owned();
     let _ = std::fs::remove_dir_all(&root);
     answer.unwrap_or_else(|error| json!({ "error": error.replace(&shown_root, "{P}") }))
+}
+
+/// The ways on a refusing guard offers, for the attempt and the state the
+/// case gives. Commands are quoted for one shell on every platform.
+fn guard_refusal_case(wf: &Workflow, case: &Value) -> Value {
+    use focus_guards::fences::Fence;
+    use focus_guards::guard_operation::{self, RenderShell};
+
+    use crate::guard_refusal::{
+        Attempt, Coverage, Input, NextReview, PendingReview, Recovery, Summary, evaluate,
+    };
+
+    let text = |key: &str| case[key].as_str().unwrap_or_default();
+    let given = &case["attempt"];
+    let coverage = |key: &str| match given[key].as_str() {
+        Some("current") => Coverage::Current,
+        Some("stale") => Coverage::Stale,
+        Some("unbindable") => Coverage::Unbindable,
+        _ => Coverage::Missing,
+    };
+    let attempt = Attempt {
+        review_budget: given["reviewBudget"]["used"]
+            .as_f64()
+            .zip(given["reviewBudget"]["limit"].as_f64()),
+        recovery: match given["recovery"].as_str() {
+            Some("available") => Recovery::Available,
+            Some("pending") => Recovery::Pending,
+            _ => Recovery::Spent,
+        },
+        pending_review: given.get("pendingReview").map(|pending| PendingReview {
+            iteration: pending["iteration"].as_f64().unwrap_or_default(),
+            retryable: pending["retryable"] == true,
+            verdict_recordable: pending["verdictRecordable"].as_bool(),
+            record_verdict: pending["recordVerdict"].as_str().map(str::to_owned),
+        }),
+        repair_review: given["repairReview"]["iteration"].as_f64(),
+        next_review: given.get("nextReview").map(|next| NextReview {
+            iteration: next["iteration"].as_f64().unwrap_or_default(),
+            request: next["request"].as_str().map(str::to_owned),
+        }),
+        request_review: given["requestReview"].as_str().map(str::to_owned),
+        summary_coverage: coverage("summaryCoverage"),
+        review_coverage: coverage("reviewCoverage"),
+        source_coverage: coverage("sourceCoverage"),
+    };
+    let summary = case["isolated"].as_bool().map(|isolated| Summary {
+        questions_file: None,
+        isolated,
+    });
+    let refusal = evaluate(
+        wf,
+        &Input {
+            code: text("code"),
+            blocked_action: text("blocked"),
+            stage: text("stage"),
+            unit: case["unit"].as_str(),
+            project_dir: case["project"].as_str(),
+            state: text("state"),
+            invariant: text("invariant"),
+            user_message: text("message"),
+            attempt: &attempt,
+            unattended: case["unattended"] == true,
+            fence: case["fence"].as_str().and_then(Fence::parse),
+            fence_switch_withheld: case["fence_switch"] == "withhold",
+            summary: summary.as_ref(),
+            shell: Some(RenderShell::Posix),
+        },
+    );
+    let mut answer = serde_json::Map::new();
+    answer.insert("code".to_owned(), json!(refusal.code));
+    answer.insert("blockedAction".to_owned(), json!(refusal.blocked_action));
+    answer.insert("stage".to_owned(), json!(refusal.stage));
+    if let Some(unit) = &refusal.unit {
+        answer.insert("unit".to_owned(), json!(unit));
+    }
+    answer.insert("state".to_owned(), json!(refusal.state));
+    answer.insert("invariant".to_owned(), json!(refusal.invariant));
+    answer.insert("userMessage".to_owned(), json!(refusal.user_message));
+    let remedies: Vec<Value> = refusal
+        .remedies
+        .iter()
+        .map(|remedy| {
+            let mut said = serde_json::Map::new();
+            said.insert("op".to_owned(), json!(remedy.op));
+            if let Some(label) = &remedy.label {
+                said.insert("label".to_owned(), json!(label));
+            }
+            if let Some(description) = &remedy.description {
+                said.insert("description".to_owned(), json!(description));
+            }
+            said.insert("action".to_owned(), json!(remedy.action));
+            if let Some(operation) = &remedy.operation {
+                said.insert("operation".to_owned(), guard_operation::to_value(operation));
+            }
+            if let Some(command) = &remedy.command {
+                said.insert("command".to_owned(), json!(command));
+            }
+            said.insert("requiresHuman".to_owned(), json!(remedy.requires_human));
+            said.insert("executableNow".to_owned(), json!(remedy.executable_now));
+            said.insert("interaction".to_owned(), json!(remedy.interaction.as_str()));
+            Value::Object(said)
+        })
+        .collect();
+    answer.insert("remedies".to_owned(), json!(remedies));
+    Value::Object(answer)
 }
