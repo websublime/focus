@@ -5508,13 +5508,13 @@ def log_checks():
     check_("review/request/summary_owed", created(reviewed.replace("- **Summary Confirmation**: off (set by a command)", "- **Summary Confirmation**: on (from scope feature)"), **OUTPUTS),
            [asks(1), asks(1, "--retry-pending")])
     # Units Generation's units block is read before the review: one that cannot be read is the agent's step.
-    arch = "aidlc-architecture-reviewer-agent"
+    architecture = "aidlc-architecture-reviewer-agent"
     units_dir = f"{CREATED_DIR}/inception/units-generation"
     at_units = at_stage(reviewed, "units-generation", done=["intent-capture"], phase="INCEPTION")
     check_("review/request/units_block_unreadable", created(at_units, **{f"{units_dir}/unit-of-work-dependency.md": "# Dependencies\n\nNo block here.\n"}),
-           [["review", "--stage", "units-generation", "--reviewer", arch, "--iteration", "1"], ["review", "--stage", "units-generation", "--reviewer", arch, "--iteration", "2", "--retry-pending"],
-            ["review", "--stage", "units-generation", "--reviewer", arch, "--iteration", "1", "--single"]])
-    check_("review/request/units_block_absent", created(at_units), [["review", "--stage", "units-generation", "--reviewer", arch, "--iteration", "1"]])
+           [["review", "--stage", "units-generation", "--reviewer", architecture, "--iteration", "1"], ["review", "--stage", "units-generation", "--reviewer", architecture, "--iteration", "2", "--retry-pending"],
+            ["review", "--stage", "units-generation", "--reviewer", architecture, "--iteration", "1", "--single"]])
+    check_("review/request/units_block_absent", created(at_units), [["review", "--stage", "units-generation", "--reviewer", architecture, "--iteration", "1"]])
     # The slot the reviewer writes into: a draft an earlier dispatch left is not this one's, and a link is no slot.
     check_("review/request/slot_behind_a_link", created(reviewed, **OUTPUTS), [asks(1)],
            edits=[lambda tree: (os.makedirs(tree.path(f"{CREATED_DIR}/.aidlc-engine"), exist_ok=True), os.makedirs(tree.path("elsewhere"), exist_ok=True),
