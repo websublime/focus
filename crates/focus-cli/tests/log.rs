@@ -185,6 +185,81 @@ fn a_request_while_the_policy_let_a_change_through_is_refused_by_name() {
     let _ = fs::remove_dir_all(root);
 }
 
+/// What a recording cannot carry of `log review`, compared live by the
+/// differential (`log/review/request/source_bound`): the request of a stage
+/// that writes the workspace is bound to the project's source, which is the
+/// whole tree, and a recording of this tool keeps the workspace only. The
+/// row carries the source's fingerprint, and the listing behind it is kept
+/// under the fingerprint's own start.
+#[test]
+fn a_request_of_a_stage_that_writes_the_workspace_is_bound_to_the_source() {
+    let root = project("source");
+    let graph_path = root.join(".claude/tools/data/stage-graph.json");
+    let mut graph: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(&graph_path).unwrap()).unwrap();
+    for stage in graph.as_array_mut().unwrap() {
+        if stage["slug"] == "intent-capture" {
+            stage["workspace_requires"] = serde_json::json!(true);
+        }
+    }
+    fs::write(&graph_path, serde_json::to_string_pretty(&graph).unwrap()).unwrap();
+    write(
+        &root,
+        &format!("{RECORD}/focus-state.md"),
+        &STATE.replace(
+            "- **Summary Confirmation**: on (from scope feature)",
+            "- **Summary Confirmation**: off (set by a command)\n- **Review Override**: advisory",
+        ),
+    );
+    for name in [
+        "intent-statement",
+        "stakeholder-map",
+        "intent-capture-questions",
+    ] {
+        write(
+            &root,
+            &format!("{RECORD}/ideation/intent-capture/{name}.md"),
+            "# Written\n",
+        );
+    }
+    write(&root, "src/app.py", "print('hello')\n");
+    let output = log(
+        &root,
+        &[
+            "review",
+            "--stage",
+            "intent-capture",
+            "--reviewer",
+            "focus-product-lead-agent",
+            "--iteration",
+            "1",
+        ],
+    );
+    assert_eq!(
+        output.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let ledger = fs::read_to_string(root.join(RECORD).join("audit/laptop-abc123.md")).unwrap();
+    let fingerprint = ledger
+        .lines()
+        .find_map(|line| line.strip_prefix("**Source Fingerprint**: "))
+        .unwrap_or_else(|| panic!("{ledger}"));
+    assert_eq!(fingerprint.len(), 64, "{fingerprint}");
+    let kept = fs::read_to_string(root.join(RECORD).join(format!(
+        ".focus-engine/source-review/intent-capture/workspace-{}.tsv",
+        &fingerprint[..12]
+    )))
+    .unwrap();
+    assert!(
+        kept.starts_with(&format!("workspace\t{fingerprint}\t")),
+        "{kept}"
+    );
+    assert!(kept.contains("\tsrc/app.py\t100644\t"), "{kept}");
+    let _ = fs::remove_dir_all(root);
+}
+
 /// What a recording cannot carry of `log link`, compared live by the
 /// differential (`log/link/root_handoff_by_its_name`,
 /// `log/link/handoff_a_second_name`): the developer's handoff may carry the

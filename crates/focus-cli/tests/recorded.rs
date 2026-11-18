@@ -504,12 +504,66 @@ fn own_workspace_snapshot(rel: &str, name: &str, text: &str) -> Option<(String, 
     ))
 }
 
+/// The recorder's `review_attempt_ids`: the names a review attempt may
+/// have in a tree: the hash of `unstarted`, and of each row of its own
+/// ledger as an attempt's floor is written
+/// (`EVENT:timestamp:<shard as read>:<position>`).
+fn review_attempt_ids(root: &Path) -> Vec<String> {
+    fn name(floor: &str) -> String {
+        format!("{:x}", Sha256::digest(floor.as_bytes()))[..16].to_owned()
+    }
+    fn shards(dir: &Path, known: &mut Vec<String>) {
+        let Ok(entries) = fs::read_dir(dir) else {
+            return;
+        };
+        let row = regress::Regex::with_flags(
+            r"^\*\*Timestamp\*\*: ([^\n]*)\n\*\*Event\*\*: ([^\n]*)$",
+            "m",
+        )
+        .unwrap();
+        for entry in entries {
+            let path = entry.unwrap().path();
+            if path.is_dir() {
+                shards(&path, known);
+                continue;
+            }
+            if path.parent().and_then(Path::file_name) != Some(std::ffi::OsStr::new("audit")) {
+                continue;
+            }
+            let text = String::from_utf8_lossy(&fs::read(&path).unwrap()).into_owned();
+            let rows: Vec<(String, String)> = row
+                .find_iter(&text)
+                .map(|found| {
+                    (
+                        group(&found, &text, 1).to_owned(),
+                        group(&found, &text, 2).to_owned(),
+                    )
+                })
+                .collect();
+            let mut read_as = vec![path.to_string_lossy().into_owned()];
+            if let Ok(real) = fs::canonicalize(&path) {
+                read_as.push(real.to_string_lossy().into_owned());
+            }
+            for (at, event) in &rows {
+                for position in 0..rows.len() + 2 {
+                    for shard in &read_as {
+                        known.push(name(&format!("{event}:{at}:{shard}:{position}")));
+                    }
+                }
+            }
+        }
+    }
+    let mut known = vec![name("unstarted")];
+    shards(root, &mut known);
+    known
+}
+
 /// The recorder's `settle_review_ids`: a review's request ids numbered in
 /// the order they are first written (the ledger, then what the commands
 /// said, then the other files), the name of its attempt as `<attempt>`
-/// (it carries the tree's path, and the recorder verified it), and the
-/// source a request is bound to as the tree's when the tree keeps its
-/// listing.
+/// when it is one the tree's own ledger gives (it carries the tree's
+/// path), and the source a request is bound to as the tree's when the tree
+/// keeps its listing.
 fn settle_review_ids(
     root: &Path,
     mut outcome: BTreeMap<String, String>,
@@ -565,14 +619,21 @@ fn settle_review_ids(
         }
     }
     snapshots(root, &mut sources);
+    let attempts = review_attempt_ids(root);
     for text in outcome.values_mut() {
         for (index, raw) in numbered.iter().enumerate() {
             *text = text.replace(raw, &format!("<request-{}>", index + 1));
         }
         *text = replace_all(
             text,
-            r#"(/reviews/[^/\s"`]+/(?:stage|units/[^/\s"`]+)/)[0-9a-f]{16}(?=/)"#,
-            |found, text| format!("{}<attempt>", group(found, text, 1)),
+            r#"(/reviews/[^/\s"`]+/(?:stage|units/[^/\s"`]+)/)([0-9a-f]{16})(?=/)"#,
+            |found, text| {
+                if attempts.iter().any(|known| known == group(found, text, 2)) {
+                    format!("{}<attempt>", group(found, text, 1))
+                } else {
+                    text[found.range()].to_owned()
+                }
+            },
         );
         *text = replace_all(
             text,

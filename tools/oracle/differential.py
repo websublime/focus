@@ -5531,6 +5531,8 @@ def log_checks():
     check_("review/request/owed_outputs_not_checked", created(reviewed, **{**OUTPUTS, f"{cap}/stakeholder-map.md": None}), [asks(1)], {"SKIP_ARTIFACT_GUARD": "1"})
     # A stage that writes the workspace: the request is bound to the project's source, and the listing behind the
     # fingerprint is kept.
+    # The project's source is the whole tree, which a recording of this tool does not keep: compared live.
+    UNRECORDED.add("log/review/request/source_bound")
     check_("review/request/source_bound", created(reviewed, **{**OUTPUTS, "src/app.py": "print('hello')\n"}), [asks(1), asks(1, "--retry-pending")], edits=[graph_edit(workspace_requires=True)])
     # A stage whose class allows two passes.
     check_("review/request/two_passes", created(reviewed.replace("- **Review Override**: advisory", "- **Review Override**: adversarial"), **OUTPUTS), [asks(1), asks(2)],

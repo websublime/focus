@@ -2384,14 +2384,14 @@ O caminho do pedido são 560 linhas de `handleReview` e uma dúzia de funções 
 | Uma forma nova no diferencial, `review-ids` | O id de um pedido é aleatório e o nome de uma tentativa leva o caminho de onde o shard foi lido: nenhum é igual em duas árvores. O id compara-se pela ordem em que cada engine o escreve pela primeira vez; o nome da tentativa recalcula-se das linhas do ledger da própria árvore e, se bate, compara-se como `<attempt>`. A fonte a que um pedido se liga é da árvore, como uma baseline: a listagem que o pedido guarda verifica-se linha a linha contra os ficheiros da árvore. A repetição da gravação faz o mesmo em Rust |
 | A revisão completa dos checks é escrita à mão | Sem `--verdict` nenhum dos motores de Focus fecha uma revisão. As linhas e o registo escrevem-se na árvore, com um reviewer cujo nome não é o do engine (o grafo da árvore é editado), para que os bytes do registo e o digest que a linha leva sejam os mesmos numa árvore repetida. O fingerprint dos outputs dos checks é uma constante: é o mesmo nos dois motores |
 
-**O que o diferencial encontrou.** Nada no port: as @@CHECKS@@ verificações deram igual à primeira comparação de cada uma, tirando as formas (o id, o nome da tentativa, a fonte) e as três recusas pelo nome. O que apareceu foi do arnês: um nome dos checks novos escondia um dos checks de `link`.
+**O que o diferencial encontrou.** Nada no port: as 65 verificações deram igual à primeira comparação de cada uma, tirando as formas (o id, o nome da tentativa, a fonte) e as três recusas pelo nome. O que apareceu foi do arnês: um nome dos checks novos escondia um dos checks de `link`.
 
 **Verificado.**
 
 | Verificação | Resultado |
 | --- | --- |
-| Diferencial, `log/review/request/*` | @@CHECKS@@ verificações: @@SAME@@ iguais, 4 desvios declarados |
-| Mutação | @@MUTRV@@ |
+| Diferencial, `log/review/request/*` | 65 verificações: 61 iguais, 4 desvios declarados |
+| Mutação | 58 mutantes sobre `review.rs`, contra o diferencial ao vivo: 53 apanhados (48 à primeira, 5 depois de verificações novas: quem pediu, quando uma decisão posterior gastou o turno e quando o pedido posterior é de outra stage, de outro reviewer ou de uma unit; uma stage corrida sozinha ao lado de uma revisão ultrapassada do workflow; um bloco de units ilegível noutra stage) e 5 que nenhuma verificação distingue, anotados no módulo: dois que só uma unit separa (de quem é a revisão mais nova da fonte; a contagem do passe e a do orçamento), a recuperação só oferecida quando nenhum passe espera (um passe que espera recusa antes), o segundo olhar ao sítio do reviewer depois de retirar o rascunho, e o retry de um pedido do protocolo antigo de apêndice, que nenhuma verificação escreve (o leitor a que pergunta está no corpus) |
 | Gravação | @@RECORDED@@ |
 | `cargo test` | @@TESTSRV@@ |
 
