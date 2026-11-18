@@ -34,6 +34,7 @@ pub mod ceremonies;
 pub mod events;
 pub mod gate;
 pub mod gates;
+pub mod guard_refusal;
 pub mod jump;
 pub mod oracle;
 pub mod park;

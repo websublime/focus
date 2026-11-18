@@ -137,6 +137,31 @@ pub fn parse_operation(value: &Value) -> Option<GuardRecoveryOperation> {
     }
 }
 
+/// The operation as upstream writes it down: its `kind`, then what it
+/// names.
+#[must_use]
+pub fn to_value(operation: &GuardRecoveryOperation) -> Value {
+    use serde_json::json;
+    match operation {
+        GuardRecoveryOperation::RestartStage { stage } => {
+            json!({"kind": "restart-stage", "stage": stage})
+        }
+        GuardRecoveryOperation::AbortBolt { unit, slug } => {
+            json!({"kind": "abort-bolt", "unit": unit, "slug": slug})
+        }
+        GuardRecoveryOperation::LowerFence { fence } => {
+            json!({"kind": "lower-fence", "fence": fence.name()})
+        }
+        GuardRecoveryOperation::RecordUnitCompletion { stage, unit } => {
+            json!({"kind": "record-unit-completion", "stage": stage, "unit": unit})
+        }
+        GuardRecoveryOperation::ReopenUnit { stage, unit } => {
+            json!({"kind": "reopen-unit", "stage": stage, "unit": unit})
+        }
+        GuardRecoveryOperation::ReviewAdvisory => json!({"kind": "review-advisory"}),
+    }
+}
+
 /// `guardOperationInvocation`: the engine command an operation runs as.
 #[must_use]
 pub fn invocation(operation: &GuardRecoveryOperation) -> GuardOperationInvocation {
@@ -256,18 +281,41 @@ pub fn render_engine_invocation(
     Ok(format!("{prefix} {}", args.join(" ")))
 }
 
+/// `isGuardRecoveryOperation`, of an operation built here and not parsed:
+/// what it names is an identifier, and its fence is one a person may switch.
+#[must_use]
+pub fn is_well_formed(operation: &GuardRecoveryOperation) -> bool {
+    match operation {
+        GuardRecoveryOperation::RestartStage { stage } => is_identifier(stage),
+        GuardRecoveryOperation::AbortBolt { unit, slug } => {
+            is_identifier(unit) && is_identifier(slug)
+        }
+        GuardRecoveryOperation::LowerFence { fence } => fence.is_switchable(),
+        GuardRecoveryOperation::ReviewAdvisory => true,
+        GuardRecoveryOperation::RecordUnitCompletion { stage, unit }
+        | GuardRecoveryOperation::ReopenUnit { stage, unit } => {
+            is_identifier(stage) && is_identifier(unit)
+        }
+    }
+}
+
 /// `renderGuardOperation`: the operation's own command, in its source
 /// spelling when it has one and the mode is `source`.
 ///
 /// # Errors
 ///
-/// As [`render_engine_invocation`].
+/// The operation names something no operation may (upstream's
+/// `guardOperationInvocation` throws the same), or as
+/// [`render_engine_invocation`].
 pub fn render(
     operation: &GuardRecoveryOperation,
     mode: RenderMode,
     harness_dir: &str,
     shell: RenderShell,
 ) -> Result<String, String> {
+    if !is_well_formed(operation) {
+        return Err("Invalid guard recovery operation".to_owned());
+    }
     let invocation = invocation(operation);
     let spelled = match (mode, &invocation.source) {
         (RenderMode::Source, Some(source)) => source.clone(),
@@ -311,6 +359,9 @@ pub fn matches_remedy(
     stage: &str,
     unit: Option<&str>,
 ) -> bool {
+    if !is_well_formed(operation) {
+        return false;
+    }
     match operation {
         GuardRecoveryOperation::RestartStage { stage: own } => {
             ["restart-stage", "redo-jump", "restore-or-jump"].contains(&remedy) && own == stage
@@ -472,6 +523,9 @@ pub fn is_guard_recovery_engine_invocation(args: &[String]) -> bool {
 /// Exact: no extra flag, value or trailing word.
 #[must_use]
 pub fn matches_engine_args(operation: &GuardRecoveryOperation, args: &[String]) -> bool {
+    if !is_well_formed(operation) {
+        return false;
+    }
     let invocation = invocation(operation);
     let mut spellings = vec![invocation.native()];
     if let Some(source) = invocation.source {
@@ -772,17 +826,60 @@ mod tests {
             &quoted,
             "focus engine orchestrate next --stage a"
         ));
-        // An operation built in code is matched in either shell's quoting.
+        // An operation built in code that names what none may is no
+        // operation: it renders as nothing and matches no command, in either
+        // shell's quoting (upstream throws, and answers no).
         let apostrophe = GuardRecoveryOperation::RestartStage {
             stage: "it's".into(),
         };
-        assert!(matches_command(
+        assert!(!is_well_formed(&apostrophe));
+        assert_eq!(
+            render(
+                &apostrophe,
+                RenderMode::Native,
+                ".claude",
+                RenderShell::Posix
+            ),
+            Err("Invalid guard recovery operation".to_owned())
+        );
+        assert!(!matches_command(
             &apostrophe,
             "focus engine orchestrate next --stage 'it''s'"
         ));
-        assert!(matches_command(
+        assert!(!matches_command(
             &apostrophe,
             "focus engine orchestrate next --stage 'it'\"'\"'s'"
+        ));
+        let human = GuardRecoveryOperation::LowerFence {
+            fence: Fence::HumanPresence,
+        };
+        assert!(!is_well_formed(&human));
+        assert!(!matches_command(
+            &human,
+            "focus engine config set guard.human-presence off"
+        ));
+        for (unit, slug, formed) in [("u", "s", true), ("a b", "s", false), ("u", "", false)] {
+            assert_eq!(
+                is_well_formed(&GuardRecoveryOperation::AbortBolt {
+                    unit: unit.into(),
+                    slug: slug.into(),
+                }),
+                formed
+            );
+        }
+        // Nor does it carry out a remedy, or match its own words.
+        assert!(!matches_remedy(&human, "lower-fence", "s", None));
+        assert!(!matches_remedy(&apostrophe, "restart-stage", "it's", None));
+        let said = |words: &[&str]| -> Vec<String> {
+            words.iter().map(|word| (*word).to_owned()).collect()
+        };
+        assert!(!matches_engine_args(
+            &apostrophe,
+            &said(&["engine", "orchestrate", "next", "--stage", "it's"])
+        ));
+        assert!(!matches_engine_args(
+            &human,
+            &said(&["engine", "config", "set", "guard.human-presence", "off"])
         ));
     }
 
