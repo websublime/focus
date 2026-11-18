@@ -5495,6 +5495,23 @@ def log_checks():
     check_("review/request/reviewed_no_pass_left", created(reviewed, **OUTPUTS), [asks_plain(2), asks_plain(1), asks_plain(2, "--retry-pending")], edits=[standing])
     check_("review/request/reviewed_person_asked", created(reviewed, **OUTPUTS), [asks_plain(2), asks_plain(3)],
            edits=[standing, lambda tree: tree.edit(CREATED_SHARD, lambda text: text + block("HUMAN_TURN", T(9), "**Session**: s1"))])
+    # Who asked: a turn a later decision used up is no asking, and only a later request for this review, by this
+    # reviewer, comes after the person's words.
+    def and_then(*rows):
+        return lambda tree: tree.edit(CREATED_SHARD, lambda text: text + "".join(rows))
+    turn = block("HUMAN_TURN", T(9), "**Session**: s1")
+    elsewhere = lambda stage="rough-mockups", reviewer=plain: block("REVIEW_REQUESTED", T(10), f"**Stage**: {stage}", f"**Reviewer**: {reviewer}", "**Iteration**: 1",
+                                                                  "**Artifact Fingerprint**: sha256:" + "c" * 64, "**Request Id**: review:" + "9" * 32)
+    check_("review/request/asked_then_decided", created(reviewed, **OUTPUTS), [asks_plain(2)],
+           edits=[standing, and_then(turn, block("GATE_APPROVED", T(10), "**Stage**: market-research", "**User Input**: Approve"))])
+    check_("review/request/asked_then_rejected", created(reviewed, **OUTPUTS), [asks_plain(2)],
+           edits=[standing, and_then(turn, block("GATE_REJECTED", T(10), "**Stage**: market-research", "**Feedback**: No"))])
+    check_("review/request/asked_before_another_stages_request", created(reviewed, **OUTPUTS), [asks_plain(2)], edits=[standing, and_then(turn, elsewhere())])
+    check_("review/request/asked_before_another_reviewers_request", created(reviewed, **OUTPUTS), [asks_plain(2)], edits=[standing, and_then(turn, elsewhere("intent-capture", "another-reviewer"))])
+    check_("review/request/asked_before_a_units_request", created(reviewed, **OUTPUTS), [asks_plain(2)],
+           edits=[standing, and_then(turn, elsewhere("intent-capture", plain).replace("**Iteration**: 1", "**Iteration**: 1\n**Unit**: api"))])
+    # A stage run by itself is not stale because the workflow's review of it is.
+    check_("review/request/alone_beside_a_stale_review", created(reviewed, **OUTPUTS), [asks_plain(1, "--single"), asks_plain(2)], edits=[reviewed_once()])
     recovered = reviewed_once(((1, "READY", ()), (2, "READY", recovery, CURRENT)))
     check_("review/request/recovered_already_requested", created(reviewed, **OUTPUTS), [asks_plain(3), asks_plain(3, "--retry-pending")], edits=[recovered])
     check_("review/request/recovery_source_freshness_off", created(reviewed, **OUTPUTS), [asks_plain(2)], {"SKIP_SOURCE_FRESHNESS": "1"}, edits=[reviewed_once()])
@@ -5530,6 +5547,7 @@ def log_checks():
            [["review", "--stage", "units-generation", "--reviewer", architecture, "--iteration", "1"], ["review", "--stage", "units-generation", "--reviewer", architecture, "--iteration", "2", "--retry-pending"],
             ["review", "--stage", "units-generation", "--reviewer", architecture, "--iteration", "1", "--single"]])
     check_("review/request/units_block_absent", created(at_units), [["review", "--stage", "units-generation", "--reviewer", architecture, "--iteration", "1"]])
+    check_("review/request/units_block_unreadable_at_another_stage", created(reviewed, **{**OUTPUTS, f"{units_dir}/unit-of-work-dependency.md": "# Dependencies\n\nNo block here.\n"}), [asks(1)])
     # The slot the reviewer writes into: a draft an earlier dispatch left is not this one's, and a link is no slot.
     check_("review/request/slot_behind_a_link", created(reviewed, **OUTPUTS), [asks(1)],
            edits=[lambda tree: (os.makedirs(tree.path(f"{CREATED_DIR}/.aidlc-engine"), exist_ok=True), os.makedirs(tree.path("elsewhere"), exist_ok=True),

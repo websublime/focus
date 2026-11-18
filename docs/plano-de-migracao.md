@@ -2286,7 +2286,7 @@ Lido `handleReview` (`aidlc-log.ts` L2 975 a L4 412, uma função só): não há
 
 | Parte | O que traz | Como se verifica | Estado |
 | --- | --- | --- | --- |
-| 2e-i. O pedido | As flags e o arranque (`loadContext`: o reviewer e o `review_artifact` declarados, a classe e o orçamento, a tentativa ambígua); a admissão do sumário, com a frase e sem a pergunta de recuperação; o ordinal, que é do engine; o orçamento; o pedido que ainda espera veredicto; a recuperação única de um recibo ultrapassado e a sua causa; a substituição de um pedido que já não pode acabar; `--retry-pending`, com a modernização de um pedido antigo; o fingerprint dos artefactos, o id do pedido, o `Source Fingerprint` com o snapshot do workspace atrás, o sítio onde o revisor escreve; a linha `REVIEW_REQUESTED` e o JSON que o comando imprime, com o comando que fecha o pedido | Corpus (as peças); diferencial (`log/review/request/*`) | Em curso: partida em duas (abaixo); as peças estão feitas |
+| 2e-i. O pedido | As flags e o arranque (`loadContext`: o reviewer e o `review_artifact` declarados, a classe e o orçamento, a tentativa ambígua); a admissão do sumário, com a frase e sem a pergunta de recuperação; o ordinal, que é do engine; o orçamento; o pedido que ainda espera veredicto; a recuperação única de um recibo ultrapassado e a sua causa; a substituição de um pedido que já não pode acabar; `--retry-pending`, com a modernização de um pedido antigo; o fingerprint dos artefactos, o id do pedido, o `Source Fingerprint` com o snapshot do workspace atrás, o sítio onde o revisor escreve; a linha `REVIEW_REQUESTED` e o JSON que o comando imprime, com o comando que fecha o pedido | Corpus (as peças); diferencial (`log/review/request/*`) | Feita, em duas partes (abaixo) |
 | 2e-ii. As mudanças aceites | `governedChangeControl` e `recordAcceptedChanges`: quando um dos leitores da fatia 3 leu a Guard Policy, as mudanças que ela deixou passar gravam-se (`CHANGE_ACCEPTED`) e dizem-se uma vez | Diferencial, nos checks do pedido e do veredicto com a política relaxada | Por fazer |
 | 2e-iii. O texto de uma revisão | `validateReviewAppendix`, `demoteReviewHeadings`, `readFindingsTable`, `deriveReviewFindingsList` e o registo (`serializeReviewRecord`, `renderReadableReviewCopy`): o que um revisor escreveu, lido, validado e posto na forma que o registo guarda | Corpus (funções puras sobre texto de revisões) | Por fazer |
 | 2e-iv. O veredicto | O pedido pendente a que responde; a admissão do sumário outra vez; os artefactos ou a fonte que mudaram enquanto o revisor trabalhava (recusa, ou aceite pela política); o ficheiro da revisão (o do pedido, `--review-file`, um ficheiro que não é plano); o `NOT-READY` sem revisão de um pedido já repetido; o registo escrito, a linha `REVIEW_COMPLETED`, o rascunho retirado, a cópia legível ao lado do artefacto, e o registo de despacho do revisor retirado no fim | Diferencial (`log/review/verdict/*`) | Por fazer |
@@ -2315,7 +2315,7 @@ O caminho do pedido são 560 linhas de `handleReview` e uma dúzia de funções 
 | Parte | O que traz | Como se verifica | Estado |
 | --- | --- | --- | --- |
 | 2e-i-a. As peças | Onde ficam os ficheiros de uma revisão (`reviewAttemptId`, `reviewRecordRelativePath`, `reviewDraftRelativePath`), os dois comandos de uma revisão (`renderReviewRequestCommand`, `renderReviewVerdictCommand`), a nota para o condutor (`reviewRequestNote`), a frase de uma recuperação gasta (`reviewRecoverySpentMessage`), a reparação do bloco de units (`unitsBlockRepair`) e os campos que uma linha repete de um pedido antigo (`legacyReviewAppendixEchoFields`) | Corpus | Feita |
-| 2e-i-b. O comando | `focus engine log review` sem `--verdict`: as flags e o arranque, a admissão do sumário, o ordinal, o orçamento, o pedido que espera, a recuperação, a substituição, `--retry-pending`, a linha `REVIEW_REQUESTED` e o JSON. Com ele as frases e os leitores privados do tool (`reviewBudgetMessage`, `reviewRecoveryAlreadyRequestedMessage`, `reviewSummaryEvidenceMessage`, `reviewRecoveryGuidance`, `personAskedForReview`) | Diferencial (`log/review/request/*`) | Por fazer |
+| 2e-i-b. O comando | `focus engine log review` sem `--verdict`: as flags e o arranque, a admissão do sumário, o ordinal, o orçamento, o pedido que espera, a recuperação, a substituição, `--retry-pending`, a linha `REVIEW_REQUESTED` e o JSON. Com ele as frases e os leitores privados do tool (`reviewBudgetMessage`, `reviewRecoveryAlreadyRequestedMessage`, `reviewSummaryEvidenceMessage`, `reviewRecoveryGuidance`, `personAskedForReview`) | Diferencial (`log/review/request/*`) | Feita |
 
 **O que a 2e-i-b recusa pelo nome**, além do que a 2e já recusa (`--unit`, um bolt autónomo): um pedido em que um dos leitores leu o controlo de mudanças, até a 2e-ii gravar as mudanças aceites. Uma recusa de guard leva a frase sem a pergunta, e a série da recusa não se escreve, até à 4b e à 4c (`SHAPES["guard-ask"]`).
 
@@ -2342,6 +2342,58 @@ O caminho do pedido são 560 linhas de `handleReview` e uma dúzia de funções 
 | Corpus, tudo | 58 759 casos em 84 tipos |
 | Mutação | 16 mutantes, todos apanhados |
 | `cargo test` | 590 testes; os mínimos do tipo no teste de corpus de `focus-lifecycle` |
+
+### Fatia 2e-i-b: o pedido de uma revisão
+
+**O que existe.** `focus-log::review`: `focus engine log review --stage <slug> --reviewer <agent> --iteration <n> [--single] [--retry-pending]` escreve a linha `REVIEW_REQUESTED` com que um reviewer é despachado, e responde com o ficheiro onde o reviewer escreve e o comando exato que fecha o pedido.
+
+- **O passe é do engine.** O pedido diz o passe que quer e é recusado se não for o seguinte da tentativa. A contagem e a linha fazem-se debaixo do mesmo lock.
+- **O orçamento.** A classe de revisão da stage, limitada pelo `Review Override` do estado ou pelo scope, dá os passes: nenhum, um (`advisory`), ou os que a stage declara (dois quando não diz). Mede-se contra a contagem da tentativa, nunca contra o passe que quem chama diz. Uma revisão que a pessoa pediu (falou desde a última decisão, depois do último pedido desta revisão) não é recusada por falta de passes.
+- **Um pedido espera o veredicto** antes de outro começar, e pode ser despachado outra vez, uma vez (`--retry-pending`), contra os bytes de que foi pedido: fica com o seu id, a causa da recuperação e o fingerprint dos artefactos; um pedido de antes dos ids ganha um e fica marcado (`Upgrade: legacy-request`).
+- **Um pedido que já não pode acabar** (os outputs mudaram antes do veredicto, e leem-se todos) é substituído por um pedido novo no mesmo passe (`Replaces Request Id`); qualquer outro passe ouve qual pedir.
+- **A recuperação única.** Uma revisão que uma escrita posterior ultrapassou dá direito a um passe de recuperação na tentativa (`Recovery: stale-receipt`, com a causa). Gasta, e com o output mudado outra vez, só a pessoa repõe a tentativa: a frase acaba no que o avaliador da 4a responde para o estado em que a stage está.
+- **O que o pedido liga.** O fingerprint dos artefactos; o id do pedido, de 16 bytes aleatórios; numa stage que escreve código, o `Source Fingerprint`, com a listagem guardada atrás dele; e o sítio onde o reviewer escreve, aberto pelo pedido: um rascunho que um despacho anterior do mesmo passe deixou não é deste, e um link no caminho não é sítio nenhum.
+- **A admissão do sumário vem primeiro**, com a frase da evidência de sumário dita de uma revisão. E o bloco de units de Units Generation lê-se antes da revisão: um que não se lê volta como um passo do agente (`print`), com o mesmo pedido para repetir.
+
+**O que fica de fora, e porquê.**
+
+| Coisa | Onde chega |
+| --- | --- |
+| `--verdict` | 2e-iv. Recusado pelo nome |
+| `--unit` | Fatia 5. Recusado pelo nome |
+| Um pedido feito enquanto a Guard Policy deixou passar uma mudança, ou foi mudada desde a última vez que o ledger a gravou (`recordAcceptedChanges`, `governedGuardPolicy`: as linhas `CHANGE_ACCEPTED` e `GUARD_POLICY_SET`) | 2e-ii. Recusado pelo nome: as linhas não se escrevem ainda, e seguir sem elas deixava a mudança por dizer |
+| A pergunta de recuperação depois da frase de um guard, e a série da recusa | 4b e 4c (`SHAPES["guard-ask"]`) |
+| A recusa de um pedido sem ligação válida (`requestBinding === null`) | Em lado nenhum: é código morto no original. A contagem salta uma linha de pedido sem ligação, e por isso nenhum pedido pendente a tem |
+
+**Desvios deliberados** (cada um com teste marcado em `crates/focus-cli/tests/log.rs` e entrada em `DEVIATIONS`):
+
+| Verificação | O original | Focus |
+| --- | --- | --- |
+| `log/review/request/unit_not_ported` | Lê a unit e recusa ou grava nos seus termos | Recusa pelo nome (fatia 5) |
+| `log/review/request/verdict_not_ported` | Grava ou recusa o veredicto | Recusa pelo nome (2e-iv) |
+| `log/review/request/policy_off_not_ported`, `policy_relaxed_not_ported` | Grava a mudança que a política deixou passar (`CHANGE_ACCEPTED`) e segue | Recusa pelo nome (2e-ii) |
+
+`log/usage/review_not_ported` saiu de `DEVIATIONS`: o verbo existe.
+
+**Decisões.**
+
+| Decisão | Porquê |
+| --- | --- |
+| Uma recusa é uma recusa; o resto que falha debaixo do lock sai como `Audit emission failed: …` | É o `try` do original: uma `ReviewRefusal` sai com a sua frase, qualquer outra exceção com esse prefixo. O port distingue as duas (`Stop::Refusal`, `Stop::Failed`) |
+| Se uma linha de política ficava por escrever pergunta-se sem a escrever | `policy_row_owed` lê o que `governedGuardPolicy` compara (a política em vigor contra a última que o ledger gravou, ou a do estado) só para saber se há de recusar pelo nome. Sai com a 2e-ii |
+| Uma forma nova no diferencial, `review-ids` | O id de um pedido é aleatório e o nome de uma tentativa leva o caminho de onde o shard foi lido: nenhum é igual em duas árvores. O id compara-se pela ordem em que cada engine o escreve pela primeira vez; o nome da tentativa recalcula-se das linhas do ledger da própria árvore e, se bate, compara-se como `<attempt>`. A fonte a que um pedido se liga é da árvore, como uma baseline: a listagem que o pedido guarda verifica-se linha a linha contra os ficheiros da árvore. A repetição da gravação faz o mesmo em Rust |
+| A revisão completa dos checks é escrita à mão | Sem `--verdict` nenhum dos motores de Focus fecha uma revisão. As linhas e o registo escrevem-se na árvore, com um reviewer cujo nome não é o do engine (o grafo da árvore é editado), para que os bytes do registo e o digest que a linha leva sejam os mesmos numa árvore repetida. O fingerprint dos outputs dos checks é uma constante: é o mesmo nos dois motores |
+
+**O que o diferencial encontrou.** Nada no port: as @@CHECKS@@ verificações deram igual à primeira comparação de cada uma, tirando as formas (o id, o nome da tentativa, a fonte) e as três recusas pelo nome. O que apareceu foi do arnês: um nome dos checks novos escondia um dos checks de `link`.
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Diferencial, `log/review/request/*` | @@CHECKS@@ verificações: @@SAME@@ iguais, 4 desvios declarados |
+| Mutação | @@MUTRV@@ |
+| Gravação | @@RECORDED@@ |
+| `cargo test` | @@TESTSRV@@ |
 
 ### Fatia 3a: a tentativa de revisão, partida em cinco (feita)
 
