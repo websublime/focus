@@ -14,6 +14,21 @@
 //! the person. A summary's pair is a receipt and a time shared by every
 //! output of one confirmation, so there the path is part of what the change
 //! is.
+//!
+//! # Tests that change no answer
+//!
+//! Mutating each condition here against the differential leaves four that
+//! no check tells apart yet:
+//!
+//! - **A row names the unit of its change.** No caller hands a unit before
+//!   slice 5.
+//! - **A summary's change is the same only with the same paths.** The one
+//!   caller so far, the request of a review, is not driven with a summary
+//!   whose output changed after it was confirmed: the gates are, and they
+//!   record their accepted changes with what slice 3 still owes them.
+//! - **A record with no state file has nowhere to write to**, asked twice
+//!   (before a row is written, and before the policy's move is looked
+//!   for). The request reads the state before it gets here.
 
 use focus_audit::read::block_field;
 use focus_evidence::source::listing::render_changed_paths;
