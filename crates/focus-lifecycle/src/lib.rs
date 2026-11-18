@@ -31,6 +31,7 @@
 pub mod admission;
 pub mod artifacts;
 pub mod ceremonies;
+pub mod change_control;
 pub mod events;
 pub mod gate;
 pub mod gates;

@@ -2538,10 +2538,6 @@ DEVIATIONS.update({
         "what a review may carry that focus has not ported: one unit's review (its claim, the plan of units, its "
         "source and its manifest: slice 5) and the verdict, the other half of the command (slice 2e-iv). Upstream "
         "reads what each needs and records or refuses on its own terms; focus refuses each by name",
-    r"log/review/request/policy_\w+_not_ported":
-        "a request made while the Guard Policy let a change through, or was changed since the ledger last "
-        "recorded it: upstream writes the rows that record it (CHANGE_ACCEPTED, GUARD_POLICY_SET) and goes on; "
-        "focus does not write those rows yet (slice 2e-ii) and refuses the request by name",
     r"log/decision/checkpoint_\w+_not_ported":
         "a question the engine pairs with a record of its own: the verification command and the policy of "
         "Construction (slice 5), Plan Approval (slice 11). Upstream reads "
@@ -5465,9 +5461,19 @@ def log_checks():
     # A created record's Guard Policy is off, which lets a change after a review through; under strict the change
     # makes the review stale.
     lenient, reviewed = reviewed, reviewed.replace("- **Guard Policy**: off (from scope feature)", "- **Guard Policy**: strict (set by you)")
-    check_("review/request/policy_off_not_ported", created(lenient, **OUTPUTS), [asks_plain(2), asks_plain(1)], edits=[reviewed_once()])
-    check_("review/request/policy_relaxed_not_ported", created(lenient.replace("- **Guard Policy**: off (from scope feature)", "- **Guard Policy**: relaxed (set by you)"), **OUTPUTS), [asks_plain(2)],
-           edits=[reviewed_once()])
+    # Under a policy that is not strict the change is let through, recorded and said once; the review stands, so
+    # no pass is left unless the person asks. A ledger that cannot take the row refuses the request.
+    relaxed = lenient.replace("- **Guard Policy**: off (from scope feature)", "- **Guard Policy**: relaxed (set by you)")
+    asked_since = lambda tree: tree.edit(CREATED_SHARD, lambda text: text + block("HUMAN_TURN", T(9), "**Session**: s1"))
+    check_("review/request/policy_off", created(lenient, **OUTPUTS), [asks_plain(2), asks_plain(1), asks_plain(2)], edits=[reviewed_once()])
+    check_("review/request/policy_relaxed", created(relaxed, **OUTPUTS), [asks_plain(2), asks_plain(2)], edits=[reviewed_once()])
+    check_("review/request/policy_relaxed_person_asked", created(relaxed, **OUTPUTS), [asks_plain(2), asks_plain(3)], edits=[reviewed_once(), asked_since])
+    check_("review/request/policy_relaxed_ledger_fault", created(relaxed, **OUTPUTS), [asks_plain(2)], {"TEST_CHANGE_CONTROL_LEDGER_FAULT": " disk full "}, edits=[reviewed_once(), asked_since])
+    # The policy moved since the ledger last said what it was: the move is traced once.
+    said_strict = lambda tree: tree.edit(CREATED_SHARD, lambda text: text + block("GUARD_POLICY_SET", T(8), "**Old Value**: off", "**New Value**: strict", "**Source**: you"))
+    check_("review/request/policy_moved_since_the_ledger", created(relaxed, **OUTPUTS), [asks_plain(2), asks_plain(3)], edits=[reviewed_once(), asked_since, said_strict])
+    check_("review/request/policy_moved_ledger_fault", created(relaxed, **OUTPUTS), [asks_plain(2)], {"TEST_CHANGE_CONTROL_LEDGER_FAULT": "x"}, edits=[reviewed_once(), asked_since, said_strict])
+    check_("review/request/policy_strict_in_memory", created(relaxed, **OUTPUTS), [asks_plain(2), asks_plain(2)], edits=[reviewed_once(), memory("org", "Mode: strict")])
     # The one recovery pass of an attempt: asked for, waiting, and with no retry of the review it recovers.
     check_("review/request/recovery", created(reviewed, **OUTPUTS), [asks_plain(1), asks_plain(3), asks_plain(2), asks_plain(2), asks_plain(3)], edits=[reviewed_once()])
     check_("review/request/recovery_no_retry_of_the_stale_review", created(reviewed, **OUTPUTS), [asks_plain(1, "--retry-pending"), asks_plain(2, "--retry-pending")], edits=[reviewed_once()])
