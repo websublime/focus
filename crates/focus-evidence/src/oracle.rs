@@ -3,7 +3,9 @@
 //!
 //! `source_listing_parse` cases read a snapshot's text; `source_listing`
 //! cases write a listing given as pairs, and say what changed between it
-//! and a second one; `source_walk` cases walk a project laid out under a
+//! and a second one; `source_changed` cases take a recorded listing under
+//! the boundary of a current one and tell the paths that changed;
+//! `source_walk` cases walk a project laid out under a
 //! scratch root; `summary` cases read a questions file's summary section:
 //! the choice on it, and the hash of what was confirmed or why there is
 //! none.
@@ -21,9 +23,10 @@ use crate::source::walk::{self, Budgets, Names, Options, Stop};
 use crate::summary;
 
 /// The kinds of case this crate answers.
-pub const KINDS: [&str; 8] = [
+pub const KINDS: [&str; 9] = [
     "source_listing_parse",
     "source_listing",
+    "source_changed",
     "source_walk",
     "summary",
     "summary_input",
@@ -246,7 +249,9 @@ fn walk_case(case: &Value) -> Value {
     })
 }
 
-fn pairs(value: &Value) -> Listing {
+/// A listing given as pairs of a key and its entry.
+#[must_use]
+pub fn pairs(value: &Value) -> Listing {
     value
         .as_array()
         .into_iter()
@@ -287,6 +292,29 @@ pub fn run_case(case: &Value) -> Value {
                 "after": written(&after),
                 "changed": listing::changed_paths(&before, &after),
                 "keys": listing::render_path_keys(before.iter().chain(after.iter()).map(|(key, _)| key)),
+            })
+        }
+        "source_changed" => {
+            // A recorded listing as today's walk would take it, what
+            // changed between it and the current one, and paths as a
+            // person is told them.
+            let current = pairs(&case["current"]);
+            let kept =
+                listing::recorded_under_current_boundary(&pairs(&case["recorded"]), &current);
+            let changed = listing::changed_paths(&kept, &current);
+            let paths: Vec<String> = case["paths"]
+                .as_array()
+                .into_iter()
+                .flatten()
+                .filter_map(|path| path.as_str().map(str::to_owned))
+                .collect();
+            let told = listing::render_changed_paths(&changed);
+            json!({
+                "kept": kept.iter().map(|(key, entry)| json!([key, entry])).collect::<Vec<_>>(),
+                "changed": changed,
+                "told": told,
+                "paths": listing::render_changed_paths(&paths),
+                "inert": paths.iter().map(|path| listing::inert_path(path)).collect::<Vec<_>>(),
             })
         }
         "source_walk" => walk_case(case),
