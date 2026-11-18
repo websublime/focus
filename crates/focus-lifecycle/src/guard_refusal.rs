@@ -24,6 +24,31 @@
 //!
 //! The summary's questions file is handed in by the caller, who reads it
 //! (upstream reads it here when it has a project directory).
+//!
+//! # Tests that change no answer
+//!
+//! Mutating each condition here against the oracle corpus leaves five that
+//! no case can tell apart, each for a reason that holds by construction:
+//!
+//! - **The walk's block asks for a Construction stage.** In the installed
+//!   graph every stage that runs for each unit is one of Construction, so
+//!   the marker alone names the same stages.
+//! - **Construction's checkpoints do not apply to a team's units.** The one
+//!   reader of that answer goes on to ask where the refusal sits in a solo
+//!   walk, which a team's work is never in.
+//! - **The scopes that run a stage are sorted.** The installed grid already
+//!   lists its scopes in that order.
+//! - **A remedy the conductor does as its own work carries no words.** No
+//!   such remedy has words to carry: the wording table names only the ones
+//!   put to the person.
+//! - **The sentence asks which unit only past the block's first stage.** At
+//!   the first stage, as outside a walk, some way on can always be done
+//!   now, so the sentence is that one's: the question is never reached
+//!   there, and neither is the plain restart upstream ends with.
+//!
+//! And one arm no installed scope grid reaches: a stage exactly one scope
+//! runs (`scope_choice`). Every stage of the grid is run by none of the
+//! scopes or by at least two.
 
 use focus_evidence::source::walk::REGISTRY;
 use focus_guards::fences::Fence;
@@ -313,9 +338,10 @@ fn unit_major_stage_slugs<'a>(
             {
                 return false;
             }
+            // (The plan's actions are already one a stage, the last line's.)
             let action = overrides
                 .iter()
-                .rfind(|(slug, _)| *slug == node.slug)
+                .find(|(slug, _)| *slug == node.slug)
                 .map(|(_, action)| *action)
                 .or_else(|| mapping.stages.get(&node.slug).and_then(Value::as_str));
             action == Some("EXECUTE")
@@ -977,19 +1003,13 @@ pub fn recovery_guidance(
     if let Some(remedy) = refusal.remedies.iter().find(|remedy| remedy.executable_now) {
         // The reopen runs as its own command, which a prose refusal has to
         // name.
-        return Ok(
-            match remedy
-                .command
-                .as_deref()
-                .filter(|command| !command.is_empty())
-            {
-                Some(command) if remedy.op == "reopen-unit-step" => format!(
-                    "{} When the person says so, run `{command}`.",
-                    remedy.action
-                ),
-                _ => remedy.action.clone(),
-            },
-        );
+        return Ok(match remedy.command.as_deref() {
+            Some(command) if remedy.op == "reopen-unit-step" => format!(
+                "{} When the person says so, run `{command}`.",
+                remedy.action
+            ),
+            _ => remedy.action.clone(),
+        });
     }
     // A later block stage of a solo unit-major walk has no restart to offer:
     // it lands back on the same step or starts every unit's finished work

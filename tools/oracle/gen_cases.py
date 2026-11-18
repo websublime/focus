@@ -8083,6 +8083,13 @@ for unit in ("we b", "-bad", "a" * 256, "a" * 257, "api"):
 for fence_switch in (None, "offer", "withhold"):
     for mark in ("-", "x"):
         gr_add("requirements-analysis", gr_plain([(mark, "requirements-analysis", "EXECUTE")]), gr_attempt(), fence="human-presence", fence_switch=fence_switch)
+# A project directory that is no name at all is not named in a command.
+for project in ("", "/work/project", None):
+    gr_add("requirements-analysis", gr_plain([("R", "requirements-analysis", "EXECUTE")]), gr_attempt(), project=project)
+    gr_add("functional-design",
+           gr_plain([("-", "functional-design", "EXECUTE"), (" ", "code-generation", "EXECUTE")],
+                    {"Construction Iteration": "unit-major", "Construction Checkpoints": "enabled", "Active Unit": "api", "Unit Stage": "functional-design", "Unit State": "done"}),
+           gr_attempt(reviewBudget={"used": 1, "limit": 1}), code="REVIEW_BUDGET_EXHAUSTED", project=project)
 
 # --- The sentence a prose refusal ends with (focus-lifecycle) ----------------
 #
