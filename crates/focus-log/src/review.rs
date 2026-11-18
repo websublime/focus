@@ -30,6 +30,30 @@
 //! A guard that refuses says its sentence; the question upstream prints
 //! after it, and the series of the refusal it keeps, come with slices 4b
 //! and 4c.
+//!
+//! Upstream also refuses a pending request that has no valid binding. No
+//! pending request is without one (the count of an attempt passes over a
+//! request row that binds nothing), so that refusal is never said, and it
+//! is not here.
+//!
+//! # Tests that change no answer
+//!
+//! Mutating each condition here against the differential leaves five that
+//! no check tells apart:
+//!
+//! - **The newest review of the source is the stage's.** With no unit asked
+//!   for, the receipts name no unit as the one whose source is newest: the
+//!   question is slice 5's.
+//! - **The next pass is counted over every request, the budget over the
+//!   ones since a unit started a step again.** The two counts differ only
+//!   for a unit.
+//! - **A recovery is offered only when no pass waits.** A pass that waits
+//!   refuses the request before the offer is read, or is replaced.
+//! - **The slot is looked at again after the old draft is removed.** In a
+//!   tree that stands still the second look sees what the first saw.
+//! - **A retry accepts a review appended to the artifact after the
+//!   request.** That is a request of the retired appendix protocol, which
+//!   no check writes; the reader it asks is compared by the corpus.
 
 use std::path::Path;
 
