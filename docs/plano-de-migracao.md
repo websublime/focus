@@ -2432,11 +2432,11 @@ Lidas as funções. São três leituras do mesmo texto, cada uma com o seu modo 
 
 **O que existe.**
 
-- **`focus-markdown::rendered::render`**: a revisão como um leitor da sua renderização a toma por autoridade. Uma linha de texto por cada linha de um parágrafo do próprio documento, com o negrito entre U+0001 e U+0002 e tudo o que não é texto simples nem negrito (ênfase, rasurado, link, imagem, código) como U+0003; nada do texto de uma citação, de uma lista ou de uma tabela; e, à parte, todos os títulos e todos os blocos de HTML, estejam onde estiverem. `html_carries_h1_h2` veio de `focus-guards::posture` para aqui.
+- **`focus-markdown::rendered::render`**: a revisão como um leitor da sua renderização a toma por autoridade. Uma linha de texto por cada linha de um parágrafo do próprio documento, com o negrito entre U+0001 e U+0002 e o que não é texto simples nem negrito (ênfase, link, imagem, código) como U+0003; nada do texto de uma citação, de uma lista ou de uma tabela; e, à parte, todos os títulos e todos os blocos de HTML, estejam onde estiverem. `html_carries_h1_h2` veio de `focus-guards::posture` para aqui.
 - **`focus-evidence::review_text::validate_review_appendix`**: os bytes são UTF-8; abrem só com linhas em branco e o título exato `## Review` (um ficheiro próprio não precisa); nenhum título de nível 1 ou 2 depois, em Markdown ou num bloco de HTML; uma só secção Review; exatamente um veredicto, um reviewer e um passe, os que o pedido espera (uma linha repetida palavra por palavra é uma linha; dois valores diferentes são duas); e o desafio do protocolo antigo, omitido quando o pedido não o emitiu e igual quando emitiu. As frases são as do original, e a recusa por um título diz que o é.
 - **`demote_review_headings`**: as linhas de título `#` e `##` de topo (fora de código, citações e listas, e tirando o `## Review` que abre) passam a `###`, com todos os outros bytes como estavam, o BOM e cada fim de linha incluídos, e uma linha a nomear cada título mudado.
 
-**Como o original o faz, e porque Focus não faz igual.** O original renderiza a revisão com o `Bun.markdown` e callbacks que escrevem marcas, e procura as linhas no texto que sai. Focus escreve o mesmo texto a partir da estrutura que o `pulldown-cmark` lê, e aplica-lhe os mesmos padrões. O que o renderer do original faz com cada construção foi-lhe perguntado, construção a construção, antes de escrever uma linha: uma quebra de linha de qualquer tipo acaba a linha renderizada; entidades e escapes saem descodificados; o HTML dentro de um parágrafo é texto simples (só um bloco de HTML é HTML); um endereço solto não é um link; U+0000 lê-se U+FFFD.
+**Como o original o faz, e porque Focus não faz igual.** O original renderiza a revisão com o `Bun.markdown` e callbacks que escrevem marcas, e procura as linhas no texto que sai. Focus escreve as mesmas linhas a partir da estrutura que o `pulldown-cmark` lê, e aplica-lhes os mesmos padrões. O que o renderer do original faz com cada construção foi-lhe perguntado, construção a construção, antes de escrever uma linha: uma quebra de linha de qualquer tipo acaba a linha renderizada; entidades e escapes saem descodificados; o HTML dentro de um parágrafo é texto simples (só um bloco de HTML é HTML); um endereço solto não é um link; U+0000 lê-se U+FFFD.
 
 **O que o corpus encontrou.**
 
@@ -2446,14 +2446,34 @@ Lidas as funções. São três leituras do mesmo texto, cada uma com o seu modo 
 | O renderer do original tira um BOM do início do que lhe dão. Um ficheiro com dois (o descodificador tira o primeiro) abre, para ele, com um título | `render` tira um BOM do início da secção |
 | A resposta do original põe `heading` antes de `reason` | A ordem das chaves, no oráculo |
 
-Depois disso, 3 927 casos iguais, 1 675 deles revisões feitas das marcas do Markdown sem ordem nenhuma. Nenhum desvio de leitura entre os dois parsers apareceu nesta função: o que ela pergunta ao documento (há um título de nível 1 ou 2, que linhas de parágrafo começam por um rótulo a negrito) é grosso o suficiente para os dois concordarem em tudo o que o corpus lhes deu.
+**O que a mutação encontrou.** A primeira passagem (60 mutantes) deixou 16 vivos, todos no renderer. Nenhum era ruído:
+
+| Mutantes vivos | O que eram | O que se fez |
+| --- | --- | --- |
+| A linha com U+0003 que o original escreve por cada título, bloco de código, régua e bloco de HTML (6) | Sem efeito: nenhum padrão encontra uma linha que não começa por U+0001, e essa linha nunca se cola a outra, porque o renderer do original entrega ao callback um bloco de HTML sempre acabado em fim de linha, incluindo a última linha de um documento que não o tem (perguntado) | As linhas saíram de `render`, e com elas `in_code`, as tabelas na conta dos contentores (as células não têm parágrafo) e duas limpezas da pilha que nunca tinham nada para limpar |
+| O texto rasurado (2) | Um buraco no corpus, e atrás dele uma diferença real (abaixo) | Casos, e a decisão abaixo |
+| U+0003 escrito por extenso; U+0000; as tags que só começam como `<h1>` (`<h1x>`, `<h12>`); os elementos de texto cru em maiúsculas (`<SCRIPT>`); VT e FF; a linha de espaços depois de um item que só tem uma definição de link (8) | Buracos no corpus | 1 670 casos novos |
+
+**O texto rasurado não se lê, e é um desvio.** O renderer do original rasura o texto entre til, um ou dois, que o flanqueiam como `*` flanqueia a ênfase, dentro de uma palavra também: `a~b~c` é `a`, `b` rasurado, `c`. O `pulldown-cmark` pede mais a um til sozinho (dentro de uma palavra não abre nem fecha) e perde um par `~~` que tenha entre si um til sozinho sem par (`~~b c~ d~~`: o limite inferior da procura é um só para os dois comprimentos). A primeira diferença corrigia-se por fora, com pontuação de substituição dos dois lados do til; a segunda não, e com ela o que se corrigisse ficava a meio. A leitura do parser não se consegue fazer igual à do renderer de fora dele.
+
+O que isso muda é pouco, e sabe-se exatamente o quê. Nenhuma linha que conta depende do texto rasurado: o rótulo de um campo é um negrito que fecha sem nada entre as suas marcas, por isso nenhuma rasura o desfaz, e uma linha que uma rasura abre começa por um til em vez de U+0003, e nenhum dos dois é um rótulo. Muda o valor de uma linha que tem um til: `a~b~c` em Focus, `a`, U+0003, `b`, U+0003, `c` no original. E um valor só é comparado com o que o pedido espera: o veredicto, o nome do reviewer, o passe, o desafio. Só um nome de reviewer com um til (ou com U+0003) num grafo compilado editado à mão chega a diferir.
+
+| Desvio | Original | Focus |
+| --- | --- | --- |
+| Uma revisão com um til, quando um valor que ela tem de dizer tem um til ou U+0003 | Lê o texto rasurado: um reviewer chamado `a~b~c` não é o que uma revisão diz ao escrever o nome, e um chamado `a~b` é-o até um til mais à frente no parágrafo rasurar o resto | Não lê texto rasurado (um til é texto), e por isso não diz qual: a revisão é recusada com uma frase de Focus (`STRUCK_TEXT_NOT_READ`). O que não depende disso responde-se como o original: um til só de um dos lados, e tudo o que se recusa antes de comparar valores |
+
+O teste marcado está em `review_text`. O gerador não pergunta esses casos ao original. A entrada em `DEVIATIONS` vem com o veredicto (2e-iv), que é o primeiro comando a chegar aqui: até lá não há comando que o diferencial compare, como nos dois desvios de 4e-ii-b.
+
+**Os caracteres que um leitor toma por espaço e o outro não.** VT e FF são espaço para o renderer do original onde ele lê ênfase, e caracteres como os outros onde lê blocos; o parser toma-os por espaço nos dois sítios. U+0085, U+2028 e U+2029 são espaço para o parser onde lê ênfase, e para o renderer não. Cada um é dado ao parser como um carácter que o texto não usa e que ele lê como o renderer lê o original (um espaço que não é ASCII para os dois primeiros, um carácter de uso privado para os outros três), e volta a ser o que era no texto e nos blocos de HTML que saem.
+
+Depois de tudo, @@RT_CASES@@.
 
 **Verificado.**
 
 | Verificação | Resultado |
 | --- | --- |
-| Corpus, `review_text` | @@RT_CASES@@ |
-| Corpus, tudo | 62 686 casos em 85 tipos |
+| Corpus, `review_text` | @@RT_COUNTS@@ |
+| Corpus, tudo | 64 356 casos em 85 tipos; os dos outros 84 tipos iguais byte a byte |
 | Mutação | @@RT_MUT@@ |
 | `cargo test` | @@RT_TESTS@@ |
 

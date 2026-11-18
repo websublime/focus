@@ -108,9 +108,7 @@ impl StandIns {
     fn of(section: &str) -> Self {
         let unused = |candidate: &char| !section.contains(*candidate);
         let mut private = ('\u{e000}'..='\u{f8ff}').filter(unused);
-        let mut spaces = ('\u{2000}'..='\u{200a}')
-            .chain(['\u{205f}', '\u{3000}', '\u{1680}'])
-            .filter(unused);
+        let mut spaces = ('\u{2000}'..='\u{200a}').filter(unused);
         let mut swapped = Vec::new();
         for original in INLINE_SPACE {
             if section.contains(original)
@@ -229,14 +227,14 @@ fn walk(text: &str, stand_ins: &StandIns) -> Rendered {
                 let raw = html.take().unwrap_or_default();
                 rendered.html_blocks.push(stand_ins.restored(&raw));
             }
-            Event::Html(raw) | Event::Text(raw) if html.is_some() => {
+            Event::Html(raw) if html.is_some() => {
                 if let Some(held) = &mut html {
                     held.push_str(&raw);
                 }
             }
-            // Outside a paragraph and a heading nothing is rendered: a code
-            // block's text, a table's cells, the items of a tight list.
-            _ if inline.is_empty() => {}
+            // From here on, inline content: rendered into the paragraph or
+            // the heading that holds it, and nowhere when none does (a code
+            // block's text, a table's cells, the items of a tight list).
             // Raw HTML inside a paragraph is handed to the renderer's text
             // callback: it is plain text.
             Event::Text(raw) | Event::InlineHtml(raw) | Event::Html(raw) => {

@@ -8435,6 +8435,22 @@ for value in ("a\u2000b\x0bc", "a\x0bb\u2000c\x0cd\u2001e", "a\ue000b\u0085c", "
     rt_validate(f"{value}\n\x0b\n**Verdict:** READY\n\x0c\n    **Reviewer:** x*\u2028y*\n**Iteration:** 1\n", rt_expected(reviewer="x*", standalone=True))
     rt_validate(f"{value}\n\x0b\n**Verdict:** READY\n\x0c\n    **Reviewer:** x*\u0085y*\n**Iteration:** 1\n", rt_expected(reviewer="x*\u0085y*", standalone=True))
     rt_validate(f"{value}\n\x0b\n**Verdict:** READY\n\x0c\n    **Reviewer:** _x\x0b_y_\n**Iteration:** 1\n", rt_expected(reviewer="_x\x0b_y_", standalone=True))
+# What the second sweep asked for. White space that is none to one reader, beside emphasis, where the value says
+# which reader read it; the marks of what is not plain text, in a value that spells them; two comments in one
+# block; a container that ends inside another; and the parser's own trouble with a line of white space.
+for value, reviewer in (("x*\x0by*", "x*\x0by*"), ("x*\x0cy*", "x*\x0cy*"), ("x*\u2029y*", "x*"), ("x*\u2029y*", "x\x03"), ("x*\u2028y*", "x\x03"), ("x*\u0085y*", "x\x03\u0085y\x03"), ("x*\u00a0y*", "x*\u00a0y*"),
+                        ("\x0b*y*", "\x0b\x03y\x03"), ("x _a\x0b_b_", "x _a\x0b\x03b\x03"), ("x _a\x0c_b_", "x _a\x0c\x03b\x03"), ("x *e*", "x \x03e\x03"), ("x *e*", "x e\x03"), ("x *e*", "x \x03e"),
+                        ("x [e](u)", "x \x03e\x03"), ("x [e](u)", "x e\x03"), ("x [e](u)", "x \x03e"), ("x ![e](u)", "x \x03"), ("x ![e](u)", "x"), ("x `c`", "x \x03"), ("x `c`", "x"), ("x `c` y", "x \x03 y"),
+                        ("x `c` y", "x   y"), ("x <http://u>", "x \x03http://u\x03"), ("x **b**", "x \x01b\x02"), ("x ***b***", "x \x03\x01b\x02\x03"), ("x [](u)", "x \x03\x03"), ("x [*e*](u)", "x \x03\x03e\x03\x03")):
+    rt_validate(f"## Review\n\n**Verdict:** READY\n**Reviewer:** {value}\n**Iteration:** 1\n", rt_expected(reviewer=reviewer))
+    rt_validate(f"**Iteration:** 1\n**Verdict:** NOT-READY\n**Reviewer:** {value}\n", rt_expected("NOT-READY", reviewer, standalone=True))
+for body in (f"{RT_FIELDS}\n<div><!-- <h1> --> x <!-- <h2> --></div>\n", f"{RT_FIELDS}\n<!-- <h1> --><!-- <h2> --><h3>\n", f"{RT_FIELDS}\n<div><!-- a --><h1><!-- b --></div>\n",
+             f"> - item\n>\n> **Verdict:** NOT-READY\n\n{RT_FIELDS}", f"- a\n  - b\n\n  **Verdict:** NOT-READY\n\n{RT_FIELDS}", f"> > a\n>\n> **Reviewer:** x\n\n{RT_FIELDS}", f"- > a\n\n  **Iteration:** 2\n\n{RT_FIELDS}",
+             f"1. a\n   - b\n     > c\n\n     **Verdict:** NOT-READY\n\n   **Verdict:** NOT-READY\n\n{RT_FIELDS}", f"{RT_FIELDS}\n- [a]: b\n      \n", f"{RT_FIELDS}\n> - [a]: /u\n\t\n",
+             f"{RT_FIELDS}\n- item\n  - [ref]: https://example.com\n        \n- next\n", f"- [a]: b\n      \n{RT_FIELDS}", f"**Verdict:** READY `c`\n{RT_REST}", f"**Verdict:** READY\n**Reviewer:** {RT_REVIEWER} `c`\n**Iteration:** 1\n",
+             f"**Verdict:** READY\n**Reviewer:** {RT_REVIEWER}\n**Iteration:** 1 ` `\n", f"**Verdict:** READY ![i](u)\n{RT_REST}"):
+    rt_validate(f"## Review\n\n{body}")
+    rt_validate(body, rt_expected(standalone=True))
 # Struck text that runs from one line into another, around a field, into its label and out of its value.
 for body in (f"**Verdict:** READY\n~a\n**Reviewer:** {RT_REVIEWER}\nb~\n**Iteration:** 1\n", f"~a\n**Reviewer:~ x** y\n{RT_FIELDS}", f"**Verdict:** READY ~a\n**Reviewer:** {RT_REVIEWER}\n**Iteration:** 1~ b\n",
              f"**Verdict:** READY\n~a\n**Reviewer:** {RT_REVIEWER}~\n**Iteration:** 1\n", f"~a **b~\n{RT_FIELDS}", f"~~a *b~~\n{RT_FIELDS}c*\n", f"*a ~~b*\n{RT_FIELDS}c~~\n", f"~a\n{RT_FIELDS}~b\n",
