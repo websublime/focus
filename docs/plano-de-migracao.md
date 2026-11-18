@@ -2425,7 +2425,7 @@ Lidas as funções. São três leituras do mesmo texto, cada uma com o seu modo 
 | Parte | O que traz | Como se verifica | Estado |
 | --- | --- | --- | --- |
 | 2e-iii-a. A validade | `validateReviewAppendix` (e o renderer por trás, `renderReviewMarkdownAuthority`): a revisão diz um veredicto, o seu reviewer e o seu passe em linhas que um leitor da revisão renderizada vê como tais, e é uma secção só, sem nada da categoria do documento depois. `demoteReviewHeadings`: os títulos `#` e `##` de um ficheiro de revisão passados a `###` | Corpus | Feita |
-| 2e-iii-b. As tabelas e o registo | A tabela de seis colunas (`parseReviewSection`, `splitMarkdownRow`, o estado e o fingerprint de um finding) e o relatório de findings (`parseReviewerFindingsReport`, `reportTable`); `readFindingsTable`, que lê uma ou outra ou diz porque não se lê, e `unreadableFindingsTableFinding`; `serializeReviewRecord` | Corpus | @@RF_STATE@@ |
+| 2e-iii-b. As tabelas e o registo | A tabela de seis colunas (`parseReviewSection`, `splitMarkdownRow`, o estado e o fingerprint de um finding) e o relatório de findings (`parseReviewerFindingsReport`, `reportTable`); `readFindingsTable`, que lê uma ou outra ou diz porque não se lê, e `unreadableFindingsTableFinding`; `serializeReviewRecord` | Corpus | Feita |
 | 2e-iii-c. A lista derivada | `deriveReviewFindingsList` (`aidlc-review-brief.ts`): os findings desta revisão juntos com os das anteriores; `derivedRecordFinding`; `renderReadableReviewCopy`, a cópia que a pessoa lê | Corpus | Por fazer |
 
 ### Fatia 2e-iii-a: a validade do que um reviewer escreveu
@@ -2489,16 +2489,16 @@ Depois de tudo, 5 683 casos iguais aos do original; 1 683 das validações são 
 
 Quando o leitor de `focus-markdown` não consegue ler a secção (o parser falha), o relatório não se lê e a frase é a genérica do original (`REVIEW_FINDINGS_REPORT_RETRY_MESSAGE`): o leitor do original não falha, e nenhum caso do corpus lá chega.
 
-@@RF_FOUND@@
+**O que o corpus e a mutação encontraram.** O corpus, nada: os 6 823 casos da primeira geração responderam igual à primeira. A mutação (103 mutantes) deixou 4 vivos. Dois eram buracos no corpus: o mesmo título duas vezes com uma tabela diferente debaixo de cada um (conta a primeira) e um id de finding anterior que só começa como um (`R-01a`); entraram como casos. Dois eram código que não fazia nada, e saiu: aparar uma célula que `split_markdown_row` já entrega aparada (em três sítios, como no original) e completar com células vazias uma linha mais curta do que o cabeçalho, que a leitura por coluna já lê como vazia.
 
 **Verificado.**
 
 | Verificação | Resultado |
 | --- | --- |
-| Corpus, `review_findings` | @@RF_COUNTS@@ |
-| Corpus, tudo | @@RF_ALL@@ |
-| Mutação | @@RF_MUT@@ |
-| `cargo test` | @@RF_TESTS@@ |
+| Corpus, `review_findings` | 6 875 casos, todos iguais: 1 791 leituras como o registo as admite (237 pelo relatório, 142 pela tabela de seis colunas, 486 sem findings, 926 que não se leem, com a frase), 1 413 relatórios (342 com a falta nomeada), 1 441 tabelas de seis colunas (883 recusadas), 1 469 secções, 403 linhas partidas em células, 259 registos escritos, e os estados, os fingerprints e o finding `R-00` |
+| Corpus, tudo | 71 317 casos em 86 tipos; os dos outros 85 tipos iguais byte a byte |
+| Mutação | Duas rondas. A primeira, 103 mutantes: 99 apanhados, 4 vivos (acima). A segunda, os 2 que eram buracos e 2 novos sobre o código que mudou: os 4 apanhados. No código final: 103 mutantes, todos apanhados pelo corpus |
+| `cargo test` | 592 testes; corpus de 71 317 casos (6 875 novos), todos iguais |
 
 **A 2e-iii-c, lida.** `deriveReviewFindingsList` não é uma função sobre texto: lê o ledger (os eventos, os pares pedido e conclusão com os seus registos, as decisões que um gate gravou sobre cada finding, um Redo) e, sem registo nenhum, a secção `## Review` de um artefacto antigo. Chama `pairedReviews`, `parsedDispositions`, `applyDisposition`, `applyPriorReport`, `legacySeed`, `reviewRecordDerivedFindings` e `legacyRecordList`, que não existem em Focus: são a parte de `review-brief` que a fatia 3 deixou para quando `review` escrevesse recibos. Parte-se ao chegar lá.
 

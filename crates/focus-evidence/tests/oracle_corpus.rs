@@ -139,7 +139,9 @@ fn every_evidence_case_gets_upstreams_answer() {
                 reported += usize::from(out.get("report").is_some());
                 tabled += usize::from(
                     out.get("report").is_none()
-                        && out["findings"].as_array().is_some_and(|rows| !rows.is_empty()),
+                        && out["findings"]
+                            .as_array()
+                            .is_some_and(|rows| !rows.is_empty()),
                 );
                 unreadable += usize::from(out["unreadable"].is_string());
             }
