@@ -8628,6 +8628,16 @@ for prior, new in ((RF_PRIOR_OK, RF_NEW_OK), (RF_EMPTY_PRIOR, RF_EMPTY_NEW), (RF
     rf_review(rf_report(prior, new))
     rf_review(rf_report(prior, new), unit="orders", verdicts=("NOT-READY",))
 
+# What a sweep of mutants asked for: the same heading twice with a table of its own under each, and an id that
+# only starts like one.
+RF_PRIOR_OTHER = f"**Prior findings**\n\n{RF_PRIOR_HEAD}\n|---|---|---|---|\n| R-05 | Still applies | Minor | The second table |\n\n"
+RF_NEW_OTHER = f"**New findings**\n\n{RF_NEW_HEAD}\n|---|---|---|---|\n| Minor | z.md | The second table | Do it |\n"
+for prior, new in ((RF_PRIOR_OK + RF_PRIOR_OTHER, RF_NEW_OK), (RF_PRIOR_OTHER + RF_PRIOR_OK, RF_NEW_OK), (RF_PRIOR_OK, RF_NEW_OK + "\n" + RF_NEW_OTHER), (RF_PRIOR_OK, RF_NEW_OTHER + "\n" + RF_NEW_OK),
+                   (RF_PRIOR_OK + "**Prior findings**\n\nno table here\n\n", RF_NEW_OK), ("**Prior findings**\n\nno table here\n\n" + RF_PRIOR_OK, RF_NEW_OK), (RF_PRIOR_OK, RF_NEW_OK + "\n**New findings**\n"),
+                   (RF_PRIOR_OK, "**New findings**\n\nnone\n\n" + RF_NEW_OK)):
+    rf_review(rf_report(prior, new), verdicts=("NOT-READY",))
+for row in ("| R-01a | Fixed | Major | x |", "| R-1 2 | Fixed | Major | x |", "| R-01. | Still applies | Major | x |", "| R-01-02 | Fixed | Major | x |", "| xR-01 | Fixed | Major | x |"):
+    rf_review(rf_report(f"**Prior findings**\n\n{RF_PRIOR_HEAD}\n|---|---|---|---|\n{row}\n\n", RF_NEW_OK), verdicts=("NOT-READY",))
 # The finding that stands in for a table that cannot be read.
 for reason in ("a.md: findings table header declares ID | Severity. Expected columns: ID | Severity | Location | Finding | Required action | Status. Missing: Location, Finding, Required action, Status", "plain reason", "",
                "a|b", "a | b", "a  |  b", "a\t|\nb", "|", " | ", "||", "a |", "| a", "a \\| b", "a | b", "the findings report could not be read: the New findings heading (**New findings**) is missing. Write the whole review again"):

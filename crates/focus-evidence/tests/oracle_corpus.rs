@@ -43,6 +43,7 @@ fn every_evidence_case_gets_upstreams_answer() {
     let (mut completions, mut answering, mut naming) = (0, 0, 0);
     let (mut records, mut valid, mut same_review, mut carried) = (0, 0, 0, 0);
     let (mut recordable, mut ranked, mut sent_back, mut demoted, mut left_alone) = (0, 0, 0, 0, 0);
+    let (mut reported, mut tabled, mut unreadable, mut written) = (0, 0, 0, 0);
     let (mut inputs, mut set_aside) = (0, 0);
     let (mut same_asked, mut same_alias, mut same_raw, mut same_boundary) = (0, 0, 0, 0);
     let (mut boundaries, mut left_out, mut escaped, mut cut_short) = (0, 0, 0, 0);
@@ -130,6 +131,19 @@ fn every_evidence_case_gets_upstreams_answer() {
                 ranked += usize::from(out["heading"] == true);
                 sent_back += usize::from(out["valid"] == false && out.get("heading").is_none());
             }
+        } else if kind == "review_findings" {
+            // The findings a review states, as a record admits them: read
+            // from the report, read from the six-column table, or not
+            // readable; and a record's bytes.
+            if case["op"] == "read" {
+                reported += usize::from(out.get("report").is_some());
+                tabled += usize::from(
+                    out.get("report").is_none()
+                        && out["findings"].as_array().is_some_and(|rows| !rows.is_empty()),
+                );
+                unreadable += usize::from(out["unreadable"].is_string());
+            }
+            written += usize::from(case["op"] == "serialize");
         } else if kind == "review_record" {
             records += 1;
             valid += usize::from(out["valid"] == true);
@@ -254,6 +268,10 @@ fn every_evidence_case_gets_upstreams_answer() {
             && demoted >= 380
             && left_alone >= 900,
         "{recordable} {ranked} {sent_back} {demoted} {left_alone}"
+    );
+    assert!(
+        reported >= 200 && tabled >= 120 && unreadable >= 850 && written >= 250,
+        "{reported} {tabled} {unreadable} {written}"
     );
     assert!(
         differing.is_empty(),

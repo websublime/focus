@@ -191,13 +191,14 @@ struct ReportTable {
 
 impl ReportTable {
     /// The cell of `row` under `header`: the last column of that name, as
-    /// upstream's map of names keeps it.
+    /// upstream's map of names keeps it, and nothing where the row stops
+    /// short of it. (A cell comes trimmed from [`split_markdown_row`].)
     fn value<'r>(&self, row: &'r [String], header: &str) -> &'r str {
         self.headers
             .iter()
             .rposition(|name| name == header)
             .and_then(|index| row.get(index))
-            .map_or("", |cell| js_text::trim(cell))
+            .map_or("", String::as_str)
     }
 }
 
@@ -274,9 +275,9 @@ fn report_table(
         if !opens_row(line) {
             break;
         }
-        let mut cells = split_markdown_row(line);
+        let cells = split_markdown_row(line);
         // A row with nothing in any cell says nothing.
-        if cells.iter().all(|cell| js_text::trim(cell).is_empty()) {
+        if cells.iter().all(String::is_empty) {
             continue;
         }
         if cells.len() > headers.len() {
@@ -287,7 +288,6 @@ fn report_table(
                 headers.len()
             )));
         }
-        cells.resize(headers.len(), String::new());
         rows.push(cells);
     }
     Ok(ReportTable { headers, rows })
@@ -500,7 +500,7 @@ pub fn parse_review_section(
         if cells.len() != headers.len() {
             let row_id = column("ID")
                 .and_then(|index| cells.get(index))
-                .map(|cell| js_text::trim(cell))
+                .map(String::as_str)
                 .filter(|cell| !cell.is_empty())
                 .unwrap_or("?");
             if cells.len() < headers.len() {
@@ -532,7 +532,7 @@ pub fn parse_review_section(
         let value = |name: &str| {
             column(name)
                 .and_then(|index| cells.get(index))
-                .map_or("", |cell| js_text::trim(cell))
+                .map_or("", String::as_str)
         };
         let id = value("ID");
         if !re::test("^R-[0-9]+$", "", id) {
