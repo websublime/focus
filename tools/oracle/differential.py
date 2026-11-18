@@ -2538,10 +2538,6 @@ DEVIATIONS.update({
         "what a review may carry that focus has not ported: one unit's review (its claim, the plan of units, its "
         "source and its manifest: slice 5) and the verdict, the other half of the command (slice 2e-iv). Upstream "
         "reads what each needs and records or refuses on its own terms; focus refuses each by name",
-    r"log/review/request/policy_\w+_not_ported":
-        "a request made while the Guard Policy let a change through, or was changed since the ledger last "
-        "recorded it: upstream writes the rows that record it (CHANGE_ACCEPTED, GUARD_POLICY_SET) and goes on; "
-        "focus does not write those rows yet (slice 2e-ii) and refuses the request by name",
     r"log/decision/checkpoint_\w+_not_ported":
         "a question the engine pairs with a record of its own: the verification command and the policy of "
         "Construction (slice 5), Plan Approval (slice 11). Upstream reads "
@@ -5387,6 +5383,8 @@ def log_checks():
     cap = f"{CREATED_DIR}/ideation/intent-capture"
     OUTPUTS = {f"{cap}/intent-statement.md": "# Intent\n\nAdd login to the app.\n", f"{cap}/stakeholder-map.md": "# Stakeholders\n\nThe team.\n",
                f"{cap}/intent-capture-questions.md": "# Questions\n\nNone.\n"}
+    # The fingerprint of those outputs, which is the same in the two engines.
+    CURRENT = "sha256:ecf999829890d21d716a816b7d5988926939797038877a5c26afeaee7da1d192"
     asks = lambda n, *more: ["review", "--stage", "intent-capture", "--reviewer", lead, "--iteration", str(n), *more]
     check_("review/request/usage", created(**OUTPUTS), [["review"], ["review", "--stage", "intent-capture"], ["review", "--reviewer", lead], ["review", "--stage", "", "--reviewer", lead],
                                                        ["review", "--stage", "intent-capture", "--reviewer", ""], asks(1, "--intent", "x"), asks(1, "--space", "x"), asks(1, "--intent", ""),
@@ -5465,9 +5463,31 @@ def log_checks():
     # A created record's Guard Policy is off, which lets a change after a review through; under strict the change
     # makes the review stale.
     lenient, reviewed = reviewed, reviewed.replace("- **Guard Policy**: off (from scope feature)", "- **Guard Policy**: strict (set by you)")
-    check_("review/request/policy_off_not_ported", created(lenient, **OUTPUTS), [asks_plain(2), asks_plain(1)], edits=[reviewed_once()])
-    check_("review/request/policy_relaxed_not_ported", created(lenient.replace("- **Guard Policy**: off (from scope feature)", "- **Guard Policy**: relaxed (set by you)"), **OUTPUTS), [asks_plain(2)],
-           edits=[reviewed_once()])
+    # Under a policy that is not strict the change is let through, recorded and said once; the review stands, so
+    # no pass is left unless the person asks. A ledger that cannot take the row refuses the request.
+    relaxed = lenient.replace("- **Guard Policy**: off (from scope feature)", "- **Guard Policy**: relaxed (set by you)")
+    asked_since = lambda tree: tree.edit(CREATED_SHARD, lambda text: text + block("HUMAN_TURN", T(9), "**Session**: s1"))
+    check_("review/request/policy_off", created(lenient, **OUTPUTS), [asks_plain(2), asks_plain(1), asks_plain(2)], edits=[reviewed_once()])
+    check_("review/request/policy_relaxed", created(relaxed, **OUTPUTS), [asks_plain(2), asks_plain(2)], edits=[reviewed_once()])
+    check_("review/request/policy_relaxed_person_asked", created(relaxed, **OUTPUTS), [asks_plain(2), asks_plain(3)], edits=[reviewed_once(), asked_since])
+    check_("review/request/policy_relaxed_ledger_fault", created(relaxed, **OUTPUTS), [asks_plain(2)], {"TEST_CHANGE_CONTROL_LEDGER_FAULT": " disk full "}, edits=[reviewed_once(), asked_since])
+    # The policy moved since the ledger last said what it was: the move is traced once.
+    said_strict = lambda tree: tree.edit(CREATED_SHARD, lambda text: text + block("GUARD_POLICY_SET", T(8), "**Old Value**: off", "**New Value**: strict", "**Source**: you"))
+    check_("review/request/policy_moved_since_the_ledger", created(relaxed, **OUTPUTS), [asks_plain(2), asks_plain(3)], edits=[reviewed_once(), asked_since, said_strict])
+    check_("review/request/policy_moved_ledger_fault", created(relaxed, **OUTPUTS), [asks_plain(2)], {"TEST_CHANGE_CONTROL_LEDGER_FAULT": "x"}, edits=[reviewed_once(), asked_since, said_strict])
+    check_("review/request/policy_strict_in_memory", created(relaxed, **OUTPUTS), [asks_plain(2), asks_plain(2)], edits=[reviewed_once(), memory("org", "Mode: strict")])
+    check_("review/request/policy_moved_since_a_retired_row", created(relaxed, **OUTPUTS), [asks_plain(2)],
+           edits=[reviewed_once(), asked_since, lambda tree: tree.edit(CREATED_SHARD, lambda text: text + block("CHANGE_CONTROL_SET", T(8), "**Old Value**: off", "**New Value**: strict", "**Source**: you"))])
+    # A change is said once: the row the ledger already has is the same change only when it says the same stage,
+    # unit, checkpoint and pair of values, and is a row of an accepted change.
+    accepted = lambda event="CHANGE_ACCEPTED", **given: (lambda fields: lambda tree: tree.edit(CREATED_SHARD, lambda text: text + block(event, T(8), *[f"**{name}**: {value}" for name, value in fields.items() if value is not None])))(
+        {"Stage": "intent-capture", "Unit": None, "Checkpoint": "review-receipt", "Changed": "(paths unavailable)", "Recorded": "sha256:" + "a" * 64, "Current": CURRENT,
+         "Details": "Said before.", **given})
+    for label, edit in (("already_said", accepted()), ("said_of_another_stage", accepted(Stage="rough-mockups")), ("said_of_a_unit", accepted(Unit="api")),
+                        ("said_at_another_checkpoint", accepted(Checkpoint="summary-confirmation")), ("said_of_other_bytes_reviewed", accepted(Recorded="sha256:" + "b" * 64)),
+                        ("said_of_other_bytes_now", accepted(Current="sha256:" + "c" * 64)), ("said_with_other_paths", accepted(Changed="a.md")),
+                        ("said_by_another_row", accepted("DECISION_RECORDED"))):
+        check_(f"review/request/policy_change_{label}", created(relaxed, **OUTPUTS), [asks_plain(2)], edits=[reviewed_once(), asked_since, edit])
     # The one recovery pass of an attempt: asked for, waiting, and with no retry of the review it recovers.
     check_("review/request/recovery", created(reviewed, **OUTPUTS), [asks_plain(1), asks_plain(3), asks_plain(2), asks_plain(2), asks_plain(3)], edits=[reviewed_once()])
     check_("review/request/recovery_no_retry_of_the_stale_review", created(reviewed, **OUTPUTS), [asks_plain(1, "--retry-pending"), asks_plain(2, "--retry-pending")], edits=[reviewed_once()])
@@ -5490,7 +5510,6 @@ def log_checks():
            edits=[spent, lambda tree: tree.edit(CREATED_SHARD, lambda text: text + block("HUMAN_TURN", T(9), "**Session**: s1"))])
     # A review of the bytes the outputs have: nothing is stale. No pass is left, the one recovery stays used, and a
     # person who asks is not refused.
-    CURRENT = "sha256:ecf999829890d21d716a816b7d5988926939797038877a5c26afeaee7da1d192"
     standing = reviewed_once(((1, "READY", (), CURRENT),))
     check_("review/request/reviewed_no_pass_left", created(reviewed, **OUTPUTS), [asks_plain(2), asks_plain(1), asks_plain(2, "--retry-pending")], edits=[standing])
     check_("review/request/reviewed_person_asked", created(reviewed, **OUTPUTS), [asks_plain(2), asks_plain(3)],
