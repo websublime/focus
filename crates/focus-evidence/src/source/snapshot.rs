@@ -10,6 +10,21 @@
 //! did (`sourceBaselineAuditFields`, `writeBaselineSourceSnapshot`,
 //! `aidlc-lib.ts` L25 555).
 //!
+//! A second snapshot is kept under a workspace fingerprint: the listing
+//! behind the fingerprint a plan approval or a receipt binds to
+//! (`workspace-<hash>.tsv`, with a first row that names the whole
+//! fingerprint), so that a later drift is told to a person as paths
+//! (`writeWorkspaceSourceSnapshot`, `workspaceSourceChangedPaths`, L25 733).
+//!
+//! # Reading a snapshot back
+//!
+//! A snapshot is opened by its name and read, links followed, as upstream
+//! reads it, and nothing is decided by the name. A baseline is the bytes
+//! whose hash a row of the ledger carries, or it is not read: whatever the
+//! name leads to is checked against that hash, whole. A workspace snapshot
+//! is only ever told to a person as the paths that changed; the decision
+//! compares the two fingerprints and never reads these bytes.
+//!
 //! # Tests that another test covers
 //!
 //! Two questions of the writer change no answer when taken out, and are
@@ -24,7 +39,7 @@ use std::path::{Path, PathBuf};
 
 use focus_js::{EngineError, Result, bail, re};
 use focus_workspace::records::Selection;
-use focus_workspace::{Layout, atomic, files, links, observer};
+use focus_workspace::{Layout, atomic, links, observer};
 use sha2::{Digest, Sha256};
 
 use super::listing::{self, Listing};
@@ -132,7 +147,7 @@ fn read_path(
     selection: &Selection,
     stage_slug: &str,
     file_name: &str,
-) -> Option<(PathBuf, PathBuf)> {
+) -> Option<PathBuf> {
     if !re::test("^[a-z][a-z0-9-]*$", "", stage_slug) {
         return None;
     }
@@ -143,45 +158,43 @@ fn read_path(
         .join(stage_slug)
         .join(file_name);
     if path.exists() {
-        return Some((record, path));
+        return Some(path);
     }
     let legacy = record
         .join(LEGACY_SNAPSHOT_DIR)
         .join(stage_slug)
         .join(file_name);
-    Some(if legacy.exists() {
-        (record, legacy)
-    } else {
-        (record, path)
-    })
-}
-
-/// A snapshot's bytes, read as a file of the record that decides
-/// something: a regular file with one name, reached through no link.
-fn read_bytes(record: &Path, path: &Path) -> Option<Vec<u8>> {
-    let anchor = std::fs::canonicalize(record).ok()?;
-    links::refuse_link_in_chain(&anchor, path.strip_prefix(record).ok()?).ok()?;
-    files::read_regular(path, "source snapshot").ok()
+    Some(if legacy.exists() { legacy } else { path })
 }
 
 /// `readBaselineSourceSnapshot`: the listing a stage started from, read
 /// back only when its bytes are the ones the row's fingerprint names. A
 /// checkout with CRLF line ends holds the same listing.
-#[must_use]
+///
+/// # Errors
+///
+/// The verified bytes list a path no key can be made of, in upstream's
+/// words (as [`listing::parse`]).
 pub fn read_baseline(
     layout: &Layout,
     selection: &Selection,
     stage_slug: &str,
     fingerprint: &str,
-) -> Option<Listing> {
-    let hash = fingerprint_hash(fingerprint)?;
-    let (record, path) = read_path(
+) -> Result<Option<Listing>> {
+    let Some(hash) = fingerprint_hash(fingerprint) else {
+        return Ok(None);
+    };
+    let Some(path) = read_path(
         layout,
         selection,
         stage_slug,
         &format!("baseline-{}.tsv", &hash[..12]),
-    )?;
-    let bytes = read_bytes(&record, &path)?;
+    ) else {
+        return Ok(None);
+    };
+    let Ok(bytes) = std::fs::read(&path) else {
+        return Ok(None);
+    };
     let text = raw::committed_text_bytes(&bytes);
     let digest = |bytes: &[u8]| -> String {
         Sha256::digest(bytes)
@@ -190,11 +203,9 @@ pub fn read_baseline(
             .collect()
     };
     if digest(&text) != hash && digest(&bytes) != hash {
-        return None;
+        return Ok(None);
     }
-    listing::parse(&String::from_utf8_lossy(&text))
-        .ok()
-        .flatten()
+    listing::parse(&String::from_utf8_lossy(&text)).map_err(EngineError::new)
 }
 
 /// The name of the snapshot kept for a workspace fingerprint
@@ -208,71 +219,93 @@ fn workspace_snapshot_name(fingerprint: &str) -> Option<String> {
 /// fingerprint, kept so that a later change can be told as paths. Nothing
 /// when it is already there. `false` when it could not be kept: the
 /// listing is for what a person is told, and no decision reads it.
-#[must_use]
+///
+/// Upstream resolves the record here with no piece of work named, whatever
+/// record its caller acts on; the caller hands the selection that does.
+///
+/// # Errors
+///
+/// The listing holds a key or an entry that cannot be written, in
+/// upstream's words (as [`listing::serialize`]): no walk gives one.
 pub fn write_workspace_snapshot(
     layout: &Layout,
     selection: &Selection,
     stage_slug: &str,
     state: &WorkspaceSource,
-) -> bool {
+) -> Result<bool> {
     let (Some(record), Some(name)) = (
         selection
             .record_dir(layout)
             .filter(|_| re::test("^[a-z][a-z0-9-]*$", "", stage_slug)),
         workspace_snapshot_name(&state.fingerprint),
     ) else {
-        return false;
+        return Ok(false);
     };
-    let Ok(listed) = listing::serialize(&state.listing) else {
-        return false;
-    };
+    let listed = listing::serialize(&state.listing).map_err(EngineError::new)?;
     let serialized = format!("{WORKSPACE_HEADER}\t{}\t-\n{listed}", state.fingerprint);
     let path = selection
         .engine_dir(layout)
         .join(SNAPSHOT_DIR)
         .join(stage_slug)
         .join(name);
-    write_snapshot(&record, &path, &serialized).is_ok()
+    Ok(write_snapshot(&record, &path, &serialized).is_ok())
 }
 
 /// `readWorkspaceSourceSnapshot`: the listing kept for a workspace
 /// fingerprint; `None` when none was, or the file is not that snapshot.
-#[must_use]
+///
+/// # Errors
+///
+/// The file lists a path no key can be made of, in upstream's words (as
+/// [`listing::parse`]).
 pub fn read_workspace_snapshot(
     layout: &Layout,
     selection: &Selection,
     stage_slug: &str,
     fingerprint: &str,
-) -> Option<Listing> {
-    let name = workspace_snapshot_name(fingerprint)?;
-    let (record, path) = read_path(layout, selection, stage_slug, &name)?;
-    let bytes = read_bytes(&record, &path)?;
+) -> Result<Option<Listing>> {
+    let path = workspace_snapshot_name(fingerprint)
+        .and_then(|name| read_path(layout, selection, stage_slug, &name));
+    let Some(bytes) = path.and_then(|path| std::fs::read(path).ok()) else {
+        return Ok(None);
+    };
     let serialized = String::from_utf8_lossy(&bytes);
-    let (header, listed) = serialized.split_once('\n')?;
+    let Some((header, listed)) = serialized.split_once('\n') else {
+        return Ok(None);
+    };
     if header != format!("{WORKSPACE_HEADER}\t{fingerprint}\t-") {
-        return None;
+        return Ok(None);
     }
-    listing::parse(listed).ok().flatten()
+    listing::parse(listed).map_err(EngineError::new)
 }
 
 /// `workspaceSourceChangedPaths`: the paths that changed between a
 /// recorded workspace fingerprint and the source as it is, when the
 /// recorded listing was kept; `None` when only the two fingerprints can be
 /// compared.
-#[must_use]
+///
+/// # Errors
+///
+/// As [`read_workspace_snapshot`].
 pub fn workspace_changed_paths(
     layout: &Layout,
     selection: &Selection,
     stage_slug: &str,
     recorded_fingerprint: &str,
     current: Option<&WorkspaceSource>,
-) -> Option<Vec<String>> {
-    let current = current?;
-    let recorded = read_workspace_snapshot(layout, selection, stage_slug, recorded_fingerprint)?;
-    Some(listing::changed_paths(
+) -> Result<Option<Vec<String>>> {
+    let Some(current) = current else {
+        return Ok(None);
+    };
+    let Some(recorded) =
+        read_workspace_snapshot(layout, selection, stage_slug, recorded_fingerprint)?
+    else {
+        return Ok(None);
+    };
+    Ok(Some(listing::changed_paths(
         &listing::recorded_under_current_boundary(&recorded, &current.listing),
         &current.listing,
-    ))
+    )))
 }
 
 /// `sourceBaselineAuditFields`: the value of `Source Baseline` for a row
