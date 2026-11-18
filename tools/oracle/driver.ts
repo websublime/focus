@@ -56,7 +56,7 @@ const planGuardPrivate = await import(planGuardShim);
 const libShim = tool("aidlc-lib.focus-oracle.ts");
 // (`rawFingerprintForm` and `lastWorkspaceSourceFailure` are asked of the copy too: what a walk remembers is the
 // module's own.)
-writeFileSync(libShim, `${readFileSync(tool("aidlc-lib.ts"), "utf-8")}\nexport { walkWorkspaceSource };\n`);
+writeFileSync(libShim, `${readFileSync(tool("aidlc-lib.ts"), "utf-8")}\nexport { walkWorkspaceSource, gateStagesFromBlock };\n`);
 process.on("exit", () => rmSync(libShim, { force: true }));
 const libPrivate = await import(libShim);
 // A project of a case's own, under a scratch root: `files`, `hex` (bytes), `dirs`, `links` and `hard` under the
@@ -895,6 +895,124 @@ async function answer(c: Record<string, any>): Promise<unknown> {
           unasked: tried(() => lib.workspaceSourceChangedPaths(root, c.slug, state.fingerprint, null)),
         };
       } finally {
+        rmSync(root, { recursive: true, force: true });
+      }
+    }
+    case "review_rows":
+      // What a review's row and a gate's say, read alone: the verdict that ends a review, the stages a gate is
+      // about, and a unit's name as a person says it.
+      return {
+        terminal: (c.verdicts as Array<[string | null, string | null, string, number | null]>).map(([verdict, iteration, reviewClass, most]) =>
+          most === null ? lib.terminalReviewVerdict(verdict, iteration, reviewClass) : lib.terminalReviewVerdict(verdict, iteration, reviewClass, most)),
+        gates: (c.blocks as string[]).map((block) => libPrivate.gateStagesFromBlock(block)),
+        names: (c.units as string[]).map((unit) => lib.unitPlainName(unit)),
+      };
+    case "review_receipts": {
+      // The reviews of a stage that still stand, in a project of the case's own. The ledger and the review records
+      // name what each engine computes for itself: `{ART}` and `{ART:<unit>}` (the artifacts' fingerprint as laid
+      // out), `{SRC}` (the source's) and `{DIGEST:<record>}` (a review record's, once written). What the case
+      // changes `after` is done once those are taken.
+      const root = layProject(c);
+      const space = join(root, "aidlc", "spaces", "default");
+      const record = join(space, "intents", "rec-1a2b3c4d");
+      const data = resolve(upstream, "dist", "claude", ".claude", "tools", "data");
+      const compiled = JSON.parse(readFileSync(join(data, "stage-graph.json"), "utf-8"));
+      const compiledStage = (Array.isArray(compiled) ? compiled : compiled.stages).find((node: { slug: string }) => node.slug === c.slug);
+      if (compiledStage === undefined) throw new Error(`${c.id}: no stage ${c.slug}`);
+      const stage = Object.fromEntries(Object.entries({ ...compiledStage, ...(c.patch ?? {}) }).filter(([, value]) => value !== null));
+      const names = ["AIDLC_STAGE_GRAPH", "AIDLC_SCOPE_GRID", ...Object.keys(c.env ?? {})];
+      const before = names.map((name) => process.env[name]);
+      process.env.AIDLC_STAGE_GRAPH = join(data, "stage-graph.json");
+      process.env.AIDLC_SCOPE_GRID = join(data, "scope-grid.json");
+      for (const [name, value] of Object.entries((c.env ?? {}) as Record<string, string>)) process.env[name] = value;
+      try {
+        const none = `sha256:${"0".repeat(64)}`;
+        const filled: Array<[string, string]> = [];
+        for (const unit of c.units as string[]) {
+          filled.push([`{ART:${unit}}`, lib.reviewArtifactFingerprint(root, stage, unit, { stateContent: c.state }) ?? none]);
+        }
+        const whole = lib.reviewArtifactFingerprint(root, stage, undefined, { stateContent: c.state }) ?? none;
+        // (The same fingerprint as it was taken over the raw line ends, when the two differ; and the source's as the
+        // earlier walk gave it, when that walk can be told. Both are asked of the module that took them: what a
+        // reading remembers is the module's own.)
+        filled.push(["{ARTRAW}", lib.rawFingerprintForm(whole) ?? none]);
+        filled.push(["{ART}", whole]);
+        const source = lib.workspaceSourceState(root)?.fingerprint ?? "unbindable";
+        filled.push(["{SRCOLD}", (source === "unbindable" ? null : lib._legacyWorkspaceSourceFingerprintForTests(source)) ?? "unbindable"]);
+        filled.push(["{SRC}", source]);
+        // The listing behind the source's fingerprint, kept as a review request keeps it.
+        const taken = lib.workspaceSourceState(root);
+        if (c.keep === true && taken !== null) lib.writeWorkspaceSourceSnapshot(root, c.slug, taken);
+        const fill = (text: string) => filled.reduce((out, [name, value]) => out.split(name).join(value), text);
+        for (const [rel, text] of Object.entries(c.records as Record<string, string>)) {
+          mkdirSync(dirname(join(record, rel)), { recursive: true });
+          writeFileSync(join(record, rel), fill(text));
+          filled.push([`{DIGEST:${rel}}`, `sha256:${createHash("sha256").update(fill(text)).digest("hex")}`]);
+        }
+        mkdirSync(join(record, "audit"), { recursive: true });
+        for (const [name, text] of Object.entries(c.shards as Record<string, string>)) writeFileSync(join(record, "audit", name), fill(text));
+        for (const [rel, text] of Object.entries((c.after?.files ?? {}) as Record<string, string | null>)) {
+          // (Whatever was at the name goes first: a file can take a folder's place.)
+          rmSync(join(space, rel), { recursive: true, force: true });
+          if (text !== null) {
+            mkdirSync(dirname(join(space, rel)), { recursive: true });
+            writeFileSync(join(space, rel), text);
+          }
+        }
+        for (const [rel, text] of Object.entries((c.after?.source ?? {}) as Record<string, string | null>)) {
+          if (text === null) rmSync(join(root, rel), { recursive: true, force: true });
+          else {
+            mkdirSync(dirname(join(root, rel)), { recursive: true });
+            writeFileSync(join(root, rel), text);
+          }
+        }
+        // (A name of the space made a link to another, once everything is written.)
+        for (const [rel, target] of Object.entries((c.after?.links ?? {}) as Record<string, string>)) {
+          rmSync(join(space, rel), { recursive: true, force: true });
+          symlinkSync(join(space, target), join(space, rel));
+        }
+        // (And the source as it is once the case changed it: `{NOW}`.)
+        const now = lib.workspaceSourceState(root);
+        filled.push(["{NOW}", now?.fingerprint ?? "unbindable"]);
+        // (A snapshot kept under the earlier fingerprint that lists what is there now: a moved fingerprint with no
+        // path to name.)
+        if (c.keep === "now" && taken !== null && now !== null) lib.writeWorkspaceSourceSnapshot(root, c.slug, { fingerprint: taken.fingerprint, listing: now.listing });
+        // An answer names what each engine computed as the case does.
+        const named = (value: string | null) =>
+          value === null ? null : filled.reduce((out, [name, computed]) => (computed === none || computed === "unbindable" ? out : out.split(computed).join(name)), value);
+        const got = lib.freshReviewReceipts(root, c.state, stage, c.class === null ? {} : { reviewClass: c.class });
+        const progress = (at: { nextIteration: number; recoverySpent: boolean } | null) => (at === null ? null : [at.nextIteration, at.recoverySpent]);
+        const pending = (at: any) => (at === null ? null : [at.state, at.iteration, at.recovery, at.didNotFinish === true, at.verificationFailed === true]);
+        return {
+          stage: [got.stageVerdict, got.stageStale, got.stageIteration, progress(got.stageStaleProgress), pending(got.stagePending)],
+          units: {
+            verdicts: [...got.unitVerdicts],
+            stale: [...got.unitStale],
+            progress: [...got.unitStaleProgress].map(([unit, at]) => [unit, progress(at)]),
+            iterations: [...got.unitIterations],
+            pending: [...got.unitPending].map(([unit, at]) => [unit, pending(at)]),
+            kept: [...got.unitSourceKept],
+            reopened: [...got.unitRecheckReopened],
+          },
+          source: [named(got.newestSourceFingerprint), got.newestSourceUnit, got.sourceStale, got.sourceStaleReason, progress(got.sourceStaleProgress), got.sourceRecoverySpent],
+          baseline: got.sourceBaseline.state === "ready" ? ["ready", [...got.sourceBaseline.listing]] : got.sourceBaseline.state,
+          listing: got.currentSourceListing === null ? null : got.currentSourceListing.size,
+          awaiting: [...got.awaitingVerdict],
+          unfinished: [...got.unfinishedVerdicts],
+          bolts: [[...got.mergedBoltUnits], [...got.openBoltUnits]],
+          accepted: got.acceptedChanges.map((change: any) =>
+            [change.checkpoint, change.stage, change.unit, change.changed, named(change.recorded), named(change.current), change.notice]),
+          read: got.changeControlRead,
+          // What only the reading of a unit's own source fills.
+          unit_source: [got.freshUnitClaims.size, got.unitSourceAttributed.size, got.unitSourceMoved.size],
+        };
+      } catch (err) {
+        return { error: (err as Error).message.split(root).join("{P}") };
+      } finally {
+        for (const [index, name] of names.entries()) {
+          if (before[index] === undefined) delete process.env[name];
+          else process.env[name] = before[index];
+        }
         rmSync(root, { recursive: true, force: true });
       }
     }

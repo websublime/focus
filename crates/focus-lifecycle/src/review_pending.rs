@@ -64,7 +64,7 @@ pub struct Currency {
 ///
 /// The record's repositories cannot be read, or the source is behind
 /// something Focus does not read yet.
-fn current_source(wf: &Workflow) -> Result<Option<WorkspaceSource>> {
+pub(crate) fn current_source(wf: &Workflow) -> Result<Option<WorkspaceSource>> {
     let repos = crate::registry::source_repos(
         &wf.layout,
         &wf.selection.space,
