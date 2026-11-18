@@ -9,6 +9,13 @@
 //! The review is read through `focus-markdown`: the lines that count are
 //! the ones [`focus_markdown::rendered`] gives, and the headings the ones
 //! the analysis places.
+//!
+//! # Tests that change no answer
+//!
+//! - The tilde that makes a review one Focus does not judge (see
+//!   [`STRUCK_TEXT_NOT_READ`]) is looked for in the section, not in the
+//!   whole text: the opening heading, which is all the difference, holds
+//!   none.
 
 use focus_js::{num, re, text as js_text};
 use focus_markdown::rendered::{self, MARK_CLOSE, MARK_OPEN, NON_AUTHORITY};
@@ -212,30 +219,24 @@ pub fn demote_review_headings(body: &[u8]) -> Option<Demoted> {
         .iter()
         .position(|line| !js_text::trim(line).is_empty());
     let mut changed = Vec::new();
-    for index in 0..source.len() {
-        let placed = &blocks.lines[index];
+    for (index, (line, placed)) in source.iter_mut().zip(&blocks.lines).enumerate() {
         if placed.kind != LineKind::Heading || !placed.containers.is_empty() {
             continue;
         }
-        if Some(index) == opening && re::test(r"^## Review[ \t]*$", "", &source[index]) {
+        if Some(index) == opening && re::test(r"^## Review[ \t]*$", "", line) {
             continue;
         }
-        let demoted = re::replace(r"^( {0,3})#{1,2}(?=[ \t]|$)", "", &source[index], "$1###");
-        if demoted == source[index] {
+        let demoted = re::replace(r"^( {0,3})#{1,2}(?=[ \t]|$)", "", line, "$1###");
+        if demoted == *line {
             continue;
         }
-        let said = re::replace(
-            r"[\u0000-\u001f\u007f]",
-            "g",
-            js_text::trim(&source[index]),
-            "?",
-        );
+        let said = re::replace(r"[\u0000-\u001f\u007f]", "g", js_text::trim(line), "?");
         changed.push(format!(
             "line {}: {}",
             index + 1,
             js_text::slice_utf16(&said, 0, 120)
         ));
-        source[index] = demoted;
+        *line = demoted;
     }
     if changed.is_empty() {
         return None;
