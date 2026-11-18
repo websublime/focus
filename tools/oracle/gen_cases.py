@@ -7775,6 +7775,8 @@ for walk in (CHECKPOINTS, ""):
                 walk=walk, per_unit=True)
         fr_case(FD, lambda story: (story.review(1, None, unit="api", shard=0, at=5), story.row("GATE_REJECTED", shard=1, at=5, Unit="api", Stage=stage)), walk=walk, per_unit=True)
         fr_case(FD, lambda story: (story.review(1, None, unit="api", shard=0, at=5), story.row("GATE_REJECTED", shard=1, at=5, Unit="web", Stage=stage)), walk=walk, per_unit=True)
+        fr_case(FD, lambda story: (story.review(1, "READY", unit="api", era="bare", shard=0, at=4, answer=(0, 5)), story.row("GATE_REJECTED", shard=1, at=5, Unit="web", Stage=stage)),
+                walk=walk, per_unit=True)
 # A source fingerprint on a verdict at an instant another shard shares is no boundary of freshness.
 for shard in (0, 1):
     fr_case(CG, lambda story: (story.review(1, "READY", era="bare", source="a" * 64, shard=0, at=3, answer=(0, 4)), story.row("SESSION_STARTED", shard=shard, at=4)), workspace=True)
@@ -7811,7 +7813,11 @@ for policy in (STRICT, RELAXED):
 
     fr_case(RQ, twice, policy=policy)
     # A review that stands, taken again and sent back below the last pass.
-    fr_case(RQ, lambda story: (story.review(1, "READY", era="bare", shard=0, at=3, answer=(0, 4)), story.review(1, "NOT-READY", era="bare", shard=0, at=5, answer=(0, 6))), policy=policy)
+    for patch in (None, {"review_class": "adversarial", "reviewer_max_iterations": 3}):
+        fr_case(RQ, lambda story: (story.review(1, "READY", era="bare", shard=0, at=3, answer=(0, 4)), story.review(1, "NOT-READY", era="bare", shard=0, at=5, answer=(0, 6))),
+                policy=policy, patch=patch)
+        fr_case(RQ, lambda story: (story.review(1, "READY", era="bare", shard=0, at=3, answer=(0, 4)),
+                                   story.review(2, "NOT-READY", era="bare", said=FR_OTHER, shard=0, at=5, answer=(0, 6))), policy=policy, patch=patch)
     # A verdict whose completion does not echo its request.
     fr_case(RQ, lambda story: story.review(1, "READY", era="record", echo={"Request_Id": "review:" + "0" * 32}, shard=0, at=3, answer=(0, 4)), policy=policy)
     fr_case(RQ, lambda story: story.review(1, "READY", era="bare", echo={"Artifact_Fingerprint": FR_OTHER}, shard=0, at=3, answer=(0, 4)), policy=policy)
@@ -7822,7 +7828,7 @@ for policy in (STRICT, RELAXED):
             story.files["elsewhere/kept.md"] = "Kept elsewhere.\n"
             story.after["links"] = {story.path("requirements"): "elsewhere/kept.md"}
 
-        fr_case(RQ, unreadable_artifacts, policy=policy, posix=True, patch={"reviewer_max_iterations": 3})
+        fr_case(RQ, unreadable_artifacts, policy=policy, posix=True, patch={"review_class": "adversarial", "reviewer_max_iterations": 3})
     # A request that waits while an output the stage owes goes missing: with the check of owed outputs on, and off.
     for env in (None, {"AIDLC_SKIP_ARTIFACT_GUARD": "1"}):
         def missing_output(story):
