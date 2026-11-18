@@ -6,7 +6,10 @@
 // `focus dev oracle` prints for the same case (the `oracle` module of the crate
 // that owns the kind). The two outputs are compared as text, so key order is
 // part of the answer.
-import { chmodSync, linkSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, utimesSync, writeFileSync } from "node:fs";
+import {
+  chmodSync, existsSync, linkSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, renameSync, rmSync, statSync, symlinkSync,
+  utimesSync, writeFileSync,
+} from "node:fs";
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve, sep } from "node:path";
@@ -767,6 +770,134 @@ async function answer(c: Record<string, any>): Promise<unknown> {
     case "summary_input":
       // A stage's questions as a review's input: text, or bytes that are none.
       return lib.summaryInputReviewFingerprint(c.hex !== undefined ? Buffer.from(c.hex, "hex") : Buffer.from(c.text, "utf-8"));
+    case "source_changed": {
+      // A recorded listing as today's walk would take it, what changed between it and the current one, and paths
+      // as a person is told them.
+      const recorded = new Map<string, string>(c.recorded);
+      const current = new Map<string, string>(c.current);
+      const kept = lib.recordedSourceListingUnderCurrentBoundary(recorded, current);
+      const changed = lib.sourceListingChangedPaths(kept, current);
+      return {
+        kept: [...kept],
+        changed,
+        told: lib.renderChangedPaths(changed),
+        paths: lib.renderChangedPaths(c.paths),
+        inert: (c.paths as string[]).map((path) => lib.inertPath(path)),
+      };
+    }
+    case "source_snapshot": {
+      // The two snapshots of a stage in a project of the case's own: written, altered as the case says, written
+      // again, and read back under the fingerprints a row could name.
+      const root = layProject(c);
+      const record = join(root, "aidlc", "spaces", "default", "intents", "rec-1a2b3c4d");
+      const dirs = [join(record, ".aidlc-engine", "source-review"), join(record, ".aidlc-source-review")];
+      // What a runtime says of a file is the host's; the engine's own sentences are kept.
+      const said = (err: unknown) => {
+        const text = (err as Error).message.split(root).join("{P}");
+        return { error: /^(?:Source snapshot|Source path keys|Cannot write|Invalid canonical|Invalid source-listing|\{P\}.* is a symlink)/.test(text) ? text : "<host>" };
+      };
+      const tried = (ask: () => unknown) => {
+        try {
+          return ask();
+        } catch (err) {
+          return said(err);
+        }
+      };
+      const kept = (): Record<string, string> => {
+        const found: Record<string, string> = {};
+        const walk = (dir: string) => {
+          let names: string[];
+          try {
+            names = readdirSync(dir).sort();
+          } catch {
+            return;
+          }
+          // (A folder with nothing in it is said: one made and left is something a write did.)
+          if (names.length === 0) found[relative(record, dir)] = "empty";
+          for (const name of names) {
+            const path = join(dir, name);
+            const stat = lstatSync(path);
+            if (stat.isSymbolicLink()) found[relative(record, path)] = "link";
+            else if (stat.isDirectory()) walk(path);
+            else found[relative(record, path)] = createHash("sha256").update(readFileSync(path)).digest("hex");
+          }
+        };
+        for (const dir of dirs) walk(dir);
+        return found;
+      };
+      try {
+        const state = { fingerprint: c.recorded.fingerprint as string, listing: new Map<string, string>(c.recorded.listing) };
+        const baseline = new Map<string, string>(c.baseline ?? c.recorded.listing);
+        const write = () => [
+          tried(() => lib.writeBaselineSourceSnapshot(root, c.slug, baseline)),
+          tried(() => lib.writeWorkspaceSourceSnapshot(root, c.slug, state)),
+        ];
+        const first = write();
+        const files = kept();
+        const hash = typeof first[0] === "string" ? (first[0] as string).slice("sha256:".length) : "0".repeat(64);
+        const place = (which: string, legacy = false) =>
+          join(legacy ? dirs[1] : dirs[0], c.slug, which === "baseline" ? `baseline-${hash.slice(0, 12)}.tsv` : `workspace-${state.fingerprint.slice(0, 12)}.tsv`);
+        for (const [which, op, arg] of c.tamper as Array<[string, string, string | null]>) {
+          const path = place(which);
+          const text = (arg ?? "").split("{FP}").join(state.fingerprint);
+          if (op === "legacy-write") {
+            mkdirSync(dirname(place(which, true)), { recursive: true });
+            writeFileSync(place(which, true), text);
+            continue;
+          }
+          if (op === "rootlink") {
+            // The folder of every stage's snapshots behind a link, with this stage's folder not there.
+            if (!existsSync(dirs[0]) || lstatSync(dirs[0]).isSymbolicLink()) continue;
+            renameSync(dirs[0], join(record, "moved-root"));
+            rmSync(join(record, "moved-root", c.slug), { recursive: true, force: true });
+            symlinkSync(join(record, "moved-root"), dirs[0]);
+            continue;
+          }
+          // (A name made a folder is left one.)
+          if (!existsSync(path) || statSync(path).isDirectory()) continue;
+          // (A name that was already made a link, or put behind one, is left as it is.)
+          if ((op === "link" || op === "dirlink") && (lstatSync(path).isSymbolicLink() || lstatSync(dirname(path)).isSymbolicLink())) continue;
+          if (op === "crlf") writeFileSync(path, readFileSync(path, "utf-8").split("\n").join("\r\n"));
+          else if (op === "append") writeFileSync(path, readFileSync(path, "utf-8") + text);
+          else if (op === "write") writeFileSync(path, text);
+          else if (op === "hex") writeFileSync(path, Buffer.from(text, "hex"));
+          else if (op === "bom") writeFileSync(path, Buffer.concat([Buffer.from("efbbbf", "hex"), readFileSync(path)]));
+          else if (op === "remove") rmSync(path);
+          else if (op === "legacy") {
+            mkdirSync(dirname(place(which, true)), { recursive: true });
+            renameSync(path, place(which, true));
+          } else if (op === "dir") {
+            rmSync(path);
+            mkdirSync(path);
+          } else if (op === "link") {
+            renameSync(path, join(record, `moved-${which}.tsv`));
+            symlinkSync(join(record, `moved-${which}.tsv`), path);
+          } else if (op === "dirlink") {
+            renameSync(dirname(path), join(record, "moved"));
+            symlinkSync(join(record, "moved"), dirname(path));
+          } else throw new Error(`${c.id}: no such alteration ${op}`);
+        }
+        const again = write();
+        const pairs = (listing: Map<string, string> | null) => (listing === null ? null : [...listing]);
+        const asked = [`sha256:${hash}`, hash, `sha256:${hash.toUpperCase()}`, `sha256:${hash.slice(0, 12)}${"0".repeat(52)}`, ...(c.asks as string[])];
+        const fingerprints = [state.fingerprint, `${state.fingerprint.slice(0, 12)}${"0".repeat(52)}`, `sha256:${state.fingerprint}`, ...(c.asks as string[])];
+        const current = c.current === null ? null : { fingerprint: "f".repeat(64), listing: new Map<string, string>(c.current) };
+        const changed = tried(() => lib.workspaceSourceChangedPaths(root, c.slug, state.fingerprint, current));
+        return {
+          first,
+          files,
+          second: again,
+          after: kept(),
+          baseline: asked.map((fingerprint) => tried(() => pairs(lib.readBaselineSourceSnapshot(root, c.slug, fingerprint)))),
+          workspace: fingerprints.map((fingerprint) => tried(() => pairs(lib.readWorkspaceSourceSnapshot(root, c.slug, fingerprint)))),
+          changed,
+          told: Array.isArray(changed) ? lib.renderChangedPaths(changed) : null,
+          unasked: tried(() => lib.workspaceSourceChangedPaths(root, c.slug, state.fingerprint, null)),
+        };
+      } finally {
+        rmSync(root, { recursive: true, force: true });
+      }
+    }
     case "review_snapshot": {
       // What a review is of, in a project of the case's own: the fingerprint
       // of the stage's declared artifacts, the snapshot with its appendix

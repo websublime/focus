@@ -58,6 +58,8 @@ fn every_lifecycle_case_gets_upstreams_answer() {
     let (mut retried, mut unrecordable) = (0, 0);
     let (mut evidence, mut in_order, mut not_owed) = (0, 0, 0);
     let (mut let_through, mut missing, mut stale) = (0, 0, 0);
+    let (mut kept, mut written, mut read_back, mut unverified) = (0, 0, 0, 0);
+    let (mut collided, mut behind_a_link, mut told_paths, mut earlier_place) = (0, 0, 0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         let case: Value = focus_js::json::parse(line).unwrap();
@@ -75,7 +77,25 @@ fn every_lifecycle_case_gets_upstreams_answer() {
         }
         let out = run_case(&wf, &case);
         let some = |key: &str| out[key].as_array().is_some_and(|list| !list.is_empty());
-        if kind == "summary_evidence" {
+        if kind == "source_snapshot" {
+            // The two snapshots of a stage: written, read back under the
+            // row's fingerprint, refused when the bytes are not the ones it
+            // names, never written over or through a link, and told as
+            // paths.
+            kept += 1;
+            written += usize::from(out["first"][0].is_string() && out["first"][1] == true);
+            read_back += usize::from(out["baseline"][0].is_array());
+            unverified += usize::from(out["first"][0].is_string() && out["baseline"][0].is_null());
+            let refusal = out["second"][0]["error"].as_str().unwrap_or_default();
+            collided += usize::from(refusal.starts_with("Source snapshot address collision"));
+            behind_a_link += usize::from(refusal.ends_with("already-trusted one."));
+            told_paths += usize::from(out["told"].as_str().is_some_and(|told| !told.is_empty()));
+            earlier_place += usize::from(out["after"].as_object().is_some_and(|files| {
+                files
+                    .keys()
+                    .any(|name| name.starts_with(".focus-source-review/"))
+            }));
+        } else if kind == "summary_evidence" {
             evidence += 1;
             assert!(out.get("error").is_none(), "{}: {out}", case["id"]);
             in_order += usize::from(out["ok"] == true && out["required"] == true);
@@ -206,6 +226,20 @@ fn every_lifecycle_case_gets_upstreams_answer() {
         "{evidence} {in_order} {not_owed} {let_through}"
     );
     assert!(missing >= 380 && stale >= 600, "{missing} {stale}");
+    assert!(
+        kept >= if cfg!(windows) { 450 } else { 550 }
+            && written >= 400
+            && read_back >= 300
+            && unverified >= 100,
+        "{kept} {written} {read_back} {unverified}"
+    );
+    assert!(
+        collided >= 100
+            && (cfg!(windows) || behind_a_link >= 30)
+            && told_paths >= 250
+            && earlier_place >= 100,
+        "{collided} {behind_a_link} {told_paths} {earlier_place}"
+    );
     assert!(
         differing.is_empty(),
         "{} lifecycle cases differ from upstream; first:\n{}",

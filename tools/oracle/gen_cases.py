@@ -7085,5 +7085,238 @@ for state in (SE_STATE, SE_RELAXED):
         se_add(SE_SLUG, SE_START + [se_receipt(0, 3, SE_SLUG, auth=SE_ID), se_write(0, 4, SE_SLUG, "requirements", stamps[0]),
                                     se_write(1, 4, SE_SLUG, "requirements", stamps[1])], se_questions(), state=state)
 
+# --- The source snapshots, read back (focus-evidence, focus-lifecycle) -------
+#
+# A recorded listing under the boundary of today's walk: what the walk has left out by name since, and what lies
+# under an output directory beside a .NET project file. And paths as a person is told them.
+
+sc = random.Random(seed * 7919 + 29)
+SC_LEFT_OUT = [".DS_Store", "Thumbs.db", "desktop.ini", ".coverage", ".coverage.unit", "a.swp", "a.swo", "a.swm", "a.swn", "main.c~", "~"]
+SC_NEAR = [".DS_Stores", "thumbs.db", "coverage", ".coverage_", "a.swq", "a.swl", "a.sw", "a.swpx", "~a", ".coveragex", "Desktop.ini", "__pycache__",
+           "m.pyc", "x.dll", "a.ts", "README.md"]
+SC_DIRS = ["", "", "src/", "src/app/", "lib/__pycache__/", "__pycache__/", "__pycache__x/", "x__pycache__/", "lib/__pycache__/deep/", "bin/", "obj/Debug/",
+           "out/", "src/App/bin/", "src/App/obj/x/", "Bin/", "bins/", "src/bin/", "src/App/src/out/"]
+SC_PROJECTS = ["App.csproj", "App.fsproj", "App.vbproj", "APP.CSPROJ", "App.csproj.user", "csproj", "App.proj", ".csproj", "App.csprojx", "a.VbProj"]
+SC_PROJECT_DIRS = ["", "", "src/", "src/App/", "src/App/src/", "bin/"]
+SC_REPOS = ["", "", "", "api", "web-app"]
+# (With the engine's settings among them, the other names sort before or after both engines' names for it, and so
+# does the one repository.)
+SC_SETTINGS = ["aidlc.settings.json", "aidlc.settings.local.json", "aidlc.settings.yaml", "aidlc.settings.json.bak", "sub/aidlc.settings.json",
+               "aidlc.settings.local.json/x"]
+SC_AFTER = ["src/x.ts", "lib/__pycache__/m.pyc", "src/.DS_Store", "main.c~", "obj/x.o", "src/App.csproj", "zeta", "src/obj/y", "out/z", "App.vbproj"]
+SC_MARKS = ["\x00", "\x01", "\t", "\n", "\r", "\x1f", "\x7f", "\x80", "\x9f", "‎", "‏", " ", " ", "‪", "‮", "⁦", "⁩",
+            " ", "~", "\xa0", "‍", "‐", "‧", " ", "⁥", "⁪", "퟿", "", "😀", "é", "\\", "\\u000a", ", "]
+
+
+def sc_oid():
+    return "".join(sc.choice(SL_HEX) for _ in range(sc.choice([40, 40, 64])))
+
+
+def sc_entry(named=0.7):
+    roll = sc.random()
+    if roll < named:
+        return sc.choice(["100644", "100755"]) + " " + sc_oid()
+    return sc.choice(["120000", "160000", "000000", "100664"]) + " " + sc_oid() if roll < named + 0.15 else sc_oid()
+
+
+def sc_key(names, dirs=SC_DIRS, bare=0.1, repos=SC_REPOS):
+    path = sc.choice(dirs) + sc.choice(names)
+    return path if sc.random() < bare else sc.choice(repos) + "\x00" + path
+
+
+def sc_paths():
+    count = sc.choice([0, 1, 2, 3, 9, 10, 11, 12, 14])
+    return ["".join(sc.choice(["src/", "a", "b", "é"] + SC_MARKS) for _ in range(sc.randint(0, 5))) for _ in range(count)]
+
+
+def sc_add(recorded, current, paths=None):
+    seen = {}
+    for key, entry in recorded:
+        seen.setdefault(key, entry)
+    add("source_changed", recorded=[[key, entry] for key, entry in seen.items()], current=current, paths=sc_paths() if paths is None else paths)
+
+
+def sc_current(recorded, keep=0.3, extra=()):
+    current = []
+    for key, entry in recorded:
+        roll = sc.random()
+        if roll < keep:
+            current.append([key, entry])
+        elif roll < keep + 0.15:
+            current.append([key, sc_entry()])
+    for key in extra:
+        if all(key != had for had, _ in current):
+            current.append([key, sc_entry()])
+    sc.shuffle(current)
+    return current
+
+
+add("source_changed", recorded=[], current=[], paths=[])
+for _ in range(60 * scale):
+    recorded = [[sc_key(SC_LEFT_OUT + SC_NEAR), sc_entry()] for _ in range(sc.randint(1, 8))]
+    projects = [sc.choice(SC_REPOS) + "\x00" + sc.choice(SC_PROJECT_DIRS) + sc.choice(SC_PROJECTS) for _ in range(sc.randint(0, 3))]
+    if sc.random() < 0.3:
+        # A project file the recorded listing had and today's does not is none.
+        recorded.append([sc.choice(SC_REPOS) + "\x00" + sc.choice(SC_PROJECT_DIRS) + sc.choice(SC_PROJECTS), sc_entry()])
+    sc_add(recorded, sc_current(recorded, extra=projects))
+for _ in range(25 * scale):
+    recorded = [[sc_key(SC_SETTINGS + SC_AFTER, dirs=[""], bare=0.25, repos=["", "", "web-app"]), sc_entry(0.85)] for _ in range(sc.randint(1, 7))]
+    sc_add(recorded, sc_current(recorded, extra=[sc_key(SC_AFTER, dirs=[""], bare=0.0, repos=["", "web-app"]) for _ in range(sc.randint(0, 2))]), paths=[])
+# Each name the walk leaves out, under each kind of entry, with today's listing holding the key or not.
+SC_OID = "a" * 40
+for name in SC_LEFT_OUT + SC_NEAR + ["lib/__pycache__/m.pyc", "__pycache__/m.pyc", "a/__pycache__", "aidlc.settings.json", "aidlc.settings.local.json"]:
+    for entry in ("100644 " + SC_OID, "100755 " + SC_OID, "120000 " + SC_OID, SC_OID, "100644  " + SC_OID, "1006440 " + SC_OID):
+        for key in ("\x00" + name, "api\x00" + name, name, "\x00src/" + name):
+            sc_add([[key, entry], ["\x00zeta", "100644 " + SC_OID]], [["\x00zeta", "100644 " + SC_OID]], paths=[])
+    sc_add([["\x00" + name, "100644 " + SC_OID]], [["\x00" + name, "100644 " + "b" * 40]], paths=[])
+# An output directory beside a project file: in the same folder of the same repository, at any depth under it.
+for project in SC_PROJECTS:
+    for where, held in (("\x00", "\x00bin/x.dll"), ("\x00", "\x00src/bin/x.dll"), ("\x00src/", "\x00src/obj/a/b"), ("\x00src/", "\x00bin/x"), ("api\x00", "api\x00out/x"),
+                        ("api\x00", "\x00out/x"), ("\x00", "api\x00out/x"), ("\x00src/", "\x00src/x/out/y"), ("\x00", "\x00bin"), ("\x00", "\x00Bin/x"), ("\x00src/", "\x00srcs/bin/x"),
+                        ("\x00a/b/", "\x00a/b/c/bin/x/obj/y"), ("", "bin/x"), ("", "src/bin/x")):
+        sc_add([[held, sc_entry()]], [[where + project, "100644 " + SC_OID]], paths=[])
+    sc_add([["\x00bin/x.dll", "100644 " + SC_OID], ["\x00" + project, "100644 " + SC_OID]], [], paths=[])
+    sc_add([["\x00bin/x.dll", "100644 " + SC_OID]], [["\x00bin/x.dll", "100644 " + SC_OID], ["\x00" + project, "100644 " + SC_OID]], paths=[])
+# Each mark a path can carry, at each edge of what is written as an escape; and each count of paths about the limit.
+for mark in SC_MARKS:
+    sc_add([], [], paths=[f"a{mark}b", mark, mark * 2 + "x"])
+for count in (0, 1, 2, 9, 10, 11, 12, 30):
+    sc_add([], [], paths=[f"src/{index}.ts" for index in range(count)])
+    sc_add([[f"\x00src/{index:02d}.ts", SC_OID] for index in range(count)], [], paths=[])
+
+# The two snapshots of a stage, in a project of the case's own.
+ss = random.Random(seed * 7919 + 30)
+SS_PATHS = SL_PATHS + ["src/.DS_Store", "lib/__pycache__/m.pyc", "bin/x.dll", "src/App.csproj", "App.csproj", "obj/y", "main.c~", "docs/guide.md", "a%00b", "a\\0b"]
+SS_SLUGS = ["code-generation"] * 6 + ["build-and-test", "a", "x-1", "z9-"]
+SS_BAD_SLUGS = ["Code", "", "1a", "a_b", "a/b", "code generation", "code-generation\n", "..", "-a", "é"]
+SS_SERIAL = [0]
+
+
+def ss_hex(width=64):
+    return "".join(ss.choice(SL_HEX) for _ in range(width))
+
+
+def ss_oid():
+    return ss_hex(ss.choice([40, 40, 64]))
+
+
+def ss_entry():
+    return ss.choice(SL_MODES) + " " + ss_oid() if ss.random() < 0.8 else ss_oid()
+
+
+def ss_listing(count, repos=("",)):
+    seen = {}
+    while len(seen) < count:
+        seen[ss.choice(repos) + "\x00" + ss.choice(SS_PATHS)] = ss_entry()
+    return [[key, entry] for key, entry in seen.items()]
+
+
+def ss_current(listing):
+    current = []
+    for key, entry in listing:
+        roll = ss.random()
+        if roll < 0.5:
+            current.append([key, entry])
+        elif roll < 0.7:
+            current.append([key, ss_entry()])
+    for key, entry in ss_listing(ss.randint(0, 3)):
+        if all(key != had for had, _ in current):
+            current.append([key, entry])
+    ss.shuffle(current)
+    return current
+
+
+SS_ROW = "\tsrc/new.ts\t100644\t" + "c" * 40 + "\n"
+SS_BASELINE_OPS = [("crlf", None), ("append", "x\n"), ("append", SS_ROW), ("append", "\r\n"), ("write", ""), ("write", SS_ROW), ("remove", None), ("legacy", None),
+                   ("legacy-write", "garbage\n"), ("legacy-write", ""), ("dir", None), ("hex", "ff"), ("hex", "5c"), ("bom", None)]
+SS_WORKSPACE_OPS = [("crlf", None), ("append", "x\n"), ("append", SS_ROW), ("append", SS_ROW[:-1]), ("write", ""), ("write", "workspace\t{FP}\t-\n"),
+                    ("write", "workspace\t{FP}\t-"), ("write", "workspace\t{FP}\t-\n" + SS_ROW), ("write", "workspace\t{FP}\t-\r\n" + SS_ROW),
+                    ("write", "workspace\t{FP}\t-\n\tsrc/a\x00b\t100644\t" + "c" * 40 + "\n"), ("write", "workspace\t" + "0" * 64 + "\t-\n" + SS_ROW),
+                    ("write", "Workspace\t{FP}\t-\n" + SS_ROW), ("write", "workspace\t{FP}\t-\t\n" + SS_ROW), ("write", "workspace {FP} -\n" + SS_ROW),
+                    ("write", "{FP}\n"), ("write", "﻿workspace\t{FP}\t-\n" + SS_ROW), ("write", "workspace\t{FP}\t-\n" + SS_ROW + SS_ROW),
+                    ("write", "workspace\t{FP}\t-\n\n"), ("write", "workspace\t{FP}\t-\n\tsrc/a.ts\t" + "c" * 40 + "\n"),
+                    ("hex", "776f726b7370616365ff"), ("remove", None), ("legacy", None), ("legacy-write", "workspace\t{FP}\t-\n" + SS_ROW), ("legacy-write", "garbage\n"),
+                    ("dir", None), ("bom", None)]
+SS_LINK_OPS = [("link", None), ("dirlink", None)]
+
+
+def ss_add(recorded, slug="code-generation", fingerprint=None, baseline=None, tamper=(), current=None, asks=(), files=None, state=SE_STATE, posix=False):
+    case = {"slug": slug, "files": dict(RV_ACTIVE) if files is None else files, "state": state,
+            "recorded": {"fingerprint": ss_hex() if fingerprint is None else fingerprint, "listing": recorded}, "baseline": baseline,
+            "tamper": [list(step) for step in tamper], "current": current, "asks": list(asks)}
+    if posix:
+        case["posix"] = True
+    add("source_snapshot", **case)
+
+
+def ss_tamper(links=False):
+    steps = []
+    for _ in range(ss.choice([0, 1, 1, 1, 2, 2, 3])):
+        which = ss.choice(["baseline", "workspace"])
+        op, arg = ss.choice((SS_LINK_OPS if links and ss.random() < 0.6 else SS_BASELINE_OPS if which == "baseline" else SS_WORKSPACE_OPS))
+        steps.append((which, op, arg))
+    return steps
+
+
+for _ in range(70 * scale):
+    recorded = ss_listing(ss.randint(0, 6), repos=ss.choice([("",), ("",), ("api", "web-app"), ("", "api")]))
+    links = ss.random() < 0.2
+    tamper = ss_tamper(links)
+    ss_add(recorded, slug=ss.choice(SS_SLUGS), baseline=None if ss.random() < 0.7 else ss_listing(ss.randint(0, 3)), tamper=tamper,
+           current=None if ss.random() < 0.08 else ss_current(recorded), asks=ss.sample(["", "sha256:", "x", "sha256:" + "0" * 64, "1" * 64, "sha256:zz"], ss.randint(0, 2)),
+           posix=any(op in ("link", "dirlink") for _, op, _ in tamper))
+# A stage with no name of one, a fingerprint that is none, no piece of work, and listings that cannot be written.
+for slug in SS_BAD_SLUGS:
+    ss_add(ss_listing(2), slug=slug, current=[])
+for fingerprint in ("A" * 64, "a" * 63, "a" * 65, "sha256:" + "a" * 64, "", "g" * 64, "a" * 64 + "\n"):
+    ss_add(ss_listing(2), fingerprint=fingerprint, current=[])
+for files, state in (({}, SE_STATE), ({"intents/active-intent": "gone-00000000\n"}, SE_STATE), (dict(RV_ACTIVE), None), ({}, None)):
+    ss_add(ss_listing(2), files=files, state=state, current=[])
+for key, entry in (("src/a.ts", "100644 " + SC_OID), ("\x00src/a.ts", "100644"), ("\x00src/a.ts", "100644 " + SC_OID.upper()), ("\x00", SC_OID), ("-x\x00a", SC_OID),
+                   ("api\x00src\x00a", SC_OID)):
+    ss_add([[key, entry]], current=[])
+    ss_add(ss_listing(1), baseline=[[key, entry]], current=[])
+    ss_add(ss_listing(1), current=[[key, entry]])
+# Each alteration by itself, of each snapshot, over one listing; then with the earlier folder holding a copy too.
+SS_LISTING = [["\x00src/a.ts", "100644 " + SC_OID], ["\x00README.md", "100755 " + "b" * 40], ["\x00a\tb", "c" * 40], ["\x00src/.DS_Store", "100644 " + "d" * 40],
+              ["\x00bin/x.dll", "100644 " + "e" * 40]]
+SS_NOW = [["\x00src/a.ts", "100644 " + "f" * 40], ["\x00App.csproj", "100644 " + SC_OID], ["\x00docs/guide.md", "100644 " + SC_OID]]
+ss_add(SS_LISTING, fingerprint="1" * 64, current=SS_NOW)
+ss_add([], fingerprint="1" * 64, current=SS_NOW)
+ss_add(SS_LISTING, fingerprint="1" * 64, current=None)
+ss_add(SS_LISTING, fingerprint="1" * 64, baseline=[], current=SS_LISTING)
+for which, ops in (("baseline", SS_BASELINE_OPS), ("workspace", SS_WORKSPACE_OPS)):
+    for op, arg in ops:
+        ss_add(SS_LISTING, fingerprint="1" * 64, tamper=[(which, op, arg)], current=SS_NOW)
+        ss_add(SS_LISTING, fingerprint="1" * 64, tamper=[(which, "legacy-write", "workspace\t{FP}\t-\n" + SS_ROW), (which, op, arg)], current=SS_NOW)
+    for op, arg in SS_LINK_OPS:
+        ss_add(SS_LISTING, fingerprint="1" * 64, tamper=[(which, op, arg)], current=SS_NOW, posix=True)
+        ss_add(SS_LISTING, fingerprint="1" * 64, tamper=[(which, op, arg), (which, "legacy-write", "garbage\n")], current=SS_NOW, posix=True)
+
+# A snapshot lying where a stage's name that is none would put it is not read.
+SS_EMPTY = "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+for slug in ("a/b", "1a", "Code", "code-generation"):
+    for folder in (".aidlc-engine/source-review", ".aidlc-source-review"):
+        ss_add([], slug=slug, fingerprint="1" * 64, current=SS_NOW, asks=[SS_EMPTY],
+               files={**RV_ACTIVE, f"{RV_RECORD}/{folder}/{slug}/workspace-111111111111.tsv": "workspace\t" + "1" * 64 + "\t-\n" + SS_ROW,
+                      f"{RV_RECORD}/{folder}/{slug}/baseline-e3b0c44298fc.tsv": ""})
+# An entry whose mode only ends as a file's does.
+for entry in ("0100644 " + SC_OID, "x100755 " + SC_OID, " 100644 " + SC_OID):
+    sc_add([["\x00src/.DS_Store", entry], ["\x00zeta", SC_OID]], [["\x00zeta", SC_OID]], paths=[])
+
+# A baseline a row names by the hash of its bytes as they lie: with CRLF line ends, which read as the same listing, and
+# with a path no key can be made of.
+for content in ("\tsrc/a.ts\t100644\t" + "c" * 40 + "\r\n\tsrc/b.ts\t" + "d" * 40 + "\r\n", "\tsrc/a\x00b\t100644\t" + "c" * 40 + "\n",
+                "\tsrc/a.ts\t100644\t" + "c" * 40 + "\n\tsrc/a\x00b\t" + "d" * 40 + "\r\n"):
+    digest = hashlib.sha256(content.encode("utf-8")).hexdigest()
+    for folder in (".aidlc-engine/source-review", ".aidlc-source-review"):
+        ss_add([], fingerprint="1" * 64, current=SS_NOW, asks=["sha256:" + digest],
+               files={**RV_ACTIVE, f"{RV_RECORD}/{folder}/code-generation/baseline-{digest[:12]}.tsv": content})
+
+# The folder of every stage's snapshots behind a link: nothing is made through it, the stage's own folder included.
+for steps in ([("baseline", "rootlink", None)], [("workspace", "rootlink", None)], [("baseline", "remove", None), ("workspace", "remove", None)],
+              [("baseline", "rootlink", None), ("baseline", "legacy-write", "garbage\n")]):
+    ss_add(SS_LISTING, fingerprint="1" * 64, tamper=steps, current=SS_NOW, posix=any(op == "rootlink" for _, op, _ in steps))
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

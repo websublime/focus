@@ -16,11 +16,12 @@ use crate::review_attempt;
 use crate::workflow::Workflow;
 
 /// The case kinds this crate answers.
-pub const KINDS: [&str; 4] = [
+pub const KINDS: [&str; 5] = [
     "review_window",
     "review_accounting",
     "review_snapshot",
     "summary_evidence",
+    "source_snapshot",
 ];
 
 /// The ledger a case gives as its shards, read as a project's would be.
@@ -78,6 +79,7 @@ pub fn run_case(wf: &Workflow, case: &Value) -> Value {
         "review_accounting" => review_accounting_case(wf, case),
         "review_snapshot" => review_snapshot_case(wf, case),
         "summary_evidence" => summary_evidence_case(wf, case),
+        "source_snapshot" => source_snapshot_case(wf, case),
         other => json!({ "unsupported": other }),
     }
 }
@@ -722,4 +724,299 @@ fn summary_evidence_case(wf: &Workflow, case: &Value) -> Value {
         Ok(out) => out,
         Err(error) => json!({ "error": error }),
     }
+}
+
+/// The two snapshots of a stage in a project of the case's own: written,
+/// altered as the case says, written again, and read back under the
+/// fingerprints a row could name.
+fn source_snapshot_case(wf: &Workflow, case: &Value) -> Value {
+    use focus_evidence::oracle::pairs;
+    use focus_evidence::source::listing::{Listing, render_changed_paths};
+    use focus_evidence::source::snapshot;
+    use focus_evidence::source::walk::WorkspaceSource;
+    use focus_workspace::names::ENGINE_DIR;
+    use focus_workspace::records::{Invoker, Selector, resolve_selection};
+    use sha2::{Digest, Sha256};
+
+    let (root, layout) = lay_project(wf, case);
+    let record = layout.space_dir("default").join("intents/rec-1a2b3c4d");
+    let dirs = [
+        record.join(ENGINE_DIR).join("source-review"),
+        record.join(".focus-source-review"),
+    ];
+    let slug = case["slug"].as_str().unwrap_or_default();
+    // A path of the scratch project, as the case's answers name it. The
+    // record is reached by its real path where a link is looked for.
+    let real = std::fs::canonicalize(&root).unwrap_or_else(|_| root.clone());
+    let spelled = |text: &str| {
+        let text = text
+            .replace(real.to_string_lossy().as_ref(), "{P}")
+            .replace(root.to_string_lossy().as_ref(), "{P}");
+        if cfg!(windows) {
+            text.replace('\\', "/")
+        } else {
+            text
+        }
+    };
+    // What a system says of a file is the host's; the engine's own
+    // sentences are kept.
+    let said = |refusal: &dyn std::fmt::Display| -> Value {
+        let text = spelled(&refusal.to_string());
+        let own = focus_js::re::test(
+            r"^(?:Source snapshot|Source path keys|Cannot write|Invalid canonical|Invalid source-listing|\{P\}.* is a symlink)",
+            "",
+            &text,
+        );
+        json!({ "error": if own { text } else { "<host>".to_owned() } })
+    };
+    let kept = || -> Value {
+        fn walk(
+            dir: &std::path::Path,
+            record: &std::path::Path,
+            found: &mut serde_json::Map<String, Value>,
+        ) {
+            let Ok(listed) = std::fs::read_dir(dir) else {
+                return;
+            };
+            let mut names: Vec<_> = listed.flatten().map(|entry| entry.file_name()).collect();
+            names.sort();
+            // (A folder with nothing in it is said: one made and left is
+            // something a write did.)
+            if names.is_empty() {
+                let rel = dir.strip_prefix(record).unwrap_or(dir);
+                found.insert(rel.to_string_lossy().replace('\\', "/"), json!("empty"));
+            }
+            for name in names {
+                let path = dir.join(&name);
+                let Ok(meta) = std::fs::symlink_metadata(&path) else {
+                    continue;
+                };
+                let rel = path
+                    .strip_prefix(record)
+                    .unwrap_or(&path)
+                    .to_string_lossy()
+                    .replace('\\', "/");
+                if meta.file_type().is_symlink() {
+                    found.insert(rel, json!("link"));
+                } else if meta.is_dir() {
+                    walk(&path, record, found);
+                } else {
+                    let digest: String = Sha256::digest(std::fs::read(&path).unwrap_or_default())
+                        .iter()
+                        .map(|byte| format!("{byte:02x}"))
+                        .collect();
+                    found.insert(rel, json!(digest));
+                }
+            }
+        }
+        let mut found = serde_json::Map::new();
+        for dir in &dirs {
+            walk(dir, &record, &mut found);
+        }
+        Value::Object(found)
+    };
+    let listed = |listing: Option<Listing>| -> Value {
+        listing.map_or(Value::Null, |listing| {
+            listing
+                .iter()
+                .map(|(key, entry)| json!([key, entry]))
+                .collect()
+        })
+    };
+    let answer = (|| -> Result<Value, String> {
+        let selection = resolve_selection(&layout, &Selector::default(), &Invoker::default())
+            .map_err(|refusal| refusal.to_string())?;
+        let fingerprint = case["recorded"]["fingerprint"].as_str().unwrap_or_default();
+        let state = WorkspaceSource {
+            fingerprint: fingerprint.to_owned(),
+            listing: pairs(&case["recorded"]["listing"]),
+            legacy: None,
+            dotnet_output_seen: false,
+        };
+        let baseline = if case["baseline"].is_null() {
+            state.listing.clone()
+        } else {
+            pairs(&case["baseline"])
+        };
+        let write = || -> Vec<Value> {
+            vec![
+                match snapshot::write_baseline(&layout, &selection, slug, &baseline) {
+                    Ok(fingerprint) => json!(fingerprint),
+                    Err(refusal) => said(&refusal),
+                },
+                match snapshot::write_workspace_snapshot(&layout, &selection, slug, &state) {
+                    Ok(kept) => json!(kept),
+                    Err(refusal) => said(&refusal),
+                },
+            ]
+        };
+        let first = write();
+        let files = kept();
+        let hash = first[0].as_str().map_or_else(
+            || "0".repeat(64),
+            |written| written["sha256:".len()..].to_owned(),
+        );
+        // (A fingerprint that is no hash names no file: its first twelve
+        // characters are taken as upstream's driver takes them.)
+        let head = |text: &str| text.chars().take(12).collect::<String>();
+        let place = |which: &str, legacy: bool| {
+            dirs[usize::from(legacy)]
+                .join(slug)
+                .join(if which == "baseline" {
+                    format!("baseline-{}.tsv", head(&hash))
+                } else {
+                    format!("workspace-{}.tsv", head(fingerprint))
+                })
+        };
+        for step in case["tamper"].as_array().into_iter().flatten() {
+            let which = step[0].as_str().unwrap_or_default();
+            let op = step[1].as_str().unwrap_or_default();
+            let text = step[2]
+                .as_str()
+                .unwrap_or_default()
+                .replace("{FP}", fingerprint);
+            let path = place(which, false);
+            let earlier = place(which, true);
+            let folder = |path: &std::path::Path| {
+                std::fs::create_dir_all(path.parent().expect("a name has a folder"))
+                    .expect("a folder");
+            };
+            if op == "legacy-write" {
+                folder(&earlier);
+                std::fs::write(&earlier, text).expect("a file");
+                continue;
+            }
+            // The folder of every stage's snapshots behind a link, with
+            // this stage's folder not there.
+            #[cfg(unix)]
+            if op == "rootlink" {
+                let linked = std::fs::symlink_metadata(&dirs[0])
+                    .is_ok_and(|meta| meta.file_type().is_symlink());
+                if dirs[0].exists() && !linked {
+                    let moved = record.join("moved-root");
+                    std::fs::rename(&dirs[0], &moved).expect("moved");
+                    let _ = std::fs::remove_dir_all(moved.join(slug));
+                    std::os::unix::fs::symlink(&moved, &dirs[0]).expect("a link");
+                }
+                continue;
+            }
+            // (A name made a folder is left one.)
+            if !path.exists() || path.is_dir() {
+                continue;
+            }
+            // (A name that was already made a link, or put behind one, is
+            // left as it is.)
+            let linked = |path: &std::path::Path| {
+                std::fs::symlink_metadata(path).is_ok_and(|meta| meta.file_type().is_symlink())
+            };
+            if matches!(op, "link" | "dirlink")
+                && (linked(&path) || path.parent().is_some_and(linked))
+            {
+                continue;
+            }
+            let read =
+                || String::from_utf8_lossy(&std::fs::read(&path).unwrap_or_default()).into_owned();
+            match op {
+                "crlf" => std::fs::write(&path, read().replace('\n', "\r\n")).expect("a file"),
+                "append" => std::fs::write(&path, read() + &text).expect("a file"),
+                "write" => std::fs::write(&path, text).expect("a file"),
+                "hex" => {
+                    std::fs::write(&path, focus_evidence::oracle::unhex(&text)).expect("a file")
+                }
+                "bom" => {
+                    let mut bytes = vec![0xef, 0xbb, 0xbf];
+                    bytes.extend(std::fs::read(&path).unwrap_or_default());
+                    std::fs::write(&path, bytes).expect("a file");
+                }
+                "remove" => std::fs::remove_file(&path).expect("gone"),
+                "legacy" => {
+                    folder(&earlier);
+                    std::fs::rename(&path, &earlier).expect("moved");
+                }
+                "dir" => {
+                    std::fs::remove_file(&path).expect("gone");
+                    std::fs::create_dir(&path).expect("a folder");
+                }
+                #[cfg(unix)]
+                "link" => {
+                    let moved = record.join(format!("moved-{which}.tsv"));
+                    std::fs::rename(&path, &moved).expect("moved");
+                    std::os::unix::fs::symlink(&moved, &path).expect("a link");
+                }
+                #[cfg(unix)]
+                "dirlink" => {
+                    let folder = path.parent().expect("a name has a folder");
+                    std::fs::rename(folder, record.join("moved")).expect("moved");
+                    std::os::unix::fs::symlink(record.join("moved"), folder).expect("a link");
+                }
+                other => return Err(format!("no such alteration {other}")),
+            }
+        }
+        let second = write();
+        let after = kept();
+        let more: Vec<String> = case["asks"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter_map(|ask| ask.as_str().map(str::to_owned))
+            .collect();
+        let mut asked = vec![
+            format!("sha256:{hash}"),
+            hash.clone(),
+            format!("sha256:{}", hash.to_uppercase()),
+            format!("sha256:{}{}", head(&hash), "0".repeat(52)),
+        ];
+        asked.extend(more.iter().cloned());
+        let mut fingerprints = vec![
+            fingerprint.to_owned(),
+            format!("{}{}", head(fingerprint), "0".repeat(52)),
+            format!("sha256:{fingerprint}"),
+        ];
+        fingerprints.extend(more);
+        let current = (!case["current"].is_null()).then(|| WorkspaceSource {
+            fingerprint: "f".repeat(64),
+            listing: pairs(&case["current"]),
+            legacy: None,
+            dotnet_output_seen: false,
+        });
+        let paths = |current: Option<&WorkspaceSource>| {
+            snapshot::workspace_changed_paths(&layout, &selection, slug, fingerprint, current)
+        };
+        let changed = paths(current.as_ref());
+        Ok(json!({
+            "first": first,
+            "files": files,
+            "second": second,
+            "after": after,
+            "baseline": asked
+                .iter()
+                .map(|fingerprint| {
+                    match snapshot::read_baseline(&layout, &selection, slug, fingerprint) {
+                        Ok(listing) => listed(listing),
+                        Err(refusal) => said(&refusal),
+                    }
+                })
+                .collect::<Vec<_>>(),
+            "workspace": fingerprints
+                .iter()
+                .map(|fingerprint| {
+                    match snapshot::read_workspace_snapshot(&layout, &selection, slug, fingerprint) {
+                        Ok(listing) => listed(listing),
+                        Err(refusal) => said(&refusal),
+                    }
+                })
+                .collect::<Vec<_>>(),
+            "changed": match &changed {
+                Ok(paths) => json!(paths),
+                Err(refusal) => said(refusal),
+            },
+            "told": changed.ok().flatten().map(|paths| render_changed_paths(&paths)),
+            "unasked": match paths(None) {
+                Ok(paths) => json!(paths),
+                Err(refusal) => said(&refusal),
+            },
+        }))
+    })();
+    let _ = std::fs::remove_dir_all(&root);
+    answer.unwrap_or_else(|error| json!({ "error": error }))
 }
