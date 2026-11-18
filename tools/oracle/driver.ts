@@ -98,6 +98,8 @@ function layProject(c: any): string {
 let earlierOfTheCaseBefore: string | null = null;
 const dispatcher = await import(tool("aidlc.ts"));
 const guardOperation = await import(tool("aidlc-guard-operation.ts"));
+const logTool = await import(tool("aidlc-log.ts"));
+const directive = await import(tool("aidlc-directive.ts"));
 const posture = await import(tool("aidlc-testing-posture.ts"));
 const vocabulary = await import(tool("aidlc-artifact-vocabulary.ts"));
 const nodePath = await import("node:path");
@@ -946,6 +948,59 @@ async function answer(c: Record<string, any>): Promise<unknown> {
           if (before[index] === undefined) delete process.env[name];
           else process.env[name] = before[index];
         }
+      }
+    }
+    case "review_request": {
+      // What a review request says back and where a review's files go: the attempt's name, the record and the
+      // reviewer's slot (a name no path may carry is thrown, and the throw is the answer), the two commands in
+      // their native form, the note, and the sentences.
+      const thrown = (make: () => unknown) => {
+        try {
+          return make();
+        } catch (error) {
+          return { error: (error as Error).message };
+        }
+      };
+      const unit = c.unit === null ? undefined : c.unit;
+      switch (c.op) {
+        case "attempt":
+          return lib.reviewAttemptId(c.floor);
+        case "record":
+          return thrown(() => lib.reviewRecordRelativePath(c.stage, unit, c.attempt, c.iteration));
+        case "draft":
+          return thrown(() => lib.reviewDraftRelativePath(c.stage, unit, c.attempt, c.iteration, c.request));
+        case "command": {
+          const before = process.env.AIDLC_HARNESS_DIR;
+          process.env.AIDLC_HARNESS_DIR = ".claude";
+          try {
+            const input = {
+              projectDir: c.project,
+              stage: c.stage,
+              reviewer: c.reviewer,
+              ...(unit === undefined ? {} : { unit }),
+              ...(c.single === null ? {} : { single: c.single }),
+              iteration: c.iteration,
+              ...(c.retry === null ? {} : { retryPending: c.retry }),
+            };
+            const said = c.verdict ? lib.renderReviewVerdictCommand(input) : lib.renderReviewRequestCommand(input);
+            return said.replace(/bun \.[A-Za-z0-9_.-]+\/tools\/aidlc-([a-z-]+)\.ts/g, "aidlc engine $1");
+          } finally {
+            if (before === undefined) delete process.env.AIDLC_HARNESS_DIR;
+            else process.env.AIDLC_HARNESS_DIR = before;
+          }
+        }
+        case "note":
+          return directive.reviewRequestNote(c.reviewer, c.file, c.verdict);
+        case "spent":
+          return c.valid === null
+            ? logTool.reviewRecoverySpentMessage(c.stage, c.guidance)
+            : logTool.reviewRecoverySpentMessage(c.stage, c.guidance, undefined, c.valid);
+        case "units_block":
+          return lib.unitsBlockRepair(c.reason, c.detail);
+        case "echo":
+          return Object.entries(lib.legacyReviewAppendixEchoFields(c.legacy));
+        default:
+          throw new Error(`review_request: unknown op ${c.op}`);
       }
     }
     case "recovery_guidance": {

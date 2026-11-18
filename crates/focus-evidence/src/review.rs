@@ -15,9 +15,17 @@
 //! record's engine folder, by its path and the digest of its bytes
 //! (`reviewCompletionMatchesRequest`, `reviewRecordRefFromBlock` and
 //! `isReviewRecordRelativePath`, L16 489 to L16 613 and L17 236).
+//!
+//! And where a review's files go: the attempt's name, derived from its
+//! floor; the record of a pass; and the slot the reviewer writes its review
+//! into, one for each request that has an id (`reviewAttemptId`,
+//! `reviewRecordRelativePath` and `reviewDraftRelativePath`, L17 189 to
+//! L17 233; `legacyReviewAppendixEchoFields`, L16 464).
 
 use focus_audit::read::block_field;
-use focus_js::re;
+use focus_audit::units::validate_unit_name;
+use focus_js::{num, re};
+use sha2::{Digest, Sha256};
 
 /// `LegacyReviewAppendixBinding`: the fields a request written under the
 /// retired appendix protocol carried. Read so that a review requested before
@@ -234,6 +242,101 @@ pub fn is_record_relative_path(path: &str) -> bool {
         && is(2, RECORD_SEGMENT)
         && is(3, ATTEMPT_ID)
         && is(4, RECORD_FILE)
+}
+
+/// `reviewAttemptId`: a stable, path-safe name for a review attempt, derived
+/// from its floor; an attempt with no floor is `unstarted`.
+#[must_use]
+pub fn attempt_id(floor: &str) -> String {
+    let named = if floor.is_empty() { "unstarted" } else { floor };
+    let digest = Sha256::digest(named.as_bytes());
+    let hex: String = digest.iter().map(|byte| format!("{byte:02x}")).collect();
+    hex[..16].to_owned()
+}
+
+/// The folder of a stage's reviews or of a unit's, once both names are ones
+/// a path may carry.
+fn review_folder(stage: &str, unit: Option<&str>, attempt: &str) -> Result<String, String> {
+    if !re::test(RECORD_SEGMENT, "", stage) {
+        return Err(format!("Invalid stage slug \"{stage}\"."));
+    }
+    let records = RECORDS_DIRS[0];
+    match unit {
+        None => Ok(format!("{records}/{stage}/stage/{attempt}")),
+        Some(unit) => match validate_unit_name(unit) {
+            Some(problem) => Err(problem),
+            None => Ok(format!("{records}/{stage}/units/{unit}/{attempt}")),
+        },
+    }
+}
+
+/// `reviewRecordRelativePath`: where the record of a pass is, from the
+/// intent's record.
+///
+/// # Errors
+///
+/// The stage or the unit is no name a path may carry, in upstream's words.
+pub fn record_relative_path(
+    stage: &str,
+    unit: Option<&str>,
+    attempt: &str,
+    iteration: f64,
+) -> Result<String, String> {
+    Ok(format!(
+        "{}/{}.json",
+        review_folder(stage, unit, attempt)?,
+        num::to_string(iteration)
+    ))
+}
+
+/// `reviewDraftRelativePath`: where the reviewer writes its review for one
+/// request: the slot the request opens and the verdict consumes. A request
+/// with an id has a slot of its own, so the reviewer of a replaced request
+/// that writes late never fills the replacement's; a request recorded
+/// before request ids keeps the pass's shared slot.
+///
+/// # Errors
+///
+/// As [`record_relative_path`], or the request id is not one.
+pub fn draft_relative_path(
+    stage: &str,
+    unit: Option<&str>,
+    attempt: &str,
+    iteration: f64,
+    request_id: Option<&str>,
+) -> Result<String, String> {
+    let folder = review_folder(stage, unit, attempt)?;
+    let pass = num::to_string(iteration);
+    match request_id {
+        None => Ok(format!("{folder}/{pass}.review.md")),
+        Some(id) if !re::test(REQUEST_ID, "", id) => {
+            Err(format!("Invalid review request id \"{id}\"."))
+        }
+        Some(id) => Ok(format!(
+            "{folder}/{pass}.{}.review.md",
+            &id["review:".len()..]
+        )),
+    }
+}
+
+/// `legacyReviewAppendixEchoFields`: the fields a row written for a request
+/// from before review records repeats, so a reader finds the same boundary.
+#[must_use]
+pub fn legacy_appendix_echo_fields(legacy: &LegacyAppendix) -> Vec<(&'static str, String)> {
+    let mut fields = vec![
+        ("Review Appendix Artifact", legacy.artifact.clone()),
+        ("Review Appendix Offset", legacy.offset.to_string()),
+    ];
+    if let Some(digest) = &legacy.prior_digest {
+        fields.push(("Review Appendix Prior Digest", digest.clone()));
+    }
+    if let Some(length) = legacy.prior_length {
+        fields.push(("Review Appendix Prior Length", length.to_string()));
+    }
+    if let Some(challenge) = &legacy.challenge {
+        fields.push(("Review Challenge", challenge.clone()));
+    }
+    fields
 }
 
 /// The review record a completion names.
