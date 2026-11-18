@@ -152,6 +152,28 @@ pub fn commands(
     single: bool,
     details: &str,
 ) -> Result<Commands> {
+    let shell = if cfg!(windows) {
+        RenderShell::PowerShell
+    } else {
+        RenderShell::Posix
+    };
+    commands_for(wf, stage, unit, questions_file, single, details, shell)
+}
+
+/// [`commands`], quoted for the shell named.
+///
+/// # Errors
+///
+/// An argument cannot be written for the shell.
+pub fn commands_for(
+    wf: &Workflow,
+    stage: &str,
+    unit: Option<&str>,
+    questions_file: Option<&str>,
+    single: bool,
+    details: &str,
+    shell: RenderShell,
+) -> Result<Commands> {
     let mut head: Vec<String> = ["--checkpoint", "summary-confirmation", "--stage", stage]
         .map(str::to_owned)
         .to_vec();
@@ -165,11 +187,6 @@ pub fn commands(
     head.push(
         questions_file.map_or_else(|| format!("<path to {stage}-questions.md>"), str::to_owned),
     );
-    let shell = if cfg!(windows) {
-        RenderShell::PowerShell
-    } else {
-        RenderShell::Posix
-    };
     let render = |verb: &str, tail: &[&str]| -> Result<String> {
         let mut args = vec![verb.to_owned()];
         args.extend(head.iter().cloned());
