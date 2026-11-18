@@ -99,7 +99,7 @@ const HARD_EXCLUDED_DIRS: [&str; 17] = [
     "node_modules",
     "venv",
 ];
-const PYCACHE_DIR: &str = "__pycache__";
+pub(crate) const PYCACHE_DIR: &str = "__pycache__";
 /// `SOURCE_FINGERPRINT_HARD_EXCLUDED_FILES`.
 const HARD_EXCLUDED_FILES: [&str; 4] = [".DS_Store", ".coverage", "Thumbs.db", "desktop.ini"];
 /// `SOURCE_FINGERPRINT_CONDITIONAL_NAMES`: names that commonly hold
@@ -107,7 +107,7 @@ const HARD_EXCLUDED_FILES: [&str; 4] = [".DS_Store", ".coverage", "Thumbs.db", "
 const CONDITIONAL_DIRS: [&str; 6] = ["build", "coverage", "dist", "logs", "target", "tmp"];
 /// `SOURCE_FINGERPRINT_DOTNET_OUTPUT_NAMES`: conditional beside a .NET
 /// project file only.
-const DOTNET_OUTPUT_NAMES: [&str; 3] = ["bin", "obj", "out"];
+pub(crate) const DOTNET_OUTPUT_NAMES: [&str; 3] = ["bin", "obj", "out"];
 /// `SOURCE_FINGERPRINT_MANIFEST_DEPENDENCY_DIRS`: the directories a package
 /// manager fills beside the manifest it reads.
 const MANIFEST_DEPENDENCY_DIRS: [(&str, &[&str]); 8] = [
@@ -471,7 +471,7 @@ fn is_sensor_cache_path(path: &str) -> bool {
 
 /// `sourceFingerprintHardExcludedFile`: what an operating system, a
 /// coverage run or an editor leaves beside the source.
-fn hard_excluded_file(name: &str) -> bool {
+pub(crate) fn hard_excluded_file(name: &str) -> bool {
     HARD_EXCLUDED_FILES.contains(&name)
         || name.starts_with(".coverage.")
         || re::test(r"(?:\.sw[m-p]|~)$", "", name)

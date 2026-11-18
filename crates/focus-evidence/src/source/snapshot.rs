@@ -20,14 +20,16 @@
 //! there in between, and the first check is the one that keeps the
 //! directory from being made through a link.
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use focus_js::{EngineError, Result, bail, re};
 use focus_workspace::records::Selection;
-use focus_workspace::{Layout, atomic, links, observer};
+use focus_workspace::{Layout, atomic, files, links, observer};
+use sha2::{Digest, Sha256};
 
 use super::listing::{self, Listing};
-use super::walk::{Options, Stop};
+use super::raw;
+use super::walk::{Options, Stop, WorkspaceSource};
 
 /// The field's name on a row.
 pub const BASELINE_FIELD: &str = "Source Baseline";
@@ -106,6 +108,171 @@ pub fn write_baseline(
         .join(stage_slug)
         .join(format!("baseline-{}.tsv", &hash[..12]));
     write_snapshot(&record, &path, &serialized)
+}
+
+/// The directory a record's snapshots were kept in before the engine's
+/// directory held them (`LEGACY_SOURCE_REVIEW_DIR`).
+const LEGACY_SNAPSHOT_DIR: &str = ".focus-source-review";
+/// `WORKSPACE_SNAPSHOT_HEADER`: the first word of a workspace snapshot.
+const WORKSPACE_HEADER: &str = "workspace";
+
+/// `validSourceSnapshotFingerprint`: the hash of a `sha256:` fingerprint.
+fn fingerprint_hash(fingerprint: &str) -> Option<&str> {
+    fingerprint
+        .strip_prefix("sha256:")
+        .filter(|hash| re::test("^[0-9a-f]{64}$", "", hash))
+}
+
+/// `sourceSnapshotReadPath`: where a snapshot of a stage is read from. A
+/// snapshot a row names from before the engine's directory held them is
+/// still found: the new place when the file is there, else the earlier
+/// one. Nothing is written by this.
+fn read_path(
+    layout: &Layout,
+    selection: &Selection,
+    stage_slug: &str,
+    file_name: &str,
+) -> Option<(PathBuf, PathBuf)> {
+    if !re::test("^[a-z][a-z0-9-]*$", "", stage_slug) {
+        return None;
+    }
+    let record = selection.record_dir(layout)?;
+    let path = selection
+        .engine_dir(layout)
+        .join(SNAPSHOT_DIR)
+        .join(stage_slug)
+        .join(file_name);
+    if path.exists() {
+        return Some((record, path));
+    }
+    let legacy = record
+        .join(LEGACY_SNAPSHOT_DIR)
+        .join(stage_slug)
+        .join(file_name);
+    Some(if legacy.exists() {
+        (record, legacy)
+    } else {
+        (record, path)
+    })
+}
+
+/// A snapshot's bytes, read as a file of the record that decides
+/// something: a regular file with one name, reached through no link.
+fn read_bytes(record: &Path, path: &Path) -> Option<Vec<u8>> {
+    let anchor = std::fs::canonicalize(record).ok()?;
+    links::refuse_link_in_chain(&anchor, path.strip_prefix(record).ok()?).ok()?;
+    files::read_regular(path, "source snapshot").ok()
+}
+
+/// `readBaselineSourceSnapshot`: the listing a stage started from, read
+/// back only when its bytes are the ones the row's fingerprint names. A
+/// checkout with CRLF line ends holds the same listing.
+#[must_use]
+pub fn read_baseline(
+    layout: &Layout,
+    selection: &Selection,
+    stage_slug: &str,
+    fingerprint: &str,
+) -> Option<Listing> {
+    let hash = fingerprint_hash(fingerprint)?;
+    let (record, path) = read_path(
+        layout,
+        selection,
+        stage_slug,
+        &format!("baseline-{}.tsv", &hash[..12]),
+    )?;
+    let bytes = read_bytes(&record, &path)?;
+    let text = raw::committed_text_bytes(&bytes);
+    let digest = |bytes: &[u8]| -> String {
+        Sha256::digest(bytes)
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect()
+    };
+    if digest(&text) != hash && digest(&bytes) != hash {
+        return None;
+    }
+    listing::parse(&String::from_utf8_lossy(&text))
+        .ok()
+        .flatten()
+}
+
+/// The name of the snapshot kept for a workspace fingerprint
+/// (`workspaceSourceSnapshotName`).
+fn workspace_snapshot_name(fingerprint: &str) -> Option<String> {
+    re::test("^[0-9a-f]{64}$", "", fingerprint)
+        .then(|| format!("{WORKSPACE_HEADER}-{}.tsv", &fingerprint[..12]))
+}
+
+/// `writeWorkspaceSourceSnapshot`: the listing behind a workspace
+/// fingerprint, kept so that a later change can be told as paths. Nothing
+/// when it is already there. `false` when it could not be kept: the
+/// listing is for what a person is told, and no decision reads it.
+#[must_use]
+pub fn write_workspace_snapshot(
+    layout: &Layout,
+    selection: &Selection,
+    stage_slug: &str,
+    state: &WorkspaceSource,
+) -> bool {
+    let (Some(record), Some(name)) = (
+        selection
+            .record_dir(layout)
+            .filter(|_| re::test("^[a-z][a-z0-9-]*$", "", stage_slug)),
+        workspace_snapshot_name(&state.fingerprint),
+    ) else {
+        return false;
+    };
+    let Ok(listed) = listing::serialize(&state.listing) else {
+        return false;
+    };
+    let serialized = format!("{WORKSPACE_HEADER}\t{}\t-\n{listed}", state.fingerprint);
+    let path = selection
+        .engine_dir(layout)
+        .join(SNAPSHOT_DIR)
+        .join(stage_slug)
+        .join(name);
+    write_snapshot(&record, &path, &serialized).is_ok()
+}
+
+/// `readWorkspaceSourceSnapshot`: the listing kept for a workspace
+/// fingerprint; `None` when none was, or the file is not that snapshot.
+#[must_use]
+pub fn read_workspace_snapshot(
+    layout: &Layout,
+    selection: &Selection,
+    stage_slug: &str,
+    fingerprint: &str,
+) -> Option<Listing> {
+    let name = workspace_snapshot_name(fingerprint)?;
+    let (record, path) = read_path(layout, selection, stage_slug, &name)?;
+    let bytes = read_bytes(&record, &path)?;
+    let serialized = String::from_utf8_lossy(&bytes);
+    let (header, listed) = serialized.split_once('\n')?;
+    if header != format!("{WORKSPACE_HEADER}\t{fingerprint}\t-") {
+        return None;
+    }
+    listing::parse(listed).ok().flatten()
+}
+
+/// `workspaceSourceChangedPaths`: the paths that changed between a
+/// recorded workspace fingerprint and the source as it is, when the
+/// recorded listing was kept; `None` when only the two fingerprints can be
+/// compared.
+#[must_use]
+pub fn workspace_changed_paths(
+    layout: &Layout,
+    selection: &Selection,
+    stage_slug: &str,
+    recorded_fingerprint: &str,
+    current: Option<&WorkspaceSource>,
+) -> Option<Vec<String>> {
+    let current = current?;
+    let recorded = read_workspace_snapshot(layout, selection, stage_slug, recorded_fingerprint)?;
+    Some(listing::changed_paths(
+        &listing::recorded_under_current_boundary(&recorded, &current.listing),
+        &current.listing,
+    ))
 }
 
 /// `sourceBaselineAuditFields`: the value of `Source Baseline` for a row

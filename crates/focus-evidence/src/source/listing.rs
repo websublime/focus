@@ -13,6 +13,8 @@
 use std::collections::HashMap;
 
 use focus_js::order::cmp_utf16;
+use focus_js::re;
+use focus_workspace::names::{LOCAL_SETTINGS_FILE, SETTINGS_FILE};
 use focus_workspace::project::is_valid_repo_name;
 use serde_json::Value;
 use sha2::{Digest, Sha256};
@@ -325,6 +327,114 @@ pub fn changed_paths(before: &Listing, after: &Listing) -> Vec<String> {
         }
     }
     render_path_keys(changed)
+}
+
+/// `sourcePathExcludedSinceRecorded`: a file a listing recorded and the
+/// walk has left out by name since: what an operating system or an editor
+/// leaves, compiled Python, and the engine's own settings at the root of a
+/// project that is one repository.
+fn excluded_since_recorded(key: &str, entry: &str) -> bool {
+    if !re::test("^100(?:644|755) ", "", entry) {
+        return false;
+    }
+    let separator = key.find('\0');
+    let path = separator.map_or(key, |at| &key[at + 1..]);
+    let parts: Vec<&str> = path.split('/').collect();
+    let (name, folders) = parts.split_last().unwrap_or((&"", &[]));
+    super::walk::hard_excluded_file(name)
+        || folders.contains(&super::walk::PYCACHE_DIR)
+        // The walk lists it wherever the shell is not: a recorded settings
+        // file at the root that it lacks was left out by that rule.
+        || (separator.is_none_or(|at| at == 0)
+            && (path == SETTINGS_FILE || path == LOCAL_SETTINGS_FILE))
+}
+
+/// `recordedSourceListingUnderCurrentBoundary`: a recorded listing as the
+/// walk would take it today. An entry the current listing does not have is
+/// dropped when the walk has left that file out since: by its name, or
+/// under an output directory beside a .NET project file. One the current
+/// listing has still compares.
+#[must_use]
+pub fn recorded_under_current_boundary(recorded: &Listing, current: &Listing) -> Listing {
+    // A key is `<repo>\0<path>`; a directory is the key up to and including
+    // its last slash.
+    let mut project_dirs = std::collections::HashSet::new();
+    for (key, _) in current.iter() {
+        let slash = key.rfind('/').map_or(0, |at| at + 1);
+        let after_repo = key.find('\0').map_or(0, |at| at + 1);
+        let name = slash.max(after_repo);
+        if re::test(r"\.(?:cs|fs|vb)proj$", "i", &key[name..]) {
+            project_dirs.insert(&key[..name]);
+        }
+    }
+    let under_dotnet_output = |key: &str| -> bool {
+        let mut at = key.find('\0').map_or(0, |at| at + 1);
+        while let Some(end) = key[at..].find('/').map(|found| at + found) {
+            if super::walk::DOTNET_OUTPUT_NAMES.contains(&&key[at..end])
+                && project_dirs.contains(&key[..at])
+            {
+                return true;
+            }
+            at = end + 1;
+        }
+        false
+    };
+    let mut kept = Listing::new();
+    for (key, entry) in recorded.iter() {
+        if !current.has(key) && (excluded_since_recorded(key, entry) || under_dotnet_output(key)) {
+            continue;
+        }
+        kept.set(key, entry);
+    }
+    kept
+}
+
+/// `CHANGE_CONTROL_MAX_LISTED_PATHS`: how many changed paths a person is
+/// told by name.
+const MAX_LISTED_PATHS: usize = 10;
+
+/// `inertPath`: a path as one inert line. A path anyone can name may carry
+/// a line break, a control character or a mark that turns the text around:
+/// each is written as its escape. (Upstream's pattern is a class of single
+/// code units below the surrogates, so reading by character is the same.)
+#[must_use]
+pub fn inert_path(path: &str) -> String {
+    let mut out = String::with_capacity(path.len());
+    for character in path.chars() {
+        let code = u32::from(character);
+        if matches!(
+            code,
+            0x00..=0x1f
+                | 0x7f..=0x9f
+                | 0x200e
+                | 0x200f
+                | 0x2028
+                | 0x2029
+                | 0x202a..=0x202e
+                | 0x2066..=0x2069
+        ) {
+            out.push_str(&format!("\\u{code:04x}"));
+        } else {
+            out.push(character);
+        }
+    }
+    out
+}
+
+/// `renderChangedPaths`: the first paths by name, and how many more.
+#[must_use]
+pub fn render_changed_paths(paths: &[String]) -> String {
+    let shown: Vec<String> = paths
+        .iter()
+        .take(MAX_LISTED_PATHS)
+        .map(|path| inert_path(path))
+        .collect();
+    let more = paths.len() - shown.len();
+    if more > 0 {
+        format!("{} (and {more} more)", shown.join(", "))
+    } else {
+        shown.join(", ")
+    }
 }
 
 #[cfg(test)]
