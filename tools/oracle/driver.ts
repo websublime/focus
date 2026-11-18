@@ -898,6 +898,98 @@ async function answer(c: Record<string, any>): Promise<unknown> {
         rmSync(root, { recursive: true, force: true });
       }
     }
+    case "review_receipts": {
+      // The reviews of a stage that still stand, in a project of the case's own. The ledger and the review records
+      // name what each engine computes for itself: `{ART}` and `{ART:<unit>}` (the artifacts' fingerprint as laid
+      // out), `{SRC}` (the source's) and `{DIGEST:<record>}` (a review record's, once written). What the case
+      // changes `after` is done once those are taken.
+      const root = layProject(c);
+      const space = join(root, "aidlc", "spaces", "default");
+      const record = join(space, "intents", "rec-1a2b3c4d");
+      const data = resolve(upstream, "dist", "claude", ".claude", "tools", "data");
+      const compiled = JSON.parse(readFileSync(join(data, "stage-graph.json"), "utf-8"));
+      const compiledStage = (Array.isArray(compiled) ? compiled : compiled.stages).find((node: { slug: string }) => node.slug === c.slug);
+      if (compiledStage === undefined) throw new Error(`${c.id}: no stage ${c.slug}`);
+      const stage = Object.fromEntries(Object.entries({ ...compiledStage, ...(c.patch ?? {}) }).filter(([, value]) => value !== null));
+      const names = ["AIDLC_STAGE_GRAPH", "AIDLC_SCOPE_GRID", ...Object.keys(c.env ?? {})];
+      const before = names.map((name) => process.env[name]);
+      process.env.AIDLC_STAGE_GRAPH = join(data, "stage-graph.json");
+      process.env.AIDLC_SCOPE_GRID = join(data, "scope-grid.json");
+      for (const [name, value] of Object.entries((c.env ?? {}) as Record<string, string>)) process.env[name] = value;
+      try {
+        const none = `sha256:${"0".repeat(64)}`;
+        const filled: Array<[string, string]> = [];
+        for (const unit of c.units as string[]) {
+          filled.push([`{ART:${unit}}`, lib.reviewArtifactFingerprint(root, stage, unit, { stateContent: c.state }) ?? none]);
+        }
+        filled.push(["{ART}", lib.reviewArtifactFingerprint(root, stage, undefined, { stateContent: c.state }) ?? none]);
+        filled.push(["{SRC}", lib.workspaceSourceState(root)?.fingerprint ?? "unbindable"]);
+        // The listing behind the source's fingerprint, kept as a review request keeps it.
+        const taken = lib.workspaceSourceState(root);
+        if (c.keep && taken !== null) lib.writeWorkspaceSourceSnapshot(root, c.slug, taken);
+        const fill = (text: string) => filled.reduce((out, [name, value]) => out.split(name).join(value), text);
+        for (const [rel, text] of Object.entries(c.records as Record<string, string>)) {
+          mkdirSync(dirname(join(record, rel)), { recursive: true });
+          writeFileSync(join(record, rel), fill(text));
+          filled.push([`{DIGEST:${rel}}`, `sha256:${createHash("sha256").update(fill(text)).digest("hex")}`]);
+        }
+        mkdirSync(join(record, "audit"), { recursive: true });
+        for (const [name, text] of Object.entries(c.shards as Record<string, string>)) writeFileSync(join(record, "audit", name), fill(text));
+        for (const [rel, text] of Object.entries((c.after?.files ?? {}) as Record<string, string | null>)) {
+          if (text === null) rmSync(join(space, rel), { recursive: true, force: true });
+          else {
+            mkdirSync(dirname(join(space, rel)), { recursive: true });
+            writeFileSync(join(space, rel), text);
+          }
+        }
+        for (const [rel, text] of Object.entries((c.after?.source ?? {}) as Record<string, string | null>)) {
+          if (text === null) rmSync(join(root, rel), { recursive: true, force: true });
+          else {
+            mkdirSync(dirname(join(root, rel)), { recursive: true });
+            writeFileSync(join(root, rel), text);
+          }
+        }
+        // (And the source as it is once the case changed it: `{NOW}`.)
+        filled.push(["{NOW}", lib.workspaceSourceState(root)?.fingerprint ?? "unbindable"]);
+        // An answer names what each engine computed as the case does.
+        const named = (value: string | null) =>
+          value === null ? null : filled.reduce((out, [name, computed]) => (computed === none || computed === "unbindable" ? out : out.split(computed).join(name)), value);
+        const got = lib.freshReviewReceipts(root, c.state, stage, c.class === null ? {} : { reviewClass: c.class });
+        const progress = (at: { nextIteration: number; recoverySpent: boolean } | null) => (at === null ? null : [at.nextIteration, at.recoverySpent]);
+        const pending = (at: any) => (at === null ? null : [at.state, at.iteration, at.recovery, at.didNotFinish === true, at.verificationFailed === true]);
+        return {
+          stage: [got.stageVerdict, got.stageStale, got.stageIteration, progress(got.stageStaleProgress), pending(got.stagePending)],
+          units: {
+            verdicts: [...got.unitVerdicts],
+            stale: [...got.unitStale],
+            progress: [...got.unitStaleProgress].map(([unit, at]) => [unit, progress(at)]),
+            iterations: [...got.unitIterations],
+            pending: [...got.unitPending].map(([unit, at]) => [unit, pending(at)]),
+            kept: [...got.unitSourceKept],
+            reopened: [...got.unitRecheckReopened],
+          },
+          source: [named(got.newestSourceFingerprint), got.newestSourceUnit, got.sourceStale, got.sourceStaleReason, progress(got.sourceStaleProgress), got.sourceRecoverySpent],
+          baseline: got.sourceBaseline.state === "ready" ? ["ready", [...got.sourceBaseline.listing]] : got.sourceBaseline.state,
+          listing: got.currentSourceListing === null ? null : got.currentSourceListing.size,
+          awaiting: [...got.awaitingVerdict],
+          unfinished: [...got.unfinishedVerdicts],
+          bolts: [[...got.mergedBoltUnits], [...got.openBoltUnits]],
+          accepted: got.acceptedChanges.map((change: any) =>
+            [change.checkpoint, change.stage, change.unit, change.changed, named(change.recorded), named(change.current), change.notice]),
+          read: got.changeControlRead,
+          // What only the reading of a unit's own source fills.
+          unit_source: [got.freshUnitClaims.size, got.unitSourceAttributed.size, got.unitSourceMoved.size],
+        };
+      } catch (err) {
+        return { error: (err as Error).message.split(root).join("{P}") };
+      } finally {
+        for (const [index, name] of names.entries()) {
+          if (before[index] === undefined) delete process.env[name];
+          else process.env[name] = before[index];
+        }
+        rmSync(root, { recursive: true, force: true });
+      }
+    }
     case "review_snapshot": {
       // What a review is of, in a project of the case's own: the fingerprint
       // of the stage's declared artifacts, the snapshot with its appendix

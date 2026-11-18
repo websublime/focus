@@ -257,6 +257,9 @@ pub struct Options<'a> {
     /// The project's source, when the caller took it: `Some(None)` says it
     /// could not be read. `None` takes it here, once, when it is needed.
     pub source_state: Option<Option<&'a WorkspaceSource>>,
+    /// Whether the check of the source's freshness is switched off; `None`
+    /// reads the process's environment.
+    pub skip_source_freshness: Option<bool>,
 }
 
 /// `terminalReviewVerdict`: the verdict when it ends the review. `READY`
@@ -1267,7 +1270,9 @@ pub fn fresh(wf: &Workflow, state: &str, stage: &Stage, options: Options<'_>) ->
     }
 
     let source_freshness_applies = workspace_requires
-        && focus_workspace::env::var("SKIP_SOURCE_FRESHNESS").as_deref() != Some("1");
+        && !options.skip_source_freshness.unwrap_or_else(|| {
+            focus_workspace::env::var("SKIP_SOURCE_FRESHNESS").as_deref() == Some("1")
+        });
     let needs_current_source = workspace_requires
         && (scan.newest_source_fingerprint.is_some() || !scan.unit_receipts.is_empty());
     let current_state = if needs_current_source {
