@@ -93,15 +93,170 @@ fn asking(more: &[&'static str]) -> Vec<&'static str> {
     ASK.iter().chain(more).copied().collect()
 }
 
-/// Deliberate deviation. `review` is a slice to come (2e): upstream runs
-/// it, Focus names it as a verb it does not have yet.
+/// Deliberate deviation. What a review may carry that Focus has not
+/// ported: one unit's review (slice 5) and the verdict, the other half of
+/// the command (slice 2e-iv). Upstream reads what each needs; Focus refuses
+/// each by name and records nothing.
 #[test]
-fn the_verbs_that_are_not_ported_are_refused_by_name() {
-    let root = project("verbs");
+fn a_units_review_and_a_verdict_are_refused_by_name() {
+    let root = project("reviews");
+    let asks = [
+        "review",
+        "--stage",
+        "intent-capture",
+        "--reviewer",
+        "focus-product-lead-agent",
+        "--iteration",
+        "1",
+    ];
+    let with =
+        |more: &[&'static str]| -> Vec<&'static str> { asks.iter().chain(more).copied().collect() };
     assert_eq!(
-        refusal(&root, &["review", "--stage", "intent-capture"]),
-        "log review is not ported yet: Focus records the questions of a stage, their answers and a pipeline's handoffs (log decision, log answer, log answers, log link), and not yet the reviews."
+        refusal(&root, &with(&["--unit", "api"])),
+        "log review --unit is not ported yet: Focus records the review of a stage, and not yet the review of one unit (its claim, the plan of units, the unit's source and its manifest)."
     );
+    assert_eq!(
+        refusal(&root, &with(&["--verdict", "READY"])),
+        "log review --verdict is not ported yet: Focus records the request of a review, and not yet its verdict."
+    );
+    let _ = fs::remove_dir_all(root);
+}
+
+/// Deliberate deviation. A request made while the Guard Policy let a change
+/// through: upstream writes the row that records the change
+/// (`CHANGE_ACCEPTED`) and goes on; Focus does not write it yet (slice
+/// 2e-ii) and refuses the request by name. Here a review was completed of
+/// bytes the outputs no longer have, under a policy that is not strict.
+#[test]
+fn a_request_while_the_policy_let_a_change_through_is_refused_by_name() {
+    const REVIEW: &str = r#"{"version":1,"stage":"intent-capture","unit":null,"workflow":null,"attempt":"0000000000000000","iteration":1,"reviewer":"focus-product-lead-agent","verdict":"READY","request_id":"review:11111111111111111111111111111111","request_challenge":null,"artifact_fingerprint":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","source_fingerprint":null,"unit_source_fingerprint":null,"findings":[],"body":"It reads well.\n","recorded_at":"2026-01-05T10:00:00Z"}"#;
+    let root = project("policy");
+    write(
+        &root,
+        &format!("{RECORD}/focus-state.md"),
+        &STATE.replace(
+            "- **Summary Confirmation**: on (from scope feature)",
+            "- **Summary Confirmation**: off (set by a command)\n- **Guard Policy**: off (from scope feature)\n- **Review Override**: advisory",
+        ),
+    );
+    for name in [
+        "intent-statement",
+        "stakeholder-map",
+        "intent-capture-questions",
+    ] {
+        write(
+            &root,
+            &format!("{RECORD}/ideation/intent-capture/{name}.md"),
+            "# Written\n",
+        );
+    }
+    let record = ".focus-engine/reviews/intent-capture/stage/0000000000000000/1.json";
+    write(&root, &format!("{RECORD}/{record}"), &format!("{REVIEW}\n"));
+    let scope =
+        "**Stage**: intent-capture\n**Reviewer**: focus-product-lead-agent\n**Iteration**: 1";
+    let bound = format!(
+        "**Artifact Fingerprint**: sha256:{}\n**Request Id**: review:{}",
+        "a".repeat(64),
+        "1".repeat(32)
+    );
+    write(
+        &root,
+        &format!("{RECORD}/audit/laptop-abc123.md"),
+        &format!(
+            "{SHARD}\n## Workflow Started\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: WORKFLOW_STARTED\n**Scope**: feature\n\n---\n\n## Review Requested\n**Timestamp**: 2026-01-05T10:01:00Z\n**Event**: REVIEW_REQUESTED\n{scope}\n{bound}\n\n---\n\n## Review Completed\n**Timestamp**: 2026-01-05T10:02:00Z\n**Event**: REVIEW_COMPLETED\n{scope}\n**Verdict**: READY\n**Request Fingerprint**: sha256:{}\n{bound}\n**Review Record**: {record}\n**Review Record Digest**: sha256:102956c2dc59ebecfbc7f82ff288b89da4d8fa5fe95a8b22e8c1f153cd3fd90e\n\n---\n",
+            "a".repeat(64)
+        ),
+    );
+    assert_eq!(
+        refusal(
+            &root,
+            &[
+                "review",
+                "--stage",
+                "intent-capture",
+                "--reviewer",
+                "focus-product-lead-agent",
+                "--iteration",
+                "2",
+            ]
+        ),
+        "log review is not ported yet for a piece of work whose Guard Policy let a change through, or was changed since the ledger last recorded it: Focus does not write the rows that record it (CHANGE_ACCEPTED, GUARD_POLICY_SET) yet. Set the Guard Policy to strict for this piece of work to request the review."
+    );
+    let _ = fs::remove_dir_all(root);
+}
+
+/// What a recording cannot carry of `log review`, compared live by the
+/// differential (`log/review/request/source_bound`): the request of a stage
+/// that writes the workspace is bound to the project's source, which is the
+/// whole tree, and a recording of this tool keeps the workspace only. The
+/// row carries the source's fingerprint, and the listing behind it is kept
+/// under the fingerprint's own start.
+#[test]
+fn a_request_of_a_stage_that_writes_the_workspace_is_bound_to_the_source() {
+    let root = project("source");
+    let graph_path = root.join(".claude/tools/data/stage-graph.json");
+    let mut graph: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(&graph_path).unwrap()).unwrap();
+    for stage in graph.as_array_mut().unwrap() {
+        if stage["slug"] == "intent-capture" {
+            stage["workspace_requires"] = serde_json::json!(true);
+        }
+    }
+    fs::write(&graph_path, serde_json::to_string_pretty(&graph).unwrap()).unwrap();
+    write(
+        &root,
+        &format!("{RECORD}/focus-state.md"),
+        &STATE.replace(
+            "- **Summary Confirmation**: on (from scope feature)",
+            "- **Summary Confirmation**: off (set by a command)\n- **Review Override**: advisory",
+        ),
+    );
+    for name in [
+        "intent-statement",
+        "stakeholder-map",
+        "intent-capture-questions",
+    ] {
+        write(
+            &root,
+            &format!("{RECORD}/ideation/intent-capture/{name}.md"),
+            "# Written\n",
+        );
+    }
+    write(&root, "src/app.py", "print('hello')\n");
+    let output = log(
+        &root,
+        &[
+            "review",
+            "--stage",
+            "intent-capture",
+            "--reviewer",
+            "focus-product-lead-agent",
+            "--iteration",
+            "1",
+        ],
+    );
+    assert_eq!(
+        output.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let ledger = fs::read_to_string(root.join(RECORD).join("audit/laptop-abc123.md")).unwrap();
+    let fingerprint = ledger
+        .lines()
+        .find_map(|line| line.strip_prefix("**Source Fingerprint**: "))
+        .unwrap_or_else(|| panic!("{ledger}"));
+    assert_eq!(fingerprint.len(), 64, "{fingerprint}");
+    let kept = fs::read_to_string(root.join(RECORD).join(format!(
+        ".focus-engine/source-review/intent-capture/workspace-{}.tsv",
+        &fingerprint[..12]
+    )))
+    .unwrap();
+    assert!(
+        kept.starts_with(&format!("workspace\t{fingerprint}\t")),
+        "{kept}"
+    );
+    assert!(kept.contains("\tsrc/app.py\t100644\t"), "{kept}");
     let _ = fs::remove_dir_all(root);
 }
 
