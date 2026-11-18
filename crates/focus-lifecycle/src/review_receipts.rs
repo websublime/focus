@@ -35,6 +35,36 @@
 //! - A row that names a unit while units are owned by a team: whether it
 //!   belongs to the current claim (`eventMatchesClaimAttempt`) is deferred
 //!   with team ownership.
+//!
+//! # Tests that change no answer
+//!
+//! Kept where upstream has them; no case can tell each from its absence:
+//!
+//! - In [`review_record_absent`], that the name is a review record's: the
+//!   one caller has it from [`review::record_ref`], which asked the same.
+//! - In [`review_completion_did_not_finish`], that the verdict is
+//!   `NOT-READY` and that the record read is the completion's own: the
+//!   reader here asks only of a `NOT-READY`, and a completion that carries
+//!   its verified review names a record that is its own.
+//! - The one pass of an advisory review: its `NOT-READY` ends the review
+//!   at any pass, whatever the last one is.
+//! - That a request tied only with session boundaries saw one: the question
+//!   is asked of a tied row alone.
+//! - Whether a verdict came from a recovery request is forgotten when the
+//!   verdict falls (to a rejection, to a write). It is read again only for
+//!   a verdict that stands, and a verdict that stands wrote it.
+//! - That a terminal verdict recorded an artifact fingerprint before its
+//!   source fingerprint counts: a completion that answers its request
+//!   echoes one.
+//! - That a verdict below the last pass is `NOT-READY`: `READY` ends a
+//!   review at any pass.
+//! - That a pending request's unit has a name: a row's empty `Unit` is no
+//!   unit.
+//!
+//! And one question the corpus cannot ask: whether the check of owed
+//! outputs is off is read from the process's environment and the project's
+//! settings when the caller does not say. The corpus says; a command's
+//! differential is what holds the reading.
 
 use std::cell::{Cell, OnceCell};
 use std::collections::BTreeSet;
@@ -1363,7 +1393,9 @@ pub fn fresh(wf: &Workflow, state: &str, stage: &Stage, options: Options<'_>) ->
             .iter()
             .filter(|(unit, _)| scan.unit_verdicts.has(unit))
             .collect();
-        newest_first.sort_by(|left, right| right.1.order.cmp(&left.1.order));
+        // (By the place of each verdict's row, which no two share: a number,
+        // not text.)
+        newest_first.sort_by_key(|(_, receipt)| std::cmp::Reverse(receipt.order));
         // Verdicts at one instant in two shards have no order: neither can
         // be the newest claimant.
         let ambiguous: Vec<&str> = newest_first
