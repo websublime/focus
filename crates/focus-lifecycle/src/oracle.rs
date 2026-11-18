@@ -1041,9 +1041,8 @@ fn review_receipts_case(wf: &Workflow, case: &Value) -> Value {
     let record = space.join("intents/rec-1a2b3c4d");
     // The one variable a case sets is handed over, never set: the oracle
     // answers in a process that may be answering another case.
-    let skip_source_freshness = case["env"]
-        [focus_workspace::env::full_name("SKIP_SOURCE_FRESHNESS").as_str()]
-        == "1";
+    let skip_source_freshness =
+        case["env"][focus_workspace::env::full_name("SKIP_SOURCE_FRESHNESS").as_str()] == "1";
     let answer = (|| -> Result<Value, String> {
         let selection = resolve_selection(&layout, &Selector::default(), &Invoker::default())
             .map_err(|refusal| refusal.to_string())?;
@@ -1086,8 +1085,14 @@ fn review_receipts_case(wf: &Workflow, case: &Value) -> Value {
         let state = case["state"].as_str().unwrap_or_default();
         let none = format!("sha256:{}", "0".repeat(64));
         let fingerprint = |unit: Option<&str>| {
-            review_artifacts::fingerprint(&scratch, &stage, unit, Some(Some(state)), Asked::default())
-                .unwrap_or_else(|| none.clone())
+            review_artifacts::fingerprint(
+                &scratch,
+                &stage,
+                unit,
+                Some(Some(state)),
+                Asked::default(),
+            )
+            .unwrap_or_else(|| none.clone())
         };
         let mut filled: Vec<(String, String)> = Vec::new();
         for unit in case["units"].as_array().into_iter().flatten() {
@@ -1095,7 +1100,9 @@ fn review_receipts_case(wf: &Workflow, case: &Value) -> Value {
             filled.push((format!("{{ART:{unit}}}"), fingerprint(Some(unit))));
         }
         filled.push(("{ART}".to_owned(), fingerprint(None)));
-        let taken = crate::review_pending::current_source(&scratch).ok().flatten();
+        let taken = crate::review_pending::current_source(&scratch)
+            .ok()
+            .flatten();
         // The listing behind the source's fingerprint, kept as a review
         // request keeps it.
         if case["keep"] == true
@@ -1113,9 +1120,9 @@ fn review_receipts_case(wf: &Workflow, case: &Value) -> Value {
             taken.map_or_else(|| "unbindable".to_owned(), |source| source.fingerprint),
         ));
         let fill = |filled: &[(String, String)], text: &str| {
-            filled
-                .iter()
-                .fold(text.to_owned(), |out, (name, value)| out.replace(name, value))
+            filled.iter().fold(text.to_owned(), |out, (name, value)| {
+                out.replace(name, value)
+            })
         };
         let put = |path: &std::path::Path, text: &str| {
             std::fs::create_dir_all(path.parent().expect("a name has a folder")).expect("a folder");
@@ -1158,13 +1165,15 @@ fn review_receipts_case(wf: &Workflow, case: &Value) -> Value {
         ));
         // An answer names what each engine computed as the case does.
         let named = |value: &str| -> String {
-            filled.iter().fold(value.to_owned(), |out, (name, computed)| {
-                if *computed == none || computed == "unbindable" {
-                    out
-                } else {
-                    out.replace(computed, name)
-                }
-            })
+            filled
+                .iter()
+                .fold(value.to_owned(), |out, (name, computed)| {
+                    if *computed == none || computed == "unbindable" {
+                        out
+                    } else {
+                        out.replace(computed, name)
+                    }
+                })
         };
         let got = review_receipts::fresh(
             &scratch,
@@ -1177,7 +1186,8 @@ fn review_receipts_case(wf: &Workflow, case: &Value) -> Value {
             },
         )
         .map_err(|refusal| refusal.to_string())?;
-        let progress = |at: Option<&StaleProgress>| at.map(|at| json!([at.next_iteration, at.recovery_spent]));
+        let progress =
+            |at: Option<&StaleProgress>| at.map(|at| json!([at.next_iteration, at.recovery_spent]));
         let pending = |at: Option<&Pending>| {
             at.map(|at| {
                 json!([
@@ -1189,7 +1199,8 @@ fn review_receipts_case(wf: &Workflow, case: &Value) -> Value {
                 ])
             })
         };
-        let keys = |names: &review_receipts::Names| names.keys().map(str::to_owned).collect::<Vec<_>>();
+        let keys =
+            |names: &review_receipts::Names| names.keys().map(str::to_owned).collect::<Vec<_>>();
         Ok(json!({
             "stage": [
                 got.stage_verdict,

@@ -439,9 +439,7 @@ fn has_durable_source_binding_evidence(wf: &Workflow) -> bool {
     candidates.iter().any(|path| {
         std::fs::read(path)
             .ok()
-            .and_then(|bytes| {
-                focus_js::json::parse(String::from_utf8_lossy(&bytes).as_ref()).ok()
-            })
+            .and_then(|bytes| focus_js::json::parse(String::from_utf8_lossy(&bytes).as_ref()).ok())
             .is_some_and(|meta: Value| {
                 meta.get("intentRecord").and_then(Value::as_str) == Some(expected.as_str())
             })
@@ -663,7 +661,9 @@ pub fn fresh(wf: &Workflow, state: &str, stage: &Stage, options: Options<'_>) ->
         }
     };
     let events = &window.events;
-    empty.merged_bolt_units.clone_from(&window.merged_bolt_units);
+    empty
+        .merged_bolt_units
+        .clone_from(&window.merged_bolt_units);
     empty.open_bolt_units.clone_from(&window.open_bolt_units);
     let workspace_requires = stage::workspace_requires(stage);
     let modern_evidence = has_modern_source_binding_evidence(wf, &window.all_events);
@@ -775,7 +775,10 @@ pub fn fresh(wf: &Workflow, state: &str, stage: &Stage, options: Options<'_>) ->
     // said once.
     let mut unchecked_source_noticed = false;
     let mut accept_unchecked_source =
-        |accepted: &mut Vec<AcceptedChange>, unit: Option<&str>, recorded: &str, current: Option<&str>| {
+        |accepted: &mut Vec<AcceptedChange>,
+         unit: Option<&str>,
+         recorded: &str,
+         current: Option<&str>| {
             if unchecked_source_noticed {
                 return;
             }
@@ -1331,11 +1334,10 @@ pub fn fresh(wf: &Workflow, state: &str, stage: &Stage, options: Options<'_>) ->
             current_state,
         )?
         .filter(|paths| !paths.is_empty());
-        let what = paths
-            .as_ref()
-            .map_or_else(|| "The project's code".to_owned(), |paths| {
-                render_changed_paths(paths)
-            });
+        let what = paths.as_ref().map_or_else(
+            || "The project's code".to_owned(),
+            |paths| render_changed_paths(paths),
+        );
         accepted_changes.push(AcceptedChange {
             stage: slug.to_owned(),
             unit: newest_unit.clone(),
@@ -1551,12 +1553,10 @@ pub fn fresh(wf: &Workflow, state: &str, stage: &Stage, options: Options<'_>) ->
         }
         source_baseline = match baseline_field {
             Some(UNBINDABLE) => Baseline::Unbindable,
-            Some(field) => {
-                match snapshot::read_baseline(&wf.layout, &wf.selection, slug, field)? {
-                    Some(listing) => Baseline::Ready(listing),
-                    None => Baseline::Invalid,
-                }
-            }
+            Some(field) => match snapshot::read_baseline(&wf.layout, &wf.selection, slug, field)? {
+                Some(listing) => Baseline::Ready(listing),
+                None => Baseline::Invalid,
+            },
             None if modern_evidence => Baseline::Invalid,
             None => Baseline::Legacy,
         };
@@ -1607,13 +1607,12 @@ pub fn fresh(wf: &Workflow, state: &str, stage: &Stage, options: Options<'_>) ->
                 "fingerprint-mismatch"
             }
         }),
-        source_stale_progress: scan
-            .newest_source_progress
-            .filter(|_| source_stale)
-            .map(|progress| StaleProgress {
+        source_stale_progress: scan.newest_source_progress.filter(|_| source_stale).map(
+            |progress| StaleProgress {
                 recovery_spent: scan.source_recovery_spent,
                 ..progress
-            }),
+            },
+        ),
         source_recovery_spent: scan.source_recovery_spent,
         newest_source_fingerprint: newest,
         newest_source_unit: newest_unit,
