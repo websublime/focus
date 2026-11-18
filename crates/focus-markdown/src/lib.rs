@@ -42,6 +42,7 @@
 mod analysis;
 pub mod oracle;
 mod probes;
+pub mod rendered;
 mod visible;
 
 pub use analysis::analyse;

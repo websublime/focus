@@ -23,6 +23,7 @@ use std::borrow::Cow;
 
 use focus_js::re;
 use focus_js::text::trim;
+use focus_markdown::rendered::html_carries_h1_h2;
 use focus_markdown::{Blocks, LineKind, Visible, analyse, source_lines, visible_lines};
 
 const CONTRACT_MARKER: &str =
@@ -221,19 +222,6 @@ fn heading_is_h1_h2(blocks: &Blocks, source: &[String], index: usize) -> bool {
         Some(found) => re::group(text, &found, 1).is_some_and(|marks| marks.len() <= 2),
         None => true,
     }
-}
-
-/// `renderedHtmlCarriesH1H2`: an HTML block carries an `<h1>` or `<h2>`
-/// tag outside its comments and raw-text elements.
-fn html_carries_h1_h2(html: &str) -> bool {
-    let visible = re::replace(r"<!--[\s\S]*?(?:-->|$)", "g", html, "");
-    let visible = re::replace(
-        r"<(script|style|textarea|title|xmp|iframe|noembed|noframes|plaintext|template)\b[\s\S]*?(?:</\1\s*>|$)",
-        "gi",
-        &visible,
-        "",
-    );
-    re::test(r"<h[12](?=[\s/>]|$)", "i", &visible)
 }
 
 /// `terminalReviewAppendixBoundary`: where a document's terminal

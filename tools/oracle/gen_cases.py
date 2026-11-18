@@ -8202,5 +8202,270 @@ for prior_digest in (None, "none", "sha256:" + "a" * 64):
             rq_add("echo", legacy={"artifact": rq.choice(["requirements.md", "inception/requirements-analysis/requirements.md", ""]), "offset": rq.choice([0, 1, 4096, 2 ** 53]),
                                    "priorDigest": prior_digest, "priorLength": prior_length, "challenge": challenge, "priorAppendix": rq.random() < 0.5})
 
+# --- What a reviewer wrote, checked before it is recorded (focus-evidence) ----
+#
+# `validateReviewAppendix`: the review states one verdict, its reviewer and its pass in lines a reader of the
+# rendered review sees as such, and is one section with nothing of the document's own rank after it.
+# `demoteReviewHeadings`: a review file's own `#` and `##` headings made `###`.
+
+rt = random.Random(seed * 7919 + 35)
+RT_REVIEWER = "aidlc-architecture-reviewer-agent"
+
+
+def rt_expected(verdict="READY", reviewer=RT_REVIEWER, iteration=1, challenge=None, standalone=None):
+    expected = {"verdict": verdict, "reviewer": reviewer, "iteration": iteration, "reviewChallenge": challenge}
+    if standalone is not None:
+        expected["standalone"] = standalone
+    return expected
+
+
+def rt_validate(text, expected=None, raw=None):
+    # Focus does not read struck text, and refuses to compare a value that holds a tilde with one it could equal
+    # either way (a deliberate deviation): nothing is asked of upstream there.
+    said = [expected[key] for key in ("verdict", "reviewer", "reviewChallenge") if isinstance(expected[key], str)] if expected else []
+    if text is not None and "~" in text and any("~" in value or "\x03" in value for value in said):
+        return
+    if raw is not None:
+        add("review_text", op="validate", hex=raw.hex(), expected=expected or rt_expected())
+    else:
+        add("review_text", op="validate", text=text, expected=expected or rt_expected())
+
+
+def rt_demote(text, raw=None):
+    if raw is not None:
+        add("review_text", op="demote", hex=raw.hex())
+    else:
+        add("review_text", op="demote", text=text)
+
+
+RT_FIELDS = f"**Verdict:** READY\n**Reviewer:** {RT_REVIEWER}\n**Iteration:** 1\n"
+RT_TABLE = "### Findings\n\n| ID | Severity | Location | Finding | Required action | Status |\n|---|---|---|---|---|---|\n| R-01 | Major | a.md | It is wrong | Fix it | Open |\n"
+RT_REVIEW = f"## Review\n\n{RT_FIELDS}\n{RT_TABLE}"
+# How a value may be written, where plain words are the only ones that count.
+RT_VALUES = ["READY", "NOT-READY", "READY ", "READY\t", "READY  ", "READY\\", " READY", "ready", "READY.", "*READY*", "**READY**", "`READY`", "~~READY~~", "~READY~", "[READY](x)",
+             "<b>READY</b>", "READY <!-- note -->", "RE&#65;DY", "RE&#x41;DY", "READ\\Y", "\\READY", "READY &amp; more", "READY\u2028x", "READY &#13; x", "READY\x0bx", "READY\x0cx",
+             "READY\x00", "READY\x01", "READY\x02\x03", "![READY](x)", "<READY>", "<http://ready>", "READY NOT-READY", "", " ", "\t", "READY https://x.example", "READY[^1]",
+             "RE\u00adADY", "ＲＥＡＤＹ", "READY \\| x", "READY\\\nmore", "READY  \nmore"]
+# How a label may be written: only bold, the label and its colon alone inside it, at the start of the line.
+RT_LABELS = ["**Verdict:**", "__Verdict:__", "**Verdict**:", "*Verdict:*", "**verdict:**", "** Verdict:**", "**Verdict: **", "**Verdict:**\u00a0", "Verdict:", "<strong>Verdict:</strong>",
+             "**Verdict :**", "***Verdict:***", "**`Verdict:`**", "**Verd*ict*:**", "**Verdict\\:**", "**Verdict&#58;**", "**Verdict:** **Verdict:**", "x **Verdict:**", "\\**Verdict:**",
+             "**\x01Verdict:**", "**Ver\ndict:**", "**[Verdict:](x)**", "~~**Verdict:**~~"]
+# Where a line may sit: only a paragraph of the document itself is read.
+RT_PLACES = ["{line}\n", "  {line}\n", "   {line}\n", "    {line}\n", "\t{line}\n", "> {line}\n", "- {line}\n", "1. {line}\n", "* text\n\n  {line}\n", "```\n{line}\n```\n", "~~~md\n{line}\n~~~\n",
+             "<div>\n{line}\n</div>\n", "<div>\n\n{line}\n\n</div>\n", "<!--\n{line}\n-->\n", "<!-- {line} -->\n", "| a |\n|---|\n| {line} |\n", "| a |\n|---|\n{line}\n",
+             "text before\n{line}\n", "{line}\ntext after\n", "{line}\n===\n", "{line}\n---\n", "### {line}\n", "> quoted\n{line}\n", "- item\n{line}\n", "- item\n\n{line}\n",
+             "<details>\n{line}\n", "<span>x</span>\n{line}\n", "[ref]: http://x\n{line}\n", "***\n{line}\n", "<pre>\n{line}\n</pre>\n", "<script>\n{line}\n</script>\n", "{line}\\\n", "{line}  \n"]
+RT_REST = f"**Reviewer:** {RT_REVIEWER}\n\n**Iteration:** 1\n"
+
+rt_validate(RT_REVIEW)
+rt_validate(RT_REVIEW, rt_expected("NOT-READY"))
+rt_validate(RT_REVIEW, rt_expected(reviewer="someone-else"))
+rt_validate(RT_REVIEW, rt_expected(iteration=2))
+for value in RT_VALUES:
+    for label in ("**Verdict:**",):
+        rt_validate(f"## Review\n\n{label} {value}\n\n{RT_REST}")
+        rt_validate(f"## Review\n\n{label} {value}\n\n{RT_REST}", rt_expected("NOT-READY"))
+    rt_validate(f"## Review\n\n**Verdict:** READY\n\n**Reviewer:** {value}\n\n**Iteration:** 1\n", rt_expected(reviewer="READY"))
+    rt_validate(f"## Review\n\n**Verdict:** READY\n\n**Reviewer:** READY\n\n**Iteration:** {value}\n", rt_expected(reviewer="READY"))
+for label in RT_LABELS:
+    rt_validate(f"## Review\n\n{label} READY\n\n{RT_REST}")
+    rt_validate(f"## Review\n\n{label}READY\n\n{RT_REST}")
+    rt_validate(f"## Review\n\n{label}\tREADY\n\n{RT_REST}")
+for place in RT_PLACES:
+    for line in ("**Verdict:** READY", "**Verdict:** NOT-READY"):
+        # The line alone where it sits, and beside a line that counts.
+        rt_validate("## Review\n\n" + place.format(line=line) + "\n" + RT_REST)
+        rt_validate("## Review\n\n**Verdict:** READY\n\n" + place.format(line=line) + "\n" + RT_REST)
+# The same line twice is one line; two values are two.
+for pair in (("READY", "READY"), ("READY", "NOT-READY"), ("READY", "READY "), ("READY", "ready"), ("READY", "*READY*")):
+    rt_validate(f"## Review\n\n**Verdict:** {pair[0]}\n\n{RT_REST}\n**Verdict:** {pair[1]}\n")
+    rt_validate(f"## Review\n\n**Verdict:** READY\n\n**Reviewer:** {pair[0]}\n**Reviewer:** {pair[1]}\n\n**Iteration:** 1\n", rt_expected(reviewer="READY"))
+    rt_validate(f"## Review\n\n**Verdict:** READY\n\n**Reviewer:** x\n\n**Iteration:** 1\n**Iteration:** {'1' if pair[0] == pair[1] else '2'}\n", rt_expected(reviewer="x"))
+# The pass, as the request counts it.
+for written, asked in (("1", 1), ("01", 1), ("1.0", 1), ("2", 2), ("10", 10), ("1e+21", 10 ** 21), ("1000000000000000000000", 10 ** 21), ("9007199254740993", 2 ** 53 + 1), ("9007199254740992", 2 ** 53 + 1),
+                       ("1", 2), ("١", 1), ("+1", 1)):
+    rt_validate(f"## Review\n\n**Verdict:** READY\n**Reviewer:** x\n**Iteration:** {written}\n", rt_expected(reviewer="x", iteration=asked))
+# The challenge of a request of the retired protocol: omitted when none was issued, once and the same when one was.
+RT_CHALLENGE = "review:" + "0123456789abcdef" * 2
+for lines in ("", f"**Request Challenge:** {RT_CHALLENGE}\n", f"**Request Challenge:** {RT_CHALLENGE}\n**Request Challenge:** {RT_CHALLENGE}\n", "**Request Challenge:** review:" + "f" * 32 + "\n",
+              f"**Request challenge:** {RT_CHALLENGE}\n", f"> **Request Challenge:** {RT_CHALLENGE}\n", f"**Request Challenge:** `{RT_CHALLENGE}`\n"):
+    for challenge in (None, RT_CHALLENGE):
+        rt_validate(f"## Review\n\n{RT_FIELDS}{lines}", rt_expected(challenge=challenge))
+# How the review opens: only blank lines, then the exact heading; a file of its own need not open with it.
+RT_OPENINGS = ["## Review\n", "\n\n## Review\n", " \t\n## Review \t\n", "## Review", "##  Review\n", "## review\n", " ## Review\n", "## Review #\n", "## Reviewed\n", "# Review\n", "### Review\n",
+               "Review\n------\n", "intro\n\n## Review\n", "", "\ufeff## Review\n", "<!-- x -->\n## Review\n", "## Review\r\n", "## Review\r", "\r\n## Review\n", "## Review\x0b\n", "## Review\u00a0\n"]
+for opening in RT_OPENINGS:
+    for standalone in (None, False, True):
+        rt_validate(f"{opening}\n{RT_FIELDS}", rt_expected(standalone=standalone))
+# Nothing of the document's own rank after the heading, as Markdown or as HTML; and one Review section.
+RT_AFTER = ["# Top\n", "## Next\n", "### Third\n", "#### Fourth\n", "Next\n====\n", "Next\n----\n", "   ## Indented\n", "    ## Code\n", "> ## Quoted\n", "- ## Listed\n", "```\n## Fenced\n```\n",
+            "<!-- ## Comment -->\n", "<h1>Top</h1>\n", "<h2 class=\"x\">Next</h2>\n", "<H2>Next</H2>\n", "<h3>Third</h3>\n", "<div><h1>In</h1></div>\n", "<!-- <h1>x</h1> -->\n",
+            "<script><h1>x</h1></script>\n", "<div>\n<!-- <h2> -->\n</div>\n", "text <h1>inline</h1> text\n", "<h1\n", "<h10>x</h10>\n", "<header>x</header>\n", "\\## Escaped\n", "##NoSpace\n",
+            "## \n", "##\n", "#\t\n", "| a |\n|---|\n## After a table\n", "text\n## After text\n", "<div>\n## Inside a block\n</div>\n", "<div>\n\n## After a blank in a block\n\n</div>\n",
+            "### Review\n", "### review\n", "#### REVIEW  \n", "### **Review**\n", "### *Review*\n", "### `Review`\n", "### Review notes\n", "### Re\\view\n", "### Review ###\n",
+            "### &#82;eview\n", "###### Review\n", "### \u00a0Review\u00a0\n", "### [Review](x)\n", "### <b>Review</b>\n", "> ### Review\n", "### Review\n\n### Review\n"]
+for after in RT_AFTER:
+    rt_validate(f"## Review\n\n{RT_FIELDS}\n{after}")
+    rt_validate(f"{RT_FIELDS}\n{after}", rt_expected(standalone=True))
+    rt_validate(f"## Review\n\n{after}\n{RT_FIELDS}")
+    rt_demote(f"## Review\n\n{RT_FIELDS}\n{after}")
+    rt_demote(f"{after}\n## Review\n\n{RT_FIELDS}")
+    rt_demote(after)
+# Bytes that are not text, a byte order mark, and each kind of line end. (The reviewer's name is none an engine has:
+# bytes are not translated.)
+RT_PLAIN = "**Verdict:** READY\n**Reviewer:** the-reviewer\n**Iteration:** 1\n"
+for raw in (b"\xff\xfe", b"## Review\n\n**Verdict:** READY\xc3\n", b"\xef\xbb\xbf## Review\n\n" + RT_PLAIN.encode(), b"\xed\xa0\x80", b"", b"\xef\xbb\xbf", b"\xef\xbb\xbf\xef\xbb\xbf## Review\n\n" + RT_PLAIN.encode(),
+            ("## Review\r\n\r\n" + RT_PLAIN.replace("\n", "\r\n")).encode(), ("## Review\r\r" + RT_PLAIN.replace("\n", "\r")).encode(), b"\xef\xbb\xbf# Top\r\n## Next\rtext\n### Third\n",
+            b"# Top\r\n\r\n## Review\r\n", b"\xff# Top\n", ("## Review\n\n" + RT_PLAIN).encode() + b"\xef\xbb\xbf", RT_PLAIN.encode(), b"\xef\xbb\xbf" + RT_PLAIN.encode(),
+            ("## Review\n\n" + RT_PLAIN.replace("\n", "\n\r")).encode(), b"\xef\xbb\xbf## Top\n", b"\xef\xbb\xbf\n## Review\n## Top\r\n"):
+    rt_validate(None, rt_expected(reviewer="the-reviewer"), raw=raw)
+    rt_validate(None, rt_expected(reviewer="the-reviewer", standalone=True), raw=raw)
+    rt_demote(None, raw=raw)
+# A byte order mark where the section starts, which the renderer takes for itself, once.
+for mark in ("\ufeff", "\ufeff\ufeff", " \ufeff", "\ufeff "):
+    rt_validate(f"## Review\n{mark}{RT_FIELDS}")
+    rt_validate(f"## Review\n{mark}## Next\n\n{RT_FIELDS}")
+    rt_validate(f"{mark}## Next\n\n{RT_FIELDS}", rt_expected(standalone=True))
+    rt_validate(f"{mark}{RT_FIELDS}", rt_expected(standalone=True))
+    rt_validate(f"{RT_FIELDS}\n{mark}## Next\n", rt_expected(standalone=True))
+    rt_demote(f"{mark}## Next\n\n{RT_FIELDS}")
+# A heading line as it is named in the row that says it was changed.
+for heading in ("# " + "x" * 200, "## " + "é" * 130, "## 😀" * 70, "#  two  spaces  ", "## tab\there", "## ctrl\x01\x1f\x7f", "# #", "## Review", "  ## Review  ", "## Review now", "#", "##", "# a #", "## a ##   "):
+    rt_demote(f"{heading}\n\ntext\n")
+    rt_demote(f"## Review\n\n{heading}\n")
+    rt_demote(f"\n\n{heading}\n## Second\n")
+# Reviews drawn from the pieces above.
+for _ in range(150 * scale):
+    parts = []
+    if rt.random() < 0.8:
+        parts.append(rt.choice(RT_OPENINGS[:6]))
+    for _ in range(rt.randint(1, 6)):
+        kind = rt.random()
+        if kind < 0.45:
+            label = rt.choice(["**Verdict:**", "**Reviewer:**", "**Iteration:**", "**Request Challenge:**"] * 4 + RT_LABELS)
+            value = rt.choice(["READY", "NOT-READY", RT_REVIEWER, "1", "2", RT_CHALLENGE] * 5 + RT_VALUES)
+            parts.append(rt.choice(RT_PLACES[:3] * 6 + RT_PLACES).format(line=f"{label} {value}"))
+        elif kind < 0.6:
+            parts.append(rt.choice(RT_AFTER))
+        elif kind < 0.75:
+            parts.append(RT_FIELDS)
+        elif kind < 0.85:
+            parts.append(RT_TABLE)
+        else:
+            parts.append(rt.choice(["Some prose about the work.\n", "- a point\n- another\n", "> a quote\n", "```ts\nconst x = 1;\n```\n", "\n", "---\n"]))
+        if rt.random() < 0.7:
+            parts.append("\n")
+    review = "".join(parts)
+    rt_validate(review, rt_expected(rt.choice(["READY", "READY", "NOT-READY"]), rt.choice([RT_REVIEWER, RT_REVIEWER, "READY"]), rt.choice([1, 1, 2]),
+                                    rt.choice([None, None, None, RT_CHALLENGE]), rt.choice([None, True, False])))
+    if rt.random() < 0.5:
+        rt_demote(review)
+# Reviews made of the marks Markdown reads, in no order a person would write: what counts is still what a reader
+# of the rendering sees.
+RT_SOUP = ["**", "**", "*", "_", "__", "~~", "~", "`", "``", "[", "]", "(x)", "<b>", "</b>", "<!--", "-->", "&amp;", "\\", "|", "# ", "## ", "### ", "> ", "- ", "1. ", "```\n", "    ", "\t",
+           "Verdict:", "Verdict:", "READY", "READY", "NOT-READY", "Reviewer:", "x", "Iteration:", "1", " ", " ", " ", "\n", "\n", "\n\n", "\n\n", "===\n", "---\n", "<div>", "</div>", "<h1>",
+           "Review", "| a |\n|---|\n", "  \n", "![", "<http://x>", "\\\n"]
+for _ in range(200 * scale):
+    soup = "".join(rt.choice(RT_SOUP) for _ in range(rt.randint(4, 30)))
+    tail = rt.choice(["", "", f"\n\n**Verdict:** READY\n**Reviewer:** x\n**Iteration:** 1\n", "\n**Verdict:** READY\n\n**Reviewer:** x\n\n**Iteration:** 1\n"])
+    head = rt.choice(["## Review\n\n", "## Review\n", ""])
+    rt_validate(head + soup + tail, rt_expected(rt.choice(["READY", "READY", "NOT-READY"]), "x", 1, None, rt.choice([None, True])))
+    if rt.random() < 0.4:
+        rt_demote(head + soup + tail)
+# What a sweep of mutants over the port found nothing to tell apart with. Marks in a value that the renderer reads
+# (struck text with one tilde and with two) or rewrites (U+0000, and the three characters it writes its marks
+# with); what follows struck text in the same paragraph; vertical tab and form feed, which are characters like any
+# other; tags that only start like `<h1>`; raw-text elements in capitals; and a blank line of spaces under a list
+# item that holds a link reference definition and nothing else.
+for value, reviewer in (("a~b~c", "a~b~c"), ("~~a~~", "~~a~~"), ("a~~b", "a~~b"), ("a\x00b", "a\ufffdb"), ("a\x00b", "a\x00b"), ("a\x03b", "a\\u0003b"), ("a\x03b", "a\x03b"),
+                        ("a\x01b", "a\\u0001b"), ("a\x01b", "a\x01b"), ("a\x02b", "a\\u0002b"), ("a\x02b", "a\x02b"), ("a\x04b", "a\x04b"), ("a\x04b", "a\\u0004b"),
+                        ("a\\u0003b", "a\\u0003b"), ("a\x0bb", "a\x0bb"), ("a\x0cb", "a\x0cb"), ("a\x0b", "a"), ("a\x0c", "a"), ("\x0ba", "a"), ("a\x0b", "a\x0b"), ("a\ue000b\x0bc", "a\ue000b\x0bc"),
+                        ("a\x0bb\x0cc\ue000\ue001", "a\x0bb\x0cc\ue000\ue001"), ("a\ue000b", "a\x0bb")):
+    rt_validate(f"## Review\n\n**Verdict:** READY\n**Reviewer:** {value}\n**Iteration:** 1\n", rt_expected(reviewer=reviewer))
+    rt_validate(f"**Reviewer:** {value}\n\n**Iteration:** 1\n\n**Verdict:** NOT-READY\n", rt_expected("NOT-READY", reviewer, standalone=True))
+for body in (f"**Verdict:** READY\n~~struck~~ tail\n**Reviewer:** {RT_REVIEWER}\n~x~\n**Iteration:** 1\n", f"~~struck~~\n{RT_FIELDS}", f"{RT_FIELDS}~~struck~~\n", f"{RT_FIELDS}~struck~ and more\n",
+             f"**Verdict:** READY\n*em* tail\n**Reviewer:** {RT_REVIEWER}\n[l](x) tail\n**Iteration:** 1\n![i](x) tail\n", f"{RT_FIELDS}`code` tail\n", f"~~**Verdict:** READY~~\n{RT_REST}",
+             f"~~a\n**Verdict:** READY~~\n{RT_REST}", f"**Verdict:** READY\n~~a\n**Reviewer:** {RT_REVIEWER}\nb~~\n**Iteration:** 1\n",
+             f"##\x0bNext\n\n{RT_FIELDS}", f"#\x0cTop\n\n{RT_FIELDS}", f"{RT_FIELDS}\n##\x0b\n", f"{RT_FIELDS}\n#\x0c\n", f"\x0b{RT_FIELDS}", f"\x0c\n{RT_FIELDS}", f"**Verdict:** READY\x0b\n{RT_REST}",
+             f"**Verdict:** READY\x0c\n{RT_REST}", f"**Verdict:**\x0bREADY\n{RT_REST}", f"**Verdict:** READY\n\x0b\n    **Reviewer:** {RT_REVIEWER}\n\x0c\n\t**Iteration:** 1\n",
+             f"{RT_FIELDS}\x0b\nNext\n----\n", f"{RT_FIELDS}\n\x0b\nNext\n----\n", f"{RT_FIELDS}\n<div\x0bx>\n<h1>\n", f"{RT_FIELDS}\n\x0c## Next\n", f"{RT_FIELDS}\n## Next\x0b\n",
+             f"{RT_FIELDS}\n### Review\x0c\n", f"{RT_FIELDS}\n###\x0bReview\n", f"{RT_FIELDS}\n\ue000\n## Ne\ue000xt\x0b\n",
+             f"{RT_FIELDS}\n<div>\n<h1x>hello</h1x>\n</div>\n", f"{RT_FIELDS}\n<div>\n<H12>\n</div>\n", f"{RT_FIELDS}\n<div>\n<h2-x>\n</div>\n", f"{RT_FIELDS}\n<div><h1/></div>\n", f"{RT_FIELDS}\n<div><h2\n>\n",
+             f"{RT_FIELDS}\n<div>\n<h1", f"{RT_FIELDS}\n<h1x>\n", f"{RT_FIELDS}\n<h1x>hello</h1x>\n", f"{RT_FIELDS}\n<div><h3></div>\n", f"{RT_FIELDS}\n<div><h></div>\n", f"{RT_FIELDS}\n<div><H2\t></div>\n",
+             f"{RT_FIELDS}\n<SCRIPT>\n<h1>x</h1>\n</SCRIPT>\n", f"{RT_FIELDS}\n<Style><h2></STYLE>\n", f"{RT_FIELDS}\n<div><TEXTAREA><h1></textarea></div>\n", f"{RT_FIELDS}\n<div><Script x><h1>\n",
+             f"{RT_FIELDS}\n<script>\n</SCRIPT ><h1>\n</script>\n", f"{RT_FIELDS}\n<div><scripts><h1></scripts></div>\n", f"{RT_FIELDS}\n<div><TITLE><h1></title><XMP><h2></xmp></div>\n",
+             f"{RT_FIELDS}\n<div><!-- <h1> --><IFRAME><h1></IFRAME><NoEmbed><h2></noembed><NOFRAMES><h1></noframes><PlainText><h1></plaintext><TEMPLATE><h2></template></div>\n",
+             f"- [foo]: /url\n    \n\n{RT_FIELDS}", f"- [foo]: /url\n   \t\n{RT_FIELDS}", f"1. [a]: b\n     \n{RT_FIELDS}", f"> - [a]: b\n>     \n\n{RT_FIELDS}", f"- [foo]: /url\n      \n  text\n\n{RT_FIELDS}",
+             f"{RT_FIELDS}  \n\t\n## Next\n", f"<div>\n  \n{RT_FIELDS}", f"<div>\n{RT_FIELDS}", f"> <div>\n{RT_FIELDS}", f"- <div>\n{RT_FIELDS}", f"<!-- c --> x\n{RT_FIELDS}", f"<?php x ?>\n{RT_FIELDS}<div>",
+             f"{RT_FIELDS}***\n", f"{RT_FIELDS}```\n**Verdict:** NOT-READY\n```\n", f"***\n{RT_FIELDS}", f"```\ncode\n```\n{RT_FIELDS}", f"| a |\n|---|\n| **b** `c` *d* |\n{RT_FIELDS}",
+             f"| a |\n|---|\n| b |\n\n{RT_FIELDS}", f"- tight **item** `c`\n- another\n\n{RT_FIELDS}", f"- loose\n\n- **Verdict:** NOT-READY\n\n{RT_FIELDS}"):
+    rt_validate(f"## Review\n\n{body}")
+    rt_validate(body, rt_expected(standalone=True))
+    rt_demote(f"## Review\n\n{body}")
+    rt_demote(body)
+# Struck text, which the renderer reads by a rule of its own (a run of one or two tildes that flanks text as `*`
+# flanks emphasis, inside a word too) and Focus does not read: no line that counts depends on it. And the white
+# space of one reader that is none to the other, beside emphasis.
+RT_TILDES = ["a~b~c", "a~~b~~c", "~b~c", "a~b~", "a ~b~ c", "~~a~", "~a~~", "~~~a~~~", "a~ b~c", "a ~b ~c", "a~b ~c~d", "~a~", "~~a~~", "a~~.b~~", "~~a.~~b", "a.~b~", "(~a~)", "~(a)~", "~a~b~c~",
+             "a\\~b~c", "a\\\\~b~c", "a~b\\~c", "\\~~b~c", "\\~~~b~~c", "a~`b~`c", "`a~b`~c~d", "a~*b~*c", "*a~b*~c", "~a **b~ c**", "**a ~b** c~", "a~[b~](x)c", "[a~b](x)~c~d", "<http://a~b~c>", "<a~b~c@x.yz>",
+             "\\<a~b~c@x.yz>", "<b x=~a~>", "<b>~a~</b>", "a~b\u00a0~c", "a\u00a0~b~c", "a~\u2003b~", "a~\x0bb~c", "a\x0b~b~c", "a~b~\x0cc", "a~\u2028b~c", "a~b~\u2029c", "a\u0085~b~", "a*\u2028b*", "a\u2029*b*",
+             "*a\u0085*", "_a\x0b_b_", "*a\x0c*b*", "a~b~c~d~e", "a~~b~c~~d~e", "a~b~~c~d~~", "~~a~~~b~", "a~~~b~~~c", "a~~~~b", "x~y", "x~~y", "~", "~~", "~ ~", "a ~ b ~ c", "a~ b ~c", "&#126;a&#126;", "a&tilde;b&tilde;c",
+             "a~b~c \u2e00", "a\u2e00~b~\u2e00c", "".join(chr(c) for c in range(0x2e00, 0x2e2f)) + "a~b~c", "a~\ue000~b", "a~b\x0b\u2000~c", "é~ü~ñ", "😀~😀~😀", "a~b~c\\"]
+for value in RT_TILDES:
+    rt_validate(f"## Review\n\n**Verdict:** READY\n**Reviewer:** {value}\n**Iteration:** 1\n", rt_expected(reviewer=value))
+    rt_validate(f"**Reviewer:** {value}\n**Iteration:** 1\n**Verdict:** READY\n", rt_expected(reviewer=value.replace("\\~", "~").replace("\\\\", "\\"), standalone=True))
+    rt_validate(f"**Reviewer:** {value}\n**Iteration:** 1\n**Verdict:** READY\n", rt_expected(reviewer=value.replace("~", "\x03"), standalone=True))
+    rt_validate(f"## Review\n\n**Verdict:** READY\n**Reviewer:** {value}\n**Iteration:** 1\n**Reviewer:** {RT_REVIEWER}\n")
+    rt_validate(f"## Review\n\n**Verdict:** READY\n**Reviewer:** {RT_REVIEWER} {value}\n**Iteration:** 1 {value}\n**Reviewer:** {RT_REVIEWER}\n")
+    rt_validate(f"{value}\n**Verdict:** READY\n{value} **Reviewer:** {RT_REVIEWER}\n**Iteration:** 1{value}\n{value}\n", rt_expected(standalone=True))
+    rt_validate(f"{value} **Verdict:** READY {value}\n{RT_FIELDS}{value}\n", rt_expected(standalone=True))
+    rt_validate(f"x {value} y\n{RT_FIELDS}\n### {value}\n\n> {value}\n>{value}\n\n- {value}\n")
+    rt_validate(f"{RT_FIELDS}\n### ~Review~ {value}\n\n<div {value}>\n<h1{value}>\n", rt_expected(standalone=True))
+    rt_validate(f"### {value}\n\n{RT_FIELDS}{value}\n")
+for html in ("<div>\n<h1\x0b>\n", "<div>\n<h2\x0cx>\n", "<div>\n<h1\u2028>\n", "<div>\n<h1\u0085>\n", "<div>\n<h2\u00a0>\n", "<div>\n<h1~>\n", "<div>\n<h1~a~>\n", "<div>\n<h1 ~a~>\n", "<div>\n<h~1~>\n",
+             "<div><script\x0b><h1></script\x0c></div>\n", "<!--\x0b<h1>\x0c-->\n", "<div ~a~>\n<~h1~>\n", "<div>\n<h1\u2e00>\n", "<div>\n<h1\ue000>\n"):
+    rt_validate(f"## Review\n\n{RT_FIELDS}\n{html}")
+    rt_validate(f"{html}\n{RT_FIELDS}", rt_expected(standalone=True))
+# Text that already uses the characters Focus would hand its parser in place of others.
+RT_SPACES = "".join(chr(c) for c in list(range(0x2000, 0x200b)) + [0x205f, 0x3000, 0x1680])
+for value in ("a\u2000b\x0bc", "a\x0bb\u2000c\x0cd\u2001e", "a\ue000b\u0085c", "a\u0085b\ue000c\ue001d", f"a{RT_SPACES}b\x0bc\x0cd", f"a{RT_SPACES}b\ue000\x0bc\ue001\x0cd\u0085e", "a\x0b\x0c\u0085b"):
+    rt_validate(f"## Review\n\n**Verdict:** READY\n**Reviewer:** {value}\n**Iteration:** 1\n", rt_expected(reviewer=value))
+    rt_validate(f"**Verdict:** READY\n**Reviewer:** x\n**Iteration:** 1\n\n{value}\n\n##\x0bNext\n\n#\x0cTop\n\n<div>\n<h1\x0b>\n", rt_expected(reviewer="x", standalone=True))
+    rt_validate(f"**Verdict:** READY\n**Reviewer:** x\n**Iteration:** 1\n\n{value}\n\n##\x0bNext\n\n#\x0cTop\n\n*a\x0c*b*\n\n<div>\n<h3\x0b>\n", rt_expected(reviewer="x", standalone=True))
+    rt_validate(f"{value}\n\x0b\n**Verdict:** READY\n\x0c\n    **Reviewer:** x*\u2028y*\n**Iteration:** 1\n", rt_expected(reviewer="x*", standalone=True))
+    rt_validate(f"{value}\n\x0b\n**Verdict:** READY\n\x0c\n    **Reviewer:** x*\u0085y*\n**Iteration:** 1\n", rt_expected(reviewer="x*\u0085y*", standalone=True))
+    rt_validate(f"{value}\n\x0b\n**Verdict:** READY\n\x0c\n    **Reviewer:** _x\x0b_y_\n**Iteration:** 1\n", rt_expected(reviewer="_x\x0b_y_", standalone=True))
+# What the second sweep asked for. White space that is none to one reader, beside emphasis, where the value says
+# which reader read it; the marks of what is not plain text, in a value that spells them; two comments in one
+# block; a container that ends inside another; and the parser's own trouble with a line of white space.
+for value, reviewer in (("x*\x0by*", "x*\x0by*"), ("x*\x0cy*", "x*\x0cy*"), ("x*\u2029y*", "x*"), ("x*\u2029y*", "x\x03"), ("x*\u2028y*", "x\x03"), ("x*\u0085y*", "x\x03\u0085y\x03"), ("x*\u00a0y*", "x*\u00a0y*"),
+                        ("\x0b*y*", "\x0b\x03y\x03"), ("x _a\x0b_b_", "x _a\x0b\x03b\x03"), ("x _a\x0c_b_", "x _a\x0c\x03b\x03"), ("x *e*", "x \x03e\x03"), ("x *e*", "x e\x03"), ("x *e*", "x \x03e"),
+                        ("x [e](u)", "x \x03e\x03"), ("x [e](u)", "x e\x03"), ("x [e](u)", "x \x03e"), ("x ![e](u)", "x \x03"), ("x ![e](u)", "x"), ("x `c`", "x \x03"), ("x `c`", "x"), ("x `c` y", "x \x03 y"),
+                        ("x `c` y", "x   y"), ("x <http://u>", "x \x03http://u\x03"), ("x **b**", "x \x01b\x02"), ("x ***b***", "x \x03\x01b\x02\x03"), ("x [](u)", "x \x03\x03"), ("x [*e*](u)", "x \x03\x03e\x03\x03")):
+    rt_validate(f"## Review\n\n**Verdict:** READY\n**Reviewer:** {value}\n**Iteration:** 1\n", rt_expected(reviewer=reviewer))
+    rt_validate(f"**Iteration:** 1\n**Verdict:** NOT-READY\n**Reviewer:** {value}\n", rt_expected("NOT-READY", reviewer, standalone=True))
+for body in (f"{RT_FIELDS}\n<div><!-- <h1> --> x <!-- <h2> --></div>\n", f"{RT_FIELDS}\n<!-- <h1> --><!-- <h2> --><h3>\n", f"{RT_FIELDS}\n<div><!-- a --><h1><!-- b --></div>\n",
+             f"> - item\n>\n> **Verdict:** NOT-READY\n\n{RT_FIELDS}", f"- a\n  - b\n\n  **Verdict:** NOT-READY\n\n{RT_FIELDS}", f"> > a\n>\n> **Reviewer:** x\n\n{RT_FIELDS}", f"- > a\n\n  **Iteration:** 2\n\n{RT_FIELDS}",
+             f"1. a\n   - b\n     > c\n\n     **Verdict:** NOT-READY\n\n   **Verdict:** NOT-READY\n\n{RT_FIELDS}", f"{RT_FIELDS}\n- [a]: b\n      \n", f"{RT_FIELDS}\n> - [a]: /u\n\t\n",
+             f"{RT_FIELDS}\n- item\n  - [ref]: https://example.com\n        \n- next\n", f"- [a]: b\n      \n{RT_FIELDS}", f"**Verdict:** READY `c`\n{RT_REST}", f"**Verdict:** READY\n**Reviewer:** {RT_REVIEWER} `c`\n**Iteration:** 1\n",
+             f"**Verdict:** READY\n**Reviewer:** {RT_REVIEWER}\n**Iteration:** 1 ` `\n", f"**Verdict:** READY ![i](u)\n{RT_REST}"):
+    rt_validate(f"## Review\n\n{body}")
+    rt_validate(body, rt_expected(standalone=True))
+# Struck text that runs from one line into another, around a field, into its label and out of its value.
+for body in (f"**Verdict:** READY\n~a\n**Reviewer:** {RT_REVIEWER}\nb~\n**Iteration:** 1\n", f"~a\n**Reviewer:~ x** y\n{RT_FIELDS}", f"**Verdict:** READY ~a\n**Reviewer:** {RT_REVIEWER}\n**Iteration:** 1~ b\n",
+             f"**Verdict:** READY\n~a\n**Reviewer:** {RT_REVIEWER}~\n**Iteration:** 1\n", f"~a **b~\n{RT_FIELDS}", f"~~a *b~~\n{RT_FIELDS}c*\n", f"*a ~~b*\n{RT_FIELDS}c~~\n", f"~a\n{RT_FIELDS}~b\n",
+             f"a~\n{RT_FIELDS}b~\n", f"~~a\n\n{RT_FIELDS}\nb~~\n", f"~~a\n{RT_FIELDS}b~~\n", f"~a __b~\n__Verdict:__ READY\n{RT_REST}", f"**Verdict:** READY\n~a **b~ c\n**Reviewer:** {RT_REVIEWER}\n**Iteration:** 1\n",
+             f"**Verdict:** READY\n**a ~b** c\n**Reviewer:** {RT_REVIEWER}~\n**Iteration:** 1\n", f"~**Verdict:** READY~\n{RT_FIELDS}", f"{RT_FIELDS}~~~\n**Verdict:** NOT-READY\n~~~\n", f"{RT_FIELDS}~~~ a ~~~\n",
+             f"{RT_FIELDS}~~\n## Next\n~~\n", f"~\n{RT_FIELDS}~\n", f"### ~Review~\n\n{RT_FIELDS}", f"### Review~\n\n{RT_FIELDS}", f"### ~~Review~~ ~\n\n{RT_FIELDS}", f"### Review\n\n~x~\n\n{RT_FIELDS}"):
+    rt_validate(f"## Review\n\n{body}")
+    rt_validate(body, rt_expected(standalone=True))
+    rt_demote(body)
+RT_STRUCK = ["~", "~", "~~", "~~", "~~~", "**", "**", "*", "_", "Reviewer:", "Reviewer:", "x", "x", "a", " ", " ", " ", ".", "\\", "`", "\n", "\n", "(", ")", "[", "](u)", "<b>", "\x0b", "\u00a0", "\u2028", "é", "-", "!"]
+for _ in range(150 * scale):
+    struck = "".join(rt.choice(RT_STRUCK) for _ in range(rt.randint(3, 16)))
+    place = rt.choice(["**Verdict:** READY\n{s}\n**Reviewer:** x\n**Iteration:** 1\n", "**Verdict:** READY\n**Reviewer:** x\n**Iteration:** 1\n{s}\n", "{s}\n**Verdict:** READY\n**Reviewer:** x\n**Iteration:** 1\n",
+                       "**Verdict:** READY\n**Reviewer:** {s}\n**Iteration:** 1\n", "**Verdict:** READY\n**Reviewer:** x {s}\n**Reviewer:** x\n**Iteration:** 1\n", "**Verdict:** READY\n{s} **Reviewer:** x\n**Iteration:** 1\n"])
+    rt_validate(rt.choice(["## Review\n\n", ""]) + place.format(s=struck), rt_expected(reviewer=rt.choice(["x", "x", struck.strip(" ")]), standalone=True))
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

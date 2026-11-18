@@ -23,7 +23,7 @@ use crate::source::walk::{self, Budgets, Names, Options, Stop};
 use crate::summary;
 
 /// The kinds of case this crate answers.
-pub const KINDS: [&str; 9] = [
+pub const KINDS: [&str; 10] = [
     "source_listing_parse",
     "source_listing",
     "source_changed",
@@ -33,6 +33,7 @@ pub const KINDS: [&str; 9] = [
     "review_binding",
     "review_completion",
     "review_record",
+    "review_text",
 ];
 
 /// Lay the case's project out and walk it.
@@ -341,6 +342,47 @@ pub fn run_case(case: &Value) -> Value {
             }
         }
         "review_binding" => review_binding_case(case),
+        "review_text" => {
+            // What a reviewer wrote, checked and, for a file of its own,
+            // with its headings made level 3. The bytes are the case's.
+            use crate::review_text::{
+                Expected, Validity, demote_review_headings, validate_review_appendix,
+            };
+            let bytes = match case.get("hex").and_then(Value::as_str) {
+                Some(hex) => unhex(hex),
+                None => text("text").as_bytes().to_vec(),
+            };
+            if text("op") == "demote" {
+                return match demote_review_headings(&bytes) {
+                    None => Value::Null,
+                    // (The bytes are text: they were decoded to be changed.)
+                    Some(demoted) => json!({
+                        "text": String::from_utf8_lossy(&demoted.bytes),
+                        "changed": demoted.changed,
+                    }),
+                };
+            }
+            let expected = &case["expected"];
+            match validate_review_appendix(
+                &bytes,
+                &Expected {
+                    verdict: expected["verdict"].as_str().unwrap_or_default(),
+                    reviewer: expected["reviewer"].as_str().unwrap_or_default(),
+                    iteration: expected["iteration"].as_f64().unwrap_or_default(),
+                    review_challenge: expected["reviewChallenge"].as_str(),
+                    standalone: expected["standalone"] == true,
+                },
+            ) {
+                Validity::Valid => json!({ "valid": true }),
+                Validity::Invalid { reason, heading } => {
+                    if heading {
+                        json!({ "valid": false, "heading": true, "reason": reason })
+                    } else {
+                        json!({ "valid": false, "reason": reason })
+                    }
+                }
+            }
+        }
         "review_record" => {
             let bytes = text("text").as_bytes();
             let completion = text("completion");

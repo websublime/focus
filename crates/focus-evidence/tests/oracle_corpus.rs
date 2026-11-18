@@ -42,6 +42,7 @@ fn every_evidence_case_gets_upstreams_answer() {
     let (mut modern, mut replacing) = (0, 0);
     let (mut completions, mut answering, mut naming) = (0, 0, 0);
     let (mut records, mut valid, mut same_review, mut carried) = (0, 0, 0, 0);
+    let (mut recordable, mut ranked, mut sent_back, mut demoted, mut left_alone) = (0, 0, 0, 0, 0);
     let (mut inputs, mut set_aside) = (0, 0);
     let (mut same_asked, mut same_alias, mut same_raw, mut same_boundary) = (0, 0, 0, 0);
     let (mut boundaries, mut left_out, mut escaped, mut cut_short) = (0, 0, 0, 0);
@@ -116,6 +117,18 @@ fn every_evidence_case_gets_upstreams_answer() {
                     .map(|byte| format!("{byte:02x}"))
                     .collect();
                 set_aside += usize::from(out.as_str() != Some(digest.as_str()));
+            }
+        } else if kind == "review_text" {
+            // What a reviewer wrote: recordable, refused for a heading of
+            // the document's own rank, refused otherwise; and a review file
+            // whose headings were made level 3.
+            if case["op"] == "demote" {
+                demoted += usize::from(out["changed"].is_array());
+                left_alone += usize::from(out.is_null());
+            } else {
+                recordable += usize::from(out["valid"] == true);
+                ranked += usize::from(out["heading"] == true);
+                sent_back += usize::from(out["valid"] == false && out.get("heading").is_none());
             }
         } else if kind == "review_record" {
             records += 1;
@@ -233,6 +246,14 @@ fn every_evidence_case_gets_upstreams_answer() {
     assert!(
         boundaries >= 1500 && left_out >= 300 && escaped >= 120 && cut_short >= 100,
         "{boundaries} {left_out} {escaped} {cut_short}"
+    );
+    assert!(
+        recordable >= 1000
+            && ranked >= 600
+            && sent_back >= 2500
+            && demoted >= 380
+            && left_alone >= 900,
+        "{recordable} {ranked} {sent_back} {demoted} {left_alone}"
     );
     assert!(
         differing.is_empty(),
