@@ -122,69 +122,6 @@ fn a_units_review_and_a_verdict_are_refused_by_name() {
     let _ = fs::remove_dir_all(root);
 }
 
-/// Deliberate deviation. A request made while the Guard Policy let a change
-/// through: upstream writes the row that records the change
-/// (`CHANGE_ACCEPTED`) and goes on; Focus does not write it yet (slice
-/// 2e-ii) and refuses the request by name. Here a review was completed of
-/// bytes the outputs no longer have, under a policy that is not strict.
-#[test]
-fn a_request_while_the_policy_let_a_change_through_is_refused_by_name() {
-    const REVIEW: &str = r#"{"version":1,"stage":"intent-capture","unit":null,"workflow":null,"attempt":"0000000000000000","iteration":1,"reviewer":"focus-product-lead-agent","verdict":"READY","request_id":"review:11111111111111111111111111111111","request_challenge":null,"artifact_fingerprint":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","source_fingerprint":null,"unit_source_fingerprint":null,"findings":[],"body":"It reads well.\n","recorded_at":"2026-01-05T10:00:00Z"}"#;
-    let root = project("policy");
-    write(
-        &root,
-        &format!("{RECORD}/focus-state.md"),
-        &STATE.replace(
-            "- **Summary Confirmation**: on (from scope feature)",
-            "- **Summary Confirmation**: off (set by a command)\n- **Guard Policy**: off (from scope feature)\n- **Review Override**: advisory",
-        ),
-    );
-    for name in [
-        "intent-statement",
-        "stakeholder-map",
-        "intent-capture-questions",
-    ] {
-        write(
-            &root,
-            &format!("{RECORD}/ideation/intent-capture/{name}.md"),
-            "# Written\n",
-        );
-    }
-    let record = ".focus-engine/reviews/intent-capture/stage/0000000000000000/1.json";
-    write(&root, &format!("{RECORD}/{record}"), &format!("{REVIEW}\n"));
-    let scope =
-        "**Stage**: intent-capture\n**Reviewer**: focus-product-lead-agent\n**Iteration**: 1";
-    let bound = format!(
-        "**Artifact Fingerprint**: sha256:{}\n**Request Id**: review:{}",
-        "a".repeat(64),
-        "1".repeat(32)
-    );
-    write(
-        &root,
-        &format!("{RECORD}/audit/laptop-abc123.md"),
-        &format!(
-            "{SHARD}\n## Workflow Started\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: WORKFLOW_STARTED\n**Scope**: feature\n\n---\n\n## Review Requested\n**Timestamp**: 2026-01-05T10:01:00Z\n**Event**: REVIEW_REQUESTED\n{scope}\n{bound}\n\n---\n\n## Review Completed\n**Timestamp**: 2026-01-05T10:02:00Z\n**Event**: REVIEW_COMPLETED\n{scope}\n**Verdict**: READY\n**Request Fingerprint**: sha256:{}\n{bound}\n**Review Record**: {record}\n**Review Record Digest**: sha256:102956c2dc59ebecfbc7f82ff288b89da4d8fa5fe95a8b22e8c1f153cd3fd90e\n\n---\n",
-            "a".repeat(64)
-        ),
-    );
-    assert_eq!(
-        refusal(
-            &root,
-            &[
-                "review",
-                "--stage",
-                "intent-capture",
-                "--reviewer",
-                "focus-product-lead-agent",
-                "--iteration",
-                "2",
-            ]
-        ),
-        "log review is not ported yet for a piece of work whose Guard Policy let a change through, or was changed since the ledger last recorded it: Focus does not write the rows that record it (CHANGE_ACCEPTED, GUARD_POLICY_SET) yet. Set the Guard Policy to strict for this piece of work to request the review."
-    );
-    let _ = fs::remove_dir_all(root);
-}
-
 /// What a recording cannot carry of `log review`, compared live by the
 /// differential (`log/review/request/source_bound`): the request of a stage
 /// that writes the workspace is bound to the project's source, which is the

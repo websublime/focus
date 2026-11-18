@@ -16,6 +16,11 @@
 //! new request at the same pass. And a review that a later write made stale
 //! gets one recovery pass in an attempt.
 //!
+//! When one of the readers read the Guard Policy (something had changed),
+//! what the policy did is recorded before anything else is decided: the
+//! policy's own move, and each change it let through, which the answer then
+//! says once (`change_notices`).
+//!
 //! # What is not here yet
 //!
 //! Refused by name, each until the slice that brings it:
@@ -23,9 +28,6 @@
 //! - `--verdict`, the other half of the command (slice 2e-iv).
 //! - `--unit`: the unit's claim, the plan of units, its source and its
 //!   manifest (slice 5).
-//! - A request made while the Guard Policy let a change through, or was
-//!   changed in memory: the rows that record it (`CHANGE_ACCEPTED`,
-//!   `GUARD_POLICY_SET`) are slice 2e-ii.
 //!
 //! A guard that refuses says its sentence; the question upstream prints
 //! after it, and the series of the refusal it keeps, come with slices 4b
@@ -63,9 +65,9 @@ use focus_evidence::review::{self as review_paths, RequestBinding};
 use focus_evidence::source::snapshot::{self, UNBINDABLE};
 use focus_evidence::source::state::same_workspace_source;
 use focus_guards::guard_operation::RenderShell;
-use focus_guards::policy::GuardPolicy;
 use focus_js::{EngineError, Result, bail, num, re};
 use focus_lifecycle::artifacts::{self, Dag};
+use focus_lifecycle::change_control::{self, Accepted};
 use focus_lifecycle::guard_refusal::{
     recovery_guidance, request_changes_reset_is_executable, unattended_says,
 };
@@ -147,6 +149,8 @@ struct Written {
     replaces: Option<String>,
     request_id: String,
     review_file: String,
+    /// What the Guard Policy let through, said once.
+    notices: Vec<String>,
 }
 
 /// `reviewBudgetMessage`.
@@ -224,28 +228,6 @@ fn person_asked(wf: &Workflow, stage: &str, reviewer: &str) -> bool {
         }
     }
     turn.is_some_and(|turn| request.is_none_or(|request| definitely_before(request, turn)))
-}
-
-/// Whether recording what the Guard Policy says now would write a row:
-/// `governedGuardPolicy` writes one when the policy in force is not the
-/// last one the ledger recorded (or, with none recorded, the state's own).
-fn policy_row_owed(wf: &Workflow, state: &str) -> bool {
-    let Ok(resolution) =
-        focus_guards::workflow::Guards::read(&wf.layout, &wf.selector(), &wf.invoker)
-            .and_then(|guards| guards.with_state(state).policy(false))
-    else {
-        return true;
-    };
-    let mut previous: Option<GuardPolicy> = None;
-    for row in wf.events() {
-        if row.event != "GUARD_POLICY_SET" && row.event != "CHANGE_CONTROL_SET" {
-            continue;
-        }
-        if let Some(value) = block_field(&row.block, "New Value").and_then(GuardPolicy::parse) {
-            previous = Some(value);
-        }
-    }
-    previous.unwrap_or(resolution.state_value) != resolution.value
 }
 
 /// `removeRecordFileNoFollow` and the slot's folder made: the reviewer's
@@ -395,6 +377,9 @@ pub fn review(open: &dyn Fn() -> Result<Workflow>, args: &[String]) -> Result<Va
     out.insert("requestId".to_owned(), json!(written.request_id));
     out.insert("reviewFile".to_owned(), json!(written.review_file));
     out.insert("recordVerdict".to_owned(), json!(record_verdict));
+    if !written.notices.is_empty() {
+        out.insert("change_notices".to_owned(), json!(written.notices));
+    }
     Ok(Value::Object(out))
 }
 
@@ -526,25 +511,48 @@ fn request(
             source_state: None,
         },
     )?;
-    let (summary_read, summary_accepted) = match &summary {
+    // What the Guard Policy did is recorded, not passed over in silence.
+    let summary_read = match &summary {
         Evidence::Ok {
-            accepted_changes,
             change_control_read,
             ..
-        } => (*change_control_read, !accepted_changes.is_empty()),
-        Evidence::Refused {
+        }
+        | Evidence::Refused {
             change_control_read,
             ..
-        } => (*change_control_read, false),
+        } => *change_control_read,
     };
-    if (receipts.change_control_read || summary_read)
-        && (!receipts.accepted_changes.is_empty()
-            || summary_accepted
-            || policy_row_owed(wf, &state))
-    {
-        return refuse(
-            "log review is not ported yet for a piece of work whose Guard Policy let a change through, or was changed since the ledger last recorded it: Focus does not write the rows that record it (CHANGE_ACCEPTED, GUARD_POLICY_SET) yet. Set the Guard Policy to strict for this piece of work to request the review.".to_owned(),
-        );
+    let mut notices = Vec::new();
+    if receipts.change_control_read || summary_read {
+        change_control::governed_guard_policy(wf, &held, &state)?;
+        let mut accepted: Vec<Accepted<'_>> = receipts
+            .accepted_changes
+            .iter()
+            .map(|change| Accepted {
+                checkpoint: "review-receipt",
+                stage: &change.stage,
+                unit: change.unit.as_deref(),
+                changed: change.changed.as_deref(),
+                recorded: &change.recorded,
+                current: &change.current,
+                notice: &change.notice,
+            })
+            .collect();
+        if let Evidence::Ok {
+            accepted_changes, ..
+        } = &summary
+        {
+            accepted.extend(accepted_changes.iter().map(|change| Accepted {
+                checkpoint: "summary-confirmation",
+                stage: &change.stage,
+                unit: change.unit.as_deref(),
+                changed: Some(&change.changed),
+                recorded: &change.recorded,
+                current: &change.current,
+                notice: &change.notice,
+            }));
+        }
+        notices = change_control::record_accepted_changes(wf, &held, &accepted)?;
     }
     if let Evidence::Refused { message, .. } = &summary {
         return refuse(summary_evidence_message(slug, message));
@@ -756,6 +764,7 @@ fn request(
             upgraded,
             request_id,
             review_file,
+            notices,
             ..Written::default()
         });
     }
@@ -808,6 +817,7 @@ fn request(
             replaces: Some(replaces),
             request_id,
             review_file,
+            notices,
             ..Written::default()
         });
     }
@@ -880,6 +890,7 @@ fn request(
         recovery: recovery_eligible,
         request_id,
         review_file,
+        notices,
         ..Written::default()
     })
 }
