@@ -910,7 +910,11 @@ async function answer(c: Record<string, any>): Promise<unknown> {
       process.env.AIDLC_SCOPE_GRID = join(data, "scope-grid.json");
       process.env.AIDLC_HARNESS_DIR = ".claude";
       try {
-        const got = lib.evaluateGuardRefusal({
+        // An operation that names what none may (a stage or a unit that is no identifier, a fence no person
+        // switches) is thrown, and the throw is the answer.
+        let got: any;
+        try {
+          got = lib.evaluateGuardRefusal({
           code: c.code,
           blockedAction: c.blocked,
           stage: c.stage,
@@ -924,7 +928,10 @@ async function answer(c: Record<string, any>): Promise<unknown> {
           ...(c.fence === null ? {} : { fence: c.fence }),
           ...(c.fence_switch === null ? {} : { fenceSwitch: c.fence_switch }),
           ...(c.isolated === null ? {} : { summary: { stage: { slug: c.stage }, isolated: c.isolated } }),
-        });
+          });
+        } catch (error) {
+          return { error: (error as Error).message };
+        }
         const routed = (text: string) => text.replace(/bun \.[A-Za-z0-9_.-]+\/tools\/aidlc-([a-z-]+)\.ts/g, "aidlc engine $1");
         return {
           ...got,
@@ -934,6 +941,34 @@ async function answer(c: Record<string, any>): Promise<unknown> {
             return { ...remedy, action: routed(remedy.action.split(remedy.command).join(native)), command: native };
           }),
         };
+      } finally {
+        for (const [index, name] of names.entries()) {
+          if (before[index] === undefined) delete process.env[name];
+          else process.env[name] = before[index];
+        }
+      }
+    }
+    case "recovery_guidance": {
+      // The sentence a prose refusal ends with (the first way on the evaluator would offer for a spent recovery),
+      // and whether a Request Changes can reset the attempt now. The commands are put in their native form, as
+      // in `guard_refusal`; whether a person is watching is the operator's variable, set for the case.
+      const data = resolve(upstream, "dist", "claude", ".claude", "tools", "data");
+      const names = ["AIDLC_STAGE_GRAPH", "AIDLC_SCOPE_GRID", "AIDLC_HARNESS_DIR", "AIDLC_UNATTENDED"];
+      const before = names.map((name) => process.env[name]);
+      process.env.AIDLC_STAGE_GRAPH = join(data, "stage-graph.json");
+      process.env.AIDLC_SCOPE_GRID = join(data, "scope-grid.json");
+      process.env.AIDLC_HARNESS_DIR = ".claude";
+      if (c.unattended === null) delete process.env.AIDLC_UNATTENDED;
+      else process.env.AIDLC_UNATTENDED = c.unattended;
+      try {
+        let guidance: unknown;
+        try {
+          guidance = lib.recoveryGuidance(c.project, c.state, c.stage, c.unit === null ? {} : { unit: c.unit })
+            .replace(/bun \.[A-Za-z0-9_.-]+\/tools\/aidlc-([a-z-]+)\.ts/g, "aidlc engine $1");
+        } catch (error) {
+          guidance = { error: (error as Error).message };
+        }
+        return { guidance, reset: lib.requestChangesResetIsExecutable(c.state, c.stage) };
       } finally {
         for (const [index, name] of names.entries()) {
           if (before[index] === undefined) delete process.env[name];

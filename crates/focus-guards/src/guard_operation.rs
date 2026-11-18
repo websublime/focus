@@ -281,18 +281,41 @@ pub fn render_engine_invocation(
     Ok(format!("{prefix} {}", args.join(" ")))
 }
 
+/// `isGuardRecoveryOperation`, of an operation built here and not parsed:
+/// what it names is an identifier, and its fence is one a person may switch.
+#[must_use]
+pub fn is_well_formed(operation: &GuardRecoveryOperation) -> bool {
+    match operation {
+        GuardRecoveryOperation::RestartStage { stage } => is_identifier(stage),
+        GuardRecoveryOperation::AbortBolt { unit, slug } => {
+            is_identifier(unit) && is_identifier(slug)
+        }
+        GuardRecoveryOperation::LowerFence { fence } => fence.is_switchable(),
+        GuardRecoveryOperation::ReviewAdvisory => true,
+        GuardRecoveryOperation::RecordUnitCompletion { stage, unit }
+        | GuardRecoveryOperation::ReopenUnit { stage, unit } => {
+            is_identifier(stage) && is_identifier(unit)
+        }
+    }
+}
+
 /// `renderGuardOperation`: the operation's own command, in its source
 /// spelling when it has one and the mode is `source`.
 ///
 /// # Errors
 ///
-/// As [`render_engine_invocation`].
+/// The operation names something no operation may (upstream's
+/// `guardOperationInvocation` throws the same), or as
+/// [`render_engine_invocation`].
 pub fn render(
     operation: &GuardRecoveryOperation,
     mode: RenderMode,
     harness_dir: &str,
     shell: RenderShell,
 ) -> Result<String, String> {
+    if !is_well_formed(operation) {
+        return Err("Invalid guard recovery operation".to_owned());
+    }
     let invocation = invocation(operation);
     let spelled = match (mode, &invocation.source) {
         (RenderMode::Source, Some(source)) => source.clone(),

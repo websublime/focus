@@ -8024,5 +8024,113 @@ for _ in range(140 * scale):
            attempt, code=gr.choice(GR_CODES), unit=gr.choice([None, None, "api", "web"]), project=gr.choice([None, "/work/project"]), unattended=gr.random() < 0.08,
            fence=gr.choice(GR_FENCES), fence_switch=gr.choice([None, "withhold"]))
 
+# A unit named with no name at all: it is still the unit the refusal names, and no unit a remedy can say.
+for stage in ("functional-design", "nfr-design", "code-generation"):
+    for mark in (" ", "-", "?", "R", "x", None):
+        for fields in ({"Construction Iteration": "unit-major"},
+                       {"Construction Iteration": "unit-major", "Active Unit": "api", "Unit Stage": stage, "Unit State": "in-progress"},
+                       {"Construction Iteration": "unit-major", "Construction Checkpoints": "enabled", "Active Unit": "api", "Unit Stage": stage, "Unit State": "in-progress"}):
+            for code, attempt in (("REVIEW_EVIDENCE_MISSING", gr_attempt()),
+                                  ("UNIT_COMPLETION_MISSING", gr_attempt(reviewCoverage="missing")),
+                                  ("REVIEW_BUDGET_EXHAUSTED", gr_attempt(reviewBudget={"used": 1, "limit": 1})),
+                                  ("SUMMARY_EVIDENCE_MISSING", gr_attempt(summaryCoverage="stale", reviewCoverage="stale"))):
+                gr_add(stage, gr_state(stage, mark, fields=fields), attempt, code=code, unit="")
+
+
+def gr_plain(lines, fields=None, scope="feature"):
+    head = "".join(f"- **{name}**: {value}\n" for name, value in (fields or {}).items())
+    return f"# AI-DLC State\n\n## Workflow\n- **Scope**: {scope}\n{head}\n## Stage Progress\n" + "".join(f"- [{mark}] {slug} — {suffix}\n" for mark, slug, suffix in lines)
+
+
+# A stage the plan leaves out: the scopes that run it are named when they are few, and the person picks either way.
+for stage in ("market-research", "feasibility", "intent-capture", "user-stories", "functional-design", "code-generation", "nope"):
+    for mark in (" ", "S", "x"):
+        gr_add(stage, gr_plain([(mark, stage, "SKIP: not in this scope")], scope="bugfix"), gr_attempt())
+# What a line says after its dash, only where it starts.
+for suffix in ("EXECUTE (was SKIP)", "NO SKIP", "SKIP", "SKIPPED", "skip", " SKIP", "EXECUTE"):
+    for mark in (" ", "-", "x"):
+        gr_add("requirements-analysis", gr_plain([(mark, "requirements-analysis", suffix)]), gr_attempt())
+# A stage listed twice: the first line is the stage's state, the last one is what the walk's block reads.
+for first, last in ((("-", "EXECUTE"), ("x", "EXECUTE")), (("x", "EXECUTE"), ("-", "EXECUTE")), ((" ", "SKIP: no"), ("-", "EXECUTE")), (("-", "EXECUTE"), (" ", "SKIP: no")),
+                    (("S", "EXECUTE"), (" ", "EXECUTE")), ((" ", "EXECUTE"), ("S", "EXECUTE"))):
+    for stage in ("requirements-analysis", "nfr-design"):
+        gr_add(stage, gr_plain([(first[0], stage, first[1]), (last[0], stage, last[1])], {"Construction Iteration": "unit-major"}), gr_attempt())
+    # And the same of the stage before the one refused: whether the refused stage is the block's first.
+    for unit in (None, "api"):
+        gr_add("nfr-requirements", gr_plain([(first[0], "functional-design", first[1]), (" ", "nfr-requirements", "EXECUTE"), (last[0], "functional-design", last[1])],
+                                            {"Construction Iteration": "unit-major"}), gr_attempt(), unit=unit)
+# Construction's checkpoints count only where a stage of the walk writes code.
+for code_line in ((" ", "EXECUTE"), ("S", "EXECUTE"), (" ", "SKIP: no code here"), ("x", "EXECUTE"), None):
+    for checkpoints in ("enabled", "disabled", None):
+        for unit_state in ("in-progress", "done"):
+            fields = {"Construction Iteration": "unit-major", "Active Unit": "api", "Unit Stage": "functional-design", "Unit State": unit_state}
+            if checkpoints:
+                fields["Construction Checkpoints"] = checkpoints
+            lines = [("-", "functional-design", "EXECUTE"), (" ", "nfr-design", "EXECUTE")] + ([(code_line[0], "code-generation", code_line[1])] if code_line else [])
+            for scope in ("feature", "poc"):
+                gr_add("functional-design", gr_plain(lines, fields, scope), gr_attempt(reviewBudget={"used": 1, "limit": 1}), code="REVIEW_BUDGET_EXHAUSTED",
+                       project="/work/project")
+# A way on that would run as an operation naming what none may (a stage or a unit that is no identifier, a fence no
+# person switches): the evaluator throws, and only where it builds that operation.
+for stage in ("bad stage", "-x", "", "a" * 256, "a" * 257, "requirements-analysis"):
+    for mark in (" ", "-", "?", "R", "x"):
+        gr_add(stage, gr_plain([(mark, stage, "EXECUTE")]), gr_attempt())
+        gr_add(stage, gr_plain([(mark, stage, "SKIP: left out")]), gr_attempt())
+for unit in ("we b", "-bad", "a" * 256, "a" * 257, "api"):
+    for code, mark in (("UNIT_COMPLETION_MISSING", "-"), ("UNIT_COMPLETION_MISSING", " "), ("REVIEW_EVIDENCE_MISSING", "-"), ("REVIEW_EVIDENCE_MISSING", " ")):
+        for fields in ({}, {"Construction Iteration": "unit-major"}):
+            gr_add("nfr-design", gr_plain([(mark, "nfr-design", "EXECUTE")], fields), gr_attempt(), code=code, unit=unit)
+for fence_switch in (None, "offer", "withhold"):
+    for mark in ("-", "x"):
+        gr_add("requirements-analysis", gr_plain([(mark, "requirements-analysis", "EXECUTE")]), gr_attempt(), fence="human-presence", fence_switch=fence_switch)
+
+# --- The sentence a prose refusal ends with (focus-lifecycle) ----------------
+#
+# `recoveryGuidance`: the first way on the evaluator would offer for a recovery already spent, as one sentence; and
+# `requestChangesResetIsExecutable`: whether a Request Changes can reset the attempt now.
+
+rg = random.Random(seed * 7919 + 33)
+
+
+def rg_add(stage, state, unit=None, unattended=None, project="/work/project"):
+    add("recovery_guidance", stage=stage, unit=unit, project=project, state=state, unattended=unattended)
+
+
+for _ in range(60 * scale):
+    stage = rg.choice(GR_STAGES)
+    fields = {}
+    if rg.random() < 0.6:
+        fields["Construction Iteration"] = rg.choice(["unit-major", "unit-major", "unit-major", " unit-major ", "stage-major"])
+    if rg.random() < 0.06:
+        fields["Unit Ownership"] = "team"
+    if rg.random() < 0.6:
+        fields["Active Unit"] = rg.choice(["api", "api", "web", "-bad", "", "u1-auth"])
+        if rg.random() < 0.8:
+            fields["Unit Stage"] = stage if rg.random() < 0.6 else rg.choice(GR_BLOCK)
+        if rg.random() < 0.7:
+            fields["Unit State"] = rg.choice(["in-progress", "in-progress", "done"])
+    more = "".join(f"- [{rg.choice([' ', ' ', '-', 'x', 'S'])}] {other} — {rg.choice(['EXECUTE', 'EXECUTE', 'EXECUTE', 'SKIP: not needed'])}\n"
+                   for other in GR_BLOCK if other != stage and rg.random() < 0.6)
+    rg_add(stage, gr_state(stage, rg.choice(GR_MARKS + [None]), rg.choice(["EXECUTE", "EXECUTE", "EXECUTE", "SKIP: not needed"]), rg.choice(GR_SCOPES), fields, more),
+           unit=rg.choice([None, None, "api", "web", "we b", ""]), unattended=rg.choice([None, None, None, "1", "0", "true"]),
+           project=rg.choice(["/work/project", "/work/my project", ""]))
+# Each state of a stage, outside a walk and at each place of one, with a person watching and without.
+for stage in ("requirements-analysis", "functional-design", "nfr-design", "code-generation"):
+    for mark in GR_MARKS + [None]:
+        for suffix in ("EXECUTE", "SKIP: not needed"):
+            for fields in ({}, {"Construction Iteration": "unit-major"},
+                           {"Construction Iteration": "unit-major", "Active Unit": "api", "Unit Stage": stage, "Unit State": "in-progress"},
+                           {"Construction Iteration": "unit-major", "Active Unit": "api", "Unit Stage": "nfr-requirements"},
+                           {"Construction Iteration": "unit-major", "Unit Ownership": "team"}):
+                for unit in (None, "api", "web"):
+                    for unattended in (None, "1"):
+                        rg_add(stage, gr_state(stage, mark, suffix, fields=fields), unit=unit, unattended=unattended)
+# A stage or a unit that is no identifier: the sentence is thrown where its way on is an operation.
+for stage in ("bad stage", "", "nfr-design"):
+    for unit in (None, "we b", "-bad", "api"):
+        for mark in (" ", "-", "R", "x"):
+            for fields in ({}, {"Construction Iteration": "unit-major"}):
+                rg_add(stage, gr_plain([(mark, stage, "EXECUTE")], fields), unit=unit)
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

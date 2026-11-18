@@ -232,15 +232,16 @@ impl Spelling<'_> {
         .unwrap_or_default()
     }
 
-    /// `guardOperation`: the operation with its own command.
-    fn operation(&self, operation: &GuardRecoveryOperation) -> String {
+    /// `guardOperation`: the operation with its own command. An operation
+    /// that names what none may (a stage or a unit that is no identifier, a
+    /// fence no person switches) is refused, as upstream throws.
+    fn operation(&self, operation: &GuardRecoveryOperation) -> Result<String, String> {
         guard_operation::render(
             operation,
             RenderMode::Native,
             self.wf.layout.harness.dir(),
             self.shell,
         )
-        .unwrap_or_default()
     }
 
     /// A remedy the person picks, run as the operation's command.
@@ -249,12 +250,12 @@ impl Spelling<'_> {
         op: &'static str,
         action: String,
         operation: GuardRecoveryOperation,
-    ) -> Offer {
-        Offer {
-            command: Some(self.operation(&operation)),
+    ) -> Result<Offer, String> {
+        Ok(Offer {
+            command: Some(self.operation(&operation)?),
             operation: Some(operation),
             ..Offer::person(op, action)
-        }
+        })
     }
 }
 
@@ -433,7 +434,7 @@ fn scope_choice(scopes: &[String]) -> String {
 }
 
 /// `restartStageRemedy`.
-fn restart_stage(spell: &Spelling<'_>, stage: &str) -> Offer {
+fn restart_stage(spell: &Spelling<'_>, stage: &str) -> Result<Offer, String> {
     spell.command(
         "restart-stage",
         format!(
@@ -446,7 +447,7 @@ fn restart_stage(spell: &Spelling<'_>, stage: &str) -> Offer {
 }
 
 /// `reopenUnitStepRemedy`.
-fn reopen_unit_step(spell: &Spelling<'_>, stage: &str, unit: &str) -> Offer {
+fn reopen_unit_step(spell: &Spelling<'_>, stage: &str, unit: &str) -> Result<Offer, String> {
     spell.command(
         "reopen-unit-step",
         format!(
@@ -461,12 +462,12 @@ fn reopen_unit_step(spell: &Spelling<'_>, stage: &str, unit: &str) -> Offer {
 
 /// `finishUnitStepRemedy`: the unit's step finished with the review it has,
 /// when no review pass is left.
-fn finish_unit_step(spell: &Spelling<'_>, stage: &str, unit: &str) -> Offer {
+fn finish_unit_step(spell: &Spelling<'_>, stage: &str, unit: &str) -> Result<Offer, String> {
     let operation = GuardRecoveryOperation::RecordUnitCompletion {
         stage: stage.to_owned(),
         unit: unit.to_owned(),
     };
-    let command = spell.operation(&operation);
+    let command = spell.operation(&operation)?;
     spell.command(
         "record-unit-completion",
         format!(
@@ -483,12 +484,12 @@ fn lifecycle_reset(
     spell: &Spelling<'_>,
     input: &Input<'_>,
     state: CheckboxState,
-) -> Vec<Offer> {
+) -> Result<Vec<Offer>, String> {
     let entry = parse_checkboxes(input.state)
         .into_iter()
         .find(|entry| entry.slug == input.stage);
     if entry.is_some_and(|entry| entry.suffix.starts_with("SKIP")) {
-        return vec![Offer::person(
+        return Ok(vec![Offer::person(
             "change-scope",
             format!(
                 "This stage is excluded from the current plan. Switch to a scope that includes it: run `{} next --scope <scope>` with {}, then restart {}.",
@@ -496,7 +497,7 @@ fn lifecycle_reset(
                 scope_choice(&scopes_running_stage(wf, input.stage)),
                 input.stage
             ),
-        )];
+        )]);
     }
     let walk = solo_unit_major(wf, input);
     let cost = |jump: bool| {
@@ -506,23 +507,23 @@ fn lifecycle_reset(
             String::new()
         }
     };
-    match state {
+    Ok(match state {
         CheckboxState::Pending | CheckboxState::Skipped => {
             let Some(walk) = &walk else {
-                return vec![restart_stage(spell, input.stage)];
+                return Ok(vec![restart_stage(spell, input.stage)?]);
             };
             let live_unit = walk.unit.as_deref().filter(|_| walk.live);
             if let Some(unit) = live_unit
                 && unit_step_redo_clears(input.code, input.attempt)
             {
-                return vec![Offer::work(
+                return Ok(vec![Offer::work(
                     "redo-unit-step",
                     format!(
                         "Redo \"{}\" for unit \"{unit}\" only: continue with {ENTRY_SKILL} and do that step again for unit \"{unit}\". The other units keep their finished work, reviews, Plan Approvals and checkpoint approvals.",
                         input.stage
                     ),
                     true,
-                )];
+                )]);
             }
             // Restarting the first stage of the block is no forward jump, so
             // it is still offered with its cost. A later one either lands
@@ -530,22 +531,22 @@ fn lifecycle_reset(
             // over: the unit on this step starts it again on its own, unless
             // this work allows no review at all.
             if !walk.first_stage {
-                return match live_unit {
+                return Ok(match live_unit {
                     Some(unit)
                         if input.attempt.review_budget.map(|(_, limit)| limit) != Some(0.0) =>
                     {
-                        vec![reopen_unit_step(spell, input.stage, unit)]
+                        vec![reopen_unit_step(spell, input.stage, unit)?]
                     }
                     _ => Vec::new(),
-                };
+                });
             }
-            let mut restart = restart_stage(spell, input.stage);
+            let mut restart = restart_stage(spell, input.stage)?;
             restart.action.push_str(&cost(true));
             vec![restart]
         }
         CheckboxState::InProgress | CheckboxState::AwaitingApproval => {
             if input.unattended {
-                return vec![Offer::person(
+                return Ok(vec![Offer::person(
                     "unset-unattended",
                     format!(
                         "Halt unattended execution and ask a human what should change. Unset {}, ask \"What should change?\" for stage \"{}\", and end the turn. Only after the human answers may their exact text be submitted as the Request Changes reason.{}",
@@ -553,7 +554,7 @@ fn lifecycle_reset(
                         input.stage,
                         cost(false)
                     ),
-                )];
+                )]);
             }
             vec![Offer::person(
                 "request-changes",
@@ -591,7 +592,7 @@ fn lifecycle_reset(
                     GuardRecoveryOperation::RestartStage {
                         stage: input.stage.to_owned(),
                     },
-                ),
+                )?,
             ]
         }
         CheckboxState::Completed => {
@@ -612,9 +613,9 @@ fn lifecycle_reset(
                 GuardRecoveryOperation::RestartStage {
                     stage: input.stage.to_owned(),
                 },
-            )]
+            )?]
         }
-    }
+    })
 }
 
 /// `reviewRequestAction`: a review request spelled out for the conductor:
@@ -630,9 +631,15 @@ fn review_request_action(wf: &Workflow, lead: &str, request: Option<&str>) -> St
 }
 
 /// `evaluateGuardRefusal`: the refusal with its ways on.
-#[must_use]
+///
+/// # Errors
+///
+/// A way on would run as an operation that names what none may: a stage or
+/// a unit that is not an identifier, a fence no person switches. Upstream
+/// throws `Invalid guard recovery operation` there; a caller that names a
+/// stage of the graph and a unit of the plan never sees it.
 #[allow(clippy::too_many_lines)]
-pub fn evaluate(wf: &Workflow, input: &Input<'_>) -> Refusal {
+pub fn evaluate(wf: &Workflow, input: &Input<'_>) -> Result<Refusal, String> {
     let state = lifecycle_state(input.state, input.stage);
     let attempt = input.attempt;
     let spell = Spelling {
@@ -662,7 +669,7 @@ pub fn evaluate(wf: &Workflow, input: &Input<'_>) -> Refusal {
             stage: input.stage.to_owned(),
             unit: unit.to_owned(),
         };
-        let command = spell.operation(&operation);
+        let command = spell.operation(&operation)?;
         offers.push(spell.command(
             "record-unit-completion",
             format!(
@@ -670,7 +677,7 @@ pub fn evaluate(wf: &Workflow, input: &Input<'_>) -> Refusal {
                 input.stage
             ),
             operation,
-        ));
+        )?);
     }
     if let Some(pending) = &attempt.pending_review {
         let iteration = num::to_string(pending.iteration);
@@ -721,7 +728,7 @@ pub fn evaluate(wf: &Workflow, input: &Input<'_>) -> Refusal {
                 "review-advisory-gate",
                 "If the person wants to decide now, set reviews to advisory for this piece of work, then present the reviewer's open findings at the approval gate for them to decide.".to_owned(),
                 GuardRecoveryOperation::ReviewAdvisory,
-            )
+            )?
         });
     }
     if let Some(next) = &attempt.next_review {
@@ -757,8 +764,8 @@ pub fn evaluate(wf: &Workflow, input: &Input<'_>) -> Refusal {
         None
     };
     if let Some(unit) = &mid_step {
-        offers.push(finish_unit_step(&spell, input.stage, unit));
-        offers.push(reopen_unit_step(&spell, input.stage, unit));
+        offers.push(finish_unit_step(&spell, input.stage, unit)?);
+        offers.push(reopen_unit_step(&spell, input.stage, unit)?);
     } else if !budget_available && review_current && open_for_work {
         // With Construction's checkpoints the unit's checkpoint is its
         // gate: `next` shows it again.
@@ -836,7 +843,7 @@ pub fn evaluate(wf: &Workflow, input: &Input<'_>) -> Refusal {
             )
         });
     }
-    for reset in lifecycle_reset(wf, &spell, input, state) {
+    for reset in lifecycle_reset(wf, &spell, input, state)? {
         if !offers.iter().any(|offered| offered.op == reset.op) {
             offers.push(reset);
         }
@@ -851,7 +858,7 @@ pub fn evaluate(wf: &Workflow, input: &Input<'_>) -> Refusal {
                 fence.name()
             ),
             GuardRecoveryOperation::LowerFence { fence },
-        ));
+        )?);
     }
 
     let stage_name = wf
@@ -871,7 +878,7 @@ pub fn evaluate(wf: &Workflow, input: &Input<'_>) -> Refusal {
         source_unbindable: attempt.source_coverage == Coverage::Unbindable,
         every_unit: solo_unit_major(wf, input).is_some(),
     };
-    Refusal {
+    Ok(Refusal {
         code: input.code.to_owned(),
         blocked_action: input.blocked_action.to_owned(),
         stage: input.stage.to_owned(),
@@ -906,7 +913,101 @@ pub fn evaluate(wf: &Workflow, input: &Input<'_>) -> Refusal {
                 }
             })
             .collect(),
+    })
+}
+
+/// The operator's word that no person is watching, as `humanAuthorityState`
+/// reads the variable: on only when it is exactly `1`.
+#[must_use]
+pub fn unattended_says(declared: Option<&str>) -> bool {
+    declared == Some("1")
+}
+
+/// `recoveryGuidance`: the sentence a prose refusal ends with: the first way
+/// on the evaluator would offer, now, for a recovery already spent.
+///
+/// (Upstream hands the evaluator the project directory too. No remedy of
+/// this refusal that can be done now spells it, so it is not asked for.)
+///
+/// # Errors
+///
+/// As [`evaluate`]. (`review` answers a sentence of its own then.)
+pub fn recovery_guidance(
+    wf: &Workflow,
+    state: &str,
+    stage: &str,
+    unit: Option<&str>,
+    unattended: bool,
+    shell: Option<RenderShell>,
+) -> Result<String, String> {
+    let attempt = Attempt {
+        review_budget: None,
+        recovery: Recovery::Spent,
+        pending_review: None,
+        repair_review: None,
+        next_review: None,
+        request_review: None,
+        summary_coverage: Coverage::Current,
+        review_coverage: Coverage::Stale,
+        source_coverage: Coverage::Stale,
+    };
+    let input = Input {
+        code: "REVIEW_RECOVERY_EXHAUSTED",
+        blocked_action: "review",
+        stage,
+        unit: unit.filter(|unit| !unit.is_empty()),
+        project_dir: None,
+        state,
+        invariant: "A review attempt can be reset only through a sanctioned boundary.",
+        user_message: "",
+        attempt: &attempt,
+        unattended,
+        fence: None,
+        fence_switch_withheld: false,
+        summary: None,
+        shell,
+    };
+    let refusal = evaluate(wf, &input)?;
+    if let Some(remedy) = refusal.remedies.iter().find(|remedy| remedy.executable_now) {
+        // The reopen runs as its own command, which a prose refusal has to
+        // name.
+        return Ok(
+            match remedy
+                .command
+                .as_deref()
+                .filter(|command| !command.is_empty())
+            {
+                Some(command) if remedy.op == "reopen-unit-step" => format!(
+                    "{} When the person says so, run `{command}`.",
+                    remedy.action
+                ),
+                _ => remedy.action.clone(),
+            },
+        );
     }
+    // A later block stage of a solo unit-major walk has no restart to offer:
+    // it lands back on the same step or starts every unit's finished work
+    // over. The person names the one unit that does it again.
+    if let Some(walk) = solo_unit_major(wf, &input)
+        && !walk.first_stage
+    {
+        let ask = match &walk.unit {
+            Some(unit) => format!(
+                "Ask the person whether unit \"{unit}\" should do \"{stage}\" again; when they say so, run "
+            ),
+            None => format!("Ask the person which unit should do \"{stage}\" again, then run "),
+        };
+        return Ok(format!(
+            "{ask}{ENTRY_SKILL} --stage {stage} --unit {}. Only that unit does it again; the other units keep their finished work.",
+            walk.unit.as_deref().unwrap_or("<name>")
+        ));
+    }
+    let spell = Spelling {
+        wf,
+        shell: shell.unwrap_or(RenderShell::Posix),
+        project_dir: None,
+    };
+    Ok(restart_stage(&spell, stage)?.action)
 }
 
 /// `requestChangesResetIsExecutable`: whether a Request Changes can reset

@@ -16,7 +16,7 @@ use crate::review_attempt;
 use crate::workflow::Workflow;
 
 /// The case kinds this crate answers.
-pub const KINDS: [&str; 8] = [
+pub const KINDS: [&str; 9] = [
     "review_window",
     "review_accounting",
     "review_snapshot",
@@ -25,6 +25,7 @@ pub const KINDS: [&str; 8] = [
     "review_receipts",
     "review_rows",
     "guard_refusal",
+    "recovery_guidance",
 ];
 
 /// The ledger a case gives as its shards, read as a project's would be.
@@ -85,6 +86,32 @@ pub fn run_case(wf: &Workflow, case: &Value) -> Value {
         "source_snapshot" => source_snapshot_case(wf, case),
         "review_receipts" => review_receipts_case(wf, case),
         "guard_refusal" => guard_refusal_case(wf, case),
+        "recovery_guidance" => {
+            // The sentence a prose refusal ends with, and whether a Request
+            // Changes can reset the attempt now. The operator's variable is
+            // the case's: this process may be answering another case.
+            use focus_guards::guard_operation::RenderShell;
+
+            use crate::guard_refusal::{
+                recovery_guidance, request_changes_reset_is_executable, unattended_says,
+            };
+            let text = |key: &str| case[key].as_str().unwrap_or_default();
+            let guidance = recovery_guidance(
+                wf,
+                text("state"),
+                text("stage"),
+                case["unit"].as_str(),
+                unattended_says(case["unattended"].as_str()),
+                Some(RenderShell::Posix),
+            );
+            json!({
+                "guidance": match guidance {
+                    Ok(sentence) => json!(sentence),
+                    Err(error) => json!({ "error": error }),
+                },
+                "reset": request_changes_reset_is_executable(text("state"), text("stage")),
+            })
+        }
         "review_rows" => {
             // What a review's row and a gate's say, read alone.
             use crate::review_receipts::{gate_stages, terminal_review_verdict, unit_plain_name};
@@ -1382,7 +1409,7 @@ fn guard_refusal_case(wf: &Workflow, case: &Value) -> Value {
         questions_file: None,
         isolated,
     });
-    let refusal = evaluate(
+    let refusal = match evaluate(
         wf,
         &Input {
             code: text("code"),
@@ -1400,7 +1427,10 @@ fn guard_refusal_case(wf: &Workflow, case: &Value) -> Value {
             summary: summary.as_ref(),
             shell: Some(RenderShell::Posix),
         },
-    );
+    ) {
+        Ok(refusal) => refusal,
+        Err(error) => return json!({ "error": error }),
+    };
     let mut answer = serde_json::Map::new();
     answer.insert("code".to_owned(), json!(refusal.code));
     answer.insert("blockedAction".to_owned(), json!(refusal.blocked_action));
