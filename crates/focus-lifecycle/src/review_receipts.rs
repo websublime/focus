@@ -260,6 +260,9 @@ pub struct Options<'a> {
     /// Whether the check of the source's freshness is switched off; `None`
     /// reads the process's environment.
     pub skip_source_freshness: Option<bool>,
+    /// Whether the check of a stage's owed outputs is switched off; `None`
+    /// reads the environment and the project's settings.
+    pub skip_artifact_guard: Option<bool>,
 }
 
 /// `terminalReviewVerdict`: the verdict when it ends the review. `READY`
@@ -1221,7 +1224,9 @@ pub fn fresh(wf: &Workflow, state: &str, stage: &Stage, options: Options<'_>) ->
         }
         Ok(source_taken.get().and_then(Option::as_ref))
     };
-    let require_required_artifacts = !admission::artifact_guard_disabled(&wf.layout);
+    let require_required_artifacts = !options
+        .skip_artifact_guard
+        .unwrap_or_else(|| admission::artifact_guard_disabled(&wf.layout));
     let mut awaiting_verdict = Names::default();
     let requests = std::mem::take(&mut scan.pending_requests);
     for (_, request) in &requests.0 {

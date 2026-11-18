@@ -931,11 +931,18 @@ async function answer(c: Record<string, any>): Promise<unknown> {
         for (const unit of c.units as string[]) {
           filled.push([`{ART:${unit}}`, lib.reviewArtifactFingerprint(root, stage, unit, { stateContent: c.state }) ?? none]);
         }
-        filled.push(["{ART}", lib.reviewArtifactFingerprint(root, stage, undefined, { stateContent: c.state }) ?? none]);
-        filled.push(["{SRC}", lib.workspaceSourceState(root)?.fingerprint ?? "unbindable"]);
+        const whole = lib.reviewArtifactFingerprint(root, stage, undefined, { stateContent: c.state }) ?? none;
+        // (The same fingerprint as it was taken over the raw line ends, when the two differ; and the source's as the
+        // earlier walk gave it, when that walk can be told. Both are asked of the module that took them: what a
+        // reading remembers is the module's own.)
+        filled.push(["{ARTRAW}", lib.rawFingerprintForm(whole) ?? none]);
+        filled.push(["{ART}", whole]);
+        const source = lib.workspaceSourceState(root)?.fingerprint ?? "unbindable";
+        filled.push(["{SRCOLD}", (source === "unbindable" ? null : lib._legacyWorkspaceSourceFingerprintForTests(source)) ?? "unbindable"]);
+        filled.push(["{SRC}", source]);
         // The listing behind the source's fingerprint, kept as a review request keeps it.
         const taken = lib.workspaceSourceState(root);
-        if (c.keep && taken !== null) lib.writeWorkspaceSourceSnapshot(root, c.slug, taken);
+        if (c.keep === true && taken !== null) lib.writeWorkspaceSourceSnapshot(root, c.slug, taken);
         const fill = (text: string) => filled.reduce((out, [name, value]) => out.split(name).join(value), text);
         for (const [rel, text] of Object.entries(c.records as Record<string, string>)) {
           mkdirSync(dirname(join(record, rel)), { recursive: true });
@@ -965,7 +972,11 @@ async function answer(c: Record<string, any>): Promise<unknown> {
           symlinkSync(join(space, target), join(space, rel));
         }
         // (And the source as it is once the case changed it: `{NOW}`.)
-        filled.push(["{NOW}", lib.workspaceSourceState(root)?.fingerprint ?? "unbindable"]);
+        const now = lib.workspaceSourceState(root);
+        filled.push(["{NOW}", now?.fingerprint ?? "unbindable"]);
+        // (A snapshot kept under the earlier fingerprint that lists what is there now: a moved fingerprint with no
+        // path to name.)
+        if (c.keep === "now" && taken !== null && now !== null) lib.writeWorkspaceSourceSnapshot(root, c.slug, { fingerprint: taken.fingerprint, listing: now.listing });
         // An answer names what each engine computed as the case does.
         const named = (value: string | null) =>
           value === null ? null : filled.reduce((out, [name, computed]) => (computed === none || computed === "unbindable" ? out : out.split(computed).join(name)), value);

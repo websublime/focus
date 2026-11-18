@@ -7389,7 +7389,7 @@ class FrStory:
         self.after["files"][self.path(name or fr.choice(self.produces), unit)] = f"# Edited {self.serial}\n"
 
     def review(self, iteration, verdict, unit=None, era=None, art=None, said=None, source=None, recovery=False, record="there", finished=None, body="It reads well.\n",
-               tie=False, unit_source=None, bypass=False, reviewer=RA_REVIEWER, workflow=None, shard=None, at=None):
+               tie=False, unit_source=None, bypass=False, reviewer=RA_REVIEWER, workflow=None, shard=None, at=None, answer=None, echo=None):
         """A request, and the verdict that answers it when there is one."""
         era = era or fr.choice(["record", "record", "bare"])
         art = art or ("{ART:%s}" % unit if unit else "{ART}")
@@ -7408,21 +7408,29 @@ class FrStory:
         self.rows.append(se_row(shard, at, "REVIEW_REQUESTED", **request))
         if verdict is None:
             return
-        answer = dict(base, Verdict=verdict, Artifact_Fingerprint=said or art)
-        if said:
-            answer["Request_Fingerprint"] = art
-        for name in ("Request_Id", "Unit_Source_Fingerprint"):
-            if name in request:
-                answer[name] = request[name]
-        if source is not None:
-            answer["Request_Source_Fingerprint"] = answer["Source_Fingerprint"] = source
+
+        def answer_fields(base, verdict, said, art):
+            fields = dict(base, Verdict=verdict, Artifact_Fingerprint=said or art)
+            if said:
+                fields["Request_Fingerprint"] = art
+            for name in ("Request_Id", "Unit_Source_Fingerprint"):
+                if name in request:
+                    fields[name] = request[name]
+            if source is not None:
+                fields["Request_Source_Fingerprint"] = fields["Source_Fingerprint"] = source
+            # (What the completion says in place of what it should echo.)
+            fields.update(echo or {})
+            return fields
+
+        placed = answer
+        answer = answer_fields(base, verdict, said, art)
         if bypass:
-            answer["Unit_Source_Binding_Bypass"] = "true"
+            answer["Unit_Source_Binding_Bypass"] = "true" if bypass is True else bypass
         if finished is not None:
             answer["Review_Finished"] = finished
         if era == "record" and record != "unnamed":
-            document = {"version": 1, "stage": self.slug, "unit": unit, "workflow": workflow, "attempt": fr_hex(16), "iteration": iteration, "reviewer": reviewer,
-                        "verdict": verdict, "request_id": request["Request_Id"], "request_challenge": None, "artifact_fingerprint": answer["Artifact_Fingerprint"],
+            document = {"version": 1, "stage": self.slug, "unit": unit, "workflow": workflow, "attempt": fr_hex(16), "iteration": int(iteration), "reviewer": reviewer,
+                        "verdict": verdict, "request_id": answer.get("Request_Id"), "request_challenge": None, "artifact_fingerprint": answer["Artifact_Fingerprint"],
                         "source_fingerprint": source, "unit_source_fingerprint": unit_source, "findings": [], "body": body, "recorded_at": "2026-01-05T10:00:00Z"}
             path = (f".aidlc-engine/reviews/{self.slug}/stage/{fr_hex(16)}/{iteration}.json" if unit is None
                     else f".aidlc-engine/reviews/{self.slug}/units/{unit}/{fr_hex(16)}/{iteration}.json")
@@ -7433,7 +7441,10 @@ class FrStory:
                 self.after["files"][f"{RV_RECORD}/{path}"] = None
             elif record == "edited":
                 self.after["files"][f"{RV_RECORD}/{path}"] = self.records[path].replace('"findings": []', '"findings": [ ]')
-        self.rows.append(se_row(1 - shard if tie else self.shard(), at if tie else self.tick(), "REVIEW_COMPLETED", **answer))
+        if placed is not None:
+            self.rows.append(se_row(placed[0], placed[1], "REVIEW_COMPLETED", **answer))
+        else:
+            self.rows.append(se_row(1 - shard if tie else self.shard(), at if tie else self.tick(), "REVIEW_COMPLETED", **answer))
 
     def add(self, state, patch=None, cls=None, env=None, keep=False, posix=False):
         shards = {}
@@ -7693,6 +7704,198 @@ for rows in ([("STAGE_STARTED", {"Stage": "code-generation", "Source_Baseline": 
                 story.row(event, **fields)
         story.files.update(FR_KEPT)
         story.add(fr_state(units="x] units-generation — EXECUTE", more=walk), patch={"workspace_requires": True})
+
+# What the mutants of the reader showed no story told apart: each rule by itself, every row placed by hand.
+STRICT, RELAXED = "", "- **Guard Policy**: relaxed\n"
+CHECKPOINTS, UNIT_MAJOR = "- **Construction Checkpoints**: enabled\n", "- **Construction Iteration**: unit-major\n"
+
+
+def fr_case(slug, build, policy=STRICT, walk="", per_unit=False, workspace=False, dag=True, patch=None, cls=None, env=None, keep=False, posix=False, source=None):
+    story = FrStory(slug, per_unit=per_unit, two=False)
+    if not dag:
+        del story.files[f"{RV_RECORD}/inception/units-generation/unit-of-work-dependency.md"]
+    if workspace:
+        story.source = {"src/a.ts": "a\n", "src/b.ts": "b\n", **(source or {})}
+    story.row("WORKFLOW_STARTED", shard=0, at=1, Scope="feature")
+    story.row("STAGE_STARTED", shard=0, at=2, Stage=slug)
+    build(story)
+    units = "x] units-generation — EXECUTE" if per_unit else " ] units-generation — SKIP" if workspace else None
+    story.add(fr_state(policy, units=units, more=walk), patch={**(patch or {}), **({"workspace_requires": True} if workspace else {})}, cls=cls, env=env, keep=keep, posix=posix)
+
+
+FD, RQ, CG = "functional-design", "requirements-analysis", "code-generation"
+# The class and the passes a stage that declares neither has.
+for patch in ({"review_class": None}, {"reviewer_max_iterations": None}, {"review_class": None, "reviewer_max_iterations": None}, {"review_class": "advisory", "reviewer_max_iterations": None}):
+    for iteration in (1, 2, 3):
+        fr_case(RQ, lambda story: story.review(iteration, "NOT-READY", shard=0, at=3, answer=(0, 4)), patch=patch)
+# A stage reviewed as a whole whose rows name a unit: nothing of a unit's is its own.
+for walk in ("", CHECKPOINTS, UNIT_MAJOR):
+    fr_case(RQ, lambda story: (story.review(1, None, unit="api", shard=0, at=3), story.row("GATE_REJECTED", shard=0, at=4, Unit="api", Stage=RQ)), walk=walk)
+    fr_case(RQ, lambda story: (story.review(1, None, unit="api", shard=0, at=3), story.row("BOLT_STARTED", shard=0, at=4, Bolt_names="api")), walk=walk)
+    fr_case(RQ, lambda story: (story.review(1, None, shard=0, at=3), story.row("ARTIFACT_CREATED", shard=1, at=3, Stage="intent-capture", File="x.md")), walk=walk)
+    fr_case(RQ, lambda story: (story.review(1, "READY", shard=0, at=3, answer=(0, 4)), story.row("ARTIFACT_CREATED", shard=1, at=4, Stage="intent-capture", File="x.md")), walk=walk)
+# Rows at one instant in two shards, under the rules of units checked one by one.
+FR_TIES = [[("AUDIT_MERGED", {})], [("SESSION_STARTED", {}), ("AUDIT_MERGED", {})], [("SESSION_RESUMED", {})], [("SESSION_STARTED", {})],
+           [("SESSION_STARTED", {}), ("ARTIFACT_CREATED", {"Stage": "intent-capture", "File": "x.md"})], [("ARTIFACT_CREATED", {"Stage": "intent-capture", "File": "x.md"})],
+           [("AUDIT_MERGED", {}), ("ARTIFACT_CREATED", {"Stage": "intent-capture", "File": "x.md"})]]
+for walk in (CHECKPOINTS, ""):
+    for others in FR_TIES:
+        def tied_request(story):
+            story.review(1, None, unit="api", shard=0, at=5)
+            for event, fields in others:
+                story.row(event, shard=1, at=5, **fields)
+
+        def tied_verdict(story):
+            story.review(1, "READY", unit="api", era="bare", shard=0, at=4, answer=(0, 5))
+            for event, fields in others:
+                story.row(event, shard=1, at=5, **fields)
+
+        fr_case(FD, tied_request, walk=walk, per_unit=True)
+        fr_case(FD, tied_verdict, walk=walk, per_unit=True)
+    # A bolt that starts again at an instant another shard shares: its units start again once the instant has passed.
+    for bolt, other in ((0, 1), (1, 0)):
+        fr_case(FD, lambda story: (story.row("BOLT_STARTED", shard=bolt, at=5, Bolt_names="api"), story.row("SESSION_STARTED", shard=other, at=5),
+                                   story.review(1, "READY", unit="api", era="bare", shard=0, at=6, answer=(0, 7))), walk=walk, per_unit=True)
+        fr_case(FD, lambda story: (story.review(1, "READY", unit="api", era="bare", shard=0, at=3, answer=(0, 4)), story.row("BOLT_STARTED", shard=bolt, at=5, Bolt_names="api"),
+                                   story.row("SESSION_STARTED", shard=other, at=5)), walk=walk, per_unit=True)
+        fr_case(FD, lambda story: (story.review(1, "READY", unit="api", era="record", record="gone", shard=other, at=4, answer=(other, 5)),
+                                   story.row("BOLT_STARTED", shard=bolt, at=5, Bolt_names="api")), policy=RELAXED, walk=walk, per_unit=True)
+        fr_case(FD, lambda story: (story.review(1, "READY", unit="api", era="bare", shard=other, at=4, answer=(other, 5)), story.row("BOLT_STARTED", shard=bolt, at=5, Bolt_names="web")),
+                walk=walk, per_unit=True)
+    # A unit's rejection and its review rows: at one instant in two shards, in one shard, and of another stage.
+    fr_case(FD, lambda story: (story.row("GATE_REJECTED", shard=1, at=3, Unit="api", Stage=FD), story.review(1, None, unit="api", shard=0, at=5)), walk=walk, per_unit=True)
+    fr_case(FD, lambda story: (story.row("GATE_REJECTED", shard=0, at=5, Unit="api", Stage=FD), story.review(1, None, unit="api", shard=0, at=5)), walk=walk, per_unit=True)
+    fr_case(FD, lambda story: (story.review(1, None, unit="api", shard=0, at=5), story.row("GATE_REJECTED", shard=0, at=5, Unit="api", Stage=FD)), walk=walk, per_unit=True)
+    for stage in (FD, CG):
+        fr_case(FD, lambda story: (story.review(1, "READY", unit="api", era="bare", shard=0, at=4, answer=(0, 5)), story.row("GATE_REJECTED", shard=1, at=5, Unit="api", Stage=stage)),
+                walk=walk, per_unit=True)
+        fr_case(FD, lambda story: (story.review(1, None, unit="api", shard=0, at=5), story.row("GATE_REJECTED", shard=1, at=5, Unit="api", Stage=stage)), walk=walk, per_unit=True)
+        fr_case(FD, lambda story: (story.review(1, None, unit="api", shard=0, at=5), story.row("GATE_REJECTED", shard=1, at=5, Unit="web", Stage=stage)), walk=walk, per_unit=True)
+# A source fingerprint on a verdict at an instant another shard shares is no boundary of freshness.
+for shard in (0, 1):
+    fr_case(CG, lambda story: (story.review(1, "READY", era="bare", source="a" * 64, shard=0, at=3, answer=(0, 4)), story.row("SESSION_STARTED", shard=shard, at=4)), workspace=True)
+# Two units' verdicts at one instant: in two shards neither is the newest, in one shard the later is.
+for policy in (STRICT, RELAXED):
+    for second in (0, 1):
+        fr_case(CG, lambda story: (story.review(1, "READY", unit="api", era="bare", shard=0, at=3, answer=(0, 6)),
+                                   story.review(1, "READY", unit="web", era="bare", shard=second, at=4, answer=(second, 6))), policy=policy, per_unit=True, workspace=True)
+    # A verdict recorded under the source bypass, or with the bypass said and not taken.
+    for bypass in ("true", "false", "yes"):
+        for env in (None, {"AIDLC_SKIP_SOURCE_FRESHNESS": "1"}):
+            fr_case(CG, lambda story: story.review(1, "READY", unit="api", era="bare", bypass=bypass, shard=0, at=3, answer=(0, 4)), policy=policy, per_unit=True, workspace=True, env=env)
+
+            def unreadable(story):
+                story.review(1, "READY", unit="api", era="bare", bypass=bypass, shard=0, at=3, answer=(0, 4))
+                story.after["source"][".aidlc-source-paths.json"] = "{"
+
+            def rejected(story):
+                unreadable(story)
+                story.row("GATE_REJECTED", shard=0, at=5, Unit="api", Stage=CG)
+
+            fr_case(CG, unreadable, policy=policy, per_unit=True, workspace=True, env=env)
+            fr_case(CG, rejected, policy=policy, walk=UNIT_MAJOR, per_unit=True, workspace=True, env=env)
+    # A unit's verdict that falls to a write takes what it recorded of the source with it: nothing is left to take
+    # the source for.
+    for stray in (False, True):
+        fr_case(CG, lambda story: (story.review(1, "READY", unit="api", era="bare", shard=0, at=3, answer=(0, 4)), story.write("api", stray=stray)), policy=policy, per_unit=True,
+                workspace=True)
+    # A change the policy accepts names a path once, however often it was written.
+    def twice(story):
+        story.review(1, "READY", era="bare", said=FR_OTHER, shard=0, at=3, answer=(0, 4))
+        story.write(name="requirements")
+        story.write(name="requirements")
+
+    fr_case(RQ, twice, policy=policy)
+    # A review that stands, taken again and sent back below the last pass.
+    fr_case(RQ, lambda story: (story.review(1, "READY", era="bare", shard=0, at=3, answer=(0, 4)), story.review(1, "NOT-READY", era="bare", shard=0, at=5, answer=(0, 6))), policy=policy)
+    # A verdict whose completion does not echo its request.
+    fr_case(RQ, lambda story: story.review(1, "READY", era="record", echo={"Request_Id": "review:" + "0" * 32}, shard=0, at=3, answer=(0, 4)), policy=policy)
+    fr_case(RQ, lambda story: story.review(1, "READY", era="bare", echo={"Artifact_Fingerprint": FR_OTHER}, shard=0, at=3, answer=(0, 4)), policy=policy)
+    # Artifacts that cannot be read as one set: a verdict has nothing to be compared with.
+    for verdict, iteration in (("READY", 1), ("NOT-READY", 1), ("NOT-READY", 2)):
+        def unreadable_artifacts(story):
+            story.review(iteration, verdict, era="bare", shard=0, at=3, answer=(0, 4))
+            story.files["elsewhere/kept.md"] = "Kept elsewhere.\n"
+            story.after["links"] = {story.path("requirements"): "elsewhere/kept.md"}
+
+        fr_case(RQ, unreadable_artifacts, policy=policy, posix=True)
+    # A request that waits while an output the stage owes goes missing: with the check of owed outputs on, and off.
+    for env in (None, {"AIDLC_SKIP_ARTIFACT_GUARD": "1"}):
+        def missing_output(story):
+            story.review(1, None, shard=0, at=3)
+            story.after["files"][story.path("requirements")] = None
+
+        fr_case(RQ, missing_output, policy=policy, env=env)
+    # The artifacts' fingerprint as it was taken over the raw line ends, and the source's as the earlier walk gave it.
+    def raw_form(story):
+        story.files[story.path("requirements")] = "# Requirements\r\n\r\nBody.\r\n"
+        story.review(1, "READY", era="bare", art="{ARTRAW}", shard=0, at=3, answer=(0, 4))
+
+    fr_case(RQ, raw_form, policy=policy)
+    for recorded in ("{SRCOLD}", "{SRC}", "b" * 64):
+        fr_case(CG, lambda story: story.review(1, "READY", era="bare", source=recorded, shard=0, at=3, answer=(0, 4)), policy=policy, workspace=True, source={"src/.DS_Store": "x\n"})
+    # A fingerprint that moved with no path to name.
+    def moved(story):
+        story.review(1, "READY", era="bare", source="{SRC}", shard=0, at=3, answer=(0, 4))
+        story.after["source"]["src/a.ts"] = "changed\n"
+
+    for keep in (True, "now", False):
+        fr_case(CG, moved, policy=policy, workspace=True, keep=keep)
+# A pass written with a leading zero, or as zero, is no pass.
+for iteration in ("01", "0", "00", "1"):
+    fr_case(RQ, lambda story: story.review(iteration, "READY", era="bare", shard=0, at=3, answer=(0, 4)))
+# Units with no dependency document: every unit's rows count, until a bolt names the units there are.
+for rows in ([], [("BOLT_STARTED", {"Bolt_names": "api"})], [("BOLT_STARTED", {"Bolt_names": "api, web"})]):
+    def no_document(story):
+        for event, fields in rows:
+            story.row(event, shard=0, at=3, **fields)
+        story.review(1, "READY", unit="api", era="bare", shard=0, at=4, answer=(0, 5))
+        story.review(1, "READY", unit="web", era="bare", shard=0, at=6, answer=(0, 7))
+        story.review(1, None, shard=0, at=8)
+
+    fr_case(FD, no_document, per_unit=True, dag=False)
+    fr_case(FD, no_document, per_unit=True)
+# A unit's re-check, spent until the person next approves the unit at its checkpoint.
+def fr_recheck(later=None, approval=None):
+    def build(story):
+        story.review(1, "READY", unit="api", era="bare", recovery=True, shard=0, at=3, answer=(0, 4))
+        story.row("GATE_APPROVED", shard=0, at=5, **{"Unit": "api", "User_Input": "Approve", "Checkpoint": "construction-unit", "Stage": FD, **(approval or {})})
+        story.write("api")
+        if later:
+            story.row("REVIEW_REQUESTED", shard=0, at=20, **{"Stage": FD, "Unit": "api", "Reviewer": RA_REVIEWER, "Iteration": "1", "Recovery": "stale-receipt", **later})
+    return build
+
+
+for walk in (UNIT_MAJOR, CHECKPOINTS, ""):
+    fr_case(FD, fr_recheck(), walk=walk, per_unit=True)
+    for later in ({"Stage": CG}, {"Unit": "web"}, {"Reviewer": "other-reviewer-agent"}, {"Recovery": "other"}, {}):
+        fr_case(FD, fr_recheck(later=later), walk=walk, per_unit=True)
+    for approval in ({"Stage": CG}, {"Gate_Stages": f"{CG}, {FD}", "Stage": CG}, {"User_Input": "Request changes"}, {"Checkpoint": "walking-skeleton"}, {"Checkpoint": "construction-stage"},
+                     {"Unit": "web"}):
+        fr_case(FD, fr_recheck(approval=approval), walk=walk, per_unit=True)
+# The rows that open the stage, at one instant in two shards and apart.
+FR_E = "sha256:" + "e" * 64
+for first, second in ((0, 1), (1, 0)):
+    for opening in ([(first, 3, None), (second, 3, FR_VALUE)], [(first, 3, FR_VALUE), (second, 3, FR_VALUE)], [(first, 3, FR_VALUE), (second, 3, FR_E)],
+                    [(first, 3, FR_E), (second, 4, FR_VALUE)], [(first, 3, FR_VALUE), (second, 4, None)], [(first, 3, FR_VALUE), (first, 3, FR_E)]):
+        story = FrStory(CG, two=False)
+        story.row("WORKFLOW_STARTED", shard=0, at=1, Scope="feature")
+        for shard, at, value in opening:
+            story.row("STAGE_STARTED", shard=shard, at=at, Stage=CG, Source_Baseline=value)
+        story.files.update(FR_KEPT)
+        story.add(fr_state(units=" ] units-generation — SKIP"), patch={"workspace_requires": True})
+for after in ([("STAGE_JUMPED", {"Target": "build-and-test"})], [("STAGE_JUMPED", {"Target": CG})], [("WORKFLOW_STARTED", {"Workflow": f"single-stage:{CG}"})],
+              [("WORKFLOW_STARTED", {})], [("STAGE_JUMPED", {"Target": "build-and-test", "Workflow": f"single-stage:{CG}"})]):
+    story = FrStory(CG, two=False)
+    story.row("WORKFLOW_STARTED", shard=0, at=1, Scope="feature")
+    story.row("STAGE_STARTED", shard=0, at=2, Stage=CG, Source_Baseline=FR_VALUE)
+    for event, fields in after:
+        story.row(event, shard=0, at=3, **fields)
+    story.files.update(FR_KEPT)
+    story.add(fr_state(units=" ] units-generation — SKIP"), patch={"workspace_requires": True})
+# No row at all, a sign of a source binding, and a stage that writes no code.
+fr_evidence(files={f"{FR_ENGINE}/source-review/a/b/c.tsv": ""}, opened=False, patch={"workspace_requires": None})
+fr_evidence(files={f"{FR_ENGINE}/source-review/a/b/c.tsv": ""}, opened=False, slug=RQ, patch={"workspace_requires": None})
 
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

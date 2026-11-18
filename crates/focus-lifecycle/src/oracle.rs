@@ -1124,7 +1124,15 @@ fn review_receipts_case(wf: &Workflow, case: &Value) -> Value {
             let unit = unit.as_str().unwrap_or_default();
             filled.push((format!("{{ART:{unit}}}"), fingerprint(Some(unit))));
         }
-        filled.push(("{ART}".to_owned(), fingerprint(None)));
+        let whole = fingerprint(None);
+        // (The same fingerprint as it was taken over the raw line ends,
+        // when the two differ; and the source's as the earlier walk gave
+        // it, when that walk can be told.)
+        filled.push((
+            "{ARTRAW}".to_owned(),
+            focus_evidence::source::raw::raw_form(&whole).unwrap_or_else(|| none.clone()),
+        ));
+        filled.push(("{ART}".to_owned(), whole));
         let taken = crate::review_pending::current_source(&scratch)
             .ok()
             .flatten();
@@ -1140,10 +1148,16 @@ fn review_receipts_case(wf: &Workflow, case: &Value) -> Value {
                 source,
             );
         }
+        let source = taken.as_ref().map_or_else(
+            || "unbindable".to_owned(),
+            |source| source.fingerprint.clone(),
+        );
         filled.push((
-            "{SRC}".to_owned(),
-            taken.map_or_else(|| "unbindable".to_owned(), |source| source.fingerprint),
+            "{SRCOLD}".to_owned(),
+            focus_evidence::source::state::legacy_alias(&source)
+                .unwrap_or_else(|| "unbindable".to_owned()),
         ));
+        filled.push(("{SRC}".to_owned(), source));
         let fill = |filled: &[(String, String)], text: &str| {
             filled.iter().fold(text.to_owned(), |out, (name, value)| {
                 out.replace(name, value)
@@ -1191,13 +1205,31 @@ fn review_receipts_case(wf: &Workflow, case: &Value) -> Value {
                 .expect("a link");
         }
         // (And the source as it is once the case changed it: `{NOW}`.)
+        let now = crate::review_pending::current_source(&scratch)
+            .ok()
+            .flatten();
         filled.push((
             "{NOW}".to_owned(),
-            crate::review_pending::current_source(&scratch)
-                .ok()
-                .flatten()
-                .map_or_else(|| "unbindable".to_owned(), |source| source.fingerprint),
+            now.as_ref().map_or_else(
+                || "unbindable".to_owned(),
+                |source| source.fingerprint.clone(),
+            ),
         ));
+        // (A snapshot kept under the earlier fingerprint that lists what is
+        // there now: a moved fingerprint with no path to name.)
+        if case["keep"] == "now"
+            && let (Some(taken), Some(now)) = (&taken, &now)
+        {
+            let _ = focus_evidence::source::snapshot::write_workspace_snapshot(
+                &scratch.layout,
+                &scratch.selection,
+                slug,
+                &focus_evidence::source::walk::WorkspaceSource {
+                    fingerprint: taken.fingerprint.clone(),
+                    ..now.clone()
+                },
+            );
+        }
         // An answer names what each engine computed as the case does.
         let named = |value: &str| -> String {
             filled
@@ -1217,6 +1249,10 @@ fn review_receipts_case(wf: &Workflow, case: &Value) -> Value {
             Options {
                 review_class: case["class"].as_str(),
                 skip_source_freshness: Some(skip_source_freshness),
+                skip_artifact_guard: (case["env"]
+                    [focus_workspace::env::full_name("SKIP_ARTIFACT_GUARD").as_str()]
+                    == "1")
+                    .then_some(true),
                 ..Options::default()
             },
         )
