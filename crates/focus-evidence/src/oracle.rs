@@ -469,7 +469,7 @@ pub fn unhex(hex: &str) -> Vec<u8> {
 }
 
 /// A finding a review states, as upstream's object is written.
-fn stated_finding(finding: &crate::review_findings::Finding) -> Value {
+pub fn stated_finding(finding: &crate::review_findings::Finding) -> Value {
     let mut out = serde_json::Map::new();
     let mut put = |key: &str, value: &str| {
         out.insert(key.to_owned(), json!(value));
@@ -523,6 +523,13 @@ fn stated_finding(finding: &crate::review_findings::Finding) -> Value {
             "introducedInReview",
             finding.introduced_in_review.map(|flag| json!(flag)),
         ),
+        (
+            "reviewRecord",
+            finding
+                .review_record
+                .as_ref()
+                .map(|(path, digest)| json!({ "path": path, "digest": digest })),
+        ),
     ] {
         if let Some(value) = value {
             out.insert(key.to_owned(), value);
@@ -556,6 +563,16 @@ fn list_finding(finding: &Value) -> crate::review_findings::Finding {
         reopened_reason: maybe("reopenedReason"),
         related_finding_id: maybe("relatedFindingId"),
         introduced_in_review: flag("introducedInReview"),
+        review_record: finding["reviewRecord"].as_object().map(|named| {
+            let part = |key: &str| {
+                named
+                    .get(key)
+                    .and_then(Value::as_str)
+                    .unwrap_or_default()
+                    .to_owned()
+            };
+            (part("path"), part("digest"))
+        }),
     }
 }
 

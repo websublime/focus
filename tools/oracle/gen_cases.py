@@ -9001,5 +9001,464 @@ for _ in range(40 * scale):
         given["derived_findings"] = derived
     rr_add("record", text=json.dumps(dict(RR_RECORD, **given), ensure_ascii=False), artifact=rr.choice(["design/architecture.md", "a.md"]))
 
+# --- The list a review's scope stands at, replayed from the ledger (slice 2e-iii-c-ii-b of M5) ---
+# `deriveReviewFindingsList` over a project of the case's own: the scope's paired reviews in ledger order, each with
+# the record it names; the decisions a gate recorded, on the review they name or by id; a Redo from scratch; a legacy
+# `## Review` section in an artifact, where no record exists yet; and a review about to be recorded, applied last.
+
+dv = random.Random(seed * 7919 + 39)
+DV_PRINT = "sha256:" + "7" * 64
+
+
+def dv_hex(width):
+    return "".join(dv.choice(SL_HEX) for _ in range(width))
+
+
+def dv_said(found, **given):
+    """A finding as a record keeps it: what it says is the same wherever its id is written."""
+    stored = {"id": found, "severity": "Major", "location": f"a.md > Part {found}", "finding": f"Finding {found} is wrong", "required_action": f"Fix {found}", "status": "New"}
+    stored.update(given)
+    return stored
+
+
+def dv_print(found, **given):
+    """The fingerprint of what the finding says, as both engines take it."""
+    stored = dv_said(found, **given)
+    said = json.dumps([stored["id"], stored["location"], stored["finding"], stored["required_action"]], ensure_ascii=False, separators=(",", ":"))
+    return "sha256:" + hashlib.sha256(said.encode("utf-8")).hexdigest()
+
+
+def dv_row(found, status="New", severity="Major"):
+    stored = dv_said(found)
+    return f"| {found} | {severity} | {stored['location']} | {stored['finding']} | {stored['required_action']} | {status} |\n"
+
+
+DV_SIX = "| ID | Severity | Location | Finding | Required action | Status |\n|---|---|---|---|---|---|\n"
+
+
+def dv_six(*rows, verdict="NOT-READY"):
+    return f"**Verdict:** {verdict}\n\n### Findings\n\n{DV_SIX}" + "".join(rows)
+
+
+def dv_report(prior, new, verdict="NOT-READY", head=True):
+    text = f"**Verdict:** {verdict}\n\n### Findings\n\n"
+    if head:
+        text += "**Prior findings**\n\n| ID | Now | Severity | Note |\n|---|---|---|---|\n" + "".join(f"| {row} |\n" for row in prior) + "\n"
+    return text + "**New findings**\n\n| Severity | Location | Finding | Required action |\n|---|---|---|---|\n" + "".join(f"| {row} |\n" for row in new)
+
+
+class DvStory(FrStory):
+    """A stage's reviews, the decisions on them and its Redos, in the order they happen."""
+
+    def __init__(self, slug, per_unit=False, two=None):
+        global fr
+        kept, fr = fr, dv
+        try:
+            super().__init__(slug, per_unit, two)
+        finally:
+            fr = kept
+        self.named = []
+
+    def tick(self):
+        self.clock += 0 if dv.random() < self.tie else dv.choice([1, 1, 2])
+        return self.clock
+
+    def shard(self):
+        return dv.randrange(2) if self.two else 0
+
+    def artifact(self, unit=None, name=None):
+        return "aidlc/spaces/default/" + self.path(name or RV_STAGES[self.slug][3] or self.produces[0], unit)
+
+    def ask(self, iteration, unit=None, era="record", reviewer=RA_REVIEWER, workflow=None, stage=None, request=None):
+        """A request's row. Returns what it says, for the verdict that answers it."""
+        asked = {"Stage": stage or self.slug, "Reviewer": reviewer, "Iteration": str(iteration), "Unit": unit, "Workflow": workflow, "Artifact_Fingerprint": DV_PRINT}
+        if era == "record":
+            asked["Request_Id"] = "review:" + dv_hex(32)
+        asked.update(request or {})
+        self.last = (self.shard(), self.tick())
+        self.rows.append(se_row(*self.last, "REVIEW_REQUESTED", **asked))
+        return asked
+
+    def answer(self, asked, verdict="NOT-READY", findings=(), derived=None, body="It reads well.\n", change=None, said=None, tie=False):
+        """The verdict that answers a request, with the record it names when the request is of the record era. Returns what a decision names the review by."""
+        answer = {name: asked[name] for name in ("Stage", "Reviewer", "Iteration", "Unit", "Workflow")}
+        answer.update(Verdict=verdict, Artifact_Fingerprint=DV_PRINT)
+        named = None
+        if "Request_Id" in asked:
+            answer["Request_Id"] = asked["Request_Id"]
+            passed = re.sub(r"[^0-9]", "", asked["Iteration"]) or "0"
+            document = {"version": 1, "stage": asked["Stage"], "unit": asked["Unit"], "workflow": asked["Workflow"], "attempt": dv_hex(16), "iteration": int(passed), "reviewer": asked["Reviewer"],
+                        "verdict": verdict, "request_id": asked["Request_Id"], "request_challenge": None, "artifact_fingerprint": DV_PRINT, "source_fingerprint": None, "unit_source_fingerprint": None,
+                        "findings": list(findings), "body": body, "recorded_at": "2026-01-05T10:00:00Z"}
+            if derived is not None:
+                document["derived_findings"] = list(derived)
+            # (What the record says in place of what the request asked for.)
+            document.update(said or {})
+            where = f"stage/{dv_hex(16)}" if asked["Unit"] is None else f"units/{asked['Unit']}/{dv_hex(16)}"
+            path = f".aidlc-engine/reviews/{asked['Stage']}/{where}/{passed}.json"
+            answer["Review_Record"] = path
+            answer["Review_Record_Digest"] = "{DIGEST:" + path + "}"
+            self.records[path] = json.dumps(document, indent=2, ensure_ascii=False) + "\n"
+            named = {"path": path, "digest": "{DIGEST:" + path + "}"}
+            self.named.append(named)
+        answer.update(change or {})
+        shard, at = self.last
+        self.rows.append(se_row(1 - shard if tie and self.two else self.shard(), at if tie else self.tick(), "REVIEW_COMPLETED", **answer))
+        return named
+
+    def reviewed(self, iteration, verdict="NOT-READY", unit=None, findings=(), derived=None, body="It reads well.\n", era="record", answered=True, reviewer=RA_REVIEWER, workflow=None,
+                 stage=None, change=None, request=None, tie=False, said=None):
+        """A request and the verdict that answers it."""
+        asked = self.ask(iteration, unit, era, reviewer, workflow, stage, request)
+        return self.answer(asked, verdict, findings, derived, body, change, said, tie) if answered else None
+
+    def decided(self, *decisions, event="GATE_APPROVED", unit=None, stage=None, stages=None, field=None):
+        """A gate's row with the decisions a person made at it."""
+        written = field if field is not None else json.dumps({"version": 1, "dispositions": list(decisions)}, ensure_ascii=False)
+        self.row(event, Stage=stage or self.slug, Unit=unit, Gate_Stages=stages, Review_Finding_Dispositions=written)
+
+    def decision(self, found, status="Accepted risk", named=None, unit=None, artifact=None, fingerprint=None, severity=None):
+        said = {"artifact": artifact or self.artifact(unit), "id": found, "fingerprint": fingerprint or dv_print(found), "status": status}
+        if severity is not None:
+            said["decided_at_severity"] = severity
+        if named is not None:
+            said["reviewed_record"] = named
+        return said
+
+    def redone(self, unit=None, decision="redo", workflow=None, paths=None):
+        listed = paths if paths is not None else ([self.path(self.produces[0], unit)] if unit else None)
+        self.row("ARTIFACT_REUSED", Stage=self.slug, Decision=decision, Workflow=workflow, Artifacts=", ".join("aidlc/spaces/default/" + path for path in listed) if listed else None)
+
+    def legacy(self, section, unit=None, name=None):
+        """A `## Review` section an older release left in an artifact."""
+        path = self.path(name or RV_STAGES[self.slug][3] or self.produces[0], unit)
+        self.files[path] = self.files.get(path, "# Artifact\n") + "\n## Review\n\n" + section
+
+    def add(self, unit=None, artifact=None, pending=None, state=None, reviewer=RA_REVIEWER):
+        shards = {}
+        for shard, text in self.rows:
+            shards.setdefault(SE_SHARDS[shard], []).append(text)
+        if pending is not None:
+            pending = dict({"artifact": artifact or self.artifact(unit), "verdict": "NOT-READY", "unreadableReason": None, "allowMalformed": False, "seedLegacy": None}, **pending)
+        # (What is there when the case is asked: the story may go on.)
+        add("review_derived", slug=self.slug, state=state or fr_state(units="x] units-generation — EXECUTE" if self.per_unit else None), files=dict(self.files), records=dict(self.records),
+            shards={name: "# AI-DLC Audit Log\n" + "".join(texts) for name, texts in shards.items()}, patch={"reviewer": reviewer}, artifact=artifact or self.artifact(unit), unit=unit, pending=pending)
+
+
+DV_PENDING = [None, {"body": dv_report(["R-01 | Fixed | Major | Done"], ["Major | c.md | It leaks | Close it"])}, {"body": dv_report([], [])}, {"body": dv_report([], [], head=False)},
+              {"body": dv_report([], ["minor | c.md | New one | Do it"], head=False), "verdict": "READY"}, {"body": dv_report(["R-01 | Still applies | Critical | Worse"], [])},
+              {"body": dv_report(["R-09 | Fixed | | "], [])}, {"body": dv_report(["R-01 | Fixed | | ", "R-01 | Fixed | | "], [])}, {"body": dv_report(["R-01 | Maybe | | "], [])},
+              {"body": dv_six(dv_row("R-01", "Resolved"), dv_row("R-05"))}, {"body": dv_six(dv_row("R-05", "Fixed"))}, {"body": dv_six("| R-01 | Major |\n")}, {"body": ""}, {"body": "No findings section.\n", "verdict": "READY"},
+              {"body": "anything", "unreadableReason": "the reviewer wrote no table | at all"}, {"body": dv_report([], [], head=False), "seedLegacy": False}, {"body": dv_six(dv_row("R-01")), "seedLegacy": True}]
+
+
+def dv_pendings():
+    """Each pending review, sent back when it breaks a rule and recorded as it is on the last pass."""
+    for pending in DV_PENDING:
+        if pending is None:
+            yield None
+        else:
+            for allow in (False, True):
+                yield dict(pending, allowMalformed=allow)
+
+
+add("review_derived", blocks=["", "**A**: 1\n**B**: 2\n", "**A**: 1\n**A**: 2\n", "**A**: 1\n- **A**: 2\n", "- **A**: 1\n-  **A**: 2\n", "**A**: 1\n**a**: 2\n", "**A**: 1\n** A **: 2\n", "**A**: 1\n**A **:\n",
+                              "**A**: 1\n **A**: 2\n", "**A**: 1\ntext **A**: 2\n", "**A**: 1\n**A** : 2\n", "**A**: 1\n**A*B**: 2\n**A**x: 3\n", "**A**: **A**: 1\n", "**A**: 1\r\n**A**: 2\r\n", "**A**: 1\u2028**A**: 2",
+                              "**A**:1\n-\t**A**:2", "**A B**: 1\n**A  B**: 2\n**A B**: 3\n", "## Row\n**Timestamp**: t\n**Event**: E\n**Stage**: s\n**Stage**: s\n---\n", "**\u00a0A\u00a0**: 1\n**A**: 2\n"])
+
+# One review with the list the engine kept, and every pending review after it.
+for pending in dv_pendings():
+    story = DvStory("requirements-analysis", two=False)
+    story.reviewed(1, findings=[dv_said("R-01")], derived=[dv_said("R-01", introduced_in_review=True), dv_said("R-02", status="Resolved", resolved_by_reviewer=True, resolved_in_review=True)], body=dv_report([], ["Major | a | b | c"]))
+    story.add(pending=pending)
+    # Nothing recorded yet.
+    DvStory("requirements-analysis", two=False).add(pending=pending)
+    # A legacy section, and no record.
+    story = DvStory("requirements-analysis", two=False)
+    story.legacy(dv_six(dv_row("R-01", "Unresolved"), dv_row("R-02", "Resolved"), dv_row("R-03", "Accepted risk"), verdict="NOT-READY"))
+    story.add(pending=pending)
+
+# The shapes a recorded review takes.
+for body, findings, derived in (("", [], None), ("", [], []), (dv_six(dv_row("R-01"), dv_row("R-02", "Resolved")), [dv_said("R-01"), dv_said("R-02", status="Resolved")], None),
+                                (dv_six("| R-01 | Major |\n"), [], None), (dv_six("| R-01 | Major |\n"), [dv_said("R-00", location="a.md > review findings table", status="Unresolved")], None),
+                                (dv_report([], ["Major | a | b | c"]), [dv_said("R-01")], None), ("prose only\n", [dv_said("R-01"), dv_said("R-04", status="Accepted risk")], None),
+                                (dv_six("| R-01 | Major |\n"), [], [dv_said("R-00", location="x > review findings table", status="Unresolved"), dv_said("R-01", status="Unresolved")]),
+                                (dv_six(dv_row("R-01")), [], [dv_said("R-00", location="x > review findings table", status="Unresolved")]),
+                                (dv_six(dv_row("R-01")), [dv_said("R-01")], [dv_said("R-01", status="Resolved", resolved_in_review=True), dv_said("R-02", status="Resolved", resolved_in_review=True, earlier_decision="Accepted risk")])):
+    for first in (None, [dv_said("R-01", status="Unresolved", reviewer_note="Before"), dv_said("R-02", status="Accepted risk", decided_at_severity="Minor"), dv_said("R-00", location="y > review findings table", status="Unresolved")]):
+        story = DvStory("requirements-analysis", two=False)
+        if first is not None:
+            earlier = story.reviewed(1, derived=first, body=dv_report([], []))
+            story.decided(story.decision("R-01", "Rejected: not a defect", named=earlier), story.decision("R-03"))
+        story.reviewed(2, findings=findings, derived=derived, body=body)
+        story.add()
+        story.add(pending={"body": dv_report(["R-01 | Fixed | | "], []), "allowMalformed": False})
+
+# Decisions: on the review they name, by id where they name none, reopened, on another artifact, and across a later review.
+for named in (True, False):
+    for status in ("Accepted risk", "Rejected: not a defect", "Reopened: it is not fixed", "Resolved"):
+        for later in (None, "derived", "derived-open", "legacy", "empty"):
+            story = DvStory("requirements-analysis", two=False)
+            first = story.reviewed(1, derived=[dv_said("R-01"), dv_said("R-02", status="Resolved", resolved_by_reviewer=True), dv_said("R-03", severity="Critical")], body=dv_report([], []))
+            story.decided(story.decision("R-01", status, named=first if named else None), story.decision("R-02", status, named=first if named else None),
+                          story.decision("R-03", status, named=first if named else None, fingerprint=DV_PRINT), story.decision("R-09", status, named=first if named else None),
+                          story.decision("R-01", status, named=first if named else None, artifact="elsewhere.md"))
+            if later == "derived":
+                story.reviewed(2, derived=[dv_said("R-01", status="Accepted risk" if status == "Accepted risk" else "Unresolved"), dv_said("R-02", status="Resolved", earlier_decision="Rejected: once")], body=dv_report([], []))
+            elif later == "derived-open":
+                story.reviewed(2, derived=[dv_said("R-01", status="Unresolved"), dv_said("R-02", status="Unresolved"), dv_said("R-03", status="New", severity="Minor")], body=dv_report([], []))
+            elif later == "legacy":
+                story.reviewed(2, findings=[dv_said("R-01", status="Unresolved", severity="Critical"), dv_said("R-03", status="Resolved"), dv_said("R-04")], body=dv_six(dv_row("R-01", "Unresolved"), dv_row("R-03", "Resolved"), dv_row("R-04")))
+            elif later == "empty":
+                story.reviewed(2, body="")
+            story.add()
+# A decision's row sorted before the review it names, in another shard at the same second; and one naming a review outside the list.
+for tie in (True, False):
+    story = DvStory("requirements-analysis", two=True)
+    story.tie = 1.0 if tie else 0.0
+    first = story.reviewed(1, derived=[dv_said("R-01"), dv_said("R-02")], body=dv_report([], []))
+    story.decided(story.decision("R-01", named=first), story.decision("R-02", "Rejected: no", named={"path": ".aidlc-engine/reviews/x/stage/0/1.json", "digest": DV_PRINT}))
+    story.decided(story.decision("R-02", "Rejected: later", named=first), event="GATE_REJECTED")
+    story.add()
+
+# Redo from scratch: a new list, a seed that belongs to the last one, and what does not count as one.
+for decision, workflow in (("redo", None), ("Redo", None), ("reuse", None), ("redo", "single-stage:requirements-analysis")):
+    for seeded in (False, True):
+        story = DvStory("requirements-analysis", two=False)
+        if seeded:
+            story.legacy(dv_six(dv_row("R-07"), verdict="READY"))
+        story.decided(story.decision("R-07"))
+        story.redone(decision=decision, workflow=workflow)
+        story.decided(story.decision("R-07", "Rejected: after the first redo"))
+        story.redone(decision=decision, workflow=workflow)
+        story.add()
+        story.reviewed(1, derived=[dv_said("R-01")], body=dv_report([], []))
+        story.redone(decision=decision, workflow=workflow)
+        story.add()
+        story.reviewed(1, derived=[dv_said("R-02")], body=dv_report([], []))
+        story.add()
+
+# A legacy section: which artifact holds it, what it says, and what a later record makes of it.
+for section in (dv_six(dv_row("R-01"), dv_row("R-02", "Resolved")), dv_six(), dv_six("| R-01 | Major |\n"), "**Verdict:** READY\n\nNo findings.\n", "**Verdict:** NOT-READY\n\n### Findings\n\n| ID |\n|---|\n| x |\n",
+                dv_six(dv_row("nope")), "", "   \n", dv_six(dv_row("R-01", "Rejected: by the reviewer"), dv_row("R-02", "Accepted risk"), verdict="READY") + "\n### Notes\n\ntail\n"):
+    for name in ("intent-statement", "stakeholder-map"):
+        story = DvStory("intent-capture", two=False)
+        story.legacy(section, name=name)
+        story.add()
+        story.add(artifact=story.artifact(name="stakeholder-map"))
+        story.decided(story.decision("R-01", artifact=story.artifact(name=name)), story.decision("R-02", "Reopened: it is back", artifact=story.artifact(name=name)))
+        story.add(artifact=story.artifact(name="stakeholder-map"))
+        story.add(pending={"body": dv_report(["R-01 | Fixed | | "], [])})
+        story.reviewed(1, era="bare")
+        story.add()
+        story.reviewed(1, findings=[dv_said("R-01", status="Unresolved")], body=dv_six(dv_row("R-01", "Unresolved")))
+        story.add()
+story = DvStory("intent-capture", two=False)
+story.legacy(dv_six(dv_row("R-01")), name="intent-statement")
+story.legacy(dv_six(dv_row("R-02"), verdict="READY"), name="stakeholder-map")
+story.add()
+story.add(artifact=story.artifact(name="stakeholder-map"))
+story.add(artifact="aidlc/spaces/default/elsewhere.md")
+story.files[story.path("stakeholder-map")] = "```\n## Review\n```\n\ntext\n"
+story.add(artifact=story.artifact(name="stakeholder-map"))
+
+# What does not pair: a row with a field twice, a review of a stage run by itself, a pass that is no number, another
+# reviewer, a request answered twice, a record that is not the bytes the row pins, and a completion with no request.
+for change, request in (({}, {}), ({"Verdict": "READY"}, {}), ({"Iteration": "2"}, {}), ({"Review_Record_Digest": DV_PRINT}, {}), ({"Review_Record": ".aidlc-engine/reviews/x/stage/0/1.json"}, {}), ({"Request_Id": "review:" + "0" * 32}, {}),
+                        ({"Reviewer": "another-reviewer"}, {}), ({"Stage": "another-stage"}, {}), ({"Artifact_Fingerprint": "sha256:" + "8" * 64}, {}), ({}, {"Iteration": "0"}), ({}, {"Iteration": "01"}), ({}, {"Artifact_Fingerprint": "nope"})):
+    story = DvStory("requirements-analysis", two=False)
+    story.reviewed(1, derived=[dv_said("R-01")], body=dv_report([], []))
+    story.reviewed(2, derived=[dv_said("R-02")], body=dv_report([], []), change=change, request=request)
+    story.add()
+for workflow, reviewer in (("single-stage:requirements-analysis", RA_REVIEWER), (None, "another-reviewer")):
+    story = DvStory("requirements-analysis", two=False)
+    story.reviewed(1, derived=[dv_said("R-01")], body=dv_report([], []), workflow=workflow, reviewer=reviewer)
+    story.add()
+story = DvStory("requirements-analysis", two=False)
+story.reviewed(1, derived=[dv_said("R-01")], body=dv_report([], []))
+kept = story.rows[-1]
+story.rows[-1] = (kept[0], kept[1].replace("**Verdict**: NOT-READY\n", "**Verdict**: NOT-READY\n**Verdict**: READY\n"))
+story.add()
+story.rows[-1] = (kept[0], kept[1].replace("**Verdict**: NOT-READY\n", "**Verdict**: NOT-READY\n- **Verdict**: NOT-READY\n"))
+story.add()
+story.rows[-1] = kept
+story.rows[-2] = (story.rows[-2][0], story.rows[-2][1].replace("**Iteration**: 1\n", "**Iteration**: 1\n**Iteration**: 1\n"))
+story.add()
+story = DvStory("requirements-analysis", two=False)
+story.reviewed(1, derived=[dv_said("R-01")], body=dv_report([], []))
+story.rows.append(story.rows[-1])
+story.reviewed(1, derived=[dv_said("R-02")], body=dv_report([], []))
+story.rows.append(story.rows[0])
+story.add()
+story = DvStory("requirements-analysis", two=False)
+named = story.reviewed(1, derived=[dv_said("R-01")], body=dv_report([], []))
+story.records[named["path"]] += " "
+story.rows[-1] = (story.rows[-1][0], story.rows[-1][1].replace("{DIGEST:" + named["path"] + "}", DV_PRINT))
+story.add()
+
+# What the sweep of mutants asked for.
+# A stage with no reviewer, or with an empty one, pairs nothing; nor does a review of another stage by the same reviewer.
+for reviewer in ("", None):
+    story = DvStory("requirements-analysis", two=False)
+    story.reviewed(1, derived=[dv_said("R-01")], body=dv_report([], []), reviewer=reviewer or "")
+    story.reviewed(2, era="bare", reviewer=reviewer or "")
+    story.add(reviewer=reviewer)
+story = DvStory("requirements-analysis", two=False)
+story.reviewed(1, derived=[dv_said("R-01")], body=dv_report([], []), stage="user-stories")
+story.reviewed(1, era="bare", stage="user-stories")
+story.add()
+story.reviewed(1, derived=[dv_said("R-02")], body=dv_report([], []))
+story.add()
+# A pass that is no number as the engine writes one, in rows that agree with each other.
+for passed in ("01", "0", "1x", "1 ", "+1", "1.0", "10"):
+    story = DvStory("requirements-analysis", two=False)
+    story.reviewed(passed, era="bare")
+    story.reviewed(passed, derived=[dv_said("R-01")], body=dv_report([], []), said={"iteration": 1})
+    story.add()
+# What a request is kept by: its Unit, its pass and its id. All in one second of one shard, so the order is the rows'.
+for per_unit, first, second in ((True, {"unit": "api"}, {"unit": "web"}), (False, {"iteration": 1}, {"iteration": 2}), (False, {}, {})):
+    for era in ("record", "bare"):
+        for shared in (True, False):
+            story = DvStory("code-generation" if per_unit else "requirements-analysis", per_unit=per_unit, two=False)
+            story.tie = 1.0
+            one = story.ask(first.get("iteration", 1), first.get("unit"), era)
+            given = {"Request_Id": one["Request_Id"]} if shared and era == "record" else None
+            two = story.ask(second.get("iteration", 1), second.get("unit"), era, request=given)
+            story.answer(one, derived=[dv_said("R-01")], body=dv_report([], []))
+            story.answer(two, derived=[dv_said("R-02")], body=dv_report([], []))
+            # A request answered once: what answers it again is not a review.
+            story.answer(one, "READY", derived=[dv_said("R-03")], body=dv_report([], []))
+            story.add(unit="api" if per_unit else None)
+            story.add(unit="web" if per_unit else None)
+# A verdict that says other than its request asked, with a record that agrees with the verdict.
+for change, said in (({"Artifact_Fingerprint": "sha256:" + "8" * 64}, {"artifact_fingerprint": "sha256:" + "8" * 64}), ({"Request_Id": "review:" + "0" * 32}, {"request_id": "review:" + "0" * 32}),
+                     ({"Reviewer": "another-reviewer"}, {"reviewer": "another-reviewer"}), ({"Unit": "web"}, {"unit": "web"}), ({"Verdict": "READY"}, {"verdict": "READY"}), ({"Verdict": "READY"}, {}), ({}, {"verdict": "READY"}),
+                     ({}, {"stage": "another-stage"}), ({}, {"iteration": 2}), ({}, {})):
+    story = DvStory("requirements-analysis", two=False)
+    story.reviewed(1, derived=[dv_said("R-01")], body=dv_report([], []), change=change, said=said)
+    story.add()
+# A gate of another Unit, and a row that is no gate, with decisions that name this Unit's review or none.
+for named in (True, False):
+    story = DvStory("code-generation", per_unit=True, two=False)
+    api = story.reviewed(1, unit="api", derived=[dv_said("R-01"), dv_said("R-02")], body=dv_report([], []))
+    story.decided(story.decision("R-01", named=api if named else None, unit="api"), unit="web")
+    story.decided(story.decision("R-02", "Rejected: by no gate", named=api if named else None, unit="api"), event="STAGE_COMPLETED")
+    story.decided(story.decision("R-02", "Rejected: at another stage", named=api if named else None, unit="api"), stage="functional-design")
+    story.add(unit="api")
+    story.add(unit="web")
+    story.add(unit=None)
+    story.add(unit="")
+# A Redo after a review that found something fixed, or gave no verdict of its own.
+story = DvStory("requirements-analysis", two=False)
+story.reviewed(1, derived=[dv_said("R-01", status="Resolved", resolved_by_reviewer=True, resolved_in_review=True)], body="")
+story.add()
+story.redone()
+story.add()
+story.add(unit="")
+# A decision made on a review before a Redo does not stand in the list the Redo began.
+story = DvStory("requirements-analysis", two=False)
+first = story.reviewed(1, derived=[dv_said("R-01"), dv_said("R-02")], body=dv_report([], []))
+story.decided(story.decision("R-01", named=first), story.decision("R-02", "Rejected: before the redo"))
+story.redone()
+story.reviewed(1, derived=[dv_said("R-01", status="Unresolved"), dv_said("R-02", status="Unresolved")], body=dv_report([], []))
+story.add()
+story.reviewed(2, findings=[dv_said("R-01", status="Unresolved"), dv_said("R-02", status="Unresolved")], body=dv_six(dv_row("R-01", "Unresolved"), dv_row("R-02", "Unresolved")))
+story.add()
+# A record whose table has no rows under a NOT-READY verdict cannot be read; under READY it can.
+for verdict in ("NOT-READY", "READY"):
+    for derived in (None, [dv_said("R-00", location="x > review findings table", status="Unresolved"), dv_said("R-01")], [dv_said("R-01")]):
+        story = DvStory("requirements-analysis", two=False)
+        story.reviewed(1, verdict, findings=[], derived=derived, body=dv_six(verdict=verdict))
+        story.add()
+# A record that reads, and lists the finding that stands in for a table that could not be.
+story = DvStory("requirements-analysis", two=False)
+story.reviewed(1, derived=[dv_said("R-01"), dv_said("R-02", status="Accepted risk")], body=dv_report([], []))
+story.reviewed(2, findings=[dv_said("R-01", status="Unresolved"), dv_said("R-00", location="y > review findings table", status="Unresolved", finding="Stood in")], body=dv_six(dv_row("R-01", "Unresolved")))
+story.add()
+# A decision made on a review stands in the next review's list, unless that list says the finding was fixed or reopened
+# since, or the finding stands in for a table that could not be read.
+for kept in ({}, {"earlier_decision": "Rejected: once"}, {"status": "Resolved", "resolved_by_reviewer": True}):
+    story = DvStory("requirements-analysis", two=False)
+    stood = dict(location="x > review findings table", finding="Stood in", status="Unresolved")
+    first = story.reviewed(1, derived=[dv_said("R-01"), dv_said("R-00", **stood)], body=dv_report([], []))
+    story.decided(story.decision("R-01", named=first), story.decision("R-00", "Rejected: the table was fine", named=first, fingerprint=dv_print("R-00", **stood)))
+    story.add()
+    story.reviewed(2, derived=[dv_said("R-01", **dict({"status": "Unresolved"}, **kept)), dv_said("R-00", **stood)], body=dv_report([], []))
+    story.add()
+# A decision that names no review carries, by id, into the list an older record rewrites, at the severity the finding
+# had when it was made; and the later of two on one finding is the one that carries.
+for second in (None, "Rejected: the second"):
+    story = DvStory("requirements-analysis", two=False)
+    story.reviewed(1, derived=[dv_said("R-01", severity="Major"), dv_said("R-02", severity="Minor")], body=dv_report([], []))
+    story.decided(story.decision("R-01"), story.decision("R-02", "Rejected: the first"), story.decision("R-08", "Rejected: of no finding"))
+    story.add()
+    story.reviewed(2, derived=[dv_said("R-01", status="Unresolved", severity="Critical"), dv_said("R-02", status="Unresolved", severity="Critical")], body=dv_report([], []))
+    if second:
+        story.decided(story.decision("R-02", second))
+        story.reviewed(3, derived=[dv_said("R-01", status="Unresolved", severity="Critical"), dv_said("R-02", status="Unresolved", severity="Major")], body=dv_report([], []))
+    story.add()
+    rows = [dv_said("R-01", status="Unresolved", severity="Minor"), dv_said("R-02", status="Unresolved", severity="Minor"), dv_said("R-08", status="New")]
+    story.reviewed(4, findings=rows, body=dv_six(dv_row("R-01", "Unresolved", "Minor"), dv_row("R-02", "Unresolved", "Minor"), dv_row("R-08")))
+    story.add()
+
+# A stage reviewed Unit by Unit: each Unit its own list, a gate that names one or none, and a Redo read from its paths.
+for unit in ("api", "web", None):
+    story = DvStory("code-generation", per_unit=True, two=False)
+    api = story.reviewed(1, unit="api", derived=[dv_said("R-01"), dv_said("R-02")], body=dv_report([], []))
+    web = story.reviewed(1, unit="web", derived=[dv_said("R-01", finding="Of web")], body=dv_report([], []))
+    story.decided(story.decision("R-01", named=api, unit="api"), unit="api")
+    story.decided(story.decision("R-02", "Rejected: for every Unit", unit="api"))
+    story.decided(story.decision("R-01", "Rejected: of web", unit="web", fingerprint=dv_print("R-01", finding="Of web"), named=web), unit="web", stage="other-stage", stages="x, code-generation")
+    story.add(unit=unit)
+    story.add(unit=unit, pending={"body": dv_report(["R-01 | Still applies | | "], ["Major | c.md | New | Do it"])})
+    story.redone(unit="api")
+    story.add(unit=unit)
+    story.redone(paths=[])
+    story.add(unit=unit)
+
+# Stories drawn: reviews of each shape, decisions, Redos and what gets in their way, on one shard or two.
+for _ in range(110 * scale):
+    per_unit = dv.random() < 0.3
+    story = DvStory("code-generation" if per_unit else dv.choice(["requirements-analysis", "requirements-analysis", "intent-capture"]), per_unit=per_unit)
+    units = ["api", "web"] if per_unit else [None]
+    if dv.random() < 0.25:
+        story.legacy(dv.choice([dv_six(dv_row("R-01"), dv_row("R-02", "Resolved")), dv_six("| R-01 | Major |\n"), "**Verdict:** READY\n"]), unit=units[0])
+    passes = {unit: 0 for unit in units}
+    for _ in range(dv.randint(1, 7)):
+        unit = dv.choice(units)
+        step = dv.random()
+        if step < 0.5:
+            passes[unit] += 1
+            ids = [f"R-{n:02}" for n in range(1, dv.randint(1, 4) + 1)]
+            shape = dv.random()
+            if shape < 0.5:
+                derived = []
+                for found in ids:
+                    status = dv.choice(["New", "Unresolved", "Resolved", "Accepted risk", "Rejected: because"])
+                    marks = {key: value for key, value in (("resolved_by_reviewer", dv.choice([True, False])), ("resolved_in_review", dv.choice([True, False])), ("earlier_decision", "Accepted risk"),
+                                                            ("decided_at_severity", "Minor"), ("reviewer_note", "A note"), ("introduced_in_review", dv.choice([True, False])), ("not_rechecked", True),
+                                                            ("reopened_reason", "It is back"), ("related_finding_id", "R-01")) if dv.random() < 0.2}
+                    derived.append(dv_said(found, status=status, severity=dv.choice(["Minor", "Major", "Critical"]), **marks))
+                if dv.random() < 0.1:
+                    derived.append(dv_said("R-00", location="a.md > review findings table", status="Unresolved"))
+                story.reviewed(passes[unit], dv.choice(["READY", "NOT-READY"]), unit=unit, derived=derived, body=dv.choice([dv_report([], []), dv_six("| R-01 | Major |\n"), ""]), tie=dv.random() < 0.2)
+            elif shape < 0.8:
+                rows = [(found, dv.choice(["New", "Unresolved", "Resolved", "Accepted risk"])) for found in ids]
+                body = dv.choice([dv_six(*(dv_row(found, status) for found, status in rows)), dv_six("| R-01 | Major |\n"), "prose\n"])
+                story.reviewed(passes[unit], "NOT-READY", unit=unit, findings=[dv_said(found, status=status) for found, status in rows], body=body)
+            elif shape < 0.9:
+                story.reviewed(passes[unit], "NOT-READY", unit=unit, body="")
+            else:
+                story.reviewed(passes[unit], unit=unit, era=dv.choice(["bare", "record"]), answered=dv.random() < 0.5, derived=[dv_said("R-01")], change=dv.choice([{}, {"Verdict": "READY"}, {"Iteration": "9"}]))
+        elif step < 0.85:
+            named = dv.choice(story.named + [None, None]) if story.named else None
+            decisions = [story.decision(dv.choice(["R-01", "R-02", "R-03", "R-00"]), dv.choice(["Accepted risk", "Rejected: by a person", "Reopened: it is not fixed"]), named=named, unit=unit,
+                                        fingerprint=dv.choice([None, None, None, DV_PRINT]), severity=dv.choice([None, None, "Critical"])) for _ in range(dv.randint(1, 3))]
+            story.decided(*decisions, event=dv.choice(["GATE_APPROVED", "GATE_REJECTED"]), unit=dv.choice([unit, None]))
+        else:
+            story.redone(unit=dv.choice([unit, None]), decision=dv.choice(["redo", "redo", "reuse"]))
+    asked = dv.choice(units)
+    story.add(unit=asked, pending=dv.choice([None, None] + [dict(pending, allowMalformed=dv.random() < 0.5) for pending in DV_PENDING[1:]]))
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")
