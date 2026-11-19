@@ -2625,7 +2625,7 @@ O teste marcado está em `review_derived`. A entrada em `DEVIATIONS` vem com o p
 
 **Um corte a meio de um par.** O original corta por unidade UTF-16, e o corte pode cair a meio de um par de substituição. A metade que sobra chega a um ficheiro ou a um pipe como U+FFFD, e é isso que Focus escreve (`focus_js::text::slice_utf16_written`). O driver do oráculo dá cada texto como chega ao disco (`toWellFormed`), e a comparação é a dos bytes que a pessoa lê. Não é um desvio.
 
-**Ficou à vista, por medir.** `slice_utf16`, que os ports anteriores usam, deixa cair a metade em vez de a escrever: a dica de uma resposta atrasada (`focus-log::message`), a linha citada de um título rebaixado (`review_text`), a razão de um turno do host e o texto de uma mensagem guardada (`focus-hooks`). Em cada um o original escreve a metade, como U+FFFD num texto ou como `\udXXX` num JSON. É uma aresta de um carácter fora do plano básico exatamente na posição do corte, e não é desta fatia: fica para um PR próprio, sítio a sítio, contra o original.
+**O que ficou à vista.** `slice_utf16`, que os ports anteriores usavam, deixava cair a metade em vez de a escrever. Foi medido sítio a sítio e corrigido a seguir (abaixo, «Correção: um corte a meio de um par de substituição»).
 
 **O que a mutação encontrou.** Os 2 372 casos da primeira geração responderam todos igual à primeira. A mutação, 156 mutantes, deixou 6 vivos:
 
@@ -2643,6 +2643,38 @@ O teste marcado está em `review_derived`. A entrada em `DEVIATIONS` vem com o p
 | Corpus, tudo | 80 977 casos em 90 tipos; os dos outros 89 tipos iguais byte a byte |
 | Mutação | Duas rondas. A primeira, 156 mutantes: 150 apanhados, 6 vivos (acima). No código final, a lista toda outra vez: 159 mutantes, 156 apanhados e 3 equivalentes |
 | `cargo test` | 599 testes; corpus de 80 977 casos (2 468 novos), todos iguais |
+
+### Correção: um corte a meio de um par de substituição
+
+O original corta texto por unidade UTF-16 (`slice`), e o corte pode cair a meio de um par de substituição: fica meio carácter no fim. `focus_js::text::slice_utf16`, dos marcos anteriores, deixava cair essa metade, com a nota de que o JavaScript a guardava. A fatia 2e-iii-c-iii mediu o que acontece à metade (o runtime escreve-a como U+FFFD num ficheiro, num pipe ou no terminal, e como um escape, `\ud83d`, quando o texto passa por `JSON.stringify`) e deixou os sítios antigos por comparar. Comparados, com um carácter fora do plano básico exatamente na posição do corte:
+
+| Sítio | Para onde vai o texto cortado no original | Focus antes | Focus agora |
+| --- | --- | --- | --- |
+| A razão de um turno do host (`suppliedTurnOrigin`, 200 unidades) | A linha `Reason` do ledger: U+FFFD | Deixava cair a metade: a linha ficava um carácter mais curta | U+FFFD, igual ao original |
+| A linha citada de um título rebaixado (`demoteReviewHeadings`, 120) | O campo `Review Headings Made Level 3` do ledger: U+FFFD | Deixava cair | U+FFFD, igual (pelo corpus: o comando que o grava vem com a 2e-iv) |
+| A mensagem guardada de uma pessoa (`record-human-turn`: o texto e as palavras a 8 000, cada entrada de uma caixa a 2 000) | O JSON da mensagem: o escape | Deixava cair | U+FFFD (a forma `half-pair`) |
+| A dica de uma resposta atrasada (`log answer`, 40) | A linha JSON em que a recusa é impressa: o escape | Deixava cair | U+FFFD (a forma `half-pair`) |
+| A escolha oferecida que uma resposta nomeia (`offeredChoiceLabel`) | Não escreve: compara o princípio do texto, do comprimento da escolha, com a escolha | Com a metade caída o princípio ficava uma unidade mais curto. Não era igual a nenhuma das escolhas fixas que hoje se lhe dão; seria igual a uma escolha cuja minúscula muda de comprimento | Um corte a meio de um par não é igual a escolha nenhuma, que é o que o original responde sempre |
+
+**Decisão.** `slice_utf16` saiu de `focus-js`: deixar cair meio carácter não é o que o original faz em sítio nenhum. Ficam `slice_utf16_written` (o corte como chega a um ficheiro: a metade é U+FFFD, uma unidade como a metade era, e por isso todos os comprimentos contados depois do corte são os do original) e `split_at_utf16` (as duas partes de um corte que se comparam e não se escrevem: nada, quando o corte cai a meio de um par).
+
+**Um desvio deliberado, de forma.** Onde o texto cortado é escrito como texto, os dois motores escrevem o mesmo. Onde o original o escreve por `JSON.stringify`, não:
+
+| Desvio | Original | Focus |
+| --- | --- | --- |
+| Um texto cortado a meio de um par, escrito em JSON: a mensagem guardada e a linha de uma recusa que a cita (`SHAPES`: `half-pair`) | O JSON fica com a metade como escape (`\ud83d`). Nenhum texto UTF-8 tem meio par, e quem lê o ficheiro fica com uma string que não se escreve de volta igual | U+FFFD, que é o que o próprio original escreve quando esse texto chega ao ledger. O leitor de JSON de Focus recusa o escape (o desvio de M2): escrevê-lo seria gravar um ficheiro que Focus não lê. O escape solto do original lê-se como U+FFFD antes de comparar; o resto da mensagem e da linha compara-se como está |
+
+O teste marcado está em `focus-hooks::turn` (uma resposta de uma caixa cortada a meio de um carácter).
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Diferencial | 13 checks novos, todos iguais: o prompt, a resposta e a pergunta de uma caixa e a razão do host cortados a meio de um par, o prompt e a razão cortados logo a seguir a um, uma resposta de caixa longa (não havia check nenhum do corte a 2 000), e a dica de uma resposta atrasada cortada a meio de um par e a seguir a um. 4 são iguais depois da forma `half-pair` (o prompt, a resposta e a pergunta da caixa, a dica); os da razão do host são iguais sem forma nenhuma, e antes da correção diferiam. Mais quatro sobre a escolha que uma resposta nomeia, que a mutação pediu: um sinal Kelvin onde a escolha tem um `k` (a comparação é por minúsculas, e o sinal é uma unidade e três bytes: nomeia a escolha), a resposta cortada a meio de um par no comprimento da escolha (não nomeia nenhuma), e um par logo depois da escolha, com e sem separador |
+| Corpus | 16 casos novos, no fim do gerador para que os casos anteriores de cada tipo fiquem com os ids que tinham: 8 títulos rebaixados e 8 razões do host, com o carácter antes do corte, sobre ele e depois dele. 6 têm U+FFFD na resposta do original, e o código anterior falhava-os. 80 993 casos em 90 tipos; todos os outros iguais byte a byte |
+| Diferencial, tudo | 3 870 checks: 3 636 iguais, 234 desvios declarados, nenhum diferente; a gravação (3 781 checks sobre 1 487 árvores) repete-se igual |
+| Mutação | 14 mutantes sobre as duas funções de `focus-js` e os sete sítios (em cada um, a metade deixada cair outra vez): 12 apanhados à primeira, pelo corpus, pela gravação e pelos testes. Dos 2 vivos, ambos na escolha que uma resposta nomeia: o corte por bytes em vez de unidades era um buraco (nenhum check tinha uma resposta com um carácter de mais de um byte que nomeasse a escolha), fechado com o check do sinal Kelvin; o comprimento da escolha contado em caracteres e não em unidades é equivalente enquanto nenhuma escolha fixa tiver um carácter fora do plano básico, e nenhuma tem |
+| `cargo test` | 601 testes |
 
 ### Fatia 3a: a tentativa de revisão, partida em cinco (feita)
 

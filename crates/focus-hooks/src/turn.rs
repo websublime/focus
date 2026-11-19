@@ -100,7 +100,7 @@ pub fn supplied_turn_origin(value: Option<&Value>) -> Option<TurnOrigin> {
         .map(trim)
         .filter(|reason| !reason.is_empty())?;
     Some(TurnOrigin::Host {
-        reason: focus_js::text::slice_utf16(reason, 0, 200),
+        reason: focus_js::text::slice_utf16_written(reason, 0, 200),
         source,
     })
 }
@@ -396,7 +396,7 @@ pub fn picker_replies(
         match limit {
             Some(limit) if value.encode_utf16().count() > limit => {
                 cut = true;
-                focus_js::text::slice_utf16(value, 0, limit)
+                focus_js::text::slice_utf16_written(value, 0, limit)
             }
             _ => value.to_owned(),
         }
@@ -635,6 +635,33 @@ mod tests {
         ));
         assert!(!carries_several_picks(None, Some(&json!("{nope"))));
         assert!(!carries_several_picks(None, None));
+    }
+
+    /// Deliberate deviation. Upstream cuts a reply by UTF-16 unit, and a cut
+    /// inside a surrogate pair leaves half a character at the end. Its JSON
+    /// writes the half as an escape (`\ud83d`), in the stored message and
+    /// in the line a refusal that quotes the message is printed as: no
+    /// UTF-8 text holds half a pair, and Focus's reader of JSON refuses the
+    /// escape. Focus keeps U+FFFD there: one unit, as the half was, and
+    /// what upstream itself writes when the text reaches the ledger.
+    #[test]
+    fn a_reply_cut_inside_a_character_ends_in_the_replacement_character() {
+        let payload = map(json!({
+            "tool_input": {"questions": [{"question": "Q😀?"}]},
+            "tool_response": {"answers": {"Q😀?": "ab😀c"}},
+        }));
+        let (entries, cut) = picker_replies(&payload, Some(3));
+        assert!(cut);
+        assert_eq!(entries[0].reply.as_deref(), Some("ab\u{FFFD}"));
+        // A cut between characters keeps them whole, and the question is
+        // cut the same way.
+        assert_eq!(entries[0].question, "Q😀");
+        let (entries, cut) = picker_replies(&payload, Some(2));
+        assert!(cut);
+        assert_eq!(entries[0].question, "Q\u{FFFD}");
+        assert_eq!(entries[0].reply.as_deref(), Some("ab"));
+        let (entries, _) = picker_replies(&payload, Some(4));
+        assert_eq!(entries[0].reply.as_deref(), Some("ab😀"));
     }
 
     #[test]

@@ -21,7 +21,7 @@
 
 use focus_audit::read::block_field;
 use focus_audit::shards::ShardEvent;
-use focus_js::text::{slice_utf16, to_lower_case, trim};
+use focus_js::text::{split_at_utf16, to_lower_case, trim};
 use focus_js::{Result, bail, re};
 use focus_lifecycle::presence::{self, TurnState};
 use focus_lifecycle::reply::{self, DecisionKind};
@@ -52,14 +52,16 @@ pub fn offered_choice_label<'a>(details: &str, choices: &[&'a str]) -> Option<(&
     let text = re::replace(r#"^["'`]+|["'`]+$"#, "g", &text, "");
     let text = trim(&text);
     for choice in choices {
-        let units = focus_js::text::len_utf16(choice);
-        let head = slice_utf16(text, 0, units);
-        if to_lower_case(&head) != to_lower_case(choice) {
+        // A cut inside a surrogate pair leaves half a character at the end
+        // of the head, and no choice ends in one.
+        let Some((head, tail)) = split_at_utf16(text, focus_js::text::len_utf16(choice)) else {
+            continue;
+        };
+        if to_lower_case(head) != to_lower_case(choice) {
             continue;
         }
-        let tail = slice_utf16(text, units, usize::MAX);
-        if tail.is_empty() || re::test(r"^[\s:;,.!-]", "", &tail) {
-            let rest = re::replace(r"^[\s:;,.!-]+", "", &tail, "");
+        if tail.is_empty() || re::test(r"^[\s:;,.!-]", "", tail) {
+            let rest = re::replace(r"^[\s:;,.!-]+", "", tail, "");
             return Some((choice, trim(&rest).to_owned()));
         }
     }
