@@ -673,13 +673,13 @@ mod tests {
                 .expect("a link");
             std::os::unix::fs::symlink(record.join("plain.md"), record.join("inner-link.md"))
                 .expect("a link");
-            vec!["link.md", "inner-link.md"]
+            vec!["twice.md", "link.md", "inner-link.md"]
         };
-        // Making a link asks for a privilege on Windows, and the names with
-        // more than one stand for it there.
+        // Off Unix the host does not say how many names a file has, and
+        // making a link asks for a privilege: the folder stands for both.
         #[cfg(not(unix))]
         let linked: Vec<&str> = Vec::new();
-        for name in ["twice.md", "folder.md"].into_iter().chain(linked) {
+        for name in ["folder.md"].into_iter().chain(linked) {
             let refusal = legacy_section(&entry(&record, name)).expect_err(name);
             assert!(
                 refusal.message().contains(name)
