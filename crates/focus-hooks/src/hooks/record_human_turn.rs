@@ -29,7 +29,7 @@ use focus_guards::typed_switch::{
     entry_words, is_command_prompt, is_typed_guard_switch_prompt, is_typed_guard_switch_question,
 };
 use focus_guards::workflow::Guards;
-use focus_js::text::{len_utf16, slice_utf16, trim};
+use focus_js::text::{len_utf16, slice_utf16_written, trim};
 use focus_js::{EngineError, json as js_json, re};
 use focus_lifecycle::reply::strip_recommended_decorator;
 use focus_lifecycle::workflow::Workflow;
@@ -711,7 +711,7 @@ pub fn run(input: &str, layout: &Layout) -> Outcome {
             .unwrap_or(false);
         let words = words.map(|w| {
             if len_utf16(&w) > MESSAGE_TEXT_MAX_CHARS {
-                slice_utf16(&w, 0, MESSAGE_TEXT_MAX_CHARS)
+                slice_utf16_written(&w, 0, MESSAGE_TEXT_MAX_CHARS)
             } else {
                 w
             }
@@ -725,7 +725,7 @@ pub fn run(input: &str, layout: &Layout) -> Outcome {
             } else {
                 "picker"
             },
-            text: slice_utf16(full, 0, MESSAGE_TEXT_MAX_CHARS),
+            text: slice_utf16_written(full, 0, MESSAGE_TEXT_MAX_CHARS),
             cut,
             picker,
             words,

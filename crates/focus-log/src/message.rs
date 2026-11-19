@@ -23,7 +23,7 @@ use focus_audit::shards::ShardEvent;
 use focus_hooks::messages::{self, Stored};
 use focus_js::order::cmp_utf16;
 use focus_js::re;
-use focus_js::text::{len_utf16, slice_utf16, trim};
+use focus_js::text::{len_utf16, slice_utf16_written, trim};
 use focus_lifecycle::workflow::Workflow;
 use focus_workspace::records;
 
@@ -198,7 +198,7 @@ pub fn late_question_hint(candidates: &[Stored]) -> String {
             let words = message.words.as_deref().unwrap_or(&message.text);
             let words = trim(&re::replace(r"\s+", "g", words, " ")).to_owned();
             let cut = if len_utf16(&words) > 40 {
-                format!("{}...", slice_utf16(&words, 0, 40))
+                format!("{}...", slice_utf16_written(&words, 0, 40))
             } else {
                 words
             };

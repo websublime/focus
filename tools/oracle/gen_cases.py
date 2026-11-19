@@ -9597,5 +9597,16 @@ sh_add("record", finding=rl_finding("R-01", unit="orders", reviewRecord={"path":
 for _ in range(scale * 12):
     sh_add("record", finding=sh_finding(sh.randint(1, 12)))
 
+# A cut that falls inside a surrogate pair. Upstream cuts by UTF-16 unit; the half of a character left alone reaches
+# a row of the ledger as U+FFFD. The cases stand at the end, so the cases of each kind before them keep their ids.
+CUT_FACE = chr(0x1F600)
+for lead in (117, 118, 119, 120):
+    # A demoted heading is quoted to 120 units: "# " and `lead` letters put the face across the cut, or beside it.
+    add("review_text", op="demote", text="## Review\n\n**Verdict:** READY\n\n# " + "h" * (lead - 2) + CUT_FACE + " tail\n")
+    add("review_text", op="demote", text="## Review\n\n**Verdict:** READY\n\n  ## " + "h" * (lead - 3) + CUT_FACE + CUT_FACE + "\n")
+for lead in (197, 198, 199, 200):
+    add("supplied_origin", origin={"kind": "host", "reason": "r" * lead + CUT_FACE + "s", "source": "template"})
+    add("supplied_origin", origin={"kind": "host", "reason": "  " + "r" * lead + CUT_FACE * 2 + "  ", "source": "record"})
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

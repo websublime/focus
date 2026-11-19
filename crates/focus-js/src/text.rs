@@ -115,22 +115,19 @@ pub fn len_utf16(s: &str) -> usize {
     s.encode_utf16().count()
 }
 
-/// `s.slice(start, end)` in UTF-16 code units, clamped to the text. A cut
-/// through a surrogate pair drops the half that would be left alone, which
-/// JavaScript would keep as a lone surrogate.
-#[must_use]
-pub fn slice_utf16(s: &str, start: usize, end: usize) -> String {
-    let units: Vec<u16> = s.encode_utf16().collect();
-    let end = end.min(units.len());
-    let start = start.min(end);
-    char::decode_utf16(units[start..end].iter().copied())
-        .flatten()
-        .collect()
-}
-
-/// `s.slice(start, end)` as it reaches a file or a pipe: where the cut
-/// leaves half of a surrogate pair alone, JavaScript writes U+FFFD for it,
-/// and so does this.
+/// `s.slice(start, end)` in UTF-16 code units, clamped to the text, as the
+/// cut reaches a file or a pipe.
+///
+/// JavaScript cuts by unit, so a cut can fall inside a surrogate pair and
+/// leave half of it alone. No UTF-8 text holds half a pair: written to a
+/// file, a pipe or a terminal, the half is U+FFFD, and that is what this
+/// gives. It is one unit, as the half was, so every length counted after
+/// the cut is the one JavaScript counts. (Through `JSON.stringify` the half
+/// is written as an escape instead, which is the one place the two differ:
+/// see the stored message, in `focus-hooks`.)
+///
+/// Where the two parts of a cut are compared with something, not written,
+/// use [`split_at_utf16`].
 #[must_use]
 pub fn slice_utf16_written(s: &str, start: usize, end: usize) -> String {
     let units: Vec<u16> = s.encode_utf16().collect();
@@ -139,6 +136,25 @@ pub fn slice_utf16_written(s: &str, start: usize, end: usize) -> String {
     char::decode_utf16(units[start..end].iter().copied())
         .map(|unit| unit.unwrap_or(char::REPLACEMENT_CHARACTER))
         .collect()
+}
+
+/// The text before and after its first `units` UTF-16 units
+/// (`s.slice(0, units)` and `s.slice(units)`), or nothing when the cut falls
+/// inside a surrogate pair: each side would then hold half a character,
+/// which is equal to no text there is.
+#[must_use]
+pub fn split_at_utf16(s: &str, units: usize) -> Option<(&str, &str)> {
+    let mut seen = 0;
+    for (at, c) in s.char_indices() {
+        if seen == units {
+            return Some(s.split_at(at));
+        }
+        if seen > units {
+            return None;
+        }
+        seen += c.len_utf16();
+    }
+    (seen <= units).then_some((s, ""))
 }
 
 #[cfg(test)]
@@ -153,8 +169,18 @@ mod tests {
         assert_eq!(slice_utf16_written("a😀b", 0, 3), "a😀");
         assert_eq!(slice_utf16_written("a😀b", 1, 9), "😀b");
         assert_eq!(slice_utf16_written("a😀b", 9, 2), "");
-        // The cut that drops the half, for a text that stays in memory.
-        assert_eq!(slice_utf16("a😀b", 0, 2), "a");
+    }
+
+    #[test]
+    fn a_text_is_split_between_characters_or_not_at_all() {
+        assert_eq!(split_at_utf16("a😀b", 0), Some(("", "a😀b")));
+        assert_eq!(split_at_utf16("a😀b", 1), Some(("a", "😀b")));
+        assert_eq!(split_at_utf16("a😀b", 2), None);
+        assert_eq!(split_at_utf16("a😀b", 3), Some(("a😀", "b")));
+        assert_eq!(split_at_utf16("a😀b", 4), Some(("a😀b", "")));
+        assert_eq!(split_at_utf16("a😀b", 9), Some(("a😀b", "")));
+        assert_eq!(split_at_utf16("a😀", 2), None);
+        assert_eq!(split_at_utf16("", 0), Some(("", "")));
     }
 
     #[test]
