@@ -667,16 +667,19 @@ mod tests {
             legacy_section(&entry(&record, "absent.md")).expect("read"),
             None
         );
-        let mut refused = vec!["twice.md", "folder.md"];
         #[cfg(unix)]
-        {
+        let linked = {
             std::os::unix::fs::symlink(root.join("outside.md"), record.join("link.md"))
                 .expect("a link");
             std::os::unix::fs::symlink(record.join("plain.md"), record.join("inner-link.md"))
                 .expect("a link");
-            refused.extend(["link.md", "inner-link.md"]);
-        }
-        for name in refused {
+            vec!["link.md", "inner-link.md"]
+        };
+        // Making a link asks for a privilege on Windows, and the names with
+        // more than one stand for it there.
+        #[cfg(not(unix))]
+        let linked: Vec<&str> = Vec::new();
+        for name in ["twice.md", "folder.md"].into_iter().chain(linked) {
             let refusal = legacy_section(&entry(&record, name)).expect_err(name);
             assert!(
                 refusal.message().contains(name)
