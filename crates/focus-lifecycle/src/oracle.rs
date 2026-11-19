@@ -16,7 +16,7 @@ use crate::review_attempt;
 use crate::workflow::Workflow;
 
 /// The case kinds this crate answers.
-pub const KINDS: [&str; 10] = [
+pub const KINDS: [&str; 11] = [
     "review_window",
     "review_accounting",
     "review_snapshot",
@@ -27,6 +27,7 @@ pub const KINDS: [&str; 10] = [
     "guard_refusal",
     "recovery_guidance",
     "review_request",
+    "review_derived",
 ];
 
 /// The ledger a case gives as its shards, read as a project's would be.
@@ -86,6 +87,7 @@ pub fn run_case(wf: &Workflow, case: &Value) -> Value {
         "summary_evidence" => summary_evidence_case(wf, case),
         "source_snapshot" => source_snapshot_case(wf, case),
         "review_receipts" => review_receipts_case(wf, case),
+        "review_derived" => review_derived_case(wf, case),
         "guard_refusal" => guard_refusal_case(wf, case),
         "review_request" => review_request_case(wf, case),
         "recovery_guidance" => {
@@ -1553,4 +1555,129 @@ fn guard_refusal_case(wf: &Workflow, case: &Value) -> Value {
         .collect();
     answer.insert("remedies".to_owned(), json!(remedies));
     Value::Object(answer)
+}
+
+/// The list of findings a review's scope stands at, replayed from a
+/// project of the case's own: its ledger, its review records (each named by
+/// the digest of its bytes, `{DIGEST:<record>}`) and its artifacts.
+fn review_derived_case(wf: &Workflow, case: &Value) -> Value {
+    use focus_evidence::oracle::stated_finding;
+    use focus_workspace::records::{Invoker, Selector, resolve_selection};
+    use sha2::{Digest, Sha256};
+
+    use crate::review_derived::{self, Pending};
+
+    // Alone: whether a row names each of its fields once.
+    if let Some(blocks) = case["blocks"].as_array() {
+        return blocks
+            .iter()
+            .map(|block| focus_evidence::review::names_once(block.as_str().unwrap_or_default()))
+            .collect();
+    }
+    let (root, layout) = lay_project(wf, case);
+    let record = layout.space_dir("default").join("intents/rec-1a2b3c4d");
+    let answer = (|| -> Result<Value, String> {
+        let mut filled: Vec<(String, String)> = Vec::new();
+        let fill = |filled: &[(String, String)], text: &str| {
+            filled.iter().fold(text.to_owned(), |out, (name, value)| {
+                out.replace(name, value)
+            })
+        };
+        let put = |path: &std::path::Path, text: &str| {
+            std::fs::create_dir_all(path.parent().expect("a name has a folder")).expect("a folder");
+            std::fs::write(path, text).expect("a file");
+        };
+        for (rel, text) in case["records"].as_object().into_iter().flatten() {
+            let text = fill(&filled, text.as_str().unwrap_or_default());
+            put(&record.join(rel), &text);
+            let digest: String = Sha256::digest(text.as_bytes())
+                .iter()
+                .map(|byte| format!("{byte:02x}"))
+                .collect();
+            filled.push((format!("{{DIGEST:{rel}}}"), format!("sha256:{digest}")));
+        }
+        for (name, text) in case["shards"].as_object().into_iter().flatten() {
+            put(
+                &record.join("audit").join(name),
+                &fill(&filled, text.as_str().unwrap_or_default()),
+            );
+        }
+        let selection = resolve_selection(&layout, &Selector::default(), &Invoker::default())
+            .map_err(|refusal| refusal.to_string())?;
+        let scratch = Workflow {
+            layout: layout.clone(),
+            selection,
+            invoker: Invoker::default(),
+            install: wf.install.clone(),
+        };
+        let mut stage = wf
+            .stage(case["slug"].as_str().unwrap_or_default())
+            .map_err(|refusal| refusal.to_string())?
+            .clone();
+        for (field, value) in case["patch"].as_object().into_iter().flatten() {
+            if value.is_null() {
+                stage.raw.remove(field);
+            } else {
+                stage.raw.insert(field.clone(), value.clone());
+            }
+        }
+        let given = &case["pending"];
+        let pending = given.as_object().map(|_| Pending {
+            artifact: given["artifact"].as_str().unwrap_or_default(),
+            body: given["body"].as_str().unwrap_or_default(),
+            verdict: given["verdict"].as_str().unwrap_or_default(),
+            unreadable_reason: given["unreadableReason"].as_str(),
+            allow_malformed: given["allowMalformed"] == true,
+            seed_legacy: given["seedLegacy"] != false,
+        });
+        let artifact = fill(&filled, case["artifact"].as_str().unwrap_or_default());
+        let derived = review_derived::derive(
+            &scratch,
+            &stage,
+            &artifact,
+            case["unit"].as_str(),
+            pending.as_ref(),
+        )
+        .map_err(|refusal| refusal.to_string())?;
+        // A digest in the answer is named as the case names it.
+        let named = |text: &str| {
+            filled.iter().fold(text.to_owned(), |out, (name, value)| {
+                out.replace(value, name)
+            })
+        };
+        let listed: Vec<Value> = derived
+            .findings
+            .iter()
+            .map(|finding| {
+                let mut shown = stated_finding(finding);
+                // (A fingerprint is of what the finding says, and a finding
+                // the engine words itself says the engine's folder: it is
+                // shown as `{SAID}` when it is the fingerprint of what the
+                // finding now says.)
+                if finding.clone().with_fingerprint().fingerprint == finding.fingerprint {
+                    shown["fingerprint"] = json!("{SAID}");
+                }
+                if let Some(digest) = shown
+                    .pointer_mut("/reviewRecord/digest")
+                    .filter(|digest| digest.is_string())
+                {
+                    *digest = json!(named(digest.as_str().unwrap_or_default()));
+                }
+                shown
+            })
+            .collect();
+        Ok(json!({
+            "artifact": derived.artifact,
+            "unit": derived.unit,
+            "verdict": derived.verdict,
+            "findings": listed,
+            "findingsText": derived.findings_text,
+            "reviewRecord": derived.review_record.map(|(path, digest)| json!([path, named(&digest)])),
+            "resolved": derived.reviewer_resolved_count,
+            "malformedReport": derived.malformed_report,
+            "incomplete": derived.incomplete_review,
+        }))
+    })();
+    let _ = std::fs::remove_dir_all(&root);
+    answer.unwrap_or_else(|refusal| json!({ "error": refusal }))
 }

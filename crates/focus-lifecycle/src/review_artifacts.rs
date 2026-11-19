@@ -183,6 +183,40 @@ fn resolves_inside(real: &Path, path: &Path) -> bool {
     std::fs::canonicalize(path).is_ok_and(|resolved| resolved.starts_with(real))
 }
 
+/// One entry's file, read as a file of the record that decides something.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Trusted {
+    /// Nothing is at the name, or the entry has no one place.
+    Absent,
+    /// Something is there that is not a plain file with one name, reached
+    /// with no link on the way.
+    Refused,
+    File(Vec<u8>),
+}
+
+/// The file of `entry`, by the rules [`read_stable`] reads a set with.
+#[must_use]
+pub fn read_trusted(entry: &ReviewEntry) -> Trusted {
+    let Some(path) = entry.path.as_deref().map(lexical) else {
+        return Trusted::Absent;
+    };
+    let real = match inspect(&entry.boundary, &path) {
+        None => return Trusted::Refused,
+        Some(None) => return Trusted::Absent,
+        Some(Some(real)) => real,
+    };
+    let Ok(meta) = std::fs::symlink_metadata(&path) else {
+        return Trusted::Refused;
+    };
+    if !meta.is_file() || files::hard_links(&meta) != 1 {
+        return Trusted::Refused;
+    }
+    match files::read_regular(&path, "review artifact") {
+        Ok(body) if resolves_inside(&real, &path) => Trusted::File(body),
+        _ => Trusted::Refused,
+    }
+}
+
 /// `readStableReviewArtifacts`: every entry read, in the order of their
 /// logical paths; `None` when one of them cannot be trusted or the set
 /// changed while it was read.
