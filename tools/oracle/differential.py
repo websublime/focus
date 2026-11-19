@@ -136,6 +136,13 @@ SHAPES = {
         "longer than focus's (\"# AI-DLC Audit Log\" is the one phrase of the name map whose length changes), so "
         "every offset upstream writes is one more. Upstream's offsets are read one byte back before comparing; "
         "the messages, the session and the shard are compared as they are",
+    "half-pair":
+        "upstream cuts a text to a number of UTF-16 units, and the cut can fall inside a surrogate pair. Where the "
+        "cut text is written as text (a row of the ledger), the half left alone is U+FFFD in both engines. Where "
+        "upstream writes it through JSON.stringify (a stored message, the line a refusal is printed as), its JSON "
+        "holds the half as an escape (\\ud83d), which no UTF-8 text can hold and focus's reader of JSON refuses; "
+        "focus writes U+FFFD there too, one unit as the half was. Upstream's lone escape is read as U+FFFD before "
+        "comparing; everything else is compared as it is",
     "uncaught":
         "upstream lets a refusal thrown inside an audit verb reach the runtime, which prints a source excerpt "
         "and a stack trace around the sentence; focus prints the same sentence as {\"error\": ...}, like every "
@@ -2005,12 +2012,17 @@ def verify_validation_bases(tree, engine, rel, text):
     return re.sub(r"^\*\*Validation Basis\*\*: (\{.*\})$", rewrite, text, flags=re.M), True
 
 
+# Half of a surrogate pair written as a JSON escape: a high half with no low half after it, or a low half with no
+# high half before it. A backslash before the escape makes it text, and is left alone.
+LONE_HALF = re.compile(r"(?<!\\)(?:\\ud[89ab][0-9a-f]{2}(?!\\ud[c-f][0-9a-f]{2})|(?<!\\ud[89ab][0-9a-f]{2})\\ud[c-f][0-9a-f]{2})")
+
+
 def compare_audit(name, trees, steps, env, tool="audit"):
     ts, rs = trees
     outcome, shaped, shaped_ask, shaped_basis = {}, False, False, False
     shaped_authorization = False
     shaped_review = False
-    shaped_offsets = shaped_thrown = False
+    shaped_offsets = shaped_thrown = shaped_pair = False
     started_from = None
     if RECORD and not has_links(ts.root) and name not in UNRECORDED and not name.startswith("fuzz/"):
         # An audit check starts from nothing but its files; a runtime check from an installed project, kept whole
@@ -2038,6 +2050,11 @@ def compare_audit(name, trees, steps, env, tool="audit"):
                 err, asked = without_guard_ask(err)
                 shaped_ask |= asked
             exits.append(str(code))
+            # A text cut inside a surrogate pair, said in a line of JSON, holds the half as an escape (SHAPES:
+            # half-pair).
+            if engine == "ts" and (LONE_HALF.search(out) or LONE_HALF.search(err)):
+                shaped_pair = True
+                out, err = (LONE_HALF.sub("\N{REPLACEMENT CHARACTER}", said) for said in (out, err))
             outs.append(say(normalise_audit(out, tree, engine)))
             errs.append(say(normalise_audit(err, tree, engine)))
         mark = (lambda parts: parts[0]) if len(steps) == 1 else (
@@ -2063,6 +2080,10 @@ def compare_audit(name, trees, steps, env, tool="audit"):
             if text is not None and "/.focus-engine/gate-words/" in rel and engine == "ts":
                 shaped_offsets = True
                 text = re.sub(r'"(offset|dropped)":([1-9]\d*)', lambda m: f'"{m.group(1)}":{int(m.group(2)) - 1}', text)
+            # A stored message cut inside a surrogate pair holds the half as an escape (SHAPES: half-pair).
+            if text is not None and "/.focus-sessions/messages/" in rel and engine == "ts" and LONE_HALF.search(text):
+                shaped_pair = True
+                text = LONE_HALF.sub("\N{REPLACEMENT CHARACTER}", text)
             shown, text = minted(rel, text if text is None else normalise_audit(text, tree, engine))
             if text is not None and "**Source Baseline**: sha256:" in text:
                 text = verified_baselines(tree, text)
@@ -2123,6 +2144,9 @@ def compare_audit(name, trees, steps, env, tool="audit"):
         if shaped_offsets:
             shapes["gate-words-offset"] += 1
             detail += "  (shard offsets read one byte back)"
+        if shaped_pair:
+            shapes["half-pair"] += 1
+            detail += "  (half a surrogate pair read as U+FFFD)"
     elif any(re.fullmatch(pattern, name) for pattern in DEVIATIONS):
         verdict = "deviation"
         detail = next(reason for pattern, reason in DEVIATIONS.items() if re.fullmatch(pattern, name))
@@ -4118,6 +4142,10 @@ def hook_checks():
     check_("record-human-turn/unattended_picker", joined, [pick("Approve the plan?", "Approve")], {"UNATTENDED": "1"})
     check_("record-human-turn/override_phrase", joined, [turn("Override Plan Approval: the reviewer is away")])
     check_("record-human-turn/picker_gate", joined, [pick("Approve the plan?", "Approve")])
+    # A reply longer than a box entry may be, and one whose cut falls inside a character.
+    check_("record-human-turn/picker_long_reply", joined, [pick("Which database?", "y" * 2001, options=("Postgres", "MySQL"))])
+    check_("record-human-turn/picker_reply_cut_in_a_pair", joined, [pick("Which database?", "y" * 1999 + chr(0x1F600) + "z", options=("Postgres", "MySQL"))])
+    check_("record-human-turn/picker_question_cut_in_a_pair", joined, [pick("Q" * 1999 + chr(0x1F600) + "?", "Postgres", options=("Postgres", "MySQL"))])
     check_("record-human-turn/picker_gate_recommended", joined, [pick("Approve the plan?", "Request Changes (Recommended)", options=("Approve", "Request Changes (Recommended)"))])
     check_("record-human-turn/picker_free_text", joined, [pick("Which database?", "use oauth", options=("Postgres", "MySQL"))])
     check_("record-human-turn/picker_label", joined, [pick("Which database?", "Postgres", options=("Postgres", "MySQL"))])
@@ -4145,6 +4173,9 @@ def hook_checks():
     check_("record-human-turn/host_notification_not_whole", joined, [turn("<task-notification>\nx\n</task-notification> and more")])
     check_("record-human-turn/host_origin_supplied", joined, [turn("use postgres", origin={"kind": "host", "reason": "  kiro workflow brief  ", "source": "record"})])
     check_("record-human-turn/host_origin_long_reason", joined, [turn("use postgres", origin={"kind": "host", "reason": "r" * 300, "source": "template"})])
+    # The reason is cut at 200 units, and the 200th is the first half of a character: the row holds U+FFFD.
+    check_("record-human-turn/host_origin_reason_cut_in_a_pair", joined, [turn("use postgres", origin={"kind": "host", "reason": "r" * 199 + chr(0x1F600) + "s", "source": "template"})])
+    check_("record-human-turn/host_origin_reason_cut_after_a_pair", joined, [turn("use postgres", origin={"kind": "host", "reason": "r" * 198 + chr(0x1F600) + "s", "source": "template"})])
     check_("record-human-turn/origin_malformed", joined, [turn("use postgres", origin={"kind": "host", "reason": "", "source": "record"}), turn("and redis", origin={"kind": "host", "reason": "x", "source": "other"}), turn("and more", origin="host")])
     check_("record-human-turn/person_origin_supplied", joined, [turn("use postgres", origin={"kind": "person", "source": "record"})])
     check_("record-human-turn/host_origin_no_state", {**CLONE, "aidlc/spaces/default/intents/intents.json": CREATED_REGISTRY, **binding()}, [turn("use postgres", origin={"kind": "host", "reason": "x", "source": "record"})])
@@ -4161,6 +4192,9 @@ def hook_checks():
     check_("record-human-turn/transcript_supplied_wins", {**joined, "p/chat.jsonl": transcript([system_row])}, [turn("use postgres", transcript_path="{P}/p/chat.jsonl", prompt_id="p1", origin={"kind": "person"})])
     check_("record-human-turn/long_prompt", joined, [turn("x" * 8100)])
     check_("record-human-turn/long_prompt_exact", joined, [turn("y" * 8000), turn("z" * 8001)])
+    # A cut that falls inside a surrogate pair: the 8000th unit is the first half of the character.
+    check_("record-human-turn/long_prompt_cut_in_a_pair", joined, [turn("y" * 7999 + chr(0x1F600) + "z")])
+    check_("record-human-turn/long_prompt_cut_after_a_pair", joined, [turn("y" * 7998 + chr(0x1F600) + "z")])
     check_("record-human-turn/gate_words_cap", joined, [turn(f"message {n}") for n in range(10)])
     check_("record-human-turn/gate_words_other_shard", {**joined, f"{engine}/gate-words/s1.json": json.dumps({"version": 1, "session": "s1", "shard": "other/audit/x.md", "dropped": 0, "messages": [{"offset": 1, "text": "old"}]})}, [turn("use postgres")])
     # (The prior record's offsets are 0: upstream's are read one byte back before comparing, as SHAPES says.)
@@ -5133,6 +5167,9 @@ def log_checks():
     late = lambda *rows, **more: told(H(1, "**Message Id**: 0000aaaa"), A(2, "an earlier answer"), *rows, Q(5, "Which database?"), **more)
     check_("answer/late_question", late(**sent("0000aaaa", at=T(1), words="postgres   please,\nit is what we know and it has served us well for years")), [reply])
     check_("answer/late_question_text_and_words", late(**sent("0000aaaa", at=T(1), words="x" * 40, text="/aidlc " + "x" * 40)), [reply])
+    # The hint quotes forty units of the message, and the fortieth is the first half of a character.
+    check_("answer/late_question_words_cut_in_a_pair", late(**sent("0000aaaa", at=T(1), words="x" * 39 + chr(0x1F600) + " and more")), [reply])
+    check_("answer/late_question_words_cut_after_a_pair", late(**sent("0000aaaa", at=T(1), words="x" * 38 + chr(0x1F600) + " and more")), [reply])
     check_("answer/late_question_before_the_latest", told(H(1, "**Message Id**: 0000aaaa"), A(2, "x"), Q(3, "First?"), H(4, "**Message Id**: 0000bbbb"), A(5, "y"), Q(7, "Second?"),
                                                           **sent("0000aaaa", at=T(1)), **sent("0000bbbb", at=T(4))), [reply])
     check_("answer/late_question_turn_in_another_shard", told(H(1, "**Message Id**: 0000aaaa"), A(2, "x"), Q(3, "Which database?"),

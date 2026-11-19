@@ -234,7 +234,7 @@ pub fn demote_review_headings(body: &[u8]) -> Option<Demoted> {
         changed.push(format!(
             "line {}: {}",
             index + 1,
-            js_text::slice_utf16(&said, 0, 120)
+            js_text::slice_utf16_written(&said, 0, 120)
         ));
         *line = demoted;
     }

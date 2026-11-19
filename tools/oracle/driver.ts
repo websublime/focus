@@ -983,7 +983,8 @@ async function answer(c: Record<string, any>): Promise<unknown> {
       const bytes = c.hex === undefined ? Buffer.from(c.text, "utf-8") : Buffer.from(c.hex, "hex");
       if (c.op === "demote") {
         const demoted = logPrivate.demoteReviewHeadings(bytes);
-        return demoted === null ? null : { text: Buffer.from(demoted.bytes).toString("utf-8"), changed: demoted.changed };
+        // A changed line is quoted cut to 120 units, and is given as the ledger's row holds it: half a surrogate pair is U+FFFD there.
+        return demoted === null ? null : { text: Buffer.from(demoted.bytes).toString("utf-8"), changed: demoted.changed.map((line: string) => line.toWellFormed()) };
       }
       return lib.validateReviewAppendix(bytes, c.expected);
     }
@@ -1739,8 +1740,11 @@ async function answer(c: Record<string, any>): Promise<unknown> {
       return lib.hostEnvelopeTurnText(c.prompt);
     case "host_template":
       return lib.hostTemplateOrigin(c.prompt, lib.CLAUDE_HOST_TEMPLATES);
-    case "supplied_origin":
-      return lib.suppliedTurnOrigin(c.origin);
+    case "supplied_origin": {
+      // A host's reason is cut to 200 units, and is given as the ledger's row holds it: half a surrogate pair is U+FFFD there.
+      const origin = lib.suppliedTurnOrigin(c.origin);
+      return origin !== null && typeof (origin as any).reason === "string" ? { ...origin, reason: (origin as any).reason.toWellFormed() } : origin;
+    }
     case "picker_empty":
       return lib.emptyPickerResult(c.response);
     case "transcript_origin": {
