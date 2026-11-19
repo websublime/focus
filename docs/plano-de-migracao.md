@@ -1760,7 +1760,7 @@ Os intervalos de linhas são de `aidlc-orchestrate.ts` no pin, salvo indicação
 | Fatia | O que traz | Levanta | Como se verifica | Estado |
 | --- | --- | --- | --- | --- |
 | 1. A identidade da fonte | O passeio pelos ficheiros fonte do projeto, a sua impressão digital, o snapshot `baseline-<hash>.tsv` e o campo `Source Baseline`; o snapshot de fonte de uma unit (`workspaceSourceState`, `readUnitSourceSnapshot` e o que está entre eles em `aidlc-lib.ts`) | `SHAPES["source-baseline"]` (criação e saltos passam a comparar o campo e a listagem); o baseline de uma stage que produz código nas transições; o desvio dos observadores na criação | Corpus sobre árvores de scratch (o que conta como fonte, o que se ignora, a ordem, o hash); diferencial | Feito, partida em quatro (abaixo). O snapshot do workspace e os leitores vêm com quem os usa: fatias 2, 3 e 11 |
-| 2. `log` | `focus engine log decision`, `answer`, `answers`, `link` e `review`: as linhas `DECISION_RECORDED`, `QUESTION_ANSWERED`, `SUMMARY_CONFIRMATION_RECORDED`, `REVIEW_REQUESTED` e `REVIEW_COMPLETED`, os handoffs de um pipeline; o registo de mensagens lido (`aidlc-log.ts`, 4 486; `message-store`, 246); o `Source Fingerprint` de um pedido de revisão e o snapshot do workspace atrás dele (`workspaceSourceState`, `writeWorkspaceSourceSnapshot`) | Nada sozinho: é quem escreve o que a fatia 3 pesa. A escolha de uma pergunta de recuperação gravada por `log` fica para a fatia 4 | Diferencial (`log/*`) | Em curso: 2a a 2d, 2e-i, 2e-ii, 2e-iii-a, 2e-iii-b, 2e-iii-c-i, 2e-iii-c-ii e 2e-iii-c-iii feitas; falta 2e-iv |
+| 2. `log` | `focus engine log decision`, `answer`, `answers`, `link` e `review`: as linhas `DECISION_RECORDED`, `QUESTION_ANSWERED`, `SUMMARY_CONFIRMATION_RECORDED`, `REVIEW_REQUESTED` e `REVIEW_COMPLETED`, os handoffs de um pipeline; o registo de mensagens lido (`aidlc-log.ts`, 4 486; `message-store`, 246); o `Source Fingerprint` de um pedido de revisão e o snapshot do workspace atrás dele (`workspaceSourceState`, `writeWorkspaceSourceSnapshot`) | Nada sozinho: é quem escreve o que a fatia 3 pesa. A escolha de uma pergunta de recuperação gravada por `log` fica para a fatia 4 | Diferencial (`log/*`) | Em curso: 2a a 2d, 2e-i, 2e-ii, 2e-iii-a, 2e-iii-b, 2e-iii-c-i, 2e-iii-c-ii, 2e-iii-c-iii e 2e-iv-a feitas; falta 2e-iv-b |
 | 3. Os recibos pesados | `freshReviewReceipts` (1 066) e `checkSummaryConfirmationEvidence` (647), os handoffs devidos por um pipeline, os pares pedido e conclusão de uma revisão; `review-brief` (2 365: `review`, `summary`, `context`) e os findings que um gate grava na decisão; a baseline lida de volta (`readBaselineSourceSnapshot`, `currentStageSourceBaseline`) para dizer que caminhos mudaram | As recusas pelo nome de `state` (`advance` e os gates com sumário, revisão ou pipeline devidos), de `review-freeze` e do grupo (`review_rows`), do salto para trás com linhas de revisão, e do turno humano com um pedido de revisão sem veredicto. Sem units: a dimensão por unit chega com a fatia 5 | Diferencial; corpus para os leitores puros (a tabela de findings, a secção `## Review`) | Em curso: 3a, 3b, 3c e 3d feitas; falta a 2e (depois da 4a) e o que a 3 levanta nos comandos. Passa para antes da 2e: `review` chama os dois leitores em todos os caminhos (abaixo) |
 | 4. A pergunta de recuperação | `evaluateGuardRefusal` e `guardAttemptState`: depois da frase de um guard, a pergunta com os remédios que o condutor pode oferecer, e a série da recusa em `.focus-engine/guard-refusals/`; a escolha gravada | `SHAPES["guard-ask"]` | Corpus (o avaliador e a tentativa); diferencial | Em curso: partida em três (abaixo). A 4a, o avaliador, está feita e passou para antes da 2e-i, que diz os seus remédios em duas frases; a 4b e a 4c vêm depois da 2e |
 | 5. Units em série | As units como dados (o bloco de units, o DAG, os lotes de um bolt) e como transições: os verbos de `state` que M3 recusa (`set-skeleton-stance`, `set-construction-*`, `set-unit-gate-rhythm`, `sync-unit-scope-stage`, `acknowledge-compaction`, `reuse-artifact`, `lookup`, `practices-event`, `practices-promote`, `unit`), `jump reopen` e `execute --units`, `skip --unit`, uma stage de Construction em `advance`; `bolt` sem worktree (`start`, `complete`, `fail`, `abort`, `set-autonomy`, `checkpoint`; 1 511; `swarm-checkpoint`, `dispatch-event`, `hold-merge` e `release-merge` recusam pelo nome) e os checkpoints de Construction (`construction-checkpoints`, 1 618: a evidência, as decisões, o comando de verificação) | O limite 1 de M3, menos o que é de equipa ou de worktree (`set-unit-ownership`, `refresh-unit-progress`, `fold-unit-merge`, `fork`, `merge`); os recibos por unit da fatia 3 | Diferencial; o fuzz de transições ganha units. Prende os três chamadores que leem só o marcador de uma stage por unit e que a correção de M5 deixou por prender (os outputs de uma stage de Construction e a unit de um artefacto revisto) | Por fazer |
@@ -2359,7 +2359,8 @@ O caminho do pedido são 560 linhas de `handleReview` e uma dúzia de funções 
 
 | Coisa | Onde chega |
 | --- | --- |
-| `--verdict` | 2e-iv. Recusado pelo nome |
+| `--verdict` | 2e-iv-a. Levantado |
+| `--review-file`; o `NOT-READY` sem revisão de um pedido já repetido; a secção `## Review` acrescentada ao artefacto | 2e-iv-b. Recusados pelo nome |
 | `--unit` | Fatia 5. Recusado pelo nome |
 | Um pedido feito enquanto a Guard Policy deixou passar uma mudança, ou foi mudada desde a última vez que o ledger a gravou (`recordAcceptedChanges`, `governedGuardPolicy`: as linhas `CHANGE_ACCEPTED` e `GUARD_POLICY_SET`) | 2e-ii, que o levantou: até lá era recusado pelo nome, porque seguir sem as linhas deixava a mudança por dizer |
 | A pergunta de recuperação depois da frase de um guard, e a série da recusa | 4b e 4c (`SHAPES["guard-ask"]`) |
@@ -2370,7 +2371,8 @@ O caminho do pedido são 560 linhas de `handleReview` e uma dúzia de funções 
 | Verificação | O original | Focus |
 | --- | --- | --- |
 | `log/review/request/unit_not_ported` | Lê a unit e recusa ou grava nos seus termos | Recusa pelo nome (fatia 5) |
-| `log/review/request/verdict_not_ported` | Grava ou recusa o veredicto | Recusa pelo nome (2e-iv) |
+| `log/review/request/verdict_not_ported` | Grava ou recusa o veredicto | Recusava pelo nome. Levantado na 2e-iv-a: o veredicto compara-se em `log/review/verdict/*` |
+| `log/review/verdict/review_file_not_ported`, `not_ready_after_a_retry_not_ported`, `appended_section_not_ported` | Lê o ficheiro nomeado, grava o `NOT-READY` sem revisão, lê a secção acrescentada | Recusa cada um pelo nome (2e-iv-b) |
 | `log/review/request/policy_off_not_ported`, `policy_relaxed_not_ported` | Grava a mudança que a política deixou passar (`CHANGE_ACCEPTED`) e segue | Recusava pelo nome. Levantado na 2e-ii: as duas verificações comparam igual, sem o sufixo |
 
 `log/usage/review_not_ported` saiu de `DEVIATIONS`: o verbo existe.
@@ -2463,7 +2465,7 @@ O que isso muda é pouco, e sabe-se exatamente o quê. Nenhuma linha que conta d
 | --- | --- | --- |
 | Uma revisão com um til, quando um valor que ela tem de dizer tem um til ou U+0003 | Lê o texto rasurado: um reviewer chamado `a~b~c` não é o que uma revisão diz ao escrever o nome, e um chamado `a~b` é-o até um til mais à frente no parágrafo rasurar o resto | Não lê texto rasurado (um til é texto), e por isso não diz qual: a revisão é recusada com uma frase de Focus (`STRUCK_TEXT_NOT_READ`). O que não depende disso responde-se como o original: um til só de um dos lados, e tudo o que se recusa antes de comparar valores |
 
-O teste marcado está em `review_text`. O gerador não pergunta esses casos ao original. A entrada em `DEVIATIONS` vem com o veredicto (2e-iv), que é o primeiro comando a chegar aqui: até lá não há comando que o diferencial compare, como nos dois desvios de 4e-ii-b.
+O teste marcado está em `review_text`. O gerador não pergunta esses casos ao original. A entrada em `DEVIATIONS` entrou com o veredicto (2e-iv-a), o primeiro comando a chegar aqui: `log/review/verdict/struck_text` e `a_tilde_only_in_the_name`.
 
 **Os caracteres que um leitor toma por espaço e o outro não.** VT e FF são espaço para o renderer do original onde ele lê ênfase, e caracteres como os outros onde lê blocos; o parser toma-os por espaço nos dois sítios. U+0085, U+2028 e U+2029 são espaço para o parser onde lê ênfase, e para o renderer não. Cada um é dado ao parser como um carácter que o texto não usa e que ele lê como o renderer lê o original (um espaço que não é ASCII para os dois primeiros, um carácter de uso privado para os outros três), e volta a ser o que era no texto e nos blocos de HTML que saem.
 
@@ -2560,7 +2562,7 @@ A segunda ronda, sobre o que mudou, deixou um: o id que o reviewer dá a um find
 | O campo de decisões é o JSON `null` | Rebenta, com um erro do runtime (`null is not an object`) | A mesma recusa |
 | Um finding de um registo com uma lista onde vai um texto | Leva a lista: o fingerprint é o de uma lista, o id não é igual a nenhum | Não lê os findings desse registo (`review_record::NOT_A_TEXT`) |
 
-Só uma linha do ledger ou um registo editados à mão chegam aqui. Os testes marcados estão nos dois módulos; o gerador não pergunta esses casos ao original (o campo `null` pergunta, e os dois lados só dizem que não leram). As entradas em `DEVIATIONS` vêm com o primeiro comando que lá chegue (o veredicto, 2e-iv).
+Só uma linha do ledger ou um registo editados à mão chegam aqui. Os testes marcados estão nos dois módulos; o gerador não pergunta esses casos ao original (o campo `null` pergunta, e os dois lados só dizem que não leram). A entrada em `DEVIATIONS` da decisão entrou com o veredicto (2e-iv-a): `log/review/verdict/decisions_a_list_for_a_text` e `decisions_null`. O registo com uma lista não chega ao veredicto: o leitor que conta a tentativa já não o lê, nos dois motores (`log/review/verdict/earlier_record_a_list_for_a_text`, igual), e por isso continua sem comando que o mostre.
 
 **O que fica para quem escreve.** `serializeReviewFindingDispositions` (o campo, escrito, com as decisões por ordem de `localeCompare`) vem com o gate que grava decisões.
 
@@ -2591,7 +2593,7 @@ Só uma linha do ledger ou um registo editados à mão chegam aqui. Os testes ma
 | --- | --- | --- |
 | O artefacto que pode ter uma revisão antiga não é um ficheiro simples do registo | Lê-o pelo nome com `readFileSync`: atravessa um link e um segundo nome, e numa pasta cai com o `EISDIR` do runtime | A secção semeia findings que um gate pesa: o ficheiro é lido como um ficheiro regular com um só nome, alcançado sem links, e de outra maneira a lista é recusada, com o ficheiro nomeado. Um ficheiro só é lido quando o original olharia para ele |
 
-O teste marcado está em `review_derived`. A entrada em `DEVIATIONS` vem com o primeiro comando que derive a lista (o veredicto, 2e-iv).
+O teste marcado está em `review_derived`. O veredicto não chega aqui: um artefacto com dois nomes é recusado antes, no pedido, pelos dois motores (`log/review/verdict/artifact_under_two_names` e `older_section_under_two_names`, iguais). A entrada em `DEVIATIONS` fica para o primeiro comando que derive a lista sem tirar antes o retrato dos artefactos (o gate ou o brief do reviewer).
 
 **Como se compara.** Cada caso é um projeto: o ledger em um ou dois shards, os registos de revisão (cada um nomeado pelo digest dos seus bytes, que cada engine calcula), os artefactos. Um fingerprint é do que o finding diz, e um finding que o engine redige ele próprio diz a pasta do engine (`aidlc/…` num, `focus/…` no outro): a resposta mostra-o como `{SAID}` quando é o fingerprint do que o finding diz agora, e por extenso quando não é, dos dois lados.
 
@@ -2682,10 +2684,42 @@ O veredicto é a segunda metade de `handleReview` (`aidlc-log.ts`, L3 869 a L4 4
 
 | Parte | O que traz | Como se verifica | Estado |
 | --- | --- | --- | --- |
-| 2e-iv-a. O caminho principal | O contexto partilhado com o pedido. O pedido pendente e a sua ligação; a admissão do sumário outra vez; os artefactos ou a fonte que mudaram enquanto o reviewer trabalhava (recusa, ou aceite pela Guard Policy com o seu aviso); o ficheiro que o pedido abriu, lido como um ficheiro de confiança; a revisão validada, com os títulos rebaixados; os findings (a tabela, a lista derivada, e o caminho de um stage corrido sozinho); o registo escrito, a linha `REVIEW_COMPLETED`, o rascunho retirado, a cópia legível, o registo de despacho do reviewer retirado, a resposta | Diferencial (`log/review/verdict/*`) | Por fazer |
+| 2e-iv-a. O caminho principal | O contexto partilhado com o pedido. O pedido pendente e a sua ligação; a admissão do sumário outra vez; os artefactos ou a fonte que mudaram enquanto o reviewer trabalhava (recusa, ou aceite pela Guard Policy com o seu aviso); o ficheiro que o pedido abriu, lido como um ficheiro de confiança; a revisão validada, com os títulos rebaixados; os findings (a tabela, a lista derivada, e o caminho de um stage corrido sozinho); o registo escrito, a linha `REVIEW_COMPLETED`, o rascunho retirado, a cópia legível, o registo de despacho do reviewer retirado, a resposta | Diferencial (`log/review/verdict/*`) | Feita |
 | 2e-iv-b. As outras entradas | `--review-file`; a secção `## Review` que uma versão antiga deixa no artefacto; o `NOT-READY` sem revisão de um pedido já repetido; o registo maior do que os leitores aceitam, e o que não se consegue escrever | Diferencial | Por fazer |
 
 `--unit` continua recusado pelo nome: a fonte de uma Unit e o seu manifesto são das fatias de Construction. Com a 2e-iv-a entram em `DEVIATIONS` os quatro desvios que a 2e-iii deixou marcados e sem comando (o texto riscado, uma lista onde cabe um texto numa decisão e num registo, o artefacto com a secção antiga lido como ficheiro de confiança), e sai a recusa `log/review/request/verdict_not_ported`.
+
+### Fatia 2e-iv-a: o veredicto, no ficheiro que o pedido abriu
+
+**O que existe.** `focus engine log review --verdict READY|NOT-READY`, em `focus-log::review_verdict`, e o contexto que o pedido e o veredicto leem (`loadContext`), tirado de dentro do pedido para `review::load_context` sem lhe mudar resposta nenhuma.
+
+O veredicto, pela ordem do original: as flags; o pedido pendente dessa passagem; a admissão do sumário outra vez (uma revisão pode durar mais do que a confirmação); o retrato dos artefactos; os artefactos que mudaram enquanto o reviewer trabalhava (recusa sob `strict`, com «pede outra vez» quando o pedido se pode substituir; sob `relaxed` ou `off` o veredicto cobre o que o reviewer viu); o ficheiro que o pedido abriu, lido sem links, com um só nome e dentro do tamanho de um registo; a revisão a dizer o que o comando diz, com os títulos `#` e `##` rebaixados e o campo que o conta; a fonte de um stage que escreve o workspace; os findings (a tabela, juntos à lista do stage, ou tal como escritos num stage corrido sozinho); o registo, que nunca passa do tamanho que os leitores aceitam; a linha `REVIEW_COMPLETED`; o rascunho retirado; a cópia legível, numerada depois das que lá estão; o registo de despacho do reviewer retirado; a resposta.
+
+**O que ficou de fora, pelo nome** (2e-iv-b): `--review-file`; o `NOT-READY` sem revisão de um pedido já repetido; a secção `## Review` acrescentada ao artefacto sem ficheiro de revisão. O original lê ou grava cada um; Focus recusa.
+
+**Dois testes do original que não mudam resposta nenhuma.** O pedido pendente «sem ligação válida» não existe: a contagem da tentativa salta uma linha de pedido cuja ligação não se lê. E o registo de despacho do workspace principal, que o original retira num swarm, é da worktree de uma Unit, e `--unit` é recusado antes.
+
+**O que o harness ganhou.** Entre o pedido e o veredicto alguém escreve a revisão, num ficheiro cujo nome leva o id do pedido, que é aleatório. Um check passou a poder ter passos que não são comandos: `@write <caminho> <texto>`, `@edit <caminho> <antes> <depois>` e `@remove <caminho>`, com `{REVIEW}` (o ficheiro que o último pedido mandou escrever) e `{REVIEW_DIR}` (a pasta dele). O diferencial e a repetição da gravação (`recorded.rs`) fazem-nos da mesma maneira. A forma `review-ids` passou a assentar também o que um veredicto escreve: o digest do registo, que é da árvore (o registo tem o id do pedido, o nome da tentativa e a hora), é recalculado a partir do ficheiro que a linha nomeia; o registo compara-se linha a linha, no seu caminho assentado; e a fonte, onde quer que a linha ou o registo a digam.
+
+**Desvios que entraram em `DEVIATIONS`**, marcados desde a 2e-iii e agora com comando:
+
+| Desvio | Checks |
+| --- | --- |
+| Texto riscado não se lê: uma revisão com um til e um valor que ela tem de dizer com um til | `struck_text`, `a_tilde_only_in_the_name` (o nome do reviewer com um til já basta: a revisão di-lo) |
+| Uma decisão de um gate com uma lista onde cabe um texto, e o campo `null` | `decisions_a_list_for_a_text`, `decisions_null` (aqui o original falha com o `TypeError` do runtime; Focus recusa numa frase) |
+
+Os outros dois desvios da 2e-iii não chegam ao veredicto (acima, em cada um).
+
+**Ficou à vista, por medir.** No original uma recusa leva consigo os avisos das mudanças que a Guard Policy aceitou nesse mesmo comando (`emitError` junta-os ao texto do erro e ao campo `change_notices`). Focus perde-os numa recusa, no pedido e no veredicto. Para o mostrar é preciso um sumário confirmado, um output mudado sob `relaxed` e uma recusa a seguir, e a fixture do sumário confirmado está noutra secção do diferencial. Fica para a 2e-iv-b, com o check.
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Diferencial, `log/review/verdict/*` | @@V_DIFF@@ |
+| Diferencial, tudo | @@V_ALL@@ |
+| Mutação | @@V_MUT@@ |
+| `cargo test` | @@V_TESTS@@ |
 
 ### Fatia 3a: a tentativa de revisão, partida em cinco (feita)
 
