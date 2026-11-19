@@ -205,12 +205,7 @@ pub fn read_trusted(entry: &ReviewEntry) -> Trusted {
         Some(None) => return Trusted::Absent,
         Some(Some(real)) => real,
     };
-    let Ok(meta) = std::fs::symlink_metadata(&path) else {
-        return Trusted::Refused;
-    };
-    if !meta.is_file() || files::hard_links(&meta) != 1 {
-        return Trusted::Refused;
-    }
+    // (The reader refuses what is not a plain file with one name.)
     match files::read_regular(&path, "review artifact") {
         Ok(body) if resolves_inside(&real, &path) => Trusted::File(body),
         _ => Trusted::Refused,

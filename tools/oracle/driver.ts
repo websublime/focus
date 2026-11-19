@@ -1212,6 +1212,8 @@ async function answer(c: Record<string, any>): Promise<unknown> {
         const pending = c.pending === null ? undefined : Object.fromEntries(Object.entries(c.pending).filter(([, value]) => value !== null));
         const derived = briefPrivate.deriveReviewFindingsList(root, stage, fill(c.artifact), c.unit ?? undefined, pending);
         return {
+          // The pairing behind it, a row by where it stands.
+          paired: lib.pairedReviewCompletions(root, stage).map((paired: any) => [paired.unit, `${paired.event.shardIndex}:${paired.event.pos}`, paired.ref?.path ?? null]),
           artifact: derived.artifact,
           unit: derived.unit ?? null,
           verdict: derived.verdict,

@@ -1666,7 +1666,24 @@ fn review_derived_case(wf: &Workflow, case: &Value) -> Value {
                 shown
             })
             .collect();
+        // The pairing behind it, a row by where it stands.
+        let paired: Vec<Value> = review_derived::paired_completions(
+            &crate::gate::sort_attempt_events(&scratch.events()),
+            Some(record.as_path()),
+            &stage.slug,
+            crate::stage::reviewer(&stage),
+        )
+        .iter()
+        .map(|paired| {
+            json!([
+                paired.unit,
+                format!("{}:{}", paired.event.shard_index, paired.event.pos),
+                paired.named.as_ref().map(|named| named.path.clone()),
+            ])
+        })
+        .collect();
         Ok(json!({
+            "paired": paired,
             "artifact": derived.artifact,
             "unit": derived.unit,
             "verdict": derived.verdict,

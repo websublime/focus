@@ -16,6 +16,18 @@
 //! only when it descends from a request and names a record that verifies,
 //! so a row a gate would not trust cannot enter the list.
 //!
+//! # Tests that change no answer
+//!
+//! - A paired review's record is read again and held to its row
+//!   (`pairedReviewRecordForCompletion`), as upstream does: the pairing has
+//!   already read it and held it to the row.
+//! - The finding a decision is about is looked for by artifact and id,
+//!   where what is then done with it applies the decision by artifact and
+//!   id again.
+//! - A request's row is done with once its binding is kept: were it weighed
+//!   as a completion, it would be weighed against itself and name no
+//!   record.
+//!
 //! # Deliberate deviation
 //!
 //! Upstream reads the artifact that may hold a legacy `## Review` section
@@ -408,15 +420,11 @@ pub fn derive(
 
     // Redo overwrites the artifact, so a legacy section in it was written
     // after the last Redo: the seed begins the list that Redo started.
-    let redoes = |event: &ShardEvent| {
-        decisions::redo_applies_to_scope(&event.event, &event.block, slug, unit)
-    };
-    let last_redo = seed
-        .as_ref()
-        .and_then(|_| events.iter().rposition(|event| redoes(event)));
-    for (index, event) in events.iter().enumerate() {
-        if redoes(event) {
-            let again = seed.as_ref().filter(|_| last_redo == Some(index));
+    // (Upstream gives the seed back at the last Redo only. What an earlier
+    // one gives back the next one takes away, so each gives it back here.)
+    for event in &events {
+        if decisions::redo_applies_to_scope(&event.event, &event.block, slug, unit) {
+            let again = seed.as_ref();
             findings = again.map(|seed| seed.findings.clone()).unwrap_or_default();
             verdict = again.and_then(|seed| seed.verdict.clone());
             findings_text = again.and_then(|seed| seed.findings_text.clone());
@@ -503,9 +511,7 @@ pub fn derive(
                 }
             }
             latest = Some(named);
-            continue;
-        }
-        if decisions::gate_applies_to_scope(&event.event, &event.block, slug, unit) {
+        } else if decisions::gate_applies_to_scope(&event.event, &event.block, slug, unit) {
             for read in decisions_of(&event.block)? {
                 let disposition = read.disposition;
                 if disposition.reviewed_record.is_some() {
@@ -594,11 +600,13 @@ pub fn derive(
     }
 
     Ok(Derived {
-        artifact: if seed.is_some() && pending.is_none() {
-            seed_artifact.to_owned()
+        // (With no seed the two are one.)
+        artifact: if pending.is_none() {
+            seed_artifact
         } else {
-            artifact.to_owned()
-        },
+            artifact
+        }
+        .to_owned(),
         unit: unit.filter(|unit| !unit.is_empty()).map(str::to_owned),
         verdict,
         findings,
