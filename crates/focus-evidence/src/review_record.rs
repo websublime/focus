@@ -67,7 +67,7 @@ pub fn digest(bytes: &[u8]) -> String {
 }
 
 /// `String(value)` of a value a JSON document holds.
-fn as_text(value: &Value) -> String {
+pub(crate) fn as_text(value: &Value) -> String {
     match value {
         Value::Null => "null".to_owned(),
         Value::Bool(flag) => flag.to_string(),

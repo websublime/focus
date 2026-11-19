@@ -2564,16 +2564,16 @@ Só uma linha do ledger ou um registo editados à mão chegam aqui. Os testes ma
 
 **O que fica para quem escreve.** `serializeReviewFindingDispositions` (o campo, escrito, com as decisões por ordem de `localeCompare`) vem com o gate que grava decisões.
 
-@@RR_FOUND@@
+**O que o corpus e a mutação encontraram.** O corpus, nada: os 1 776 casos responderam igual à primeira. A mutação (80 mutantes) deixou 4 vivos, todos sobre código que não fazia nada, e saiu: uma cópia da leitura de um valor como texto, que passou a ser a de `review_record` (2); o teste de um valor ausente contra padrões que nenhum aceita o vazio (1); e o filtro de um campo vazio, que não é JSON de qualquer maneira (1). Um quinto não compilava (a recusa era o que fixava o tipo do erro): reescrito, foi apanhado pelo teste do desvio.
 
 **Verificado.**
 
 | Verificação | Resultado |
 | --- | --- |
-| Corpus, `review_reads` | @@RR_COUNTS@@ |
-| Corpus, tudo | @@RR_ALL@@ |
-| Mutação | @@RR_MUT@@ |
-| `cargo test` | @@RR_TESTS@@ |
+| Corpus, `review_reads` | 1 776 casos, todos iguais: 179 campos de decisões (95 com decisões, 83 sem nenhuma, 1 que não se lê), 630 linhas de gate e 360 de Redo contra um âmbito, 64 caminhos, 272 secções, 255 registos (192 com a lista que o engine mantinha), 16 textos de findings |
+| Corpus, tudo | 77 423 casos em 88 tipos; os dos outros 87 tipos iguais byte a byte |
+| Mutação | Duas rondas. A primeira, 80 mutantes: 75 apanhados (pelo corpus; os das recusas, pelos testes dos desvios), 4 vivos sobre código que saiu, 1 que não compilava. A segunda, esse reescrito e 2 novos sobre o que mudou: os 3 apanhados. No código final: 78 mutantes, todos apanhados |
+| `cargo test` | 594 testes; corpus de 77 423 casos (1 776 novos), todos iguais |
 
 ### Fatia 3a: a tentativa de revisão, partida em cinco (feita)
 

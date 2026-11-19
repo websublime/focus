@@ -23,6 +23,7 @@ use focus_js::{json, re, text as js_text};
 use serde_json::Value;
 
 use crate::review_list::Disposition;
+use crate::review_record::as_text;
 
 /// `REVIEW_FINDING_DISPOSITIONS_FIELD`.
 pub const FIELD: &str = "Review Finding Dispositions";
@@ -63,35 +64,11 @@ enum Tested<'v> {
     Coerced,
 }
 
-/// `String(value)` of a value a JSON document holds.
-fn as_text(value: &Value) -> String {
-    match value {
-        Value::Null => "null".to_owned(),
-        Value::Bool(flag) => flag.to_string(),
-        Value::Number(number) => focus_js::num::to_string(number.as_f64().unwrap_or(f64::NAN)),
-        Value::String(text) => text.clone(),
-        Value::Array(entries) => entries
-            .iter()
-            .map(|entry| match entry {
-                Value::Null => String::new(),
-                entry => as_text(entry),
-            })
-            .collect::<Vec<_>>()
-            .join(","),
-        Value::Object(_) => "[object Object]".to_owned(),
-    }
-}
-
-/// `pattern.test(value ?? "")`.
+/// `pattern.test(value ?? "")`, for the patterns here: none of them
+/// matches a value that is not there.
 fn tested<'v>(value: Option<&'v Value>, matches: &dyn Fn(&str) -> bool) -> Tested<'v> {
     match value {
-        None | Some(Value::Null) => {
-            if matches("") {
-                Tested::Text("")
-            } else {
-                Tested::No
-            }
-        }
+        None | Some(Value::Null) => Tested::No,
         Some(Value::String(text)) if matches(text) => Tested::Text(text),
         Some(Value::String(_)) => Tested::No,
         Some(other) if matches(&as_text(other)) => Tested::Coerced,
@@ -187,9 +164,10 @@ fn entry(value: &Value) -> Result<Option<Disposition>, String> {
 /// A decision is of the form only as upstream reads a list for a text, or
 /// the field is `null` ([`NOT_A_TEXT`]).
 pub fn parse_field(value: Option<&str>) -> Result<Vec<Read>, String> {
-    let Some(value) = value.filter(|value| !value.is_empty()) else {
+    let Some(value) = value else {
         return Ok(Vec::new());
     };
+    // (An empty field is no JSON either.)
     let Ok(parsed) = json::parse(value) else {
         return Ok(Vec::new());
     };
@@ -330,9 +308,8 @@ mod tests {
             format!(
                 r#"{{"artifact":"a.md","id":"R-01","fingerprint":"{DIGEST}","status":["Accepted risk"]}}"#
             ),
-            format!(
-                r#"{{"artifact":"a.md","id":["R-01"],"fingerprint":"short","status":"Accepted risk"}}"#
-            ),
+            r#"{"artifact":"a.md","id":["R-01"],"fingerprint":"short","status":"Accepted risk"}"#
+                .to_owned(),
         ] {
             assert_eq!(
                 parse_field(Some(&field(&decision))),
