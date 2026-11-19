@@ -23,7 +23,7 @@ use crate::source::walk::{self, Budgets, Names, Options, Stop};
 use crate::summary;
 
 /// The kinds of case this crate answers.
-pub const KINDS: [&str; 11] = [
+pub const KINDS: [&str; 12] = [
     "source_listing_parse",
     "source_listing",
     "source_changed",
@@ -35,6 +35,7 @@ pub const KINDS: [&str; 11] = [
     "review_record",
     "review_text",
     "review_findings",
+    "review_list",
 ];
 
 /// Lay the case's project out and walk it.
@@ -385,6 +386,7 @@ pub fn run_case(case: &Value) -> Value {
             }
         }
         "review_findings" => review_findings_case(case),
+        "review_list" => review_list_case(case),
         "review_record" => {
             let bytes = text("text").as_bytes();
             let completion = text("completion");
@@ -481,7 +483,180 @@ fn stated_finding(finding: &crate::review_findings::Finding) -> Value {
     put("requiredAction", &finding.required_action);
     put("status", &finding.status);
     put("fingerprint", &finding.fingerprint);
+    // What the list keeps about it, where it keeps anything.
+    for (key, value) in [
+        (
+            "decidedAtSeverity",
+            finding.decided_at_severity.as_ref().map(|text| json!(text)),
+        ),
+        (
+            "reviewerNote",
+            finding.reviewer_note.as_ref().map(|text| json!(text)),
+        ),
+        (
+            "notRechecked",
+            finding.not_rechecked.map(|flag| json!(flag)),
+        ),
+        (
+            "resolvedByReviewer",
+            finding.resolved_by_reviewer.map(|flag| json!(flag)),
+        ),
+        (
+            "resolvedInReview",
+            finding.resolved_in_review.map(|flag| json!(flag)),
+        ),
+        (
+            "earlierDecision",
+            finding.earlier_decision.as_ref().map(|text| json!(text)),
+        ),
+        (
+            "reopenedReason",
+            finding.reopened_reason.as_ref().map(|text| json!(text)),
+        ),
+        (
+            "relatedFindingId",
+            finding.related_finding_id.as_ref().map(|text| json!(text)),
+        ),
+        (
+            "introducedInReview",
+            finding.introduced_in_review.map(|flag| json!(flag)),
+        ),
+    ] {
+        if let Some(value) = value {
+            out.insert(key.to_owned(), value);
+        }
+    }
     Value::Object(out)
+}
+
+/// A finding of the list, as a case holds it: upstream's object, a key
+/// left out where it was never set.
+fn list_finding(finding: &Value) -> crate::review_findings::Finding {
+    let text = |key: &str| finding[key].as_str().unwrap_or_default().to_owned();
+    let maybe = |key: &str| finding[key].as_str().map(str::to_owned);
+    let flag = |key: &str| finding[key].as_bool();
+    crate::review_findings::Finding {
+        artifact: text("artifact"),
+        unit: maybe("unit"),
+        id: text("id"),
+        severity: text("severity"),
+        location: text("location"),
+        finding: text("finding"),
+        required_action: text("requiredAction"),
+        status: text("status"),
+        fingerprint: text("fingerprint"),
+        decided_at_severity: maybe("decidedAtSeverity"),
+        reviewer_note: maybe("reviewerNote"),
+        not_rechecked: flag("notRechecked"),
+        resolved_by_reviewer: flag("resolvedByReviewer"),
+        resolved_in_review: flag("resolvedInReview"),
+        earlier_decision: maybe("earlierDecision"),
+        reopened_reason: maybe("reopenedReason"),
+        related_finding_id: maybe("relatedFindingId"),
+        introduced_in_review: flag("introducedInReview"),
+    }
+}
+
+/// The list of findings the engine keeps: the next id, a severity word, a
+/// note, a report of prior findings applied, a review applied, a legacy
+/// record's list, a person's decision applied, and a finding without one
+/// review's marks.
+fn review_list_case(case: &Value) -> Value {
+    use crate::review_findings::{Now, PriorReport};
+    use crate::review_list as list;
+    let text = |key: &str| case[key].as_str().unwrap_or_default();
+    let unit = case["unit"].as_str();
+    let listed = |key: &str| -> Vec<crate::review_findings::Finding> {
+        case[key]
+            .as_array()
+            .map(|findings| findings.iter().map(list_finding).collect())
+            .unwrap_or_default()
+    };
+    let shown = |findings: &[crate::review_findings::Finding]| -> Vec<Value> {
+        findings.iter().map(stated_finding).collect()
+    };
+    match text("op") {
+        "next_id" => json!(list::next_finding_id(&listed("findings"))),
+        "severity" => json!({
+            "canonical": list::canonical_severity(text("value")),
+            "rank": list::severity_rank(text("value")),
+        }),
+        "note" => {
+            let parts: Vec<Option<&str>> = case["parts"]
+                .as_array()
+                .map(|parts| parts.iter().map(Value::as_str).collect())
+                .unwrap_or_default();
+            json!(list::reviewer_note(&parts))
+        }
+        "prior" => {
+            let rows: Vec<PriorReport> = case["rows"]
+                .as_array()
+                .map(|rows| {
+                    rows.iter()
+                        .map(|row| PriorReport {
+                            id: row["id"].as_str().unwrap_or_default().to_owned(),
+                            now: if row["now"] == "fixed" {
+                                Now::Fixed
+                            } else {
+                                Now::StillApplies
+                            },
+                            severity: row["severity"].as_str().unwrap_or_default().to_owned(),
+                            note: row["note"].as_str().unwrap_or_default().to_owned(),
+                        })
+                        .collect()
+                })
+                .unwrap_or_default();
+            let (findings, malformed) = list::apply_prior_report(
+                &listed("findings"),
+                text("artifact"),
+                unit,
+                &rows,
+                case["malformedUnknownIds"] == true,
+            );
+            json!({ "findings": shown(&findings), "malformed": malformed })
+        }
+        "body" => {
+            match list::apply_review_body(&listed("findings"), text("artifact"), unit, text("text"))
+            {
+                Ok(applied) => json!({
+                    "findings": shown(&applied.findings),
+                    "malformed": applied.malformed,
+                    "priorMissing": applied.prior_missing,
+                }),
+                Err(error) => json!({ "error": error }),
+            }
+        }
+        "legacy" => json!(shown(&list::legacy_record_list(
+            &listed("current"),
+            &listed("recorded")
+        ))),
+        "disposition" => {
+            let mut findings = listed("findings");
+            let given = &case["disposition"];
+            let said = |key: &str| given[key].as_str().unwrap_or_default().to_owned();
+            let disposition = list::Disposition {
+                artifact: said("artifact"),
+                id: said("id"),
+                fingerprint: said("fingerprint"),
+                status: said("status"),
+                decided_at_severity: given["decided_at_severity"].as_str().map(str::to_owned),
+                reviewed_record: given["reviewed_record"].as_object().map(|record| {
+                    let part = |key: &str| {
+                        record
+                            .get(key)
+                            .and_then(Value::as_str)
+                            .unwrap_or_default()
+                            .to_owned()
+                    };
+                    (part("path"), part("digest"))
+                }),
+            };
+            list::apply_disposition(&mut findings, &disposition, case["legacySeverity"].as_str());
+            json!(shown(&findings))
+        }
+        "unmark" => stated_finding(&list::without_round_marks(&list_finding(&case["finding"]))),
+        other => json!({ "error": format!("unknown op {other}") }),
+    }
 }
 
 /// A findings report, as upstream's object is written.

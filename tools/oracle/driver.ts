@@ -64,6 +64,26 @@ const logShim = tool("aidlc-log.focus-oracle.ts");
 writeFileSync(logShim, `${readFileSync(tool("aidlc-log.ts"), "utf-8")}\nexport { demoteReviewHeadings };\n`);
 process.on("exit", () => rmSync(logShim, { force: true }));
 const logPrivate = await import(logShim);
+// The functions over the list of findings the engine keeps are private to the review brief, and asked of its copy.
+const BRIEF_PRIVATE = [
+  "nextFindingId", "canonicalSeverity", "findingSeverityRank", "reviewerNote", "applyPriorReport", "applyReviewBody", "legacyRecordList",
+  "applyDisposition", "withoutRoundMarks",
+];
+const briefShim = tool("aidlc-review-brief.focus-oracle.ts");
+writeFileSync(briefShim, `${readFileSync(tool("aidlc-review-brief.ts"), "utf-8")}\nexport { ${BRIEF_PRIVATE.join(", ")} };\n`);
+process.on("exit", () => rmSync(briefShim, { force: true }));
+const briefPrivate = await import(briefShim);
+// A finding of the list with its keys in one order: the order upstream's object has them in is the history of what
+// was done to it, and no reader of the list goes by it.
+const FINDING_KEYS = [
+  "artifact", "unit", "id", "severity", "location", "finding", "requiredAction", "status", "fingerprint", "decidedAtSeverity", "reviewerNote",
+  "notRechecked", "resolvedByReviewer", "resolvedInReview", "earlierDecision", "reopenedReason", "relatedFindingId", "introducedInReview",
+];
+function listedFinding(finding: any): Record<string, unknown> {
+  const stray = Object.keys(finding).filter((key) => !FINDING_KEYS.includes(key));
+  if (stray.length > 0) throw new Error(`a finding holds ${stray.join(", ")}`);
+  return Object.fromEntries(FINDING_KEYS.filter((key) => finding[key] !== undefined).map((key) => [key, finding[key]]));
+}
 // A project of a case's own, under a scratch root: `files`, `hex` (bytes), `dirs`, `links` and `hard` under the
 // space's folder, `source` beside the engine's folder, and `state` as the record's state file.
 function layProject(c: any): string {
@@ -964,6 +984,41 @@ async function answer(c: Record<string, any>): Promise<unknown> {
         return demoted === null ? null : { text: Buffer.from(demoted.bytes).toString("utf-8"), changed: demoted.changed };
       }
       return lib.validateReviewAppendix(bytes, c.expected);
+    }
+    case "review_list": {
+      // The list of findings the engine keeps, one review after another. A throw is the answer.
+      const unit = c.unit === null ? undefined : c.unit;
+      const copies = (findings: any[]) => findings.map((finding) => ({ ...finding }));
+      switch (c.op) {
+        case "next_id":
+          return briefPrivate.nextFindingId(c.findings);
+        case "severity":
+          return { canonical: briefPrivate.canonicalSeverity(c.value), rank: briefPrivate.findingSeverityRank(c.value) };
+        case "note":
+          return briefPrivate.reviewerNote(...(c.parts as Array<string | null>).map((part) => part ?? undefined)) ?? null;
+        case "prior": {
+          const applied = briefPrivate.applyPriorReport(copies(c.findings), c.artifact, unit, c.rows, c.malformedUnknownIds);
+          return { findings: applied.findings.map(listedFinding), malformed: applied.malformed };
+        }
+        case "body":
+          try {
+            const applied = briefPrivate.applyReviewBody(copies(c.findings), c.artifact, unit, c.text);
+            return { findings: applied.findings.map(listedFinding), malformed: applied.malformed, priorMissing: applied.priorMissing };
+          } catch (error) {
+            return { error: (error as Error).message };
+          }
+        case "legacy":
+          return briefPrivate.legacyRecordList(copies(c.current), copies(c.recorded)).map(listedFinding);
+        case "disposition": {
+          const findings = copies(c.findings);
+          briefPrivate.applyDisposition(findings, c.disposition, c.legacySeverity ?? undefined);
+          return findings.map(listedFinding);
+        }
+        case "unmark":
+          return listedFinding(briefPrivate.withoutRoundMarks({ ...c.finding }));
+        default:
+          throw new Error(`unknown review_list op ${c.op}`);
+      }
     }
     case "review_findings": {
       // The findings a review states: a row's cells (the splitter is private to the library, and asked of its

@@ -44,6 +44,7 @@ fn every_evidence_case_gets_upstreams_answer() {
     let (mut records, mut valid, mut same_review, mut carried) = (0, 0, 0, 0);
     let (mut recordable, mut ranked, mut sent_back, mut demoted, mut left_alone) = (0, 0, 0, 0, 0);
     let (mut reported, mut tabled, mut unreadable, mut written) = (0, 0, 0, 0);
+    let (mut applied, mut malformed, mut escalated, mut decided) = (0, 0, 0, 0);
     let (mut inputs, mut set_aside) = (0, 0);
     let (mut same_asked, mut same_alias, mut same_raw, mut same_boundary) = (0, 0, 0, 0);
     let (mut boundaries, mut left_out, mut escaped, mut cut_short) = (0, 0, 0, 0);
@@ -131,6 +132,19 @@ fn every_evidence_case_gets_upstreams_answer() {
                 ranked += usize::from(out["heading"] == true);
                 sent_back += usize::from(out["valid"] == false && out.get("heading").is_none());
             }
+        } else if kind == "review_list" {
+            // The list the engine keeps: a review or a report applied, with
+            // or without a rule of the report broken; a finding raised
+            // because a decided one got worse; and a person's decision.
+            let listed = out["findings"].as_array();
+            applied += usize::from(listed.is_some());
+            malformed += usize::from(out["malformed"] == true);
+            escalated += usize::from(listed.is_some_and(|findings| {
+                findings
+                    .iter()
+                    .any(|finding| finding.get("relatedFindingId").is_some())
+            }));
+            decided += usize::from(case["op"] == "disposition");
         } else if kind == "review_findings" {
             // The findings a review states, as a record admits them: read
             // from the report, read from the six-column table, or not
@@ -274,6 +288,10 @@ fn every_evidence_case_gets_upstreams_answer() {
     assert!(
         reported >= 200 && tabled >= 120 && unreadable >= 850 && written >= 250,
         "{reported} {tabled} {unreadable} {written}"
+    );
+    assert!(
+        applied >= 1700 && malformed >= 800 && escalated >= 700 && decided >= 1500,
+        "{applied} {malformed} {escalated} {decided}"
     );
     assert!(
         differing.is_empty(),

@@ -8711,5 +8711,186 @@ for _ in range(120 * scale):
     parts.append(rf.choice(["", "", "### Notes\n\n| R-09 | Major | z.md | After | Fix it | New |\n", "## Notes\n", "\nprose\n"]))
     rf_review("".join(parts), artifact=rf.choice(["design/architecture.md", "a.md"]), unit=rf.choice([None, None, "orders"]), verdicts=(rf.choice(["READY", "NOT-READY", None]),))
 
+# --- The list of findings the engine keeps (slice 2e-iii-c-i of M5) ---
+# The functions over the list itself (`aidlc-review-brief.ts`): the next id, a severity word, a note, what a review
+# says became of the findings it was shown (`applyPriorReport`), a whole review applied (`applyReviewBody`), a
+# legacy record's list, and a person's decision (`applyDisposition`).
+
+rl = random.Random(seed * 7919 + 37)
+RL_ARTIFACT = "design/architecture.md"
+
+
+def rl_add(op, **given):
+    add("review_list", op=op, **given)
+
+
+def rl_finding(found, status="New", severity="Major", **marks):
+    finding = {"artifact": RL_ARTIFACT, "id": found, "severity": severity, "location": f"{RL_ARTIFACT} > Part {found}", "finding": f"Finding {found} is wrong", "requiredAction": f"Fix {found}", "status": status,
+               "fingerprint": f"sha256:said-by-{found}"}
+    finding.update(marks)
+    return finding
+
+
+RL_STATUSES = ["New", "New", "Unresolved", "Unresolved", "Resolved", "Accepted risk", "Rejected: not a defect"]
+RL_SEVERITIES = ["Minor", "Major", "Critical", "major", "CRITICAL", " minor ", "Blocker", ""]
+RL_MARKS = [("decidedAtSeverity", ["Minor", "Major", "Critical", "Blocker"]), ("reviewerNote", ["An earlier note", ""]), ("notRechecked", [True, False]), ("resolvedByReviewer", [True, True, False]), ("resolvedInReview", [True, False]),
+            ("earlierDecision", ["Accepted risk", "Rejected: decided before"]), ("reopenedReason", ["It was not fixed"]), ("relatedFindingId", ["R-01", "R-02", "R-03", "R-04"]), ("introducedInReview", [True, False])]
+
+
+def rl_drawn(index):
+    marks = {key: rl.choice(values) for key, values in RL_MARKS if rl.random() < 0.22}
+    if rl.random() < 0.12:
+        marks["unit"] = "orders"
+    if rl.random() < 0.08:
+        marks["artifact"] = "other.md"
+    found = f"R-{index:02}" if rl.random() < 0.93 else rl.choice(["R-01", "R-1", "R-007", "legacy-1", "R-00"])
+    return rl_finding(found, rl.choice(RL_STATUSES), rl.choice(RL_SEVERITIES[:4] + ["Major"] * 3), **marks)
+
+
+def rl_list(most=6):
+    return [rl_drawn(index + 1) for index in range(rl.randint(0, most))]
+
+
+for ids in ([], ["R-01"], ["R-09"], ["R-9"], ["R-99"], ["R-100"], ["R-0001"], ["R-0099"], ["R-02", "R-10", "R-03"], ["R-18446744073709551615"], ["R-99999999999999999999999999"], ["R-00000000000000000000000000000000000001"],
+            ["R-9007199254740993", "R-9007199254740992"], ["x", "R-", "R-1a", "r-5", "R-05\n", " R-05", "R-0x5", "R--5", "R-٣"], ["R-00"], ["R-0"], ["R-000"], ["R-10", "R-9"], ["R-019", "R-20"], ["R-199", "R-0200"], ["R-999", "R-98"],
+            ["R-01", "R-01"], ["R-5", "R-05", "R-005"]):
+    rl_add("next_id", findings=[rl_finding(found) for found in ids])
+for value in ("Minor", "Major", "Critical", "minor", "MAJOR", " critical ", "\tMinor\n", "Blocker", " blocker ", "", " ", "Critical.", "Ｍinor", "minor ", "﻿Major", "MaJoR", "Low", "High", "Major Minor", "İ"):
+    rl_add("severity", value=value)
+for parts in ([], [None], [""], ["a"], [" a ", None, "", "b"], ["  "], ["a; b", "c"], [None, None], ["a", "a"], [" a ", "\tb\n"], ["a", None, "c"], ["", "", "z"]):
+    rl_add("note", parts=parts)
+
+# What a review says became of the findings it was shown, one finding and one row at a time.
+RL_HELD = [rl_finding("R-01"), rl_finding("R-02", "Unresolved"), rl_finding("R-03", "Resolved", resolvedByReviewer=True, resolvedInReview=True), rl_finding("R-04", "Accepted risk", "Minor", decidedAtSeverity="Minor"),
+           rl_finding("R-05", "Rejected: not a defect"), rl_finding("R-06", "Resolved", resolvedByReviewer=True, earlierDecision="Accepted risk"), rl_finding("R-07", "Unresolved", earlierDecision="Rejected: once", reopenedReason="It is back"),
+           rl_finding("R-08", "New", "Critical", relatedFindingId="R-04", introducedInReview=True), rl_finding("R-09", "New", introducedInReview=True, reviewerNote="Said before", notRechecked=True),
+           rl_finding("R-10", "Accepted risk", "Blocker"), rl_finding("R-11", "Accepted risk", "Major", decidedAtSeverity="Critical"), rl_finding("R-12", "Resolved"), rl_finding("R-13", "Unresolved", reopenedReason="Reopened by a person"),
+           rl_finding("R-14", "Rejected: no", "Minor", relatedFindingId="R-05"), rl_finding("R-15", "Resolved", "Critical", relatedFindingId="R-05")]
+for held in RL_HELD:
+    for now in ("fixed", "still-applies"):
+        for severity in ("", "Minor", "Major", "Critical", "critical", "Blocker"):
+            for note in ("", "The reviewer's note"):
+                rl_add("prior", findings=RL_HELD, artifact=RL_ARTIFACT, unit=None, rows=[{"id": held["id"], "now": now, "severity": severity, "note": note}], malformedUnknownIds=True)
+        rl_add("prior", findings=[held], artifact=RL_ARTIFACT, unit="orders", rows=[{"id": held["id"], "now": now, "severity": "Critical", "note": "First"}, {"id": held["id"], "now": now, "severity": "Minor", "note": ""},
+                                                                                         {"id": held["id"], "now": "fixed", "severity": "", "note": "Third"}], malformedUnknownIds=False)
+for flag in (True, False):
+    for rows in ([], [{"id": "R-50", "now": "fixed", "severity": "", "note": ""}], [{"id": "R-50", "now": "still-applies", "severity": "minor", "note": "Unknown and noted"}],
+                 [{"id": "R-50", "now": "fixed", "severity": "Minor", "note": ""}, {"id": "R-50", "now": "still-applies", "severity": "", "note": ""}, {"id": "R-50", "now": "fixed", "severity": "", "note": "Again"}],
+                 [{"id": "R-50", "now": "fixed", "severity": "", "note": ""}, {"id": "R-51", "now": "fixed", "severity": "", "note": ""}, {"id": "R-16", "now": "fixed", "severity": "", "note": "The id the first became"}],
+                 [{"id": "R-04", "now": "still-applies", "severity": "Critical", "note": ""}, {"id": "R-05", "now": "still-applies", "severity": "Critical", "note": "Worse"}, {"id": "R-10", "now": "still-applies", "severity": "Critical", "note": ""},
+                  {"id": "R-11", "now": "still-applies", "severity": "Critical", "note": ""}, {"id": "R-14", "now": "still-applies", "severity": "Major", "note": ""}],
+                 [{"id": "R-04", "now": "still-applies", "severity": "Major", "note": ""}, {"id": "R-04", "now": "still-applies", "severity": "Critical", "note": ""}],
+                 [{"id": "R-01", "now": "fixed", "severity": "", "note": ""}, {"id": "R-01", "now": "still-applies", "severity": "", "note": ""}, {"id": "R-02", "now": "still-applies", "severity": " ", "note": " "}]):
+        rl_add("prior", findings=RL_HELD, artifact=RL_ARTIFACT, unit=None, rows=rows, malformedUnknownIds=flag)
+        rl_add("prior", findings=[], artifact="a b.md", unit="orders", rows=rows, malformedUnknownIds=flag)
+        rl_add("prior", findings=[rl_finding("R-01", unit="payments"), rl_finding("R-01", "Accepted risk"), rl_finding("R-99999999999999999999", "Resolved")], artifact=RL_ARTIFACT, unit="", rows=rows, malformedUnknownIds=flag)
+for _ in range(120 * scale):
+    held = rl_list()
+    ids = [finding["id"] for finding in held] + ["R-40", "R-41"]
+    rows = [{"id": rl.choice(ids), "now": rl.choice(["fixed", "still-applies"]), "severity": rl.choice(RL_SEVERITIES), "note": rl.choice(["", "", "A note", " "])} for _ in range(rl.randint(0, 6))]
+    rl_add("prior", findings=held, artifact=rl.choice([RL_ARTIFACT, "other.md"]), unit=rl.choice([None, "orders"]), rows=rows, malformedUnknownIds=rl.random() < 0.5)
+
+# A whole review applied: the report, and the six-column table read for the transition.
+RL_TOP = "**Verdict:** NOT-READY\n\n### Findings\n\n"
+
+
+def rl_report(prior, new, head="| Severity | Location | Finding | Required action |", rule="|---|---|---|---|"):
+    text = RL_TOP
+    if prior is not None:
+        text += "**Prior findings**\n\n| ID | Now | Severity | Note |\n|---|---|---|---|\n" + "".join(f"| {row} |\n" for row in prior) + "\n"
+    return text + f"**New findings**\n\n{head}\n{rule}\n" + "".join(f"| {row} |\n" for row in new)
+
+
+def rl_six(rows):
+    return RL_TOP + "| ID | Severity | Location | Finding | Required action | Status |\n|---|---|---|---|---|---|\n" + "".join(f"| {row} |\n" for row in rows)
+
+
+def rl_same(held, status, severity=None, **changed):
+    said = dict(held, **changed)
+    return f"{said['id']} | {severity if severity is not None else said['severity']} | {said['location']} | {said['finding']} | {said['requiredAction']} | {status}"
+
+
+RL_BODIES = [rl_report([], []), rl_report(None, []), rl_report(None, ["Major | c.md | It leaks | Close it"]), rl_report(["R-01 | Fixed | Major | Done", "R-02 | Still applies | Critical | Worse now"], ["minor | c.md | It leaks | Close it"]),
+             rl_report(["R-01 | Fixed | | ", "R-01 | Still applies | | Twice"], []), rl_report(["R-50 | Fixed | | ", "R-50 | Open | | "], ["Major | c.md | One | Do it", "Major | d.md | Two | Do it"]),
+             rl_report(["R-04 | Still applies | Critical | It got worse", "R-05 | Resolved | | "], []),
+             rl_report(["R-01 | Fixed | Major | Done"], ["R-01 | Major | c.md | Supplied a prior id | Do it", "R-77 | Major | c.md | Supplied another | Do it", " | Major | c.md | Supplied none | Do it"],
+                       head="| ID | Severity | Location | Finding | Required action |", rule="|---|---|---|---|---|"),
+             rl_report(["R-03 | Still applies | Major | Back again", "R-06 | Still applies | | ", "R-07 | Still applies | | ", "R-12 | Still applies | | ", "R-13 | Fixed | | "], []),
+             rl_report(["R-01 | Maybe | Major | x"], []), rl_report(["R-01 | Fixed | Major | x"], ["Major | c.md | - | Do it"]), RL_TOP + "**Prior findings**\n\nnothing\n", RL_TOP, "", "no findings heading\n", RL_TOP + "No findings.\n",
+             rl_six([]), rl_six([rl_same(RL_HELD[0], "New"), rl_same(RL_HELD[1], "Resolved"), rl_same(RL_HELD[2], "Unresolved")]),
+             rl_six([rl_same(RL_HELD[0], "Unresolved", finding="Worded another way"), rl_same(RL_HELD[1], "Unresolved", requiredAction="Another action"), rl_same(RL_HELD[3], "Accepted risk", "Critical", finding="Reworded", requiredAction="")]),
+             rl_six([rl_same(RL_HELD[0], "Resolved"), rl_same(RL_HELD[0], "Unresolved")]), rl_six(["R-60 | Major | c.md | Unknown and new | Do it | New", "R-61 | minor | c.md | Unknown, claimed prior | Do it | Unresolved"]),
+             rl_six(["R-60 | Major | c.md | First | Do it | Unresolved", "R-60 | Major | c.md | Second | Do it | New", "R-60 | Major | c.md | Third | Do it | Resolved"]),
+             rl_six(["R-00 | Major | a.md > review findings table | Stands in | Address it | Unresolved", "R-00 | Major | a.md > review findings table | Stands in, fixed | Address it | Resolved", "R-00 | Major | elsewhere | Not the stand-in | Do it | New"]),
+             rl_six([rl_same(RL_HELD[3], "Resolved"), rl_same(RL_HELD[4], "Rejected: by the reviewer"), "R-62 | Major | c.md | Decided by the reviewer | Do it | Accepted risk", "R-63 | Major | c.md | Rejected by the reviewer | Do it | Rejected: no"]),
+             rl_six(["R-60 | Major | c.md | Bad status | Do it | Fixed"]), rl_six(["R-60 | Major | c.md | Short row | New"]), rl_six(["nope | Major | c.md | Bad id | Do it | New"]),
+             RL_TOP + "| ID | Severity |\n|---|---|\n| R-01 | Major |\n", rl_six([rl_same(RL_HELD[0], "New")]) + "\n" + rl_report([], ["Major | c.md | Both forms | Do it"]).replace(RL_TOP, "")]
+for body in RL_BODIES:
+    rl_add("body", findings=RL_HELD, artifact=RL_ARTIFACT, unit=None, text=body)
+    rl_add("body", findings=[], artifact=RL_ARTIFACT, unit="orders", text=body)
+    rl_add("body", findings=[rl_finding("R-01", "Accepted risk"), rl_finding("R-01"), rl_finding("R-02", "Resolved", unit="payments")], artifact="other.md", unit="", text=body)
+for _ in range(100 * scale):
+    held = rl_list()
+    known = held + [rl_finding("R-70"), rl_finding("R-71")]
+    if rl.random() < 0.5:
+        prior = [f"{rl.choice(known)['id']} | {rl.choice(['Fixed', 'Still applies', 'open', 'Resolved'])} | {rl.choice(RL_SEVERITIES)} | {rl.choice(['', 'A note'])}" for _ in range(rl.randint(0, 5))]
+        new = [f"{rl.choice(RL_SEVERITIES[:5])} | c.md | New {n} | Do {n}" for n in range(rl.randint(0, 3))]
+        body = rl_report(prior if rl.random() < 0.85 else None, new)
+    else:
+        rows = []
+        for _ in range(rl.randint(0, 6)):
+            finding = rl.choice(known)
+            changed = {}
+            if rl.random() < 0.3:
+                changed["finding"] = "Reworded this round"
+            if rl.random() < 0.3:
+                changed["requiredAction"] = rl.choice(["Another action", ""])
+            rows.append(rl_same(finding, rl.choice(["New", "Unresolved", "Resolved", "Accepted risk", "Rejected: by the reviewer"]), rl.choice(RL_SEVERITIES[:5] + [None, None]), **changed))
+        if rl.random() < 0.2:
+            rows.append("R-00 | Major | a.md > review findings table | Stands in | Address it | " + rl.choice(["Unresolved", "Resolved", "New"]))
+        body = rl_six(rows)
+    rl_add("body", findings=held, artifact=RL_ARTIFACT, unit=rl.choice([None, "orders"]), text=body)
+
+# What a sweep of mutants asked for: a list that holds an id twice, each time in other words, and a table that
+# repeats one or the other; and a known id repeated in the table with nothing else wrong.
+RL_TWICE = [rl_finding("R-01", finding="The first wording", requiredAction="The first action"), rl_finding("R-01", "Accepted risk", finding="The second wording", requiredAction="The second action"), rl_finding("R-02")]
+for rows in (["R-01 | Major | x | The first wording | The first action | Unresolved"], ["R-01 | Major | x | The second wording | The second action | Unresolved"], ["R-01 | Major | x | The first wording | The second action | Resolved"],
+             ["R-02 | Major | x | Finding R-02 is wrong | Fix R-02 | Unresolved", "R-02 | Major | x | Finding R-02 is wrong | Fix R-02 | Unresolved"], ["R-02 | Major | x | Finding R-02 is wrong | Fix R-02 | Resolved", "R-01 | Major | x | The second wording | The second action | New",
+                                                                                                                                                                    "R-02 | Minor | x | Said again | Fix R-02 | Unresolved"]):
+    rl_add("body", findings=RL_TWICE, artifact=RL_ARTIFACT, unit=None, text=rl_six(rows))
+    rl_add("body", findings=list(reversed(RL_TWICE)), artifact=RL_ARTIFACT, unit=None, text=rl_six(rows))
+# An id a reviewer gave a new finding is ignored, and breaks no rule unless it is an id the Prior findings table used.
+for prior, new in ((["R-01 | Fixed | Major | Done"], ["R-77 | Major | c.md | Supplied an id of its own | Do it"]), (["R-01 | Fixed | Major | Done"], ["R-02 | Major | c.md | Supplied an id the list holds | Do it"]),
+                   ([], ["R-01 | Major | c.md | Supplied an id the list holds | Do it", " | Major | c.md | Supplied none | Do it"]), (["R-02 | Still applies | Major | "], ["R-02 | Major | c.md | Supplied the id reported on | Do it"])):
+    rl_add("body", findings=RL_HELD, artifact=RL_ARTIFACT, unit=None, text=rl_report(prior, new, head="| ID | Severity | Location | Finding | Required action |", rule="|---|---|---|---|---|"))
+# A legacy record's list, a person's decision, and a finding without one review's marks.
+for current in ([], RL_HELD, [rl_finding("R-01", "Accepted risk"), rl_finding("R-01")], [rl_finding("R-01"), rl_finding("R-01", "Rejected: twice")]):
+    for recorded in ([], RL_HELD, [rl_finding(held["id"], status, "Critical", finding="As the record has it") for held in RL_HELD for status in ("New", "Resolved")][::3],
+                     [rl_finding("R-01", "Resolved", earlierDecision="Rejected: the record's own", reopenedReason="The record's own", reviewerNote="The record's note", notRechecked=True),
+                      rl_finding("R-07", "Unresolved", reopenedReason="The record's own"), rl_finding("R-06", "Resolved"), rl_finding("R-80", "Accepted risk"), rl_finding("R-81", "Resolved"), rl_finding("R-01", "New")]):
+        rl_add("legacy", current=current, recorded=recorded)
+for _ in range(80 * scale):
+    rl_add("legacy", current=rl_list(), recorded=rl_list())
+for held in RL_HELD:
+    for status in ("Accepted risk", "Rejected: by a person", "Reopened: it is not fixed", "Rejected:", "Rejected: ", "Reopened: ", "Reopened:", "Resolved", "New", "accepted risk", ""):
+        for given in ({}, {"reviewed_record": {"path": "audit/reviews/x.json", "digest": "sha256:" + "a" * 64}}, {"decided_at_severity": "Critical"}, {"fingerprint": "sha256:another"},
+                      {"fingerprint": "sha256:another", "reviewed_record": {"path": "p", "digest": "d"}}, {"artifact": "other.md"}, {"id": "R-90"}):
+            disposition = dict({"artifact": RL_ARTIFACT, "id": held["id"], "fingerprint": held["fingerprint"], "status": status}, **given)
+            rl_add("disposition", findings=RL_HELD, disposition=disposition, legacySeverity=None)
+    rl_add("disposition", findings=[held, dict(held, status="New")], disposition={"artifact": RL_ARTIFACT, "id": held["id"], "fingerprint": "", "status": "Accepted risk"}, legacySeverity="Blocker")
+    rl_add("disposition", findings=[dict(held, status="New"), held], disposition={"artifact": RL_ARTIFACT, "id": held["id"], "fingerprint": "", "status": "Rejected: x", "decided_at_severity": "Minor"}, legacySeverity="Blocker")
+    rl_add("unmark", finding=held)
+for _ in range(60 * scale):
+    held = rl_list()
+    target = rl.choice(held) if held else rl_finding("R-01")
+    disposition = {"artifact": rl.choice([target["artifact"]] * 5 + ["other.md"]), "id": target["id"], "fingerprint": rl.choice([target["fingerprint"], target["fingerprint"], "sha256:another"]),
+                   "status": rl.choice(["Accepted risk", "Rejected: by a person", "Reopened: it is not fixed", "Resolved"])}
+    if rl.random() < 0.5:
+        disposition["reviewed_record"] = {"path": "audit/reviews/x.json", "digest": "sha256:" + "b" * 64}
+    if rl.random() < 0.4:
+        disposition["decided_at_severity"] = rl.choice(["Minor", "Major", "Critical"])
+    rl_add("disposition", findings=held, disposition=disposition, legacySeverity=rl.choice([None, None, "Major"]))
+    rl_add("unmark", finding=target)
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")
