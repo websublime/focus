@@ -16,6 +16,7 @@ pub mod authorization;
 pub mod oracle;
 pub mod pipeline;
 pub mod review;
+pub mod review_dispositions;
 pub mod review_findings;
 pub mod review_list;
 pub mod review_record;

@@ -45,6 +45,7 @@ fn every_evidence_case_gets_upstreams_answer() {
     let (mut recordable, mut ranked, mut sent_back, mut demoted, mut left_alone) = (0, 0, 0, 0, 0);
     let (mut reported, mut tabled, mut unreadable, mut written) = (0, 0, 0, 0);
     let (mut applied, mut malformed, mut escalated, mut decided) = (0, 0, 0, 0);
+    let (mut decisions, mut scoped, mut sections, mut kept_lists) = (0, 0, 0, 0);
     let (mut inputs, mut set_aside) = (0, 0);
     let (mut same_asked, mut same_alias, mut same_raw, mut same_boundary) = (0, 0, 0, 0);
     let (mut boundaries, mut left_out, mut escaped, mut cut_short) = (0, 0, 0, 0);
@@ -132,6 +133,17 @@ fn every_evidence_case_gets_upstreams_answer() {
                 ranked += usize::from(out["heading"] == true);
                 sent_back += usize::from(out["valid"] == false && out.get("heading").is_none());
             }
+        } else if kind == "review_reads" {
+            // What the derived list reads: a field that holds decisions, a
+            // row that speaks for the scope asked, a section that is there,
+            // and a record that holds the list the engine kept.
+            let op = case["op"].as_str().unwrap_or_default();
+            decisions +=
+                usize::from(op == "field" && out.as_array().is_some_and(|read| !read.is_empty()));
+            scoped += usize::from(matches!(op, "gate" | "redo") && out == true);
+            sections +=
+                usize::from(op == "section" && out.as_str().is_some_and(|text| !text.is_empty()));
+            kept_lists += usize::from(op == "record" && out["derived"].is_array());
         } else if kind == "review_list" {
             // The list the engine keeps: a review or a report applied, with
             // or without a rule of the report broken; a finding raised
@@ -292,6 +304,10 @@ fn every_evidence_case_gets_upstreams_answer() {
     assert!(
         applied >= 1700 && malformed >= 800 && escalated >= 700 && decided >= 1500,
         "{applied} {malformed} {escalated} {decided}"
+    );
+    assert!(
+        decisions >= 90 && scoped >= 95 && sections >= 30 && kept_lists >= 180,
+        "{decisions} {scoped} {sections} {kept_lists}"
     );
     assert!(
         differing.is_empty(),

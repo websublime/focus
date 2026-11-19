@@ -133,6 +133,16 @@ pub fn findings_section_lines(review: &str) -> Option<Vec<String>> {
     )
 }
 
+/// `reviewFindingsText`: the review's `### Findings` section as written,
+/// when it says anything.
+#[must_use]
+pub fn findings_text(review: &str) -> Option<String> {
+    let lines = findings_section_lines(review)?;
+    let joined = lines.join("\n");
+    let text = js_text::trim(&joined);
+    (!text.is_empty()).then(|| text.to_owned())
+}
+
 /// What became of a finding the reviewer was shown.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Now {
