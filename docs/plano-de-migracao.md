@@ -2716,10 +2716,10 @@ Os outros dois desvios da 2e-iii não chegam ao veredicto (acima, em cada um).
 
 | Verificação | Resultado |
 | --- | --- |
-| Diferencial, `log/review/verdict/*` | @@V_DIFF@@ |
-| Diferencial, tudo | @@V_ALL@@ |
+| Diferencial, `log/review/verdict/*` | 75 checks: 68 iguais e 7 desvios declarados (os dois do texto riscado, os dois das decisões, os três recusados pelo nome). Os dois primeiros (`ready` e `not_ready`) deram igual à primeira comparação inteira: o registo, a linha, a cópia, o rascunho retirado e a resposta. 9 comparam-se ao vivo e não entram na gravação: a fonte do projeto, os dois limites de tamanho (um ficheiro de 4 MB) e o artefacto com dois nomes |
+| Diferencial, tudo | 3 943 checks: 3 703 iguais, 240 desvios declarados, nenhum diferente; a gravação (3 845 checks sobre 1 502 árvores) repete-se igual, com o assentamento novo escrito das duas maneiras (Python e Rust) |
 | Mutação | @@V_MUT@@ |
-| `cargo test` | @@V_TESTS@@ |
+| `cargo test` | 601 testes |
 
 ### Fatia 3a: a tentativa de revisão, partida em cinco (feita)
 
