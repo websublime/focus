@@ -737,7 +737,27 @@ fn replay_audit(check: &Value, root: &Path) -> BTreeMap<String, String> {
     let before = workspace_files(root);
     let steps = check["steps"].as_array().unwrap();
     let (mut exits, mut outs, mut errs) = (Vec::new(), Vec::new(), Vec::new());
+    let mut last_out = String::new();
     for step in steps {
+        // A step that writes a file, as an agent would between two
+        // commands: `@write <path> <text>`. `{REVIEW}` is the review file
+        // the command before it said to write.
+        if step[0] == "@write" {
+            let named = step[1].as_str().unwrap();
+            let rel = if named == "{REVIEW}" {
+                let said: Value = serde_json::from_str(&last_out).unwrap();
+                said["reviewFile"].as_str().unwrap().to_owned()
+            } else {
+                named.to_owned()
+            };
+            let path = root.join(rel);
+            std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+            std::fs::write(&path, step[2].as_str().unwrap()).unwrap();
+            exits.push("w".to_owned());
+            outs.push(String::new());
+            errs.push(String::new());
+            continue;
+        }
         let mut command = Command::new(env!("CARGO_BIN_EXE_focus"));
         let mut args: Vec<String> = step
             .as_array()
@@ -805,6 +825,7 @@ fn replay_audit(check: &Value, root: &Path) -> BTreeMap<String, String> {
             }
         };
         exits.push(output.status.code().unwrap_or(-1).to_string());
+        last_out = String::from_utf8_lossy(&output.stdout).into_owned();
         outs.push(normalise_audit(
             &String::from_utf8_lossy(&output.stdout),
             root,

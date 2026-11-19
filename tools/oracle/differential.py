@@ -1638,6 +1638,7 @@ def authorization_ids(tree):
 
 
 REVIEW_REQUEST_FILE = re.compile(r"review:([0-9a-f]{32})(?![0-9a-f])|(?<=\.)([0-9a-f]{32})(?=\.review\.md)")
+REVIEW_RECORD_ROW = re.compile(r"(\*\*Review Record\*\*: (\S+)\n\*\*Review Record Digest\*\*: )(sha256:[0-9a-f]{64})")
 REVIEW_ATTEMPT = re.compile(r"(/reviews/[^/\s\"`]+/(?:stage|units/[^/\s\"`]+)/)([0-9a-f]{16})(?=/)")
 
 
@@ -1673,13 +1674,41 @@ def settle_review_ids(tree, outcome):
             numbered.setdefault(found.group(1) or found.group(2), f"<request-{len(numbered) + 1}>")
     attempts = review_attempt_ids(tree)
     settled = False
+    # A completion names its record and the record's digest. The record holds the request's id, the attempt's
+    # name and when it was written, so its digest is the tree's own: one that is the digest of the file the row
+    # names is compared as that.
+    def own_digest(found):
+        # (The row is read in focus's names; upstream's tree keeps the record under its own.)
+        candidates = {found.group(2), found.group(2).replace(".focus-engine/", ".aidlc-engine/")}
+        for folder, _, _ in os.walk(tree.root):
+            for candidate in candidates:
+                path = os.path.join(folder, candidate)
+                if os.path.isfile(path):
+                    with open(path, "rb") as handle:
+                        if "sha256:" + hashlib.sha256(handle.read()).hexdigest() == found.group(3):
+                            return found.group(1) + "<the record's digest>"
+        return found.group(0)
+    for key in list(outcome):
+        text = REVIEW_RECORD_ROW.sub(own_digest, outcome[key])
+        settled |= text != outcome[key]
+        outcome[key] = text
+    settle_attempt = lambda m: m.group(1) + ("<attempt>" if m.group(2) in attempts else m.group(2))
     for key in list(outcome):
         text = outcome[key]
         for raw, name in numbered.items():
             text = text.replace(raw, name)
-        text = REVIEW_ATTEMPT.sub(lambda m: m.group(1) + ("<attempt>" if m.group(2) in attempts else m.group(2)), text)
+        text = REVIEW_ATTEMPT.sub(settle_attempt, text)
+        # A record says its attempt's name too.
+        if "/reviews/" in key and key.endswith(".json"):
+            text = re.sub(r'("attempt": ")([0-9a-f]{16})(?=")', settle_attempt, text)
         settled |= text != outcome[key]
-        outcome[key] = text
+        # The record's own path carries the attempt's name, and a review file's the request's id.
+        named = REVIEW_ATTEMPT.sub(settle_attempt, key)
+        for raw, name in numbered.items():
+            named = named.replace(raw, name)
+        settled |= named != key
+        del outcome[key]
+        outcome[named] = text
     # The source a request is bound to: its fingerprint is the tree's own (SHAPES: source-baseline says why). One
     # that is the fingerprint of a snapshot the tree keeps is compared as the tree's.
     for key in list(outcome):
@@ -2035,7 +2064,19 @@ def compare_audit(name, trees, steps, env, tool="audit"):
         before = workspace_files(tree)
         tree.source_before = source_hashes(tree)
         exits, outs, errs = [], [], []
+        last_out = ""
         for args in steps:
+            # A step that writes a file, as an agent would between two commands: `@write <path> <text>`. The path
+            # is from the project; `{REVIEW}` is the review file the command before it said to write.
+            if args[:1] == ["@write"]:
+                rel = json.loads(last_out)["reviewFile"] if args[1] == "{REVIEW}" else (to_focus(args[1]) if tree.mapped else args[1])
+                os.makedirs(os.path.dirname(os.path.join(tree.root, rel)), exist_ok=True)
+                with open(os.path.join(tree.root, rel), "w", encoding="utf-8", newline="") as handle:
+                    handle.write(to_focus(args[2]) if tree.mapped else args[2])
+                exits.append("w")
+                outs.append("")
+                errs.append("")
+                continue
             # A step that names its own tool (`@state advance …`) runs that one.
             named = bool(args) and args[0].startswith("@")
             code, out, err = run_audit(engine, tree, args[1:] if named else args, env, args[0][1:] if named else tool)
@@ -2050,6 +2091,7 @@ def compare_audit(name, trees, steps, env, tool="audit"):
                 err, asked = without_guard_ask(err)
                 shaped_ask |= asked
             exits.append(str(code))
+            last_out = out
             # A text cut inside a surrogate pair, said in a line of JSON, holds the half as an escape (SHAPES:
             # half-pair).
             if engine == "ts" and (LONE_HALF.search(out) or LONE_HALF.search(err)):
@@ -5620,7 +5662,17 @@ def log_checks():
     UNRECORDED.add("log/review/request/slot_folder_a_file")
     check_("review/request/slot_folder_a_file", created(reviewed, **{**OUTPUTS, f"{CREATED_DIR}/.aidlc-engine/reviews": "x"}), [asks(1)])
     check_("review/request/unit_not_ported", created(reviewed, **OUTPUTS), [asks(1, "--unit", "api")])
-    check_("review/request/verdict_not_ported", created(reviewed, **OUTPUTS), [asks(1, "--verdict", "READY"), asks(1, "--verdict", "nope")])
+    # --- The verdict -----------------------------------------------------------------------------------------
+    # The request opens a slot and says where; the reviewer writes its review there; the verdict reads it.
+    SIX = "| ID | Severity | Location | Finding | Required action | Status |\n|---|---|---|---|---|---|\n"
+    def review_text(verdict="READY", n=1, rows="", reviewer=None, head="", findings=True):
+        said = f"{head}**Verdict:** {verdict}\n**Reviewer:** {reviewer or lead}\n**Iteration:** {n}\n"
+        return said + (f"\n### Findings\n\n{SIX}{rows}" if findings else "")
+    writes = lambda text: ["@write", "{REVIEW}", text]
+    says = lambda n, verdict, *more: asks(n, "--verdict", verdict, *more)
+    ROW = "| R-01 | Major | intent-statement.md > Intent | It names no user | Name the user | New |\n"
+    check_("review/verdict/ready", created(reviewed, **OUTPUTS), [asks(1), writes(review_text()), says(1, "READY")])
+    check_("review/verdict/not_ready", created(reviewed, **OUTPUTS), [asks(1), writes(review_text("NOT-READY", rows=ROW)), says(1, "NOT-READY")])
     # A second name is a link no recording carries, the project's own name is the replay's own, and a state that is
     # not text is no text a recording holds: compared live.
     UNRECORDED.update({"log/link/handoff_a_second_name", "log/link/root_handoff_by_its_name", "log/link/state_not_text"})

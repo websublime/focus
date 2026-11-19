@@ -90,7 +90,7 @@ use crate::flags;
 /// Why a request stops: a refusal in upstream's words (`ReviewRefusal`), or
 /// anything else that failed under the lock, which upstream reports as a
 /// failure of the audit's emission.
-enum Stop {
+pub(crate) enum Stop {
     Refusal(String),
     Failed(String),
 }
@@ -101,14 +101,14 @@ impl From<EngineError> for Stop {
     }
 }
 
-type Step<T> = std::result::Result<T, Stop>;
+pub(crate) type Step<T> = std::result::Result<T, Stop>;
 
-fn refuse<T>(message: String) -> Step<T> {
+pub(crate) fn refuse<T>(message: String) -> Step<T> {
     Err(Stop::Refusal(message))
 }
 
 /// The shell a command is quoted for: this platform's.
-fn platform_shell() -> RenderShell {
+pub(crate) fn platform_shell() -> RenderShell {
     if cfg!(windows) {
         RenderShell::PowerShell
     } else {
@@ -117,17 +117,17 @@ fn platform_shell() -> RenderShell {
 }
 
 /// What the person asked on the command line.
-struct Asked<'a> {
-    stage: &'a str,
-    reviewer: &'a str,
-    single: bool,
-    retry_pending: bool,
-    iteration: f64,
-    project_dir: String,
+pub(crate) struct Asked<'a> {
+    pub(crate) stage: &'a str,
+    pub(crate) reviewer: &'a str,
+    pub(crate) single: bool,
+    pub(crate) retry_pending: bool,
+    pub(crate) iteration: f64,
+    pub(crate) project_dir: String,
 }
 
 impl Asked<'_> {
-    fn command(&self, iteration: f64) -> ReviewCommand<'_> {
+    pub(crate) fn command(&self, iteration: f64) -> ReviewCommand<'_> {
         ReviewCommand {
             project_dir: &self.project_dir,
             stage: self.stage,
@@ -290,10 +290,8 @@ pub fn review(open: &dyn Fn() -> Result<Workflow>, args: &[String]) -> Result<Va
     if wf.selection.intent.is_none() {
         bail!("Cannot resolve the active intent for review logging.");
     }
-    if flags.get("verdict").is_some() {
-        bail!(
-            "log review --verdict is not ported yet: Focus records the request of a review, and not yet its verdict."
-        );
+    if let Some(said) = flags.get("verdict") {
+        return record_verdict(&wf, &flags, stage, reviewer, said);
     }
     let Some(pass) = flags
         .given("iteration")
@@ -383,33 +381,113 @@ pub fn review(open: &dyn Fn() -> Result<Workflow>, args: &[String]) -> Result<Va
     Ok(Value::Object(out))
 }
 
+/// The verdict of a review: the flags, then
+/// [`crate::review_verdict::verdict`] under the lock, then what closes the
+/// reviewer's window.
+fn record_verdict(
+    wf: &Workflow,
+    flags: &flags::Flags,
+    stage: &str,
+    reviewer: &str,
+    said: &str,
+) -> Result<Value> {
+    if flags.get("retry-pending") == Some("true") {
+        bail!(
+            "--retry-pending cannot be combined with --verdict. Run the request with --retry-pending first (no --verdict), dispatch the reviewer again, then record its verdict with --verdict."
+        );
+    }
+    let Some(pass) = flags
+        .given("iteration")
+        .filter(|pass| re::test("^[1-9][0-9]*$", "", pass))
+    else {
+        bail!("Recording a review verdict requires --iteration <positive integer>.");
+    };
+    let verdict = focus_js::text::to_upper_case(said);
+    if !matches!(verdict.as_str(), "READY" | "NOT-READY") {
+        bail!("Unknown --verdict \"{said}\". Accepted: READY, NOT-READY.");
+    }
+    if flags.get("review-file").is_some() {
+        bail!(
+            "log review --review-file is not ported yet: Focus reads the review from the file its request opened."
+        );
+    }
+    let asked = Asked {
+        stage,
+        reviewer,
+        single: flags.get("single") == Some("true"),
+        retry_pending: false,
+        iteration: pass.parse::<f64>().unwrap_or(f64::INFINITY),
+        project_dir: wf.layout.project.to_string_lossy().into_owned(),
+    };
+    let mut fields: Vec<(&'static str, String)> = vec![
+        ("Stage", stage.to_owned()),
+        ("Reviewer", reviewer.to_owned()),
+    ];
+    if asked.single {
+        fields.push(("Workflow", format!("single-stage:{stage}")));
+    }
+    fields.push(("Iteration", pass.to_owned()));
+    fields.push(("Verdict", verdict.clone()));
+    let mut notices = Vec::new();
+    let recorded = match crate::review_verdict::verdict(wf, &asked, &verdict, fields, &mut notices)
+    {
+        Ok(recorded) => recorded,
+        Err(Stop::Refusal(message)) => bail!("{message}"),
+        Err(Stop::Failed(message)) => bail!("Audit emission failed: {message}"),
+    };
+    // The verdict closes the window the reviewer's scope is enforced in, so
+    // the dispatch record the conductor wrote goes with it. Best effort:
+    // the verdict is recorded either way.
+    let _ = std::fs::remove_file(
+        wf.selection
+            .engine_dir(&wf.layout)
+            .join("reviewer-dispatch.json"),
+    );
+    let mut out = serde_json::Map::new();
+    out.insert("emitted".to_owned(), json!("REVIEW_COMPLETED"));
+    out.insert("stage".to_owned(), json!(stage));
+    out.insert("reviewRecord".to_owned(), json!(recorded.review_record));
+    if let Some(copy) = &recorded.review_markdown {
+        out.insert("reviewMarkdown".to_owned(), json!(copy));
+    }
+    if !notices.is_empty() {
+        out.insert("change_notices".to_owned(), json!(notices));
+    }
+    Ok(Value::Object(out))
+}
+
 /// Sets `name` among the row's fields, where it already is or at the end
 /// (an object's key keeps its place when it is set again).
-fn set(fields: &mut Vec<(&'static str, String)>, name: &'static str, value: String) {
+pub(crate) fn set(fields: &mut Vec<(&'static str, String)>, name: &'static str, value: String) {
     match fields.iter_mut().find(|(known, _)| *known == name) {
         Some(field) => field.1 = value,
         None => fields.push((name, value)),
     }
 }
 
-/// The request, under the audit lock: the ordinal is counted and the row
-/// appended in one hold, so two requests cannot both take a pass.
-#[allow(clippy::too_many_lines)]
-fn request(
-    wf: &Workflow,
-    asked: &Asked<'_>,
-    mut fields: Vec<(&'static str, String)>,
-) -> Step<Written> {
-    let held = wf.lock("log review")?;
-    let Asked {
-        stage: slug,
-        reviewer,
-        single,
-        retry_pending,
-        iteration,
-        ..
-    } = *asked;
-    let shell = platform_shell();
+/// What a request and a verdict both read before anything else
+/// (`loadContext`): the stage and its declared reviewer, the attempt's
+/// window and count, and whether the outputs a stage owes are asked for.
+pub(crate) struct Context<'w> {
+    pub(crate) state: String,
+    pub(crate) node: &'w focus_graph::runtime::Stage,
+    pub(crate) view: review_attempt::Window,
+    pub(crate) record: Option<std::path::PathBuf>,
+    pub(crate) workflow: Option<String>,
+    pub(crate) attempt: Accounting,
+    pub(crate) class: &'static str,
+    pub(crate) merged: std::collections::BTreeSet<String>,
+    pub(crate) require_required_artifacts: bool,
+}
+
+/// `loadContext`, without the receipts only a request scans and without
+/// the admissibility of a unit, which no ported command names.
+pub(crate) fn load_context<'w>(
+    wf: &'w Workflow,
+    slug: &str,
+    reviewer: &str,
+    single: bool,
+) -> Step<Context<'w>> {
     let state = wf.read_state()?;
     let Some(node) = wf
         .install
@@ -457,6 +535,55 @@ fn request(
         ));
     }
     let class = admission::resolve_review_class(wf, node, &state);
+    let merged: std::collections::BTreeSet<String> =
+        view.merged_bolt_units.iter().cloned().collect();
+    let require_required_artifacts = !admission::artifact_guard_disabled(&wf.layout)
+        && !(dag
+            .as_ref()
+            .is_some_and(|dag| !matches!(dag, Dag::Ok { .. }))
+            && merged.is_empty());
+    Ok(Context {
+        state,
+        node,
+        view,
+        record,
+        workflow,
+        attempt,
+        class,
+        merged,
+        require_required_artifacts,
+    })
+}
+
+/// The request, under the audit lock: the ordinal is counted and the row
+/// appended in one hold, so two requests cannot both take a pass.
+#[allow(clippy::too_many_lines)]
+fn request(
+    wf: &Workflow,
+    asked: &Asked<'_>,
+    mut fields: Vec<(&'static str, String)>,
+) -> Step<Written> {
+    let held = wf.lock("log review")?;
+    let Asked {
+        stage: slug,
+        reviewer,
+        single,
+        retry_pending,
+        iteration,
+        ..
+    } = *asked;
+    let shell = platform_shell();
+    let Context {
+        state,
+        node,
+        view,
+        record,
+        workflow,
+        attempt,
+        class,
+        merged,
+        require_required_artifacts,
+    } = load_context(wf, slug, reviewer, single)?;
     let budget = match class {
         "none" => 0.0,
         "advisory" => 1.0,
@@ -476,13 +603,6 @@ fn request(
             ..ReceiptOptions::default()
         },
     )?;
-    let merged: std::collections::BTreeSet<String> =
-        view.merged_bolt_units.iter().cloned().collect();
-    let require_required_artifacts = !admission::artifact_guard_disabled(&wf.layout)
-        && !(dag
-            .as_ref()
-            .is_some_and(|dag| !matches!(dag, Dag::Ok { .. }))
-            && merged.is_empty());
     let artifact_options = ArtifactOptions {
         require_required_artifacts,
         merged_bolt_units: Some(&merged),
