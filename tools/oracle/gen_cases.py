@@ -9355,6 +9355,15 @@ story.add()
 story.redone()
 story.add()
 story.add(unit="")
+# A decision made on a review before a Redo does not stand in the list the Redo began.
+story = DvStory("requirements-analysis", two=False)
+first = story.reviewed(1, derived=[dv_said("R-01"), dv_said("R-02")], body=dv_report([], []))
+story.decided(story.decision("R-01", named=first), story.decision("R-02", "Rejected: before the redo"))
+story.redone()
+story.reviewed(1, derived=[dv_said("R-01", status="Unresolved"), dv_said("R-02", status="Unresolved")], body=dv_report([], []))
+story.add()
+story.reviewed(2, findings=[dv_said("R-01", status="Unresolved"), dv_said("R-02", status="Unresolved")], body=dv_six(dv_row("R-01", "Unresolved"), dv_row("R-02", "Unresolved")))
+story.add()
 # A record whose table has no rows under a NOT-READY verdict cannot be read; under READY it can.
 for verdict in ("NOT-READY", "READY"):
     for derived in (None, [dv_said("R-00", location="x > review findings table", status="Unresolved"), dv_said("R-01")], [dv_said("R-01")]):

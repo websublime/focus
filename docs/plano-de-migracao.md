@@ -2595,16 +2595,24 @@ O teste marcado está em `review_derived`. A entrada em `DEVIATIONS` vem com o p
 
 **Como se compara.** Cada caso é um projeto: o ledger em um ou dois shards, os registos de revisão (cada um nomeado pelo digest dos seus bytes, que cada engine calcula), os artefactos. Um fingerprint é do que o finding diz, e um finding que o engine redige ele próprio diz a pasta do engine (`aidlc/…` num, `focus/…` no outro): a resposta mostra-o como `{SAID}` quando é o fingerprint do que o finding diz agora, e por extenso quando não é, dos dois lados.
 
-@@RD_FOUND@@
+**O que a mutação encontrou.** O corpus da primeira geração (1 007 casos) respondeu igual à primeira, e a mutação mostrou que isso dizia menos do que parecia: de 107 mutantes, 30 vivos e 1 que não compilava.
+
+| O quê | O que era | O que se fez |
+| --- | --- | --- |
+| Um erro do gerador | As histórias partilhavam os ficheiros entre os casos que iam emitindo: o que uma história mudava depois mudava os casos já feitos. O caso das duas secções `## Review` não perguntava a preferência pelo artefacto pedido | Cada caso leva a sua cópia |
+| O emparelhamento não se via | Uma revisão da era sem registo emparelha e não entra na lista: a chave de um pedido (Unit, passe, id) e o padrão do passe não mudavam resposta nenhuma de `derive` | A resposta de cada caso passou a dizer o emparelhamento, linha a linha |
+| Código que não muda resposta nenhuma (5 mutantes) | A semente devolvida só no último Redo (o que um anterior devolve, o seguinte tira); o `continue` entre a revisão emparelhada e o gate; o artefacto da semente só «quando há semente»; duas verificações que o leitor de ficheiros já faz | Simplificado, com uma nota onde o original faz de outra maneira |
+| Buracos no corpus (21 mutantes) | Um stage sem reviewer; uma revisão de outro stage pelo mesmo reviewer; uma linha com um campo repetido; passes que não são números; dois pedidos com o mesmo id em Units ou passes diferentes; um pedido respondido duas vezes; um veredicto que diz outra coisa que o pedido, com um registo que concorda com o veredicto; o gate de outra Unit e uma linha que não é um gate, com decisões; um Redo depois de uma revisão sem veredicto próprio, e depois de uma decisão; a tabela sem linhas sob NOT-READY; um registo legível que lista o `R-00`; a decisão que fica (ou não) na lista da revisão seguinte; a severidade de uma decisão levada para um registo antigo, e a última de duas | 79 casos escritos para as arestas |
+| Equivalentes (5) | O registo de uma revisão emparelhada lido e conferido outra vez; o finding de uma decisão procurado por artefacto e id, quando aplicá-la já vai por artefacto e id; um reviewer que é um nome vazio; a linha de um pedido que acaba aí (o mutante nem compila); o caminho conferido outra vez depois de lido | Anotados nos módulos |
 
 **Verificado.**
 
 | Verificação | Resultado |
 | --- | --- |
-| Corpus, `review_derived` | @@RD_COUNTS@@ |
-| Corpus, tudo | @@RD_ALL@@ |
-| Mutação | @@RD_MUT@@ |
-| `cargo test` | @@RD_TESTS@@ |
+| Corpus, `review_derived` | 1 086 casos, todos iguais: 1 085 projetos (642 com um registo como última revisão, 724 com uma revisão por gravar, 197 devolvidas com a razão, 230 com uma decisão aplicada, 133 com um finding reaberto, 229 com o `R-00`, 325 com um Redo, 38 semeados pela secção antiga de outro artefacto, 220 por Unit, 201 em dois shards, 70 com um par da era sem registo) e as linhas com campos repetidos |
+| Corpus, tudo | 78 509 casos em 89 tipos; os dos outros 88 tipos iguais byte a byte |
+| Mutação | Três rondas. A primeira, 107 mutantes: 76 apanhados, 30 vivos, 1 que não compila. A segunda, os 24 vivos que ainda se aplicavam e 5 novos sobre o código que mudou: 24 apanhados, 4 equivalentes, 1 buraco (a decisão que não sobrevive a um Redo), que a terceira apanhou. No código final: 103 mutantes, 98 apanhados, 4 equivalentes e 1 que não compila, anotados |
+| `cargo test` | 595 testes; corpus de 78 509 casos (1 086 novos), todos iguais |
 
 ### Fatia 3a: a tentativa de revisão, partida em cinco (feita)
 

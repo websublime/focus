@@ -205,7 +205,9 @@ pub fn read_trusted(entry: &ReviewEntry) -> Trusted {
         Some(None) => return Trusted::Absent,
         Some(Some(real)) => real,
     };
-    // (The reader refuses what is not a plain file with one name.)
+    // (The reader refuses what is not a plain file with one name. And the
+    // path is held to the boundary again once read, as the set's reader
+    // holds it: no test can move a file between the look and the read.)
     match files::read_regular(&path, "review artifact") {
         Ok(body) if resolves_inside(&real, &path) => Trusted::File(body),
         _ => Trusted::Refused,

@@ -24,6 +24,8 @@
 //! - The finding a decision is about is looked for by artifact and id,
 //!   where what is then done with it applies the decision by artifact and
 //!   id again.
+//! - A stage whose reviewer is an empty name pairs nothing, as one with no
+//!   reviewer: no row's `Reviewer` reads as an empty name either.
 //! - A request's row is done with once its binding is kept: were it weighed
 //!   as a completion, it would be weighed against itself and name no
 //!   record.
