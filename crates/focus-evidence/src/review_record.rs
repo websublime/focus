@@ -36,7 +36,7 @@ use serde_json::{Map, Value};
 use sha2::{Digest, Sha256};
 
 use crate::review::{self, RequestBinding};
-use crate::review_findings::valid_status;
+use crate::review_findings::{Finding, valid_status};
 
 /// `ReviewRecord`, with the fields a completion is held to. The document is
 /// kept whole for the readers of its findings.
@@ -67,7 +67,7 @@ pub fn digest(bytes: &[u8]) -> String {
 }
 
 /// `String(value)` of a value a JSON document holds.
-fn as_text(value: &Value) -> String {
+pub(crate) fn as_text(value: &Value) -> String {
     match value {
         Value::Null => "null".to_owned(),
         Value::Bool(flag) => flag.to_string(),
@@ -247,6 +247,82 @@ pub fn read(record: Option<&Path>, named: &review::RecordRef) -> Option<Record> 
         .flatten()
 }
 
+/// Why a record's findings are not read: a value is a list where a text
+/// belongs. The record's reader admits it, as upstream's patterns read a
+/// list as its entries joined by commas; upstream then carries the list,
+/// which equals no id and no decision. Focus does not (a deliberate
+/// deviation).
+pub const NOT_A_TEXT: &str = "the review record holds a finding with a value that is not written as text: its findings are not read";
+
+/// The findings of a record's `key` list, each with what the list keeps
+/// about it when `marks` asks for that.
+fn listed(
+    record: &Record,
+    artifact: &str,
+    key: &str,
+    marks: bool,
+) -> Result<Option<Vec<Finding>>, String> {
+    let Some(findings) = record.document.get(key).and_then(Value::as_array) else {
+        return Ok(None);
+    };
+    let mut shaped = Vec::new();
+    for finding in findings {
+        // There or not, and a text when there.
+        let text = |key: &str| match finding.get(key) {
+            None => Ok(None),
+            Some(Value::String(text)) => Ok(Some(text.clone())),
+            Some(_) => Err(NOT_A_TEXT.to_owned()),
+        };
+        let needed = |key: &str| text(key).map(Option::unwrap_or_default);
+        let mark = |key: &str| if marks { text(key) } else { Ok(None) };
+        let flag = |key: &str| finding.get(key).filter(|_| marks).and_then(Value::as_bool);
+        shaped.push(
+            Finding {
+                artifact: artifact.to_owned(),
+                unit: record.unit.clone().filter(|unit| !unit.is_empty()),
+                id: needed("id")?,
+                severity: needed("severity")?,
+                location: needed("location")?,
+                finding: needed("finding")?,
+                required_action: needed("required_action")?,
+                status: needed("status")?,
+                decided_at_severity: mark("decided_at_severity")?,
+                reviewer_note: mark("reviewer_note")?,
+                not_rechecked: flag("not_rechecked"),
+                resolved_by_reviewer: flag("resolved_by_reviewer"),
+                resolved_in_review: flag("resolved_in_review"),
+                earlier_decision: mark("earlier_decision")?,
+                reopened_reason: mark("reopened_reason")?,
+                related_finding_id: mark("related_finding_id")?,
+                introduced_in_review: flag("introduced_in_review"),
+                ..Finding::default()
+            }
+            .with_fingerprint(),
+        );
+    }
+    Ok(Some(shaped))
+}
+
+/// `reviewRecordFindings`: the findings of a record, as the gate and the
+/// decisions go by them.
+///
+/// # Errors
+///
+/// A finding holds a list where a text belongs ([`NOT_A_TEXT`]).
+pub fn findings(record: &Record, artifact: &str) -> Result<Vec<Finding>, String> {
+    Ok(listed(record, artifact, "findings", false)?.unwrap_or_default())
+}
+
+/// `reviewRecordDerivedFindings`: the list the engine kept when the record
+/// was written, or nothing when the record is from before it kept one.
+///
+/// # Errors
+///
+/// As [`findings`].
+pub fn derived_findings(record: &Record, artifact: &str) -> Result<Option<Vec<Finding>>, String> {
+    listed(record, artifact, "derived_findings", true)
+}
+
 /// `ReviewRecordFinding`: a finding as a record keeps it. The artifact and
 /// the unit are the record's.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -376,4 +452,50 @@ pub fn serialize(record: &Written) -> String {
     put("body", Value::String(record.body.clone()));
     put("recorded_at", Value::String(record.recorded_at.clone()));
     format!("{}\n", json::stringify_pretty(&Value::Object(out)))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{NOT_A_TEXT, derived_findings, findings, parse};
+
+    fn record(findings: &str, derived: &str) -> Vec<u8> {
+        format!(
+            r#"{{"version":1,"stage":"s","unit":null,"workflow":null,"attempt":"a","iteration":1,"reviewer":"r","verdict":"READY","request_id":null,"request_challenge":null,"artifact_fingerprint":"f","source_fingerprint":null,"unit_source_fingerprint":null,"findings":[{findings}],"derived_findings":[{derived}],"body":"","recorded_at":"t"}}"#
+        )
+        .into_bytes()
+    }
+
+    fn finding(id: &str, more: &str) -> String {
+        format!(
+            r#"{{"id":{id},"severity":"Major","location":"l","finding":"f","required_action":"a","status":"New"{more}}}"#
+        )
+    }
+
+    /// Deliberate deviation. The record's reader admits a finding whose id,
+    /// earlier decision or related id is a list that reads as the text, as
+    /// upstream's patterns do; upstream then carries the list, which equals
+    /// no id and no decision. Focus does not read such a record's findings.
+    #[test]
+    fn a_records_finding_written_with_a_list_for_a_text_is_not_read() {
+        let refused = Err(NOT_A_TEXT.to_owned());
+        let listed = parse(&record(&finding(r#"["R-01"]"#, ""), "")).expect("a record");
+        assert_eq!(findings(&listed, "a.md"), refused);
+        for more in [
+            r#","earlier_decision":["Rejected: x"]"#,
+            r#","related_finding_id":["R-02"]"#,
+        ] {
+            let derived = parse(&record(
+                &finding("\"R-01\"", ""),
+                &finding("\"R-01\"", more),
+            ))
+            .expect("a record");
+            assert_eq!(
+                derived_findings(&derived, "a.md").map(|_| ()),
+                Err(NOT_A_TEXT.to_owned())
+            );
+            // What the record lists is read: the list the engine kept is
+            // another reading.
+            assert!(findings(&derived, "a.md").is_ok());
+        }
+    }
 }
