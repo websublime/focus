@@ -88,20 +88,23 @@ pub fn short_cell(text: &str) -> String {
 
 /// `whereText`: where a finding is, as the file's name and the section, not
 /// the whole path.
+///
+/// Upstream splits the place at every ` > ` and joins the parts again, so
+/// only the first one counts: what stands before it is the path.
 #[must_use]
 pub fn where_text(location: &str) -> String {
-    let mut parts = location.split(" > ");
-    let path = parts.next().unwrap_or_default();
+    let (path, section) = match location.split_once(" > ") {
+        Some((path, section)) => (path, Some(section)),
+        None => (location, None),
+    };
     let file = path
         .split('/')
         .rfind(|part| !part.is_empty())
         .unwrap_or(path);
-    let mut out = file.to_owned();
-    for part in parts {
-        out.push_str(" > ");
-        out.push_str(part);
+    match section {
+        Some(section) => format!("{file} > {section}"),
+        None => file.to_owned(),
     }
-    out
 }
 
 /// A text JavaScript takes for true: one that is there and not empty.

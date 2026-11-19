@@ -9477,17 +9477,17 @@ for value in ("", " ", "plain", " padded ", "a|b", "|", "||", "a\\|b", "a\\\\|b"
     sh_add("cell", value=value)
 
 SH_FACE = "😀"
-SH_CUTS = ["", "a", "x" * 45, "x" * 47, "x" * 48, "x" * 49, "x" * 50, "x" * 120, "x" * 44 + " y" + "z" * 10, "x" * 40 + "     " + "y" * 10, " " * 49, " " * 48, "x" * 44 + SH_FACE + "y" * 10, "x" * 45 + SH_FACE + "y" * 10,
+SH_CUTS = ["", "a", "  " + "x" * 60, "\t" + "x" * 44 + "  " + "y" * 9, "x" * 45, "x" * 47, "x" * 48, "x" * 49, "x" * 50, "x" * 120, "x" * 44 + " y" + "z" * 10, "x" * 40 + "     " + "y" * 10, " " * 49, " " * 48, "x" * 44 + SH_FACE + "y" * 10, "x" * 45 + SH_FACE + "y" * 10,
            "x" * 43 + SH_FACE + "y" * 10, SH_FACE * 24, SH_FACE * 25, SH_FACE * 23 + "ab", SH_FACE * 23 + "abc", "x" + SH_FACE * 24, "é" * 48, "é" * 49, "x" * 44 + "\u00a0" + "y" * 10, "x" * 44 + "\n" + "y" * 10, "x" * 46 + "|" * 3,
            "x" * 42 + "   " + SH_FACE + "y" * 10, "x" * 44 + "\ufeff" + "y" * 9]
-SH_PLACES = ["design/architecture.md > Part R-01", "design/architecture.md", "/abs/path/to/file.md > A > B", "///", "/", "", " > x", "a/b/ > x", "a > b/c", "no-slash > Section", "trailing/", "a//b > c", "a/b > c > d/e > f",
+SH_PLACES = ["design/architecture.md > Part R-01", "a/b/ ", "a/b/\t > x", "a/ / > y", "a/b/  /", "design/architecture.md", "/abs/path/to/file.md > A > B", "///", "/", "", " > x", "a/b/ > x", "a > b/c", "no-slash > Section", "trailing/", "a//b > c", "a/b > c > d/e > f",
              "a/b >c", "a/b> c", "a/b  >  c", "a/ > / > /", "dir/" + "n" * 60 + ".md > Section", "d/" + "n" * 44 + ".md", "d/" + "n" * 45 + ".md", "d/" + "n" * 46 + ".md", "deep/" * 30 + "f.md > S", "a/b > " + "s" * 60,
              "construction/orders/design.md > " + "Section " * 6, "a\\b\\c.md > S", "a/b\n/c > d", " a/b ", "a/ b > c", "😀/😀/😀.md > 😀", "d/" + SH_FACE * 22 + "ab.md > x", "x > review findings table", "a/b/ > ", " > ", ">", "a > "]
 for value in SH_CUTS + SH_PLACES:
     sh_add("short", value=value)
 
 SH_STATUSES = ["New", "New", "Unresolved", "Unresolved", "Resolved", "Resolved", "Accepted risk", "Rejected: not a defect", "Rejected: " + "the team decided this is how the product is meant to work, and said so twice",
-               "Rejected: a | b\nc", "Rejected: ", "rejected: lower", "Accepted Risk", "", "Resolved (reviewer)", "Rejected: " + "r" * 38, "Rejected: " + "r" * 39]
+               "Rejected: a | b\nc", "Rejected: " + "a long | reason\nover lines " * 3, "Rejected: ", "rejected: lower", "Accepted Risk", "", "Resolved (reviewer)", "Rejected: " + "r" * 38, "Rejected: " + "r" * 39]
 SH_TEXTS = ["It leaks", "The cache is never emptied | it grows", "Two\nlines", "  padded  ", "", "A long finding " * 8, "Ends with a pipe |", "😀 smiles", "Windows\r\nline", "`code`", "> quoted"]
 SH_REASONS = ["It was not fixed", "", "It is | back\nagain", " ", "The person said it came back after the last release"]
 SH_NOTES = ["An earlier note", "", "Noted | here\nand there", " "]
