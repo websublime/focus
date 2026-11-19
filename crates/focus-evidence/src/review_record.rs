@@ -351,6 +351,32 @@ pub struct DerivedFinding {
     pub introduced_in_review: Option<bool>,
 }
 
+/// `derivedRecordFinding` (`aidlc-log.ts`): one finding of the engine's
+/// list as a review record stores it. A mark is written where the list
+/// holds one, whatever it says: a `false` is not an absence.
+#[must_use]
+pub fn derived_record_finding(finding: &Finding) -> DerivedFinding {
+    DerivedFinding {
+        stored: StoredFinding {
+            id: finding.id.clone(),
+            severity: finding.severity.clone(),
+            location: finding.location.clone(),
+            finding: finding.finding.clone(),
+            required_action: finding.required_action.clone(),
+            status: finding.status.clone(),
+        },
+        decided_at_severity: finding.decided_at_severity.clone(),
+        reviewer_note: finding.reviewer_note.clone(),
+        not_rechecked: finding.not_rechecked,
+        resolved_by_reviewer: finding.resolved_by_reviewer,
+        resolved_in_review: finding.resolved_in_review,
+        earlier_decision: finding.earlier_decision.clone(),
+        reopened_reason: finding.reopened_reason.clone(),
+        related_finding_id: finding.related_finding_id.clone(),
+        introduced_in_review: finding.introduced_in_review,
+    }
+}
+
 /// `ReviewRecord`, as a verdict writes it.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Written {

@@ -128,9 +128,34 @@ pub fn slice_utf16(s: &str, start: usize, end: usize) -> String {
         .collect()
 }
 
+/// `s.slice(start, end)` as it reaches a file or a pipe: where the cut
+/// leaves half of a surrogate pair alone, JavaScript writes U+FFFD for it,
+/// and so does this.
+#[must_use]
+pub fn slice_utf16_written(s: &str, start: usize, end: usize) -> String {
+    let units: Vec<u16> = s.encode_utf16().collect();
+    let end = end.min(units.len());
+    let start = start.min(end);
+    char::decode_utf16(units[start..end].iter().copied())
+        .map(|unit| unit.unwrap_or(char::REPLACEMENT_CHARACTER))
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_cut_through_a_pair_is_written_as_the_replacement_character() {
+        // "a😀b" is four units: a, the two halves of the pair, b.
+        assert_eq!(slice_utf16_written("a😀b", 0, 2), "a\u{FFFD}");
+        assert_eq!(slice_utf16_written("a😀b", 2, 4), "\u{FFFD}b");
+        assert_eq!(slice_utf16_written("a😀b", 0, 3), "a😀");
+        assert_eq!(slice_utf16_written("a😀b", 1, 9), "😀b");
+        assert_eq!(slice_utf16_written("a😀b", 9, 2), "");
+        // The cut that drops the half, for a text that stays in memory.
+        assert_eq!(slice_utf16("a😀b", 0, 2), "a");
+    }
 
     #[test]
     fn whitespace_follows_ecmascript_not_unicode_white_space() {
