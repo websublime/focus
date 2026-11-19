@@ -1760,7 +1760,7 @@ Os intervalos de linhas são de `aidlc-orchestrate.ts` no pin, salvo indicação
 | Fatia | O que traz | Levanta | Como se verifica | Estado |
 | --- | --- | --- | --- | --- |
 | 1. A identidade da fonte | O passeio pelos ficheiros fonte do projeto, a sua impressão digital, o snapshot `baseline-<hash>.tsv` e o campo `Source Baseline`; o snapshot de fonte de uma unit (`workspaceSourceState`, `readUnitSourceSnapshot` e o que está entre eles em `aidlc-lib.ts`) | `SHAPES["source-baseline"]` (criação e saltos passam a comparar o campo e a listagem); o baseline de uma stage que produz código nas transições; o desvio dos observadores na criação | Corpus sobre árvores de scratch (o que conta como fonte, o que se ignora, a ordem, o hash); diferencial | Feito, partida em quatro (abaixo). O snapshot do workspace e os leitores vêm com quem os usa: fatias 2, 3 e 11 |
-| 2. `log` | `focus engine log decision`, `answer`, `answers`, `link` e `review`: as linhas `DECISION_RECORDED`, `QUESTION_ANSWERED`, `SUMMARY_CONFIRMATION_RECORDED`, `REVIEW_REQUESTED` e `REVIEW_COMPLETED`, os handoffs de um pipeline; o registo de mensagens lido (`aidlc-log.ts`, 4 486; `message-store`, 246); o `Source Fingerprint` de um pedido de revisão e o snapshot do workspace atrás dele (`workspaceSourceState`, `writeWorkspaceSourceSnapshot`) | Nada sozinho: é quem escreve o que a fatia 3 pesa. A escolha de uma pergunta de recuperação gravada por `log` fica para a fatia 4 | Diferencial (`log/*`) | Em curso: 2a a 2d, 2e-i, 2e-ii, 2e-iii-a, 2e-iii-b, 2e-iii-c-i e 2e-iii-c-ii-a feitas; faltam 2e-iii-c-ii-b, 2e-iii-c-iii e 2e-iv |
+| 2. `log` | `focus engine log decision`, `answer`, `answers`, `link` e `review`: as linhas `DECISION_RECORDED`, `QUESTION_ANSWERED`, `SUMMARY_CONFIRMATION_RECORDED`, `REVIEW_REQUESTED` e `REVIEW_COMPLETED`, os handoffs de um pipeline; o registo de mensagens lido (`aidlc-log.ts`, 4 486; `message-store`, 246); o `Source Fingerprint` de um pedido de revisão e o snapshot do workspace atrás dele (`workspaceSourceState`, `writeWorkspaceSourceSnapshot`) | Nada sozinho: é quem escreve o que a fatia 3 pesa. A escolha de uma pergunta de recuperação gravada por `log` fica para a fatia 4 | Diferencial (`log/*`) | Em curso: 2a a 2d, 2e-i, 2e-ii, 2e-iii-a, 2e-iii-b, 2e-iii-c-i e 2e-iii-c-ii feitas; faltam 2e-iii-c-iii e 2e-iv |
 | 3. Os recibos pesados | `freshReviewReceipts` (1 066) e `checkSummaryConfirmationEvidence` (647), os handoffs devidos por um pipeline, os pares pedido e conclusão de uma revisão; `review-brief` (2 365: `review`, `summary`, `context`) e os findings que um gate grava na decisão; a baseline lida de volta (`readBaselineSourceSnapshot`, `currentStageSourceBaseline`) para dizer que caminhos mudaram | As recusas pelo nome de `state` (`advance` e os gates com sumário, revisão ou pipeline devidos), de `review-freeze` e do grupo (`review_rows`), do salto para trás com linhas de revisão, e do turno humano com um pedido de revisão sem veredicto. Sem units: a dimensão por unit chega com a fatia 5 | Diferencial; corpus para os leitores puros (a tabela de findings, a secção `## Review`) | Em curso: 3a, 3b, 3c e 3d feitas; falta a 2e (depois da 4a) e o que a 3 levanta nos comandos. Passa para antes da 2e: `review` chama os dois leitores em todos os caminhos (abaixo) |
 | 4. A pergunta de recuperação | `evaluateGuardRefusal` e `guardAttemptState`: depois da frase de um guard, a pergunta com os remédios que o condutor pode oferecer, e a série da recusa em `.focus-engine/guard-refusals/`; a escolha gravada | `SHAPES["guard-ask"]` | Corpus (o avaliador e a tentativa); diferencial | Em curso: partida em três (abaixo). A 4a, o avaliador, está feita e passou para antes da 2e-i, que diz os seus remédios em duas frases; a 4b e a 4c vêm depois da 2e |
 | 5. Units em série | As units como dados (o bloco de units, o DAG, os lotes de um bolt) e como transições: os verbos de `state` que M3 recusa (`set-skeleton-stance`, `set-construction-*`, `set-unit-gate-rhythm`, `sync-unit-scope-stage`, `acknowledge-compaction`, `reuse-artifact`, `lookup`, `practices-event`, `practices-promote`, `unit`), `jump reopen` e `execute --units`, `skip --unit`, uma stage de Construction em `advance`; `bolt` sem worktree (`start`, `complete`, `fail`, `abort`, `set-autonomy`, `checkpoint`; 1 511; `swarm-checkpoint`, `dispatch-event`, `hold-merge` e `release-merge` recusam pelo nome) e os checkpoints de Construction (`construction-checkpoints`, 1 618: a evidência, as decisões, o comando de verificação) | O limite 1 de M3, menos o que é de equipa ou de worktree (`set-unit-ownership`, `refresh-unit-progress`, `fold-unit-merge`, `fork`, `merge`); os recibos por unit da fatia 3 | Diferencial; o fuzz de transições ganha units. Prende os três chamadores que leem só o marcador de uma stage por unit e que a correção de M5 deixou por prender (os outputs de uma stage de Construction e a unit de um artefacto revisto) | Por fazer |
@@ -2426,7 +2426,7 @@ Lidas as funções. São três leituras do mesmo texto, cada uma com o seu modo 
 | --- | --- | --- | --- |
 | 2e-iii-a. A validade | `validateReviewAppendix` (e o renderer por trás, `renderReviewMarkdownAuthority`): a revisão diz um veredicto, o seu reviewer e o seu passe em linhas que um leitor da revisão renderizada vê como tais, e é uma secção só, sem nada da categoria do documento depois. `demoteReviewHeadings`: os títulos `#` e `##` de um ficheiro de revisão passados a `###` | Corpus | Feita |
 | 2e-iii-b. As tabelas e o registo | A tabela de seis colunas (`parseReviewSection`, `splitMarkdownRow`, o estado e o fingerprint de um finding) e o relatório de findings (`parseReviewerFindingsReport`, `reportTable`); `readFindingsTable`, que lê uma ou outra ou diz porque não se lê, e `unreadableFindingsTableFinding`; `serializeReviewRecord` | Corpus | Feita |
-| 2e-iii-c. A lista derivada | `deriveReviewFindingsList` (`aidlc-review-brief.ts`): os findings desta revisão juntos com os das anteriores; `derivedRecordFinding`; `renderReadableReviewCopy`, a cópia que a pessoa lê | Corpus | Em curso: partida em três (abaixo); as funções sobre a lista e o que se lê estão feitos |
+| 2e-iii-c. A lista derivada | `deriveReviewFindingsList` (`aidlc-review-brief.ts`): os findings desta revisão juntos com os das anteriores; `derivedRecordFinding`; `renderReadableReviewCopy`, a cópia que a pessoa lê | Corpus | Em curso: partida em três (abaixo); falta o que se escreve |
 
 ### Fatia 2e-iii-a: a validade do que um reviewer escreveu
 
@@ -2508,7 +2508,7 @@ Quando o leitor de `focus-markdown` não consegue ler a secção (o parser falha
 | --- | --- | --- | --- |
 | 2e-iii-c-i. A lista | As funções sobre a lista em si: `applyReviewBody` (uma revisão aplicada à lista que lhe foi mostrada) e `applyPriorReport` por baixo, `applyDisposition` (a decisão de uma pessoa), `legacyRecordList` (o registo de uma versão antiga, que é a lista inteira), `withoutRoundMarks`, o próximo id, a palavra de severidade, a nota | Corpus | Feita |
 | 2e-iii-c-ii-a. O que se lê, peça a peça | As decisões de um bloco (`parseDispositionField`), a que âmbito se aplica um gate e um Redo (`gateAppliesToScope`, `redoAppliesToScope`, `pathUnit`), os findings de um registo (`reviewRecordFindings`, `reviewRecordDerivedFindings`), `extractMarkdownSection` e `reviewFindingsText` | Corpus | Feita |
-| 2e-iii-c-ii-b. A lista, sobre uma árvore | `pairedReviews` (com `pairedReviewCompletions`), `legacySeed`, `readReviewFindingDispositions` e `deriveReviewFindingsList` | Corpus com árvores | Por fazer |
+| 2e-iii-c-ii-b. A lista, sobre uma árvore | `pairedReviewCompletions` e `pairedReviews`, `legacySeed` e `deriveReviewFindingsList` | Corpus com árvores | Feita |
 | 2e-iii-c-iii. O que se escreve | `derivedRecordFinding` (um finding da lista como o registo o guarda), `renderReadableReviewCopy` e `renderFindingsContext` | Corpus | Por fazer |
 
 ### Fatia 2e-iii-c-i: a lista de findings que o engine mantém
@@ -2574,6 +2574,37 @@ Só uma linha do ledger ou um registo editados à mão chegam aqui. Os testes ma
 | Corpus, tudo | 77 423 casos em 88 tipos; os dos outros 87 tipos iguais byte a byte |
 | Mutação | Duas rondas. A primeira, 80 mutantes: 75 apanhados (pelo corpus; os das recusas, pelos testes dos desvios), 4 vivos sobre código que saiu, 1 que não compilava. A segunda, esse reescrito e 2 novos sobre o que mudou: os 3 apanhados. No código final: 78 mutantes, todos apanhados |
 | `cargo test` | 594 testes; corpus de 77 423 casos (1 776 novos), todos iguais |
+
+### Fatia 2e-iii-c-ii-b: a lista derivada, sobre uma árvore
+
+**O que existe.** `focus-lifecycle::review_derived`. Ninguém guarda a lista: é reproduzida do ledger de cada vez.
+
+- **`derive`** (`deriveReviewFindingsList`): a lista do âmbito de um stage e de uma Unit. Cada revisão emparelhada do âmbito, por ordem do ledger, reescreve-a: com a lista que o engine mantinha no registo dessa revisão, ou, num registo de antes de haver lista, com os findings do registo aplicados pelo id (`legacy_record_list`), ou com o finding `R-00` quando a tabela do registo não se lê, ou sem tocar em nada quando o registo está vazio (ninguém deu veredicto). Cada decisão de um gate aplica-se à revisão que nomeia, onde quer que a linha fique na ordem (shards diferentes partilham o segundo), ou pelo id onde não nomeia nenhuma, e essas passam, com a severidade que o finding tinha, para a lista que um registo antigo reescreve. Um Redo de raiz começa uma lista nova. Sem registo nenhum, a secção `## Review` que uma versão antiga deixou no artefacto semeia a lista, que fica presa ao artefacto que tem a secção. E a revisão que está para ser gravada aplica-se no fim, sem escrever nada: devolvida com a razão quando quebra uma regra do relatório, ou, no último passe, gravada como o finding que o diz.
+- **`paired_completions`** (`pairedReviewCompletions`): o emparelhamento é o dos recibos. Uma conclusão só conta se descende de um pedido (mesmo stage, reviewer, Unit, passe e id de pedido), cada pedido responde-se uma vez, e o registo que a linha nomeia tem de verificar: uma linha em que um gate não confiaria não entra na lista. Com ele, `review::names_once` (`auditBlockFieldNamesOnce`): uma linha com um campo repetido não tem leitura única e ignora-se.
+- **`Finding` ganhou `review_record`**: o registo da revisão que reescreveu a lista pela última vez, que é o que uma decisão sobre o finding nomeia.
+
+**O que não se portou.** `readReviewFindingDispositions` está exportada no original e ninguém a chama. Não entra.
+
+**Um desvio deliberado.** O ficheiro que pode ter a secção `## Review` antiga é lido como qualquer ficheiro do registo que decide alguma coisa, como o ficheiro de perguntas na 2e-i-b:
+
+| Desvio | Original | Focus |
+| --- | --- | --- |
+| O artefacto que pode ter uma revisão antiga não é um ficheiro simples do registo | Lê-o pelo nome com `readFileSync`: atravessa um link e um segundo nome, e numa pasta cai com o `EISDIR` do runtime | A secção semeia findings que um gate pesa: o ficheiro é lido como um ficheiro regular com um só nome, alcançado sem links, e de outra maneira a lista é recusada, com o ficheiro nomeado. Um ficheiro só é lido quando o original olharia para ele |
+
+O teste marcado está em `review_derived`. A entrada em `DEVIATIONS` vem com o primeiro comando que derive a lista (o veredicto, 2e-iv).
+
+**Como se compara.** Cada caso é um projeto: o ledger em um ou dois shards, os registos de revisão (cada um nomeado pelo digest dos seus bytes, que cada engine calcula), os artefactos. Um fingerprint é do que o finding diz, e um finding que o engine redige ele próprio diz a pasta do engine (`aidlc/…` num, `focus/…` no outro): a resposta mostra-o como `{SAID}` quando é o fingerprint do que o finding diz agora, e por extenso quando não é, dos dois lados.
+
+@@RD_FOUND@@
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Corpus, `review_derived` | @@RD_COUNTS@@ |
+| Corpus, tudo | @@RD_ALL@@ |
+| Mutação | @@RD_MUT@@ |
+| `cargo test` | @@RD_TESTS@@ |
 
 ### Fatia 3a: a tentativa de revisão, partida em cinco (feita)
 
