@@ -2523,16 +2523,24 @@ Quando o leitor de `focus-markdown` não consegue ler a secção (o parser falha
 
 **A ordem das chaves não se compara.** O objeto do original tem as chaves pela ordem em que lhe foram postas, que é a história do que se lhe fez, e nenhum leitor da lista vai por ela (o registo escreve-as numa ordem fixa). O driver mostra cada finding com as chaves numa ordem só, e recusa um finding com uma chave que não conheça.
 
-@@RL_FOUND@@
+**O que o corpus e a mutação encontraram.** O corpus, nada: os 4 316 casos da primeira geração responderam igual à primeira. A mutação (130 mutantes) deixou 12 vivos:
+
+| Mutantes vivos | O que eram | O que se fez |
+| --- | --- | --- |
+| Limpar `not_rechecked` num finding que a função já limpou à entrada (2); contar os ids que a tabela `Prior findings` repete (2) e marcar o id conhecido que a tabela de seis colunas repete (1), quando a repetição já é malformada onde as linhas se aplicam; pôr `New` numa linha que é reescrita a seguir (1) | Código que não muda resposta nenhuma, no original também | Saiu, com uma nota onde o original conta e Focus não |
+| A nota vazia de um finding novo; a razão de reabertura de um finding que volta sem decisão anterior; o estado `Unresolved` desse finding; a tabela de seis colunas aplicada sem dar um id desconhecido por malformado (4) | Equivalentes: o código fica como o do original, e o módulo diz porquê cada um não muda a lista | Anotados no módulo |
+| Qual dos dois findings com o mesmo id a tabela de seis colunas avalia (o último); o relatório malformado só pelas linhas aplicadas (2) | Buracos no corpus | Casos: uma lista com um id duas vezes, por palavras diferentes |
+
+A segunda ronda, sobre o que mudou, deixou um: o id que o reviewer dá a um finding novo e que a tabela `Prior findings` não usou (não é malformado). Entrou como caso.
 
 **Verificado.**
 
 | Verificação | Resultado |
 | --- | --- |
-| Corpus, `review_list` | @@RL_COUNTS@@ |
-| Corpus, tudo | @@RL_ALL@@ |
-| Mutação | @@RL_MUT@@ |
-| `cargo test` | @@RL_TESTS@@ |
+| Corpus, `review_list` | 4 330 casos, todos iguais: 1 158 relatórios de findings anteriores aplicados (535 malformados), 701 revisões aplicadas (27 que não se leem, com a frase), 496 listas de registos antigos, 1 545 decisões, 375 findings sem as marcas de uma revisão, e os ids, as severidades e as notas |
+| Corpus, tudo | 75 647 casos em 87 tipos; os dos outros 86 tipos iguais byte a byte |
+| Mutação | Três rondas. A primeira, 130 mutantes: 118 apanhados, 12 vivos (acima). A segunda, 6 sobre o código que mudou: 5 apanhados, 1 buraco. A terceira apanhou-o. No código final: 127 mutantes, 123 apanhados, 4 equivalentes anotados no módulo |
+| `cargo test` | 592 testes; corpus de 75 647 casos (4 330 novos), todos iguais |
 
 ### Fatia 3a: a tentativa de revisão, partida em cinco (feita)
 

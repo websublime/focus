@@ -8859,6 +8859,10 @@ for rows in (["R-01 | Major | x | The first wording | The first action | Unresol
                                                                                                                                                                     "R-02 | Minor | x | Said again | Fix R-02 | Unresolved"]):
     rl_add("body", findings=RL_TWICE, artifact=RL_ARTIFACT, unit=None, text=rl_six(rows))
     rl_add("body", findings=list(reversed(RL_TWICE)), artifact=RL_ARTIFACT, unit=None, text=rl_six(rows))
+# An id a reviewer gave a new finding is ignored, and breaks no rule unless it is an id the Prior findings table used.
+for prior, new in ((["R-01 | Fixed | Major | Done"], ["R-77 | Major | c.md | Supplied an id of its own | Do it"]), (["R-01 | Fixed | Major | Done"], ["R-02 | Major | c.md | Supplied an id the list holds | Do it"]),
+                   ([], ["R-01 | Major | c.md | Supplied an id the list holds | Do it", " | Major | c.md | Supplied none | Do it"]), (["R-02 | Still applies | Major | "], ["R-02 | Major | c.md | Supplied the id reported on | Do it"])):
+    rl_add("body", findings=RL_HELD, artifact=RL_ARTIFACT, unit=None, text=rl_report(prior, new, head="| ID | Severity | Location | Finding | Required action |", rule="|---|---|---|---|---|"))
 # A legacy record's list, a person's decision, and a finding without one review's marks.
 for current in ([], RL_HELD, [rl_finding("R-01", "Accepted risk"), rl_finding("R-01")], [rl_finding("R-01"), rl_finding("R-01", "Rejected: twice")]):
     for recorded in ([], RL_HELD, [rl_finding(held["id"], status, "Critical", finding="As the record has it") for held in RL_HELD for status in ("New", "Resolved")][::3],
