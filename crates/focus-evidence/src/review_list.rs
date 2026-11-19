@@ -14,6 +14,21 @@
 //!
 //! These are the functions over the list itself. Reading the ledger for the
 //! reviews and the decisions to apply is `deriveReviewFindingsList`'s.
+//!
+//! # Tests that change no answer
+//!
+//! Four mutants of [`apply_prior_report`] and of what it raises give the
+//! same list, and the code stays as upstream has it:
+//!
+//! - A new finding's note is kept when it says something; nothing here
+//!   passes one that says nothing.
+//! - A finding that is back loses its reopened reason only when it had an
+//!   earlier decision. One that had none is open again, and an open finding
+//!   that still applies loses the reason a few lines below.
+//! - That same finding is `Unresolved`; were it `New`, the lines below
+//!   would make it `Unresolved` all the same.
+//! - The six-column table's rows are applied without calling an unknown id
+//!   malformed: every row sent there has an id the list holds.
 
 use focus_js::{re, text as js_text};
 
@@ -262,7 +277,6 @@ pub fn apply_prior_report(
                     resolved_in_review: Some(true),
                     earlier_decision: Some(current.status.clone()),
                     reviewer_note: said(&row.note),
-                    not_rechecked: None,
                     ..current
                 };
                 continue;
@@ -340,7 +354,6 @@ pub fn apply_prior_report(
                             severity
                         },
                         reviewer_note: said(&row.note),
-                        not_rechecked: None,
                         reopened_reason: None,
                         ..current
                     }
@@ -383,22 +396,17 @@ pub fn apply_review_body(
     body: &str,
 ) -> Result<Applied, String> {
     if let Some(report) = parse_findings_report(body)? {
-        let mut seen: Vec<&str> = Vec::new();
-        let mut repeated = false;
-        for row in &report.prior {
-            repeated |= seen.contains(&row.id.as_str());
-            seen.push(&row.id);
-        }
-        let (mut next, malformed) =
+        // (Upstream also counts the ids the Prior findings table repeats:
+        // a repeat is malformed already where the rows are applied.)
+        let (mut next, mut malformed) =
             apply_prior_report(findings, artifact, unit, &report.prior, true);
-        let mut malformed = malformed || repeated;
         for row in &report.new_findings {
             // An id the reviewer gave a new finding is ignored: the engine
             // assigns the next unused number.
             if row
                 .supplied_id
                 .as_deref()
-                .is_some_and(|id| seen.contains(&id))
+                .is_some_and(|id| report.prior.iter().any(|row| row.id == id))
             {
                 malformed = true;
             }
@@ -435,7 +443,6 @@ pub fn apply_review_body(
     let mut new_rows: Vec<Finding> = Vec::new();
     // The row each unknown id became, so a repeat is a note on the first.
     let mut unknown: Vec<(String, usize)> = Vec::new();
-    let mut seen: Vec<String> = Vec::new();
     let mut malformed = false;
     for row in parsed.findings {
         if let Some(current) = known(&row.id) {
@@ -485,22 +492,16 @@ pub fn apply_review_body(
                 continue;
             }
             unknown.push((row.id.clone(), new_rows.len()));
-            seen.push(row.id.clone());
             new_rows.push(Finding {
                 id: String::new(),
                 reviewer_note: (row.status != "New")
                     .then(|| format!("Reviewer supplied prior ID {}", row.id)),
-                status: "New".to_owned(),
                 ..row
             });
-            continue;
         }
-        let id = &prior_rows[prior_rows.len() - 1].id;
-        if seen.contains(id) {
-            malformed = true;
-        }
-        seen.push(id.clone());
     }
+    // (Upstream also marks a known id the table repeats: the repeat is
+    // malformed already where the rows are applied, below.)
     let (mut next, prior_malformed) =
         apply_prior_report(findings, artifact, unit, &prior_rows, false);
     for row in new_rows {

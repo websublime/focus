@@ -8851,6 +8851,14 @@ for _ in range(100 * scale):
         body = rl_six(rows)
     rl_add("body", findings=held, artifact=RL_ARTIFACT, unit=rl.choice([None, "orders"]), text=body)
 
+# What a sweep of mutants asked for: a list that holds an id twice, each time in other words, and a table that
+# repeats one or the other; and a known id repeated in the table with nothing else wrong.
+RL_TWICE = [rl_finding("R-01", finding="The first wording", requiredAction="The first action"), rl_finding("R-01", "Accepted risk", finding="The second wording", requiredAction="The second action"), rl_finding("R-02")]
+for rows in (["R-01 | Major | x | The first wording | The first action | Unresolved"], ["R-01 | Major | x | The second wording | The second action | Unresolved"], ["R-01 | Major | x | The first wording | The second action | Resolved"],
+             ["R-02 | Major | x | Finding R-02 is wrong | Fix R-02 | Unresolved", "R-02 | Major | x | Finding R-02 is wrong | Fix R-02 | Unresolved"], ["R-02 | Major | x | Finding R-02 is wrong | Fix R-02 | Resolved", "R-01 | Major | x | The second wording | The second action | New",
+                                                                                                                                                                    "R-02 | Minor | x | Said again | Fix R-02 | Unresolved"]):
+    rl_add("body", findings=RL_TWICE, artifact=RL_ARTIFACT, unit=None, text=rl_six(rows))
+    rl_add("body", findings=list(reversed(RL_TWICE)), artifact=RL_ARTIFACT, unit=None, text=rl_six(rows))
 # A legacy record's list, a person's decision, and a finding without one review's marks.
 for current in ([], RL_HELD, [rl_finding("R-01", "Accepted risk"), rl_finding("R-01")], [rl_finding("R-01"), rl_finding("R-01", "Rejected: twice")]):
     for recorded in ([], RL_HELD, [rl_finding(held["id"], status, "Critical", finding="As the record has it") for held in RL_HELD for status in ("New", "Resolved")][::3],
