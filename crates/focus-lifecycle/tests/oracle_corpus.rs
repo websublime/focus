@@ -66,6 +66,8 @@ fn every_lifecycle_case_gets_upstreams_answer() {
     let (mut thrown, mut sentences, mut named_a_command, mut asked_which) = (0, 0, 0, 0);
     let mut resettable = 0;
     let (mut parts, mut placed, mut unplaceable, mut spelled) = (0, 0, 0, 0);
+    let (mut replayed, mut decided, mut sent_back, mut seeded) = (0, 0, 0, 0);
+    let (mut reopened, mut stood_in) = (0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         let case: Value = focus_js::json::parse(line).unwrap();
@@ -113,6 +115,24 @@ fn every_lifecycle_case_gets_upstreams_answer() {
             asked_which += usize::from(sentence.starts_with("Ask the person"));
             thrown += usize::from(out["guidance"]["error"].is_string());
             resettable += usize::from(out["reset"] == true);
+        } else if kind == "review_derived" && out.is_object() {
+            // The list a scope stands at: rewritten by a review's record,
+            // with a decision a person made on it, a pending review sent
+            // back, a list seeded from a legacy section (it keeps the
+            // artifact that holds it), a finding a person reopened, and the
+            // finding that stands in for a table that cannot be read.
+            assert!(out.get("error").is_none(), "{}: {out}", case["id"]);
+            let any = |test: &dyn Fn(&Value) -> bool| {
+                out["findings"]
+                    .as_array()
+                    .is_some_and(|findings| findings.iter().any(test))
+            };
+            replayed += usize::from(out["reviewRecord"].is_array());
+            decided += usize::from(any(&|finding| finding.get("decidedAtSeverity").is_some()));
+            sent_back += usize::from(out["malformedReport"].is_string());
+            seeded += usize::from(out["artifact"] != case["artifact"]);
+            reopened += usize::from(any(&|finding| finding.get("reopenedReason").is_some()));
+            stood_in += usize::from(any(&|finding| finding["id"] == "R-00"));
         } else if kind == "review_receipts" {
             // The reviews that still stand: a verdict for the stage or a
             // unit, one a later write made stale, a request that waits, the
@@ -311,6 +331,11 @@ fn every_lifecycle_case_gets_upstreams_answer() {
         parts >= 2300 && placed >= 200 && unplaceable >= 1500 && spelled >= 280,
         "{parts} {placed} {unplaceable} {spelled}"
     );
+    assert!(
+        replayed >= 550 && decided >= 200 && sent_back >= 180 && seeded >= 35,
+        "{replayed} {decided} {sent_back} {seeded}"
+    );
+    assert!(reopened >= 120 && stood_in >= 190, "{reopened} {stood_in}");
     assert!(
         differing.is_empty(),
         "{} lifecycle cases differ from upstream; first:\n{}",
