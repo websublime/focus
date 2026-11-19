@@ -5265,6 +5265,12 @@ def log_checks():
     check_("answer/summary_question_and_answer_tied", created(owing, CREATED_AUDIT + sq(2) + H(3), **{qfile: confirmed}, **other(block(
         "SUMMARY_CONFIRMATION_RECORDED", T(2), "**Stage**: intent-capture", "**Checkpoint**: Consolidated Summary Confirmation", f"**Questions File**: {qfile}"))), [chooses("Looks correct")])
     check_("answer/summary_question_in_another_shard", created(owing, CREATED_AUDIT + H(3), **{qfile: confirmed}, **other(sq(2))), [chooses("Looks correct")])
+    # The choice is found by the lower case of the reply's first units: a Kelvin sign is a `k` there, three bytes
+    # and one unit. And a reply whose cut at the choice's length falls inside a character names no choice.
+    check_("answer/summary_choice_kelvin_sign", created(owing, CREATED_AUDIT + sq(2) + H(3), **{qfile: confirmed}), [chooses("Loo" + chr(0x212A) + "s correct")])
+    check_("answer/summary_choice_cut_in_a_pair", created(owing, CREATED_AUDIT + sq(2) + H(3), **{qfile: confirmed}), [chooses("Looks correc" + chr(0x1F600))])
+    check_("answer/summary_choice_then_a_pair", created(owing, CREATED_AUDIT + sq(2) + H(3), **{qfile: confirmed}), [chooses("Looks correct " + chr(0x1F600) + " thanks")])
+    check_("answer/summary_choice_pair_no_separator", created(owing, CREATED_AUDIT + sq(2) + H(3), **{qfile: confirmed}), [chooses("Looks correct" + chr(0x1F600))])
     # A stage run by itself: its last completion is the boundary, of the question and of the attempt.
     done = lambda minute: block("STAGE_COMPLETED", T(minute), "**Stage**: intent-capture", "**Workflow**: single-stage:intent-capture")
     alone = lambda minute: sq(minute, "**Workflow**: single-stage:intent-capture")
