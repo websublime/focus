@@ -2670,11 +2670,11 @@ O teste marcado está em `focus-hooks::turn` (uma resposta de uma caixa cortada 
 
 | Verificação | Resultado |
 | --- | --- |
-| Diferencial | @@CUT_DIFF@@ |
-| Corpus | @@CUT_CORPUS@@ |
-| Diferencial, tudo | @@CUT_ALL@@ |
+| Diferencial | 9 checks novos, todos iguais: o prompt, a resposta e a pergunta de uma caixa e a razão do host cortados a meio de um par, o prompt e a razão cortados logo a seguir a um, uma resposta de caixa longa (não havia check nenhum do corte a 2 000), e a dica de uma resposta atrasada cortada a meio de um par e a seguir a um. 4 são iguais depois da forma `half-pair` (o prompt, a resposta e a pergunta da caixa, a dica); os da razão do host são iguais sem forma nenhuma, e antes da correção diferiam |
+| Corpus | 16 casos novos, no fim do gerador para que os casos anteriores de cada tipo fiquem com os ids que tinham: 8 títulos rebaixados e 8 razões do host, com o carácter antes do corte, sobre ele e depois dele. 6 têm U+FFFD na resposta do original, e o código anterior falhava-os. 80 993 casos em 90 tipos; todos os outros iguais byte a byte |
+| Diferencial, tudo | 3 866 checks: 3 632 iguais, 234 desvios declarados, nenhum diferente; a gravação (3 777 checks sobre 1 486 árvores) repete-se igual |
 | Mutação | @@CUT_MUT@@ |
-| `cargo test` | @@CUT_TESTS@@ |
+| `cargo test` | 601 testes |
 
 ### Fatia 3a: a tentativa de revisão, partida em cinco (feita)
 
