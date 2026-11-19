@@ -429,6 +429,9 @@ pub struct Finding {
     pub reopened_reason: Option<String>,
     pub related_finding_id: Option<String>,
     pub introduced_in_review: Option<bool>,
+    /// The record of the review the list was last rewritten by (its path
+    /// and its digest): what a decision made on the finding names.
+    pub review_record: Option<(String, String)>,
 }
 
 impl Finding {

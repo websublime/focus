@@ -56,7 +56,7 @@ const planGuardPrivate = await import(planGuardShim);
 const libShim = tool("aidlc-lib.focus-oracle.ts");
 // (`rawFingerprintForm` and `lastWorkspaceSourceFailure` are asked of the copy too: what a walk remembers is the
 // module's own.)
-writeFileSync(libShim, `${readFileSync(tool("aidlc-lib.ts"), "utf-8")}\nexport { walkWorkspaceSource, gateStagesFromBlock, splitMarkdownRow };\n`);
+writeFileSync(libShim, `${readFileSync(tool("aidlc-lib.ts"), "utf-8")}\nexport { walkWorkspaceSource, gateStagesFromBlock, splitMarkdownRow, auditBlockFieldNamesOnce };\n`);
 process.on("exit", () => rmSync(libShim, { force: true }));
 const libPrivate = await import(libShim);
 // The log tool's own reader of a review file's headings is asked the same way.
@@ -78,6 +78,7 @@ const briefPrivate = await import(briefShim);
 const FINDING_KEYS = [
   "artifact", "unit", "id", "severity", "location", "finding", "requiredAction", "status", "fingerprint", "decidedAtSeverity", "reviewerNote",
   "notRechecked", "resolvedByReviewer", "resolvedInReview", "earlierDecision", "reopenedReason", "relatedFindingId", "introducedInReview",
+  "reviewRecord",
 ];
 function listedFinding(finding: any): Record<string, unknown> {
   const stray = Object.keys(finding).filter((key) => !FINDING_KEYS.includes(key));
@@ -1182,6 +1183,63 @@ async function answer(c: Record<string, any>): Promise<unknown> {
         gates: (c.blocks as string[]).map((block) => libPrivate.gateStagesFromBlock(block)),
         names: (c.units as string[]).map((unit) => lib.unitPlainName(unit)),
       };
+    case "review_derived": {
+      // The list of findings a review's scope stands at, replayed from a project of the case's own: its ledger, its
+      // review records (each named by the digest of its bytes, `{DIGEST:<record>}`) and its artifacts. And, alone,
+      // whether a row names each of its fields once (the pairing asks it of every row).
+      if (c.blocks !== undefined) return (c.blocks as string[]).map((block) => libPrivate.auditBlockFieldNamesOnce(block));
+      const root = layProject(c);
+      const record = join(root, "aidlc", "spaces", "default", "intents", "rec-1a2b3c4d");
+      const data = resolve(upstream, "dist", "claude", ".claude", "tools", "data");
+      const compiled = JSON.parse(readFileSync(join(data, "stage-graph.json"), "utf-8"));
+      const compiledStage = (Array.isArray(compiled) ? compiled : compiled.stages).find((node: { slug: string }) => node.slug === c.slug);
+      if (compiledStage === undefined) throw new Error(`${c.id}: no stage ${c.slug}`);
+      const stage = Object.fromEntries(Object.entries({ ...compiledStage, ...(c.patch ?? {}) }).filter(([, value]) => value !== null));
+      const before = [process.env.AIDLC_STAGE_GRAPH, process.env.AIDLC_SCOPE_GRID];
+      process.env.AIDLC_STAGE_GRAPH = join(data, "stage-graph.json");
+      process.env.AIDLC_SCOPE_GRID = join(data, "scope-grid.json");
+      try {
+        const filled: Array<[string, string]> = [];
+        const fill = (text: string) => filled.reduce((out, [name, value]) => out.split(name).join(value), text);
+        const named = (text: string) => filled.reduce((out, [name, value]) => out.split(value).join(name), text);
+        for (const [rel, text] of Object.entries(c.records as Record<string, string>)) {
+          mkdirSync(dirname(join(record, rel)), { recursive: true });
+          writeFileSync(join(record, rel), fill(text));
+          filled.push([`{DIGEST:${rel}}`, `sha256:${createHash("sha256").update(fill(text)).digest("hex")}`]);
+        }
+        mkdirSync(join(record, "audit"), { recursive: true });
+        for (const [name, text] of Object.entries(c.shards as Record<string, string>)) writeFileSync(join(record, "audit", name), fill(text));
+        const pending = c.pending === null ? undefined : Object.fromEntries(Object.entries(c.pending).filter(([, value]) => value !== null));
+        const derived = briefPrivate.deriveReviewFindingsList(root, stage, fill(c.artifact), c.unit ?? undefined, pending);
+        return {
+          // The pairing behind it, a row by where it stands.
+          paired: lib.pairedReviewCompletions(root, stage).map((paired: any) => [paired.unit, `${paired.event.shardIndex}:${paired.event.pos}`, paired.ref?.path ?? null]),
+          artifact: derived.artifact,
+          unit: derived.unit ?? null,
+          verdict: derived.verdict,
+          // (A fingerprint is of what the finding says, and a finding the engine words itself says the engine's
+          // folder: it is shown as `{SAID}` when it is the fingerprint of what the finding now says.)
+          findings: derived.findings.map((finding: any) => {
+            const shown = listedFinding(finding) as any;
+            if (shown.fingerprint === lib.reviewFindingFingerprint(finding)) shown.fingerprint = "{SAID}";
+            return shown.reviewRecord === undefined ? shown : { ...shown, reviewRecord: { path: shown.reviewRecord.path, digest: named(shown.reviewRecord.digest) } };
+          }),
+          findingsText: derived.findingsText ?? null,
+          reviewRecord: derived.reviewRecord === undefined ? null : [derived.reviewRecord.path, named(derived.reviewRecord.digest)],
+          resolved: derived.reviewerResolvedCount ?? 0,
+          malformedReport: derived.malformedReport ?? null,
+          incomplete: derived.incompleteReview === true,
+        };
+      } catch (err) {
+        return { error: (err as Error).message };
+      } finally {
+        for (const [index, name] of ["AIDLC_STAGE_GRAPH", "AIDLC_SCOPE_GRID"].entries()) {
+          if (before[index] === undefined) delete process.env[name];
+          else process.env[name] = before[index];
+        }
+        rmSync(root, { recursive: true, force: true });
+      }
+    }
     case "review_receipts": {
       // The reviews of a stage that still stand, in a project of the case's own. The ledger and the review records
       // name what each engine computes for itself: `{ART}` and `{ART:<unit>}` (the artifacts' fingerprint as laid

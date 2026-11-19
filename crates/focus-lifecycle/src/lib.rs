@@ -44,6 +44,7 @@ pub mod registry;
 pub mod reply;
 pub mod review_artifacts;
 pub mod review_attempt;
+pub mod review_derived;
 pub mod review_pending;
 pub mod review_receipts;
 pub mod review_request;

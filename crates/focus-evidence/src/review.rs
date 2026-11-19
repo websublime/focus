@@ -24,7 +24,7 @@
 
 use focus_audit::read::block_field;
 use focus_audit::units::validate_unit_name;
-use focus_js::{num, re};
+use focus_js::{num, re, text as js_text};
 use sha2::{Digest, Sha256};
 
 /// `LegacyReviewAppendixBinding`: the fields a request written under the
@@ -337,6 +337,21 @@ pub fn legacy_appendix_echo_fields(legacy: &LegacyAppendix) -> Vec<(&'static str
         fields.push(("Review Challenge", challenge.clone()));
     }
     fields
+}
+
+/// `auditBlockFieldNamesOnce`: whether every field of a ledger row is
+/// named once. A row with a field repeated has no single reading.
+#[must_use]
+pub fn names_once(block: &str) -> bool {
+    let mut seen: Vec<&str> = Vec::new();
+    for found in re::find_all(r"^(?:-\s*)?\*\*([^*]+)\*\*:", "gm", block) {
+        let name = js_text::trim(re::group(block, &found, 1).unwrap_or_default());
+        if seen.contains(&name) {
+            return false;
+        }
+        seen.push(name);
+    }
+    true
 }
 
 /// The review record a completion names.
