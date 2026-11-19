@@ -8892,5 +8892,114 @@ for _ in range(60 * scale):
     rl_add("disposition", findings=held, disposition=disposition, legacySeverity=rl.choice([None, None, "Major"]))
     rl_add("unmark", finding=target)
 
+# --- What the derived list reads (slice 2e-iii-c-ii-a of M5) ---
+# The decisions a gate row's field holds (`parseDispositionField`), whether a row speaks for a scope
+# (`gateAppliesToScope`, `redoAppliesToScope`), the Unit of a path, a review's findings as written, a section of a
+# document (`extractMarkdownSection`), and the findings a record holds.
+
+rr = random.Random(seed * 7919 + 38)
+RR_DIGEST = "sha256:" + "ab" * 32
+
+
+def rr_add(op, **given):
+    add("review_reads", op=op, **given)
+
+
+def rr_decision(**given):
+    decision = {"artifact": "design/architecture.md", "id": "R-01", "fingerprint": RR_DIGEST, "status": "Accepted risk"}
+    decision.update(given)
+    return {key: value for key, value in decision.items() if value is not ...}
+
+
+def rr_field(*decisions, **envelope):
+    document = {"version": 1, "dispositions": list(decisions)}
+    document.update(envelope)
+    return json.dumps(document, ensure_ascii=False)
+
+
+# (A value that passes a pattern only as a list read for a text is not asked: Focus refuses the field there, a
+# deliberate deviation. A list that fails the pattern is asked.)
+RR_DECISIONS = [rr_decision(), rr_decision(status="Rejected: not a defect"), rr_decision(status="Reopened: it is not fixed"), rr_decision(status="Rejected:"), rr_decision(status="Rejected: "), rr_decision(status="Rejected:  x"),
+                rr_decision(status="Reopened: \n"), rr_decision(status="Rejected: x\ny"), rr_decision(status="accepted risk"), rr_decision(status="Resolved"), rr_decision(status=""), rr_decision(status=None), rr_decision(status=...),
+                rr_decision(status=5), rr_decision(status=["Accepted risk"]), rr_decision(status=["Fixed"]), rr_decision(status={"a": 1}), rr_decision(status=True),
+                rr_decision(id="R-1"), rr_decision(id="R-0001"), rr_decision(id="r-01"), rr_decision(id="R-"), rr_decision(id="R-01 "), rr_decision(id="R-01\n"), rr_decision(id=""), rr_decision(id=None), rr_decision(id=...), rr_decision(id=1),
+                rr_decision(id=["R-", 1]), rr_decision(id=["x"]), rr_decision(id={}), rr_decision(fingerprint="sha256:" + "AB" * 32), rr_decision(fingerprint="sha256:" + "ab" * 31), rr_decision(fingerprint="ab" * 32),
+                rr_decision(fingerprint=""), rr_decision(fingerprint=None), rr_decision(fingerprint=...), rr_decision(fingerprint=[RR_DIGEST, RR_DIGEST]), rr_decision(artifact=""), rr_decision(artifact=None), rr_decision(artifact=...),
+                rr_decision(artifact=5), rr_decision(artifact=["a.md"]), rr_decision(decided_at_severity="Major"), rr_decision(decided_at_severity=""), rr_decision(decided_at_severity=None), rr_decision(decided_at_severity=3),
+                rr_decision(decided_at_severity=["Major"]), rr_decision(reviewed_record={"path": "audit/reviews/a.json", "digest": RR_DIGEST}), rr_decision(reviewed_record={"path": "", "digest": RR_DIGEST}),
+                rr_decision(reviewed_record={"path": "p", "digest": "sha256:short"}), rr_decision(reviewed_record={"path": "p"}), rr_decision(reviewed_record={"digest": RR_DIGEST}), rr_decision(reviewed_record={"path": 5, "digest": RR_DIGEST}),
+                rr_decision(reviewed_record={"path": "p", "digest": None}), rr_decision(reviewed_record=None), rr_decision(reviewed_record=[]), rr_decision(reviewed_record="p"), rr_decision(reviewed_record={}),
+                rr_decision(reviewed_record={"path": "p", "digest": RR_DIGEST, "extra": 1}), rr_decision(extra="kept", another={"deep": [1, 2.5, None, True]}), rr_decision(**{"10": "ten", "2": "two", "b": 1, "a": 2}),
+                {"status": "Accepted risk", "fingerprint": RR_DIGEST, "id": "R-02", "artifact": "b.md"}, rr_decision(id="R-99999999999999999999"), rr_decision(artifact="a\u0000b", status="Rejected:  é😀"),
+                None, 5, "text", [], [rr_decision()], {}, True]
+for decision in RR_DECISIONS:
+    rr_add("field", value=rr_field(decision))
+    rr_add("field", value=rr_field(rr_decision(id="R-07"), decision, rr_decision(id="R-08", status="Rejected: after")))
+for value in (None, "", " ", "null", "5", "\"text\"", "true", "[]", "{}", "[1]", "not json", "{", rr_field(), rr_field(rr_decision()) + " ", " " + rr_field(rr_decision()), rr_field(rr_decision()) + "x",
+              rr_field(rr_decision(), version=2), rr_field(rr_decision(), version="1"), rr_field(rr_decision(), version=1.0), rr_field(rr_decision(), version=None), rr_field(rr_decision(), version=True),
+              rr_field(rr_decision(), version=[1]), json.dumps({"dispositions": [rr_decision()]}), json.dumps({"version": 1}), json.dumps({"version": 1, "dispositions": None}), json.dumps({"version": 1, "dispositions": {}}),
+              json.dumps({"version": 1, "dispositions": "x"}), json.dumps({"version": 1, "dispositions": {"0": rr_decision(), "length": 1}}), json.dumps([{"version": 1, "dispositions": [rr_decision()]}]),
+              '{"version":1,"version":2,"dispositions":[]}', '{"version":2,"version":1,"dispositions":[{"artifact":"a.md","id":"R-01","id":"R-02","fingerprint":"' + RR_DIGEST + '","status":"Accepted risk"}]}',
+              '{"version":1.0e0,"dispositions":[{"artifact":"a.md","id":"R-01","fingerprint":"' + RR_DIGEST + '","status":"Accepted risk","n":1.50,"big":1e21,"small":1E-7,"neg":-0}]}',
+              '{"version":1,"dispositions":[{"artifact":"a\\u002emd","id":"R-01","fingerprint":"' + RR_DIGEST + '","status":"Rejected: \\ud83d\\ude00 \\n"}]}', rr_field(extra="beside"), rr_field(*[rr_decision(id=f"R-{n:02}") for n in range(1, 9)])):
+    rr_add("field", value=value)
+
+RR_GATE = "## Gate\n\n**Timestamp**: 2026-11-19T06:00:00Z\n**Event**: GATE_APPROVED\n"
+for event in ("GATE_APPROVED", "GATE_REJECTED", "GATE_PRESENTED", "ARTIFACT_REUSED", "REVIEW_COMPLETED", "", "gate_approved"):
+    for fields in ("**Stage**: application-design\n", "**Stage**: application-design\n**Unit**: orders\n", "**Stage**: application-design\n**Unit**:\n", "**Stage**: other\n**Gate Stages**: application-design\n",
+                   "**Stage**: other\n**Gate Stages**: a, application-design ,b\n**Unit**: payments\n", "**Stage**: other\n**Gate Stages**: application-design-more, x\n", "**Gate Stages**: application-design\n", "**Stage**: other\n",
+                   "- **Stage**: application-design\n- **Unit**: orders\n", "**Stage**: application-design \n**Unit**:  orders  \n", "**Stage**: other\n**Stage**: application-design\n", "**Gate Stages**: ,, ,\n",
+                   "**Stage**: \n**Gate Stages**: \n", "", "**Stage**: application-design\n**Unit**: orders\n**Unit**: payments\n", " **Stage**: application-design\n", "**Stage**: Application-Design\n",
+                   "**Stage**: other\n**Gate Stages**: Application-Design\n"):
+        for stage, unit in (("application-design", None), ("application-design", "orders"), ("application-design", ""), ("", None), ("other", "payments")):
+            rr_add("gate", event=event, block=RR_GATE + fields, stage=stage, unit=unit)
+for event in ("ARTIFACT_REUSED", "GATE_APPROVED", "ARTIFACT_PRODUCED", ""):
+    for fields in ("**Stage**: code-generation\n**Decision**: redo\n", "**Stage**: code-generation\n**Decision**: Redo\n", "**Stage**: code-generation\n**Decision**: REDO \n", "**Stage**: code-generation\n**Decision**: reuse\n",
+                   "**Stage**: code-generation\n", "**Stage**: other\n**Decision**: redo\n", "**Decision**: redo\n", "**Stage**: code-generation\n**Decision**: redo\n**Workflow**: single\n",
+                   "**Stage**: code-generation\n**Decision**: redo\n**Workflow**:\n", "**Stage**: code-generation\n**Decision**: redo\n**Artifacts**: construction/orders/code-generation/plan.md\n",
+                   "**Stage**: code-generation\n**Decision**: redo\n**Artifacts**: construction/orders/code-generation/plan.md, construction/payments/code-generation/plan.md\n",
+                   "**Stage**: code-generation\n**Decision**: redo\n**Artifacts**: focus/spaces/default/construction/payments/code-generation/a.md ,  x/construction/orders/other/a.md\n",
+                   "**Stage**: code-generation\n**Decision**: redo\n**Artifacts**: construction/orders/code-generation\n", "**Stage**: code-generation\n**Decision**: redo\n**Artifacts**: inception/plan.md, , \n",
+                   "**Stage**: code-generation\n**Decision**: redo\n**Artifacts**: construction\\orders\\code-generation\\plan.md\n", "**Stage**: code-generation\n**Decision**: redo\n**Artifacts**: xconstruction/orders/code-generation/plan.md\n",
+                   "**Stage**: code-generation\n**Decision**: redo\n**Artifacts**: construction//code-generation/plan.md, construction/a/b/code-generation/plan.md\n", "- **Stage**: code-generation\n- **Decision**: redo\n- **Artifacts**:\n"):
+        for stage, unit in (("code-generation", None), ("code-generation", "orders"), ("code-generation", "payments"), ("code-generation", ""), ("other", "orders")):
+            rr_add("redo", event=event, block="## Reuse\n\n" + fields, stage=stage, unit=unit)
+for path in ("construction/orders/code-generation/plan.md", "a/b/construction/orders/code-generation/plan.md", "xconstruction/orders/code-generation/plan.md", "construction/orders/code-generation", "construction/orders/code-generation/",
+             "/construction/orders/code-generation/x", "construction//code-generation/x", "construction/orders//x", "construction/a/b/code-generation/x", "construction/orders/other/x/construction/payments/code-generation/x",
+             "Construction/orders/code-generation/x", "construction\\orders\\code-generation\\x", "", "construction/", "construction/é 😀/code-generation/x", "construction/orders/code-generation/construction/x/code-generation/y"):
+    for stage in ("code-generation", "other", "", "orders"):
+        rr_add("path_unit", path=path, stage=stage)
+
+for text in ("", "### Findings\n", "### Findings\n\n\n", "### Findings\n\nNo findings.\n", "### Findings\n\n| a |\n|---|\n\n### Notes\n\nafter\n", "intro\n\n### Findings \n\n  indented text  \n\n", "### Findings\r\n\r\ntext\r\n",
+             "### Findings\n ﻿ text  \n", "no heading\n", "### Findings\n### Next\n", "### Findings\ntext\n### Findings\nsecond\n", "#### Findings\ntext\n", "### Findings\n\n```\n### Not a heading to it\n```\n",
+             RF_SIX, RF_REPORT, RF_TOP + RF_REPORT + "### Notes\n\nx\n"):
+    rr_add("text", text=text)
+
+RR_DOC = "# Title\n\nintro\n\n## Review\n\n**Verdict:** READY\n\n### Findings\n\nnone\n\n## After\n\ntail\n"
+for text in (RR_DOC, "", "## Review", "## Review\n", "## Review\nbody", "## Review  \t\nbody\n## Next\n", "## Review x\nbody\n", "## Reviewer\nbody\n", "### Review\nbody\n", " ## Review\nbody\n", "## review\nbody\n",
+             "## Review\nfirst\n## Review\nsecond\n", "```\n## Review\nin a fence\n```\n\n## Review\nreal\n", "~~~\n## Review\nin a tilde fence\n~~~\n", "## Review\n```\n## Not a heading\ncode\n```\nafter the fence\n## Next\n",
+             "## Review\n```\nnever closed\n## Next\n", "    ```\n## Review\nindented fence\n", "```js\n## Review\n```\n## Review\nx\n````\n## Next\n", "<!--\n## Review\nin a comment\n-->\n", "> ## Review\nquoted\n",
+             "## Review\r\nbody\r\n## Next\r\n", "## Review\rbody\r## Next\r", "## Review body\n", "## Review\n\n\nbody\n\n\n", "## Review\n##\n## \n##x\n", "## Review\n## \nafter an empty heading\n", "## Review\n### Deeper\nbody\n#### Deepest\n# Top\n",
+             "x## Review\nbody\n", "## Review\nbody\n## Next", "﻿## Review\nbody\n", "## Review\n## Review\n", "é😀\n## Review\né😀 body\n## Next é\n", "## Review [ok]\nbody\n", "## Review\nbody\n##  Two spaces\n"):
+    for heading in ("## Review", "## Next", "### Deeper", "## Review [ok]", "## ", "", "# Title", "## Review.*"):
+        rr_add("section", text=text, heading=heading)
+
+RR_STORED = {"id": "R-01", "severity": "Major", "location": "a.md > X", "finding": "It is wrong", "required_action": "Fix it", "status": "New"}
+RR_RECORD = {"version": 1, "stage": "application-design", "unit": None, "workflow": None, "attempt": "0123456789abcdef", "iteration": 1, "reviewer": "the-reviewer", "verdict": "NOT-READY", "request_id": None,
+             "request_challenge": None, "artifact_fingerprint": RR_DIGEST, "source_fingerprint": None, "unit_source_fingerprint": None, "findings": [RR_STORED], "body": "", "recorded_at": "2026-11-19T06:00:00.000Z"}
+RR_KEPT = [("decided_at_severity", "Major"), ("reviewer_note", "A note"), ("reviewer_note", ""), ("not_rechecked", True), ("not_rechecked", False), ("resolved_by_reviewer", True), ("resolved_in_review", False),
+           ("earlier_decision", "Accepted risk"), ("earlier_decision", "Rejected: before"), ("reopened_reason", "Not fixed"), ("related_finding_id", "R-02"), ("introduced_in_review", True), ("introduced_in_review", False)]
+for given in ({}, {"unit": "orders"}, {"unit": ""}, {"findings": []}, {"findings": [RR_STORED, dict(RR_STORED, id="R-02", status="Rejected: no", finding="é \"q\" \\  ")]}, {"derived_findings": []}, {"derived_findings": [RR_STORED]},
+              {"derived_findings": [dict(RR_STORED, **dict(RR_KEPT))]}, {"findings": [dict(RR_STORED, **dict(RR_KEPT))], "derived_findings": [dict(RR_STORED, extra="ignored")]},
+              {"unit": "orders", "findings": [dict(RR_STORED, id="R-0002")], "derived_findings": [dict(RR_STORED, id="R-03", status="Resolved", resolved_by_reviewer=True), dict(RR_STORED, status="Accepted risk", decided_at_severity="Minor")]},
+              {"derived_findings": None}, {"derived_findings": [dict(RR_STORED, not_rechecked="yes")]}, {"derived_findings": [dict(RR_STORED, earlier_decision="New")]}, {"findings": [dict(RR_STORED, status="Fixed")]}, {"version": 2}):
+    rr_add("record", text=json.dumps(dict(RR_RECORD, **given), ensure_ascii=False), artifact="design/architecture.md")
+for _ in range(40 * scale):
+    derived = [dict(RR_STORED, id=f"R-{n + 1:02}", status=rr.choice(["New", "Unresolved", "Resolved", "Accepted risk", "Rejected: because"]), **dict(pair for pair in RR_KEPT if rr.random() < 0.3)) for n in range(rr.randint(0, 4))]
+    given = {"unit": rr.choice([None, "orders"]), "findings": [dict(RR_STORED, id=f"R-{n + 1:02}", **dict(pair for pair in RR_KEPT if rr.random() < 0.1)) for n in range(rr.randint(0, 3))]}
+    if rr.random() < 0.75:
+        given["derived_findings"] = derived
+    rr_add("record", text=json.dumps(dict(RR_RECORD, **given), ensure_ascii=False), artifact=rr.choice(["design/architecture.md", "a.md"]))
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

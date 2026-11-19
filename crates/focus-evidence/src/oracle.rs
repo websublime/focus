@@ -23,7 +23,7 @@ use crate::source::walk::{self, Budgets, Names, Options, Stop};
 use crate::summary;
 
 /// The kinds of case this crate answers.
-pub const KINDS: [&str; 12] = [
+pub const KINDS: [&str; 13] = [
     "source_listing_parse",
     "source_listing",
     "source_changed",
@@ -36,6 +36,7 @@ pub const KINDS: [&str; 12] = [
     "review_text",
     "review_findings",
     "review_list",
+    "review_reads",
 ];
 
 /// Lay the case's project out and walk it.
@@ -387,6 +388,7 @@ pub fn run_case(case: &Value) -> Value {
         }
         "review_findings" => review_findings_case(case),
         "review_list" => review_list_case(case),
+        "review_reads" => review_reads_case(case),
         "review_record" => {
             let bytes = text("text").as_bytes();
             let completion = text("completion");
@@ -811,6 +813,59 @@ fn review_findings_case(case: &Value) -> Value {
             "is": findings::is_unreadable_findings_table_finding(text("id"), text("location")),
         }),
         "serialize" => json!(review_record::serialize(&written_record(&case["record"]))),
+        other => json!({ "error": format!("unknown op {other}") }),
+    }
+}
+
+/// What the derived list reads before it applies anything: the decisions
+/// of a gate row's field, whether a row speaks for a scope, the Unit of a
+/// path, a review's findings as written, a section of a document, and the
+/// findings a record holds.
+fn review_reads_case(case: &Value) -> Value {
+    use crate::review_dispositions as decisions;
+    let text = |key: &str| case[key].as_str().unwrap_or_default();
+    let unit = case["unit"].as_str();
+    match text("op") {
+        "field" => match decisions::parse_field(case["value"].as_str()) {
+            Ok(read) => Value::Array(read.into_iter().map(|read| read.entry).collect()),
+            Err(_) => json!({ "thrown": true }),
+        },
+        "gate" => json!(decisions::gate_applies_to_scope(
+            text("event"),
+            text("block"),
+            text("stage"),
+            unit
+        )),
+        "redo" => json!(decisions::redo_applies_to_scope(
+            text("event"),
+            text("block"),
+            text("stage"),
+            unit
+        )),
+        "path_unit" => json!(decisions::path_unit(text("path"), text("stage"))),
+        "text" => json!(crate::review_findings::findings_text(text("text"))),
+        "section" => json!(focus_markdown::section::extract_markdown_section(
+            text("text"),
+            text("heading")
+        )),
+        "record" => {
+            let Some(record) = review_record::parse(text("text").as_bytes()) else {
+                return Value::Null;
+            };
+            let shown = |findings: Vec<crate::review_findings::Finding>| -> Value {
+                Value::Array(findings.iter().map(stated_finding).collect())
+            };
+            match (
+                review_record::findings(&record, text("artifact")),
+                review_record::derived_findings(&record, text("artifact")),
+            ) {
+                (Ok(findings), Ok(derived)) => json!({
+                    "findings": shown(findings),
+                    "derived": derived.map(shown),
+                }),
+                _ => json!({ "thrown": true }),
+            }
+        }
         other => json!({ "error": format!("unknown op {other}") }),
     }
 }

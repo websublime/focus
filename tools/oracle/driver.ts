@@ -67,7 +67,7 @@ const logPrivate = await import(logShim);
 // The functions over the list of findings the engine keeps are private to the review brief, and asked of its copy.
 const BRIEF_PRIVATE = [
   "nextFindingId", "canonicalSeverity", "findingSeverityRank", "reviewerNote", "applyPriorReport", "applyReviewBody", "legacyRecordList",
-  "applyDisposition", "withoutRoundMarks",
+  "applyDisposition", "withoutRoundMarks", "parseDispositionField", "gateAppliesToScope", "redoAppliesToScope", "pathUnit", "reviewFindingsText",
 ];
 const briefShim = tool("aidlc-review-brief.focus-oracle.ts");
 writeFileSync(briefShim, `${readFileSync(tool("aidlc-review-brief.ts"), "utf-8")}\nexport { ${BRIEF_PRIVATE.join(", ")} };\n`);
@@ -984,6 +984,39 @@ async function answer(c: Record<string, any>): Promise<unknown> {
         return demoted === null ? null : { text: Buffer.from(demoted.bytes).toString("utf-8"), changed: demoted.changed };
       }
       return lib.validateReviewAppendix(bytes, c.expected);
+    }
+    case "review_reads": {
+      // What the derived list reads before it applies anything. A decision is shown as the field holds it; a throw
+      // is only that it threw (the sentence is the runtime's).
+      const unit = c.unit === null ? undefined : c.unit;
+      switch (c.op) {
+        case "field":
+          try {
+            return briefPrivate.parseDispositionField(c.value);
+          } catch {
+            return { thrown: true };
+          }
+        case "gate":
+          return briefPrivate.gateAppliesToScope({ event: c.event, block: c.block }, c.stage, unit);
+        case "redo":
+          return briefPrivate.redoAppliesToScope({ event: c.event, block: c.block }, c.stage, unit);
+        case "path_unit":
+          return briefPrivate.pathUnit(c.path, c.stage) ?? null;
+        case "text":
+          return briefPrivate.reviewFindingsText(c.text);
+        case "section":
+          return lib.extractMarkdownSection(c.text, c.heading);
+        case "record": {
+          const record = lib.parseReviewRecordBytes(c.text);
+          if (record === null) return null;
+          return {
+            findings: lib.reviewRecordFindings(record, c.artifact).map(listedFinding),
+            derived: lib.reviewRecordDerivedFindings(record, c.artifact)?.map(listedFinding) ?? null,
+          };
+        }
+        default:
+          throw new Error(`unknown review_reads op ${c.op}`);
+      }
     }
     case "review_list": {
       // The list of findings the engine keeps, one review after another. A throw is the answer.
