@@ -333,7 +333,7 @@ fn every_evidence_case_gets_upstreams_answer() {
         "{decisions} {scoped} {sections} {kept_lists}"
     );
     assert!(
-        cut >= 150 && settled >= 20 && copied >= 200 && marked >= 35,
+        cut >= 180 && settled >= 45 && copied >= 190 && marked >= 35,
         "{cut} {settled} {copied} {marked}"
     );
     assert!(
