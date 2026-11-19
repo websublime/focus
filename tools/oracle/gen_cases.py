@@ -9507,6 +9507,9 @@ def sh_finding(index=None, **given):
             finding[key] = sh.choice(values)
     if sh.random() < 0.1:
         finding["unit"] = "orders"
+    if sh.random() < 0.12:
+        # Decided by a person, and then reported fixed by a reviewer: the decision is still told.
+        finding.update(status="Resolved", resolvedByReviewer=True, earlierDecision=sh.choice(SH_EARLIER))
     finding.update(given)
     return finding
 
