@@ -23,7 +23,7 @@ use crate::source::walk::{self, Budgets, Names, Options, Stop};
 use crate::summary;
 
 /// The kinds of case this crate answers.
-pub const KINDS: [&str; 13] = [
+pub const KINDS: [&str; 14] = [
     "source_listing_parse",
     "source_listing",
     "source_changed",
@@ -37,6 +37,7 @@ pub const KINDS: [&str; 13] = [
     "review_findings",
     "review_list",
     "review_reads",
+    "review_shown",
 ];
 
 /// Lay the case's project out and walk it.
@@ -389,6 +390,7 @@ pub fn run_case(case: &Value) -> Value {
         "review_findings" => review_findings_case(case),
         "review_list" => review_list_case(case),
         "review_reads" => review_reads_case(case),
+        "review_shown" => review_shown_case(case),
         "review_record" => {
             let bytes = text("text").as_bytes();
             let completion = text("completion");
@@ -674,6 +676,121 @@ fn review_list_case(case: &Value) -> Value {
             json!(shown(&findings))
         }
         "unmark" => stated_finding(&list::without_round_marks(&list_finding(&case["finding"]))),
+        other => json!({ "error": format!("unknown op {other}") }),
+    }
+}
+
+/// The list as it is shown: a text as a cell, a text cut for a narrow cell
+/// and where a finding is, the list for a gate, for the readable copy or for
+/// the next reviewer, a review's readable copy, and a finding as a record
+/// stores it.
+fn review_shown_case(case: &Value) -> Value {
+    use crate::review_shown::{self as shown, Audience, Context};
+    let text = |key: &str| case[key].as_str().unwrap_or_default();
+    let listed = |context: &Value| -> Vec<crate::review_findings::Finding> {
+        context["findings"]
+            .as_array()
+            .map(|findings| findings.iter().map(list_finding).collect())
+            .unwrap_or_default()
+    };
+    match text("op") {
+        "cell" => json!(shown::markdown_cell(text("value"))),
+        "short" => json!({
+            "cell": shown::short_cell(text("value")),
+            "where": shown::where_text(text("value")),
+        }),
+        "context" => {
+            let given: Vec<&Value> = case["contexts"]
+                .as_array()
+                .map(|contexts| contexts.iter().collect())
+                .unwrap_or_default();
+            let findings: Vec<Vec<crate::review_findings::Finding>> =
+                given.iter().map(|context| listed(context)).collect();
+            let contexts: Vec<Context> = given
+                .iter()
+                .zip(&findings)
+                .map(|(context, findings)| Context {
+                    artifact: context["artifact"].as_str().unwrap_or_default(),
+                    findings,
+                    findings_text: context["findingsText"].as_str(),
+                })
+                .collect();
+            let audience = match text("audience") {
+                "copy" => Audience::Copy,
+                "reviewer" => Audience::Reviewer,
+                "gate" => Audience::Gate,
+                other => return json!({ "error": format!("unknown audience {other}") }),
+            };
+            json!(shown::findings_context(&contexts, audience))
+        }
+        "copy" => {
+            let context = &case["context"];
+            let findings = listed(context);
+            json!(shown::readable_review_copy(
+                text("body"),
+                &Context {
+                    artifact: context["artifact"].as_str().unwrap_or_default(),
+                    findings: &findings,
+                    findings_text: context["findingsText"].as_str(),
+                },
+            ))
+        }
+        "record" => {
+            let stored = review_record::derived_record_finding(&list_finding(&case["finding"]));
+            let mut out = serde_json::Map::new();
+            for (key, value) in [
+                ("id", Some(json!(stored.stored.id))),
+                ("severity", Some(json!(stored.stored.severity))),
+                ("location", Some(json!(stored.stored.location))),
+                ("finding", Some(json!(stored.stored.finding))),
+                (
+                    "required_action",
+                    Some(json!(stored.stored.required_action)),
+                ),
+                ("status", Some(json!(stored.stored.status))),
+                (
+                    "decided_at_severity",
+                    stored.decided_at_severity.map(|text| json!(text)),
+                ),
+                (
+                    "reviewer_note",
+                    stored.reviewer_note.map(|text| json!(text)),
+                ),
+                (
+                    "not_rechecked",
+                    stored.not_rechecked.map(|flag| json!(flag)),
+                ),
+                (
+                    "resolved_by_reviewer",
+                    stored.resolved_by_reviewer.map(|flag| json!(flag)),
+                ),
+                (
+                    "resolved_in_review",
+                    stored.resolved_in_review.map(|flag| json!(flag)),
+                ),
+                (
+                    "earlier_decision",
+                    stored.earlier_decision.map(|text| json!(text)),
+                ),
+                (
+                    "reopened_reason",
+                    stored.reopened_reason.map(|text| json!(text)),
+                ),
+                (
+                    "related_finding_id",
+                    stored.related_finding_id.map(|text| json!(text)),
+                ),
+                (
+                    "introduced_in_review",
+                    stored.introduced_in_review.map(|flag| json!(flag)),
+                ),
+            ] {
+                if let Some(value) = value {
+                    out.insert(key.to_owned(), value);
+                }
+            }
+            Value::Object(out)
+        }
         other => json!({ "error": format!("unknown op {other}") }),
     }
 }

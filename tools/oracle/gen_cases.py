@@ -9460,5 +9460,139 @@ for _ in range(110 * scale):
     asked = dv.choice(units)
     story.add(unit=asked, pending=dv.choice([None, None] + [dict(pending, allowMalformed=dv.random() < 0.5) for pending in DV_PENDING[1:]]))
 
+# The list as it is shown: to the person at a gate, in the readable copy beside a review's record, and to the next
+# reviewer. A text as a cell, a text cut for a narrow cell, the three renderings, the copy, and a finding as a
+# record stores it.
+sh = random.Random(seed * 7919 + 40)
+SH_ARTIFACT = "design/architecture.md"
+
+
+def sh_add(op, **given):
+    add("review_shown", op=op, **given)
+
+
+for value in ("", " ", "plain", " padded ", "a|b", "|", "||", "a\\|b", "a\\\\|b", "one\ntwo", "one\r\ntwo", "one\rtwo", "one\r\r\ntwo", "one\n\ntwo", "\nlead", "trail\n", "trail\r\n", "\r\n", "\n", "\r", "a | b\nc | d",
+              "\tTabbed\t", "\u00a0nbsp\u00a0", "\ufeffbom\ufeff", "\u2028line\u2028", "\u2029para\u2029", "\u0085next\u0085", "\u180emongolian\u180e", "\u3000wide\u3000", "\u200bzero\u200b", "\x0bvt\x0c", "a\u2028b", "| a |",
+              "`code | pipe`", "<b>bold</b>", "😀|😀", " \n ", "a \n b", "a\n|\nb"):
+    sh_add("cell", value=value)
+
+SH_FACE = "😀"
+SH_CUTS = ["", "a", "x" * 45, "x" * 47, "x" * 48, "x" * 49, "x" * 50, "x" * 120, "x" * 44 + " y" + "z" * 10, "x" * 40 + "     " + "y" * 10, " " * 49, " " * 48, "x" * 44 + SH_FACE + "y" * 10, "x" * 45 + SH_FACE + "y" * 10,
+           "x" * 43 + SH_FACE + "y" * 10, SH_FACE * 24, SH_FACE * 25, SH_FACE * 23 + "ab", SH_FACE * 23 + "abc", "x" + SH_FACE * 24, "é" * 48, "é" * 49, "x" * 44 + "\u00a0" + "y" * 10, "x" * 44 + "\n" + "y" * 10, "x" * 46 + "|" * 3,
+           "x" * 42 + "   " + SH_FACE + "y" * 10, "x" * 44 + "\ufeff" + "y" * 9]
+SH_PLACES = ["design/architecture.md > Part R-01", "design/architecture.md", "/abs/path/to/file.md > A > B", "///", "/", "", " > x", "a/b/ > x", "a > b/c", "no-slash > Section", "trailing/", "a//b > c", "a/b > c > d/e > f",
+             "a/b >c", "a/b> c", "a/b  >  c", "a/ > / > /", "dir/" + "n" * 60 + ".md > Section", "d/" + "n" * 44 + ".md", "d/" + "n" * 45 + ".md", "d/" + "n" * 46 + ".md", "deep/" * 30 + "f.md > S", "a/b > " + "s" * 60,
+             "construction/orders/design.md > " + "Section " * 6, "a\\b\\c.md > S", "a/b\n/c > d", " a/b ", "a/ b > c", "😀/😀/😀.md > 😀", "d/" + SH_FACE * 22 + "ab.md > x", "x > review findings table", "a/b/ > ", " > ", ">", "a > "]
+for value in SH_CUTS + SH_PLACES:
+    sh_add("short", value=value)
+
+SH_STATUSES = ["New", "New", "Unresolved", "Unresolved", "Resolved", "Resolved", "Accepted risk", "Rejected: not a defect", "Rejected: " + "the team decided this is how the product is meant to work, and said so twice",
+               "Rejected: a | b\nc", "Rejected: ", "rejected: lower", "Accepted Risk", "", "Resolved (reviewer)", "Rejected: " + "r" * 38, "Rejected: " + "r" * 39]
+SH_TEXTS = ["It leaks", "The cache is never emptied | it grows", "Two\nlines", "  padded  ", "", "A long finding " * 8, "Ends with a pipe |", "😀 smiles", "Windows\r\nline", "`code`", "> quoted"]
+SH_REASONS = ["It was not fixed", "", "It is | back\nagain", " ", "The person said it came back after the last release"]
+SH_NOTES = ["An earlier note", "", "Noted | here\nand there", " "]
+SH_EARLIER = ["Accepted risk", "Rejected: decided before", "", "Rejected: " + "long " * 12, "Rejected: a | b"]
+SH_RELATED = ["R-01", "R-02", "", "R-0|4", " "]
+SH_IDS = ["R-01", "R-02", "R-03", "R-10", "R-00", "legacy-1", "R-" + "9" * 50, "R|1", "R-😀"]
+
+
+def sh_finding(index=None, **given):
+    found = f"R-{index:02}" if index is not None and sh.random() < 0.9 else sh.choice(SH_IDS)
+    finding = {"artifact": SH_ARTIFACT, "id": found, "severity": sh.choice(["Minor", "Major", "Major", "Critical", "Blocker", "", "S" * 49, "S" * 48, "Ma|jor"] if sh.random() < 0.15 else ["Minor", "Major", "Critical"]),
+               "location": sh.choice(SH_PLACES) if sh.random() < 0.4 else f"{SH_ARTIFACT} > Part {found}", "finding": sh.choice(SH_TEXTS) if sh.random() < 0.5 else f"Finding {found} is wrong",
+               "requiredAction": sh.choice(SH_TEXTS) if sh.random() < 0.4 else f"Fix {found}", "status": sh.choice(SH_STATUSES), "fingerprint": f"sha256:said-by-{found}"}
+    for key, values in (("decidedAtSeverity", ["Minor", "Major", "Critical", "", "De|cided"]), ("reviewerNote", SH_NOTES), ("notRechecked", [True, True, False]), ("resolvedByReviewer", [True, True, False]),
+                        ("resolvedInReview", [True, False]), ("earlierDecision", SH_EARLIER), ("reopenedReason", SH_REASONS), ("relatedFindingId", SH_RELATED), ("introducedInReview", [True, False])):
+        if sh.random() < 0.3:
+            finding[key] = sh.choice(values)
+    if sh.random() < 0.1:
+        finding["unit"] = "orders"
+    finding.update(given)
+    return finding
+
+
+def sh_unreadable(**given):
+    return sh_finding(id="R-00", location=f"{SH_ARTIFACT} > review findings table", status=sh.choice(["New", "New", "Unresolved", "Resolved", "Accepted risk"]), **given)
+
+
+SH_WRITTEN = ["| ID | Severity |\n|---|---|\n| R-01 | Major |", "", "one line", "trailing spaces   \n\n  indented  \nlast", "a\r\nb\r\n", "\n\n", "> already quoted\n>", "tab\t\nnbsp\u00a0\nbom\ufeff", "x\n"]
+
+
+def sh_context(most=5, **given):
+    findings = [sh_finding(index + 1) for index in range(sh.choice([0, 0, 1, 1, 2, 3, most]))]
+    if sh.random() < 0.15:
+        findings.insert(sh.randint(0, len(findings)), sh_unreadable())
+    context = {"artifact": sh.choice([SH_ARTIFACT, SH_ARTIFACT, "construction/orders/code.md", "a`b.md", "two\nlines.md", ""]) if sh.random() < 0.3 else SH_ARTIFACT, "findings": findings}
+    if sh.random() < 0.25:
+        context["findingsText"] = sh.choice(SH_WRITTEN)
+    if sh.random() < 0.3:
+        context["verdict"] = sh.choice(["READY", "NOT-READY"])
+    context.update(given)
+    return context
+
+
+SH_AUDIENCES = ["gate", "copy", "reviewer"]
+# Nothing to show, one artifact with nothing found, and each mark alone, for each reader.
+for audience in SH_AUDIENCES:
+    sh_add("context", contexts=[], audience=audience)
+    sh_add("context", contexts=[{"artifact": SH_ARTIFACT, "findings": []}], audience=audience)
+    sh_add("context", contexts=[{"artifact": SH_ARTIFACT, "findings": [], "findingsText": "| ID |\n| R-01 |  "}], audience=audience)
+    sh_add("context", contexts=[{"artifact": SH_ARTIFACT, "findings": [], "findingsText": ""}], audience=audience)
+    sh_add("context", contexts=[{"artifact": "a.md", "findings": []}, {"artifact": "b.md", "findings": [rl_finding("R-01")]}, {"artifact": "c.md", "findings": []}], audience=audience)
+    for status in SH_STATUSES:
+        for marks in ({}, {"earlierDecision": "Accepted risk"}, {"earlierDecision": ""}, {"resolvedByReviewer": True}, {"resolvedByReviewer": False}, {"resolvedByReviewer": True, "earlierDecision": "Rejected: before"},
+                      {"resolvedByReviewer": False, "earlierDecision": "Rejected: before"}, {"resolvedByReviewer": True, "earlierDecision": ""}, {"decidedAtSeverity": "Minor"}, {"decidedAtSeverity": ""}, {"reopenedReason": "It is back"},
+                      {"reopenedReason": ""}, {"reviewerNote": "A note"}, {"reviewerNote": ""}, {"notRechecked": True}, {"notRechecked": False}, {"relatedFindingId": "R-07"}, {"relatedFindingId": ""}, {"introducedInReview": True},
+                      {"resolvedInReview": True}):
+            sh_add("context", contexts=[{"artifact": SH_ARTIFACT, "findings": [rl_finding("R-01", status, **marks)]}], audience=audience)
+    for place in SH_PLACES + SH_CUTS:
+        sh_add("context", contexts=[{"artifact": SH_ARTIFACT, "findings": [rl_finding("R-01", location=place)]}], audience=audience)
+    for cut in SH_CUTS:
+        sh_add("context", contexts=[{"artifact": SH_ARTIFACT, "findings": [rl_finding(cut, sh.choice(["New", "Accepted risk"]), cut)]}], audience=audience)
+        sh_add("context", contexts=[{"artifact": SH_ARTIFACT, "findings": [rl_finding("R-01", cut), rl_finding("R-02", "Rejected: " + cut)]}], audience=audience)
+    # The finding that stands in for a table that could not be read, and the ones that only look like it.
+    for found, place in (("R-00", f"{SH_ARTIFACT} > review findings table"), ("R-00", "review findings table"), ("R-00", " > review findings table"), ("R-00", f"{SH_ARTIFACT} > review findings table "),
+                         ("R-00", f"{SH_ARTIFACT} > Review findings table"), ("R-01", f"{SH_ARTIFACT} > review findings table"), ("R-00", f"{SH_ARTIFACT} >review findings table"), ("R-0", f"{SH_ARTIFACT} > review findings table")):
+        for status in ("New", "Unresolved", "Resolved", "Accepted risk"):
+            sh_add("context", contexts=[{"artifact": SH_ARTIFACT, "findings": [rl_finding(found, status, location=place, reopenedReason="Read it again"), rl_finding("R-02")], "findingsText": "| what | was | written |"}],
+                   audience=audience)
+    for written in SH_WRITTEN:
+        sh_add("context", contexts=[sh_context(findingsText=written)], audience=audience)
+for _ in range(scale * 60):
+    sh_add("context", contexts=[sh_context() for _ in range(sh.choice([1, 1, 1, 2, 3]))], audience=sh.choice(SH_AUDIENCES))
+
+# The readable copy: the review's text with its findings section replaced by the engine's list.
+SH_BODIES = ["**Verdict:** NOT-READY\n\n### Findings\n\n| ID | Severity |\n|---|---|\n| R-01 | Major |\n\n### Notes\n\nSomething else.\n", "**Verdict:** READY\n\n### Findings\n\nNone.\n", "**Verdict:** READY\n",
+             "### Findings\n\nrows\n", "### Findings", "", "\n", "\n\n### Findings\n", "text\n### Findings\nrows", "text\n\n\n### Findings\nrows", "text  \n### Findings\nrows", "### Findings  \nrows\n### Next\nkept",
+             "### Findings\t\nrows\n### Next\nkept", "### Findings\u00a0\nrows", "### Findings\ufeff\nrows", "### Findings\u0085\nrows", "### Findings\u180e\nrows", "### Findings x\nrows", "### findings\nrows", "#### Findings\nrows", " ### Findings\nrows", "###  Findings\nrows",
+             "## Findings\nrows", "### Findings\r\nrows\r\n### Next\r\nkept\r\n", "### Findings\rrows", "top\r\n\r\n### Findings\r\nrows", "top\n### Findings\nrows\n###Next\nnot a heading\n### Real\nkept",
+             "top\n### Findings\nrows\n#### Deeper\nnot kept\n### Real\nkept", "top\n### Findings\nrows\n### \nkept", "top\n### Findings\nrows\n###\nnot a heading", "top\n### Findings\nfirst\n### Findings\nsecond",
+             "### Before\ntext\n### Findings\nrows\n### After\ntext\n\n\n", "top\n### Findings\nrows\n### After   \n\n\n   \n", "top\n\n### Findings\nrows\n ### Indented\nnot kept", "   \n### Findings\nrows",
+             "top\n### Findings\n### Next\nkept", "top\n### Findings\nrows\n### Next", "top \t\n", "top\n\n", "a\n### Findings\u2028\nrows", "a\n### Findings \u3000\t\nrows\n### Next\nkept\u00a0\n", "### Findings\n### Findings\n### Findings",
+             "top\r\n### Findings \r\nrows\r\r\n### Next\r\n"]
+for body in SH_BODIES:
+    for context in ({"artifact": SH_ARTIFACT, "findings": []}, {"artifact": SH_ARTIFACT, "findings": [rl_finding("R-01"), rl_finding("R-02", "Resolved", resolvedByReviewer=True, reviewerNote="Fixed now")]},
+                    {"artifact": SH_ARTIFACT, "findings": [rl_finding("R-00", location=f"{SH_ARTIFACT} > review findings table")], "findingsText": "| as | written |  \n\n"}):
+        sh_add("copy", body=body, context=context)
+for artifact in ("two\nlines.md", "", "**Review artifact:** x", "a\n\n**Review artifact:** b"):
+    sh_add("copy", body=SH_BODIES[0], context={"artifact": artifact, "findings": [rl_finding("R-01")]})
+for _ in range(scale * 30):
+    body = sh.choice(SH_BODIES)
+    if sh.random() < 0.4:
+        parts = [sh.choice(["**Verdict:** NOT-READY", "top", "", "text  ", "### Before", "### Findings", "### Findings ", "### After", "rows", "| R-01 | Major |", "#### Deeper", "###", "### ", " ### Findings"])
+                 for _ in range(sh.randint(0, 9))]
+        body = sh.choice(["\n", "\n", "\r\n"]).join(parts) + sh.choice(["", "\n", "\n\n", "  "])
+    sh_add("copy", body=body, context=sh_context())
+
+# A finding as a record stores it: each mark alone, said either way, and drawn.
+sh_add("record", finding=rl_finding("R-01"))
+for key, values in (("decidedAtSeverity", ["Minor", ""]), ("reviewerNote", ["A note", ""]), ("notRechecked", [True, False]), ("resolvedByReviewer", [True, False]), ("resolvedInReview", [True, False]),
+                    ("earlierDecision", ["Accepted risk", ""]), ("reopenedReason", ["It is back", ""]), ("relatedFindingId", ["R-02", ""]), ("introducedInReview", [True, False])):
+    for value in values:
+        sh_add("record", finding=rl_finding("R-01", sh.choice(SH_STATUSES), **{key: value}))
+sh_add("record", finding=rl_finding("R-01", unit="orders", reviewRecord={"path": "design/reviews/review-01.json", "digest": "sha256:" + "ab" * 32}))
+for _ in range(scale * 12):
+    sh_add("record", finding=sh_finding(sh.randint(1, 12)))
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

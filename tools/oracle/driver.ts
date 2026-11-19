@@ -61,13 +61,14 @@ process.on("exit", () => rmSync(libShim, { force: true }));
 const libPrivate = await import(libShim);
 // The log tool's own reader of a review file's headings is asked the same way.
 const logShim = tool("aidlc-log.focus-oracle.ts");
-writeFileSync(logShim, `${readFileSync(tool("aidlc-log.ts"), "utf-8")}\nexport { demoteReviewHeadings };\n`);
+writeFileSync(logShim, `${readFileSync(tool("aidlc-log.ts"), "utf-8")}\nexport { demoteReviewHeadings, derivedRecordFinding };\n`);
 process.on("exit", () => rmSync(logShim, { force: true }));
 const logPrivate = await import(logShim);
 // The functions over the list of findings the engine keeps are private to the review brief, and asked of its copy.
 const BRIEF_PRIVATE = [
   "nextFindingId", "canonicalSeverity", "findingSeverityRank", "reviewerNote", "applyPriorReport", "applyReviewBody", "legacyRecordList",
   "applyDisposition", "withoutRoundMarks", "parseDispositionField", "gateAppliesToScope", "redoAppliesToScope", "pathUnit", "reviewFindingsText",
+  "markdownCell", "shortCell", "whereText",
 ];
 const briefShim = tool("aidlc-review-brief.focus-oracle.ts");
 writeFileSync(briefShim, `${readFileSync(tool("aidlc-review-brief.ts"), "utf-8")}\nexport { ${BRIEF_PRIVATE.join(", ")} };\n`);
@@ -1017,6 +1018,25 @@ async function answer(c: Record<string, any>): Promise<unknown> {
         }
         default:
           throw new Error(`unknown review_reads op ${c.op}`);
+      }
+    }
+    case "review_shown": {
+      // The list as it is shown. A text is given as it reaches a file or a pipe: a cut that leaves half of a
+      // surrogate pair alone is written as U+FFFD, which is what `toWellFormed` gives.
+      const context = (given: any) => ({ ...given, verdict: given.verdict ?? null, findings: given.findings.map((finding: any) => ({ ...finding })) });
+      switch (c.op) {
+        case "cell":
+          return briefPrivate.markdownCell(c.value).toWellFormed();
+        case "short":
+          return { cell: briefPrivate.shortCell(c.value).toWellFormed(), where: briefPrivate.whereText(c.value).toWellFormed() };
+        case "context":
+          return briefPrivate.renderFindingsContext(c.contexts.map(context), c.audience).toWellFormed();
+        case "copy":
+          return briefPrivate.renderReadableReviewCopy({ body: c.body } as any, context(c.context)).toWellFormed();
+        case "record":
+          return logPrivate.derivedRecordFinding({ ...c.finding });
+        default:
+          throw new Error(`unknown review_shown op ${c.op}`);
       }
     }
     case "review_list": {

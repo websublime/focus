@@ -46,6 +46,7 @@ fn every_evidence_case_gets_upstreams_answer() {
     let (mut reported, mut tabled, mut unreadable, mut written) = (0, 0, 0, 0);
     let (mut applied, mut malformed, mut escalated, mut decided) = (0, 0, 0, 0);
     let (mut decisions, mut scoped, mut sections, mut kept_lists) = (0, 0, 0, 0);
+    let (mut cut, mut settled, mut copied, mut marked) = (0, 0, 0, 0);
     let (mut inputs, mut set_aside) = (0, 0);
     let (mut same_asked, mut same_alias, mut same_raw, mut same_boundary) = (0, 0, 0, 0);
     let (mut boundaries, mut left_out, mut escaped, mut cut_short) = (0, 0, 0, 0);
@@ -133,6 +134,28 @@ fn every_evidence_case_gets_upstreams_answer() {
                 ranked += usize::from(out["heading"] == true);
                 sent_back += usize::from(out["valid"] == false && out.get("heading").is_none());
             }
+        } else if kind == "review_shown" {
+            // The list as it is shown: a text cut for a narrow cell, a
+            // decision the next reviewer is told stands though the finding
+            // was reported fixed, a copy that lists a finding, and a mark a
+            // record stores.
+            let op = case["op"].as_str().unwrap_or_default();
+            let shown = out.as_str().unwrap_or_default();
+            cut += usize::from(
+                out["cell"]
+                    .as_str()
+                    .is_some_and(|cell| cell.ends_with("..."))
+                    || (case["audience"] == "gate" && shown.contains("... |")),
+            );
+            settled += usize::from(
+                case["audience"] == "reviewer" && shown.contains(" (reported fixed) |"),
+            );
+            copied += usize::from(op == "copy" && shown.contains("\n| R-"));
+            marked += usize::from(
+                op == "record"
+                    && (out.get("not_rechecked").is_some()
+                        || out.get("resolved_by_reviewer").is_some()),
+            );
         } else if kind == "review_reads" {
             // What the derived list reads: a field that holds decisions, a
             // row that speaks for the scope asked, a section that is there,
@@ -308,6 +331,10 @@ fn every_evidence_case_gets_upstreams_answer() {
     assert!(
         decisions >= 90 && scoped >= 95 && sections >= 30 && kept_lists >= 180,
         "{decisions} {scoped} {sections} {kept_lists}"
+    );
+    assert!(
+        cut >= 150 && settled >= 20 && copied >= 200 && marked >= 35,
+        "{cut} {settled} {copied} {marked}"
     );
     assert!(
         differing.is_empty(),

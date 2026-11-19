@@ -20,6 +20,7 @@ pub mod review_dispositions;
 pub mod review_findings;
 pub mod review_list;
 pub mod review_record;
+pub mod review_shown;
 pub mod review_text;
 pub mod source;
 pub mod summary;
