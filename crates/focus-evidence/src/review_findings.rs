@@ -395,8 +395,11 @@ pub fn parse_findings_report(review: &str) -> Result<Option<Report>, String> {
     }))
 }
 
-/// `ReviewFinding`, as a review states it.
-#[derive(Debug, Clone, PartialEq, Eq)]
+/// `ReviewFinding`: a finding as a review states it, and, in the list the
+/// engine keeps ([`crate::review_list`]), what was decided and said about
+/// it since. A mark that is `None` was never set: upstream tells that from
+/// one set to `false`, and a record's bytes keep the difference.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct Finding {
     pub artifact: String,
     pub unit: Option<String>,
@@ -407,6 +410,15 @@ pub struct Finding {
     pub required_action: String,
     pub status: String,
     pub fingerprint: String,
+    pub decided_at_severity: Option<String>,
+    pub reviewer_note: Option<String>,
+    pub not_rechecked: Option<bool>,
+    pub resolved_by_reviewer: Option<bool>,
+    pub resolved_in_review: Option<bool>,
+    pub earlier_decision: Option<String>,
+    pub reopened_reason: Option<String>,
+    pub related_finding_id: Option<String>,
+    pub introduced_in_review: Option<bool>,
 }
 
 impl Finding {
@@ -431,7 +443,33 @@ impl Finding {
             required_action: required_action.to_owned(),
             status: status.to_owned(),
             fingerprint: fingerprint(id, location, finding, required_action),
+            ..Self::default()
         }
+    }
+
+    /// `findingIsOpen`: nobody decided it and no review found it fixed.
+    #[must_use]
+    pub fn is_open(&self) -> bool {
+        self.status == "New" || self.status == "Unresolved"
+    }
+
+    /// `findingIsDecided`: a person accepted its risk or rejected it.
+    #[must_use]
+    pub fn is_decided(&self) -> bool {
+        self.status == "Accepted risk" || self.status.starts_with(REJECTED_PREFIX)
+    }
+
+    /// `withFingerprint`: the finding with the fingerprint of what it now
+    /// says.
+    #[must_use]
+    pub fn with_fingerprint(mut self) -> Self {
+        self.fingerprint = fingerprint(
+            &self.id,
+            &self.location,
+            &self.finding,
+            &self.required_action,
+        );
+        self
     }
 }
 
