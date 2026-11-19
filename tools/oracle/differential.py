@@ -172,7 +172,10 @@ SHAPES = {
         "it is. The source a request of a stage that "
         "writes the workspace is bound to is the tree's own too (see source-baseline): the listing the request "
         "keeps is verified row by row against the tree's files, and a fingerprint that names it is compared as the "
-        "tree's",
+        "tree's, wherever a request or a completion says it. A completion's record holds the request's id, the "
+        "attempt's name and the moment it was written, so its digest is the tree's own as well: the digest a "
+        "completion's row carries is recomputed here from the file that row names, and one that matches is "
+        "compared as the record's digest; the record itself is compared line by line, under its settled path",
     "summary-authorization":
         "a summary's authorization id is a hash over the attempt, the stage, the workflow, the questions file's "
         "name, what was confirmed and the choice, and the name carries the workspace directory's (aidlc/ there, "
@@ -5821,6 +5824,15 @@ def log_checks():
     for label, finding in (("read", held), ("a_list_for_a_text", {**held, "finding": ["It names no user"]})):
         check_(f"review/verdict/earlier_record_{label}", created(two, **OUTPUTS), [asks_plain(2), writes(review_text(n=2, reviewer=plain)), says_plain(2, "READY")],
                edits=[reviewed_once(((1, "NOT-READY", ()),), findings=[finding]), graph_edit(review_class="adversarial")])
+    # The `## Review` section an older release left in the artifact, from before there were records: its findings
+    # start the stage's list. And the artifact under a second name (a link no recording carries: compared live).
+    # (The section names a reviewer whose name is the same in both engines, so the artifact's bytes are.)
+    older = OUTPUTS[statement] + "\n## Review\n\n" + review_text("NOT-READY", rows=ROW, reviewer="an-earlier-reviewer")
+    check_("review/verdict/older_section_starts_the_list", created(two, **{**OUTPUTS, statement: older}), [asks(1), writes(review_text("NOT-READY", rows=ROW.replace("R-01", "R-02"))), says(1, "NOT-READY")], **twice)
+    UNRECORDED.update({"log/review/verdict/artifact_under_two_names", "log/review/verdict/older_section_under_two_names"})
+    second_name = lambda tree: os.link(tree.path(statement), tree.path("elsewhere.md"))
+    check_("review/verdict/artifact_under_two_names", created(strict, **OUTPUTS), done, edits=[second_name])
+    check_("review/verdict/older_section_under_two_names", created(strict, **{**OUTPUTS, statement: older}), done, edits=[second_name])
     # A review that holds a tilde and a value it must state that holds one: text struck through is not read.
     tilde = "lead~reviewer"
     as_tilde = lambda *more: ["review", "--stage", "intent-capture", "--reviewer", tilde, "--iteration", "1", *more]
