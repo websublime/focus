@@ -5742,6 +5742,12 @@ def log_checks():
     check_("review/verdict/twice", created(strict, **OUTPUTS), [*done, says(1, "READY"), writes(review_text()), says(1, "READY")])
     check_("review/verdict/another_reviewer", created(strict, **OUTPUTS), [asks(1), writes(review_text()), ["review", "--stage", "intent-capture", "--reviewer", "aidlc-architect-agent", "--iteration", "1", "--verdict", "READY"],
                                                                             ["review", "--stage", "workspace-detection", "--reviewer", lead, "--iteration", "1", "--verdict", "READY"]])
+    # A request recorded over the raw bytes of an output with Windows line endings: its fingerprint reads in its
+    # current form, which is the one the verdict says the review covers.
+    windows = {**OUTPUTS, f"{cap}/intent-statement.md": "# Intent\r\n\r\nAdd login to the app.\r\n"}
+    RAW = "sha256:a598b4be1897c2ca940edca6f6c2d51441239b97382a1959bc07599c03f2f5fd"
+    check_("review/verdict/request_over_raw_line_endings", created(strict, CREATED_AUDIT + requested(1, 1, RAW, old_id), **windows), [says(1, "READY"), writes(review_text()), says(1, "READY")])
+    check_("review/verdict/raw_line_endings", created(strict, **windows), [asks(1), writes(review_text()), says(1, "READY")], {"TEST_RAW_LINE_ENDINGS": "1"})
     # Two passes wait (a ledger written by hand): each has its own request, and the way out of changed outputs is
     # the oldest's.
     waiting_twice = CREATED_AUDIT + requested(1, 1, "sha256:" + "a" * 64, old_id) + requested(2, 2, "sha256:" + "b" * 64, "**Request Id**: review:" + "2" * 32)
@@ -5764,7 +5770,8 @@ def log_checks():
                         ("no_fields", "It reads well.\n"), ("verdict_twice", review_text() + "\n**Verdict:** READY\n"), ("opens_with_the_heading", "## Review\n\n" + review_text()),
                         ("a_heading_of_its_own", review_text(head="## What I verified\n\nEverything.\n\n")), ("a_title", review_text(head="# Review of the intent\n\n")),
                         ("headings_after", review_text() + "\n## Notes\n\nNone.\n\n# More\n"), ("a_setext_heading", review_text(head="What I verified\n===============\n\n")),
-                        ("a_heading_right_after_the_table", review_text() + "## Notes\n\nNone.\n"), ("crlf", review_text().replace("\n", "\r\n")), ("a_byte_order_mark", "﻿" + review_text()), ("a_tilde", review_text() + "\nAbout ~5 minutes.\n")):
+                        ("a_heading_right_after_the_table", review_text() + "## Notes\n\nNone.\n"),
+                        ("a_heading_and_another_verdict", review_text("NOT-READY", rows=ROW, head="## What I verified\n\nEverything.\n\n")), ("crlf", review_text().replace("\n", "\r\n")), ("a_byte_order_mark", "﻿" + review_text()), ("a_tilde", review_text() + "\nAbout ~5 minutes.\n")):
         check_(f"review/verdict/says_{label}", created(strict, **OUTPUTS), [asks(1), writes(text), says(1, "READY")])
     # The outputs changed while the reviewer worked: refused under strict, with the way out that there is; the
     # verdict covers what the reviewer saw under a policy that is not strict.
