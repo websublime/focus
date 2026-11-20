@@ -3293,18 +3293,25 @@ Uma segunda volta de 11 mutantes confirmou os três buracos fechados e julgou o 
 
 **O que fica de fora.** O que uma stage corrida sozinha deve: aí o original pergunta ainda se o store do knowledge base está atual (`codekbStoreIsCurrent`), e só o orquestrador pergunta por uma stage corrida sozinha (fatia 8). `pipeline_evidence::owed` não aceita essa pergunta, em vez de responder sem o store. `completed`, a lista que o resume lê, vem com quem a lê.
 
-**O que a comparação encontrou.** Nada: os 57 checks novos deram iguais à primeira, e os 258 de `log link` continuam iguais depois de a leitura mudar de crate.
+**O que a comparação encontrou.** Nada: os 55 checks da primeira corrida deram iguais, e os 258 de `log link` continuam iguais depois de a leitura mudar de crate.
 
-**O que a mutação encontrou.** @@MUT@@
+**O que a mutação encontrou.** 35 mutantes sobre a admissão (a frase, o código, o invariante, os dois interruptores), sobre o que `owed` entrega a cada leitor, e sobre os dois leitores novos (`current_reuse`, `missing`), julgados pelo diferencial ao vivo: 32 morreram à primeira. Dois eram buracos:
+
+| O que o mutante trocava | O que o mata |
+| --- | --- |
+| A política entregue ao floor de quem lê o que foi mantido | `pipeline_repo_kept_before_a_rejection*`: uma rejeição depois de um repositório mantido, sob cada política |
+| Sem repositórios gravados, um link conta por haver recibos, sejam de quem forem | `pipeline_no_repo_recorded_chain_*`: uma cadeia de dois links com o primeiro gravado, e com os dois |
+
+O terceiro era código a mais: a lista do que foi mantido tirava repetidos, e só se lhe pergunta se tem um nome. Saiu a verificação, com uma nota no sítio.
 
 **Verificado.**
 
 | Verificação | Resultado |
 | --- | --- |
-| Diferencial, os handoffs em `state` | @@NEW@@ checks novos em `advance`, `finalize`, `complete-workflow`, `gate-start`, `revise` e `approve`: a cadeia de um e de dois links (gravada, a meio, fora de ordem, com o último de uma cadeia mais comprida, recomeçada), o scan reescrito ou com outros bytes sob cada política, uma rejeição desde então sob cada política, um recomeço, um recibo de uma corrida sozinha ou de outra stage, dois repositórios, um repositório mantido (e o que não conta como mantido), um trabalho sem repositórios. Todos iguais; `pipeline_owed` saiu de `DEVIATIONS` |
-| Diferencial, tudo | @@TOTAL@@ |
-| Mutação | @@MUTROW@@ |
-| `cargo test` | @@TESTS@@ |
+| Diferencial, os handoffs em `state` | 60 checks novos em `advance`, `finalize`, `complete-workflow`, `gate-start`, `revise` e `approve`: a cadeia de um e de dois links (gravada, a meio, fora de ordem, com o último de uma cadeia mais comprida, recomeçada), o scan reescrito ou com outros bytes sob cada política, uma rejeição desde então sob cada política, um recomeço, um recibo de uma corrida sozinha ou de outra stage, dois repositórios, um repositório mantido (e o que não conta como mantido), um trabalho sem repositórios. Todos iguais; `pipeline_owed` saiu de `DEVIATIONS` |
+| Diferencial, tudo | 4 142 checks: 3 907 iguais, 235 desvios declarados, nenhum diferente; a gravação (4 036 checks sobre 1 622 árvores) repete-se igual; o fuzz (`--fuzz 600`) dá 600 iguais |
+| Mutação | 35 mutantes: 32 mortos à primeira, 2 buracos fechados com cinco checks e repetidos até morrerem, 1 que era código a mais e saiu |
+| `cargo test` | 605 testes, os mesmos: o teste de `admission` que esperava a recusa pelo nome lê a recusa de guard |
 
 ### Fatia 4: a pergunta de recuperação, partida em três
 
