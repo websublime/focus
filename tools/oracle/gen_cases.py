@@ -7331,6 +7331,8 @@ FR_OTHER = "sha256:" + "9" * 64
 FR_LISTING = "\tsrc/a.ts\t100644\t" + "c" * 40 + "\n\tsrc/gone.ts\t100644\t" + "d" * 40 + "\n"
 FR_BASELINE = hashlib.sha256(FR_LISTING.encode("utf-8")).hexdigest()
 FR_UNITS = ["api", "web"]
+# Every project the receipts are asked of, for the attempt a guard reads from the same project (`guard_attempt`).
+FR_ASKED = []
 
 
 def fr_hex(width):
@@ -7447,6 +7449,11 @@ class FrStory:
             self.rows.append(se_row(1 - shard if tie else self.shard(), at if tie else self.tick(), "REVIEW_COMPLETED", **answer))
 
     def add(self, state, patch=None, cls=None, env=None, keep=False, posix=False):
+        case = self.laid(state, patch=patch, cls=cls, env=env, keep=keep, posix=posix)
+        add("review_receipts", **case)
+        FR_ASKED.append(case)
+
+    def laid(self, state, patch=None, cls=None, env=None, keep=False, posix=False):
         shards = {}
         for shard, text in self.rows:
             shards.setdefault(SE_SHARDS[shard], []).append(text)
@@ -7455,7 +7462,7 @@ class FrStory:
                 "patch": {"reviewer": RA_REVIEWER, **(patch or {})}, "class": cls, "env": env or {}, "keep": keep}
         if posix:
             case["posix"] = True
-        add("review_receipts", **case)
+        return case
 
 
 def fr_patch():
@@ -9607,6 +9614,168 @@ for lead in (117, 118, 119, 120):
 for lead in (197, 198, 199, 200):
     add("supplied_origin", origin={"kind": "host", "reason": "r" * lead + CUT_FACE + "s", "source": "template"})
     add("supplied_origin", origin={"kind": "host", "reason": "  " + "r" * lead + CUT_FACE * 2 + "  ", "source": "record"})
+
+# --- guard_attempt: the attempt of a stage as a guard sees it --------------------------------------------------
+# Asked of the projects the review receipts were asked of, each laid out as it was there: every state a receipt can
+# be in is one an attempt is read from. What varies is what is asked (the stage's attempt or a unit's, the budget,
+# the summary's coverage, a stage run by itself) and what the caller already had in hand (the receipts, the window,
+# the count, what can be done with the request that waits, whether owed outputs are checked). The cases stand at
+# the end, so the cases of each kind before them keep their ids.
+ga = random.Random(seed * 7919 + 41)
+GA_ASKED = {"unit": None, "weighed": None, "window": None, "summary": None, "budget": None, "status": "ask", "counted": None, "require": None, "single": False}
+
+
+def ga_add(case, patch=None, **asked):
+    unknown = set(asked) - set(GA_ASKED)
+    if unknown:
+        raise ValueError(f"guard_attempt: {sorted(unknown)}")
+    laid = {**case, "patch": {**case["patch"], **(patch or {})}}
+    add("guard_attempt", **laid, **{**GA_ASKED, **asked})
+
+
+def ga_status():
+    return {"iteration": ga.choice([1, 1, 2, 3]), "requestCurrent": ga.random() < 0.5, "retryable": ga.random() < 0.5, "verdictRecordable": ga.random() < 0.5,
+            "replaceable": ga.random() < 0.4}
+
+
+def ga_drawn(case, unit):
+    asked = {"unit": unit, "budget": ga.choice([None, None, 0, 1, 2, 3]), "summary": ga.choice([None, None, None, "current", "stale", "missing"]), "single": ga.random() < 0.15}
+    patch = None
+    drawn = ga.random()
+    if drawn < 0.08:
+        asked["weighed"] = ga.choice(["none", "advisory", "adversarial"])
+    elif drawn < 0.16:
+        asked["status"] = ga.choice([None, ga_status(), ga_status()])
+    elif drawn < 0.24:
+        asked["counted"] = {"reviewer": ga.choice([RA_REVIEWER, RA_REVIEWER, "another-reviewer"]), "unit": ga.choice([None, unit, "api"]),
+                            "workflow": ga.choice([None, None, f"single-stage:{case['slug']}"])}
+    elif drawn < 0.30:
+        asked["window"] = case["state"].replace("- **Scope**: feature\n", "- **Scope**: feature\n" + ga.choice([UNIT_MAJOR, CHECKPOINTS, ""]))
+    elif drawn < 0.38:
+        asked["require"] = ga.random() < 0.5
+    elif drawn < 0.42:
+        patch = {"reviewer": ga.choice(["", None])}
+    ga_add(case, patch=patch, **asked)
+
+
+for case in FR_ASKED:
+    # (A unit's request in a stage that writes code binds the unit's own source, which Focus does not read yet:
+    # there the attempt asked is the stage's.)
+    writes = case["patch"].get("workspace_requires") is True
+    if case["units"] and not writes:
+        ga_drawn(case, ga.choice(case["units"]))
+        if ga.random() < 0.35:
+            ga_drawn(case, ga.choice([None, "ghost"]))
+    else:
+        ga_drawn(case, ga.choice([None, None, None, None, "api"]) if not case["units"] else None)
+
+
+
+# What the drawn asks leave untold, each written out.
+def ga_case(slug, build, asks, policy=STRICT, walk="", per_unit=False, workspace=False, dag=True, patch=None, env=None):
+    """A story as `fr_case` lays one, asked as each of `asks` says."""
+    story = FrStory(slug, per_unit=per_unit, two=False)
+    if not dag:
+        del story.files[f"{RV_RECORD}/inception/units-generation/unit-of-work-dependency.md"]
+    if workspace:
+        story.source = {"src/a.ts": "a\n", "src/b.ts": "b\n"}
+    story.row("WORKFLOW_STARTED", shard=0, at=1, Scope="feature")
+    story.row("STAGE_STARTED", shard=0, at=2, Stage=slug)
+    build(story)
+    units = "x] units-generation — EXECUTE" if per_unit else " ] units-generation — SKIP" if workspace else None
+    case = story.laid(fr_state(policy, units=units, more=walk), patch={**(patch or {}), **({"workspace_requires": True} if workspace else {})}, env=env)
+    for asked in asks:
+        ga_add(case, **asked)
+
+
+GA_ANOTHER = {"reviewer": "another-reviewer", "unit": None, "workflow": None}
+GA_BUDGETS = [{}, {"budget": 2}, {"budget": 0}]
+# The class the receipts are weighed under is the stage's as the state caps it: a `NOT-READY` at the first of two
+# passes ends an advisory review and waits for a repair in an adversarial one.
+for override in ("advisory", "none", "adversarial", "Advisory"):
+    for patch in ({}, {"review_class": "advisory"}, {"reviewer_max_iterations": 3}):
+        for verdict in ("NOT-READY", "READY"):
+            ga_case(RQ, lambda story: story.review(1, verdict, era="record", shard=0, at=3, answer=(0, 4)), GA_BUDGETS[:2], walk=f"- **Review Override**: {override}\n", patch=patch)
+# A request dispatched again: whether that counts as its one retry rests on the request being one a verdict can be
+# held to, which in a stage that writes code needs the source it was asked of.
+for workspace in (False, True):
+    for source in (None, "{SRC}"):
+        for retried in (True, False):
+            def asked_again(story):
+                request = {"Stage": story.slug, "Reviewer": RA_REVIEWER, "Iteration": "1", "Artifact_Fingerprint": "{ART}", "Request_Id": "review:" + "ab" * 16, "Source_Fingerprint": source}
+                story.row("REVIEW_REQUESTED", shard=0, at=3, **request)
+                if retried:
+                    story.row("REVIEW_REQUESTED", shard=0, at=4, **request, Retry="pending-request")
+
+            ga_case(CG if workspace else RQ, asked_again, GA_BUDGETS[:2], workspace=workspace)
+# Whether owed outputs are checked, said by the caller: a request that waits while an output the stage owes is gone.
+for require in (None, True, False):
+    for env in (None, {"AIDLC_SKIP_ARTIFACT_GUARD": "1"}):
+        def owed_gone(story):
+            story.review(1, None, era="record", shard=0, at=3)
+            story.after["files"][story.path("requirements-analysis-questions")] = None
+
+        ga_case(RQ, owed_gone, [{"require": require}, {"require": require, "status": None}], env=env)
+# The recovery spent, told by the receipts alone: a verdict that answered a recovery request, made stale again, with
+# a count the caller took for another reviewer.
+for per_unit in (False, True):
+    unit = "api" if per_unit else None
+
+    def recovered_and_stale(story):
+        story.review(1, "READY", unit=unit, era="record", shard=0, at=3, answer=(0, 4))
+        story.write(unit=unit, shard=0, at=5)
+        story.review(2, "READY", unit=unit, era="record", recovery=True, shard=0, at=6, answer=(0, 7))
+        story.write(unit=unit, shard=0, at=8)
+
+    def recovered(story):
+        story.review(1, "READY", unit=unit, era="record", shard=0, at=3, answer=(0, 4))
+        story.write(unit=unit, shard=0, at=5)
+        story.review(2, "READY", unit=unit, era="record", recovery=True, shard=0, at=6, answer=(0, 7))
+
+    for build in (recovered_and_stale, recovered):
+        ga_case(FD if per_unit else RQ, build, [{"unit": unit}, {"unit": unit, "counted": GA_ANOTHER}, {"unit": unit, "counted": {**GA_ANOTHER, "reviewer": RA_REVIEWER, "unit": unit}},
+                                                {"unit": None if per_unit else "api", "counted": GA_ANOTHER}], per_unit=per_unit)
+# The recovery spent, told by a unit's fallen verdict alone. The source's own word for it goes back to "not spent"
+# when the unit the newest reviewed source belongs to starts its bolt again; the verdict of another unit that
+# answered a recovery request and fell keeps saying it.
+for fallen in ("web", None):
+    def fell_before_a_bolt(story):
+        story.review(1, "READY", unit="api", era="record", source="{SRC}", shard=0, at=3, answer=(0, 4))
+        story.review(1, "READY", unit=fallen, era="record", shard=0, at=5, answer=(0, 6))
+        story.review(2, "READY", unit=fallen, era="record", recovery=True, shard=0, at=7, answer=(0, 8))
+        story.edit(fallen or "web")
+        story.row("BOLT_STARTED", shard=0, at=9, Bolt_names="api")
+
+    # (The stage itself has receipts in a stage that runs for each unit only while no dependency document says
+    # which units there are.)
+    for dag in (True, False):
+        ga_case(FD, fell_before_a_bolt, [{"unit": fallen, "counted": GA_ANOTHER}, {"unit": fallen}, {"unit": "api", "counted": GA_ANOTHER}], per_unit=True, dag=dag)
+# The units a stage's review is of when no dependency document names them: the ones whose bolt is merged.
+for rows in ([("BOLT_STARTED", {"Bolt_names": "api"}), ("BOLT_COMPLETED", {"Bolt_names": "api"})], [("BOLT_STARTED", {"Bolt_names": "api"})], []):
+    for art in (None, "{ART:api}"):
+        def merged_stand_in(story):
+            for at, (event, fields) in enumerate(rows):
+                story.row(event, shard=0, at=3 + at, **fields)
+            story.review(1, None, era="record", art=art, shard=0, at=6)
+
+        ga_case(FD, merged_stand_in, [{}, {"unit": "api"}, {"require": False}], per_unit=True, dag=False)
+# A repair the reviewer asked for is not a request to make again, whatever the caller says of the pass.
+GA_TWO_PASSES = {"review_class": "adversarial", "reviewer_max_iterations": 2}
+for replaceable in (True, False):
+    status = {"iteration": 1, "requestCurrent": False, "retryable": True, "verdictRecordable": True, "replaceable": replaceable}
+    ga_case(RQ, lambda story: story.review(1, "NOT-READY", era="record", shard=0, at=3, answer=(0, 4)), [{"status": status}, {"status": {**status, "iteration": 2}}, {}], patch=GA_TWO_PASSES)
+    # (And a request that waits is made again at its pass when it can never finish, and waits when it can.)
+    ga_case(RQ, lambda story: story.review(1, None, era="record", shard=0, at=3), [{"status": status}, {"status": {**status, "iteration": 2}}, {"status": None}, {}])
+# A unit that starts again a step it had finished has the stage's passes again: the budget counts the requests since,
+# and the next request is still numbered after every one of the attempt.
+for walk in (UNIT_MAJOR, CHECKPOINTS, ""):
+    for verdict in ("READY", None):
+        def started_again(story):
+            story.review(1, verdict, unit="api", era="record", shard=0, at=3, answer=(0, 4))
+            story.row("UNIT_COMPLETED", shard=0, at=5, Stage=FD, Unit="api")
+            story.row("UNIT_STARTED", shard=0, at=6, Stage=FD, Unit="api")
+
+        ga_case(FD, started_again, [{"unit": "api", "budget": 2}, {"unit": "web", "budget": 2}, {"budget": 2}], walk=walk, per_unit=True)
 
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")

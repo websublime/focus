@@ -574,7 +574,7 @@ pub fn window(wf: &Workflow, state: &str, stage: &Stage, rows: Vec<ShardEvent>) 
 
 /// `REVIEW_ACCOUNTING_EVENTS`: the rows the count of an attempt's reviews is
 /// read against.
-const ACCOUNTING_EVENTS: [&str; 10] = [
+pub(crate) const ACCOUNTING_EVENTS: [&str; 10] = [
     "WORKFLOW_STARTED",
     "STAGE_STARTED",
     "STAGE_COMPLETED",

@@ -1261,8 +1261,10 @@ async function answer(c: Record<string, any>): Promise<unknown> {
         rmSync(root, { recursive: true, force: true });
       }
     }
-    case "review_receipts": {
-      // The reviews of a stage that still stand, in a project of the case's own. The ledger and the review records
+    case "review_receipts":
+    case "guard_attempt": {
+      // The reviews of a stage that still stand, in a project of the case's own; and, in the same project, the
+      // attempt as a guard sees it (`guard_attempt`). The ledger and the review records
       // name what each engine computes for itself: `{ART}` and `{ART:<unit>}` (the artifacts' fingerprint as laid
       // out), `{SRC}` (the source's) and `{DIGEST:<record>}` (a review record's, once written). What the case
       // changes `after` is done once those are taken.
@@ -1274,10 +1276,11 @@ async function answer(c: Record<string, any>): Promise<unknown> {
       const compiledStage = (Array.isArray(compiled) ? compiled : compiled.stages).find((node: { slug: string }) => node.slug === c.slug);
       if (compiledStage === undefined) throw new Error(`${c.id}: no stage ${c.slug}`);
       const stage = Object.fromEntries(Object.entries({ ...compiledStage, ...(c.patch ?? {}) }).filter(([, value]) => value !== null));
-      const names = ["AIDLC_STAGE_GRAPH", "AIDLC_SCOPE_GRID", ...Object.keys(c.env ?? {})];
+      const names = ["AIDLC_STAGE_GRAPH", "AIDLC_SCOPE_GRID", ...(c.kind === "guard_attempt" ? ["AIDLC_HARNESS_DIR"] : []), ...Object.keys(c.env ?? {})];
       const before = names.map((name) => process.env[name]);
       process.env.AIDLC_STAGE_GRAPH = join(data, "stage-graph.json");
       process.env.AIDLC_SCOPE_GRID = join(data, "scope-grid.json");
+      if (c.kind === "guard_attempt") process.env.AIDLC_HARNESS_DIR = ".claude";
       for (const [name, value] of Object.entries((c.env ?? {}) as Record<string, string>)) process.env[name] = value;
       try {
         const none = `sha256:${"0".repeat(64)}`;
@@ -1334,6 +1337,39 @@ async function answer(c: Record<string, any>): Promise<unknown> {
         // An answer names what each engine computed as the case does.
         const named = (value: string | null) =>
           value === null ? null : filled.reduce((out, [name, computed]) => (computed === none || computed === "unbindable" ? out : out.split(computed).join(name)), value);
+        if (c.kind === "guard_attempt") {
+          // The attempt, with what the case says the caller already had in hand: the window (taken under a state
+          // of the case's), the receipts (weighed under a class of the case's), the count (of a unit or a workflow
+          // of the case's), what can be done with the request that waits, and whether owed outputs are checked.
+          // The project is said `/P` in a command, and a command is put in its native form as in `review_request`.
+          const view = c.window === null ? undefined : lib.reviewAttemptWindow(root, c.window, stage);
+          const counted = c.counted === null
+            ? undefined
+            : lib.reviewAttemptAccounting(root, view ?? lib.reviewAttemptWindow(root, c.state, stage), c.state, stage, c.counted.reviewer,
+                c.counted.unit ?? undefined, c.counted.workflow ?? undefined);
+          const snapshot = lib.guardAttemptState(root, c.state, stage, {
+            ...(c.unit === null ? {} : { unit: c.unit }),
+            ...(c.weighed === null ? {} : { receipts: lib.freshReviewReceipts(root, c.state, stage, { reviewClass: c.weighed }) }),
+            ...(view === undefined ? {} : { attemptView: view }),
+            ...(c.summary === null ? {} : { summaryCoverage: c.summary }),
+            ...(c.budget === null ? {} : { reviewBudget: c.budget }),
+            ...(c.status === "ask" ? {} : { pendingStatus: c.status }),
+            ...(counted === undefined ? {} : { accounting: counted }),
+            ...(c.require === null ? {} : { requireRequiredArtifacts: c.require }),
+            ...(c.single ? { single: true } : {}),
+          });
+          const said = (text: string) =>
+            (named(text.split(root).join("/P")) as string).replace(/bun \.[A-Za-z0-9_.-]+\/tools\/aidlc-([a-z-]+)\.ts/g, "aidlc engine $1");
+          // (The floor names its shard by the path it was read from: the file's name is the part both engines can say.)
+          const floor = snapshot.attempt.floor as string;
+          const at = floor.indexOf(root);
+          if (at >= 0) snapshot.attempt.floor = floor.slice(0, at) + floor.slice(at).slice(floor.slice(at).lastIndexOf("/") + 1);
+          return {
+            attempt: JSON.parse(said(JSON.stringify(snapshot.attempt))),
+            receipts: snapshot.receipts !== null,
+            resources: snapshot.resources.map((line: string) => named(line)),
+          };
+        }
         const got = lib.freshReviewReceipts(root, c.state, stage, c.class === null ? {} : { reviewClass: c.class });
         const progress = (at: { nextIteration: number; recoverySpent: boolean } | null) => (at === null ? null : [at.nextIteration, at.recoverySpent]);
         const pending = (at: any) => (at === null ? null : [at.state, at.iteration, at.recovery, at.didNotFinish === true, at.verificationFailed === true]);

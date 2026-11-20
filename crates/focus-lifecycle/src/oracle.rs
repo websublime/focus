@@ -16,7 +16,7 @@ use crate::review_attempt;
 use crate::workflow::Workflow;
 
 /// The case kinds this crate answers.
-pub const KINDS: [&str; 11] = [
+pub const KINDS: [&str; 12] = [
     "review_window",
     "review_accounting",
     "review_snapshot",
@@ -28,6 +28,7 @@ pub const KINDS: [&str; 11] = [
     "recovery_guidance",
     "review_request",
     "review_derived",
+    "guard_attempt",
 ];
 
 /// The ledger a case gives as its shards, read as a project's would be.
@@ -86,7 +87,7 @@ pub fn run_case(wf: &Workflow, case: &Value) -> Value {
         "review_snapshot" => review_snapshot_case(wf, case),
         "summary_evidence" => summary_evidence_case(wf, case),
         "source_snapshot" => source_snapshot_case(wf, case),
-        "review_receipts" => review_receipts_case(wf, case),
+        "review_receipts" | "guard_attempt" => review_receipts_case(wf, case),
         "review_derived" => review_derived_case(wf, case),
         "guard_refusal" => guard_refusal_case(wf, case),
         "review_request" => review_request_case(wf, case),
@@ -1275,6 +1276,129 @@ fn review_receipts_case(wf: &Workflow, case: &Value) -> Value {
                     }
                 })
         };
+        let skip_artifact_guard =
+            (case["env"][focus_workspace::env::full_name("SKIP_ARTIFACT_GUARD").as_str()] == "1")
+                .then_some(true);
+        if case["kind"] == "guard_attempt" {
+            // The attempt as a guard sees it, with what the case says the
+            // caller already had in hand: the window (taken under a state
+            // of the case's), the receipts (weighed under a class of the
+            // case's), the count (of a reviewer, a unit and a workflow of
+            // the case's), what can be done with the request that waits,
+            // and whether owed outputs are checked. The project is said
+            // `/P` in a command.
+            use focus_guards::guard_operation::RenderShell;
+
+            use crate::guard_attempt::{self, Options as Asked};
+            use crate::guard_refusal::Coverage;
+            use crate::review_attempt::Reviewed;
+            use crate::review_pending::Status;
+
+            let view = case["window"]
+                .as_str()
+                .map(|under| review_attempt::window(&scratch, under, &stage, scratch.events()));
+            let records = scratch.record_dir();
+            let counted = match case["counted"].as_object() {
+                None => None,
+                Some(of) => {
+                    let taken;
+                    let over = match &view {
+                        Some(view) => view,
+                        None => {
+                            taken =
+                                review_attempt::window(&scratch, state, &stage, scratch.events());
+                            &taken
+                        }
+                    };
+                    Some(review_attempt::accounting(
+                        over,
+                        state,
+                        &Reviewed {
+                            slug: &stage.slug,
+                            per_unit: crate::stage::has_unit_marker(&stage),
+                            workspace_requires: crate::stage::workspace_requires(&stage),
+                            reviewer: of["reviewer"].as_str().unwrap_or_default(),
+                            unit: of["unit"].as_str(),
+                            workflow: of["workflow"].as_str(),
+                        },
+                        &scratch.install.graph,
+                        &|named| focus_evidence::review_record::read(records.as_deref(), named),
+                    )?)
+                }
+            };
+            let weighed = match case["weighed"].as_str() {
+                None => None,
+                Some(class) => Some(
+                    review_receipts::fresh(
+                        &scratch,
+                        state,
+                        &stage,
+                        Options {
+                            review_class: Some(class),
+                            skip_source_freshness: Some(skip_source_freshness),
+                            skip_artifact_guard,
+                            ..Options::default()
+                        },
+                    )
+                    .map_err(|refusal| refusal.to_string())?,
+                ),
+            };
+            let given = &case["status"];
+            let snapshot = guard_attempt::guard_attempt_state(
+                &scratch,
+                "/P",
+                state,
+                &stage,
+                Asked {
+                    unit: case["unit"].as_str(),
+                    receipts: weighed,
+                    window: view.as_ref(),
+                    summary_coverage: match case["summary"].as_str() {
+                        Some("current") => Some(Coverage::Current),
+                        Some("stale") => Some(Coverage::Stale),
+                        Some("missing") => Some(Coverage::Missing),
+                        _ => None,
+                    },
+                    review_budget: case["budget"].as_f64(),
+                    pending_status: match given {
+                        Value::String(_) => None,
+                        Value::Null => Some(None),
+                        status => Some(Some(Status {
+                            iteration: status["iteration"].as_f64().unwrap_or_default(),
+                            request_current: status["requestCurrent"] == true,
+                            retryable: status["retryable"] == true,
+                            verdict_recordable: status["verdictRecordable"] == true,
+                            replaceable: status["replaceable"] == true,
+                        })),
+                    },
+                    accounting: counted.as_ref(),
+                    require_required_artifacts: case["require"].as_bool(),
+                    single: case["single"] == true,
+                    shell: Some(RenderShell::Posix),
+                    skip_source_freshness: Some(skip_source_freshness),
+                    skip_artifact_guard,
+                },
+            )
+            .map_err(|refusal| refusal.to_string())?;
+            // (The floor names its shard by the path it was read from:
+            // the file's name is the part both engines can say.)
+            let mut said = snapshot.attempt.clone();
+            let laid = root.to_string_lossy();
+            said.floor = said.floor.map(|floor| match floor.find(laid.as_ref()) {
+                None => floor,
+                Some(start) => {
+                    let path = &floor[start..];
+                    let name = path.rfind(['/', '\\']).map_or(0, |cut| cut + 1);
+                    format!("{}{}", &floor[..start], &path[name..])
+                }
+            });
+            let attempt = guard_attempt::attempt_value(&said).to_string();
+            return Ok(json!({
+                "attempt": serde_json::from_str::<Value>(&named(&attempt)).map_err(|error| error.to_string())?,
+                "receipts": snapshot.receipts.is_some(),
+                "resources": snapshot.resources.iter().map(|line| named(line)).collect::<Vec<_>>(),
+            }));
+        }
         let got = review_receipts::fresh(
             &scratch,
             state,
@@ -1282,10 +1406,7 @@ fn review_receipts_case(wf: &Workflow, case: &Value) -> Value {
             Options {
                 review_class: case["class"].as_str(),
                 skip_source_freshness: Some(skip_source_freshness),
-                skip_artifact_guard: (case["env"]
-                    [focus_workspace::env::full_name("SKIP_ARTIFACT_GUARD").as_str()]
-                    == "1")
-                    .then_some(true),
+                skip_artifact_guard,
                 ..Options::default()
             },
         )
@@ -1468,6 +1589,7 @@ fn guard_refusal_case(wf: &Workflow, case: &Value) -> Value {
         _ => Coverage::Missing,
     };
     let attempt = Attempt {
+        floor: given["floor"].as_str().map(str::to_owned),
         review_budget: given["reviewBudget"]["used"]
             .as_f64()
             .zip(given["reviewBudget"]["limit"].as_f64()),

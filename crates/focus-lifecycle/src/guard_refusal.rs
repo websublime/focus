@@ -108,6 +108,10 @@ pub struct NextReview {
 /// `GuardAttemptState`: what the current attempt looks like to a guard.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Attempt {
+    /// The row the attempt starts at, as text; `None` where the attempt is
+    /// not read off a ledger. The evaluator does not read it: the series
+    /// of a refusal is signed with it.
+    pub floor: Option<String>,
     /// The passes used and the passes the stage allows.
     pub review_budget: Option<(f64, f64)>,
     pub recovery: Recovery,
@@ -286,7 +290,7 @@ impl Spelling<'_> {
 
 /// The shell a command is quoted for when the caller names none: this
 /// platform's.
-fn platform_shell() -> RenderShell {
+pub(crate) fn platform_shell() -> RenderShell {
     if cfg!(windows) {
         RenderShell::PowerShell
     } else {
@@ -973,6 +977,7 @@ pub fn recovery_guidance(
     shell: Option<RenderShell>,
 ) -> Result<String, String> {
     let attempt = Attempt {
+        floor: None,
         review_budget: None,
         recovery: Recovery::Spent,
         pending_review: None,
