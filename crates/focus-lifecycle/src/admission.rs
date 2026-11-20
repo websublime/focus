@@ -536,11 +536,44 @@ pub fn verify_pipeline_link(wf: &Workflow, stage: &Stage) -> Result<()> {
     {
         return Ok(());
     }
-    bail!(
-        "\"{}\" is a pipeline stage and owes the handoffs recorded with `focus engine log link` for the current run: Focus does not read those records yet. Set {}=1 only to recover a legitimately-run in-flight pipeline.",
+    let owing = crate::pipeline_evidence::owed(wf, stage)?;
+    if owing.missing.is_empty() {
+        return Ok(());
+    }
+    let missing: Vec<String> = owing
+        .missing
+        .iter()
+        .map(|owed| match owed.repo.as_deref() {
+            Some(repo) if !repo.is_empty() => format!("{repo}:{}", owed.link),
+            _ => owed.link.clone(),
+        })
+        .collect();
+    let message = format!(
+        "Cannot complete \"{}\" because these pipeline handoffs have not been recorded for the current run: {}. Run `focus engine log` link after each agent returns{}, or set {}=1 only to recover a legitimately-run in-flight pipeline.",
         stage.slug,
+        missing.join(", "),
+        if owing.repos.is_empty() {
+            ""
+        } else {
+            " with --repo <repo>"
+        },
         env::full_name("DISABLE_ENSEMBLE_EVIDENCE")
-    )
+    );
+    // The state as the record holds it now: the guard reads it again.
+    let state = wf.read_state()?;
+    Err(crate::guard_series::guard_refused(
+        wf,
+        &state,
+        stage,
+        crate::guard_series::Refused {
+            code: "PIPELINE_EVIDENCE_MISSING",
+            blocked_action: "complete",
+            invariant: "Every required pipeline handoff is recorded in the current attempt.",
+            user_message: &message,
+            unit: None,
+        },
+        crate::guard_attempt::Options::default(),
+    ))
 }
 
 /// What stands in for Construction's checkpoints, units and swarms (M4).

@@ -22,97 +22,21 @@
 //! out which links the stage still owes and which repositories a row that
 //! kept the stage's work answers for (`currentPipelineReuseEvidence`, and
 //! for a stage run by itself whether the knowledge base's store is still
-//! current). A link reads the receipts and nothing else of it: the rest is
-//! what closes the stage, and comes with the verb that does (slice 3).
-//!
-//! # Tests that change no answer
-//!
-//! - The ceremony's setting is `on` or `off` and nothing else, so asking
-//!   for `off` and asking for anything but `on` are one question.
-//! - Whether a receipt's file is still current is asked of the lead's
-//!   receipts alone, and the chain asks it of no other: naming the lead
-//!   there says who the question is about, and decides nothing.
+//! current). A link reads the receipts and nothing else of it: the chain
+//! and the receipts that count are
+//! [`focus_lifecycle::pipeline_evidence`]'s, which a transition reads the
+//! rest from when it closes the stage.
 
 use std::path::Path;
 
-use focus_audit::read::block_field;
-use focus_audit::shards::ShardEvent;
 use focus_evidence::pipeline;
-use focus_graph::runtime::Stage;
 use focus_js::path::{self as jspath, Flavour};
 use focus_js::{EngineError, Result, bail, date, num};
 use focus_lifecycle::workflow::Workflow;
-use focus_lifecycle::{admission, artifacts, gates, registry, stage};
-use focus_state::fields::get_field;
+use focus_lifecycle::{artifacts, pipeline_evidence, registry, stage};
 use serde_json::{Value, json};
 
 use crate::flags;
-
-/// `stage.support_agents`.
-fn declared_supports(node: &Stage) -> Vec<String> {
-    node.raw
-        .get("support_agents")
-        .and_then(Value::as_array)
-        .map(|agents| {
-            agents
-                .iter()
-                .filter_map(|agent| agent.as_str().map(str::to_owned))
-                .collect()
-        })
-        .unwrap_or_default()
-}
-
-/// `singleStageAttemptScope`: the scope the stage's own run recorded on its
-/// start, the newest one.
-fn single_stage_scope(events: &[ShardEvent], slug: &str) -> Option<String> {
-    let workflow = format!("single-stage:{slug}");
-    events
-        .iter()
-        .rfind(|row| {
-            row.event == "STAGE_STARTED"
-                && block_field(&row.block, "Stage") == Some(slug)
-                && block_field(&row.block, "Workflow") == Some(workflow.as_str())
-        })
-        .and_then(|row| block_field(&row.block, "Scope").map(str::to_owned))
-}
-
-/// `effectiveSupportAgentsForProject`: the collaborators the stage gets in
-/// this run. None when the `collaborators` ceremony is off (the kill
-/// switch, the run's own setting, the scope's default); the declared ones
-/// when the state cannot be read. A stage run by itself reads the scope its
-/// attempt recorded and no state.
-fn effective_supports(
-    wf: &Workflow,
-    node: &Stage,
-    events: &[ShardEvent],
-    single_run: bool,
-) -> Vec<String> {
-    let declared = declared_supports(node);
-    if declared.is_empty() {
-        return declared;
-    }
-    let (scope, state) = if single_run {
-        (single_stage_scope(events, &node.slug), None)
-    } else {
-        match wf.read_state() {
-            Ok(state) => (get_field(&state, "Scope").map(str::to_owned), Some(state)),
-            Err(_) => return declared,
-        }
-    };
-    let setting = admission::ceremony_setting_of(
-        wf,
-        scope.as_deref(),
-        state.as_deref(),
-        "collaborators",
-        "Collaborators",
-        "DISABLE_COLLABORATORS",
-    );
-    if setting == "off" {
-        Vec::new()
-    } else {
-        declared
-    }
-}
 
 /// `handleLink`.
 ///
@@ -148,8 +72,7 @@ pub fn link(open: &dyn Fn() -> Result<Workflow>, args: &[String]) -> Result<Valu
     else {
         bail!("Cannot record pipeline link: stage \"{slug}\" is not mode: pipeline.");
     };
-    let mut links = vec![stage::lead_agent(node).to_owned()];
-    links.extend(effective_supports(&wf, node, &events, single_run));
+    let links = pipeline_evidence::links(&wf, node, &events, single_run);
     let Some(index) = links.iter().position(|declared| declared == link) else {
         bail!(
             "Cannot record pipeline link for \"{slug}\": \"{link}\" is not in its declared lead/support chain ({}).",
@@ -162,28 +85,11 @@ pub fn link(open: &dyn Fn() -> Result<Workflow>, args: &[String]) -> Result<Valu
         &wf.selection.space,
         wf.selection.intent.as_deref(),
     )?;
-    let state = wf.read_state().unwrap_or_default();
-    let accepts_changes = gates::guard_policy_accepts_changes(&wf, &state);
-    let record = wf.record_dir();
-    let raw = pipeline::current_receipts(
-        &events,
-        slug,
-        single_run,
-        accepts_changes,
-        &wf.install.graph,
-    );
+    let pipeline_evidence::Counted {
+        receipts, record, ..
+    } = pipeline_evidence::counted(&wf, node, &events, &links, &repos, single_run);
     let is_lead_scan = slug == "reverse-engineering";
     let lead = stage::lead_agent(node);
-    let receipts = pipeline::chain(&raw, &links, &repos, &|receipt| {
-        !is_lead_scan
-            || receipt.link != lead
-            || pipeline::artifact_is_current(
-                &wf.layout.project,
-                record.as_deref(),
-                receipt,
-                accepts_changes,
-            )
-    });
     // With no registered repository the project root is the one
     // repository, under the name `codekb-path` prints. The knowledge base's
     // commands take that name as `--repo`, so a receipt reads it as the

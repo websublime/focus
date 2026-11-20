@@ -41,6 +41,7 @@ pub mod guard_series;
 pub mod jump;
 pub mod oracle;
 pub mod park;
+pub mod pipeline_evidence;
 pub mod presence;
 pub mod registry;
 pub mod reply;

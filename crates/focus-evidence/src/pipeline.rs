@@ -6,9 +6,9 @@
 //! `PIPELINE_LINK_COMPLETED` row, and the rows of the stage's current
 //! attempt are the evidence that the chain ran in order. This module reads
 //! them (`pipelineAttemptFloor`, `currentPipelineLinkReceipts`,
-//! `latestPipelineLinkArtifactMtime`, `pipelineReceiptArtifactIsCurrent`
-//! and the chain of `pipelineLinkEvidence`, `aidlc-lib.ts` L33 990 to
-//! L34 360).
+//! `latestPipelineLinkArtifactMtime`, `pipelineReceiptArtifactIsCurrent`,
+//! `currentPipelineReuseEvidence` and the chain and the `missing` of
+//! `pipelineLinkEvidence`, `aidlc-lib.ts` L33 990 to L34 400).
 //!
 //! # Order
 //!
@@ -21,11 +21,12 @@
 //! shard and past its position: across shards nothing says which came
 //! first, and the receipt does not count.
 //!
-//! # What is not here
+//! # What a stage still owes
 //!
-//! Which links a stage still owes, and a repository whose knowledge base
-//! was kept instead of rebuilt, are the gate's reading of the same rows
-//! (slice 3).
+//! [`missing`] is the gate's reading of the same rows: each link of the
+//! chain with no receipt that counts, repository by repository, less the
+//! repositories whose knowledge base the attempt kept instead of
+//! rebuilding ([`current_reuse`]).
 //!
 //! # Tests that change no answer
 //!
@@ -209,6 +210,88 @@ pub fn current_receipts(
             })
         })
         .collect()
+}
+
+/// `currentPipelineReuseEvidence`: the repositories whose knowledge base
+/// the attempt kept instead of rebuilding, an `ARTIFACT_REUSED` row that
+/// says `keep`. `None` is the project itself: a row that names no
+/// repository.
+#[must_use]
+pub fn current_reuse(
+    events: &[ShardEvent],
+    stage: &str,
+    single_run: bool,
+    accepts_changes: bool,
+    graph: &[Stage],
+) -> Vec<Option<String>> {
+    let floor = attempt_floor(events, stage, single_run, accepts_changes, graph);
+    let mut reused: Vec<Option<String>> = Vec::new();
+    for row in events.iter().filter(|row| after_floor(row, floor.as_ref())) {
+        if row.event != "ARTIFACT_REUSED"
+            || block_field(&row.block, "Stage") != Some(stage)
+            || block_field(&row.block, "Decision") != Some("keep")
+            || !of_run(block_field(&row.block, "Workflow"), stage, single_run)
+        {
+            continue;
+        }
+        let repo = block_field(&row.block, "Repo").map(str::to_owned);
+        if !reused.contains(&repo) {
+            reused.push(repo);
+        }
+    }
+    reused
+}
+
+/// A link a stage still owes: for a repository, or for the project when
+/// the piece of work records none.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Owed {
+    pub link: String,
+    pub repo: Option<String>,
+}
+
+/// The `missing` of `pipelineLinkEvidence`: each link of the chain with no
+/// receipt among the ones that count, repository by repository. A
+/// repository the attempt kept owes none; with no repository recorded, the
+/// project kept owes none.
+#[must_use]
+pub fn missing(
+    links: &[String],
+    repos: &[String],
+    receipts: &[Receipt],
+    reused: &[Option<String>],
+) -> Vec<Owed> {
+    let mut missing = Vec::new();
+    if repos.is_empty() {
+        if !reused.contains(&None) {
+            for link in links {
+                if !receipts.iter().any(|receipt| receipt.link == *link) {
+                    missing.push(Owed {
+                        link: link.clone(),
+                        repo: None,
+                    });
+                }
+            }
+        }
+        return missing;
+    }
+    for repo in repos {
+        if reused.iter().any(|kept| kept.as_deref() == Some(repo)) {
+            continue;
+        }
+        for link in links {
+            if !receipts
+                .iter()
+                .any(|receipt| receipt.repo.as_deref() == Some(repo) && receipt.link == *link)
+            {
+                missing.push(Owed {
+                    link: link.clone(),
+                    repo: Some(repo.clone()),
+                });
+            }
+        }
+    }
+    missing
 }
 
 /// `latestPipelineLinkArtifactMtime`: the newest time any receipt of this
