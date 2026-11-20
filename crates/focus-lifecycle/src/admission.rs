@@ -30,6 +30,15 @@
 //!
 //! # What no check tells apart
 //!
+//! Two readings the reviewer's precondition hands over, which the reader
+//! would take the same: the review class given to the receipts (they
+//! resolve it as the precondition does), and the receipts given to the
+//! guard's attempt (it reads them with the same class). And the person's
+//! approval carried by `approve`: with it the approval ends in the
+//! findings' refusal by name, without it in the reviewer's, where upstream
+//! approves; which of the two Focus says is a test of the command, since
+//! no comparison holds either (`what_a_gate_cannot_weigh_yet_is_refused_by_name`).
+//!
 //! Three things in the summary's admission, each said here because a
 //! mutant of it survives the differential:
 //!
@@ -543,8 +552,9 @@ fn person_may_approve_over_unfinished_review(wf: &Workflow, state: &str) -> bool
 
 /// `approvableUnfinishedReview`, for the stage: a request with no verdict
 /// yet that the person may approve over, the recovery review they asked for
-/// again included. A result that could not be verified still finishes
-/// first.
+/// again included. (Upstream asks here too whether the result could not be
+/// verified, which still finishes first. The one caller has refused that
+/// before it asks this, so the test is not repeated.)
 fn approvable_unfinished_review(
     wf: &Workflow,
     state: &str,
@@ -554,13 +564,10 @@ fn approvable_unfinished_review(
     let Some(person) = person else {
         return false;
     };
-    let Some(pending) = receipts.stage_pending else {
+    if receipts.stage_pending.is_none() {
         return false;
-    };
-    if !receipts.awaiting_verdict.has("")
-        || pending.verification_failed
-        || !person_may_approve_over_unfinished_review(wf, state)
-    {
+    }
+    if !receipts.awaiting_verdict.has("") || !person_may_approve_over_unfinished_review(wf, state) {
         return false;
     }
     person.over_unfinished_review.set(true);

@@ -3562,6 +3562,10 @@ def transition_checks():
         reviewed_check(f"advance/review_recovery_pending_over_other_bytes{label}", over_old, (2, None, REVIEW_RECOVERY, "sha256:" + "b" * 64), state=under)
         reviewed_check(f"advance/review_recovered{label}", over_old, (2, "READY", REVIEW_RECOVERY, REVIEWED_CURRENT), state=under)
         reviewed_check(f"advance/review_recovery_spent{label}", over_old, (2, "READY", REVIEW_RECOVERY, "sha256:" + "b" * 64), state=under)
+    # (An output saved after the verdict is a change the policy decides on, with the path that changed.)
+    saved_since = lambda tree: tree.edit(CREATED_SHARD, lambda text: text + block("ARTIFACT_UPDATED", T(8), f"**File**: {CREATED_DIR}/ideation/intent-capture/intent-statement.md"))
+    for label, policy in POLICIES:
+        reviewed_check(f"advance/review_output_saved_since{label}", ready, state=UNDER_POLICY(REVIEWED(CREATED_STATE), policy), more=[saved_since])
     # (Where the stage cannot take a rejection, a spent recovery says no more than the way on.)
     reviewed_check("advance/review_recovery_spent_unattended", over_old, (2, "READY", REVIEW_RECOVERY, "sha256:" + "b" * 64),
                    state=UNDER_POLICY(REVIEWED(CREATED_STATE), "strict (set by you)"), env={**direct, "UNATTENDED": "1"})
@@ -5126,6 +5130,11 @@ def gate_checks():
     check_("gates/revision_backstop_fires_not_an_output", created(strict, revised.replace("intent-statement.md", "notes.md"), **ic), again, quiet)
     check_("gates/revision_backstop_fires_before_the_person_spoke", created(strict, revised.replace(HUMAN(2), ""), **ic), again, quiet)
     check_("gates/revision_backstop_fires_after_a_rejection", created(strict, revised + block("GATE_REJECTED", T(5), "**Stage**: intent-capture"), **ic), again, quiet)
+    # (Shown again, the stage owes its reviewer as a gate that opens does: said for the showing, not for the completion
+    # the approval was; with the gate's guard off, the approval's own weighing says it.)
+    with_reviewer = strict.replace("- **Review Override**: none", "- **Review Override**: ")
+    check_("gates/revision_backstop_fires_with_reviewer", created(with_reviewer, revised, **ic), again, quiet)
+    check_("gates/revision_backstop_fires_with_reviewer_guard_off", created(with_reviewer, revised, **ic), again, {**quiet, "SKIP_REVIEWER_GATE_GUARD": "1"})
     check_("gates/revision_backstop_off", created(awaiting, backstop, **ic), [approve], {**quiet, "SKIP_REVISION_BACKSTOP": "1"})
     check_("gates/revision_backstop_relaxed", created(awaiting.replace("- **Guard Policy**: off (from scope feature)", "- **Guard Policy**: relaxed (set by you)"), backstop, **ic), [approve], quiet)
     check_("gates/revision_backstop_with_reviewer", created(awaiting.replace("- **Review Override**: none", "- **Review Override**: "), backstop, **ic), [approve], {**quiet, "SKIP_REVIEWER_GATE_GUARD": "1"})
