@@ -839,7 +839,9 @@ fn unrecorded_revision(wf: &Workflow, stage: &Stage, repos: &[String]) -> bool {
         return false;
     }
     // Between the first turn and the last; with one turn they are the same
-    // row, and nothing is between it and itself.
+    // row, and nothing is between it and itself. (The two ends are turns
+    // of the person, never a saved output: a window that took them in
+    // would answer the same.)
     events
         .iter()
         .take(last)
