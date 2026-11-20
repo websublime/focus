@@ -234,10 +234,9 @@ pub fn current_reuse(
         {
             continue;
         }
-        let repo = block_field(&row.block, "Repo").map(str::to_owned);
-        if !reused.contains(&repo) {
-            reused.push(repo);
-        }
+        // (A set upstream. The list is only asked whether it holds a
+        // name, so a repository kept twice is listed twice and kept.)
+        reused.push(block_field(&row.block, "Repo").map(str::to_owned));
     }
     reused
 }

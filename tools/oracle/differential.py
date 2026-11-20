@@ -3621,12 +3621,19 @@ def transition_checks():
     check_("advance/pipeline_another_stage_kept", piped(rows=kept(2, "**Repo**: app").replace("**Stage**: reverse-engineering", "**Stage**: intent-capture")), re_twice, direct, edits=[scan_time()])
     check_("advance/pipeline_repo_kept_by_a_run_by_itself", piped(rows=kept(2, "**Repo**: app", "**Workflow**: single-stage:reverse-engineering")), re_twice, direct, edits=[scan_time()])
     check_("advance/pipeline_repo_kept_before_a_restart", piped(rows=kept(2, "**Repo**: app") + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering")), re_twice, direct, edits=[scan_time()])
+    # (What was kept before a rejection of the stage's gate is of the attempt before, unless the policy keeps it.)
+    for label, policy in POLICIES:
+        check_(f"advance/pipeline_repo_kept_before_a_rejection{label}",
+               piped(UNDER_POLICY(pipeline, policy), kept(2, "**Repo**: app") + block("GATE_REJECTED", T(5), "**Stage**: reverse-engineering", "**Feedback**: again")), re_twice, direct, edits=[scan_time()])
     check_("advance/pipeline_two_repos_one_kept_one_recorded", piped(rows=kept(2, "**Repo**: web") + handed(3, dev, "1/1"), registry=two_repos, **web), re_twice, direct, edits=both_times)
     check_("advance/pipeline_two_repos_one_kept", piped(rows=kept(2, "**Repo**: web"), registry=two_repos, **web), re_twice, direct, edits=both_times)
     # A piece of work that records no repository: the project is the one repository, and its chain names none.
     check_("advance/pipeline_no_repo_recorded", piped(registry=CREATED_REGISTRY, **{scan_of(): SCAN}), re_twice, direct, edits=[scan_time(None)])
     check_("advance/pipeline_no_repo_recorded_handed", piped(rows=handed(1, dev, "1/1", None), registry=CREATED_REGISTRY, **{scan_of(): SCAN}), re_twice, direct, edits=[scan_time(None)])
     check_("advance/pipeline_no_repo_recorded_a_receipt_names_one", piped(rows=handed(1, dev, "1/1"), registry=CREATED_REGISTRY, **{scan_of(): SCAN}), re_twice, direct, edits=[scan_time(None), scan_time()])
+    check_("advance/pipeline_no_repo_recorded_chain_second_owed", piped(chain_on, handed(1, dev, "1/2", None), registry=CREATED_REGISTRY, **{scan_of(): SCAN}), re_twice, direct, edits=[scan_time(None)])
+    check_("advance/pipeline_no_repo_recorded_chain_recorded", piped(chain_on, handed(1, dev, "1/2", None) + handed(2, arch, "2/2", None), registry=CREATED_REGISTRY, **{scan_of(): SCAN}), re_twice, direct,
+           edits=[scan_time(None)])
     check_("advance/pipeline_no_repo_recorded_kept", piped(rows=kept(2), registry=CREATED_REGISTRY), re_twice, direct, edits=[scan_time()])
     check_("advance/pipeline_no_repo_recorded_a_repo_kept", piped(rows=kept(2, "**Repo**: app"), registry=CREATED_REGISTRY), re_twice, direct, edits=[scan_time()])
     # The other transitions that certify the stage.
