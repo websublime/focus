@@ -796,10 +796,11 @@ fn a_skip_routes_and_a_completion_closes_the_registry_row() {
 }
 
 /// Deliberate deviation. The evidence a transition owes to `aidlc-log`
-/// records (a reviewer's receipt, a pipeline's handoffs), a Construction
-/// stage's checkpoints and units, the usage ledger's rollup and a unit's
-/// skip are each M4's or M5's: upstream weighs them, Focus refuses by name.
-/// (A summary confirmation is weighed: its refusal is a guard's.)
+/// records (a reviewer's receipt), a Construction stage's checkpoints and
+/// units, the usage ledger's rollup and a unit's skip are each M4's or
+/// M5's: upstream weighs them, Focus refuses by name. (A summary
+/// confirmation and a pipeline's handoffs are weighed: their refusals are
+/// a guard's.)
 #[test]
 fn what_focus_cannot_weigh_yet_is_refused_by_name() {
     let root = created("by-name", CREATED);

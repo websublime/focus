@@ -11,12 +11,14 @@
 //! is weighed ([`crate::summary_evidence`]): one that is not there, or no
 //! longer the current one, is a guard's refusal, and a change the Guard
 //! Policy keeps is recorded and said once, on a line of its own before the
-//! command's answer ([`Workflow::say_change_notices`]). The other two
-//! compare the source the review saw with the source there now (the
-//! attestation, M5), and Focus does not weigh them yet: a transition that
-//! owes a receipt or a handoff is refused by name, and one that owes none
-//! (the review class resolves to `none`, the stage has no reviewer or is
-//! not a pipeline, or the kill switches are set) passes as upstream passes
+//! command's answer ([`Workflow::say_change_notices`]). A pipeline's
+//! handoffs are weighed ([`crate::pipeline_evidence`]): each link of the
+//! chain with no receipt of this attempt that counts is owed, and the
+//! refusal is a guard's. The reviewer's receipt compares the source the
+//! review saw with the source there now (the attestation, M5), and Focus
+//! does not weigh it yet: a transition that owes one is refused by name,
+//! and one that owes none (the review class resolves to `none`, the stage
+//! has no reviewer, or the kill switch is set) passes as upstream passes
 //! it. A Construction stage is refused by name as well: its checkpoints,
 //! units and swarms are M4.
 //!
@@ -525,11 +527,15 @@ pub fn verify_reviewer(
     Ok(())
 }
 
-/// `verifyPipelineLinkPrecondition`: a pipeline stage owes its handoffs.
+/// `verifyPipelineLinkPrecondition`: a pipeline stage owes its handoffs,
+/// each link of its chain recorded in the current attempt, unless the
+/// evidence is switched off.
 ///
 /// # Errors
 ///
-/// The stage is a pipeline and the evidence is not disabled.
+/// A handoff is owed: a guard's refusal that names each one, by
+/// repository. Or the registry names the repositories with something that
+/// is not a list of names, or the state cannot be read.
 pub fn verify_pipeline_link(wf: &Workflow, stage: &Stage) -> Result<()> {
     if stage::mode(stage) != Some("pipeline")
         || project_flag(&wf.layout, "DISABLE_ENSEMBLE_EVIDENCE").as_deref() == Some("1")
@@ -840,11 +846,20 @@ mod tests {
         let (wf, root) = workflow("pipeline", STATE);
         let pipeline =
             stage_of(json!({"slug": "p", "phase": "inception", "name": "P", "mode": "pipeline"}));
-        assert!(
-            verify_pipeline_link(&wf, &pipeline)
-                .unwrap_err()
-                .message()
-                .contains("is a pipeline stage and owes the handoffs")
+        // Owed and not recorded: a guard's refusal, with what the guard
+        // holds (the whole refusal is compared in the differential).
+        let refused = verify_pipeline_link(&wf, &pipeline).unwrap_err();
+        let guard = refused
+            .detail::<crate::guard_series::GuardRefused>()
+            .expect("a guard's refusal");
+        assert_eq!(
+            guard.refusal.code, "PIPELINE_EVIDENCE_MISSING",
+            "{refused:?}"
+        );
+        assert_eq!(guard.refusal.blocked_action, "complete");
+        assert_eq!(
+            guard.refusal.invariant,
+            "Every required pipeline handoff is recorded in the current attempt."
         );
         for mode in ["inline", "subagent", "mob"] {
             let other =
