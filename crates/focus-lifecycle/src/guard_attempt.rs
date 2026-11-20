@@ -257,7 +257,8 @@ pub fn guard_attempt_state(
     let declared = stage.raw.get("reviewer").and_then(Value::as_str);
     let writes_workspace = stage::workspace_requires(stage);
     // The project's source is taken once, and shared by the two readers
-    // that weigh it.
+    // that weigh it. (Each takes it for itself when it is not handed one,
+    // and reads the same: sharing saves a walk and changes no answer.)
     let source = match declared {
         Some(_) if writes_workspace => Some(review_pending::current_source(wf)?),
         _ => None,
@@ -320,6 +321,10 @@ pub fn guard_attempt_state(
                             .unwrap_or_else(|| admission::artifact_guard_disabled(&wf.layout))
                     }),
                     merged_bolt_units: Some(&merged),
+                    // (Upstream does not say here that a stage is run by
+                    // itself. Where that would matter, a unit's request in
+                    // a stage that writes code, the receipts have refused
+                    // the unit's own source one reader earlier.)
                     single: false,
                     source_state,
                 },
@@ -344,15 +349,12 @@ pub fn guard_attempt_state(
         None => of.and_then(|receipts| receipts.stage_stale_progress.as_ref()),
         Some(unit) => of.and_then(|receipts| receipts.unit_stale_progress.get(unit)),
     };
+    // (Upstream also asks the source's stale progress whether its recovery
+    // is spent. The receipts fill that from the answer they give for the
+    // source as a whole, which is asked here.)
     let recovery_spent = accounting.is_some_and(|accounting| accounting.recovery_spent)
         || stale_progress.is_some_and(|progress| progress.recovery_spent)
-        || of.is_some_and(|receipts| {
-            receipts
-                .source_stale_progress
-                .as_ref()
-                .is_some_and(|progress| progress.recovery_spent)
-                || receipts.source_recovery_spent
-        });
+        || of.is_some_and(|receipts| receipts.source_recovery_spent);
     let lowest_pending = accounting.and_then(|accounting| {
         accounting
             .pending_iterations
@@ -452,14 +454,8 @@ pub fn guard_attempt_state(
                 Coverage::Unbindable
             }
             Some(receipts) if receipts.source_stale => Coverage::Stale,
-            Some(receipts)
-                if receipts
-                    .newest_source_fingerprint
-                    .as_deref()
-                    .is_some_and(|fingerprint| !fingerprint.is_empty()) =>
-            {
-                Coverage::Current
-            }
+            // (A fingerprint the receipts keep is never the empty text.)
+            Some(receipts) if receipts.newest_source_fingerprint.is_some() => Coverage::Current,
             _ => Coverage::Missing,
         },
     };
