@@ -2,66 +2,16 @@
 //! later milestones that a hook meets there: each is refused by name while
 //! Focus does not read it.
 
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use focus_js::{Result, bail};
-use focus_workspace::atomic::write_atomic;
-use focus_workspace::links::refuse_link_in_chain;
-use focus_workspace::names::{ENGINE_DIR, WORKSPACE_DIR};
+// (The two writers of a record's own files live with the workspace: the
+// lifecycle writes there too. They are named here for the hooks.)
+pub use focus_workspace::files::{write_engine_file_no_follow, write_record_file_no_follow};
+use focus_workspace::names::WORKSPACE_DIR;
 use focus_workspace::observer;
 use focus_workspace::records::Selection;
 use focus_workspace::{Layout, env};
-
-/// `writeRecordFileNoFollow`: a framework-owned file under `record_root`,
-/// written through no symlink: a link planted at the folder, at a folder
-/// under it, or at the file refuses the write.
-///
-/// # Errors
-///
-/// A link is on the way, or the file cannot be written.
-pub fn write_record_file_no_follow(
-    record_root: &Path,
-    relative: &str,
-    data: &[u8],
-) -> Result<PathBuf> {
-    observer::refuse_write(observer::WRITE_FILE_ATOMIC)?;
-    let anchor = std::fs::canonicalize(record_root)
-        .map_err(|err| focus_js::EngineError::new(format!("{}: {err}", record_root.display())))?;
-    let rel = Path::new(relative);
-    refuse_link_in_chain(&anchor, rel)?;
-    let target = anchor.join(rel);
-    if let Some(parent) = target.parent() {
-        std::fs::create_dir_all(parent)
-            .map_err(|err| focus_js::EngineError::new(format!("{}: {err}", parent.display())))?;
-    }
-    // The parents exist now; none of them, nor the leaf, may be a link.
-    refuse_link_in_chain(&anchor, rel)?;
-    write_atomic(&target, data)
-        .map_err(|err| focus_js::EngineError::new(format!("{}: {err}", target.display())))?;
-    Ok(target)
-}
-
-/// `writeEngineFileNoFollow`: `<record>/.focus-engine/<name>`, the record
-/// root created when missing.
-///
-/// # Errors
-///
-/// See [`write_record_file_no_follow`].
-pub fn write_engine_file_no_follow(
-    layout: &Layout,
-    selection: &Selection,
-    name: &str,
-    data: &str,
-) -> Result<PathBuf> {
-    let record_root = selection.docs_root(layout);
-    std::fs::create_dir_all(&record_root)
-        .map_err(|err| focus_js::EngineError::new(format!("{}: {err}", record_root.display())))?;
-    write_record_file_no_follow(
-        &record_root,
-        &format!("{ENGINE_DIR}/{name}"),
-        data.as_bytes(),
-    )
-}
 
 /// The orchestrator's active-directive marker (M5): a hook that would read
 /// or refresh it refuses by name while it is there.
