@@ -2609,8 +2609,8 @@ DEVIATIONS.update({
     r"state/record/delegated_worktree":
         "upstream walks the process tree to find which conversation is calling, and resolves a delegated worktree to "
         "the main checkout's intent; focus refuses and asks for the session",
-    r"state/advance/(summary_owed|review_owed|review_owed_advisory_cap|pipeline_owed)":
-        "the stage owes evidence that is an aidlc-log record (a summary confirmation, a reviewer's receipt, a "
+    r"state/advance/(review_owed|review_owed_advisory_cap|pipeline_owed|summary_amended_then_review_owed)":
+        "the stage owes evidence that is an aidlc-log record (a reviewer's receipt, a "
         "pipeline's handoffs) compared with the stage's outputs and the source the review saw (the attestation, "
         "M5): upstream weighs it and refuses with what is missing; focus refuses by name until it reads those "
         "records. With the ceremony off, the review class none, or the kill switch set, neither owes it and the "
@@ -2714,8 +2714,8 @@ DEVIATIONS.update({
         "with the Sensors ceremony on and the declared artifacts on disk, opening a gate fires the stage's gate "
         "sensors through the sensor tool (M5): upstream runs them, records their findings and opens the gate; focus "
         "refuses the opening by name and says how to open it without them (`--sensors off`, FOCUS_DISABLE_SENSORS)",
-    r"state/gates/(summary_owed|review_owed|review_guard_off|revision_backstop_with_reviewer)":
-        "the gate owes evidence that is an aidlc-log record (a summary confirmation, a reviewer's receipt, M5): "
+    r"state/gates/(review_owed|review_guard_off|revision_backstop_with_reviewer)":
+        "the gate owes evidence that is an aidlc-log record (a reviewer's receipt, M5): "
         "upstream weighs it and refuses with what is missing; focus refuses by name until it reads those records "
         "(the kill switch opens the gate in both; upstream still weighs the receipt at the approval)",
     r"state/gates/review_findings_(rows|section)":
@@ -3520,6 +3520,26 @@ def transition_checks():
            [["advance", "intent-capture"]], {**direct, "SKIP_SUMMARY_CONFIRMATION_GUARD": "1"})
     check_("advance/summary_ceremony_off_by_switch", created(CREATED_STATE.replace("- **Summary Confirmation**: off (set by a command)", "- **Summary Confirmation**: on (from scope feature)"), **ic),
            [["advance", "intent-capture"]], {**direct, "DISABLE_SUMMARY_CONFIRMATION": "1"})
+    # The summary's admission, weighed: a confirmation that is the current one lets the stage through; one the answers
+    # were amended after is a change the Guard Policy decides on (kept and said once under relaxed and off, refused
+    # under strict); and what is not there is a guard's refusal with its question, counted in the stage's series.
+    twice = lambda verb, *more: [[verb, "intent-capture", *more], [verb, "intent-capture", *more]]
+    check_("advance/summary_confirmed", summary_confirmed(CREATED_STATE), [["advance", "intent-capture"]], direct)
+    check_("advance/summary_questions_and_no_receipt", created(OWES_SUMMARY(CREATED_STATE), **{**SUMMARY_OUTPUTS, SUMMARY_FILE: SUMMARY_TEXT}), twice("advance"), direct)
+    check_("advance/summary_outputs_never_saved", created(OWES_SUMMARY(CREATED_STATE), CREATED_AUDIT + summary_receipt(), **{**SUMMARY_OUTPUTS, SUMMARY_FILE: SUMMARY_TEXT}), twice("advance"), direct)
+    minted = summary_receipt(SUMMARY_TEXT, "**Summary Authorization Id**: " + "ab" * 32)
+    for label, policy in POLICIES:
+        state = UNDER_POLICY(CREATED_STATE, policy)
+        check_(f"advance/summary_amended{label}", summary_confirmed(state, SUMMARY_AMENDED), twice("advance"), direct)
+        check_(f"advance/summary_outputs_saved_under_no_confirmation{label}", summary_confirmed(state, receipt=minted), twice("advance"), direct)
+        check_(f"finalize/summary_amended{label}", summary_confirmed(state, SUMMARY_AMENDED), twice("finalize") + [["advance", "intent-capture"]], direct)
+        check_(f"complete/summary_amended{label}", summary_confirmed(state, SUMMARY_AMENDED), twice("complete-workflow", "--reason", "enough"), direct)
+    check_("finalize/summary_confirmed", summary_confirmed(CREATED_STATE), [["finalize", "intent-capture"], ["advance", "intent-capture"]], direct)
+    check_("complete/summary_confirmed", summary_confirmed(CREATED_STATE), [["complete-workflow", "intent-capture", "--reason", "enough"]], direct)
+    # (A change the policy kept is recorded once: a transition that is refused afterwards has said it, and the next
+    # one does not say it again. The refusal itself is the reviewer's, which Focus still gives by name.)
+    check_("advance/summary_amended_then_review_owed", summary_confirmed(UNDER_POLICY(CREATED_STATE, "relaxed (set by you)").replace("- **Review Override**: none", "- **Review Override**: "), SUMMARY_AMENDED),
+           twice("advance"), direct)
     check_("advance/review_owed", created(CREATED_STATE.replace("- **Review Override**: none", "- **Review Override**: "), **ic),
            [["advance", "intent-capture"]], direct)
     check_("advance/review_owed_advisory_cap", created(CREATED_STATE.replace("- **Review Override**: none", "- **Review Override**: advisory"), **ic),
@@ -3720,6 +3740,29 @@ def transition_checks():
 
 GATE_STATE = CREATED_STATE.replace("- **Sensors**: on (from scope feature)", "- **Sensors**: off (set by a command)")
 GATE_DIR = f"{CREATED_DIR}/.aidlc-engine"
+
+# A summary that was confirmed, by a ledger written by hand: the receipt over the questions file's bytes, and each
+# output of Intent Capture saved after it. What a transition weighs before it certifies the stage.
+SUMMARY_FILE = f"{CREATED_DIR}/ideation/intent-capture/intent-capture-questions.md"
+SUMMARY_TEXT = "# Questions\n\n## Q1. Who is it for?\n\n[Answer]: A\n\n## Consolidated Summary Confirmation\n\nA tool for the team.\n\n[Answer]: Looks correct\n"
+SUMMARY_AMENDED = SUMMARY_TEXT.replace("[Answer]: A", "[Answer]: B")
+SUMMARY_OUTPUTS = {f"{CREATED_DIR}/ideation/intent-capture/intent-statement.md": "# Intent\n\nAdd login to the app.\n",
+                   f"{CREATED_DIR}/ideation/intent-capture/stakeholder-map.md": "# Stakeholders\n\nThe team.\n"}
+SUMMARY_SAVED = "".join(block("ARTIFACT_UPDATED", T(4), f"**File**: {path}") for path in SUMMARY_OUTPUTS)
+OWES_SUMMARY = lambda state: state.replace("- **Summary Confirmation**: off (set by a command)", "- **Summary Confirmation**: on (from scope feature)")
+POLICIES = (("", "strict (set by you)"), ("_policy_relaxed", "relaxed (set by you)"), ("_policy_off", "off (from scope feature)"))
+UNDER_POLICY = lambda state, policy: state.replace("- **Guard Policy**: off (from scope feature)", f"- **Guard Policy**: {policy}")
+
+
+def summary_receipt(text=SUMMARY_TEXT, *more):
+    return block("SUMMARY_CONFIRMATION_RECORDED", T(3), "**Stage**: intent-capture", "**Checkpoint**: Consolidated Summary Confirmation", f"**Questions File**: {SUMMARY_FILE}",
+                 "**Details**: Looks correct", *more, "**Questions SHA-256**: " + hashlib.sha256(text.encode("utf-8")).hexdigest())
+
+
+def summary_confirmed(state, text=SUMMARY_TEXT, receipt=None, audit=CREATED_AUDIT, after="", **more):
+    """A record whose stage owes a summary confirmation and has one: `text` is what the questions file holds now."""
+    receipt = summary_receipt() if receipt is None else receipt
+    return created(OWES_SUMMARY(state), audit + receipt + SUMMARY_SAVED + after, **{**SUMMARY_OUTPUTS, SUMMARY_FILE: text, **more})
 HUMAN = lambda minute, second=0, *fields: block("HUMAN_TURN", T(minute, second), "**Session**: s1", *fields)
 
 
@@ -4713,6 +4756,23 @@ def gate_checks():
     # The evidence a decision owes to aidlc-log records (M5): refused by name where upstream weighs it.
     check_("gates/summary_owed", created(GATE_STATE.replace("- **Summary Confirmation**: off (set by a command)", "- **Summary Confirmation**: on (from scope feature)"), **ic),
            [["gate-start", "intent-capture"]], quiet)
+    # The summary's admission at a gate: where it opens, where it is entered again after a revision, and where the
+    # person approves (before the lock and under it: a change the policy kept is said once).
+    opens = [["gate-start", "intent-capture"], ["gate-start", "intent-capture"]]
+    unrecorded_revision = (block("STAGE_AWAITING_APPROVAL", T(5), "**Stage**: intent-capture") + HUMAN(6)
+                           + block("ARTIFACT_UPDATED", T(7), "**Stage**: intent-capture", "**Artifact**: intent-statement") + HUMAN(8))
+    check_("gates/summary_confirmed", summary_confirmed(GATE_STATE), [["gate-start", "intent-capture"], approve], quiet)
+    check_("gates/summary_questions_and_no_receipt", created(OWES_SUMMARY(GATE_STATE), **{**SUMMARY_OUTPUTS, SUMMARY_FILE: SUMMARY_TEXT}), opens, quiet)
+    check_("gates/summary_questions_and_no_receipt_at_the_approval", created(OWES_SUMMARY(awaiting), opened, **{**SUMMARY_OUTPUTS, SUMMARY_FILE: SUMMARY_TEXT}), [approve, approve], quiet)
+    for label, policy in POLICIES:
+        check_(f"gates/summary_amended{label}", summary_confirmed(UNDER_POLICY(GATE_STATE, policy), SUMMARY_AMENDED), opens + [approve], quiet)
+        check_(f"gates/summary_amended_at_the_approval{label}", summary_confirmed(UNDER_POLICY(awaiting, policy), SUMMARY_AMENDED, after=opened[len(CREATED_AUDIT):]), [approve, approve], quiet)
+        check_(f"gates/summary_amended_at_the_second_showing{label}", summary_confirmed(UNDER_POLICY(revising, policy), SUMMARY_AMENDED), [["revise", "intent-capture"], ["revise", "intent-capture"], approve], quiet)
+        check_(f"gates/summary_amended_between_showing_and_approval{label}", summary_confirmed(UNDER_POLICY(GATE_STATE, policy)),
+               [["gate-start", "intent-capture"], ["@write", SUMMARY_FILE, SUMMARY_AMENDED], approve, approve], quiet)
+        # (And where the approval finds a revision nobody recorded: the stage is shown again, and weighed again.)
+        check_(f"gates/summary_amended_at_the_revision_backstop{label}", summary_confirmed(UNDER_POLICY(awaiting, policy), SUMMARY_AMENDED, after=unrecorded_revision), [approve, approve], quiet)
+    check_("gates/summary_confirmed_at_the_revision_backstop", summary_confirmed(awaiting, after=unrecorded_revision), [approve, approve], quiet)
     check_("gates/review_owed", created(GATE_STATE.replace("- **Review Override**: none", "- **Review Override**: "), **ic), [["gate-start", "intent-capture"]], quiet)
     check_("gates/review_guard_off", created(GATE_STATE.replace("- **Review Override**: none", "- **Review Override**: "), **ic), [["gate-start", "intent-capture"], approve], {**quiet, "SKIP_REVIEWER_GATE_GUARD": "1"})
     check_("gates/review_findings_rows", created(awaiting, opened + block("REVIEW_FINDING", T(2), "**Stage**: intent-capture", "**Finding**: R-01", "**Status**: open"), **ic), [approve], quiet)

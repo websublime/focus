@@ -7,14 +7,25 @@
 //! pipeline's handoffs are recorded when owed; and its Construction
 //! checkpoints are approved.
 //!
-//! The evidence checks read `aidlc-log` records and compare the source
-//! the review saw with the source there now (the attestation, M5). Focus
-//! does not weigh that evidence yet: a transition that owes a confirmation,
-//! a receipt or a handoff is refused by name, and one that owes none (the
-//! ceremony is off, the review class resolves to `none`, the stage has no
-//! reviewer or is not a pipeline, or the kill switches are set) passes as
-//! upstream passes it. A Construction stage is refused by name as well: its
-//! checkpoints, units and swarms are M4.
+//! The evidence checks read `aidlc-log` records. The summary confirmation
+//! is weighed ([`crate::summary_evidence`]): one that is not there, or no
+//! longer the current one, is a guard's refusal, and a change the Guard
+//! Policy keeps is recorded and said once, on a line of its own before the
+//! command's answer ([`Workflow::say_change_notices`]). The other two
+//! compare the source the review saw with the source there now (the
+//! attestation, M5), and Focus does not weigh them yet: a transition that
+//! owes a receipt or a handoff is refused by name, and one that owes none
+//! (the review class resolves to `none`, the stage has no reviewer or is
+//! not a pipeline, or the kill switches are set) passes as upstream passes
+//! it. A Construction stage is refused by name as well: its checkpoints,
+//! units and swarms are M4.
+//!
+//! The rows of a change the policy keeps are written under the workspace
+//! lock. A check that runs before its transition takes the lock (upstream
+//! checks a gate's opening and its approval once outside the lock and once
+//! under it) takes the lock for those rows and lets go of it; under the
+//! lock the transition hands its own over, because the lock is not taken
+//! twice by one process.
 //!
 //! A guard that refuses carries its code and the invariant it holds. The
 //! error's message is the sentence; the refusal, evaluated on the attempt
@@ -755,13 +766,20 @@ mod tests {
             summary_confirmation_setting(&wf, &no_line.replace("feature", "nope")),
             "on"
         );
-        assert!(
-            verify_summary_confirmation(&wf, &at("ideation", true), STATE)
-                .unwrap_err()
-                .message()
-                .contains("owes a summary confirmation")
+        // Owed and not there: a guard's refusal, with what the guard holds
+        // (the whole refusal is compared with upstream in the differential).
+        let refused =
+            verify_summary_confirmation(&wf, None, &at("ideation", true), STATE).unwrap_err();
+        let guard = refused
+            .detail::<crate::guard_series::GuardRefused>()
+            .expect("a guard's refusal");
+        assert_eq!(
+            guard.refusal.code, "SUMMARY_QUESTIONS_MISSING",
+            "{refused:?}"
         );
-        assert!(verify_summary_confirmation(&wf, &at("ideation", true), &off).is_ok());
+        assert_eq!(guard.refusal.blocked_action, "summary-confirmation");
+        assert_eq!(guard.refusal.invariant, SUMMARY_INVARIANT);
+        assert!(verify_summary_confirmation(&wf, None, &at("ideation", true), &off).is_ok());
         let _ = std::fs::remove_dir_all(root);
     }
 
