@@ -33,7 +33,7 @@ use std::path::Path;
 use std::time::SystemTime;
 
 use focus_evidence::review::{self as review_paths};
-use focus_evidence::review_findings::{self, Finding, Table};
+use focus_evidence::review_findings::{self, Finding};
 use focus_evidence::review_record::{self, StoredFinding, Written};
 use focus_evidence::review_shown::{self, Context as Shown};
 use focus_evidence::review_text::{self, Expected, Validity};
@@ -389,9 +389,9 @@ pub(crate) fn verdict(
     // With no review file: a request already retried that still has no
     // review records NOT-READY without one; and a section appended to the
     // artifact since the request is the review an older release's reviewer
-    // wrote.
+    // wrote. (The two exclude each other: only one has a section.)
     let incomplete = body.is_none() && !appended && pending.retried && verdict == "NOT-READY";
-    let embedded = body.is_none() && !incomplete && appended;
+    let embedded = body.is_none() && appended;
     if body.is_none() && !incomplete && !embedded {
         // After a retry the slot was reopened, so a review written before
         // the retry is not there any more.
@@ -412,24 +412,24 @@ pub(crate) fn verdict(
     // `## What I verified` is not a reason to run the review again: a
     // review file's `#` and `##` lines are recorded as `###`, and the same
     // check runs on those bytes. A section in the artifact is checked as it
-    // is, against the challenge its request gave; and where no reviewer
-    // wrote anything there is nothing to check.
+    // is, and has to open with its heading; and where no reviewer wrote
+    // anything there is nothing to check.
     if !incomplete {
         let expected = Expected {
             verdict,
             reviewer,
             iteration,
-            review_challenge: if embedded {
-                binding
-                    .legacy_appendix
-                    .as_ref()
-                    .and_then(|legacy| legacy.challenge.as_deref())
-            } else {
-                None
-            },
+            // (Upstream passes the request's challenge when the review is
+            // a section. No such request has one: a challenge is given
+            // for a section that was already there, and a request that saw
+            // a section has none appended after it. See `request_binding`
+            // and `appended_after_request`.)
+            review_challenge: None,
             standalone,
         };
         let mut validity = review_text::validate_review_appendix(&review_bytes, &expected);
+        // (Only a file: a section's bytes start at a `## Review` with no
+        // `#` or `##` heading after it, so there would be none to change.)
         let demoted = if standalone {
             review_text::demote_review_headings(&review_bytes)
         } else {
@@ -525,21 +525,15 @@ pub(crate) fn verdict(
     // run by itself reviews for its own gate and keeps them as written.
     let artifact_key = taken.review_artifact.as_str();
     let finding_artifact = from_project(asked, record, artifact_key);
-    // (The verdict with no review keeps an empty body and reads no table.)
+    // (The verdict with no review keeps an empty body, and an empty body
+    // has no table: upstream skips the reading, which gives the same.)
     let record_body = if incomplete {
         String::new()
     } else {
         String::from_utf8_lossy(&review_bytes).into_owned()
     };
-    let table = if incomplete {
-        Table {
-            findings: Vec::new(),
-            unreadable: None,
-            report: None,
-        }
-    } else {
-        review_findings::read_findings_table(&record_body, &finding_artifact, Some(verdict), None)
-    };
+    let table =
+        review_findings::read_findings_table(&record_body, &finding_artifact, Some(verdict), None);
     let derived = if workflow.is_none() {
         let derived = review_derived::derive(
             wf,
@@ -637,7 +631,9 @@ pub(crate) fn verdict(
     );
     wf.emit_plain(&held, "REVIEW_COMPLETED", &fields)?;
     // The draft was the reviewer's input; the record now holds it. A file
-    // the command named stays where it is, as upstream leaves it.
+    // the command named stays where it is, as upstream leaves it. (With no
+    // file read there is none to remove, and removing one that is not
+    // there is not an error: `standalone` only spares the attempt.)
     if standalone && asked.review_file.is_none() {
         remove_draft(record, &draft)?;
     }

@@ -5841,6 +5841,9 @@ def log_checks():
     check_("review/verdict/appended_section_with_headings", created(strict, **OUTPUTS), [asks_plain(1), section(plainly() + "\n## What I verified\n\nAll of it.\n"), closes(1, "READY")], **in_plain)
     check_("review/verdict/appended_section_with_a_level_three_heading", created(strict, **OUTPUTS), [asks_plain(1), section(plainly() + "\n### What I verified\n\nAll of it.\n"), closes(1, "READY")], **in_plain)
     check_("review/verdict/appended_section_with_a_challenge", created(strict, **OUTPUTS), [asks_plain(1), section(plainly(head="**Request Challenge:** review:" + "1" * 32 + "\n")), closes(1, "READY")], **in_plain)
+    # A section is its heading and what follows: a heading that ends the file with no line end is not yet a section's opening.
+    check_("review/verdict/appended_section_ends_at_its_heading", created(strict, **OUTPUTS), [asks_plain(1), ["@write", statement, OUTPUTS[statement] + "\n## Review"], closes(1, "READY"),
+                                                                                                ["@write", statement, OUTPUTS[statement] + "\n## Review\n"], closes(1, "READY")], **in_plain)
     check_("review/verdict/appended_section_and_a_named_file", created(strict, **OUTPUTS), [asks_plain(1), section(plainly()), closes(1, "READY", "--review-file", "{REVIEW}"), closes(1, "READY", "--review-file", "x.md")], **in_plain)
     check_("review/verdict/appended_section_after_a_retry", created(strict, **OUTPUTS), [asks_plain(1), asks_plain(1, "--retry-pending"), section(plainly(verdict="NOT-READY", rows=ROW)), closes(1, "NOT-READY")], **in_plain)
     for label, state in (("_policy_relaxed", relaxed), ("_policy_off", lenient)):
