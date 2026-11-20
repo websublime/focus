@@ -795,12 +795,11 @@ fn a_skip_routes_and_a_completion_closes_the_registry_row() {
     let _ = fs::remove_dir_all(root);
 }
 
-/// Deliberate deviation. The evidence a transition owes to `aidlc-log`
-/// records (a reviewer's receipt), a Construction stage's checkpoints and
-/// units, the usage ledger's rollup and a unit's skip are each M4's or
-/// M5's: upstream weighs them, Focus refuses by name. (A summary
-/// confirmation and a pipeline's handoffs are weighed: their refusals are
-/// a guard's.)
+/// Deliberate deviation. A Construction stage's checkpoints and units, the
+/// usage ledger's rollup and a unit's skip are each M4's or M5's: upstream
+/// weighs them, Focus refuses by name. (The evidence a transition owes to
+/// `aidlc-log` records is weighed, a summary confirmation, a pipeline's
+/// handoffs and a reviewer's receipt: their refusals are a guard's.)
 #[test]
 fn what_focus_cannot_weigh_yet_is_refused_by_name() {
     let root = created("by-name", CREATED);
@@ -821,7 +820,11 @@ fn what_focus_cannot_weigh_yet_is_refused_by_name() {
         )
     );
     with(&CREATED.replace("- **Review Override**: none\n", ""));
-    assert!(refusal(&state(&root, &["advance", "intent-capture"], &DIRECT)).starts_with("\"intent-capture\" owes a review receipt from focus-product-lead-agent (its review class resolves to advisory)"));
+    assert!(
+        refusal(&state(&root, &["advance", "intent-capture"], &DIRECT)).starts_with(
+            "Cannot complete \"intent-capture\" because focus-product-lead-agent has not reviewed the current output."
+        )
+    );
     with(
         &CREATED
             .replace("- [-] intent-capture", "- [x] intent-capture")
@@ -1203,6 +1206,57 @@ fn what_a_gate_cannot_weigh_yet_is_refused_by_name() {
         &quiet_off,
     ));
     assert!(findings.ends_with("intent-statement.md carries a `## Review` section, whose findings the gate would record on its decision: Focus does not read review findings yet."), "{findings}");
+    // A review asked for and never finished, at a stage that owes one: the
+    // person's own approval goes over it, so what stops the approval is the
+    // findings the gate would record, not the reviewer's guard. (Upstream
+    // approves and records `Review: not finished`; no comparison holds
+    // either refusal.)
+    {
+        let state_before = created_state(&root);
+        let shard_path = root.join(CREATED_RECORD).join("audit/laptop-abc123.md");
+        let shard_before = fs::read_to_string(&shard_path).unwrap();
+        write(
+            &root,
+            &format!("{CREATED_RECORD}/ideation/intent-capture/intent-statement.md"),
+            "# Intent\n",
+        );
+        with(&state_before.replace(
+            "- **Review Override**: none",
+            "- **Review Override**: advisory",
+        ));
+        let approve = ["approve", "intent-capture", "--user-input", "Approve"];
+        let owed = refusal(&state(&root, &approve, &quiet_off));
+        assert!(
+            owed.starts_with("Cannot complete \"intent-capture\" because focus-product-lead-agent has not reviewed the current output."),
+            "{owed}"
+        );
+        let shard_owed = fs::read_to_string(&shard_path).unwrap();
+        fs::write(
+            &shard_path,
+            format!(
+                "{shard_owed}\n## Review Requested\n**Timestamp**: 2026-01-05T10:30:00Z\n**Event**: REVIEW_REQUESTED\n**Stage**: intent-capture\n**Reviewer**: focus-product-lead-agent\n**Iteration**: 1\n**Artifact Fingerprint**: sha256:{}\n**Request Id**: review:{}\n\n---\n",
+                "a".repeat(64),
+                "1".repeat(32)
+            ),
+        )
+        .unwrap();
+        let over = refusal(&state(&root, &approve, &quiet_off));
+        assert!(
+            over.starts_with("\"intent-capture\" has review rows in its ledger, whose findings the gate would record on its decision"),
+            "{over}"
+        );
+        fs::write(&shard_path, shard_before).unwrap();
+        with(&state_before);
+        let _ = fs::remove_dir_all(
+            root.join(CREATED_RECORD)
+                .join(".focus-engine/guard-refusals"),
+        );
+        write(
+            &root,
+            &format!("{CREATED_RECORD}/ideation/intent-capture/intent-statement.md"),
+            "# Intent\n\n## Review\n- R-01 New: the title\n",
+        );
+    }
     assert_eq!(
         refusal(&state(
             &root,

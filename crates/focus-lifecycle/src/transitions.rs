@@ -27,7 +27,7 @@ use focus_workspace::names::WORKSPACE_DIR;
 use focus_workspace::records::read_intent_registry;
 use serde_json::{Map, Value, json};
 
-use crate::admission::{self, Action};
+use crate::admission::{self, Action, Carried};
 use crate::events::{
     answer_mode_fields, audit_tail_has_fields, current_routed_skip_audit_tail,
     has_stage_audit_event,
@@ -254,7 +254,7 @@ pub fn advance_locked(
     }
     admission::admit(
         wf,
-        Some(held),
+        Carried::under(held),
         &content,
         completed_stage,
         Action::Complete,
@@ -410,7 +410,7 @@ pub fn finalize(wf: &Workflow, completed: &str, operation: &str) -> Result<Value
     let completed_stage = wf.stage(completed)?;
     admission::admit(
         wf,
-        Some(&held),
+        Carried::under(&held),
         &content,
         completed_stage,
         Action::Complete,
@@ -520,7 +520,7 @@ pub fn complete_workflow_locked(
         already_marked && has_stage_audit_event(&wf.audit_text(), "STAGE_COMPLETED", completed);
     admission::admit(
         wf,
-        Some(held),
+        Carried::under(held),
         &content,
         completed_stage,
         Action::Complete,

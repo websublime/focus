@@ -14,15 +14,33 @@
 //! command's answer ([`Workflow::say_change_notices`]). A pipeline's
 //! handoffs are weighed ([`crate::pipeline_evidence`]): each link of the
 //! chain with no receipt of this attempt that counts is owed, and the
-//! refusal is a guard's. The reviewer's receipt compares the source the
-//! review saw with the source there now (the attestation, M5), and Focus
-//! does not weigh it yet: a transition that owes one is refused by name,
-//! and one that owes none (the review class resolves to `none`, the stage
-//! has no reviewer, or the kill switch is set) passes as upstream passes
-//! it. A Construction stage is refused by name as well: its checkpoints,
-//! units and swarms are M4.
+//! refusal is a guard's. And the reviewer's receipt is weighed for a stage
+//! reviewed as one ([`crate::review_receipts`]): a terminal verdict of the
+//! current attempt over the outputs as they are lets the stage through; a
+//! request with no verdict, a verdict over other bytes, a recovery pending
+//! or spent and a record that cannot be verified are each a guard's
+//! refusal; and the person's own approval goes over a review that did not
+//! finish, unless their team keeps the policy strict ([`PersonApproval`]).
+//! A stage that runs for each unit, or that writes source code, owes a
+//! review weighed against the units' rows and claims: both are refused by
+//! name until units arrive, as a Construction stage is one step earlier
+//! (its checkpoints, units and swarms are M4). What an approval records
+//! of a review it went over comes with the findings a gate records
+//! (slice 3e-v).
 //!
 //! # What no check tells apart
+//!
+//! In the reviewer's precondition: two readings it hands over, which the reader
+//! would take the same: the review class given to the receipts (they
+//! resolve it as the precondition does), and the receipts given to the
+//! guard's attempt (it reads them with the same class). The paths of a
+//! change after a review: the receipts name them only where the source
+//! changed, which a stage that writes source code owes and is refused by
+//! name; for an output they are never known. And the person's
+//! approval carried by `approve`: with it the approval ends in the
+//! findings' refusal by name, without it in the reviewer's, where upstream
+//! approves; which of the two Focus says is a test of the command, since
+//! no comparison holds either (`what_a_gate_cannot_weigh_yet_is_refused_by_name`).
 //!
 //! Three things in the summary's admission, each said here because a
 //! mutant of it survives the differential:
@@ -66,6 +84,7 @@
 //! in `aidlc-lib.ts`.
 
 use focus_graph::runtime::Stage;
+use focus_guards::workflow::Guards;
 use focus_js::re;
 use focus_js::text::trim;
 use focus_js::{EngineError, Result, bail};
@@ -77,6 +96,7 @@ use focus_workspace::{Layout, env};
 
 use crate::artifacts::{produces_artifacts_exist, workspace_has_work};
 use crate::change_control::{self, Accepted};
+use crate::review_receipts::{self, PendingState, Receipts};
 use crate::stage;
 use crate::summary_evidence::{self, Evidence};
 use crate::workflow::Workflow;
@@ -483,48 +503,279 @@ pub fn resolve_review_class(wf: &Workflow, stage: &Stage, state: &str) -> &'stat
     }
 }
 
-/// Whether the ledger holds a review row of the current workflow, which
-/// Focus cannot weigh.
-fn has_review_rows(wf: &Workflow) -> bool {
-    wf.events()
-        .iter()
-        .any(|row| row.event.starts_with("REVIEW_"))
+/// The person's own approval, carried through the admission chain
+/// (`PersonApproval`). It goes over a review the agent asked for that has
+/// no verdict yet, and over a verdict that is the `NOT-READY` no reviewer
+/// gave; the chain notes here when it did, so the approval is recorded and
+/// said that way.
+#[derive(Debug, Default)]
+pub struct PersonApproval {
+    over_unfinished_review: std::cell::Cell<bool>,
 }
 
-/// `verifyReviewerPrecondition`: nothing to enforce without a reviewer or
-/// with the class `none`; otherwise refused by name when a receipt is
-/// owed, or when the ledger holds review rows an already-closed stage's
-/// recovery would weigh.
+impl PersonApproval {
+    /// Whether the approval went over a review that did not finish.
+    /// (Nothing reads it yet: what an approval records of it comes with
+    /// the findings a gate records, slice 3e-v.)
+    #[must_use]
+    pub fn over_unfinished_review(&self) -> bool {
+        self.over_unfinished_review.get()
+    }
+}
+
+/// What a transition carries through the chain: its hold on the workspace
+/// (a check that runs before the transition takes the lock has none), and
+/// the person's own approval when the call is one.
+#[derive(Clone, Copy, Default)]
+pub struct Carried<'a> {
+    pub held: Option<&'a WorkspaceLock>,
+    pub person: Option<&'a PersonApproval>,
+}
+
+impl<'a> Carried<'a> {
+    /// Under the caller's lock, with nobody's approval.
+    #[must_use]
+    pub fn under(held: &'a WorkspaceLock) -> Self {
+        Self {
+            held: Some(held),
+            person: None,
+        }
+    }
+}
+
+/// `personMayApproveOverUnfinishedReview`: off, relaxed and a strict set
+/// for this piece of work let the person approve over a review that did not
+/// finish; a strict the team keeps in memory does not, and neither does a
+/// policy that cannot be read.
+fn person_may_approve_over_unfinished_review(wf: &Workflow, state: &str) -> bool {
+    Guards::read(&wf.layout, &wf.selector(), &wf.invoker)
+        .and_then(|guards| guards.with_state(state).policy(false))
+        .is_ok_and(|policy| policy.memory_strict.is_none())
+}
+
+/// `approvableUnfinishedReview`, for the stage: a request with no verdict
+/// yet that the person may approve over, the recovery review they asked for
+/// again included. (Upstream asks here too whether the result could not be
+/// verified, which still finishes first. The one caller has refused that
+/// before it asks this, so the test is not repeated.)
+fn approvable_unfinished_review(
+    wf: &Workflow,
+    state: &str,
+    receipts: &Receipts,
+    person: Option<&PersonApproval>,
+) -> bool {
+    let Some(person) = person else {
+        return false;
+    };
+    if receipts.stage_pending.is_none() {
+        return false;
+    }
+    if !receipts.awaiting_verdict.has("") || !person_may_approve_over_unfinished_review(wf, state) {
+        return false;
+    }
+    person.over_unfinished_review.set(true);
+    true
+}
+
+/// `reviewerPreconditionPrefix`.
+fn reviewer_prefix(slug: &str, action: Action) -> String {
+    match action {
+        Action::PresentApprovalGate => format!("Cannot present \"{slug}\" for approval"),
+        Action::Complete => format!("Cannot complete \"{slug}\""),
+    }
+}
+
+/// `verifyReviewerPrecondition`, for a stage reviewed as one: a stage with
+/// a reviewer cannot open its gate or complete until the review ran, which
+/// a terminal verdict of the current attempt over the current outputs
+/// proves. Hard on the review having happened, soft on what it said.
+///
+/// A recovery of a stage already closed (`require_receipt` off) weighs what
+/// is pending and not whether a receipt exists. `action` is how the refusal
+/// names what it blocks. The person's own approval goes over a review that
+/// did not finish, unless their team keeps the policy strict.
 ///
 /// # Errors
 ///
-/// The stage owes a review receipt, or has review rows to weigh.
+/// The review is owed, pending, unverifiable or stale: a guard's refusal.
+/// Or the stage runs for each unit, or writes source code: neither is
+/// weighed yet, and both are refused by name.
 pub fn verify_reviewer(
     wf: &Workflow,
+    carried: Carried<'_>,
     stage: &Stage,
     state: &str,
+    action: Action,
     require_receipt: bool,
 ) -> Result<()> {
     let Some(reviewer) = stage::reviewer(stage) else {
         return Ok(());
     };
-    if resolve_review_class(wf, stage, state) == "none" {
+    let class = resolve_review_class(wf, stage, state);
+    if class == "none" {
         return Ok(());
     }
-    if has_review_rows(wf) {
+    let slug = stage.slug.as_str();
+    if stage::has_unit_marker(stage) || stage::is_per_unit(stage) {
         bail!(
-            "\"{}\" has review rows in its ledger, which name what {reviewer} saw and when: Focus does not weigh review receipts yet.",
-            stage.slug
+            "\"{slug}\" runs for each unit and owes a review from {reviewer}: which units owe one is read off their rows and the plan of units, and Focus does not read those yet (units arrive with a later slice)."
         );
     }
-    if require_receipt {
+    if stage::workspace_requires(stage) {
         bail!(
-            "\"{}\" owes a review receipt from {reviewer} (its review class resolves to {}), which is recorded with `focus engine log review` and compared with the stage's outputs: Focus does not read that record yet. Create the piece of work with `--review none` to run the transition whole.",
-            stage.slug,
-            resolve_review_class(wf, stage, state)
+            "\"{slug}\" writes source code and owes a review from {reviewer}: whether the source is still the one reviewed is weighed against each unit's claims, and Focus does not read those yet (units arrive with a later slice)."
         );
     }
-    Ok(())
+    let receipts = review_receipts::fresh(
+        wf,
+        state,
+        stage,
+        review_receipts::Options {
+            review_class: Some(class),
+            ..Default::default()
+        },
+    )?;
+    if receipts.change_control_read {
+        let accepted: Vec<Accepted<'_>> = receipts
+            .accepted_changes
+            .iter()
+            .map(|change| Accepted {
+                checkpoint: "review-receipt",
+                stage: &change.stage,
+                unit: change.unit.as_deref(),
+                changed: change.changed.as_deref(),
+                recorded: &change.recorded,
+                current: &change.current,
+                notice: &change.notice,
+            })
+            .collect();
+        observe_change_control(wf, carried.held, state, &accepted)?;
+    }
+    let prefix = reviewer_prefix(slug, action);
+    let pending = receipts.stage_pending;
+    // A refusal here is a guard's, evaluated on the attempt with the
+    // receipts just read.
+    let refuse = |code: &str, invariant: &str, message: &str| {
+        crate::guard_series::guard_refused(
+            wf,
+            state,
+            stage,
+            crate::guard_series::Refused {
+                code,
+                blocked_action: action.word(),
+                invariant,
+                user_message: message,
+                unit: None,
+            },
+            crate::guard_attempt::Options {
+                receipts: Some(receipts.clone()),
+                ..Default::default()
+            },
+        )
+    };
+    if let Some(pending) = pending.filter(|pending| pending.verification_failed) {
+        let message = format!(
+            "{prefix} because the recorded review could not be verified and the review must be run again. Retry the pending request with `focus engine log review --stage {slug} --reviewer {reviewer} --iteration {} --retry-pending`, then record the verdict with the same command plus `--verdict <READY|NOT-READY>`.",
+            focus_js::num::to_string(pending.iteration)
+        );
+        return Err(refuse(
+            "REVIEW_EVIDENCE_MISSING",
+            "A recorded review remains available and matches its completion.",
+            &message,
+        ));
+    }
+    if pending.is_some_and(|pending| pending.recovery)
+        && !approvable_unfinished_review(wf, state, &receipts, carried.person)
+    {
+        let message = format!(
+            "{prefix}: the recovery review is still in progress. Finish that review and record its result before presenting the gate or completing the stage."
+        );
+        return Err(refuse(
+            "REVIEW_RECOVERY_PENDING",
+            "A pending recovery request receives its matching verdict.",
+            &message,
+        ));
+    }
+    // A recovery of a stage already closed asks no more: whether a receipt
+    // exists is what closing it asked.
+    if !require_receipt {
+        return Ok(());
+    }
+    // (`noteVerdictNotFinished` marks here the approval over a verdict
+    // that is the NOT-READY no reviewer gave. It decides nothing: it is
+    // what the approval then records, which comes with the findings a
+    // gate records, slice 3e-v.)
+    if receipts.stage_verdict.is_some()
+        || approvable_unfinished_review(wf, state, &receipts, carried.person)
+    {
+        return Ok(());
+    }
+    if receipts.stage_stale {
+        // `staleReviewPreconditionError`.
+        if receipts
+            .stage_stale_progress
+            .is_some_and(|progress| progress.recovery_spent)
+        {
+            let unattended =
+                crate::guard_refusal::unattended_says(env::var("UNATTENDED").as_deref());
+            let guidance =
+                crate::guard_refusal::recovery_guidance(wf, state, slug, None, unattended, None)
+                    .map_err(EngineError::new)?;
+            let message = format!(
+                "{prefix}: this stage's output document changed again after the one recovery review by {reviewer}. {guidance}{}",
+                if crate::guard_refusal::request_changes_reset_is_executable(state, slug) {
+                    " Only a human Request Changes decision resets the review attempt; do not record that rejection on the human's behalf."
+                } else {
+                    ""
+                }
+            );
+            return Err(refuse(
+                "ARTIFACT_RECOVERY_SPENT",
+                "The current output remains covered by the bounded review attempt.",
+                &message,
+            ));
+        }
+        let message = format!(
+            "{prefix} because an output document changed after {reviewer} reviewed it. Run one recovery review pass with `focus engine log review --stage {slug} --reviewer {reviewer} --iteration <next ordinal>`, then record the verdict with the same command plus `--verdict <READY|NOT-READY>`. After that review, stop editing this stage's output documents. If the recovery pass was already spent, present the situation to the human at the approval gate; a human Request Changes decision resets the review attempt. Do not record a rejection on the human's behalf."
+        );
+        return Err(refuse(
+            "ARTIFACT_REVIEW_STALE",
+            "The current output remains covered by reviewer evidence.",
+            &message,
+        ));
+    }
+    // `reviewerPreconditionError`.
+    if let Some(pending) = pending.filter(|pending| pending.state == PendingState::RetryRequired) {
+        let message = format!(
+            "{prefix} because the review request is still waiting for a verifiable recorded result. Run `focus engine log review --stage {slug} --reviewer {reviewer} --iteration {} --retry-pending`, then record the verdict with the same command plus `--verdict <READY|NOT-READY>`.",
+            focus_js::num::to_string(pending.iteration)
+        );
+        return Err(refuse(
+            "REVIEW_EVIDENCE_MISSING",
+            "A pending review request receives a verifiable recorded result.",
+            &message,
+        ));
+    }
+    // A request that can never finish is requested again at its own pass.
+    let ordinal = pending
+        .filter(|pending| pending.state == PendingState::Outstanding)
+        .map_or_else(
+            || "<next ordinal>".to_owned(),
+            |pending| focus_js::num::to_string(pending.iteration),
+        );
+    let message = match action {
+        Action::PresentApprovalGate => format!(
+            "Cannot present \"{slug}\" for approval because {reviewer} has not reviewed the current output. Apply any fixes first, then request the review with `focus engine log review --stage {slug} --reviewer {reviewer} --iteration {ordinal}` and record its verdict with the same command plus `--verdict <READY|NOT-READY>`. After recording the verdict, do not edit this stage's output documents; include suggestions from a READY review in the approval summary instead."
+        ),
+        Action::Complete => format!(
+            "Cannot complete \"{slug}\" because {reviewer} has not reviewed the current output. Apply any fixes first, then request the review with `focus engine log review --stage {slug} --reviewer {reviewer} --iteration {ordinal}` and record its verdict with the same command plus `--verdict <READY|NOT-READY>`. After recording the verdict, do not edit this stage's output documents; include suggestions from a READY review in the approval summary instead."
+        ),
+    };
+    Err(refuse(
+        "REVIEW_EVIDENCE_MISSING",
+        "Reviewer-bearing stages have current terminal review evidence.",
+        &message,
+    ))
 }
 
 /// `verifyPipelineLinkPrecondition`: a pipeline stage owes its handoffs,
@@ -604,15 +855,15 @@ pub fn refuse_construction(stage: &Stage) -> Result<()> {
 /// Any guard above refuses.
 pub fn verify_gate_opening_guards(
     wf: &Workflow,
-    held: Option<&WorkspaceLock>,
+    carried: Carried<'_>,
     stage: &Stage,
     state: &str,
 ) -> Result<()> {
     verify_stage_artifacts(wf, stage, Action::PresentApprovalGate)?;
-    verify_summary_confirmation(wf, held, stage, state)?;
+    verify_summary_confirmation(wf, carried.held, stage, state)?;
     verify_pipeline_link(wf, stage)?;
     if !reviewer_gate_guard_disabled() {
-        verify_reviewer(wf, stage, state, true)?;
+        verify_reviewer(wf, carried, stage, state, Action::PresentApprovalGate, true)?;
     }
     Ok(())
 }
@@ -627,7 +878,7 @@ pub fn verify_gate_opening_guards(
 /// Any guard refuses; the stage is a Construction stage.
 pub fn admit(
     wf: &Workflow,
-    held: Option<&WorkspaceLock>,
+    carried: Carried<'_>,
     state: &str,
     stage: &Stage,
     action: Action,
@@ -637,7 +888,7 @@ pub fn admit(
     assert_not_archived(state, operation)?;
     refuse_construction(stage)?;
     if action != Action::Complete {
-        verify_gate_opening_guards(wf, held, stage, state)?;
+        verify_gate_opening_guards(wf, carried, stage, state)?;
         return Ok(());
     }
     let already_completed = parse_checkboxes(state)
@@ -645,15 +896,22 @@ pub fn admit(
         .any(|line| line.slug == stage.slug && line.state == CheckboxState::Completed);
     if approving {
         verify_stage_artifacts(wf, stage, Action::Complete)?;
-        verify_summary_confirmation(wf, held, stage, state)?;
+        verify_summary_confirmation(wf, carried.held, stage, state)?;
         verify_pipeline_link(wf, stage)?;
-        verify_reviewer(wf, stage, state, true)?;
+        verify_reviewer(wf, carried, stage, state, Action::Complete, true)?;
         return Ok(());
     }
-    verify_reviewer(wf, stage, state, !already_completed)?;
+    verify_reviewer(
+        wf,
+        carried,
+        stage,
+        state,
+        Action::Complete,
+        !already_completed,
+    )?;
     if !already_completed {
         verify_stage_artifacts(wf, stage, Action::Complete)?;
-        verify_summary_confirmation(wf, held, stage, state)?;
+        verify_summary_confirmation(wf, carried.held, stage, state)?;
         verify_pipeline_link(wf, stage)?;
     }
     Ok(())
@@ -889,10 +1147,28 @@ mod tests {
             ),
             "advisory"
         );
-        assert!(verify_reviewer(&wf, &reviewed, STATE, true).unwrap_err().message().contains("owes a review receipt from focus-product-lead-agent (its review class resolves to advisory)"));
-        assert!(verify_reviewer(&wf, &reviewed, STATE, false).is_ok());
+        // Owed and not there: a guard's refusal, said for the action it
+        // blocks (the whole refusal is compared in the differential). A
+        // recovery of a stage already closed does not ask for the receipt.
+        let weigh = |stage: &Stage, action: Action, require: bool| {
+            verify_reviewer(&wf, Carried::default(), stage, STATE, action, require)
+        };
+        let refused = weigh(&reviewed, Action::Complete, true).unwrap_err();
+        let guard = refused
+            .detail::<crate::guard_series::GuardRefused>()
+            .expect("a guard's refusal");
+        assert_eq!(guard.refusal.code, "REVIEW_EVIDENCE_MISSING", "{refused:?}");
+        assert_eq!(guard.refusal.blocked_action, "complete");
+        assert!(refused.message().starts_with("Cannot complete \"r\" because focus-product-lead-agent has not reviewed the current output."));
+        let refused = weigh(&reviewed, Action::PresentApprovalGate, true).unwrap_err();
+        assert!(
+            refused
+                .message()
+                .starts_with("Cannot present \"r\" for approval because")
+        );
+        assert!(weigh(&reviewed, Action::Complete, false).is_ok());
         let unreviewed = stage_of(json!({"slug": "u", "phase": "inception", "name": "U"}));
-        assert!(verify_reviewer(&wf, &unreviewed, STATE, true).is_ok());
+        assert!(weigh(&unreviewed, Action::Complete, true).is_ok());
         let construction = stage_of(json!({"slug": "c", "phase": "construction", "name": "C"}));
         assert!(
             refuse_construction(&construction)
