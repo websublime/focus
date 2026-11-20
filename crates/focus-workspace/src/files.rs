@@ -555,3 +555,54 @@ mod tests {
         std::fs::remove_dir_all(&dir).unwrap();
     }
 }
+
+/// `writeRecordFileNoFollow`: a framework-owned file under `record_root`,
+/// written through no symlink: a link planted at the folder, at a folder
+/// under it, or at the file refuses the write.
+///
+/// # Errors
+///
+/// A link is on the way, or the file cannot be written.
+pub fn write_record_file_no_follow(
+    record_root: &Path,
+    relative: &str,
+    data: &[u8],
+) -> focus_js::Result<std::path::PathBuf> {
+    crate::observer::refuse_write(crate::observer::WRITE_FILE_ATOMIC)?;
+    let anchor = std::fs::canonicalize(record_root)
+        .map_err(|err| focus_js::EngineError::new(format!("{}: {err}", record_root.display())))?;
+    let rel = Path::new(relative);
+    crate::links::refuse_link_in_chain(&anchor, rel)?;
+    let target = anchor.join(rel);
+    if let Some(parent) = target.parent() {
+        std::fs::create_dir_all(parent)
+            .map_err(|err| focus_js::EngineError::new(format!("{}: {err}", parent.display())))?;
+    }
+    // The parents exist now; none of them, nor the leaf, may be a link.
+    crate::links::refuse_link_in_chain(&anchor, rel)?;
+    crate::atomic::write_atomic(&target, data)
+        .map_err(|err| focus_js::EngineError::new(format!("{}: {err}", target.display())))?;
+    Ok(target)
+}
+
+/// `writeEngineFileNoFollow`: `<record>/.focus-engine/<name>`, the record
+/// root created when missing.
+///
+/// # Errors
+///
+/// See [`write_record_file_no_follow`].
+pub fn write_engine_file_no_follow(
+    layout: &crate::Layout,
+    selection: &crate::records::Selection,
+    name: &str,
+    data: &str,
+) -> focus_js::Result<std::path::PathBuf> {
+    let record_root = selection.docs_root(layout);
+    std::fs::create_dir_all(&record_root)
+        .map_err(|err| focus_js::EngineError::new(format!("{}: {err}", record_root.display())))?;
+    write_record_file_no_follow(
+        &record_root,
+        &format!("{}/{name}", crate::names::ENGINE_DIR),
+        data.as_bytes(),
+    )
+}
