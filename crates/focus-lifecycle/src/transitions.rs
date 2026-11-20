@@ -254,6 +254,7 @@ pub fn advance_locked(
     }
     admission::admit(
         wf,
+        Some(held),
         &content,
         completed_stage,
         Action::Complete,
@@ -404,11 +405,12 @@ fn emit_phase_boundary(
 ///
 /// As [`advance`].
 pub fn finalize(wf: &Workflow, completed: &str, operation: &str) -> Result<Value> {
-    let _held = wf.lock("finalizing a stage")?;
+    let held = wf.lock("finalizing a stage")?;
     let mut content = wf.read_state()?;
     let completed_stage = wf.stage(completed)?;
     admission::admit(
         wf,
+        Some(&held),
         &content,
         completed_stage,
         Action::Complete,
@@ -518,6 +520,7 @@ pub fn complete_workflow_locked(
         already_marked && has_stage_audit_event(&wf.audit_text(), "STAGE_COMPLETED", completed);
     admission::admit(
         wf,
+        Some(held),
         &content,
         completed_stage,
         Action::Complete,

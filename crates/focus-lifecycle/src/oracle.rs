@@ -324,6 +324,7 @@ fn review_snapshot_case(wf: &Workflow, case: &Value) -> Value {
             selection,
             invoker: Invoker::default(),
             install: wf.install.clone(),
+            said: std::cell::RefCell::default(),
         };
         let slug = case["slug"].as_str().unwrap_or_default();
         // A stage no install has: the compiled one with what the case says
@@ -718,6 +719,7 @@ fn summary_evidence_case(wf: &Workflow, case: &Value) -> Value {
             selection,
             invoker: Invoker::default(),
             install: wf.install.clone(),
+            said: std::cell::RefCell::default(),
         };
         let mut stage = wf
             .stage(case["slug"].as_str().unwrap_or_default())
@@ -1112,6 +1114,7 @@ fn review_receipts_case(wf: &Workflow, case: &Value) -> Value {
             selection,
             invoker: Invoker::default(),
             install: wf.install.clone(),
+            said: std::cell::RefCell::default(),
         };
         let slug = case["slug"].as_str().unwrap_or_default();
         let mut stage = wf
@@ -1690,6 +1693,7 @@ fn guard_series_case(wf: &Workflow, case: &Value) -> Value {
             selection,
             invoker: Invoker::default(),
             install: wf.install.clone(),
+            said: std::cell::RefCell::default(),
         };
         let record = layout.space_dir("default").join("intents/rec-1a2b3c4d");
         let audit = record.join("audit");
@@ -1906,6 +1910,7 @@ fn review_derived_case(wf: &Workflow, case: &Value) -> Value {
             selection,
             invoker: Invoker::default(),
             install: wf.install.clone(),
+            said: std::cell::RefCell::default(),
         };
         let mut stage = wf
             .stage(case["slug"].as_str().unwrap_or_default())
