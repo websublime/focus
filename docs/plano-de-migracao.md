@@ -2714,7 +2714,25 @@ Os outros dois desvios da 2e-iii não chegam ao veredicto (acima, em cada um).
 
 A mesma fixture mostrou dois nomes de comando que o diferencial ainda não assentava do lado do original: `aidlc-log.ts decision …` e `aidlc-orchestrate.ts report …` escritos sem o `bun .claude/tools/` à frente, dentro de crases, na frase de recuperação de um sumário que mudou.
 
-**O que a mutação mostrou.** @@V_HOLES@@
+**O que a mutação mostrou.** 84 mutantes sobre `review_verdict.rs`, sobre `record_verdict` e sobre o caminho dos avisos (`review.rs` e `report.rs`), cada um julgado pelo diferencial ao vivo em `log/review/(verdict|request)/`. 67 morreram à primeira e 17 sobreviveram. Catorze eram buracos nos checks; cada um ganhou o check que lhe faltava e o mutante foi repetido até morrer:
+
+| O que o mutante trocava | Check que o mata |
+| --- | --- |
+| A cadeia de links até ao ficheiro de revisão, não verificada | `review_file_a_link`, `review_folder_a_link` (o passo `@link`) |
+| O número da cópia legível, sem olhar para as que já lá estão acima | `copy_numbered_after_the_highest` (nove cópias, lidas pela ordem da pasta) |
+| Um finding dado por resolvido só pela marca do reviewer, e só pelo estado (dois mutantes) | `earlier_list_resolved_with_no_mark`, `earlier_list_marked_fixed_and_open`, `earlier_list_marked_fixed_and_still_applies` |
+| O pedido pendente procurado pela passagem «igual ou acima» | `of_a_pass_already_answered` |
+| O que a Guard Policy fez, por gravar no veredicto | `summary_amended_since*`, `summary_amended_and_no_review*` |
+| O remédio dito quando os artefactos mudaram (três mutantes) | `two_passes_wait`, `source_registry_unreadable`, `source_unbindable` |
+| O ficheiro próprio do pedido, onde o pedido é de antes de os haver | `request_from_before_review_files_with_an_id`, `request_from_before_review_files_with_no_id` |
+| A razão da recusa depois de rebaixar os títulos | `says_a_heading_and_another_verdict` |
+| O `Artifact Fingerprint` tirado do pedido e não do retrato | `request_over_raw_line_endings`, `raw_line_endings` |
+| `TRUE` aceite como veredicto | `said_true` |
+| Os avisos de uma recusa juntos por um espaço | `outputs_saved_under_no_confirmation*` (dois avisos de uma vez: um recibo com `Summary Authorization Id` e dois outputs gravados sem ele) |
+
+Três não mudam resposta nenhuma, e cada um tem a razão escrita na sua linha do código. O ficheiro de revisão que não existe, perguntado ao nome ou ao destino de um link: a cadeia de links já recusou um link antes. O título rebaixado aceite «qualquer que fosse a primeira leitura»: no original a verificação e o rebaixamento leem títulos com dois leitores, que discordam num título logo a seguir a uma tabela (`says_a_heading_right_after_the_table`); em Focus é um leitor só, e uma revisão que ele rebaixa é uma cuja primeira leitura já nomeava um título. E a cópia legível só quando a revisão tem corpo (`if (reviewBody)`): toda a revisão que esta fatia grava tem um; o `NOT-READY` depois de uma repetição, que não tem, é da 2e-iv-b.
+
+A mutação achou ainda o defeito dos avisos (acima): o mutante que tirava a gravação do que a Guard Policy fez pediu a fixture do sumário confirmado, e foi ela que mostrou a recusa do original a começar pelo aviso.
 
 **Verificado.**
 
@@ -2722,7 +2740,7 @@ A mesma fixture mostrou dois nomes de comando que o diferencial ainda não assen
 | --- | --- |
 | Diferencial, `log/review/verdict/*` | 75 checks: 68 iguais e 7 desvios declarados (os dois do texto riscado, os dois das decisões, os três recusados pelo nome). Os dois primeiros (`ready` e `not_ready`) deram igual à primeira comparação inteira: o registo, a linha, a cópia, o rascunho retirado e a resposta. 9 comparam-se ao vivo e não entram na gravação: a fonte do projeto, os dois limites de tamanho (um ficheiro de 4 MB) e o artefacto com dois nomes |
 | Diferencial, tudo | 3 943 checks: 3 703 iguais, 240 desvios declarados, nenhum diferente; a gravação (3 845 checks sobre 1 502 árvores) repete-se igual, com o assentamento novo escrito das duas maneiras (Python e Rust) |
-| Mutação | @@V_MUT@@ |
+| Mutação | 84 mutantes: 67 mortos à primeira; 14 buracos, cada um fechado com um check novo (a tabela acima) e repetido até morrer; 3 equivalentes, cada um com a razão na linha |
 | `cargo test` | 601 testes |
 
 ### Fatia 3a: a tentativa de revisão, partida em cinco (feita)
