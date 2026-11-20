@@ -245,6 +245,14 @@ fn normalise_audit(text: &str, root: &Path) -> String {
         r"`focus engine log ((?:decision|answer) [^`]*)`",
         |found, text| format!("<run log {}>", group(found, text, 1)),
     );
+    // A tool's script named bare with its arguments, in backticks: the
+    // form upstream gives the command a refusal tells the agent to run,
+    // which a memory file copied whole holds too.
+    text = replace_all(
+        &text,
+        r"`focus-(state|orchestrate)\.ts ([^`]+)`",
+        |found, text| format!("<cli> {} {}", group(found, text, 1), group(found, text, 2)),
+    );
     // The state tool names itself, its verbs and the orchestrator's. A
     // memory file copied whole may name upstream's script too.
     text = replace_all(
@@ -289,14 +297,6 @@ fn normalise_audit(text: &str, root: &Path) -> String {
         &text,
         r#""(structureHash|contentHash)":"sha256:[0-9a-f]{64}""#,
         |found, text| format!("\"{}\":\"<verified>\"", group(found, text, 1)),
-    );
-    // A summary's authorization id is taken over the questions file's
-    // name, which carries the workspace directory's; recorded the same way.
-    // (What is hashed is pinned in `focus-evidence::authorization`.)
-    text = replace_all(
-        &text,
-        r#"(\*\*Summary Authorization Id\*\*: |"summary_authorization_id":"|^  "id": ")[0-9a-f]{64}"#,
-        |found, text| format!("{}<verified>", group(found, text, 1)),
     );
     // A source baseline is the hash of a listing of hashes of the tree's
     // own files, recorded the same way (see `own_baseline`).
@@ -743,6 +743,92 @@ fn own_hashes(root: &Path, text: &str) -> String {
     })
 }
 
+/// The recorder's `authorization_ids`: the ids of the summary
+/// authorizations the tree's records keep that are what their own fields
+/// hash to. (What is hashed is pinned in `focus-evidence::authorization`.)
+fn authorization_ids(root: &Path) -> Vec<String> {
+    fn records(dir: &Path, known: &mut Vec<String>) {
+        let Ok(entries) = fs::read_dir(dir) else {
+            return;
+        };
+        for entry in entries {
+            let path = entry.unwrap().path();
+            if path.is_dir() && !path.is_symlink() {
+                records(&path, known);
+                continue;
+            }
+            let kept_under = path
+                .parent()
+                .and_then(Path::parent)
+                .and_then(Path::file_name);
+            if path.file_name() != Some(std::ffi::OsStr::new("stage.json"))
+                || kept_under != Some(std::ffi::OsStr::new("summary-authorization"))
+            {
+                continue;
+            }
+            let Some(kept) = fs::read(&path)
+                .ok()
+                .and_then(|bytes| serde_json::from_slice::<Value>(&bytes).ok())
+            else {
+                continue;
+            };
+            let Some(fields) = [
+                "attempt",
+                "stage",
+                "unit",
+                "workflow",
+                "questions_file",
+                "questions_sha256",
+                "choice",
+            ]
+            .iter()
+            .map(|key| kept.get(key).cloned())
+            .collect::<Option<Vec<Value>>>() else {
+                continue;
+            };
+            let named = serde_json::to_string(&Value::Array(fields)).unwrap();
+            let id = format!("{:x}", Sha256::digest(named.as_bytes()));
+            if kept["id"].as_str() == Some(id.as_str()) {
+                known.push(id);
+            }
+        }
+    }
+    let mut known = Vec::new();
+    records(root, &mut known);
+    known
+}
+
+/// A summary's authorization id is taken over the questions file's name,
+/// which carries the workspace directory's, so it differs from upstream's
+/// by construction: the recorder verified each engine's against its own
+/// tree and recorded it as `<verified>`, wherever it is written. An id no
+/// record of the tree vouches for (one a ledger was handed) is compared as
+/// it is.
+fn settle_authorization_ids(
+    root: &Path,
+    mut actual: BTreeMap<String, String>,
+) -> BTreeMap<String, String> {
+    let known = authorization_ids(root);
+    if known.is_empty() {
+        return actual;
+    }
+    for text in actual.values_mut() {
+        *text = replace_all(
+            text,
+            r"(?<![0-9a-f])[0-9a-f]{64}(?![0-9a-f])",
+            |found, text| {
+                let id = &text[found.range()];
+                if known.iter().any(|own| own == id) {
+                    "<verified>".to_owned()
+                } else {
+                    id.to_owned()
+                }
+            },
+        );
+    }
+    actual
+}
+
 /// The environment a check runs in: nothing of Focus's own, and no mark of
 /// the host this replay happens to run under (a refusal names the host whose
 /// terminal the command came from).
@@ -972,7 +1058,10 @@ fn replay_audit(check: &Value, root: &Path) -> BTreeMap<String, String> {
         let (shown, text) = minted(rel, text);
         actual.insert(shown, text.unwrap_or_else(|| "<removed>".to_owned()));
     }
-    placeholder_messages(settle_review_ids(root, actual))
+    placeholder_messages(settle_authorization_ids(
+        root,
+        settle_review_ids(root, actual),
+    ))
 }
 
 /// The recorder's `placeholder_messages`: the message records minted during

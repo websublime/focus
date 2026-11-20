@@ -2714,6 +2714,8 @@ Os outros dois desvios da 2e-iii não chegam ao veredicto (acima, em cada um).
 
 A mesma fixture mostrou dois nomes de comando que o diferencial ainda não assentava do lado do original: `aidlc-log.ts decision …` e `aidlc-orchestrate.ts report …` escritos sem o `bun .claude/tools/` à frente, dentro de crases, na frase de recuperação de um sumário que mudou.
 
+**A repetição da gravação ficou mais estreita em dois sítios.** A gravação inteira, refeita no fim, mostrou-os: 134 checks gravados deixaram de se repetir iguais, sem diferença nenhuma no diferencial. O primeiro é a regra nova dos nomes de comando, que só estava escrita em Python: um ficheiro de memória copiado inteiro (`org.md`) nomeia `aidlc-state.ts practices-promote` entre crases, a regra tira-lhe as crases nas duas árvores, e `recorded.rs` não a tinha. Está agora escrita das duas maneiras. O segundo é o id de autorização de um sumário: o gravador só o escreve como `<verified>` quando um registo da própria árvore o guarda e os campos desse registo dão esse hash (`authorization_ids`), e a repetição trocava qualquer valor de 64 hex atrás de `Summary Authorization Id`. Um id escrito à mão num ledger, que nenhum registo abona (`outputs_saved_under_no_confirmation*`), ficava `<verified>` de um lado e por extenso do outro. A repetição passou a verificar como o gravador verifica: os registos da árvore, o hash dos campos, e a troca em qualquer sítio onde o id esteja.
+
 **O que a mutação mostrou.** 84 mutantes sobre `review_verdict.rs`, sobre `record_verdict` e sobre o caminho dos avisos (`review.rs` e `report.rs`), cada um julgado pelo diferencial ao vivo em `log/review/(verdict|request)/`. 67 morreram à primeira e 17 sobreviveram. Catorze eram buracos nos checks; cada um ganhou o check que lhe faltava e o mutante foi repetido até morrer:
 
 | O que o mutante trocava | Check que o mata |
@@ -2738,10 +2740,11 @@ A mutação achou ainda o defeito dos avisos (acima): o mutante que tirava a gra
 
 | Verificação | Resultado |
 | --- | --- |
-| Diferencial, `log/review/verdict/*` | 75 checks: 68 iguais e 7 desvios declarados (os dois do texto riscado, os dois das decisões, os três recusados pelo nome). Os dois primeiros (`ready` e `not_ready`) deram igual à primeira comparação inteira: o registo, a linha, a cópia, o rascunho retirado e a resposta. 9 comparam-se ao vivo e não entram na gravação: a fonte do projeto, os dois limites de tamanho (um ficheiro de 4 MB) e o artefacto com dois nomes |
-| Diferencial, tudo | 3 943 checks: 3 703 iguais, 240 desvios declarados, nenhum diferente; a gravação (3 845 checks sobre 1 502 árvores) repete-se igual, com o assentamento novo escrito das duas maneiras (Python e Rust) |
+| Diferencial, `log/review/verdict/*` | 104 checks: 97 iguais e 7 desvios declarados (os dois do texto riscado, os dois das decisões, os três recusados pelo nome). Os dois primeiros (`ready` e `not_ready`) deram igual à primeira comparação inteira: o registo, a linha, a cópia, o rascunho retirado e a resposta. 13 comparam-se ao vivo e não entram na gravação: a fonte do projeto (sete, com a que não se consegue ler nem ligar), os dois limites de tamanho (um ficheiro de 4 MB), o artefacto com dois nomes e os dois links |
+| Diferencial, `log/review/request/*` | 84 checks (seis novos: o sumário emendado antes do pedido, sob cada Guard Policy, aceite e recusado): 83 iguais e o desvio que já lá estava |
+| Diferencial, tudo | 3 979 checks: 3 739 iguais, 240 desvios declarados, nenhum diferente; a gravação (3 877 checks sobre 1 519 árvores) repete-se igual, com o assentamento novo escrito das duas maneiras (Python e Rust) |
 | Mutação | 84 mutantes: 67 mortos à primeira; 14 buracos, cada um fechado com um check novo (a tabela acima) e repetido até morrer; 3 equivalentes, cada um com a razão na linha |
-| `cargo test` | 601 testes |
+| `cargo test` | 602 testes |
 
 ### Fatia 3a: a tentativa de revisão, partida em cinco (feita)
 
