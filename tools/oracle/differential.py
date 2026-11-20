@@ -5908,6 +5908,18 @@ def log_checks():
         check_(f"review/verdict/summary_amended_and_no_review{label}", confirmed_once(state), [asks(1), amends, says(1, "READY")])
         check_(f"review/request/summary_amended{label}", confirmed_once(state, amended), [asks(1), asks(1)])
         check_(f"review/request/summary_amended_and_refused{label}", confirmed_once(state, amended), [asks(2)])
+    # Two changes at once: a receipt that minted an authorization, and two outputs last saved under none. Each is said
+    # on a line of its own, where the verdict is recorded and where it is refused. (The stage comes to owe the
+    # confirmation while the reviewer works, so the request has accepted nothing before the verdict reads them.)
+    minted = receipt_of(summary).replace("**Details**: Looks correct", "**Details**: Looks correct\n**Summary Authorization Id**: " + "ab" * 32)
+    assert minted != receipt_of(summary)
+    for label, state in (("", strict), ("_policy_relaxed", relaxed), ("_policy_off", lenient)):
+        under_none = lambda: created(state, CREATED_AUDIT + minted + saved, **{**OUTPUTS, answers: summary})
+        owes_now = ["@write", state_path, owing_of(state)]
+        check_(f"review/verdict/outputs_saved_under_no_confirmation{label}", under_none(), [asks(1), writes(review_text()), owes_now, says(1, "READY")])
+        check_(f"review/verdict/outputs_saved_under_no_confirmation_and_no_review{label}", under_none(), [asks(1), owes_now, says(1, "READY")])
+    # A verdict flag given the word a flag with no value reads as.
+    check_("review/verdict/said_true", created(strict, **OUTPUTS), [asks(1), writes(review_text()), says(1, "true"), says(1, "TRUE")])
     # A second name is a link no recording carries, the project's own name is the replay's own, and a state that is
     # not text is no text a recording holds: compared live.
     UNRECORDED.update({"log/link/handoff_a_second_name", "log/link/root_handoff_by_its_name", "log/link/state_not_text"})

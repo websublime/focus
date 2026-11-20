@@ -19,13 +19,18 @@
 //! When one of the readers read the Guard Policy (something had changed),
 //! what the policy did is recorded before anything else is decided: the
 //! policy's own move, and each change it let through, which the answer then
-//! says once (`change_notices`).
+//! says once (`change_notices`). A verdict that is refused after a change
+//! was let through says it too, before its sentence and in a field of its
+//! own ([`Refused`]), as upstream's does (`emitError`); a request that is
+//! refused says none, as upstream's says none.
 //!
 //! # What is not here yet
 //!
 //! Refused by name, each until the slice that brings it:
 //!
-//! - `--verdict`, the other half of the command (slice 2e-iv).
+//! - Of the verdict (`review_verdict`): `--review-file`, the
+//!   `## Review` section appended to the artifact, and the `NOT-READY` with
+//!   no review after a retry (slice 2e-iv-b).
 //! - `--unit`: the unit's claim, the plan of units, its source and its
 //!   manifest (slice 5).
 //!

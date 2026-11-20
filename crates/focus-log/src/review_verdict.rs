@@ -75,6 +75,9 @@ fn read_draft(record: &Path, draft: &str) -> Result<Option<Vec<u8>>> {
         .map_err(|err| EngineError::new(format!("{}: {err}", record.display())))?;
     links::refuse_link_in_chain(&anchor, Path::new(draft))?;
     let target = anchor.join(draft);
+    // (Asked of the name itself and not of what a link leads to; the chain
+    // above has refused a link by now, so the two questions have one answer
+    // here and this is the one that is meant.)
     if std::fs::symlink_metadata(&target).is_err() {
         return Ok(None);
     }
@@ -367,6 +370,11 @@ pub(crate) fn verdict(
     if let Some(demoted) = review_text::demote_review_headings(&review_bytes) {
         let again = review_text::validate_review_appendix(&demoted.bytes, &expected);
         match (&validity, &again) {
+            // (Whatever the first reading said: upstream's check and its
+            // demotion read headings with two readers, which disagree on a
+            // heading right after a table, so there the first reading can
+            // already be valid. Here one reader does both, and a review it
+            // demotes is one whose first reading named a heading.)
             (_, Validity::Valid) => {
                 review_bytes = demoted.bytes;
                 validity = again;
@@ -543,6 +551,9 @@ pub(crate) fn verdict(
     // A copy for people, beside the artifact the review is about. The
     // record stays the engine's source of truth and nothing reads the copy
     // back, so failing to write it never withholds the verdict.
+    // (A verdict recorded with no review has nothing to copy: upstream's
+    // `if (reviewBody)`. Every review this part records has a body; the
+    // `NOT-READY` after a retry, which has none, comes with the next.)
     let mut review_markdown = None;
     if !written.body.is_empty() {
         let copy_relative = copy_path(record, artifact_key);
