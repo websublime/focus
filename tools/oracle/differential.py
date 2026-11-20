@@ -6025,6 +6025,8 @@ def log_checks():
     # ways on of the one refused say `--single`. And refused twice: the same series.)
     check_("review/verdict/summary_owed_since_single", created(strict, **OUTPUTS), [asks(1), asks(1, "--single"), writes(review_text()), ["@write", state_path, owing_now],
                                                                                     says(1, "READY", "--single"), says(1, "READY", "--single"), says(1, "READY")])
+    check_("review/verdict/summary_owed_since_single_after_a_review", created(strict, **OUTPUTS), [asks(1), writes(review_text()), says(1, "READY"), asks(1, "--single"), writes(review_text()),
+                                                                                                   ["@write", state_path, owing_now], says(1, "READY", "--single")])
     check_("review/verdict/summary_owed_since_twice", created(strict, **OUTPUTS), [asks(1), writes(review_text()), ["@write", state_path, owing_now], says(1, "READY"), says(1, "NOT-READY")])
     # A summary that was confirmed, by a ledger written by hand: the receipt over the questions file's bytes, and each
     # output saved after it. The answers amended while the reviewer worked are a change the Guard Policy decides on.

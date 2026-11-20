@@ -123,6 +123,21 @@ pub(crate) struct GuardSaid<'a> {
 /// series. The attempt is read with what the command already has in hand
 /// (`options`); `resources` are the ones the series is signed with, the
 /// attempt's own when the guard names none.
+///
+/// What no comparison with upstream tells apart here, and why:
+///
+/// - **The receipts and the state of the request that waits, handed over.**
+///   The guard would read both the same: the command hands them because it
+///   has them. (The request's state differs only for a unit's request,
+///   which is refused by name.)
+/// - **The resources a guard of the attempt names.** They enter only the
+///   signature of the series, which no two trees share: the differential
+///   sees of a signature whether two refusals have the same one, and the
+///   corpus compares the hash itself, over resources it is given.
+/// - **Whether owed outputs are checked, handed over, and the questions
+///   file of a stage run by itself.** Each differs from what the guard
+///   would take for itself only at a stage that runs for each unit and is
+///   reviewed with no unit named, which no check reaches yet.
 pub(crate) fn guard_text(
     wf: &Workflow,
     asked: &Asked<'_>,

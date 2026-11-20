@@ -3397,7 +3397,20 @@ As outras recusas de guard de `state` (o sumário, o recibo de revisão, os hand
 
 **O que o diferencial compara agora.** A forma `guard-ask` saiu de `SHAPES` e entrou `guard-series`: a pergunta, os seus remédios e o registo da série comparam-se; o que se assenta é só o que não pode ser igual em duas árvores. A série assina-se com hashes sobre a linha em que a tentativa começa e sobre a fronteira mais recente, e as duas dizem o shard pelo caminho: cada assinatura escreve-se pela ordem em que cada motor a escreve pela primeira vez (`<state-1>`, `<series-1>`), onde quer que esteja (o registo, a pergunta terminal, a linha de erro), e o momento do registo fica de fora. A repetição da gravação assenta da mesma maneira (`recorded.rs`). O comando de um remédio vem sozinho, sem crases à volta, e o do orquestrador ganhou a regra que o de `state` já tinha, nos dois harnesses.
 
-@@GC_FOUND@@
+**O que a comparação encontrou.** Nada no port. Da primeira vez que a pergunta deixou de ser retirada, 3 de 494 checks diferiam, os três no harness: o comando do orquestrador num remédio, que cada motor escreve à sua maneira e não tinha regra. A regra nova, larga demais na primeira versão, apanhava também o comando que um hook cita de volta (um check diferente na corrida inteira, e nada gravado enquanto esteve assim): ficou presa ao valor de um remédio.
+
+**O que a mutação encontrou.** 42 mutantes sobre a ligação (os códigos e os invariantes, o que cada sítio entrega à tentativa, os recursos, o ponto de entrada de `state`), julgados pelo diferencial ao vivo nos checks com uma recusa de guard: 23 morreram à primeira, mais do que em qualquer outra fatia ficou por dizer. Dez eram buracos:
+
+| O que o mutante trocava | O que o mata |
+| --- | --- |
+| O orçamento e a contagem que o pedido entrega, na recusa do sumário | `summary_owed_after_a_review*`: com uma revisão que vale e as passagens gastas, o remédio é o gate; e uma stage corrida sozinha tem a contagem do seu próprio attempt |
+| A stage corrida sozinha, dita ao avaliador | `summary_owed_single`: o remédio confirma o sumário com `--single` |
+| O orçamento (dois mutantes) e a contagem, na recusa do sumário de um veredicto | `summary_owed_since_single_after_a_review`: o veredicto de uma stage corrida sozinha depois de uma revisão da stage no trabalho |
+| O diretório do projeto, no guard de `state` | `no_artifacts_while_revising`: numa stage em revisão o remédio é um comando que nomeia o projeto |
+| Ninguém a ver, no guard de `state` | `start_no_artifacts_unattended`: não se pede uma mudança a quem não está |
+| O código e o invariante do guard do trabalho de fonte (dois mutantes) | Um teste de `admission`. Nenhum comando chega a este guard enquanto as stages que escrevem código, que são de Construction, forem recusadas pelo nome um passo antes: os dois valores estão afirmados, e ficam por comparar com o original até lá |
+
+Nove não se distinguem, e estão ditos em `guard_text`. Cinco são leituras entregues que o guard faria iguais (os recibos, duas vezes; o estado do pedido à espera, três). Dois só entram na assinatura da série (os recursos próprios de um guard da tentativa): duas árvores nunca têm a mesma assinatura, o diferencial vê dela se duas recusas a partilham, e a fórmula compara-se no corpus sobre recursos que o caso dá, de modo que o nome destes dois recursos não é comparado por ninguém. E dois são braços que nenhum check alcança: a verificação dos outputs devidos e o ficheiro de perguntas de uma stage corrida sozinha só diferem do que o guard tomaria numa stage por unit revista sem nomear unit.
 
 **Verificado.**
 
@@ -3405,7 +3418,7 @@ As outras recusas de guard de `state` (o sumário, o recibo de revisão, os hand
 | --- | --- |
 | Diferencial, os checks com uma recusa de guard | 61 checks: os 57 que tinham a pergunta retirada (49 de `log review`, 8 de `state`) e quatro novos que repetem a mesma recusa (três vezes seguidas; e por `advance`, `gate-start` e `finalize` na mesma stage). Todos iguais, com a pergunta, os remédios, os comandos e o registo da série comparados |
 | Diferencial, tudo | 4 019 checks: 3 782 iguais, 237 desvios declarados, nenhum diferente; a gravação (3 913 checks sobre 1 527 árvores) repete-se igual |
-| Mutação | @@GC_MUT@@ |
+| Mutação | 42 mutantes: 23 mortos à primeira; 10 buracos fechados (8 com checks novos, 2 com um teste que ainda não se compara com o original); 9 que nada distingue: 5 equivalentes por construção, 2 que só entram num hash que duas árvores não partilham, 2 braços que nenhum check alcança |
 | `cargo test` | 605 testes, os mesmos; o teste de CLI da stage sem artefactos passou a ler a frase e a pergunta, e que a segunda recusa diz «still» |
 
 ### A jornada
