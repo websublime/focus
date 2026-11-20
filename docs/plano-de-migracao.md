@@ -3335,18 +3335,26 @@ O guard do gate desliga-se com `SKIP_REVIEWER_GATE_GUARD` na abertura; na conclu
 
 **O que fica de fora, e porquê.** O que uma aprovação grava quando passou por cima de uma revisão (`Review: not finished` na linha do gate, a frase «Approved. The … review did not finish.», a aprovação levada para o `advance` que se segue, e a nota sobre um `NOT-READY` que nenhum reviewer deu): em `approve`, um ledger com linhas de revisão acaba na recusa pelo nome dos findings que o gate gravaria (3e-v), logo a seguir à admissão, de modo que nada disso se conseguia comparar. Não foi escrito; vem com a 3e-v, e o sítio diz porquê. Uma stage por unit, ou que escreve código, deve uma revisão pesada contra as linhas e os claims das units: recusadas pelo nome até à fatia 5 (uma stage de Construction já o era um passo antes).
 
-**O que a comparação encontrou.** Nada: os 65 checks da primeira corrida deram iguais, com cada um dos seis braços de recusa, os três em que a política mantém a mudança, e a aprovação da pessoa nas doze variantes.
+**O que a comparação encontrou.** Nada: os 64 checks da primeira corrida deram iguais, com cada um dos seis braços de recusa, os três em que a política mantém a mudança, e a aprovação da pessoa nas doze variantes.
 
-**O que a mutação encontrou.** @@MUT@@
+**O que a mutação encontrou.** 49 mutantes sobre a pré-condição (cada passo, cada código e invariante, o que entrega aos recibos e ao guard, a aprovação da pessoa e os três testes que a decidem, cada sítio que a chama e a ação que lhe diz), julgados pelo diferencial ao vivo: 43 morreram à primeira. Dos seis que ficaram:
+
+| O que o mutante trocava | O que lhe aconteceu |
+| --- | --- |
+| A ação dita à pré-condição quando o backstop de revisão mostra a stage outra vez | Buraco: o check antigo do backstop com reviewer não disparava (o mesmo `Artifact` por `File` da 3e-i). `revision_backstop_fires_with_reviewer*`: a recusa diz-se para a mostra, e com o guard do gate desligado é a pesagem da própria aprovação que a diz |
+| A aprovação da pessoa levada por `approve` | Nada no diferencial o pode ver até à 3e-v: com ela a aprovação acaba na recusa pelo nome dos findings, sem ela na do reviewer, e o original aprova. Qual das duas Focus diz ficou num teste do comando, que o mata |
+| «Não se verifica», perguntado outra vez dentro da aprovação da pessoa | Código a mais: quem chama já recusou esse caso antes de perguntar. Saiu, com uma nota |
+| A classe de revisão entregue aos recibos; os recibos entregues à tentativa do guard | Equivalentes por construção: quem os recebe leria o mesmo |
+| Os caminhos de uma mudança depois de uma revisão | Equivalente até às units: os recibos só os nomeiam onde a fonte mudou, que é de uma stage que escreve código. Os checks escritos para o ver (`review_output_saved_since*`) ficaram: comparam a mudança de um output gravado depois do veredicto, sob cada política |
 
 **Verificado.**
 
 | Verificação | Resultado |
 | --- | --- |
-| Diferencial, o recibo de revisão em `state` | @@NEW@@ checks novos, com as linhas e o registo de uma revisão escritos à mão (como `log review` os escreve; os checks dele comparam a escrita): em `advance`, `finalize` e `complete-workflow`, em `gate-start` e `revise`, e na recuperação de uma stage já fechada. Todos iguais. Saíram de `DEVIATIONS` os sete checks de `review_owed*`, `review_rows_in_ledger`, `review_guard_off`, `revision_backstop_with_reviewer` e `summary_amended_then_review_owed` |
-| Diferencial, tudo | @@TOTAL@@ |
-| Mutação | @@MUTROW@@ |
-| `cargo test` | @@TESTS@@ |
+| Diferencial, o recibo de revisão em `state` | 69 checks novos, com as linhas e o registo de uma revisão escritos à mão (como `log review` os escreve; os checks dele comparam a escrita): em `advance`, `finalize` e `complete-workflow`, em `gate-start` e `revise`, e na recuperação de uma stage já fechada. Todos iguais. Saíram de `DEVIATIONS` os sete checks de `review_owed*`, `review_rows_in_ledger`, `review_guard_off`, `revision_backstop_with_reviewer` e `summary_amended_then_review_owed` |
+| Diferencial, tudo | 4 211 checks: 3 983 iguais, 228 desvios declarados, nenhum diferente; a gravação (4 105 checks sobre 1 671 árvores) repete-se igual; o fuzz (`--fuzz 600`) dá 600 iguais |
+| Mutação | 49 mutantes: 43 mortos à primeira; 1 buraco fechado com dois checks, 1 fechado com um teste do comando (o que nenhuma comparação segura ainda), 1 que era código a mais e saiu, 3 equivalentes ditos no módulo |
+| `cargo test` | 605 testes, os mesmos: o teste de `admission` e o de CLI que esperavam a recusa pelo nome leem a recusa de guard, e o teste de CLI dos gates ganhou a aprovação por cima de uma revisão que não acabou |
 
 ### Fatia 4: a pergunta de recuperação, partida em três
 
