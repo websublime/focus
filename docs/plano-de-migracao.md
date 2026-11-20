@@ -2778,10 +2778,10 @@ A mutação achou ainda o defeito dos avisos (acima): o mutante que tirava a gra
 
 | Verificação | Resultado |
 | --- | --- |
-| Diferencial, `log/review/verdict/*` | @@B_VERDICT@@ |
-| Diferencial, tudo | @@B_ALL@@ |
-| Mutação | @@B_MUT@@ |
-| `cargo test` | @@B_TESTS@@ |
+| Diferencial, `log/review/verdict/*` | 140 checks (eram 104: saíram as três recusas pelo nome e entraram 39): 136 iguais e 4 desvios declarados (os dois do texto riscado e os dois das decisões). 17 comparam-se ao vivo e não entram na gravação; quatro são desta fatia: o ficheiro nomeado atrás de um link, por um segundo nome e num projeto dito por um link, e o registo acima do limite com o ficheiro nomeado |
+| Diferencial, tudo | 4 015 checks: 3 778 iguais, 237 desvios declarados, nenhum diferente; a gravação (3 909 checks sobre 1 527 árvores) repete-se igual |
+| Mutação | 32 mutantes: 26 mortos à primeira; 1 buraco, fechado com um check novo e repetido até morrer; 5 equivalentes (a tabela acima): três saíram do código, dois ficam com a razão na linha |
+| `cargo test` | 603 testes (um novo: o ficheiro nomeado em cada sistema, `a_named_review_file_is_the_requests_own`) |
 
 ### Fatia 3a: a tentativa de revisão, partida em cinco (feita)
 
