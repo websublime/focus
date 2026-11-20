@@ -109,6 +109,91 @@ pub(crate) fn refuse<T>(message: String) -> Step<T> {
     Err(Stop::Refusal(message))
 }
 
+/// What a guard of the review refuses with.
+pub(crate) struct GuardSaid<'a> {
+    pub(crate) code: &'a str,
+    pub(crate) blocked_action: &'a str,
+    pub(crate) invariant: &'a str,
+    pub(crate) message: &'a str,
+}
+
+/// `refuseReviewGuard`: a guard's refusal as the review prints it: the
+/// sentence, then the recovery question, with the refusal counted in its
+/// series. The attempt is read with what the command already has in hand
+/// (`options`); `resources` are the ones the series is signed with, the
+/// attempt's own when the guard names none.
+pub(crate) fn guard_text(
+    wf: &Workflow,
+    asked: &Asked<'_>,
+    state: &str,
+    node: &focus_graph::runtime::Stage,
+    said: &GuardSaid<'_>,
+    options: focus_lifecycle::guard_attempt::Options<'_>,
+    resources: Option<Vec<String>>,
+) -> Step<String> {
+    use focus_lifecycle::guard_refusal::{Input, Summary, evaluate, unattended_says};
+
+    let snapshot = focus_lifecycle::guard_attempt::guard_attempt_state(
+        wf,
+        &asked.project_dir,
+        state,
+        node,
+        focus_lifecycle::guard_attempt::Options {
+            single: asked.single,
+            ..options
+        },
+    )?;
+    let summary = Summary {
+        questions_file: crate::summary::question_file_relative(
+            wf,
+            node,
+            (!asked.single).then_some(state),
+            None,
+        ),
+        isolated: asked.single,
+    };
+    let refusal = evaluate(
+        wf,
+        &Input {
+            code: said.code,
+            blocked_action: said.blocked_action,
+            stage: asked.stage,
+            unit: None,
+            project_dir: Some(&asked.project_dir),
+            state,
+            invariant: said.invariant,
+            user_message: said.message,
+            attempt: &snapshot.attempt,
+            unattended: unattended_says(env::var("UNATTENDED").as_deref()),
+            fence: None,
+            fence_switch_withheld: false,
+            summary: Some(&summary),
+            shell: Some(platform_shell()),
+        },
+    )
+    .map_err(Stop::Failed)?;
+    Ok(focus_lifecycle::guard_series::refusal_output(
+        wf,
+        &refusal,
+        &snapshot.attempt,
+        &resources.unwrap_or(snapshot.resources),
+    ))
+}
+
+/// A summary's coverage, in the evaluator's words.
+pub(crate) fn guard_coverage(
+    coverage: summary_evidence::Coverage,
+) -> focus_lifecycle::guard_refusal::Coverage {
+    match coverage {
+        summary_evidence::Coverage::Missing => focus_lifecycle::guard_refusal::Coverage::Missing,
+        summary_evidence::Coverage::Stale => focus_lifecycle::guard_refusal::Coverage::Stale,
+    }
+}
+
+/// The invariant a review's summary admission holds.
+pub(crate) const SUMMARY_INVARIANT: &str =
+    "Generated outputs descend from a current human-backed summary confirmation.";
+
 /// The shell a command is quoted for: this platform's.
 pub(crate) fn platform_shell() -> RenderShell {
     if cfg!(windows) {
@@ -704,8 +789,35 @@ fn request(
         }
         notices = change_control::record_accepted_changes(wf, &held, &accepted)?;
     }
-    if let Evidence::Refused { message, .. } = &summary {
-        return refuse(summary_evidence_message(slug, message));
+    if let Evidence::Refused {
+        code,
+        message,
+        coverage,
+        ..
+    } = &summary
+    {
+        return refuse(guard_text(
+            wf,
+            asked,
+            &state,
+            node,
+            &GuardSaid {
+                code,
+                blocked_action: "review-request",
+                invariant: SUMMARY_INVARIANT,
+                message: &summary_evidence_message(slug, message),
+            },
+            focus_lifecycle::guard_attempt::Options {
+                receipts: Some(receipts.clone()),
+                summary_coverage: Some(guard_coverage(*coverage)),
+                review_budget: Some(budget),
+                pending_status: Some(pending),
+                accounting: Some(&attempt),
+                require_required_artifacts: Some(require_required_artifacts),
+                ..Default::default()
+            },
+            None,
+        )?);
     }
 
     // --- What is stale, and what the one recovery is --------------------
@@ -752,6 +864,53 @@ fn request(
             attempt.recovery_iteration.unwrap_or(iteration),
             &guidance(wf, &state, slug),
             request_changes_reset_is_executable(&state, slug),
+        )
+    };
+    // A guard of the attempt refuses with its question: the ways on are
+    // read off the attempt as the command has it in hand.
+    let attempt_guard = |code: &str, invariant: &str, message: String| -> Step<String> {
+        guard_text(
+            wf,
+            asked,
+            &state,
+            node,
+            &GuardSaid {
+                code,
+                blocked_action: "review-request",
+                invariant,
+                message: &message,
+            },
+            focus_lifecycle::guard_attempt::Options {
+                receipts: Some(receipts.clone()),
+                review_budget: Some(budget),
+                pending_status: Some(pending),
+                accounting: Some(&attempt),
+                ..Default::default()
+            },
+            Some(vec![
+                format!(
+                    "source:{}",
+                    receipts
+                        .newest_source_fingerprint
+                        .as_deref()
+                        .unwrap_or("none")
+                ),
+                format!("artifact-stale:{artifact_stale}"),
+            ]),
+        )
+    };
+    let spent_guard = || {
+        attempt_guard(
+            "REVIEW_RECOVERY_SPENT",
+            "The stale-receipt recovery slot is single-use within an attempt.",
+            spent(),
+        )
+    };
+    let already_guard = || {
+        attempt_guard(
+            "REVIEW_RECOVERY_ALREADY_REQUESTED",
+            "Only one stale-receipt recovery request exists in an attempt.",
+            already_requested(),
         )
     };
     let attempt_id = review_paths::attempt_id(&attempt.floor);
@@ -814,7 +973,7 @@ fn request(
         let Some(pending_request) = pending_of(iteration) else {
             if scope_stale {
                 if recovery_spent {
-                    return refuse(spent());
+                    return refuse(spent_guard()?);
                 }
                 return refuse(format!(
                     "Cannot retry the prior review for \"{slug}\" because it completed before the stage output or project source changed. Start the one recovery pass with `{}`.",
@@ -822,7 +981,7 @@ fn request(
                 ));
             }
             if recovery_spent {
-                return refuse(already_requested());
+                return refuse(already_guard()?);
             }
             return refuse(format!(
                 "Cannot retry review iteration {} for \"{slug}\" because no pending request with that number exists. Start the expected review pass instead.",
@@ -975,10 +1134,10 @@ fn request(
     // --- The next pass ---------------------------------------------------
     let recovery_eligible = scope_stale && attempt.pending_iterations.is_empty() && !recovery_spent;
     if scope_stale && recovery_spent && !person() {
-        return refuse(spent());
+        return refuse(spent_guard()?);
     }
     if recovery_spent && !person() {
-        return refuse(already_requested());
+        return refuse(already_guard()?);
     }
     // A pending request comes before the budget: the stage is waiting on
     // its verdict, not out of passes.
@@ -986,16 +1145,24 @@ fn request(
         let mut waiting = attempt.pending_iterations.clone();
         waiting.sort_by(f64::total_cmp);
         let listed: Vec<String> = waiting.into_iter().map(num::to_string).collect();
-        return refuse(format!(
-            "Cannot start another review for \"{slug}\" because iteration {} is still waiting for a verdict. Record that verdict, or repeat the same iteration with --retry-pending if the reviewer did not run.",
-            listed.join(", ")
-        ));
+        return refuse(attempt_guard(
+            "REVIEW_VERDICT_PENDING",
+            "A review request receives its verdict before another request starts.",
+            format!(
+                "Cannot start another review for \"{slug}\" because iteration {} is still waiting for a verdict. Record that verdict, or repeat the same iteration with --retry-pending if the reviewer did not run.",
+                listed.join(", ")
+            ),
+        )?);
     }
     // The budget is measured against the attempt's own count, never against
     // the pass the caller claims.
     let pass = attempt.budget_count as f64 + 1.0;
     if !recovery_eligible && pass > budget && !person() {
-        return refuse(budget_message(slug, pass, budget));
+        return refuse(attempt_guard(
+            "REVIEW_BUDGET_EXHAUSTED",
+            "Review requests do not exceed the configured attempt budget.",
+            budget_message(slug, pass, budget),
+        )?);
     }
     #[allow(clippy::float_cmp)]
     if iteration != expected {

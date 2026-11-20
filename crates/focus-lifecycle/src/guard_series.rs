@@ -527,6 +527,102 @@ pub fn record_refusal(
     streak
 }
 
+/// What a guard that refused carries to the tool's entry point, which
+/// prints it with its question (`StateGuardRefusalError`): the refusal,
+/// the attempt it was evaluated on, and the resources the series is signed
+/// with. It rides on the error ([`focus_js::EngineError::detail`]), whose
+/// message is the refusal's sentence.
+#[derive(Debug, Clone, PartialEq)]
+pub struct GuardRefused {
+    pub refusal: Refusal,
+    pub attempt: Attempt,
+    pub resources: Vec<String>,
+}
+
+/// What a guard refuses with.
+#[derive(Debug, Clone, Copy)]
+pub struct Refused<'a> {
+    pub code: &'a str,
+    pub blocked_action: &'a str,
+    pub invariant: &'a str,
+    pub user_message: &'a str,
+    pub unit: Option<&'a str>,
+}
+
+/// `refuseStateGuard`: the error of a guard that refuses at `stage`: the
+/// attempt read as the guard sees it, the ways on evaluated, and both
+/// carried on the error for the entry point to print.
+///
+/// (Upstream also hands the evaluator the gate of a unit owned by a team,
+/// which is deferred with team ownership: see [`crate::guard_refusal`].)
+///
+/// A reading that fails is the error instead: the attempt's readers refuse
+/// by name what they do not read yet.
+#[must_use]
+pub fn guard_refused(
+    wf: &Workflow,
+    state: &str,
+    stage: &focus_graph::runtime::Stage,
+    refused: Refused<'_>,
+    options: crate::guard_attempt::Options<'_>,
+) -> focus_js::EngineError {
+    let project_dir = wf.layout.project.to_string_lossy().into_owned();
+    let snapshot = match crate::guard_attempt::guard_attempt_state(
+        wf,
+        &project_dir,
+        state,
+        stage,
+        crate::guard_attempt::Options {
+            unit: refused.unit,
+            ..options
+        },
+    ) {
+        Ok(snapshot) => snapshot,
+        Err(error) => return error,
+    };
+    let unattended =
+        crate::guard_refusal::unattended_says(focus_workspace::env::var("UNATTENDED").as_deref());
+    match crate::guard_refusal::evaluate(
+        wf,
+        &crate::guard_refusal::Input {
+            code: refused.code,
+            blocked_action: refused.blocked_action,
+            stage: &stage.slug,
+            unit: refused.unit,
+            project_dir: Some(&project_dir),
+            state,
+            invariant: refused.invariant,
+            user_message: refused.user_message,
+            attempt: &snapshot.attempt,
+            unattended,
+            fence: None,
+            fence_switch_withheld: false,
+            summary: None,
+            shell: None,
+        },
+    ) {
+        Ok(refusal) => focus_js::EngineError::with_detail(
+            refused.user_message,
+            GuardRefused {
+                refusal,
+                attempt: snapshot.attempt,
+                resources: snapshot.resources,
+            },
+        ),
+        Err(error) => focus_js::EngineError::new(error),
+    }
+}
+
+/// The text a tool's entry point prints for `error`: a guard's refusal
+/// with its question, recorded in its series; any other error's message.
+#[must_use]
+pub fn printed(wf: &Workflow, error: &focus_js::EngineError) -> String {
+    match error.detail::<GuardRefused>() {
+        Some(guard) => refusal_output(wf, &guard.refusal, &guard.attempt, &guard.resources),
+        None => error.message().to_owned(),
+    }
+}
+
 /// `guardRefusalOutput`: the refusal as a tool that enforces prints it:
 /// the sentence, then the ask as the last line, so the router can read it
 /// back into the directive it would have given itself. The refusal is

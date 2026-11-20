@@ -329,8 +329,25 @@ fn flag_values(args: &[String], flag: &str) -> Result<Vec<String>, Refusal> {
 /// The lifecycle verbs, each reading its arguments as upstream's handler
 /// does, then handed to `focus-lifecycle`.
 fn transition(record: Record, verb: &str, args: &[String]) -> Verb {
-    let operation = format!("`focus engine state {verb}`");
     let wf = Workflow::open(record.layout, record.selection, record.invoker)?;
+    // A guard that refused is printed with its recovery question, and the
+    // refusal counted in its series (`guardRefusalOutput`, in upstream's
+    // `main`).
+    transition_of(&wf, verb, args).map_err(|mut refusal| {
+        if let Some(guard) = refusal.guard.take() {
+            refusal.message = focus_lifecycle::guard_series::refusal_output(
+                &wf,
+                &guard.refusal,
+                &guard.attempt,
+                &guard.resources,
+            );
+        }
+        refusal
+    })
+}
+
+fn transition_of(wf: &Workflow, verb: &str, args: &[String]) -> Verb {
+    let operation = format!("`focus engine state {verb}`");
     // Positional arguments are the ones that are not flags; a flag's value
     // is one of them unless the verb takes the flag.
     let positional: Vec<&String> = args.iter().filter(|arg| !arg.starts_with("--")).collect();
@@ -342,7 +359,7 @@ fn transition(record: Record, verb: &str, args: &[String]) -> Verb {
                 ));
             };
             transitions::advance(
-                &wf,
+                wf,
                 completed,
                 positional.get(1).map(|s| s.as_str()),
                 &operation,
@@ -354,7 +371,7 @@ fn transition(record: Record, verb: &str, args: &[String]) -> Verb {
                     "Usage: focus engine state finalize <completed-slug>",
                 ));
             };
-            transitions::finalize(&wf, completed, &operation)?
+            transitions::finalize(wf, completed, &operation)?
         }
         "complete-workflow" => {
             let reason_at = args.iter().position(|arg| arg == "--reason");
@@ -374,7 +391,7 @@ fn transition(record: Record, verb: &str, args: &[String]) -> Verb {
             let reason = reason_at
                 .and_then(|at| args.get(at + 1))
                 .map(String::as_str);
-            transitions::complete_workflow(&wf, completed, reason, &operation)?
+            transitions::complete_workflow(wf, completed, reason, &operation)?
         }
         "gate-start" => {
             let Some(slug) = args.first() else {
@@ -399,7 +416,7 @@ fn transition(record: Record, verb: &str, args: &[String]) -> Verb {
                 approves_together: flag_value(rest, "--approves-together")?,
                 unit: flag_value(rest, "--unit")?.map(trim),
             };
-            gates::gate_start(&wf, slug, &ask, &operation)?
+            gates::gate_start(wf, slug, &ask, &operation)?
         }
         "approve" => {
             let Some(slug) = args.first() else {
@@ -410,7 +427,7 @@ fn transition(record: Record, verb: &str, args: &[String]) -> Verb {
             let rest = &args[1..];
             let user_input = flag_value(rest, "--user-input")?;
             let unit = flag_value(rest, "--unit")?.map(trim);
-            gates::approve(&wf, slug, user_input, unit, &operation)?
+            gates::approve(wf, slug, user_input, unit, &operation)?
         }
         "reject" => {
             let Some(slug) = args.first() else {
@@ -429,7 +446,7 @@ fn transition(record: Record, verb: &str, args: &[String]) -> Verb {
                 reopen_findings: flag_values(rest, "--reopen-finding")?,
                 unit: flag_value(rest, "--unit")?.map(trim),
             };
-            gates::reject(&wf, slug, &ask, &operation)?
+            gates::reject(wf, slug, &ask, &operation)?
         }
         "revise" => {
             let Some(slug) = args.first() else {
@@ -449,10 +466,10 @@ fn transition(record: Record, verb: &str, args: &[String]) -> Verb {
                 approves_together: flag_value(rest, "--approves-together")?,
                 unit: flag_value(rest, "--unit")?.map(trim),
             };
-            gates::revise(&wf, slug, &ask, &operation)?
+            gates::revise(wf, slug, &ask, &operation)?
         }
-        "park" => focus_lifecycle::park::park(&wf)?,
-        "unpark" => focus_lifecycle::park::unpark(&wf)?,
+        "park" => focus_lifecycle::park::park(wf)?,
+        "unpark" => focus_lifecycle::park::unpark(wf)?,
         "skip" => {
             let Some(slug) = args.first() else {
                 return Err(Refusal::of(
@@ -472,9 +489,9 @@ fn transition(record: Record, verb: &str, args: &[String]) -> Verb {
                     "skip --unit skips one unit of work's step (\"{unit}\"), which needs the unit DAG and the units' lifecycle: Focus does not run units yet."
                 )));
             }
-            transitions::skip(&wf, slug, reason, route)?
+            transitions::skip(wf, slug, reason, route)?
         }
-        _ => transitions::resume(&wf)?,
+        _ => transitions::resume(wf)?,
     };
     Ok(Some(json::stringify(&answer)))
 }

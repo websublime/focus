@@ -96,11 +96,45 @@ pub fn assert_not_archived(state: &str, operation: &str) -> Result<()> {
     Ok(())
 }
 
-/// A guard refusal: the sentence upstream prints first. Its reason code
-/// (`REQUIRED_ARTIFACTS_MISSING`, …) goes on the ask upstream prints after
-/// it, which is M5's.
-fn guard_refusal(message: String) -> EngineError {
-    EngineError::new(message)
+impl Action {
+    /// The action as a refusal names it (`ReviewerPreconditionAction`).
+    fn word(self) -> &'static str {
+        match self {
+            Self::Complete => "complete",
+            Self::PresentApprovalGate => "present-approval-gate",
+        }
+    }
+}
+
+/// `refuseStateGuard`: a guard's refusal, with its reason code and the
+/// invariant it holds: the sentence is the error's message, and the
+/// refusal rides on it for the tool's entry point to print with its
+/// recovery question ([`crate::guard_series::printed`]).
+fn guard_refusal(
+    wf: &Workflow,
+    stage: &Stage,
+    action: Action,
+    code: &str,
+    invariant: &str,
+    message: &str,
+) -> EngineError {
+    let state = match wf.read_state() {
+        Ok(state) => state,
+        Err(error) => return error,
+    };
+    crate::guard_series::guard_refused(
+        wf,
+        &state,
+        stage,
+        crate::guard_series::Refused {
+            code,
+            blocked_action: action.word(),
+            invariant,
+            user_message: message,
+            unit: None,
+        },
+        crate::guard_attempt::Options::default(),
+    )
 }
 
 /// `verifyStageArtifacts`: the declared artifacts exist, and a
@@ -114,25 +148,37 @@ pub fn verify_stage_artifacts(wf: &Workflow, stage: &Stage, action: Action) -> R
         return Ok(());
     }
     if !produces_artifacts_exist(wf, stage)? {
-        // REQUIRED_ARTIFACTS_MISSING
-        return Err(guard_refusal(format!(
-            "{}: none of its declared artifacts exist under the intent's record directory. The stage protocol requires {} to produce output before the gate. Produce the artifacts before completing. (declared: {})",
-            action.prefix(&stage.slug),
-            stage::name(stage),
-            if stage.produces.is_empty() {
-                "none".to_owned()
-            } else {
-                stage.produces.join(", ")
-            }
-        )));
+        return Err(guard_refusal(
+            wf,
+            stage,
+            action,
+            "REQUIRED_ARTIFACTS_MISSING",
+            "Every applicable required output exists before certification.",
+            &format!(
+                "{}: none of its declared artifacts exist under the intent's record directory. The stage protocol requires {} to produce output before the gate. Produce the artifacts before completing. (declared: {})",
+                action.prefix(&stage.slug),
+                stage::name(stage),
+                if stage.produces.is_empty() {
+                    "none".to_owned()
+                } else {
+                    stage.produces.join(", ")
+                }
+            ),
+        ));
     }
     if stage::workspace_requires(stage) && !workspace_has_work(wf)? {
-        // REQUIRED_SOURCE_WORK_MISSING
-        return Err(guard_refusal(format!(
-            "{}: it is a code-producing stage (workspace_requires) but no source work is evident outside the focus/ workspace tree. In a git workspace this means no uncommitted change and no code in the last commit; otherwise no source file exists. Planning docs alone do not satisfy {} - write the code to the workspace (a source change not committed yet counts, as does code in the last commit), or the person can choose Request Changes and say what is missing.",
-            action.prefix(&stage.slug),
-            stage::name(stage)
-        )));
+        return Err(guard_refusal(
+            wf,
+            stage,
+            action,
+            "REQUIRED_SOURCE_WORK_MISSING",
+            "A workspace-producing stage contains application source work.",
+            &format!(
+                "{}: it is a code-producing stage (workspace_requires) but no source work is evident outside the focus/ workspace tree. In a git workspace this means no uncommitted change and no code in the last commit; otherwise no source file exists. Planning docs alone do not satisfy {} - write the code to the workspace (a source change not committed yet counts, as does code in the last commit), or the person can choose Request Changes and say what is missing.",
+                action.prefix(&stage.slug),
+                stage::name(stage)
+            ),
+        ));
     }
     Ok(())
 }

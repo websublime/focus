@@ -35,6 +35,9 @@ pub struct Refusal {
     /// and recorded before the command refused. The ledger holds them
     /// already, so a second try will not say them again.
     pub change_notices: Vec<String>,
+    /// A guard's refusal, for the verb's entry point to print with its
+    /// recovery question in place of the sentence alone.
+    pub guard: Option<focus_lifecycle::guard_series::GuardRefused>,
 }
 
 impl Refusal {
@@ -43,6 +46,7 @@ impl Refusal {
             message: message.into(),
             agent_guidance: None,
             change_notices: Vec::new(),
+            guard: None,
         }
     }
 
@@ -51,6 +55,7 @@ impl Refusal {
             message: message.into(),
             agent_guidance: Some(guidance),
             change_notices: Vec::new(),
+            guard: None,
         }
     }
 }
@@ -61,6 +66,7 @@ impl From<focus_log::review::Refused> for Refusal {
             message: refused.message,
             agent_guidance: None,
             change_notices: refused.change_notices,
+            guard: None,
         }
     }
 }
@@ -73,15 +79,23 @@ impl From<String> for Refusal {
 
 impl From<focus_js::EngineError> for Refusal {
     fn from(err: focus_js::EngineError) -> Self {
-        Self::of(err.to_string())
+        Self {
+            guard: err
+                .detail::<focus_lifecycle::guard_series::GuardRefused>()
+                .cloned(),
+            ..Self::of(err.to_string())
+        }
     }
 }
 
 impl From<focus_lifecycle::gates::Refused> for Refusal {
     fn from(refused: focus_lifecycle::gates::Refused) -> Self {
-        match refused.agent_guidance() {
-            Some(guidance) => Self::for_agent(refused.message(), guidance),
-            None => Self::of(refused.message()),
+        match refused {
+            focus_lifecycle::gates::Refused::Error(err) => err.into(),
+            focus_lifecycle::gates::Refused::ForAgent { .. } => Self::for_agent(
+                refused.message(),
+                refused.agent_guidance().unwrap_or("question-open"),
+            ),
         }
     }
 }

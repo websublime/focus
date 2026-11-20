@@ -236,6 +236,7 @@ pub(crate) fn verdict(
         attempt,
         merged,
         require_required_artifacts,
+        class,
         ..
     } = load_context(wf, slug, reviewer, single)?;
     let pass = num::to_string(iteration);
@@ -295,8 +296,57 @@ pub(crate) fn verdict(
             wf, &held, &accepted,
         )?);
     }
-    if let Evidence::Refused { message, .. } = &summary {
-        return refuse(format!("Cannot record a review verdict: {message}"));
+    if let Evidence::Refused {
+        code,
+        message,
+        coverage,
+        ..
+    } = &summary
+    {
+        // (Only a refusal needs what can be done with the request that
+        // waits: a verdict that goes through takes its own snapshot.)
+        let pending = review_pending::pending_review_request_status(
+            wf,
+            node,
+            None,
+            &attempt,
+            PendingAsked {
+                require_required_artifacts,
+                merged_bolt_units: Some(&merged),
+                single,
+                source_state: None,
+            },
+        )?;
+        let budget = match class {
+            "none" => 0.0,
+            "advisory" => 1.0,
+            _ => node
+                .raw
+                .get("reviewer_max_iterations")
+                .and_then(serde_json::Value::as_f64)
+                .unwrap_or(2.0),
+        };
+        return refuse(crate::review::guard_text(
+            wf,
+            asked,
+            &state,
+            node,
+            &crate::review::GuardSaid {
+                code,
+                blocked_action: "review-verdict",
+                invariant: crate::review::SUMMARY_INVARIANT,
+                message: &format!("Cannot record a review verdict: {message}"),
+            },
+            focus_lifecycle::guard_attempt::Options {
+                summary_coverage: Some(crate::review::guard_coverage(*coverage)),
+                review_budget: Some(budget),
+                pending_status: Some(pending),
+                accounting: Some(&attempt),
+                require_required_artifacts: Some(require_required_artifacts),
+                ..Default::default()
+            },
+            None,
+        )?);
     }
 
     let artifact_options = ArtifactOptions {
