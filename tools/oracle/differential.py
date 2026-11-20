@@ -1409,9 +1409,10 @@ def normalise_audit(text, tree, engine):
     # (A file's text has already been through the name map, so the tool is named either way.)
     text = re.sub(r"`bun \.claude/tools/(?:aidlc|focus)-(state|orchestrate)\.ts(?: ([^`]*))?`",
                   lambda m: f"<cli> {m.group(1)}" + (f" {m.group(2)}" if m.group(2) else ""), text)
-    # (And as the command of a way on, a value of its own with nothing around it.)
+    # (And as the command of a way on, a value of its own with nothing around it: right after the quote that
+    # opens it. A command a hook quotes back from what the agent ran is said as it was run, by both engines.)
     text = re.sub(r"(?<![`\w])bun \.claude/tools/(?:aidlc|focus)-(state|orchestrate)\.ts (?=[a-z-]+ )", r"<cli> \1 ", text)
-    text = re.sub(r"(?<![`\w])focus engine orchestrate (?=[a-z-]+ )", "<cli> orchestrate ", text)
+    text = re.sub(r'(?<=")focus engine orchestrate (?=[a-z-]+ )', "<cli> orchestrate ", text)
     for tool in ("orchestrate", "log"):
         suffix = " report" if tool == "orchestrate" else ""
         text = text.replace(f"aidlc-{tool}.ts{suffix}", f"<cli> {tool}{suffix}")

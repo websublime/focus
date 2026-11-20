@@ -291,10 +291,10 @@ fn normalise_audit(text: &str, root: &Path) -> String {
         |_, _| "<cli> state ".to_owned(),
     );
     // The orchestrator's command as a way on of a guard's question gives
-    // it: a value of its own, with nothing around it.
+    // it: a value of its own, right after the quote that opens it.
     text = replace_all(
         &text,
-        r"(?<![`\w])focus engine orchestrate (?=[a-z-]+ )",
+        r#"(?<=")focus engine orchestrate (?=[a-z-]+ )"#,
         |_, _| "<cli> orchestrate ".to_owned(),
     );
     text = text

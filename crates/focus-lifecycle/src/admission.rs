@@ -16,11 +16,11 @@
 //! upstream passes it. A Construction stage is refused by name as well: its
 //! checkpoints, units and swarms are M4.
 //!
-//! A guard refusal names its code and the step that clears it. Upstream
-//! appends the guard-recovery ask (the remedies the conductor may offer)
-//! as a JSON line after the sentence and keeps a refusal record under the
-//! engine directory; both are the recovery machinery of M5, so Focus prints
-//! the sentence alone.
+//! A guard that refuses carries its code and the invariant it holds. The
+//! error's message is the sentence; the refusal, evaluated on the attempt
+//! as the guard sees it, rides on the error for the tool's entry point to
+//! print with its recovery question and to count in the series of the
+//! stage ([`crate::guard_series`]).
 //!
 //! Mirrors `admitStageAction`, `verifyGateOpeningGuards`,
 //! `verifyStageArtifacts`, `verifySummaryConfirmationPrecondition`,

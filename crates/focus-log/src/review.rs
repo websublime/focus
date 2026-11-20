@@ -31,9 +31,10 @@
 //! - `--unit`: the unit's claim, the plan of units, its source and its
 //!   manifest (slice 5).
 //!
-//! A guard that refuses says its sentence; the question upstream prints
-//! after it, and the series of the refusal it keeps, come with slices 4b
-//! and 4c.
+//! A guard that refuses ends its sentence with the recovery question, and
+//! the refusal is counted in the series of its stage (`refuseReviewGuard`,
+//! [`guard_text`]): the summary's admission, the one recovery spent or
+//! already asked for, a pass that waits for its verdict, and the budget.
 //!
 //! Upstream also refuses a pending request that has no valid binding. No
 //! pending request is without one (the count of an attempt passes over a
