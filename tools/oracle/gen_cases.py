@@ -9672,9 +9672,11 @@ for case in FR_ASKED:
 
 
 # What the drawn asks leave untold, each written out.
-def ga_case(slug, build, asks, policy=STRICT, walk="", per_unit=False, workspace=False, patch=None, env=None):
+def ga_case(slug, build, asks, policy=STRICT, walk="", per_unit=False, workspace=False, dag=True, patch=None, env=None):
     """A story as `fr_case` lays one, asked as each of `asks` says."""
     story = FrStory(slug, per_unit=per_unit, two=False)
+    if not dag:
+        del story.files[f"{RV_RECORD}/inception/units-generation/unit-of-work-dependency.md"]
     if workspace:
         story.source = {"src/a.ts": "a\n", "src/b.ts": "b\n"}
     story.row("WORKFLOW_STARTED", shard=0, at=1, Scope="feature")
@@ -9711,7 +9713,7 @@ for require in (None, True, False):
     for env in (None, {"AIDLC_SKIP_ARTIFACT_GUARD": "1"}):
         def owed_gone(story):
             story.review(1, None, era="record", shard=0, at=3)
-            story.after["files"][story.path("requirements")] = None
+            story.after["files"][story.path("requirements-analysis-questions")] = None
 
         ga_case(RQ, owed_gone, [{"require": require}, {"require": require, "status": None}], env=env)
 # The recovery spent, told by the receipts alone: a verdict that answered a recovery request, made stale again, with
@@ -9733,10 +9735,31 @@ for per_unit in (False, True):
     for build in (recovered_and_stale, recovered):
         ga_case(FD if per_unit else RQ, build, [{"unit": unit}, {"unit": unit, "counted": GA_ANOTHER}, {"unit": unit, "counted": {**GA_ANOTHER, "reviewer": RA_REVIEWER, "unit": unit}},
                                                 {"unit": None if per_unit else "api", "counted": GA_ANOTHER}], per_unit=per_unit)
+# The recovery spent, told by a unit's fallen verdict alone. The source's own word for it goes back to "not spent"
+# when the unit the newest reviewed source belongs to starts its bolt again; the verdict of another unit that
+# answered a recovery request and fell keeps saying it.
+for fallen in ("web", None):
+    def fell_before_a_bolt(story):
+        story.review(1, "READY", unit=fallen, era="record", shard=0, at=3, answer=(0, 4))
+        story.review(2, "READY", unit=fallen, era="record", recovery=True, shard=0, at=5, answer=(0, 6))
+        story.edit(fallen or "web")
+        story.review(1, "READY", unit="api", era="record", source="{SRC}", shard=0, at=7, answer=(0, 8))
+        story.row("BOLT_STARTED", shard=0, at=9, Bolt_names="api")
+
+    ga_case(FD, fell_before_a_bolt, [{"unit": fallen, "counted": GA_ANOTHER}, {"unit": fallen}, {"unit": "api", "counted": GA_ANOTHER}], per_unit=True)
+# The units a stage's review is of when no dependency document names them: the ones whose bolt is merged.
+for rows in ([("BOLT_STARTED", {"Bolt_names": "api"}), ("BOLT_COMPLETED", {"Bolt_names": "api"})], [("BOLT_STARTED", {"Bolt_names": "api"})], []):
+    def merged_stand_in(story):
+        for at, (event, fields) in enumerate(rows):
+            story.row(event, shard=0, at=3 + at, **fields)
+        story.review(1, None, era="record", shard=0, at=6)
+
+    ga_case(FD, merged_stand_in, [{}, {"unit": "api"}, {"require": False}], per_unit=True, dag=False)
 # A repair the reviewer asked for is not a request to make again, whatever the caller says of the pass.
+GA_TWO_PASSES = {"review_class": "adversarial", "reviewer_max_iterations": 2}
 for replaceable in (True, False):
     status = {"iteration": 1, "requestCurrent": False, "retryable": True, "verdictRecordable": True, "replaceable": replaceable}
-    ga_case(RQ, lambda story: story.review(1, "NOT-READY", era="record", shard=0, at=3, answer=(0, 4)), [{"status": status}, {"status": {**status, "iteration": 2}}, {}])
+    ga_case(RQ, lambda story: story.review(1, "NOT-READY", era="record", shard=0, at=3, answer=(0, 4)), [{"status": status}, {"status": {**status, "iteration": 2}}, {}], patch=GA_TWO_PASSES)
     # (And a request that waits is made again at its pass when it can never finish, and waits when it can.)
     ga_case(RQ, lambda story: story.review(1, None, era="record", shard=0, at=3), [{"status": status}, {"status": {**status, "iteration": 2}}, {"status": None}, {}])
 # A unit that starts again a step it had finished has the stage's passes again: the budget counts the requests since,

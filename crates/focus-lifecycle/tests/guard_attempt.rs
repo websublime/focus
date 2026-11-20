@@ -107,15 +107,21 @@ fn a_units_attempt_under_a_team_is_refused_by_name_when_a_row_is_the_units() {
         assert_eq!(counted["attempt"]["recovery"], "available", "{counted}");
     }
 
-    // A bolt of another slug is not the unit's own, and a row that is not
-    // one the count reads is nobody's.
+    // A bolt of another slug is not the unit's own, nor is one of the
+    // unit's slug that names another unit; and a row that is not one the
+    // count reads is nobody's.
     let others = [
         row(
             3,
             "BOLT_STARTED",
             &[("Bolt names", "api"), ("Bolt slug", "another")],
         ),
-        row(4, "SESSION_STARTED", &[]),
+        row(
+            4,
+            "BOLT_STARTED",
+            &[("Bolt names", "web"), ("Bolt slug", "api")],
+        ),
+        row(5, "SESSION_STARTED", &[]),
     ];
     let counted = run_case(&install(), &asked(Some("api"), TEAM, &others));
     assert!(counted.get("error").is_none(), "{counted}");
