@@ -9740,21 +9740,25 @@ for per_unit in (False, True):
 # answered a recovery request and fell keeps saying it.
 for fallen in ("web", None):
     def fell_before_a_bolt(story):
-        story.review(1, "READY", unit=fallen, era="record", shard=0, at=3, answer=(0, 4))
-        story.review(2, "READY", unit=fallen, era="record", recovery=True, shard=0, at=5, answer=(0, 6))
+        story.review(1, "READY", unit="api", era="record", source="{SRC}", shard=0, at=3, answer=(0, 4))
+        story.review(1, "READY", unit=fallen, era="record", shard=0, at=5, answer=(0, 6))
+        story.review(2, "READY", unit=fallen, era="record", recovery=True, shard=0, at=7, answer=(0, 8))
         story.edit(fallen or "web")
-        story.review(1, "READY", unit="api", era="record", source="{SRC}", shard=0, at=7, answer=(0, 8))
         story.row("BOLT_STARTED", shard=0, at=9, Bolt_names="api")
 
-    ga_case(FD, fell_before_a_bolt, [{"unit": fallen, "counted": GA_ANOTHER}, {"unit": fallen}, {"unit": "api", "counted": GA_ANOTHER}], per_unit=True)
+    # (The stage itself has receipts in a stage that runs for each unit only while no dependency document says
+    # which units there are.)
+    for dag in (True, False):
+        ga_case(FD, fell_before_a_bolt, [{"unit": fallen, "counted": GA_ANOTHER}, {"unit": fallen}, {"unit": "api", "counted": GA_ANOTHER}], per_unit=True, dag=dag)
 # The units a stage's review is of when no dependency document names them: the ones whose bolt is merged.
 for rows in ([("BOLT_STARTED", {"Bolt_names": "api"}), ("BOLT_COMPLETED", {"Bolt_names": "api"})], [("BOLT_STARTED", {"Bolt_names": "api"})], []):
-    def merged_stand_in(story):
-        for at, (event, fields) in enumerate(rows):
-            story.row(event, shard=0, at=3 + at, **fields)
-        story.review(1, None, era="record", shard=0, at=6)
+    for art in (None, "{ART:api}"):
+        def merged_stand_in(story):
+            for at, (event, fields) in enumerate(rows):
+                story.row(event, shard=0, at=3 + at, **fields)
+            story.review(1, None, era="record", art=art, shard=0, at=6)
 
-    ga_case(FD, merged_stand_in, [{}, {"unit": "api"}, {"require": False}], per_unit=True, dag=False)
+        ga_case(FD, merged_stand_in, [{}, {"unit": "api"}, {"require": False}], per_unit=True, dag=False)
 # A repair the reviewer asked for is not a request to make again, whatever the caller says of the pass.
 GA_TWO_PASSES = {"review_class": "adversarial", "reviewer_max_iterations": 2}
 for replaceable in (True, False):
