@@ -3399,7 +3399,7 @@ As outras recusas de guard de `state` (o sumário, o recibo de revisão, os hand
 
 **O que a comparação encontrou.** Nada no port. Da primeira vez que a pergunta deixou de ser retirada, 3 de 494 checks diferiam, os três no harness: o comando do orquestrador num remédio, que cada motor escreve à sua maneira e não tinha regra. A regra nova, larga demais na primeira versão, apanhava também o comando que um hook cita de volta (um check diferente na corrida inteira, e nada gravado enquanto esteve assim): ficou presa ao valor de um remédio.
 
-**O que a mutação encontrou.** 42 mutantes sobre a ligação (os códigos e os invariantes, o que cada sítio entrega à tentativa, os recursos, o ponto de entrada de `state`), julgados pelo diferencial ao vivo nos checks com uma recusa de guard: 23 morreram à primeira, mais do que em qualquer outra fatia ficou por dizer. Dez eram buracos:
+**O que a mutação encontrou.** 42 mutantes sobre a ligação (os códigos e os invariantes, o que cada sítio entrega à tentativa, os recursos, o ponto de entrada de `state`), julgados pelo diferencial ao vivo nos checks com uma recusa de guard: 23 morreram à primeira, a proporção mais baixa de todas as fatias: os checks que já existiam passavam por cada sítio mas não distinguiam o que cada um entrega. Dez eram buracos:
 
 | O que o mutante trocava | O que o mata |
 | --- | --- |
@@ -3416,8 +3416,8 @@ Nove não se distinguem, e estão ditos em `guard_text`. Cinco são leituras ent
 
 | Verificação | Resultado |
 | --- | --- |
-| Diferencial, os checks com uma recusa de guard | 61 checks: os 57 que tinham a pergunta retirada (49 de `log review`, 8 de `state`) e quatro novos que repetem a mesma recusa (três vezes seguidas; e por `advance`, `gate-start` e `finalize` na mesma stage). Todos iguais, com a pergunta, os remédios, os comandos e o registo da série comparados |
-| Diferencial, tudo | 4 019 checks: 3 782 iguais, 237 desvios declarados, nenhum diferente; a gravação (3 913 checks sobre 1 527 árvores) repete-se igual |
+| Diferencial, os checks com uma recusa de guard | 71 checks: os 57 que tinham a pergunta retirada (49 de `log review`, 8 de `state`) e 14 novos (a mesma recusa repetida, três vezes seguidas e por `advance`, `gate-start` e `finalize` na mesma stage; e os que a mutação pediu). Todos iguais, com a pergunta, os remédios, os comandos e o registo da série comparados |
+| Diferencial, tudo | 4 029 checks: 3 792 iguais, 237 desvios declarados, nenhum diferente; a gravação (3 923 checks sobre 1 529 árvores) repete-se igual |
 | Mutação | 42 mutantes: 23 mortos à primeira; 10 buracos fechados (8 com checks novos, 2 com um teste que ainda não se compara com o original); 9 que nada distingue: 5 equivalentes por construção, 2 que só entram num hash que duas árvores não partilham, 2 braços que nenhum check alcança |
 | `cargo test` | 605 testes, os mesmos; o teste de CLI da stage sem artefactos passou a ler a frase e a pergunta, e que a segunda recusa diz «still» |
 
