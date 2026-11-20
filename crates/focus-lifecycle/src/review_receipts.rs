@@ -96,7 +96,7 @@ use crate::workflow::Workflow;
 use crate::{admission, review_artifacts, stage, summary_evidence};
 
 /// `REVIEW_FINISHED_FIELD`: whether a reviewer gave the row's verdict.
-const REVIEW_FINISHED_FIELD: &str = "Review Finished";
+pub const REVIEW_FINISHED_FIELD: &str = "Review Finished";
 /// The folder a delegated worktree keeps its own files in, and the main
 /// checkout its worktrees.
 const HIDDEN_WORKSPACE_DIR: &str = ".focus";

@@ -94,37 +94,27 @@ fn asking(more: &[&'static str]) -> Vec<&'static str> {
 }
 
 /// Deliberate deviation. What a review may carry that Focus has not
-/// ported: one unit's review (slice 5), and a review file named on the
-/// command line of a verdict (slice 2e-iv-b). Upstream reads what each
-/// needs; Focus refuses each by name and records nothing. (The two other
-/// inputs of a verdict that are refused by name, the `NOT-READY` with no
-/// review after a retry and the section appended to the artifact, are
-/// reached only after a request, and stand in the recording:
-/// `log/review/verdict/*_not_ported`.)
+/// ported: one unit's review (slice 5). Upstream reads what it needs; Focus
+/// refuses it by name and records nothing.
 #[test]
-fn a_units_review_and_a_named_review_file_are_refused_by_name() {
+fn a_units_review_is_refused_by_name() {
     let root = project("reviews");
-    let asks = [
-        "review",
-        "--stage",
-        "intent-capture",
-        "--reviewer",
-        "focus-product-lead-agent",
-        "--iteration",
-        "1",
-    ];
-    let with =
-        |more: &[&'static str]| -> Vec<&'static str> { asks.iter().chain(more).copied().collect() };
-    assert_eq!(
-        refusal(&root, &with(&["--unit", "api"])),
-        "log review --unit is not ported yet: Focus records the review of a stage, and not yet the review of one unit (its claim, the plan of units, the unit's source and its manifest)."
-    );
     assert_eq!(
         refusal(
             &root,
-            &with(&["--verdict", "READY", "--review-file", "x.md"])
+            &[
+                "review",
+                "--stage",
+                "intent-capture",
+                "--reviewer",
+                "focus-product-lead-agent",
+                "--iteration",
+                "1",
+                "--unit",
+                "api",
+            ]
         ),
-        "log review --review-file is not ported yet: Focus reads the review from the file its request opened."
+        "log review --unit is not ported yet: Focus records the review of a stage, and not yet the review of one unit (its claim, the plan of units, the unit's source and its manifest)."
     );
     let _ = fs::remove_dir_all(root);
 }
@@ -204,14 +194,29 @@ fn a_request_of_a_stage_that_writes_the_workspace_is_bound_to_the_source() {
     let _ = fs::remove_dir_all(root);
 }
 
-/// What a recording cannot carry of a verdict, compared live by the
-/// differential (`log/review/verdict/review_file_a_link`,
-/// `log/review/verdict/review_folder_a_link`): a link is no review file,
-/// where the file goes or on the way to it, and no recording holds a link.
-#[cfg(unix)]
-#[test]
-fn a_review_file_that_is_a_link_or_behind_one_is_refused() {
-    let root = project("linked-review");
+const REVIEW_ASK: [&str; 7] = [
+    "review",
+    "--stage",
+    "intent-capture",
+    "--reviewer",
+    "focus-product-lead-agent",
+    "--iteration",
+    "1",
+];
+
+const REVIEW: &str =
+    "**Verdict:** READY\n**Reviewer:** focus-product-lead-agent\n**Iteration:** 1\n";
+
+/// A project whose stage has its outputs and a review asked for: where the
+/// project is, by its real path as a person reads it (a temporary directory
+/// is behind a link on macOS and may be a short name on Windows), and the
+/// file the request said the reviewer writes.
+fn asked_for_a_review(name: &str) -> (PathBuf, PathBuf) {
+    let root = fs::canonicalize(project(name)).unwrap();
+    let root = match root.to_str().unwrap().strip_prefix(r"\\?\") {
+        Some(plain) => PathBuf::from(plain),
+        None => root,
+    };
     write(
         &root,
         &format!("{RECORD}/focus-state.md"),
@@ -231,16 +236,7 @@ fn a_review_file_that_is_a_link_or_behind_one_is_refused() {
             "# Written\n",
         );
     }
-    let asks = [
-        "review",
-        "--stage",
-        "intent-capture",
-        "--reviewer",
-        "focus-product-lead-agent",
-        "--iteration",
-        "1",
-    ];
-    let output = log(&root, &asks);
+    let output = log(&root, &REVIEW_ASK);
     assert_eq!(
         output.status.code(),
         Some(0),
@@ -249,8 +245,75 @@ fn a_review_file_that_is_a_link_or_behind_one_is_refused() {
     );
     let said: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
     let draft = root.join(said["reviewFile"].as_str().unwrap());
-    let review = "**Verdict:** READY\n**Reviewer:** focus-product-lead-agent\n**Iteration:** 1\n";
-    let verdict: Vec<&str> = asks.iter().copied().chain(["--verdict", "READY"]).collect();
+    (root, draft)
+}
+
+/// A review file named on the command line is the request's own file or it
+/// is refused: a file elsewhere in the project, and a copy beside the
+/// review. Named, the file stays where it is after the verdict. (On every
+/// host: the recording that holds this is replayed on Unix only.)
+#[test]
+fn a_named_review_file_is_the_requests_own() {
+    let (root, draft) = asked_for_a_review("named-review");
+    fs::write(&draft, REVIEW).unwrap();
+    let named = |file: &str| -> Vec<String> {
+        REVIEW_ASK
+            .iter()
+            .copied()
+            .chain(["--verdict", "READY", "--review-file", file])
+            .map(str::to_owned)
+            .collect()
+    };
+    let refused = |file: &str| {
+        let args = named(file);
+        refusal(&root, &args.iter().map(String::as_str).collect::<Vec<_>>())
+    };
+
+    write(&root, "x.md", REVIEW);
+    assert!(
+        refused("x.md").ends_with(
+            "the review file x.md is not a plain readable file (the path is outside the active intent record)."
+        ),
+        "{}",
+        refused("x.md")
+    );
+    let copy = draft.with_file_name("copy.review.md");
+    fs::write(&copy, REVIEW).unwrap();
+    let copy = copy.to_str().unwrap().to_owned();
+    assert!(
+        refused(&copy).contains(" is not the review file for iteration 1. "),
+        "{}",
+        refused(&copy)
+    );
+
+    let args = named(draft.to_str().unwrap());
+    let output = log(&root, &args.iter().map(String::as_str).collect::<Vec<_>>());
+    assert_eq!(
+        output.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let ledger = fs::read_to_string(root.join(RECORD).join("audit/laptop-abc123.md")).unwrap();
+    assert!(ledger.contains("**Event**: REVIEW_COMPLETED\n"), "{ledger}");
+    assert!(draft.exists(), "the named file stays");
+    let _ = fs::remove_dir_all(root);
+}
+
+/// What a recording cannot carry of a verdict, compared live by the
+/// differential (`log/review/verdict/review_file_a_link`,
+/// `log/review/verdict/review_folder_a_link`): a link is no review file,
+/// where the file goes or on the way to it, and no recording holds a link.
+#[cfg(unix)]
+#[test]
+fn a_review_file_that_is_a_link_or_behind_one_is_refused() {
+    let (root, draft) = asked_for_a_review("linked-review");
+    let review = REVIEW;
+    let verdict: Vec<&str> = REVIEW_ASK
+        .iter()
+        .copied()
+        .chain(["--verdict", "READY"])
+        .collect();
 
     // The file is a link to a review written elsewhere.
     write(&root, "elsewhere/review.md", review);

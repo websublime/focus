@@ -190,6 +190,37 @@ pub fn names_the_same_file(opened: &File, path: &Path) -> bool {
     }
 }
 
+/// `sameFileIdentity` of two paths, each followed to the file it names:
+/// whether they name one file.
+///
+/// # Errors
+///
+/// One of them names nothing that can be asked, in the host's words.
+pub fn same_file(left: &Path, right: &Path) -> Result<bool> {
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::MetadataExt;
+        let asked = |path: &Path| {
+            std::fs::metadata(path)
+                .map(|meta| (meta.dev(), meta.ino()))
+                .map_err(|err| focus_js::EngineError::new(format!("{}: {err}", path.display())))
+        };
+        Ok(asked(left)? == asked(right)?)
+    }
+    #[cfg(windows)]
+    {
+        let asked = |path: &Path| {
+            same_file::Handle::from_path(path)
+                .map_err(|err| focus_js::EngineError::new(format!("{}: {err}", path.display())))
+        };
+        Ok(asked(left)? == asked(right)?)
+    }
+    #[cfg(not(any(unix, windows)))]
+    {
+        Ok(left == right)
+    }
+}
+
 fn is_link(path: &Path) -> bool {
     std::fs::symlink_metadata(path).is_ok_and(|meta| meta.file_type().is_symlink())
 }
