@@ -70,6 +70,8 @@ fn every_lifecycle_case_gets_upstreams_answer() {
     let (mut reopened, mut stood_in) = (0, 0);
     let (mut attempts, mut in_flight, mut asked_again, mut repaired) = (0, 0, 0, 0);
     let (mut spent, mut recovering, mut uncovered, mut unbound, mut budgeted) = (0, 0, 0, 0, 0);
+    let (mut series, mut own_work, mut again, mut stopped, mut capped) = (0, 0, 0, 0, 0);
+    let (mut joined, mut as_hashed, mut left_to_ask) = (0, 0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         let case: Value = focus_js::json::parse(line).unwrap();
@@ -135,6 +137,33 @@ fn every_lifecycle_case_gets_upstreams_answer() {
             seeded += usize::from(out["artifact"] != case["artifact"]);
             reopened += usize::from(any(&|finding| finding.get("reopenedReason").is_some()));
             stood_in += usize::from(any(&|finding| finding["id"] == "R-00"));
+        } else if kind == "guard_series" {
+            // The series of a guard's refusals, step by step: the
+            // conductor's own work first, the person asked again, nothing
+            // to do (and past the cap), codes joined in one series, a
+            // signature compared as it was hashed, and a question left for
+            // the next step.
+            series += 1;
+            for step in out.as_array().into_iter().flatten() {
+                assert!(step.get("error").is_none(), "{}: {step}", case["id"]);
+                let ask = &step["ask"];
+                let question = ask["question"].as_str().unwrap_or_default();
+                own_work += usize::from(ask["agent_work"] == true);
+                again += usize::from(question.contains(" still can't go ahead"));
+                stopped += usize::from(ask.get("state_signature").is_some());
+                capped += usize::from(question.contains(" times now."));
+                joined += usize::from(ask["reason_codes"].as_array().is_some_and(|c| c.len() > 1));
+                as_hashed += usize::from(
+                    step["signature"]
+                        .as_str()
+                        .is_some_and(|signature| !signature.starts_with('<')),
+                );
+                left_to_ask += usize::from(
+                    step["file"]
+                        .as_str()
+                        .is_some_and(|file| file.contains("\"pendingAsk\"")),
+                );
+            }
         } else if kind == "guard_attempt" {
             // The attempt as a guard sees it: a request that waits, one to
             // ask again, a repair the reviewer asked for; the recovery
@@ -361,6 +390,14 @@ fn every_lifecycle_case_gets_upstreams_answer() {
     assert!(
         spent >= 380 && recovering >= 50 && uncovered >= 230 && unbound >= 30 && budgeted >= 1400,
         "{spent} {recovering} {uncovered} {unbound} {budgeted}"
+    );
+    assert!(
+        series >= 550 && own_work >= 350 && again >= 380 && stopped >= 100 && capped >= 12,
+        "{series} {own_work} {again} {stopped} {capped}"
+    );
+    assert!(
+        joined >= 70 && as_hashed >= 800 && left_to_ask >= 240,
+        "{joined} {as_hashed} {left_to_ask}"
     );
     assert!(
         differing.is_empty(),

@@ -7,7 +7,7 @@
 // that owns the kind). The two outputs are compared as text, so key order is
 // part of the answer.
 import {
-  chmodSync, existsSync, linkSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, renameSync, rmSync, statSync, symlinkSync,
+  appendFileSync, chmodSync, existsSync, linkSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, renameSync, rmSync, statSync, symlinkSync,
   utimesSync, writeFileSync,
 } from "node:fs";
 import { createHash } from "node:crypto";
@@ -153,6 +153,35 @@ function writtenListing(listing: Map<string, string>): unknown {
   } catch (err) {
     return { error: (err as Error).message };
   }
+}
+
+// The refusal the evaluator gives for a case, with each command in its native form (see `guard_refusal`). The
+// environment the evaluator reads is the caller's to set.
+function guardRefusalNative(c: any, code: string, attempt: unknown): any {
+  const got = lib.evaluateGuardRefusal({
+    code,
+    blockedAction: c.blocked,
+    stage: c.stage,
+    ...(c.unit === null ? {} : { unit: c.unit }),
+    ...(c.project === null ? {} : { projectDir: c.project }),
+    stateContent: c.state,
+    invariant: c.invariant,
+    userMessage: c.message,
+    attempt,
+    humanAuthority: { freshTurn: false, unattended: c.unattended },
+    ...(c.fence === null ? {} : { fence: c.fence }),
+    ...(c.fence_switch === null ? {} : { fenceSwitch: c.fence_switch }),
+    ...(c.isolated === null ? {} : { summary: { stage: { slug: c.stage }, isolated: c.isolated } }),
+  });
+  const routed = (text: string) => text.replace(/bun \.[A-Za-z0-9_.-]+\/tools\/aidlc-([a-z-]+)\.ts/g, "aidlc engine $1");
+  return {
+    ...got,
+    remedies: got.remedies.map((remedy: any) => {
+      if (remedy.operation === undefined) return { ...remedy, action: routed(remedy.action) };
+      const native = guardOperation.renderGuardOperation(remedy.operation, { mode: "native", harnessDir: ".claude", shell: "posix" });
+      return { ...remedy, action: routed(remedy.action.split(remedy.command).join(native)), command: native };
+    }),
+  };
 }
 
 async function answer(c: Record<string, any>): Promise<unknown> {
@@ -941,40 +970,108 @@ async function answer(c: Record<string, any>): Promise<unknown> {
       try {
         // An operation that names what none may (a stage or a unit that is no identifier, a fence no person
         // switches) is thrown, and the throw is the answer.
-        let got: any;
         try {
-          got = lib.evaluateGuardRefusal({
-          code: c.code,
-          blockedAction: c.blocked,
-          stage: c.stage,
-          ...(c.unit === null ? {} : { unit: c.unit }),
-          ...(c.project === null ? {} : { projectDir: c.project }),
-          stateContent: c.state,
-          invariant: c.invariant,
-          userMessage: c.message,
-          attempt: c.attempt,
-          humanAuthority: { freshTurn: false, unattended: c.unattended },
-          ...(c.fence === null ? {} : { fence: c.fence }),
-          ...(c.fence_switch === null ? {} : { fenceSwitch: c.fence_switch }),
-          ...(c.isolated === null ? {} : { summary: { stage: { slug: c.stage }, isolated: c.isolated } }),
-          });
+          return guardRefusalNative(c, c.code, c.attempt);
         } catch (error) {
           return { error: (error as Error).message };
         }
-        const routed = (text: string) => text.replace(/bun \.[A-Za-z0-9_.-]+\/tools\/aidlc-([a-z-]+)\.ts/g, "aidlc engine $1");
-        return {
-          ...got,
-          remedies: got.remedies.map((remedy: any) => {
-            if (remedy.operation === undefined) return { ...remedy, action: routed(remedy.action) };
-            const native = guardOperation.renderGuardOperation(remedy.operation, { mode: "native", harnessDir: ".claude", shell: "posix" });
-            return { ...remedy, action: routed(remedy.action.split(remedy.command).join(native)), command: native };
-          }),
-        };
       } finally {
         for (const [index, name] of names.entries()) {
           if (before[index] === undefined) delete process.env[name];
           else process.env[name] = before[index];
         }
+      }
+    }
+    case "guard_series": {
+      // The series of a guard's refusals in a project of the case's own: its ledger (the boundaries after which a
+      // repeat is a new situation) and, when the case gives one, a record already there. Each step evaluates the
+      // refusal the case describes (commands in their native form), then views the series, records the refusal,
+      // or prints it; rows may be appended to the ledger first, and the record that is there changed by hand.
+      //
+      // A boundary's token names its shard by the path it was read from, and the signatures hash the token: with
+      // a boundary in play they are the project's own, and are said by the order in which the case first meets
+      // them (`<state-1>`, `<series-1>`). So are the signatures over an attempt that carries a command, which
+      // names the engine. Otherwise the signatures are compared as they are. The shard is said
+      // by its file's name, and the moment of a record is left out.
+      const root = layProject(c);
+      const record = join(root, "aidlc", "spaces", "default", "intents", "rec-1a2b3c4d");
+      const audit = join(record, "audit");
+      const data = resolve(upstream, "dist", "claude", ".claude", "tools", "data");
+      const names = ["AIDLC_STAGE_GRAPH", "AIDLC_SCOPE_GRID", "AIDLC_HARNESS_DIR"];
+      const before = names.map((name) => process.env[name]);
+      process.env.AIDLC_STAGE_GRAPH = join(data, "stage-graph.json");
+      process.env.AIDLC_SCOPE_GRID = join(data, "scope-grid.json");
+      process.env.AIDLC_HARNESS_DIR = ".claude";
+      try {
+        mkdirSync(audit, { recursive: true });
+        for (const [name, text] of Object.entries(c.shards as Record<string, string>)) writeFileSync(join(audit, name), text);
+        const key = createHash("sha256").update(`${c.stage}\0${c.unit ?? ""}`, "utf-8").digest("hex");
+        const file = join(record, ".aidlc-engine", "guard-refusals", `${key}.json`);
+        if (c.prior !== null) {
+          mkdirSync(dirname(file), { recursive: true });
+          writeFileSync(file, c.prior);
+        }
+        const met: string[][] = [[], []];
+        const out: unknown[] = [];
+        for (const step of c.steps as any[]) {
+          for (const [name, text] of Object.entries((step.rows ?? {}) as Record<string, string>)) appendFileSync(join(audit, name), text);
+          // (The record as someone else left it: fields of the one that is there set or taken away.)
+          if (step.edit !== undefined || step.drop !== undefined) {
+            const kept = JSON.parse(readFileSync(file, "utf-8"));
+            for (const name of (step.drop ?? []) as string[]) delete kept[name];
+            Object.assign(kept, step.edit ?? {});
+            writeFileSync(file, `${JSON.stringify(kept, null, 2)}\n`);
+          }
+          let refusal: any;
+          try {
+            refusal = guardRefusalNative(c, step.code ?? c.code, step.attempt ?? c.attempt);
+          } catch (error) {
+            out.push({ error: (error as Error).message });
+            continue;
+          }
+          const attempt = step.attempt ?? c.attempt;
+          const resources = (step.resources ?? c.resources) as string[];
+          const view = lib.guardRefusalStreakView(root, refusal, attempt, resources);
+          // (And a command the attempt carries names the engine, which each engine calls by its own name: a
+          // signature over one is the engine's own as well.)
+          const own = view.record.resetToken !== "" || JSON.stringify([attempt.pendingReview ?? null, attempt.nextReview ?? null]).includes("aidlc");
+          if (own) {
+            for (const [kind, value] of [[0, view.record.stateSignature], [1, view.signature]] as Array<[number, string]>) {
+              if (!met[kind].includes(value)) met[kind].push(value);
+            }
+          }
+          // (A signature met at an earlier step stays in the record until a step writes over it.)
+          const settled = (text: string) => {
+            let said = text.split(`${audit}/`).join("");
+            met.forEach((values, kind) => values.forEach((value, index) => {
+              said = said.split(value).join(`<${kind === 0 ? "state" : "series"}-${index + 1}>`);
+            }));
+            return said;
+          };
+          const said = (value: unknown) => JSON.parse(settled(JSON.stringify(value)));
+          let streak: any = null;
+          let text: string | null = null;
+          if (step.op === "view") streak = view;
+          else if (step.op === "viewed") streak = lib.guardRefusalStreakView(root, refusal, attempt, resources, true);
+          else if (step.op === "record") streak = lib.recordGuardRefusal(root, refusal, attempt, resources);
+          else if (step.op === "leave") streak = lib.recordGuardRefusal(root, refusal, attempt, resources, true);
+          else if (step.op === "output") text = lib.guardRefusalOutput(root, refusal, attempt, resources);
+          else throw new Error(`guard_series: unknown op ${step.op}`);
+          const kept = existsSync(file) ? readFileSync(file, "utf-8").replace(/"updatedAt": "[^"]*"/, '"updatedAt": "<at>"') : null;
+          out.push({
+            ...(streak === null ? {} : { count: streak.count, signature: settled(streak.signature), ask: said(streak.ask) }),
+            ...(text === null ? {} : { text: settled(text) }),
+            token: said(view.record.resetToken),
+            file: kept === null ? null : settled(kept),
+          });
+        }
+        return out;
+      } finally {
+        for (const [index, name] of names.entries()) {
+          if (before[index] === undefined) delete process.env[name];
+          else process.env[name] = before[index];
+        }
+        rmSync(root, { recursive: true, force: true });
       }
     }
     case "review_text": {

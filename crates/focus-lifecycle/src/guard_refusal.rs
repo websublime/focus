@@ -201,12 +201,75 @@ pub struct Refusal {
     pub code: String,
     pub blocked_action: String,
     pub stage: String,
+    /// Never the empty name: one given as such is none.
     pub unit: Option<String>,
     /// The stage's state, in upstream's words.
     pub state: &'static str,
     pub invariant: String,
     pub user_message: String,
     pub remedies: Vec<Remedy>,
+}
+
+/// A remedy as upstream writes it, in the order of its keys.
+#[must_use]
+pub fn remedy_value(remedy: &Remedy) -> Value {
+    let mut said = serde_json::Map::new();
+    said.insert("op".to_owned(), Value::from(remedy.op));
+    if let Some(label) = &remedy.label {
+        said.insert("label".to_owned(), Value::from(label.as_str()));
+    }
+    if let Some(description) = &remedy.description {
+        said.insert("description".to_owned(), Value::from(description.as_str()));
+    }
+    said.insert("action".to_owned(), Value::from(remedy.action.as_str()));
+    if let Some(operation) = &remedy.operation {
+        said.insert("operation".to_owned(), guard_operation::to_value(operation));
+    }
+    if let Some(command) = &remedy.command {
+        said.insert("command".to_owned(), Value::from(command.as_str()));
+    }
+    said.insert(
+        "requiresHuman".to_owned(),
+        Value::from(remedy.requires_human),
+    );
+    said.insert(
+        "executableNow".to_owned(),
+        Value::from(remedy.executable_now),
+    );
+    said.insert(
+        "interaction".to_owned(),
+        Value::from(remedy.interaction.as_str()),
+    );
+    Value::Object(said)
+}
+
+/// A refusal as upstream writes it, in the order of its keys.
+#[must_use]
+pub fn refusal_value(refusal: &Refusal) -> Value {
+    let mut said = serde_json::Map::new();
+    said.insert("code".to_owned(), Value::from(refusal.code.as_str()));
+    said.insert(
+        "blockedAction".to_owned(),
+        Value::from(refusal.blocked_action.as_str()),
+    );
+    said.insert("stage".to_owned(), Value::from(refusal.stage.as_str()));
+    if let Some(unit) = &refusal.unit {
+        said.insert("unit".to_owned(), Value::from(unit.as_str()));
+    }
+    said.insert("state".to_owned(), Value::from(refusal.state));
+    said.insert(
+        "invariant".to_owned(),
+        Value::from(refusal.invariant.as_str()),
+    );
+    said.insert(
+        "userMessage".to_owned(),
+        Value::from(refusal.user_message.as_str()),
+    );
+    said.insert(
+        "remedies".to_owned(),
+        Value::Array(refusal.remedies.iter().map(remedy_value).collect()),
+    );
+    Value::Object(said)
 }
 
 /// A remedy before its interaction and its words are worked out.
