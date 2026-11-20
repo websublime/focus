@@ -1762,7 +1762,7 @@ Os intervalos de linhas são de `aidlc-orchestrate.ts` no pin, salvo indicação
 | 1. A identidade da fonte | O passeio pelos ficheiros fonte do projeto, a sua impressão digital, o snapshot `baseline-<hash>.tsv` e o campo `Source Baseline`; o snapshot de fonte de uma unit (`workspaceSourceState`, `readUnitSourceSnapshot` e o que está entre eles em `aidlc-lib.ts`) | `SHAPES["source-baseline"]` (criação e saltos passam a comparar o campo e a listagem); o baseline de uma stage que produz código nas transições; o desvio dos observadores na criação | Corpus sobre árvores de scratch (o que conta como fonte, o que se ignora, a ordem, o hash); diferencial | Feito, partida em quatro (abaixo). O snapshot do workspace e os leitores vêm com quem os usa: fatias 2, 3 e 11 |
 | 2. `log` | `focus engine log decision`, `answer`, `answers`, `link` e `review`: as linhas `DECISION_RECORDED`, `QUESTION_ANSWERED`, `SUMMARY_CONFIRMATION_RECORDED`, `REVIEW_REQUESTED` e `REVIEW_COMPLETED`, os handoffs de um pipeline; o registo de mensagens lido (`aidlc-log.ts`, 4 486; `message-store`, 246); o `Source Fingerprint` de um pedido de revisão e o snapshot do workspace atrás dele (`workspaceSourceState`, `writeWorkspaceSourceSnapshot`) | Nada sozinho: é quem escreve o que a fatia 3 pesa. A escolha de uma pergunta de recuperação gravada por `log` fica para a fatia 4 | Diferencial (`log/*`) | Em curso: 2a a 2d, 2e-i, 2e-ii, 2e-iii-a, 2e-iii-b, 2e-iii-c-i, 2e-iii-c-ii, 2e-iii-c-iii, 2e-iv-a e 2e-iv-b feitas: a fatia 2 está completa |
 | 3. Os recibos pesados | `freshReviewReceipts` (1 066) e `checkSummaryConfirmationEvidence` (647), os handoffs devidos por um pipeline, os pares pedido e conclusão de uma revisão; `review-brief` (2 365: `review`, `summary`, `context`) e os findings que um gate grava na decisão; a baseline lida de volta (`readBaselineSourceSnapshot`, `currentStageSourceBaseline`) para dizer que caminhos mudaram | As recusas pelo nome de `state` (`advance` e os gates com sumário, revisão ou pipeline devidos), de `review-freeze` e do grupo (`review_rows`), do salto para trás com linhas de revisão, e do turno humano com um pedido de revisão sem veredicto. Sem units: a dimensão por unit chega com a fatia 5 | Diferencial; corpus para os leitores puros (a tabela de findings, a secção `## Review`) | Em curso: 3a, 3b, 3c e 3d feitas; falta a 2e (depois da 4a) e o que a 3 levanta nos comandos. Passa para antes da 2e: `review` chama os dois leitores em todos os caminhos (abaixo) |
-| 4. A pergunta de recuperação | `evaluateGuardRefusal` e `guardAttemptState`: depois da frase de um guard, a pergunta com os remédios que o condutor pode oferecer, e a série da recusa em `.focus-engine/guard-refusals/`; a escolha gravada | `SHAPES["guard-ask"]` | Corpus (o avaliador e a tentativa); diferencial | Em curso: partida em três (abaixo). A 4a, o avaliador, está feita e passou para antes da 2e-i, que diz os seus remédios em duas frases; a 4b e a 4c vêm depois da 2e |
+| 4. A pergunta de recuperação | `evaluateGuardRefusal` e `guardAttemptState`: depois da frase de um guard, a pergunta com os remédios que o condutor pode oferecer, e a série da recusa em `.focus-engine/guard-refusals/`; a escolha gravada | `SHAPES["guard-ask"]` | Corpus (o avaliador e a tentativa); diferencial | Em curso: partida em três (abaixo). A 4a, o avaliador, está feita e passou para antes da 2e-i, que diz os seus remédios em duas frases; a 4b, a tentativa, está feita; falta a 4c |
 | 5. Units em série | As units como dados (o bloco de units, o DAG, os lotes de um bolt) e como transições: os verbos de `state` que M3 recusa (`set-skeleton-stance`, `set-construction-*`, `set-unit-gate-rhythm`, `sync-unit-scope-stage`, `acknowledge-compaction`, `reuse-artifact`, `lookup`, `practices-event`, `practices-promote`, `unit`), `jump reopen` e `execute --units`, `skip --unit`, uma stage de Construction em `advance`; `bolt` sem worktree (`start`, `complete`, `fail`, `abort`, `set-autonomy`, `checkpoint`; 1 511; `swarm-checkpoint`, `dispatch-event`, `hold-merge` e `release-merge` recusam pelo nome) e os checkpoints de Construction (`construction-checkpoints`, 1 618: a evidência, as decisões, o comando de verificação) | O limite 1 de M3, menos o que é de equipa ou de worktree (`set-unit-ownership`, `refresh-unit-progress`, `fold-unit-merge`, `fork`, `merge`); os recibos por unit da fatia 3 | Diferencial; o fuzz de transições ganha units. Prende os três chamadores que leem só o marcador de uma stage por unit e que a correção de M5 deixou por prender (os outputs de uma stage de Construction e a unit de um artefacto revisto) | Por fazer |
 | 6. As diretivas e o marcador | `focus-orchestrate::directive` (os onze tipos de diretiva, `validateDirective`, as notas para o agente; `aidlc-directive.ts`, 2 976) e o marcador `active-directive.json`: escrever, ler, limpar, refrescar, pôr fora de data, o lock, e `state-writes.json` ao lado | As recusas pelo nome de um registo com marcador: `state`, `status`, `jump`, os hooks (`directive_marker`), e as admissões que os guards leem dele (as respostas da pergunta de recuperação, a continuação de um restart, o último passo do engine); o cursor que `set-status` preserva | Corpus (`validateDirective` sobre diretivas geradas, boas e estragadas; o parser do marcador); diferencial sobre árvores cujo marcador é o que o original escreveu | Por fazer |
 | 7. `next` num trabalho que existe | O parser de flags (`parseNextFlags`, L3 867 a 4 281), a rota principal para um workflow em curso (a parte de `routeNext`, L7 138 a 9 014, que não cria nem pergunta), a diretiva de uma stage (`buildRunStageDirective` e os resolvedores de caminhos, L5 297 a 6 333; a narração; `inline-context`, `includes`, `rules-held`, `steering`) e a emissão (L981 a 1 900 e 6 333 a 7 073: o limite de tamanho, a entrega em partes por `load-steering` e `continue`, as linhas devidas à pessoa, o aviso de saúde dos hooks); `parked`, `done`, `print`, `error` | As linhas da pessoa (`person-lines`) no turno humano e no salto para trás | Corpus (o parser de flags; a diretiva de uma stage como função do estado e do grafo); diferencial (`orchestrate/next/*`); a jornada começa aqui e compara até onde Focus ainda recusa | Por fazer |
@@ -2273,7 +2273,7 @@ Lido `handleReview` (`aidlc-log.ts` L2 975 a L4 412, uma função só): não há
 | `checkSummaryConfirmationEvidence` (647) | Em todos os pedidos e em todos os veredictos (`admitReviewSummary`): um pedido de revisão precisa da autorização de sumário em dia | 3 |
 | `reviewAttemptWindow` (220), `reviewAttemptAccounting` (346), `reviewAttemptEventMatchesCurrentClaim` (27) | Em todos os caminhos (`loadContext`): a tentativa de revisão, o ordinal do pedido, o orçamento | 3: é a mesma leitura dos pares pedido e conclusão |
 | `pendingReviewRequestStatus` | No pedido e no veredicto: o pedido que espera veredicto, com os artefactos devidos | Por atribuir: lê-se com a fatia 3, que é quem pesa os pares |
-| `guardAttemptState`, `evaluateGuardRefusal`, `humanAuthorityState` | Em cada recusa de guard: a pergunta de recuperação depois da frase. E, por `recoveryGuidance`, dentro de duas frases do pedido (abaixo) | 4. O avaliador existe desde a 4a; a pergunta vem com a 4b e a 4c, e até lá a frase sai sem ela, como nas outras recusas (`SHAPES["guard-ask"]`) |
+| `guardAttemptState`, `evaluateGuardRefusal`, `humanAuthorityState` | Em cada recusa de guard: a pergunta de recuperação depois da frase. E, por `recoveryGuidance`, dentro de duas frases do pedido (abaixo) | 4. O avaliador existe desde a 4a e a tentativa desde a 4b; a pergunta vem com a 4c, e até lá a frase sai sem ela, como nas outras recusas (`SHAPES["guard-ask"]`) |
 | `governedChangeControl`, `recordAcceptedChanges` | Quando um dos leitores leu o controlo de mudanças | 3, com os leitores |
 | `workspaceSourceState`, `writeWorkspaceSourceSnapshot` | O `Source Fingerprint` de um pedido e do veredicto | 2e, sobre a identidade da fonte que a fatia 1 trouxe |
 | `readUnitSourceManifest`, `writeUnitSourceSnapshot`, `teamUnitGateStatus`, `resolveBoltDag`, `isAutonomousSwarmStage` | A dimensão por unit | 5: recusada pelo nome até lá, como em `decision` e `answer` |
@@ -2303,7 +2303,8 @@ Lido `handleReview` (`aidlc-log.ts` L2 975 a L4 412, uma função só): não há
 | 2e-ii | `governedChangeControl`, `recordAcceptedChanges` |
 | 2e-iii | `validateReviewAppendix`, `demoteReviewHeadings`, `readFindingsTable`, `deriveReviewFindingsList`, `unreadableFindingsTableFinding`, `derivedRecordFinding`, `serializeReviewRecord`, `renderReadableReviewCopy` |
 | 2e-iv | `writeRecordFileNoFollow`, `reviewerDispatchPath`, `removeParentReviewerDispatch` |
-| Fatia 4 (b e c) | `guardAttemptState`, `humanAuthorityState`, `refuseReviewGuard` |
+| Fatia 4b (feita) | `guardAttemptState`, `humanAuthorityState` |
+| Fatia 4c | `refuseReviewGuard` |
 | Fatia 5 | `validateLiveUnitScope`, `claimAttemptFields`, `isAutonomousSwarmStage`, `reviewAttemptEventMatchesCurrentClaim`, `unitSkippedUnits`, `teamUnitGateStatus`, `readUnitSourceManifest`, `writeUnitSourceSnapshot`, `unitSourceFingerprint`, `unitManifestRefusal` |
 
 O que a fatia 3 ainda deve aos comandos (as recusas pelo nome de `state`, de `review-freeze` e do grupo, do salto para trás com linhas de revisão, e do turno humano com um pedido sem veredicto; os handoffs devidos por um pipeline; `review-brief` e os findings que um gate grava) faz-se depois da 2e-i: é com `review` a escrever os recibos que o diferencial os consegue pôr nos dois lados da mesma maneira.
@@ -2363,7 +2364,7 @@ O caminho do pedido são 560 linhas de `handleReview` e uma dúzia de funções 
 | `--review-file`; o `NOT-READY` sem revisão de um pedido já repetido; a secção `## Review` acrescentada ao artefacto | 2e-iv-b. Levantados |
 | `--unit` | Fatia 5. Recusado pelo nome |
 | Um pedido feito enquanto a Guard Policy deixou passar uma mudança, ou foi mudada desde a última vez que o ledger a gravou (`recordAcceptedChanges`, `governedGuardPolicy`: as linhas `CHANGE_ACCEPTED` e `GUARD_POLICY_SET`) | 2e-ii, que o levantou: até lá era recusado pelo nome, porque seguir sem as linhas deixava a mudança por dizer |
-| A pergunta de recuperação depois da frase de um guard, e a série da recusa | 4b e 4c (`SHAPES["guard-ask"]`) |
+| A pergunta de recuperação depois da frase de um guard, e a série da recusa | 4c (`SHAPES["guard-ask"]`); quem diz a tentativa existe desde a 4b |
 | A recusa de um pedido sem ligação válida (`requestBinding === null`) | Em lado nenhum: é código morto no original. A contagem salta uma linha de pedido sem ligação, e por isso nenhum pedido pendente a tem |
 
 **Desvios deliberados** (cada um com teste marcado em `crates/focus-cli/tests/log.rs` e entrada em `DEVIATIONS`):
@@ -3081,7 +3082,7 @@ Verificado: os 45 947 casos e as respostas são os mesmos, com os nomes novos; `
 | --- | --- |
 | Uma stage por unit que deve sumário | Fatia 5. Que units o devem lê-se das linhas de ciclo de vida das units (`unitSkippedUnits`, `unitFinishedBeforeSummaryOn`, sobre `currentUnitLifecycleRows` e o run floor de cada unit). É o "sem units" que a fatia 3 já tinha; a partição que escrevi antes de ler esses leitores punha-os aqui. Recusada pelo nome quando deve; respondida quando não deve |
 | Uma linha com unit sob um claim de equipa (`eventMatchesClaimAttempt`) | `Unit Ownership: team` está adiado: recusada pelo nome |
-| O objeto `refusal` (`evaluateGuardRefusal`, 268 linhas) | Fatia 4. O avaliador existe desde a 4a; falta quem lhe diz a tentativa (`guardAttemptState`, 4b). Até lá a recusa leva o código, a frase e a cobertura |
+| O objeto `refusal` (`evaluateGuardRefusal`, 268 linhas) | Fatia 4. O avaliador existe desde a 4a e quem lhe diz a tentativa (`guardAttemptState`) desde a 4b; falta a série e a pergunta impressa (4c). Até lá a recusa leva o código, a frase e a cobertura |
 
 **Decisões.**
 
@@ -3230,7 +3231,7 @@ Lida a região (`aidlc-lib.ts` L29 780 a L31 560). São três coisas que se veri
 | Parte | O que traz | Como se verifica | Estado |
 | --- | --- | --- | --- |
 | 4a. O avaliador | `evaluateGuardRefusal` (L30 482) e o que ele chama: do código da recusa, do estado da stage e do que a tentativa parece, os remédios pela ordem em que se oferecem. `recoveryGuidance` (L31 491), a frase com que uma recusa em prosa acaba, e `requestChangesResetIsExecutable` | Corpus: o avaliador não lê nada do projeto | Feita, antes da 2e-i |
-| 4b. A tentativa | `guardAttemptState` (L30 773, cerca de 460 linhas): a tentativa no vocabulário do avaliador (o orçamento de revisão, a recuperação única, a revisão em voo, e se o sumário, a revisão e a fonte ainda cobrem o que está em disco), tirada dos leitores da fatia 3; `humanAuthorityState` | Corpus sobre projetos de scratch, como os recibos | Por fazer, depois da 2e |
+| 4b. A tentativa | `guardAttemptState` (L30 773, cerca de 200 linhas; as 460 da primeira leitura contavam até à série): a tentativa no vocabulário do avaliador (o orçamento de revisão, a recuperação única, a revisão em voo, e se o sumário, a revisão e a fonte ainda cobrem o que está em disco), tirada dos leitores da fatia 3; `humanAuthorityState` | Corpus sobre projetos de scratch, os dos recibos | Feita |
 | 4c. A série e a pergunta | `recordGuardRefusal` (L31 237): a série de uma recusa em `.focus-engine/guard-refusals/`; `guardRefusalOutput` (L31 347): a frase e a pergunta que o comando imprime; a nota para o hook e a pergunta pendente (`guardRefusalHookNote`, `pendingGuardRecoveryAsk`); a escolha que `log` grava | Diferencial; levanta `SHAPES["guard-ask"]` | Por fazer |
 
 A 4b e a 4c são a leitura de hoje, feita só até onde a 4a precisava: partem-se outra vez ao chegar lá, se for preciso.
@@ -3252,8 +3253,8 @@ A 4b e a 4c são a leitura de hoje, feita só até onde a 4a precisava: partem-s
 | --- | --- |
 | O gate de uma unit de equipa (`teamGate`) e os seus remédios (`restore-scope`, o report que nomeia a unit) | Adiado com `Unit Ownership: team`. O input não existe em Focus |
 | Um bolt autónomo (`autonomousBolt`) e `abort-bolt` | O swarm responde sempre que não (decisão 1). O input não existe |
-| O ficheiro de perguntas do sumário lido pelo próprio avaliador quando tem diretório de projeto | Quem chama entrega-o (`Summary.questions_file`): é ele que leu a evidência de sumário. Com a 4b |
-| Quem diz a tentativa (`guardAttemptState`) e a presença da pessoa (`humanActedSinceGate` em `humanAuthorityState`) | 4b. O avaliador não lê `freshTurn` |
+| O ficheiro de perguntas do sumário lido pelo próprio avaliador quando tem diretório de projeto | Quem chama entrega-o (`Summary.questions_file`): é ele que leu a evidência de sumário. Com quem chama o avaliador num comando (4c) |
+| Quem diz a tentativa (`guardAttemptState`) e a presença da pessoa (`humanActedSinceGate` em `humanAuthorityState`) | A tentativa: 4b, feita. A presença não chega: nada no original lê `freshTurn` (abaixo) |
 
 **Decisões.**
 
@@ -3279,6 +3280,65 @@ A 4b e a 4c são a leitura de hoje, feita só até onde a 4a precisava: partem-s
 | Repetição da gravação | Igual: nenhum comando mudou de comportamento |
 | Mutação | 138 mutantes: 131 apanhados (120 à primeira, 11 depois de casos novos), 5 equivalentes anotados no módulo, 2 linhas redundantes retiradas |
 | `cargo test` | 590 testes, os mesmos: as asserções novas entraram no teste de `guard_operation`, e os mínimos dos dois tipos no teste de corpus de `focus-lifecycle` |
+
+### Fatia 4b: a tentativa, como um guard a vê
+
+**O que existe.** `focus-lifecycle::guard_attempt::guard_attempt_state` (`guardAttemptState`): o único sítio onde a tentativa de uma stage, ou de uma unit dela, é dita nas palavras do avaliador. Lê uma vez os leitores da fatia 3 (a janela, os recibos que ainda valem, a contagem das revisões da tentativa, o que se pode fazer com o pedido à espera) e responde:
+
+| Campo | De onde vem |
+| --- | --- |
+| `floor` | A linha em que a tentativa começa: a da contagem; a da janela numa stage que ninguém revê |
+| `reviewBudget` | As passagens que a contagem dá por gastas, contra o limite que quem chama contou. Só quando quem chama o diz |
+| `recovery` | `pending` com um pedido de recuperação à espera; `spent` quando a contagem, o recibo caído ou a fonte dizem que a recuperação única já foi usada; senão `available` |
+| `repairReview`, `nextReview`, `pendingReview` | Um dos três, ou nenhum: a reparação que o reviewer pediu; o pedido a fazer (o seguinte, ou o mesmo outra vez quando o pedido à espera já nunca pode acabar); o pedido que espera, com o que ainda se pode fazer dele. Cada um com o comando exato |
+| `requestReview` | O comando do próximo pedido: os pedidos da tentativa mais um |
+| `summaryCoverage` | O que quem chama leu do sumário; `current` se não disse |
+| `reviewCoverage` | `current` com um veredicto que vale, `stale` com um caído ou a fonte mexida, `missing` sem nada |
+| `sourceCoverage` | `unbindable` quando a fronteira não se liga, `stale` com a fonte mexida, `current` com uma fonte revista, `missing` sem nenhuma |
+
+Com a tentativa vão os recibos de que ela foi lida e os três recursos cuja mudança é progresso verdadeiro (`source:`, `stage-review:`, `unit-review:`), com que a 4c assina a série de uma recusa. `Attempt` ganhou o campo `floor`, que o avaliador não lê e a série assina. `attempt_value` escreve a tentativa como o objeto do original, pela ordem das chaves.
+
+Quem chama já com uma leitura na mão entrega-a e ela não se repete: os recibos, a janela, a contagem, o estado do pedido à espera, se os outputs devidos se verificam. É o que os cinco sítios do original fazem (`log review` duas vezes, `state` uma, `orchestrate` duas).
+
+**`humanAuthorityState`.** Dá duas respostas: `unattended`, que é `unattended_says` desde a 4a, e `freshTurn` (se a pessoa agiu desde o gate). Nada no original lê `freshTurn`: o avaliador nunca o pede e nenhum outro leitor existe. Não se calcula.
+
+**O que fica de fora, pelo nome.** Com as units de uma equipa, a contagem das revisões de uma unit deixa de fora as linhas de um claim anterior dela (`reviewAttemptEventMatchesCurrentClaim`). Os claims de equipa estão adiados com `Unit Ownership: team`: a tentativa de uma unit cujas linhas teriam de ser pesadas assim é recusada pelo nome (`tests/guard_attempt.rs`). Uma linha com o campo `Unit` já é recusada um leitor antes, pelos recibos; o que chega a esta recusa é o começo do bolt da própria unit, que a nomeia sem esse campo. O pedido de uma unit numa stage que escreve código continua recusado pelos recibos (a fonte da própria unit).
+
+**Decisões.**
+
+| Decisão | Porquê |
+| --- | --- |
+| O tipo de caso `guard_attempt` pergunta-se nos projetos dos recibos | Cada caso de `review_receipts` é um projeto com um ledger, registos e ficheiros num estado que um recibo pode ter. A tentativa lê-se desses mesmos estados: o gerador guarda cada projeto e pergunta-o outra vez, variando o que se pergunta (a stage ou uma unit, o orçamento, o sumário, a stage corrida sozinha) e o que quem chama já trazia. O driver e o oráculo de Focus montam o projeto pelo mesmo código que monta o dos recibos |
+| O projeto diz-se `/P` num comando, e o shard da `floor` pelo nome do ficheiro | O original usa o mesmo diretório para ler e para escrever os comandos; cada motor monta o projeto na sua pasta temporária. Em Focus o diretório que os comandos dizem é um parâmetro à parte de onde se lê, e o caso dá-lhe `/P`. A `floor` leva o caminho do shard como foi lido: compara-se o nome do ficheiro, que os dois dizem igual em qualquer sistema |
+| Uma stage sem `phase` não se testa | O tipo do original deixa passar uma stage parcial sem fase, que não é revisível. Uma stage do grafo compilado tem sempre uma |
+| Um reviewer declarado com o nome vazio conta como declarado | É o que o original faz (`reviewer !== undefined`): a tentativa conta-se, para ninguém, e só o próximo pedido precisa de um nome. `stage::reviewer` filtra o vazio, e por isso aqui lê-se o campo |
+
+**O que o corpus encontrou.** Na primeira comparação, 2 208 casos, nada no port: a única diferença era a `floor`, que leva o caminho do shard e cada motor tinha o seu (a decisão acima).
+
+**O que a mutação encontrou.** 79 mutantes: 72 sobre a tentativa, julgados pelo corpus, e 7 sobre a recusa pelo nome, julgados pelos testes. 61 morreram à primeira. Doze eram buracos, e cada um ganhou os casos (ou a linha de teste) que lhe faltavam e foi repetido até morrer:
+
+| O que o mutante trocava | O que o mata |
+| --- | --- |
+| A classe sob a qual os recibos se pesam, deixada à que a stage declara | Um estado com `Review Override`: a classe é a da stage como o estado a limita |
+| Se a stage escreve código, dito à contagem (dois mutantes) | Um pedido despachado outra vez (`Retry: pending-request`): conta como a repetição única só se for um pedido a que um veredicto se pode prender, o que numa stage que escreve código exige a fonte |
+| Se os outputs devidos se verificam, quando quem chama o diz | Um pedido à espera com um output devido em falta, perguntado das duas maneiras e com o switch |
+| As units de bolt merged, dadas ao estado do pedido à espera | Uma stage por unit sem documento de dependências: as units de um bolt merged fazem as vezes das units, e um pedido feito sobre elas é atual só com elas |
+| O progresso caído da stage e o de uma unit (três mutantes) | A recuperação gasta dita só pelo veredicto caído: a palavra da fonte volta a «não gasta» quando a unit da fonte revista mais nova recomeça o seu bolt, e o veredicto de outra unit (ou da stage, sem documento de dependências) que respondeu a um pedido de recuperação e caiu continua a dizê-lo. Com uma contagem que quem chama tirou para outro reviewer |
+| Uma reparação pedida pelo reviewer tratada como pedido a refazer | Uma reparação (duas passagens, `NOT-READY` na primeira) com quem chama a dizer que o pedido dessa passagem se pode substituir |
+| O orçamento contado pelos pedidos todos, e o próximo pedido numerado pelo orçamento (dois mutantes) | Uma unit que recomeça um passo que tinha acabado: o orçamento conta os pedidos desde aí, e o próximo pedido numera-se depois de todos |
+| O bolt da unit reconhecido só pelo slug | Um bolt com o slug da unit e o nome de outra (teste) |
+
+Seis não mudam resposta nenhuma. Dois deixaram de estar escritos, porque os recibos já os respondem: se o progresso caído da fonte diz a recuperação gasta (os recibos enchem-no com a resposta que dão para a fonte, que se pergunta), e se o fingerprint da fonte revista é o texto vazio (um que os recibos guardam nunca é). Quatro ficam, com a razão na linha e no módulo: a fonte do projeto partilhada pelos dois leitores que a pesam (cada um tira-a sozinho se não lha dão, e lê o mesmo); o pedido à espera não perguntado como de uma stage corrida sozinha (só importa a um pedido de unit numa stage que escreve código, que os recibos recusam antes); e, na recusa de equipa, a linha que nomeia a unit no campo `Unit` e o filtro das linhas que a contagem lê (os recibos recusam primeiro qualquer linha com esse campo, e as linhas do bolt de uma unit são todas linhas que a contagem lê).
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Corpus, `guard_attempt` | 2 362 casos, todos iguais: 2 208 sorteados sobre os 1 991 projetos dos recibos (a tentativa de uma unit em 941 dos casos todos; os recibos entregues em 176, a janela em 131, a contagem em 198, o estado do pedido em 189, a verificação dos outputs em 185; a stage corrida sozinha em 324; sem reviewer em 46 e com o nome vazio em 32) e 154 escritos caso a caso. Um pedido à espera em 326 (19 que já não se repete, 76 cujo veredicto não se grava), um pedido a fazer em 149, uma reparação em 35; a recuperação gasta em 403 e pendente em 56; a revisão caída em 254; a fonte mexida em 69 e sem fronteira em 42; o orçamento dito em 1 477. 10 assentam em links e não correm em Windows |
+| Corpus, tudo | 83 355 casos em 91 tipos; os outros 90 tipos saem byte a byte como estavam |
+| Repetição da gravação | Igual: nenhum comando mudou de comportamento |
+| Mutação | 79 mutantes: 61 mortos à primeira; 12 buracos, cada um fechado e repetido até morrer; 6 equivalentes, dois retirados do código e quatro com a razão na linha |
+| `cargo test` | 605 testes (dois novos: a recusa pelo nome, em `tests/guard_attempt.rs`); os mínimos do tipo novo entraram no teste de corpus de `focus-lifecycle` |
 
 ### A jornada
 

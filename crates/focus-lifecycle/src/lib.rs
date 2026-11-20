@@ -35,6 +35,7 @@ pub mod change_control;
 pub mod events;
 pub mod gate;
 pub mod gates;
+pub mod guard_attempt;
 pub mod guard_refusal;
 pub mod jump;
 pub mod oracle;

@@ -68,6 +68,8 @@ fn every_lifecycle_case_gets_upstreams_answer() {
     let (mut parts, mut placed, mut unplaceable, mut spelled) = (0, 0, 0, 0);
     let (mut replayed, mut decided, mut sent_back, mut seeded) = (0, 0, 0, 0);
     let (mut reopened, mut stood_in) = (0, 0);
+    let (mut attempts, mut in_flight, mut asked_again, mut repaired) = (0, 0, 0, 0);
+    let (mut spent, mut recovering, mut uncovered, mut unbound, mut budgeted) = (0, 0, 0, 0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         let case: Value = focus_js::json::parse(line).unwrap();
@@ -133,6 +135,22 @@ fn every_lifecycle_case_gets_upstreams_answer() {
             seeded += usize::from(out["artifact"] != case["artifact"]);
             reopened += usize::from(any(&|finding| finding.get("reopenedReason").is_some()));
             stood_in += usize::from(any(&|finding| finding["id"] == "R-00"));
+        } else if kind == "guard_attempt" {
+            // The attempt as a guard sees it: a request that waits, one to
+            // ask again, a repair the reviewer asked for; the recovery
+            // spent or in flight; a review or a source that no longer
+            // covers what is there; the budget said.
+            attempts += 1;
+            assert!(out.get("error").is_none(), "{}: {out}", case["id"]);
+            let attempt = &out["attempt"];
+            in_flight += usize::from(attempt.get("pendingReview").is_some());
+            asked_again += usize::from(attempt.get("nextReview").is_some());
+            repaired += usize::from(attempt.get("repairReview").is_some());
+            spent += usize::from(attempt["recovery"] == "spent");
+            recovering += usize::from(attempt["recovery"] == "pending");
+            uncovered += usize::from(attempt["reviewCoverage"] == "stale");
+            unbound += usize::from(attempt["sourceCoverage"] == "unbindable");
+            budgeted += usize::from(attempt.get("reviewBudget").is_some());
         } else if kind == "review_receipts" {
             // The reviews that still stand: a verdict for the stage or a
             // unit, one a later write made stale, a request that waits, the
@@ -336,6 +354,14 @@ fn every_lifecycle_case_gets_upstreams_answer() {
         "{replayed} {decided} {sent_back} {seeded}"
     );
     assert!(reopened >= 120 && stood_in >= 190, "{reopened} {stood_in}");
+    assert!(
+        attempts >= 2300 && in_flight >= 300 && asked_again >= 130 && repaired >= 30,
+        "{attempts} {in_flight} {asked_again} {repaired}"
+    );
+    assert!(
+        spent >= 380 && recovering >= 50 && uncovered >= 230 && unbound >= 30 && budgeted >= 1400,
+        "{spent} {recovering} {uncovered} {unbound} {budgeted}"
+    );
     assert!(
         differing.is_empty(),
         "{} lifecycle cases differ from upstream; first:\n{}",
