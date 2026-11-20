@@ -34,6 +34,13 @@ pub fn to_lower_case(s: &str) -> String {
     s.to_lowercase()
 }
 
+/// `String.prototype.toUpperCase`: the default Unicode uppercase mapping,
+/// which Rust's `to_uppercase` follows.
+#[must_use]
+pub fn to_upper_case(s: &str) -> String {
+    s.to_uppercase()
+}
+
 /// `String.prototype.trim`.
 #[must_use]
 pub fn trim(s: &str) -> &str {
