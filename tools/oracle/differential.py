@@ -2609,11 +2609,11 @@ DEVIATIONS.update({
     r"state/record/delegated_worktree":
         "upstream walks the process tree to find which conversation is calling, and resolves a delegated worktree to "
         "the main checkout's intent; focus refuses and asks for the session",
-    r"state/advance/(review_owed|review_owed_advisory_cap|pipeline_owed|summary_amended_then_review_owed)":
-        "the stage owes evidence that is an aidlc-log record (a reviewer's receipt, a "
-        "pipeline's handoffs) compared with the stage's outputs and the source the review saw (the attestation, "
+    r"state/advance/(review_owed|review_owed_advisory_cap|summary_amended_then_review_owed)":
+        "the stage owes evidence that is an aidlc-log record (a reviewer's receipt) "
+        "compared with the stage's outputs and the source the review saw (the attestation, "
         "M5): upstream weighs it and refuses with what is missing; focus refuses by name until it reads those "
-        "records. With the ceremony off, the review class none, or the kill switch set, neither owes it and the "
+        "records. With the review class none, or the kill switch set, neither owes it and the "
         "transition runs whole (the checks beside this one)",
     "state/advance/review_rows_in_ledger":
         "a closed stage's recovery reads the review rows of its attempt (which the stage's STAGE_STARTED floors); "
@@ -3566,6 +3566,81 @@ def transition_checks():
                "dependencies", "code-quality-assessment", "reverse-engineering-timestamp")}
     with_repo = CREATED_REGISTRY.replace('"status": "in-flight"', '"status": "in-flight",\n    "repos": ["app"]')
     check_("advance/pipeline_owed", created(pipeline, registry=with_repo, **codekb), [["advance", "reverse-engineering"]], direct)
+    # The handoffs of a pipeline, weighed: each link of the chain needs a receipt of this attempt that counts, per
+    # repository the work records; a repository whose knowledge base the attempt kept owes none. The receipts are
+    # written by hand, as `log link` writes them (its own checks compare the writing).
+    dev, arch = "aidlc-developer-agent", "aidlc-architect-agent"
+    scan_of = lambda repo=None: f"{CREATED_DIR}/inception/reverse-engineering/developer-scan{'-' + repo if repo else ''}.md"
+    SCAN, SCAN_NS, SCAN_MS = "# Developer scan\n\nWhat the code is.\n", 1767610800123456700, "1767610800123.4567"
+    scan_time = lambda repo="app", ns=SCAN_NS: lambda tree: os.utime(tree.path(scan_of(repo)), ns=(ns, ns))
+    handed = lambda minute, agent, position, repo="app", *more: block(
+        "PIPELINE_LINK_COMPLETED", T(minute), "**Stage**: reverse-engineering", f"**Link**: {agent}", f"**Position**: {position}",
+        *((f"**Artifact Path**: {scan_of(repo)}", "**Artifact SHA256**: sha256:" + hashlib.sha256(SCAN.encode()).hexdigest(), f"**Artifact Mtime Ms**: {SCAN_MS}") if agent == dev else ()),
+        *((f"**Repo**: {repo}",) if repo else ()), *more)
+    re_twice = [["advance", "reverse-engineering"], ["advance", "reverse-engineering"]]
+    piped = lambda state=pipeline, rows="", registry=with_repo, **more: created(state, CREATED_AUDIT + rows, registry=registry, **{**codekb, scan_of("app"): SCAN, **more})
+    chain_on = pipeline.replace("- **Collaborators**: off (from scope feature)", "- **Collaborators**: on")
+    assert chain_on != pipeline
+    check_("advance/pipeline_owed_twice", piped(), re_twice, direct, edits=[scan_time()])
+    check_("advance/pipeline_lead_alone_recorded", piped(rows=handed(1, dev, "1/1")), re_twice, direct, edits=[scan_time()])
+    check_("advance/pipeline_lead_recorded_for_a_longer_chain", piped(rows=handed(1, dev, "1/2")), re_twice, direct, edits=[scan_time()])
+    check_("advance/pipeline_lead_recorded_with_no_position", piped(rows=handed(1, dev, "1/1").replace("**Position**: 1/1\n", "")), re_twice, direct, edits=[scan_time()])
+    check_("advance/pipeline_chain_recorded", piped(chain_on, handed(1, dev, "1/2") + handed(2, arch, "2/2")), re_twice, direct, edits=[scan_time()])
+    check_("advance/pipeline_chain_second_owed", piped(chain_on, handed(1, dev, "1/2")), re_twice, direct, edits=[scan_time()])
+    check_("advance/pipeline_chain_both_owed", piped(chain_on), re_twice, direct, edits=[scan_time()])
+    check_("advance/pipeline_chain_second_before_the_first", piped(chain_on, handed(1, arch, "2/2") + handed(2, dev, "1/2")), re_twice, direct, edits=[scan_time()])
+    check_("advance/pipeline_chain_last_of_a_longer_chain", piped(chain_on, handed(1, dev, "1/2") + handed(2, arch, "2/3")), re_twice, direct, edits=[scan_time()])
+    check_("advance/pipeline_chain_first_again", piped(chain_on, handed(1, dev, "1/2") + handed(2, arch, "2/2") + handed(3, dev, "1/2")), re_twice, direct, edits=[scan_time()])
+    check_("advance/pipeline_collaborators_off_by_the_switch", piped(chain_on, handed(1, dev, "1/1")), re_twice, {**direct, "DISABLE_COLLABORATORS": "1"}, edits=[scan_time()])
+    # The developer's scan counts while its file is the one the receipt recorded; a policy that keeps changes keeps it.
+    for label, policy in POLICIES:
+        check_(f"advance/pipeline_scan_rewritten{label}", piped(UNDER_POLICY(pipeline, policy), handed(1, dev, "1/1")), re_twice, direct, edits=[scan_time(ns=SCAN_NS + 10**12)])
+        check_(f"advance/pipeline_scan_other_bytes{label}", piped(UNDER_POLICY(pipeline, policy), handed(1, dev, "1/1"), **{scan_of("app"): SCAN + "more\n"}), re_twice, direct, edits=[scan_time()])
+        # A rejection of the stage's gate starts the attempt again, unless the policy keeps the receipts.
+        check_(f"advance/pipeline_rejected_since{label}", piped(UNDER_POLICY(pipeline, policy), handed(1, dev, "1/1") + block("GATE_REJECTED", T(5), "**Stage**: reverse-engineering", "**Feedback**: again")),
+               re_twice, direct, edits=[scan_time()])
+    check_("advance/pipeline_scan_gone", piped(rows=handed(1, dev, "1/1"), **{scan_of("app"): None}), re_twice, direct)
+    check_("advance/pipeline_started_again_since", piped(rows=handed(1, dev, "1/1") + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering")), re_twice, direct, edits=[scan_time()])
+    check_("advance/pipeline_receipt_of_a_run_by_itself", piped(rows=handed(1, dev, "1/1", "app", "**Workflow**: single-stage:reverse-engineering")), re_twice, direct, edits=[scan_time()])
+    check_("advance/pipeline_receipt_of_another_stage", piped(rows=handed(1, dev, "1/1").replace("**Stage**: reverse-engineering", "**Stage**: intent-capture")), re_twice, direct, edits=[scan_time()])
+    # Repositories: each one its own chain, and the receipt of one is not another's.
+    two_repos = CREATED_REGISTRY.replace('"status": "in-flight"', '"status": "in-flight",\n    "repos": ["app", "web"]')
+    web = {**{name.replace("/codekb/app/", "/codekb/web/"): text for name, text in codekb.items()}, scan_of("web"): SCAN}
+    both_times = [scan_time("app"), scan_time("web")]
+    check_("advance/pipeline_two_repos_one_recorded", piped(rows=handed(1, dev, "1/1"), registry=two_repos, **web), re_twice, direct, edits=both_times)
+    check_("advance/pipeline_two_repos_both_recorded", piped(rows=handed(1, dev, "1/1") + handed(2, dev, "1/1", "web"), registry=two_repos, **web), re_twice, direct, edits=both_times)
+    check_("advance/pipeline_two_repos_neither", piped(chain_on, registry=two_repos, **web), re_twice, direct, edits=both_times)
+    check_("advance/pipeline_receipt_of_no_repo", piped(rows=handed(1, dev, "1/1", None)), re_twice, direct, edits=[scan_time()])
+    check_("advance/pipeline_receipt_of_an_unrecorded_repo", piped(rows=handed(1, dev, "1/1", "web"), **{scan_of("web"): SCAN}), re_twice, direct, edits=both_times)
+    # A repository the attempt kept instead of rebuilding owes nothing.
+    kept = lambda minute=2, *more: block("ARTIFACT_REUSED", T(minute), "**Stage**: reverse-engineering", "**Decision**: keep", *more)
+    check_("advance/pipeline_repo_kept", piped(chain_on, kept(2, "**Repo**: app")), re_twice, direct, edits=[scan_time()])
+    check_("advance/pipeline_another_repo_kept", piped(rows=kept(2, "**Repo**: web")), re_twice, direct, edits=[scan_time()])
+    check_("advance/pipeline_kept_with_no_repo_named", piped(rows=kept(2)), re_twice, direct, edits=[scan_time()])
+    check_("advance/pipeline_repo_not_kept", piped(rows=kept(2, "**Repo**: app").replace("**Decision**: keep", "**Decision**: rebuild")), re_twice, direct, edits=[scan_time()])
+    check_("advance/pipeline_another_stage_kept", piped(rows=kept(2, "**Repo**: app").replace("**Stage**: reverse-engineering", "**Stage**: intent-capture")), re_twice, direct, edits=[scan_time()])
+    check_("advance/pipeline_repo_kept_by_a_run_by_itself", piped(rows=kept(2, "**Repo**: app", "**Workflow**: single-stage:reverse-engineering")), re_twice, direct, edits=[scan_time()])
+    check_("advance/pipeline_repo_kept_before_a_restart", piped(rows=kept(2, "**Repo**: app") + block("STAGE_STARTED", T(5), "**Stage**: reverse-engineering")), re_twice, direct, edits=[scan_time()])
+    # (What was kept before a rejection of the stage's gate is of the attempt before, unless the policy keeps it.)
+    for label, policy in POLICIES:
+        check_(f"advance/pipeline_repo_kept_before_a_rejection{label}",
+               piped(UNDER_POLICY(pipeline, policy), kept(2, "**Repo**: app") + block("GATE_REJECTED", T(5), "**Stage**: reverse-engineering", "**Feedback**: again")), re_twice, direct, edits=[scan_time()])
+    check_("advance/pipeline_two_repos_one_kept_one_recorded", piped(rows=kept(2, "**Repo**: web") + handed(3, dev, "1/1"), registry=two_repos, **web), re_twice, direct, edits=both_times)
+    check_("advance/pipeline_two_repos_one_kept", piped(rows=kept(2, "**Repo**: web"), registry=two_repos, **web), re_twice, direct, edits=both_times)
+    # A piece of work that records no repository: the project is the one repository, and its chain names none.
+    check_("advance/pipeline_no_repo_recorded", piped(registry=CREATED_REGISTRY, **{scan_of(): SCAN}), re_twice, direct, edits=[scan_time(None)])
+    check_("advance/pipeline_no_repo_recorded_handed", piped(rows=handed(1, dev, "1/1", None), registry=CREATED_REGISTRY, **{scan_of(): SCAN}), re_twice, direct, edits=[scan_time(None)])
+    check_("advance/pipeline_no_repo_recorded_a_receipt_names_one", piped(rows=handed(1, dev, "1/1"), registry=CREATED_REGISTRY, **{scan_of(): SCAN}), re_twice, direct, edits=[scan_time(None), scan_time()])
+    check_("advance/pipeline_no_repo_recorded_chain_second_owed", piped(chain_on, handed(1, dev, "1/2", None), registry=CREATED_REGISTRY, **{scan_of(): SCAN}), re_twice, direct, edits=[scan_time(None)])
+    check_("advance/pipeline_no_repo_recorded_chain_recorded", piped(chain_on, handed(1, dev, "1/2", None) + handed(2, arch, "2/2", None), registry=CREATED_REGISTRY, **{scan_of(): SCAN}), re_twice, direct,
+           edits=[scan_time(None)])
+    check_("advance/pipeline_no_repo_recorded_kept", piped(rows=kept(2), registry=CREATED_REGISTRY), re_twice, direct, edits=[scan_time()])
+    check_("advance/pipeline_no_repo_recorded_a_repo_kept", piped(rows=kept(2, "**Repo**: app"), registry=CREATED_REGISTRY), re_twice, direct, edits=[scan_time()])
+    # The other transitions that certify the stage.
+    check_("finalize/pipeline_owed", piped(), [["finalize", "reverse-engineering"], ["finalize", "reverse-engineering"]], direct, edits=[scan_time()])
+    check_("finalize/pipeline_recorded", piped(rows=handed(1, dev, "1/1")), [["finalize", "reverse-engineering"], ["advance", "reverse-engineering"]], direct, edits=[scan_time()])
+    check_("complete/pipeline_owed", piped(), [["complete-workflow", "reverse-engineering", "--reason", "enough"]], direct, edits=[scan_time()])
+    check_("complete/pipeline_recorded", piped(rows=handed(1, dev, "1/1")), [["complete-workflow", "reverse-engineering", "--reason", "enough"]], direct, edits=[scan_time()])
     check_("advance/pipeline_evidence_off", created(pipeline, registry=with_repo, **codekb), [["advance", "reverse-engineering"]],
            {**direct, "DISABLE_ENSEMBLE_EVIDENCE": "1"})
     check_("advance/codekb_incomplete", created(pipeline, registry=with_repo, **{k: v for k, v in codekb.items() if "architecture" not in k}),
@@ -4800,6 +4875,27 @@ def gate_checks():
     relaxed_gate = UNDER_POLICY(GATE_STATE, "relaxed (set by you)")
     check_("gates/summary_amended_policy_moved", summary_confirmed(relaxed_gate, SUMMARY_AMENDED, after=moved), opens + [approve], quiet)
     check_("gates/summary_confirmed_policy_moved", summary_confirmed(relaxed_gate, after=moved), opens + [approve], quiet)
+    # The handoffs of a pipeline at a gate: where it opens, where the person approves, and where it is shown again
+    # after a rejection, which starts the attempt again unless the policy keeps the receipts.
+    re_at = lambda state: at_stage(state.replace("- [ ] reverse-engineering \u2014 SKIP", "- [ ] reverse-engineering \u2014 EXECUTE"), "reverse-engineering",
+                                   done=["intent-capture", "market-research", "feasibility", "scope-definition", "team-formation", "rough-mockups", "approval-handoff"], phase="INCEPTION")
+    re_codekb = {f"aidlc/spaces/default/codekb/app/{name}.md": "# Known\n" for name in
+                 ("business-overview", "architecture", "code-structure", "api-documentation", "component-inventory", "technology-stack",
+                  "dependencies", "code-quality-assessment", "reverse-engineering-timestamp")}
+    re_scan = f"{CREATED_DIR}/inception/reverse-engineering/developer-scan-app.md"
+    RE_SCAN, RE_NS = "# Developer scan\n\nWhat the code is.\n", 1767610800123456700
+    re_time = lambda tree: os.utime(tree.path(re_scan), ns=(RE_NS, RE_NS))
+    re_handed = block("PIPELINE_LINK_COMPLETED", T(1), "**Stage**: reverse-engineering", "**Link**: aidlc-developer-agent", "**Position**: 1/1", f"**Artifact Path**: {re_scan}",
+                      "**Artifact SHA256**: sha256:" + hashlib.sha256(RE_SCAN.encode()).hexdigest(), "**Artifact Mtime Ms**: 1767610800123.4567", "**Repo**: app")
+    re_piped = lambda state=GATE_STATE, rows=re_handed: created(re_at(state), CREATED_AUDIT + rows, registry=CREATED_REGISTRY.replace('"status": "in-flight"', '"status": "in-flight",\n    "repos": ["app"]'),
+                                                                 **{**re_codekb, re_scan: RE_SCAN})
+    re_open, re_approve, re_reject = ["gate-start", "reverse-engineering"], ["approve", "reverse-engineering", "--user-input", "Approve"], ["reject", "reverse-engineering", "--feedback", "needs more"]
+    check_("gates/pipeline_owed", re_piped(rows=""), [re_open, re_open, re_approve], quiet, edits=[re_time])
+    check_("gates/pipeline_recorded", re_piped(), [re_open, re_approve], quiet, edits=[re_time])
+    for label, policy in POLICIES:
+        check_(f"gates/pipeline_scan_rewritten_before_the_approval{label}", re_piped(UNDER_POLICY(GATE_STATE, policy)), [re_open, ["@write", re_scan, RE_SCAN + "more\n"], re_approve, re_approve], quiet, edits=[re_time])
+        check_(f"gates/pipeline_rejected_and_shown_again{label}", re_piped(UNDER_POLICY(GATE_STATE, policy)), [re_open, re_reject, ["revise", "reverse-engineering"], ["revise", "reverse-engineering"], re_approve],
+               quiet, edits=[re_time])
     check_("gates/review_owed", created(GATE_STATE.replace("- **Review Override**: none", "- **Review Override**: "), **ic), [["gate-start", "intent-capture"]], quiet)
     check_("gates/review_guard_off", created(GATE_STATE.replace("- **Review Override**: none", "- **Review Override**: "), **ic), [["gate-start", "intent-capture"], approve], {**quiet, "SKIP_REVIEWER_GATE_GUARD": "1"})
     check_("gates/review_findings_rows", created(awaiting, opened + block("REVIEW_FINDING", T(2), "**Stage**: intent-capture", "**Finding**: R-01", "**Status**: open"), **ic), [approve], quiet)
