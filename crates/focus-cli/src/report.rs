@@ -37,7 +37,7 @@ pub struct Refusal {
     pub change_notices: Vec<String>,
     /// A guard's refusal, for the verb's entry point to print with its
     /// recovery question in place of the sentence alone.
-    pub guard: Option<focus_lifecycle::guard_series::GuardRefused>,
+    pub guard: Option<Box<focus_lifecycle::guard_series::GuardRefused>>,
 }
 
 impl Refusal {
@@ -82,7 +82,8 @@ impl From<focus_js::EngineError> for Refusal {
         Self {
             guard: err
                 .detail::<focus_lifecycle::guard_series::GuardRefused>()
-                .cloned(),
+                .cloned()
+                .map(Box::new),
             ..Self::of(err.to_string())
         }
     }

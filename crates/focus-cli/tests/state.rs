@@ -699,9 +699,28 @@ fn a_transition_runs_whole_with_its_rows_first() {
 #[test]
 fn a_stage_without_its_artifacts_is_refused_before_anything_changes() {
     let root = created("artifacts", CREATED);
+    // The guard's sentence, then its recovery question on a line of its
+    // own; and the refusal counted in the series of the stage.
+    let refused = refusal(&state(&root, &["advance", "intent-capture"], &DIRECT));
+    let (sentence, ask) = refused
+        .split_once('\n')
+        .expect("a question after the sentence");
     assert_eq!(
-        refusal(&state(&root, &["advance", "intent-capture"], &DIRECT)),
+        sentence,
         "Cannot complete \"intent-capture\": none of its declared artifacts exist under the intent's record directory. The stage protocol requires Intent Capture & Framing to produce output before the gate. Produce the artifacts before completing. (declared: intent-statement, stakeholder-map, intent-capture-questions)"
+    );
+    let ask: serde_json::Value = serde_json::from_str(ask).unwrap();
+    assert_eq!(ask["kind"], "ask");
+    assert_eq!(ask["ask_type"], "guard-recovery");
+    assert_eq!(ask["stage"], "intent-capture");
+    assert_eq!(
+        ask["reason_codes"],
+        serde_json::json!(["REQUIRED_ARTIFACTS_MISSING"])
+    );
+    let again = refusal(&state(&root, &["advance", "intent-capture"], &DIRECT));
+    assert!(
+        again.contains(" still can't go ahead as things stand"),
+        "{again}"
     );
     assert_eq!(created_state(&root), CREATED);
     let ledger = created_shard(&root);
