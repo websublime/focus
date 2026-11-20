@@ -421,20 +421,15 @@ pub fn streak_view(
         Some(prior)
             if prior.state_signature == state_signature && prior.reset_token == reset_token =>
         {
-            let mut codes = prior.codes.clone();
-            if !codes.contains(&refusal.code) {
-                codes.push(refusal.code.clone());
-            }
-            // (A set keeps the first of each code; the order is then the
-            // sort's.)
-            let mut seen: Vec<String> = Vec::new();
-            for code in codes {
-                if !seen.contains(&code) {
-                    seen.push(code);
+            // (A set of the codes so far and this one, sorted.)
+            let mut codes: Vec<String> = Vec::new();
+            for code in prior.codes.iter().chain([&refusal.code]) {
+                if !codes.contains(code) {
+                    codes.push(code.clone());
                 }
             }
-            seen.sort_by(|a, b| focus_js::order::cmp_utf16(a, b));
-            seen
+            codes.sort_by(|a, b| focus_js::order::cmp_utf16(a, b));
+            codes
         }
         _ => vec![refusal.code.clone()],
     };
