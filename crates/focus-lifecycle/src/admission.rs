@@ -7,14 +7,47 @@
 //! pipeline's handoffs are recorded when owed; and its Construction
 //! checkpoints are approved.
 //!
-//! The evidence checks read `aidlc-log` records and compare the source
-//! the review saw with the source there now (the attestation, M5). Focus
-//! does not weigh that evidence yet: a transition that owes a confirmation,
-//! a receipt or a handoff is refused by name, and one that owes none (the
-//! ceremony is off, the review class resolves to `none`, the stage has no
-//! reviewer or is not a pipeline, or the kill switches are set) passes as
-//! upstream passes it. A Construction stage is refused by name as well: its
-//! checkpoints, units and swarms are M4.
+//! The evidence checks read `aidlc-log` records. The summary confirmation
+//! is weighed ([`crate::summary_evidence`]): one that is not there, or no
+//! longer the current one, is a guard's refusal, and a change the Guard
+//! Policy keeps is recorded and said once, on a line of its own before the
+//! command's answer ([`Workflow::say_change_notices`]). The other two
+//! compare the source the review saw with the source there now (the
+//! attestation, M5), and Focus does not weigh them yet: a transition that
+//! owes a receipt or a handoff is refused by name, and one that owes none
+//! (the review class resolves to `none`, the stage has no reviewer or is
+//! not a pipeline, or the kill switches are set) passes as upstream passes
+//! it. A Construction stage is refused by name as well: its checkpoints,
+//! units and swarms are M4.
+//!
+//! # What no check tells apart
+//!
+//! Three things in the summary's admission, each said here because a
+//! mutant of it survives the differential:
+//!
+//! - **The state handed to the evidence.** Every caller hands over the
+//!   state it has just read or just written, so an evidence that read the
+//!   file again would read the same text.
+//! - **The unit of a change the policy kept.** A transition asks for the
+//!   stage's evidence, and a stage that runs for each unit and owes a
+//!   confirmation is refused by name one reader earlier
+//!   ([`crate::summary_evidence`]): the unit is always none until units
+//!   arrive.
+//! - **The check repeated under the lock at an approval.** Upstream
+//!   weighs the summary before the lock, again under it, and a third time
+//!   in the chain every completion passes; when the revision backstop
+//!   fires, once more after its rows. Within one process the first
+//!   answer is every later one: the repeats are for a second process
+//!   that changes the record between the check and the lock. What the
+//!   first one decides alone is the order of the refusals before the
+//!   lock, which is compared (`gates/summary_unconfirmed_ahead_of_*`).
+//!
+//! The rows of a change the policy keeps are written under the workspace
+//! lock. A check that runs before its transition takes the lock (upstream
+//! checks a gate's opening and its approval once outside the lock and once
+//! under it) takes the lock for those rows and lets go of it; under the
+//! lock the transition hands its own over, because the lock is not taken
+//! twice by one process.
 //!
 //! A guard that refuses carries its code and the invariant it holds. The
 //! error's message is the sentence; the refusal, evaluated on the attempt
@@ -36,11 +69,14 @@ use focus_js::text::trim;
 use focus_js::{EngineError, Result, bail};
 use focus_state::fields::get_field;
 use focus_state::progress::{CheckboxState, parse_checkboxes};
+use focus_workspace::lock::WorkspaceLock;
 use focus_workspace::settings::Places;
 use focus_workspace::{Layout, env};
 
 use crate::artifacts::{produces_artifacts_exist, workspace_has_work};
+use crate::change_control::{self, Accepted};
 use crate::stage;
+use crate::summary_evidence::{self, Evidence};
 use crate::workflow::Workflow;
 
 /// What the action is: closing the stage, or opening its approval gate.
@@ -296,21 +332,120 @@ pub fn is_autonomous_mode(state: &str) -> bool {
     get_field(state, "Construction Autonomy Mode").map(trim) == Some("autonomous")
 }
 
-/// `verifySummaryConfirmationPrecondition`: refused by name when owed.
+/// `observeChangeControl`: a check of the admission read the Guard Policy,
+/// because something had changed after an approval. The transition reads
+/// it again as the one that changes things (a move of the policy is
+/// recorded), records the changes the check let through, and says them
+/// once, on a line of their own.
+///
+/// `held` is the workspace lock when the caller holds it; a check that
+/// runs before the transition takes the lock takes it for these rows.
 ///
 /// # Errors
 ///
-/// The stage owes a summary confirmation, which Focus cannot read yet.
-pub fn verify_summary_confirmation(wf: &Workflow, stage: &Stage, state: &str) -> Result<()> {
-    if !summary_confirmation_owed(wf, stage, state) {
-        return Ok(());
-    }
-    bail!(
-        "\"{}\" owes a summary confirmation (the Summary Confirmation ceremony is on for this piece of work), which is recorded with `focus engine log` and compared with the stage's outputs: Focus does not read that record yet. Turn the ceremony off for this piece of work (`--summary-confirmation off` at creation, or {}=1) to run the transition whole.",
-        stage.slug,
-        env::full_name("SKIP_SUMMARY_CONFIRMATION_GUARD")
-    )
+/// The policy cannot be read, or a row cannot be written.
+fn observe_change_control(
+    wf: &Workflow,
+    held: Option<&WorkspaceLock>,
+    state: &str,
+    accepted: &[Accepted<'_>],
+) -> Result<()> {
+    let taken;
+    let held = match held {
+        Some(held) => held,
+        None => {
+            taken = wf.lock("recording what the Guard Policy let through")?;
+            &taken
+        }
+    };
+    change_control::governed_guard_policy(wf, held, state)?;
+    let notices = change_control::record_accepted_changes(wf, held, accepted)?;
+    wf.say_change_notices(&notices);
+    Ok(())
 }
+
+/// `verifySummaryConfirmationPrecondition`: the stage's outputs descend
+/// from a summary confirmation a person gave and that is still the current
+/// one, when the stage owes one.
+///
+/// # Errors
+///
+/// The confirmation is not there or no longer current: a guard's refusal,
+/// with the summary's coverage. Or the evidence cannot be read.
+pub fn verify_summary_confirmation(
+    wf: &Workflow,
+    held: Option<&WorkspaceLock>,
+    stage: &Stage,
+    state: &str,
+) -> Result<()> {
+    let evidence = summary_evidence::check(
+        wf,
+        stage,
+        summary_evidence::Asked {
+            workflow: None,
+            state: Some(state),
+            scope: None,
+            unit: None,
+        },
+    )?;
+    let (Evidence::Ok {
+        change_control_read,
+        ..
+    }
+    | Evidence::Refused {
+        change_control_read,
+        ..
+    }) = &evidence;
+    if *change_control_read {
+        let accepted: Vec<Accepted<'_>> = match &evidence {
+            Evidence::Ok {
+                accepted_changes, ..
+            } => accepted_changes
+                .iter()
+                .map(|change| Accepted {
+                    checkpoint: "summary-confirmation",
+                    stage: &change.stage,
+                    unit: change.unit.as_deref(),
+                    changed: Some(&change.changed),
+                    recorded: &change.recorded,
+                    current: &change.current,
+                    notice: &change.notice,
+                })
+                .collect(),
+            Evidence::Refused { .. } => Vec::new(),
+        };
+        observe_change_control(wf, held, state, &accepted)?;
+    }
+    let Evidence::Refused {
+        code,
+        message,
+        coverage,
+        ..
+    } = &evidence
+    else {
+        return Ok(());
+    };
+    Err(crate::guard_series::guard_refused(
+        wf,
+        state,
+        stage,
+        crate::guard_series::Refused {
+            code,
+            blocked_action: "summary-confirmation",
+            invariant: SUMMARY_INVARIANT,
+            user_message: message,
+            unit: None,
+        },
+        crate::guard_attempt::Options {
+            summary_coverage: Some((*coverage).into()),
+            ..Default::default()
+        },
+    ))
+}
+
+/// The invariant the summary's admission holds.
+pub const SUMMARY_INVARIANT: &str =
+    "Generated outputs descend from a current human-backed summary confirmation.";
 
 /// `resolveReviewClass`: the stage's class, capped by the state's
 /// `Review Override` or the scope's `review_cap`.
@@ -428,9 +563,14 @@ pub fn refuse_construction(stage: &Stage) -> Result<()> {
 /// # Errors
 ///
 /// Any guard above refuses.
-pub fn verify_gate_opening_guards(wf: &Workflow, stage: &Stage, state: &str) -> Result<()> {
+pub fn verify_gate_opening_guards(
+    wf: &Workflow,
+    held: Option<&WorkspaceLock>,
+    stage: &Stage,
+    state: &str,
+) -> Result<()> {
     verify_stage_artifacts(wf, stage, Action::PresentApprovalGate)?;
-    verify_summary_confirmation(wf, stage, state)?;
+    verify_summary_confirmation(wf, held, stage, state)?;
     verify_pipeline_link(wf, stage)?;
     if !reviewer_gate_guard_disabled() {
         verify_reviewer(wf, stage, state, true)?;
@@ -448,6 +588,7 @@ pub fn verify_gate_opening_guards(wf: &Workflow, stage: &Stage, state: &str) -> 
 /// Any guard refuses; the stage is a Construction stage.
 pub fn admit(
     wf: &Workflow,
+    held: Option<&WorkspaceLock>,
     state: &str,
     stage: &Stage,
     action: Action,
@@ -457,7 +598,7 @@ pub fn admit(
     assert_not_archived(state, operation)?;
     refuse_construction(stage)?;
     if action != Action::Complete {
-        verify_gate_opening_guards(wf, stage, state)?;
+        verify_gate_opening_guards(wf, held, stage, state)?;
         return Ok(());
     }
     let already_completed = parse_checkboxes(state)
@@ -465,7 +606,7 @@ pub fn admit(
         .any(|line| line.slug == stage.slug && line.state == CheckboxState::Completed);
     if approving {
         verify_stage_artifacts(wf, stage, Action::Complete)?;
-        verify_summary_confirmation(wf, stage, state)?;
+        verify_summary_confirmation(wf, held, stage, state)?;
         verify_pipeline_link(wf, stage)?;
         verify_reviewer(wf, stage, state, true)?;
         return Ok(());
@@ -473,7 +614,7 @@ pub fn admit(
     verify_reviewer(wf, stage, state, !already_completed)?;
     if !already_completed {
         verify_stage_artifacts(wf, stage, Action::Complete)?;
-        verify_summary_confirmation(wf, stage, state)?;
+        verify_summary_confirmation(wf, held, stage, state)?;
         verify_pipeline_link(wf, stage)?;
     }
     Ok(())
@@ -644,13 +785,20 @@ mod tests {
             summary_confirmation_setting(&wf, &no_line.replace("feature", "nope")),
             "on"
         );
-        assert!(
-            verify_summary_confirmation(&wf, &at("ideation", true), STATE)
-                .unwrap_err()
-                .message()
-                .contains("owes a summary confirmation")
+        // Owed and not there: a guard's refusal, with what the guard holds
+        // (the whole refusal is compared with upstream in the differential).
+        let refused =
+            verify_summary_confirmation(&wf, None, &at("ideation", true), STATE).unwrap_err();
+        let guard = refused
+            .detail::<crate::guard_series::GuardRefused>()
+            .expect("a guard's refusal");
+        assert_eq!(
+            guard.refusal.code, "SUMMARY_QUESTIONS_MISSING",
+            "{refused:?}"
         );
-        assert!(verify_summary_confirmation(&wf, &at("ideation", true), &off).is_ok());
+        assert_eq!(guard.refusal.blocked_action, "summary-confirmation");
+        assert_eq!(guard.refusal.invariant, SUMMARY_INVARIANT);
+        assert!(verify_summary_confirmation(&wf, None, &at("ideation", true), &off).is_ok());
         let _ = std::fs::remove_dir_all(root);
     }
 

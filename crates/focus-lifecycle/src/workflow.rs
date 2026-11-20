@@ -30,6 +30,10 @@ pub struct Workflow {
     pub selection: Selection,
     pub invoker: Invoker,
     pub install: Install,
+    /// Lines a command says on its way, before its answer or its refusal
+    /// (upstream prints them where they arise): what the Guard Policy let
+    /// through and recorded. The command's entry point prints them.
+    pub said: std::cell::RefCell<Vec<String>>,
 }
 
 impl Workflow {
@@ -40,12 +44,30 @@ impl Workflow {
     /// The install cannot be read.
     pub fn open(layout: Layout, selection: Selection, invoker: Invoker) -> Result<Self> {
         let install = Install::read(&layout)?;
-        Ok(Self {
+        Ok(Self::of(layout, selection, invoker, install))
+    }
+
+    /// The record `selection` names in `layout`, read with `install`.
+    #[must_use]
+    pub fn of(layout: Layout, selection: Selection, invoker: Invoker, install: Install) -> Self {
+        Self {
             layout,
             selection,
             invoker,
             install,
-        })
+            said: std::cell::RefCell::new(Vec::new()),
+        }
+    }
+
+    /// `console.log(JSON.stringify({ change_notices }))`: the lines of the
+    /// changes just recorded, for the entry point to print. Nothing is
+    /// said of none.
+    pub fn say_change_notices(&self, notices: &[String]) {
+        if !notices.is_empty() {
+            self.said.borrow_mut().push(focus_js::json::stringify(
+                &serde_json::json!({ "change_notices": notices }),
+            ));
+        }
     }
 
     /// The selector that names this record explicitly, for the ledger.

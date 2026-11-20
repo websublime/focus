@@ -229,6 +229,7 @@ pub fn gate_start(wf: &Workflow, slug: &str, ask: &GateStart<'_>, operation: &st
         && (presence::human_presence_guard_disabled(wf) || presence::human_replied_since_gate(wf));
     admission::admit(
         wf,
+        None,
         &preflight,
         stage,
         Action::PresentApprovalGate,
@@ -248,6 +249,7 @@ pub fn gate_start(wf: &Workflow, slug: &str, ask: &GateStart<'_>, operation: &st
     let already_awaiting = slug_state(&content, slug) == Some(CheckboxState::AwaitingApproval);
     admission::admit(
         wf,
+        Some(&held),
         &content,
         stage,
         Action::PresentApprovalGate,
@@ -300,6 +302,7 @@ pub fn revise(wf: &Workflow, slug: &str, ask: &GateStart<'_>, operation: &str) -
     validate_slug_in_state(&preflight, slug, &[CheckboxState::Revising])?;
     admission::admit(
         wf,
+        None,
         &preflight,
         stage,
         Action::PresentApprovalGate,
@@ -313,6 +316,7 @@ pub fn revise(wf: &Workflow, slug: &str, ask: &GateStart<'_>, operation: &str) -
     validate_slug_in_state(&content, slug, &[CheckboxState::Revising])?;
     admission::admit(
         wf,
+        Some(&held),
         &content,
         stage,
         Action::PresentApprovalGate,
@@ -499,7 +503,7 @@ pub fn approve(
     admission::refuse_construction(stage)?;
     verify_approval_decision(wf, &preflight, stage, user_input)?;
     admission::verify_stage_artifacts(wf, stage, Action::Complete)?;
-    admission::verify_summary_confirmation(wf, stage, &preflight)?;
+    admission::verify_summary_confirmation(wf, None, stage, &preflight)?;
     let preflight_backstop = !revision_backstop_disabled(wf)
         && !guard_policy_accepts_changes(wf, &preflight)
         && gate::unrecorded_revision_since_gate_open(wf, stage)?;
@@ -513,7 +517,7 @@ pub fn approve(
     validate_slug_in_state(&content, slug, &[CheckboxState::AwaitingApproval])?;
     let decision = verify_approval_decision(wf, &content, stage, user_input)?;
     admission::verify_stage_artifacts(wf, stage, Action::Complete)?;
-    admission::verify_summary_confirmation(wf, stage, &content)?;
+    admission::verify_summary_confirmation(wf, Some(&held), stage, &content)?;
     let listed_together: Vec<String> = if decision.together.is_some() {
         Vec::new()
     } else {
@@ -565,7 +569,7 @@ pub fn approve(
             ],
         )?;
         wf.write_state(&content)?;
-        admission::verify_summary_confirmation(wf, stage, &content)?;
+        admission::verify_summary_confirmation(wf, Some(&held), stage, &content)?;
         admission::verify_pipeline_link(wf, stage)?;
         if !admission::reviewer_gate_guard_disabled() {
             admission::verify_reviewer(wf, stage, &content, true)?;
@@ -584,7 +588,15 @@ pub fn approve(
         content = set_field(&content, "Last Updated", &iso_timestamp(SystemTime::now()));
         wf.write_state(&content)?;
     }
-    admission::admit(wf, &content, stage, Action::Complete, operation, true)?;
+    admission::admit(
+        wf,
+        Some(&held),
+        &content,
+        stage,
+        Action::Complete,
+        operation,
+        true,
+    )?;
     gate::refuse_review_findings(wf, stage)?;
     let (_, definition) = wf.scope_definition(
         &content,

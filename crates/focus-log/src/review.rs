@@ -196,19 +196,9 @@ pub(crate) fn guard_text(
     ))
 }
 
-/// A summary's coverage, in the evaluator's words.
-pub(crate) fn guard_coverage(
-    coverage: summary_evidence::Coverage,
-) -> focus_lifecycle::guard_refusal::Coverage {
-    match coverage {
-        summary_evidence::Coverage::Missing => focus_lifecycle::guard_refusal::Coverage::Missing,
-        summary_evidence::Coverage::Stale => focus_lifecycle::guard_refusal::Coverage::Stale,
-    }
-}
-
-/// The invariant a review's summary admission holds.
-pub(crate) const SUMMARY_INVARIANT: &str =
-    "Generated outputs descend from a current human-backed summary confirmation.";
+/// The invariant a review's summary admission holds: the one a
+/// transition's holds.
+pub(crate) use focus_lifecycle::admission::SUMMARY_INVARIANT;
 
 /// The shell a command is quoted for: this platform's.
 pub(crate) fn platform_shell() -> RenderShell {
@@ -825,7 +815,7 @@ fn request(
             },
             focus_lifecycle::guard_attempt::Options {
                 receipts: Some(receipts.clone()),
-                summary_coverage: Some(guard_coverage(*coverage)),
+                summary_coverage: Some((*coverage).into()),
                 review_budget: Some(budget),
                 pending_status: Some(pending),
                 accounting: Some(&attempt),
