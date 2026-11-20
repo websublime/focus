@@ -250,6 +250,22 @@ impl Coverage {
     }
 }
 
+/// A refused summary's coverage, in the words of the evaluator of a
+/// guard's refusal. The evaluator asks one thing of it, whether the
+/// summary is current, which a refused one never is: which of the two a
+/// refusal carries enters only the signature of its series, so no command's
+/// output tells them apart. The corpus compares both ends: what the
+/// evidence says its coverage is (`summary_evidence`), and the signature
+/// over the attempt a case gives (`guard_series`).
+impl From<Coverage> for crate::guard_refusal::Coverage {
+    fn from(coverage: Coverage) -> Self {
+        match coverage {
+            Coverage::Missing => Self::Missing,
+            Coverage::Stale => Self::Stale,
+        }
+    }
+}
+
 /// `SummaryConfirmationEvidence`.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Evidence {

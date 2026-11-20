@@ -338,7 +338,7 @@ pub(crate) fn verdict(
                 message: &format!("Cannot record a review verdict: {message}"),
             },
             focus_lifecycle::guard_attempt::Options {
-                summary_coverage: Some(crate::review::guard_coverage(*coverage)),
+                summary_coverage: Some((*coverage).into()),
                 review_budget: Some(budget),
                 pending_status: Some(pending),
                 accounting: Some(&attempt),

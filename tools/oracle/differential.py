@@ -3534,6 +3534,16 @@ def transition_checks():
         check_(f"advance/summary_outputs_saved_under_no_confirmation{label}", summary_confirmed(state, receipt=minted), twice("advance"), direct)
         check_(f"finalize/summary_amended{label}", summary_confirmed(state, SUMMARY_AMENDED), twice("finalize") + [["advance", "intent-capture"]], direct)
         check_(f"complete/summary_amended{label}", summary_confirmed(state, SUMMARY_AMENDED), twice("complete-workflow", "--reason", "enough"), direct)
+    # The Guard Policy's own move is traced where a transition reads it as the one that changes things: only when
+    # something had changed (a confirmation that is the current one reads no policy), before the change is weighed,
+    # and whichever way it is weighed. A row that cannot be written is a refusal.
+    moved_to = lambda value: block("GUARD_POLICY_SET", T(5), "**Old Value**: off", f"**New Value**: {value}", "**Source**: you")
+    relaxed_now, strict_now = UNDER_POLICY(CREATED_STATE, "relaxed (set by you)"), UNDER_POLICY(CREATED_STATE, "strict (set by you)")
+    check_("advance/summary_confirmed_policy_moved", summary_confirmed(relaxed_now, after=moved_to("strict")), [["advance", "intent-capture"]], direct)
+    check_("advance/summary_amended_policy_moved", summary_confirmed(relaxed_now, SUMMARY_AMENDED, after=moved_to("strict")), twice("advance"), direct)
+    check_("advance/summary_amended_policy_moved_to_strict", summary_confirmed(strict_now, SUMMARY_AMENDED, after=moved_to("relaxed")), twice("advance"), direct)
+    check_("advance/summary_amended_policy_moved_ledger_fault", summary_confirmed(relaxed_now, SUMMARY_AMENDED, after=moved_to("strict")), twice("advance"),
+           {**direct, "TEST_CHANGE_CONTROL_LEDGER_FAULT": "x"})
     check_("finalize/summary_confirmed", summary_confirmed(CREATED_STATE), [["finalize", "intent-capture"], ["advance", "intent-capture"]], direct)
     check_("complete/summary_confirmed", summary_confirmed(CREATED_STATE), [["complete-workflow", "intent-capture", "--reason", "enough"]], direct)
     # (A change the policy kept is recorded once: a transition that is refused afterwards has said it, and the next
@@ -4760,7 +4770,7 @@ def gate_checks():
     # person approves (before the lock and under it: a change the policy kept is said once).
     opens = [["gate-start", "intent-capture"], ["gate-start", "intent-capture"]]
     unrecorded_revision = (block("STAGE_AWAITING_APPROVAL", T(5), "**Stage**: intent-capture") + HUMAN(6)
-                           + block("ARTIFACT_UPDATED", T(7), "**Stage**: intent-capture", "**Artifact**: intent-statement") + HUMAN(8))
+                           + block("ARTIFACT_UPDATED", T(7), f"**File**: {CREATED_DIR}/ideation/intent-capture/intent-statement.md") + HUMAN(8))
     check_("gates/summary_confirmed", summary_confirmed(GATE_STATE), [["gate-start", "intent-capture"], approve], quiet)
     check_("gates/summary_questions_and_no_receipt", created(OWES_SUMMARY(GATE_STATE), **{**SUMMARY_OUTPUTS, SUMMARY_FILE: SUMMARY_TEXT}), opens, quiet)
     check_("gates/summary_questions_and_no_receipt_at_the_approval", created(OWES_SUMMARY(awaiting), opened, **{**SUMMARY_OUTPUTS, SUMMARY_FILE: SUMMARY_TEXT}), [approve, approve], quiet)
@@ -4773,6 +4783,23 @@ def gate_checks():
         # (And where the approval finds a revision nobody recorded: the stage is shown again, and weighed again.)
         check_(f"gates/summary_amended_at_the_revision_backstop{label}", summary_confirmed(UNDER_POLICY(awaiting, policy), SUMMARY_AMENDED, after=unrecorded_revision), [approve, approve], quiet)
     check_("gates/summary_confirmed_at_the_revision_backstop", summary_confirmed(awaiting, after=unrecorded_revision), [approve, approve], quiet)
+    # (Under a strict policy the backstop runs: the stage goes back to revising, and its confirmation is weighed
+    # once more after the rows that say so.)
+    strictly = UNDER_POLICY(awaiting, "strict (set by you)")
+    check_("gates/summary_confirmed_at_the_revision_backstop_strict", summary_confirmed(strictly, after=unrecorded_revision), [approve, approve, ["get", "Revision Count"]], quiet)
+    # Before it takes the lock an approval weighs the summary first: ahead of the sensors a backstop would fire and
+    # of the usage rollup, which Focus refuses by name, and of the policy's move, traced by the opening too.
+    unconfirmed = {**SUMMARY_OUTPUTS, SUMMARY_FILE: SUMMARY_TEXT}
+    sensing = OWES_SUMMARY(strictly).replace("- **Sensors**: off (set by a command)", "- **Sensors**: on (from scope feature)")
+    assert sensing != OWES_SUMMARY(strictly)
+    check_("gates/summary_unconfirmed_ahead_of_the_backstops_sensors", created(sensing, CREATED_AUDIT + unrecorded_revision, **unconfirmed), [approve], quiet)
+    spent = {"aidlc/.aidlc-sessions/usage-ledger.json": json.dumps({"schemaVersion": 3, "cursors": {}, "workflows": {"w": {
+        "totals": {"tokens": {"input": 10, "output": 5, "cacheRead": 0, "cacheCreate5m": 0, "cacheCreate1h": 0}}, "byStage": {"intent-capture": {}}}}})}
+    check_("gates/summary_unconfirmed_ahead_of_the_usage_rollup", created(OWES_SUMMARY(awaiting), opened, **unconfirmed, **spent), [approve], quiet)
+    moved = block("GUARD_POLICY_SET", T(5), "**Old Value**: off", "**New Value**: strict", "**Source**: you")
+    relaxed_gate = UNDER_POLICY(GATE_STATE, "relaxed (set by you)")
+    check_("gates/summary_amended_policy_moved", summary_confirmed(relaxed_gate, SUMMARY_AMENDED, after=moved), opens + [approve], quiet)
+    check_("gates/summary_confirmed_policy_moved", summary_confirmed(relaxed_gate, after=moved), opens + [approve], quiet)
     check_("gates/review_owed", created(GATE_STATE.replace("- **Review Override**: none", "- **Review Override**: "), **ic), [["gate-start", "intent-capture"]], quiet)
     check_("gates/review_guard_off", created(GATE_STATE.replace("- **Review Override**: none", "- **Review Override**: "), **ic), [["gate-start", "intent-capture"], approve], {**quiet, "SKIP_REVIEWER_GATE_GUARD": "1"})
     check_("gates/review_findings_rows", created(awaiting, opened + block("REVIEW_FINDING", T(2), "**Stage**: intent-capture", "**Finding**: R-01", "**Status**: open"), **ic), [approve], quiet)
@@ -4886,6 +4913,18 @@ def gate_checks():
     check_("gates/revision_backstop_strict_repos", created(strict, backstop, registry=CREATED_REGISTRY.replace('"status": "in-flight"', '"status": "in-flight",\n    "repos": ["app"]'), **ic), [approve, ["get", "Revision Count"]], quiet)
     for label, listed in NOT_NAMES:
         check_(f"gates/revision_backstop_repos_{label}", created(strict, backstop, registry=CREATED_REGISTRY.replace('"status": "in-flight"', '"status": "in-flight",\n    "repos": ' + listed), **ic), [approve, ["get", "Revision Count"]], quiet)
+    # A revision nobody recorded: an output saved between two turns of the person after the gate opened. Under a
+    # strict policy the approval records the rejection it never got, and shows the stage again instead of approving.
+    revised = (CREATED_AUDIT + block("STAGE_AWAITING_APPROVAL", T(1), "**Stage**: intent-capture") + HUMAN(2)
+               + block("ARTIFACT_UPDATED", T(3), f"**File**: {CREATED_DIR}/ideation/intent-capture/intent-statement.md") + HUMAN(4))
+    again = [approve, ["get", "Revision Count"], approve, ["get", "Revision Count"]]
+    check_("gates/revision_backstop_fires", created(strict, revised, **ic), again, quiet)
+    check_("gates/revision_backstop_fires_only_under_strict", created(awaiting, revised, **ic), again, quiet)
+    check_("gates/revision_backstop_fires_switched_off", created(strict, revised, **ic), again, {**quiet, "SKIP_REVISION_BACKSTOP": "1"})
+    check_("gates/revision_backstop_fires_a_created_output", created(strict, revised.replace("ARTIFACT_UPDATED", "ARTIFACT_CREATED"), **ic), again, quiet)
+    check_("gates/revision_backstop_fires_not_an_output", created(strict, revised.replace("intent-statement.md", "notes.md"), **ic), again, quiet)
+    check_("gates/revision_backstop_fires_before_the_person_spoke", created(strict, revised.replace(HUMAN(2), ""), **ic), again, quiet)
+    check_("gates/revision_backstop_fires_after_a_rejection", created(strict, revised + block("GATE_REJECTED", T(5), "**Stage**: intent-capture"), **ic), again, quiet)
     check_("gates/revision_backstop_off", created(awaiting, backstop, **ic), [approve], {**quiet, "SKIP_REVISION_BACKSTOP": "1"})
     check_("gates/revision_backstop_relaxed", created(awaiting.replace("- **Guard Policy**: off (from scope feature)", "- **Guard Policy**: relaxed (set by you)"), backstop, **ic), [approve], quiet)
     check_("gates/revision_backstop_with_reviewer", created(awaiting.replace("- **Review Override**: none", "- **Review Override**: "), backstop, **ic), [approve], {**quiet, "SKIP_REVIEWER_GATE_GUARD": "1"})

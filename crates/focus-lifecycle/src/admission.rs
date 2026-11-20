@@ -20,6 +20,28 @@
 //! it. A Construction stage is refused by name as well: its checkpoints,
 //! units and swarms are M4.
 //!
+//! # What no check tells apart
+//!
+//! Three things in the summary's admission, each said here because a
+//! mutant of it survives the differential:
+//!
+//! - **The state handed to the evidence.** Every caller hands over the
+//!   state it has just read or just written, so an evidence that read the
+//!   file again would read the same text.
+//! - **The unit of a change the policy kept.** A transition asks for the
+//!   stage's evidence, and a stage that runs for each unit and owes a
+//!   confirmation is refused by name one reader earlier
+//!   ([`crate::summary_evidence`]): the unit is always none until units
+//!   arrive.
+//! - **The check repeated under the lock at an approval.** Upstream
+//!   weighs the summary before the lock, again under it, and a third time
+//!   in the chain every completion passes; when the revision backstop
+//!   fires, once more after its rows. Within one process the first
+//!   answer is every later one: the repeats are for a second process
+//!   that changes the record between the check and the lock. What the
+//!   first one decides alone is the order of the refusals before the
+//!   lock, which is compared (`gates/summary_unconfirmed_ahead_of_*`).
+//!
 //! The rows of a change the policy keeps are written under the workspace
 //! lock. A check that runs before its transition takes the lock (upstream
 //! checks a gate's opening and its approval once outside the lock and once
@@ -415,10 +437,7 @@ pub fn verify_summary_confirmation(
             unit: None,
         },
         crate::guard_attempt::Options {
-            summary_coverage: Some(match coverage {
-                summary_evidence::Coverage::Missing => crate::guard_refusal::Coverage::Missing,
-                summary_evidence::Coverage::Stale => crate::guard_refusal::Coverage::Stale,
-            }),
+            summary_coverage: Some((*coverage).into()),
             ..Default::default()
         },
     ))

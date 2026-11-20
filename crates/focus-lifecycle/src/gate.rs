@@ -838,12 +838,18 @@ fn unrecorded_revision(wf: &Workflow, stage: &Stage, repos: &[String]) -> bool {
     if !anchor_is_gate_open && !wrote_before_human {
         return false;
     }
-    events[first + 1..last].iter().any(|(event, _, file, _)| {
-        (event.event == "ARTIFACT_CREATED" || event.event == "ARTIFACT_UPDATED")
-            && file
-                .as_deref()
-                .is_some_and(|file| produces_artifact_file(stage, file, repos))
-    })
+    // Between the first turn and the last; with one turn they are the same
+    // row, and nothing is between it and itself.
+    events
+        .iter()
+        .take(last)
+        .skip(first + 1)
+        .any(|(event, _, file, _)| {
+            (event.event == "ARTIFACT_CREATED" || event.event == "ARTIFACT_UPDATED")
+                && file
+                    .as_deref()
+                    .is_some_and(|file| produces_artifact_file(stage, file, repos))
+        })
 }
 
 // --- What a gate refuses by name --------------------------------------------------
