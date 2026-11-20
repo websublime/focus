@@ -358,6 +358,9 @@ RUNTIME_TEXT = [
     (r"(has an unparseable grid fence: ).*", r"\1<runtime>"),
     (r"(cannot read ars priors at [^:]+: ).*", r"\1<runtime>"),
     (r"(validate-grid: cannot read [^:]+: ).*?(\. Write the grid|$)", r"\1<runtime>\2"),
+    # A file a verdict was told to read that is not there: each runtime's own words for "no such file".
+    (r"(is not a plain readable file \()(?:ENOENT: no such file or directory, stat '[^'\n]*'|[^()\n]*: No such file or directory \(os error 2\))(\)\.)",
+     r"\1<runtime>\2"),
     # A plan written where there is no directory: each runtime's own words for "no such file".
     (r"(graph resolve: )(?:ENOENT: no such file or directory, .*|.*: No such file or directory \(os error 2\))",
      r"\1<runtime>"),
@@ -1667,7 +1670,8 @@ def review_attempt_ids(tree):
             rows = re.findall(r"^\*\*Timestamp\*\*: ([^\n]*)\n\*\*Event\*\*: ([^\n]*)$", text, flags=re.M)
             for at, event in rows:
                 for position in range(len(rows) + 2):
-                    for shard in {path, os.path.realpath(path)}:
+                    # (A check may reach its tree by a second name, `<root>-link`.)
+                    for shard in {path, os.path.realpath(path), os.path.join(tree.root + "-link", os.path.relpath(path, tree.root))}:
                         known.add(hashlib.sha256(f"{event}:{at}:{shard}:{position}".encode("utf-8")).hexdigest()[:16])
     return known
 
@@ -2063,7 +2067,7 @@ def compare_audit(name, trees, steps, env, tool="audit"):
     shaped_offsets = shaped_thrown = shaped_pair = False
     started_from = None
     # (A link no recording carries, whether the tree starts with it or a step makes it.)
-    linked = has_links(ts.root) or any(step[:1] == ["@link"] for step in steps)
+    linked = has_links(ts.root) or any(step[:1] in (["@link"], ["@name"]) for step in steps)
     if RECORD and not linked and name not in UNRECORDED and not name.startswith("fuzz/"):
         # An audit check starts from nothing but its files; a runtime check from an installed project, kept whole
         # where the verb reads the whole project (the utility's scan, and the source a baseline lists).
@@ -2078,10 +2082,11 @@ def compare_audit(name, trees, steps, env, tool="audit"):
         last_review = ""
         for args in steps:
             # A step that writes, changes, removes or links a file, as an agent would between two commands: `@write
-            # <path> <text>`, `@edit <path> <old> <new>`, `@remove <path>` and `@link <path> <target>`. The path is
-            # from the project; in it `{REVIEW}` is the review file the last command named (the one a request said to write,
-            # or the one a verdict said the reviewer writes), and `{REVIEW_DIR}` that file's folder.
-            if args[:1] in (["@write"], ["@remove"], ["@edit"], ["@link"]):
+            # <path> <text>`, `@edit <path> <old> <new>`, `@remove <path>`, `@link <path> <target>` and `@name <path>
+            # <second>`. The path is from the project; in it `{REVIEW}` is the review file the last command named (the
+            # one a request said to write, or the one a verdict said the reviewer writes), and `{REVIEW_DIR}` that
+            # file's folder. A command's arguments may name the two as well.
+            if args[:1] in (["@write"], ["@remove"], ["@edit"], ["@link"], ["@name"]):
                 rel = to_focus(args[1]) if tree.mapped else args[1]
                 # (No request said where the review goes: there is nowhere to write it.)
                 nowhere = "{REVIEW" in rel and not last_review
@@ -2096,6 +2101,12 @@ def compare_audit(name, trees, steps, env, tool="audit"):
                     os.makedirs(os.path.dirname(target), exist_ok=True)
                     os.rename(os.path.join(tree.root, rel), target)
                     os.symlink(target, os.path.join(tree.root, rel))
+                elif args[0] == "@name":
+                    # `@name <path> <second>`: the file at `path` gets a second name (a hard link), in its own folder
+                    # when `second` names none.
+                    second = to_focus(args[2]) if tree.mapped else args[2]
+                    second = second.replace("{REVIEW_DIR}", os.path.dirname(last_review))
+                    os.link(os.path.join(tree.root, rel), os.path.join(tree.root, second))
                 elif args[0] == "@edit":
                     # `@edit <path> <old> <new>`: the first `old` in the file becomes `new`.
                     old, new = ((to_focus(arg) if tree.mapped else arg) for arg in args[2:4])
@@ -2113,6 +2124,8 @@ def compare_audit(name, trees, steps, env, tool="audit"):
                 continue
             # A step that names its own tool (`@state advance …`) runs that one.
             named = bool(args) and args[0].startswith("@")
+            if last_review:
+                args = [arg.replace("{REVIEW_DIR}", os.path.dirname(last_review)).replace("{REVIEW}", last_review) for arg in args]
             code, out, err = run_audit(engine, tree, args[1:] if named else args, env, args[0][1:] if named else tool)
             if engine == "ts" and tool == "hook" and args[:1] == ["guard-tool-call"] and code == 1:
                 err, thrown = group_thrown(err)
@@ -2655,11 +2668,6 @@ DEVIATIONS.update({
         "text its pattern test turns it into (`[\"R-01\"]` as `R-01`), and a field that is JSON `null`, on which "
         "upstream fails with its runtime's own TypeError. Focus refuses both in one sentence: a decision that is "
         "not written as text is not read",
-    r"log/review/verdict/\w+_not_ported":
-        "what a verdict may be given that focus has not ported (slice 2e-iv-b): a review file named on the command "
-        "line, the `## Review` section an older release's reviewer appended to the artifact, and the NOT-READY with "
-        "no review that a request already retried may record. Upstream reads or records each on its own terms; "
-        "focus refuses each by name",
     r"log/decision/checkpoint_\w+_not_ported":
         "a question the engine pairs with a record of its own: the verification command and the policy of "
         "Construction (slice 5), Plan Approval (slice 11). Upstream reads "
@@ -5736,7 +5744,35 @@ def log_checks():
     check_("review/verdict/flags", created(strict, **OUTPUTS), [asks(1), writes(review_text()), says(1, "READY", "--retry-pending"), ["review", "--stage", "intent-capture", "--reviewer", lead, "--verdict", "READY"],
                                                                  says(0, "READY"), says("1.0", "READY"), says(1, "nope"), asks(1, "--verdict"), says(1, ""), says(1, "ready")])
     check_("review/verdict/not_ready_lower_case", created(strict, **OUTPUTS), [asks(1), writes(review_text("NOT-READY", rows=ROW)), says(1, "not-ready")])
-    check_("review/verdict/review_file_not_ported", created(strict, **OUTPUTS), [asks(1), writes(review_text()), says(1, "READY", "--review-file", "x.md")])
+    # The review file named on the command line: it is the request's own file or it is refused. Named, the file
+    # stays where it is after the verdict. A file elsewhere in the project, the record itself, a copy beside the
+    # review, a name with nothing behind it, the flag with no value and with an empty one; and no review written.
+    named = lambda where, n=1, verdict="READY": says(n, verdict, "--review-file", where)
+    check_("review/verdict/review_file_named", created(strict, **OUTPUTS), [asks(1), writes(review_text()), named("{REVIEW}"), named("{REVIEW}")])
+    check_("review/verdict/review_file_named_whole", created(strict, **OUTPUTS), [asks(1), writes(review_text()), named("{P}/{REVIEW}")])
+    check_("review/verdict/review_file_named_the_long_way", created(strict, **OUTPUTS), [asks(1), writes(review_text()), named("x/.././{REVIEW}")])
+    check_("review/verdict/review_file_named_not_ready", created(strict, **OUTPUTS), [asks(1), writes(review_text("NOT-READY", rows=ROW)), named("{REVIEW}", verdict="NOT-READY")])
+    check_("review/verdict/review_file_named_elsewhere", created(strict, **{**OUTPUTS, "x.md": review_text()}),
+           [asks(1), writes(review_text()), named("x.md"), named("{P}/x.md"), named("../x.md"), named(CREATED_DIR), named(CREATED_DIR + "/"), named(""), says(1, "READY", "--review-file")])
+    check_("review/verdict/review_file_named_a_copy", created(strict, **OUTPUTS),
+           [asks(1), writes(review_text()), ["@write", "{REVIEW_DIR}/copy.review.md", review_text()], named("{REVIEW_DIR}/copy.review.md"), named("{REVIEW_DIR}"), named(f"{cap}/intent-statement.md")])
+    check_("review/verdict/review_file_named_nothing", created(strict, **OUTPUTS), [asks(1), writes(review_text()), named("{REVIEW_DIR}/nothing.md"), named("{REVIEW_DIR}/no/such/folder.md")])
+    check_("review/verdict/review_file_named_and_none_written", created(strict, **OUTPUTS), [asks(1), named("{REVIEW}"), named("x.md")])
+    check_("review/verdict/review_file_named_and_wrong", created(strict, **OUTPUTS), [asks(1), writes(review_text("NOT-READY", rows=ROW)), named("{REVIEW}")])
+    check_("review/verdict/review_file_named_with_headings", created(strict, **OUTPUTS), [asks(1), writes(review_text() + "\n## What I verified\n\nAll of it.\n"), named("{REVIEW}")])
+    check_("review/verdict/review_file_named_after_a_retry", created(strict, **OUTPUTS), [asks(1), asks(1, "--retry-pending"), named("{REVIEW}", verdict="NOT-READY"), named("{REVIEW}")])
+    # A link on the way to the named file, the named file a second name of the review, and the project itself
+    # reached through a link (the named path is resolved from where the project is said to be, and must fall inside
+    # the real record). Links are in no recording: compared live.
+    check_("review/verdict/review_file_named_through_a_link", created(strict, **OUTPUTS),
+           [asks(1), writes(review_text()), ["@write", f"{CREATED_DIR}/kept/x", "x"], ["@link", f"{CREATED_DIR}/kept", "elsewhere"], named(f"{CREATED_DIR}/kept/x")])
+    check_("review/verdict/review_file_named_by_a_second_name", created(strict, **OUTPUTS),
+           [asks(1), writes(review_text()), ["@name", "{REVIEW}", "{REVIEW_DIR}/second.review.md"], named("{REVIEW_DIR}/second.review.md"), named("{REVIEW}")])
+    UNRECORDED.add("log/review/verdict/review_file_named_in_a_linked_project")
+    by_link = ["--project-dir", "{P}-link"]
+    check_("review/verdict/review_file_named_in_a_linked_project", created(strict, **OUTPUTS),
+           [asks(1) + by_link, writes(review_text()), named("{REVIEW}") + by_link, named("{P}-link/{REVIEW}") + by_link, named("{P}/{REVIEW}") + by_link],
+           edits=[lambda tree: os.symlink(tree.root, tree.root + "-link")])
     # The request the verdict answers.
     check_("review/verdict/no_request", created(strict, **OUTPUTS), [says(1, "READY"), asks(1), says(2, "READY")])
     check_("review/verdict/twice", created(strict, **OUTPUTS), [*done, says(1, "READY"), writes(review_text()), says(1, "READY")])
@@ -5755,7 +5791,14 @@ def log_checks():
     # The review file: none, none after a retry, one that is not a plain file, one too large to be a record.
     check_("review/verdict/no_review_written", created(strict, **OUTPUTS), [asks(1), says(1, "READY"), says(1, "NOT-READY")])
     check_("review/verdict/no_review_after_a_retry", created(strict, **OUTPUTS), [asks(1), writes(review_text()), asks(1, "--retry-pending"), says(1, "READY")])
-    check_("review/verdict/not_ready_after_a_retry_not_ported", created(strict, **OUTPUTS), [asks(1), asks(1, "--retry-pending"), says(1, "NOT-READY")])
+    # A request already retried that still has no review records NOT-READY without one: no reviewer gave it, and
+    # the row says so. Then the stage's next pass, which reads that row.
+    check_("review/verdict/not_ready_after_a_retry", created(strict, **OUTPUTS), [asks(1), asks(1, "--retry-pending"), says(1, "NOT-READY"), says(1, "NOT-READY"), asks(2)])
+    check_("review/verdict/not_ready_after_a_retry_lower_case", created(strict, **OUTPUTS), [asks(1), asks(1, "--retry-pending"), says(1, "not-ready")])
+    check_("review/verdict/not_ready_after_a_retry_review_written_before", created(strict, **OUTPUTS), [asks(1), writes(review_text("NOT-READY", rows=ROW)), asks(1, "--retry-pending"), says(1, "NOT-READY")])
+    check_("review/verdict/not_ready_after_a_retry_review_written_since", created(strict, **OUTPUTS), [asks(1), asks(1, "--retry-pending"), writes(review_text("NOT-READY", rows=ROW)), says(1, "NOT-READY")])
+    check_("review/verdict/not_ready_after_a_retry_outputs_moved", created(strict, **OUTPUTS), [asks(1), asks(1, "--retry-pending"), ["@write", f"{cap}/intent-statement.md", "# Intent\n\nAnother.\n"], says(1, "NOT-READY")])
+    check_("review/verdict/not_ready_after_a_retry_outputs_moved_policy_off", created(lenient, **OUTPUTS), [asks(1), asks(1, "--retry-pending"), ["@write", f"{cap}/intent-statement.md", "# Intent\n\nAnother.\n"], says(1, "NOT-READY")])
     check_("review/verdict/review_file_a_folder", created(strict, **OUTPUTS), [asks(1), ["@write", "{REVIEW}/x", "x"], says(1, "READY")])
     check_("review/verdict/review_file_empty", created(strict, **OUTPUTS), [asks(1), writes(""), says(1, "READY")])
     # A link is no review file, where the file goes or on the way to it.
@@ -5782,10 +5825,26 @@ def log_checks():
     check_("review/verdict/outputs_moved_policy_relaxed", created(relaxed, **OUTPUTS), moved)
     check_("review/verdict/output_removed", created(strict, **OUTPUTS), [asks(1), writes(review_text()), ["@remove", statement], says(1, "READY")])
     check_("review/verdict/output_removed_policy_off", created(lenient, **OUTPUTS), [asks(1), writes(review_text()), ["@remove", statement], says(1, "READY")])
-    # An older release's reviewer appended its review to the artifact: read as the review when there is no file
-    # (not ported), and refused beside one.
-    appended = ["@write", statement, OUTPUTS[statement] + "\n## Review\n\n" + review_text()]
-    check_("review/verdict/appended_section_not_ported", created(strict, **OUTPUTS), [asks(1), appended, says(1, "READY")])
+    # An older release's reviewer appended its review to the artifact: read as the review when there is no file,
+    # and refused beside one. The section is checked as it is (its headings are not made level 3), and it is the
+    # review being recorded, so it does not also start the stage's list.
+    # (Here the reviewer has a name that is the same in both engines, so the artifact's bytes, and the fingerprint
+    # the row carries, are.)
+    section = lambda text: ["@write", statement, OUTPUTS[statement] + "\n## Review\n\n" + text]
+    appended = section(review_text())
+    in_plain = dict(edits=[graph_edit(reviewer=plain)])
+    closes = lambda n, verdict, *more: asks_plain(n, "--verdict", verdict, *more)
+    plainly = lambda **given: review_text(reviewer=plain, **given)
+    check_("review/verdict/appended_section", created(strict, **OUTPUTS), [asks_plain(1), section(plainly()), closes(1, "READY"), closes(1, "READY")], **in_plain)
+    check_("review/verdict/appended_section_not_ready", created(strict, **OUTPUTS), [asks_plain(1), section(plainly(verdict="NOT-READY", rows=ROW)), closes(1, "NOT-READY")], **in_plain)
+    check_("review/verdict/appended_section_says_another_verdict", created(strict, **OUTPUTS), [asks_plain(1), section(plainly(verdict="NOT-READY", rows=ROW)), closes(1, "READY")], **in_plain)
+    check_("review/verdict/appended_section_with_headings", created(strict, **OUTPUTS), [asks_plain(1), section(plainly() + "\n## What I verified\n\nAll of it.\n"), closes(1, "READY")], **in_plain)
+    check_("review/verdict/appended_section_with_a_level_three_heading", created(strict, **OUTPUTS), [asks_plain(1), section(plainly() + "\n### What I verified\n\nAll of it.\n"), closes(1, "READY")], **in_plain)
+    check_("review/verdict/appended_section_with_a_challenge", created(strict, **OUTPUTS), [asks_plain(1), section(plainly(head="**Request Challenge:** review:" + "1" * 32 + "\n")), closes(1, "READY")], **in_plain)
+    check_("review/verdict/appended_section_and_a_named_file", created(strict, **OUTPUTS), [asks_plain(1), section(plainly()), closes(1, "READY", "--review-file", "{REVIEW}"), closes(1, "READY", "--review-file", "x.md")], **in_plain)
+    check_("review/verdict/appended_section_after_a_retry", created(strict, **OUTPUTS), [asks_plain(1), asks_plain(1, "--retry-pending"), section(plainly(verdict="NOT-READY", rows=ROW)), closes(1, "NOT-READY")], **in_plain)
+    for label, state in (("_policy_relaxed", relaxed), ("_policy_off", lenient)):
+        check_(f"review/verdict/appended_section{label}", created(state, **OUTPUTS), [asks_plain(1), section(plainly()), closes(1, "READY")], **in_plain)
     check_("review/verdict/appended_section_and_a_file", created(strict, **OUTPUTS), [asks(1), writes(review_text()), appended, says(1, "READY")])
     # The findings join the stage's list: a second pass reports on the first's, by id.
     two = strict.replace("- **Review Override**: advisory", "- **Review Override**: adversarial")
@@ -5805,6 +5864,11 @@ def log_checks():
         check_(f"review/verdict/second_pass_{label}", created(two, **OUTPUTS), first + [writes(text), says(2, verdict)], **twice)
     # The pass that was answered waits no more: only the one asked since does.
     check_("review/verdict/of_a_pass_already_answered", created(two, **OUTPUTS), first + [says(1, "NOT-READY"), says(3, "READY")], **twice)
+    # The section, then the stage's next pass: the list starts at what the section said, once.
+    check_("review/verdict/appended_section_then_a_second_pass", created(two, **OUTPUTS),
+           [asks_plain(1), section(plainly(verdict="NOT-READY", rows=ROW)), closes(1, "NOT-READY"), asks_plain(2),
+            writes(report("READY", ["R-01 | Fixed | Major | It names the user now"]).replace(lead, plain)), closes(2, "READY")],
+           edits=[graph_edit(reviewer=plain, review_class="adversarial")])
     # A report that breaks a rule is sent back while the request can still be retried, and recorded once it was.
     missing = report("NOT-READY", [], ["Minor | stakeholder-map.md > Stakeholders | It names no owner | Name one"])
     unknown = report("NOT-READY", ["R-01 | Fixed | Major | Done", "R-09 | Fixed | Major | Never raised"])
@@ -5820,6 +5884,11 @@ def log_checks():
     check_("review/verdict/single", created(strict, **OUTPUTS), [alone(1), writes(review_text("NOT-READY", rows=ROW)), alone(1, "--verdict", "NOT-READY"), says(1, "NOT-READY")])
     check_("review/verdict/single_table_unreadable", created(strict, **OUTPUTS), [alone(1), writes(broken), alone(1, "--verdict", "NOT-READY"), alone(1, "--retry-pending"), writes(broken),
                                                                                   alone(1, "--verdict", "NOT-READY")])
+    # A stage run by itself keeps its findings as written: with no review after a retry there are none, and a section
+    # appended to the artifact gives its own.
+    check_("review/verdict/single_not_ready_after_a_retry", created(strict, **OUTPUTS), [alone(1), alone(1, "--retry-pending"), alone(1, "--verdict", "NOT-READY")])
+    check_("review/verdict/single_appended_section", created(strict, **OUTPUTS),
+           [asks_plain(1, "--single"), section(plainly(verdict="NOT-READY", rows=ROW)), closes(1, "NOT-READY", "--single")], **in_plain)
     # The copy a person reads: numbered after the copies already there, and never a reason to withhold the verdict.
     reviews = f"{cap}/reviews"
     check_("review/verdict/copy_numbered", created(strict, **{**OUTPUTS, f"{reviews}/review-07.md": "x", f"{reviews}/review-x.md": "x", f"{reviews}/review-99999999999999999999.md": "x",
@@ -5876,6 +5945,18 @@ def log_checks():
     # start the stage's list. And the artifact under a second name (a link no recording carries: compared live).
     # (The section names a reviewer whose name is the same in both engines, so the artifact's bytes are.)
     older = OUTPUTS[statement] + "\n## Review\n\n" + review_text("NOT-READY", rows=ROW, reviewer="an-earlier-reviewer")
+    # A request of the appendix protocol, written by hand: it pinned where the section would start, and the row of
+    # its verdict repeats that boundary. One that saw a section already there gave a challenge, and a section it
+    # saw is not one that came after it: with no file there is no review.
+    from_appendix_days = lambda *more: CREATED_AUDIT + requested(1, 1, CURRENT, "**Review Appendix Artifact**: " + statement,
+                                                                 "**Review Appendix Offset**: " + str(len(OUTPUTS[statement].encode("utf-8"))), *more).replace(lead, plain)
+    plain_twice = dict(edits=[graph_edit(reviewer=plain, review_class="adversarial")])
+    check_("review/verdict/appended_section_of_an_appendix_request", created(two, from_appendix_days(), **OUTPUTS),
+           [section(plainly(verdict="NOT-READY", rows=ROW)), closes(1, "NOT-READY"), asks_plain(2)], **plain_twice)
+    check_("review/verdict/appended_section_of_an_appendix_request_no_section", created(strict, from_appendix_days(), **OUTPUTS), [closes(1, "READY"), closes(1, "NOT-READY")], **in_plain)
+    seen = from_appendix_days("**Review Appendix Prior Digest**: sha256:" + "c" * 64, "**Review Appendix Prior Length**: 40", "**Review Challenge**: review:" + "3" * 32)
+    check_("review/verdict/appended_section_seen_by_its_request", created(strict, seen, **{**OUTPUTS, statement: older}),
+           [closes(1, "NOT-READY"), ["@write", statement, older + "\nMore.\n"], closes(1, "NOT-READY")], **in_plain)
     check_("review/verdict/older_section_starts_the_list", created(two, **{**OUTPUTS, statement: older}), [asks(1), writes(review_text("NOT-READY", rows=ROW.replace("R-01", "R-02"))), says(1, "NOT-READY")], **twice)
     UNRECORDED.update({"log/review/verdict/artifact_under_two_names", "log/review/verdict/older_section_under_two_names"})
     second_name = lambda tree: os.link(tree.path(statement), tree.path("elsewhere.md"))

@@ -8,12 +8,16 @@
 //! review's record, the `REVIEW_COMPLETED` row that names it, and a copy a
 //! person can read beside the artifact.
 //!
-//! # What is here, and what is refused by name
+//! # The three reviews a verdict can close
 //!
-//! The verdict of a stage, on the review file its request opened. Refused
-//! by name until the next part: `--review-file`, the `## Review` section an
-//! older release's reviewer appended to the artifact, and the `NOT-READY`
-//! with no review that a request already retried may record.
+//! The review file its request opened, which `--review-file` may name but
+//! never replace: named, it must be that very file. The `## Review` section
+//! an older release's reviewer appended to the artifact, with no file. And
+//! none at all: a request that was already retried and still has no review
+//! records `NOT-READY` without one, and its row says no reviewer gave the
+//! verdict (`Review Finished: no`).
+//!
+//! `--unit` is refused before this module is reached.
 //!
 //! # What upstream tests that changes no answer
 //!
@@ -29,7 +33,7 @@ use std::path::Path;
 use std::time::SystemTime;
 
 use focus_evidence::review::{self as review_paths};
-use focus_evidence::review_findings::{self, Finding};
+use focus_evidence::review_findings::{self, Finding, Table};
 use focus_evidence::review_record::{self, StoredFinding, Written};
 use focus_evidence::review_shown::{self, Context as Shown};
 use focus_evidence::review_text::{self, Expected, Validity};
@@ -40,6 +44,7 @@ use focus_lifecycle::change_control::{self, Accepted};
 use focus_lifecycle::review_artifacts::{self, Options as ArtifactOptions};
 use focus_lifecycle::review_derived::{self, Pending};
 use focus_lifecycle::review_pending::{self, Asked as PendingAsked};
+use focus_lifecycle::review_receipts::REVIEW_FINISHED_FIELD;
 use focus_lifecycle::review_request::request_command;
 use focus_lifecycle::summary_evidence::{self, Asked as SummaryAsked, Evidence};
 use focus_lifecycle::workflow::Workflow;
@@ -67,21 +72,65 @@ fn from_project(asked: &Asked<'_>, record: &Path, relative: &str) -> String {
     .replace('\\', "/")
 }
 
+/// `realpathSync`, spelled as a person reads it: Windows reports a
+/// verbatim path, Node's `realpath` does not.
+fn real_path(path: &Path) -> Result<String> {
+    let real = std::fs::canonicalize(path)
+        .map_err(|err| EngineError::new(format!("{}: {err}", path.display())))?;
+    let text = real.to_string_lossy();
+    Ok(match text.strip_prefix(r"\\?\UNC\") {
+        Some(share) => format!(r"\\{share}"),
+        None => text.strip_prefix(r"\\?\").unwrap_or(&text).to_owned(),
+    })
+}
+
+/// What reading the review file gave.
+enum Draft {
+    /// Its bytes; `None` when there is no file.
+    Read(Option<Vec<u8>>),
+    /// `--review-file` names something that is not the request's file.
+    Another,
+}
+
 /// The reviewer's file, read the way the record will be read back: through
-/// no link, one name, within the size a record may have. `None` when there
-/// is no file.
-fn read_draft(record: &Path, draft: &str) -> Result<Option<Vec<u8>>> {
-    let anchor = std::fs::canonicalize(record)
-        .map_err(|err| EngineError::new(format!("{}: {err}", record.display())))?;
-    links::refuse_link_in_chain(&anchor, Path::new(draft))?;
+/// no link, one name, within the size a record may have.
+///
+/// A file `--review-file` names lives inside the intent's record, where the
+/// reviewer's slot is, reached through no link, and is the request's own
+/// file: never another request's review or a copy of one.
+fn read_draft(asked: &Asked<'_>, record: &Path, draft: &str) -> Result<Draft> {
+    let root = real_path(record)?;
+    let anchor = Path::new(&root);
+    links::refuse_link_in_chain(anchor, Path::new(draft))?;
     let target = anchor.join(draft);
     // (Asked of the name itself and not of what a link leads to; the chain
     // above has refused a link by now, so the two questions have one answer
     // here and this is the one that is meant.)
-    if std::fs::symlink_metadata(&target).is_err() {
-        return Ok(None);
+    let present = std::fs::symlink_metadata(&target).is_ok();
+    if let Some(named) = asked.review_file {
+        let host = focus_js::path::Flavour::host();
+        let resolved = focus_js::path::resolve(host, &asked.project_dir, &[named]);
+        let relative =
+            focus_js::path::relative(host, &asked.project_dir, &root, &resolved).replace('\\', "/");
+        if relative.is_empty()
+            || relative == ".."
+            || relative.starts_with("../")
+            || focus_js::path::is_absolute(host, &relative)
+        {
+            return Err(EngineError::new(
+                "the path is outside the active intent record",
+            ));
+        }
+        links::refuse_link_in_chain(anchor, Path::new(&relative))?;
+        if !present || !files::same_file(&anchor.join(&relative), &target)? {
+            return Ok(Draft::Another);
+        }
     }
-    files::read_regular_within(&target, "review file", Some(review_record::MAX_BYTES)).map(Some)
+    if !present {
+        return Ok(Draft::Read(None));
+    }
+    files::read_regular_within(&target, "review file", Some(review_record::MAX_BYTES))
+        .map(|bytes| Draft::Read(Some(bytes)))
 }
 
 /// `removeRecordFileNoFollow`: the draft, once the record holds it.
@@ -317,11 +366,18 @@ pub(crate) fn verdict(
     )
     .map_err(Stop::Failed)?;
     let draft_shown = from_project(asked, record, &draft);
-    let body = match read_draft(record, &draft) {
-        Ok(body) => body,
+    // (A file the command named is said as the command named it.)
+    let said_file = asked.review_file.unwrap_or(&draft_shown).to_owned();
+    let body = match read_draft(asked, record, &draft) {
+        Ok(Draft::Read(body)) => body,
+        Ok(Draft::Another) => {
+            return refuse(format!(
+                "Cannot record review for \"{slug}\": {said_file} is not the review file for iteration {pass}. Have the reviewer write its review to {draft_shown}, then record the verdict again."
+            ));
+        }
         Err(error) => {
             return refuse(format!(
-                "Cannot record review for \"{slug}\": the review file {draft_shown} is not a plain readable file ({error})."
+                "Cannot record review for \"{slug}\": the review file {said_file} is not a plain readable file ({error})."
             ));
         }
     };
@@ -330,17 +386,13 @@ pub(crate) fn verdict(
             "Cannot record the verdict for \"{slug}\": a `## Review` section was appended to the reviewed artifact after review iteration {pass} started and a review file was also written. The review file is the review; remove the appended section so the artifact carries the bytes the reviewer was dispatched on."
         ));
     }
-    let Some(body) = body else {
-        if !appended && pending.retried && verdict == "NOT-READY" {
-            return refuse(
-                "log review --verdict NOT-READY with no review file, after a retry, is not ported yet: Focus records the verdict of a review that was written, and not yet the one that stands for a review that never finished.".to_owned(),
-            );
-        }
-        if appended {
-            return refuse(
-                "log review --verdict on a `## Review` section appended to the artifact is not ported yet: Focus records the verdict of a review written to its own file.".to_owned(),
-            );
-        }
+    // With no review file: a request already retried that still has no
+    // review records NOT-READY without one; and a section appended to the
+    // artifact since the request is the review an older release's reviewer
+    // wrote.
+    let incomplete = body.is_none() && !appended && pending.retried && verdict == "NOT-READY";
+    let embedded = body.is_none() && !incomplete && appended;
+    if body.is_none() && !incomplete && !embedded {
         // After a retry the slot was reopened, so a review written before
         // the retry is not there any more.
         return refuse(if pending.retried {
@@ -352,50 +404,76 @@ pub(crate) fn verdict(
                 "Cannot record review for \"{slug}\": no review was written for iteration {pass}. The reviewer writes its review to {draft_shown}; a retried incomplete attempt records --verdict NOT-READY without a review."
             )
         });
-    };
+    }
+    let standalone = body.is_some();
+    let mut review_bytes = body.unwrap_or_else(|| taken.appendix.clone());
 
     // The review says what the command says. A review whose reviewer wrote
     // `## What I verified` is not a reason to run the review again: a
     // review file's `#` and `##` lines are recorded as `###`, and the same
-    // check runs on those bytes.
-    let expected = Expected {
-        verdict,
-        reviewer,
-        iteration,
-        review_challenge: None,
-        standalone: true,
-    };
-    let mut review_bytes = body;
-    let mut validity = review_text::validate_review_appendix(&review_bytes, &expected);
-    if let Some(demoted) = review_text::demote_review_headings(&review_bytes) {
-        let again = review_text::validate_review_appendix(&demoted.bytes, &expected);
-        match (&validity, &again) {
-            // (Whatever the first reading said: upstream's check and its
-            // demotion read headings with two readers, which disagree on a
-            // heading right after a table, so there the first reading can
-            // already be valid. Here one reader does both, and a review it
-            // demotes is one whose first reading named a heading.)
-            (_, Validity::Valid) => {
-                review_bytes = demoted.bytes;
-                validity = again;
-                set(
-                    &mut fields,
-                    "Review Headings Made Level 3",
-                    demoted.changed.join("; "),
-                );
+    // check runs on those bytes. A section in the artifact is checked as it
+    // is, against the challenge its request gave; and where no reviewer
+    // wrote anything there is nothing to check.
+    if !incomplete {
+        let expected = Expected {
+            verdict,
+            reviewer,
+            iteration,
+            review_challenge: if embedded {
+                binding
+                    .legacy_appendix
+                    .as_ref()
+                    .and_then(|legacy| legacy.challenge.as_deref())
+            } else {
+                None
+            },
+            standalone,
+        };
+        let mut validity = review_text::validate_review_appendix(&review_bytes, &expected);
+        let demoted = if standalone {
+            review_text::demote_review_headings(&review_bytes)
+        } else {
+            None
+        };
+        if let Some(demoted) = demoted {
+            let again = review_text::validate_review_appendix(&demoted.bytes, &expected);
+            match (&validity, &again) {
+                // (Whatever the first reading said: upstream's check and
+                // its demotion read headings with two readers, which
+                // disagree on a heading right after a table, so there the
+                // first reading can already be valid. Here one reader does
+                // both, and a review it demotes is one whose first reading
+                // named a heading.)
+                (_, Validity::Valid) => {
+                    review_bytes = demoted.bytes;
+                    validity = again;
+                    set(
+                        &mut fields,
+                        "Review Headings Made Level 3",
+                        demoted.changed.join("; "),
+                    );
+                }
+                (
+                    Validity::Invalid { heading: true, .. },
+                    Validity::Invalid { heading: false, .. },
+                ) => {
+                    validity = again;
+                }
+                _ => {}
             }
-            (Validity::Invalid { heading: true, .. }, Validity::Invalid { heading: false, .. }) => {
-                validity = again;
-            }
-            _ => {}
+        }
+        if let Validity::Invalid { reason, .. } = validity {
+            return refuse(format!(
+                "Refusing REVIEW_COMPLETED for \"{slug}\": {reason}."
+            ));
         }
     }
-    if let Validity::Invalid { reason, .. } = validity {
-        return refuse(format!(
-            "Refusing REVIEW_COMPLETED for \"{slug}\": {reason}."
-        ));
-    }
 
+    // No reviewer wrote this verdict: the review did not finish, and every
+    // reader of the row says so.
+    if incomplete {
+        set(&mut fields, REVIEW_FINISHED_FIELD, "no".to_owned());
+    }
     set(
         &mut fields,
         "Request Fingerprint",
@@ -447,9 +525,21 @@ pub(crate) fn verdict(
     // run by itself reviews for its own gate and keeps them as written.
     let artifact_key = taken.review_artifact.as_str();
     let finding_artifact = from_project(asked, record, artifact_key);
-    let record_body = String::from_utf8_lossy(&review_bytes).into_owned();
-    let table =
-        review_findings::read_findings_table(&record_body, &finding_artifact, Some(verdict), None);
+    // (The verdict with no review keeps an empty body and reads no table.)
+    let record_body = if incomplete {
+        String::new()
+    } else {
+        String::from_utf8_lossy(&review_bytes).into_owned()
+    };
+    let table = if incomplete {
+        Table {
+            findings: Vec::new(),
+            unreadable: None,
+            report: None,
+        }
+    } else {
+        review_findings::read_findings_table(&record_body, &finding_artifact, Some(verdict), None)
+    };
     let derived = if workflow.is_none() {
         let derived = review_derived::derive(
             wf,
@@ -462,7 +552,8 @@ pub(crate) fn verdict(
                 verdict,
                 unreadable_reason: table.unreadable.as_deref(),
                 allow_malformed: pending.retried,
-                seed_legacy: true,
+                // (The section being recorded is not also the list's start.)
+                seed_legacy: !embedded,
             }),
         )?;
         if let Some(report) = &derived.malformed_report {
@@ -524,7 +615,7 @@ pub(crate) fn verdict(
     // Readers refuse a record over the cap, so one is never written.
     if serialized.len() as u64 > review_record::MAX_BYTES {
         return refuse(format!(
-            "Cannot record the verdict for \"{slug}\": the review record would be {} bytes, over the {}-byte limit readers accept. Shorten the review file {draft_shown} and record the verdict again.",
+            "Cannot record the verdict for \"{slug}\": the review record would be {} bytes, over the {}-byte limit readers accept. Shorten the review file {said_file} and record the verdict again.",
             serialized.len(),
             review_record::MAX_BYTES
         ));
@@ -545,15 +636,16 @@ pub(crate) fn verdict(
         review_record::digest(serialized.as_bytes()),
     );
     wf.emit_plain(&held, "REVIEW_COMPLETED", &fields)?;
-    // The draft was the reviewer's input; the record now holds it.
-    remove_draft(record, &draft)?;
+    // The draft was the reviewer's input; the record now holds it. A file
+    // the command named stays where it is, as upstream leaves it.
+    if standalone && asked.review_file.is_none() {
+        remove_draft(record, &draft)?;
+    }
 
     // A copy for people, beside the artifact the review is about. The
     // record stays the engine's source of truth and nothing reads the copy
     // back, so failing to write it never withholds the verdict.
-    // (A verdict recorded with no review has nothing to copy: upstream's
-    // `if (reviewBody)`. Every review this part records has a body; the
-    // `NOT-READY` after a retry, which has none, comes with the next.)
+    // (A verdict recorded with no review has nothing to copy.)
     let mut review_markdown = None;
     if !written.body.is_empty() {
         let copy_relative = copy_path(record, artifact_key);

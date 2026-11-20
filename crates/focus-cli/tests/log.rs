@@ -94,37 +94,27 @@ fn asking(more: &[&'static str]) -> Vec<&'static str> {
 }
 
 /// Deliberate deviation. What a review may carry that Focus has not
-/// ported: one unit's review (slice 5), and a review file named on the
-/// command line of a verdict (slice 2e-iv-b). Upstream reads what each
-/// needs; Focus refuses each by name and records nothing. (The two other
-/// inputs of a verdict that are refused by name, the `NOT-READY` with no
-/// review after a retry and the section appended to the artifact, are
-/// reached only after a request, and stand in the recording:
-/// `log/review/verdict/*_not_ported`.)
+/// ported: one unit's review (slice 5). Upstream reads what it needs; Focus
+/// refuses it by name and records nothing.
 #[test]
-fn a_units_review_and_a_named_review_file_are_refused_by_name() {
+fn a_units_review_is_refused_by_name() {
     let root = project("reviews");
-    let asks = [
-        "review",
-        "--stage",
-        "intent-capture",
-        "--reviewer",
-        "focus-product-lead-agent",
-        "--iteration",
-        "1",
-    ];
-    let with =
-        |more: &[&'static str]| -> Vec<&'static str> { asks.iter().chain(more).copied().collect() };
-    assert_eq!(
-        refusal(&root, &with(&["--unit", "api"])),
-        "log review --unit is not ported yet: Focus records the review of a stage, and not yet the review of one unit (its claim, the plan of units, the unit's source and its manifest)."
-    );
     assert_eq!(
         refusal(
             &root,
-            &with(&["--verdict", "READY", "--review-file", "x.md"])
+            &[
+                "review",
+                "--stage",
+                "intent-capture",
+                "--reviewer",
+                "focus-product-lead-agent",
+                "--iteration",
+                "1",
+                "--unit",
+                "api",
+            ]
         ),
-        "log review --review-file is not ported yet: Focus reads the review from the file its request opened."
+        "log review --unit is not ported yet: Focus records the review of a stage, and not yet the review of one unit (its claim, the plan of units, the unit's source and its manifest)."
     );
     let _ = fs::remove_dir_all(root);
 }
