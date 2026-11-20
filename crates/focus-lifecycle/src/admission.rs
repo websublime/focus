@@ -14,13 +14,19 @@
 //! command's answer ([`Workflow::say_change_notices`]). A pipeline's
 //! handoffs are weighed ([`crate::pipeline_evidence`]): each link of the
 //! chain with no receipt of this attempt that counts is owed, and the
-//! refusal is a guard's. The reviewer's receipt compares the source the
-//! review saw with the source there now (the attestation, M5), and Focus
-//! does not weigh it yet: a transition that owes one is refused by name,
-//! and one that owes none (the review class resolves to `none`, the stage
-//! has no reviewer, or the kill switch is set) passes as upstream passes
-//! it. A Construction stage is refused by name as well: its checkpoints,
-//! units and swarms are M4.
+//! refusal is a guard's. And the reviewer's receipt is weighed for a stage
+//! reviewed as one ([`crate::review_receipts`]): a terminal verdict of the
+//! current attempt over the outputs as they are lets the stage through; a
+//! request with no verdict, a verdict over other bytes, a recovery pending
+//! or spent and a record that cannot be verified are each a guard's
+//! refusal; and the person's own approval goes over a review that did not
+//! finish, unless their team keeps the policy strict ([`PersonApproval`]).
+//! A stage that runs for each unit, or that writes source code, owes a
+//! review weighed against the units' rows and claims: both are refused by
+//! name until units arrive, as a Construction stage is one step earlier
+//! (its checkpoints, units and swarms are M4). What an approval records
+//! of a review it went over comes with the findings a gate records
+//! (slice 3e-v).
 //!
 //! # What no check tells apart
 //!

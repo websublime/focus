@@ -795,12 +795,11 @@ fn a_skip_routes_and_a_completion_closes_the_registry_row() {
     let _ = fs::remove_dir_all(root);
 }
 
-/// Deliberate deviation. The evidence a transition owes to `aidlc-log`
-/// records (a reviewer's receipt), a Construction stage's checkpoints and
-/// units, the usage ledger's rollup and a unit's skip are each M4's or
-/// M5's: upstream weighs them, Focus refuses by name. (A summary
-/// confirmation and a pipeline's handoffs are weighed: their refusals are
-/// a guard's.)
+/// Deliberate deviation. A Construction stage's checkpoints and units, the
+/// usage ledger's rollup and a unit's skip are each M4's or M5's: upstream
+/// weighs them, Focus refuses by name. (The evidence a transition owes to
+/// `aidlc-log` records is weighed, a summary confirmation, a pipeline's
+/// handoffs and a reviewer's receipt: their refusals are a guard's.)
 #[test]
 fn what_focus_cannot_weigh_yet_is_refused_by_name() {
     let root = created("by-name", CREATED);
@@ -821,7 +820,11 @@ fn what_focus_cannot_weigh_yet_is_refused_by_name() {
         )
     );
     with(&CREATED.replace("- **Review Override**: none\n", ""));
-    assert!(refusal(&state(&root, &["advance", "intent-capture"], &DIRECT)).starts_with("\"intent-capture\" owes a review receipt from focus-product-lead-agent (its review class resolves to advisory)"));
+    assert!(
+        refusal(&state(&root, &["advance", "intent-capture"], &DIRECT)).starts_with(
+            "Cannot complete \"intent-capture\" because focus-product-lead-agent has not reviewed the current output."
+        )
+    );
     with(
         &CREATED
             .replace("- [-] intent-capture", "- [x] intent-capture")
