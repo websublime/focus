@@ -3232,7 +3232,7 @@ Lida a região (`aidlc-lib.ts` L29 780 a L31 560). São três coisas que se veri
 | --- | --- | --- | --- |
 | 4a. O avaliador | `evaluateGuardRefusal` (L30 482) e o que ele chama: do código da recusa, do estado da stage e do que a tentativa parece, os remédios pela ordem em que se oferecem. `recoveryGuidance` (L31 491), a frase com que uma recusa em prosa acaba, e `requestChangesResetIsExecutable` | Corpus: o avaliador não lê nada do projeto | Feita, antes da 2e-i |
 | 4b. A tentativa | `guardAttemptState` (L30 773, cerca de 200 linhas; as 460 da primeira leitura contavam até à série): a tentativa no vocabulário do avaliador (o orçamento de revisão, a recuperação única, a revisão em voo, e se o sumário, a revisão e a fonte ainda cobrem o que está em disco), tirada dos leitores da fatia 3; `humanAuthorityState` | Corpus sobre projetos de scratch, os dos recibos | Feita |
-| 4c-i. A série | `guardRefusalStreakView` e `recordGuardRefusal` (L31 237): a série de uma recusa em `.focus-engine/guard-refusals/`, a fronteira que a recomeça, a assinatura do estado do guard, e as três perguntas (o trabalho do próprio condutor, a pergunta à pessoa, a pergunta terminal); `guardRefusalOutput` (L31 347): a frase e a pergunta numa linha | Corpus sobre projetos de scratch, passo a passo | @@GS_STATE@@ |
+| 4c-i. A série | `guardRefusalStreakView` e `recordGuardRefusal` (L31 237): a série de uma recusa em `.focus-engine/guard-refusals/`, a fronteira que a recomeça, a assinatura do estado do guard, e as três perguntas (o trabalho do próprio condutor, a pergunta à pessoa, a pergunta terminal); `guardRefusalOutput` (L31 347): a frase e a pergunta numa linha | Corpus sobre projetos de scratch, passo a passo | Feita |
 | 4c-ii. Os comandos | A recusa de guard de `log review` (duas) e de `state` passa a acabar na pergunta, e a série grava-se | Diferencial; levanta `SHAPES["guard-ask"]` | Por fazer |
 | 4c-iii. A pergunta deixada | A nota para o hook (`guardRefusalHookNote`), a pergunta pendente que o passo seguinte faz (`pendingGuardRecoveryAsk`), a pergunta lida de volta do texto de uma recusa, e a escolha que `log` grava | Com quem as chama: os guards de `PreToolUse` e `orchestrate next` | Por fazer |
 
@@ -3367,17 +3367,19 @@ Os dois escritores dos ficheiros de um registo (`write_record_file_no_follow`, `
 | As assinaturas comparam-se como são só onde podem ser as mesmas | A fronteira leva o caminho do shard como foi lido, e um comando na tentativa leva o nome do engine: com uma fronteira em jogo, ou um comando na tentativa, a assinatura é a de cada motor, e diz-se pela ordem em que o caso a encontra (`<state-1>`, `<series-1>`). Sem nenhum dos dois o hash compara-se tal como é, e é aí que a fórmula se verifica |
 | A recusa entra na série com os comandos na forma nativa | O original escreve um comando como a instalação o corre; o driver põe-nos na forma nativa antes de os dar à série, como já fazia no tipo `guard_refusal`, e a série trata a recusa como dados |
 
-@@GS_FOUND@@
+**O que o corpus encontrou.** Nada no port. As diferenças da primeira comparação (54 casos em 600) eram todas do harness, e ficaram como decisão: um hash sobre um comando que diz `aidlc` não pode ser o hash sobre o mesmo comando a dizer `focus`, e a assinatura que um passo deixou no registo continua lá, por assentar, enquanto outro passo não escrever por cima.
+
+**O que a mutação encontrou.** 66 mutantes sobre a série, julgados pelo corpus: 55 morreram à primeira. Oito eram buracos, todos do mesmo sítio: um registo escrito à mão nunca tem as assinaturas da série, e por isso lê-lo como válido ou não dava a mesma resposta. Os passos ganharam a maneira de mudar à mão o registo que a própria série escreveu (um campo posto ou tirado), e com ela morrem os sete da leitura (a contagem que não é um inteiro ou é menor que um, um código que não é texto, o momento, a recusa, a pergunta deixada e a aprovação de outro tipo) e o oitavo: os códigos de uma série só se juntam a um registo da mesma fronteira, o que a assinatura do estado já garante num registo que a série escreveu e deixa de garantir num que alguém mudou. Três não mudam resposta nenhuma, pela mesma razão: a unit de uma recusa nunca é o nome vazio (o avaliador toma-o por nenhuma), e os dois filtros que o perguntavam outra vez saíram do código.
 
 **Verificado.**
 
 | Verificação | Resultado |
 | --- | --- |
-| Corpus, `guard_series` | @@GS_CASES@@ |
-| Corpus, tudo | @@GS_ALL@@ |
+| Corpus, `guard_series` | 696 casos (2 321 passos), todos iguais: 420 sorteados (o ledger, a recusa, os passos, e em 12% um registo escrito à mão) e 276 escritos caso a caso (as quatro perguntas repetidas, os códigos que se juntam, o que move o estado, cada fronteira, cada forma de um registo que não se lê). O trabalho do condutor em 412 passos, a pergunta repetida em 462, a terminal em 119 (16 passado o limite), códigos juntos em 96, a pergunta deixada no registo em 287, a recusa impressa em 257. A assinatura comparada tal como é em 1 239 passos; uma fronteira em jogo em 834 |
+| Corpus, tudo | 84 051 casos em 92 tipos; os outros 91 tipos saem byte a byte como estavam, com o driver de `guard_refusal` a passar pela mesma função que o tipo novo |
 | Repetição da gravação | Igual: nenhum comando mudou de comportamento |
-| Mutação | @@GS_MUT@@ |
-| `cargo test` | @@GS_TESTS@@ |
+| Mutação | 66 mutantes: 55 mortos à primeira; 8 buracos, fechados com os passos que mudam o registo e repetidos até morrer; 3 equivalentes, com dois filtros retirados do código |
+| `cargo test` | 605 testes, os mesmos; os mínimos do tipo novo entraram no teste de corpus de `focus-lifecycle` |
 
 ### A jornada
 
