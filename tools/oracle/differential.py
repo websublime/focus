@@ -3472,6 +3472,11 @@ def transition_checks():
     check_("advance/invalid_scope", created(CREATED_STATE.replace("- **Scope**: feature\n", "- **Scope**: nope\n")), [["advance", "intent-capture"]], direct)
     check_("advance/not_current", created(**ic), [["advance", "market-research"], ["advance", "feasibility", "scope-definition"]], direct)
     check_("advance/no_artifacts", created(), [["advance", "intent-capture"], ["resume"]], direct)
+    # A guard that refuses the same situation again says so: the series of its stage counts the refusals, and the
+    # question changes with the count. Another verb refused at the same stage is the same series under another code
+    # only when the guard's code differs; a gate's refusal of the same guard joins it.
+    check_("advance/no_artifacts_three_times", created(), [["advance", "intent-capture"]] * 3, direct)
+    check_("advance/no_artifacts_then_at_the_gate", created(), [["advance", "intent-capture"], ["gate-start", "intent-capture"], ["finalize", "intent-capture"], ["advance", "intent-capture"]], direct)
     check_("advance/whole", created(**ic), [["advance", "intent-capture"], ["resume"], ["advance", "intent-capture"], ["get", "Completed"]], direct)
     check_("advance/explicit_next", created(**ic), [["advance", "intent-capture", "feasibility"], ["resume"]], direct)
     check_("advance/explicit_next_skipped", created(**ic), [["advance", "intent-capture", "reverse-engineering"]], direct)
@@ -5560,6 +5565,8 @@ def log_checks():
     reviewed = CREATED_STATE.replace("- **Review Override**: none", "- **Review Override**: advisory")
     check_("review/request/a_pass", created(reviewed, **OUTPUTS), [asks(1)])
     check_("review/request/waits_for_its_verdict", created(reviewed, **OUTPUTS), [asks(1), asks(1), asks(2)])
+    # The same refusal again, and again: the series counts, and the question says "still".
+    check_("review/request/waits_for_its_verdict_three_times", created(reviewed, **OUTPUTS), [asks(1), asks(2), asks(2), asks(2), asks(3)])
     check_("review/request/not_the_next_pass", created(reviewed, **OUTPUTS), [asks(2), asks(3), asks(10 ** 21), asks("1" + "0" * 400)])
     check_("review/request/single", created(reviewed, **OUTPUTS), [asks(1, "--single"), asks(1), asks(1, "--single")])
     check_("review/request/not_the_reviewer", created(reviewed, **OUTPUTS), [["review", "--stage", "intent-capture", "--reviewer", "aidlc-architecture-reviewer-agent", "--iteration", "1"],
@@ -5671,6 +5678,7 @@ def log_checks():
            edits=[reviewed_once(((1, "READY", ()), (2, "READY", recovery)), workflow=alone)])
     # No pass left, and none refused to a person who asked.
     check_("review/request/no_pass_left", created(reviewed, **OUTPUTS), [asks_plain(2, "--single"), asks_plain(1, "--single")], edits=[reviewed_once(workflow=alone)])
+    check_("review/request/no_pass_left_three_times", created(reviewed, **OUTPUTS), [asks_plain(2, "--single")] * 3, edits=[reviewed_once(workflow=alone)])
     check_("review/request/no_pass_left_person_asked", created(reviewed, **OUTPUTS), [asks_plain(2, "--single"), asks_plain(3, "--single")],
            edits=[reviewed_once(workflow=alone), lambda tree: tree.edit(CREATED_SHARD, lambda text: text + block("HUMAN_TURN", T(9), "**Session**: s1"))])
     check_("review/request/recovery_spent_person_asked", created(reviewed, **OUTPUTS), [asks_plain(3), asks_plain(4)],

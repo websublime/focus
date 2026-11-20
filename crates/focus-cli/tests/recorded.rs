@@ -1079,8 +1079,77 @@ fn replay_audit(check: &Value, root: &Path) -> BTreeMap<String, String> {
     }
     placeholder_messages(settle_authorization_ids(
         root,
-        settle_review_ids(root, actual),
+        settle_guard_series(settle_review_ids(root, actual)),
     ))
+}
+
+/// The recorder's `settle_guard_series`: the series of a guard's refusals
+/// is signed with hashes over paths of the tree, so a signature is written
+/// by the order it is first met (what was printed, then the files by
+/// name), wherever it is written: the record, the terminal question, the
+/// error row. The moment a record was written is left out.
+fn settle_guard_series(mut actual: BTreeMap<String, String>) -> BTreeMap<String, String> {
+    use std::cell::RefCell;
+
+    let met: [RefCell<Vec<String>>; 2] = [RefCell::new(Vec::new()), RefCell::new(Vec::new())];
+    let numbered = |kind: usize, value: &str| -> String {
+        let mut seen = met[kind].borrow_mut();
+        let at = seen
+            .iter()
+            .position(|known| known == value)
+            .unwrap_or_else(|| {
+                seen.push(value.to_owned());
+                seen.len() - 1
+            });
+        format!("<{}-{}>", ["state", "series"][kind], at + 1)
+    };
+    let printed = ["stdout", "stderr"];
+    let mut ordered: Vec<String> = printed
+        .iter()
+        .filter(|key| actual.contains_key(**key))
+        .map(|key| (*key).to_owned())
+        .collect();
+    ordered.extend(
+        actual
+            .keys()
+            .filter(|key| !printed.contains(&key.as_str()))
+            .cloned(),
+    );
+    for key in ordered {
+        let Some(mut text) = actual.get(&key).cloned() else {
+            continue;
+        };
+        if key.contains("/.focus-engine/guard-refusals/") {
+            text = replace_all(&text, r#"("updatedAt": ")[^"]*(")"#, |found, text| {
+                format!("{}<at>{}", group(found, text, 1), group(found, text, 2))
+            });
+            text = replace_all(
+                &text,
+                r#"("stateSignature": ")([0-9a-f]{64})(")"#,
+                |found, text| {
+                    format!(
+                        "{}{}{}",
+                        group(found, text, 1),
+                        numbered(0, group(found, text, 2)),
+                        group(found, text, 3)
+                    )
+                },
+            );
+        }
+        text = replace_all(
+            &text,
+            r#"("signature": "|\\?"state_signature\\?":\\?"|To report this, include )([0-9a-f]{64})"#,
+            |found, text| {
+                format!(
+                    "{}{}",
+                    group(found, text, 1),
+                    numbered(1, group(found, text, 2))
+                )
+            },
+        );
+        actual.insert(key, text);
+    }
+    actual
 }
 
 /// The recorder's `placeholder_messages`: the message records minted during
