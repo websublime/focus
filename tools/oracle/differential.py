@@ -2609,15 +2609,6 @@ DEVIATIONS.update({
     r"state/record/delegated_worktree":
         "upstream walks the process tree to find which conversation is calling, and resolves a delegated worktree to "
         "the main checkout's intent; focus refuses and asks for the session",
-    r"state/advance/(review_owed|review_owed_advisory_cap|summary_amended_then_review_owed)":
-        "the stage owes evidence that is an aidlc-log record (a reviewer's receipt) "
-        "compared with the stage's outputs and the source the review saw (the attestation, "
-        "M5): upstream weighs it and refuses with what is missing; focus refuses by name until it reads those "
-        "records. With the review class none, or the kill switch set, neither owes it and the "
-        "transition runs whole (the checks beside this one)",
-    "state/advance/review_rows_in_ledger":
-        "a closed stage's recovery reads the review rows of its attempt (which the stage's STAGE_STARTED floors); "
-        "upstream finds the one here stale and asks for a fresh review; focus refuses to weigh review rows at all",
     "state/advance/construction":
         "a Construction stage runs per unit of work with checkpoints, unit gates and swarms (M4): upstream admits "
         "it with no unit DAG as a stage-level one; focus refuses the phase by name",
@@ -2714,10 +2705,6 @@ DEVIATIONS.update({
         "with the Sensors ceremony on and the declared artifacts on disk, opening a gate fires the stage's gate "
         "sensors through the sensor tool (M5): upstream runs them, records their findings and opens the gate; focus "
         "refuses the opening by name and says how to open it without them (`--sensors off`, FOCUS_DISABLE_SENSORS)",
-    r"state/gates/(review_owed|review_guard_off|revision_backstop_with_reviewer)":
-        "the gate owes evidence that is an aidlc-log record (a reviewer's receipt, M5): "
-        "upstream weighs it and refuses with what is missing; focus refuses by name until it reads those records "
-        "(the kill switch opens the gate in both; upstream still weighs the receipt at the approval)",
     r"state/gates/review_findings_(rows|section)":
         "a review's findings follow the gate's decision (the review brief, M5): upstream reads them off the review "
         "artifact's `## Review` section (and its review rows) and records each open one on the decision as an "
@@ -3552,6 +3539,45 @@ def transition_checks():
            twice("advance"), direct)
     check_("advance/review_owed", created(CREATED_STATE.replace("- **Review Override**: none", "- **Review Override**: "), **ic),
            [["advance", "intent-capture"]], direct)
+    # The reviewer's receipt, weighed: a terminal verdict of this attempt over the outputs as they are lets the stage
+    # through; a request with no verdict, a verdict over other bytes, a recovery that is pending or spent, and a
+    # record that is no longer the one its row names are each a guard's refusal of their own.
+    ready, not_ready, asked = (1, "READY", (), REVIEWED_CURRENT), (1, "NOT-READY", (), REVIEWED_CURRENT), (1, None, (), REVIEWED_CURRENT)
+    over_old = (1, "READY", (), REVIEWED_OLD)
+    def reviewed_check(name, *passes, state=REVIEWED(CREATED_STATE), steps=None, env=direct, more=()):
+        check_(name, created(state, **REVIEWED_OUTPUTS), steps or twice("advance"), env, edits=[reviewed_by_hand(*passes), *more])
+    reviewed_check("advance/review_ready", ready)
+    reviewed_check("advance/review_not_ready_advisory", not_ready)
+    reviewed_check("advance/review_ready_stage_class", ready, state=REVIEWED(CREATED_STATE, ""))
+    reviewed_check("advance/review_requested_no_verdict", asked)
+    reviewed_check("advance/review_requested_over_other_bytes", (1, None, (), REVIEWED_OLD))
+    reviewed_check("advance/review_requested_twice_over_other_bytes", (2, None, (), REVIEWED_OLD))
+    reviewed_check("advance/review_by_another_reviewer", ready, more=[lambda tree: tree.edit(CREATED_SHARD, lambda text: text.replace(f"**Reviewer**: {REVIEWER_BY_HAND}", "**Reviewer**: someone-else"))])
+    reviewed_check("advance/review_record_gone", ready, more=[lambda tree: os.remove(tree.path(REVIEW_RECORD(1)))])
+    reviewed_check("advance/review_record_other_bytes", ready, more=[lambda tree: tree.edit(REVIEW_RECORD(1), lambda text: text.replace("It reads well.", "It reads badly."))])
+    for label, policy in POLICIES:
+        under = UNDER_POLICY(REVIEWED(CREATED_STATE), policy)
+        reviewed_check(f"advance/review_over_other_bytes{label}", over_old, state=under)
+        reviewed_check(f"advance/review_recovery_pending{label}", over_old, (2, None, REVIEW_RECOVERY, REVIEWED_CURRENT), state=under)
+        reviewed_check(f"advance/review_recovery_pending_over_other_bytes{label}", over_old, (2, None, REVIEW_RECOVERY, "sha256:" + "b" * 64), state=under)
+        reviewed_check(f"advance/review_recovered{label}", over_old, (2, "READY", REVIEW_RECOVERY, REVIEWED_CURRENT), state=under)
+        reviewed_check(f"advance/review_recovery_spent{label}", over_old, (2, "READY", REVIEW_RECOVERY, "sha256:" + "b" * 64), state=under)
+    # (Where the stage cannot take a rejection, a spent recovery says no more than the way on.)
+    reviewed_check("advance/review_recovery_spent_unattended", over_old, (2, "READY", REVIEW_RECOVERY, "sha256:" + "b" * 64),
+                   state=UNDER_POLICY(REVIEWED(CREATED_STATE), "strict (set by you)"), env={**direct, "UNATTENDED": "1"})
+    # The other transitions that certify the stage, and the recovery of a stage already closed: it weighs what is
+    # pending, and not whether a receipt exists.
+    for verb in ("finalize", "complete-workflow"):
+        label = verb.split("-")[0]
+        reviewed_check(f"{label}/review_ready", ready, steps=[[verb, "intent-capture"]])
+        reviewed_check(f"{label}/review_requested_no_verdict", asked, steps=twice(verb))
+        reviewed_check(f"{label}/review_over_other_bytes", over_old, steps=twice(verb), state=UNDER_POLICY(REVIEWED(CREATED_STATE), "strict (set by you)"))
+    closed = REVIEWED(CREATED_STATE).replace("- [-] intent-capture", "- [x] intent-capture")
+    assert closed != REVIEWED(CREATED_STATE)
+    check_("advance/review_owed_already_closed", created(closed, **REVIEWED_OUTPUTS), twice("advance"), direct)
+    reviewed_check("advance/review_requested_already_closed", asked, state=closed)
+    reviewed_check("advance/review_record_gone_already_closed", ready, state=closed, more=[lambda tree: os.remove(tree.path(REVIEW_RECORD(1)))])
+    reviewed_check("advance/review_recovery_pending_already_closed", over_old, (2, None, REVIEW_RECOVERY, REVIEWED_CURRENT), state=UNDER_POLICY(closed, "strict (set by you)"))
     check_("advance/review_owed_advisory_cap", created(CREATED_STATE.replace("- **Review Override**: none", "- **Review Override**: advisory"), **ic),
            [["advance", "intent-capture"]], direct)
     check_("advance/review_rows_in_ledger", created(CREATED_STATE.replace("- **Review Override**: none", "- **Review Override**: "),
@@ -3837,6 +3863,46 @@ SUMMARY_SAVED = "".join(block("ARTIFACT_UPDATED", T(4), f"**File**: {path}") for
 OWES_SUMMARY = lambda state: state.replace("- **Summary Confirmation**: off (set by a command)", "- **Summary Confirmation**: on (from scope feature)")
 POLICIES = (("", "strict (set by you)"), ("_policy_relaxed", "relaxed (set by you)"), ("_policy_off", "off (from scope feature)"))
 UNDER_POLICY = lambda state, policy: state.replace("- **Guard Policy**: off (from scope feature)", f"- **Guard Policy**: {policy}")
+
+
+# A stage that was reviewed, by rows and a record written by hand (as `log review` writes them: its own checks
+# compare the writing). The reviewer is given a name that is not the engine's, so the record's bytes, and the digest
+# its row carries, are the same in the two trees. A pass is (iteration, verdict or None, extra request fields,
+# the fingerprint it reviewed): REVIEWED_CURRENT is the fingerprint of REVIEWED_OUTPUTS, the same in both engines.
+REVIEWED_OUTPUTS = {**SUMMARY_OUTPUTS, SUMMARY_FILE: "# Questions\n\nNone.\n"}
+REVIEWED_CURRENT = "sha256:ecf999829890d21d716a816b7d5988926939797038877a5c26afeaee7da1d192"
+REVIEWED_OLD = "sha256:" + "a" * 64
+REVIEWER_BY_HAND = "lead-reviewer"
+REVIEW_RECORD = lambda n: f"{CREATED_DIR}/.aidlc-engine/reviews/intent-capture/stage/{'0' * 16}/{n}.json"
+REVIEW_RECOVERY = ("**Recovery**: stale-receipt", "**Recovery Cause**: artifact")
+REVIEWED = lambda state, override="advisory": state.replace("- **Review Override**: none", f"- **Review Override**: {override}")
+
+
+def reviewed_by_hand(*passes, minute=1):
+    def edit(tree):
+        rows = ""
+        for index, (n, verdict, more, fingerprint) in enumerate(passes):
+            ident = "review:" + f"{n}" * 32
+            scope = ["**Stage**: intent-capture", f"**Reviewer**: {REVIEWER_BY_HAND}", f"**Iteration**: {n}"]
+            rows += block("REVIEW_REQUESTED", T(minute + 2 * index), *scope, f"**Artifact Fingerprint**: {fingerprint}", f"**Request Id**: {ident}", *more)
+            if verdict is None:
+                continue
+            record = REVIEW_RECORD(n)
+            tree.write(record, json.dumps({
+                "version": 1, "stage": "intent-capture", "unit": None, "workflow": None, "attempt": "0" * 16, "iteration": n, "reviewer": REVIEWER_BY_HAND, "verdict": verdict,
+                "request_id": ident, "request_challenge": None, "artifact_fingerprint": fingerprint, "source_fingerprint": None, "unit_source_fingerprint": None,
+                "findings": [], "body": "It reads well.\n", "recorded_at": "2026-01-05T10:00:00Z"}, indent=2) + "\n")
+            with open(tree.path(record), "rb") as handle:
+                digest = "sha256:" + hashlib.sha256(handle.read()).hexdigest()
+            rows += block("REVIEW_COMPLETED", T(minute + 2 * index + 1), *scope, f"**Verdict**: {verdict}", f"**Request Fingerprint**: {fingerprint}",
+                          f"**Artifact Fingerprint**: {fingerprint}", f"**Request Id**: {ident}", f"**Review Record**: {record[len(CREATED_DIR) + 1:]}", f"**Review Record Digest**: {digest}")
+        tree.edit(CREATED_SHARD, lambda text: text + rows)
+        graph = tree.json(".claude/tools/data/stage-graph.json")
+        for stage in graph:
+            if stage["slug"] == "intent-capture":
+                stage["reviewer"] = REVIEWER_BY_HAND
+        tree.write_json(".claude/tools/data/stage-graph.json", graph)
+    return edit
 
 
 def summary_receipt(text=SUMMARY_TEXT, *more):
@@ -4897,6 +4963,45 @@ def gate_checks():
         check_(f"gates/pipeline_rejected_and_shown_again{label}", re_piped(UNDER_POLICY(GATE_STATE, policy)), [re_open, re_reject, ["revise", "reverse-engineering"], ["revise", "reverse-engineering"], re_approve],
                quiet, edits=[re_time])
     check_("gates/review_owed", created(GATE_STATE.replace("- **Review Override**: none", "- **Review Override**: "), **ic), [["gate-start", "intent-capture"]], quiet)
+    # The reviewer's receipt at a gate: where it opens and where it is shown again. (An approval with review rows in
+    # the ledger ends in the findings the gate would record, which Focus still refuses by name.)
+    g_ready, g_asked, g_old = (1, "READY", (), REVIEWED_CURRENT), (1, None, (), REVIEWED_CURRENT), (1, "READY", (), REVIEWED_OLD)
+    g_strict = UNDER_POLICY(REVIEWED(GATE_STATE), "strict (set by you)")
+    def gate_reviewed(name, *passes, state=REVIEWED(GATE_STATE), steps=None, env=quiet, more=()):
+        check_(name, created(state, **REVIEWED_OUTPUTS), steps or opens, env, edits=[reviewed_by_hand(*passes), *more])
+    other_bytes = lambda tree: tree.edit(REVIEW_RECORD(1), lambda text: text.replace("It reads well.", "It reads badly."))
+    gate_reviewed("gates/review_ready", g_ready)
+    gate_reviewed("gates/review_requested_no_verdict", g_asked)
+    gate_reviewed("gates/review_requested_over_other_bytes", (1, None, (), REVIEWED_OLD))
+    gate_reviewed("gates/review_record_other_bytes", g_ready, more=[other_bytes])
+    for label, policy in POLICIES:
+        under = UNDER_POLICY(REVIEWED(GATE_STATE), policy)
+        gate_reviewed(f"gates/review_over_other_bytes{label}", g_old, state=under)
+        gate_reviewed(f"gates/review_recovery_pending{label}", g_old, (2, None, REVIEW_RECOVERY, REVIEWED_CURRENT), state=under)
+        gate_reviewed(f"gates/review_recovery_spent{label}", g_old, (2, "READY", REVIEW_RECOVERY, "sha256:" + "b" * 64), state=under)
+    gate_reviewed("gates/review_requested_guard_off", g_asked, env={**quiet, "SKIP_REVIEWER_GATE_GUARD": "1"})
+    g_revising = REVIEWED(revising)
+    again = [["revise", "intent-capture"], ["revise", "intent-capture"]]
+    gate_reviewed("gates/review_ready_at_the_second_showing", g_ready, state=g_revising, steps=again)
+    gate_reviewed("gates/review_requested_at_the_second_showing", g_asked, state=g_revising, steps=again)
+    gate_reviewed("gates/review_over_other_bytes_at_the_second_showing", g_old, state=UNDER_POLICY(g_revising, "strict (set by you)"), steps=again)
+    # A gate backfilled for the person's own approval opens over a review that did not finish: one asked for with no
+    # verdict yet, the recovery review included. Not over none asked for, nor over a record that cannot be
+    # verified; not for the agent alone; and not where the team keeps the policy strict.
+    g_open = ["gate-start", "intent-capture"]
+    g_person = g_open + ["--recovered", "--person-approves"]
+    gate_reviewed("gates/review_unfinished_person_approves", g_asked, steps=[g_open, g_open + ["--recovered"], g_open + ["--person-approves"], g_person, g_person])
+    gate_reviewed("gates/review_unfinished_over_other_bytes_person_approves", (1, None, (), REVIEWED_OLD), steps=[g_person])
+    gate_reviewed("gates/review_recovery_pending_person_approves", g_old, (2, None, REVIEW_RECOVERY, REVIEWED_CURRENT), state=g_strict, steps=[g_open, g_person])
+    gate_reviewed("gates/review_recovery_spent_person_approves", g_old, (2, "READY", REVIEW_RECOVERY, "sha256:" + "b" * 64), state=g_strict, steps=[g_person])
+    gate_reviewed("gates/review_over_other_bytes_person_approves", g_old, state=g_strict, steps=[g_person])
+    gate_reviewed("gates/review_unverified_person_approves", g_ready, steps=[g_person], more=[other_bytes])
+    gate_reviewed("gates/review_none_asked_person_approves", steps=[g_person])
+    gate_reviewed("gates/review_unfinished_person_approves_team_strict", g_asked, steps=[g_person], more=[memory("team", "Mode: strict")])
+    gate_reviewed("gates/review_unfinished_person_approves_org_strict", g_asked, state=g_strict, steps=[g_person], more=[memory("org", "Mode: strict")])
+    gate_reviewed("gates/review_unfinished_person_approves_strict_for_this_work", g_asked, state=g_strict, steps=[g_person])
+    gate_reviewed("gates/review_unfinished_person_approves_nobody_replied", g_asked, steps=[g_person], env=direct)
+    gate_reviewed("gates/review_unfinished_person_approves_replied", g_asked, steps=[g_person], env=direct, more=[lambda tree: tree.edit(CREATED_SHARD, lambda text: text + HUMAN(9))])
     check_("gates/review_guard_off", created(GATE_STATE.replace("- **Review Override**: none", "- **Review Override**: "), **ic), [["gate-start", "intent-capture"], approve], {**quiet, "SKIP_REVIEWER_GATE_GUARD": "1"})
     check_("gates/review_findings_rows", created(awaiting, opened + block("REVIEW_FINDING", T(2), "**Stage**: intent-capture", "**Finding**: R-01", "**Status**: open"), **ic), [approve], quiet)
     # The review artifact's `## Review` section: findings (not read), a heading inside a fence, an empty section.

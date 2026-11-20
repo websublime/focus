@@ -606,6 +606,12 @@ pub fn approve(
         wf.write_state(&content)?;
     }
     // The person's own approval goes over a review that never finished.
+    // Upstream then records the approval that way (`Review: not finished`
+    // on the gate's row, and a line said once) and carries it into the
+    // advance that follows. None of that is here yet: an approval that
+    // went over a review has review rows in its ledger, and the findings a
+    // gate records from them are refused by name just below (the review
+    // brief, slice 3e-v), so nothing could compare it.
     let person = PersonApproval::default();
     admission::admit(
         wf,
@@ -655,9 +661,6 @@ pub fn approve(
             gate_fields.extend(gate::approves_together_fields(&listed_together));
         }
     }
-    if person.over_unfinished_review() {
-        gate_fields.push(("Review", "not finished".to_owned()));
-    }
     gate_fields.push(gate::brief_digest_field(wf, stage));
     if let Some(accepted) = gate::decisions_accepted_open_field(wf, slug) {
         gate_fields.push(accepted);
@@ -675,34 +678,11 @@ pub fn approve(
     ));
     wf.emit(&held, "STAGE_COMPLETED", &completed_fields)?;
     wf.write_state(&content)?;
-    if person.over_unfinished_review() {
-        // `unfinishedReviewNotice`: the one line the person hears.
-        wf.say_change_notices(&[format!(
-            "Approved. The {} review did not finish.",
-            stage::name(stage)
-        )]);
-    }
     let next = next_in_scope_stage(slug, definition, &wf.install.graph, Some(&content)).is_some();
     let answer = if next {
-        transitions::advance_locked(
-            wf,
-            &held,
-            slug,
-            None,
-            operation,
-            warning.as_deref(),
-            Some(&person),
-        )?
+        transitions::advance_locked(wf, &held, slug, None, operation, warning.as_deref())?
     } else {
-        transitions::complete_workflow_locked(
-            wf,
-            &held,
-            slug,
-            None,
-            operation,
-            warning.as_deref(),
-            Some(&person),
-        )?
+        transitions::complete_workflow_locked(wf, &held, slug, None, operation, warning.as_deref())?
     };
     Ok(answer)
 }
