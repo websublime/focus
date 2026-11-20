@@ -33,6 +33,27 @@
 //! its own name (see [`crate::review_receipts`] and
 //! [`crate::review_pending`]).
 //!
+//! # Tests that change no answer
+//!
+//! Mutating each condition here against the oracle corpus and the tests
+//! leaves four that nothing can tell apart, each said again at its line:
+//!
+//! - **The project's source is shared by the two readers that weigh it.**
+//!   Each takes it for itself when it is handed none, and reads the same.
+//! - **The request that waits is not asked as a stage run by itself.**
+//!   That matters only to a unit's request in a stage that writes code,
+//!   which the receipts refuse one reader earlier.
+//! - **A row of the unit's that says so in its `Unit` field**, and **only
+//!   the rows the count reads**: under a team the receipts refuse any row
+//!   with that field first, and the rows of a unit's own bolt are all rows
+//!   the count reads.
+//!
+//! Two of upstream's tests are not written, because the receipts already
+//! answer them: whether the source's stale progress says its recovery is
+//! spent (the receipts fill it from the answer they give for the source,
+//! which is asked), and whether the newest reviewed source's fingerprint
+//! is the empty text (one they keep never is).
+//!
 //! # A stage with no phase
 //!
 //! Upstream's type lets a caller hand a partial stage with no `phase`, and
@@ -185,6 +206,11 @@ fn refuse_team_claims(view: &Window, state: &str, unit: Option<&str>) -> Result<
         return Ok(());
     }
     let slug = bolt_slug_for_unit(unit).ok();
+    // (A row that names the unit in its `Unit` field never gets this far
+    // while the receipts are weighed here: they refuse it first, in their
+    // own words. What does is the start or the end of the unit's own bolt,
+    // which names it with no such field, and is always a row the count
+    // reads.)
     let of_the_unit = |row: &focus_audit::shards::ShardEvent| {
         let field = |name: &str| block_field(&row.block, name);
         match field("Unit") {

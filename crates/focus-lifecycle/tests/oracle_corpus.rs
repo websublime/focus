@@ -355,11 +355,11 @@ fn every_lifecycle_case_gets_upstreams_answer() {
     );
     assert!(reopened >= 120 && stood_in >= 190, "{reopened} {stood_in}");
     assert!(
-        attempts >= 2000 && in_flight >= 250 && asked_again >= 100 && repaired >= 20,
+        attempts >= 2300 && in_flight >= 300 && asked_again >= 130 && repaired >= 30,
         "{attempts} {in_flight} {asked_again} {repaired}"
     );
     assert!(
-        spent >= 300 && recovering >= 40 && uncovered >= 200 && unbound >= 30 && budgeted >= 1200,
+        spent >= 380 && recovering >= 50 && uncovered >= 230 && unbound >= 30 && budgeted >= 1400,
         "{spent} {recovering} {uncovered} {unbound} {budgeted}"
     );
     assert!(

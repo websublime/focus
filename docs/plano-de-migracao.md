@@ -3313,17 +3313,32 @@ Quem chama já com uma leitura na mão entrega-a e ela não se repete: os recibo
 | Uma stage sem `phase` não se testa | O tipo do original deixa passar uma stage parcial sem fase, que não é revisível. Uma stage do grafo compilado tem sempre uma |
 | Um reviewer declarado com o nome vazio conta como declarado | É o que o original faz (`reviewer !== undefined`): a tentativa conta-se, para ninguém, e só o próximo pedido precisa de um nome. `stage::reviewer` filtra o vazio, e por isso aqui lê-se o campo |
 
-@@GA_FOUND@@
+**O que o corpus encontrou.** Na primeira comparação, 2 208 casos, nada no port: a única diferença era a `floor`, que leva o caminho do shard e cada motor tinha o seu (a decisão acima).
+
+**O que a mutação encontrou.** 79 mutantes: 72 sobre a tentativa, julgados pelo corpus, e 7 sobre a recusa pelo nome, julgados pelos testes. 61 morreram à primeira. Doze eram buracos, e cada um ganhou os casos (ou a linha de teste) que lhe faltavam e foi repetido até morrer:
+
+| O que o mutante trocava | O que o mata |
+| --- | --- |
+| A classe sob a qual os recibos se pesam, deixada à que a stage declara | Um estado com `Review Override`: a classe é a da stage como o estado a limita |
+| Se a stage escreve código, dito à contagem (dois mutantes) | Um pedido despachado outra vez (`Retry: pending-request`): conta como a repetição única só se for um pedido a que um veredicto se pode prender, o que numa stage que escreve código exige a fonte |
+| Se os outputs devidos se verificam, quando quem chama o diz | Um pedido à espera com um output devido em falta, perguntado das duas maneiras e com o switch |
+| As units de bolt merged, dadas ao estado do pedido à espera | Uma stage por unit sem documento de dependências: as units de um bolt merged fazem as vezes das units, e um pedido feito sobre elas é atual só com elas |
+| O progresso caído da stage e o de uma unit (três mutantes) | A recuperação gasta dita só pelo veredicto caído: a palavra da fonte volta a «não gasta» quando a unit da fonte revista mais nova recomeça o seu bolt, e o veredicto de outra unit (ou da stage, sem documento de dependências) que respondeu a um pedido de recuperação e caiu continua a dizê-lo. Com uma contagem que quem chama tirou para outro reviewer |
+| Uma reparação pedida pelo reviewer tratada como pedido a refazer | Uma reparação (duas passagens, `NOT-READY` na primeira) com quem chama a dizer que o pedido dessa passagem se pode substituir |
+| O orçamento contado pelos pedidos todos, e o próximo pedido numerado pelo orçamento (dois mutantes) | Uma unit que recomeça um passo que tinha acabado: o orçamento conta os pedidos desde aí, e o próximo pedido numera-se depois de todos |
+| O bolt da unit reconhecido só pelo slug | Um bolt com o slug da unit e o nome de outra (teste) |
+
+Seis não mudam resposta nenhuma. Dois deixaram de estar escritos, porque os recibos já os respondem: se o progresso caído da fonte diz a recuperação gasta (os recibos enchem-no com a resposta que dão para a fonte, que se pergunta), e se o fingerprint da fonte revista é o texto vazio (um que os recibos guardam nunca é). Quatro ficam, com a razão na linha e no módulo: a fonte do projeto partilhada pelos dois leitores que a pesam (cada um tira-a sozinho se não lha dão, e lê o mesmo); o pedido à espera não perguntado como de uma stage corrida sozinha (só importa a um pedido de unit numa stage que escreve código, que os recibos recusam antes); e, na recusa de equipa, a linha que nomeia a unit no campo `Unit` e o filtro das linhas que a contagem lê (os recibos recusam primeiro qualquer linha com esse campo, e as linhas do bolt de uma unit são todas linhas que a contagem lê).
 
 **Verificado.**
 
 | Verificação | Resultado |
 | --- | --- |
-| Corpus, `guard_attempt` | @@GA_CASES@@ |
-| Corpus, tudo | @@GA_ALL@@ |
+| Corpus, `guard_attempt` | 2 362 casos, todos iguais: 2 208 sorteados sobre os 1 991 projetos dos recibos (a tentativa de uma unit em 941 dos casos todos; os recibos entregues em 176, a janela em 131, a contagem em 198, o estado do pedido em 189, a verificação dos outputs em 185; a stage corrida sozinha em 324; sem reviewer em 46 e com o nome vazio em 32) e 154 escritos caso a caso. Um pedido à espera em 326 (19 que já não se repete, 76 cujo veredicto não se grava), um pedido a fazer em 149, uma reparação em 35; a recuperação gasta em 403 e pendente em 56; a revisão caída em 254; a fonte mexida em 69 e sem fronteira em 42; o orçamento dito em 1 477. 10 assentam em links e não correm em Windows |
+| Corpus, tudo | 83 355 casos em 91 tipos; os outros 90 tipos saem byte a byte como estavam |
 | Repetição da gravação | Igual: nenhum comando mudou de comportamento |
-| Mutação | @@GA_MUT@@ |
-| `cargo test` | @@GA_TESTS@@ |
+| Mutação | 79 mutantes: 61 mortos à primeira; 12 buracos, cada um fechado e repetido até morrer; 6 equivalentes, dois retirados do código e quatro com a razão na linha |
+| `cargo test` | 605 testes (dois novos: a recusa pelo nome, em `tests/guard_attempt.rs`); os mínimos do tipo novo entraram no teste de corpus de `focus-lifecycle` |
 
 ### A jornada
 
