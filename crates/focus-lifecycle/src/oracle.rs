@@ -16,7 +16,7 @@ use crate::review_attempt;
 use crate::workflow::Workflow;
 
 /// The case kinds this crate answers.
-pub const KINDS: [&str; 12] = [
+pub const KINDS: [&str; 13] = [
     "review_window",
     "review_accounting",
     "review_snapshot",
@@ -29,6 +29,7 @@ pub const KINDS: [&str; 12] = [
     "review_request",
     "review_derived",
     "guard_attempt",
+    "guard_series",
 ];
 
 /// The ledger a case gives as its shards, read as a project's would be.
@@ -90,6 +91,7 @@ pub fn run_case(wf: &Workflow, case: &Value) -> Value {
         "review_receipts" | "guard_attempt" => review_receipts_case(wf, case),
         "review_derived" => review_derived_case(wf, case),
         "guard_refusal" => guard_refusal_case(wf, case),
+        "guard_series" => guard_series_case(wf, case),
         "review_request" => review_request_case(wf, case),
         "recovery_guidance" => {
             // The sentence a prose refusal ends with, and whether a Request
@@ -1573,22 +1575,23 @@ fn review_request_case(wf: &Workflow, case: &Value) -> Value {
 }
 
 fn guard_refusal_case(wf: &Workflow, case: &Value) -> Value {
-    use focus_guards::fences::Fence;
-    use focus_guards::guard_operation::RenderShell;
+    match evaluated_refusal(wf, case, &case["code"], &case["attempt"]) {
+        Ok((refusal, _)) => crate::guard_refusal::refusal_value(&refusal),
+        Err(error) => json!({ "error": error }),
+    }
+}
 
-    use crate::guard_refusal::{
-        Attempt, Coverage, Input, NextReview, PendingReview, Recovery, Summary, evaluate,
-    };
+/// The attempt a case gives, as the evaluator takes it.
+fn attempt_given(given: &Value) -> crate::guard_refusal::Attempt {
+    use crate::guard_refusal::{Attempt, Coverage, NextReview, PendingReview, Recovery};
 
-    let text = |key: &str| case[key].as_str().unwrap_or_default();
-    let given = &case["attempt"];
     let coverage = |key: &str| match given[key].as_str() {
         Some("current") => Coverage::Current,
         Some("stale") => Coverage::Stale,
         Some("unbindable") => Coverage::Unbindable,
         _ => Coverage::Missing,
     };
-    let attempt = Attempt {
+    Attempt {
         floor: given["floor"].as_str().map(str::to_owned),
         review_budget: given["reviewBudget"]["used"]
             .as_f64()
@@ -1613,15 +1616,33 @@ fn guard_refusal_case(wf: &Workflow, case: &Value) -> Value {
         summary_coverage: coverage("summaryCoverage"),
         review_coverage: coverage("reviewCoverage"),
         source_coverage: coverage("sourceCoverage"),
-    };
+    }
+}
+
+/// The refusal the evaluator gives for a case, under `code` and `attempt`,
+/// with the attempt it was given. Commands are quoted for one shell on
+/// every platform.
+fn evaluated_refusal(
+    wf: &Workflow,
+    case: &Value,
+    code: &Value,
+    attempt: &Value,
+) -> Result<(crate::guard_refusal::Refusal, crate::guard_refusal::Attempt), String> {
+    use focus_guards::fences::Fence;
+    use focus_guards::guard_operation::RenderShell;
+
+    use crate::guard_refusal::{Input, Summary, evaluate};
+
+    let text = |key: &str| case[key].as_str().unwrap_or_default();
+    let attempt = attempt_given(attempt);
     let summary = case["isolated"].as_bool().map(|isolated| Summary {
         questions_file: None,
         isolated,
     });
-    let refusal = match evaluate(
+    let refusal = evaluate(
         wf,
         &Input {
-            code: text("code"),
+            code: code.as_str().unwrap_or_default(),
             blocked_action: text("blocked"),
             stage: text("stage"),
             unit: case["unit"].as_str(),
@@ -1636,11 +1657,182 @@ fn guard_refusal_case(wf: &Workflow, case: &Value) -> Value {
             summary: summary.as_ref(),
             shell: Some(RenderShell::Posix),
         },
-    ) {
-        Ok(refusal) => refusal,
-        Err(error) => return json!({ "error": error }),
-    };
-    crate::guard_refusal::refusal_value(&refusal)
+    )?;
+    Ok((refusal, attempt))
+}
+
+/// The series of a guard's refusals in a project of the case's own: its
+/// ledger and, when the case gives one, a record already there. Each step
+/// evaluates the refusal the case describes, then views the series,
+/// records the refusal, or prints it; rows may be appended to the ledger
+/// first.
+///
+/// A boundary's token names its shard by the path it was read from, and
+/// the signatures hash the token: with a boundary in play they are the
+/// project's own, and are said by the order in which the case first meets
+/// them. So are the signatures over an attempt that carries a command,
+/// which names the engine. Otherwise the signatures are compared as they
+/// are. The shard is
+/// said by its file's name, and the moment of a record is left out.
+fn guard_series_case(wf: &Workflow, case: &Value) -> Value {
+    use std::io::Write;
+
+    use focus_workspace::records::{Invoker, Selector, resolve_selection};
+
+    use crate::guard_series::{record_refusal, refusal_output, series_name, streak_view};
+
+    let (root, layout) = lay_project(wf, case);
+    let answer = (|| -> Result<Value, String> {
+        let selection = resolve_selection(&layout, &Selector::default(), &Invoker::default())
+            .map_err(|refusal| refusal.to_string())?;
+        let scratch = Workflow {
+            layout: layout.clone(),
+            selection,
+            invoker: Invoker::default(),
+            install: wf.install.clone(),
+        };
+        let record = layout.space_dir("default").join("intents/rec-1a2b3c4d");
+        let audit = record.join("audit");
+        std::fs::create_dir_all(&audit).map_err(|error| error.to_string())?;
+        for (name, text) in case["shards"].as_object().into_iter().flatten() {
+            std::fs::write(audit.join(name), text.as_str().unwrap_or_default())
+                .map_err(|error| error.to_string())?;
+        }
+        let file = scratch
+            .selection
+            .engine_dir(&scratch.layout)
+            .join(series_name(
+                case["stage"].as_str().unwrap_or_default(),
+                case["unit"].as_str(),
+            ));
+        if let Some(prior) = case["prior"].as_str() {
+            std::fs::create_dir_all(file.parent().expect("a name has a folder"))
+                .map_err(|error| error.to_string())?;
+            std::fs::write(&file, prior).map_err(|error| error.to_string())?;
+        }
+        let mut met: [Vec<String>; 2] = [Vec::new(), Vec::new()];
+        let mut out = Vec::new();
+        for step in case["steps"].as_array().into_iter().flatten() {
+            for (name, text) in step["rows"].as_object().into_iter().flatten() {
+                std::fs::OpenOptions::new()
+                    .append(true)
+                    .create(true)
+                    .open(audit.join(name))
+                    .and_then(|mut shard| {
+                        shard.write_all(text.as_str().unwrap_or_default().as_bytes())
+                    })
+                    .map_err(|error| error.to_string())?;
+            }
+            let or_cases = |key: &str| {
+                if step[key].is_null() {
+                    &case[key]
+                } else {
+                    &step[key]
+                }
+            };
+            let (refusal, attempt) =
+                match evaluated_refusal(&scratch, case, or_cases("code"), or_cases("attempt")) {
+                    Ok(evaluated) => evaluated,
+                    Err(error) => {
+                        out.push(json!({ "error": error }));
+                        continue;
+                    }
+                };
+            let resources: Vec<String> = or_cases("resources")
+                .as_array()
+                .into_iter()
+                .flatten()
+                .filter_map(|line| line.as_str().map(str::to_owned))
+                .collect();
+            let (view, viewed) = streak_view(&scratch, &refusal, &attempt, &resources, false);
+            // The folder of the shards, as the ledger's reader says it.
+            let folder = scratch
+                .events()
+                .first()
+                .and_then(|row| {
+                    row.shard
+                        .rfind(['/', '\\'])
+                        .map(|cut| row.shard[..=cut].to_owned())
+                })
+                .unwrap_or_default();
+            // (And a command the attempt carries names the engine, which
+            // each engine calls by its own name: a signature over one is
+            // the engine's own as well.)
+            let said_attempt = crate::guard_attempt::attempt_value(&attempt);
+            let own = !viewed.reset_token.is_empty()
+                || ["pendingReview", "nextReview"].iter().any(|key| {
+                    said_attempt
+                        .get(*key)
+                        .is_some_and(|part| part.to_string().contains("focus"))
+                });
+            if own {
+                for (kind, value) in [(0, &viewed.state_signature), (1, &view.signature)] {
+                    if !met[kind].contains(value) {
+                        met[kind].push(value.clone());
+                    }
+                }
+            }
+            let settled = |text: &str| -> String {
+                let mut said = text.to_owned();
+                if !folder.is_empty() {
+                    // (As text, and as a JSON string holds it.)
+                    let quoted = focus_js::json::stringify(&json!(folder));
+                    said = said
+                        .replace(&quoted[1..quoted.len() - 1], "")
+                        .replace(&folder, "");
+                }
+                // (A signature met at an earlier step stays in the record
+                // until a step writes over it.)
+                for (kind, values) in met.iter().enumerate() {
+                    for (index, value) in values.iter().enumerate() {
+                        let name = if kind == 0 { "state" } else { "series" };
+                        said = said.replace(value, &format!("<{name}-{}>", index + 1));
+                    }
+                }
+                said
+            };
+            let said = |value: &Value| -> Result<Value, String> {
+                focus_js::json::parse(&settled(&focus_js::json::stringify(value)))
+                    .map_err(|error| error.to_string())
+            };
+            let mut answer = serde_json::Map::new();
+            let streak = match step["op"].as_str().unwrap_or_default() {
+                "view" => Some(view),
+                "viewed" => Some(streak_view(&scratch, &refusal, &attempt, &resources, true).0),
+                "record" => Some(record_refusal(
+                    &scratch, &refusal, &attempt, &resources, false,
+                )),
+                "leave" => Some(record_refusal(
+                    &scratch, &refusal, &attempt, &resources, true,
+                )),
+                "output" => {
+                    let text = refusal_output(&scratch, &refusal, &attempt, &resources);
+                    answer.insert("text".to_owned(), json!(settled(&text)));
+                    None
+                }
+                other => return Err(format!("guard_series: unknown op {other}")),
+            };
+            if let Some(streak) = streak {
+                answer.insert("count".to_owned(), json!(streak.count));
+                answer.insert("signature".to_owned(), json!(settled(&streak.signature)));
+                answer.insert("ask".to_owned(), said(&streak.ask.to_value())?);
+            }
+            answer.insert("token".to_owned(), json!(settled(&viewed.reset_token)));
+            let kept = std::fs::read_to_string(&file).ok().map(|text| {
+                settled(&focus_js::re::replace(
+                    r#""updatedAt": "[^"]*""#,
+                    "",
+                    &text,
+                    r#""updatedAt": "<at>""#,
+                ))
+            });
+            answer.insert("file".to_owned(), json!(kept));
+            out.push(Value::Object(answer));
+        }
+        Ok(json!(out))
+    })();
+    let _ = std::fs::remove_dir_all(&root);
+    answer.unwrap_or_else(|error| json!({ "error": error }))
 }
 
 /// The list of findings a review's scope stands at, replayed from a

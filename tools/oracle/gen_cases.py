@@ -9777,5 +9777,148 @@ for walk in (UNIT_MAJOR, CHECKPOINTS, ""):
 
         ga_case(FD, started_again, [{"unit": "api", "budget": 2}, {"unit": "web", "budget": 2}, {"budget": 2}], walk=walk, per_unit=True)
 
+
+# --- guard_series: the series of a guard's refusals, and the question that renders one -----------------------------
+# A project with a ledger, the refusal a guard would give (the inputs of `guard_refusal`), and steps: each views the
+# series, records the refusal, leaves its question for the next step, or prints it, after rows the step appends. The
+# cases stand at the end, so the cases of each kind before them keep their ids.
+gs = random.Random(seed * 7919 + 42)
+GS_SHARDS = ["laptop-abc123.md", "ci-def456.md"]
+GS_HEAD = "# AI-DLC Audit Log\n"
+GS_OPS = ["record"] * 6 + ["view", "viewed", "leave", "output", "output"]
+
+
+def gs_row(at, event, **fields):
+    return se_row(0, at, event, **fields)[1]
+
+
+def gs_add(stage, steps, rows=(), state=None, prior=None, code="REVIEW_EVIDENCE_MISSING", unit=None, attempt=None, resources=(), project=None, unattended=False, fence=None,
+           fence_switch=None, isolated=None, shards=None, message=None):
+    add("guard_series", files=dict(RV_ACTIVE), state=gr_state(stage, " ") if state is None else state,
+        shards={GS_SHARDS[0]: GS_HEAD + "".join(rows)} if shards is None else shards, prior=prior, code=code, blocked="approve", stage=stage, unit=unit, project=project,
+        invariant="A stage is approved on current evidence.", message=f"Refusing to approve \"{stage}\": the evidence is not current." if message is None else message,
+        attempt=gr_attempt() if attempt is None else attempt, unattended=unattended, fence=fence, fence_switch=fence_switch, isolated=isolated, resources=list(resources), steps=steps)
+
+
+def gs_boundary(at, stage, unit):
+    drawn = gs.random()
+    other = gs.choice(["intent-capture", "nfr-design"])
+    if drawn < 0.2:
+        return gs_row(at, gs.choice(["SESSION_STARTED", "SESSION_RESUMED"]))
+    if drawn < 0.3:
+        return gs_row(at, gs.choice(["WORKFLOW_STARTED", "STAGE_JUMPED"]), Stage=gs.choice([stage, other]))
+    if drawn < 0.6:
+        stages = gs.choice([{"Stage": stage}, {"Stage": other}, {"Gate_Stages": f"{other}, {stage}"}, {"Gate_Stages": other, "Stage": stage}, {"Stage": f" {stage} "}, {}])
+        return gs_row(at, gs.choice(["GATE_REJECTED", "GATE_REJECTED", "GATE_APPROVED"]), **stages, Unit=gs.choice([None, None, unit, "api", "web"]))
+    if drawn < 0.8:
+        return gs_row(at, "BOLT_STARTED", Bolt_names=gs.choice(["api", "web", "api, web", " web ,api", "", "apiary"]))
+    return gs_row(at, gs.choice(["ARTIFACT_CREATED", "STAGE_STARTED", "REVIEW_REQUESTED", "BOLT_COMPLETED"]), Stage=stage, Unit=unit)
+
+
+def gs_attempt():
+    attempt = gr_random_attempt()
+    if gs.random() < 0.6:
+        attempt["floor"] = gs.choice(["", "STAGE_STARTED:2026-01-05T10:00:02Z:laptop-abc123.md:1", "WORKFLOW_STARTED:2026-01-05T10:00:01Z:ci-def456.md:0"])
+    return attempt
+
+
+GS_RESOURCES = [[], ["source:none", "stage-review:none", "unit-review:none"], ["source:sha256:" + "a" * 64, "stage-review:2", "unit-review:1"], ["b", "a", "B", "é", "a"]]
+GS_PRIORS = [
+    "not a record", "", "[]", "{}", '{"version": 2}', "null",
+    json.dumps({"version": 1, "stateSignature": "s", "signature": "g", "count": 3, "codes": ["A"], "resetToken": "", "refusal": {}, "updatedAt": "then"}),
+    json.dumps({"version": 1, "stateSignature": "s", "signature": "g", "count": 0, "codes": ["A"], "resetToken": "", "refusal": {}, "updatedAt": "then"}),
+    json.dumps({"version": 1, "stateSignature": "s", "signature": "g", "count": 1.5, "codes": ["A"], "resetToken": "", "refusal": {}, "updatedAt": "then"}),
+    json.dumps({"version": 1, "stateSignature": "s", "signature": "g", "count": "1", "codes": ["A"], "resetToken": "", "refusal": {}, "updatedAt": "then"}),
+    json.dumps({"version": 1, "stateSignature": "s", "signature": "g", "count": 1, "codes": [1], "resetToken": "", "refusal": {}, "updatedAt": "then"}),
+    json.dumps({"version": 1, "stateSignature": "s", "signature": "g", "count": 1, "codes": "A", "resetToken": "", "refusal": {}, "updatedAt": "then"}),
+    json.dumps({"version": 1, "stateSignature": "s", "signature": "g", "count": 1, "codes": [], "resetToken": "", "refusal": [], "updatedAt": "then"}),
+    json.dumps({"version": 1, "stateSignature": "s", "signature": "g", "count": 1, "codes": [], "resetToken": "", "refusal": {}, "updatedAt": 5}),
+    json.dumps({"version": 1, "stateSignature": "s", "signature": "g", "count": 1, "codes": [], "resetToken": "", "refusal": {}, "updatedAt": "then", "pendingAsk": None}),
+    json.dumps({"version": 1, "stateSignature": "s", "signature": "g", "count": 1, "codes": [], "resetToken": "", "refusal": {}, "updatedAt": "then", "pendingAsk": {}, "pendingApproval": 5}),
+    json.dumps({"version": 1, "stateSignature": "s", "signature": "g", "count": 1, "codes": [], "resetToken": "", "refusal": {}, "updatedAt": "then", "pendingAsk": {}, "pendingApproval": "x"}),
+    json.dumps({"version": 1, "stateSignature": 1, "signature": "g", "count": 1, "codes": [], "resetToken": "", "refusal": {}, "updatedAt": "then"}),
+    json.dumps({"version": 1, "stateSignature": "s", "signature": None, "count": 1, "codes": [], "resetToken": "", "refusal": {}, "updatedAt": "then"}),
+    json.dumps({"version": 1, "stateSignature": "s", "signature": "g", "count": 1, "codes": [], "resetToken": 0, "refusal": {}, "updatedAt": "then"}),
+    json.dumps({"version": "1", "stateSignature": "s", "signature": "g", "count": 1, "codes": [], "resetToken": "", "refusal": {}, "updatedAt": "then"}),
+]
+
+for _ in range(70 * scale):
+    stage = gs.choice(GR_STAGES)
+    unit = gs.choice([None, None, "api", "web", ""])
+    more = "".join(f"- [{gs.choice(GR_MARKS)}] {other} — EXECUTE\n" for other in gs.sample(["functional-design", "nfr-design", "code-generation"], gs.randint(0, 2)) if other != stage)
+    state = gr_state(stage, gs.choice(GR_MARKS + [None]), "EXECUTE", gs.choice(["feature", "feature", "mvp", "bugfix"]), gr_fields(), more)
+    clock = [0]
+
+    def tick():
+        clock[0] += gs.choice([0, 1, 1, 2])
+        return clock[0]
+
+    shards = {}
+    if gs.random() < 0.6:
+        for _ in range(gs.randint(1, 4)):
+            name = gs.choice(GS_SHARDS[:1] * 3 + GS_SHARDS[1:])
+            shards[name] = shards.get(name, GS_HEAD) + gs_boundary(tick(), stage, unit)
+    else:
+        shards[GS_SHARDS[0]] = GS_HEAD
+    steps = []
+    for _ in range(gs.randint(1, 6)):
+        step = {"op": gs.choice(GS_OPS)}
+        if gs.random() < 0.2:
+            step["code"] = gs.choice(GR_CODES)
+        if gs.random() < 0.12:
+            step["attempt"] = gs_attempt()
+        if gs.random() < 0.12:
+            step["resources"] = gs.choice(GS_RESOURCES)
+        if gs.random() < 0.18:
+            step["rows"] = {gs.choice(GS_SHARDS): gs_boundary(tick(), stage, unit)}
+        steps.append(step)
+    gs_add(stage, steps, state=state, prior=gs.choice(GS_PRIORS) if gs.random() < 0.12 else None, code=gs.choice(GR_CODES), unit=unit, attempt=gs_attempt(), resources=gs.choice(GS_RESOURCES),
+           project=gs.choice([None, "/work/project"]), unattended=gs.random() < 0.1, fence=gs.choice(GR_FENCES), fence_switch=gs.choice([None, None, "offer", "withhold"]), shards=shards)
+
+# The four questions, each asked four times over: the conductor's own work first and the person after; the person
+# from the first; and nothing to do, which past the cap names the series to report.
+GS_FOUR = [{"op": "record"}] * 4
+GS_NONE = dict(stage="code-generation", code="SOURCE_STALE", fence_switch="withhold", project="/work/my project",
+               state=gr_state("code-generation", None, fields={"Construction Iteration": " unit-major "}, more="- [?] functional-design — EXECUTE\n- [x] nfr-design — EXECUTE\n"),
+               attempt=gr_attempt(recovery="spent", summaryCoverage="stale", reviewBudget={"used": 1, "limit": 1}))
+GS_OWN = dict(stage="functional-design", code="SOURCE_STALE", unit="web", fence_switch="offer", project="/work/project",
+              state=gr_state("functional-design", " ", fields={"Construction Iteration": " unit-major ", "Unit Ownership": "solo"}),
+              attempt=gr_attempt(summaryCoverage="missing", reviewCoverage="stale", repairReview={"iteration": 2}))
+GS_BOTH = dict(stage="build-and-test", code="SUMMARY_EVIDENCE_MISSING", unattended=True, fence="reviewer-scope", project="/work/project",
+               state=gr_state("build-and-test", "-", scope="mvp", fields={"Construction Iteration": "stage-major"}),
+               attempt=gr_attempt(recovery="pending", reviewCoverage="missing", sourceCoverage="stale"))
+GS_THEIRS = dict(stage="requirements-analysis")
+for given in (GS_NONE, GS_OWN, GS_BOTH, GS_THEIRS):
+    for rows in ((), (gs_row(1, "SESSION_STARTED"),)):
+        gs_add(steps=GS_FOUR, rows=rows, **given)
+        gs_add(steps=[{"op": "view"}, {"op": "viewed"}, {"op": "record"}, {"op": "view"}, {"op": "viewed"}, {"op": "output"}, {"op": "leave"}, {"op": "viewed"}], rows=rows, **given)
+        # Another code on the same state joins the series' codes; back to the first, the series is the joined one.
+        gs_add(steps=[{"op": "record"}, {"op": "record", "code": "X"}, {"op": "record"}, {"op": "record", "code": "A"}, {"op": "record", "code": "X"}], rows=rows, **given)
+        # What moves the state starts the series again: the attempt, a resource, a boundary.
+        gs_add(steps=[{"op": "record"}, {"op": "record", "attempt": {**given.get("attempt", gr_attempt()), "floor": "x"}}, {"op": "record"}, {"op": "record", "resources": ["source:1"]},
+                      {"op": "record", "resources": ["source:1"]}, {"op": "record", "rows": {GS_SHARDS[0]: gs_row(9, "SESSION_RESUMED")}}, {"op": "record"}], rows=rows, **given)
+    # A message with nothing in it, and one with space around it, in the terminal question's detail.
+    for message in ("", "  \n", "  It stopped.  "):
+        gs_add(steps=GS_FOUR[:2], message=message, **given)
+    for prior in GS_PRIORS:
+        gs_add(steps=[{"op": "viewed"}, {"op": "record"}], prior=prior, **given)
+# The boundary of a series: the latest of the rows that start a new situation, for this stage and this unit.
+for unit in (None, "api"):
+    for event, fields in (("SESSION_STARTED", {}), ("SESSION_RESUMED", {}), ("WORKFLOW_STARTED", {}), ("STAGE_JUMPED", {}), ("STAGE_STARTED", {"Stage": "requirements-analysis"}),
+                          ("GATE_REJECTED", {"Stage": "requirements-analysis"}), ("GATE_REJECTED", {"Stage": "intent-capture"}), ("GATE_REJECTED", {}),
+                          ("GATE_REJECTED", {"Gate_Stages": "intent-capture, requirements-analysis"}), ("GATE_REJECTED", {"Gate_Stages": "intent-capture", "Stage": "requirements-analysis"}),
+                          ("GATE_REJECTED", {"Stage": "requirements-analysis", "Unit": "api"}), ("GATE_REJECTED", {"Stage": "requirements-analysis", "Unit": "web"}),
+                          ("GATE_APPROVED", {"Stage": "requirements-analysis"}), ("GATE_APPROVED", {"Stage": "requirements-analysis", "Unit": "api"}),
+                          ("GATE_APPROVED", {"Stage": "requirements-analysis", "Unit": "web"}), ("GATE_APPROVED", {"Stage": "intent-capture"}),
+                          ("BOLT_STARTED", {"Bolt_names": "api"}), ("BOLT_STARTED", {"Bolt_names": "web, api"}), ("BOLT_STARTED", {"Bolt_names": "web"}), ("BOLT_STARTED", {}),
+                          ("BOLT_COMPLETED", {"Bolt_names": "api"})):
+        gs_add("requirements-analysis", [{"op": "leave"}, {"op": "record", "rows": {GS_SHARDS[0]: gs_row(5, event, **fields)}}, {"op": "leave"}], unit=unit)
+    # The latest of two, in one shard and across two, at one instant and at two.
+    for first, second in (((0, 3), (0, 4)), ((0, 4), (1, 3)), ((0, 3), (1, 3)), ((1, 3), (0, 3)), ((1, 5), (0, 4))):
+        shards = {name: GS_HEAD for name in GS_SHARDS}
+        for (shard, at), event in zip((first, second), ("SESSION_STARTED", "GATE_APPROVED")):
+            shards[GS_SHARDS[shard]] += gs_row(at, event, Stage="requirements-analysis") + gs_row(at, "SESSION_RESUMED" if event == "GATE_APPROVED" else "GATE_APPROVED", Stage="requirements-analysis")
+        gs_add("requirements-analysis", [{"op": "leave"}, {"op": "record"}], unit=unit, shards=shards)
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")
