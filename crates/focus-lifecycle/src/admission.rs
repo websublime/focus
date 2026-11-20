@@ -16,11 +16,11 @@
 //! upstream passes it. A Construction stage is refused by name as well: its
 //! checkpoints, units and swarms are M4.
 //!
-//! A guard refusal names its code and the step that clears it. Upstream
-//! appends the guard-recovery ask (the remedies the conductor may offer)
-//! as a JSON line after the sentence and keeps a refusal record under the
-//! engine directory; both are the recovery machinery of M5, so Focus prints
-//! the sentence alone.
+//! A guard that refuses carries its code and the invariant it holds. The
+//! error's message is the sentence; the refusal, evaluated on the attempt
+//! as the guard sees it, rides on the error for the tool's entry point to
+//! print with its recovery question and to count in the series of the
+//! stage ([`crate::guard_series`]).
 //!
 //! Mirrors `admitStageAction`, `verifyGateOpeningGuards`,
 //! `verifyStageArtifacts`, `verifySummaryConfirmationPrecondition`,
@@ -96,11 +96,45 @@ pub fn assert_not_archived(state: &str, operation: &str) -> Result<()> {
     Ok(())
 }
 
-/// A guard refusal: the sentence upstream prints first. Its reason code
-/// (`REQUIRED_ARTIFACTS_MISSING`, …) goes on the ask upstream prints after
-/// it, which is M5's.
-fn guard_refusal(message: String) -> EngineError {
-    EngineError::new(message)
+impl Action {
+    /// The action as a refusal names it (`ReviewerPreconditionAction`).
+    fn word(self) -> &'static str {
+        match self {
+            Self::Complete => "complete",
+            Self::PresentApprovalGate => "present-approval-gate",
+        }
+    }
+}
+
+/// `refuseStateGuard`: a guard's refusal, with its reason code and the
+/// invariant it holds: the sentence is the error's message, and the
+/// refusal rides on it for the tool's entry point to print with its
+/// recovery question ([`crate::guard_series::printed`]).
+fn guard_refusal(
+    wf: &Workflow,
+    stage: &Stage,
+    action: Action,
+    code: &str,
+    invariant: &str,
+    message: &str,
+) -> EngineError {
+    let state = match wf.read_state() {
+        Ok(state) => state,
+        Err(error) => return error,
+    };
+    crate::guard_series::guard_refused(
+        wf,
+        &state,
+        stage,
+        crate::guard_series::Refused {
+            code,
+            blocked_action: action.word(),
+            invariant,
+            user_message: message,
+            unit: None,
+        },
+        crate::guard_attempt::Options::default(),
+    )
 }
 
 /// `verifyStageArtifacts`: the declared artifacts exist, and a
@@ -114,25 +148,37 @@ pub fn verify_stage_artifacts(wf: &Workflow, stage: &Stage, action: Action) -> R
         return Ok(());
     }
     if !produces_artifacts_exist(wf, stage)? {
-        // REQUIRED_ARTIFACTS_MISSING
-        return Err(guard_refusal(format!(
-            "{}: none of its declared artifacts exist under the intent's record directory. The stage protocol requires {} to produce output before the gate. Produce the artifacts before completing. (declared: {})",
-            action.prefix(&stage.slug),
-            stage::name(stage),
-            if stage.produces.is_empty() {
-                "none".to_owned()
-            } else {
-                stage.produces.join(", ")
-            }
-        )));
+        return Err(guard_refusal(
+            wf,
+            stage,
+            action,
+            "REQUIRED_ARTIFACTS_MISSING",
+            "Every applicable required output exists before certification.",
+            &format!(
+                "{}: none of its declared artifacts exist under the intent's record directory. The stage protocol requires {} to produce output before the gate. Produce the artifacts before completing. (declared: {})",
+                action.prefix(&stage.slug),
+                stage::name(stage),
+                if stage.produces.is_empty() {
+                    "none".to_owned()
+                } else {
+                    stage.produces.join(", ")
+                }
+            ),
+        ));
     }
     if stage::workspace_requires(stage) && !workspace_has_work(wf)? {
-        // REQUIRED_SOURCE_WORK_MISSING
-        return Err(guard_refusal(format!(
-            "{}: it is a code-producing stage (workspace_requires) but no source work is evident outside the focus/ workspace tree. In a git workspace this means no uncommitted change and no code in the last commit; otherwise no source file exists. Planning docs alone do not satisfy {} - write the code to the workspace (a source change not committed yet counts, as does code in the last commit), or the person can choose Request Changes and say what is missing.",
-            action.prefix(&stage.slug),
-            stage::name(stage)
-        )));
+        return Err(guard_refusal(
+            wf,
+            stage,
+            action,
+            "REQUIRED_SOURCE_WORK_MISSING",
+            "A workspace-producing stage contains application source work.",
+            &format!(
+                "{}: it is a code-producing stage (workspace_requires) but no source work is evident outside the focus/ workspace tree. In a git workspace this means no uncommitted change and no code in the last commit; otherwise no source file exists. Planning docs alone do not satisfy {} - write the code to the workspace (a source change not committed yet counts, as does code in the last commit), or the person can choose Request Changes and say what is missing.",
+                action.prefix(&stage.slug),
+                stage::name(stage)
+            ),
+        ));
     }
     Ok(())
 }
@@ -508,6 +554,30 @@ mod tests {
             ),
             "{gate}"
         );
+        // The refusal rides on the error with its code and its invariant,
+        // as the tool's entry point prints them. (No command reaches this
+        // guard yet: the stages that write code are Construction's, which
+        // are refused by name one step earlier, so these two are not yet
+        // compared with upstream's.)
+        let carried = |error: &EngineError| {
+            let guard = error
+                .detail::<crate::guard_series::GuardRefused>()
+                .expect("a guard's refusal");
+            (
+                guard.refusal.code.clone(),
+                guard.refusal.blocked_action.clone(),
+                guard.refusal.invariant.clone(),
+            )
+        };
+        assert_eq!(
+            carried(&refused),
+            (
+                "REQUIRED_SOURCE_WORK_MISSING".to_owned(),
+                "complete".to_owned(),
+                "A workspace-producing stage contains application source work.".to_owned()
+            )
+        );
+        assert_eq!(carried(&gate).1, "present-approval-gate");
         // A planning doc under the workspace is not source work; a file under src/ is.
         std::fs::write(root.join("focus/notes.md"), "x").unwrap();
         assert!(verify_stage_artifacts(&wf, &stage, Action::Complete).is_err());
