@@ -5753,7 +5753,7 @@ def log_checks():
     check_("review/verdict/review_file_named_the_long_way", created(strict, **OUTPUTS), [asks(1), writes(review_text()), named("x/.././{REVIEW}")])
     check_("review/verdict/review_file_named_not_ready", created(strict, **OUTPUTS), [asks(1), writes(review_text("NOT-READY", rows=ROW)), named("{REVIEW}", verdict="NOT-READY")])
     check_("review/verdict/review_file_named_elsewhere", created(strict, **{**OUTPUTS, "x.md": review_text()}),
-           [asks(1), writes(review_text()), named("x.md"), named("{P}/x.md"), named("../x.md"), named(CREATED_DIR), named(CREATED_DIR + "/"), named(""), says(1, "READY", "--review-file")])
+           [asks(1), writes(review_text()), named("x.md"), named("{P}/x.md"), named("../x.md"), named(CREATED_DIR), named(CREATED_DIR + "/"), named(os.path.dirname(CREATED_DIR)), named(""), says(1, "READY", "--review-file")])
     check_("review/verdict/review_file_named_a_copy", created(strict, **OUTPUTS),
            [asks(1), writes(review_text()), ["@write", "{REVIEW_DIR}/copy.review.md", review_text()], named("{REVIEW_DIR}/copy.review.md"), named("{REVIEW_DIR}"), named(f"{cap}/intent-statement.md")])
     check_("review/verdict/review_file_named_nothing", created(strict, **OUTPUTS), [asks(1), writes(review_text()), named("{REVIEW_DIR}/nothing.md"), named("{REVIEW_DIR}/no/such/folder.md")])
@@ -5911,7 +5911,8 @@ def log_checks():
     binds = ["@edit", graph_file, '"slug": "intent-capture",', '"slug": "intent-capture",\n    "workspace_requires": true,']
     source_moves = [asks(1), writes(review_text()), ["@write", "src/app.py", "print('bye')\n"], says(1, "READY")]
     UNRECORDED.update({"log/review/verdict/source_bound", "log/review/verdict/source_moved", "log/review/verdict/source_moved_policy_off", "log/review/verdict/source_added",
-                       "log/review/verdict/request_before_source_binding", "log/review/verdict/record_over_the_cap", "log/review/verdict/review_file_over_the_cap"})
+                       "log/review/verdict/request_before_source_binding", "log/review/verdict/record_over_the_cap", "log/review/verdict/review_file_over_the_cap",
+                       "log/review/verdict/record_over_the_cap_named"})
     check_("review/verdict/source_bound", created(strict, **SRC), done, **bound)
     check_("review/verdict/source_moved", created(strict, **SRC), source_moves + [asks(1), writes(review_text()), says(1, "READY")], **bound)
     check_("review/verdict/source_moved_policy_off", created(lenient, **SRC), source_moves, **bound)
@@ -5922,6 +5923,7 @@ def log_checks():
     check_("review/verdict/request_before_source_binding", created(strict, **SRC), [asks(1), writes(review_text()), binds, says(1, "READY")])
     # A record readers would refuse is never written, and a review file larger than a record may be is not read.
     check_("review/verdict/record_over_the_cap", created(strict, **OUTPUTS), [asks(1), writes(review_text() + "\n" * 2200000), says(1, "READY")])
+    check_("review/verdict/record_over_the_cap_named", created(strict, **OUTPUTS), [asks(1), writes(review_text() + "\n" * 2200000), says(1, "READY", "--review-file", "{P}/{REVIEW}")])
     check_("review/verdict/review_file_over_the_cap", created(strict, **OUTPUTS), [asks(1), writes(review_text() + "\n" + ("x" * 60 + "\n") * 70000), says(1, "READY")])
     # What only a ledger or a record edited by hand holds.
     said_by = lambda **over: json.dumps({"version": 1, "dispositions": [{"artifact": statement, "id": "R-01", "fingerprint": "sha256:" + "b" * 64, "status": "Accepted risk", **over}]})
@@ -5945,6 +5947,8 @@ def log_checks():
     # start the stage's list. And the artifact under a second name (a link no recording carries: compared live).
     # (The section names a reviewer whose name is the same in both engines, so the artifact's bytes are.)
     older = OUTPUTS[statement] + "\n## Review\n\n" + review_text("NOT-READY", rows=ROW, reviewer="an-earlier-reviewer")
+    # No review after a retry, beside a section the request saw: the record keeps no body, not the old section.
+    check_("review/verdict/not_ready_after_a_retry_beside_an_older_section", created(strict, **{**OUTPUTS, statement: older}), [asks(1), asks(1, "--retry-pending"), says(1, "NOT-READY")])
     # A request of the appendix protocol, written by hand: it pinned where the section would start, and the row of
     # its verdict repeats that boundary. One that saw a section already there gave a challenge, and a section it
     # saw is not one that came after it: with no file there is no review.
