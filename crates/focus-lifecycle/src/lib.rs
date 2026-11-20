@@ -37,6 +37,7 @@ pub mod gate;
 pub mod gates;
 pub mod guard_attempt;
 pub mod guard_refusal;
+pub mod guard_series;
 pub mod jump;
 pub mod oracle;
 pub mod park;

@@ -1574,7 +1574,7 @@ fn review_request_case(wf: &Workflow, case: &Value) -> Value {
 
 fn guard_refusal_case(wf: &Workflow, case: &Value) -> Value {
     use focus_guards::fences::Fence;
-    use focus_guards::guard_operation::{self, RenderShell};
+    use focus_guards::guard_operation::RenderShell;
 
     use crate::guard_refusal::{
         Attempt, Coverage, Input, NextReview, PendingReview, Recovery, Summary, evaluate,
@@ -1640,43 +1640,7 @@ fn guard_refusal_case(wf: &Workflow, case: &Value) -> Value {
         Ok(refusal) => refusal,
         Err(error) => return json!({ "error": error }),
     };
-    let mut answer = serde_json::Map::new();
-    answer.insert("code".to_owned(), json!(refusal.code));
-    answer.insert("blockedAction".to_owned(), json!(refusal.blocked_action));
-    answer.insert("stage".to_owned(), json!(refusal.stage));
-    if let Some(unit) = &refusal.unit {
-        answer.insert("unit".to_owned(), json!(unit));
-    }
-    answer.insert("state".to_owned(), json!(refusal.state));
-    answer.insert("invariant".to_owned(), json!(refusal.invariant));
-    answer.insert("userMessage".to_owned(), json!(refusal.user_message));
-    let remedies: Vec<Value> = refusal
-        .remedies
-        .iter()
-        .map(|remedy| {
-            let mut said = serde_json::Map::new();
-            said.insert("op".to_owned(), json!(remedy.op));
-            if let Some(label) = &remedy.label {
-                said.insert("label".to_owned(), json!(label));
-            }
-            if let Some(description) = &remedy.description {
-                said.insert("description".to_owned(), json!(description));
-            }
-            said.insert("action".to_owned(), json!(remedy.action));
-            if let Some(operation) = &remedy.operation {
-                said.insert("operation".to_owned(), guard_operation::to_value(operation));
-            }
-            if let Some(command) = &remedy.command {
-                said.insert("command".to_owned(), json!(command));
-            }
-            said.insert("requiresHuman".to_owned(), json!(remedy.requires_human));
-            said.insert("executableNow".to_owned(), json!(remedy.executable_now));
-            said.insert("interaction".to_owned(), json!(remedy.interaction.as_str()));
-            Value::Object(said)
-        })
-        .collect();
-    answer.insert("remedies".to_owned(), json!(remedies));
-    Value::Object(answer)
+    crate::guard_refusal::refusal_value(&refusal)
 }
 
 /// The list of findings a review's scope stands at, replayed from a
