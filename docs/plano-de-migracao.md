@@ -3403,10 +3403,10 @@ As outras recusas de guard de `state` (o sumário, o recibo de revisão, os hand
 
 | Verificação | Resultado |
 | --- | --- |
-| Diferencial, os checks com uma recusa de guard | @@GC_CHECKS@@ |
-| Diferencial, tudo | @@GC_ALL@@ |
+| Diferencial, os checks com uma recusa de guard | 61 checks: os 57 que tinham a pergunta retirada (49 de `log review`, 8 de `state`) e quatro novos que repetem a mesma recusa (três vezes seguidas; e por `advance`, `gate-start` e `finalize` na mesma stage). Todos iguais, com a pergunta, os remédios, os comandos e o registo da série comparados |
+| Diferencial, tudo | 4 019 checks: 3 782 iguais, 237 desvios declarados, nenhum diferente; a gravação (3 913 checks sobre 1 527 árvores) repete-se igual |
 | Mutação | @@GC_MUT@@ |
-| `cargo test` | @@GC_TESTS@@ |
+| `cargo test` | 605 testes, os mesmos; o teste de CLI da stage sem artefactos passou a ler a frase e a pergunta, e que a segunda recusa diz «still» |
 
 ### A jornada
 

@@ -4647,6 +4647,13 @@ def gate_checks():
     check_("gates/presence_gate_recovered", created(awaiting, CREATED_AUDIT + block("STAGE_AWAITING_APPROVAL", T(1), "**Stage**: intent-capture", "**Recovered**: true") + HUMAN(2), **ic), [approve], direct)
     # The artifacts: none, the guard off, declared by flag, and a directory.
     check_("gates/start_no_artifacts", created(GATE_STATE), [["gate-start", "intent-capture"], ["resume"]], quiet)
+    # The ways on of a guard that refuses follow the state the stage is in and whether a person is there: a stage
+    # being revised whose outputs are gone (the way on is a command that names the project), and one with nobody
+    # watching (no change is asked of a person who is not there).
+    written = next(iter(ic))
+    check_("gates/no_artifacts_while_revising", created(GATE_STATE, **ic), [["gate-start", "intent-capture"], reject, ["@remove", written], ["gate-start", "intent-capture"],
+                                                                            ["advance", "intent-capture"], ["gate-start", "intent-capture"]], quiet)
+    check_("gates/start_no_artifacts_unattended", created(GATE_STATE), [["gate-start", "intent-capture"], ["advance", "intent-capture"]], {**quiet, "UNATTENDED": "1"})
     check_("gates/start_artifact_guard_off", created(GATE_STATE), [["gate-start", "intent-capture"], ["resume"]], {**quiet, "SKIP_ARTIFACT_GUARD": "1"})
     check_("gates/start_artifacts_flag", created(GATE_STATE, **ic), [["gate-start", "intent-capture", "--artifacts", "ideation/intent-capture/intent-statement.md,other.md"], ["resume"]], quiet)
     check_("gates/start_artifacts_flag_without_value", created(GATE_STATE, **ic), [["gate-start", "intent-capture", "--artifacts"]], quiet)
@@ -5680,6 +5687,9 @@ def log_checks():
     # No pass left, and none refused to a person who asked.
     check_("review/request/no_pass_left", created(reviewed, **OUTPUTS), [asks_plain(2, "--single"), asks_plain(1, "--single")], edits=[reviewed_once(workflow=alone)])
     check_("review/request/no_pass_left_three_times", created(reviewed, **OUTPUTS), [asks_plain(2, "--single")] * 3, edits=[reviewed_once(workflow=alone)])
+    # A stage run by itself: its own requests are the attempt's, and the ways on say `--single`.
+    check_("review/request/waits_for_its_verdict_single", created(reviewed, **OUTPUTS), [asks(1, "--single"), asks(2, "--single"), asks(1), asks(2)])
+    check_("review/request/waits_for_its_verdict_beside_a_single", created(reviewed, **OUTPUTS), [asks(1), asks(1, "--single"), asks(2, "--single"), asks(2)])
     check_("review/request/no_pass_left_person_asked", created(reviewed, **OUTPUTS), [asks_plain(2, "--single"), asks_plain(3, "--single")],
            edits=[reviewed_once(workflow=alone), lambda tree: tree.edit(CREATED_SHARD, lambda text: text + block("HUMAN_TURN", T(9), "**Session**: s1"))])
     check_("review/request/recovery_spent_person_asked", created(reviewed, **OUTPUTS), [asks_plain(3), asks_plain(4)],
@@ -5736,6 +5746,12 @@ def log_checks():
     # The summary the stage owes comes first.
     check_("review/request/summary_owed", created(reviewed.replace("- **Summary Confirmation**: off (set by a command)", "- **Summary Confirmation**: on (from scope feature)"), **OUTPUTS),
            [asks(1), asks(1, "--retry-pending")])
+    owed = reviewed.replace("- **Summary Confirmation**: off (set by a command)", "- **Summary Confirmation**: on (from scope feature)")
+    # The summary owed by a stage run by itself (the way on confirms it as such), and by one whose review already
+    # used its passes: with a review that stands, the way on is the gate.
+    check_("review/request/summary_owed_single", created(owed, **OUTPUTS), [asks(1, "--single"), asks(1, "--single"), asks(1)])
+    check_("review/request/summary_owed_after_a_review", created(owed, **OUTPUTS), [asks_plain(2), asks_plain(2), asks_plain(1)], edits=[reviewed_once()])
+    check_("review/request/summary_owed_after_a_review_single", created(owed, **OUTPUTS), [asks_plain(2, "--single"), asks_plain(2)], edits=[reviewed_once(workflow=alone)])
     # Units Generation's units block is read before the review: one that cannot be read is the agent's step.
     architecture = "aidlc-architecture-reviewer-agent"
     units_dir = f"{CREATED_DIR}/inception/units-generation"
