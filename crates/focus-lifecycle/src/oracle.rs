@@ -1665,7 +1665,7 @@ fn evaluated_refusal(
 /// ledger and, when the case gives one, a record already there. Each step
 /// evaluates the refusal the case describes, then views the series,
 /// records the refusal, or prints it; rows may be appended to the ledger
-/// first.
+/// first, and the record that is there changed by hand.
 ///
 /// A boundary's token names its shard by the path it was read from, and
 /// the signatures hash the token: with a boundary in play they are the
@@ -1722,6 +1722,25 @@ fn guard_series_case(wf: &Workflow, case: &Value) -> Value {
                         shard.write_all(text.as_str().unwrap_or_default().as_bytes())
                     })
                     .map_err(|error| error.to_string())?;
+            }
+            // (The record as someone else left it: fields of the one that
+            // is there set or taken away.)
+            if !step["edit"].is_null() || !step["drop"].is_null() {
+                let text = std::fs::read_to_string(&file).map_err(|error| error.to_string())?;
+                let mut kept = focus_js::json::parse(&text).map_err(|error| error.to_string())?;
+                if let Some(fields) = kept.as_object_mut() {
+                    for name in step["drop"].as_array().into_iter().flatten() {
+                        fields.shift_remove(name.as_str().unwrap_or_default());
+                    }
+                    for (name, value) in step["edit"].as_object().into_iter().flatten() {
+                        fields.insert(name.clone(), value.clone());
+                    }
+                }
+                std::fs::write(
+                    &file,
+                    format!("{}\n", focus_js::json::stringify_pretty(&kept)),
+                )
+                .map_err(|error| error.to_string())?;
             }
             let or_cases = |key: &str| {
                 if step[key].is_null() {

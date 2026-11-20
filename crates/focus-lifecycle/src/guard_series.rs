@@ -279,7 +279,9 @@ fn target(wf: &Workflow, refusal: &Refusal) -> String {
         .install
         .stage(&refusal.stage)
         .map_or(refusal.stage.as_str(), stage::name);
-    match refusal.unit.as_deref().filter(|unit| !unit.is_empty()) {
+    // (A refusal's unit is never the empty name: the evaluator takes one
+    // for none.)
+    match refusal.unit.as_deref() {
         Some(unit) => format!("{name} for {unit}"),
         None => name.to_owned(),
     }
@@ -309,7 +311,7 @@ fn ask_for(wf: &Workflow, refusal: &Refusal, offered: &[&Remedy]) -> Option<Ask>
     Some(Ask {
         question: question(wf, refusal, false),
         stage: refusal.stage.clone(),
-        unit: refusal.unit.clone().filter(|unit| !unit.is_empty()),
+        unit: refusal.unit.clone(),
         reason_codes: vec![refusal.code.clone()],
         remedies,
         state_signature: None,
@@ -343,7 +345,7 @@ fn terminal_ask(
             format!("{situation} Tell me how you want to proceed.")
         },
         stage: refusal.stage.clone(),
-        unit: refusal.unit.clone().filter(|unit| !unit.is_empty()),
+        unit: refusal.unit.clone(),
         reason_codes: codes.to_vec(),
         remedies: Vec::new(),
         state_signature: Some(signature.to_owned()),

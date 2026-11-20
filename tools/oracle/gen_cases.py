@@ -9902,6 +9902,19 @@ for given in (GS_NONE, GS_OWN, GS_BOTH, GS_THEIRS):
         gs_add(steps=GS_FOUR[:2], message=message, **given)
     for prior in GS_PRIORS:
         gs_add(steps=[{"op": "viewed"}, {"op": "record"}], prior=prior, **given)
+# A record that does not read as one is a series that starts again. The record is one the series itself wrote, with a
+# field set or taken away by hand: only so are its signatures the series' own, and what is told is the reading.
+GS_SPOILED = [{"edit": {"count": 0}}, {"edit": {"count": 1.5}}, {"edit": {"count": "1"}}, {"edit": {"count": 7}}, {"edit": {"count": -1}}, {"drop": ["count"]},
+              {"edit": {"codes": ["REVIEW_EVIDENCE_MISSING", 1]}}, {"edit": {"codes": "REVIEW_EVIDENCE_MISSING"}}, {"edit": {"codes": ["REVIEW_EVIDENCE_MISSING", "REVIEW_EVIDENCE_MISSING"]}},
+              {"drop": ["codes"]}, {"edit": {"updatedAt": 5}}, {"drop": ["updatedAt"]}, {"edit": {"refusal": []}}, {"edit": {"refusal": "x"}}, {"drop": ["refusal"]},
+              {"edit": {"pendingAsk": None}}, {"edit": {"pendingAsk": {}}}, {"edit": {"pendingAsk": []}}, {"edit": {"pendingApproval": 5}}, {"edit": {"pendingApproval": "x"}},
+              {"edit": {"pendingApproval": None}}, {"edit": {"version": 2}}, {"edit": {"version": "1"}}, {"drop": ["version"]}, {"edit": {"stateSignature": 1}}, {"drop": ["stateSignature"]},
+              {"edit": {"signature": "x"}}, {"edit": {"signature": None}}, {"edit": {"resetToken": "x"}}, {"edit": {"resetToken": 0}}, {"drop": ["resetToken"]}, {"edit": {"more": 1}}]
+for spoiled in GS_SPOILED:
+    for op in ("viewed", "record"):
+        gs_add("requirements-analysis", [{"op": "record"}, {"op": op, **spoiled}, {"op": "viewed"}])
+    # (And where the codes of a series are joined: a record of another boundary gives none of its own.)
+    gs_add("requirements-analysis", [{"op": "record"}, {"op": "record", "code": "X"}, {"op": "record", "code": "X", **spoiled}, {"op": "viewed"}])
 # The boundary of a series: the latest of the rows that start a new situation, for this stage and this unit.
 for unit in (None, "api"):
     for event, fields in (("SESSION_STARTED", {}), ("SESSION_RESUMED", {}), ("WORKFLOW_STARTED", {}), ("STAGE_JUMPED", {}), ("STAGE_STARTED", {"Stage": "requirements-analysis"}),

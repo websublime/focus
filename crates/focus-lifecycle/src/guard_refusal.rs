@@ -201,6 +201,7 @@ pub struct Refusal {
     pub code: String,
     pub blocked_action: String,
     pub stage: String,
+    /// Never the empty name: one given as such is none.
     pub unit: Option<String>,
     /// The stage's state, in upstream's words.
     pub state: &'static str,

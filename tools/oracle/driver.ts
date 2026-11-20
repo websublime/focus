@@ -986,7 +986,7 @@ async function answer(c: Record<string, any>): Promise<unknown> {
       // The series of a guard's refusals in a project of the case's own: its ledger (the boundaries after which a
       // repeat is a new situation) and, when the case gives one, a record already there. Each step evaluates the
       // refusal the case describes (commands in their native form), then views the series, records the refusal,
-      // or prints it; rows may be appended to the ledger first.
+      // or prints it; rows may be appended to the ledger first, and the record that is there changed by hand.
       //
       // A boundary's token names its shard by the path it was read from, and the signatures hash the token: with
       // a boundary in play they are the project's own, and are said by the order in which the case first meets
@@ -1015,6 +1015,13 @@ async function answer(c: Record<string, any>): Promise<unknown> {
         const out: unknown[] = [];
         for (const step of c.steps as any[]) {
           for (const [name, text] of Object.entries((step.rows ?? {}) as Record<string, string>)) appendFileSync(join(audit, name), text);
+          // (The record as someone else left it: fields of the one that is there set or taken away.)
+          if (step.edit !== undefined || step.drop !== undefined) {
+            const kept = JSON.parse(readFileSync(file, "utf-8"));
+            for (const name of (step.drop ?? []) as string[]) delete kept[name];
+            Object.assign(kept, step.edit ?? {});
+            writeFileSync(file, `${JSON.stringify(kept, null, 2)}\n`);
+          }
           let refusal: any;
           try {
             refusal = guardRefusalNative(c, step.code ?? c.code, step.attempt ?? c.attempt);
