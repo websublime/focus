@@ -147,11 +147,14 @@ SHAPES = {
         "upstream lets a refusal thrown inside an audit verb reach the runtime, which prints a source excerpt "
         "and a stack trace around the sentence; focus prints the same sentence as {\"error\": ...}, like every "
         "other refusal of the command. The sentence is compared",
-    "guard-ask":
-        "a guard that refuses a transition prints its sentence, then (upstream) the guard-recovery ask as a JSON "
-        "line: the remedies the conductor may offer, read off the review attempt and kept with the refusal's "
-        "streak under the engine directory (M5). Focus prints the sentence. The ask line and the streak record "
-        "are left out before comparing; the sentence, the error row and everything else are compared",
+    "guard-series":
+        "a guard that refuses prints its sentence and then its recovery question as a JSON line, and counts the "
+        "refusal in the series of its stage under the engine directory. The series is signed with hashes over the "
+        "row its attempt starts at and the latest boundary, which name their shard by the path it was read from, so "
+        "no two trees give the same signature. A signature is compared by the order in which each engine first "
+        "writes it (<state-1>, <series-1>), wherever it is written: the record, the terminal question, the error "
+        "row. The moment a record was written is left out; the question, its ways on and the rest of the record "
+        "are compared",
     "process-map-budget":
         "the session start writes the process map (its ancestors' pids, with each one's start time) within a 50 ms "
         "budget and retires a slot to null before it reads the process; under load one engine misses the budget "
@@ -1401,13 +1404,19 @@ def normalise_audit(text, tree, engine):
     text = re.sub(r"`focus engine log ((?:decision|answer) [^`]*)`", r"<run log \1>", text)
     # (A tool's script named bare with its arguments, in backticks: upstream's spelling of the form below.)
     text = re.sub(r"`(?:aidlc|focus)-(state|orchestrate)\.ts ([^`]+)`", r"<cli> \1 \2", text)
+    # A tool's script named whole in a sentence (the `next` a refusal tells the agent to run, the `report` a way
+    # on of a guard's question spells out).
+    # (A file's text has already been through the name map, so the tool is named either way.)
+    text = re.sub(r"`bun \.claude/tools/(?:aidlc|focus)-(state|orchestrate)\.ts(?: ([^`]*))?`",
+                  lambda m: f"<cli> {m.group(1)}" + (f" {m.group(2)}" if m.group(2) else ""), text)
+    # (And as the command of a way on, a value of its own with nothing around it: right after the quote that
+    # opens it. A command a hook quotes back from what the agent ran is said as it was run, by both engines.)
+    text = re.sub(r"(?<![`\w])bun \.claude/tools/(?:aidlc|focus)-(state|orchestrate)\.ts (?=[a-z-]+ )", r"<cli> \1 ", text)
+    text = re.sub(r'(?<=")focus engine orchestrate (?=[a-z-]+ )', "<cli> orchestrate ", text)
     for tool in ("orchestrate", "log"):
         suffix = " report" if tool == "orchestrate" else ""
         text = text.replace(f"aidlc-{tool}.ts{suffix}", f"<cli> {tool}{suffix}")
         text = text.replace(f"`focus engine {tool}{suffix}`", f"<cli> {tool}{suffix}")
-    # A tool's script named whole in a sentence (the `next` a refusal tells the agent to run).
-    text = re.sub(r"`bun \.claude/tools/aidlc-(state|orchestrate)\.ts(?: ([^`]*))?`",
-                  lambda m: f"<cli> {m.group(1)}" + (f" {m.group(2)}" if m.group(2) else ""), text)
     # The state tool names itself, its verbs and the orchestrator's in each engine's own spelling.
     # (A file's text has already been through the name map, so the tool is named either way.)
     text = re.sub(r"(?:aidlc|focus)-(state|orchestrate|log)\.ts(?: ([a-z-]+))?",
@@ -1883,22 +1892,38 @@ def audit_check(name, files, steps, env=None, links=(), hard_links=(), group="au
     JOBS.append((name, audit_pair(name, files, links, hard_links), steps, env, None, "audit"))
 
 
-# The ask after a refusal's sentence: on its own line in what is printed, and as the two characters `\n`
-# inside the error row's one-line field.
-ASK_LINE = re.compile(r'\n\{"kind":"ask",.*')
-ASK_FIELD = re.compile(r'\\n\{"kind":"ask",[^\n]*')
+# The series of a guard's refusals (`.focus-engine/guard-refusals/<key>.json`) and the question a refusal ends
+# with. The series is signed with hashes over the row its attempt starts at and the latest boundary, and both
+# name their shard by the path it was read from: no two trees give the same signature. The state's signature
+# is in the record; the series' is there too, and in the terminal question (its `state_signature`, and the
+# sentence that asks for it in a report).
+SERIES_FILE = "/.focus-engine/guard-refusals/"
+SERIES_STATE = re.compile(r'("stateSignature": ")([0-9a-f]{64})(")')
+SERIES_SIGNATURE = re.compile(r'("signature": "|\\?"state_signature\\?":\\?"|To report this, include )([0-9a-f]{64})')
+SERIES_MOMENT = re.compile(r'("updatedAt": ")[^"]*(")')
 
 
-def without_guard_ask(stderr):
-    """Upstream's refusal without the guard-recovery ask on its last line, and whether there was one."""
-    try:
-        parsed = json.loads(stderr)
-    except ValueError:
-        return stderr, False
-    if not isinstance(parsed, dict) or not isinstance(parsed.get("error"), str) or not ASK_LINE.search(parsed["error"]):
-        return stderr, False
-    parsed["error"] = ASK_LINE.sub("", parsed["error"])
-    return json.dumps(parsed, ensure_ascii=False, separators=(",", ":")) + "\n", True
+def settle_guard_series(files):
+    """A check's outputs with the signatures of its series written by the order they are first met (what was
+    printed step by step, then the files by name) and the moment of a record left out. Whether there was one."""
+    met = {"state": [], "series": []}
+
+    def numbered(kind, value):
+        if value not in met[kind]:
+            met[kind].append(value)
+        return f"<{kind}-{met[kind].index(value) + 1}>"
+
+    ordered = [key for key in ("stdout", "stderr") if key in files] + sorted(key for key in files if key not in ("stdout", "stderr"))
+    for key in ordered:
+        text = files[key]
+        if not isinstance(text, str):
+            continue
+        if SERIES_FILE in key:
+            text = SERIES_MOMENT.sub(r"\1<at>\2", text)
+            text = SERIES_STATE.sub(lambda found: found.group(1) + numbered("state", found.group(2)) + found.group(3), text)
+        text = SERIES_SIGNATURE.sub(lambda found: found.group(1) + numbered("series", found.group(2)), text)
+        files[key] = text
+    return bool(met["state"] or met["series"])
 
 
 ARTIFACT_FILENAMES = {"build-test-results": "test-results.md", "load-test-results": "test-results.md", "traceability": "traceability.json"}
@@ -2135,8 +2160,6 @@ def compare_audit(name, trees, steps, env, tool="audit"):
                 if sentence is not None:
                     err = json.dumps({"error": sentence}, ensure_ascii=False, separators=(",", ":")) + "\n"
                     shaped = True
-                err, asked = without_guard_ask(err)
-                shaped_ask |= asked
             exits.append(str(code))
             try:
                 last_review = json.loads(out).get("reviewFile", last_review)
@@ -2164,10 +2187,6 @@ def compare_audit(name, trees, steps, env, tool="audit"):
             if before.get(rel) == after.get(rel):
                 continue
             text = after.get(rel)
-            # The guard-recovery streak is the recovery machinery's (SHAPES).
-            if "/.focus-engine/guard-refusals/" in rel and engine == "ts":
-                shaped_ask = True
-                continue
             if text is not None and "/audit/" in rel:
                 text, seen = verify_validation_bases(tree, engine, rel, text)
                 shaped_basis |= seen and engine == "ts"
@@ -2183,15 +2202,14 @@ def compare_audit(name, trees, steps, env, tool="audit"):
             shown, text = minted(rel, text if text is None else normalise_audit(text, tree, engine))
             if text is not None and "**Source Baseline**: sha256:" in text:
                 text = verified_baselines(tree, text)
-            if text is not None and engine == "ts" and ASK_FIELD.search(text):
-                shaped_ask = True
-                text = ASK_FIELD.sub("", text)
             outcome[engine][shown] = "<removed>" if text is None else text
         # A summary's authorization id is taken over the questions file's name, which carries the workspace
         # directory's (SHAPES: summary-authorization).
         # A review's request id is random and its attempt's name carries the tree's path (SHAPES: review-ids).
         settled = settle_review_ids(tree, outcome[engine])
         shaped_review |= settled and engine == "ts"
+        # The series of a guard's refusals is signed over the tree's own paths (SHAPES: guard-series).
+        shaped_ask |= settle_guard_series(outcome[engine]) and engine == "ts"
         own_ids = authorization_ids(tree)
         if own_ids:
             shaped_authorization |= engine == "ts"
@@ -2220,8 +2238,8 @@ def compare_audit(name, trees, steps, env, tool="audit"):
             shapes["uncaught"] += 1
             detail += "  (upstream: uncaught)"
         if shaped_ask:
-            shapes["guard-ask"] += 1
-            detail += "  (guard ask left out)"
+            shapes["guard-series"] += 1
+            detail += "  (series signatures settled)"
         if shaped_basis:
             shapes["validation-basis"] += 1
             detail += "  (receipt hashes verified)"
@@ -3455,6 +3473,11 @@ def transition_checks():
     check_("advance/invalid_scope", created(CREATED_STATE.replace("- **Scope**: feature\n", "- **Scope**: nope\n")), [["advance", "intent-capture"]], direct)
     check_("advance/not_current", created(**ic), [["advance", "market-research"], ["advance", "feasibility", "scope-definition"]], direct)
     check_("advance/no_artifacts", created(), [["advance", "intent-capture"], ["resume"]], direct)
+    # A guard that refuses the same situation again says so: the series of its stage counts the refusals, and the
+    # question changes with the count. Another verb refused at the same stage is the same series under another code
+    # only when the guard's code differs; a gate's refusal of the same guard joins it.
+    check_("advance/no_artifacts_three_times", created(), [["advance", "intent-capture"]] * 3, direct)
+    check_("advance/no_artifacts_then_at_the_gate", created(), [["advance", "intent-capture"], ["gate-start", "intent-capture"], ["finalize", "intent-capture"], ["advance", "intent-capture"]], direct)
     check_("advance/whole", created(**ic), [["advance", "intent-capture"], ["resume"], ["advance", "intent-capture"], ["get", "Completed"]], direct)
     check_("advance/explicit_next", created(**ic), [["advance", "intent-capture", "feasibility"], ["resume"]], direct)
     check_("advance/explicit_next_skipped", created(**ic), [["advance", "intent-capture", "reverse-engineering"]], direct)
@@ -4624,6 +4647,13 @@ def gate_checks():
     check_("gates/presence_gate_recovered", created(awaiting, CREATED_AUDIT + block("STAGE_AWAITING_APPROVAL", T(1), "**Stage**: intent-capture", "**Recovered**: true") + HUMAN(2), **ic), [approve], direct)
     # The artifacts: none, the guard off, declared by flag, and a directory.
     check_("gates/start_no_artifacts", created(GATE_STATE), [["gate-start", "intent-capture"], ["resume"]], quiet)
+    # The ways on of a guard that refuses follow the state the stage is in and whether a person is there: a stage
+    # being revised whose outputs are gone (the way on is a command that names the project), and one with nobody
+    # watching (no change is asked of a person who is not there).
+    written = next(iter(ic))
+    check_("gates/no_artifacts_while_revising", created(GATE_STATE, **ic), [["gate-start", "intent-capture"], reject, ["@remove", written], ["gate-start", "intent-capture"],
+                                                                            ["advance", "intent-capture"], ["gate-start", "intent-capture"]], quiet)
+    check_("gates/start_no_artifacts_unattended", created(GATE_STATE), [["gate-start", "intent-capture"], ["advance", "intent-capture"]], {**quiet, "UNATTENDED": "1"})
     check_("gates/start_artifact_guard_off", created(GATE_STATE), [["gate-start", "intent-capture"], ["resume"]], {**quiet, "SKIP_ARTIFACT_GUARD": "1"})
     check_("gates/start_artifacts_flag", created(GATE_STATE, **ic), [["gate-start", "intent-capture", "--artifacts", "ideation/intent-capture/intent-statement.md,other.md"], ["resume"]], quiet)
     check_("gates/start_artifacts_flag_without_value", created(GATE_STATE, **ic), [["gate-start", "intent-capture", "--artifacts"]], quiet)
@@ -5543,6 +5573,8 @@ def log_checks():
     reviewed = CREATED_STATE.replace("- **Review Override**: none", "- **Review Override**: advisory")
     check_("review/request/a_pass", created(reviewed, **OUTPUTS), [asks(1)])
     check_("review/request/waits_for_its_verdict", created(reviewed, **OUTPUTS), [asks(1), asks(1), asks(2)])
+    # The same refusal again, and again: the series counts, and the question says "still".
+    check_("review/request/waits_for_its_verdict_three_times", created(reviewed, **OUTPUTS), [asks(1), asks(2), asks(2), asks(2), asks(3)])
     check_("review/request/not_the_next_pass", created(reviewed, **OUTPUTS), [asks(2), asks(3), asks(10 ** 21), asks("1" + "0" * 400)])
     check_("review/request/single", created(reviewed, **OUTPUTS), [asks(1, "--single"), asks(1), asks(1, "--single")])
     check_("review/request/not_the_reviewer", created(reviewed, **OUTPUTS), [["review", "--stage", "intent-capture", "--reviewer", "aidlc-architecture-reviewer-agent", "--iteration", "1"],
@@ -5654,6 +5686,10 @@ def log_checks():
            edits=[reviewed_once(((1, "READY", ()), (2, "READY", recovery)), workflow=alone)])
     # No pass left, and none refused to a person who asked.
     check_("review/request/no_pass_left", created(reviewed, **OUTPUTS), [asks_plain(2, "--single"), asks_plain(1, "--single")], edits=[reviewed_once(workflow=alone)])
+    check_("review/request/no_pass_left_three_times", created(reviewed, **OUTPUTS), [asks_plain(2, "--single")] * 3, edits=[reviewed_once(workflow=alone)])
+    # A stage run by itself: its own requests are the attempt's, and the ways on say `--single`.
+    check_("review/request/waits_for_its_verdict_single", created(reviewed, **OUTPUTS), [asks(1, "--single"), asks(2, "--single"), asks(1), asks(2)])
+    check_("review/request/waits_for_its_verdict_beside_a_single", created(reviewed, **OUTPUTS), [asks(1), asks(1, "--single"), asks(2, "--single"), asks(2)])
     check_("review/request/no_pass_left_person_asked", created(reviewed, **OUTPUTS), [asks_plain(2, "--single"), asks_plain(3, "--single")],
            edits=[reviewed_once(workflow=alone), lambda tree: tree.edit(CREATED_SHARD, lambda text: text + block("HUMAN_TURN", T(9), "**Session**: s1"))])
     check_("review/request/recovery_spent_person_asked", created(reviewed, **OUTPUTS), [asks_plain(3), asks_plain(4)],
@@ -5710,6 +5746,12 @@ def log_checks():
     # The summary the stage owes comes first.
     check_("review/request/summary_owed", created(reviewed.replace("- **Summary Confirmation**: off (set by a command)", "- **Summary Confirmation**: on (from scope feature)"), **OUTPUTS),
            [asks(1), asks(1, "--retry-pending")])
+    owed = reviewed.replace("- **Summary Confirmation**: off (set by a command)", "- **Summary Confirmation**: on (from scope feature)")
+    # The summary owed by a stage run by itself (the way on confirms it as such), and by one whose review already
+    # used its passes: with a review that stands, the way on is the gate.
+    check_("review/request/summary_owed_single", created(owed, **OUTPUTS), [asks(1, "--single"), asks(1, "--single"), asks(1)])
+    check_("review/request/summary_owed_after_a_review", created(owed, **OUTPUTS), [asks_plain(2), asks_plain(2), asks_plain(1)], edits=[reviewed_once()])
+    check_("review/request/summary_owed_after_a_review_single", created(owed, **OUTPUTS), [asks_plain(2, "--single"), asks_plain(2)], edits=[reviewed_once(workflow=alone)])
     # Units Generation's units block is read before the review: one that cannot be read is the agent's step.
     architecture = "aidlc-architecture-reviewer-agent"
     units_dir = f"{CREATED_DIR}/inception/units-generation"
@@ -5979,6 +6021,13 @@ def log_checks():
     state_path = f"{CREATED_DIR}/aidlc-state.md"
     owing_now = strict.replace("- **Summary Confirmation**: off (set by a command)", "- **Summary Confirmation**: on (from scope feature)")
     check_("review/verdict/summary_owed_since", created(strict, **OUTPUTS), [asks(1), writes(review_text()), ["@write", state_path, owing_now], says(1, "READY")])
+    # (Of a stage run by itself, beside a request of the stage in the work: each is its own attempt's, and the
+    # ways on of the one refused say `--single`. And refused twice: the same series.)
+    check_("review/verdict/summary_owed_since_single", created(strict, **OUTPUTS), [asks(1), asks(1, "--single"), writes(review_text()), ["@write", state_path, owing_now],
+                                                                                    says(1, "READY", "--single"), says(1, "READY", "--single"), says(1, "READY")])
+    check_("review/verdict/summary_owed_since_single_after_a_review", created(strict, **OUTPUTS), [asks(1), writes(review_text()), says(1, "READY"), asks(1, "--single"), writes(review_text()),
+                                                                                                   ["@write", state_path, owing_now], says(1, "READY", "--single")])
+    check_("review/verdict/summary_owed_since_twice", created(strict, **OUTPUTS), [asks(1), writes(review_text()), ["@write", state_path, owing_now], says(1, "READY"), says(1, "NOT-READY")])
     # A summary that was confirmed, by a ledger written by hand: the receipt over the questions file's bytes, and each
     # output saved after it. The answers amended while the reviewer worked are a change the Guard Policy decides on.
     answers = f"{cap}/intent-capture-questions.md"

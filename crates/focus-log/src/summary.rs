@@ -113,15 +113,20 @@ fn question_files_in(dir: &Path) -> Vec<std::path::PathBuf> {
 /// `summaryQuestionFileRelative`: the stage's questions file, for one unit
 /// on a stage that runs per unit, named from the project; `None` when there
 /// is none to name.
-fn question_file_relative(
+///
+/// With no state (a stage run by itself) a stage that runs per unit keeps
+/// its files under each unit.
+pub(crate) fn question_file_relative(
     wf: &Workflow,
     stage: &focus_graph::runtime::Stage,
-    state: &str,
+    state: Option<&str>,
     unit: Option<&str>,
 ) -> Option<String> {
     let record = wf.record_dir()?;
     let stage_level = !focus_lifecycle::stage::is_per_unit(stage)
-        || uses_stage_level_per_unit_artifacts(wf, get_field(state, "Scope").unwrap_or(""), state);
+        || state.is_some_and(|state| {
+            uses_stage_level_per_unit_artifacts(wf, get_field(state, "Scope").unwrap_or(""), state)
+        });
     let found = if stage_level {
         // A file at the stage is no unit's.
         unit.is_none()
@@ -224,7 +229,7 @@ pub(crate) fn refuse_plain(
     let unit = call
         .unit
         .or_else(|| focus_lifecycle::stage::is_per_unit(stage).then_some("<unit>"));
-    let file = question_file_relative(wf, stage, &state, call.unit);
+    let file = question_file_relative(wf, stage, Some(&state), call.unit);
     let commands = commands(
         wf,
         &stage.slug,
