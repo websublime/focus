@@ -33,7 +33,7 @@ use focus_state::fields::{get_field, set_field};
 use focus_state::progress::{CheckboxState, count_checkboxes, parse_checkboxes, set_checkbox};
 use serde_json::{Map, Value, json};
 
-use crate::admission::{self, Action};
+use crate::admission::{self, Action, Carried, PersonApproval};
 use crate::gate;
 use crate::presence;
 use crate::reply::{self, DecisionKind};
@@ -222,14 +222,21 @@ pub fn gate_start(wf: &Workflow, slug: &str, ask: &GateStart<'_>, operation: &st
         slug,
         &[CheckboxState::InProgress, CheckboxState::AwaitingApproval],
     )?;
-    // The person's own approval over an unfinished review is the reviewer's
-    // business (M5); it is read as upstream reads it and changes nothing here.
-    let _person_approves = ask.recovered
+    // A gate backfilled for the person's own approval opens for it over a
+    // review that never finished. It counts only when the person replied
+    // since the last decision: the agent alone cannot use it. Each weighing
+    // carries its own, and what it notes is nobody's to read: the gate opens.
+    let person_approves = ask.recovered
         && ask.person_approves
         && (presence::human_presence_guard_disabled(wf) || presence::human_replied_since_gate(wf));
+    let person_before = person_approves.then(PersonApproval::default);
+    let person_under = person_approves.then(PersonApproval::default);
     admission::admit(
         wf,
-        None,
+        Carried {
+            held: None,
+            person: person_before.as_ref(),
+        },
         &preflight,
         stage,
         Action::PresentApprovalGate,
@@ -249,7 +256,10 @@ pub fn gate_start(wf: &Workflow, slug: &str, ask: &GateStart<'_>, operation: &st
     let already_awaiting = slug_state(&content, slug) == Some(CheckboxState::AwaitingApproval);
     admission::admit(
         wf,
-        Some(&held),
+        Carried {
+            held: Some(&held),
+            person: person_under.as_ref(),
+        },
         &content,
         stage,
         Action::PresentApprovalGate,
@@ -302,7 +312,7 @@ pub fn revise(wf: &Workflow, slug: &str, ask: &GateStart<'_>, operation: &str) -
     validate_slug_in_state(&preflight, slug, &[CheckboxState::Revising])?;
     admission::admit(
         wf,
-        None,
+        Carried::default(),
         &preflight,
         stage,
         Action::PresentApprovalGate,
@@ -316,7 +326,7 @@ pub fn revise(wf: &Workflow, slug: &str, ask: &GateStart<'_>, operation: &str) -
     validate_slug_in_state(&content, slug, &[CheckboxState::Revising])?;
     admission::admit(
         wf,
-        Some(&held),
+        Carried::under(&held),
         &content,
         stage,
         Action::PresentApprovalGate,
@@ -572,7 +582,14 @@ pub fn approve(
         admission::verify_summary_confirmation(wf, Some(&held), stage, &content)?;
         admission::verify_pipeline_link(wf, stage)?;
         if !admission::reviewer_gate_guard_disabled() {
-            admission::verify_reviewer(wf, stage, &content, true)?;
+            admission::verify_reviewer(
+                wf,
+                Carried::under(&held),
+                stage,
+                &content,
+                Action::PresentApprovalGate,
+                true,
+            )?;
         }
         let mut fields = vec![
             ("Stage", slug.to_owned()),
@@ -588,9 +605,14 @@ pub fn approve(
         content = set_field(&content, "Last Updated", &iso_timestamp(SystemTime::now()));
         wf.write_state(&content)?;
     }
+    // The person's own approval goes over a review that never finished.
+    let person = PersonApproval::default();
     admission::admit(
         wf,
-        Some(&held),
+        Carried {
+            held: Some(&held),
+            person: Some(&person),
+        },
         &content,
         stage,
         Action::Complete,
@@ -633,6 +655,9 @@ pub fn approve(
             gate_fields.extend(gate::approves_together_fields(&listed_together));
         }
     }
+    if person.over_unfinished_review() {
+        gate_fields.push(("Review", "not finished".to_owned()));
+    }
     gate_fields.push(gate::brief_digest_field(wf, stage));
     if let Some(accepted) = gate::decisions_accepted_open_field(wf, slug) {
         gate_fields.push(accepted);
@@ -650,11 +675,34 @@ pub fn approve(
     ));
     wf.emit(&held, "STAGE_COMPLETED", &completed_fields)?;
     wf.write_state(&content)?;
+    if person.over_unfinished_review() {
+        // `unfinishedReviewNotice`: the one line the person hears.
+        wf.say_change_notices(&[format!(
+            "Approved. The {} review did not finish.",
+            stage::name(stage)
+        )]);
+    }
     let next = next_in_scope_stage(slug, definition, &wf.install.graph, Some(&content)).is_some();
     let answer = if next {
-        transitions::advance_locked(wf, &held, slug, None, operation, warning.as_deref())?
+        transitions::advance_locked(
+            wf,
+            &held,
+            slug,
+            None,
+            operation,
+            warning.as_deref(),
+            Some(&person),
+        )?
     } else {
-        transitions::complete_workflow_locked(wf, &held, slug, None, operation, warning.as_deref())?
+        transitions::complete_workflow_locked(
+            wf,
+            &held,
+            slug,
+            None,
+            operation,
+            warning.as_deref(),
+            Some(&person),
+        )?
     };
     Ok(answer)
 }
