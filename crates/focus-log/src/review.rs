@@ -206,9 +206,9 @@ pub(crate) fn guard_coverage(
     }
 }
 
-/// The invariant a review's summary admission holds.
-pub(crate) const SUMMARY_INVARIANT: &str =
-    "Generated outputs descend from a current human-backed summary confirmation.";
+/// The invariant a review's summary admission holds: the one a
+/// transition's holds.
+pub(crate) use focus_lifecycle::admission::SUMMARY_INVARIANT;
 
 /// The shell a command is quoted for: this platform's.
 pub(crate) fn platform_shell() -> RenderShell {
