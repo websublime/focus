@@ -245,6 +245,14 @@ fn normalise_audit(text: &str, root: &Path) -> String {
         r"`focus engine log ((?:decision|answer) [^`]*)`",
         |found, text| format!("<run log {}>", group(found, text, 1)),
     );
+    // A tool's script named bare with its arguments, in backticks: the
+    // form upstream gives the command a refusal tells the agent to run,
+    // which a memory file copied whole holds too.
+    text = replace_all(
+        &text,
+        r"`focus-(state|orchestrate)\.ts ([^`]+)`",
+        |found, text| format!("<cli> {} {}", group(found, text, 1), group(found, text, 2)),
+    );
     // The state tool names itself, its verbs and the orchestrator's. A
     // memory file copied whole may name upstream's script too.
     text = replace_all(
@@ -290,14 +298,6 @@ fn normalise_audit(text: &str, root: &Path) -> String {
         r#""(structureHash|contentHash)":"sha256:[0-9a-f]{64}""#,
         |found, text| format!("\"{}\":\"<verified>\"", group(found, text, 1)),
     );
-    // A summary's authorization id is taken over the questions file's
-    // name, which carries the workspace directory's; recorded the same way.
-    // (What is hashed is pinned in `focus-evidence::authorization`.)
-    text = replace_all(
-        &text,
-        r#"(\*\*Summary Authorization Id\*\*: |"summary_authorization_id":"|^  "id": ")[0-9a-f]{64}"#,
-        |found, text| format!("{}<verified>", group(found, text, 1)),
-    );
     // A source baseline is the hash of a listing of hashes of the tree's
     // own files, recorded the same way (see `own_baseline`).
     text = replace_all(
@@ -325,6 +325,28 @@ fn normalise_audit(text: &str, root: &Path) -> String {
             &text,
             r#"(?:<project-dir>/)?[^\s"(]*: File exists \(os error 17\)"#,
             |_, _| "<runtime>".to_owned(),
+        );
+    }
+    // A review's record that cannot be written, and the copy for people that
+    // was not: the runtime's own words.
+    if text.contains(".json cannot be written (") {
+        text = replace_all(
+            &text,
+            r"(\.json cannot be written \()[^\n]*(\)\.)",
+            |found, text| {
+                format!(
+                    "{}<runtime>{}",
+                    group(found, text, 1),
+                    group(found, text, 2)
+                )
+            },
+        );
+    }
+    if text.contains("warning: the readable review copy was not written: ") {
+        text = replace_all(
+            &text,
+            r"(warning: the readable review copy was not written: )[^\n]*",
+            |found, text| format!("{}<runtime>", group(found, text, 1)),
         );
     }
     if text.contains("focus-state.md: Is a directory (os error 21)") {
@@ -620,24 +642,77 @@ fn settle_review_ids(
     }
     snapshots(root, &mut sources);
     let attempts = review_attempt_ids(root);
+    // A completion names its record and the record's digest, which is the
+    // tree's own (the record holds the request's id, the attempt's name and
+    // when it was written): one that is the digest of the file the row
+    // names is shown as that.
+    fn digest_of(dir: &Path, rel: &str, found: &mut Vec<String>) {
+        if let Ok(bytes) = fs::read(dir.join(rel)) {
+            found.push(format!("sha256:{:x}", Sha256::digest(&bytes)));
+        }
+        let Ok(entries) = fs::read_dir(dir) else {
+            return;
+        };
+        for entry in entries {
+            let path = entry.unwrap().path();
+            if path.is_dir() && !path.is_symlink() {
+                digest_of(&path, rel, found);
+            }
+        }
+    }
     for text in outcome.values_mut() {
-        for (index, raw) in numbered.iter().enumerate() {
-            *text = text.replace(raw, &format!("<request-{}>", index + 1));
+        if !text.contains("**Review Record Digest**: ") {
+            continue;
         }
         *text = replace_all(
             text,
-            r#"(/reviews/[^/\s"`]+/(?:stage|units/[^/\s"`]+)/)([0-9a-f]{16})(?=/)"#,
+            r"(\*\*Review Record\*\*: (\S+)\n\*\*Review Record Digest\*\*: )(sha256:[0-9a-f]{64})",
             |found, text| {
-                if attempts.iter().any(|known| known == group(found, text, 2)) {
-                    format!("{}<attempt>", group(found, text, 1))
+                let mut own = Vec::new();
+                digest_of(root, group(found, text, 2), &mut own);
+                if own.iter().any(|digest| digest == group(found, text, 3)) {
+                    format!("{}<the record's digest>", group(found, text, 1))
                 } else {
                     text[found.range()].to_owned()
                 }
             },
         );
+    }
+    let settle_attempt = |found: &regress::Match, text: &str| {
+        if attempts.iter().any(|known| known == group(found, text, 2)) {
+            format!("{}<attempt>", group(found, text, 1))
+        } else {
+            text[found.range()].to_owned()
+        }
+    };
+    const ATTEMPT_IN_A_PATH: &str =
+        r#"(/reviews/[^/\s"`]+/(?:stage|units/[^/\s"`]+)/)([0-9a-f]{16})(?=[/\s]|$)"#;
+    // The record's own path carries the attempt's name, and a review
+    // file's the request's id; a record says its attempt's name too.
+    let keys: Vec<String> = outcome.keys().cloned().collect();
+    for key in keys {
+        let mut text = outcome.remove(&key).unwrap();
+        if key.contains("/reviews/") && key.ends_with(".json") {
+            text = replace_all(
+                &text,
+                r#"("attempt": ")([0-9a-f]{16})(?=")"#,
+                settle_attempt,
+            );
+        }
+        let mut named = replace_all(&key, ATTEMPT_IN_A_PATH, settle_attempt);
+        for (index, raw) in numbered.iter().enumerate() {
+            named = named.replace(raw, &format!("<request-{}>", index + 1));
+        }
+        outcome.insert(named, text);
+    }
+    for text in outcome.values_mut() {
+        for (index, raw) in numbered.iter().enumerate() {
+            *text = text.replace(raw, &format!("<request-{}>", index + 1));
+        }
+        *text = replace_all(text, ATTEMPT_IN_A_PATH, settle_attempt);
         *text = replace_all(
             text,
-            r"(\*\*Source Fingerprint\*\*: )([0-9a-f]{64})",
+            r#"(Source Fingerprint\*\*: |"source_fingerprint": ")([0-9a-f]{64})"#,
             |found, text| {
                 let source = group(found, text, 2);
                 if sources.iter().any(|known| known == source) {
@@ -666,6 +741,92 @@ fn own_hashes(root: &Path, text: &str) -> String {
             text[found.range()].to_owned()
         }
     })
+}
+
+/// The recorder's `authorization_ids`: the ids of the summary
+/// authorizations the tree's records keep that are what their own fields
+/// hash to. (What is hashed is pinned in `focus-evidence::authorization`.)
+fn authorization_ids(root: &Path) -> Vec<String> {
+    fn records(dir: &Path, known: &mut Vec<String>) {
+        let Ok(entries) = fs::read_dir(dir) else {
+            return;
+        };
+        for entry in entries {
+            let path = entry.unwrap().path();
+            if path.is_dir() && !path.is_symlink() {
+                records(&path, known);
+                continue;
+            }
+            let kept_under = path
+                .parent()
+                .and_then(Path::parent)
+                .and_then(Path::file_name);
+            if path.file_name() != Some(std::ffi::OsStr::new("stage.json"))
+                || kept_under != Some(std::ffi::OsStr::new("summary-authorization"))
+            {
+                continue;
+            }
+            let Some(kept) = fs::read(&path)
+                .ok()
+                .and_then(|bytes| serde_json::from_slice::<Value>(&bytes).ok())
+            else {
+                continue;
+            };
+            let Some(fields) = [
+                "attempt",
+                "stage",
+                "unit",
+                "workflow",
+                "questions_file",
+                "questions_sha256",
+                "choice",
+            ]
+            .iter()
+            .map(|key| kept.get(key).cloned())
+            .collect::<Option<Vec<Value>>>() else {
+                continue;
+            };
+            let named = serde_json::to_string(&Value::Array(fields)).unwrap();
+            let id = format!("{:x}", Sha256::digest(named.as_bytes()));
+            if kept["id"].as_str() == Some(id.as_str()) {
+                known.push(id);
+            }
+        }
+    }
+    let mut known = Vec::new();
+    records(root, &mut known);
+    known
+}
+
+/// A summary's authorization id is taken over the questions file's name,
+/// which carries the workspace directory's, so it differs from upstream's
+/// by construction: the recorder verified each engine's against its own
+/// tree and recorded it as `<verified>`, wherever it is written. An id no
+/// record of the tree vouches for (one a ledger was handed) is compared as
+/// it is.
+fn settle_authorization_ids(
+    root: &Path,
+    mut actual: BTreeMap<String, String>,
+) -> BTreeMap<String, String> {
+    let known = authorization_ids(root);
+    if known.is_empty() {
+        return actual;
+    }
+    for text in actual.values_mut() {
+        *text = replace_all(
+            text,
+            r"(?<![0-9a-f])[0-9a-f]{64}(?![0-9a-f])",
+            |found, text| {
+                let id = &text[found.range()];
+                if known.iter().any(|own| own == id) {
+                    "<verified>".to_owned()
+                } else {
+                    id.to_owned()
+                }
+            },
+        );
+    }
+    actual
 }
 
 /// The environment a check runs in: nothing of Focus's own, and no mark of
@@ -737,7 +898,46 @@ fn replay_audit(check: &Value, root: &Path) -> BTreeMap<String, String> {
     let before = workspace_files(root);
     let steps = check["steps"].as_array().unwrap();
     let (mut exits, mut outs, mut errs) = (Vec::new(), Vec::new(), Vec::new());
+    let mut last_review = String::new();
     for step in steps {
+        // A step that writes, changes or removes a file, as an agent would
+        // between two commands: `@write <path> <text>`, `@edit <path> <old>
+        // <new>` and `@remove <path>` (a step that links one is in no
+        // recording). In the path `{REVIEW}` is the review file the last
+        // command named (the one a request said to write, or the one a
+        // verdict said the reviewer writes), and `{REVIEW_DIR}` that file's
+        // folder.
+        if step[0] == "@write" || step[0] == "@remove" || step[0] == "@edit" {
+            let folder = last_review
+                .rsplit_once('/')
+                .map_or("", |(folder, _)| folder);
+            let rel = step[1]
+                .as_str()
+                .unwrap()
+                .replace("{REVIEW_DIR}", folder)
+                .replace("{REVIEW}", &last_review);
+            // (No request said where the review goes: there is nowhere to
+            // write it.)
+            let nowhere = step[1].as_str().unwrap().contains("{REVIEW") && last_review.is_empty();
+            let path = root.join(rel);
+            if nowhere {
+            } else if step[0] == "@remove" {
+                std::fs::remove_file(&path).unwrap();
+            } else if step[0] == "@edit" {
+                // `@edit <path> <old> <new>`: the first `old` becomes `new`.
+                let text = std::fs::read_to_string(&path).unwrap();
+                let changed =
+                    text.replacen(step[2].as_str().unwrap(), step[3].as_str().unwrap(), 1);
+                std::fs::write(&path, changed).unwrap();
+            } else {
+                std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+                std::fs::write(&path, step[2].as_str().unwrap()).unwrap();
+            }
+            exits.push("w".to_owned());
+            outs.push(String::new());
+            errs.push(String::new());
+            continue;
+        }
         let mut command = Command::new(env!("CARGO_BIN_EXE_focus"));
         let mut args: Vec<String> = step
             .as_array()
@@ -805,6 +1005,20 @@ fn replay_audit(check: &Value, root: &Path) -> BTreeMap<String, String> {
             }
         };
         exits.push(output.status.code().unwrap_or(-1).to_string());
+        if let Ok(said) = serde_json::from_slice::<Value>(&output.stdout)
+            && let Some(file) = said["reviewFile"].as_str()
+        {
+            file.clone_into(&mut last_review);
+        }
+        // (A verdict that found no review says where the reviewer writes it.)
+        let said = String::from_utf8_lossy(&output.stderr).into_owned();
+        if let Some(found) =
+            regress::Regex::new(r"The reviewer writes its review to (\S+\.review\.md);")
+                .unwrap()
+                .find(&said)
+        {
+            last_review = group(&found, &said, 1).to_owned();
+        }
         outs.push(normalise_audit(
             &String::from_utf8_lossy(&output.stdout),
             root,
@@ -844,7 +1058,10 @@ fn replay_audit(check: &Value, root: &Path) -> BTreeMap<String, String> {
         let (shown, text) = minted(rel, text);
         actual.insert(shown, text.unwrap_or_else(|| "<removed>".to_owned()));
     }
-    placeholder_messages(settle_review_ids(root, actual))
+    placeholder_messages(settle_authorization_ids(
+        root,
+        settle_review_ids(root, actual),
+    ))
 }
 
 /// The recorder's `placeholder_messages`: the message records minted during

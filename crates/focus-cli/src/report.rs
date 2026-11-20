@@ -31,6 +31,10 @@ pub struct Refusal {
     /// question still open (`question-open`) or the person's own choice
     /// on record (`person-decided`).
     pub agent_guidance: Option<&'static str>,
+    /// `change_notices` on the error: what the Guard Policy let through
+    /// and recorded before the command refused. The ledger holds them
+    /// already, so a second try will not say them again.
+    pub change_notices: Vec<String>,
 }
 
 impl Refusal {
@@ -38,6 +42,7 @@ impl Refusal {
         Self {
             message: message.into(),
             agent_guidance: None,
+            change_notices: Vec::new(),
         }
     }
 
@@ -45,6 +50,17 @@ impl Refusal {
         Self {
             message: message.into(),
             agent_guidance: Some(guidance),
+            change_notices: Vec::new(),
+        }
+    }
+}
+
+impl From<focus_log::review::Refused> for Refusal {
+    fn from(refused: focus_log::review::Refused) -> Self {
+        Self {
+            message: refused.message,
+            agent_guidance: None,
+            change_notices: refused.change_notices,
         }
     }
 }
@@ -113,7 +129,21 @@ impl Context {
     pub fn refuse(&self, refusal: &Refusal) -> Failure {
         self.record_error(&refusal.message);
         let mut printed = serde_json::Map::new();
-        printed.insert("error".to_owned(), json!(refusal.message));
+        // The notices lead the text, for a reader of `error` alone, and are
+        // a field of their own; the ledger's row keeps the refusal's words.
+        if refusal.change_notices.is_empty() {
+            printed.insert("error".to_owned(), json!(refusal.message));
+        } else {
+            printed.insert(
+                "error".to_owned(),
+                json!(format!(
+                    "{}\n{}",
+                    refusal.change_notices.join("\n"),
+                    refusal.message
+                )),
+            );
+            printed.insert("change_notices".to_owned(), json!(refusal.change_notices));
+        }
         if let Some(guidance) = refusal.agent_guidance {
             printed.insert("agent_guidance".to_owned(), json!(guidance));
         }

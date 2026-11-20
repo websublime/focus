@@ -16,4 +16,5 @@ pub mod flags;
 pub mod link;
 pub mod message;
 pub mod review;
+mod review_verdict;
 mod summary;
