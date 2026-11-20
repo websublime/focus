@@ -7331,6 +7331,8 @@ FR_OTHER = "sha256:" + "9" * 64
 FR_LISTING = "\tsrc/a.ts\t100644\t" + "c" * 40 + "\n\tsrc/gone.ts\t100644\t" + "d" * 40 + "\n"
 FR_BASELINE = hashlib.sha256(FR_LISTING.encode("utf-8")).hexdigest()
 FR_UNITS = ["api", "web"]
+# Every project the receipts are asked of, for the attempt a guard reads from the same project (`guard_attempt`).
+FR_ASKED = []
 
 
 def fr_hex(width):
@@ -7456,6 +7458,7 @@ class FrStory:
         if posix:
             case["posix"] = True
         add("review_receipts", **case)
+        FR_ASKED.append(case)
 
 
 def fr_patch():
@@ -9607,6 +9610,60 @@ for lead in (117, 118, 119, 120):
 for lead in (197, 198, 199, 200):
     add("supplied_origin", origin={"kind": "host", "reason": "r" * lead + CUT_FACE + "s", "source": "template"})
     add("supplied_origin", origin={"kind": "host", "reason": "  " + "r" * lead + CUT_FACE * 2 + "  ", "source": "record"})
+
+# --- guard_attempt: the attempt of a stage as a guard sees it --------------------------------------------------
+# Asked of the projects the review receipts were asked of, each laid out as it was there: every state a receipt can
+# be in is one an attempt is read from. What varies is what is asked (the stage's attempt or a unit's, the budget,
+# the summary's coverage, a stage run by itself) and what the caller already had in hand (the receipts, the window,
+# the count, what can be done with the request that waits, whether owed outputs are checked). The cases stand at
+# the end, so the cases of each kind before them keep their ids.
+ga = random.Random(seed * 7919 + 41)
+GA_ASKED = {"unit": None, "weighed": None, "window": None, "summary": None, "budget": None, "status": "ask", "counted": None, "require": None, "single": False}
+
+
+def ga_add(case, patch=None, **asked):
+    unknown = set(asked) - set(GA_ASKED)
+    if unknown:
+        raise ValueError(f"guard_attempt: {sorted(unknown)}")
+    laid = {**case, "patch": {**case["patch"], **(patch or {})}}
+    add("guard_attempt", **laid, **{**GA_ASKED, **asked})
+
+
+def ga_status():
+    return {"iteration": ga.choice([1, 1, 2, 3]), "requestCurrent": ga.random() < 0.5, "retryable": ga.random() < 0.5, "verdictRecordable": ga.random() < 0.5,
+            "replaceable": ga.random() < 0.4}
+
+
+def ga_drawn(case, unit):
+    asked = {"unit": unit, "budget": ga.choice([None, None, 0, 1, 2, 3]), "summary": ga.choice([None, None, None, "current", "stale", "missing"]), "single": ga.random() < 0.15}
+    patch = None
+    drawn = ga.random()
+    if drawn < 0.08:
+        asked["weighed"] = ga.choice(["none", "advisory", "adversarial"])
+    elif drawn < 0.16:
+        asked["status"] = ga.choice([None, ga_status(), ga_status()])
+    elif drawn < 0.24:
+        asked["counted"] = {"reviewer": ga.choice([RA_REVIEWER, RA_REVIEWER, "another-reviewer"]), "unit": ga.choice([None, unit, "api"]),
+                            "workflow": ga.choice([None, None, f"single-stage:{case['slug']}"])}
+    elif drawn < 0.30:
+        asked["window"] = case["state"].replace("- **Scope**: feature\n", "- **Scope**: feature\n" + ga.choice([UNIT_MAJOR, CHECKPOINTS, ""]))
+    elif drawn < 0.38:
+        asked["require"] = ga.random() < 0.5
+    elif drawn < 0.42:
+        patch = {"reviewer": ga.choice(["", None])}
+    ga_add(case, patch=patch, **asked)
+
+
+for case in FR_ASKED:
+    # (A unit's request in a stage that writes code binds the unit's own source, which Focus does not read yet:
+    # there the attempt asked is the stage's.)
+    writes = case["patch"].get("workspace_requires") is True
+    if case["units"] and not writes:
+        ga_drawn(case, ga.choice(case["units"]))
+        if ga.random() < 0.35:
+            ga_drawn(case, ga.choice([None, "ghost"]))
+    else:
+        ga_drawn(case, ga.choice([None, None, None, None, "api"]) if not case["units"] else None)
 
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")
