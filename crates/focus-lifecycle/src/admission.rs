@@ -554,6 +554,30 @@ mod tests {
             ),
             "{gate}"
         );
+        // The refusal rides on the error with its code and its invariant,
+        // as the tool's entry point prints them. (No command reaches this
+        // guard yet: the stages that write code are Construction's, which
+        // are refused by name one step earlier, so these two are not yet
+        // compared with upstream's.)
+        let carried = |error: &EngineError| {
+            let guard = error
+                .detail::<crate::guard_series::GuardRefused>()
+                .expect("a guard's refusal");
+            (
+                guard.refusal.code.clone(),
+                guard.refusal.blocked_action.clone(),
+                guard.refusal.invariant.clone(),
+            )
+        };
+        assert_eq!(
+            carried(&refused),
+            (
+                "REQUIRED_SOURCE_WORK_MISSING".to_owned(),
+                "complete".to_owned(),
+                "A workspace-producing stage contains application source work.".to_owned()
+            )
+        );
+        assert_eq!(carried(&gate).1, "present-approval-gate");
         // A planning doc under the workspace is not source work; a file under src/ is.
         std::fs::write(root.join("focus/notes.md"), "x").unwrap();
         assert!(verify_stage_artifacts(&wf, &stage, Action::Complete).is_err());
