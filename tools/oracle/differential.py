@@ -147,11 +147,14 @@ SHAPES = {
         "upstream lets a refusal thrown inside an audit verb reach the runtime, which prints a source excerpt "
         "and a stack trace around the sentence; focus prints the same sentence as {\"error\": ...}, like every "
         "other refusal of the command. The sentence is compared",
-    "guard-ask":
-        "a guard that refuses a transition prints its sentence, then (upstream) the guard-recovery ask as a JSON "
-        "line: the remedies the conductor may offer, read off the review attempt and kept with the refusal's "
-        "streak under the engine directory (M5). Focus prints the sentence. The ask line and the streak record "
-        "are left out before comparing; the sentence, the error row and everything else are compared",
+    "guard-series":
+        "a guard that refuses prints its sentence and then its recovery question as a JSON line, and counts the "
+        "refusal in the series of its stage under the engine directory. The series is signed with hashes over the "
+        "row its attempt starts at and the latest boundary, which name their shard by the path it was read from, so "
+        "no two trees give the same signature. A signature is compared by the order in which each engine first "
+        "writes it (<state-1>, <series-1>), wherever it is written: the record, the terminal question, the error "
+        "row. The moment a record was written is left out; the question, its ways on and the rest of the record "
+        "are compared",
     "process-map-budget":
         "the session start writes the process map (its ancestors' pids, with each one's start time) within a 50 ms "
         "budget and retires a slot to null before it reads the process; under load one engine misses the budget "
@@ -1401,13 +1404,18 @@ def normalise_audit(text, tree, engine):
     text = re.sub(r"`focus engine log ((?:decision|answer) [^`]*)`", r"<run log \1>", text)
     # (A tool's script named bare with its arguments, in backticks: upstream's spelling of the form below.)
     text = re.sub(r"`(?:aidlc|focus)-(state|orchestrate)\.ts ([^`]+)`", r"<cli> \1 \2", text)
+    # A tool's script named whole in a sentence (the `next` a refusal tells the agent to run, the `report` a way
+    # on of a guard's question spells out).
+    # (A file's text has already been through the name map, so the tool is named either way.)
+    text = re.sub(r"`bun \.claude/tools/(?:aidlc|focus)-(state|orchestrate)\.ts(?: ([^`]*))?`",
+                  lambda m: f"<cli> {m.group(1)}" + (f" {m.group(2)}" if m.group(2) else ""), text)
+    # (And as the command of a way on, a value of its own with nothing around it.)
+    text = re.sub(r"(?<![`\w])bun \.claude/tools/(?:aidlc|focus)-(state|orchestrate)\.ts (?=[a-z-]+ )", r"<cli> \1 ", text)
+    text = re.sub(r"(?<![`\w])focus engine orchestrate (?=[a-z-]+ )", "<cli> orchestrate ", text)
     for tool in ("orchestrate", "log"):
         suffix = " report" if tool == "orchestrate" else ""
         text = text.replace(f"aidlc-{tool}.ts{suffix}", f"<cli> {tool}{suffix}")
         text = text.replace(f"`focus engine {tool}{suffix}`", f"<cli> {tool}{suffix}")
-    # A tool's script named whole in a sentence (the `next` a refusal tells the agent to run).
-    text = re.sub(r"`bun \.claude/tools/aidlc-(state|orchestrate)\.ts(?: ([^`]*))?`",
-                  lambda m: f"<cli> {m.group(1)}" + (f" {m.group(2)}" if m.group(2) else ""), text)
     # The state tool names itself, its verbs and the orchestrator's in each engine's own spelling.
     # (A file's text has already been through the name map, so the tool is named either way.)
     text = re.sub(r"(?:aidlc|focus)-(state|orchestrate|log)\.ts(?: ([a-z-]+))?",
@@ -1883,22 +1891,38 @@ def audit_check(name, files, steps, env=None, links=(), hard_links=(), group="au
     JOBS.append((name, audit_pair(name, files, links, hard_links), steps, env, None, "audit"))
 
 
-# The ask after a refusal's sentence: on its own line in what is printed, and as the two characters `\n`
-# inside the error row's one-line field.
-ASK_LINE = re.compile(r'\n\{"kind":"ask",.*')
-ASK_FIELD = re.compile(r'\\n\{"kind":"ask",[^\n]*')
+# The series of a guard's refusals (`.focus-engine/guard-refusals/<key>.json`) and the question a refusal ends
+# with. The series is signed with hashes over the row its attempt starts at and the latest boundary, and both
+# name their shard by the path it was read from: no two trees give the same signature. The state's signature
+# is in the record; the series' is there too, and in the terminal question (its `state_signature`, and the
+# sentence that asks for it in a report).
+SERIES_FILE = "/.focus-engine/guard-refusals/"
+SERIES_STATE = re.compile(r'("stateSignature": ")([0-9a-f]{64})(")')
+SERIES_SIGNATURE = re.compile(r'("signature": "|\\?"state_signature\\?":\\?"|To report this, include )([0-9a-f]{64})')
+SERIES_MOMENT = re.compile(r'("updatedAt": ")[^"]*(")')
 
 
-def without_guard_ask(stderr):
-    """Upstream's refusal without the guard-recovery ask on its last line, and whether there was one."""
-    try:
-        parsed = json.loads(stderr)
-    except ValueError:
-        return stderr, False
-    if not isinstance(parsed, dict) or not isinstance(parsed.get("error"), str) or not ASK_LINE.search(parsed["error"]):
-        return stderr, False
-    parsed["error"] = ASK_LINE.sub("", parsed["error"])
-    return json.dumps(parsed, ensure_ascii=False, separators=(",", ":")) + "\n", True
+def settle_guard_series(files):
+    """A check's outputs with the signatures of its series written by the order they are first met (what was
+    printed step by step, then the files by name) and the moment of a record left out. Whether there was one."""
+    met = {"state": [], "series": []}
+
+    def numbered(kind, value):
+        if value not in met[kind]:
+            met[kind].append(value)
+        return f"<{kind}-{met[kind].index(value) + 1}>"
+
+    ordered = [key for key in ("stdout", "stderr") if key in files] + sorted(key for key in files if key not in ("stdout", "stderr"))
+    for key in ordered:
+        text = files[key]
+        if not isinstance(text, str):
+            continue
+        if SERIES_FILE in key:
+            text = SERIES_MOMENT.sub(r"\1<at>\2", text)
+            text = SERIES_STATE.sub(lambda found: found.group(1) + numbered("state", found.group(2)) + found.group(3), text)
+        text = SERIES_SIGNATURE.sub(lambda found: found.group(1) + numbered("series", found.group(2)), text)
+        files[key] = text
+    return bool(met["state"] or met["series"])
 
 
 ARTIFACT_FILENAMES = {"build-test-results": "test-results.md", "load-test-results": "test-results.md", "traceability": "traceability.json"}
@@ -2135,8 +2159,6 @@ def compare_audit(name, trees, steps, env, tool="audit"):
                 if sentence is not None:
                     err = json.dumps({"error": sentence}, ensure_ascii=False, separators=(",", ":")) + "\n"
                     shaped = True
-                err, asked = without_guard_ask(err)
-                shaped_ask |= asked
             exits.append(str(code))
             try:
                 last_review = json.loads(out).get("reviewFile", last_review)
@@ -2164,10 +2186,6 @@ def compare_audit(name, trees, steps, env, tool="audit"):
             if before.get(rel) == after.get(rel):
                 continue
             text = after.get(rel)
-            # The guard-recovery streak is the recovery machinery's (SHAPES).
-            if "/.focus-engine/guard-refusals/" in rel and engine == "ts":
-                shaped_ask = True
-                continue
             if text is not None and "/audit/" in rel:
                 text, seen = verify_validation_bases(tree, engine, rel, text)
                 shaped_basis |= seen and engine == "ts"
@@ -2183,15 +2201,14 @@ def compare_audit(name, trees, steps, env, tool="audit"):
             shown, text = minted(rel, text if text is None else normalise_audit(text, tree, engine))
             if text is not None and "**Source Baseline**: sha256:" in text:
                 text = verified_baselines(tree, text)
-            if text is not None and engine == "ts" and ASK_FIELD.search(text):
-                shaped_ask = True
-                text = ASK_FIELD.sub("", text)
             outcome[engine][shown] = "<removed>" if text is None else text
         # A summary's authorization id is taken over the questions file's name, which carries the workspace
         # directory's (SHAPES: summary-authorization).
         # A review's request id is random and its attempt's name carries the tree's path (SHAPES: review-ids).
         settled = settle_review_ids(tree, outcome[engine])
         shaped_review |= settled and engine == "ts"
+        # The series of a guard's refusals is signed over the tree's own paths (SHAPES: guard-series).
+        shaped_ask |= settle_guard_series(outcome[engine]) and engine == "ts"
         own_ids = authorization_ids(tree)
         if own_ids:
             shaped_authorization |= engine == "ts"
@@ -2220,8 +2237,8 @@ def compare_audit(name, trees, steps, env, tool="audit"):
             shapes["uncaught"] += 1
             detail += "  (upstream: uncaught)"
         if shaped_ask:
-            shapes["guard-ask"] += 1
-            detail += "  (guard ask left out)"
+            shapes["guard-series"] += 1
+            detail += "  (series signatures settled)"
         if shaped_basis:
             shapes["validation-basis"] += 1
             detail += "  (receipt hashes verified)"

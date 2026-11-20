@@ -290,6 +290,13 @@ fn normalise_audit(text: &str, root: &Path) -> String {
         r"(?<![`\w])focus engine state (?=[a-z-]+ )",
         |_, _| "<cli> state ".to_owned(),
     );
+    // The orchestrator's command as a way on of a guard's question gives
+    // it: a value of its own, with nothing around it.
+    text = replace_all(
+        &text,
+        r"(?<![`\w])focus engine orchestrate (?=[a-z-]+ )",
+        |_, _| "<cli> orchestrate ".to_owned(),
+    );
     text = text
         .replace("Usage: focus engine utility ", "Usage: <cli> utility ")
         .replace("how closely Focus checks", "how closely <engine> checks");
