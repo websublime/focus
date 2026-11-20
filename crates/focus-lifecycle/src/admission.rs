@@ -30,10 +30,13 @@
 //!
 //! # What no check tells apart
 //!
-//! Two readings the reviewer's precondition hands over, which the reader
+//! In the reviewer's precondition: two readings it hands over, which the reader
 //! would take the same: the review class given to the receipts (they
 //! resolve it as the precondition does), and the receipts given to the
-//! guard's attempt (it reads them with the same class). And the person's
+//! guard's attempt (it reads them with the same class). The paths of a
+//! change after a review: the receipts name them only where the source
+//! changed, which a stage that writes source code owes and is refused by
+//! name; for an output they are never known. And the person's
 //! approval carried by `approve`: with it the approval ends in the
 //! findings' refusal by name, without it in the reviewer's, where upstream
 //! approves; which of the two Focus says is a test of the command, since
