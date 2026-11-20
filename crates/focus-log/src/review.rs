@@ -28,9 +28,6 @@
 //!
 //! Refused by name, each until the slice that brings it:
 //!
-//! - Of the verdict (`review_verdict`): `--review-file`, the
-//!   `## Review` section appended to the artifact, and the `NOT-READY` with
-//!   no review after a retry (slice 2e-iv-b).
 //! - `--unit`: the unit's claim, the plan of units, its source and its
 //!   manifest (slice 5).
 //!
@@ -129,6 +126,9 @@ pub(crate) struct Asked<'a> {
     pub(crate) retry_pending: bool,
     pub(crate) iteration: f64,
     pub(crate) project_dir: String,
+    /// `--review-file`, as given: the verdict's way of naming the review
+    /// file. A request reads none.
+    pub(crate) review_file: Option<&'a str>,
 }
 
 impl Asked<'_> {
@@ -342,6 +342,7 @@ fn asked(
         // rounds, as the parse does.)
         iteration: pass.parse::<f64>().unwrap_or(f64::INFINITY),
         project_dir: wf.layout.project.to_string_lossy().into_owned(),
+        review_file: None,
     };
     // Construction walks its units from Units Generation's units block, so
     // a block the engine cannot read is fixed before the review, while the
@@ -441,11 +442,6 @@ fn record_verdict(
     if !matches!(verdict.as_str(), "READY" | "NOT-READY") {
         bail!("Unknown --verdict \"{said}\". Accepted: READY, NOT-READY.");
     }
-    if flags.get("review-file").is_some() {
-        bail!(
-            "log review --review-file is not ported yet: Focus reads the review from the file its request opened."
-        );
-    }
     let asked = Asked {
         stage,
         reviewer,
@@ -453,6 +449,7 @@ fn record_verdict(
         retry_pending: false,
         iteration: pass.parse::<f64>().unwrap_or(f64::INFINITY),
         project_dir: wf.layout.project.to_string_lossy().into_owned(),
+        review_file: flags.get("review-file"),
     };
     let mut fields: Vec<(&'static str, String)> = vec![
         ("Stage", stage.to_owned()),

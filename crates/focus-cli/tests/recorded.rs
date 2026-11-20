@@ -159,6 +159,10 @@ fn runtime_text(mut text: String) -> String {
             r"(graph resolve: ).*: No such file or directory \(os error 2\)()",
             false,
         ),
+        (
+            r"(is not a plain readable file \()[^()\n]*: No such file or directory \(os error 2\)(\)\.)",
+            true,
+        ),
     ] {
         text = replace_all(&text, pattern, |found, text| {
             let tail = if keeps_tail {
@@ -906,15 +910,16 @@ fn replay_audit(check: &Value, root: &Path) -> BTreeMap<String, String> {
         // recording). In the path `{REVIEW}` is the review file the last
         // command named (the one a request said to write, or the one a
         // verdict said the reviewer writes), and `{REVIEW_DIR}` that file's
-        // folder.
+        // folder. A command's arguments may name the two as well.
+        let folder = last_review
+            .rsplit_once('/')
+            .map_or("", |(folder, _)| folder)
+            .to_owned();
         if step[0] == "@write" || step[0] == "@remove" || step[0] == "@edit" {
-            let folder = last_review
-                .rsplit_once('/')
-                .map_or("", |(folder, _)| folder);
             let rel = step[1]
                 .as_str()
                 .unwrap()
-                .replace("{REVIEW_DIR}", folder)
+                .replace("{REVIEW_DIR}", &folder)
                 .replace("{REVIEW}", &last_review);
             // (No request said where the review goes: there is nowhere to
             // write it.)
@@ -945,10 +950,17 @@ fn replay_audit(check: &Value, root: &Path) -> BTreeMap<String, String> {
             .iter()
             .map(|arg| {
                 // `{P}` is where the project is, `{N}` the name of its folder.
-                arg.as_str()
+                let arg = arg
+                    .as_str()
                     .unwrap()
                     .replace("{P}", root.to_str().unwrap())
-                    .replace("{N}", root.file_name().unwrap().to_str().unwrap())
+                    .replace("{N}", root.file_name().unwrap().to_str().unwrap());
+                if last_review.is_empty() {
+                    arg
+                } else {
+                    arg.replace("{REVIEW_DIR}", &folder)
+                        .replace("{REVIEW}", &last_review)
+                }
             })
             .collect();
         // A step that names its own tool (`@state advance …`) runs that one.
@@ -1318,6 +1330,12 @@ fn focus_does_what_upstream_did_in_every_recorded_check() {
 
     let scratch = std::env::temp_dir().join(format!("focus-recorded-{}", std::process::id()));
     let _ = fs::remove_dir_all(&scratch);
+    // The recorder's trees stood at their real paths. A temporary directory
+    // is behind a link on macOS, and a file a command names is resolved
+    // from where the project is said to be and must fall inside the real
+    // record (`log review --review-file`).
+    fs::create_dir_all(&scratch).unwrap();
+    let scratch = fs::canonicalize(&scratch).unwrap();
     // Checks that only read share one copy of their tree; a check that writes
     // gets its own.
     let mut by_tree: BTreeMap<&str, Vec<&Value>> = BTreeMap::new();
