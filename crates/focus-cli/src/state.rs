@@ -333,7 +333,13 @@ fn transition(record: Record, verb: &str, args: &[String]) -> Verb {
     // A guard that refused is printed with its recovery question, and the
     // refusal counted in its series (`guardRefusalOutput`, in upstream's
     // `main`).
-    transition_of(&wf, verb, args).map_err(|mut refusal| {
+    let answered = transition_of(&wf, verb, args);
+    // What the transition said on its way (`console.log` in upstream's
+    // `observeChangeControl`): before its answer, and before its refusal.
+    for line in wf.said.take() {
+        println!("{line}");
+    }
+    answered.map_err(|mut refusal| {
         if let Some(guard) = refusal.guard.take() {
             refusal.message = focus_lifecycle::guard_series::refusal_output(
                 &wf,

@@ -36,11 +36,14 @@ use focus_js::text::trim;
 use focus_js::{EngineError, Result, bail};
 use focus_state::fields::get_field;
 use focus_state::progress::{CheckboxState, parse_checkboxes};
+use focus_workspace::lock::WorkspaceLock;
 use focus_workspace::settings::Places;
 use focus_workspace::{Layout, env};
 
 use crate::artifacts::{produces_artifacts_exist, workspace_has_work};
+use crate::change_control::{self, Accepted};
 use crate::stage;
+use crate::summary_evidence::{self, Evidence};
 use crate::workflow::Workflow;
 
 /// What the action is: closing the stage, or opening its approval gate.
@@ -296,21 +299,123 @@ pub fn is_autonomous_mode(state: &str) -> bool {
     get_field(state, "Construction Autonomy Mode").map(trim) == Some("autonomous")
 }
 
-/// `verifySummaryConfirmationPrecondition`: refused by name when owed.
+/// `observeChangeControl`: a check of the admission read the Guard Policy,
+/// because something had changed after an approval. The transition reads
+/// it again as the one that changes things (a move of the policy is
+/// recorded), records the changes the check let through, and says them
+/// once, on a line of their own.
+///
+/// `held` is the workspace lock when the caller holds it; a check that
+/// runs before the transition takes the lock takes it for these rows.
 ///
 /// # Errors
 ///
-/// The stage owes a summary confirmation, which Focus cannot read yet.
-pub fn verify_summary_confirmation(wf: &Workflow, stage: &Stage, state: &str) -> Result<()> {
-    if !summary_confirmation_owed(wf, stage, state) {
-        return Ok(());
-    }
-    bail!(
-        "\"{}\" owes a summary confirmation (the Summary Confirmation ceremony is on for this piece of work), which is recorded with `focus engine log` and compared with the stage's outputs: Focus does not read that record yet. Turn the ceremony off for this piece of work (`--summary-confirmation off` at creation, or {}=1) to run the transition whole.",
-        stage.slug,
-        env::full_name("SKIP_SUMMARY_CONFIRMATION_GUARD")
-    )
+/// The policy cannot be read, or a row cannot be written.
+fn observe_change_control(
+    wf: &Workflow,
+    held: Option<&WorkspaceLock>,
+    state: &str,
+    accepted: &[Accepted<'_>],
+) -> Result<()> {
+    let taken;
+    let held = match held {
+        Some(held) => held,
+        None => {
+            taken = wf.lock("recording what the Guard Policy let through")?;
+            &taken
+        }
+    };
+    change_control::governed_guard_policy(wf, held, state)?;
+    let notices = change_control::record_accepted_changes(wf, held, accepted)?;
+    wf.say_change_notices(&notices);
+    Ok(())
 }
+
+/// `verifySummaryConfirmationPrecondition`: the stage's outputs descend
+/// from a summary confirmation a person gave and that is still the current
+/// one, when the stage owes one.
+///
+/// # Errors
+///
+/// The confirmation is not there or no longer current: a guard's refusal,
+/// with the summary's coverage. Or the evidence cannot be read.
+pub fn verify_summary_confirmation(
+    wf: &Workflow,
+    held: Option<&WorkspaceLock>,
+    stage: &Stage,
+    state: &str,
+) -> Result<()> {
+    let evidence = summary_evidence::check(
+        wf,
+        stage,
+        summary_evidence::Asked {
+            workflow: None,
+            state: Some(state),
+            scope: None,
+            unit: None,
+        },
+    )?;
+    let (Evidence::Ok {
+        change_control_read,
+        ..
+    }
+    | Evidence::Refused {
+        change_control_read,
+        ..
+    }) = &evidence;
+    if *change_control_read {
+        let accepted: Vec<Accepted<'_>> = match &evidence {
+            Evidence::Ok {
+                accepted_changes, ..
+            } => accepted_changes
+                .iter()
+                .map(|change| Accepted {
+                    checkpoint: "summary-confirmation",
+                    stage: &change.stage,
+                    unit: change.unit.as_deref(),
+                    changed: Some(&change.changed),
+                    recorded: &change.recorded,
+                    current: &change.current,
+                    notice: &change.notice,
+                })
+                .collect(),
+            Evidence::Refused { .. } => Vec::new(),
+        };
+        observe_change_control(wf, held, state, &accepted)?;
+    }
+    let Evidence::Refused {
+        code,
+        message,
+        coverage,
+        ..
+    } = &evidence
+    else {
+        return Ok(());
+    };
+    Err(crate::guard_series::guard_refused(
+        wf,
+        state,
+        stage,
+        crate::guard_series::Refused {
+            code,
+            blocked_action: "summary-confirmation",
+            invariant: SUMMARY_INVARIANT,
+            user_message: message,
+            unit: None,
+        },
+        crate::guard_attempt::Options {
+            summary_coverage: Some(match coverage {
+                summary_evidence::Coverage::Missing => crate::guard_refusal::Coverage::Missing,
+                summary_evidence::Coverage::Stale => crate::guard_refusal::Coverage::Stale,
+            }),
+            ..Default::default()
+        },
+    ))
+}
+
+/// The invariant the summary's admission holds.
+pub const SUMMARY_INVARIANT: &str =
+    "Generated outputs descend from a current human-backed summary confirmation.";
 
 /// `resolveReviewClass`: the stage's class, capped by the state's
 /// `Review Override` or the scope's `review_cap`.
@@ -428,9 +533,14 @@ pub fn refuse_construction(stage: &Stage) -> Result<()> {
 /// # Errors
 ///
 /// Any guard above refuses.
-pub fn verify_gate_opening_guards(wf: &Workflow, stage: &Stage, state: &str) -> Result<()> {
+pub fn verify_gate_opening_guards(
+    wf: &Workflow,
+    held: Option<&WorkspaceLock>,
+    stage: &Stage,
+    state: &str,
+) -> Result<()> {
     verify_stage_artifacts(wf, stage, Action::PresentApprovalGate)?;
-    verify_summary_confirmation(wf, stage, state)?;
+    verify_summary_confirmation(wf, held, stage, state)?;
     verify_pipeline_link(wf, stage)?;
     if !reviewer_gate_guard_disabled() {
         verify_reviewer(wf, stage, state, true)?;
@@ -448,6 +558,7 @@ pub fn verify_gate_opening_guards(wf: &Workflow, stage: &Stage, state: &str) -> 
 /// Any guard refuses; the stage is a Construction stage.
 pub fn admit(
     wf: &Workflow,
+    held: Option<&WorkspaceLock>,
     state: &str,
     stage: &Stage,
     action: Action,
@@ -457,7 +568,7 @@ pub fn admit(
     assert_not_archived(state, operation)?;
     refuse_construction(stage)?;
     if action != Action::Complete {
-        verify_gate_opening_guards(wf, stage, state)?;
+        verify_gate_opening_guards(wf, held, stage, state)?;
         return Ok(());
     }
     let already_completed = parse_checkboxes(state)
@@ -465,7 +576,7 @@ pub fn admit(
         .any(|line| line.slug == stage.slug && line.state == CheckboxState::Completed);
     if approving {
         verify_stage_artifacts(wf, stage, Action::Complete)?;
-        verify_summary_confirmation(wf, stage, state)?;
+        verify_summary_confirmation(wf, held, stage, state)?;
         verify_pipeline_link(wf, stage)?;
         verify_reviewer(wf, stage, state, true)?;
         return Ok(());
@@ -473,7 +584,7 @@ pub fn admit(
     verify_reviewer(wf, stage, state, !already_completed)?;
     if !already_completed {
         verify_stage_artifacts(wf, stage, Action::Complete)?;
-        verify_summary_confirmation(wf, stage, state)?;
+        verify_summary_confirmation(wf, held, stage, state)?;
         verify_pipeline_link(wf, stage)?;
     }
     Ok(())

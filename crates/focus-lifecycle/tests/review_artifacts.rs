@@ -66,6 +66,7 @@ fn project(name: &str, files: &[(&str, &[u8])]) -> (PathBuf, Workflow) {
         selection,
         invoker: Invoker::default(),
         install: installed().install,
+        said: std::cell::RefCell::default(),
     };
     (root, wf)
 }
