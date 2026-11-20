@@ -686,7 +686,7 @@ fn settle_review_ids(
         }
     };
     const ATTEMPT_IN_A_PATH: &str =
-        r#"(/reviews/[^/\s"`]+/(?:stage|units/[^/\s"`]+)/)([0-9a-f]{16})(?=/)"#;
+        r#"(/reviews/[^/\s"`]+/(?:stage|units/[^/\s"`]+)/)([0-9a-f]{16})(?=[/\s]|$)"#;
     // The record's own path carries the attempt's name, and a review
     // file's the request's id; a record says its attempt's name too.
     let keys: Vec<String> = outcome.keys().cloned().collect();
@@ -816,9 +816,11 @@ fn replay_audit(check: &Value, root: &Path) -> BTreeMap<String, String> {
     for step in steps {
         // A step that writes, changes or removes a file, as an agent would
         // between two commands: `@write <path> <text>`, `@edit <path> <old>
-        // <new>` and `@remove <path>`. In the
-        // path `{REVIEW}` is the review file the last request said to write,
-        // and `{REVIEW_DIR}` that file's folder.
+        // <new>` and `@remove <path>` (a step that links one is in no
+        // recording). In the path `{REVIEW}` is the review file the last
+        // command named (the one a request said to write, or the one a
+        // verdict said the reviewer writes), and `{REVIEW_DIR}` that file's
+        // folder.
         if step[0] == "@write" || step[0] == "@remove" || step[0] == "@edit" {
             let folder = last_review
                 .rsplit_once('/')
@@ -921,6 +923,15 @@ fn replay_audit(check: &Value, root: &Path) -> BTreeMap<String, String> {
             && let Some(file) = said["reviewFile"].as_str()
         {
             file.clone_into(&mut last_review);
+        }
+        // (A verdict that found no review says where the reviewer writes it.)
+        let said = String::from_utf8_lossy(&output.stderr).into_owned();
+        if let Some(found) =
+            regress::Regex::new(r"The reviewer writes its review to (\S+\.review\.md);")
+                .unwrap()
+                .find(&said)
+        {
+            last_review = group(&found, &said, 1).to_owned();
         }
         outs.push(normalise_audit(
             &String::from_utf8_lossy(&output.stdout),

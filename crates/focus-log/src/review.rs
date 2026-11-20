@@ -263,12 +263,41 @@ fn mint_request_id() -> Result<String> {
     Ok(format!("review:{hex}"))
 }
 
+/// Why a review command refused, and what the Guard Policy had let through
+/// by then.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Refused {
+    pub message: String,
+    /// The changes a verdict accepted and recorded before it was refused:
+    /// said with the refusal, because the ledger already holds them and a
+    /// second try will not say them again (`emitError`'s `changeNotices`).
+    /// A request's refusal carries none, as upstream's carries none.
+    pub change_notices: Vec<String>,
+}
+
 /// `handleReview`.
 ///
 /// # Errors
 ///
 /// What upstream refuses, in its words; and what is not ported, by name.
-pub fn review(open: &dyn Fn() -> Result<Workflow>, args: &[String]) -> Result<Value> {
+pub fn review(
+    open: &dyn Fn() -> Result<Workflow>,
+    args: &[String],
+) -> std::result::Result<Value, Refused> {
+    let mut notices = Vec::new();
+    asked(open, args, &mut notices).map_err(|refusal| Refused {
+        message: refusal.to_string(),
+        change_notices: notices,
+    })
+}
+
+/// The command; `notices` takes what a verdict's Guard Policy let through,
+/// whether or not the verdict is then recorded.
+fn asked(
+    open: &dyn Fn() -> Result<Workflow>,
+    args: &[String],
+    notices: &mut Vec<String>,
+) -> Result<Value> {
     let (_, flags) = flags::parse(args)?;
     let Some(stage) = flags.given("stage") else {
         bail!("Missing --stage <slug>");
@@ -291,7 +320,7 @@ pub fn review(open: &dyn Fn() -> Result<Workflow>, args: &[String]) -> Result<Va
         bail!("Cannot resolve the active intent for review logging.");
     }
     if let Some(said) = flags.get("verdict") {
-        return record_verdict(&wf, &flags, stage, reviewer, said);
+        return record_verdict(&wf, &flags, stage, reviewer, said, notices);
     }
     let Some(pass) = flags
         .given("iteration")
@@ -390,6 +419,7 @@ fn record_verdict(
     stage: &str,
     reviewer: &str,
     said: &str,
+    notices: &mut Vec<String>,
 ) -> Result<Value> {
     if flags.get("retry-pending") == Some("true") {
         bail!(
@@ -428,9 +458,7 @@ fn record_verdict(
     }
     fields.push(("Iteration", pass.to_owned()));
     fields.push(("Verdict", verdict.clone()));
-    let mut notices = Vec::new();
-    let recorded = match crate::review_verdict::verdict(wf, &asked, &verdict, fields, &mut notices)
-    {
+    let recorded = match crate::review_verdict::verdict(wf, &asked, &verdict, fields, notices) {
         Ok(recorded) => recorded,
         Err(Stop::Refusal(message)) => bail!("{message}"),
         Err(Stop::Failed(message)) => bail!("Audit emission failed: {message}"),

@@ -204,6 +204,82 @@ fn a_request_of_a_stage_that_writes_the_workspace_is_bound_to_the_source() {
     let _ = fs::remove_dir_all(root);
 }
 
+/// What a recording cannot carry of a verdict, compared live by the
+/// differential (`log/review/verdict/review_file_a_link`,
+/// `log/review/verdict/review_folder_a_link`): a link is no review file,
+/// where the file goes or on the way to it, and no recording holds a link.
+#[cfg(unix)]
+#[test]
+fn a_review_file_that_is_a_link_or_behind_one_is_refused() {
+    let root = project("linked-review");
+    write(
+        &root,
+        &format!("{RECORD}/focus-state.md"),
+        &STATE.replace(
+            "- **Summary Confirmation**: on (from scope feature)",
+            "- **Summary Confirmation**: off (set by a command)\n- **Review Override**: advisory",
+        ),
+    );
+    for name in [
+        "intent-statement",
+        "stakeholder-map",
+        "intent-capture-questions",
+    ] {
+        write(
+            &root,
+            &format!("{RECORD}/ideation/intent-capture/{name}.md"),
+            "# Written\n",
+        );
+    }
+    let asks = [
+        "review",
+        "--stage",
+        "intent-capture",
+        "--reviewer",
+        "focus-product-lead-agent",
+        "--iteration",
+        "1",
+    ];
+    let output = log(&root, &asks);
+    assert_eq!(
+        output.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let said: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+    let draft = root.join(said["reviewFile"].as_str().unwrap());
+    let review = "**Verdict:** READY\n**Reviewer:** focus-product-lead-agent\n**Iteration:** 1\n";
+    let verdict: Vec<&str> = asks.iter().copied().chain(["--verdict", "READY"]).collect();
+
+    // The file is a link to a review written elsewhere.
+    write(&root, "elsewhere/review.md", review);
+    std::os::unix::fs::symlink(root.join("elsewhere/review.md"), &draft).unwrap();
+    let refused = refusal(&root, &verdict);
+    assert!(
+        refused.contains("is not a plain readable file (") && refused.contains(" is a symlink, "),
+        "{refused}"
+    );
+
+    // The file is a plain one, in a folder that is a link.
+    fs::remove_file(&draft).unwrap();
+    let folder = draft.parent().unwrap();
+    fs::rename(folder, root.join("moved")).unwrap();
+    std::os::unix::fs::symlink(root.join("moved"), folder).unwrap();
+    fs::write(root.join("moved").join(draft.file_name().unwrap()), review).unwrap();
+    let refused = refusal(&root, &verdict);
+    assert!(
+        refused.contains("is not a plain readable file (") && refused.contains(" is a symlink, "),
+        "{refused}"
+    );
+    assert!(
+        !fs::read_to_string(root.join(RECORD).join("audit/laptop-abc123.md"))
+            .unwrap()
+            .contains("REVIEW_COMPLETED"),
+    );
+    let _ = fs::remove_dir_all(root);
+}
+
 /// What a recording cannot carry of `log link`, compared live by the
 /// differential (`log/link/root_handoff_by_its_name`,
 /// `log/link/handoff_a_second_name`): the developer's handoff may carry the

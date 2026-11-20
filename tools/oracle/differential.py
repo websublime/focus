@@ -1394,8 +1394,10 @@ def normalise_audit(text, tree, engine):
     # A review's two commands, in a sentence and as a value of their own.
     text = re.sub(r"bun \.claude/tools/(?:aidlc|focus)-log\.ts review ", "<cli> log review ", text)
     text = text.replace("focus engine log review ", "<cli> log review ")
-    text = re.sub(r"`bun \.claude/tools/(?:aidlc|focus)-log\.ts ((?:decision|answer) [^`]*)`", r"<run log \1>", text)
+    text = re.sub(r"`(?:bun \.claude/tools/)?(?:aidlc|focus)-log\.ts ((?:decision|answer) [^`]*)`", r"<run log \1>", text)
     text = re.sub(r"`focus engine log ((?:decision|answer) [^`]*)`", r"<run log \1>", text)
+    # (A tool's script named bare with its arguments, in backticks: upstream's spelling of the form below.)
+    text = re.sub(r"`(?:aidlc|focus)-(state|orchestrate)\.ts ([^`]+)`", r"<cli> \1 \2", text)
     for tool in ("orchestrate", "log"):
         suffix = " report" if tool == "orchestrate" else ""
         text = text.replace(f"aidlc-{tool}.ts{suffix}", f"<cli> {tool}{suffix}")
@@ -1645,7 +1647,7 @@ def authorization_ids(tree):
 
 REVIEW_REQUEST_FILE = re.compile(r"review:([0-9a-f]{32})(?![0-9a-f])|(?<=\.)([0-9a-f]{32})(?=\.review\.md)")
 REVIEW_RECORD_ROW = re.compile(r"(\*\*Review Record\*\*: (\S+)\n\*\*Review Record Digest\*\*: )(sha256:[0-9a-f]{64})")
-REVIEW_ATTEMPT = re.compile(r"(/reviews/[^/\s\"`]+/(?:stage|units/[^/\s\"`]+)/)([0-9a-f]{16})(?=/)")
+REVIEW_ATTEMPT = re.compile(r"(/reviews/[^/\s\"`]+/(?:stage|units/[^/\s\"`]+)/)([0-9a-f]{16})(?=[/\s]|$)")
 
 
 def review_attempt_ids(tree):
@@ -2060,7 +2062,9 @@ def compare_audit(name, trees, steps, env, tool="audit"):
     shaped_review = False
     shaped_offsets = shaped_thrown = shaped_pair = False
     started_from = None
-    if RECORD and not has_links(ts.root) and name not in UNRECORDED and not name.startswith("fuzz/"):
+    # (A link no recording carries, whether the tree starts with it or a step makes it.)
+    linked = has_links(ts.root) or any(step[:1] == ["@link"] for step in steps)
+    if RECORD and not linked and name not in UNRECORDED and not name.startswith("fuzz/"):
         # An audit check starts from nothing but its files; a runtime check from an installed project, kept whole
         # where the verb reads the whole project (the utility's scan, and the source a baseline lists).
         started_from = workspace_files(ts, "") if tool == "audit" else overlay(ts, hidden=True, everything=tool in WHOLE_PROJECT)
@@ -2073,10 +2077,11 @@ def compare_audit(name, trees, steps, env, tool="audit"):
         exits, outs, errs = [], [], []
         last_review = ""
         for args in steps:
-            # A step that writes, changes or removes a file, as an agent would between two commands: `@write <path>
-            # <text>`, `@edit <path> <old> <new>` and `@remove <path>`. The path is from the project; in it `{REVIEW}` is the review file the last
-            # request said to write, and `{REVIEW_DIR}` that file's folder.
-            if args[:1] in (["@write"], ["@remove"], ["@edit"]):
+            # A step that writes, changes, removes or links a file, as an agent would between two commands: `@write
+            # <path> <text>`, `@edit <path> <old> <new>`, `@remove <path>` and `@link <path> <target>`. The path is
+            # from the project; in it `{REVIEW}` is the review file the last command named (the one a request said to write,
+            # or the one a verdict said the reviewer writes), and `{REVIEW_DIR}` that file's folder.
+            if args[:1] in (["@write"], ["@remove"], ["@edit"], ["@link"]):
                 rel = to_focus(args[1]) if tree.mapped else args[1]
                 # (No request said where the review goes: there is nowhere to write it.)
                 nowhere = "{REVIEW" in rel and not last_review
@@ -2085,6 +2090,12 @@ def compare_audit(name, trees, steps, env, tool="audit"):
                     pass
                 elif args[0] == "@remove":
                     os.remove(os.path.join(tree.root, rel))
+                elif args[0] == "@link":
+                    # `@link <path> <target>`: what is at `path` moves to `target`, and `path` becomes a link to it.
+                    target = os.path.join(tree.root, to_focus(args[2]) if tree.mapped else args[2])
+                    os.makedirs(os.path.dirname(target), exist_ok=True)
+                    os.rename(os.path.join(tree.root, rel), target)
+                    os.symlink(target, os.path.join(tree.root, rel))
                 elif args[0] == "@edit":
                     # `@edit <path> <old> <new>`: the first `old` in the file becomes `new`.
                     old, new = ((to_focus(arg) if tree.mapped else arg) for arg in args[2:4])
@@ -2118,6 +2129,10 @@ def compare_audit(name, trees, steps, env, tool="audit"):
                 last_review = json.loads(out).get("reviewFile", last_review)
             except (ValueError, AttributeError):
                 pass
+            # (A verdict that found no review says where the reviewer writes it.)
+            named = re.search(r"The reviewer writes its review to (\S+\.review\.md);", err)
+            if named:
+                last_review = named.group(1)
             # A text cut inside a surrogate pair, said in a line of JSON, holds the half as an escape (SHAPES:
             # half-pair).
             if engine == "ts" and (LONE_HALF.search(out) or LONE_HALF.search(err)):
@@ -5563,7 +5578,7 @@ def log_checks():
     # the outputs have, so a write came after it and the review is stale. The reviewer is given a name that is not
     # the engine's, so the record's bytes, and the digest its row carries, are the same in a replayed tree.
     plain = "lead-reviewer"
-    def reviewed_once(passes=((1, "READY", ()),), workflow=None, minute=1, findings=()):
+    def reviewed_once(passes=((1, "READY", ()),), workflow=None, minute=1, findings=(), derived=None):
         def edit(tree):
             rows = ""
             for index, (n, verdict, more, *named) in enumerate(passes):
@@ -5576,7 +5591,8 @@ def log_checks():
                 tree.write(f"{CREATED_DIR}/{record}", json.dumps({
                     "version": 1, "stage": "intent-capture", "unit": None, "workflow": workflow, "attempt": "0" * 16, "iteration": n, "reviewer": plain, "verdict": verdict,
                     "request_id": ident, "request_challenge": None, "artifact_fingerprint": fingerprint, "source_fingerprint": None, "unit_source_fingerprint": None,
-                    "findings": list(findings), "body": "It reads well.\n", "recorded_at": "2026-01-05T10:00:00Z"}, indent=2) + "\n")
+                    "findings": list(findings), **({} if derived is None else {"derived_findings": list(derived)}), "body": "It reads well.\n",
+                    "recorded_at": "2026-01-05T10:00:00Z"}, indent=2) + "\n")
                 with open(tree.path(f"{CREATED_DIR}/{record}"), "rb") as handle:
                     digest = "sha256:" + hashlib.sha256(handle.read()).hexdigest()
                 rows += block("REVIEW_COMPLETED", T(minute + 2 * index + 1), *scope, f"**Verdict**: {verdict}", f"**Request Fingerprint**: {fingerprint}",
@@ -5726,18 +5742,29 @@ def log_checks():
     check_("review/verdict/twice", created(strict, **OUTPUTS), [*done, says(1, "READY"), writes(review_text()), says(1, "READY")])
     check_("review/verdict/another_reviewer", created(strict, **OUTPUTS), [asks(1), writes(review_text()), ["review", "--stage", "intent-capture", "--reviewer", "aidlc-architect-agent", "--iteration", "1", "--verdict", "READY"],
                                                                             ["review", "--stage", "workspace-detection", "--reviewer", lead, "--iteration", "1", "--verdict", "READY"]])
+    # Two passes wait (a ledger written by hand): each has its own request, and the way out of changed outputs is
+    # the oldest's.
+    waiting_twice = CREATED_AUDIT + requested(1, 1, "sha256:" + "a" * 64, old_id) + requested(2, 2, "sha256:" + "b" * 64, "**Request Id**: review:" + "2" * 32)
+    check_("review/verdict/two_passes_wait", created(strict, waiting_twice, **OUTPUTS), [says(2, "READY"), says(1, "READY"), says(3, "READY")])
     # The review file: none, none after a retry, one that is not a plain file, one too large to be a record.
     check_("review/verdict/no_review_written", created(strict, **OUTPUTS), [asks(1), says(1, "READY"), says(1, "NOT-READY")])
     check_("review/verdict/no_review_after_a_retry", created(strict, **OUTPUTS), [asks(1), writes(review_text()), asks(1, "--retry-pending"), says(1, "READY")])
     check_("review/verdict/not_ready_after_a_retry_not_ported", created(strict, **OUTPUTS), [asks(1), asks(1, "--retry-pending"), says(1, "NOT-READY")])
     check_("review/verdict/review_file_a_folder", created(strict, **OUTPUTS), [asks(1), ["@write", "{REVIEW}/x", "x"], says(1, "READY")])
     check_("review/verdict/review_file_empty", created(strict, **OUTPUTS), [asks(1), writes(""), says(1, "READY")])
+    # A link is no review file, where the file goes or on the way to it.
+    check_("review/verdict/review_file_a_link", created(strict, **OUTPUTS), [asks(1), writes(review_text()), ["@link", "{REVIEW}", "elsewhere/review.md"], says(1, "READY")])
+    check_("review/verdict/review_folder_a_link", created(strict, **OUTPUTS), [asks(1), writes(review_text()), ["@link", "{REVIEW_DIR}", "elsewhere"], says(1, "READY")])
+    # A request from before each request had a file of its own is reviewed in the pass's shared file.
+    for label, more in (("with_an_id", (old_id,)), ("with_no_id", ())):
+        check_(f"review/verdict/request_from_before_review_files_{label}", created(strict, CREATED_AUDIT + requested(1, 1, CURRENT, *more), **OUTPUTS),
+               [says(1, "READY"), writes(review_text()), says(1, "READY")])
     # What the review must say: the verdict, the reviewer and the pass the command says.
     for label, text in (("another_verdict", review_text("NOT-READY", rows=ROW)), ("another_reviewer_named", review_text(reviewer="aidlc-architect-agent")), ("another_pass", review_text(n=2)),
                         ("no_fields", "It reads well.\n"), ("verdict_twice", review_text() + "\n**Verdict:** READY\n"), ("opens_with_the_heading", "## Review\n\n" + review_text()),
                         ("a_heading_of_its_own", review_text(head="## What I verified\n\nEverything.\n\n")), ("a_title", review_text(head="# Review of the intent\n\n")),
                         ("headings_after", review_text() + "\n## Notes\n\nNone.\n\n# More\n"), ("a_setext_heading", review_text(head="What I verified\n===============\n\n")),
-                        ("crlf", review_text().replace("\n", "\r\n")), ("a_byte_order_mark", "﻿" + review_text()), ("a_tilde", review_text() + "\nAbout ~5 minutes.\n")):
+                        ("a_heading_right_after_the_table", review_text() + "## Notes\n\nNone.\n"), ("crlf", review_text().replace("\n", "\r\n")), ("a_byte_order_mark", "﻿" + review_text()), ("a_tilde", review_text() + "\nAbout ~5 minutes.\n")):
         check_(f"review/verdict/says_{label}", created(strict, **OUTPUTS), [asks(1), writes(text), says(1, "READY")])
     # The outputs changed while the reviewer worked: refused under strict, with the way out that there is; the
     # verdict covers what the reviewer saw under a policy that is not strict.
@@ -5769,6 +5796,8 @@ def log_checks():
                                  ("no_table", "READY", review_text(n=2, findings=False)),
                                  ("ready_with_one_open", "READY", report("READY", ["R-01 | Still applies | Major | Nothing changed"]))):
         check_(f"review/verdict/second_pass_{label}", created(two, **OUTPUTS), first + [writes(text), says(2, verdict)], **twice)
+    # The pass that was answered waits no more: only the one asked since does.
+    check_("review/verdict/of_a_pass_already_answered", created(two, **OUTPUTS), first + [says(1, "NOT-READY"), says(3, "READY")], **twice)
     # A report that breaks a rule is sent back while the request can still be retried, and recorded once it was.
     missing = report("NOT-READY", [], ["Minor | stakeholder-map.md > Stakeholders | It names no owner | Name one"])
     unknown = report("NOT-READY", ["R-01 | Fixed | Major | Done", "R-09 | Fixed | Major | Never raised"])
@@ -5788,6 +5817,7 @@ def log_checks():
     reviews = f"{cap}/reviews"
     check_("review/verdict/copy_numbered", created(strict, **{**OUTPUTS, f"{reviews}/review-07.md": "x", f"{reviews}/review-x.md": "x", f"{reviews}/review-99999999999999999999.md": "x",
                                                               f"{reviews}/review-08.txt": "x", f"{reviews}/Review-09.md": "x"}), done)
+    check_("review/verdict/copy_numbered_after_the_highest", created(strict, **{**OUTPUTS, **{f"{reviews}/review-{n:02}.md": "x" for n in (4, 9, 2, 7, 1, 8, 3, 6, 5)}}), done)
     check_("review/verdict/copy_numbered_past_two_digits", created(strict, **{**OUTPUTS, f"{reviews}/review-0100.md": "x"}), done)
     check_("review/verdict/copy_not_written", created(strict, **{**OUTPUTS, reviews: "x"}), done)
     check_("review/verdict/copies_of_two_passes", created(two, **OUTPUTS), first + [writes(report("READY", ["R-01 | Fixed | Major | Done"])), says(2, "READY")], **twice)
@@ -5810,6 +5840,9 @@ def log_checks():
     check_("review/verdict/source_moved", created(strict, **SRC), source_moves + [asks(1), writes(review_text()), says(1, "READY")], **bound)
     check_("review/verdict/source_moved_policy_off", created(lenient, **SRC), source_moves, **bound)
     check_("review/verdict/source_added", created(strict, **SRC), [asks(1), writes(review_text()), ["@write", "src/more.py", "x = 1\n"], says(1, "READY")], **bound)
+    for label, tree in (("source_registry_unreadable", SRC), ("source_unbindable", {**SRC, ".git/HEAD": "ref: refs/heads/main\n"})):
+        UNRECORDED.add(f"log/review/verdict/{label}")
+        check_(f"review/verdict/{label}", created(strict, **tree), [asks(1), writes(review_text()), ["@write", ".aidlc-source-paths.json", "{"], says(1, "READY")], **bound)
     check_("review/verdict/request_before_source_binding", created(strict, **SRC), [asks(1), writes(review_text()), binds, says(1, "READY")])
     # A record readers would refuse is never written, and a review file larger than a record may be is not read.
     check_("review/verdict/record_over_the_cap", created(strict, **OUTPUTS), [asks(1), writes(review_text() + "\n" * 2200000), says(1, "READY")])
@@ -5824,6 +5857,14 @@ def log_checks():
     for label, finding in (("read", held), ("a_list_for_a_text", {**held, "finding": ["It names no user"]})):
         check_(f"review/verdict/earlier_record_{label}", created(two, **OUTPUTS), [asks_plain(2), writes(review_text(n=2, reviewer=plain)), says_plain(2, "READY")],
                edits=[reviewed_once(((1, "NOT-READY", ()),), findings=[finding]), graph_edit(review_class="adversarial")])
+    # The list an earlier record kept, where its status and its marks do not say the same: fixed is what either says.
+    unmarked, marked = {**held, "status": "Resolved"}, {**held, "status": "Unresolved", "resolved_by_reviewer": True}
+    still = report("NOT-READY", ["R-01 | Still applies | Major | Nothing changed"]).replace(lead, plain)
+    for label, listed_as, verdict, text in (("resolved_with_no_mark", unmarked, "READY", review_text(n=2, reviewer=plain, findings=False)),
+                                            ("marked_fixed_and_open", marked, "READY", review_text(n=2, reviewer=plain, findings=False)),
+                                            ("marked_fixed_and_still_applies", marked, "NOT-READY", still)):
+        check_(f"review/verdict/earlier_list_{label}", created(two, **OUTPUTS), [asks_plain(2), writes(text), says_plain(2, verdict)],
+               edits=[reviewed_once(((1, "NOT-READY", ()),), findings=[held], derived=[listed_as]), graph_edit(review_class="adversarial")])
     # The `## Review` section an older release left in the artifact, from before there were records: its findings
     # start the stage's list. And the artifact under a second name (a link no recording carries: compared live).
     # (The section names a reviewer whose name is the same in both engines, so the artifact's bytes are.)
@@ -5843,6 +5884,23 @@ def log_checks():
     state_path = f"{CREATED_DIR}/aidlc-state.md"
     owing_now = strict.replace("- **Summary Confirmation**: off (set by a command)", "- **Summary Confirmation**: on (from scope feature)")
     check_("review/verdict/summary_owed_since", created(strict, **OUTPUTS), [asks(1), writes(review_text()), ["@write", state_path, owing_now], says(1, "READY")])
+    # A summary that was confirmed, by a ledger written by hand: the receipt over the questions file's bytes, and each
+    # output saved after it. The answers amended while the reviewer worked are a change the Guard Policy decides on.
+    answers = f"{cap}/intent-capture-questions.md"
+    summary = "# Questions\n\n## Q1. Who is it for?\n\n[Answer]: A\n\n## Consolidated Summary Confirmation\n\nA tool for the team.\n\n[Answer]: Looks correct\n"
+    receipt_of = lambda text: block("SUMMARY_CONFIRMATION_RECORDED", T(3), "**Stage**: intent-capture", "**Checkpoint**: Consolidated Summary Confirmation", f"**Questions File**: {answers}",
+                                    "**Details**: Looks correct", "**Questions SHA-256**: " + hashlib.sha256(text.encode("utf-8")).hexdigest())
+    saved = "".join(block("ARTIFACT_UPDATED", T(4), f"**File**: {path}") for path in OUTPUTS if path != answers)
+    owing_of = lambda state: state.replace("- **Summary Confirmation**: off (set by a command)", "- **Summary Confirmation**: on (from scope feature)")
+    confirmed_once = lambda state, text=summary: created(owing_of(state), CREATED_AUDIT + receipt_of(summary) + saved, **{**OUTPUTS, answers: text})
+    amended = summary.replace("[Answer]: A", "[Answer]: B")
+    amends = ["@write", answers, amended]
+    check_("review/verdict/summary_confirmed", confirmed_once(strict), done)
+    for label, state in (("", strict), ("_policy_relaxed", relaxed), ("_policy_off", lenient)):
+        check_(f"review/verdict/summary_amended_since{label}", confirmed_once(state), [asks(1), writes(review_text()), amends, says(1, "READY")])
+        check_(f"review/verdict/summary_amended_and_no_review{label}", confirmed_once(state), [asks(1), amends, says(1, "READY")])
+        check_(f"review/request/summary_amended{label}", confirmed_once(state, amended), [asks(1), asks(1)])
+        check_(f"review/request/summary_amended_and_refused{label}", confirmed_once(state, amended), [asks(2)])
     # A second name is a link no recording carries, the project's own name is the replay's own, and a state that is
     # not text is no text a recording holds: compared live.
     UNRECORDED.update({"log/link/handoff_a_second_name", "log/link/root_handoff_by_its_name", "log/link/state_not_text"})
