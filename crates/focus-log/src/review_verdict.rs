@@ -28,6 +28,16 @@
 //! In a swarm the verdict also removes the dispatch record of the main
 //! workspace (`removeParentReviewerDispatch`). That is asked of a unit's
 //! worktree, and `--unit` is refused before this module is reached.
+//!
+//! Five more, among the three reviews, each one said again at its line.
+//! A section that is the review is not also "no review" (`embeddedLegacy`
+//! tests `!incompleteFallback`, which already needs no section). Such a
+//! section is never checked against a challenge: a request gives one only
+//! for a section it saw, and a section it saw was not appended after it.
+//! The table of a verdict with no review is not read: its body is empty,
+//! and an empty body has no table. Headings are made level 3 only in a
+//! file: a section starts at its `## Review` and has no `#` or `##` after
+//! it. And the draft is removed only when one was read: there is no other.
 
 use std::path::Path;
 use std::time::SystemTime;

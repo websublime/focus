@@ -2695,7 +2695,7 @@ O veredicto é a segunda metade de `handleReview` (`aidlc-log.ts`, L3 869 a L4 4
 
 O veredicto, pela ordem do original: as flags; o pedido pendente dessa passagem; a admissão do sumário outra vez (uma revisão pode durar mais do que a confirmação); o retrato dos artefactos; os artefactos que mudaram enquanto o reviewer trabalhava (recusa sob `strict`, com «pede outra vez» quando o pedido se pode substituir; sob `relaxed` ou `off` o veredicto cobre o que o reviewer viu); o ficheiro que o pedido abriu, lido sem links, com um só nome e dentro do tamanho de um registo; a revisão a dizer o que o comando diz, com os títulos `#` e `##` rebaixados e o campo que o conta; a fonte de um stage que escreve o workspace; os findings (a tabela, juntos à lista do stage, ou tal como escritos num stage corrido sozinho); o registo, que nunca passa do tamanho que os leitores aceitam; a linha `REVIEW_COMPLETED`; o rascunho retirado; a cópia legível, numerada depois das que lá estão; o registo de despacho do reviewer retirado; a resposta.
 
-**O que ficou de fora, pelo nome** (2e-iv-b): `--review-file`; o `NOT-READY` sem revisão de um pedido já repetido; a secção `## Review` acrescentada ao artefacto sem ficheiro de revisão. O original lê ou grava cada um; Focus recusa.
+**O que ficou de fora, pelo nome** (2e-iv-b): `--review-file`; o `NOT-READY` sem revisão de um pedido já repetido; a secção `## Review` acrescentada ao artefacto sem ficheiro de revisão. O original lê ou grava cada um; Focus recusava. A 2e-iv-b (abaixo) trouxe os três.
 
 **Dois testes do original que não mudam resposta nenhuma.** O pedido pendente «sem ligação válida» não existe: a contagem da tentativa salta uma linha de pedido cuja ligação não se lê. E o registo de despacho do workspace principal, que o original retira num swarm, é da worktree de uma Unit, e `--unit` é recusado antes.
 
@@ -2758,15 +2758,21 @@ A mutação achou ainda o defeito dos avisos (acima): o mutante que tirava a gra
 
 **O projeto dito por um link.** `--review-file` é o primeiro caminho que o engine resolve a partir de `--project-dir` e depois exige dentro do registo real. Com o projeto dito por um link (medido: `review_file_named_in_a_linked_project`), um caminho relativo e um absoluto escrito pelo link são recusados como fora do registo; só o caminho real absoluto é aceite. Focus faz o mesmo, pela mesma conta (`resolve` e `relative` de `focus-js`, sobre o `realpath` do registo dito como o Node o diz). A pasta temporária do macOS está atrás de um link, e a repetição da gravação punha lá as árvores: passou a criá-las no caminho real, como o gravador as tinha.
 
-**Dois testes do original que aqui não mudam resposta nenhuma**, cada um escrito no módulo:
+**Cinco testes do original que aqui não mudam resposta nenhuma.** A mutação mostrou-os (abaixo): trocado cada um, nenhum check muda, e a razão é do próprio código. Três deixaram de estar escritos; dois ficam, com a razão na linha.
 
-@@B_EQUIV@@
+| O teste do original | Porque não muda nada | Em Focus |
+| --- | --- | --- |
+| `embeddedLegacy = body === null && !incompleteFallback && appended` | `incompleteFallback` já exige que não haja secção acrescentada: os dois excluem-se | O termo do meio saiu |
+| `reviewChallenge: embeddedLegacy ? legacy.challenge : null` | Um pedido só dá um desafio quando já viu uma secção (`request_binding` recusa o campo sem ela), e um pedido que viu uma secção não tem nenhuma «acrescentada depois» (`appended_after_request`). Uma secção que é a revisão nunca tem desafio a cumprir, e por isso tem de o omitir (`appended_section_with_a_challenge`) | `None`, com a razão escrita |
+| A tabela não se lê quando não há revisão | O corpo gravado é vazio, e um corpo vazio não tem tabela: ler dá a mesma lista vazia | Lê sempre |
+| Os títulos só se rebaixam num ficheiro (`body === null ? null : demoteReviewHeadings`) | Os bytes de uma secção começam no seu `## Review` e não têm `#` nem `##` depois (é isso que a faz terminal): não haveria título para mudar | Fica, com a razão na linha |
+| O rascunho só se retira quando foi lido | Sem ficheiro lido não há nenhum para retirar, e retirar um que não existe não é erro | Fica, com a razão na linha: poupa a tentativa |
 
 **O que o harness ganhou.** `{REVIEW}` e `{REVIEW_DIR}` valem também nos argumentos de um comando, nos dois harnesses. O passo `@name <caminho> <segundo>` dá um segundo nome a um ficheiro (um hard link), só no diferencial, como `@link`. As palavras do runtime para um ficheiro nomeado que não existe (`ENOENT … stat` de um lado, `No such file or directory (os error 2)` do outro) assentam-se como as outras, nos dois harnesses. O nome de uma tentativa recalcula-se também para a árvore dita pelo seu segundo nome (`<raiz>-link`).
 
 **Desvios.** Nenhum novo. Sai de `DEVIATIONS` a entrada `log/review/verdict/\w+_not_ported` (os três checks passaram a comparar igual) e o teste marcado em `crates/focus-cli/tests/log.rs` fica só com `--unit`.
 
-**O que a mutação mostrou.** @@B_HOLES@@
+**O que a mutação mostrou.** 32 mutantes sobre o que a fatia escreveu: a leitura do ficheiro nomeado (`read_draft`), as três entradas e o que cada uma muda no veredicto (`review_verdict.rs`), a flag (`review.rs`) e `files::same_file`, cada um julgado pelo diferencial ao vivo em `log/review/(verdict|request)/`. 26 morreram à primeira e 6 sobreviveram. Cinco são os testes da tabela acima. O sexto era um buraco: com `standalone` sempre verdadeiro, uma secção deixava de ter de abrir pelo seu título. O que o distingue é um artefacto que acaba no título, sem fim de linha: a secção existe (é o último `##` do documento) e os bytes dela não abrem por «`## Review` e uma linha». O original recusa com «the appended bytes must begin with only blank lines followed by an exact `## Review` heading», e Focus também (`appended_section_ends_at_its_heading`, que mata o mutante). A cópia legível só quando a revisão tem corpo, que a 2e-iv-a deixou como equivalente por não haver ainda revisão sem corpo, morreu aqui à primeira.
 
 **Verificado.**
 
