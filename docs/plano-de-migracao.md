@@ -3366,27 +3366,38 @@ O guard do gate desliga-se com `SKIP_REVIEWER_GATE_GUARD` na abertura; na conclu
 | --- | --- |
 | Os recibos da stage, lidos uma vez | Um veredicto terminal desta tentativa sobre o documento como está congela-o; uma revisão de recuperação pendente também (o reviewer escreve ao lado do documento, nunca nele). Sem veredicto que valha, a escrita passa |
 | A cerca baixada para este trabalho | Pela palavra da Guard Policy (`relaxed` di-lo numa linha, `off` não diz nada) ou pelo interruptor da pessoa (`Guards Off: review-freeze`) sob `strict`: uma linha `GUARD_STOOD_ASIDE` e a escrita passa. O recibo e o veredicto ficam como estavam |
-| A recusa | Uma linha `REVIEW_FREEZE_BLOCKED` (quando o shard deste clone existe), e uma recusa de guard (`REVIEW_FREEZE_ACTIVE`, ação `artifact-write:<caminho>`) avaliada na tentativa com os recibos que o congelamento leu e a cobertura que a evidência do sumário diz. A frase leva o caminho que o avaliador pode seguir já, ou a orientação de recuperação da stage; código de saída 2 |
+| A recusa | Uma linha `REVIEW_FREEZE_BLOCKED` (quando o shard deste clone existe), e uma recusa de guard (`REVIEW_FREEZE_ACTIVE`, ação `artifact-write:<caminho>`) avaliada na tentativa com os recibos que o congelamento leu e a cobertura que a evidência do sumário diz. A frase leva o caminho que o avaliador pode seguir já; código de saída 2 |
 | O interruptor que baixa a cerca | Oferecido por último entre os remédios da pergunta; não a um subagente (nem a quem despacha um), nem onde a equipa mantém a política `strict` em memória |
 
 **A nota de um hook (`guardRefusalHookNote`, a primeira metade da 4c-iii).** Um hook de `PreToolUse` fala para a pessoa, por isso não imprime JSON: diz a frase e «Next: `focus engine orchestrate next`», e deixa a pergunta de recuperação no registo da recusa (`guard-refusals/`), com a aprovação mais recente da stage, para o passo seguinte a fazer. É `guard_series::hook_note`. Quem lê essa pergunta de volta (`pendingGuardRecoveryAsk`) vem com `orchestrate next`.
 
 **O turno da pessoa (`record-human-turn`).** A pessoa escreve enquanto uma revisão pedida neste workflow não tem veredicto (pode tê-la parado): o agente ouve que corre `next` primeiro, antes de repetir a revisão ou gravar o que quer que seja. O rasto nomeia o pedido aberto (um pedido por onde o trabalho já passou não conta, nem o de uma stage corrida sozinha); os recibos confirmam que ainda espera. É uma nota, nunca um bloqueio, dita depois de o turno ficar gravado.
 
-**O que continua recusado pelo nome.** O congelamento de uma stage por unit, que no original se decide unit a unit pelos recibos e claims de cada uma: com linhas de revisão no ledger, a escrita num documento dela é recusada pelo nome até à fatia 5. Declarado três vezes (`hook/review-freeze/per_unit_review_rows`, o teste `a_document_of_a_stage_that_runs_for_each_unit_is_refused_by_name`, esta linha).
+**O que continua recusado pelo nome.** O congelamento de uma stage por unit, que no original se decide unit a unit pelos recibos e claims de cada uma: com linhas de revisão no ledger, a escrita num documento dela é recusada pelo nome até à fatia 5. Declarado três vezes (`hook/review-freeze/per_unit_review_rows`, o teste `a_document_of_a_stage_that_runs_for_each_unit_is_refused_by_name`, esta linha). E o ramo a que nenhum caso chega: um documento congelado para o qual o avaliador não deixasse nenhum passo para já (a tabela da mutação, abaixo).
 
 **O que a comparação encontrou.** Uma diferença de escrita, não de comportamento: o comando do interruptor da cerca aparece agora como valor próprio no registo de uma recusa, e cada motor escreve-o à sua maneira (`focus engine config set guard.review-freeze off`). As duas ferramentas de comparação ganharam a regra que já tinham para a forma entre plicas. O resto deu igual à primeira.
 
-**O que a mutação encontrou.** @@MUT@@
+**O que a mutação encontrou.** 47 mutantes sobre os dois hooks e a nota (a decisão do congelamento, a cerca e o que deixa quando se baixa, a linha do bloqueio, o que entrega à tentativa e ao avaliador, quem recebe o interruptor, o rasto do pedido aberto e as condições da nota), julgados pelo diferencial ao vivo: 34 morreram à primeira e um não compilou. Dos doze que ficaram:
+
+| O que o mutante trocava | O que lhe aconteceu |
+| --- | --- |
+| Quem escreve, na linha que a cerca deixa ao baixar-se | Buraco: `stands_aside_subagent`, `stands_aside_switch_subagent`, `stands_aside_unattended` |
+| A cobertura de um sumário recusado, dita como atual | Buraco: `frozen_recovery_pending_summary_unconfirmed` e a variante sem ninguém a ver |
+| Um veredicto que fecha todos os pedidos abertos, e não só o seu | Buraco: `review_waits_then_another_stage_completed`, `…another_pass_completed` |
+| O estado entregue à cerca; «um prompt foi submetido», testado outra vez | Código a mais: a cerca lê o mesmo ficheiro, e só há palavras escritas onde houve prompt. Saíram |
+| A orientação de recuperação, quando o avaliador não deixa nenhum passo para já | **Nenhum caso lá chega.** O avaliador deixa sempre um (o reset da própria stage), em todas as stages onde um congelamento se encontrou; seis checks escritos para o tentar (stage por começar, subagente, sem ninguém a ver, equipa `strict`, juntos) ficaram, e dizem todos o passo do avaliador. O original recua aí para a orientação da stage, e para palavras fixas se ela não se ler; nada disso se podia comparar, por isso não foi escrito: se acontecer, Focus recusa pelo nome |
+| Os recibos e a cobertura entregues à tentativa; a classe entregue aos recibos (no turno) | Equivalentes por construção: quem os recebe leria o mesmo |
+| As impressões digitais entregues ao registo da recusa | Só entram na assinatura da série, que a comparação resolve pela ordem |
+| No turno: saltar as linhas de uma stage corrida sozinha; saltar a classe `none` | Equivalentes pelos recibos, que decidem o mesmo um passo depois (não contam essas linhas; nada espera numa classe que não revê). Dito no sítio |
 
 **Verificado.**
 
 | Verificação | Resultado |
 | --- | --- |
-| Diferencial, os dois hooks | @@NEW@@ checks novos, com revisões escritas à mão: o congelamento que morde (um veredicto, um `NOT-READY`, uma recuperação pendente ou feita, três recusas seguidas, o grupo `guard-tool-call`), o que não congela (pedido sem veredicto, outros bytes, recuperação gasta, registo desaparecido, classe `none`, stage em revisão), a cerca baixada de cada maneira, quem não recebe o interruptor; e a nota do turno (à espera, feita, de recuperação, depois de cada linha por onde o trabalho passou). Saíram de `DEVIATIONS` os checks `review_rows*` dos dois hooks e `open_review_reviewed` |
-| Diferencial, tudo | @@TOTAL@@ |
-| Mutação | @@MUTROW@@ |
-| `cargo test` | @@TESTS@@ |
+| Diferencial, os dois hooks | 58 checks novos, com revisões escritas à mão: o congelamento que morde (um veredicto, um `NOT-READY`, uma recuperação pendente ou feita, três recusas seguidas, o grupo `guard-tool-call`), o que não congela (pedido sem veredicto, outros bytes, recuperação gasta, registo desaparecido, classe `none`, stage em revisão), a cerca baixada de cada maneira, quem não recebe o interruptor; e a nota do turno (à espera, feita, de recuperação, depois de cada linha por onde o trabalho passou). Saíram de `DEVIATIONS` dez checks (os `review_rows*` do congelamento e do grupo, `review-freeze/directive_marker`, que só o era por ter linhas de revisão, e `open_review_reviewed`); entrou um, o congelamento por unit |
+| Diferencial, tudo | 4 269 checks: 4 050 iguais, 219 desvios declarados, nenhum diferente; a gravação (4 163 checks sobre 1 709 árvores) repete-se igual; o fuzz (`--fuzz 600`) dá 600 iguais |
+| Mutação | 47 mutantes: 34 mortos à primeira, 1 que não compilou; dos 12 restantes, 3 buracos fechados com sete checks e repetidos até morrerem, 2 de código a mais que saiu, 1 de um ramo a que nenhum caso chega (trocado por uma recusa pelo nome), 6 equivalentes ditos no sítio |
+| `cargo test` | 605 testes, os mesmos: os três testes de CLI que usavam a recusa pelo nome do congelamento passaram a usar a que resta (a stage por unit), e o do turno lê a nota |
 
 ### Fatia 4: a pergunta de recuperação, partida em três
 
