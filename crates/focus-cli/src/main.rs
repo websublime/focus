@@ -16,6 +16,7 @@ mod hook;
 mod jump;
 mod log;
 mod report;
+mod review_brief;
 mod runtime;
 mod state;
 mod utility;
@@ -56,6 +57,7 @@ Commands:
   engine state park            Stop the work where it is; unpark takes it up again
   engine jump resolve          Where a jump would land
   engine jump execute          Move the work to another stage
+  engine review-brief context  Print the findings a stage's reviews stand at
   engine utility detect        Scan the workspace: project type, languages, build system
   engine utility intent-create Create a piece of work
   engine utility now           Print the engine's time
@@ -112,15 +114,16 @@ fn main() -> ExitCode {
             Some("hook") => hook::run(&mut args),
             Some("jump") => jump::run(&mut args),
             Some("log") => log::run(&mut args),
+            Some("review-brief") => review_brief::run(&mut args),
             Some("runtime") => runtime::run(&mut args),
             Some("state") => state::run(&mut args),
             Some("utility") => utility::run(&mut args),
             Some(other) => Err(format!(
-                "Unknown engine command: {other}. Valid: audit, graph, hook, jump, log, runtime, state, utility"
+                "Unknown engine command: {other}. Valid: audit, graph, hook, jump, log, review-brief, runtime, state, utility"
             )
             .into()),
             None => Err(
-                "Usage: focus engine <command>. Valid: audit, graph, hook, jump, log, runtime, state, utility"
+                "Usage: focus engine <command>. Valid: audit, graph, hook, jump, log, review-brief, runtime, state, utility"
                     .into(),
             ),
         },
