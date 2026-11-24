@@ -689,6 +689,9 @@ pub fn contexts(wf: &Workflow, stage: &Stage, unit: Option<&str>) -> Result<Vec<
             (!scope.is_empty()).then_some(scope.as_str()),
             None,
         )?;
+        // (Upstream asks for the text too. Wherever a list keeps a report's
+        // text it holds the finding that says the report was not read, so
+        // the question before it has already answered.)
         if (!context.incomplete_review && context.verdict.is_some())
             || !context.findings.is_empty()
             || context.findings_text.is_some()

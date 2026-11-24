@@ -6876,6 +6876,8 @@ def jump_checks():
     j_decided = block("GATE_APPROVED", T(9), "**Stage**: rough-mockups", "**Review Finding Dispositions**: " + json.dumps(
         {"version": 1, "dispositions": [{"artifact": j_wires, "id": ["R-01"], "fingerprint": "sha256:" + "b" * 64, "status": "Accepted risk"}]}))
     jump_reviewed("execute/backward_review_decisions_a_list_for_a_text", (1, "NOT-READY", (), j_fp), findings=[j_held], more=[lambda tree: tree.edit(CREATED_SHARD, lambda text: text + j_decided)])
+    # (Nobody reads the list of a stage nobody reviews, so there the same row refuses nothing.)
+    jump_reviewed("execute/backward_decisions_a_list_of_a_stage_nobody_reviews", (1, "NOT-READY", (), j_fp), findings=[j_held], more=[lambda tree: tree.edit(CREATED_SHARD, lambda text: text + j_decided), j_nobody])
     # A reviewed stage behind the jump, with rows that are no review.
     reviewed = at_stage(CREATED_STATE, "approval-handoff", done=ideation)
     check_("execute/backward_over_reviewed_stage", created(reviewed, **ic, **artifact("rough-mockups", "wireframes", "# W\n\n## Review\n- R-01 New: x\n")),
