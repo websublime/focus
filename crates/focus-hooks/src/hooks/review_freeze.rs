@@ -352,17 +352,22 @@ pub fn run(input: &str, layout: &Layout) -> Outcome {
         Ok(evaluated) => evaluated,
         Err(err) => return refused(&EngineError::new(err)),
     };
-    // The way on the evaluator can take now, or the stage's recovery
-    // guidance; and when that cannot be read, the words that always hold.
-    let guidance = evaluated
+    // The way on the evaluator can take now. It leaves one for every stage
+    // a freeze was found at (the stage's own reset is always among them).
+    // Upstream falls back on the stage's recovery guidance when there is
+    // none, and on fixed words when that cannot be read: no case reaches
+    // either, so neither is said here.
+    let Some(guidance) = evaluated
         .remedies
         .iter()
         .find(|remedy| remedy.executable_now)
         .map(|remedy| remedy.action.clone())
-        .or_else(|| {
-            guard_refusal::recovery_guidance(&wf, &content, slug, None, unattended, None).ok()
-        })
-        .unwrap_or_else(|| FALLBACK_GUIDANCE.to_owned());
+    else {
+        return refused(&EngineError::new(format!(
+            "\"{}\" is held by the review of \"{slug}\", and no way on can be taken now: upstream then says the stage's recovery guidance, which Focus does not say yet (no comparison has reached it).",
+            frozen.target
+        )));
+    };
     let refusal = guard_refusal::Refusal {
         user_message: format!(
             "review-freeze: \"{}\" is this stage's output document for stage \"{slug}\", and its latest review is final. Writing it now would make that review no longer cover the document. If this is a reviewer suggestion, quote it at the gate instead of applying it. {guidance}",
@@ -387,6 +392,3 @@ struct Frozen<'a> {
     target: String,
     receipts: Receipts,
 }
-
-/// `REVIEW_FREEZE_FALLBACK_GUIDANCE`.
-const FALLBACK_GUIDANCE: &str = "Record the person's Request Changes decision, with what they said should change (ask only if they have not said), before editing the document; that unlocks it for revision and a fresh review.";
