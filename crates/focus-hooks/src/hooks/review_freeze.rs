@@ -9,30 +9,52 @@
 //! `FOCUS_DISABLE_REVIEW_FREEZE_HOOK=1` disables the check entirely.
 //!
 //! What the freeze decides from is the review receipt scan
-//! (`freshReviewReceipts`), which weighs the ledger's review rows against
-//! the attempt window, the source bindings and the Unit claims: the
-//! attestation's territory (M5). Focus does not weigh review receipts yet,
-//! so a write that would reach that scan (a declared artifact of an open
-//! reviewer-bearing stage, in a ledger that holds a review row) is refused
-//! by name; a ledger with no review row holds no receipt, and the write
-//! passes as upstream passes it.
+//! (`freshReviewReceipts`): a terminal verdict of the current attempt over
+//! the document as it is, or a recovery review still pending, freezes it.
+//! The refusal is a guard's (`REVIEW_FREEZE_ACTIVE`): a
+//! `REVIEW_FREEZE_BLOCKED` row, the sentence with the way on, and the
+//! recovery question left in the refusal's record for the next `next` to
+//! ask (exit 2). The fence stands aside when the Guard Policy or the
+//! person's own switch lowers it for this piece of work: one line to the
+//! person, one row in the ledger, and the write goes through.
+//!
+//! A stage that runs for each unit freezes unit by unit, off each unit's
+//! receipt and claim: with review rows in its ledger, a write to one of
+//! its documents is refused by name until units arrive.
+//!
+//! # What no check tells apart
+//!
+//! - The receipts and the summary's coverage handed to the guard's attempt:
+//!   it would read both the same.
+//! - The fingerprints of what the attempt read, handed to the refusal's
+//!   record: they enter only the signature of the series, which the
+//!   comparison settles by order.
 
 use std::time::SystemTime;
 
 use focus_audit::read::block_field;
 use focus_audit::time::iso_timestamp;
+use focus_graph::runtime::Stage;
+use focus_guards::Decision;
+use focus_guards::fences::Fence;
 use focus_guards::shell::{CommandShell, Host, write_targets};
+use focus_guards::workflow::Guards;
 use focus_js::EngineError;
+use focus_lifecycle::admission::{memory_strict_holds_guard_policy, resolve_review_class};
 use focus_lifecycle::gate::reviewed_artifact_unit;
+use focus_lifecycle::guard_refusal::{self, Coverage};
 use focus_lifecycle::registry::intent_repos;
-use focus_lifecycle::stage;
+use focus_lifecycle::review_receipts::{self, Receipts};
+use focus_lifecycle::summary_evidence::{self, Evidence};
+use focus_lifecycle::{guard_attempt, guard_series, stage};
 use focus_state::progress::{CheckboxState, parse_checkboxes};
 use focus_workspace::Layout;
 use serde_json::Value;
 
-use super::{open, refused};
+use super::{append, dropped, is_refusal, open, record_stood_aside, refused, stood_aside_output};
 use crate::health::{cursor_selection, hooks_health_dir, record_drop, write_status_file};
 use crate::{Outcome, context, payload};
+use focus_workspace::env;
 
 const HOOK: &str = "review-freeze";
 
@@ -151,42 +173,222 @@ pub fn run(input: &str, layout: &Layout) -> Outcome {
             return Outcome::exit(0);
         }
     };
-    for stage in stages.iter().filter(|stage| stage.enabled) {
+    let mut frozen: Option<Frozen<'_>> = None;
+    'stages: for stage in stages.iter().filter(|stage| stage.enabled) {
         if stage::reviewer(stage).is_none() || !open_slugs.contains(&stage.slug) {
             continue;
         }
+        // The receipt scan runs once, for a stage a target is an output of.
+        let mut receipts: Option<Receipts> = None;
         for file in &targets {
             if reviewed_artifact_unit(stage, file, &repos).is_none() {
                 continue;
             }
-            // The write reaches the receipt scan. Its review class resolves
-            // to `none` for a scope that reviews nothing; upstream still
-            // runs the scan, which answers empty for that class.
-            let reviews: Vec<&str> = wf
-                .events()
-                .iter()
-                .filter(|event| {
+            if stage::has_unit_marker(stage) {
+                // Not ported: a stage that runs for each unit freezes unit
+                // by unit, off each unit's receipt and claim.
+                if wf.events().iter().any(|event| {
                     REVIEW_ROWS.contains(&event.event.as_str())
                         && block_field(&event.block, "Stage") == Some(stage.slug.as_str())
-                })
-                .map(|event| {
-                    if event.event == "REVIEW_COMPLETED" {
-                        "a completed review"
-                    } else {
-                        "a review request"
-                    }
-                })
-                .collect();
-            if reviews.is_empty() {
-                // No receipt: nothing to freeze for this stage.
+                }) {
+                    return refused(&EngineError::new(format!(
+                        "\"{file}\" is an output document of \"{}\", which runs for each unit and whose ledger holds review rows: which unit's review still covers it is read off the units' rows and claims, and Focus does not read those yet. Record the review's outcome at the gate, or write elsewhere.",
+                        stage.slug
+                    )));
+                }
                 continue;
             }
-            return refused(&EngineError::new(format!(
-                "\"{file}\" is the output document of \"{}\", whose ledger holds {}: whether a fresh terminal review still covers it is the review receipt scan's answer, and Focus does not weigh review receipts yet. Record the review's outcome at the gate, or write elsewhere.",
-                stage.slug,
-                reviews.join(" and ")
-            )));
+            if receipts.is_none() {
+                let class = resolve_review_class(&wf, stage, &content);
+                match review_receipts::fresh(
+                    &wf,
+                    &content,
+                    stage,
+                    review_receipts::Options {
+                        review_class: Some(class),
+                        ..Default::default()
+                    },
+                ) {
+                    Ok(read) => receipts = Some(read),
+                    Err(err) if is_refusal(&err) => return refused(&err),
+                    Err(err) => {
+                        record_drop(layout, selection, HOOK, &err.to_string());
+                        return Outcome::exit(0);
+                    }
+                }
+            }
+            let Some(read) = receipts.as_ref() else {
+                continue;
+            };
+            // `judgeFreeze`: a terminal verdict covers the document, and so
+            // does a recovery review still pending: the reviewer writes
+            // beside the document, never in it.
+            if read.stage_pending.is_some_and(|pending| pending.recovery)
+                || read.stage_verdict.is_some()
+            {
+                frozen = Some(Frozen {
+                    stage,
+                    target: file.clone(),
+                    receipts: read.clone(),
+                });
+                break 'stages;
+            }
         }
     }
-    Outcome::exit(0)
+    let Some(frozen) = frozen else {
+        return Outcome::exit(0);
+    };
+    let slug = frozen.stage.slug.as_str();
+
+    // The fence stands aside when it is lowered for this piece of work, by
+    // the Guard Policy's word or by the person's own switch. The receipt
+    // and its verdict are untouched: the person is told in one line and the
+    // ledger keeps the row.
+    let agent_type = parsed.get("agent_type").and_then(Value::as_str);
+    let subagent_type = tool_input
+        .and_then(|input| input.get("subagent_type"))
+        .and_then(Value::as_str);
+    match Guards::read(layout, &wf.selector(), &workflow.invoker) {
+        Err(err) if is_refusal(&err) => return refused(&err),
+        Err(err) => record_drop(layout, selection, HOOK, &err.to_string()),
+        Ok(guards) => {
+            // (Upstream hands over the state it has read; the guards read
+            // the same file.)
+            let decided = guards.decide_for(
+                Fence::ReviewFreeze,
+                Guards::actor_from(agent_type, subagent_type),
+            );
+            if decided.decision == Decision::StandAside {
+                let stdout = stood_aside_output(layout, &decided, &frozen.target);
+                record_stood_aside(&wf, &decided, Some(slug), &tool, &frozen.target);
+                return Outcome {
+                    code: 0,
+                    stdout,
+                    stderr: String::new(),
+                };
+            }
+        }
+    }
+
+    // The refusal goes in the run's record, so it shows when the freeze
+    // bit. Best effort: the block is already decided.
+    if wf
+        .ledger()
+        .audit_file(&wf.selector(), &wf.invoker)
+        .is_ok_and(|shard| shard.exists())
+    {
+        let fields = [
+            ("Tool", tool.clone()),
+            ("Target", frozen.target.clone()),
+            ("Stage", slug.to_owned()),
+        ];
+        if let Err(err) = append(&wf, "REVIEW_FREEZE_BLOCKED", &fields)
+            && let Some(outcome) = dropped(layout, selection, HOOK, &err)
+        {
+            return outcome;
+        }
+    }
+
+    // The attempt as the evaluator sees it, from the receipts the freeze
+    // has just read. The summary's coverage is the evidence's own word.
+    let coverage = match summary_evidence::check(
+        &wf,
+        frozen.stage,
+        summary_evidence::Asked {
+            workflow: None,
+            state: Some(&content),
+            scope: None,
+            unit: None,
+        },
+    ) {
+        Ok(Evidence::Ok { .. }) => Coverage::Current,
+        Ok(Evidence::Refused { coverage, .. }) => coverage.into(),
+        Err(err) => return refused(&err),
+    };
+    let project_dir = layout.project.to_string_lossy().into_owned();
+    let snapshot = match guard_attempt::guard_attempt_state(
+        &wf,
+        &project_dir,
+        &content,
+        frozen.stage,
+        guard_attempt::Options {
+            receipts: Some(frozen.receipts.clone()),
+            summary_coverage: Some(coverage),
+            ..Default::default()
+        },
+    ) {
+        Ok(snapshot) => snapshot,
+        Err(err) => return refused(&err),
+    };
+    let unattended = guard_refusal::unattended_says(env::var("UNATTENDED").as_deref());
+    let named =
+        |value: Option<&str>| value.is_some_and(|text| !focus_js::text::trim(text).is_empty());
+    let blocked_action = format!("artifact-write:{}", frozen.target);
+    let evaluated = match guard_refusal::evaluate(
+        &wf,
+        &guard_refusal::Input {
+            code: "REVIEW_FREEZE_ACTIVE",
+            blocked_action: &blocked_action,
+            stage: slug,
+            unit: None,
+            project_dir: Some(&project_dir),
+            state: &content,
+            invariant: "A terminal review continues to cover the bytes it certified.",
+            user_message: "",
+            attempt: &snapshot.attempt,
+            unattended,
+            // This refusal is the fence holding, so the question carries
+            // the switch that lowers it beside the workflow's own ways on:
+            // not for a subagent, nor where the team keeps the policy
+            // strict.
+            fence: Some(Fence::ReviewFreeze),
+            fence_switch_withheld: named(agent_type)
+                || named(subagent_type)
+                || memory_strict_holds_guard_policy(&wf, &content),
+            summary: None,
+            shell: None,
+        },
+    ) {
+        Ok(evaluated) => evaluated,
+        Err(err) => return refused(&EngineError::new(err)),
+    };
+    // The way on the evaluator can take now. It leaves one for every stage
+    // a freeze was found at (the stage's own reset is always among them).
+    // Upstream falls back on the stage's recovery guidance when there is
+    // none, and on fixed words when that cannot be read: no case reaches
+    // either, so neither is said here.
+    let Some(guidance) = evaluated
+        .remedies
+        .iter()
+        .find(|remedy| remedy.executable_now)
+        .map(|remedy| remedy.action.clone())
+    else {
+        return refused(&EngineError::new(format!(
+            "\"{}\" is held by the review of \"{slug}\", and no way on can be taken now: upstream then says the stage's recovery guidance, which Focus does not say yet (no comparison has reached it).",
+            frozen.target
+        )));
+    };
+    let refusal = guard_refusal::Refusal {
+        user_message: format!(
+            "review-freeze: \"{}\" is this stage's output document for stage \"{slug}\", and its latest review is final. Writing it now would make that review no longer cover the document. If this is a reviewer suggestion, quote it at the gate instead of applying it. {guidance}",
+            frozen.target
+        ),
+        ..evaluated
+    };
+    Outcome {
+        code: 2,
+        stdout: String::new(),
+        stderr: format!(
+            "{}\n",
+            guard_series::hook_note(&wf, &refusal, &snapshot.attempt, &snapshot.resources)
+        ),
+    }
+}
+
+/// A write the freeze holds: the stage whose review it would void, the
+/// path, and the receipts that say so.
+struct Frozen<'a> {
+    stage: &'a Stage,
+    target: String,
+    receipts: Receipts,
 }

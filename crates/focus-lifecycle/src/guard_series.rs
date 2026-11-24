@@ -623,6 +623,25 @@ pub fn printed(wf: &Workflow, error: &focus_js::EngineError) -> String {
     }
 }
 
+/// `guardRefusalHookNote`: the refusal as a hook that runs before a tool
+/// prints it: what was refused, then the step to take. The tool shows a
+/// hook's output to the person, so it carries no JSON: the recovery
+/// question waits in the refusal's record, and the next `next` asks it.
+#[must_use]
+pub fn hook_note(
+    wf: &Workflow,
+    refusal: &Refusal,
+    attempt: &Attempt,
+    resources: &[String],
+) -> String {
+    // (The count is the record's; a hook says none.)
+    let _ = record_refusal(wf, refusal, attempt, resources, true);
+    format!(
+        "{} Next: `focus engine orchestrate next`.",
+        refusal.user_message
+    )
+}
+
 /// `guardRefusalOutput`: the refusal as a tool that enforces prints it:
 /// the sentence, then the ask as the last line, so the router can read it
 /// back into the directive it would have given itself. The refusal is
