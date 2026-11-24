@@ -514,9 +514,8 @@ pub struct PersonApproval {
 }
 
 impl PersonApproval {
-    /// Whether the approval went over a review that did not finish.
-    /// (Nothing reads it yet: what an approval records of it comes with
-    /// the findings a gate records, slice 3e-v.)
+    /// Whether the approval went over a review that did not finish: the
+    /// gate's row says so, and the person hears it once.
     #[must_use]
     pub fn over_unfinished_review(&self) -> bool {
         self.over_unfinished_review.get()
@@ -708,10 +707,15 @@ pub fn verify_reviewer(
     if !require_receipt {
         return Ok(());
     }
-    // (`noteVerdictNotFinished` marks here the approval over a verdict
-    // that is the NOT-READY no reviewer gave. It decides nothing: it is
-    // what the approval then records, which comes with the findings a
-    // gate records, slice 3e-v.)
+    // `noteVerdictNotFinished`: a verdict that is the NOT-READY no
+    // reviewer gave stands as before, and the person's approval over it is
+    // recorded and said as over a review that did not finish.
+    if let Some(person) = carried.person
+        && receipts.unfinished_verdicts.has("")
+        && receipts.stage_verdict.is_some()
+    {
+        person.over_unfinished_review.set(true);
+    }
     if receipts.stage_verdict.is_some()
         || approvable_unfinished_review(wf, state, &receipts, carried.person)
     {

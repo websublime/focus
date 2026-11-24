@@ -2722,14 +2722,6 @@ DEVIATIONS.update({
         "with the Sensors ceremony on and the declared artifacts on disk, opening a gate fires the stage's gate "
         "sensors through the sensor tool (M5): upstream runs them, records their findings and opens the gate; focus "
         "refuses the opening by name and says how to open it without them (`--sensors off`, FOCUS_DISABLE_SENSORS)",
-    r"state/gates/review_findings_(rows|section)":
-        "a review's findings follow the gate's decision (the review brief, M5): upstream reads them off the review "
-        "artifact's `## Review` section (and its review rows) and records each open one on the decision as an "
-        "accepted risk; focus refuses the decision by name while there are review rows on the ledger or the "
-        "section is there, since it does not read findings yet",
-    r"state/gates/reject_findings(_with_reviewer)?":
-        "--reject-finding and --reopen-finding name a review's finding: upstream looks it up in the review brief "
-        "and refuses one that is not current; focus refuses the flags by name",
     "state/gates/unit_team":
         "with Unit Ownership team, a per-unit Construction stage's gate is a unit's gate, which needs the unit DAG "
         "and the units' lifecycle (M4): upstream looks the unit up in the DAG; focus refuses by name",
