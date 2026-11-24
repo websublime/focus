@@ -68,6 +68,9 @@ fn serialize(mut decisions: Vec<Decision>) -> Option<String> {
     if decisions.is_empty() {
         return None;
     }
+    // (`localeCompare`. A stage's list is of one artifact and an id is
+    // `R-` and digits, so until a gate is of several units no other order
+    // would differ.)
     decisions.sort_by(|a, b| {
         locale_compare(
             &decisions::key(&a.artifact, &a.id),
@@ -153,15 +156,21 @@ fn parse_spec(raw: &str, kind: Kind) -> Result<Spec> {
     Ok(Spec {
         artifact: to_posix(js_text::trim(group(1))),
         id: group(2).to_owned(),
-        reason: js_text::trim(group(3)).to_owned(),
+        // (Upstream trims the reason again: the whole value was trimmed, and
+        // the reason starts at what is no space.)
+        reason: group(3).to_owned(),
     })
 }
 
 /// `selectorNamesArtifact`: a selector names the finding the way it was
 /// said: the full path, a path tail, the file name with or without `.md`,
 /// or no artifact at all.
+///
+/// (Upstream passes here too a selector that is the whole path, and an
+/// artifact that is a bare file name. The first was found before this is
+/// asked, and an artifact is always named with its folders.)
 fn selector_names_artifact(selector: &str, artifact: &str) -> bool {
-    if selector.is_empty() || selector == artifact {
+    if selector.is_empty() {
         return true;
     }
     let file = if selector.ends_with(".md") {
@@ -169,7 +178,7 @@ fn selector_names_artifact(selector: &str, artifact: &str) -> bool {
     } else {
         format!("{selector}.md")
     };
-    artifact == file || artifact.ends_with(&format!("/{file}"))
+    artifact.ends_with(&format!("/{file}"))
 }
 
 fn named(finding: &Finding) -> String {

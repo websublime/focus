@@ -5134,8 +5134,11 @@ def gate_checks():
     gate_found("gates/findings_approved_fixed_by_the_reviewer", [approve], findings=[g_find(1), g_find(2)], derived=[g_fixed(1), g_find(2)])
     gate_found("gates/findings_approved_review_class_none", [approve], findings=[g_find(1)], state=GATE_STATE)
     gate_found("gates/findings_approved_record_gone", [approve], findings=[g_find(1)], more=[lambda t: os.remove(t.path(REVIEW_RECORD(1)))])
+    mr_at_gate = at_stage(GATE_STATE, "market-research", done=["intent-capture"]).replace("- [-] market-research", "- [?] market-research")
     g_section = "# Intent\n\nAdd login to the app.\n\n## Review\n\n**Verdict:** NOT-READY\n\n### Findings\n\n| ID | Severity | Location | Finding | Required action | Status |\n| --- | --- | --- | --- | --- | --- |\n| R-01 | Major | Intent | It names no user | Name the user | New |\n| R-02 | Minor | Intent | It is long | Cut it | Resolved |\n"
     check_("gates/findings_approved_legacy_section", created(awaiting, opened, **{**ic, g_statement: g_section}), [approve], quiet)
+    # (A stage nobody reviews has no findings to decide, whatever its documents say.)
+    check_("gates/findings_approved_no_reviewer", created(mr_at_gate, **artifact("market-research", "competitive-analysis", g_section)), [["approve", "market-research", "--user-input", "Approve"]], quiet)
     check_("gates/findings_rejected_legacy_section", created(awaiting, opened, **{**ic, g_statement: g_section}), [g_no("R-01=not ours"), *g_shown_again], g_unguarded)
     # A request for changes with nothing said of the findings records nothing about them.
     gate_found("gates/findings_changes_asked", [reject, *g_shown_again], findings=g_mixed)
@@ -5145,6 +5148,7 @@ def gate_checks():
                         ("tail", "intent-capture/intent-statement.md#R-01=not ours"), ("spaced", "  intent-statement  #R-01=not ours,  said twice  "), ("lines", "R-01=not ours\nat all"),
                         ("hash_in_the_reason", "R-01=see #R-02=x")):
         gate_found(f"gates/findings_rejected_by_{label}", [g_no(spec), *g_shown_again], findings=[g_find(1), g_find(2)], env=g_unguarded)
+    gate_found("gates/findings_rejected_by_id_spaced", [g_no("  R-01=not ours  "), *g_shown_again], findings=[g_find(1), g_find(2)], env=g_unguarded)
     gate_found("gates/findings_rejected_two", [g_decides("--reject-finding", "R-02=second", "--reject-finding", "R-01=first"), *g_shown_again], findings=[g_find(1), g_find(2), g_find(3)], env=g_unguarded)
     gate_found("gates/findings_rejected_then_no_review", [g_no("R-01=not ours"), *g_shown_again], findings=[g_find(1), g_find(2)])
     gate_found("gates/findings_reopened", [g_again("R-01=it is back"), *g_shown_again], findings=[g_find(1), g_find(2)], derived=[g_fixed(1), g_find(2)], env=g_unguarded)
@@ -5161,9 +5165,15 @@ def gate_checks():
     gate_found("gates/findings_rejected_does_not_fit", [g_no("R-01=x"), g_no("R-04=x"), g_no("R-05=x"), g_again("R-02=x"), g_again("R-04=x")],
                findings=[g_find(1), g_find(2), g_find(4), g_find(5)], derived=[g_fixed(1), g_find(2), g_find(4, "Accepted risk"), g_find(5, "Rejected: not ours")])
     gate_found("gates/findings_rejected_twice", [g_decides("--reject-finding", "R-01=x", "--reject-finding", "intent-statement#R-01=y"), g_decides("--reject-finding", "R-02=x", "--reopen-finding", "R-02=y"),
-                                                 g_decides("--reopen-finding", "R-03=x", "--reopen-finding", "intent-statement.md#R-03=y"), g_decides("--reopen-finding", "R-02=y", "--reject-finding", "R-09=x")],
+                                                 g_decides("--reopen-finding", "R-03=x", "--reopen-finding", "intent-statement.md#R-03=y"), g_decides("--reopen-finding", "R-02=y", "--reject-finding", "R-09=x"),
+                                                 # (Both decisions for one the reviewer found fixed: named twice is said before either is weighed. And the
+                                                 # ones to reject are looked up first, wherever the flags stand.)
+                                                 g_decides("--reject-finding", "R-03=x", "--reopen-finding", "R-03=y"), g_decides("--reopen-finding", "nope", "--reject-finding", "R-09=x"),
+                                                 g_decides("--reject-finding", "nope", "--reopen-finding", "R-09=x")],
                findings=[g_find(1), g_find(2), g_find(3)], derived=[g_find(1), g_find(2), g_fixed(3)])
     gate_found("gates/findings_same_id_twice_in_the_list", [g_no("R-01=x"), g_no("intent-statement#R-01=x"), approve], findings=[g_find(1), g_find(1)])
+    # (Named by its whole path, a finding is the first the list has by that name, however many share its id.)
+    gate_found("gates/findings_same_id_twice_named_whole", [g_no("R-01=x"), g_no(f"{g_statement}#R-01=x")], findings=[g_find(1), g_find(1)])
     # What an approval records of a review that did not finish: the person's own approval over a request with no
     # verdict (the recovery review included), and any approval over the NOT-READY no reviewer gave.
     g_person_opens = ["gate-start", "intent-capture", "--recovered", "--person-approves"]
@@ -5172,7 +5182,11 @@ def gate_checks():
     gate_unfinished("gates/unfinished_review_approved", g_asked)
     gate_unfinished("gates/unfinished_recovery_review_approved", g_old, (2, None, REVIEW_RECOVERY, REVIEWED_CURRENT), state=g_strict)
     gate_unfinished("gates/unfinished_review_approved_team_strict", g_asked, more=[memory("team", "Mode: strict")])
-    gate_unfinished("gates/unfinished_review_approved_last_stage", g_asked, state=REVIEWED(GATE_STATE))
+    # (The last stage of the work: the approval goes on to close the workflow, with the same approval.)
+    g_last = lambda state: re.sub(r"^- \[ \] (\S+) \u2014 EXECUTE$", lambda found: f"- [ ] {found.group(1)} \u2014 SKIP", state, flags=re.M)
+    assert g_last(g_strict) != g_strict
+    gate_unfinished("gates/unfinished_review_approved_last_stage", g_asked, state=g_last(REVIEWED(GATE_STATE)))
+    gate_unfinished("gates/unfinished_recovery_review_approved_last_stage", g_old, (2, None, REVIEW_RECOVERY, REVIEWED_CURRENT), state=g_last(g_strict))
     gate_unfinished("gates/unfinished_verdict_approved", g_not, body="", steps=[["gate-start", "intent-capture"], approve])
     gate_unfinished("gates/unfinished_verdict_ready_approved", g_ready, body="", steps=[["gate-start", "intent-capture"], approve])
     gate_unfinished("gates/unfinished_verdict_then_a_finished_one_approved", g_not, (2, "READY", (), REVIEWED_CURRENT), body="", steps=[["gate-start", "intent-capture"], approve])

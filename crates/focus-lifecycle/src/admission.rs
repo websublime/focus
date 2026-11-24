@@ -709,10 +709,12 @@ pub fn verify_reviewer(
     }
     // `noteVerdictNotFinished`: a verdict that is the NOT-READY no
     // reviewer gave stands as before, and the person's approval over it is
-    // recorded and said as over a review that did not finish.
+    // recorded and said as over a review that did not finish. (Upstream
+    // asks here too that the verdict still covers the outputs. An approval
+    // goes on only over one that does, or over an unfinished request, which
+    // marks it the same.)
     if let Some(person) = carried.person
         && receipts.unfinished_verdicts.has("")
-        && receipts.stage_verdict.is_some()
     {
         person.over_unfinished_review.set(true);
     }
