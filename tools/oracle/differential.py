@@ -4387,6 +4387,10 @@ def hook_checks():
     frozen_check("review-freeze/frozen_recovery_pending_summary_unconfirmed", fr_old, (2, None, REVIEW_RECOVERY, REVIEWED_CURRENT), state=OWES_SUMMARY(fr_strict), **{SUMMARY_FILE: SUMMARY_TEXT})
     # (Where the evaluator has no step to take now, the stage's recovery guidance is the way on.)
     frozen_check("review-freeze/frozen_not_started", fr_ready, state=fr_strict.replace("- [-] intent-capture", "- [ ] intent-capture"))
+    frozen_check("review-freeze/frozen_not_started_subagent", fr_ready, state=fr_strict.replace("- [-] intent-capture", "- [ ] intent-capture"), steps=by_subagent)
+    frozen_check("review-freeze/frozen_unattended_subagent", fr_ready, steps=by_subagent, env={"UNATTENDED": "1"})
+    frozen_check("review-freeze/frozen_not_started_unattended_team_strict", fr_ready, state=fr_strict.replace("- [-] intent-capture", "- [ ] intent-capture"), env={"UNATTENDED": "1"},
+                 more=[memory("team", "Mode: strict")])
     frozen_check("review-freeze/frozen_recovery_pending_unattended", fr_old, (2, None, REVIEW_RECOVERY, REVIEWED_CURRENT), env={"UNATTENDED": "1"})
     frozen_check("review-freeze/frozen_unattended_summary_unconfirmed", fr_old, (2, None, REVIEW_RECOVERY, REVIEWED_CURRENT), state=OWES_SUMMARY(fr_strict), env={"UNATTENDED": "1"}, **{SUMMARY_FILE: SUMMARY_TEXT})
     frozen_check("review-freeze/stands_aside_another_switch", fr_ready, state=fr_strict + "- **Guards Off**: state-transition (set by you)\n")
