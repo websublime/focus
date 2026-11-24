@@ -3899,7 +3899,7 @@ REVIEW_RECOVERY = ("**Recovery**: stale-receipt", "**Recovery Cause**: artifact"
 REVIEWED = lambda state, override="advisory": state.replace("- **Review Override**: none", f"- **Review Override**: {override}")
 
 
-def reviewed_by_hand(*passes, minute=1, findings=(), stage="intent-capture", unit=None):
+def reviewed_by_hand(*passes, minute=1, findings=(), stage="intent-capture", unit=None, body="It reads well.\n"):
     def edit(tree):
         rows = ""
         for index, (n, verdict, more, fingerprint) in enumerate(passes):
@@ -3912,7 +3912,7 @@ def reviewed_by_hand(*passes, minute=1, findings=(), stage="intent-capture", uni
             tree.write(record, json.dumps({
                 "version": 1, "stage": stage, "unit": unit, "workflow": None, "attempt": "0" * 16, "iteration": n, "reviewer": REVIEWER_BY_HAND, "verdict": verdict,
                 "request_id": ident, "request_challenge": None, "artifact_fingerprint": fingerprint, "source_fingerprint": None, "unit_source_fingerprint": None,
-                "findings": list(findings), "body": "It reads well.\n", "recorded_at": "2026-01-05T10:00:00Z"}, indent=2) + "\n")
+                "findings": list(findings), "body": body, "recorded_at": "2026-01-05T10:00:00Z"}, indent=2) + "\n")
             with open(tree.path(record), "rb") as handle:
                 digest = "sha256:" + hashlib.sha256(handle.read()).hexdigest()
             rows += block("REVIEW_COMPLETED", T(minute + 2 * index + 1), *scope, f"**Verdict**: {verdict}", f"**Request Fingerprint**: {fingerprint}",
@@ -6864,6 +6864,13 @@ def jump_checks():
     jump_reviewed("execute/backward_recorded_review_two_passes", (1, "NOT-READY", (), j_fp), (2, "READY", (), j_fp))
     jump_reviewed("execute/backward_recorded_review_no_artifact_left", j_ready, **{j_wires: None})
     jump_reviewed("execute/backward_recorded_review_of_the_target", j_ready, stage="intent-capture")
+    def j_nobody(tree):
+        graph = tree.json(".claude/tools/data/stage-graph.json")
+        for node in graph:
+            if node["slug"] == "rough-mockups":
+                node.pop("reviewer")
+        tree.write_json(".claude/tools/data/stage-graph.json", graph)
+    jump_reviewed("execute/backward_recorded_review_of_a_stage_nobody_reviews", (1, "NOT-READY", (), j_fp), findings=[j_held], more=[j_nobody])
     # (And the one Focus refuses to read: a decision a gate's row holds, edited by hand, with a list where a text
     # belongs. Upstream reads it as the text its pattern test turns it into, and goes on.)
     j_decided = block("GATE_APPROVED", T(9), "**Stage**: rough-mockups", "**Review Finding Dispositions**: " + json.dumps(
@@ -7084,8 +7091,8 @@ def review_brief_checks():
     check_("context/units_in_the_plan_one_not_reviewed", tree(**{spec("api"): "# Spec\n", **planned}), [fd, fd + ["--unit", "web"]], edits=[by_unit("api", 2, 5)])
     check_("context/units_reviewed_document_gone", tree(), [fd, fd + ["--unit", "api"]], edits=[by_unit("api")])
     # context: the list a recorded review left, whatever it said, and what the next reviewer reads of each finding.
-    def shown(name, *passes, findings=(), more=(), steps=None, **files):
-        check_(name, tree(**files), steps or [ctx], edits=[reviewed_by_hand(*passes, findings=findings), *more])
+    def shown(name, *passes, findings=(), more=(), steps=None, body="It reads well.\n", **files):
+        check_(name, tree(**files), steps or [ctx], edits=[reviewed_by_hand(*passes, findings=findings, body=body), *more])
     ready, not_ready = (1, "READY", (), REVIEWED_CURRENT), (1, "NOT-READY", (), REVIEWED_CURRENT)
     shown("context/ready_nothing_found", ready)
     shown("context/requested", (1, None, (), REVIEWED_CURRENT))
@@ -7094,6 +7101,21 @@ def review_brief_checks():
     shown("context/findings_of_other_bytes", (1, "NOT-READY", (), REVIEWED_OLD), findings=[finding(1)])
     shown("context/record_gone", not_ready, findings=[finding(1)], more=[lambda t: os.remove(t.path(REVIEW_RECORD(1)))])
     shown("context/record_other_bytes", not_ready, findings=[finding(1)], more=[lambda t: t.edit(REVIEW_RECORD(1), lambda text: text.replace("It reads well.", "It reads badly."))])
+    # (A review that said nothing of its own is shown only for what it listed; and a stage that names no artifact
+    # for its reviews has them keyed to the first it declares.)
+    shown("context/record_no_body", not_ready, body="")
+    shown("context/record_no_body_ready", ready, body="")
+    shown("context/record_no_body_findings", not_ready, findings=[finding(1)], body="")
+    def graph_of(stage, change):
+        def edit(t):
+            graph = t.json(".claude/tools/data/stage-graph.json")
+            for node in graph:
+                if node["slug"] == stage:
+                    change(node)
+            t.write_json(".claude/tools/data/stage-graph.json", graph)
+        return edit
+    shown("context/no_review_artifact", not_ready, findings=[finding(1)], more=[graph_of("intent-capture", lambda node: node.pop("review_artifact"))])
+    shown("context/review_artifact_declared_last", not_ready, findings=[finding(1)], more=[graph_of("intent-capture", lambda node: node.update(review_artifact="stakeholder-map"))])
     shown("context/two_passes", (1, "NOT-READY", (), REVIEWED_OLD), (2, "READY", (), REVIEWED_CURRENT), findings=[finding(1)])
     # context: what a gate decided about a finding, read off the gate's row.
     decided = lambda status, minute=9, **over: block("GATE_APPROVED", T(minute), "**Stage**: intent-capture", "**Review Finding Dispositions**: " + json.dumps(
@@ -7112,6 +7134,11 @@ def review_brief_checks():
     check_("context/legacy_section", tree(**{statement: legacy}), [ctx])
     check_("context/legacy_section_and_a_record", tree(**{statement: legacy}), [ctx], edits=[reviewed_by_hand(not_ready, findings=[finding(2)])])
     check_("context/legacy_section_unreadable_table", tree(**{statement: legacy.replace("| R-01 | Major |", "| R-01 | Huge |")}), [ctx])
+    no_verdict = legacy.replace("**Verdict:** NOT-READY\n\n", "")
+    assert no_verdict != legacy
+    check_("context/legacy_section_no_verdict", tree(**{statement: no_verdict}), [ctx])
+    check_("context/legacy_section_no_verdict_unreadable_table", tree(**{statement: no_verdict.replace("| R-01 | Major |", "| R-01 | Huge |")}), [ctx])
+    check_("context/legacy_section_no_verdict_nothing_listed", tree(**{statement: "# Intent\n\n## Review\n\nNothing yet.\n"}), [ctx])
 
 
 def runtime_checks():

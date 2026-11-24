@@ -92,7 +92,9 @@ fn answer(rest: &[String]) -> Result<String, EngineError> {
     };
     let context = Context {
         project_dir: flag("project-dir").map(str::to_owned),
-        harness: flag("harness").map(str::to_owned),
+        // (Upstream's tool has no flag for the harness, and no path read
+        // here depends on it.)
+        harness: None,
         tool: "focus-review-brief",
         command: String::new(),
         selector: Selector::default(),
@@ -140,7 +142,9 @@ fn answer(rest: &[String]) -> Result<String, EngineError> {
         }
         other => Err(EngineError::new(format!(
             "Unknown subcommand: {}. Valid: review, context, summary.",
-            other.unwrap_or("undefined")
+            // (No command leaves no flag either, and the stage was asked for
+            // above.)
+            other.unwrap_or_default()
         ))),
     }
 }

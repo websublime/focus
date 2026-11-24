@@ -621,17 +621,15 @@ pub fn derive(
 }
 
 /// `entryUnit`: the unit a logical path of a per-unit stage belongs to
-/// (`construction/<unit>/<stage>/…`).
+/// (`construction/<unit>/<stage>/…`), by upstream's own pattern.
 fn entry_unit<'p>(logical_path: &'p str, slug: &str) -> Option<&'p str> {
-    let mut parts = logical_path.split('/');
-    if parts.next() != Some("construction") {
-        return None;
-    }
-    let unit = parts.next().filter(|unit| !unit.is_empty())?;
-    let stage = parts.next().filter(|stage| !stage.is_empty())?;
-    // (A file follows: the pattern ends in a slash.)
-    parts.next()?;
-    (stage == slug).then_some(unit)
+    let found = focus_js::re::find(r"^construction/([^/]+)/([^/]+)/", "", logical_path)?;
+    // (The paths are the ones `review_entries` builds, so the stage a unit's
+    // path names is always the one asked about: the comparison is
+    // upstream's, and no path here fails it.)
+    (focus_js::re::group(logical_path, &found, 2) == Some(slug))
+        .then(|| focus_js::re::group(logical_path, &found, 1))
+        .flatten()
 }
 
 /// `readReviewArtifactContexts`: the list of findings each scope of the
@@ -664,6 +662,8 @@ pub fn contexts(wf: &Workflow, stage: &Stage, unit: Option<&str>) -> Result<Vec<
     // Scope by scope, in the order each first appears.
     let mut scopes: Vec<(String, Vec<&crate::artifacts::ReviewEntry>)> = Vec::new();
     for entry in &entries {
+        // (A unit asked for is the only one the entries are of, so which of
+        // the two is asked first changes nothing; upstream asks in this order.)
         let of = unit
             .or_else(|| entry_unit(&entry.logical_path, slug))
             .unwrap_or("");
