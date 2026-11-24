@@ -620,6 +620,88 @@ pub fn derive(
     })
 }
 
+/// `entryUnit`: the unit a logical path of a per-unit stage belongs to
+/// (`construction/<unit>/<stage>/…`), by upstream's own pattern.
+fn entry_unit<'p>(logical_path: &'p str, slug: &str) -> Option<&'p str> {
+    let found = focus_js::re::find(r"^construction/([^/]+)/([^/]+)/", "", logical_path)?;
+    // (The paths are the ones `review_entries` builds, so the stage a unit's
+    // path names is always the one asked about: the comparison is
+    // upstream's, and no path here fails it.)
+    (focus_js::re::group(logical_path, &found, 2) == Some(slug))
+        .then(|| focus_js::re::group(logical_path, &found, 1))
+        .flatten()
+}
+
+/// `readReviewArtifactContexts`: the list of findings each scope of the
+/// stage stands at now, one per unit for a stage that runs for each unit
+/// (or the one unit asked for). A scope's list is keyed to the stage's
+/// review artifact, or to its first declared one.
+///
+/// A scope with nothing to show is left out: no review, or a review that
+/// gave no verdict of its own and listed nothing, which the gate answers
+/// with its own fallback finding.
+///
+/// # Errors
+///
+/// What [`derive`] does not read, or the registry's row for the piece of
+/// work.
+pub fn contexts(wf: &Workflow, stage: &Stage, unit: Option<&str>) -> Result<Vec<Derived>> {
+    let slug = stage.slug.as_str();
+    let scope = ReviewScope {
+        unit,
+        ..ReviewScope::default()
+    };
+    let entries = match review_entries(wf, stage, scope)? {
+        Ok(Some(entries)) => entries,
+        Ok(None) => return Ok(Vec::new()),
+        Err(Unlistable(folder)) => bail!(
+            "{} is there and is not a folder that can be listed, and the artifacts of \"{slug}\" are found by listing it. Restore the folder, or move what is there away.",
+            folder.display()
+        ),
+    };
+    // Scope by scope, in the order each first appears.
+    let mut scopes: Vec<(String, Vec<&crate::artifacts::ReviewEntry>)> = Vec::new();
+    for entry in &entries {
+        // (A unit asked for is the only one the entries are of, so which of
+        // the two is asked first changes nothing; upstream asks in this order.)
+        let of = unit
+            .or_else(|| entry_unit(&entry.logical_path, slug))
+            .unwrap_or("");
+        match scopes.iter_mut().find(|(scope, _)| scope == of) {
+            Some((_, grouped)) => grouped.push(entry),
+            None => scopes.push((of.to_owned(), vec![entry])),
+        }
+    }
+    let project = wf.layout.project.as_path();
+    let mut contexts = Vec::new();
+    for (scope, grouped) in scopes {
+        let Some(entry) = grouped
+            .iter()
+            .find(|entry| entry.appendix_target)
+            .or_else(|| grouped.first())
+        else {
+            continue;
+        };
+        let context = derive(
+            wf,
+            stage,
+            &crate::artifacts::workspace_artifact_path(project, entry),
+            (!scope.is_empty()).then_some(scope.as_str()),
+            None,
+        )?;
+        // (Upstream asks for the text too. Wherever a list keeps a report's
+        // text it holds the finding that says the report was not read, so
+        // the question before it has already answered.)
+        if (!context.incomplete_review && context.verdict.is_some())
+            || !context.findings.is_empty()
+            || context.findings_text.is_some()
+        {
+            contexts.push(context);
+        }
+    }
+    Ok(contexts)
+}
+
 #[cfg(test)]
 mod tests {
     use super::legacy_section;

@@ -562,7 +562,7 @@ def run_queued(quiet=False):
 
 
 def compare(name, trees, args, env, stdin, files):
-    if files in ("audit", "runtime", "state", "utility", "jump", "log", "hook"):
+    if files in ("audit", "runtime", "state", "utility", "jump", "log", "hook", "review-brief"):
         return compare_audit(name, trees, args, env, files)
     ts, rs = trees
     outcome = {}
@@ -2640,10 +2640,24 @@ DEVIATIONS.update({
     "jump/execute/backward_session":
         "with a session bound, a backward jump keeps its way back for the chat's next turn (the pending person "
         "lines, the human-turn hook's record, M4) and leaves `notice` out of its output; focus refuses by name",
-    "jump/execute/backward_over_reviewed_stage_rows":
-        "a backward jump names the reviews it invalidates, read from the review brief's records (M5): with review "
-        "rows on the ledger for a reviewed stage behind the jump, upstream reads them and focus refuses by name; "
-        "an embedded `## Review` section is named by both",
+    "jump/execute/backward_review_decisions_a_list_for_a_text":
+        "a backward jump names the reviews it invalidates, and the list of findings of a stage behind it holds what "
+        "focus refuses to read (here a decision a gate's row holds, edited by hand, with a list where a text "
+        "belongs): upstream reads it as text and jumps; focus refuses the jump with what is wrong, since going on "
+        "would name fewer reviews than upstream does",
+    "review-brief/context/decided_a_list_for_a_text":
+        "the same row read by the tool that shows a stage's findings to its next reviewer: upstream reads the list "
+        "as text and shows the finding as decided; focus refuses to show a list it could not read whole",
+    "review-brief/context/units_found_by_listing":
+        "the units of a stage that runs for each unit, when no plan names them, are the folders found under "
+        "construction/: upstream shows their lists in the order the host lists that folder in, which no two file "
+        "systems agree on; focus shows them by name (with a plan, both show its order, and that is compared)",
+    "review-brief/usage/review_not_ported":
+        "the brief shown at a gate reads what changed since the review and what the person decided, and keeps what "
+        "it printed beside the review's record: focus refuses it by name until it writes it (M5, slice 3e-v-c)",
+    "review-brief/usage/summary_not_ported":
+        "the brief of a summary confirmation reads the stage's questions and what was confirmed before: focus "
+        "refuses it by name until it writes it (M5, slice 3e-v-c)",
     r"(jump/execute|utility/create)/delegated_worktree":
         "upstream runs inside a worktree an engine created for one unit of work, resolving it to the main checkout's "
         "piece of work; focus refuses the checkout by name (worktrees come with parallel Construction, deferred)",
@@ -3880,34 +3894,34 @@ REVIEWED_OUTPUTS = {**SUMMARY_OUTPUTS, SUMMARY_FILE: "# Questions\n\nNone.\n"}
 REVIEWED_CURRENT = "sha256:ecf999829890d21d716a816b7d5988926939797038877a5c26afeaee7da1d192"
 REVIEWED_OLD = "sha256:" + "a" * 64
 REVIEWER_BY_HAND = "lead-reviewer"
-REVIEW_RECORD = lambda n: f"{CREATED_DIR}/.aidlc-engine/reviews/intent-capture/stage/{'0' * 16}/{n}.json"
+REVIEW_RECORD = lambda n, stage="intent-capture", unit=None: f"{CREATED_DIR}/.aidlc-engine/reviews/{stage}/{f'units/{unit}' if unit else 'stage'}/{'0' * 16}/{n}.json"
 REVIEW_RECOVERY = ("**Recovery**: stale-receipt", "**Recovery Cause**: artifact")
 REVIEWED = lambda state, override="advisory": state.replace("- **Review Override**: none", f"- **Review Override**: {override}")
 
 
-def reviewed_by_hand(*passes, minute=1):
+def reviewed_by_hand(*passes, minute=1, findings=(), stage="intent-capture", unit=None, body="It reads well.\n"):
     def edit(tree):
         rows = ""
         for index, (n, verdict, more, fingerprint) in enumerate(passes):
             ident = "review:" + f"{n}" * 32
-            scope = ["**Stage**: intent-capture", f"**Reviewer**: {REVIEWER_BY_HAND}", f"**Iteration**: {n}"]
+            scope = [f"**Stage**: {stage}", *([f"**Unit**: {unit}"] if unit else []), f"**Reviewer**: {REVIEWER_BY_HAND}", f"**Iteration**: {n}"]
             rows += block("REVIEW_REQUESTED", T(minute + 2 * index), *scope, f"**Artifact Fingerprint**: {fingerprint}", f"**Request Id**: {ident}", *more)
             if verdict is None:
                 continue
-            record = REVIEW_RECORD(n)
+            record = REVIEW_RECORD(n, stage, unit)
             tree.write(record, json.dumps({
-                "version": 1, "stage": "intent-capture", "unit": None, "workflow": None, "attempt": "0" * 16, "iteration": n, "reviewer": REVIEWER_BY_HAND, "verdict": verdict,
+                "version": 1, "stage": stage, "unit": unit, "workflow": None, "attempt": "0" * 16, "iteration": n, "reviewer": REVIEWER_BY_HAND, "verdict": verdict,
                 "request_id": ident, "request_challenge": None, "artifact_fingerprint": fingerprint, "source_fingerprint": None, "unit_source_fingerprint": None,
-                "findings": [], "body": "It reads well.\n", "recorded_at": "2026-01-05T10:00:00Z"}, indent=2) + "\n")
+                "findings": list(findings), "body": body, "recorded_at": "2026-01-05T10:00:00Z"}, indent=2) + "\n")
             with open(tree.path(record), "rb") as handle:
                 digest = "sha256:" + hashlib.sha256(handle.read()).hexdigest()
             rows += block("REVIEW_COMPLETED", T(minute + 2 * index + 1), *scope, f"**Verdict**: {verdict}", f"**Request Fingerprint**: {fingerprint}",
                           f"**Artifact Fingerprint**: {fingerprint}", f"**Request Id**: {ident}", f"**Review Record**: {record[len(CREATED_DIR) + 1:]}", f"**Review Record Digest**: {digest}")
         tree.edit(CREATED_SHARD, lambda text: text + rows)
         graph = tree.json(".claude/tools/data/stage-graph.json")
-        for stage in graph:
-            if stage["slug"] == "intent-capture":
-                stage["reviewer"] = REVIEWER_BY_HAND
+        for node in graph:
+            if node["slug"] == stage:
+                node["reviewer"] = REVIEWER_BY_HAND
         tree.write_json(".claude/tools/data/stage-graph.json", graph)
     return edit
 
@@ -6829,7 +6843,42 @@ def jump_checks():
     check_("execute/backward_review_section", created(at_feasibility, **ic, **artifact("market-research", "competitive-analysis", "# MR\n\n## Review\n- R-01 New: x\n")), [backward])
     check_("execute/backward_review_section_fenced", created(at_feasibility, **ic, **artifact("market-research", "competitive-analysis", "```\n## Review\nx\n```\n")), [backward])
     check_("execute/backward_review_rows", created(at_feasibility, CREATED_AUDIT + block("REVIEW_COMPLETED", T(2), "**Stage**: intent-capture", "**Verdict**: READY"), **ic), [backward])
-    # A reviewed stage behind the jump: its review records are the brief's (M5), refused by name when rows are on the ledger.
+    # A review behind the jump is named by the list of findings its scope stands at: a recorded review whatever it said,
+    # beside the `## Review` section a declared artifact carries; a request with no verdict, or a record that is no
+    # longer the one its row names, stands at nothing. (The stage jumped to keeps its reviews: only what is behind it.)
+    j_at = at_stage(CREATED_STATE, "approval-handoff", done=ideation)
+    j_back = ["execute", "--target", "team-formation", "--direction", "backward"]
+    j_wires, j_flow = f"{CREATED_DIR}/ideation/rough-mockups/wireframes.md", f"{CREATED_DIR}/ideation/rough-mockups/user-flow.md"
+    j_files = {j_wires: "# Wireframes\n", j_flow: "# Flow\n", f"{CREATED_DIR}/ideation/rough-mockups/rough-mockups-questions.md": "# Questions\n"}
+    j_ready, j_fp = (1, "READY", (), "sha256:" + "c" * 64), "sha256:" + "c" * 64
+    j_held = {"id": "R-01", "severity": "Major", "location": "wireframes.md > Home", "finding": "It names no user", "required_action": "Name the user", "status": "New"}
+    def jump_reviewed(name, *passes, more=(), findings=(), stage="rough-mockups", **files):
+        check_(name, created(j_at, **{**ic, **j_files, **files}), [j_back, ["resolve", "--stage", "approval-handoff"]], edits=[reviewed_by_hand(*passes, findings=findings, stage=stage), *more])
+    jump_reviewed("execute/backward_recorded_review", j_ready)
+    jump_reviewed("execute/backward_recorded_review_not_ready", (1, "NOT-READY", (), j_fp), findings=[j_held])
+    jump_reviewed("execute/backward_review_requested", (1, None, (), j_fp))
+    jump_reviewed("execute/backward_recorded_review_record_gone", j_ready, more=[lambda tree: os.remove(tree.path(REVIEW_RECORD(1, "rough-mockups")))])
+    jump_reviewed("execute/backward_recorded_review_record_other_bytes", j_ready, more=[lambda tree: tree.edit(REVIEW_RECORD(1, "rough-mockups"), lambda text: text.replace("It reads well.", "It reads badly."))])
+    jump_reviewed("execute/backward_recorded_review_and_section", j_ready, **{j_wires: "# Wireframes\n\n## Review\n- R-01 New: x\n"})
+    jump_reviewed("execute/backward_recorded_review_and_another_section", j_ready, **{j_flow: "# Flow\n\n## Review\n- R-01 New: x\n"})
+    jump_reviewed("execute/backward_recorded_review_two_passes", (1, "NOT-READY", (), j_fp), (2, "READY", (), j_fp))
+    jump_reviewed("execute/backward_recorded_review_no_artifact_left", j_ready, **{j_wires: None})
+    jump_reviewed("execute/backward_recorded_review_of_the_target", j_ready, stage="intent-capture")
+    def j_nobody(tree):
+        graph = tree.json(".claude/tools/data/stage-graph.json")
+        for node in graph:
+            if node["slug"] == "rough-mockups":
+                node.pop("reviewer")
+        tree.write_json(".claude/tools/data/stage-graph.json", graph)
+    jump_reviewed("execute/backward_recorded_review_of_a_stage_nobody_reviews", (1, "NOT-READY", (), j_fp), findings=[j_held], more=[j_nobody])
+    # (And the one Focus refuses to read: a decision a gate's row holds, edited by hand, with a list where a text
+    # belongs. Upstream reads it as the text its pattern test turns it into, and goes on.)
+    j_decided = block("GATE_APPROVED", T(9), "**Stage**: rough-mockups", "**Review Finding Dispositions**: " + json.dumps(
+        {"version": 1, "dispositions": [{"artifact": j_wires, "id": ["R-01"], "fingerprint": "sha256:" + "b" * 64, "status": "Accepted risk"}]}))
+    jump_reviewed("execute/backward_review_decisions_a_list_for_a_text", (1, "NOT-READY", (), j_fp), findings=[j_held], more=[lambda tree: tree.edit(CREATED_SHARD, lambda text: text + j_decided)])
+    # (Nobody reads the list of a stage nobody reviews, so there the same row refuses nothing.)
+    jump_reviewed("execute/backward_decisions_a_list_of_a_stage_nobody_reviews", (1, "NOT-READY", (), j_fp), findings=[j_held], more=[lambda tree: tree.edit(CREATED_SHARD, lambda text: text + j_decided), j_nobody])
+    # A reviewed stage behind the jump, with rows that are no review.
     reviewed = at_stage(CREATED_STATE, "approval-handoff", done=ideation)
     check_("execute/backward_over_reviewed_stage", created(reviewed, **ic, **artifact("rough-mockups", "wireframes", "# W\n\n## Review\n- R-01 New: x\n")),
            [["execute", "--target", "team-formation", "--direction", "backward"]])
@@ -6999,6 +7048,99 @@ def jump_fuzz(count):
                 steps.append(["execute", "--target", target, "--direction", direction])
         steps.append(["resolve", "--stage", rng.choice(order)])
         runtime_check(str(index), created(state, **files), steps, {}, group="fuzz/jump", tool="jump")
+
+
+def review_brief_checks():
+    """`aidlc-review-brief.ts`: what is shown of a stage's reviews. (`context` so far.)"""
+    check_ = lambda name, files, steps, env=None, edits=(): runtime_check(name, files, steps, env, edits, group="review-brief")
+    ctx = ["context", "--stage", "intent-capture"]
+    tree = lambda state=REVIEWED(CREATED_STATE), audit=CREATED_AUDIT, **files: created(state, audit, **{**REVIEWED_OUTPUTS, **files})
+    statement = f"{CREATED_DIR}/ideation/intent-capture/intent-statement.md"
+    # Usage. (The harness says where the project is after the step's own arguments, so a step that ends on a flag
+    # with no value would be read two ways: none is asked.)
+    check_("usage/unknown", tree(), [["nope", "--stage", "intent-capture"]])
+    check_("usage/no_stage", tree(), [["context"], ["nope"]])
+    check_("usage/empty_stage", tree(), [["context", "--stage", ""]])
+    check_("usage/unknown_stage", tree(), [["context", "--stage", "nope"]])
+    check_("usage/not_a_flag", tree(), [["context", "stage"], ["context", "--stage", "intent-capture", "more"]])
+    check_("usage/flags_before_the_command", tree(), [["--stage", "intent-capture"]])
+    check_("usage/stage_twice", tree(), [["context", "--stage", "nope", "--stage", "intent-capture"]])
+    check_("usage/no_command", tree(), [[]])
+    check_("usage/review_no_why", tree(), [["review", "--stage", "intent-capture"], ["review", "--stage", "intent-capture", "--why", "later"], ["review", "--stage", "intent-capture", "--why", ""]])
+    check_("usage/summary_no_questions", tree(), [["summary", "--stage", "intent-capture"], ["summary", "--stage", "intent-capture", "--questions-file", ""]])
+    check_("usage/a_flag_nobody_reads", tree(), [ctx + ["--why", "first", "--nope", "x"]])
+    check_("usage/review_not_ported", tree(), [["review", "--stage", "intent-capture", "--why", "first"]])
+    check_("usage/summary_not_ported", tree(), [["summary", "--stage", "intent-capture", "--questions-file", SUMMARY_FILE]])
+    # context: nothing reviewed yet, a stage nobody reviews, a project with no piece of work.
+    check_("context/no_review", tree(), [ctx])
+    check_("context/no_reviewer", tree(), [["context", "--stage", "market-research"]])
+    check_("context/no_record", CLONE, [ctx])
+    check_("context/empty_unit", tree(), [ctx + ["--unit", ""]], edits=[reviewed_by_hand((1, "NOT-READY", (), REVIEWED_CURRENT), findings=[{"id": "R-01", "severity": "Major", "location": "a", "finding": "b", "required_action": "c", "status": "New"}])])
+    check_("context/unit_of_a_stage_reviewed_as_one", tree(), [ctx + ["--unit", "api"]], edits=[reviewed_by_hand((1, "READY", (), REVIEWED_CURRENT))])
+    finding = lambda n, status="New", **more: {"id": f"R-0{n}", "severity": "Major", "location": "intent-statement.md > Intent", "finding": f"Finding {n} | with a bar",
+                                              "required_action": f"Do {n}\nthen check", "status": status, **more}
+    fd = ["context", "--stage", "functional-design"]
+    spec = lambda unit: f"{CREATED_DIR}/construction/{unit}/functional-design/functional-spec.md"
+    check_("context/units_none", tree(), [fd, fd + ["--unit", "api"]])
+    check_("context/units_documents", tree(**{spec("api"): "# Spec\n", spec("auth"): "# Spec\n"}), [fd, fd + ["--unit", "api"], fd + ["--unit", "nope"]])
+    check_("context/units_reviewed_as_one", tree(**{spec("api"): "# Spec\n"}), [fd, fd + ["--unit", "api"]], edits=[reviewed_by_hand((1, "NOT-READY", (), REVIEWED_CURRENT), findings=[finding(1)], stage="functional-design")])
+    by_unit = lambda unit, n=1, minute=1: reviewed_by_hand((n, "NOT-READY", (), REVIEWED_CURRENT), findings=[finding(n)], stage="functional-design", unit=unit, minute=minute)
+    check_("context/units_one_reviewed", tree(**{spec("api"): "# Spec\n", spec("auth"): "# Spec\n"}), [fd, fd + ["--unit", "api"], fd + ["--unit", "auth"]], edits=[by_unit("api")])
+    check_("context/units_found_by_listing", tree(**{spec("api"): "# Spec\n", spec("auth"): "# Spec\n"}), [fd, fd + ["--unit", "auth"]], edits=[by_unit("auth"), by_unit("api", 2, 5)])
+    planned = {f"{CREATED_DIR}/inception/units-generation/unit-of-work-dependency.md": A_UNITS}
+    check_("context/units_in_the_plan_s_order", tree(**{spec("api"): "# Spec\n", spec("auth"): "# Spec\n", spec("web"): "# Spec\n", **planned}), [fd, fd + ["--unit", "auth"]],
+           edits=[by_unit("web"), by_unit("api", 2, 5), by_unit("auth", 3, 9)])
+    check_("context/units_in_the_plan_one_not_reviewed", tree(**{spec("api"): "# Spec\n", **planned}), [fd, fd + ["--unit", "web"]], edits=[by_unit("api", 2, 5)])
+    check_("context/units_reviewed_document_gone", tree(), [fd, fd + ["--unit", "api"]], edits=[by_unit("api")])
+    # context: the list a recorded review left, whatever it said, and what the next reviewer reads of each finding.
+    def shown(name, *passes, findings=(), more=(), steps=None, body="It reads well.\n", **files):
+        check_(name, tree(**files), steps or [ctx], edits=[reviewed_by_hand(*passes, findings=findings, body=body), *more])
+    ready, not_ready = (1, "READY", (), REVIEWED_CURRENT), (1, "NOT-READY", (), REVIEWED_CURRENT)
+    shown("context/ready_nothing_found", ready)
+    shown("context/requested", (1, None, (), REVIEWED_CURRENT))
+    shown("context/not_ready_findings", not_ready, findings=[finding(1), finding(2, severity="Minor"), finding(3, severity="Critical")])
+    shown("context/findings_of_each_status", not_ready, findings=[finding(1), finding(2, "Unresolved"), finding(3, "Resolved"), finding(4, "Accepted risk"), finding(5, "Rejected: not ours")])
+    shown("context/findings_of_other_bytes", (1, "NOT-READY", (), REVIEWED_OLD), findings=[finding(1)])
+    shown("context/record_gone", not_ready, findings=[finding(1)], more=[lambda t: os.remove(t.path(REVIEW_RECORD(1)))])
+    shown("context/record_other_bytes", not_ready, findings=[finding(1)], more=[lambda t: t.edit(REVIEW_RECORD(1), lambda text: text.replace("It reads well.", "It reads badly."))])
+    # (A review that said nothing of its own is shown only for what it listed; and a stage that names no artifact
+    # for its reviews has them keyed to the first it declares.)
+    shown("context/record_no_body", not_ready, body="")
+    shown("context/record_no_body_ready", ready, body="")
+    shown("context/record_no_body_findings", not_ready, findings=[finding(1)], body="")
+    def graph_of(stage, change):
+        def edit(t):
+            graph = t.json(".claude/tools/data/stage-graph.json")
+            for node in graph:
+                if node["slug"] == stage:
+                    change(node)
+            t.write_json(".claude/tools/data/stage-graph.json", graph)
+        return edit
+    shown("context/no_review_artifact", not_ready, findings=[finding(1)], more=[graph_of("intent-capture", lambda node: node.pop("review_artifact"))])
+    shown("context/review_artifact_declared_last", not_ready, findings=[finding(1)], more=[graph_of("intent-capture", lambda node: node.update(review_artifact="stakeholder-map"))])
+    shown("context/two_passes", (1, "NOT-READY", (), REVIEWED_OLD), (2, "READY", (), REVIEWED_CURRENT), findings=[finding(1)])
+    # context: what a gate decided about a finding, read off the gate's row.
+    decided = lambda status, minute=9, **over: block("GATE_APPROVED", T(minute), "**Stage**: intent-capture", "**Review Finding Dispositions**: " + json.dumps(
+        {"version": 1, "dispositions": [{"artifact": statement, "id": "R-01", "fingerprint": "sha256:" + "b" * 64, "status": status, **over}]}))
+    after = lambda *rows: lambda t: t.edit(CREATED_SHARD, lambda text: text + "".join(rows))
+    for label, status in (("accepted", "Accepted risk"), ("rejected", "Rejected: not ours to fix"), ("reopened", "Reopened: it came back")):
+        shown(f"context/decided_{label}", not_ready, findings=[finding(1), finding(2)], more=[after(decided(status))])
+    shown("context/decided_at_severity", not_ready, findings=[finding(1)], more=[after(decided("Accepted risk", decided_at_severity="Minor"))])
+    shown("context/decided_then_reopened", not_ready, findings=[finding(1)], more=[after(decided("Accepted risk"), decided("Reopened: again", 10))])
+    shown("context/decided_a_finding_nobody_raised", not_ready, findings=[finding(2)], more=[after(decided("Accepted risk"))])
+    shown("context/decided_by_another_stage", not_ready, findings=[finding(1)], more=[after(decided("Accepted risk").replace("**Stage**: intent-capture", "**Stage**: market-research"))])
+    shown("context/decided_a_list_for_a_text", not_ready, findings=[finding(1)], more=[after(decided("Accepted risk", id=["R-01"]))])
+    shown("context/decided_not_json", not_ready, findings=[finding(1)], more=[after(decided("Accepted risk").replace('{"version": 1', '{"version": 1 oops'))])
+    # context: the `## Review` section an older release left in the artifact, with no record yet.
+    legacy = "# Intent\n\nAdd login to the app.\n\n## Review\n\n**Verdict:** NOT-READY\n\n### Findings\n\n| ID | Severity | Location | Finding | Required action | Status |\n| --- | --- | --- | --- | --- | --- |\n| R-01 | Major | Intent | It names no user | Name the user | New |\n"
+    check_("context/legacy_section", tree(**{statement: legacy}), [ctx])
+    check_("context/legacy_section_and_a_record", tree(**{statement: legacy}), [ctx], edits=[reviewed_by_hand(not_ready, findings=[finding(2)])])
+    check_("context/legacy_section_unreadable_table", tree(**{statement: legacy.replace("| R-01 | Major |", "| R-01 | Huge |")}), [ctx])
+    no_verdict = legacy.replace("**Verdict:** NOT-READY\n\n", "")
+    assert no_verdict != legacy
+    check_("context/legacy_section_no_verdict", tree(**{statement: no_verdict}), [ctx])
+    check_("context/legacy_section_no_verdict_unreadable_table", tree(**{statement: no_verdict.replace("| R-01 | Major |", "| R-01 | Huge |")}), [ctx])
+    check_("context/legacy_section_no_verdict_nothing_listed", tree(**{statement: "# Intent\n\n## Review\n\nNothing yet.\n"}), [ctx])
 
 
 def runtime_checks():
@@ -7742,6 +7884,7 @@ try:
     gate_checks()
     park_checks()
     jump_checks()
+    review_brief_checks()
     log_checks()
     status_checks()
     hook_checks()
