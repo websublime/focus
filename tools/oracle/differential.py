@@ -2640,10 +2640,6 @@ DEVIATIONS.update({
     "jump/execute/backward_session":
         "with a session bound, a backward jump keeps its way back for the chat's next turn (the pending person "
         "lines, the human-turn hook's record, M4) and leaves `notice` out of its output; focus refuses by name",
-    "jump/execute/backward_over_reviewed_stage_rows":
-        "a backward jump names the reviews it invalidates, read from the review brief's records (M5): with review "
-        "rows on the ledger for a reviewed stage behind the jump, upstream reads them and focus refuses by name; "
-        "an embedded `## Review` section is named by both",
     r"(jump/execute|utility/create)/delegated_worktree":
         "upstream runs inside a worktree an engine created for one unit of work, resolving it to the main checkout's "
         "piece of work; focus refuses the checkout by name (worktrees come with parallel Construction, deferred)",
@@ -6829,7 +6825,21 @@ def jump_checks():
     check_("execute/backward_review_section", created(at_feasibility, **ic, **artifact("market-research", "competitive-analysis", "# MR\n\n## Review\n- R-01 New: x\n")), [backward])
     check_("execute/backward_review_section_fenced", created(at_feasibility, **ic, **artifact("market-research", "competitive-analysis", "```\n## Review\nx\n```\n")), [backward])
     check_("execute/backward_review_rows", created(at_feasibility, CREATED_AUDIT + block("REVIEW_COMPLETED", T(2), "**Stage**: intent-capture", "**Verdict**: READY"), **ic), [backward])
-    # A reviewed stage behind the jump: its review records are the brief's (M5), refused by name when rows are on the ledger.
+    # A review behind the jump is named by the list of findings its scope stands at: a recorded review whatever it said,
+    # beside the `## Review` section a declared artifact carries; a request with no verdict, or a record that is no
+    # longer the one its row names, stands at nothing.
+    j_ready, j_statement = (1, "READY", (), REVIEWED_CURRENT), f"{CREATED_DIR}/ideation/intent-capture/intent-statement.md"
+    def jump_reviewed(name, *passes, more=(), **files):
+        check_(name, created(at_feasibility, **{**REVIEWED_OUTPUTS, **mr, **files}), [backward, ["resolve", "--stage", "feasibility"]], edits=[reviewed_by_hand(*passes), *more])
+    jump_reviewed("execute/backward_recorded_review", j_ready)
+    jump_reviewed("execute/backward_recorded_review_not_ready", (1, "NOT-READY", (), REVIEWED_CURRENT))
+    jump_reviewed("execute/backward_recorded_review_of_other_bytes", (1, "READY", (), REVIEWED_OLD))
+    jump_reviewed("execute/backward_review_requested", (1, None, (), REVIEWED_CURRENT))
+    jump_reviewed("execute/backward_recorded_review_record_gone", j_ready, more=[lambda tree: os.remove(tree.path(REVIEW_RECORD(1)))])
+    jump_reviewed("execute/backward_recorded_review_and_section", j_ready, **{j_statement: "# Intent\n\nAdd login to the app.\n\n## Review\n- R-01 New: x\n"})
+    jump_reviewed("execute/backward_recorded_review_and_another_section", j_ready, **{f"{CREATED_DIR}/ideation/intent-capture/stakeholder-map.md": "# Stakeholders\n\n## Review\n- R-01 New: x\n"})
+    jump_reviewed("execute/backward_recorded_review_two_passes", (1, "NOT-READY", (), REVIEWED_OLD), (2, "READY", (), REVIEWED_CURRENT))
+    # A reviewed stage behind the jump, with rows that are no review.
     reviewed = at_stage(CREATED_STATE, "approval-handoff", done=ideation)
     check_("execute/backward_over_reviewed_stage", created(reviewed, **ic, **artifact("rough-mockups", "wireframes", "# W\n\n## Review\n- R-01 New: x\n")),
            [["execute", "--target", "team-formation", "--direction", "backward"]])

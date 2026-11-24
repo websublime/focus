@@ -512,23 +512,22 @@ fn resolve_project_path(project: &Path, path: &str) -> std::path::PathBuf {
 }
 
 /// `stageReviewPaths`: the reviews a backward jump invalidates, named
-/// `<artifact>#Review`. The record-backed reviews are the review brief's
-/// (M5): with a reviewer and review rows on the ledger, the jump is refused
-/// by name; what remains is the embedded `## Review` section of a declared
-/// artifact, which the brief seeds from too.
+/// `<artifact>#Review`: each scope of the stage whose list of findings
+/// stands at something (a review record, or the section an older release
+/// left), and each declared artifact that carries a `## Review` section.
+///
+/// Deliberate deviation: upstream goes on naming what it can when a
+/// review cannot be read. What Focus refuses to read of a review (a file
+/// reached through a link, a list where a text belongs) upstream reads,
+/// so going on would name fewer reviews than upstream does: the jump is
+/// refused with what is wrong instead.
 fn stage_review_paths(wf: &Workflow, stage: &Stage, content: &str) -> Result<Vec<String>> {
-    if stage::reviewer(stage).is_some()
-        && wf
-            .events()
-            .iter()
-            .any(|row| row.event.starts_with("REVIEW_"))
-    {
-        bail!(
-            "A backward jump names the reviews it invalidates, and \"{}\" has review rows on the ledger that the review brief would read: Focus does not read review records yet.",
-            stage.slug
-        );
-    }
     let mut paths = Vec::new();
+    if stage::reviewer(stage).is_some() {
+        for context in crate::review_derived::contexts(wf, stage, None)? {
+            paths.push(format!("{}#Review", context.artifact));
+        }
+    }
     for path in existing_stage_artifact_paths(wf, stage, content)? {
         let full = resolve_project_path(&wf.layout.project, &path);
         let has_section = std::fs::read_to_string(&full).ok().is_some_and(|text| {

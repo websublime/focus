@@ -692,3 +692,82 @@ mod tests {
         let _ = std::fs::remove_dir_all(&root);
     }
 }
+
+/// `entryUnit`: the unit a logical path of a per-unit stage belongs to
+/// (`construction/<unit>/<stage>/…`).
+fn entry_unit<'p>(logical_path: &'p str, slug: &str) -> Option<&'p str> {
+    let mut parts = logical_path.split('/');
+    if parts.next() != Some("construction") {
+        return None;
+    }
+    let unit = parts.next().filter(|unit| !unit.is_empty())?;
+    let stage = parts.next().filter(|stage| !stage.is_empty())?;
+    // (A file follows: the pattern ends in a slash.)
+    parts.next()?;
+    (stage == slug).then_some(unit)
+}
+
+/// `readReviewArtifactContexts`: the list of findings each scope of the
+/// stage stands at now, one per unit for a stage that runs for each unit
+/// (or the one unit asked for). A scope's list is keyed to the stage's
+/// review artifact, or to its first declared one.
+///
+/// A scope with nothing to show is left out: no review, or a review that
+/// gave no verdict of its own and listed nothing, which the gate answers
+/// with its own fallback finding.
+///
+/// # Errors
+///
+/// What [`derive`] does not read, or the registry's row for the piece of
+/// work.
+pub fn contexts(wf: &Workflow, stage: &Stage, unit: Option<&str>) -> Result<Vec<Derived>> {
+    let slug = stage.slug.as_str();
+    let scope = ReviewScope {
+        unit,
+        ..ReviewScope::default()
+    };
+    let entries = match review_entries(wf, stage, scope)? {
+        Ok(Some(entries)) => entries,
+        Ok(None) => return Ok(Vec::new()),
+        Err(Unlistable(folder)) => bail!(
+            "{} is there and is not a folder that can be listed, and the artifacts of \"{slug}\" are found by listing it. Restore the folder, or move what is there away.",
+            folder.display()
+        ),
+    };
+    // Scope by scope, in the order each first appears.
+    let mut scopes: Vec<(String, Vec<&crate::artifacts::ReviewEntry>)> = Vec::new();
+    for entry in &entries {
+        let of = unit
+            .or_else(|| entry_unit(&entry.logical_path, slug))
+            .unwrap_or("");
+        match scopes.iter_mut().find(|(scope, _)| scope == of) {
+            Some((_, grouped)) => grouped.push(entry),
+            None => scopes.push((of.to_owned(), vec![entry])),
+        }
+    }
+    let project = wf.layout.project.as_path();
+    let mut contexts = Vec::new();
+    for (scope, grouped) in scopes {
+        let Some(entry) = grouped
+            .iter()
+            .find(|entry| entry.appendix_target)
+            .or_else(|| grouped.first())
+        else {
+            continue;
+        };
+        let context = derive(
+            wf,
+            stage,
+            &crate::artifacts::workspace_artifact_path(project, entry),
+            (!scope.is_empty()).then_some(scope.as_str()),
+            None,
+        )?;
+        if (!context.incomplete_review && context.verdict.is_some())
+            || !context.findings.is_empty()
+            || context.findings_text.is_some()
+        {
+            contexts.push(context);
+        }
+    }
+    Ok(contexts)
+}
