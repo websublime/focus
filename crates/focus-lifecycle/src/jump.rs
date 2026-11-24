@@ -27,7 +27,7 @@ use focus_graph::stage_schema::PHASES;
 use focus_intent::plan::{next_in_scope_stage, stages_in_scope};
 use focus_js::order::cmp_utf16;
 use focus_js::text::trim;
-use focus_js::{Result, bail, json};
+use focus_js::{EngineError, Result, bail, json};
 use focus_state::fields::{get_field, remove_field, set_field, set_phase_progress};
 use focus_state::progress::{
     CheckboxState, count_checkboxes, parse_checkboxes, parse_stage_suffixes, set_checkbox,
@@ -524,7 +524,14 @@ fn resolve_project_path(project: &Path, path: &str) -> std::path::PathBuf {
 fn stage_review_paths(wf: &Workflow, stage: &Stage, content: &str) -> Result<Vec<String>> {
     let mut paths = Vec::new();
     if stage::reviewer(stage).is_some() {
-        for context in crate::review_derived::contexts(wf, stage, None)? {
+        let contexts = crate::review_derived::contexts(wf, stage, None).map_err(|err| {
+            EngineError::new(format!(
+                "A backward jump names the reviews it invalidates, and the review of \"{}\" cannot be read: {}.",
+                stage.slug,
+                err.message()
+            ))
+        })?;
+        for context in contexts {
             paths.push(format!("{}#Review", context.artifact));
         }
     }

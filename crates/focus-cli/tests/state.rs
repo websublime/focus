@@ -1683,6 +1683,100 @@ fn a_jump_refuses_repositories_that_are_not_names() {
     }
 }
 
+/// Deliberate deviation. A backward jump names the reviews it invalidates.
+/// Where the list of findings of a stage behind the jump holds what Focus
+/// refuses to read (a decision a gate's row holds, edited by hand, with a
+/// list where a text belongs) upstream reads it as text and jumps; Focus
+/// refuses the jump with what is wrong, and moves nothing.
+#[test]
+fn a_backward_jump_refuses_a_review_it_cannot_read() {
+    use sha2::{Digest, Sha256};
+    let mut state = CREATED.replace("- [-] intent-capture ", "- [x] intent-capture ");
+    for slug in [
+        "market-research",
+        "feasibility",
+        "scope-definition",
+        "team-formation",
+        "rough-mockups",
+    ] {
+        state = state.replace(&format!("- [ ] {slug} "), &format!("- [x] {slug} "));
+    }
+    let state = state
+        .replace("- [ ] approval-handoff ", "- [-] approval-handoff ")
+        .replace(
+            "- **Current Stage**: intent-capture",
+            "- **Current Stage**: approval-handoff",
+        )
+        .replace(
+            "- **In Progress**: intent-capture",
+            "- **In Progress**: approval-handoff",
+        );
+    let root = created("jump-review", &state);
+    let wires = format!("{CREATED_RECORD}/ideation/rough-mockups/wireframes.md");
+    write(&root, &wires, "# Wireframes\n");
+    // A review of the stage behind the jump, with one finding.
+    let reviewer = "focus-product-lead-agent";
+    let fingerprint = format!("sha256:{}", "c".repeat(64));
+    let request = format!("review:{}", "1".repeat(32));
+    let record = format!(
+        "{{\n  \"version\": 1,\n  \"stage\": \"rough-mockups\",\n  \"unit\": null,\n  \"workflow\": null,\n  \"attempt\": \"0000000000000000\",\n  \"iteration\": 1,\n  \"reviewer\": \"{reviewer}\",\n  \"verdict\": \"NOT-READY\",\n  \"request_id\": \"{request}\",\n  \"request_challenge\": null,\n  \"artifact_fingerprint\": \"{fingerprint}\",\n  \"source_fingerprint\": null,\n  \"unit_source_fingerprint\": null,\n  \"findings\": [\n    {{\n      \"id\": \"R-01\",\n      \"severity\": \"Major\",\n      \"location\": \"wireframes.md > Home\",\n      \"finding\": \"It names no user\",\n      \"required_action\": \"Name the user\",\n      \"status\": \"New\"\n    }}\n  ],\n  \"body\": \"It reads well.\\n\",\n  \"recorded_at\": \"2026-01-05T10:00:00Z\"\n}}\n"
+    );
+    let record_rel = ".focus-engine/reviews/rough-mockups/stage/0000000000000000/1.json";
+    write(&root, &format!("{CREATED_RECORD}/{record_rel}"), &record);
+    let digest: String = Sha256::digest(record.as_bytes())
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect();
+    let scope = format!("**Stage**: rough-mockups\n**Reviewer**: {reviewer}\n**Iteration**: 1\n");
+    let reviewed = format!(
+        "\n## Review Requested\n**Timestamp**: 2026-01-05T10:01:00Z\n**Event**: REVIEW_REQUESTED\n{scope}**Artifact Fingerprint**: {fingerprint}\n**Request Id**: {request}\n\n---\n\n## Review Completed\n**Timestamp**: 2026-01-05T10:02:00Z\n**Event**: REVIEW_COMPLETED\n{scope}**Verdict**: NOT-READY\n**Request Fingerprint**: {fingerprint}\n**Artifact Fingerprint**: {fingerprint}\n**Request Id**: {request}\n**Review Record**: {record_rel}\n**Review Record Digest**: sha256:{digest}\n\n---\n"
+    );
+    let shard_path = root.join(CREATED_RECORD).join("audit/laptop-abc123.md");
+    let back = [
+        "execute",
+        "--target",
+        "team-formation",
+        "--direction",
+        "backward",
+    ];
+    // The decision as a gate writes it is read, and the jump would go
+    // through; with a list where the finding's id belongs it is refused.
+    let decided = |id: &str| {
+        format!(
+            "\n## Gate Approved\n**Timestamp**: 2026-01-05T10:09:00Z\n**Event**: GATE_APPROVED\n**Stage**: rough-mockups\n**Review Finding Dispositions**: {{\"version\":1,\"dispositions\":[{{\"artifact\":\"{wires}\",\"id\":{id},\"fingerprint\":\"sha256:{}\",\"status\":\"Accepted risk\"}}]}}\n\n---\n",
+            "b".repeat(64)
+        )
+    };
+    fs::write(
+        &shard_path,
+        format!("{CREATED_SHARD}{reviewed}{}", decided("[\"R-01\"]")),
+    )
+    .unwrap();
+    let said = refusal(&jump(&root, &back, &[]));
+    assert!(
+        said.contains("A backward jump names the reviews it invalidates, and the review of \"rough-mockups\" cannot be read: the Review Finding Dispositions field holds a decision that is not written as text: it is not read."),
+        "{said}"
+    );
+    assert_eq!(created_state(&root), state);
+    // Written as text, the same decision is read, and the jump names the
+    // review among what it invalidates.
+    fs::write(
+        &shard_path,
+        format!("{CREATED_SHARD}{reviewed}{}", decided("\"R-01\"")),
+    )
+    .unwrap();
+    let moved = jump(&root, &back, &[]);
+    assert!(moved.status.success(), "{}", text(&moved.stderr));
+    assert!(
+        fs::read_to_string(&shard_path)
+            .unwrap()
+            .contains(&format!("{wires}#Review")),
+        "{}",
+        fs::read_to_string(&shard_path).unwrap()
+    );
+    let _ = fs::remove_dir_all(root);
+}
+
 /// The words the human-turn hook kept for the chat, read at the gate: the
 /// person's exact pick decides against a report of the other choice, their
 /// words ride on the receipt, and their own feedback replaces the

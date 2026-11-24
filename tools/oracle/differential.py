@@ -2640,6 +2640,11 @@ DEVIATIONS.update({
     "jump/execute/backward_session":
         "with a session bound, a backward jump keeps its way back for the chat's next turn (the pending person "
         "lines, the human-turn hook's record, M4) and leaves `notice` out of its output; focus refuses by name",
+    "jump/execute/backward_review_decisions_a_list_for_a_text":
+        "a backward jump names the reviews it invalidates, and the list of findings of a stage behind it holds what "
+        "focus refuses to read (here a decision a gate's row holds, edited by hand, with a list where a text "
+        "belongs): upstream reads it as text and jumps; focus refuses the jump with what is wrong, since going on "
+        "would name fewer reviews than upstream does",
     r"(jump/execute|utility/create)/delegated_worktree":
         "upstream runs inside a worktree an engine created for one unit of work, resolving it to the main checkout's "
         "piece of work; focus refuses the checkout by name (worktrees come with parallel Construction, deferred)",
@@ -3876,34 +3881,34 @@ REVIEWED_OUTPUTS = {**SUMMARY_OUTPUTS, SUMMARY_FILE: "# Questions\n\nNone.\n"}
 REVIEWED_CURRENT = "sha256:ecf999829890d21d716a816b7d5988926939797038877a5c26afeaee7da1d192"
 REVIEWED_OLD = "sha256:" + "a" * 64
 REVIEWER_BY_HAND = "lead-reviewer"
-REVIEW_RECORD = lambda n: f"{CREATED_DIR}/.aidlc-engine/reviews/intent-capture/stage/{'0' * 16}/{n}.json"
+REVIEW_RECORD = lambda n, stage="intent-capture": f"{CREATED_DIR}/.aidlc-engine/reviews/{stage}/stage/{'0' * 16}/{n}.json"
 REVIEW_RECOVERY = ("**Recovery**: stale-receipt", "**Recovery Cause**: artifact")
 REVIEWED = lambda state, override="advisory": state.replace("- **Review Override**: none", f"- **Review Override**: {override}")
 
 
-def reviewed_by_hand(*passes, minute=1):
+def reviewed_by_hand(*passes, minute=1, findings=(), stage="intent-capture"):
     def edit(tree):
         rows = ""
         for index, (n, verdict, more, fingerprint) in enumerate(passes):
             ident = "review:" + f"{n}" * 32
-            scope = ["**Stage**: intent-capture", f"**Reviewer**: {REVIEWER_BY_HAND}", f"**Iteration**: {n}"]
+            scope = [f"**Stage**: {stage}", f"**Reviewer**: {REVIEWER_BY_HAND}", f"**Iteration**: {n}"]
             rows += block("REVIEW_REQUESTED", T(minute + 2 * index), *scope, f"**Artifact Fingerprint**: {fingerprint}", f"**Request Id**: {ident}", *more)
             if verdict is None:
                 continue
-            record = REVIEW_RECORD(n)
+            record = REVIEW_RECORD(n, stage)
             tree.write(record, json.dumps({
-                "version": 1, "stage": "intent-capture", "unit": None, "workflow": None, "attempt": "0" * 16, "iteration": n, "reviewer": REVIEWER_BY_HAND, "verdict": verdict,
+                "version": 1, "stage": stage, "unit": None, "workflow": None, "attempt": "0" * 16, "iteration": n, "reviewer": REVIEWER_BY_HAND, "verdict": verdict,
                 "request_id": ident, "request_challenge": None, "artifact_fingerprint": fingerprint, "source_fingerprint": None, "unit_source_fingerprint": None,
-                "findings": [], "body": "It reads well.\n", "recorded_at": "2026-01-05T10:00:00Z"}, indent=2) + "\n")
+                "findings": list(findings), "body": "It reads well.\n", "recorded_at": "2026-01-05T10:00:00Z"}, indent=2) + "\n")
             with open(tree.path(record), "rb") as handle:
                 digest = "sha256:" + hashlib.sha256(handle.read()).hexdigest()
             rows += block("REVIEW_COMPLETED", T(minute + 2 * index + 1), *scope, f"**Verdict**: {verdict}", f"**Request Fingerprint**: {fingerprint}",
                           f"**Artifact Fingerprint**: {fingerprint}", f"**Request Id**: {ident}", f"**Review Record**: {record[len(CREATED_DIR) + 1:]}", f"**Review Record Digest**: {digest}")
         tree.edit(CREATED_SHARD, lambda text: text + rows)
         graph = tree.json(".claude/tools/data/stage-graph.json")
-        for stage in graph:
-            if stage["slug"] == "intent-capture":
-                stage["reviewer"] = REVIEWER_BY_HAND
+        for node in graph:
+            if node["slug"] == stage:
+                node["reviewer"] = REVIEWER_BY_HAND
         tree.write_json(".claude/tools/data/stage-graph.json", graph)
     return edit
 
@@ -6827,18 +6832,30 @@ def jump_checks():
     check_("execute/backward_review_rows", created(at_feasibility, CREATED_AUDIT + block("REVIEW_COMPLETED", T(2), "**Stage**: intent-capture", "**Verdict**: READY"), **ic), [backward])
     # A review behind the jump is named by the list of findings its scope stands at: a recorded review whatever it said,
     # beside the `## Review` section a declared artifact carries; a request with no verdict, or a record that is no
-    # longer the one its row names, stands at nothing.
-    j_ready, j_statement = (1, "READY", (), REVIEWED_CURRENT), f"{CREATED_DIR}/ideation/intent-capture/intent-statement.md"
-    def jump_reviewed(name, *passes, more=(), **files):
-        check_(name, created(at_feasibility, **{**REVIEWED_OUTPUTS, **mr, **files}), [backward, ["resolve", "--stage", "feasibility"]], edits=[reviewed_by_hand(*passes), *more])
+    # longer the one its row names, stands at nothing. (The stage jumped to keeps its reviews: only what is behind it.)
+    j_at = at_stage(CREATED_STATE, "approval-handoff", done=ideation)
+    j_back = ["execute", "--target", "team-formation", "--direction", "backward"]
+    j_wires, j_flow = f"{CREATED_DIR}/ideation/rough-mockups/wireframes.md", f"{CREATED_DIR}/ideation/rough-mockups/user-flow.md"
+    j_files = {j_wires: "# Wireframes\n", j_flow: "# Flow\n", f"{CREATED_DIR}/ideation/rough-mockups/rough-mockups-questions.md": "# Questions\n"}
+    j_ready, j_fp = (1, "READY", (), "sha256:" + "c" * 64), "sha256:" + "c" * 64
+    j_held = {"id": "R-01", "severity": "Major", "location": "wireframes.md > Home", "finding": "It names no user", "required_action": "Name the user", "status": "New"}
+    def jump_reviewed(name, *passes, more=(), findings=(), stage="rough-mockups", **files):
+        check_(name, created(j_at, **{**ic, **j_files, **files}), [j_back, ["resolve", "--stage", "approval-handoff"]], edits=[reviewed_by_hand(*passes, findings=findings, stage=stage), *more])
     jump_reviewed("execute/backward_recorded_review", j_ready)
-    jump_reviewed("execute/backward_recorded_review_not_ready", (1, "NOT-READY", (), REVIEWED_CURRENT))
-    jump_reviewed("execute/backward_recorded_review_of_other_bytes", (1, "READY", (), REVIEWED_OLD))
-    jump_reviewed("execute/backward_review_requested", (1, None, (), REVIEWED_CURRENT))
-    jump_reviewed("execute/backward_recorded_review_record_gone", j_ready, more=[lambda tree: os.remove(tree.path(REVIEW_RECORD(1)))])
-    jump_reviewed("execute/backward_recorded_review_and_section", j_ready, **{j_statement: "# Intent\n\nAdd login to the app.\n\n## Review\n- R-01 New: x\n"})
-    jump_reviewed("execute/backward_recorded_review_and_another_section", j_ready, **{f"{CREATED_DIR}/ideation/intent-capture/stakeholder-map.md": "# Stakeholders\n\n## Review\n- R-01 New: x\n"})
-    jump_reviewed("execute/backward_recorded_review_two_passes", (1, "NOT-READY", (), REVIEWED_OLD), (2, "READY", (), REVIEWED_CURRENT))
+    jump_reviewed("execute/backward_recorded_review_not_ready", (1, "NOT-READY", (), j_fp), findings=[j_held])
+    jump_reviewed("execute/backward_review_requested", (1, None, (), j_fp))
+    jump_reviewed("execute/backward_recorded_review_record_gone", j_ready, more=[lambda tree: os.remove(tree.path(REVIEW_RECORD(1, "rough-mockups")))])
+    jump_reviewed("execute/backward_recorded_review_record_other_bytes", j_ready, more=[lambda tree: tree.edit(REVIEW_RECORD(1, "rough-mockups"), lambda text: text.replace("It reads well.", "It reads badly."))])
+    jump_reviewed("execute/backward_recorded_review_and_section", j_ready, **{j_wires: "# Wireframes\n\n## Review\n- R-01 New: x\n"})
+    jump_reviewed("execute/backward_recorded_review_and_another_section", j_ready, **{j_flow: "# Flow\n\n## Review\n- R-01 New: x\n"})
+    jump_reviewed("execute/backward_recorded_review_two_passes", (1, "NOT-READY", (), j_fp), (2, "READY", (), j_fp))
+    jump_reviewed("execute/backward_recorded_review_no_artifact_left", j_ready, **{j_wires: None})
+    jump_reviewed("execute/backward_recorded_review_of_the_target", j_ready, stage="intent-capture")
+    # (And the one Focus refuses to read: a decision a gate's row holds, edited by hand, with a list where a text
+    # belongs. Upstream reads it as the text its pattern test turns it into, and goes on.)
+    j_decided = block("GATE_APPROVED", T(9), "**Stage**: rough-mockups", "**Review Finding Dispositions**: " + json.dumps(
+        {"version": 1, "dispositions": [{"artifact": j_wires, "id": ["R-01"], "fingerprint": "sha256:" + "b" * 64, "status": "Accepted risk"}]}))
+    jump_reviewed("execute/backward_review_decisions_a_list_for_a_text", (1, "NOT-READY", (), j_fp), findings=[j_held], more=[lambda tree: tree.edit(CREATED_SHARD, lambda text: text + j_decided)])
     # A reviewed stage behind the jump, with rows that are no review.
     reviewed = at_stage(CREATED_STATE, "approval-handoff", done=ideation)
     check_("execute/backward_over_reviewed_stage", created(reviewed, **ic, **artifact("rough-mockups", "wireframes", "# W\n\n## Review\n- R-01 New: x\n")),
