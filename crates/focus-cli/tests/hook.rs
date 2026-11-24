@@ -1586,6 +1586,31 @@ fn freeze(root: &Path, tool: &str, rel: &str) -> String {
     ))
 }
 
+/// The document of a unit, at a stage that runs for each unit and is in
+/// progress, with review rows of its own in the ledger: what the freeze
+/// still refuses by name. Answers the document's path.
+fn unit_document(root: &Path) -> String {
+    write(
+        root,
+        &format!("{RECORD}/focus-state.md"),
+        &STATE.replace(
+            "\n## Current Status",
+            "\n### CONSTRUCTION PHASE\n- [-] functional-design \u{2014} EXECUTE\n\n## Current Status",
+        ),
+    );
+    write(root, SHARD, &unit_rows());
+    format!("{RECORD}/construction/api/functional-design/functional-spec.md")
+}
+
+fn unit_rows() -> String {
+    format!(
+        "# Focus Audit Log\n{}",
+        REVIEW_ROWS.replace("**Stage**: intent-capture", "**Stage**: functional-design")
+    )
+}
+
+const UNITS_NOT_READ: &str = "which runs for each unit and whose ledger holds review rows: which unit's review still covers it is read off the units' rows and claims, and Focus does not read those yet.";
+
 #[test]
 fn the_review_freeze_passes_every_write_that_reaches_no_receipt() {
     let root = project("freeze-pass");
@@ -1659,15 +1684,15 @@ fn the_review_freeze_passes_every_write_that_reaches_no_receipt() {
     }
 }
 
-/// Deliberate deviation. Upstream weighs the review receipt scan and freezes
-/// the document under a fresh terminal review (exit 2, a
-/// REVIEW_FREEZE_BLOCKED row); Focus refuses the write by name while it does
-/// not weigh receipts.
+/// Deliberate deviation. At a stage that runs for each unit upstream
+/// freezes unit by unit, off each unit's receipt and claim; Focus refuses a
+/// write to one of its documents by name while its ledger holds review rows
+/// (units arrive with a later slice). A stage reviewed as one is weighed,
+/// and compared in the differential.
 #[test]
-fn a_write_that_reaches_the_receipt_scan_is_refused_by_name() {
+fn a_document_of_a_stage_that_runs_for_each_unit_is_refused_by_name() {
     let root = project("freeze-rows");
-    let doc = format!("{RECORD}/ideation/intent-capture/intent-statement.md");
-    write(&root, SHARD, &format!("# Focus Audit Log\n{REVIEW_ROWS}"));
+    let doc = unit_document(&root);
     let said = refusal(&hook(
         &root,
         &["review-freeze"],
@@ -1675,20 +1700,19 @@ fn a_write_that_reaches_the_receipt_scan_is_refused_by_name() {
         &[],
     ));
     assert!(said.starts_with("\""), "{said}");
-    assert!(said.contains("intent-statement.md\" is the output document of \"intent-capture\", whose ledger holds a review request and a completed review: whether a fresh terminal review still covers it is the review receipt scan's answer, and Focus does not weigh review receipts yet."), "{said}");
+    assert!(
+        said.contains(&format!(
+            "functional-spec.md\" is an output document of \"functional-design\", {UNITS_NOT_READ}"
+        )),
+        "{said}"
+    );
     // A shell redirection into the document reaches it the same way.
     let shell = payload(&format!(
         "\"hook_event_name\":\"PreToolUse\",\"tool_name\":\"Bash\",\"tool_input\":{{\"command\":\"echo x > {}/{doc}\"}}",
         root.to_str().unwrap().replace('\\', "/")
     ));
-    assert!(
-        refusal(&hook(&root, &["review-freeze"], &shell, &[]))
-            .contains("Focus does not weigh review receipts yet")
-    );
-    assert_eq!(
-        read(&root, SHARD),
-        format!("# Focus Audit Log\n{REVIEW_ROWS}")
-    );
+    assert!(refusal(&hook(&root, &["review-freeze"], &shell, &[])).contains(UNITS_NOT_READ));
+    assert_eq!(read(&root, SHARD), unit_rows());
     // The off switch, in the environment or a settings file, ends the check
     // before it (any other value is not the switch); a conversation outside
     // the workflow is not held to it.
@@ -1705,7 +1729,7 @@ fn a_write_that_reaches_the_receipt_scan_is_refused_by_name() {
             &freeze(&root, "Write", &doc),
             &[("FOCUS_DISABLE_REVIEW_FREEZE_HOOK", "0")],
         ))
-        .contains("Focus does not weigh review receipts yet")
+        .contains(UNITS_NOT_READ)
     );
     write(
         &root,
@@ -3260,27 +3284,31 @@ fn what_the_turn_does_not_read_yet_is_refused_by_name() {
         SHARD,
         &format!(
             "# Focus Audit Log\n{}",
-            REVIEW_ROWS.split("\n## Review Completed").next().unwrap()
+            REVIEW_ROWS
+                .split("\n## Review Completed")
+                .next()
+                .unwrap()
+                .replace(
+                    "**Iteration**: 1\n",
+                    &format!(
+                        "**Iteration**: 1\n**Artifact Fingerprint**: sha256:{}\n**Request Id**: review:{}\n",
+                        "a".repeat(64),
+                        "1".repeat(32)
+                    )
+                )
         ),
     );
-    let said = refusal(&hook(
-        &root,
-        &["record-human-turn"],
-        &prompt("use postgres"),
-        &[],
-    ));
+    // A review asked for with no verdict at a stage whose class reviews is
+    // noted to the agent, and the turn is kept (the note itself is compared
+    // in the differential).
+    let noted = hook(&root, &["record-human-turn"], &prompt("use postgres"), &[]);
+    assert!(noted.status.success(), "{}", text(&noted.stderr));
     assert!(
-        said.contains("holds a review request for \"intent-capture\" with no verdict"),
-        "{said}"
+        text(&noted.stdout).contains("A review was asked for and has no verdict yet (it may have been stopped). Run `focus engine orchestrate next` before retrying it or recording anything"),
+        "{}",
+        text(&noted.stdout)
     );
-    // The same request with its verdict, or answered by a picker, passes.
-    write(&root, SHARD, &format!("# Focus Audit Log\n{REVIEW_ROWS}"));
-    quiet(&hook(
-        &root,
-        &["record-human-turn"],
-        &prompt("use postgres"),
-        &[],
-    ));
+    assert!(shard(&root).contains("**Event**: HUMAN_TURN"));
 }
 
 const NO_STEP: &str = "the current state has no matching v2 code-generation active directive. Run `focus engine orchestrate next` exactly as written, as a command of its own (no `cd` before it, no pipe or second command after it), and follow the step it prints.";
@@ -3538,8 +3566,7 @@ fn a_directive_marker_refuses_the_plan_guard_by_name() {
 #[test]
 fn the_adapters_shell_is_read_under_focuss_name() {
     let root = project("freeze-powershell");
-    let doc = format!("{RECORD}/ideation/intent-capture/intent-statement.md").replace('/', "\\\\");
-    write(&root, SHARD, &format!("# Focus Audit Log\n{REVIEW_ROWS}"));
+    let doc = unit_document(&root).replace('/', "\\\\");
     let written = |key: &str| {
         payload(&format!(
             "\"hook_event_name\":\"PreToolUse\",\"tool_name\":\"Bash\",\"tool_input\":{{\"command\":\"Set-Content -Path {doc} -Value x\"}},\"{key}\":\"powershell\""
@@ -3554,7 +3581,7 @@ fn the_adapters_shell_is_read_under_focuss_name() {
             &written("focus_shell"),
             &[]
         ))
-        .contains("Focus does not weigh review receipts yet")
+        .contains(UNITS_NOT_READ)
     );
     // Upstream's name for the key is not one Focus reads: the same line is
     // then a POSIX command, whose backslashes are escapes.

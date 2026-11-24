@@ -4387,6 +4387,12 @@ def hook_checks():
     dispatch = lambda unit="U01", exempt=(), reviewer=REVIEWER, stage="nfr-design": {f"{engine}/reviewer-dispatch.json": json.dumps({"reviewer": reviewer, "stage": stage, "unit": unit, "exempt": list(exempt)})}
     ideation = ["intent-capture", "market-research", "feasibility", "scope-definition", "team-formation", "rough-mockups"]
     construction = at_stage(CREATED_STATE, "nfr-design", done=ideation + ["approval-handoff", "practices-discovery", "requirements-analysis", "user-stories", "refined-mockups", "domain-design", "units-generation", "contract-design", "delivery-planning", "functional-design", "nfr-requirements"], phase="CONSTRUCTION")
+    # (The freeze at a stage that runs for each unit: with no review row nothing is frozen in either engine; with
+    # one, upstream weighs each unit and Focus refuses by name.)
+    unit_doc = f"{CREATED_DIR}/construction/api/nfr-design/performance-design.md"
+    unit_asked = block("REVIEW_REQUESTED", T(2), "**Stage**: nfr-design", "**Unit**: api", "**Reviewer**: aidlc-architecture-reviewer-agent", "**Iteration**: 1")
+    check_("review-freeze/per_unit_no_review_rows", {**created(construction), **binding()}, [freeze(path=unit_doc)])
+    check_("review-freeze/per_unit_review_rows", {**created(construction, CREATED_AUDIT + unit_asked), **binding()}, [freeze(path=unit_doc)])
     reviewing = {**created(construction), **binding(), **dispatch()}
     scope = lambda tool="Read", agent=REVIEWER, **input: ["reviewer-scope", payload(hook_event_name="PreToolUse", tool_name=tool, tool_input={k: (v.replace("{D}", "{P}/" + CREATED_DIR) if isinstance(v, str) else v) for k, v in input.items()}, **({"agent_type": agent} if agent is not None else {}))]
     check_("reviewer-scope/own_unit", reviewing, [scope(file_path="{D}/construction/U01/nfr-design/security-design.md"), scope("Grep", pattern="x", path="{D}/construction/U01"), scope("Bash", command="cat {D}/construction/U01/design.md")])
@@ -4578,6 +4584,24 @@ def hook_checks():
     check_("record-human-turn/plan_challenge", {**joined, "aidlc/.aidlc-sessions/plan-approval/challenge-s1.json": '{"version": 1}'}, [turn("use postgres")])
     check_("record-human-turn/protected_question", {**joined, "aidlc/.aidlc-sessions/plan-approval/protected-question-s2.json": '{"version": 1}'}, [turn("use postgres")])
     check_("record-human-turn/directive_marker", {**joined, f"{engine}/active-directive.json": '{"version": 2, "kind": "ask"}'}, [turn("use postgres")])
+    # A review asked for and with no verdict when the person writes: the agent hears to run `next` first. The receipts
+    # say whether it still waits (a request the work went past, or one whose verdict stands, is nobody's to note).
+    def turn_reviewed(name, *passes, state=REVIEWED(CREATED_STATE), steps=None, env=None, more=()):
+        check_(name, created(state, **{**binding(), **REVIEWED_OUTPUTS}), steps or [turn("use postgres"), turn("and redis")], env, edits=[reviewed_by_hand(*passes), *more])
+    after = lambda *rows: lambda tree: tree.edit(CREATED_SHARD, lambda text: text + "".join(rows))
+    t_asked, t_old = (1, None, (), REVIEWED_CURRENT), (1, "READY", (), REVIEWED_OLD)
+    turn_reviewed("record-human-turn/review_waits", t_asked)
+    turn_reviewed("record-human-turn/review_waits_over_other_bytes", (1, None, (), REVIEWED_OLD))
+    turn_reviewed("record-human-turn/review_done", (1, "READY", (), REVIEWED_CURRENT))
+    turn_reviewed("record-human-turn/review_recovery_waits", t_old, (2, None, REVIEW_RECOVERY, REVIEWED_CURRENT), state=UNDER_POLICY(REVIEWED(CREATED_STATE), "strict (set by you)"))
+    turn_reviewed("record-human-turn/review_second_waits", (1, "NOT-READY", (), REVIEWED_CURRENT), (2, None, (), REVIEWED_CURRENT), state=REVIEWED(CREATED_STATE, "adversarial"))
+    turn_reviewed("record-human-turn/review_waits_class_none", t_asked, state=CREATED_STATE)
+    turn_reviewed("record-human-turn/review_waits_a_command", t_asked, steps=[turn("/aidlc"), turn("")])
+    for event in ("DECISION_RECORDED", "QUESTION_ANSWERED", "STAGE_AWAITING_APPROVAL", "GATE_REJECTED", "HUMAN_TURN", "ARTIFACT_UPDATED"):
+        turn_reviewed(f"record-human-turn/review_waits_then_{event.lower()}", t_asked, more=[after(block(event, T(9), "**Stage**: intent-capture"))])
+    turn_reviewed("record-human-turn/review_of_a_run_by_itself_waits", t_asked,
+                  more=[lambda tree: tree.edit(CREATED_SHARD, lambda text: text.replace("**Event**: REVIEW_REQUESTED\n", "**Event**: REVIEW_REQUESTED\n**Workflow**: single-stage:intent-capture\n"))])
+    turn_reviewed("record-human-turn/review_waits_unattended", t_asked, env={"UNATTENDED": "1"})
     check_("record-human-turn/open_review", {**joined, CREATED_SHARD: CREATED_AUDIT + block("REVIEW_REQUESTED", T(2), "**Stage**: intent-capture", "**Reviewer**: aidlc-product-lead-agent", "**Iteration**: 1")}, [turn("use postgres")])
     check_("record-human-turn/open_review_completed", {**joined, CREATED_SHARD: CREATED_AUDIT + block("REVIEW_REQUESTED", T(2), "**Stage**: intent-capture", "**Reviewer**: aidlc-product-lead-agent", "**Iteration**: 1") + block("REVIEW_COMPLETED", T(3), "**Stage**: intent-capture", "**Reviewer**: aidlc-product-lead-agent", "**Iteration**: 1", "**Verdict**: READY")}, [turn("use postgres")])
     check_("record-human-turn/open_review_reviewed", {**joined, f"{CREATED_DIR}/aidlc-state.md": CREATED_STATE.replace("- **Review Override**: none", "- **Review Override**: advisory"), CREATED_SHARD: CREATED_AUDIT + block("REVIEW_REQUESTED", T(2), "**Stage**: intent-capture", "**Reviewer**: aidlc-product-lead-agent", "**Iteration**: 1")}, [turn("use postgres")])
@@ -4779,11 +4803,15 @@ DEVIATIONS.update({
     "hook/record-human-turn/override_phrase":
         "the plan approval break-glass line: upstream records the override request for the answer to pair with "
         "(plan approval, 4e); focus refuses the turn by name (exit 1)",
-    r"hook/record-human-turn/(person_lines|plan_challenge|protected_question|open_review_reviewed)":
+    r"hook/record-human-turn/(person_lines|plan_challenge|protected_question)":
         "a record of a later slice beside the turn's own: the lines queued for the person, this chat's plan "
-        "approval challenge, a protected question any chat asked (4e), a review request with no verdict at a stage "
-        "whose class reviews (the receipts, M5); upstream carries, answers or notes it and goes on; focus refuses "
-        "the turn by name while it is there",
+        "approval challenge, a protected question any chat asked (4e); upstream carries or answers it and goes on; "
+        "focus refuses the turn by name while it is there",
+    "hook/review-freeze/per_unit_review_rows":
+        "a write to a unit's output document at a stage that runs for each unit, whose ledger holds a review row: "
+        "upstream freezes unit by unit, off each unit's receipt and claim (the units, a later slice of M5), and "
+        "passes the write when no unit's review covers it; focus refuses the write by name (exit 1). A stage "
+        "reviewed as one is weighed by both",
     "hook/session-start/root_blocks_unconfigured":
         "a distribution tree config never ran in: upstream adds the engine's part of the team's root files "
         "(.gitignore) at session start and tells the chat its include was re-pointed; focus refuses by name until "
