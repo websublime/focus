@@ -17,8 +17,9 @@
 //! there: a typed guard switch to apply (the config setter's), a `/focus`
 //! line with words after the entry (the orchestrator's parser reads its
 //! flags), the plan approval challenge and protected questions, the
-//! directive marker's asks, the break-glass phrase, a review awaiting its
-//! verdict (the receipts, M5), and the lines queued for the person.
+//! directive marker's asks, the break-glass phrase, and the lines queued
+//! for the person. A review awaiting its verdict is noted: the receipts say
+//! whether it still waits.
 
 use std::path::{Path, PathBuf};
 use std::time::SystemTime;
@@ -269,15 +270,24 @@ fn refuse_later_records(
     Ok(())
 }
 
-/// `stoppedReviewNote`'s question: a review asked for in this workflow has
-/// no verdict. Whether it still waits is the receipts' answer (M5), so a
-/// turn that would carry the note is refused by name.
-fn refuse_open_review(
-    layout: &Layout,
-    wf: &Workflow,
-    selection: &Selection,
-) -> Result<(), EngineError> {
-    let mut open: Vec<(String, String)> = Vec::new();
+/// `stoppedReviewNote`: the person wrote while a review the agent asked
+/// for in this workflow has no verdict (they may have stopped it). The
+/// agent hears to run `next` first, which names the step that finishes the
+/// review or the person's way on, so it never retries the review or records
+/// a result for it on its own. The trail names the open request; the
+/// review receipts confirm it still waits for its verdict.
+///
+/// A note, never a block: upstream says nothing on any read that fails.
+/// The one error that comes back is a refusal by name of something the
+/// receipts do not read yet, which a hook says.
+///
+/// Three tests here change no answer, because the receipts decide the same
+/// way one step later: a row of a stage run by itself is not counted by
+/// them either, a class that reviews nothing has nothing awaiting, and the
+/// class handed over is the one they would resolve.
+fn stopped_review_note(layout: &Layout, wf: &Workflow) -> Result<Option<String>, EngineError> {
+    // (stage, unit) of each request still open, in the order they opened.
+    let mut open: Vec<(String, String, String)> = Vec::new();
     for row in focus_lifecycle::gate::sort_attempt_events(&wf.events()) {
         if PAST_REVIEW_REQUEST.contains(&row.event.as_str()) {
             open.clear();
@@ -298,23 +308,23 @@ fn refuse_open_review(
             block_field(&row.block, "Iteration").unwrap_or("")
         );
         if row.event == "REVIEW_REQUESTED" {
-            if !open.iter().any(|(k, _)| *k == key) {
-                open.push((key, stage.to_owned()));
+            if !open.iter().any(|(k, _, _)| *k == key) {
+                open.push((key, stage.to_owned(), unit.to_owned()));
             }
         } else {
-            open.retain(|(k, _)| *k != key);
+            open.retain(|(k, _, _)| *k != key);
         }
     }
     if open.is_empty() {
-        return Ok(());
+        return Ok(None);
     }
     let Ok(state) = wf.read_state() else {
-        return Ok(());
+        return Ok(None);
     };
     let Ok(stages) = focus_graph::runtime::load_stages_all(&layout.stage_graph()) else {
-        return Ok(());
+        return Ok(None);
     };
-    for (_, slug) in open {
+    for (_, slug, unit) in open {
         let Some(stage) = stages.iter().find(|stage| stage.slug == slug) else {
             continue;
         };
@@ -325,12 +335,24 @@ fn refuse_open_review(
         if class == "none" {
             continue;
         }
-        return Err(EngineError::new(format!(
-            "the ledger of {} holds a review request for \"{slug}\" with no verdict: whether it still awaits one is the review receipt scan's answer, and Focus does not weigh review receipts yet. Record the review's outcome, or run the step that finishes it.",
-            selection.docs_root(layout).display()
-        )));
+        let receipts = match focus_lifecycle::review_receipts::fresh(
+            wf,
+            &state,
+            stage,
+            focus_lifecycle::review_receipts::Options {
+                review_class: Some(class),
+                ..Default::default()
+            },
+        ) {
+            Ok(receipts) => receipts,
+            Err(err) if is_refusal(&err) => return Err(err),
+            Err(_) => return Ok(None),
+        };
+        if receipts.awaiting_verdict.has(&unit) {
+            return Ok(Some("A review was asked for and has no verdict yet (it may have been stopped). Run `focus engine orchestrate next` before retrying it or recording anything, and follow the step it prints.".to_owned()));
+        }
     }
-    Ok(())
+    Ok(None)
 }
 
 /// `normalizeRetiredGuardPolicyField`: rename an active intent's valid
@@ -651,15 +673,6 @@ pub fn run(input: &str, layout: &Layout) -> Outcome {
             ));
         }
     }
-    if mint_allowed
-        && turn.prompt_submitted
-        && !trim(&turn.typed_prompt).is_empty()
-        && let (Some(wf), Some(selection)) = (&wf, &selection)
-        && state_exists
-        && let Err(err) = refuse_open_review(layout, wf, selection)
-    {
-        return refused(&err);
-    }
     // The message record: proof that a person said this in this chat, and
     // exactly what they said. Written before the state-file gate so a
     // message before any work exists is kept.
@@ -847,6 +860,15 @@ pub fn run(input: &str, layout: &Layout) -> Outcome {
             && is_refusal(&err)
         {
             return refused(&err);
+        }
+    }
+    // After the turn is kept, so the note never stands in its way. (Words
+    // were typed only where a prompt was submitted.)
+    if mint_allowed && !trim(&turn.typed_prompt).is_empty() {
+        match stopped_review_note(layout, wf) {
+            Ok(Some(note)) => notes.push(note),
+            Ok(None) => {}
+            Err(err) => return refused(&err),
         }
     }
     mark_human_turn(layout, selection);

@@ -321,6 +321,13 @@ fn normalise_audit(text: &str, root: &Path) -> String {
         r"`focus engine config set (guard\.[a-z-]+) off`",
         |found, text| format!("<cli-config {} off>", group(found, text, 1)),
     );
+    // (And as the command of a way on in a refusal's record, a value of
+    // its own between its quotes.)
+    text = replace_all(
+        &text,
+        r#"(?<=")focus engine config set (guard\.[a-z-]+) off(?=")"#,
+        |found, text| format!("<cli-config {} off>", group(found, text, 1)),
+    );
     text = replace_all(
         &text,
         r"`focus engine config set guard-policy (strict|relaxed|off)`",

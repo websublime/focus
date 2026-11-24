@@ -543,14 +543,21 @@ impl<'a> Carried<'a> {
     }
 }
 
-/// `personMayApproveOverUnfinishedReview`: off, relaxed and a strict set
-/// for this piece of work let the person approve over a review that did not
-/// finish; a strict the team keeps in memory does not, and neither does a
-/// policy that cannot be read.
-fn person_may_approve_over_unfinished_review(wf: &Workflow, state: &str) -> bool {
-    Guards::read(&wf.layout, &wf.selector(), &wf.invoker)
+/// `memoryStrictHoldsGuardPolicy`: the team keeps the Guard Policy strict
+/// in memory, so nobody lowers it for one piece of work. A policy that
+/// cannot be read holds too.
+#[must_use]
+pub fn memory_strict_holds_guard_policy(wf: &Workflow, state: &str) -> bool {
+    !Guards::read(&wf.layout, &wf.selector(), &wf.invoker)
         .and_then(|guards| guards.with_state(state).policy(false))
         .is_ok_and(|policy| policy.memory_strict.is_none())
+}
+
+/// `personMayApproveOverUnfinishedReview`: off, relaxed and a strict set
+/// for this piece of work let the person approve over a review that did not
+/// finish; a strict the team keeps in memory does not.
+fn person_may_approve_over_unfinished_review(wf: &Workflow, state: &str) -> bool {
+    !memory_strict_holds_guard_policy(wf, state)
 }
 
 /// `approvableUnfinishedReview`, for the stage: a request with no verdict
