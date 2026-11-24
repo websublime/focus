@@ -620,79 +620,6 @@ pub fn derive(
     })
 }
 
-#[cfg(test)]
-mod tests {
-    use super::legacy_section;
-    use crate::artifacts::ReviewEntry;
-
-    fn entry(boundary: &std::path::Path, name: &str) -> ReviewEntry {
-        ReviewEntry {
-            logical_path: name.to_owned(),
-            path: Some(boundary.join(name)),
-            boundary: boundary.to_path_buf(),
-            required: true,
-            appendix_target: true,
-            summary_input: false,
-        }
-    }
-
-    /// Deliberate deviation. Upstream reads the artifact that may hold a
-    /// legacy `## Review` section by its name: through a link, under a
-    /// second name, and it fails on a folder with what its runtime says.
-    /// The section seeds findings a gate then weighs, so Focus reads the
-    /// file as a file of the record that decides something, and refuses
-    /// the list otherwise, naming the file.
-    #[test]
-    fn an_artifact_that_is_not_a_plain_file_of_the_record_seeds_nothing_and_is_refused() {
-        let root = std::env::temp_dir().join(format!("focus-legacy-seed-{}", std::process::id()));
-        let _ = std::fs::remove_dir_all(&root);
-        std::fs::create_dir_all(root.join("record/folder.md")).expect("a folder");
-        let record = root.join("record");
-        let review = "# Artifact\n\n## Review\n\n**Verdict:** READY\n";
-        std::fs::write(record.join("plain.md"), review).expect("a file");
-        std::fs::write(record.join("none.md"), "# Artifact\n").expect("a file");
-        std::fs::write(root.join("outside.md"), review).expect("a file");
-        std::fs::write(record.join("twice.md"), review).expect("a file");
-        std::fs::hard_link(record.join("twice.md"), record.join("second-name.md")).expect("a name");
-
-        assert_eq!(
-            legacy_section(&entry(&record, "plain.md")).expect("read"),
-            Some("\n**Verdict:** READY\n".to_owned())
-        );
-        assert_eq!(
-            legacy_section(&entry(&record, "none.md")).expect("read"),
-            None
-        );
-        assert_eq!(
-            legacy_section(&entry(&record, "absent.md")).expect("read"),
-            None
-        );
-        #[cfg(unix)]
-        let linked = {
-            std::os::unix::fs::symlink(root.join("outside.md"), record.join("link.md"))
-                .expect("a link");
-            std::os::unix::fs::symlink(record.join("plain.md"), record.join("inner-link.md"))
-                .expect("a link");
-            vec!["twice.md", "link.md", "inner-link.md"]
-        };
-        // Off Unix the host does not say how many names a file has, and
-        // making a link asks for a privilege: the folder stands for both.
-        #[cfg(not(unix))]
-        let linked: Vec<&str> = Vec::new();
-        for name in ["folder.md"].into_iter().chain(linked) {
-            let refusal = legacy_section(&entry(&record, name)).expect_err(name);
-            assert!(
-                refusal.message().contains(name)
-                    && refusal
-                        .message()
-                        .contains("is not a plain file of the record"),
-                "{name}: {refusal}"
-            );
-        }
-        let _ = std::fs::remove_dir_all(&root);
-    }
-}
-
 /// `entryUnit`: the unit a logical path of a per-unit stage belongs to
 /// (`construction/<unit>/<stage>/…`).
 fn entry_unit<'p>(logical_path: &'p str, slug: &str) -> Option<&'p str> {
@@ -770,4 +697,77 @@ pub fn contexts(wf: &Workflow, stage: &Stage, unit: Option<&str>) -> Result<Vec<
         }
     }
     Ok(contexts)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::legacy_section;
+    use crate::artifacts::ReviewEntry;
+
+    fn entry(boundary: &std::path::Path, name: &str) -> ReviewEntry {
+        ReviewEntry {
+            logical_path: name.to_owned(),
+            path: Some(boundary.join(name)),
+            boundary: boundary.to_path_buf(),
+            required: true,
+            appendix_target: true,
+            summary_input: false,
+        }
+    }
+
+    /// Deliberate deviation. Upstream reads the artifact that may hold a
+    /// legacy `## Review` section by its name: through a link, under a
+    /// second name, and it fails on a folder with what its runtime says.
+    /// The section seeds findings a gate then weighs, so Focus reads the
+    /// file as a file of the record that decides something, and refuses
+    /// the list otherwise, naming the file.
+    #[test]
+    fn an_artifact_that_is_not_a_plain_file_of_the_record_seeds_nothing_and_is_refused() {
+        let root = std::env::temp_dir().join(format!("focus-legacy-seed-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&root);
+        std::fs::create_dir_all(root.join("record/folder.md")).expect("a folder");
+        let record = root.join("record");
+        let review = "# Artifact\n\n## Review\n\n**Verdict:** READY\n";
+        std::fs::write(record.join("plain.md"), review).expect("a file");
+        std::fs::write(record.join("none.md"), "# Artifact\n").expect("a file");
+        std::fs::write(root.join("outside.md"), review).expect("a file");
+        std::fs::write(record.join("twice.md"), review).expect("a file");
+        std::fs::hard_link(record.join("twice.md"), record.join("second-name.md")).expect("a name");
+
+        assert_eq!(
+            legacy_section(&entry(&record, "plain.md")).expect("read"),
+            Some("\n**Verdict:** READY\n".to_owned())
+        );
+        assert_eq!(
+            legacy_section(&entry(&record, "none.md")).expect("read"),
+            None
+        );
+        assert_eq!(
+            legacy_section(&entry(&record, "absent.md")).expect("read"),
+            None
+        );
+        #[cfg(unix)]
+        let linked = {
+            std::os::unix::fs::symlink(root.join("outside.md"), record.join("link.md"))
+                .expect("a link");
+            std::os::unix::fs::symlink(record.join("plain.md"), record.join("inner-link.md"))
+                .expect("a link");
+            vec!["twice.md", "link.md", "inner-link.md"]
+        };
+        // Off Unix the host does not say how many names a file has, and
+        // making a link asks for a privilege: the folder stands for both.
+        #[cfg(not(unix))]
+        let linked: Vec<&str> = Vec::new();
+        for name in ["folder.md"].into_iter().chain(linked) {
+            let refusal = legacy_section(&entry(&record, name)).expect_err(name);
+            assert!(
+                refusal.message().contains(name)
+                    && refusal
+                        .message()
+                        .contains("is not a plain file of the record"),
+                "{name}: {refusal}"
+            );
+        }
+        let _ = std::fs::remove_dir_all(&root);
+    }
 }
