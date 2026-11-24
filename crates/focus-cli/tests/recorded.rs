@@ -1310,7 +1310,14 @@ fn shown(expected: &Value) -> String {
 /// Run one check in `root`; the problems found, empty when it matches.
 fn replay(check: &Value, root: &Path) -> Vec<String> {
     if [
-        "audit", "runtime", "state", "utility", "jump", "log", "hook",
+        "audit",
+        "runtime",
+        "state",
+        "utility",
+        "jump",
+        "log",
+        "hook",
+        "review-brief",
     ]
     .contains(&check["tool"].as_str().unwrap_or_default())
     {
@@ -1663,7 +1670,15 @@ fn the_recording_covers_every_verb_and_both_outcomes() {
         checks.len()
     );
     for tool in [
-        "graph", "audit", "runtime", "state", "utility", "jump", "log", "hook",
+        "graph",
+        "audit",
+        "runtime",
+        "state",
+        "utility",
+        "jump",
+        "log",
+        "hook",
+        "review-brief",
     ] {
         let of_tool: Vec<&Value> = checks
             .iter()
