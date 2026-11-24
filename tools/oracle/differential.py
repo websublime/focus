@@ -1448,6 +1448,9 @@ def normalise_audit(text, tree, engine):
     # The fence switch is one operation, spelled for each engine's installation.
     text = re.sub(r"`bun \.claude/tools/(?:aidlc|focus)-utility\.ts config-change --(guard\.[a-z-]+) off`", r"<cli-config \1 off>", text)
     text = re.sub(r"`focus engine config set (guard\.[a-z-]+) off`", r"<cli-config \1 off>", text)
+    # (And as the command of a way on in a refusal's record, a value of its own between its quotes.)
+    text = re.sub(r'(?<=")bun \.claude/tools/(?:aidlc|focus)-utility\.ts config-change --(guard\.[a-z-]+) off(?=")', r"<cli-config \1 off>", text)
+    text = re.sub(r'(?<=")focus engine config set (guard\.[a-z-]+) off(?=")', r"<cli-config \1 off>", text)
     text = re.sub(r"`bun \.claude/tools/(?:aidlc|focus)-utility\.ts config-change --guard-policy (strict|relaxed|off)`", r"<cli-config guard-policy \1>", text)
     text = re.sub(r"`focus engine config set guard-policy (strict|relaxed|off)`", r"<cli-config guard-policy \1>", text)
     text = text.replace("how closely AI-DLC checks", "how closely <engine> checks").replace("how closely Focus checks", "how closely <engine> checks")
@@ -4339,6 +4342,45 @@ def hook_checks():
     check_("review-freeze/directive_marker", {**reviewed, f"{engine}/active-directive.json": '{"stage": "intent-capture"}'}, [freeze()])
     for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
         check_(f"review-freeze/observer_{marker.lower()}", joined, [freeze()], {marker: "1"})
+    # The freeze itself, with a review written by hand: a terminal verdict of this attempt over the document as it is
+    # freezes it, and so does a recovery review still pending; the refusal is a guard's, with a row in the ledger, the
+    # way on in its sentence and its question left in the refusal's record. No verdict that stands freezes nothing.
+    fr_ready, fr_asked, fr_old = (1, "READY", (), REVIEWED_CURRENT), (1, None, (), REVIEWED_CURRENT), (1, "READY", (), REVIEWED_OLD)
+    fr_strict = UNDER_POLICY(REVIEWED(CREATED_STATE), "strict (set by you)")
+    stakeholders = f"{CREATED_DIR}/ideation/intent-capture/stakeholder-map.md"
+    def frozen_check(name, *passes, state=fr_strict, steps=None, env=None, more=(), **files):
+        check_(name, created(state, **{**binding(), **REVIEWED_OUTPUTS, **files}), steps or [freeze(), freeze("Edit", path=stakeholders)], env, edits=[reviewed_by_hand(*passes), *more])
+    frozen_check("review-freeze/frozen", fr_ready)
+    frozen_check("review-freeze/frozen_not_ready", (1, "NOT-READY", (), REVIEWED_CURRENT))
+    frozen_check("review-freeze/frozen_thrice", fr_ready, steps=[freeze(), freeze(), freeze()])
+    frozen_check("review-freeze/frozen_other_writes", fr_ready, steps=[freeze(path=SUMMARY_FILE), freeze(path="README.md"), shell("echo x > {D}/ideation/intent-capture/intent-statement.md"),
+                                                                      shell("cat {D}/ideation/intent-capture/intent-statement.md")])
+    frozen_check("review-freeze/frozen_recovery_pending", fr_old, (2, None, REVIEW_RECOVERY, REVIEWED_CURRENT))
+    frozen_check("review-freeze/frozen_recovered", fr_old, (2, "READY", REVIEW_RECOVERY, REVIEWED_CURRENT))
+    frozen_check("review-freeze/not_frozen_requested", fr_asked)
+    frozen_check("review-freeze/not_frozen_over_other_bytes", fr_old)
+    frozen_check("review-freeze/not_frozen_recovery_spent", fr_old, (2, "READY", REVIEW_RECOVERY, "sha256:" + "b" * 64))
+    frozen_check("review-freeze/not_frozen_record_gone", fr_ready, more=[lambda tree: os.remove(tree.path(REVIEW_RECORD(1)))])
+    frozen_check("review-freeze/not_frozen_class_none", fr_ready, state=UNDER_POLICY(CREATED_STATE, "strict (set by you)"))
+    frozen_check("review-freeze/frozen_stage_class", fr_ready, state=UNDER_POLICY(REVIEWED(CREATED_STATE, ""), "strict (set by you)"))
+    # (Where the stage is: the way on a frozen document names is the stage's own.)
+    frozen_check("review-freeze/frozen_awaiting_approval", fr_ready, state=fr_strict.replace("- [-] intent-capture", "- [?] intent-capture"))
+    frozen_check("review-freeze/not_frozen_revising", fr_ready, state=fr_strict.replace("- [-] intent-capture", "- [~] intent-capture"))
+    frozen_check("review-freeze/frozen_unattended", fr_ready, env={"UNATTENDED": "1"})
+    frozen_check("review-freeze/frozen_summary_owed", fr_ready, state=OWES_SUMMARY(fr_strict))
+    # Who may be offered the switch that lowers the fence: not a subagent, nor anyone where the team keeps the policy strict.
+    frozen_check("review-freeze/frozen_subagent", fr_ready, steps=[["review-freeze", payload(hook_event_name="PreToolUse", tool_name="Write", agent_type="aidlc-product-agent", tool_input={"file_path": "{P}/" + doc})]])
+    frozen_check("review-freeze/frozen_dispatching", fr_ready, steps=[["review-freeze", payload(hook_event_name="PreToolUse", tool_name="Write", tool_input={"file_path": "{P}/" + doc, "subagent_type": "aidlc-product-agent"})]])
+    frozen_check("review-freeze/frozen_team_strict", fr_ready, more=[memory("team", "Mode: strict")])
+    # The fence lowered for this piece of work: by the policy's word (relaxed says so, off says nothing), or by the
+    # person's own switch under a strict policy. A change the policy keeps leaves the verdict standing.
+    for label, policy in POLICIES[1:]:
+        frozen_check(f"review-freeze/stands_aside{label}", fr_ready, state=UNDER_POLICY(REVIEWED(CREATED_STATE), policy))
+        frozen_check(f"review-freeze/stands_aside_over_other_bytes{label}", fr_old, state=UNDER_POLICY(REVIEWED(CREATED_STATE), policy))
+    frozen_check("review-freeze/stands_aside_switch", fr_ready, state=fr_strict + "- **Guards Off**: review-freeze (set by you)\n")
+    frozen_check("review-freeze/stands_aside_another_switch", fr_ready, state=fr_strict + "- **Guards Off**: state-transition (set by you)\n")
+    frozen_check("review-freeze/frozen_off_switch", fr_ready, env={"DISABLE_REVIEW_FREEZE_HOOK": "1"})
+    frozen_check("review-freeze/frozen_no_shard_of_this_clone", fr_ready, more=[lambda tree: os.rename(tree.path(CREATED_SHARD), tree.path(CREATED_SHARD.replace("laptop-abc123", "other-000000")))])
 
     # reviewer-scope: the dispatched reviewer's read bound.
     REVIEWER = "aidlc-architecture-reviewer-agent"
@@ -4673,6 +4715,8 @@ def hook_checks():
     check_("guard-tool-call/reviewer_refuses", {**created(construction.replace("- **Guard Policy**: off (from scope feature)", "- **Guard Policy**: strict (set by a command)")), **binding(), **dispatch()}, [group("Read", file_path="{D}/construction/U02/nfr-design/security-design.md", more={"agent_type": REVIEWER}),
                                                        group("Read", file_path="{D}/construction/U01/nfr-design/security-design.md", more={"agent_type": REVIEWER})])
     check_("guard-tool-call/review_rows", reviewed, [group(file_path=doc)])
+    frozen_check("guard-tool-call/frozen", fr_ready, steps=[group(file_path=doc), group(file_path=doc), group("Bash", command="echo x > {D}/ideation/intent-capture/stakeholder-map.md")])
+    frozen_check("guard-tool-call/frozen_stands_aside", fr_ready, state=UNDER_POLICY(REVIEWED(CREATED_STATE), "relaxed (set by you)"), steps=[group(file_path=doc)])
     check_("guard-tool-call/unmatched_tool", building, [group("TodoWrite", todos=[]), group("WebFetch", url="x"), group("mcp__x__write", path="{P}/src/a.ts"), group("write", file_path="{P}/src/app.ts"),
                                                       group("Write ", file_path="{P}/src/app.ts"), group("Bash\n", command="rm -rf src")])
     check_("guard-tool-call/dispatch_reaches_the_plan_only", strict, [group("Task", subagent_type=DEVELOPER, prompt="AIDLC-UNIT: auth"), group("Agent", subagent_type=DEVELOPER, prompt="Build it")])
@@ -4740,12 +4784,6 @@ DEVIATIONS.update({
         "approval challenge, a protected question any chat asked (4e), a review request with no verdict at a stage "
         "whose class reviews (the receipts, M5); upstream carries, answers or notes it and goes on; focus refuses "
         "the turn by name while it is there",
-    r"hook/(review-freeze|guard-tool-call)/review_rows(_[a-z_]+)?":
-        "a write to the output document of an open reviewer-bearing stage whose ledger holds a review row: upstream "
-        "weighs the review receipt scan (the attempt window, the source bindings, the Unit claims: the attestation, "
-        "M5) and freezes the document when a fresh terminal review covers it, with a REVIEW_FREEZE_BLOCKED row and "
-        "the recovery ask on stderr (exit 2), or passes the write when none does; focus refuses the write by name "
-        "(exit 1) while it does not weigh receipts",
     "hook/session-start/root_blocks_unconfigured":
         "a distribution tree config never ran in: upstream adds the engine's part of the team's root files "
         "(.gitignore) at session start and tells the chat its include was re-pointed; focus refuses by name until "
