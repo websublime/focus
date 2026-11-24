@@ -21,6 +21,14 @@
 //! A stage that runs for each unit freezes unit by unit, off each unit's
 //! receipt and claim: with review rows in its ledger, a write to one of
 //! its documents is refused by name until units arrive.
+//!
+//! # What no check tells apart
+//!
+//! - The receipts and the summary's coverage handed to the guard's attempt:
+//!   it would read both the same.
+//! - The fingerprints of what the attempt read, handed to the refusal's
+//!   record: they enter only the signature of the series, which the
+//!   comparison settles by order.
 
 use std::time::SystemTime;
 
@@ -244,7 +252,9 @@ pub fn run(input: &str, layout: &Layout) -> Outcome {
         Err(err) if is_refusal(&err) => return refused(&err),
         Err(err) => record_drop(layout, selection, HOOK, &err.to_string()),
         Ok(guards) => {
-            let decided = guards.with_state(&content).decide_for(
+            // (Upstream hands over the state it has read; the guards read
+            // the same file.)
+            let decided = guards.decide_for(
                 Fence::ReviewFreeze,
                 Guards::actor_from(agent_type, subagent_type),
             );

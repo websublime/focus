@@ -280,6 +280,11 @@ fn refuse_later_records(
 /// A note, never a block: upstream says nothing on any read that fails.
 /// The one error that comes back is a refusal by name of something the
 /// receipts do not read yet, which a hook says.
+///
+/// Three tests here change no answer, because the receipts decide the same
+/// way one step later: a row of a stage run by itself is not counted by
+/// them either, a class that reviews nothing has nothing awaiting, and the
+/// class handed over is the one they would resolve.
 fn stopped_review_note(layout: &Layout, wf: &Workflow) -> Result<Option<String>, EngineError> {
     // (stage, unit) of each request still open, in the order they opened.
     let mut open: Vec<(String, String, String)> = Vec::new();
@@ -857,8 +862,9 @@ pub fn run(input: &str, layout: &Layout) -> Outcome {
             return refused(&err);
         }
     }
-    // After the turn is kept, so the note never stands in its way.
-    if mint_allowed && turn.prompt_submitted && !trim(&turn.typed_prompt).is_empty() {
+    // After the turn is kept, so the note never stands in its way. (Words
+    // were typed only where a prompt was submitted.)
+    if mint_allowed && !trim(&turn.typed_prompt).is_empty() {
         match stopped_review_note(layout, wf) {
             Ok(Some(note)) => notes.push(note),
             Ok(None) => {}

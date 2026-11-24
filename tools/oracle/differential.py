@@ -4378,6 +4378,17 @@ def hook_checks():
         frozen_check(f"review-freeze/stands_aside{label}", fr_ready, state=UNDER_POLICY(REVIEWED(CREATED_STATE), policy))
         frozen_check(f"review-freeze/stands_aside_over_other_bytes{label}", fr_old, state=UNDER_POLICY(REVIEWED(CREATED_STATE), policy))
     frozen_check("review-freeze/stands_aside_switch", fr_ready, state=fr_strict + "- **Guards Off**: review-freeze (set by you)\n")
+    # (Who is writing is on the row the fence leaves: a subagent, or a driver nobody watches.)
+    by_subagent = [["review-freeze", payload(hook_event_name="PreToolUse", tool_name="Write", agent_type="aidlc-product-agent", tool_input={"file_path": "{P}/" + doc})]]
+    frozen_check("review-freeze/stands_aside_subagent", fr_ready, state=UNDER_POLICY(REVIEWED(CREATED_STATE), "relaxed (set by you)"), steps=by_subagent)
+    frozen_check("review-freeze/stands_aside_switch_subagent", fr_ready, state=fr_strict + "- **Guards Off**: review-freeze (set by you)\n", steps=by_subagent)
+    frozen_check("review-freeze/stands_aside_unattended", fr_ready, state=UNDER_POLICY(REVIEWED(CREATED_STATE), "relaxed (set by you)"), env={"UNATTENDED": "1"})
+    # (A summary that is owed and not confirmed is what the question offers first.)
+    frozen_check("review-freeze/frozen_recovery_pending_summary_unconfirmed", fr_old, (2, None, REVIEW_RECOVERY, REVIEWED_CURRENT), state=OWES_SUMMARY(fr_strict), **{SUMMARY_FILE: SUMMARY_TEXT})
+    # (Where the evaluator has no step to take now, the stage's recovery guidance is the way on.)
+    frozen_check("review-freeze/frozen_not_started", fr_ready, state=fr_strict.replace("- [-] intent-capture", "- [ ] intent-capture"))
+    frozen_check("review-freeze/frozen_recovery_pending_unattended", fr_old, (2, None, REVIEW_RECOVERY, REVIEWED_CURRENT), env={"UNATTENDED": "1"})
+    frozen_check("review-freeze/frozen_unattended_summary_unconfirmed", fr_old, (2, None, REVIEW_RECOVERY, REVIEWED_CURRENT), state=OWES_SUMMARY(fr_strict), env={"UNATTENDED": "1"}, **{SUMMARY_FILE: SUMMARY_TEXT})
     frozen_check("review-freeze/stands_aside_another_switch", fr_ready, state=fr_strict + "- **Guards Off**: state-transition (set by you)\n")
     frozen_check("review-freeze/frozen_off_switch", fr_ready, env={"DISABLE_REVIEW_FREEZE_HOOK": "1"})
     frozen_check("review-freeze/frozen_no_shard_of_this_clone", fr_ready, more=[lambda tree: os.rename(tree.path(CREATED_SHARD), tree.path(CREATED_SHARD.replace("laptop-abc123", "other-000000")))])
@@ -4602,6 +4613,11 @@ def hook_checks():
     turn_reviewed("record-human-turn/review_of_a_run_by_itself_waits", t_asked,
                   more=[lambda tree: tree.edit(CREATED_SHARD, lambda text: text.replace("**Event**: REVIEW_REQUESTED\n", "**Event**: REVIEW_REQUESTED\n**Workflow**: single-stage:intent-capture\n"))])
     turn_reviewed("record-human-turn/review_waits_unattended", t_asked, env={"UNATTENDED": "1"})
+    # (A verdict closes its own request and no other.)
+    turn_reviewed("record-human-turn/review_waits_then_another_stage_completed", t_asked,
+                  more=[after(block("REVIEW_COMPLETED", T(9), "**Stage**: market-research", "**Reviewer**: someone", "**Iteration**: 1", "**Verdict**: READY"))])
+    turn_reviewed("record-human-turn/review_waits_then_another_pass_completed", t_asked,
+                  more=[after(block("REVIEW_COMPLETED", T(9), "**Stage**: intent-capture", f"**Reviewer**: {REVIEWER_BY_HAND}", "**Iteration**: 2", "**Verdict**: READY"))])
     check_("record-human-turn/open_review", {**joined, CREATED_SHARD: CREATED_AUDIT + block("REVIEW_REQUESTED", T(2), "**Stage**: intent-capture", "**Reviewer**: aidlc-product-lead-agent", "**Iteration**: 1")}, [turn("use postgres")])
     check_("record-human-turn/open_review_completed", {**joined, CREATED_SHARD: CREATED_AUDIT + block("REVIEW_REQUESTED", T(2), "**Stage**: intent-capture", "**Reviewer**: aidlc-product-lead-agent", "**Iteration**: 1") + block("REVIEW_COMPLETED", T(3), "**Stage**: intent-capture", "**Reviewer**: aidlc-product-lead-agent", "**Iteration**: 1", "**Verdict**: READY")}, [turn("use postgres")])
     check_("record-human-turn/open_review_reviewed", {**joined, f"{CREATED_DIR}/aidlc-state.md": CREATED_STATE.replace("- **Review Override**: none", "- **Review Override**: advisory"), CREATED_SHARD: CREATED_AUDIT + block("REVIEW_REQUESTED", T(2), "**Stage**: intent-capture", "**Reviewer**: aidlc-product-lead-agent", "**Iteration**: 1")}, [turn("use postgres")])
