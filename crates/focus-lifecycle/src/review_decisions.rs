@@ -94,11 +94,7 @@ pub fn accepted_risk_field(wf: &Workflow, stage: &Stage) -> Result<Option<String
     let mut accepted = Vec::new();
     for context in review_derived::contexts(wf, stage, None)? {
         for finding in context.findings.iter().filter(|finding| finding.is_open()) {
-            accepted.push(Decision::of(
-                finding,
-                &context,
-                "Accepted risk".to_owned(),
-            ));
+            accepted.push(Decision::of(finding, &context, "Accepted risk".to_owned()));
         }
     }
     Ok(serialize(accepted))
@@ -218,7 +214,12 @@ pub fn rejected_finding_field(
     let contexts = review_derived::contexts(wf, stage, None)?;
     let findings: Vec<(&Derived, &Finding)> = contexts
         .iter()
-        .flat_map(|context| context.findings.iter().map(move |finding| (context, finding)))
+        .flat_map(|context| {
+            context
+                .findings
+                .iter()
+                .map(move |finding| (context, finding))
+        })
         .collect();
     let select = |raw: &String, kind: Kind| -> Result<(Spec, &Derived, &Finding)> {
         let spec = parse_spec(raw, kind)?;
