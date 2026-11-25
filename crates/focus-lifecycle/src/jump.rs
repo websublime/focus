@@ -145,7 +145,7 @@ fn plan<'a>(wf: &'a Workflow, content: &str, asked: Option<&str>) -> Result<Plan
 }
 
 /// `resolveStage`: by slug, else by number.
-fn resolve_stage<'a>(wf: &'a Workflow, slug_or_number: &str) -> Option<&'a Stage> {
+pub(crate) fn resolve_stage<'a>(wf: &'a Workflow, slug_or_number: &str) -> Option<&'a Stage> {
     wf.install.stage(slug_or_number).or_else(|| {
         wf.install
             .graph
@@ -158,7 +158,7 @@ fn stage_index(wf: &Workflow, slug: &str) -> Option<usize> {
     wf.install.graph.iter().position(|stage| stage.slug == slug)
 }
 
-const PHASE_NUMBERS: [(&str, &str); 5] = [
+pub(crate) const PHASE_NUMBERS: [(&str, &str); 5] = [
     ("0", "initialization"),
     ("1", "ideation"),
     ("2", "inception"),

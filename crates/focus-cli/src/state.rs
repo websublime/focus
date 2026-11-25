@@ -40,6 +40,7 @@ use focus_js::text::{parse_int, trim};
 use focus_lifecycle::gates::{self, GateStart, Reject};
 use focus_lifecycle::transitions;
 use focus_lifecycle::workflow::Workflow;
+use focus_lifecycle::{lookup, rows};
 use focus_state::fields::{get_field, set_field};
 use focus_state::file::{read_state_file, write_state_file};
 use focus_state::progress::{CheckboxState, count_checkboxes, set_checkbox};
@@ -80,15 +81,23 @@ The state file of the active record, as data.
   revise <slug>            Re-enter the gate after a revision
   park                     Stop the work where it is
   unpark                   Take parked work up again
+  acknowledge-compaction --choice <continue|review|restart>
+                           Record what the person chose after a compaction
+  practices-event --type <discovered|override|empty> [--field \"Key: Value\"]...
+                           Record a row of the practices-discovery stage
+  lookup <phase-of|agent-for|number-of|validate-stage> <slug-or-number>
+  lookup next-stage <slug> <scope> | first-in-phase <phase> <scope>
+  lookup stages-in-scope <scope> | validate-phase <phase-or-number>
+                           Ask the stage graph and the scopes
 
 A state is one of pending, in-progress, awaiting-approval, revising,
 completed, skipped. Writes are the engine's: set FOCUS_ALLOW_DIRECT_STATE_TRANSITIONS=1
 to make one by hand.";
 
-const USAGE: &str = "Usage: focus engine state <subcommand>. Valid: get, set, checkbox, count, advance, finalize, complete-workflow, gate-start, approve, reject, revise, skip, resume, park, unpark. Run with --help for detail.";
+const USAGE: &str = "Usage: focus engine state <subcommand>. Valid: get, set, checkbox, count, advance, finalize, complete-workflow, gate-start, approve, reject, revise, skip, resume, park, unpark, acknowledge-compaction, practices-event, lookup. Run with --help for detail.";
 
 /// The verbs Focus has.
-const VERBS: [&str; 15] = [
+const VERBS: [&str; 18] = [
     "get",
     "set",
     "checkbox",
@@ -104,6 +113,9 @@ const VERBS: [&str; 15] = [
     "resume",
     "park",
     "unpark",
+    "acknowledge-compaction",
+    "lookup",
+    "practices-event",
 ];
 
 /// `engineOwnedTransitions`: the verbs that pass the state-transition fence.
@@ -122,7 +134,7 @@ const ENGINE_OWNED: [&str; 11] = [
 ];
 
 /// The verbs upstream has that Focus does not port, each refused by name.
-const NOT_PORTED: [(&str, &str); 18] = [
+const NOT_PORTED: [(&str, &str); 15] = [
     (
         "set-skeleton-stance",
         "sets the Construction skeleton stance",
@@ -148,13 +160,7 @@ const NOT_PORTED: [(&str, &str); 18] = [
     ("refresh-unit-progress", "refreshes the units' progress"),
     ("sync-unit-scope-stage", "syncs a unit's scope stage"),
     ("fold-unit-merge", "folds a unit's merge into the state"),
-    (
-        "acknowledge-compaction",
-        "acknowledges a context compaction",
-    ),
     ("reuse-artifact", "reuses an artifact of another record"),
-    ("lookup", "looks a stage up in the stage graph"),
-    ("practices-event", "records a practices event"),
     ("practices-promote", "promotes a practice"),
     ("fork", "forks the state for a bolt"),
     ("merge", "merges a bolt's state"),
@@ -250,8 +256,12 @@ fn answer(args: &mut Args, context: &Context) -> Verb {
     if ENGINE_OWNED.contains(&verb.as_str()) {
         admit_write(&record, &verb)?;
     }
-    // `archivedProtectedCommands`: every verb but the readers.
-    if !matches!(verb.as_str(), "get" | "count") {
+    // `archivedProtectedCommands`: every verb but the readers, and the
+    // practices' rows.
+    if !matches!(
+        verb.as_str(),
+        "get" | "count" | "lookup" | "practices-event"
+    ) {
         let content = record.read_state()?;
         if get_field(&content, "Status") == Some("Archived") {
             return Err(Refusal::of(format!(
@@ -497,6 +507,9 @@ fn transition_of(wf: &Workflow, verb: &str, args: &[String]) -> Verb {
             }
             transitions::skip(wf, slug, reason, route)?
         }
+        "acknowledge-compaction" => rows::acknowledge_compaction(wf, args)?,
+        "practices-event" => rows::practices_event(wf, args)?,
+        "lookup" => return Ok(Some(lookup::lookup(wf, args)?)),
         _ => transitions::resume(wf)?,
     };
     Ok(Some(json::stringify(&answer)))

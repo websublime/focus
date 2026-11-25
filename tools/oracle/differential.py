@@ -2649,7 +2649,12 @@ DEVIATIONS.update({
         "and then runs it or prints its usage; focus refuses the verb by name, with no fence consulted, since it "
         "does not have it yet",
     r"state/usage/(none|unknown)":
-        "upstream's usage lists its 33 verbs, Focus's the thirteen it has",
+        "upstream's usage lists its 33 verbs, Focus's the eighteen it has",
+    "state/lookup/names_of_an_object":
+        "upstream looks a scope and a phase up in plain objects, so the names every object has (constructor, "
+        "__proto__, toString) are found there: validate-phase falls over on them, first-in-phase fails as on an "
+        "unknown scope it thought it had, and next-stage walks the state's own plan under a scope that is none. "
+        "Focus has no scope and no phase by those names, and answers as for any other unknown one",
     r"state/usage/flag_without_its_value":
         "upstream takes a trailing --project-dir with no value as part of the field; focus refuses the flag",
     r"state/usage/metrics_endpoint":
@@ -2880,8 +2885,70 @@ def state_checks():
     check_("usage/set_no_pair", record, [["set"]], direct)
     check_("usage/checkbox_no_pair", record, [["checkbox"]], direct)
     check_("usage/count_no_state", record, [["count"]])
-    for verb in ("gate-start", "approve", "park", "unit", "fork", "practices-event", "set-construction-checkpoints"):
+    for verb in ("gate-start", "approve", "park", "unit", "fork", "practices-promote", "set-construction-checkpoints"):
         check_(f"usage/{verb}_not_ported", {**record, **shard}, [[verb]])
+
+    # lookup: questions about the stage graph and the scopes, answered without touching the work.
+    look = lambda *args: ["lookup", *args]
+    check_("lookup/usage", created(), [look(), look("nope"), look("phase-of"), look("next-stage"), look("next-stage", "intent-capture"), look("agent-for"), look("number-of"), look("stages-in-scope"),
+                                       look("first-in-phase"), look("first-in-phase", "ideation"), look("validate-stage"), look("validate-phase")])
+    check_("lookup/stage", created(), [look(ask, stage) for ask in ("phase-of", "agent-for", "number-of", "validate-stage") for stage in ("intent-capture", "1.1", "functional-design", "0.1", "nope", "", "1", "Intent-Capture")])
+    check_("lookup/stage_more_arguments", created(), [look("phase-of", "intent-capture", "more"), look("validate-stage", "nope", "intent-capture")])
+    walks = [look("next-stage", stage, scope) for stage, scope in (("intent-capture", "feature"), ("intent-capture", "bugfix"), ("state-init", "feature"), ("nope", "feature"), ("intent-capture", "nope"),
+                                                                    ("1.1", "feature"), ("market-research", "feature"), ("feedback-optimization", "feature"), ("intent-capture", ""), ("", "feature"))]
+    check_("lookup/next_stage", created(), walks)
+    check_("lookup/next_stage_past_what_is_done", created(CREATED_STATE.replace("- [ ] market-research \u2014 EXECUTE", "- [x] market-research \u2014 EXECUTE")
+                                                          .replace("- [ ] feasibility \u2014 EXECUTE", "- [S] feasibility \u2014 EXECUTE").replace("- [ ] scope-definition \u2014 EXECUTE", "- [ ] scope-definition \u2014 SKIP")), walks)
+    check_("lookup/next_stage_no_record", CLONE, walks)
+    check_("lookup/next_stage_state_not_one", created("not a state file\n"), walks)
+    check_("lookup/stages_in_scope", created(), [look("stages-in-scope", scope) for scope in ("feature", "bugfix", "nope", "", "Feature", "feature", "poc", "refactor", "infra", "security-patch", "mvp", "enterprise")])
+    check_("lookup/first_in_phase", created(), [look("first-in-phase", phase, scope) for phase, scope in (("ideation", "feature"), ("IDEATION", "feature"), ("construction", "feature"), ("construction", "bugfix"),
+                                                                                                           ("operation", "bugfix"), ("initialization", "feature"), ("3", "feature"), ("nope", "feature"),
+                                                                                                           ("ideation", "nope"), ("", "feature"), ("ideation", ""))])
+    check_("lookup/validate_phase", created(), [look("validate-phase", phase) for phase in ("ideation", "IDEATION", "Inception", "0", "1", "2", "3", "4", "5", "nope", "", " ideation", "01")])
+    check_("lookup/archived", created(CREATED_STATE.replace("- **Status**: Running", "- **Status**: Archived")), [look("phase-of", "intent-capture"), look("next-stage", "intent-capture", "feature")])
+    assert "- **Status**: Running" in CREATED_STATE
+    check_("lookup/no_record", CLONE, [look("phase-of", "intent-capture"), look("stages-in-scope", "bugfix"), look("validate-phase", "1"), look("nope")])
+    # (Names every object of upstream's has: a scope or a phase so named is none in focus.)
+    check_("lookup/names_of_an_object", created(), [look("validate-phase", "constructor"), look("validate-phase", "__proto__"), look("stages-in-scope", "constructor"), look("stages-in-scope", "__proto__"),
+                                                   look("next-stage", "intent-capture", "constructor"), look("first-in-phase", "ideation", "toString")])
+
+    # acknowledge-compaction: the person chose what follows a compaction, and the window closes.
+    compacted = block("SESSION_COMPACTED", T(5), "**Stage**: intent-capture")
+    ack = lambda *args: ["acknowledge-compaction", *args]
+    with_rows = lambda *rows, state=CREATED_STATE: created(state, CREATED_AUDIT + "".join(rows))
+    check_("compaction/usage", with_rows(compacted), [ack(), ack("--choice"), ack("--choice", ""), ack("--choice", "nope"), ack("continue"), ack("--choice", "Continue")])
+    for choice in ("continue", "review", "restart"):
+        check_(f"compaction/acknowledged_{choice}", with_rows(compacted), [ack("--choice", choice), ack("--choice", choice), ["resume"]])
+    check_("compaction/acknowledged_last_choice", with_rows(compacted), [ack("--choice", "nope", "--choice", "review", "more")])
+    check_("compaction/none", with_rows(), [ack("--choice", "continue")])
+    for event in ("STAGE_STARTED", "STAGE_COMPLETED", "GATE_APPROVED", "SESSION_RESUMED", "RECOVERY_COMPLETED"):
+        check_(f"compaction/followed_by_{event.lower()}", with_rows(compacted, block(event, T(6), "**Stage**: intent-capture")), [ack("--choice", "continue")])
+    check_("compaction/followed_by_other_rows", with_rows(compacted, block("ARTIFACT_UPDATED", T(6), "**File**: a.md"), block("GATE_REJECTED", T(7), "**Stage**: intent-capture")), [ack("--choice", "continue")])
+    check_("compaction/twice", with_rows(compacted, block("STAGE_STARTED", T(6), "**Stage**: intent-capture"), compacted.replace(T(5), T(8))), [ack("--choice", "continue")])
+    check_("compaction/far_behind", with_rows(compacted, *[block("ARTIFACT_UPDATED", T(6, n % 60), f"**File**: a{n}.md") for n in range(90)]), [ack("--choice", "continue")])
+    check_("compaction/just_in_reach", with_rows(compacted, *[block("ARTIFACT_UPDATED", T(6, n % 60), f"**File**: a{n}.md") for n in range(60)]), [ack("--choice", "continue")])
+    check_("compaction/no_current_stage", with_rows(compacted, state=CREATED_STATE.replace("- **Current Stage**: intent-capture", "- **Current Stage**: ")), [ack("--choice", "review")])
+    check_("compaction/archived", with_rows(compacted, state=CREATED_STATE.replace("- **Status**: Running", "- **Status**: Archived")), [ack("--choice", "review")])
+    check_("compaction/no_record", CLONE, [ack("--choice", "review"), ack()])
+
+    # practices-event: the three rows the practices-discovery stage leaves, with the fields it gives.
+    says = lambda kind, *fields: ["practices-event", "--type", kind, *[part for field in fields for part in ("--field", field)]]
+    check_("practices/usage", created(), [["practices-event"], ["practices-event", "--type"], ["practices-event", "--field", "A: b"], says("nope"), says("affirmed", "A: b"), says(""), ["practices-event", "discovered"]])
+    for kind in ("discovered", "override", "empty"):
+        check_(f"practices/{kind}", created(), [says(kind, "Reason: bolt-plan-marker-conflict", "Practices Stance: tdd", "Bolt slug: api")])
+    check_("practices/no_fields", created(), [says("discovered"), says("override"), says("empty")])
+    check_("practices/fields_read", created(), [says("discovered", "A: b", "A: c", "no colon", ": at the start", "B:", "C:  spaced  ", "  D  : x", "E: a: b: c", "F", ""),
+                                                ["practices-event", "--type", "nope", "--type", "empty", "--field", "A: b", "--field"]])
+    # (A row's field is named by a letter first. Which of two that are not is refused is the first of upstream's
+    # object, where a key that is a number comes before the others, by its number; and `__proto__` is no key of an
+    # object at all.)
+    check_("practices/fields_in_an_object_s_order", created(), [says("override", "b: 1", "-1: text", "10: ten", "2: two"), says("override", "b: 1", "01: text", "2: two"), says("override", "_a: 1", "2: two"),
+                                                               says("override", "b: 1", "4294967295: big", "4294967294: index")])
+    check_("practices/field_named_proto", created(), [says("override", "__proto__: gone", "constructor: kept", "b: 1", "b: last"), says("empty", "__proto__: gone")])
+    check_("practices/fields_of_the_row", created(), [says("discovered", "Timestamp: then", "Event: STAGE_STARTED", "Stage: intent-capture"), says("empty", "A: b\nc", "**B**: x", "C: ---")])
+    check_("practices/archived", created(CREATED_STATE.replace("- **Status**: Running", "- **Status**: Archived")), [says("discovered", "A: b")])
+    check_("practices/no_record", CLONE, [says("discovered", "A: b")])
 
     # get: a field, a field with spaces, an empty one, one that is not there, and with no state file.
     check_("get/fields", record, [["get", "Scope"], ["get", "Current", "Stage"], ["get", "Parked"], ["get", "Nope"],
