@@ -1451,7 +1451,9 @@ def normalise_audit(text, tree, engine):
     text = text.replace("Usage: focus engine state ", "Usage: <cli> state ")
     text = text.replace("Run focus engine state --help", "Run <cli> state --help")
     # The state tool naming one of its own verbs in a sentence (`skip takes --route or --unit`).
-    text = re.sub(r"(?<![`\w])focus engine state (?=[a-z-]+ )", "<cli> state ", text)
+    # (Or the first of several it lists, and the log tool's two commands a recovery spells out.)
+    text = re.sub(r"(?<![`\w])focus engine state (?=[a-z-]+[ ,])", "<cli> state ", text)
+    text = re.sub(r"(?<![`\w])focus engine log (?=(?:decision|answer) )", "<cli> log ", text)
     text = text.replace("Usage: focus engine utility ", "Usage: <cli> utility ")
     # The utility tool's own name in a row's Tool or Command.
     text = re.sub(r"(?<![\w-])(?:aidlc|focus)-utility(?![\w.-])", "<cli> utility", text)
@@ -2655,8 +2657,16 @@ DEVIATIONS.update({
         "checked, upstream asks whether the store is CURRENT, from the scope its scan recorded, and whether its "
         "artifact set is whole; focus refuses the question by name until it reads a scan (the reverse-engineering "
         "scan, with the orchestrator)",
+    r"state/policy/previous_value_an_object_s_name_.*":
+        "upstream looks the value a setting had up in a plain object to say what it was, so a value that is a name "
+        "every object has (constructor, __proto__, toString) is found there with nothing to say, and the notice "
+        "reads `(undefined)`. Focus knows no such value, and says the change without what it was, as for any other "
+        "value it does not know",
+    r"state/policy/(rhythm|sync)_of_a_team":
+        "Unit Ownership: team is deferred (the plan, section 11): upstream sets the gate rhythm of a team's units "
+        "and syncs a claimed unit's stage from its checkout's scope stamp; focus refuses both by name",
     r"state/usage/(none|unknown)":
-        "upstream's usage lists its 33 verbs, Focus's the nineteen it has",
+        "upstream's usage lists its 33 verbs, Focus's the twenty-six it has",
     "state/lookup/names_of_an_object":
         "upstream looks a scope and a phase up in plain objects, so the names every object has (constructor, "
         "__proto__, toString) are found there: validate-phase falls over on them, first-in-phase fails as on an "
@@ -3108,6 +3118,7 @@ def state_checks():
     check_("policy/receipt_before_a_new_start", by_receipt(chosen(), started(9)), change)
     check_("policy/receipt_two_starts_at_one_instant", by_receipt(chosen(), **{other_shard: TITLE + started()}), change)
     check_("policy/receipt_start_of_a_stage_run_by_itself", by_receipt(chosen(), block("WORKFLOW_STARTED", T(9), "**Workflow**: single-stage:code-generation")), change)
+    check_("policy/receipt_a_shard_unreadable", by_receipt(chosen(), **{other_shard + "/x": "x"}), change)
     check_("policy/receipt_no_start", created(built, TITLE + chosen()), change)
     check_("policy/receipt_no_uuid", created(built, CREATED_AUDIT + chosen(), CREATED_REGISTRY.replace("01a138fa-d37d-787d-af4a-966efbb0b6fd", "")), change)
     check_("policy/receipt_no_registry_row", created(built, CREATED_AUDIT + chosen(), "[]\n"), change)
@@ -3139,6 +3150,7 @@ def state_checks():
     check_("policy/command_in_another_shard", created(**{other_shard: TITLE + approved()}), [command("cargo test")])
     check_("policy/command_in_another_shard_before_the_start", created(**{other_shard: TITLE + earlier(approved())}), [command("cargo test")])
     check_("policy/command_before_a_new_start", with_rows(approved(), started(9)), [command("cargo test")])
+    check_("policy/command_a_shard_unreadable", created(CREATED_STATE, CREATED_AUDIT + approved(), **{other_shard + "/x": "x"}), [command("cargo test")])
     check_("policy/command_no_uuid", created(CREATED_STATE, CREATED_AUDIT + approved(), CREATED_REGISTRY.replace("01a138fa-d37d-787d-af4a-966efbb0b6fd", "")), [command("cargo test")])
     in_file = lambda name="verification-command.txt", text="cargo test\n", **more: created(CREATED_STATE, CREATED_AUDIT + approved(), **{f"{CREATED_DIR}/{name}": text}, **more)
     from_file = command("--command-file", "verification-command.txt")
@@ -3155,6 +3167,10 @@ def state_checks():
         with open(tree.path(f"{CREATED_DIR}/verification-command.txt"), "wb") as handle:
             handle.write(b"cargo \xff test\n")
     check_("policy/command_file_other_bytes", in_file(), [from_file], edits=[other_bytes])
+    check_("policy/command_file_other_bytes_approved_as_read", created(CREATED_STATE, CREATED_AUDIT + approved("cargo \ufffd test"), **{f"{CREATED_DIR}/verification-command.txt": "x"}), [from_file, read_command], edits=[other_bytes])
+    check_("policy/command_file_byte_order_mark", in_file(text="\ufeffcargo test\n"), [from_file])
+    # (A state with no record around it: there is no record to hold the file.)
+    check_("policy/command_file_no_record", {**CLONE, "aidlc/spaces/default/intents/aidlc-state.md": CREATED_STATE}, [from_file, command("cargo test")])
     check_("policy/command_file_a_link", in_file(), [["@link", f"{CREATED_DIR}/verification-command.txt", f"{CREATED_DIR}/real.txt"], from_file])
     check_("policy/command_file_behind_a_link", in_file("checks/command.txt"), [["@link", f"{CREATED_DIR}/checks", f"{CREATED_DIR}/real"], command("--command-file", "checks/command.txt")])
 
@@ -3162,9 +3178,10 @@ def state_checks():
     check_("policy/rhythm_usage", created(), [rhythm(), rhythm("nope"), rhythm(""), rhythm("per-stage"), rhythm("unit-end", "per-stage")])
     check_("policy/rhythm_of_a_solo", created(running(more="- **Unit Ownership**: solo\n")), [rhythm("unit-end")])
     check_("policy/rhythm_of_a_team", created(running(more=team)), [rhythm("unit-end"), rhythm("nope")])
+    check_("policy/sync_fenced", created(running(None, None, None).replace("- **Guard Policy**: off", "- **Guard Policy**: on")), [sync("code-generation", "--unit", "api"), sync()])
     check_("policy/sync_usage", created(), [sync(), sync("code-generation"), sync("code-generation", "--unit"), sync("--unit", "api"), sync("", "--unit", "api"), sync("code-generation", "--unit", ""),
-                                            sync("code-generation", "--unit", "--x"), sync("code-generation", "--unit", "api"), sync("nope", "--unit", "api")])
-    check_("policy/sync_of_a_team", created(running(more=team)), [sync("code-generation", "--unit", "api")])
+                                            sync("code-generation", "--unit", "--x"), sync("code-generation", "--unit", "api"), sync("nope", "--unit", "api")], direct)
+    check_("policy/sync_of_a_team", created(running(more=team)), [sync("code-generation", "--unit", "api")], direct)
 
     # practices-event: the three rows the practices-discovery stage leaves, with the fields it gives.
     says = lambda kind, *fields: ["practices-event", "--type", kind, *[part for field in fields for part in ("--field", field)]]

@@ -238,7 +238,11 @@ fn authority(wf: &Workflow, state: &str, field: &str, value: &str) -> Option<Aut
 /// `requireHumanConstructionPolicyChange`: during Construction a change is
 /// the person's. The words of the turn that asked, for the record.
 fn require_person(wf: &Workflow, state: &str, field: &str, value: &str) -> Result<Option<String>> {
-    if get_field(state, "Lifecycle Phase").map(to_lower_case).as_deref() != Some("construction") {
+    if get_field(state, "Lifecycle Phase")
+        .map(to_lower_case)
+        .as_deref()
+        != Some("construction")
+    {
         return Ok(None);
     }
     // An unattended run never changes it on its own, whatever switch lowers
@@ -448,12 +452,9 @@ fn command_file(wf: &Workflow, file: &str) -> Result<Command> {
     };
     let anchor = std::fs::canonicalize(&root)
         .map_err(|err| EngineError::new(format!("{}: {err}", root.display())))?;
-    links::refuse_link_in_chain(&anchor, std::path::Path::new(file))?;
-    let bytes = files::read_regular_within(
-        &anchor.join(file),
-        "verification command file",
-        Some(16 * 1024),
-    )?;
+    // `recordFileTargetOrThrow`.
+    let target = links::target_in_chain(&anchor, file)?;
+    let bytes = files::read_regular_within(&target, "verification command file", Some(16 * 1024))?;
     command_details(&String::from_utf8_lossy(&bytes))
 }
 

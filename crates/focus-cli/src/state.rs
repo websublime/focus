@@ -37,10 +37,10 @@ use focus_guards::fences::Fence;
 use focus_guards::workflow::Guards;
 use focus_js::json;
 use focus_js::text::{parse_int, trim};
+use focus_lifecycle::construction_policy::{self, Policy};
 use focus_lifecycle::gates::{self, GateStart, Reject};
 use focus_lifecycle::transitions;
 use focus_lifecycle::workflow::Workflow;
-use focus_lifecycle::construction_policy::{self, Policy};
 use focus_lifecycle::{lookup, rows};
 use focus_state::fields::{get_field, set_field};
 use focus_state::file::{read_state_file, write_state_file};
@@ -144,7 +144,7 @@ const VERBS: [&str; 26] = [
 ];
 
 /// `engineOwnedTransitions`: the verbs that pass the state-transition fence.
-const ENGINE_OWNED: [&str; 11] = [
+const ENGINE_OWNED: [&str; 12] = [
     "set",
     "checkbox",
     "advance",
@@ -156,6 +156,7 @@ const ENGINE_OWNED: [&str; 11] = [
     "revise",
     "skip",
     "park",
+    "sync-unit-scope-stage",
 ];
 
 /// The verbs upstream has that Focus does not port, each refused by name.
@@ -552,11 +553,7 @@ fn transition_of(wf: &Workflow, verb: &str, args: &[String]) -> Verb {
         "set-unit-gate-rhythm" => construction_policy::set_unit_gate_rhythm(wf, args)?,
         "sync-unit-scope-stage" => {
             let unit = flag_value(args.get(1..).unwrap_or_default(), "--unit")?;
-            construction_policy::sync_unit_scope_stage(
-                wf,
-                args.first().map(String::as_str),
-                unit,
-            )?
+            construction_policy::sync_unit_scope_stage(wf, args.first().map(String::as_str), unit)?
         }
         "acknowledge-compaction" => rows::acknowledge_compaction(wf, args)?,
         "practices-event" => rows::practices_event(wf, args)?,
