@@ -74,6 +74,10 @@ fn every_lifecycle_case_gets_upstreams_answer() {
     let (mut joined, mut as_hashed, mut left_to_ask) = (0, 0, 0);
     let (mut floors, mut unstarted, mut tied, mut later, mut of_the_unit) = (0, 0, 0, 0, 0);
     let (mut counted_starts, mut ignored_starts) = (0, 0);
+    let (mut lifecycles, mut done, mut skipped_units, mut open_units, mut several_open) =
+        (0, 0, 0, 0, 0);
+    let (mut paused_units, mut set_aside, mut in_waves, mut mixed, mut used_before) =
+        (0, 0, 0, 0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         let case: Value = focus_js::json::parse(line).unwrap();
@@ -184,6 +188,27 @@ fn every_lifecycle_case_gets_upstreams_answer() {
             let any = |value: &Value| value.as_array().is_some_and(|list| !list.is_empty());
             counted_starts += usize::from(any(&out["stage_flooring"]));
             ignored_starts += usize::from(any(&out["unit_flooring"]));
+        } else if kind == "unit_lifecycle" {
+            // What the receipts of a stage's units come to: units done,
+            // skipped, open (several at once, paused, set aside for
+            // another), built in a wave or both ways, and a stage whose
+            // receipts are all of an earlier attempt.
+            lifecycles += 1;
+            let count = |name: &str| out[name].as_array().map_or(0, Vec::len);
+            let any_open = |test: &dyn Fn(&Value) -> bool| {
+                out["open"]
+                    .as_array()
+                    .is_some_and(|open| open.iter().any(test))
+            };
+            done += usize::from(count("receipts") > 0);
+            skipped_units += usize::from(count("skipped") > 0);
+            open_units += usize::from(count("open") > 0);
+            several_open += usize::from(count("open") > 1);
+            paused_units += usize::from(any_open(&|open| open["state"] == "paused"));
+            set_aside += usize::from(any_open(&|open| open["setAsideFor"].is_string()));
+            in_waves += usize::from(out["mode"] == "wave");
+            mixed += usize::from(out["mode"] == "mixed");
+            used_before += usize::from(out["inUse"] == true && out["mode"] == "none");
         } else if kind == "guard_attempt" {
             // The attempt as a guard sees it: a request that waits, one to
             // ask again, a repair the reviewer asked for; the recovery
@@ -426,6 +451,18 @@ fn every_lifecycle_case_gets_upstreams_answer() {
     assert!(
         counted_starts >= 180 && ignored_starts >= 550,
         "{counted_starts} {ignored_starts}"
+    );
+    assert!(
+        lifecycles >= 1500 && done >= 400 && skipped_units >= 100 && open_units >= 750,
+        "{lifecycles} {done} {skipped_units} {open_units}"
+    );
+    assert!(
+        several_open >= 270 && paused_units >= 230 && set_aside >= 70,
+        "{several_open} {paused_units} {set_aside}"
+    );
+    assert!(
+        in_waves >= 40 && mixed >= 200 && used_before >= 380,
+        "{in_waves} {mixed} {used_before}"
     );
     assert!(
         differing.is_empty(),

@@ -13,6 +13,7 @@ handles both through JavaScript's prototype chain, by accident, and focus
 deliberately does not reproduce that (see crates/focus-graph/src/stage_schema.rs).
 """
 import glob
+import hashlib
 import json
 import os
 import random
@@ -5945,6 +5946,122 @@ for found in ((False, True, True), (True, False, True), (True, True, False), (Tr
 add("run_floor", slug="code-generation", shards=[], unit_major=False, unit=None, unit_receipts=False, unit_scoped=None)
 add("run_floor", slug="code-generation", shards=[{"shard": "laptop-abc123.md", "content": "# AI-DLC Audit Log\n\n## Row\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: STAGE_STARTED\n**Stage**: functional-design\n\n---\n"}],
     unit_major=False, unit="auth", unit_receipts=True, unit_scoped=True)
+
+# --- unit_lifecycle: what the receipts of a stage's units come to --------------
+#
+# A stage that runs for each unit leaves a receipt for each step of each unit,
+# stamped with the floor of the attempt it was written in
+# (`unitLifecycleSnapshot`). The cases are a stage's story: boundaries (the
+# creation, starts, a jump, a rejection of the stage's gate or of one unit's),
+# and between them receipts that carry the floor of that moment, an older one,
+# or none; in one to three shards whose rows share instants, read under each
+# state that changes how units are floored.
+ul = random.Random(seed * 7919 + 62)
+UL_UNITS = ["auth", "billing", "ui"]
+UL_PRINT = {"auth": "sha256:" + "a" * 64, "billing": "sha256:" + "b" * 64, "ui": "sha256:" + "c" * 64}
+
+
+def ul_state():
+    lines = ["# AI-DLC State", "", "## Workflow", "- **Scope**: feature"]
+    if ul.random() < 0.7:
+        lines.append(f"- **Construction Iteration**: {ul.choice(['unit-major', 'unit-major', 'stage-major', 'stage-major', ' unit-major ', 'Unit-Major'])}")
+    if ul.random() < 0.5:
+        lines.append(f"- **Construction Checkpoints**: {ul.choice(['enabled', 'disabled', 'disabled', 'Enabled'])}")
+    if ul.random() < 0.15:
+        lines.append(f"- **Unit Ownership**: {ul.choice(['team', 'solo'])}")
+    return "\n".join(lines) + "\n"
+
+
+def ul_story(slug):
+    """The rows of one case, in the order they are written: (instant, kind, fields)."""
+    script, clock = [], 0
+    counts = {"WORKFLOW_STARTED": 0, "STAGE_STARTED": 0, "STAGE_JUMPED": 0, "GATE_REJECTED": 0}
+    floors = ["unstarted#0"]
+    at = lambda: f"2026-01-05T10:00:{clock:02d}Z"
+
+    def boundary(kind, fields, counts_for_stage=True):
+        script.append((at(), kind, fields))
+        if counts_for_stage:
+            counts[kind] += 1
+            floors.append(f"{kind}:{at()}#{counts[kind]}")
+
+    boundary("WORKFLOW_STARTED", "")
+    for _ in range(ul.choice([3, 6, 10, 16, 24])):
+        clock = min(59, clock + ul.choice([0, 0, 1, 1, 2]))
+        step = ul.choices(["unit", "start", "jump", "reject", "reject_unit", "policy", "other"], [14, 2, 1, 1, 1, 1, 1])[0]
+        unit = ul.choice(UL_UNITS)
+        if step == "start":
+            other = ul.random() < 0.25
+            alone = ul.random() < 0.15
+            boundary("STAGE_STARTED", rw_fields(("Stage", "functional-design" if other else slug), ("Workflow", f"single-stage:{slug}" if alone else None)), not other and not alone)
+        elif step == "jump":
+            target = ul.choice([slug, slug, "intent-capture", "build-and-test", None])
+            boundary("STAGE_JUMPED", rw_fields(("Target", target)), target != "build-and-test")
+            if target == "build-and-test":
+                counts["STAGE_JUMPED"] += 1
+        elif step == "reject":
+            boundary("GATE_REJECTED", rw_fields(("Stage", slug)))
+        elif step == "reject_unit":
+            script.append((at(), "GATE_REJECTED", rw_fields(("Stage", slug), ("Unit", unit))))
+        elif step == "policy":
+            found = ul.random() < 0.5
+            value, previous = ("stage-major", "unit-major") if found else ("unit-major", "stage-major")
+            script.append((at(), "CONSTRUCTION_POLICY_SET", rw_fields(("Field", "Construction Iteration"), ("Value", value), ("Previous Value", previous),
+                                                                      ("Construction Iteration", value), ("Construction Checkpoints", "disabled"))))
+        elif step == "other":
+            script.append((at(), ul.choice(["ARTIFACT_CREATED", "DECISION_RECORDED", "SESSION_RESUMED"]), rw_fields(("Stage", slug))))
+        else:
+            kind = ul.choices(["UNIT_STARTED", "UNIT_PAUSED", "UNIT_RESUMED", "UNIT_COMPLETED", "UNIT_SKIPPED"], [5, 2, 2, 5, 1])[0]
+            floor = floors[-1] if ul.random() < 0.85 else ul.choice(floors + [None, "", "STAGE_STARTED:2026-01-05T10:00:00Z#9"])
+            wave = kind == "UNIT_COMPLETED" and ul.random() < 0.3
+            fields = [("Stage", slug if ul.random() < 0.93 else "functional-design"), ("Unit", unit if ul.random() < 0.96 else ul.choice(["", None])), ("Run floor", floor)]
+            if wave:
+                fields += [("Mode", "wave"), ("Artifact Fingerprint", ul.choice([UL_PRINT[unit], UL_PRINT[unit], "sha256:" + "d" * 64, "abc", None, "sha256:" + "A" * 64]))]
+            if kind == "UNIT_PAUSED":
+                fields += [("Reason", ul.choice(["waiting for the schema", "", None])), ("Next Action", ul.choice(["write the migration", None])),
+                           ("Set Aside For", ul.choice([None, None, ul.choice(UL_UNITS)]))]
+            if kind == "UNIT_STARTED" and ul.random() < 0.1:
+                fields += [("Set Aside For", "ui"), ("Reason", "kept from before")]
+            if kind == "UNIT_SKIPPED":
+                fields += [("Reason", ul.choice(["no interface to design", None]))]
+            # (Now and then a receipt is written out of step, with an instant that has passed.)
+            when = at() if ul.random() < 0.9 else f"2026-01-05T10:00:{ul.randrange(clock + 1):02d}Z"
+            script.append((when, kind, rw_fields(*fields)))
+    return script
+
+
+def ul_ledger(slug):
+    shards = [[] for _ in range(ul.choice([1, 1, 1, 2, 2, 3]))]
+    for at, kind, fields in ul_story(slug):
+        ul.choice(shards).append(f"\n## Row\n**Timestamp**: {at}\n**Event**: {kind}\n{fields}\n---\n")
+    names = ["laptop-abc123.md", "desktop-def456.md", "server-0a1b2c.md"]
+    return [{"shard": names[index], "content": "# AI-DLC Audit Log\n" + "".join(rows)} for index, rows in enumerate(shards)]
+
+
+for _ in range(scale * 260):
+    slug = ul.choice(["code-generation", "code-generation", "nfr-design", "3.5", "nope"])
+    prints = {unit: ul.choice([UL_PRINT[unit], UL_PRINT[unit], UL_PRINT[unit], "sha256:" + "e" * 64, None]) for unit in UL_UNITS}
+    add("unit_lifecycle", slug=slug, state=ul_state(), shards=ul_ledger(slug), fingerprints=prints, keep_changed=ul.random() < 0.3)
+add("unit_lifecycle", slug="code-generation", state="", shards=[], fingerprints={}, keep_changed=False)
+
+
+# Boundaries of two shards in one second: the floor is a token made of both, and a unit floored on its own makes it
+# of two more of their fields. A receipt counts when it carries the one its unit is read against.
+def ul_tied(scoped_token):
+    row = lambda at, kind, fields: f"\n## Row\n**Timestamp**: 2026-01-05T10:00:{at:02d}Z\n**Event**: {kind}\n{fields}\n---\n"
+    more = "::" if scoped_token else ""
+    identity = sorted([f"laptop-abc123.md:1:GATE_REJECTED:code-generation{more}", f"desktop-def456.md:0:STAGE_JUMPED:{more}"])
+    token = "AMBIGUOUS:2026-01-05T10:00:05Z#" + hashlib.sha256("|".join(identity).encode()).hexdigest()[:12]
+    return [{"shard": "laptop-abc123.md", "content": "# AI-DLC Audit Log\n" + row(0, "WORKFLOW_STARTED", "") + row(5, "GATE_REJECTED", rw_fields(("Stage", "code-generation")))
+             + row(6, "UNIT_COMPLETED", rw_fields(("Stage", "code-generation"), ("Unit", "auth"), ("Run floor", token)))},
+            {"shard": "desktop-def456.md", "content": "# AI-DLC Audit Log\n" + row(5, "STAGE_JUMPED", rw_fields(("Target", "code-generation")))}]
+
+
+for scoped_token in (False, True):
+    for lines in (["- **Construction Iteration**: unit-major"], ["- **Construction Iteration**: stage-major"], ["- **Construction Iteration**: stage-major", "- **Construction Checkpoints**: enabled"],
+                  ["- **Construction Iteration**: stage-major", "- **Unit Ownership**: team"], []):
+        add("unit_lifecycle", slug="code-generation", state="\n".join(["# AI-DLC State", "", "## Workflow", "- **Scope**: feature"] + lines) + "\n", shards=ul_tied(scoped_token),
+            fingerprints={}, keep_changed=False)
 
 # --- review_completion: a review's completion against its request -------------
 #

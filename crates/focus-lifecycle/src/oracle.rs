@@ -16,8 +16,9 @@ use crate::review_attempt;
 use crate::workflow::Workflow;
 
 /// The case kinds this crate answers.
-pub const KINDS: [&str; 14] = [
+pub const KINDS: [&str; 15] = [
     "run_floor",
+    "unit_lifecycle",
     "review_window",
     "review_accounting",
     "review_snapshot",
@@ -91,6 +92,51 @@ pub fn run_case(wf: &Workflow, case: &Value) -> Value {
                 ),
                 "stage_flooring": ids(crate::run_floor::starts_under_stage_flooring(&rows)),
                 "unit_flooring": ids(review_attempt::starts_under_unit_flooring(&rows, graph)),
+            })
+        }
+        "unit_lifecycle" => {
+            let rows = ledger(case);
+            let slug = text("slug");
+            // (`resolveStage`: a slug, or a stage's number.)
+            let known = wf
+                .install
+                .graph
+                .iter()
+                .any(|stage| stage.slug == slug || stage.number == slug);
+            let fingerprint = |unit: &str| {
+                case["fingerprints"][unit]
+                    .as_str()
+                    .filter(|_| known)
+                    .map(str::to_owned)
+            };
+            let snapshot = crate::unit_lifecycle::snapshot(
+                &rows,
+                slug,
+                text("state"),
+                &fingerprint,
+                case["keep_changed"] == true,
+                &wf.install.graph,
+            );
+            let checkpoint = |open: &crate::unit_lifecycle::Checkpoint| {
+                json!({
+                    "unit": open.unit,
+                    "state": open.state(),
+                    "reason": open.reason,
+                    "nextAction": open.next_action,
+                    "setAsideFor": open.set_aside_for,
+                })
+            };
+            json!({
+                "receipts": snapshot.receipts,
+                "skipped": snapshot
+                    .skipped
+                    .iter()
+                    .map(|(unit, reason)| json!([unit, reason]))
+                    .collect::<Vec<_>>(),
+                "checkpoint": snapshot.checkpoint().map(checkpoint),
+                "open": snapshot.open.iter().map(checkpoint).collect::<Vec<_>>(),
+                "inUse": snapshot.in_use,
+                "mode": snapshot.mode.name(),
             })
         }
         "review_window" => {
