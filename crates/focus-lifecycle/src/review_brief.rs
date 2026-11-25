@@ -109,11 +109,11 @@ fn ticked(paths: &[String]) -> String {
         .join(", ")
 }
 
-/// The finding a gate supplies for a review that did not finish.
-fn fallback(artifact: &str, unit: Option<&str>, id: String, said: &str) -> Finding {
+/// The finding a gate supplies for a review that did not finish. (Upstream
+/// gives it its unit and its fingerprint too; the brief shows neither.)
+fn fallback(artifact: &str, id: String, said: &str) -> Finding {
     Finding {
         artifact: artifact.to_owned(),
-        unit: unit.filter(|unit| !unit.is_empty()).map(str::to_owned),
         id,
         severity: "Major".to_owned(),
         location: format!("{artifact} > review completion"),
@@ -122,7 +122,6 @@ fn fallback(artifact: &str, unit: Option<&str>, id: String, said: &str) -> Findi
         status: "Unresolved".to_owned(),
         ..Finding::default()
     }
-    .with_fingerprint()
 }
 
 /// `renderReviewBrief`: what the person reads at the gate of a reviewed
@@ -168,12 +167,7 @@ pub fn review_brief(
         // carried from earlier reviews also shows the finding the gate
         // recorded, under the next unused id.
         for context in contexts.iter_mut().filter(|context| context.incomplete) {
-            let finding = fallback(
-                &context.artifact,
-                context.unit.as_deref(),
-                next_finding_id(&context.findings),
-                said,
-            );
+            let finding = fallback(&context.artifact, next_finding_id(&context.findings), said);
             context.findings.push(finding);
         }
         if contexts.is_empty() {
@@ -181,11 +175,14 @@ pub fn review_brief(
                 Some(entry) => workspace_artifact_path(&wf.layout.project, entry),
                 None => format!("{}/{}", stage.phase, stage.slug),
             };
-            let finding = fallback(&artifact, unit, "R-01".to_owned(), said);
+            let finding = fallback(&artifact, "R-01".to_owned(), said);
             contexts.push(Shown {
                 artifact,
                 unit: unit.filter(|unit| !unit.is_empty()).map(str::to_owned),
-                verdict: Some("NOT-READY".to_owned()),
+                // (Upstream gives this list the verdict NOT-READY. Its one
+                // finding is open, and only a list with none is asked for
+                // its verdict.)
+                verdict: None,
                 findings: vec![finding],
                 findings_text: None,
                 reviewer_resolved: 0,
@@ -364,23 +361,15 @@ fn path_list(value: Option<&str>) -> Vec<String> {
 }
 
 /// The file a row names, from the project (`resolveAuditProjectPath`, then
-/// `relative` and `toPosix`).
+/// `relative` and `toPosix`). (Upstream resolves the name against the
+/// project first, whether it is whole or not; `relative` does that itself.)
 fn row_file(project: &str, recorded: &str) -> String {
     let host = Flavour::host();
-    const TOKEN: &str = "<project-dir>";
-    let full = if recorded == TOKEN {
-        jspath::resolve(host, project, &[project])
-    } else if let Some(rest) = recorded
-        .strip_prefix(TOKEN)
+    let named = recorded
+        .strip_prefix("<project-dir>")
         .and_then(|rest| rest.strip_prefix(['/', '\\']))
-    {
-        jspath::resolve(host, project, &[project, rest])
-    } else if jspath::is_absolute(host, recorded) {
-        recorded.to_owned()
-    } else {
-        jspath::resolve(host, project, &[project, recorded])
-    };
-    let relative = jspath::relative(host, project, project, &full);
+        .unwrap_or(recorded);
+    let relative = jspath::relative(host, project, project, named);
     if host.separator() == "/" {
         relative
     } else {
