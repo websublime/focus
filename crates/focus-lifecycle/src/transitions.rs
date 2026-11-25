@@ -27,7 +27,7 @@ use focus_workspace::names::WORKSPACE_DIR;
 use focus_workspace::records::read_intent_registry;
 use serde_json::{Map, Value, json};
 
-use crate::admission::{self, Action, Carried};
+use crate::admission::{self, Action, Carried, PersonApproval};
 use crate::events::{
     answer_mode_fields, audit_tail_has_fields, current_routed_skip_audit_tail,
     has_stage_audit_event,
@@ -181,11 +181,12 @@ pub fn advance(
 ) -> Result<Value> {
     refuse_usage_rollup(wf, Some(completed))?;
     let held = wf.lock("advancing the workflow")?;
-    advance_locked(wf, &held, completed, next, operation, None)
+    advance_locked(wf, &held, completed, next, operation, None, None)
 }
 
 /// [`advance`] under a lock the caller holds: `approve` delegates here
-/// after closing the stage, with the warning its own receipt raised.
+/// after closing the stage, with the warning its own receipt raised and
+/// the person's own approval, which the chain weighs here as it did there.
 ///
 /// # Errors
 ///
@@ -197,6 +198,7 @@ pub fn advance_locked(
     next: Option<&str>,
     operation: &str,
     inherited_warning: Option<&str>,
+    person: Option<&PersonApproval>,
 ) -> Result<Value> {
     let mut content = wf.read_state()?;
     let completed_stage = wf.stage(completed)?;
@@ -254,7 +256,10 @@ pub fn advance_locked(
     }
     admission::admit(
         wf,
-        Carried::under(held),
+        Carried {
+            held: Some(held),
+            person,
+        },
         &content,
         completed_stage,
         Action::Complete,
@@ -497,7 +502,7 @@ pub fn complete_workflow(
     refuse_usage_rollup(wf, Some(completed))?;
     refuse_usage_rollup(wf, None)?;
     let held = wf.lock("completing the workflow")?;
-    complete_workflow_locked(wf, &held, completed, reason, operation, None)
+    complete_workflow_locked(wf, &held, completed, reason, operation, None, None)
 }
 
 /// [`complete_workflow`] under a lock the caller holds.
@@ -512,6 +517,7 @@ pub fn complete_workflow_locked(
     reason: Option<&str>,
     operation: &str,
     inherited_warning: Option<&str>,
+    person: Option<&PersonApproval>,
 ) -> Result<Value> {
     let mut content = wf.read_state()?;
     let completed_stage = wf.stage(completed)?;
@@ -520,7 +526,10 @@ pub fn complete_workflow_locked(
         already_marked && has_stage_audit_event(&wf.audit_text(), "STAGE_COMPLETED", completed);
     admission::admit(
         wf,
-        Carried::under(held),
+        Carried {
+            held: Some(held),
+            person,
+        },
         &content,
         completed_stage,
         Action::Complete,

@@ -602,7 +602,8 @@ fn review_attempt_ids(root: &Path) -> Vec<String> {
 /// the order they are first written (the ledger, then what the commands
 /// said, then the other files), the name of its attempt as `<attempt>`
 /// when it is one the tree's own ledger gives (it carries the tree's
-/// path), and the source a request is bound to as the tree's when the tree
+/// path; a second one as `<attempt-2>`, and so on, in the order each is
+/// first written), and the source a request is bound to as the tree's when the tree
 /// keeps its listing.
 fn settle_review_ids(
     root: &Path,
@@ -678,33 +679,73 @@ fn settle_review_ids(
             }
         }
     }
-    for text in outcome.values_mut() {
-        if !text.contains("**Review Record Digest**: ") {
-            continue;
-        }
-        *text = replace_all(
-            text,
-            r"(\*\*Review Record\*\*: (\S+)\n\*\*Review Record Digest\*\*: )(sha256:[0-9a-f]{64})",
-            |found, text| {
-                let mut own = Vec::new();
-                digest_of(root, group(found, text, 2), &mut own);
-                if own.iter().any(|digest| digest == group(found, text, 3)) {
-                    format!("{}<the record's digest>", group(found, text, 1))
-                } else {
-                    text[found.range()].to_owned()
-                }
-            },
-        );
-    }
-    let settle_attempt = |found: &regress::Match, text: &str| {
-        if attempts.iter().any(|known| known == group(found, text, 2)) {
-            format!("{}<attempt>", group(found, text, 1))
+    // (A gate's decision about a finding names the record too, beside its
+    // path.)
+    let own_digest = |found: &regress::Match, text: &str| {
+        let mut own = Vec::new();
+        digest_of(root, group(found, text, 2), &mut own);
+        if own.iter().any(|digest| digest == group(found, text, 3)) {
+            format!("{}<the record's digest>", group(found, text, 1))
         } else {
             text[found.range()].to_owned()
         }
     };
+    for text in outcome.values_mut() {
+        if text.contains("**Review Record Digest**: ") {
+            *text = replace_all(
+                text,
+                r"(\*\*Review Record\*\*: (\S+)\n\*\*Review Record Digest\*\*: )(sha256:[0-9a-f]{64})",
+                own_digest,
+            );
+        }
+        if text.contains("\"reviewed_record\"") {
+            *text = replace_all(
+                text,
+                r#"("reviewed_record":\{"path":"([^"]+)","digest":")(sha256:[0-9a-f]{64})"#,
+                own_digest,
+            );
+        }
+    }
     const ATTEMPT_IN_A_PATH: &str =
         r#"(/reviews/[^/\s"`]+/(?:stage|units/[^/\s"`]+)/)([0-9a-f]{16})(?=[/\s]|$)"#;
+    // The attempts of the check, in the order each is first written: what
+    // was said in that order, then the paths.
+    let in_a_path = regress::Regex::new(ATTEMPT_IN_A_PATH).unwrap();
+    let mut named_attempts: Vec<String> = Vec::new();
+    {
+        let mut order: Vec<&String> = outcome
+            .keys()
+            .filter(|key| key.contains("/audit/"))
+            .collect();
+        order.extend(said.iter());
+        order.extend(
+            outcome
+                .keys()
+                .filter(|key| key.contains('/') && !key.contains("/audit/")),
+        );
+        let texts = order.into_iter().filter_map(|key| outcome.get(key));
+        for text in texts.chain(outcome.keys()) {
+            for found in in_a_path.find_iter(text) {
+                let raw = group(&found, text, 2);
+                if attempts.iter().any(|known| known == raw)
+                    && !named_attempts.iter().any(|known| known == raw)
+                {
+                    named_attempts.push(raw.to_owned());
+                }
+            }
+        }
+    }
+    let settle_attempt = |found: &regress::Match, text: &str| {
+        let raw = group(found, text, 2);
+        match named_attempts.iter().position(|known| known == raw) {
+            Some(0) => format!("{}<attempt>", group(found, text, 1)),
+            Some(index) => format!("{}<attempt-{}>", group(found, text, 1), index + 1),
+            None if attempts.iter().any(|known| known == raw) => {
+                format!("{}<attempt>", group(found, text, 1))
+            }
+            None => text[found.range()].to_owned(),
+        }
+    };
     // The record's own path carries the attempt's name, and a review
     // file's the request's id; a record says its attempt's name too.
     let keys: Vec<String> = outcome.keys().cloned().collect();

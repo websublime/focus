@@ -3234,7 +3234,7 @@ Os leitores da fatia 3 estão feitos e `log review` usa-os; quem ainda recusa pe
 | 3e-ii. Os handoffs | `verifyPipelineLinkPrecondition`: os handoffs devidos por um pipeline | `pipeline_owed` | Feita (abaixo) |
 | 3e-iii. O recibo de revisão | `verifyReviewerPrecondition`, para uma stage revista como um todo, e as recusas de guard que traz (`REVIEW_EVIDENCE_MISSING`, `REVIEW_RECOVERY_PENDING`, `ARTIFACT_REVIEW_STALE`, `ARTIFACT_RECOVERY_SPENT`); a aprovação da própria pessoa por cima de uma revisão que não acabou | `review_owed*`, `review_guard_off`, `revision_backstop_with_reviewer`, `review_rows_in_ledger` | Feita (abaixo); a parte por unit e a da fonte são da fatia 5 |
 | 3e-iv. Os hooks que leem linhas de revisão | `review-freeze` e o grupo (`review_rows`), com a nota que um hook deixa (`guardRefusalHookNote`); o turno humano com um pedido sem veredicto | As recusas pelo nome desses dois | Feita (abaixo); o congelamento por unit é da fatia 5 |
-| 3e-v. `review-brief` | `review`, `summary`, `context`, e os findings que um gate grava na decisão; o que uma aprovação grava de uma revisão por cima da qual passou; o salto para trás que nomeia as revisões que invalida | `review_findings_*`, `backward_over_reviewed_stage_rows` | Partida em três (3e-v-a, abaixo, feita; b e c por fazer) |
+| 3e-v. `review-brief` | `review`, `summary`, `context`, e os findings que um gate grava na decisão; o que uma aprovação grava de uma revisão por cima da qual passou; o salto para trás que nomeia as revisões que invalida | `review_findings_*`, `backward_over_reviewed_stage_rows` | Partida em três (3e-v-a e 3e-v-b, abaixo, feitas; c por fazer) |
 
 ### Fatia 3e-i: a admissão do sumário em `state`
 
@@ -3406,7 +3406,7 @@ O `aidlc-review-brief.ts` (2 365 linhas) é lido por três consumidores diferent
 | Parte | O que traz | Levanta | Estado |
 | --- | --- | --- | --- |
 | 3e-v-a. Os contextos | `readReviewArtifactContexts` (a lista de cada âmbito de uma stage), `review-brief context` (a ferramenta nova, com o parser de argumentos do original) e o salto para trás que nomeia as revisões que invalida | `backward_over_reviewed_stage_rows` | Feita (abaixo) |
-| 3e-v-b. Os findings num gate | `approve` com findings por decidir (`acceptedRiskDispositionField`), `reject --reject-finding` e `--reopen-finding` (`rejectedFindingDispositionField`, `hydrateReviewArtifactContexts`); e o que uma aprovação grava de uma revisão que não acabou (`Review: not finished`, a frase, a aprovação levada para o `advance`) | `review_findings_*`, a recusa pelo nome dos flags de `reject` | Por fazer |
+| 3e-v-b. Os findings num gate | `approve` aceita o risco de cada finding aberto (`acceptedRiskDispositionField`); `reject --reject-finding` e `--reopen-finding` (`rejectedFindingDispositionField`); e o que uma aprovação grava de uma revisão que não acabou (`Review: not finished`, a frase, a aprovação levada para o `advance`, `noteVerdictNotFinished`) | `review_findings_*`, `reject_findings*` | Feita (abaixo) |
 | 3e-v-c. Os briefs | `review-brief review` (`renderReviewBrief`, `reviewInvalidationDetails`, `acceptedReviewChanges`) com a cópia do que o gate mostrou (`keepGateBrief`), e `review-brief summary` (`renderSummaryConfirmationBrief`) | `review-brief/usage/review_not_ported`, `…/summary_not_ported` | Por fazer |
 
 ### Fatia 3e-v-a: os contextos de uma stage, `review-brief context` e o salto para trás
@@ -3466,6 +3466,63 @@ O `aidlc-review-brief.ts` (2 365 linhas) é lido por três consumidores diferent
 | Diferencial, tudo | 4 336 checks: 4 113 iguais, 223 desvios declarados, nenhum diferente; a gravação (4 230 checks sobre 1 756 árvores) repete-se igual; o fuzz (`--fuzz 600`) dá 600 iguais |
 | Mutação | 36 mutantes: 21 mortos à primeira; dos 15 restantes, 6 buracos fechados com dez checks e repetidos até morrerem, 6 de código a mais que saiu (cinco numa função reescrita como o padrão do original), 2 equivalentes e 1 de um ramo a que nenhum caso chega, ditos no sítio; mais o mutante novo da função reescrita, morto |
 | `cargo test` | 610 testes (cinco novos: os quatro de `tests/review_brief.rs`, a superfície do comando e cada desvio, e o do salto que recusa a revisão que não lê) |
+
+### Fatia 3e-v-b: o que um gate grava dos findings de uma revisão
+
+**O que existe.** `focus-lifecycle::review_decisions`, com as duas funções que um gate chama, sobre as listas de `review_derived::contexts`:
+
+| Função | O que decide |
+| --- | --- |
+| `accepted_risk_field` (`acceptedRiskDispositionField`) | Uma aprovação aceita como risco cada finding ainda aberto (`New` ou `Unresolved`) da stage, à severidade que tem agora, com o registo da revisão que o levantou |
+| `rejected_finding_field` (`rejectedFindingDispositionField`) | Um pedido de alterações diz de um finding que não o é (`--reject-finding`), ou que um que o reviewer deu como corrigido não está (`--reopen-finding`). O valor é `<artefacto>#R-NN=<razão>`; o artefacto pode ser o caminho inteiro, o fim dele, o nome do ficheiro com ou sem `.md`, ou nada quando um só finding tem esse id |
+
+As decisões vão num campo da linha do gate (`Review Finding Dispositions`), um documento JSON pequeno com as decisões ordenadas pelo finding (`localeCompare`, pelo `focus_js::order`), que `review_derived` já lia de volta ao repetir a lista. `approve` grava-o em `GATE_APPROVED`, `reject` em `GATE_REJECTED`.
+
+**O que um pedido de alterações recusa**, cada um com a frase do original: um valor fora da forma; um finding que não está na lista (com os que estão, ou a dizer que não há nenhum que sirva); um seletor que nomeia mais de um; o mesmo finding duas vezes, pelo mesmo flag ou pelos dois; rejeitar um que o reviewer deu como corrigido (a frase aponta o outro flag) ou um já decidido; reabrir um que não foi dado como corrigido; e os flags numa stage sem reviewer.
+
+**A aprovação por cima de uma revisão que não acabou.** O que a 3e-iii deixou por gravar. A aprovação da própria pessoa passa por cima de um pedido sem veredicto (a revisão de recuperação incluída), e qualquer aprovação passa por cima do `NOT-READY` que nenhum reviewer deu (`noteVerdictNotFinished`: o veredicto vale como antes, a aprovação fica marcada). Nos dois casos a linha `GATE_APPROVED` leva `Review: not finished`, a pessoa ouve uma vez «Approved. The {stage} review did not finish.» (pelo canal dos avisos de mudança, antes da resposta), e a mesma aprovação segue para o `advance` ou o `complete-workflow` que a aprovação chama: sem ela, o avanço recusava a revisão de recuperação pendente que a aprovação acabara de aceitar.
+
+**O que saiu.** `gate::refuse_review_findings`, a recusa pelo nome de uma aprovação ou de um pedido de alterações com linhas de revisão no ledger ou uma secção `## Review` no artefacto, e a recusa pelo nome dos dois flags. Um pedido de alterações sem flags não lê findings nenhuns, como no original.
+
+**O que não foi portado.** `hydrateReviewArtifactContexts` e `readReviewFindingDispositions`: exportadas no original e sem nenhuma chamada. O gate de várias stages (o gate de unit de uma equipa, `teamGate.stages`) chega com as units (fatia 5): aqui um gate é de uma stage.
+
+**Desvio deliberado.** A linha de decisão editada à mão (uma lista onde devia estar o id), a mesma da 3e-v-a, agora lida no gate: o original lê a lista como texto, aprova e grava; Focus recusa a aprovação, e o pedido de alterações que nomeia um finding, com o que está errado. `state/gates/findings_decisions_a_list_for_a_text`; o teste `a_gate_records_what_the_person_decided_about_findings`.
+
+**O que a comparação encontrou.**
+
+| O quê | O que era |
+| --- | --- |
+| Depois de um pedido de alterações, a aprovação seguinte | Um pedido de alterações abre uma tentativa nova, que deve a sua própria revisão: com revisões escritas à mão nenhum check chegava à segunda aprovação. Passaram a ser checks de ponta a ponta, com as revisões gravadas pela própria ferramenta (`@log review`, o relatório escrito no ficheiro que o pedido abre) entre os passos de `state`: a primeira revisão deixa dois findings, a pessoa diz que um não o é, a revisão da tentativa seguinte dá o outro como corrigido e levanta um terceiro, a pessoa reabre o corrigido, uma última revisão, e a aprovação aceita o que ficou aberto |
+| Duas tentativas num check | A ferramenta de comparação escrevia o nome de qualquer tentativa como `<attempt>`: com duas, os registos das duas ficavam sob o mesmo caminho e cada motor mostrava um. As tentativas de um check passaram a numerar-se pela ordem em que aparecem (`<attempt>`, `<attempt-2>`), nas duas ferramentas |
+| O digest do registo numa decisão | Uma decisão nomeia o registo da revisão e o digest dele, que é próprio de cada árvore. A forma `review-ids` passou a resolvê-lo como já resolvia o da linha de conclusão, nas duas ferramentas |
+| O mesmo id duas vezes numa lista | O ramo «names 2 current review findings» parecia inalcançável sem units (uma stage tem uma lista, e nela um artefacto). Um registo com o id repetido chega lá: igual nos dois |
+
+O porte deu igual à primeira em todos os checks de comportamento; as três primeiras linhas são da ferramenta de comparação.
+
+**O que a mutação encontrou.** 51 mutantes sobre o módulo novo, a marca na admissão e o que os dois gates gravam e levam adiante, julgados pelo diferencial ao vivo e pelo teste de CLI: 40 morreram à primeira. Dos onze que ficaram:
+
+| O que o mutante trocava | O que lhe aconteceu |
+| --- | --- |
+| O reviewer da stage, na aprovação | Buraco: `findings_approved_no_reviewer` (uma stage que ninguém revê, com uma secção `## Review` legível no documento: não grava nada) |
+| O valor inteiro aparado antes de ser lido | Buraco: `findings_rejected_by_id_spaced` (um id sozinho com espaços à volta) |
+| O finding nomeado pelo caminho inteiro, tomado antes dos outros | Buraco: `findings_same_id_twice_named_whole` (dois com o mesmo id: pelo caminho inteiro é o primeiro, pelo nome do ficheiro são dois e recusa-se) |
+| O finding rejeitado e reaberto, dito antes de cada decisão ser pesada | Buraco: um passo em `findings_rejected_twice` (as duas decisões sobre um que o reviewer deu como corrigido: o original diz «duas vezes», e não «use o outro flag») |
+| A ordem em que os dois flags se resolvem | Buraco: dois passos no mesmo check (um de cada flag inválido: a recusa é a do que se rejeita, onde quer que os flags estejam) |
+| A aprovação da pessoa levada para o fecho do workflow | Buraco: `unfinished_recovery_review_approved_last_stage` (a última stage do trabalho, aprovada por cima de uma revisão de recuperação pendente) |
+| A razão aparada outra vez; o seletor igual ao caminho inteiro; o artefacto igual ao nome do ficheiro | Código a mais: o valor inteiro já foi aparado e a razão começa no que não é espaço; o caminho inteiro é encontrado antes de o seletor ser perguntado; um artefacto vem sempre com as pastas. Saíram, e o sítio diz o que o original pergunta a mais |
+| O veredicto ainda a cobrir os outputs, na marca de `noteVerdictNotFinished` | Código a mais: uma aprovação só segue com um veredicto que os cobre, ou por cima de um pedido sem veredicto, que a marca igual. Saiu |
+| `localeCompare` trocado pela ordem de code units, na ordem das decisões | Equivalente por agora: a lista de uma stage é de um só artefacto e um id é `R-` e dígitos. Dito no sítio; deixa de o ser com um gate de várias units |
+
+Os seis buracos repetiram-se até morrerem, com os dois mutantes novos das linhas reescritas.
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Diferencial, os findings num gate | 46 checks novos em `state/gates`: a aprovação sobre findings em cada estado, a ordem das decisões, um finding dado como corrigido, a classe de revisão `none`, o registo desaparecido, a secção de uma versão anterior, a stage sem reviewer; o pedido de alterações com um finding nomeado de cada maneira, dois de uma vez, rejeitar e reabrir juntos, e cada recusa (treze valores fora da forma, o que não está lá, o que não serve, duas vezes); a aprovação por cima de um pedido sem veredicto, de uma revisão de recuperação, do `NOT-READY` de ninguém, na última stage, e com a equipa em `strict`; e quatro de ponta a ponta com revisões gravadas pela ferramenta. Saíram de `DEVIATIONS` `review_findings_(rows|section)` e `reject_findings(_with_reviewer)?`; entrou o da linha editada à mão |
+| Diferencial, tudo | 4 382 checks: 4 162 iguais, 220 desvios declarados, nenhum diferente; a gravação (4 276 checks sobre 1 778 árvores) repete-se igual, com seis checks de `log review` regravados pela numeração das tentativas; o fuzz (`--fuzz 600`) dá 600 iguais |
+| Mutação | 51 mutantes: 40 mortos à primeira; dos 11 restantes, 6 buracos fechados com quatro checks e três passos e repetidos até morrerem, 4 de código a mais que saiu, 1 equivalente dito no sítio |
+| `cargo test` | 611 testes (um novo, `a_gate_records_what_the_person_decided_about_findings`: o desvio, duas recusas e o que a aprovação grava); o teste das recusas pelo nome de um gate ficou com os sensores e as units |
 
 ### Fatia 4: a pergunta de recuperação, partida em três
 

@@ -25,6 +25,7 @@
 use std::time::SystemTime;
 
 use focus_audit::time::iso_timestamp;
+use focus_evidence::review_dispositions as decisions;
 use focus_graph::runtime::Stage;
 use focus_intent::plan::next_in_scope_stage;
 use focus_js::EngineError;
@@ -37,6 +38,7 @@ use crate::admission::{self, Action, Carried, PersonApproval};
 use crate::gate;
 use crate::presence;
 use crate::reply::{self, DecisionKind};
+use crate::review_decisions;
 use crate::stage;
 use crate::transitions;
 use crate::validity;
@@ -605,13 +607,9 @@ pub fn approve(
         content = set_field(&content, "Last Updated", &iso_timestamp(SystemTime::now()));
         wf.write_state(&content)?;
     }
-    // The person's own approval goes over a review that never finished.
-    // Upstream then records the approval that way (`Review: not finished`
-    // on the gate's row, and a line said once) and carries it into the
-    // advance that follows. None of that is here yet: an approval that
-    // went over a review has review rows in its ledger, and the findings a
-    // gate records from them are refused by name just below (the review
-    // brief, slice 3e-v), so nothing could compare it.
+    // The person's own approval goes over a review that never finished:
+    // the gate's row says so (`Review: not finished`), the person hears it
+    // once, and the advance that follows weighs the same approval.
     let person = PersonApproval::default();
     admission::admit(
         wf,
@@ -625,7 +623,9 @@ pub fn approve(
         operation,
         true,
     )?;
-    gate::refuse_review_findings(wf, stage)?;
+    // Every finding of the stage's reviews still open is accepted as a
+    // risk by the approval.
+    let accepted_risks = review_decisions::accepted_risk_field(wf, stage)?;
     let (_, definition) = wf.scope_definition(
         &content,
         "Refusing to advance after approve \u{2014} fix the state file first.",
@@ -661,6 +661,12 @@ pub fn approve(
             gate_fields.extend(gate::approves_together_fields(&listed_together));
         }
     }
+    if let Some(accepted) = accepted_risks {
+        gate_fields.push((decisions::FIELD, accepted));
+    }
+    if person.over_unfinished_review() {
+        gate_fields.push(("Review", "not finished".to_owned()));
+    }
     gate_fields.push(gate::brief_digest_field(wf, stage));
     if let Some(accepted) = gate::decisions_accepted_open_field(wf, slug) {
         gate_fields.push(accepted);
@@ -678,11 +684,34 @@ pub fn approve(
     ));
     wf.emit(&held, "STAGE_COMPLETED", &completed_fields)?;
     wf.write_state(&content)?;
+    if person.over_unfinished_review() {
+        // `unfinishedReviewNotice`.
+        wf.say_change_notices(&[format!(
+            "Approved. The {} review did not finish.",
+            stage::name(stage)
+        )]);
+    }
     let next = next_in_scope_stage(slug, definition, &wf.install.graph, Some(&content)).is_some();
     let answer = if next {
-        transitions::advance_locked(wf, &held, slug, None, operation, warning.as_deref())?
+        transitions::advance_locked(
+            wf,
+            &held,
+            slug,
+            None,
+            operation,
+            warning.as_deref(),
+            Some(&person),
+        )?
     } else {
-        transitions::complete_workflow_locked(wf, &held, slug, None, operation, warning.as_deref())?
+        transitions::complete_workflow_locked(
+            wf,
+            &held,
+            slug,
+            None,
+            operation,
+            warning.as_deref(),
+            Some(&person),
+        )?
     };
     Ok(answer)
 }
@@ -779,17 +808,13 @@ pub fn reject(wf: &Workflow, slug: &str, ask: &Reject<'_>, _operation: &str) -> 
             false,
         ));
     }
-    if !ask.reject_findings.is_empty() || !ask.reopen_findings.is_empty() {
-        if stage::reviewer(stage).is_none() {
-            refuse!(
-                "Cannot reject review findings for stage \"{slug}\": the stage has no reviewer."
-            );
-        }
-        refuse!(
-            "--reject-finding and --reopen-finding record the person's decision on a review's findings, which Focus does not read yet."
-        );
-    }
-    gate::refuse_review_findings(wf, stage)?;
+    // What the person decided about the findings they named.
+    let decided = review_decisions::rejected_finding_field(
+        wf,
+        stage,
+        &ask.reject_findings,
+        &ask.reopen_findings,
+    )?;
     let revision_count = revision_count_of(&content) + 1.0;
     let revision_count = focus_js::num::to_string(revision_count);
     content = set_field(&content, "Revision Count", &revision_count);
@@ -802,6 +827,9 @@ pub fn reject(wf: &Workflow, slug: &str, ask: &Reject<'_>, _operation: &str) -> 
     ];
     if let Some(summary) = conductor_summary {
         rejected_fields.push((CONDUCTOR_SUMMARY_FIELD, summary));
+    }
+    if let Some(decided) = decided {
+        rejected_fields.push((decisions::FIELD, decided));
     }
     wf.emit(&_held, "GATE_REJECTED", &rejected_fields)?;
     wf.emit(
