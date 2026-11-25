@@ -2583,6 +2583,16 @@ fn a_units_step_over_what_focus_does_not_run_is_refused_by_name() {
         refusal(&state(&root, &[&UNIT[..], &["auth"]].concat(), &[])),
         "The engine has a step in hand for this record, and whether the person picked recording this completion on its recovery ask is read off that step's marker: Focus does not read it yet."
     );
+    // (Whatever stands at the marker's name: the writer refuses it too.)
+    let marker = root
+        .join(CREATED_RECORD)
+        .join(".focus-engine/active-directive.json");
+    fs::remove_file(&marker).unwrap();
+    fs::create_dir_all(&marker).unwrap();
+    assert!(
+        refusal(&state(&root, &[&UNIT[..], &["auth"]].concat(), &[]))
+            .starts_with("The engine has a step in hand for this record,")
+    );
     let _ = fs::remove_dir_all(&root);
 }
 

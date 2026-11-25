@@ -562,6 +562,8 @@ fn transition_of(wf: &Workflow, verb: &str, args: &[String]) -> Verb {
             construction_policy::sync_unit_scope_stage(wf, args.first().map(String::as_str), unit)?
         }
         "unit" => {
+            // (After the action, as upstream looks: an action that is a
+            // flag is none of the four either way.)
             let rest = args.get(1..).unwrap_or_default();
             unit::unit(
                 wf,

@@ -2678,7 +2678,7 @@ DEVIATIONS.update({
     r"state/unit/of_a_team":
         "Unit Ownership: team is deferred (the plan, section 11): upstream checks the unit against the checkout "
         "that claimed it and goes on; focus refuses a team's unit by name",
-    r"state/unit/swarm":
+    r"state/unit/swarm(_by_execution)?":
         "with Construction built as a swarm upstream asks whether the swarm owns the units of a subagent's stage "
         "(the first planned stage of Construction, the walking skeleton's approved unit) and refuses the receipt "
         "when it does; focus runs no swarm yet and refuses the question by name",
@@ -3298,6 +3298,41 @@ def state_checks():
     check_("unit/review_open_of_the_stage", with_units(receipt("STARTED"), asked_review(unit=None), state=weighed(), **outputs()), done)
     check_("unit/review_open_second_pass", with_units(receipt("STARTED"), asked_review(iteration=2), state=weighed(), **outputs()), done)
     check_("unit/review_open_guard_off", with_units(receipt("STARTED"), asked_review()), [step("complete")], {"SKIP_ARTIFACT_GUARD": "1"})
+    # (A verdict was recorded: the review is not waiting for one, whatever it said. A completion that carries no
+    # review record answered nothing that can be verified, and the gate weighs that. A recovery review under a
+    # policy that accepts changes is the gate's too.)
+    check_("unit/review_not_ready", with_units(receipt("STARTED"), state=weighed(), **outputs()), done,
+           edits=[reviewed_by_hand((1, "NOT-READY", (), UNIT_PRINT), minute=10, stage="functional-design", unit="auth")])
+    check_("unit/review_ready", with_units(receipt("STARTED"), state=weighed(), **outputs()), done,
+           edits=[reviewed_by_hand((1, "READY", (), UNIT_PRINT), minute=10, stage="functional-design", unit="auth")])
+    unverifiable = block("REVIEW_COMPLETED", T(11), "**Stage**: functional-design", "**Reviewer**: aidlc-architecture-reviewer-agent", "**Unit**: auth", "**Iteration**: 1", "**Verdict**: READY",
+                         f"**Request Fingerprint**: {UNIT_PRINT}", f"**Artifact Fingerprint**: {UNIT_PRINT}", "**Request Id**: review:" + "1" * 32)
+    check_("unit/review_completion_carries_no_record", with_units(receipt("STARTED"), asked_review(), unverifiable, state=weighed(), **outputs()), done)
+    recovery = asked_review().replace("**Request Id**", "\n".join(REVIEW_RECOVERY) + "\n**Request Id**")
+    strict = lambda state: state.replace("- **Guard Policy**: off", "- **Guard Policy**: on")
+    check_("unit/review_recovery_changes_accepted", with_units(receipt("STARTED"), recovery, state=weighed(), **outputs()), done)
+    check_("unit/review_recovery_strict", with_units(receipt("STARTED"), recovery, state=strict(weighed()), **outputs()), done)
+    check_("unit/review_open_strict", with_units(receipt("STARTED"), asked_review(), state=strict(weighed()), **outputs()), done)
+    check_("unit/review_open_person_spoke_then_approved", with_units(receipt("STARTED"), asked_review(), spoke_since(), block("GATE_APPROVED", T(12), "**Stage**: intent-capture", "**User Input**: Approve"),
+                                                                    state=weighed(), **outputs()), done)
+    def of_the_graph(slug, **given):
+        def change(tree):
+            graph = tree.json(".claude/tools/data/stage-graph.json")
+            for node in graph:
+                if node["slug"] == slug:
+                    for key, value in given.items():
+                        node.pop(key, None) if value is None else node.__setitem__(key, value)
+            tree.write_json(".claude/tools/data/stage-graph.json", graph)
+        return change
+    # (The marker alone says a stage runs for each unit: one of the five that always do, in a graph that lost it, does not.)
+    check_("unit/stage_lost_its_marker", with_units(receipt("STARTED"), **outputs()), done, edits=[of_the_graph("functional-design", for_each=None)])
+    check_("unit/complete_paused_blank_reason", with_units(receipt("STARTED", "auth", 7), receipt("PAUSED", "auth", 8, FLOOR, "functional-design", "**Reason**: ", "**Next Action**: eat"), **outputs()), done)
+    # (Boundaries of two shards in one second: the floor is a token made of both, and for a unit floored on its own
+    # of two more of their fields. The receipt carries that one, and so does the completion.)
+    tied_at = len(CREATED_AUDIT.split("\n---\n")) - 1
+    tied = "AMBIGUOUS:" + T(5) + "#" + hashlib.sha256("|".join(sorted([f"laptop-abc123.md:{tied_at}:GATE_REJECTED:functional-design::", "desktop-def456.md:0:STAGE_JUMPED:::"])).encode()).hexdigest()[:12]
+    check_("unit/complete_floor_of_two_shards", with_units(block("GATE_REJECTED", T(5), "**Stage**: functional-design", "**Feedback**: again"), receipt("STARTED", "auth", 9, tied),
+                                                          **{f"{CREATED_DIR}/audit/desktop-def456.md": TITLE + block("STAGE_JUMPED", T(5), "**Target**: functional-design")}, **outputs()), done)
     # A start, a pause and a resumption reach the route.
     check_("unit/route_start", with_units(), [step("start")])
     check_("unit/route_pause", with_units(receipt("STARTED")), [step("pause", "--reason", "lunch", "--next-action", "eat"), step("pause", "--set-aside-for", "api")])
@@ -3309,6 +3344,14 @@ def state_checks():
     check_("unit/swarm_unit_major", with_units(receipt("STARTED", "auth", 9, FLOOR, "code-generation"), state=running("disabled", "unit-major", phase="CONSTRUCTION", more="- **Construction Autonomy Mode**: autonomous\n")),
            [step("complete", stage="code-generation")])
     check_("unit/picked_on_an_ask", with_units(**outputs(), **{f"{CREATED_DIR}/.aidlc-engine/active-directive.json": "{}\n"}), done)
+    check_("unit/marker_another_is_active", with_units(receipt("STARTED", "api"), **outputs(), **{f"{CREATED_DIR}/.aidlc-engine/active-directive.json": "{}\n"}), done)
+    # (The swarm is switched by the execution when Construction's checkpoints apply, and by the autonomy when they do not.)
+    autonomous = "- **Construction Autonomy Mode**: autonomous\n"
+    in_code = receipt("STARTED", "auth", 9, FLOOR, "code-generation")
+    check_("unit/swarm_by_execution", with_units(in_code, state=running("enabled", "stage-major", "swarm", phase="CONSTRUCTION")), [step("complete", stage="code-generation")])
+    check_("unit/serial_though_autonomous", with_units(in_code, state=running("enabled", "stage-major", "serial", phase="CONSTRUCTION", more=autonomous)), [step("complete", stage="code-generation")])
+    check_("unit/swarm_stage_of_another_phase", with_units(in_code, state=running("disabled", "stage-major", phase="CONSTRUCTION", more=autonomous)), [step("complete", stage="code-generation")],
+           edits=[of_the_graph("code-generation", phase="operation")])
 
     # practices-event: the three rows the practices-discovery stage leaves, with the fields it gives.
     says = lambda kind, *fields: ["practices-event", "--type", kind, *[part for field in fields for part in ("--field", field)]]

@@ -74,13 +74,9 @@ fn open_review(
     stage: &Stage,
     unit: &str,
 ) -> Result<Option<(f64, bool)>> {
-    if stages::reviewer(stage).is_none() {
-        return Ok(None);
-    }
+    // (A stage nobody reviews, and a class of review that is none, have no
+    // receipts: upstream answers both before it reads them.)
     let class = resolve_review_class(wf, stage, state);
-    if class == "none" {
-        return Ok(None);
-    }
     let receipts = review_receipts::fresh(
         wf,
         state,
@@ -109,6 +105,8 @@ fn open_review(
 /// are not files under `<record>/construction/<unit>/<slug>/`. A stage that
 /// maps kinds owes a unit only its kind's, when the unit DAG can be read.
 fn missing_artifacts(wf: &Workflow, stage: &Stage, unit: &str, dag: &Dag) -> Vec<String> {
+    // (With no record there is no ledger either, so no unit is open and
+    // this is not asked: upstream's answer is kept all the same.)
     let Some(record) = wf.record_dir() else {
         return stage.produces.clone();
     };
@@ -152,6 +150,9 @@ fn lifecycle(wf: &Workflow, state: &str, stage: &Stage) -> (Vec<String>, Vec<Che
             stage,
             Some(unit),
             None,
+            // (All the unit owes, as upstream asks. A completion in a wave
+            // always records the fingerprint of a whole set, so here it
+            // only tells apart a row no engine writes.)
             review_artifacts::Options {
                 require_required_artifacts: true,
                 merged_bolt_units: None,
