@@ -3557,16 +3557,33 @@ Os seis buracos repetiram-se até morrerem, com os dois mutantes novos das linha
 
 **O que a comparação encontrou.** O porte deu igual à primeira em todos os checks. O que mudou foi a ferramenta de comparação: o brief guarda-se sob o digest de um texto que nomeia os artefactos pelo caminho, e o caminho leva o nome do diretório do workspace (`aidlc/` lá, `focus/` cá), por isso os dois motores guardam o mesmo brief sob digests diferentes. Forma nova, `brief-digest`, nas duas ferramentas: um digest que é o da própria árvore (o hash do ficheiro guardado sob ele) compara-se como `<brief-1>`, `<brief-2>`, pela ordem dos textos, onde quer que esteja escrito (o nome do ficheiro, `latest.json`, a linha do gate); os textos comparam-se.
 
-**O que a mutação encontrou.** @MUT@
+E a repetição encontrou um check mal feito: uma linha escrita à mão com o caminho inteiro de um documento leva o caminho da árvore onde foi gravada, que a repetição (`cargo test`) põe noutro sítio, e o brief repetido dizia menos um ficheiro. O caso ficou num check só seu, comparado ao vivo e fora da gravação.
+
+**O que a mutação encontrou.** 90 mutantes sobre o módulo novo e a ligação à ferramenta (o resultado da revisão, o finding do gate, as mudanças aceites, cada janela e cada filtro do que mudou, o salto para trás, a cópia, o ficheiro das perguntas, a unit como foi dada), julgados pelo diferencial ao vivo e pelos testes de CLI: 60 morreram à primeira. Dos trinta que ficaram:
+
+| O que o mutante trocava | O que lhe aconteceu |
+| --- | --- |
+| A unit e a impressão digital do finding do gate; o veredicto da lista feita para ele | Código a mais: o brief não mostra nenhum dos três (com um finding aberto ninguém pergunta o veredicto). Saíram, e o sítio diz o que o original lhes dá |
+| Os quatro ramos que resolviam o caminho de uma linha contra o projeto | Código a mais: `relative` resolve-o ela própria, inteiro ou não. A função ficou no prefixo `<project-dir>` e na relativa; os dois mutantes novos dela morrem (`stale_written_named_from_the_project`) |
+| A unit dada como nada, em cada um dos três comandos; a unit na lista feita para o finding do gate | Buraco: seis checks numa stage por unit que guarda os documentos ao nível da stage (`…units_kept_at_the_stage…`), onde nenhuma unit e a unit vazia listam coisas diferentes; `stale_fallback_of_a_unit` |
+| Uma lista com um só finding, nenhum aberto; o texto do relatório que não se leu; uma lista de caminhos vazia | Buraco: `decided_the_only_one`, `legacy_section_unreadable`, `changes_accepted_no_paths_named` |
+| `WORKFLOW_STARTED` como início da tentativa | Buraco: `changes_accepted_before_a_second_start` |
+| O que foi escrito antes do início da tentativa, noutro shard | Buraco: `stale_written_before_the_floor_in_another_shard` (duas ordens, a posição no shard e o instante entre shards: uma escrita depois da revisão pelo instante e antes do início pela posição) |
+| Cada tipo de linha de escrita; a janela de uma revisão de recuperação (o que se escreveu enquanto ela corria, o pedido que não é de recuperação, a revisão de outra stage entretanto) | Buraco: `stale_created`, `stale_removed`, `stale_written_while_the_recovery_ran`, `stale_written_before_a_request_that_is_no_recovery`, `stale_another_stage_reviewed_since`. Os primeiros checks escreviam o mesmo documento de várias maneiras, e cada maneira escondia as outras |
+| A unit de cada janela: o emparelhamento, o manifesto de outra unit, a fonte nomeada só por uma das linhas | Buraco: `stale_recovery_beside_a_unit_s_review`, `stale_recovery_of_a_unit_manifest_of_another`, `stale_unit_reviewed_manifest_of_another`, `stale_recovery_of_a_unit_source_named_by_the_…_alone` |
+| Numa stage por unit: a escrita de uma unit antes da sua própria revisão; o manifesto de uma unit a pedir só a revisão dela | Buraco: `stale_units_written_before_its_own_review`, `stale_units_manifest_of_its_own` |
+| Um gate de outra stage antes do salto, a tomar o que o salto deixou | Buraco: `stale_after_a_backward_jump_gate_before_it` |
+
+Os 23 buracos repetiram-se até morrerem, em três voltas: oito sobreviveram à primeira repetição porque o check novo ainda não distinguia (um documento ao nível da stage que tornava as duas listagens iguais; um finding que a lista derivada reabre), e morreram com o check afinado.
 
 **Verificado.**
 
 | Verificação | Resultado |
 | --- | --- |
-| Diferencial, `review-brief` | @BF@ |
-| Diferencial, tudo | @ALL@ |
-| Mutação | @MUTROW@ |
-| `cargo test` | @TESTS@ |
+| Diferencial, `review-brief` | 87 checks novos no grupo (139 ao todo): `summary` (o ficheiro das perguntas dado de cada maneira, fora do registo, a pasta, sem registo, outra stage, nada declarado, as units), `review` com cada resultado e cada razão, o finding do gate em cada lista, a cópia (duas vezes, atrás de um link, sem registo, e o gate que abre a seguir a nomeá-la), as mudanças aceites, 38 de `--why stale` (escritas, recuperações, units, saltos; um deles, o ficheiro nomeado pelo caminho inteiro, só ao vivo: o caminho é o da árvore, que uma repetição muda) e as stages por unit. Saíram de `DEVIATIONS` os dois `…_not_ported`; entraram dois (o brief de uma unit, a recuperação presa à fonte), e dois dos que havia passaram a cobrir `review` e `summary` |
+| Diferencial, tudo | 4 467 checks: 4 245 iguais, 222 desvios declarados, nenhum diferente; a gravação (4 359 checks sobre 1 838 árvores) repete-se igual; o fuzz (`--fuzz 600`) dá 600 iguais |
+| Mutação | 90 mutantes: 60 mortos à primeira; dos 30 restantes, 23 buracos fechados com checks novos e repetidos até morrerem, 7 de código a mais que saiu; mais os 2 mutantes novos da função reescrita, mortos |
+| `cargo test` | 612 testes (um novo; `tests/review_brief.rs` ficou com cinco: os dois briefs impressos e a cópia guardada sob o digest do que se imprimiu, e o que um brief leria das units, recusado pelo nome) |
 
 ### Fatia 4: a pergunta de recuperação, partida em três
 

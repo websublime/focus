@@ -7383,11 +7383,15 @@ def review_brief_checks():
     # A review shown again because its receipt went stale: what was written under it since.
     wrote = lambda minute, file, event="ARTIFACT_UPDATED": block(event, T(minute), f"**File**: {file}")
     stakeholders = f"{CREATED_DIR}/ideation/intent-capture/stakeholder-map.md"
-    writes = lambda t: t.edit(CREATED_SHARD, lambda text: text + wrote(5, statement) + wrote(6, "<project-dir>/" + stakeholders, "ARTIFACT_CREATED") + wrote(7, t.path(SUMMARY_FILE)) + wrote(8, statement)
+    writes = lambda t: t.edit(CREATED_SHARD, lambda text: text + wrote(5, statement) + wrote(6, "<project-dir>/" + stakeholders, "ARTIFACT_CREATED") + wrote(7, SUMMARY_FILE) + wrote(8, statement)
                               + wrote(9, f"{CREATED_DIR}/ideation/market-research/competitive-analysis.md") + wrote(10, f"{CREATED_DIR}/construction/api/intent-capture/source-manifest.json")
                               + wrote(11, f"{CREATED_DIR}/construction/api/market-research/source-manifest.json") + wrote(12, "") + block("ARTIFACT_UPDATED", T(13), "**Stage**: intent-capture")
                               + wrote(14, statement, "ARTIFACT_REMOVED") + wrote(15, "x/../" + stakeholders))
     briefed("review/stale_written_since", not_ready, findings=[finding(1)], steps=[brief("stale"), brief("first")], more=[writes])
+    # (A file named whole is named from where the tree stands, which a replay moves: compared live.)
+    UNRECORDED.add("review-brief/review/stale_written_named_whole")
+    briefed("review/stale_written_named_whole", not_ready, findings=[finding(1)], steps=[brief("stale")],
+            more=[lambda t: t.edit(CREATED_SHARD, lambda text: text + wrote(5, t.path(stakeholders)) + wrote(6, t.path("elsewhere/" + os.path.basename(statement))))])
     briefed("review/stale_written_before", not_ready, findings=[finding(1)], steps=[brief("stale")], before=[writes])
     briefed("review/stale_nothing_written", not_ready, findings=[finding(1)], steps=[brief("stale")])
     briefed("review/stale_written_no_review", steps=[brief("stale")], more=[writes])
