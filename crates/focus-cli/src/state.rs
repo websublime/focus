@@ -40,6 +40,7 @@ use focus_js::text::{parse_int, trim};
 use focus_lifecycle::gates::{self, GateStart, Reject};
 use focus_lifecycle::transitions;
 use focus_lifecycle::workflow::Workflow;
+use focus_lifecycle::construction_policy::{self, Policy};
 use focus_lifecycle::{lookup, rows};
 use focus_state::fields::{get_field, set_field};
 use focus_state::file::{read_state_file, write_state_file};
@@ -92,14 +93,28 @@ The state file of the active record, as data.
   lookup stages-in-scope <scope> | validate-phase <phase-or-number>
                            Ask the stage graph and the scopes
 
+  set-skeleton-stance <on|off|scope-dependent>
+                           Record the walking skeleton's stance
+  set-construction-iteration <unit-major|stage-major>
+                           How Construction walks the units
+  set-construction-checkpoints <enabled|disabled>
+                           Whether Construction stops after each unit
+  set-construction-execution <serial|swarm>
+                           Whether the units are built one after another
+  set-construction-verification-command --command-file <record-relative path>
+                           The command that verifies a unit, once approved
+  set-unit-gate-rhythm <per-stage|unit-end>
+  sync-unit-scope-stage <stage> --unit <unit>
+                           A team's units (refused: Focus runs no team's units)
+
 A state is one of pending, in-progress, awaiting-approval, revising,
 completed, skipped. Writes are the engine's: set FOCUS_ALLOW_DIRECT_STATE_TRANSITIONS=1
 to make one by hand.";
 
-const USAGE: &str = "Usage: focus engine state <subcommand>. Valid: get, set, checkbox, count, advance, finalize, complete-workflow, gate-start, approve, reject, revise, skip, resume, park, unpark, acknowledge-compaction, practices-event, reuse-artifact, lookup. Run with --help for detail.";
+const USAGE: &str = "Usage: focus engine state <subcommand>. Valid: get, set, checkbox, count, advance, finalize, complete-workflow, gate-start, approve, reject, revise, skip, resume, park, unpark, acknowledge-compaction, practices-event, reuse-artifact, lookup, set-skeleton-stance, set-construction-iteration, set-construction-checkpoints, set-construction-execution, set-construction-verification-command, set-unit-gate-rhythm, sync-unit-scope-stage. Run with --help for detail.";
 
 /// The verbs Focus has.
-const VERBS: [&str; 19] = [
+const VERBS: [&str; 26] = [
     "get",
     "set",
     "checkbox",
@@ -119,6 +134,13 @@ const VERBS: [&str; 19] = [
     "lookup",
     "practices-event",
     "reuse-artifact",
+    "set-skeleton-stance",
+    "set-construction-iteration",
+    "set-construction-checkpoints",
+    "set-construction-execution",
+    "set-construction-verification-command",
+    "set-unit-gate-rhythm",
+    "sync-unit-scope-stage",
 ];
 
 /// `engineOwnedTransitions`: the verbs that pass the state-transition fence.
@@ -137,31 +159,9 @@ const ENGINE_OWNED: [&str; 11] = [
 ];
 
 /// The verbs upstream has that Focus does not port, each refused by name.
-const NOT_PORTED: [(&str, &str); 14] = [
-    (
-        "set-skeleton-stance",
-        "sets the Construction skeleton stance",
-    ),
-    (
-        "set-construction-iteration",
-        "sets the Construction iteration",
-    ),
-    (
-        "set-construction-checkpoints",
-        "sets the Construction checkpoints",
-    ),
-    (
-        "set-construction-execution",
-        "sets the Construction execution",
-    ),
-    (
-        "set-construction-verification-command",
-        "sets the Construction verification command",
-    ),
+const NOT_PORTED: [(&str, &str); 7] = [
     ("set-unit-ownership", "sets the units' ownership"),
-    ("set-unit-gate-rhythm", "sets the units' gate rhythm"),
     ("refresh-unit-progress", "refreshes the units' progress"),
-    ("sync-unit-scope-stage", "syncs a unit's scope stage"),
     ("fold-unit-merge", "folds a unit's merge into the state"),
     ("practices-promote", "promotes a practice"),
     ("fork", "forks the state for a bolt"),
@@ -536,6 +536,26 @@ fn transition_of(wf: &Workflow, verb: &str, args: &[String]) -> Verb {
                     // is no stage either way.)
                     single: rest.iter().any(|arg| arg == "--single"),
                 },
+            )?
+        }
+        "set-skeleton-stance" => construction_policy::set_skeleton_stance(wf, args)?,
+        "set-construction-iteration" => construction_policy::set_iteration(wf, args)?,
+        "set-construction-checkpoints" => {
+            construction_policy::set_policy(wf, Policy::Checkpoints, args)?
+        }
+        "set-construction-execution" => {
+            construction_policy::set_policy(wf, Policy::Execution, args)?
+        }
+        "set-construction-verification-command" => {
+            construction_policy::set_verification_command(wf, args)?
+        }
+        "set-unit-gate-rhythm" => construction_policy::set_unit_gate_rhythm(wf, args)?,
+        "sync-unit-scope-stage" => {
+            let unit = flag_value(args.get(1..).unwrap_or_default(), "--unit")?;
+            construction_policy::sync_unit_scope_stage(
+                wf,
+                args.first().map(String::as_str),
+                unit,
             )?
         }
         "acknowledge-compaction" => rows::acknowledge_compaction(wf, args)?,

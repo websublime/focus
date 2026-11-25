@@ -508,6 +508,19 @@ impl Selection {
     }
 }
 
+/// `activeIntentUuid`: the uuid of the active intent of `space` (the active
+/// space when none), from its registry row.
+#[must_use]
+pub fn active_intent_uuid(layout: &Layout, space: Option<&str>) -> Option<String> {
+    let space = space.map_or_else(|| layout.active_space(), str::to_owned);
+    let active = active_intent(layout, &space).ok().flatten()?;
+    read_intent_registry(layout, &space)
+        .into_iter()
+        .find(|row| row_names_record(row, &active))
+        .and_then(|row| row.get("uuid").and_then(Value::as_str).map(str::to_owned))
+        .filter(|uuid| !uuid.is_empty())
+}
+
 #[cfg(test)]
 mod tests {
     use focus_harness::Harness;
