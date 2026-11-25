@@ -3499,16 +3499,30 @@ As decisões vão num campo da linha do gate (`Review Finding Dispositions`), um
 
 O porte deu igual à primeira em todos os checks de comportamento; as três primeiras linhas são da ferramenta de comparação.
 
-**O que a mutação encontrou.** @MUT@
+**O que a mutação encontrou.** 51 mutantes sobre o módulo novo, a marca na admissão e o que os dois gates gravam e levam adiante, julgados pelo diferencial ao vivo e pelo teste de CLI: 40 morreram à primeira. Dos onze que ficaram:
+
+| O que o mutante trocava | O que lhe aconteceu |
+| --- | --- |
+| O reviewer da stage, na aprovação | Buraco: `findings_approved_no_reviewer` (uma stage que ninguém revê, com uma secção `## Review` legível no documento: não grava nada) |
+| O valor inteiro aparado antes de ser lido | Buraco: `findings_rejected_by_id_spaced` (um id sozinho com espaços à volta) |
+| O finding nomeado pelo caminho inteiro, tomado antes dos outros | Buraco: `findings_same_id_twice_named_whole` (dois com o mesmo id: pelo caminho inteiro é o primeiro, pelo nome do ficheiro são dois e recusa-se) |
+| O finding rejeitado e reaberto, dito antes de cada decisão ser pesada | Buraco: um passo em `findings_rejected_twice` (as duas decisões sobre um que o reviewer deu como corrigido: o original diz «duas vezes», e não «use o outro flag») |
+| A ordem em que os dois flags se resolvem | Buraco: dois passos no mesmo check (um de cada flag inválido: a recusa é a do que se rejeita, onde quer que os flags estejam) |
+| A aprovação da pessoa levada para o fecho do workflow | Buraco: `unfinished_recovery_review_approved_last_stage` (a última stage do trabalho, aprovada por cima de uma revisão de recuperação pendente) |
+| A razão aparada outra vez; o seletor igual ao caminho inteiro; o artefacto igual ao nome do ficheiro | Código a mais: o valor inteiro já foi aparado e a razão começa no que não é espaço; o caminho inteiro é encontrado antes de o seletor ser perguntado; um artefacto vem sempre com as pastas. Saíram, e o sítio diz o que o original pergunta a mais |
+| O veredicto ainda a cobrir os outputs, na marca de `noteVerdictNotFinished` | Código a mais: uma aprovação só segue com um veredicto que os cobre, ou por cima de um pedido sem veredicto, que a marca igual. Saiu |
+| `localeCompare` trocado pela ordem de code units, na ordem das decisões | Equivalente por agora: a lista de uma stage é de um só artefacto e um id é `R-` e dígitos. Dito no sítio; deixa de o ser com um gate de várias units |
+
+Os seis buracos repetiram-se até morrerem, com os dois mutantes novos das linhas reescritas.
 
 **Verificado.**
 
 | Verificação | Resultado |
 | --- | --- |
-| Diferencial, os findings num gate | @GF@ |
-| Diferencial, tudo | @ALL@ |
-| Mutação | @MUTROW@ |
-| `cargo test` | @TESTS@ |
+| Diferencial, os findings num gate | 46 checks novos em `state/gates`: a aprovação sobre findings em cada estado, a ordem das decisões, um finding dado como corrigido, a classe de revisão `none`, o registo desaparecido, a secção de uma versão anterior, a stage sem reviewer; o pedido de alterações com um finding nomeado de cada maneira, dois de uma vez, rejeitar e reabrir juntos, e cada recusa (treze valores fora da forma, o que não está lá, o que não serve, duas vezes); a aprovação por cima de um pedido sem veredicto, de uma revisão de recuperação, do `NOT-READY` de ninguém, na última stage, e com a equipa em `strict`; e quatro de ponta a ponta com revisões gravadas pela ferramenta. Saíram de `DEVIATIONS` `review_findings_(rows|section)` e `reject_findings(_with_reviewer)?`; entrou o da linha editada à mão |
+| Diferencial, tudo | 4 382 checks: 4 162 iguais, 220 desvios declarados, nenhum diferente; a gravação (4 276 checks sobre 1 778 árvores) repete-se igual, com seis checks de `log review` regravados pela numeração das tentativas; o fuzz (`--fuzz 600`) dá 600 iguais |
+| Mutação | 51 mutantes: 40 mortos à primeira; dos 11 restantes, 6 buracos fechados com quatro checks e três passos e repetidos até morrerem, 4 de código a mais que saiu, 1 equivalente dito no sítio |
+| `cargo test` | 611 testes (um novo, `a_gate_records_what_the_person_decided_about_findings`: o desvio, duas recusas e o que a aprovação grava); o teste das recusas pelo nome de um gate ficou com os sensores e as units |
 
 ### Fatia 4: a pergunta de recuperação, partida em três
 
