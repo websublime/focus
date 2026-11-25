@@ -72,6 +72,8 @@ fn every_lifecycle_case_gets_upstreams_answer() {
     let (mut spent, mut recovering, mut uncovered, mut unbound, mut budgeted) = (0, 0, 0, 0, 0);
     let (mut series, mut own_work, mut again, mut stopped, mut capped) = (0, 0, 0, 0, 0);
     let (mut joined, mut as_hashed, mut left_to_ask) = (0, 0, 0);
+    let (mut floors, mut unstarted, mut tied, mut later, mut of_the_unit) = (0, 0, 0, 0, 0);
+    let (mut counted_starts, mut ignored_starts) = (0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         let case: Value = focus_js::json::parse(line).unwrap();
@@ -164,6 +166,24 @@ fn every_lifecycle_case_gets_upstreams_answer() {
                         .is_some_and(|file| file.contains("\"pendingAsk\"")),
                 );
             }
+        } else if kind == "run_floor" {
+            // The floor a receipt carries: none yet, a boundary that is
+            // not the first of its kind, boundaries of two shards in one
+            // second, a unit floored on its own, and the stage starts each
+            // flooring counts or leaves out.
+            floors += 1;
+            let floor = out["floor"].as_str().unwrap_or_default();
+            unstarted += usize::from(floor == "unstarted#0");
+            tied += usize::from(floor.starts_with("AMBIGUOUS:"));
+            later += usize::from(
+                !floor.starts_with("AMBIGUOUS:")
+                    && !floor.ends_with("#0")
+                    && !floor.ends_with("#1"),
+            );
+            of_the_unit += usize::from(out["unit_floor"] != out["floor"]);
+            let any = |value: &Value| value.as_array().is_some_and(|list| !list.is_empty());
+            counted_starts += usize::from(any(&out["stage_flooring"]));
+            ignored_starts += usize::from(any(&out["unit_flooring"]));
         } else if kind == "guard_attempt" {
             // The attempt as a guard sees it: a request that waits, one to
             // ask again, a repair the reviewer asked for; the recovery
@@ -398,6 +418,14 @@ fn every_lifecycle_case_gets_upstreams_answer() {
     assert!(
         joined >= 70 && as_hashed >= 800 && left_to_ask >= 240,
         "{joined} {as_hashed} {left_to_ask}"
+    );
+    assert!(
+        floors >= 1300 && unstarted >= 90 && tied >= 90 && later >= 350 && of_the_unit >= 40,
+        "{floors} {unstarted} {tied} {later} {of_the_unit}"
+    );
+    assert!(
+        counted_starts >= 180 && ignored_starts >= 550,
+        "{counted_starts} {ignored_starts}"
     );
     assert!(
         differing.is_empty(),

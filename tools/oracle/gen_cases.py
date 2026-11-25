@@ -5884,6 +5884,68 @@ for _ in range(scale * 130):
     add("review_window", state=rw_state(stage_major=rw.random() < 0.8), slug=slug, per_unit=rw.random() < 0.9, shards=rw_ledger(slug, flooring=rw.choice([1, 1, 2])))
 
 
+# --- run_floor: the floor of a stage's attempt, as the token a receipt carries -
+#
+# A unit's lifecycle receipts carry the last boundary of the stage's attempt
+# when they were written, with its place among the boundaries of its kind
+# (`latestMainWorkflowStageRunFloorFromRows`), and count while the floor read
+# now is that one. The cases are the ledgers of a review's attempt (rows that
+# share instants across shards, changes of Construction policy around starts
+# of the stage), with rejections that name a unit and gates of several stages,
+# read under each flooring, for the stage and for one of its units.
+rf = random.Random(seed * 7919 + 61)
+
+
+def rf_ledger(slug):
+    # (The ledger's builder draws from the review window's own stream: it is lent this one, so that the cases after
+    # these stay the ones they were.)
+    global rw
+    lent, rw = rw, rf
+    try:
+        shards = rw_ledger(slug, flooring=rf.choice([0, 1, 1, 2]))
+    finally:
+        rw = lent
+    # Rejections of a gate of several stages, and of one unit's; and a second creation.
+    extra = []
+    for _ in range(rf.choice([0, 0, 1, 2, 3])):
+        stages = rf.choice([slug, f"{slug}, {rf.choice(RW_SLUGS)}", f"{rf.choice(RW_SLUGS)},{slug}", rf.choice(RW_SLUGS), ""])
+        extra.append(("GATE_REJECTED", rw_fields(("Stage", rf.choice([slug, rf.choice(RW_SLUGS), None])), ("Gate Stages", rf.choice([None, stages])),
+                                                 ("Unit", rf.choice([None, None, rf.choice(RW_UNITS), ""])))))
+    if rf.random() < 0.3:
+        extra.append(("WORKFLOW_STARTED", ""))
+    if rf.random() < 0.4:
+        extra.append(("STAGE_JUMPED", rw_fields(("Target", rf.choice(RW_TARGETS + [slug])))))
+    for kind, fields in extra:
+        at = f"2026-01-05T10:00:{rf.randrange(8):02d}Z"
+        shard = rf.choice(shards)
+        blocks = shard["content"].split("\n---\n")
+        place = rf.randrange(len(blocks))
+        blocks.insert(place, ("" if place else "# AI-DLC Audit Log\n") + f"\n## Row\n**Timestamp**: {at}\n**Event**: {kind}\n{fields}")
+        shard["content"] = "\n---\n".join(blocks)
+    return shards
+
+
+for _ in range(scale * 220):
+    slug = rf.choice(["code-generation", "functional-design", "requirements-analysis", "units-generation"])
+    add("run_floor", slug=slug, shards=rf_ledger(slug), unit_major=rf.random() < 0.5, unit=rf.choice([None, None, "auth", "billing", "ui", "nope"]),
+        unit_receipts=rf.random() < 0.5, unit_scoped=rf.choice([None, None, True, False]))
+# Changes of policy that no order puts first: one written out of step in a shard, and one of another shard between
+# the two (each is plainly before the next, all the way round). A start before them reads every one of them.
+def rf_round(found):
+    row = lambda at, kind, fields: f"\n## Row\n**Timestamp**: 2026-01-05T10:00:{at:02d}Z\n**Event**: {kind}\n{fields}\n---\n"
+    change = lambda at, found: row(at, *rw_policy(found, "Construction Iteration"))
+    return [{"shard": "laptop-abc123.md", "content": "# AI-DLC Audit Log\n" + row(0, "STAGE_STARTED", rw_fields(("Stage", "code-generation"))) + change(5, found[0]) + change(3, found[1])},
+            {"shard": "desktop-def456.md", "content": "# AI-DLC Audit Log\n" + change(4, found[2])}]
+
+
+for found in ((False, True, True), (True, False, True), (True, True, False), (True, True, True), (False, False, False)):
+    for unit_major in (True, False):
+        add("run_floor", slug="code-generation", shards=rf_round(found), unit_major=unit_major, unit=None, unit_receipts=not unit_major, unit_scoped=None)
+# A ledger with nothing, and one with nothing of the stage.
+add("run_floor", slug="code-generation", shards=[], unit_major=False, unit=None, unit_receipts=False, unit_scoped=None)
+add("run_floor", slug="code-generation", shards=[{"shard": "laptop-abc123.md", "content": "# AI-DLC Audit Log\n\n## Row\n**Timestamp**: 2026-01-05T10:00:00Z\n**Event**: STAGE_STARTED\n**Stage**: functional-design\n\n---\n"}],
+    unit_major=False, unit="auth", unit_receipts=True, unit_scoped=True)
+
 # --- review_completion: a review's completion against its request -------------
 #
 # A REVIEW_COMPLETED row answers a request when it echoes what the request

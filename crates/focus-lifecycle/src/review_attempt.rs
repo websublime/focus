@@ -180,7 +180,7 @@ fn said<'a>(block: &'a str, name: &str) -> Option<&'a str> {
 }
 
 /// `constructionPolicyRowComplete`.
-fn policy_row_complete(row: &ShardEvent) -> bool {
+pub(crate) fn policy_row_complete(row: &ShardEvent) -> bool {
     matches!(
         block_field(&row.block, "Field"),
         Some("Construction Iteration" | "Construction Checkpoints" | "Construction Execution")
@@ -196,7 +196,7 @@ fn policy_row_complete(row: &ShardEvent) -> bool {
 
 /// `constructionPolicyFoundUnitMajor`: whether a recorded change of policy
 /// found unit-major flooring in force before it.
-fn policy_found_unit_major(row: &ShardEvent) -> bool {
+pub(crate) fn policy_found_unit_major(row: &ShardEvent) -> bool {
     let before = |field: &str| {
         if block_field(&row.block, "Field") == Some(field) {
             block_field(&row.block, "Previous Value")
@@ -212,7 +212,7 @@ fn policy_found_unit_major(row: &ShardEvent) -> bool {
 /// unit-major flooring was in force, by their place in `rows`. A unit's
 /// stage-major floor leaves them out, so a switch back keeps the units that
 /// were finished under unit-major.
-fn starts_under_unit_flooring(rows: &[ShardEvent], graph: &[Stage]) -> Vec<bool> {
+pub(crate) fn starts_under_unit_flooring(rows: &[ShardEvent], graph: &[Stage]) -> Vec<bool> {
     let mut ignored = vec![false; rows.len()];
     let changes: Vec<&ShardEvent> = rows
         .iter()
