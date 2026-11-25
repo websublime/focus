@@ -864,21 +864,7 @@ pub fn resume(wf: &Workflow) -> Result<Value> {
     };
     let current = field("Current Stage", "unknown");
     let gate_state = slug_state(&content, &current).map_or("unknown", CheckboxState::name);
-    let audit = wf.audit_text();
-    let mut compaction_pending = false;
-    if !audit.is_empty() {
-        let lines: Vec<&str> = audit.split('\n').collect();
-        let tail = lines[lines.len().saturating_sub(400)..].join("\n");
-        if let Some(at) = tail.rfind("**Event**: SESSION_COMPACTED") {
-            let after = &tail[at..];
-            let activity = focus_js::re::test(
-                r"\*\*Event\*\*: (STAGE_STARTED|STAGE_COMPLETED|GATE_APPROVED|SESSION_RESUMED|RECOVERY_COMPLETED)",
-                "",
-                after,
-            );
-            compaction_pending = !activity;
-        }
-    }
+    let compaction_pending = crate::rows::compaction_pending(&wf.audit_text());
     let mut out = Map::new();
     out.insert("resumed".to_owned(), json!(true));
     out.insert("current_stage".to_owned(), json!(current));

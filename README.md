@@ -60,6 +60,7 @@ focus engine state get "Current Stage" # one field of the active record's state 
 focus engine state count completed
 FOCUS_ALLOW_DIRECT_STATE_TRANSITIONS=1 focus engine state set Scope=bugfix Completed=+1
 focus engine state resume              # where the work stands, as JSON
+focus engine state lookup next-stage intent-capture feature   # ask the stage graph and the scopes
 focus engine state advance intent-capture       # close a stage, open the next in-scope one
 focus engine state skip market-research --route --reason "no market to research"
 focus engine state complete-workflow feedback-optimization --reason "done"
