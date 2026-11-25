@@ -1,14 +1,18 @@
-//! The verbs of `state` that only leave a row: `acknowledge-compaction`
-//! and `practices-event` (`handleAcknowledgeCompaction` and
-//! `handlePracticesEvent`, `aidlc-state.ts` L7 803 and L7 867).
+//! The verbs of `state` that only leave a row: `acknowledge-compaction`,
+//! `practices-event` and `reuse-artifact` (`handleAcknowledgeCompaction`,
+//! `handlePracticesEvent` and `handleReuseArtifact`, `aidlc-state.ts`
+//! L7 803, L7 867 and L8 248).
 //!
 //! Upstream routes these through its tool so that every row of the ledger
 //! is written by code, never by a stage's prose.
 
-use focus_js::{EngineError, Result, re, text as js_text};
+use focus_evidence::pipeline;
+use focus_js::{EngineError, Result, bail, re, text as js_text};
 use focus_state::fields::get_field;
 use serde_json::{Value, json};
 
+use crate::artifacts::codekb_repo_name;
+use crate::registry::intent_repos;
 use crate::workflow::Workflow;
 
 /// Whether the latest `SESSION_COMPACTED` of the ledger's tail is still
@@ -140,4 +144,129 @@ pub fn practices_event(wf: &Workflow, args: &[String]) -> Result<Value> {
     let held = wf.lock("recording a practices event")?;
     wf.emit_plain(&held, event, &row)?;
     Ok(json!({ "emitted": event, "fields_count": fields.len() }))
+}
+
+/// What `reuse-artifact` was asked.
+#[derive(Debug, Clone, Copy)]
+pub struct Reuse<'a> {
+    pub slug: &'a str,
+    pub decision: &'a str,
+    pub artifacts: &'a str,
+    pub repo: Option<&'a str>,
+    /// `--single`: the stage is being run by itself.
+    pub single: bool,
+}
+
+/// `handleReuseArtifact`: the person decided what becomes of artifacts a
+/// stage already has (keep them, change them, or build them again), and
+/// `ARTIFACT_REUSED` records it.
+///
+/// For a stage run by itself the row carries the run, and is taken only
+/// while that run is open. Keeping the CodeKB of a `reverse-engineering`
+/// run by itself is checked further: the repository named must be the
+/// record's, and the artifacts exactly its store.
+///
+/// # Errors
+///
+/// A decision that is none; a stage the install does not have; a stage
+/// that is not being run by itself; a repository or a store that is not
+/// the record's. And, by name, the last question upstream asks of a kept
+/// CodeKB: whether the store is current, which is read off the scope the
+/// scan recorded (the reverse-engineering scan, a later slice).
+pub fn reuse_artifact(wf: &Workflow, ask: Reuse<'_>) -> Result<Value> {
+    let Reuse {
+        slug,
+        decision,
+        artifacts,
+        single,
+        ..
+    } = ask;
+    if !["keep", "modify", "redo"].contains(&decision) {
+        bail!("Invalid decision: {decision}. Must be keep, modify, or redo.");
+    }
+    wf.stage(slug)?;
+    let repos = || {
+        intent_repos(
+            &wf.layout,
+            &wf.selection.space,
+            wf.selection.intent.as_deref(),
+        )
+    };
+    // With no registered repository the project's own store goes by the
+    // name `codekb-path` prints, and that name as `--repo` is the root.
+    let repo = match ask.repo.filter(|repo| !repo.is_empty()) {
+        Some(named)
+            if slug == "reverse-engineering"
+                && repos()?.is_empty()
+                && named == codekb_repo_name(wf)? =>
+        {
+            None
+        }
+        named => named,
+    };
+    if single {
+        let events = pipeline::ordered(wf.events());
+        if !pipeline::single_stage_attempt_is_open(&events, slug, &wf.install.graph) {
+            bail!(
+                "Cannot record isolated reuse for \"{slug}\": run next --stage {slug} --single first."
+            );
+        }
+        if slug == "reverse-engineering" && decision == "keep" {
+            let repos = repos()?;
+            match repo {
+                None if !repos.is_empty() => bail!(
+                    "Cannot record isolated reverse-engineering reuse: this intent records repository identity; pass --repo <repo>."
+                ),
+                Some(repo) if repos.is_empty() => {
+                    let _ = repo;
+                    bail!(
+                        "Cannot record isolated reverse-engineering reuse: this intent has no registered repo identity; omit --repo."
+                    )
+                }
+                Some(repo) if !repos.iter().any(|known| known == repo) => bail!(
+                    "Cannot record isolated reverse-engineering reuse: repo \"{repo}\" is not registered for this intent ({}).",
+                    repos.join(", ")
+                ),
+                _ => {}
+            }
+            let store = match repo {
+                Some(repo) => repo.to_owned(),
+                None => codekb_repo_name(wf)?,
+            };
+            let expected = format!("focus/spaces/{}/codekb/{store}/", wf.selection.space);
+            if js_text::trim(artifacts).replace('\\', "/") != expected {
+                bail!(
+                    "Cannot record isolated reverse-engineering reuse: --artifacts must be the exact current store {expected}."
+                );
+            }
+            bail!(
+                "Keeping the CodeKB of a reverse-engineering run by itself asks whether the store \"{store}\" is current, which is read off the scope its scan recorded: Focus does not read that yet (the scan arrives with a later slice)."
+            );
+        }
+    }
+    let mut fields = vec![
+        ("Stage", slug.to_owned()),
+        ("Decision", decision.to_owned()),
+        ("Artifacts", artifacts.to_owned()),
+    ];
+    if let Some(repo) = repo {
+        fields.push(("Repo", repo.to_owned()));
+    }
+    if single {
+        fields.push(("Workflow", format!("single-stage:{slug}")));
+    }
+    let held = wf.lock("recording a reused artifact")?;
+    wf.emit(&held, "ARTIFACT_REUSED", &fields)?;
+    let mut said = serde_json::Map::new();
+    said.insert("slug".to_owned(), json!(slug));
+    said.insert("decision".to_owned(), json!(decision));
+    said.insert("artifacts".to_owned(), json!(artifacts));
+    if let Some(repo) = repo {
+        said.insert("repo".to_owned(), json!(repo));
+    }
+    if single {
+        said.insert("single".to_owned(), json!(true));
+    }
+    said.insert("emitted".to_owned(), json!("ARTIFACT_REUSED"));
+    Ok(Value::Object(said))
 }

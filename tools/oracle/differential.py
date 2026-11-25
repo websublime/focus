@@ -1385,6 +1385,8 @@ def normalise_audit(text, tree, engine):
     text = without_tree(text, tree)
     # A handoff named after the project's own folder, which each engine's tree names its own way.
     text = text.replace(f"developer-scan-{os.path.basename(tree.root)}.md", "developer-scan-<root>.md")
+    # (And the repository a project with none registered goes by, where a command says or records it.)
+    text = re.sub(r'(\*\*Repo\*\*: |"repo":"|codekb/|--repo |reuse for \\?"|store \\?")' + re.escape(os.path.basename(tree.root)) + r'(?=["/\\ \n]|$)', r"\1<root>", text)
     if engine == "ts":
         # Bun reads the working directory's package.json as it starts, and says on standard error what it
         # thinks of one it cannot parse; that is the runtime, not the tool.
@@ -2648,8 +2650,13 @@ DEVIATIONS.update({
         "upstream passes the verb through the state-transition fence (standing aside, with a GUARD_STOOD_ASIDE row) "
         "and then runs it or prints its usage; focus refuses the verb by name, with no fence consulted, since it "
         "does not have it yet",
+    r"state/reuse/single_codekb_store_(not_current|asked)":
+        "keeping the CodeKB of a reverse-engineering stage run by itself: after the repository and the store are "
+        "checked, upstream asks whether the store is CURRENT, from the scope its scan recorded, and whether its "
+        "artifact set is whole; focus refuses the question by name until it reads a scan (the reverse-engineering "
+        "scan, with the orchestrator)",
     r"state/usage/(none|unknown)":
-        "upstream's usage lists its 33 verbs, Focus's the eighteen it has",
+        "upstream's usage lists its 33 verbs, Focus's the nineteen it has",
     "state/lookup/names_of_an_object":
         "upstream looks a scope and a phase up in plain objects, so the names every object has (constructor, "
         "__proto__, toString) are found there: validate-phase falls over on them, first-in-phase fails as on an "
@@ -2940,6 +2947,57 @@ def state_checks():
     check_("compaction/no_current_stage", with_rows(compacted, state=CREATED_STATE.replace("- **Current Stage**: intent-capture", "- **Current Stage**: ")), [ack("--choice", "review")])
     check_("compaction/archived", with_rows(compacted, state=CREATED_STATE.replace("- **Status**: Running", "- **Status**: Archived")), [ack("--choice", "review")])
     check_("compaction/no_record", CLONE, [ack("--choice", "review"), ack()])
+
+    # reuse-artifact: what becomes of artifacts a stage already has.
+    reuse = lambda slug, decision, artifacts, *more: ["reuse-artifact", slug, "--decision", decision, "--artifacts", artifacts, *more]
+    check_("reuse/usage", created(), [["reuse-artifact"], ["reuse-artifact", "intent-capture"], ["reuse-artifact", "intent-capture", "--decision", "keep"], ["reuse-artifact", "intent-capture", "--artifacts", "a.md"],
+                                      ["reuse-artifact", "intent-capture", "--decision"], ["reuse-artifact", "intent-capture", "--decision", "--artifacts", "a.md"], reuse("intent-capture", "", "a.md"),
+                                      reuse("intent-capture", "keep", ""), reuse("intent-capture", "nope", "a.md"), reuse("nope", "keep", "a.md"), reuse("1.1", "keep", "a.md"), reuse("intent-capture", "Keep", "a.md"),
+                                      reuse("intent-capture", "keep", "a.md", "--repo"), ["reuse-artifact", "--decision", "keep", "--artifacts", "a.md"]])
+    for decision in ("keep", "modify", "redo"):
+        check_(f"reuse/{decision}", created(), [reuse("intent-capture", decision, "intent-statement.md, stakeholder-map.md")])
+    check_("reuse/repo", created(), [reuse("intent-capture", "keep", "a.md", "--repo", "app"), reuse("intent-capture", "keep", "a.md", "--repo", ""), reuse("reverse-engineering", "modify", "a.md", "--repo", "app")])
+    check_("reuse/flags_in_any_order", created(), [["reuse-artifact", "intent-capture", "--repo", "app", "--artifacts", " a.md ", "--decision", "redo", "more"],
+                                                   ["reuse-artifact", "intent-capture", "--decision", "nope", "--decision", "keep", "--artifacts", "a.md"]])
+    # (With no registered repository, the project's own store goes by the folder's name, and that name is the root.)
+    check_("reuse/repo_named_as_the_project", created(), [reuse("reverse-engineering", "keep", "a.md", "--repo", "{N}")])
+    # (Where the folder's name is said or recorded, the check is compared live: a replay's folder has another name.)
+    UNRECORDED.update(f"state/reuse/{name}" for name in ("repo_named_as_the_project_kept", "repo_named_as_the_project_with_repos", "single_codekb_no_repos", "single_codekb_store_asked"))
+    check_("reuse/repo_named_as_the_project_kept", created(), [reuse("intent-capture", "keep", "a.md", "--repo", "{N}")])
+    reg = lambda listed: CREATED_REGISTRY.replace('"status": "in-flight"', '"status": "in-flight",\n    "repos": ' + listed)
+    check_("reuse/repo_named_as_the_project_with_repos", created(registry=reg('["{N}"]')), [reuse("reverse-engineering", "keep", "a.md", "--repo", "{N}")])
+    check_("reuse/repos_registered", created(registry=reg('["app", "web"]')), [reuse("reverse-engineering", "keep", "a.md", "--repo", "app"), reuse("reverse-engineering", "keep", "a.md")])
+    check_("reuse/archived", created(CREATED_STATE.replace("- **Status**: Running", "- **Status**: Archived")), [reuse("intent-capture", "keep", "a.md")])
+    check_("reuse/no_record", CLONE, [reuse("intent-capture", "keep", "a.md")])
+    # A stage run by itself: the row carries the run, and is taken only while that run is open.
+    alone = lambda stage, minute=5, *more: block("STAGE_STARTED", T(minute), f"**Stage**: {stage}", f"**Workflow**: single-stage:{stage}", *more)
+    ended = lambda stage, minute=6, *more: block("STAGE_COMPLETED", T(minute), f"**Stage**: {stage}", f"**Workflow**: single-stage:{stage}", *more)
+    by_itself = [reuse("market-research", "keep", "a.md", "--single"), reuse("market-research", "redo", "a.md", "--single", "--repo", "app")]
+    check_("reuse/single_not_started", with_rows(), by_itself)
+    check_("reuse/single_open", with_rows(alone("market-research")), by_itself)
+    check_("reuse/single_closed", with_rows(alone("market-research"), ended("market-research")), by_itself)
+    check_("reuse/single_started_again", with_rows(alone("market-research"), ended("market-research"), alone("market-research", 7)), by_itself)
+    check_("reuse/single_of_another_stage", with_rows(alone("intent-capture")), by_itself)
+    check_("reuse/single_the_ordinary_run", with_rows(block("STAGE_STARTED", T(5), "**Stage**: market-research")), by_itself)
+    check_("reuse/single_closed_by_the_ordinary_run", with_rows(alone("market-research"), block("STAGE_COMPLETED", T(6), "**Stage**: market-research")), by_itself)
+    check_("reuse/single_closed_at_the_same_instant", with_rows(alone("market-research"), ended("market-research", 5)), by_itself)
+    check_("reuse/single_closed_before_it_started", with_rows(ended("market-research", 4), alone("market-research")), by_itself)
+    other = f"{CREATED_DIR}/audit/desktop-def456.md"
+    check_("reuse/single_closed_at_the_same_instant_in_another_shard", created(CREATED_STATE, CREATED_AUDIT + alone("market-research"), **{other: TITLE + ended("market-research", 5)}), by_itself)
+    check_("reuse/single_started_in_two_shards", created(CREATED_STATE, CREATED_AUDIT + alone("market-research"), **{other: TITLE + alone("market-research")}), by_itself)
+    check_("reuse/single_started_twice_at_one_instant", with_rows(alone("market-research"), ended("market-research", 5), alone("market-research", 5)), by_itself)
+    # (Keeping the CodeKB of a reverse-engineering run by itself: the repository named must be the record's, and
+    # the artifacts exactly its store. What upstream asks last, whether the store is current, focus refuses by name.)
+    re_alone = alone("reverse-engineering")
+    kb = lambda repo, *more: reuse("reverse-engineering", "keep", f"aidlc/spaces/default/codekb/{repo}/", "--single", *more)
+    check_("reuse/single_codekb_repos", created(CREATED_STATE, CREATED_AUDIT + re_alone, registry=reg('["app", "web"]')),
+           [kb("app"), kb("app", "--repo", "nope"), reuse("reverse-engineering", "keep", "elsewhere/", "--single", "--repo", "app"),
+            reuse("reverse-engineering", "keep", " aidlc\\spaces\\default\\codekb\\app\\ ", "--single", "--repo", "nope"), reuse("reverse-engineering", "modify", "elsewhere/", "--single"),
+            reuse("reverse-engineering", "redo", "elsewhere/", "--single", "--repo", "nope")])
+    check_("reuse/single_codekb_no_repos", created(CREATED_STATE, CREATED_AUDIT + re_alone), [kb("app", "--repo", "app"), reuse("reverse-engineering", "keep", "elsewhere/", "--single"),
+                                                                                              reuse("reverse-engineering", "keep", "aidlc/spaces/default/codekb/{N}", "--single")])
+    check_("reuse/single_codekb_store_not_current", created(CREATED_STATE, CREATED_AUDIT + re_alone, registry=reg('["app"]')), [kb("app", "--repo", "app")])
+    check_("reuse/single_codekb_store_asked", created(CREATED_STATE, CREATED_AUDIT + re_alone), [kb("{N}")])
 
     # practices-event: the three rows the practices-discovery stage leaves, with the fields it gives.
     says = lambda kind, *fields: ["practices-event", "--type", kind, *[part for field in fields for part in ("--field", field)]]
