@@ -7324,12 +7324,12 @@ def review_brief_checks():
     briefed("review/not_ready_findings", not_ready, findings=[finding(1), finding(2, severity="Minor"), finding(3, severity="Critical")])
     briefed("review/findings_of_each_status", not_ready, findings=[finding(1), finding(2, "Unresolved"), finding(3, "Resolved"), finding(4, "Accepted risk"), finding(5, "Rejected: not ours")])
     briefed("review/nothing_open", ready, findings=[finding(4, "Accepted risk"), finding(5, "Rejected: not ours")])
-    briefed("review/nothing_open_one", ready, findings=[finding(4, "Accepted risk")])
     briefed("review/legacy_section_unreadable", **{statement: legacy.replace("| R-01 | Major |", "| X-01 | Major |")})
     briefed("review/one_fixed", ready, findings=[finding(1)], derived=[fixed(1)])
     briefed("review/two_fixed", ready, findings=[finding(1), finding(2)], derived=[fixed(1), fixed(2)])
     briefed("review/one_fixed_one_open", not_ready, findings=[finding(1), finding(2)], derived=[fixed(1), finding(2)])
     briefed("review/decided", not_ready, findings=[finding(1), finding(2)], more=[after(decided("Accepted risk"))])
+    briefed("review/decided_the_only_one", not_ready, findings=[finding(1)], more=[after(decided("Accepted risk"))])
     briefed("review/legacy_section", **{statement: legacy})
     briefed("review/legacy_section_unreadable_table", **{statement: legacy.replace("| R-01 | Major |", "| R-01 | Huge |")})
     briefed("review/unit_of_a_stage_reviewed_as_one", not_ready, findings=[finding(1)], steps=[brief("first", "--unit", "api"), brief("first", "--unit", ""), brief("first", "--unit", "a/b")])
@@ -7348,10 +7348,14 @@ def review_brief_checks():
     at_the_stage = REVIEWED(CREATED_STATE).replace("- [ ] units-generation \u2014 EXECUTE", "- [ ] units-generation \u2014 SKIP")
     assert at_the_stage != REVIEWED(CREATED_STATE)
     fd_kept = f"{CREATED_DIR}/construction/functional-design/functional-spec.md"
-    check_("review/fallback_units_kept_at_the_stage", tree(at_the_stage, **{fd_kept: "# Spec\n"}), [brief("first", *gave_up, stage="functional-design"), brief("first", "--unit", "", *gave_up, stage="functional-design")])
-    check_("summary/units_kept_at_the_stage", tree(at_the_stage, **{fd_kept: "# Spec\n"}), [asks(SUMMARY_FILE, stage="functional-design"), asks(SUMMARY_FILE, "--unit", "", stage="functional-design"),
-                                                                                           asks(SUMMARY_FILE, "--unit", "api", stage="functional-design")])
+    fd_gave_up = [brief("first", *gave_up, stage="functional-design"), brief("first", "--unit", "", *gave_up, stage="functional-design")]
+    fd_asks = [asks(SUMMARY_FILE, stage="functional-design"), asks(SUMMARY_FILE, "--unit", "", stage="functional-design"), asks(SUMMARY_FILE, "--unit", "api", stage="functional-design")]
+    check_("review/fallback_units_kept_at_the_stage", tree(at_the_stage, **{fd_kept: "# Spec\n"}), fd_gave_up)
+    check_("review/fallback_units_kept_at_the_stage_nothing_written", tree(at_the_stage), fd_gave_up)
+    check_("summary/units_kept_at_the_stage", tree(at_the_stage, **{fd_kept: "# Spec\n"}), fd_asks)
+    check_("summary/units_kept_at_the_stage_nothing_written", tree(at_the_stage), fd_asks)
     check_("context/units_kept_at_the_stage", tree(at_the_stage, **{fd_kept: legacy}), [fd, fd + ["--unit", ""], fd + ["--unit", "api"]])
+    check_("context/units_kept_at_the_stage_reviewed", tree(at_the_stage), [fd, fd + ["--unit", ""]], edits=[reviewed_by_hand(not_ready, findings=[finding(1)], stage="functional-design")])
     # The brief is kept as printed, under its own digest; not for a unit whose name is none, nor behind a link.
     briefed("review/kept_twice", not_ready, findings=[finding(1)], steps=[brief("first"), brief("first"), brief("revision")])
     # (The gate that opens next names the brief the person was shown.)
@@ -7403,6 +7407,8 @@ def review_brief_checks():
             more=[after(of_unit("REVIEW_COMPLETED", 5, "**Verdict**: READY", "**Unit Source Fingerprint**: " + "a" * 64), of_unit("REVIEW_REQUESTED", 9, *REVIEW_RECOVERY, "**Unit Source Fingerprint**: " + "b" * 64))])
     # (Each kind of row and each window on its own, where no other write says the same.)
     briefed("review/stale_created", not_ready, findings=[finding(1)], steps=[brief("stale")], more=[after(wrote(5, stakeholders, "ARTIFACT_CREATED"))])
+    briefed("review/stale_written_named_from_the_project", not_ready, findings=[finding(1)], steps=[brief("stale")],
+            more=[after(wrote(5, "<project-dir>/" + stakeholders), wrote(6, "<project-dir>\\" + SUMMARY_FILE), wrote(7, "<project-dir>"), wrote(8, "<project-dir>x/" + statement))])
     briefed("review/stale_removed", not_ready, findings=[finding(1)], steps=[brief("stale")], more=[after(wrote(5, statement, "ARTIFACT_REMOVED"))])
     other_shard = f"{CREATED_DIR}/audit/desktop-def456.md"
     briefed("review/stale_written_before_the_floor_in_another_shard", not_ready, findings=[finding(1)], steps=[brief("stale")],
@@ -7431,6 +7437,7 @@ def review_brief_checks():
            edits=[by_unit("auth"), after(wrote(5, spec("api")), wrote(6, manifest_of("api", "functional-design"))), by_unit("api", 2, 10)])
     check_("review/stale_units_written_since", tree(**{**units_at, **planned}), fd_brief,
            edits=[by_unit("auth"), by_unit("api", 2, 5), after(wrote(15, spec("api")), wrote(16, manifest_of("auth", "functional-design")), wrote(17, manifest_of("web", "functional-design")))])
+    check_("review/stale_units_manifest_of_its_own", tree(**{**units_at, **planned}), fd_brief, edits=[by_unit("auth"), by_unit("api", 2, 5), after(wrote(15, manifest_of("api", "functional-design")))])
     check_("review/stale_units_manifest_of_another_unit", tree(**{**units_at, **planned}), fd_brief, edits=[by_unit("api"), after(wrote(5, manifest_of("web", "functional-design")))])
     # (A backward jump is where the attempt starts: what it left to check again stays until its own stage's gate
     # takes it, and is said only where it touches this stage.)
