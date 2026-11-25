@@ -5,7 +5,6 @@
 //! Upstream routes these through its tool so that every row of the ledger
 //! is written by code, never by a stage's prose.
 
-use focus_js::order::array_index;
 use focus_js::{EngineError, Result, re, text as js_text};
 use focus_state::fields::get_field;
 use serde_json::{Value, json};
@@ -129,18 +128,11 @@ pub fn practices_event(wf: &Workflow, args: &[String]) -> Result<Value> {
             )));
         }
     };
-    // The fields as upstream's object lists them: a key that is an array
-    // index first, by its number, then the others as they were given. The
-    // writer refuses a name that starts with no letter, so the order shows
-    // only in which of two such names is refused. (And `__proto__` names no
-    // key of an object: it is dropped, uncounted, where the writer would
-    // have refused it.)
+    // `__proto__` names no key of an object of upstream's: it is dropped,
+    // uncounted, where the ledger's writer would have refused the name. (The
+    // writer itself lists the fields as an object does, a key that is a
+    // number first.)
     fields.retain(|(key, _)| key != "__proto__");
-    let (mut indexed, named): (Vec<_>, Vec<_>) = fields
-        .into_iter()
-        .partition(|(key, _)| array_index(key).is_some());
-    indexed.sort_by_key(|(key, _)| array_index(key));
-    let fields: Vec<(String, String)> = indexed.into_iter().chain(named).collect();
     let row: Vec<(&str, String)> = fields
         .iter()
         .map(|(key, value)| (key.as_str(), value.clone()))

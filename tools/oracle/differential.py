@@ -2905,7 +2905,7 @@ def state_checks():
     check_("lookup/first_in_phase", created(), [look("first-in-phase", phase, scope) for phase, scope in (("ideation", "feature"), ("IDEATION", "feature"), ("construction", "feature"), ("construction", "bugfix"),
                                                                                                            ("operation", "bugfix"), ("initialization", "feature"), ("3", "feature"), ("nope", "feature"),
                                                                                                            ("ideation", "nope"), ("", "feature"), ("ideation", ""))])
-    check_("lookup/validate_phase", created(), [look("validate-phase", phase) for phase in ("ideation", "IDEATION", "Inception", "0", "1", "2", "3", "4", "5", "nope", "", " ideation", "01")])
+    check_("lookup/validate_phase", created(), [look("validate-phase", phase) for phase in ("ideation", "IDEATION", "Inception", "0", "1", "2", "3", "4", "5", "nope", "Nope", "", " ideation", "01")])
     check_("lookup/archived", created(CREATED_STATE.replace("- **Status**: Running", "- **Status**: Archived")), [look("phase-of", "intent-capture"), look("next-stage", "intent-capture", "feature")])
     assert "- **Status**: Running" in CREATED_STATE
     check_("lookup/no_record", CLONE, [look("phase-of", "intent-capture"), look("stages-in-scope", "bugfix"), look("validate-phase", "1"), look("nope")])
@@ -2917,7 +2917,7 @@ def state_checks():
     compacted = block("SESSION_COMPACTED", T(5), "**Stage**: intent-capture")
     ack = lambda *args: ["acknowledge-compaction", *args]
     with_rows = lambda *rows, state=CREATED_STATE: created(state, CREATED_AUDIT + "".join(rows))
-    check_("compaction/usage", with_rows(compacted), [ack(), ack("--choice"), ack("--choice", ""), ack("--choice", "nope"), ack("continue"), ack("--choice", "Continue")])
+    check_("compaction/usage", with_rows(compacted), [ack(), ack("--choice"), ack("--choice", ""), ack("--choice", "nope"), ack("continue"), ack("--choice", "Continue"), ack("--choice", "--choice", "review")])
     for choice in ("continue", "review", "restart"):
         check_(f"compaction/acknowledged_{choice}", with_rows(compacted), [ack("--choice", choice), ack("--choice", choice), ["resume"]])
     check_("compaction/acknowledged_last_choice", with_rows(compacted), [ack("--choice", "nope", "--choice", "review", "more")])
@@ -2926,15 +2926,25 @@ def state_checks():
         check_(f"compaction/followed_by_{event.lower()}", with_rows(compacted, block(event, T(6), "**Stage**: intent-capture")), [ack("--choice", "continue")])
     check_("compaction/followed_by_other_rows", with_rows(compacted, block("ARTIFACT_UPDATED", T(6), "**File**: a.md"), block("GATE_REJECTED", T(7), "**Stage**: intent-capture")), [ack("--choice", "continue")])
     check_("compaction/twice", with_rows(compacted, block("STAGE_STARTED", T(6), "**Stage**: intent-capture"), compacted.replace(T(5), T(8))), [ack("--choice", "continue")])
-    check_("compaction/far_behind", with_rows(compacted, *[block("ARTIFACT_UPDATED", T(6, n % 60), f"**File**: a{n}.md") for n in range(90)]), [ack("--choice", "continue")])
-    check_("compaction/just_in_reach", with_rows(compacted, *[block("ARTIFACT_UPDATED", T(6, n % 60), f"**File**: a{n}.md") for n in range(60)]), [ack("--choice", "continue")])
+    # (Only the last 400 lines of the ledger are read: a compaction on the 400th from the end is seen, and one a
+    # line further back is not.)
+    filler = "".join(block("ARTIFACT_UPDATED", T(6, n % 60), f"**File**: a{n}.md") for n in range(90))
+    def reach(lines):
+        # The ledger, cut so that the compaction's `Event` line is `lines` lines from its end.
+        text = CREATED_AUDIT + compacted + filler
+        rows = text.split("\n")
+        at = max(index for index, row in enumerate(rows) if row == "**Event**: SESSION_COMPACTED")
+        return created(CREATED_STATE, "\n".join(rows[:at + lines]))
+    for lines in (399, 400, 401, 402):
+        check_(f"compaction/{lines}_lines_back", reach(lines), [ack("--choice", "continue")])
     check_("compaction/no_current_stage", with_rows(compacted, state=CREATED_STATE.replace("- **Current Stage**: intent-capture", "- **Current Stage**: ")), [ack("--choice", "review")])
     check_("compaction/archived", with_rows(compacted, state=CREATED_STATE.replace("- **Status**: Running", "- **Status**: Archived")), [ack("--choice", "review")])
     check_("compaction/no_record", CLONE, [ack("--choice", "review"), ack()])
 
     # practices-event: the three rows the practices-discovery stage leaves, with the fields it gives.
     says = lambda kind, *fields: ["practices-event", "--type", kind, *[part for field in fields for part in ("--field", field)]]
-    check_("practices/usage", created(), [["practices-event"], ["practices-event", "--type"], ["practices-event", "--field", "A: b"], says("nope"), says("affirmed", "A: b"), says(""), ["practices-event", "discovered"]])
+    check_("practices/usage", created(), [["practices-event"], ["practices-event", "--type"], ["practices-event", "--field", "A: b"], says("nope"), says("affirmed", "A: b"), says(""), ["practices-event", "discovered"], ["practices-event", "--type", "--type", "empty"],
+                                          ["practices-event", "--field", "--type", "discovered"]])
     for kind in ("discovered", "override", "empty"):
         check_(f"practices/{kind}", created(), [says(kind, "Reason: bolt-plan-marker-conflict", "Practices Stance: tdd", "Bolt slug: api")])
     check_("practices/no_fields", created(), [says("discovered"), says("override"), says("empty")])

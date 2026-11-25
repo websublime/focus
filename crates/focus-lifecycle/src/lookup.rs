@@ -75,12 +75,11 @@ pub fn lookup(wf: &Workflow, args: &[String]) -> Result<String> {
                 return Err(usage("first-in-phase <phase> <scope>"));
             };
             let phase = phase.to_lowercase();
-            let found = install.definition(scope).and_then(|_| {
+            // (A scope the install does not have has no stages to walk.)
+            let found =
                 subgraph_for_scope(scope, &install.valid_scopes, &install.grid, &install.graph)
-                    .ok()?
-                    .into_iter()
-                    .find(|stage| stage.phase == phase)
-            });
+                    .ok()
+                    .and_then(|path| path.into_iter().find(|stage| stage.phase == phase));
             Ok(found.map_or("none", |stage| stage.slug.as_str()).to_owned())
         }
         "validate-stage" => {
