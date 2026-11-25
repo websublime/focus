@@ -81,6 +81,8 @@ The state file of the active record, as data.
   revise <slug>            Re-enter the gate after a revision
   park                     Stop the work where it is
   unpark                   Take parked work up again
+  reuse-artifact <slug> --decision <keep|modify|redo> --artifacts <csv> [--repo <repo>] [--single]
+                           Record what becomes of artifacts a stage already has
   acknowledge-compaction --choice <continue|review|restart>
                            Record what the person chose after a compaction
   practices-event --type <discovered|override|empty> [--field \"Key: Value\"]...
@@ -94,10 +96,10 @@ A state is one of pending, in-progress, awaiting-approval, revising,
 completed, skipped. Writes are the engine's: set FOCUS_ALLOW_DIRECT_STATE_TRANSITIONS=1
 to make one by hand.";
 
-const USAGE: &str = "Usage: focus engine state <subcommand>. Valid: get, set, checkbox, count, advance, finalize, complete-workflow, gate-start, approve, reject, revise, skip, resume, park, unpark, acknowledge-compaction, practices-event, lookup. Run with --help for detail.";
+const USAGE: &str = "Usage: focus engine state <subcommand>. Valid: get, set, checkbox, count, advance, finalize, complete-workflow, gate-start, approve, reject, revise, skip, resume, park, unpark, acknowledge-compaction, practices-event, reuse-artifact, lookup. Run with --help for detail.";
 
 /// The verbs Focus has.
-const VERBS: [&str; 18] = [
+const VERBS: [&str; 19] = [
     "get",
     "set",
     "checkbox",
@@ -116,6 +118,7 @@ const VERBS: [&str; 18] = [
     "acknowledge-compaction",
     "lookup",
     "practices-event",
+    "reuse-artifact",
 ];
 
 /// `engineOwnedTransitions`: the verbs that pass the state-transition fence.
@@ -134,7 +137,7 @@ const ENGINE_OWNED: [&str; 11] = [
 ];
 
 /// The verbs upstream has that Focus does not port, each refused by name.
-const NOT_PORTED: [(&str, &str); 15] = [
+const NOT_PORTED: [(&str, &str); 14] = [
     (
         "set-skeleton-stance",
         "sets the Construction skeleton stance",
@@ -160,7 +163,6 @@ const NOT_PORTED: [(&str, &str); 15] = [
     ("refresh-unit-progress", "refreshes the units' progress"),
     ("sync-unit-scope-stage", "syncs a unit's scope stage"),
     ("fold-unit-merge", "folds a unit's merge into the state"),
-    ("reuse-artifact", "reuses an artifact of another record"),
     ("practices-promote", "promotes a practice"),
     ("fork", "forks the state for a bolt"),
     ("merge", "merges a bolt's state"),
@@ -506,6 +508,35 @@ fn transition_of(wf: &Workflow, verb: &str, args: &[String]) -> Verb {
                 )));
             }
             transitions::skip(wf, slug, reason, route)?
+        }
+        "reuse-artifact" => {
+            let Some(slug) = args.first() else {
+                return Err(Refusal::of(
+                    "Usage: focus engine state reuse-artifact <slug> --decision <keep|modify|redo> --artifacts <csv> [--repo <repo>] [--single]",
+                ));
+            };
+            let rest = &args[1..];
+            let decision = flag_value(rest, "--decision")?;
+            let artifacts = flag_value(rest, "--artifacts")?;
+            let repo = flag_value(rest, "--repo")?;
+            let Some(decision) = decision.filter(|decision| !decision.is_empty()) else {
+                return Err(Refusal::of("Missing --decision <keep|modify|redo>"));
+            };
+            let Some(artifacts) = artifacts.filter(|artifacts| !artifacts.is_empty()) else {
+                return Err(Refusal::of("Missing --artifacts <csv>"));
+            };
+            rows::reuse_artifact(
+                wf,
+                rows::Reuse {
+                    slug,
+                    decision,
+                    artifacts,
+                    repo,
+                    // (After the slug, as upstream looks: a slug so named
+                    // is no stage either way.)
+                    single: rest.iter().any(|arg| arg == "--single"),
+                },
+            )?
         }
         "acknowledge-compaction" => rows::acknowledge_compaction(wf, args)?,
         "practices-event" => rows::practices_event(wf, args)?,
