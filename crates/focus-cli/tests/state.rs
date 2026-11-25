@@ -388,7 +388,7 @@ fn an_observer_writes_nothing() {
 }
 
 /// Deliberate deviation. Upstream's usage lists its 33 verbs and its
-/// refusal of a verb it does not know too; Focus lists the twenty-six it has,
+/// refusal of a verb it does not know too; Focus lists the twenty-seven it has,
 /// and refuses the others by name, before any fence is consulted (upstream
 /// passes them through the state-transition fence first).
 #[test]
@@ -396,7 +396,7 @@ fn the_state_command_names_the_verbs_it_has() {
     let root = project("usage");
     assert_eq!(
         refusal(&state(&root, &[], &[])),
-        "Usage: focus engine state <subcommand>. Valid: get, set, checkbox, count, advance, finalize, complete-workflow, gate-start, approve, reject, revise, skip, resume, park, unpark, acknowledge-compaction, practices-event, reuse-artifact, lookup, set-skeleton-stance, set-construction-iteration, set-construction-checkpoints, set-construction-execution, set-construction-verification-command, set-unit-gate-rhythm, sync-unit-scope-stage. Run with --help for detail."
+        "Usage: focus engine state <subcommand>. Valid: get, set, checkbox, count, advance, finalize, complete-workflow, gate-start, approve, reject, revise, skip, resume, park, unpark, acknowledge-compaction, practices-event, reuse-artifact, lookup, set-skeleton-stance, set-construction-iteration, set-construction-checkpoints, set-construction-execution, set-construction-verification-command, set-unit-gate-rhythm, sync-unit-scope-stage, unit. Run with --help for detail."
     );
     assert_eq!(
         refusal(&state(&root, &["nope"], &[])),
@@ -406,7 +406,7 @@ fn the_state_command_names_the_verbs_it_has() {
         ("set-unit-ownership", "sets the units' ownership"),
         ("refresh-unit-progress", "refreshes the units' progress"),
         ("fork", "forks the state for a bolt"),
-        ("unit", "runs a unit of work's step"),
+        ("merge", "merges a bolt's state"),
         ("practices-promote", "promotes a practice"),
     ] {
         assert_eq!(
@@ -2360,6 +2360,229 @@ fn a_teams_units_are_refused_by_name() {
         "Construction Iteration cannot leave unit-major while Unit Ownership is team. Set unit ownership to solo first."
     );
     assert_eq!(created_state(&root), team);
+    let _ = fs::remove_dir_all(&root);
+}
+
+/// The units of the created record, and a state in Construction that
+/// plans them.
+const UNITS: &str = "# Dependencies\n\n```yaml\nunits:\n  - name: api\n    depends_on: [auth]\n  - name: auth\n    kind: service\n    depends_on: []\n```\n";
+
+fn with_units(name: &str, more_state: &str, rows: &str) -> PathBuf {
+    let state = running()
+        .replace(
+            "- **Lifecycle Phase**: IDEATION",
+            "- **Lifecycle Phase**: CONSTRUCTION",
+        )
+        .replace(
+            "- **Revision Count**: 0\n",
+            &format!("- **Revision Count**: 0\n{more_state}"),
+        );
+    let root = created(name, &state);
+    write(
+        &root,
+        &format!("{CREATED_RECORD}/inception/units-generation/unit-of-work-dependency.md"),
+        UNITS,
+    );
+    write(
+        &root,
+        &format!("{CREATED_RECORD}/audit/laptop-abc123.md"),
+        &format!("{CREATED_SHARD}{rows}"),
+    );
+    root
+}
+
+fn unit_row(kind: &str, unit: &str, more: &str) -> String {
+    format!(
+        "\n## Unit\n**Timestamp**: 2026-01-05T10:09:00Z\n**Event**: UNIT_{kind}\n**Stage**: functional-design\n**Unit**: {unit}\n**Run floor**: WORKFLOW_STARTED:2026-01-05T10:00:00Z#1\n{more}\n---\n"
+    )
+}
+
+const UNIT: [&str; 5] = ["unit", "complete", "--stage", "functional-design", "--unit"];
+
+/// A completion is a receipt with evidence: of the unit that is open and
+/// in progress, with every artifact its kind owes on disk. The row carries
+/// the floor of the attempt, and the state's mirror of the open unit goes.
+#[test]
+fn a_units_completion_is_a_receipt_with_evidence() {
+    let mirror = "- **Active Unit**: auth\n- **Unit Stage**: functional-design\n- **Unit State**: in-progress\n";
+    let root = with_units("unit-complete", mirror, &unit_row("STARTED", "auth", ""));
+    let complete = |unit: &str| state(&root, &[&UNIT[..], &[unit]].concat(), &[]);
+    assert_eq!(
+        refusal(&complete("auth")),
+        "Refusing to complete unit \"auth\" for \"functional-design\": required artifacts are missing on disk (entities, rules, functional-spec, traceability). Write the unit's artifacts before completing it."
+    );
+    assert_eq!(
+        refusal(&complete("api")),
+        "Refusing to complete unit \"api\" for \"functional-design\": it is not the active unit (active: \"auth\", in-progress)."
+    );
+    assert_eq!(
+        refusal(&complete("billing")),
+        "Refusing unit complete for \"billing\": it is not in the authoritative unit DAG."
+    );
+    for file in [
+        "entities.md",
+        "rules.md",
+        "functional-spec.md",
+        "traceability.json",
+    ] {
+        write(
+            &root,
+            &format!("{CREATED_RECORD}/construction/auth/functional-design/{file}"),
+            "x\n",
+        );
+    }
+    let done = ok(&complete("auth"));
+    assert!(
+        done.starts_with(
+            "{\"emitted\":\"UNIT_COMPLETED\",\"stage\":\"functional-design\",\"unit\":\"auth\",\"timestamp\":\""
+        ),
+        "{done}"
+    );
+    assert!(
+        created_shard(&root).contains(
+            "**Event**: UNIT_COMPLETED\n**Stage**: functional-design\n**Unit**: auth\n**Run floor**: WORKFLOW_STARTED:2026-01-05T10:00:00Z#1\n"
+        ),
+        "{}",
+        created_shard(&root)
+    );
+    let after = created_state(&root);
+    assert!(
+        !after.contains("Active Unit")
+            && !after.contains("Unit Stage")
+            && !after.contains("Unit State")
+    );
+    assert_eq!(
+        refusal(&complete("auth")),
+        "Refusing to complete unit \"auth\" for \"functional-design\": it is already completed. Nothing more to do for it; run `focus engine orchestrate next` for the next step."
+    );
+    let _ = fs::remove_dir_all(&root);
+
+    let root = with_units(
+        "unit-paused",
+        "",
+        &format!(
+            "{}{}",
+            unit_row("STARTED", "auth", ""),
+            unit_row("PAUSED", "auth", "**Reason**: lunch\n").replace("10:09:00", "10:10:00")
+        ),
+    );
+    assert_eq!(
+        refusal(&state(&root, &[&UNIT[..], &["auth"]].concat(), &[])),
+        "Refusing to complete unit \"auth\" for \"functional-design\": it is paused (reason: lunch). Resume it first (focus engine state unit resume --stage functional-design --unit auth); a paused unit's work is not done."
+    );
+    let _ = fs::remove_dir_all(&root);
+}
+
+/// Deliberate deviation. Before a start, a pause or a resumption upstream
+/// asks the orchestration engine which unit it routes now, and a completion
+/// in a wave settles an entry of the batch it routes. Focus has no
+/// orchestrator yet: the four refuse by name, after every refusal that
+/// comes before the question.
+#[test]
+fn a_units_step_that_asks_the_route_is_refused_by_name() {
+    let root = with_units("unit-route", "", "");
+    let unit = |args: &[&str]| state(&root, &[&["unit"], args].concat(), &[]);
+    let of = ["--stage", "functional-design", "--unit", "auth"];
+    for (action, more) in [
+        ("start", &[][..]),
+        ("pause", &["--reason", "lunch", "--next-action", "eat"][..]),
+        ("resume", &[][..]),
+    ] {
+        assert_eq!(
+            refusal(&unit(&[&[action], &of[..], more].concat())),
+            format!(
+                "unit {action} asks the orchestration engine which unit it routes now, so that a receipt cannot land in a wave or on a unit the engine did not route: Focus has no orchestrator yet."
+            )
+        );
+    }
+    assert_eq!(
+        refusal(&unit(&[&["complete"], &of[..], &["--wave"]].concat())),
+        "unit complete --wave settles an entry of the wave the orchestration engine routes: Focus has no orchestrator yet."
+    );
+    // What comes before the question is refused as upstream refuses it.
+    assert_eq!(
+        refusal(&unit(&[&["pause"], &of[..]].concat())),
+        "unit pause requires --reason <text> (why the unit stopped)."
+    );
+    assert_eq!(
+        refusal(&unit(&[
+            "start",
+            "--stage",
+            "functional-design",
+            "--unit",
+            "billing"
+        ])),
+        "Refusing unit start for \"billing\": it is not in the authoritative unit DAG."
+    );
+    assert_eq!(
+        refusal(&unit(&[
+            "start",
+            "--stage",
+            "intent-capture",
+            "--unit",
+            "auth"
+        ])),
+        "Stage \"intent-capture\" is not per-unit (for_each: unit-of-work); unit receipts do not apply."
+    );
+    assert!(!created_shard(&root).contains("UNIT_"));
+    let _ = fs::remove_dir_all(&root);
+}
+
+/// Deliberate deviation. Three questions about a unit that Focus does not
+/// answer yet, each refused by name: a team's unit (claimed by a checkout),
+/// a swarm (whether it owns the units of a subagent's stage), and a
+/// completion the person picked on a recovery ask (read off the
+/// active-directive marker).
+#[test]
+fn a_units_step_over_what_focus_does_not_run_is_refused_by_name() {
+    let root = with_units("unit-team", "- **Unit Ownership**: team\n", "");
+    assert_eq!(
+        refusal(&state(&root, &[&UNIT[..], &["auth"]].concat(), &[])),
+        "Unit Ownership is team, and a team's unit is worked in the checkout that claimed it, checked against the claim registry: Focus does not run a team's units."
+    );
+    let _ = fs::remove_dir_all(&root);
+
+    let root = with_units(
+        "unit-swarm",
+        "- **Construction Autonomy Mode**: autonomous\n",
+        "",
+    );
+    let stage_major = created_state(&root)
+        .replace(
+            "- **Construction Iteration**: unit-major",
+            "- **Construction Iteration**: stage-major",
+        )
+        .replace(
+            "- **Construction Checkpoints**: enabled",
+            "- **Construction Checkpoints**: disabled",
+        );
+    write(
+        &root,
+        &format!("{CREATED_RECORD}/focus-state.md"),
+        &stage_major,
+    );
+    let of = |stage: &'static str| ["unit", "complete", "--stage", stage, "--unit", "auth"];
+    assert_eq!(
+        refusal(&state(&root, &of("code-generation"), &[])),
+        "Construction is built as a swarm here, and whether the swarm owns the units of \"code-generation\" (a subagent's stage) is the swarm referee's question: Focus runs no swarm yet."
+    );
+    // (A stage the conductor runs itself is not a swarm's.)
+    assert!(
+        refusal(&state(&root, &of("functional-design"), &[]))
+            .starts_with("Refusing to complete unit \"auth\" for \"functional-design\": it is not the active unit")
+    );
+    let _ = fs::remove_dir_all(&root);
+
+    let root = with_units("unit-picked", "", "");
+    write(
+        &root,
+        &format!("{CREATED_RECORD}/.focus-engine/active-directive.json"),
+        "{}\n",
+    );
+    assert_eq!(
+        refusal(&state(&root, &[&UNIT[..], &["auth"]].concat(), &[])),
+        "The engine has a step in hand for this record, and whether the person picked recording this completion on its recovery ask is read off that step's marker: Focus does not read it yet."
+    );
     let _ = fs::remove_dir_all(&root);
 }
 
