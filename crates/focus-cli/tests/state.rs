@@ -388,7 +388,7 @@ fn an_observer_writes_nothing() {
 }
 
 /// Deliberate deviation. Upstream's usage lists its 33 verbs and its
-/// refusal of a verb it does not know too; Focus lists the thirteen it has,
+/// refusal of a verb it does not know too; Focus lists the eighteen it has,
 /// and refuses the others by name, before any fence is consulted (upstream
 /// passes them through the state-transition fence first).
 #[test]
@@ -396,7 +396,7 @@ fn the_state_command_names_the_verbs_it_has() {
     let root = project("usage");
     assert_eq!(
         refusal(&state(&root, &[], &[])),
-        "Usage: focus engine state <subcommand>. Valid: get, set, checkbox, count, advance, finalize, complete-workflow, gate-start, approve, reject, revise, skip, resume, park, unpark. Run with --help for detail."
+        "Usage: focus engine state <subcommand>. Valid: get, set, checkbox, count, advance, finalize, complete-workflow, gate-start, approve, reject, revise, skip, resume, park, unpark, acknowledge-compaction, practices-event, lookup. Run with --help for detail."
     );
     assert_eq!(
         refusal(&state(&root, &["nope"], &[])),
@@ -404,10 +404,7 @@ fn the_state_command_names_the_verbs_it_has() {
     );
     for (verb, does) in [
         ("set-unit-ownership", "sets the units' ownership"),
-        (
-            "acknowledge-compaction",
-            "acknowledges a context compaction",
-        ),
+        ("reuse-artifact", "reuses an artifact of another record"),
         ("fork", "forks the state for a bolt"),
         ("unit", "runs a unit of work's step"),
         ("practices-promote", "promotes a practice"),
@@ -1690,6 +1687,183 @@ fn a_backward_jump_refuses_a_review_it_cannot_read() {
         "{}",
         fs::read_to_string(&shard_path).unwrap()
     );
+    let _ = fs::remove_dir_all(root);
+}
+
+/// `lookup` answers from the stage graph and the scopes, in one line, and
+/// only `next-stage` reads the state.
+///
+/// Deliberate deviation: upstream looks a scope and a phase up in plain
+/// objects, so the names every object has (`constructor`, `__proto__`,
+/// `toString`) are found there, and each command then falls over or
+/// answers from the state alone. Focus has no scope and no phase by those
+/// names.
+#[test]
+fn lookup_answers_from_the_graph_and_the_scopes() {
+    let root = created("lookup", CREATED);
+    let before = created_shard(&root);
+    let look = |args: &[&str]| state(&root, &[&["lookup"], args].concat(), &[]);
+    assert_eq!(ok(&look(&["phase-of", "intent-capture"])), "ideation\n");
+    assert_eq!(ok(&look(&["phase-of", "1.1"])), "ideation\n");
+    assert_eq!(ok(&look(&["number-of", "intent-capture"])), "1.1\n");
+    assert_eq!(
+        ok(&look(&["agent-for", "intent-capture"])),
+        "focus-product-agent\n"
+    );
+    assert_eq!(
+        ok(&look(&["next-stage", "intent-capture", "feature"])),
+        "market-research\n"
+    );
+    assert_eq!(
+        ok(&look(&["next-stage", "intent-capture", "nope"])),
+        "none\n"
+    );
+    assert_eq!(
+        ok(&look(&["first-in-phase", "IDEATION", "feature"])),
+        "intent-capture\n"
+    );
+    assert_eq!(ok(&look(&["first-in-phase", "nope", "feature"])), "none\n");
+    assert_eq!(
+        ok(&look(&["validate-stage", "nope"])),
+        "{\"valid\":false,\"input\":\"nope\"}\n"
+    );
+    assert_eq!(
+        ok(&look(&["validate-phase", "3"])),
+        "{\"valid\":true,\"canonical\":\"construction\",\"number\":\"3\",\"display\":\"CONSTRUCTION\"}\n"
+    );
+    let stages: serde_json::Value =
+        serde_json::from_str(&ok(&look(&["stages-in-scope", "bugfix"]))).unwrap();
+    let stages = stages.as_array().unwrap();
+    assert!(stages.len() > 20);
+    assert!(stages.iter().any(|stage| stage["action"] == "EXECUTE"));
+    assert!(stages.iter().any(|stage| stage["action"] == "SKIP"));
+    assert_eq!(stages[0]["phase"], "initialization");
+    // Nothing was written: a question leaves no row.
+    assert_eq!(created_shard(&root), before);
+    assert_eq!(refusal(&look(&["phase-of", "nope"])), "Unknown stage: nope");
+    assert_eq!(
+        refusal(&look(&["stages-in-scope", "nope"])),
+        "Unknown scope: nope"
+    );
+    assert_eq!(
+        refusal(&look(&["nope"])),
+        "Unknown lookup subcommand: nope. Valid: phase-of, next-stage, agent-for, number-of, stages-in-scope, first-in-phase, validate-stage, validate-phase"
+    );
+    assert_eq!(
+        refusal(&look(&[])),
+        "Usage: focus engine state lookup <subcommand> [args...]"
+    );
+    // The deviation: the names of an object are names of nothing.
+    for name in ["constructor", "__proto__"] {
+        assert_eq!(
+            ok(&look(&["validate-phase", name])),
+            format!("{{\"valid\":false,\"input\":\"{name}\"}}\n")
+        );
+        assert_eq!(
+            refusal(&look(&["stages-in-scope", name])),
+            format!("Unknown scope: {name}")
+        );
+        assert_eq!(ok(&look(&["next-stage", "intent-capture", name])), "none\n");
+    }
+    assert_eq!(
+        ok(&look(&["first-in-phase", "ideation", "toString"])),
+        "none\n"
+    );
+    let _ = fs::remove_dir_all(root);
+}
+
+/// The two verbs that only leave a row. `acknowledge-compaction` records
+/// the person's choice once, while a compaction is waiting; and
+/// `practices-event` writes the fields in the order an object of
+/// upstream's lists them (a key that is a number first).
+#[test]
+fn the_verbs_that_only_leave_a_row() {
+    let root = created("rows", CREATED);
+    let shard_path = root.join(CREATED_RECORD).join("audit/laptop-abc123.md");
+    let waiting = "No pending compaction to acknowledge (latest SESSION_COMPACTED already followed by stage activity or recovery).";
+    let ack = |choice: &[&str]| state(&root, &[&["acknowledge-compaction"], choice].concat(), &[]);
+    assert_eq!(
+        refusal(&ack(&[])),
+        "Usage: focus engine state acknowledge-compaction --choice <continue|review|restart>"
+    );
+    assert_eq!(
+        refusal(&ack(&["--choice", "nope"])),
+        "Invalid --choice: nope. Valid: continue, review, restart"
+    );
+    assert_eq!(refusal(&ack(&["--choice", "review"])), waiting);
+    fs::write(
+        &shard_path,
+        format!(
+            "{CREATED_SHARD}\n## Session Compacted\n**Timestamp**: 2026-01-05T10:05:00Z\n**Event**: SESSION_COMPACTED\n**Stage**: intent-capture\n\n---\n"
+        ),
+    )
+    .unwrap();
+    assert_eq!(
+        ok(&ack(&["--choice", "review"])),
+        "{\"acknowledged\":true,\"choice\":\"review\",\"current_stage\":\"intent-capture\"}\n"
+    );
+    let after = created_shard(&root);
+    assert!(
+        after.contains(
+            "**Event**: RECOVERY_COMPLETED\n**Choice**: review\n**Current Stage**: intent-capture\n"
+        ),
+        "{after}"
+    );
+    // Once: the recovery it recorded closes the window.
+    assert_eq!(refusal(&ack(&["--choice", "review"])), waiting);
+
+    let says = |args: &[&str]| state(&root, &[&["practices-event"], args].concat(), &[]);
+    assert_eq!(
+        refusal(&says(&[])),
+        "Usage: focus engine state practices-event --type <discovered|override|empty> [--field \"Key: Value\"]..."
+    );
+    assert_eq!(
+        refusal(&says(&["--type", "affirmed"])),
+        "PRACTICES_AFFIRMED is reserved for practices-promote so the audit receipt cannot be minted without successful memory promotion."
+    );
+    assert_eq!(
+        refusal(&says(&["--type", "nope"])),
+        "Invalid --type: nope. Must be discovered, override, or empty."
+    );
+    assert_eq!(
+        ok(&says(&[
+            "--type",
+            "override",
+            "--field",
+            "b: 1",
+            "--field",
+            "a: two",
+            "--field",
+            "no colon",
+            "--field",
+            "__proto__: gone",
+            "--field",
+            "b:  last  ",
+        ])),
+        "{\"emitted\":\"PRACTICES_OVERRIDE\",\"fields_count\":2}\n"
+    );
+    let after = created_shard(&root);
+    assert!(
+        after.contains("**Event**: PRACTICES_OVERRIDE\n**b**: last\n**a**: two\n"),
+        "{after}"
+    );
+    // A field is named by a letter first; of two that are not, the one
+    // refused is the first an object lists: the number, by its value.
+    assert_eq!(
+        refusal(&says(&[
+            "--type", "override", "--field", "-1: x", "--field", "10: ten", "--field", "2: two",
+        ])),
+        "Invalid audit field key: \"2\". Field keys must match /^[A-Za-z][A-Za-z0-9 ._()/-]*$/ so they remain one Markdown label on one physical line."
+    );
+    for (kind, event) in [
+        ("discovered", "PRACTICES_DISCOVERED"),
+        ("empty", "PRACTICES_SECTION_EMPTY"),
+    ] {
+        assert_eq!(
+            ok(&says(&["--type", kind])),
+            format!("{{\"emitted\":\"{event}\",\"fields_count\":0}}\n")
+        );
+    }
     let _ = fs::remove_dir_all(root);
 }
 
