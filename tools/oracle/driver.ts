@@ -1787,6 +1787,29 @@ async function answer(c: Record<string, any>): Promise<unknown> {
         }
       }
     }
+    case "unit_lifecycle": {
+      // What the receipts of a stage's units come to, read off a ledger given as its shards and the state: the units
+      // done, the ones skipped, the ones open. The fingerprint of a unit's outputs now is the case's own.
+      const rows = (c.shards as { shard: string; content: string }[]).flatMap((shard, index) =>
+        lib.parseAuditShardEvents(shard.content, shard.shard, index, new Set<number>()));
+      const data = resolve(upstream, "dist", "claude", ".claude", "tools", "data");
+      const before = [process.env.AIDLC_STAGE_GRAPH, process.env.AIDLC_SCOPE_GRID];
+      process.env.AIDLC_STAGE_GRAPH = join(data, "stage-graph.json");
+      process.env.AIDLC_SCOPE_GRID = join(data, "scope-grid.json");
+      try {
+        const prints = c.fingerprints as Record<string, string | null>;
+        const snap = lib.unitLifecycleSnapshot(scratch, c.slug, rows, c.state, {
+          artifactFingerprint: (_stage: unknown, unit: string) => prints[unit] ?? null,
+          keepChangedWaveCompletions: c.keep_changed,
+        });
+        return { receipts: [...snap.receipts], skipped: [...snap.skipped], checkpoint: snap.checkpoint, open: snap.open, inUse: snap.inUse, mode: snap.mode };
+      } finally {
+        for (const [index, name] of ["AIDLC_STAGE_GRAPH", "AIDLC_SCOPE_GRID"].entries()) {
+          if (before[index] === undefined) delete process.env[name];
+          else process.env[name] = before[index];
+        }
+      }
+    }
     case "review_window": {
       // The review attempt of a stage, read off a ledger given as its shards:
       // the receipt rows in order, the attempt's boundary among them, and the

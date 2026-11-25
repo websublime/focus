@@ -3810,7 +3810,7 @@ A fatia junta coisas de tamanhos muito diferentes: verbos de `state` que não t�
 | 5b. `reuse-artifact` | A linha `ARTIFACT_REUSED`, com o reuso de uma stage corrida sozinha (`--single`) | A recusa pelo nome do verbo | Feita (abaixo) |
 | `practices-promote` | Sai desta fatia: promove a secção Testing Posture pelo leitor do contrato de testes (`promotableTestingPosture`, `classifyPosture`), que é a fatia 11. Fica recusado pelo nome até lá | | Fatia 11 |
 | 5c. A política de Construction | `set-skeleton-stance`, `set-construction-iteration`, `set-construction-checkpoints`, `set-construction-execution`, `set-construction-verification-command`, `set-unit-gate-rhythm`, `sync-unit-scope-stage` | A recusa pelo nome dos sete | Feita (abaixo) |
-| 5d. As units como dados | O chão de uma tentativa como o token que um recibo leva (5d-i), e as linhas do ciclo de uma unit lidas contra ele: os checkpoints abertos, os recibos de conclusão, as units saltadas (5d-ii). Funções, sob o oráculo | Nada ainda: é o que o verbo `unit` e os gates de unit leem | 5d-i feita (abaixo) |
+| 5d. As units como dados | O chão de uma tentativa como o token que um recibo leva (5d-i), e as linhas do ciclo de uma unit lidas contra ele: os checkpoints abertos, os recibos de conclusão, as units saltadas (5d-ii). Funções, sob o oráculo | Nada ainda: é o que o verbo `unit` e os gates de unit leem | Feita (abaixo) |
 | 5e. O verbo `unit` | `unit complete` inteiro; `start`, `pause` e `resume` até à pergunta da rota, que o original faz a `orchestrate next` num subprocesso: recusada pelo nome até à fatia 7. `--wave` pelo nome | A recusa pelo nome do verbo | Por fazer |
 | 5f em diante | `bolt` sem worktree, `construction-checkpoints`, uma stage de Construction em `advance` e nos gates, `jump reopen` e `execute --units`, `skip --unit`, e o que as fatias 2e, 3 e 3e recusam pelo nome por falta de units (os recibos por unit, o congelamento por unit, o brief de uma unit) | O limite 1 de M3 | Por fazer; parte-se quando lá chegar |
 
@@ -3940,6 +3940,30 @@ Nada o consome ainda fora do oráculo: é o que a 5d-ii lê.
 | --- | --- |
 | Oráculo, `run_floor` | 1 332 casos, todos iguais à primeira corrida (corpus: 85 383 casos, 93 kinds; os outros kinds não mudaram). Os ledgers são os da janela de uma revisão (linhas que partilham instantes entre shards, alterações de política à volta de inícios da stage), com rejeições que nomeiam uma unit, gates de várias stages, uma segunda criação e saltos, lidos sob cada flooring, para a stage e para uma unit. Sem fronteira 119, ambíguos 134, uma fronteira que não é a primeira do seu tipo 369, o chão da unit diferente do da stage 53, inícios contados sob stage-major 216 e deixados de fora sob unit-major 636 |
 | Mutação | 39 mutantes: 39 apanhados (37 à primeira) |
+| `cargo test` | 620 testes; `every_lifecycle_case_gets_upstreams_answer` repete o kind com os seus mínimos |
+
+### Fatia 5d-ii: o ciclo das units de uma stage, lido do ledger
+
+**O que existe.** `focus-lifecycle::unit_lifecycle`. Uma stage que corre por unit deixa um recibo por cada passo de cada unit: começada, parada, retomada, concluída, ou saltada. Os da tentativa corrente dizem que units estão feitas, quais foram saltadas e porquê, e quais estão abertas, a mais recente primeiro.
+
+| Função | O que lê |
+| --- | --- |
+| `current_rows` (`currentUnitLifecycleRows`) | Os recibos da tentativa: os que levam o chão lido agora para a sua unit (`run_floor::unit_lifecycle`); sob stage-major, só os que não são anteriores ao último início da stage que conta. Recibos de shards diferentes no mesmo segundo não têm ordem: de uma unit nesse instante fica o último de cada shard e, entre shards, o que a deixa menos resolvida (uma pausa acima de um início ou retoma, e estes acima de uma conclusão) |
+| `open_checkpoints` (`openUnitCheckpoints`) | As units cujo último recibo as deixa abertas: em curso, ou paradas com a razão, o passo seguinte e a unit por que foram postas de lado |
+| `snapshot` (`unitLifecycleSnapshot`) | As units com conclusão que vale, as saltadas com a razão, as abertas, se a stage alguma vez deixou recibos (uma tentativa sem nenhum fica então por resolver) e o modo (serial, wave, os dois, nenhum). Uma conclusão em wave (`Mode: wave`) vale enquanto os outputs da unit forem os que ela gravou; com checkpoints de Construction, enquanto existirem todos |
+
+O fingerprint dos outputs de uma unit entra por quem chama (`reviewArtifactFingerprint` com os artefactos exigidos): liga-se com o primeiro consumidor, o verbo `unit`.
+
+**O que não se lê.** A reivindicação de uma unit por uma equipa (`eventMatchesClaimAttempt`): com `Unit Ownership: team` o original deixa também de fora os recibos de uma reivindicação anterior. A equipa está adiada, e o que correria units de equipa recusa pelo nome antes de ler isto.
+
+**O que a mutação encontrou.** 51 mutantes: 45 apanhados à primeira; os 6 restantes eram duas coisas. O corte pelo último início da stage nunca mudava uma resposta, porque num ledger escrito em ordem um recibo com o chão corrente é sempre posterior a esse início: o gerador passou a escrever, de vez em quando, um recibo fora de passo (com um instante já passado), e o corte, que só se pergunta sob stage-major, ficou escrito assim. E o flooring por unit só muda o token quando o chão é ambíguo, que o gerador nunca punha num recibo: dez casos à mão com fronteiras de dois shards no mesmo segundo e um recibo com o token de uma forma ou da outra, sob cada estado que muda o flooring. Sete mutantes sobre o código reescrito, todos apanhados.
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Oráculo, `unit_lifecycle` | 1 571 casos, todos iguais à primeira corrida (corpus: 86 954 casos, 94 kinds; os outros não mudaram). Histórias de uma stage (a criação, inícios, um salto, rejeições do gate da stage e de uma unit, alterações de política) com recibos que levam o chão do momento, um mais antigo ou nenhum, em um a três shards. Com units feitas 421, saltadas 124, abertas 805 (várias 293, paradas 239, postas de lado 79), só em wave 43, dos dois modos 217, e com todos os recibos de uma tentativa anterior 486 |
+| Mutação | 51 mutantes, mais 7 sobre o código reescrito: todos apanhados (45 à primeira) |
 | `cargo test` | 620 testes; `every_lifecycle_case_gets_upstreams_answer` repete o kind com os seus mínimos |
 
 ### O que M4 não levantou
