@@ -181,6 +181,12 @@ SHAPES = {
         "completion's row carries is recomputed here from the file that row names, and one that matches is "
         "compared as the record's digest (and so is the one a gate's decision about a finding names, beside the "
         "record's path); the record itself is compared line by line, under its settled path",
+    "brief-digest":
+        "the brief shown at a gate is kept under the digest of its text, which names its artifacts by their path "
+        "from the project, and that path carries the workspace directory's name (aidlc/ there, focus/ here): the "
+        "two engines keep the same brief under different digests. A digest that is the tree's own (the hash of "
+        "the file kept under it) is compared as <brief-1>, <brief-2>, in the order of the briefs' texts, wherever "
+        "it is written: the file's name, the record of the latest, the gate's row. The texts are compared",
     "summary-authorization":
         "a summary's authorization id is a hash over the attempt, the stage, the workflow, the questions file's "
         "name, what was confirmed and the choice, and the name carries the workspace directory's (aidlc/ there, "
@@ -1691,6 +1697,36 @@ def review_attempt_ids(tree):
     return known
 
 
+BRIEF_FILE = re.compile(r"/briefs/([0-9a-f]{64})\.md$")
+
+
+def settle_brief_digests(tree, outcome):
+    """`outcome` with the digests of the briefs a tree keeps numbered in the order of their texts (SHAPES:
+    brief-digest); and whether anything was settled."""
+    own = set()
+    for folder, _, names in os.walk(tree.root):
+        if os.path.basename(folder) != "briefs":
+            continue
+        for name in names:
+            if not re.fullmatch(r"[0-9a-f]{64}\.md", name):
+                continue
+            with open(os.path.join(folder, name), "rb") as handle:
+                if hashlib.sha256(handle.read()).hexdigest() == name[:-3]:
+                    own.add(name[:-3])
+    kept = sorted((outcome[key], BRIEF_FILE.search(key).group(1)) for key in outcome if BRIEF_FILE.search(key) and BRIEF_FILE.search(key).group(1) in own)
+    names = {}
+    for _, digest in kept:
+        names.setdefault(digest, f"<brief-{len(names) + 1}>")
+    if not names:
+        return False
+    for key in list(outcome):
+        text, named = outcome.pop(key), key
+        for digest, name in names.items():
+            text, named = text.replace(digest, name), named.replace(digest, name)
+        outcome[named] = text
+    return True
+
+
 def settle_review_ids(tree, outcome):
     """`outcome` with a review's request ids numbered as first written and its attempt names verified (SHAPES:
     review-ids); and whether anything was settled."""
@@ -2100,7 +2136,7 @@ def compare_audit(name, trees, steps, env, tool="audit"):
     ts, rs = trees
     outcome, shaped, shaped_ask, shaped_basis = {}, False, False, False
     shaped_authorization = False
-    shaped_review = False
+    shaped_review = shaped_brief = False
     shaped_offsets = shaped_thrown = shaped_pair = False
     started_from = None
     # (A link no recording carries, whether the tree starts with it or a step makes it.)
@@ -2220,6 +2256,8 @@ def compare_audit(name, trees, steps, env, tool="audit"):
         # A review's request id is random and its attempt's name carries the tree's path (SHAPES: review-ids).
         settled = settle_review_ids(tree, outcome[engine])
         shaped_review |= settled and engine == "ts"
+        # A kept brief is named by the digest of a text that names the workspace directory (SHAPES: brief-digest).
+        shaped_brief |= settle_brief_digests(tree, outcome[engine]) and engine == "ts"
         # The series of a guard's refusals is signed over the tree's own paths (SHAPES: guard-series).
         shaped_ask |= settle_guard_series(outcome[engine]) and engine == "ts"
         own_ids = authorization_ids(tree)
@@ -2261,6 +2299,9 @@ def compare_audit(name, trees, steps, env, tool="audit"):
         if shaped_review:
             shapes["review-ids"] += 1
             detail += "  (review ids settled)"
+        if shaped_brief:
+            shapes["brief-digest"] += 1
+            detail += "  (brief digests settled)"
         if shaped_budget:
             shapes["process-map-budget"] += 1
             detail += "  (a process-map slot missed its budget)"
@@ -2654,10 +2695,19 @@ DEVIATIONS.update({
         "focus refuses to read (here a decision a gate's row holds, edited by hand, with a list where a text "
         "belongs): upstream reads it as text and jumps; focus refuses the jump with what is wrong, since going on "
         "would name fewer reviews than upstream does",
-    "review-brief/context/decided_a_list_for_a_text":
+    r"review-brief/(context|review)/decided_a_list_for_a_text":
         "the same row read by the tool that shows a stage's findings to its next reviewer: upstream reads the list "
         "as text and shows the finding as decided; focus refuses to show a list it could not read whole",
-    "review-brief/context/units_found_by_listing":
+    "review-brief/review/stale_recovery_of_a_unit_bound_to_its_source":
+        "a recovery review of a unit names the source it was bound to, and the brief says which of its files "
+        "changed by reading the unit's source snapshots: focus refuses the brief by name until it reads units "
+        "(M5, slice 5); here the rows are written by hand on a stage reviewed as one, and upstream finds no "
+        "snapshot and says nothing of them",
+    "review-brief/review/unit_of_a_stage_that_runs_for_each":
+        "the brief of one unit of a stage that runs for each unit depends on whether the approval ahead is the "
+        "unit's own (its team's gate, or its Construction checkpoint): upstream reads that off the units' gates; "
+        "focus refuses the brief by name until it reads units (M5, slice 5)",
+    r"review-brief/(context|summary)/units_found_by_listing":
         "the units of a stage that runs for each unit, when no plan names them, are the folders found under "
         "construction/: upstream shows their lists in the order the host lists that folder in, which no two file "
         "systems agree on; focus shows them by name (with a plan, both show its order, and that is compared)",
@@ -3898,7 +3948,7 @@ REVIEW_RECOVERY = ("**Recovery**: stale-receipt", "**Recovery Cause**: artifact"
 REVIEWED = lambda state, override="advisory": state.replace("- **Review Override**: none", f"- **Review Override**: {override}")
 
 
-def reviewed_by_hand(*passes, minute=1, findings=(), stage="intent-capture", unit=None, body="It reads well.\n", derived=None):
+def reviewed_by_hand(*passes, minute=1, findings=(), stage="intent-capture", unit=None, body="It reads well.\n", derived=None, bodies=None):
     def edit(tree):
         rows = ""
         for index, (n, verdict, more, fingerprint) in enumerate(passes):
@@ -3911,7 +3961,7 @@ def reviewed_by_hand(*passes, minute=1, findings=(), stage="intent-capture", uni
             tree.write(record, json.dumps({
                 "version": 1, "stage": stage, "unit": unit, "workflow": None, "attempt": "0" * 16, "iteration": n, "reviewer": REVIEWER_BY_HAND, "verdict": verdict,
                 "request_id": ident, "request_challenge": None, "artifact_fingerprint": fingerprint, "source_fingerprint": None, "unit_source_fingerprint": None,
-                "findings": list(findings), **({} if derived is None else {"derived_findings": list(derived)}), "body": body, "recorded_at": "2026-01-05T10:00:00Z"}, indent=2) + "\n")
+                "findings": list(findings), **({} if derived is None else {"derived_findings": list(derived)}), "body": (bodies or {}).get(n, body), "recorded_at": "2026-01-05T10:00:00Z"}, indent=2) + "\n")
             with open(tree.path(record), "rb") as handle:
                 digest = "sha256:" + hashlib.sha256(handle.read()).hexdigest()
             rows += block("REVIEW_COMPLETED", T(minute + 2 * index + 1), *scope, f"**Verdict**: {verdict}", f"**Request Fingerprint**: {fingerprint}",
@@ -7157,7 +7207,7 @@ def jump_fuzz(count):
 
 
 def review_brief_checks():
-    """`aidlc-review-brief.ts`: what is shown of a stage's reviews. (`context` so far.)"""
+    """`aidlc-review-brief.ts`: what is shown of a stage's reviews, to the next reviewer and to the person at a gate."""
     check_ = lambda name, files, steps, env=None, edits=(): runtime_check(name, files, steps, env, edits, group="review-brief")
     ctx = ["context", "--stage", "intent-capture"]
     tree = lambda state=REVIEWED(CREATED_STATE), audit=CREATED_AUDIT, **files: created(state, audit, **{**REVIEWED_OUTPUTS, **files})
@@ -7175,8 +7225,6 @@ def review_brief_checks():
     check_("usage/review_no_why", tree(), [["review", "--stage", "intent-capture"], ["review", "--stage", "intent-capture", "--why", "later"], ["review", "--stage", "intent-capture", "--why", ""]])
     check_("usage/summary_no_questions", tree(), [["summary", "--stage", "intent-capture"], ["summary", "--stage", "intent-capture", "--questions-file", ""]])
     check_("usage/a_flag_nobody_reads", tree(), [ctx + ["--why", "first", "--nope", "x"]])
-    check_("usage/review_not_ported", tree(), [["review", "--stage", "intent-capture", "--why", "first"]])
-    check_("usage/summary_not_ported", tree(), [["summary", "--stage", "intent-capture", "--questions-file", SUMMARY_FILE]])
     # context: nothing reviewed yet, a stage nobody reviews, a project with no piece of work.
     check_("context/no_review", tree(), [ctx])
     check_("context/no_reviewer", tree(), [["context", "--stage", "market-research"]])
@@ -7247,6 +7295,120 @@ def review_brief_checks():
     check_("context/legacy_section_no_verdict", tree(**{statement: no_verdict}), [ctx])
     check_("context/legacy_section_no_verdict_unreadable_table", tree(**{statement: no_verdict.replace("| R-01 | Major |", "| R-01 | Huge |")}), [ctx])
     check_("context/legacy_section_no_verdict_nothing_listed", tree(**{statement: "# Intent\n\n## Review\n\nNothing yet.\n"}), [ctx])
+
+
+    # --- summary: the brief of a summary confirmation ---------------------------------------------------------
+    asks = lambda questions, *more, stage="intent-capture": ["summary", "--stage", stage, "--questions-file", questions, *more]
+    check_("summary/questions", tree(), [asks(SUMMARY_FILE), asks("{P}/" + SUMMARY_FILE), asks("./x/../" + SUMMARY_FILE), asks(SUMMARY_FILE, "--unit", "api"), asks(SUMMARY_FILE, "--unit", "")])
+    check_("summary/questions_not_there", tree(), [asks(f"{CREATED_DIR}/ideation/intent-capture/nope.md"), asks("nope.md"), asks("{P}/nope.md")])
+    check_("summary/questions_outside_the_record", tree(**{"notes.md": "# Notes\n", "aidlc/spaces/default/notes.md": "# Notes\n", CREATED_DIR + "-more/notes.md": "# Notes\n"}),
+           [asks("notes.md"), asks("aidlc/spaces/default/notes.md"), asks(CREATED_DIR + "-more/notes.md"), asks(CREATED_DIR + "/../../notes.md"), asks("../" + "x")])
+    check_("summary/questions_the_record_or_a_folder", tree(), [asks(CREATED_DIR), asks(CREATED_DIR + "/"), asks(f"{CREATED_DIR}/ideation/intent-capture"), asks(f"{CREATED_DIR}/audit")])
+    check_("summary/no_record", CLONE, [asks(SUMMARY_FILE)])
+    check_("summary/another_stage", tree(), [asks(SUMMARY_FILE, stage="market-research"), asks(SUMMARY_FILE, stage="reverse-engineering")])
+    check_("summary/nothing_declared", tree(), [asks(SUMMARY_FILE)], edits=[graph_of("intent-capture", lambda node: node.update(produces=[], optional_produces=[]))])
+    units_at = {spec("api"): "# Spec\n", spec("auth"): "# Spec\n"}
+    check_("summary/units_found_by_listing", tree(**units_at), [asks(SUMMARY_FILE, stage="functional-design"), asks(SUMMARY_FILE, "--unit", "api", stage="functional-design"), asks(SUMMARY_FILE, "--unit", "", stage="functional-design")])
+    check_("summary/units_in_the_plan", tree(**{**units_at, **planned}), [asks(SUMMARY_FILE, stage="functional-design"), asks(SUMMARY_FILE, "--unit", "web", stage="functional-design")])
+    # --- review: the brief shown at the gate, kept as printed ----------------------------------------------------
+    brief = lambda why="first", *more, stage="intent-capture": ["review", "--stage", stage, "--why", why, *more]
+    whys = [brief("first"), brief("revision"), brief("stale")]
+    def briefed(name, *passes, findings=(), more=(), steps=None, body="It reads well.\n", derived=None, bodies=None, before=(), state=None, **files):
+        check_(name, tree(**files) if state is None else tree(state, **files), steps or whys,
+               edits=[*before, *([reviewed_by_hand(*passes, findings=findings, body=body, derived=derived, bodies=bodies)] if passes else []), *more])
+    fixed = lambda n: {**finding(n, "Resolved"), "reviewer_note": "Done", "resolved_by_reviewer": True, "resolved_in_review": True, "introduced_in_review": False}
+    briefed("review/no_review")
+    briefed("review/requested", (1, None, (), REVIEWED_CURRENT))
+    briefed("review/ready", ready)
+    briefed("review/not_ready_nothing_listed", not_ready)
+    briefed("review/not_ready_findings", not_ready, findings=[finding(1), finding(2, severity="Minor"), finding(3, severity="Critical")])
+    briefed("review/findings_of_each_status", not_ready, findings=[finding(1), finding(2, "Unresolved"), finding(3, "Resolved"), finding(4, "Accepted risk"), finding(5, "Rejected: not ours")])
+    briefed("review/nothing_open", ready, findings=[finding(4, "Accepted risk"), finding(5, "Rejected: not ours")])
+    briefed("review/one_fixed", ready, findings=[finding(1)], derived=[fixed(1)])
+    briefed("review/two_fixed", ready, findings=[finding(1), finding(2)], derived=[fixed(1), fixed(2)])
+    briefed("review/one_fixed_one_open", not_ready, findings=[finding(1), finding(2)], derived=[fixed(1), finding(2)])
+    briefed("review/decided", not_ready, findings=[finding(1), finding(2)], more=[after(decided("Accepted risk"))])
+    briefed("review/legacy_section", **{statement: legacy})
+    briefed("review/legacy_section_unreadable_table", **{statement: legacy.replace("| R-01 | Major |", "| R-01 | Huge |")})
+    briefed("review/unit_of_a_stage_reviewed_as_one", not_ready, findings=[finding(1)], steps=[brief("first", "--unit", "api"), brief("first", "--unit", ""), brief("first", "--unit", "a/b")])
+    # What the gate says of a review that did not finish: a finding of its own, on the list the earlier reviews
+    # left or on one made for it.
+    gave_up = ["--fallback-finding", "The reviewer returned no verdict."]
+    briefed("review/fallback_no_review", steps=[brief("first", *gave_up), brief("first", "--fallback-finding", ""), brief("first", *gave_up, "--unit", "api")])
+    briefed("review/fallback_requested", (1, None, (), REVIEWED_CURRENT), steps=[brief("first", *gave_up)])
+    briefed("review/fallback_finished_review", not_ready, findings=[finding(1)], steps=[brief("first", *gave_up)])
+    briefed("review/fallback_no_body", not_ready, body="", steps=[brief("first", *gave_up), brief("first")])
+    briefed("review/fallback_no_body_after_findings", (1, "NOT-READY", (), REVIEWED_CURRENT), (2, "NOT-READY", (), REVIEWED_CURRENT), findings=[finding(1), finding(7)], bodies={2: ""},
+            steps=[brief("revision", *gave_up), brief("revision")])
+    briefed("review/fallback_nothing_declared", steps=[brief("first", *gave_up)], more=[graph_of("intent-capture", lambda node: node.update(produces=[], optional_produces=[]))])
+    # The brief is kept as printed, under its own digest; not for a unit whose name is none, nor behind a link.
+    briefed("review/kept_twice", not_ready, findings=[finding(1)], steps=[brief("first"), brief("first"), brief("revision")])
+    # (The gate that opens next names the brief the person was shown.)
+    check_("review/kept_then_the_gate_opens", tree(REVIEWED(GATE_STATE)), [brief("first"), ["@state", "gate-start", "intent-capture"], brief("revision"), ["@state", "gate-start", "intent-capture"]],
+           {"ALLOW_DIRECT_STATE_TRANSITIONS": "1", "SKIP_HUMAN_PRESENCE_GUARD": "1"}, edits=[reviewed_by_hand(not_ready, findings=[finding(1)])])
+    briefed("review/kept_behind_a_link", not_ready, findings=[finding(1)], steps=[brief("first")],
+            more=[lambda t: (os.makedirs(t.path("elsewhere"), exist_ok=True), os.symlink(t.path("elsewhere"), t.path(f"{CREATED_DIR}/.aidlc-engine/reviews/intent-capture/stage/briefs")))])
+    briefed("review/no_record", steps=[brief("first"), brief("first", *gave_up)], more=[lambda t: os.remove(t.path("aidlc/spaces/default/intents/active-intent"))])
+    # What the Guard Policy let through after the review, in the stage's current attempt.
+    change = lambda minute=8, **fields: block("CHANGE_ACCEPTED", T(minute), *[f"**{name}**: {value}" for name, value in fields.items()])
+    kept_change = dict(Stage="intent-capture", Checkpoint="review-receipt")
+    accepted_rows = (change(**kept_change, Details="The intent statement changed after its review; kept under relaxed.", Changed=f"{statement}, other.md"),
+                     change(9, **kept_change, Details="Again.", Changed="(paths unavailable)"), change(10, **kept_change, Details="No paths said."), change(11, **kept_change, Changed=" a.md ,  , b.md"),
+                     change(12, Stage="intent-capture", Checkpoint="summary-confirmation", Details="Another checkpoint."), change(13, Stage="market-research", Checkpoint="review-receipt", Details="Another stage."),
+                     change(14, **kept_change, Unit="api", Details="Of a unit."), change(15, Checkpoint="review-receipt", Details="Of no stage."))
+    briefed("review/changes_accepted", not_ready, findings=[finding(1)], steps=[brief("first"), brief("stale")], more=[after(*accepted_rows)])
+    briefed("review/changes_accepted_before_a_request_for_changes", not_ready, findings=[finding(1)], steps=[brief("revision")],
+            more=[after(*accepted_rows, block("GATE_REJECTED", T(20), "**Stage**: intent-capture", "**Feedback**: x"), change(21, **kept_change, Details="After it."))])
+    briefed("review/changes_accepted_before_another_stage_s_gate", not_ready, findings=[finding(1)], steps=[brief("revision")],
+            more=[after(accepted_rows[0], block("GATE_REJECTED", T(20), "**Stage**: market-research", "**Feedback**: x"))])
+    # A review shown again because its receipt went stale: what was written under it since.
+    wrote = lambda minute, file, event="ARTIFACT_UPDATED": block(event, T(minute), f"**File**: {file}")
+    stakeholders = f"{CREATED_DIR}/ideation/intent-capture/stakeholder-map.md"
+    writes = lambda t: t.edit(CREATED_SHARD, lambda text: text + wrote(5, statement) + wrote(6, "<project-dir>/" + stakeholders, "ARTIFACT_CREATED") + wrote(7, t.path(SUMMARY_FILE)) + wrote(8, statement)
+                              + wrote(9, f"{CREATED_DIR}/ideation/market-research/competitive-analysis.md") + wrote(10, f"{CREATED_DIR}/construction/api/intent-capture/source-manifest.json")
+                              + wrote(11, f"{CREATED_DIR}/construction/api/market-research/source-manifest.json") + wrote(12, "") + block("ARTIFACT_UPDATED", T(13), "**Stage**: intent-capture")
+                              + wrote(14, statement, "ARTIFACT_REMOVED") + wrote(15, "x/../" + stakeholders))
+    briefed("review/stale_written_since", not_ready, findings=[finding(1)], steps=[brief("stale"), brief("first")], more=[writes])
+    briefed("review/stale_written_before", not_ready, findings=[finding(1)], steps=[brief("stale")], before=[writes])
+    briefed("review/stale_nothing_written", not_ready, findings=[finding(1)], steps=[brief("stale")])
+    briefed("review/stale_written_no_review", steps=[brief("stale")], more=[writes])
+    briefed("review/stale_written_since_a_request_for_changes", not_ready, findings=[finding(1)], steps=[brief("stale")],
+            more=[after(wrote(5, statement), block("GATE_REJECTED", T(6), "**Stage**: intent-capture", "**Feedback**: x"), wrote(7, stakeholders))])
+    # (A recovery review is paired with the receipt it replaces: what was written between the two stays said after
+    # its verdict, beside what was written after that.)
+    recovered = [after(wrote(5, statement)), reviewed_by_hand((2, "READY", REVIEW_RECOVERY, REVIEWED_CURRENT), minute=10), after(wrote(15, stakeholders))]
+    briefed("review/stale_recovered", (1, "READY", (), REVIEWED_OLD), steps=[brief("stale")], more=recovered)
+    briefed("review/stale_recovery_asked", (1, "READY", (), REVIEWED_OLD), steps=[brief("stale")], more=[after(wrote(5, statement)), reviewed_by_hand((2, None, REVIEW_RECOVERY, REVIEWED_CURRENT), minute=10)])
+    briefed("review/stale_recovery_of_nothing", steps=[brief("stale")], more=[after(wrote(5, statement)), reviewed_by_hand((2, None, REVIEW_RECOVERY, REVIEWED_CURRENT), minute=10)])
+    of_unit = lambda event, minute, *more: block(event, T(minute), "**Stage**: intent-capture", "**Unit**: api", f"**Reviewer**: {REVIEWER_BY_HAND}", "**Iteration**: 1", *more)
+    briefed("review/stale_recovery_of_a_unit", not_ready, findings=[finding(1)], steps=[brief("stale")],
+            more=[after(of_unit("REVIEW_COMPLETED", 5, "**Verdict**: READY"), wrote(6, statement), wrote(7, f"{CREATED_DIR}/construction/api/intent-capture/source-manifest.json"),
+                        wrote(8, f"{CREATED_DIR}/construction/web/intent-capture/source-manifest.json"), of_unit("REVIEW_REQUESTED", 9, *REVIEW_RECOVERY), wrote(10, stakeholders))])
+    briefed("review/stale_recovery_of_a_unit_bound_to_its_source", not_ready, findings=[finding(1)], steps=[brief("stale")],
+            more=[after(of_unit("REVIEW_COMPLETED", 5, "**Verdict**: READY", "**Unit Source Fingerprint**: " + "a" * 64), of_unit("REVIEW_REQUESTED", 9, *REVIEW_RECOVERY, "**Unit Source Fingerprint**: " + "b" * 64))])
+    # (A backward jump is where the attempt starts: what it left to check again stays until its own stage's gate
+    # takes it, and is said only where it touches this stage.)
+    research = f"{CREATED_DIR}/ideation/market-research/competitive-analysis.md"
+    jumped = lambda changed, artifacts, reviews, *more, target="intent-capture", direction="BACKWARD": block(
+        "STAGE_JUMPED", T(3), f"**Target**: {target}", f"**Direction**: {direction}", f"**Changed Upstream Artifacts**: {changed}", f"**Invalidated Downstream Artifacts**: {artifacts}",
+        f"**Invalidated Downstream Reviews**: {reviews}", *more)
+    listed = lambda *paths: json.dumps(list(paths))
+    back = jumped(listed("upstream.md"), listed(statement, research, "gone.md"), listed(statement + "#Review", research + "#Review"))
+    briefed("review/stale_after_a_backward_jump", steps=[brief("stale"), brief("first")], more=[after(back)])
+    briefed("review/stale_after_a_backward_jump_reviewed", not_ready, findings=[finding(1)], steps=[brief("stale")], before=[after(back)])
+    briefed("review/stale_after_a_backward_jump_and_another_gate", steps=[brief("stale")], more=[after(back, block("GATE_APPROVED", T(4), "**Stage**: market-research"), block("GATE_REJECTED", T(5), "**Stage**: nope"),
+                                                                                                         block("GATE_REJECTED", T(6), "**Feedback**: x"))])
+    briefed("review/stale_after_a_backward_jump_elsewhere", steps=[brief("stale")], more=[after(jumped(listed("upstream.md"), listed(research), listed(research + "#Review")))])
+    briefed("review/stale_after_a_backward_jump_changed_here", steps=[brief("stale")], more=[after(jumped(listed(statement), listed(research), listed()))])
+    briefed("review/stale_after_a_backward_jump_review_here", not_ready, findings=[finding(1)], steps=[brief("stale")], before=[after(jumped(listed(), listed(research), listed(statement + "#Review")))])
+    briefed("review/stale_after_a_forward_jump", steps=[brief("stale")], more=[after(jumped(listed("upstream.md"), listed(statement), listed(), direction="FORWARD"))])
+    briefed("review/stale_after_a_jump_past_the_stage", steps=[brief("stale")], more=[after(jumped(listed("upstream.md"), listed(statement), listed(), target="market-research"))])
+    briefed("review/stale_after_a_jump_with_lists_that_are_none", steps=[brief("stale")],
+            more=[after(jumped("not json", json.dumps([statement, 1, None, ["x"]]), json.dumps({"a": 1})))])
+    # A stage that runs for each unit: its final gate shows every unit's review.
+    check_("review/units", tree(**{**units_at, **planned}), [brief("first", stage="functional-design"), brief("first", "--unit", "", stage="functional-design")], edits=[by_unit("api"), by_unit("auth", 2, 5)])
+    check_("review/unit_of_a_stage_that_runs_for_each", tree(**{**units_at, **planned}), [brief("first", "--unit", "api", stage="functional-design")], edits=[by_unit("api")])
+    check_("review/decided_a_list_for_a_text", tree(), [brief("first")], edits=[reviewed_by_hand(not_ready, findings=[finding(1)]), after(decided("Accepted risk", id=["R-01"]))])
 
 
 def runtime_checks():

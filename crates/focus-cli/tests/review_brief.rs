@@ -207,28 +207,17 @@ fn the_command_reads_its_arguments_as_upstream_does() {
     let _ = fs::remove_dir_all(root);
 }
 
-/// Deliberate deviation: the brief shown at a gate and the brief of a
-/// summary confirmation are not ported yet. Upstream prints them (and keeps
-/// the gate's beside the review's record); Focus refuses each by name, after
-/// what upstream itself refuses first, and writes nothing.
+/// The brief shown at a gate is printed and kept as printed, under the
+/// digest of its text; the brief of a summary confirmation names the
+/// questions file and what will be generated.
 #[test]
-fn the_briefs_focus_does_not_write_yet_are_refused_by_name() {
-    let root = project("not-ported");
-    let before = snapshot(&root);
+fn the_two_briefs_are_printed_and_the_gate_s_is_kept() {
+    let root = project("briefs");
     let stage = ["--stage", "intent-capture"];
     for why in [&[][..], &["--why", "later"], &["--why", ""]] {
         assert_eq!(
             refusal(&brief(&root, &[&["review"], &stage[..], why].concat())),
             "Review brief requires --why <first|revision|stale>."
-        );
-    }
-    for why in ["first", "revision", "stale"] {
-        assert_eq!(
-            refusal(&brief(
-                &root,
-                &[&["review"], &stage[..], &["--why", why]].concat()
-            )),
-            "The brief shown at a gate (`review-brief review`) reads what changed since the review and what the person decided, and keeps what it printed beside the review's record: Focus does not write it yet."
         );
     }
     for questions in [&[][..], &["--questions-file", ""]] {
@@ -240,14 +229,173 @@ fn the_briefs_focus_does_not_write_yet_are_refused_by_name() {
             "Summary brief requires --questions-file <path>."
         );
     }
+    let statement = format!("{RECORD}/ideation/intent-capture/intent-statement.md");
+    write(&root, &statement, "# Intent\n");
+    let rows = review(
+        &root,
+        "intent-capture",
+        None,
+        "focus-product-lead-agent",
+        "It names no user",
+    );
+    write(
+        &root,
+        &format!("{RECORD}/audit/laptop-abc123.md"),
+        &format!("{SHARD}{rows}"),
+    );
+    let before = snapshot(&root);
+    let said = shown(&brief(
+        &root,
+        &[&["review"], &stage[..], &["--why", "first"]].concat(),
+    ));
+    assert!(
+        said.starts_with("**Stage:** Intent Capture & Framing\n**Review outcome:** Concerns remain for your decision.\n**Why now:** First review completed.\n\n"),
+        "{said}"
+    );
+    assert!(
+        said.contains(&format!("**Review artifact:** `{statement}`")),
+        "{said}"
+    );
+    assert!(
+        said.ends_with("**Decision options:**\n- **Approve** - continue with the open findings accepted.\n- **Request Changes** - return to the listed artifacts so the required actions can be addressed.\n"),
+        "{said}"
+    );
+    // Kept: the text under its own digest, and the record of the latest.
+    let digest: String = Sha256::digest(said.as_bytes())
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect();
+    let briefs = format!("{RECORD}/.focus-engine/reviews/intent-capture/stage/briefs");
+    assert_eq!(
+        fs::read_to_string(root.join(&briefs).join(format!("{digest}.md"))).unwrap(),
+        said
+    );
+    let latest: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(root.join(&briefs).join("latest.json")).unwrap())
+            .unwrap();
+    assert_eq!(latest["digest"], digest.as_str());
+    assert_eq!(latest["why"], "first");
+    assert_eq!(snapshot(&root).len(), before.len() + 2);
+    // A unit named as nothing, or by what is no unit's name, keeps nothing.
+    let stale = shown(&brief(
+        &root,
+        &[
+            &["review"],
+            &stage[..],
+            &["--why", "stale", "--unit", "a/b"],
+        ]
+        .concat(),
+    ));
+    assert!(
+        stale.contains(
+            "**Why now:** Re-check required: the previous review receipt is no longer valid."
+        ),
+        "{stale}"
+    );
+    assert_eq!(snapshot(&root).len(), before.len() + 2);
+    // The summary's brief: the questions file must be there, in the record.
+    let questions = format!("{RECORD}/ideation/intent-capture/intent-capture-questions.md");
+    let asks = |file: &str| {
+        brief(
+            &root,
+            &[
+                "summary",
+                "--stage",
+                "intent-capture",
+                "--questions-file",
+                file,
+            ],
+        )
+    };
+    assert_eq!(
+        refusal(&asks(&questions)),
+        format!(
+            "Summary confirmation questions file must exist inside the active intent record: {questions}"
+        )
+    );
+    write(&root, &questions, "# Questions\n");
+    write(&root, "notes.md", "# Notes\n");
+    assert_eq!(
+        refusal(&asks("notes.md")),
+        "Summary confirmation questions file must exist inside the active intent record: notes.md"
+    );
+    let confirm = shown(&asks(&questions));
+    assert!(
+        confirm.starts_with(&format!(
+            "**Stage:** Intent Capture & Framing\n**Confirming:** Consolidated answers in `{questions}` before generating `{statement}`, "
+        )),
+        "{confirm}"
+    );
+    let _ = fs::remove_dir_all(root);
+}
+
+/// Deliberate deviation: the brief of one unit of a stage that runs for
+/// each unit depends on whether the approval ahead is the unit's own, and a
+/// unit's recovery review names the source it was bound to. Upstream reads
+/// both off the units' records; Focus refuses each by name.
+#[test]
+fn what_a_brief_would_read_of_units_is_refused_by_name() {
+    let root = project("brief-units");
     assert_eq!(
         refusal(&brief(
             &root,
-            &[&["summary"], &stage[..], &["--questions-file", "q.md"]].concat()
+            &[
+                "review",
+                "--stage",
+                "functional-design",
+                "--why",
+                "first",
+                "--unit",
+                "api"
+            ],
         )),
-        "The brief of a summary confirmation (`review-brief summary`) reads the stage's questions and what was confirmed before: Focus does not write it yet."
+        "The brief of one unit of \"functional-design\" depends on whether the approval ahead is the unit's own (its team's gate, or its Construction checkpoint), which is read off the units' gates: Focus does not read those yet (units arrive with a later slice)."
     );
-    assert_eq!(snapshot(&root), before);
+    // (With no unit named, the stage's final gate shows every unit's.)
+    assert!(
+        shown(&brief(
+            &root,
+            &["review", "--stage", "functional-design", "--why", "first"],
+        ))
+        .starts_with("**Stage:** Functional Design\n")
+    );
+    let of_unit = |event: &str, title: &str, at: &str, more: &str| {
+        format!(
+            "\n## {title}\n**Timestamp**: 2026-01-05T10:0{at}:00Z\n**Event**: {event}\n**Stage**: intent-capture\n**Unit**: api\n**Reviewer**: focus-product-lead-agent\n**Iteration**: 1\n{more}**Unit Source Fingerprint**: {}\n\n---\n",
+            at.repeat(64)
+        )
+    };
+    write(
+        &root,
+        &format!("{RECORD}/audit/laptop-abc123.md"),
+        &format!(
+            "{SHARD}{}{}",
+            of_unit(
+                "REVIEW_COMPLETED",
+                "Review Completed",
+                "5",
+                "**Verdict**: READY\n"
+            ),
+            of_unit(
+                "REVIEW_REQUESTED",
+                "Review Requested",
+                "9",
+                "**Recovery**: stale-receipt\n**Recovery Cause**: artifact\n"
+            )
+        ),
+    );
+    let ask = |why: &'static str| {
+        brief(
+            &root,
+            &["review", "--stage", "intent-capture", "--why", why],
+        )
+    };
+    assert_eq!(
+        refusal(&ask("stale")),
+        "The recovery review of unit \"api\" of \"intent-capture\" names the source it was bound to, and what changed in it is read off the unit's source snapshots: Focus does not read those yet (units arrive with a later slice)."
+    );
+    // (Only the brief of a stale receipt reads what changed.)
+    shown(&ask("revision"));
     let _ = fs::remove_dir_all(root);
 }
 

@@ -35,7 +35,9 @@ use focus_js::{EngineError, Result, bail, json, re, text as js_text};
 use focus_workspace::names::ENGINE_DIR;
 use sha2::{Digest, Sha256};
 
-use crate::artifacts::{ReviewEntry, ReviewScope, Unlistable, review_entries, workspace_artifact_path};
+use crate::artifacts::{
+    ReviewEntry, ReviewScope, Unlistable, review_entries, workspace_artifact_path,
+};
 use crate::gate::sort_attempt_events;
 use crate::review_attempt::{definitely_before, maximal};
 use crate::review_derived;
@@ -197,7 +199,10 @@ pub fn review_brief(
         .filter(|finding| finding.is_open())
         .count();
     let listed: usize = contexts.iter().map(|context| context.findings.len()).sum();
-    let resolved: usize = contexts.iter().map(|context| context.reviewer_resolved).sum();
+    let resolved: usize = contexts
+        .iter()
+        .map(|context| context.reviewer_resolved)
+        .sum();
     let outcome = if open > 0 {
         "Concerns remain for your decision.".to_owned()
     } else if resolved > 0 {
@@ -436,7 +441,9 @@ fn invalidation_details(wf: &Workflow, stage: &Stage, contexts: &[Shown]) -> Res
 
     // The writes to the stage's documents after a review (and before the
     // request that replaced it, when one is given), of one unit or of all.
-    let mut collect = |frontier: &[&ShardEvent], before: Option<&ShardEvent>, unit: Option<&str>| {
+    let mut collect = |frontier: &[&ShardEvent],
+                       before: Option<&ShardEvent>,
+                       unit: Option<&str>| {
         let reviews_of = |unit: Option<&str>, reviews: &mut Paths| {
             for context in contexts {
                 if unit.is_none_or(|unit| unit.is_empty() || context.unit.as_deref() == Some(unit))
