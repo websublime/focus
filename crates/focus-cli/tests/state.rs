@@ -388,7 +388,7 @@ fn an_observer_writes_nothing() {
 }
 
 /// Deliberate deviation. Upstream's usage lists its 33 verbs and its
-/// refusal of a verb it does not know too; Focus lists the eighteen it has,
+/// refusal of a verb it does not know too; Focus lists the nineteen it has,
 /// and refuses the others by name, before any fence is consulted (upstream
 /// passes them through the state-transition fence first).
 #[test]
@@ -396,7 +396,7 @@ fn the_state_command_names_the_verbs_it_has() {
     let root = project("usage");
     assert_eq!(
         refusal(&state(&root, &[], &[])),
-        "Usage: focus engine state <subcommand>. Valid: get, set, checkbox, count, advance, finalize, complete-workflow, gate-start, approve, reject, revise, skip, resume, park, unpark, acknowledge-compaction, practices-event, lookup. Run with --help for detail."
+        "Usage: focus engine state <subcommand>. Valid: get, set, checkbox, count, advance, finalize, complete-workflow, gate-start, approve, reject, revise, skip, resume, park, unpark, acknowledge-compaction, practices-event, reuse-artifact, lookup. Run with --help for detail."
     );
     assert_eq!(
         refusal(&state(&root, &["nope"], &[])),
@@ -404,7 +404,7 @@ fn the_state_command_names_the_verbs_it_has() {
     );
     for (verb, does) in [
         ("set-unit-ownership", "sets the units' ownership"),
-        ("reuse-artifact", "reuses an artifact of another record"),
+        ("sync-unit-scope-stage", "syncs a unit's scope stage"),
         ("fork", "forks the state for a bolt"),
         ("unit", "runs a unit of work's step"),
         ("practices-promote", "promotes a practice"),
@@ -1864,6 +1864,174 @@ fn the_verbs_that_only_leave_a_row() {
             format!("{{\"emitted\":\"{event}\",\"fields_count\":0}}\n")
         );
     }
+    let _ = fs::remove_dir_all(root);
+}
+
+/// `reuse-artifact` records what becomes of artifacts a stage already has.
+/// For a stage run by itself the row carries the run, and is taken only
+/// while that run is open.
+///
+/// Deliberate deviation: keeping the CodeKB of a `reverse-engineering` run
+/// by itself. After the repository and the store are checked, upstream
+/// asks whether the store is current, from the scope its scan recorded;
+/// Focus reads no scan yet and refuses that question by name.
+#[test]
+fn reuse_artifact_records_what_becomes_of_what_a_stage_has() {
+    let root = created("reuse", CREATED);
+    let reuse = |args: &[&str]| state(&root, &[&["reuse-artifact"], args].concat(), &[]);
+    assert_eq!(
+        refusal(&reuse(&[])),
+        "Usage: focus engine state reuse-artifact <slug> --decision <keep|modify|redo> --artifacts <csv> [--repo <repo>] [--single]"
+    );
+    assert_eq!(
+        refusal(&reuse(&["intent-capture", "--artifacts", "a.md"])),
+        "Missing --decision <keep|modify|redo>"
+    );
+    assert_eq!(
+        refusal(&reuse(&["intent-capture", "--decision", "keep"])),
+        "Missing --artifacts <csv>"
+    );
+    assert_eq!(
+        refusal(&reuse(&[
+            "intent-capture",
+            "--decision",
+            "nope",
+            "--artifacts",
+            "a.md"
+        ])),
+        "Invalid decision: nope. Must be keep, modify, or redo."
+    );
+    assert_eq!(
+        refusal(&reuse(&[
+            "nope",
+            "--decision",
+            "keep",
+            "--artifacts",
+            "a.md"
+        ])),
+        "Unknown stage: nope"
+    );
+    assert_eq!(
+        ok(&reuse(&[
+            "intent-capture",
+            "--decision",
+            "modify",
+            "--artifacts",
+            "a.md, b.md",
+            "--repo",
+            "app",
+        ])),
+        "{\"slug\":\"intent-capture\",\"decision\":\"modify\",\"artifacts\":\"a.md, b.md\",\"repo\":\"app\",\"emitted\":\"ARTIFACT_REUSED\"}\n"
+    );
+    assert!(
+        created_shard(&root).contains(
+            "**Event**: ARTIFACT_REUSED\n**Stage**: intent-capture\n**Decision**: modify\n**Artifacts**: a.md, b.md\n**Repo**: app\n"
+        ),
+        "{}",
+        created_shard(&root)
+    );
+    // With no repository registered, the project's own store goes by the
+    // folder's name: that name as `--repo` is the root, and is not recorded.
+    let folder = root.file_name().unwrap().to_str().unwrap().to_owned();
+    assert_eq!(
+        ok(&reuse(&[
+            "reverse-engineering",
+            "--decision",
+            "keep",
+            "--artifacts",
+            "a.md",
+            "--repo",
+            &folder,
+        ])),
+        "{\"slug\":\"reverse-engineering\",\"decision\":\"keep\",\"artifacts\":\"a.md\",\"emitted\":\"ARTIFACT_REUSED\"}\n"
+    );
+    // A stage run by itself.
+    let alone = [
+        "market-research",
+        "--decision",
+        "keep",
+        "--artifacts",
+        "a.md",
+        "--single",
+    ];
+    assert_eq!(
+        refusal(&reuse(&alone)),
+        "Cannot record isolated reuse for \"market-research\": run next --stage market-research --single first."
+    );
+    let shard_path = root.join(CREATED_RECORD).join("audit/laptop-abc123.md");
+    let started = |stage: &str| {
+        format!(
+            "\n## Stage Started\n**Timestamp**: 2026-01-05T11:00:00Z\n**Event**: STAGE_STARTED\n**Stage**: {stage}\n**Workflow**: single-stage:{stage}\n\n---\n"
+        )
+    };
+    let before = created_shard(&root);
+    fs::write(
+        &shard_path,
+        format!("{before}{}", started("market-research")),
+    )
+    .unwrap();
+    assert_eq!(
+        ok(&reuse(&alone)),
+        "{\"slug\":\"market-research\",\"decision\":\"keep\",\"artifacts\":\"a.md\",\"single\":true,\"emitted\":\"ARTIFACT_REUSED\"}\n"
+    );
+    assert!(
+        created_shard(&root)
+            .contains("**Artifacts**: a.md\n**Workflow**: single-stage:market-research\n")
+    );
+    // The CodeKB kept by a reverse-engineering run by itself: the store
+    // must be the record's own, and then the deviation.
+    fs::write(
+        &shard_path,
+        format!("{before}{}", started("reverse-engineering")),
+    )
+    .unwrap();
+    let store = format!("focus/spaces/default/codekb/{folder}/");
+    let kept = |artifacts: &str, more: &[&str]| {
+        reuse(
+            &[
+                &[
+                    "reverse-engineering",
+                    "--decision",
+                    "keep",
+                    "--artifacts",
+                    artifacts,
+                    "--single",
+                ],
+                more,
+            ]
+            .concat(),
+        )
+    };
+    assert_eq!(
+        refusal(&kept(&store, &["--repo", "app"])),
+        "Cannot record isolated reverse-engineering reuse: this intent has no registered repo identity; omit --repo."
+    );
+    assert_eq!(
+        refusal(&kept("elsewhere/", &[])),
+        format!(
+            "Cannot record isolated reverse-engineering reuse: --artifacts must be the exact current store {store}."
+        )
+    );
+    let rows = created_shard(&root).matches("ARTIFACT_REUSED").count();
+    // (The store may be given with spaces around it, or with the other
+    // slash: it is the same store.)
+    for given in [format!("  {store} "), store.replace('/', "\\")] {
+        assert!(
+            refusal(&kept(&given, &[]))
+                .starts_with("Keeping the CodeKB of a reverse-engineering run by itself asks"),
+            "{given}"
+        );
+    }
+    assert_eq!(
+        refusal(&kept(&store, &[])),
+        format!(
+            "Keeping the CodeKB of a reverse-engineering run by itself asks whether the store \"{folder}\" is current, which is read off the scope its scan recorded: Focus does not read that yet (the scan arrives with a later slice)."
+        )
+    );
+    assert_eq!(
+        created_shard(&root).matches("ARTIFACT_REUSED").count(),
+        rows
+    );
     let _ = fs::remove_dir_all(root);
 }
 

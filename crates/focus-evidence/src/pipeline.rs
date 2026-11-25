@@ -156,6 +156,31 @@ pub fn after_floor(row: &ShardEvent, floor: Option<&Floor>) -> bool {
     floor.rows.iter().all(|boundary| row.pos > boundary.pos)
 }
 
+/// `singleStageAttemptIsOpen`: whether the stage is being run by itself
+/// right now: its own run started (`events` are in order), from one shard,
+/// and no completion of that run stands after the start or at its instant
+/// in another shard.
+#[must_use]
+pub fn single_stage_attempt_is_open(events: &[ShardEvent], stage: &str, graph: &[Stage]) -> bool {
+    let workflow = format!("single-stage:{stage}");
+    let Some(floor) = attempt_floor(events, stage, true, false, graph) else {
+        return false;
+    };
+    let shard = &floor.rows[0].shard;
+    if floor.rows.iter().any(|boundary| boundary.shard != *shard) {
+        return false;
+    }
+    // (Upstream asks a third time, of a completion in the start's own shard
+    // and instant and after it: that one is after the floor already.)
+    !events.iter().any(|row| {
+        row.event == "STAGE_COMPLETED"
+            && block_field(&row.block, "Stage") == Some(stage)
+            && block_field(&row.block, "Workflow") == Some(workflow.as_str())
+            && (after_floor(row, Some(&floor))
+                || (row.timestamp == floor.timestamp && row.shard != *shard))
+    })
+}
+
 /// `pipelineAttemptStartedAt`: the instant the stage's attempt started, or
 /// nothing.
 #[must_use]
