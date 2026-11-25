@@ -388,7 +388,7 @@ fn an_observer_writes_nothing() {
 }
 
 /// Deliberate deviation. Upstream's usage lists its 33 verbs and its
-/// refusal of a verb it does not know too; Focus lists the nineteen it has,
+/// refusal of a verb it does not know too; Focus lists the twenty-six it has,
 /// and refuses the others by name, before any fence is consulted (upstream
 /// passes them through the state-transition fence first).
 #[test]
@@ -2280,6 +2280,7 @@ fn the_verification_command_needs_the_persons_receipt() {
     for (file, says) in [
         ("../x.txt", "path component \"..\" escapes its anchor "),
         ("/x.txt", "path escapes its anchor lexically: /x.txt"),
+        ("\\x.txt", "path escapes its anchor lexically: \\x.txt"),
         ("c:x.txt", "path escapes its anchor lexically: c:x.txt"),
     ] {
         let refused = refusal(&set(&["--command-file", file]));

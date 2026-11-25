@@ -213,7 +213,8 @@ fn receipt_authorizes(wf: &Workflow, state: &str, field: &str, value: &str) -> b
     receipt.event == "CONSTRUCTION_POLICY_RECORDED"
         && definitely_before(start, receipt)
         && block_field(&receipt.block, "Value") == Some(value)
-        && block_field(&receipt.block, "Session").is_some_and(|session| !trim(session).is_empty())
+        // (Not blank: a field is read without the spaces around it.)
+        && block_field(&receipt.block, "Session").is_some_and(|session| !session.is_empty())
         && block_field(&receipt.block, "User Input") == Some("Approve")
 }
 
@@ -229,10 +230,10 @@ fn authority(wf: &Workflow, state: &str, field: &str, value: &str) -> Option<Aut
     if receipt_authorizes(wf, state, field, value) {
         return Some(Authority::Receipt);
     }
-    // `personAskedSinceGate`.
-    (env::var("UNATTENDED").as_deref() != Some("1")
-        && presence::person_spoke_since_gate(wf, false, true, true))
-    .then_some(Authority::Asked)
+    // `personAskedSinceGate`. (Upstream asks it of an attended run only; the
+    // one caller has refused an unattended run without a receipt before any
+    // answer of this is used.)
+    presence::person_spoke_since_gate(wf, false, true, true).then_some(Authority::Asked)
 }
 
 /// `requireHumanConstructionPolicyChange`: during Construction a change is

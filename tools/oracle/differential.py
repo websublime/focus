@@ -3054,7 +3054,7 @@ def state_checks():
     team = "- **Unit Ownership**: team\n"
     check_("policy/iteration_of_a_team", created(running(more=team)), [iteration("stage-major"), iteration("unit-major")])
     check_("policy/iteration_of_a_solo", created(running(more="- **Unit Ownership**: solo\n")), [iteration("stage-major")])
-    check_("policy/iteration_over_a_swarm", created(running(iteration="stage-major", execution="swarm")), [iteration("unit-major"), *shown])
+    check_("policy/iteration_over_a_swarm", created(running(iteration="stage-major", execution="swarm")), [iteration("unit-major"), iteration("stage-major"), *shown])
     check_("policy/iteration_over_a_swarm_no_checkpoints", created(running("disabled", "stage-major", "swarm")), [iteration("unit-major"), *shown])
 
     check_("policy/checkpoints_usage", created(), [checkpoints(), checkpoints("enabled", "disabled"), checkpoints("nope"), checkpoints(""), checkpoints("Enabled")])
@@ -3108,10 +3108,13 @@ def state_checks():
     check_("policy/receipt_then_a_newer_one", by_receipt(chosen(), chosen(value="unit-major", minute=9)), change)
     check_("policy/receipt_of_a_stage_run_by_itself", by_receipt(chosen("Construction Iteration", "stage-major", 8, "CONSTRUCTION_POLICY_RECORDED", "Construction Policy", "s1", "Approve", "**Workflow**: single-stage:code-generation")), change)
     check_("policy/receipt_then_one_of_a_stage_run_by_itself", by_receipt(chosen(), chosen("Construction Iteration", "unit-major", 9, "CONSTRUCTION_POLICY_RECORDED", "Construction Policy", "s1", "Approve", "**Workflow**: single-stage:code-generation")), change)
+    # (What the state already says needs no receipt and takes none, however the line is written.)
+    check_("policy/receipt_for_what_is_already_so", created(built.replace("- **Construction Iteration**: unit-major", "- **Construction Iteration**:   stage-major"), CREATED_AUDIT + chosen()), [iteration("stage-major"), *shown])
     check_("policy/receipt_spent", by_receipt(chosen()), [iteration("stage-major"), iteration("unit-major"), iteration("stage-major")])
     other_shard = f"{CREATED_DIR}/audit/desktop-def456.md"
     earlier = lambda row: row.replace("2026-01-05T10:", "2026-01-05T09:")
     check_("policy/receipt_in_another_shard", by_receipt(**{other_shard: TITLE + chosen()}), change)
+    check_("policy/receipt_two_at_one_instant", by_receipt(chosen(), **{other_shard: TITLE + chosen()}), change)
     check_("policy/receipt_in_another_shard_at_the_start", by_receipt(**{other_shard: TITLE + chosen(minute=0)}), change)
     check_("policy/receipt_in_another_shard_before_the_start", by_receipt(**{other_shard: TITLE + earlier(chosen())}), change)
     started = lambda minute=0: block("WORKFLOW_STARTED", T(minute), "**Scope**: feature")
@@ -3146,6 +3149,8 @@ def state_checks():
     check_("policy/command_not_approved_by_the_person", with_rows(approved(said="Request Changes")), [command("cargo test")])
     check_("policy/command_of_another_checkpoint", with_rows(approved(checkpoint="Construction Policy")), [command("cargo test")])
     check_("policy/command_then_another_approved", with_rows(approved(), approved("make", 9)), [command("cargo test"), command("make")])
+    check_("policy/command_then_another_receipt", with_rows(approved(), chosen(minute=9), block("SUMMARY_CONFIRMATION_RECORDED", T(10), "**Stage**: intent-capture")), [command("cargo test")])
+    check_("policy/command_two_at_one_instant", created(CREATED_STATE, CREATED_AUDIT + approved(), **{other_shard: TITLE + approved()}), [command("cargo test")])
     check_("policy/command_of_a_stage_run_by_itself", with_rows(approved("cargo test", 8, COMMAND, "Approve", "**Workflow**: single-stage:code-generation")), [command("cargo test")])
     check_("policy/command_in_another_shard", created(**{other_shard: TITLE + approved()}), [command("cargo test")])
     check_("policy/command_in_another_shard_before_the_start", created(**{other_shard: TITLE + earlier(approved())}), [command("cargo test")])
@@ -3158,7 +3163,9 @@ def state_checks():
     check_("policy/command_file_gone", with_rows(approved()), [from_file])
     check_("policy/command_file_in_a_folder", in_file("checks/command.txt"), [command("--command-file", "checks/command.txt"), command("--command-file", "checks\\command.txt"), command("--command-file", "checks")])
     check_("policy/command_file_named_otherwise", in_file(), [command("--command-file", "./verification-command.txt"), command("--command-file", "checks/../verification-command.txt"), command("--command-file", "../260105-add-login/verification-command.txt"),
-                                                              command("--command-file", f"{CREATED_DIR}/verification-command.txt"), command("--command-file", "{P}/" + CREATED_DIR + "/verification-command.txt"), command("--command-file", "")])
+                                                              command("--command-file", f"{CREATED_DIR}/verification-command.txt"), command("--command-file", "{P}/" + CREATED_DIR + "/verification-command.txt"), command("--command-file", ""),
+                                                              command("--command-file", "\\verification-command.txt"), command("--command-file", "c:verification-command.txt"), command("--command-file", "c:\\verification-command.txt"),
+                                                              command("--command-file", "./gone.txt"), command("--command-file", ".//./verification-command.txt")])
     check_("policy/command_file_two_lines", in_file(text="cargo test\ncargo clippy\n"), [from_file])
     check_("policy/command_file_empty", in_file(text=""), [from_file])
     check_("policy/command_file_too_long", in_file(text="x" * (16 * 1024 + 1)), [from_file])
