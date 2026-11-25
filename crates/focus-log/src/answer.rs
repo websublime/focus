@@ -20,7 +20,6 @@
 //! unit of work, 5; Plan Approval, 11).
 
 use focus_audit::read::block_field;
-use focus_audit::shards::ShardEvent;
 use focus_js::text::{split_at_utf16, to_lower_case, trim};
 use focus_js::{Result, bail, re};
 use focus_lifecycle::presence::{self, TurnState};
@@ -68,43 +67,7 @@ pub fn offered_choice_label<'a>(details: &str, choices: &[&'a str]) -> Option<(&
     None
 }
 
-/// `attemptEventDefinitelyBefore`.
-fn definitely_before(earlier: &ShardEvent, later: &ShardEvent) -> bool {
-    if earlier.shard == later.shard {
-        return earlier.pos < later.pos;
-    }
-    focus_js::order::cmp_utf16(&earlier.timestamp, &later.timestamp) == std::cmp::Ordering::Less
-}
-
-/// `maximalAttemptEvents`: the rows nothing is definitely after. Position
-/// within a shard and instant between shards are two orders, so three rows
-/// can each have another after them; then the rows of the latest instant
-/// stand for all.
-pub(crate) fn maximal<'a>(rows: &[&'a ShardEvent]) -> Vec<&'a ShardEvent> {
-    let kept: Vec<&ShardEvent> = rows
-        .iter()
-        .enumerate()
-        .filter(|(at, candidate)| {
-            !rows
-                .iter()
-                .enumerate()
-                .any(|(other_at, other)| other_at != *at && definitely_before(candidate, other))
-        })
-        .map(|(_, row)| *row)
-        .collect();
-    if !kept.is_empty() || rows.is_empty() {
-        return kept;
-    }
-    let latest = rows
-        .iter()
-        .map(|row| row.timestamp.as_str())
-        .max_by(|a, b| focus_js::order::cmp_utf16(a, b))
-        .unwrap_or_default();
-    rows.iter()
-        .filter(|row| row.timestamp == latest)
-        .copied()
-        .collect()
-}
+pub(crate) use focus_lifecycle::review_attempt::maximal;
 
 /// `handleAnswer`. `open` selects the piece of work the answer belongs to.
 ///

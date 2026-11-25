@@ -139,6 +139,37 @@ pub fn definitely_before(earlier: &ShardEvent, later: &ShardEvent) -> bool {
     }
 }
 
+/// `maximalAttemptEvents`: the rows nothing is definitely after. Position
+/// within a shard and instant between shards are two orders, so three rows
+/// can each have another after them; then the rows of the latest instant
+/// stand for all.
+#[must_use]
+pub fn maximal<'a>(rows: &[&'a ShardEvent]) -> Vec<&'a ShardEvent> {
+    let kept: Vec<&ShardEvent> = rows
+        .iter()
+        .enumerate()
+        .filter(|(at, candidate)| {
+            !rows
+                .iter()
+                .enumerate()
+                .any(|(other_at, other)| other_at != *at && definitely_before(candidate, other))
+        })
+        .map(|(_, row)| *row)
+        .collect();
+    if !kept.is_empty() || rows.is_empty() {
+        return kept;
+    }
+    let latest = rows
+        .iter()
+        .map(|row| row.timestamp.as_str())
+        .max_by(|a, b| cmp_utf16(a, b))
+        .unwrap_or_default();
+    rows.iter()
+        .filter(|row| row.timestamp == latest)
+        .copied()
+        .collect()
+}
+
 fn single_stage(block: &str) -> bool {
     block_field(block, "Workflow").is_some_and(|workflow| workflow.starts_with("single-stage:"))
 }
