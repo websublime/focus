@@ -284,11 +284,18 @@ fn normalise_audit(text: &str, root: &Path) -> String {
     text = text
         .replace("Usage: focus engine state ", "Usage: <cli> state ")
         .replace("Run focus engine state --help", "Run <cli> state --help");
-    // The state tool naming one of its own verbs in a sentence.
+    // The state tool naming one of its own verbs in a sentence (or the
+    // first of several it lists), and the log tool's two commands a
+    // recovery spells out.
     text = replace_all(
         &text,
-        r"(?<![`\w])focus engine state (?=[a-z-]+ )",
+        r"(?<![`\w])focus engine state (?=[a-z-]+[ ,])",
         |_, _| "<cli> state ".to_owned(),
+    );
+    text = replace_all(
+        &text,
+        r"(?<![`\w])focus engine log (?=(?:decision|answer) )",
+        |_, _| "<cli> log ".to_owned(),
     );
     // The orchestrator's command as a way on of a guard's question gives
     // it: a value of its own, right after the quote that opens it.

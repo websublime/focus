@@ -3809,7 +3809,7 @@ A fatia junta coisas de tamanhos muito diferentes: verbos de `state` que não t�
 | 5a. Os verbos que não são de units | `lookup`, `acknowledge-compaction`, `practices-event` | A recusa pelo nome dos três | Feita (abaixo) |
 | 5b. `reuse-artifact` | A linha `ARTIFACT_REUSED`, com o reuso de uma stage corrida sozinha (`--single`) | A recusa pelo nome do verbo | Feita (abaixo) |
 | `practices-promote` | Sai desta fatia: promove a secção Testing Posture pelo leitor do contrato de testes (`promotableTestingPosture`, `classifyPosture`), que é a fatia 11. Fica recusado pelo nome até lá | | Fatia 11 |
-| 5c. A política de Construction | `set-skeleton-stance`, `set-construction-iteration`, `set-construction-checkpoints`, `set-construction-execution`, `set-construction-verification-command`, `set-unit-gate-rhythm`, `sync-unit-scope-stage` | A recusa pelo nome dos sete | Por fazer |
+| 5c. A política de Construction | `set-skeleton-stance`, `set-construction-iteration`, `set-construction-checkpoints`, `set-construction-execution`, `set-construction-verification-command`, `set-unit-gate-rhythm`, `sync-unit-scope-stage` | A recusa pelo nome dos sete | Feita (abaixo) |
 | 5d em diante | O verbo `unit` (623 linhas), `bolt` sem worktree, `construction-checkpoints`, uma stage de Construction em `advance` e nos gates, `jump reopen` e `execute --units`, `skip --unit`, e o que as fatias 2e, 3 e 3e recusam pelo nome por falta de units (os recibos por unit, o congelamento por unit, o brief de uma unit) | O limite 1 de M3 | Por fazer; parte-se quando lá chegar |
 
 ### Fatia 5a: `lookup`, `acknowledge-compaction` e `practices-event`
@@ -3869,6 +3869,54 @@ A fatia junta coisas de tamanhos muito diferentes: verbos de `state` que não t�
 | Diferencial, tudo | 4 544 verificações: 4 319 iguais, 225 desvios declarados, 0 diferentes. Gravadas 4 432 sobre 1 870 árvores; fuzz 600 iguais |
 | Mutação | 33 mutantes: 32 apanhados (26 à primeira), 1 equivalente escrito na linha |
 | `cargo test` | 615 testes; `reuse_artifact_records_what_becomes_of_what_a_stage_has` cobre as linhas gravadas, a recusa do desvio (com a loja dada com espaços e com a outra barra) e que nada se grava nela |
+
+### Fatia 5c: a política de Construction
+
+**O que existe.** `focus-lifecycle::construction_policy`: como Construction corre, tal como a pessoa o definiu. São preferências da corrida: nenhuma move o ciclo de vida nem dá autonomia.
+
+| Verbo | O que faz |
+| --- | --- |
+| `set-skeleton-stance <on\|off\|scope-dependent>` | Grava `Skeleton Stance` em `## Runtime State`. Não deixa linha: é o que o passo seguinte lê, não uma transição |
+| `set-construction-iteration <unit-major\|stage-major>` | Como as stages por unit percorrem as units. Recusa sair de `unit-major` com `Unit Ownership: team`, e `unit-major` por cima de checkpoints ligados com execução em swarm |
+| `set-construction-checkpoints <enabled\|disabled>` | Se Construction para depois de cada unit |
+| `set-construction-execution <serial\|swarm>` | Só com os checkpoints ligados; swarm só com `stage-major` |
+| `set-construction-verification-command <comando>` ou `--command-file <caminho no registo>` | O comando que verifica uma unit, escrito no estado só com o recibo da aprovação da pessoa para esse mesmo comando |
+| `set-unit-gate-rhythm`, `sync-unit-scope-stage` | De units de equipa: sem equipa recusam como o original; com equipa, pelo nome (abaixo) |
+
+Uma alteração que muda o estado deixa `CONSTRUCTION_POLICY_SET` (o campo, o valor, o que estava, e a iteração e os checkpoints que ficam em vigor, que o chão das tentativas lê) e devolve uma frase para a pessoa: o que é agora, o que era, e que se pode voltar atrás; ou que já era assim, e então nada se grava.
+
+**De quem é a alteração.** Antes de Construction qualquer um grava a preferência. Durante (`Lifecycle Phase: construction`, sem olhar a maiúsculas) é da pessoa, por uma de duas vias (`requireHumanConstructionPolicyChange`):
+
+| Via | O que conta |
+| --- | --- |
+| Pediu | Uma mensagem sua desde a última decisão (`personAskedSinceGate`: um turno que não seja a pergunta sobre um interruptor, e que uma aprovação não gasta mas um pedido de alterações sim). As palavras desse turno vão para a linha (`Person Reply`) |
+| Escolheu | Um recibo `CONSTRUCTION_POLICY_RECORDED` (`authorizedConstructionPolicyChange`): a última palavra sobre esse campo no checkpoint `Construction Policy` (uma pergunta ou resposta posterior tira-lhe a vez), depois do único início do workflow, com esse valor, sessão e `User Input: Approve`, num registo com uuid e shards todos legíveis. Aplicado, o estado já tem o valor: o mesmo recibo não serve para voltar atrás |
+
+Uma corrida sem ninguém (`FOCUS_UNATTENDED=1`) só muda por recibo, mesmo com a verificação de presença desligada; com a presença desligada e alguém, muda sem mais.
+
+**O comando de verificação.** Nunca se acredita no estado sozinho (`authorizedVerificationCommand`): o último `VERIFICATION_COMMAND_RECORDED` do workflow tem de trazer o SHA-256 do comando e `User Input: Approve`. O comando cabe numa linha (`verificationCommandDetails`): sem caracteres que enganem quem lê (`\p{Cf}`, separadores de linha e parágrafo, o espaço que não parte, antes de aparar), não vazio, até 1024 unidades UTF-16, sem controlos. De um ficheiro, lê-se do registo sem atravessar links e até 16 KiB; o caminho lê-se como o original o lê, e para isso `focus-workspace::links` ganhou `target_in_chain`, a forma que recusa de `chain_is_link_free` (que passou a ser ela): as duas barras partem-no, uma raiz ou um `..` saem da âncora. Um campo que já existe é substituído por um padrão, onde `$` tem significado: cada um escreve-se de modo a ficar um.
+
+`active_intent_uuid` passou de `focus-hooks` para `focus-workspace::records`, onde o ciclo de vida também o alcança.
+
+**Desvios deliberados.**
+
+| Onde | O original | Focus |
+| --- | --- | --- |
+| O que um ajuste era, quando era um nome que todo o objeto tem (`constructor`, `__proto__`, `toString`) | Procura-o num objeto simples e encontra-o sem nada para dizer: `(undefined)` | Não conhece tal valor: diz a alteração sem o que era. `state/policy/previous_value_an_object_s_name_.*`; o teste `a_setting_that_was_an_objects_name_is_a_value_like_any_other` |
+| `set-unit-gate-rhythm` e `sync-unit-scope-stage` com `Unit Ownership: team` | Grava o ritmo dos gates das units de uma equipa (congelado depois de as units fazerem alguma coisa) e sincroniza a stage de uma unit reclamada pelo carimbo do checkout | Recusa os dois pelo nome: a equipa está adiada (secção 11). `state/policy/(rhythm\|sync)_of_a_team`; o teste `a_teams_units_are_refused_by_name` |
+
+**A ferramenta de comparação.** A regra que resolve `focus engine state <verbo>` numa frase passou a aceitar o primeiro de vários verbos listados (seguido de vírgula), e ganhou a dos dois comandos de `log` que uma recuperação soletra, nos dois lados (`differential.py` e `recorded.rs`). `sync-unit-scope-stage` é uma transição do motor (passa pela cerca `state-transition`), como no original.
+
+**O que a mutação encontrou.** 91 mutantes sobre o módulo, `target_in_chain` e a ligação no CLI: 82 apanhados à primeira, 7 depois de casos novos, 2 que eram código a mais e saíram. Os sete: o que o estado já diz não precisa de recibo nem o aceita, mesmo com a linha escrita com espaços a mais (a reescrita muda o texto, e sem pedido recusa-se); dois recibos no mesmo instante em shards diferentes não são um último recibo, nem para um ajuste nem para o comando; `unit-major` é o único valor que a execução em swarm trava (`stage-major` por cima de um swarm passa); um recibo de outra coisa depois do do comando não lhe tira a vez; um caminho que começa pela outra barra tem raiz; e um `.` no caminho não chega ao nome do ficheiro que a recusa mostra. Os dois a mais: aparar a sessão do recibo, que o leitor de campos já entrega aparada; e a pergunta `FOCUS_UNATTENDED` dentro de "pediu", que o único chamador já respondeu antes (uma corrida sem ninguém e sem recibo é recusada primeiro), escrito na linha.
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Diferencial, `state/policy` | 120 verificações: 115 iguais, 5 desvios (três nomes de objeto, o ritmo e a sincronização de uma equipa), 0 diferentes. Cada verbo no uso, com valor inválido, arquivado, sem registo, com o observador e sem a secção de runtime; cada ajuste mudado, repetido, ausente, em branco e com um valor anterior desconhecido; as recusas entre iteração, checkpoints e execução; em Construction: ninguém pediu, pediu (com e sem palavras, por comando, sobre um interruptor, antes de uma aprovação e de um pedido de alterações), presença desligada, sem ninguém, e o recibo em 29 checks (outro valor, campo ou checkpoint, sem sessão, não aprovado, seguido de outra pergunta, gasto, noutro shard antes, no início e depois dele, dois no mesmo instante, dois inícios, de uma stage corrida sozinha, shard ilegível, sem uuid); o comando: uso, não aprovado, aprovado, substituído (com `$`), os caracteres que enganam e os que uma linha não leva, o comprimento em unidades UTF-16, os recibos, e o ficheiro (em falta, numa pasta, com cada forma de caminho, duas linhas, vazio, grande demais, outros bytes, BOM, um link, atrás de um link, sem registo) |
+| Diferencial, tudo | 4 664 verificações: 4 434 iguais, 230 desvios declarados, 0 diferentes. Gravadas 4 548 sobre 1 952 árvores (os dois checks de um ficheiro com bytes que não são texto comparam-se ao vivo; o teste do CLI lê um); fuzz 600 iguais. `state/usage/set-construction-checkpoints_not_ported`, que deixou de ser desvio, deu lugar a `set-unit-ownership` |
+| Mutação | 91 mutantes: 89 apanhados (82 à primeira), 2 eram código a mais e saíram |
+| `cargo test` | 619 testes. Quatro novos: `how_construction_runs_is_the_persons_to_set` (as linhas gravadas, o pedido com as palavras na linha, o recibo que serve uma vez, sem ninguém), `the_verification_command_needs_the_persons_receipt` (o recibo, a substituição com `$`, o ficheiro, os bytes que não são texto, os caminhos com raiz), e os dois dos desvios |
 
 ### O que M4 não levantou
 

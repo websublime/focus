@@ -1451,7 +1451,9 @@ def normalise_audit(text, tree, engine):
     text = text.replace("Usage: focus engine state ", "Usage: <cli> state ")
     text = text.replace("Run focus engine state --help", "Run <cli> state --help")
     # The state tool naming one of its own verbs in a sentence (`skip takes --route or --unit`).
-    text = re.sub(r"(?<![`\w])focus engine state (?=[a-z-]+ )", "<cli> state ", text)
+    # (Or the first of several it lists, and the log tool's two commands a recovery spells out.)
+    text = re.sub(r"(?<![`\w])focus engine state (?=[a-z-]+[ ,])", "<cli> state ", text)
+    text = re.sub(r"(?<![`\w])focus engine log (?=(?:decision|answer) )", "<cli> log ", text)
     text = text.replace("Usage: focus engine utility ", "Usage: <cli> utility ")
     # The utility tool's own name in a row's Tool or Command.
     text = re.sub(r"(?<![\w-])(?:aidlc|focus)-utility(?![\w.-])", "<cli> utility", text)
@@ -2655,8 +2657,16 @@ DEVIATIONS.update({
         "checked, upstream asks whether the store is CURRENT, from the scope its scan recorded, and whether its "
         "artifact set is whole; focus refuses the question by name until it reads a scan (the reverse-engineering "
         "scan, with the orchestrator)",
+    r"state/policy/previous_value_an_object_s_name_.*":
+        "upstream looks the value a setting had up in a plain object to say what it was, so a value that is a name "
+        "every object has (constructor, __proto__, toString) is found there with nothing to say, and the notice "
+        "reads `(undefined)`. Focus knows no such value, and says the change without what it was, as for any other "
+        "value it does not know",
+    r"state/policy/(rhythm|sync)_of_a_team":
+        "Unit Ownership: team is deferred (the plan, section 11): upstream sets the gate rhythm of a team's units "
+        "and syncs a claimed unit's stage from its checkout's scope stamp; focus refuses both by name",
     r"state/usage/(none|unknown)":
-        "upstream's usage lists its 33 verbs, Focus's the nineteen it has",
+        "upstream's usage lists its 33 verbs, Focus's the twenty-six it has",
     "state/lookup/names_of_an_object":
         "upstream looks a scope and a phase up in plain objects, so the names every object has (constructor, "
         "__proto__, toString) are found there: validate-phase falls over on them, first-in-phase fails as on an "
@@ -2892,7 +2902,7 @@ def state_checks():
     check_("usage/set_no_pair", record, [["set"]], direct)
     check_("usage/checkbox_no_pair", record, [["checkbox"]], direct)
     check_("usage/count_no_state", record, [["count"]])
-    for verb in ("gate-start", "approve", "park", "unit", "fork", "practices-promote", "set-construction-checkpoints"):
+    for verb in ("gate-start", "approve", "park", "unit", "fork", "practices-promote", "set-unit-ownership"):
         check_(f"usage/{verb}_not_ported", {**record, **shard}, [[verb]])
 
     # lookup: questions about the stage graph and the scopes, answered without touching the work.
@@ -3005,6 +3015,182 @@ def state_checks():
                                                                                               reuse("reverse-engineering", "keep", "aidlc/spaces/default/codekb/{N}", "--single")])
     check_("reuse/single_codekb_store_not_current", created(CREATED_STATE, CREATED_AUDIT + re_alone, registry=reg('["app"]')), [kb("app", "--repo", "app")])
     check_("reuse/single_codekb_store_asked", created(CREATED_STATE, CREATED_AUDIT + re_alone), [kb("{N}")])
+
+    # How Construction runs: the skeleton's stance, the iteration, the checkpoints, the execution, the command
+    # that verifies a unit; and the two verbs of a team's units.
+    def running(checkpoints="enabled", iteration="unit-major", execution="serial", phase="IDEATION", more=""):
+        state = CREATED_STATE
+        for field, value in (("Construction Checkpoints", checkpoints), ("Construction Iteration", iteration), ("Construction Execution", execution)):
+            line = re.search(rf"- \*\*{field}\*\*: [^\n]*\n", state).group(0)
+            state = state.replace(line, "" if value is None else f"- **{field}**: {value}\n")
+        return state.replace("- **Lifecycle Phase**: IDEATION", f"- **Lifecycle Phase**: {phase}").replace("- **Revision Count**: 0\n", "- **Revision Count**: 0\n" + more)
+    stance = lambda *args: ["set-skeleton-stance", *args]
+    iteration = lambda *args: ["set-construction-iteration", *args]
+    checkpoints = lambda *args: ["set-construction-checkpoints", *args]
+    execution = lambda *args: ["set-construction-execution", *args]
+    command = lambda *args: ["set-construction-verification-command", *args]
+    rhythm = lambda *args: ["set-unit-gate-rhythm", *args]
+    sync = lambda *args: ["sync-unit-scope-stage", *args]
+    shown = [["get", "Construction Iteration"], ["get", "Construction Checkpoints"], ["get", "Construction Execution"]]
+    archived = CREATED_STATE.replace("- **Status**: Running", "- **Status**: Archived")
+    every = [stance("on"), iteration("stage-major"), checkpoints("disabled"), execution("serial"), command("cargo test"), rhythm("unit-end"), sync("code-generation", "--unit", "api")]
+    check_("policy/archived", created(archived), every)
+    check_("policy/no_record", CLONE, every)
+    check_("policy/observer", created(), every, {"STOP_HOOK_PROBE": "1"})
+    check_("policy/no_runtime_section", created(running(None, None, None).replace("## Runtime State", "## Runtime")), every[:4])
+
+    check_("policy/stance_usage", created(), [stance(), stance("nope"), stance("On"), stance("")])
+    for value in ("on", "off", "scope-dependent"):
+        check_(f"policy/stance_{value}", created(), [stance(value), ["get", "Skeleton Stance"], stance("off", "on"), ["get", "Skeleton Stance"]])
+
+    check_("policy/iteration_usage", created(), [iteration(), iteration("nope"), iteration(""), iteration("Unit-Major")])
+    check_("policy/iteration_already", created(), [iteration("unit-major"), *shown])
+    check_("policy/iteration_changed", created(), [iteration("stage-major"), iteration("stage-major", "unit-major"), iteration("unit-major"), *shown])
+    check_("policy/iteration_unset", created(running(iteration=None)), [iteration("stage-major"), *shown])
+    check_("policy/iteration_blank", created(running(iteration="")), [iteration("unit-major"), *shown])
+    check_("policy/iteration_previous_unknown", created(running(iteration="by-feel")), [iteration("unit-major"), iteration("unit-major")])
+    for name, previous in (("constructor", "constructor"), ("proto", "__proto__"), ("to_string", "toString")):
+        check_(f"policy/previous_value_an_object_s_name_{name}", created(running(iteration=previous)), [iteration("stage-major")])
+    team = "- **Unit Ownership**: team\n"
+    check_("policy/iteration_of_a_team", created(running(more=team)), [iteration("stage-major"), iteration("unit-major")])
+    check_("policy/iteration_of_a_solo", created(running(more="- **Unit Ownership**: solo\n")), [iteration("stage-major")])
+    check_("policy/iteration_over_a_swarm", created(running(iteration="stage-major", execution="swarm")), [iteration("unit-major"), iteration("stage-major"), *shown])
+    check_("policy/iteration_over_a_swarm_no_checkpoints", created(running("disabled", "stage-major", "swarm")), [iteration("unit-major"), *shown])
+
+    check_("policy/checkpoints_usage", created(), [checkpoints(), checkpoints("enabled", "disabled"), checkpoints("nope"), checkpoints(""), checkpoints("Enabled")])
+    check_("policy/execution_usage", created(), [execution(), execution("serial", "swarm"), execution("nope"), execution("")])
+    check_("policy/checkpoints_changed", created(), [checkpoints("enabled"), checkpoints("disabled"), checkpoints("disabled"), checkpoints("enabled"), *shown])
+    check_("policy/checkpoints_unset", created(running(checkpoints=None)), [checkpoints("disabled"), *shown])
+    check_("policy/execution_without_checkpoints", created(running(checkpoints="disabled")), [execution("serial"), execution("swarm"), execution("nope")])
+    check_("policy/execution_checkpoints_unset", created(running(checkpoints=None)), [execution("serial")])
+    check_("policy/execution_swarm_one_unit_at_a_time", created(), [execution("swarm"), execution("serial"), *shown])
+    check_("policy/execution_changed", created(running(iteration="stage-major")), [execution("swarm"), execution("swarm"), execution("serial"), *shown])
+    check_("policy/execution_unset", created(running(iteration="stage-major", execution=None)), [execution("swarm"), *shown])
+
+    # During Construction a change is the person's: asked for since the last decision, or chosen at a policy question.
+    built = running(phase="CONSTRUCTION")
+    change = [iteration("stage-major"), checkpoints("disabled"), execution("serial"), iteration("unit-major")]
+    spoke = lambda minute=9, *fields: block("HUMAN_TURN", T(minute), "**Session**: s1", *fields)
+    def words(audit, text, at=20):
+        return {f"{CREATED_DIR}/.aidlc-engine/gate-words/s1.json": json.dumps(
+            {"version": 1, "session": "s1", "shard": CREATED_SHARD, "dropped": 0, "messages": [{"offset": len(audit.encode()) + at, "text": text}]})}
+    check_("policy/built_nobody_asked", created(built), change)
+    for phase in ("Construction", "construction", "CONSTRUCTIONS", "INCEPTION", ""):
+        check_(f"policy/built_phase_{phase.lower() or 'blank'}{'_as_written' if phase == 'Construction' else ''}", created(running(phase=phase)), [iteration("stage-major")])
+    check_("policy/built_asked", created(built, CREATED_AUDIT + spoke()), change)
+    check_("policy/built_asked_in_words", created(built, CREATED_AUDIT + spoke(), **words(CREATED_AUDIT, "go stage by stage please")), change)
+    check_("policy/built_asked_about_a_switch", created(built, CREATED_AUDIT + spoke(9, "**Reply**: question")), change)
+    check_("policy/built_asked_by_a_command", created(built, CREATED_AUDIT + spoke(9, "**Reply**: command")), change)
+    check_("policy/built_asked_before_a_decision", created(built, CREATED_AUDIT + spoke() + block("GATE_APPROVED", T(10), "**Stage**: intent-capture", "**User Input**: Approve")), change)
+    check_("policy/built_asked_before_a_rejection", created(built, CREATED_AUDIT + spoke() + block("GATE_REJECTED", T(10), "**Stage**: intent-capture", "**Feedback**: again")), change)
+    check_("policy/built_presence_off", created(built), change, {"SKIP_HUMAN_PRESENCE_GUARD": "1"})
+    check_("policy/built_presence_off_words", created(built, CREATED_AUDIT + spoke(), **words(CREATED_AUDIT, "go stage by stage please")), change, {"SKIP_HUMAN_PRESENCE_GUARD": "1"})
+    check_("policy/built_unattended", created(built, CREATED_AUDIT + spoke()), change, {"UNATTENDED": "1"})
+    check_("policy/built_unattended_presence_off", created(built, CREATED_AUDIT + spoke()), change, {"UNATTENDED": "1", "SKIP_HUMAN_PRESENCE_GUARD": "1"})
+    check_("policy/built_already_so", created(built), [iteration("unit-major"), checkpoints("enabled"), execution("serial")], {"UNATTENDED": "1"})
+    def chosen(field="Construction Iteration", value="stage-major", minute=8, event="CONSTRUCTION_POLICY_RECORDED", checkpoint="Construction Policy", session="s1", said="Approve", *more):
+        return block(event, T(minute), f"**Checkpoint**: {checkpoint}", f"**Field**: {field}", f"**Value**: {value}", *([f"**Session**: {session}"] if session is not None else []), f"**User Input**: {said}", *more)
+    by_receipt = lambda *rows, **more: created(built, CREATED_AUDIT + "".join(rows), **more)
+    check_("policy/receipt", by_receipt(chosen()), change)
+    check_("policy/receipt_unattended", by_receipt(chosen()), change, {"UNATTENDED": "1"})
+    check_("policy/receipt_and_asked", by_receipt(chosen(), spoke(), **words(CREATED_AUDIT + chosen(), "do it")), change)
+    check_("policy/receipt_of_each_field", by_receipt(chosen(), chosen("Construction Checkpoints", "disabled", 9), chosen("Construction Execution", "serial", 10)), change)
+    check_("policy/receipt_of_another_value", by_receipt(chosen(value="unit-major")), change)
+    check_("policy/receipt_of_another_field", by_receipt(chosen("Construction Checkpoints")), change)
+    check_("policy/receipt_of_another_checkpoint", by_receipt(chosen(checkpoint="Construction Verification Command")), change)
+    check_("policy/receipt_no_session", by_receipt(chosen(session=None)), change)
+    check_("policy/receipt_blank_session", by_receipt(chosen(session=" ")), change)
+    check_("policy/receipt_not_approved", by_receipt(chosen(said="Request Changes")), change)
+    check_("policy/receipt_then_asked_again", by_receipt(chosen(), chosen(minute=9, event="DECISION_RECORDED")), change)
+    check_("policy/receipt_then_answered", by_receipt(chosen(), chosen(minute=9, event="QUESTION_ANSWERED")), change)
+    check_("policy/receipt_then_another_field_asked", by_receipt(chosen(), chosen("Construction Checkpoints", minute=9, event="DECISION_RECORDED")), change)
+    check_("policy/receipt_after_the_question", by_receipt(chosen(minute=7, event="DECISION_RECORDED"), chosen()), change)
+    check_("policy/receipt_then_a_newer_one", by_receipt(chosen(), chosen(value="unit-major", minute=9)), change)
+    check_("policy/receipt_of_a_stage_run_by_itself", by_receipt(chosen("Construction Iteration", "stage-major", 8, "CONSTRUCTION_POLICY_RECORDED", "Construction Policy", "s1", "Approve", "**Workflow**: single-stage:code-generation")), change)
+    check_("policy/receipt_then_one_of_a_stage_run_by_itself", by_receipt(chosen(), chosen("Construction Iteration", "unit-major", 9, "CONSTRUCTION_POLICY_RECORDED", "Construction Policy", "s1", "Approve", "**Workflow**: single-stage:code-generation")), change)
+    # (What the state already says needs no receipt and takes none, however the line is written.)
+    check_("policy/receipt_for_what_is_already_so", created(built.replace("- **Construction Iteration**: unit-major", "- **Construction Iteration**:   stage-major"), CREATED_AUDIT + chosen()), [iteration("stage-major"), *shown])
+    check_("policy/receipt_spent", by_receipt(chosen()), [iteration("stage-major"), iteration("unit-major"), iteration("stage-major")])
+    other_shard = f"{CREATED_DIR}/audit/desktop-def456.md"
+    earlier = lambda row: row.replace("2026-01-05T10:", "2026-01-05T09:")
+    check_("policy/receipt_in_another_shard", by_receipt(**{other_shard: TITLE + chosen()}), change)
+    check_("policy/receipt_two_at_one_instant", by_receipt(chosen(), **{other_shard: TITLE + chosen()}), change)
+    check_("policy/receipt_in_another_shard_at_the_start", by_receipt(**{other_shard: TITLE + chosen(minute=0)}), change)
+    check_("policy/receipt_in_another_shard_before_the_start", by_receipt(**{other_shard: TITLE + earlier(chosen())}), change)
+    started = lambda minute=0: block("WORKFLOW_STARTED", T(minute), "**Scope**: feature")
+    check_("policy/receipt_before_a_new_start", by_receipt(chosen(), started(9)), change)
+    check_("policy/receipt_two_starts_at_one_instant", by_receipt(chosen(), **{other_shard: TITLE + started()}), change)
+    check_("policy/receipt_start_of_a_stage_run_by_itself", by_receipt(chosen(), block("WORKFLOW_STARTED", T(9), "**Workflow**: single-stage:code-generation")), change)
+    check_("policy/receipt_a_shard_unreadable", by_receipt(chosen(), **{other_shard + "/x": "x"}), change)
+    check_("policy/receipt_no_start", created(built, TITLE + chosen()), change)
+    check_("policy/receipt_no_uuid", created(built, CREATED_AUDIT + chosen(), CREATED_REGISTRY.replace("01a138fa-d37d-787d-af4a-966efbb0b6fd", "")), change)
+    check_("policy/receipt_no_registry_row", created(built, CREATED_AUDIT + chosen(), "[]\n"), change)
+
+    # The verification command: never believed off the state alone.
+    digest = lambda text: hashlib.sha256(text.encode()).hexdigest()
+    COMMAND = "Construction Verification Command"
+    def approved(text="cargo test", minute=8, checkpoint=COMMAND, said="Approve", *more):
+        return block("VERIFICATION_COMMAND_RECORDED", T(minute), f"**Checkpoint**: {checkpoint}", f"**Command SHA-256**: {digest(text)}", f"**User Input**: {said}", *more)
+    kept_command = lambda text: running(more=f"- **{COMMAND}**: {text}\n")
+    read_command = ["get", COMMAND]
+    check_("policy/command_usage", created(), [command(), command("--command-file"), command("a", "b"), command("--command-file", "a", "b"), command("a", "--command-file"), command("a", "b", "c")])
+    check_("policy/command_not_approved", created(), [command("cargo test"), read_command])
+    check_("policy/command_approved", with_rows(approved()), [command("cargo test"), read_command, command("cargo test"), command("  cargo test  "), command("cargo  test")])
+    check_("policy/command_approved_once_more", with_rows(approved("make"), approved()), [command("cargo test"), command("make")])
+    check_("policy/command_replaced", created(kept_command("make check"), CREATED_AUDIT + approved()), [command("cargo test"), read_command])
+    check_("policy/command_replaces_a_blank", created(kept_command(""), CREATED_AUDIT + approved()), [command("cargo test"), read_command])
+    dollars = "echo $HOME $1 $& $$ $` $' $<a>"
+    check_("policy/command_dollars", with_rows(approved(dollars)), [command(dollars), read_command])
+    check_("policy/command_dollars_replace", created(kept_command("make check"), CREATED_AUDIT + approved(dollars)), [command(dollars), read_command])
+    check_("policy/command_spoofing", with_rows(), [command("a​b"), command("a b"), command("a b"), command("a b"), command("﻿a"), command("a­b"), command("a‮b"), command(" ")])
+    check_("policy/command_a_line_cannot_hold", with_rows(), [command(""), command("   "), command("a\tb"), command("a\nb"), command("a\u0085b"), command("a\u007fb"), command("a\u0080b"), command("a\u009fb"), command("a¡b"), command("\tcargo test\n")])
+    check_("policy/command_length", with_rows(), [command("x" * 1024), command("x" * 1025), command(" " + "x" * 1024 + " "), command("\U0001f600" * 512), command("\U0001f600" * 513)])
+    check_("policy/command_not_this_one", with_rows(approved("make")), [command("cargo test")])
+    check_("policy/command_not_approved_by_the_person", with_rows(approved(said="Request Changes")), [command("cargo test")])
+    check_("policy/command_of_another_checkpoint", with_rows(approved(checkpoint="Construction Policy")), [command("cargo test")])
+    check_("policy/command_then_another_approved", with_rows(approved(), approved("make", 9)), [command("cargo test"), command("make")])
+    check_("policy/command_then_another_receipt", with_rows(approved(), chosen(minute=9), block("SUMMARY_CONFIRMATION_RECORDED", T(10), "**Stage**: intent-capture")), [command("cargo test")])
+    check_("policy/command_two_at_one_instant", created(CREATED_STATE, CREATED_AUDIT + approved(), **{other_shard: TITLE + approved()}), [command("cargo test")])
+    check_("policy/command_of_a_stage_run_by_itself", with_rows(approved("cargo test", 8, COMMAND, "Approve", "**Workflow**: single-stage:code-generation")), [command("cargo test")])
+    check_("policy/command_in_another_shard", created(**{other_shard: TITLE + approved()}), [command("cargo test")])
+    check_("policy/command_in_another_shard_before_the_start", created(**{other_shard: TITLE + earlier(approved())}), [command("cargo test")])
+    check_("policy/command_before_a_new_start", with_rows(approved(), started(9)), [command("cargo test")])
+    check_("policy/command_a_shard_unreadable", created(CREATED_STATE, CREATED_AUDIT + approved(), **{other_shard + "/x": "x"}), [command("cargo test")])
+    check_("policy/command_no_uuid", created(CREATED_STATE, CREATED_AUDIT + approved(), CREATED_REGISTRY.replace("01a138fa-d37d-787d-af4a-966efbb0b6fd", "")), [command("cargo test")])
+    in_file = lambda name="verification-command.txt", text="cargo test\n", **more: created(CREATED_STATE, CREATED_AUDIT + approved(), **{f"{CREATED_DIR}/{name}": text}, **more)
+    from_file = command("--command-file", "verification-command.txt")
+    check_("policy/command_file", in_file(), [from_file, read_command])
+    check_("policy/command_file_gone", with_rows(approved()), [from_file])
+    check_("policy/command_file_in_a_folder", in_file("checks/command.txt"), [command("--command-file", "checks/command.txt"), command("--command-file", "checks\\command.txt"), command("--command-file", "checks")])
+    check_("policy/command_file_named_otherwise", in_file(), [command("--command-file", "./verification-command.txt"), command("--command-file", "checks/../verification-command.txt"), command("--command-file", "../260105-add-login/verification-command.txt"),
+                                                              command("--command-file", f"{CREATED_DIR}/verification-command.txt"), command("--command-file", "{P}/" + CREATED_DIR + "/verification-command.txt"), command("--command-file", ""),
+                                                              command("--command-file", "\\verification-command.txt"), command("--command-file", "c:verification-command.txt"), command("--command-file", "c:\\verification-command.txt"),
+                                                              command("--command-file", "./gone.txt"), command("--command-file", ".//./verification-command.txt")])
+    check_("policy/command_file_two_lines", in_file(text="cargo test\ncargo clippy\n"), [from_file])
+    check_("policy/command_file_empty", in_file(text=""), [from_file])
+    check_("policy/command_file_too_long", in_file(text="x" * (16 * 1024 + 1)), [from_file])
+    check_("policy/command_file_as_long_as_may_be", in_file(text="x" * (16 * 1024)), [from_file])
+    def other_bytes(tree):
+        with open(tree.path(f"{CREATED_DIR}/verification-command.txt"), "wb") as handle:
+            handle.write(b"cargo \xff test\n")
+    # (Bytes that are no text: no recording carries them; the CLI's own test reads such a file.)
+    UNRECORDED.update({"state/policy/command_file_other_bytes", "state/policy/command_file_other_bytes_approved_as_read"})
+    check_("policy/command_file_other_bytes", in_file(), [from_file], edits=[other_bytes])
+    check_("policy/command_file_other_bytes_approved_as_read", created(CREATED_STATE, CREATED_AUDIT + approved("cargo \ufffd test"), **{f"{CREATED_DIR}/verification-command.txt": "x"}), [from_file, read_command], edits=[other_bytes])
+    check_("policy/command_file_byte_order_mark", in_file(text="\ufeffcargo test\n"), [from_file])
+    # (A state with no record around it: there is no record to hold the file.)
+    check_("policy/command_file_no_record", {**CLONE, "aidlc/spaces/default/intents/aidlc-state.md": CREATED_STATE}, [from_file, command("cargo test")])
+    check_("policy/command_file_a_link", in_file(), [["@link", f"{CREATED_DIR}/verification-command.txt", f"{CREATED_DIR}/real.txt"], from_file])
+    check_("policy/command_file_behind_a_link", in_file("checks/command.txt"), [["@link", f"{CREATED_DIR}/checks", f"{CREATED_DIR}/real"], command("--command-file", "checks/command.txt")])
+
+    # A team's units: without a team both verbs refuse as upstream does; with one, by name.
+    check_("policy/rhythm_usage", created(), [rhythm(), rhythm("nope"), rhythm(""), rhythm("per-stage"), rhythm("unit-end", "per-stage")])
+    check_("policy/rhythm_of_a_solo", created(running(more="- **Unit Ownership**: solo\n")), [rhythm("unit-end")])
+    check_("policy/rhythm_of_a_team", created(running(more=team)), [rhythm("unit-end"), rhythm("nope")])
+    check_("policy/sync_fenced", created(running(None, None, None).replace("- **Guard Policy**: off", "- **Guard Policy**: on")), [sync("code-generation", "--unit", "api"), sync()])
+    check_("policy/sync_usage", created(), [sync(), sync("code-generation"), sync("code-generation", "--unit"), sync("--unit", "api"), sync("", "--unit", "api"), sync("code-generation", "--unit", ""),
+                                            sync("code-generation", "--unit", "--x"), sync("code-generation", "--unit", "api"), sync("nope", "--unit", "api")], direct)
+    check_("policy/sync_of_a_team", created(running(more=team)), [sync("code-generation", "--unit", "api")], direct)
 
     # practices-event: the three rows the practices-discovery stage leaves, with the fields it gives.
     says = lambda kind, *fields: ["practices-event", "--type", kind, *[part for field in fields for part in ("--field", field)]]
