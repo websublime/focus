@@ -3234,7 +3234,7 @@ Os leitores da fatia 3 estão feitos e `log review` usa-os; quem ainda recusa pe
 | 3e-ii. Os handoffs | `verifyPipelineLinkPrecondition`: os handoffs devidos por um pipeline | `pipeline_owed` | Feita (abaixo) |
 | 3e-iii. O recibo de revisão | `verifyReviewerPrecondition`, para uma stage revista como um todo, e as recusas de guard que traz (`REVIEW_EVIDENCE_MISSING`, `REVIEW_RECOVERY_PENDING`, `ARTIFACT_REVIEW_STALE`, `ARTIFACT_RECOVERY_SPENT`); a aprovação da própria pessoa por cima de uma revisão que não acabou | `review_owed*`, `review_guard_off`, `revision_backstop_with_reviewer`, `review_rows_in_ledger` | Feita (abaixo); a parte por unit e a da fonte são da fatia 5 |
 | 3e-iv. Os hooks que leem linhas de revisão | `review-freeze` e o grupo (`review_rows`), com a nota que um hook deixa (`guardRefusalHookNote`); o turno humano com um pedido sem veredicto | As recusas pelo nome desses dois | Feita (abaixo); o congelamento por unit é da fatia 5 |
-| 3e-v. `review-brief` | `review`, `summary`, `context`, e os findings que um gate grava na decisão; o que uma aprovação grava de uma revisão por cima da qual passou; o salto para trás que nomeia as revisões que invalida | `review_findings_*`, `backward_over_reviewed_stage_rows` | Partida em três (3e-v-a e 3e-v-b, abaixo, feitas; c por fazer) |
+| 3e-v. `review-brief` | `review`, `summary`, `context`, e os findings que um gate grava na decisão; o que uma aprovação grava de uma revisão por cima da qual passou; o salto para trás que nomeia as revisões que invalida | `review_findings_*`, `backward_over_reviewed_stage_rows` | Feita, em três partes (3e-v-a, b e c, abaixo) |
 
 ### Fatia 3e-i: a admissão do sumário em `state`
 
@@ -3407,7 +3407,7 @@ O `aidlc-review-brief.ts` (2 365 linhas) é lido por três consumidores diferent
 | --- | --- | --- | --- |
 | 3e-v-a. Os contextos | `readReviewArtifactContexts` (a lista de cada âmbito de uma stage), `review-brief context` (a ferramenta nova, com o parser de argumentos do original) e o salto para trás que nomeia as revisões que invalida | `backward_over_reviewed_stage_rows` | Feita (abaixo) |
 | 3e-v-b. Os findings num gate | `approve` aceita o risco de cada finding aberto (`acceptedRiskDispositionField`); `reject --reject-finding` e `--reopen-finding` (`rejectedFindingDispositionField`); e o que uma aprovação grava de uma revisão que não acabou (`Review: not finished`, a frase, a aprovação levada para o `advance`, `noteVerdictNotFinished`) | `review_findings_*`, `reject_findings*` | Feita (abaixo) |
-| 3e-v-c. Os briefs | `review-brief review` (`renderReviewBrief`, `reviewInvalidationDetails`, `acceptedReviewChanges`) com a cópia do que o gate mostrou (`keepGateBrief`), e `review-brief summary` (`renderSummaryConfirmationBrief`) | `review-brief/usage/review_not_ported`, `…/summary_not_ported` | Por fazer |
+| 3e-v-c. Os briefs | `review-brief review` (`renderReviewBrief`, `reviewInvalidationDetails`, `acceptedReviewChanges`) com a cópia do que o gate mostrou (`keepGateBrief`), e `review-brief summary` (`renderSummaryConfirmationBrief`) | `review-brief/usage/review_not_ported`, `…/summary_not_ported` | Feita (abaixo); o brief de uma unit é da fatia 5 |
 
 ### Fatia 3e-v-a: os contextos de uma stage, `review-brief context` e o salto para trás
 
@@ -3523,6 +3523,67 @@ Os seis buracos repetiram-se até morrerem, com os dois mutantes novos das linha
 | Diferencial, tudo | 4 382 checks: 4 162 iguais, 220 desvios declarados, nenhum diferente; a gravação (4 276 checks sobre 1 778 árvores) repete-se igual, com seis checks de `log review` regravados pela numeração das tentativas; o fuzz (`--fuzz 600`) dá 600 iguais |
 | Mutação | 51 mutantes: 40 mortos à primeira; dos 11 restantes, 6 buracos fechados com quatro checks e três passos e repetidos até morrerem, 4 de código a mais que saiu, 1 equivalente dito no sítio |
 | `cargo test` | 611 testes (um novo, `a_gate_records_what_the_person_decided_about_findings`: o desvio, duas recusas e o que a aprovação grava); o teste das recusas pelo nome de um gate ficou com os sensores e as units |
+
+### Fatia 3e-v-c: o que a pessoa lê antes de decidir
+
+**O que existe.** `focus-lifecycle::review_brief`, e os dois comandos de `focus engine review-brief` que faltavam.
+
+**O brief de uma revisão (`review --why <first|revision|stale>`).** O que a pessoa lê no gate de uma stage revista:
+
+| Linha | O que diz |
+| --- | --- |
+| `Review outcome` | Há findings abertos; quantos o reviewer deu como corrigidos; nenhum aberto; a revisão não acabou com findings; ou nada a apontar. Por esta ordem |
+| `Why now` | Primeira revisão, revisão refeita, ou recibo que deixou de valer |
+| `Reviewed content differs`, `Changed after review` | Cada mudança ao conteúdo revisto que a Guard Policy deixou passar na tentativa corrente (`acceptedReviewChanges`: as linhas `CHANGE_ACCEPTED` do checkpoint `review-receipt`, com a frase e os caminhos que cada uma gravou) |
+| `Changed upstream`, `Downstream artifacts…`, `Downstream reviews requiring re-check` | Só com `--why stale` (`reviewInvalidationDetails`): o que foi escrito nos documentos da stage depois de cada revisão; o que uma revisão de recuperação substituiu, emparelhada com o recibo que perdeu; e o que um salto para trás deixou por rever que nenhum gate da stage dona tomou entretanto, dito só onde toca esta stage |
+| A lista | `review_shown::findings_context`, como o gate a mostra |
+| `Decision options` | Aprovar (a dizer se aceita findings abertos) e pedir alterações |
+
+`--fallback-finding` é o que o gate diz de uma revisão que não deu veredicto: um finding seu, com o id seguinte na lista que as revisões anteriores deixaram, ou numa lista feita para ele quando não há nenhuma.
+
+**A cópia (`keepGateBrief`).** O brief fica guardado tal como foi impresso, sob o digest do seu texto (`reviews/<stage>/stage/briefs/<sha256>.md`), com `latest.json` a nomear o mais recente. É o que `gate::brief_digest_field` já lia: o gate que abre a seguir grava `Brief Digest` com o que a pessoa viu. Escreve-se sem seguir links (`write_record_file_no_follow`, que começa na barreira do observador) e sem custar a impressão: uma unit cujo nome não o é, um link no caminho ou um registo que não existe deixam o brief impresso e nada guardado.
+
+**O brief de uma confirmação de sumário (`summary --questions-file <path>`).** O ficheiro das perguntas tem de existir dentro do registo selecionado (pergunta-se só se lá está, como no original: nada dele é lido e nada se decide por ele); o brief nomeia-o e nomeia os artefactos que a stage vai gerar.
+
+**Os argumentos.** Uma unit dada como nada (`--unit ""`) não é o mesmo que nenhuma unit: o original distingue as duas onde pergunta se uma foi nomeada (a cópia não se guarda; uma stage por unit com os documentos ao nível da stage lista-se de outra maneira). A ferramenta passou a entregar a unit como foi dada, também a `context`.
+
+**Desvios deliberados.** Cada um com o seu teste marcado (`what_a_brief_would_read_of_units_is_refused_by_name`) e a sua entrada:
+
+| Desvio | Original | Focus | Onde |
+| --- | --- | --- | --- |
+| O brief de uma unit de uma stage por unit | Depende de a aprovação à frente ser a da própria unit (o gate da equipa, o checkpoint de Construction), lido dos gates das units | Recusa pelo nome até à fatia 5. Sem unit nomeada, o gate final mostra a revisão de todas, e isso compara-se | `review-brief/review/unit_of_a_stage_that_runs_for_each` |
+| A revisão de recuperação de uma unit presa à sua fonte | Diz que ficheiros da fonte mudaram, lendo os snapshots da unit | Recusa pelo nome até à fatia 5 | `review-brief/review/stale_recovery_of_a_unit_bound_to_its_source` |
+| A decisão editada à mão e as units encontradas a listar | Os da 3e-v-a, agora também em `review` e `summary` | Os mesmos | `review-brief/(context\|review)/decided_a_list_for_a_text`, `review-brief/(context\|summary)/units_found_by_listing` |
+
+**O que a comparação encontrou.** O porte deu igual à primeira em todos os checks. O que mudou foi a ferramenta de comparação: o brief guarda-se sob o digest de um texto que nomeia os artefactos pelo caminho, e o caminho leva o nome do diretório do workspace (`aidlc/` lá, `focus/` cá), por isso os dois motores guardam o mesmo brief sob digests diferentes. Forma nova, `brief-digest`, nas duas ferramentas: um digest que é o da própria árvore (o hash do ficheiro guardado sob ele) compara-se como `<brief-1>`, `<brief-2>`, pela ordem dos textos, onde quer que esteja escrito (o nome do ficheiro, `latest.json`, a linha do gate); os textos comparam-se.
+
+E a repetição encontrou um check mal feito: uma linha escrita à mão com o caminho inteiro de um documento leva o caminho da árvore onde foi gravada, que a repetição (`cargo test`) põe noutro sítio, e o brief repetido dizia menos um ficheiro. O caso ficou num check só seu, comparado ao vivo e fora da gravação.
+
+**O que a mutação encontrou.** 90 mutantes sobre o módulo novo e a ligação à ferramenta (o resultado da revisão, o finding do gate, as mudanças aceites, cada janela e cada filtro do que mudou, o salto para trás, a cópia, o ficheiro das perguntas, a unit como foi dada), julgados pelo diferencial ao vivo e pelos testes de CLI: 60 morreram à primeira. Dos trinta que ficaram:
+
+| O que o mutante trocava | O que lhe aconteceu |
+| --- | --- |
+| A unit e a impressão digital do finding do gate; o veredicto da lista feita para ele | Código a mais: o brief não mostra nenhum dos três (com um finding aberto ninguém pergunta o veredicto). Saíram, e o sítio diz o que o original lhes dá |
+| Os quatro ramos que resolviam o caminho de uma linha contra o projeto | Código a mais: `relative` resolve-o ela própria, inteiro ou não. A função ficou no prefixo `<project-dir>` e na relativa; os dois mutantes novos dela morrem (`stale_written_named_from_the_project`) |
+| A unit dada como nada, em cada um dos três comandos; a unit na lista feita para o finding do gate | Buraco: seis checks numa stage por unit que guarda os documentos ao nível da stage (`…units_kept_at_the_stage…`), onde nenhuma unit e a unit vazia listam coisas diferentes; `stale_fallback_of_a_unit` |
+| Uma lista com um só finding, nenhum aberto; o texto do relatório que não se leu; uma lista de caminhos vazia | Buraco: `decided_the_only_one`, `legacy_section_unreadable`, `changes_accepted_no_paths_named` |
+| `WORKFLOW_STARTED` como início da tentativa | Buraco: `changes_accepted_before_a_second_start` |
+| O que foi escrito antes do início da tentativa, noutro shard | Buraco: `stale_written_before_the_floor_in_another_shard` (duas ordens, a posição no shard e o instante entre shards: uma escrita depois da revisão pelo instante e antes do início pela posição) |
+| Cada tipo de linha de escrita; a janela de uma revisão de recuperação (o que se escreveu enquanto ela corria, o pedido que não é de recuperação, a revisão de outra stage entretanto) | Buraco: `stale_created`, `stale_removed`, `stale_written_while_the_recovery_ran`, `stale_written_before_a_request_that_is_no_recovery`, `stale_another_stage_reviewed_since`. Os primeiros checks escreviam o mesmo documento de várias maneiras, e cada maneira escondia as outras |
+| A unit de cada janela: o emparelhamento, o manifesto de outra unit, a fonte nomeada só por uma das linhas | Buraco: `stale_recovery_beside_a_unit_s_review`, `stale_recovery_of_a_unit_manifest_of_another`, `stale_unit_reviewed_manifest_of_another`, `stale_recovery_of_a_unit_source_named_by_the_…_alone` |
+| Numa stage por unit: a escrita de uma unit antes da sua própria revisão; o manifesto de uma unit a pedir só a revisão dela | Buraco: `stale_units_written_before_its_own_review`, `stale_units_manifest_of_its_own` |
+| Um gate de outra stage antes do salto, a tomar o que o salto deixou | Buraco: `stale_after_a_backward_jump_gate_before_it` |
+
+Os 23 buracos repetiram-se até morrerem, em três voltas: oito sobreviveram à primeira repetição porque o check novo ainda não distinguia (um documento ao nível da stage que tornava as duas listagens iguais; um finding que a lista derivada reabre), e morreram com o check afinado.
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Diferencial, `review-brief` | 87 checks novos no grupo (139 ao todo): `summary` (o ficheiro das perguntas dado de cada maneira, fora do registo, a pasta, sem registo, outra stage, nada declarado, as units), `review` com cada resultado e cada razão, o finding do gate em cada lista, a cópia (duas vezes, atrás de um link, sem registo, e o gate que abre a seguir a nomeá-la), as mudanças aceites, 38 de `--why stale` (escritas, recuperações, units, saltos; um deles, o ficheiro nomeado pelo caminho inteiro, só ao vivo: o caminho é o da árvore, que uma repetição muda) e as stages por unit. Saíram de `DEVIATIONS` os dois `…_not_ported`; entraram dois (o brief de uma unit, a recuperação presa à fonte), e dois dos que havia passaram a cobrir `review` e `summary` |
+| Diferencial, tudo | 4 467 checks: 4 245 iguais, 222 desvios declarados, nenhum diferente; a gravação (4 359 checks sobre 1 838 árvores) repete-se igual; o fuzz (`--fuzz 600`) dá 600 iguais |
+| Mutação | 90 mutantes: 60 mortos à primeira; dos 30 restantes, 23 buracos fechados com checks novos e repetidos até morrerem, 7 de código a mais que saiu; mais os 2 mutantes novos da função reescrita, mortos |
+| `cargo test` | 612 testes (um novo; `tests/review_brief.rs` ficou com cinco: os dois briefs impressos e a cópia guardada sob o digest do que se imprimiu, e o que um brief leria das units, recusado pelo nome) |
 
 ### Fatia 4: a pergunta de recuperação, partida em três
 

@@ -58,6 +58,7 @@ Commands:
   engine jump resolve          Where a jump would land
   engine jump execute          Move the work to another stage
   engine review-brief context  Print the findings a stage's reviews stand at
+  engine review-brief review   Print what the person reads at a stage's gate, and keep it
   engine utility detect        Scan the workspace: project type, languages, build system
   engine utility intent-create Create a piece of work
   engine utility now           Print the engine's time

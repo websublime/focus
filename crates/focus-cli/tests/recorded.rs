@@ -1127,8 +1127,85 @@ fn replay_audit(check: &Value, root: &Path) -> BTreeMap<String, String> {
     }
     placeholder_messages(settle_authorization_ids(
         root,
-        settle_guard_series(settle_review_ids(root, actual)),
+        settle_guard_series(settle_brief_digests(root, settle_review_ids(root, actual))),
     ))
+}
+
+/// The recorder's `settle_brief_digests`: a brief kept at a gate is named
+/// by the digest of its text, which names the workspace directory, so a
+/// digest that is the tree's own (the hash of the file kept under it) is
+/// written `<brief-1>`, `<brief-2>`, in the order of the briefs' texts,
+/// wherever it is written.
+fn settle_brief_digests(
+    root: &Path,
+    mut outcome: BTreeMap<String, String>,
+) -> BTreeMap<String, String> {
+    fn own(dir: &Path, found: &mut Vec<String>) {
+        let Ok(entries) = fs::read_dir(dir) else {
+            return;
+        };
+        for entry in entries {
+            let path = entry.unwrap().path();
+            if path.is_dir() && !path.is_symlink() {
+                own(&path, found);
+                continue;
+            }
+            let name = path.file_name().unwrap().to_string_lossy().into_owned();
+            let in_briefs = path
+                .parent()
+                .and_then(Path::file_name)
+                .is_some_and(|folder| folder == "briefs");
+            let Some(digest) = name.strip_suffix(".md") else {
+                continue;
+            };
+            if in_briefs
+                && digest.len() == 64
+                && digest
+                    .bytes()
+                    .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+                && fs::read(&path)
+                    .is_ok_and(|bytes| format!("{:x}", Sha256::digest(&bytes)) == digest)
+            {
+                found.push(digest.to_owned());
+            }
+        }
+    }
+    let mut digests = Vec::new();
+    own(root, &mut digests);
+    let mut kept: Vec<(String, String)> = Vec::new();
+    for (key, text) in &outcome {
+        let Some(digest) = key
+            .rsplit_once("/briefs/")
+            .and_then(|(_, name)| name.strip_suffix(".md"))
+        else {
+            continue;
+        };
+        if digests.iter().any(|known| known == digest) {
+            kept.push((text.clone(), digest.to_owned()));
+        }
+    }
+    kept.sort();
+    let mut names: Vec<String> = Vec::new();
+    for (_, digest) in kept {
+        if !names.contains(&digest) {
+            names.push(digest);
+        }
+    }
+    if names.is_empty() {
+        return outcome;
+    }
+    let keys: Vec<String> = outcome.keys().cloned().collect();
+    for key in keys {
+        let mut text = outcome.remove(&key).unwrap();
+        let mut named = key;
+        for (index, digest) in names.iter().enumerate() {
+            let name = format!("<brief-{}>", index + 1);
+            text = text.replace(digest, &name);
+            named = named.replace(digest, &name);
+        }
+        outcome.insert(named, text);
+    }
+    outcome
 }
 
 /// The recorder's `settle_guard_series`: the series of a guard's refusals
