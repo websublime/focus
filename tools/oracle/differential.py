@@ -3173,6 +3173,8 @@ def state_checks():
     def other_bytes(tree):
         with open(tree.path(f"{CREATED_DIR}/verification-command.txt"), "wb") as handle:
             handle.write(b"cargo \xff test\n")
+    # (Bytes that are no text: no recording carries them; the CLI's own test reads such a file.)
+    UNRECORDED.update({"state/policy/command_file_other_bytes", "state/policy/command_file_other_bytes_approved_as_read"})
     check_("policy/command_file_other_bytes", in_file(), [from_file], edits=[other_bytes])
     check_("policy/command_file_other_bytes_approved_as_read", created(CREATED_STATE, CREATED_AUDIT + approved("cargo \ufffd test"), **{f"{CREATED_DIR}/verification-command.txt": "x"}), [from_file, read_command], edits=[other_bytes])
     check_("policy/command_file_byte_order_mark", in_file(text="\ufeffcargo test\n"), [from_file])

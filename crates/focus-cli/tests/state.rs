@@ -2277,6 +2277,19 @@ fn the_verification_command_needs_the_persons_receipt() {
     assert!(created_state(&root).contains(&format!(
         "- **Construction Verification Command**: {command}\n"
     )));
+    // (Bytes that are no text are read as the character that stands for
+    // them, and it is that reading the person approved.)
+    fs::write(
+        root.join(CREATED_RECORD).join("checks/command.txt"),
+        b"cargo \xff test\n",
+    )
+    .unwrap();
+    let read = "cargo \u{fffd} test";
+    write(&root, &shard_rel, &receipt(&sha256_hex(read.as_bytes())));
+    assert!(
+        ok(&set(&["--command-file", "checks/command.txt"]))
+            .contains(&format!("\"command_label\":\"{read}\"")),
+    );
     for (file, says) in [
         ("../x.txt", "path component \"..\" escapes its anchor "),
         ("/x.txt", "path escapes its anchor lexically: /x.txt"),
