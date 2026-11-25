@@ -854,57 +854,6 @@ fn unrecorded_revision(wf: &Workflow, stage: &Stage, repos: &[String]) -> bool {
         })
 }
 
-// --- What a gate refuses by name --------------------------------------------------
-
-/// The review findings a gate would record on its decision row (M5): a
-/// stage with a reviewer whose ledger holds review rows, or whose review
-/// artifact carries a `## Review` section.
-///
-/// # Errors
-///
-/// There are findings to record.
-pub fn refuse_review_findings(wf: &Workflow, stage: &Stage) -> Result<()> {
-    if stage::reviewer(stage).is_none() {
-        return Ok(());
-    }
-    if wf
-        .events()
-        .iter()
-        .any(|row| row.event.starts_with("REVIEW_"))
-    {
-        bail!(
-            "\"{}\" has review rows in its ledger, whose findings the gate would record on its decision: Focus does not read review findings yet.",
-            stage.slug
-        );
-    }
-    let Some(record) = wf.record_dir() else {
-        return Ok(());
-    };
-    let review_artifact = stage.raw.get("review_artifact").and_then(Value::as_str);
-    if let Some(artifact) = review_artifact {
-        let path = record
-            .join(&stage.phase)
-            .join(&stage.slug)
-            .join(artifact_filename(artifact));
-        // As upstream reads the section: a heading in a code block does not
-        // open it, and an empty section is no section.
-        let has_review_section = std::fs::read_to_string(&path).ok().is_some_and(|text| {
-            focus_markdown::visible_lines(&text, focus_markdown::Visible::default())
-                .map(|lines| {
-                    !focus_graph::guard_memory::section_body(&lines, "## Review").is_empty()
-                })
-                .unwrap_or(false)
-        });
-        if has_review_section {
-            bail!(
-                "{} carries a `## Review` section, whose findings the gate would record on its decision: Focus does not read review findings yet.",
-                path.display()
-            );
-        }
-    }
-    Ok(())
-}
-
 /// Where the protected questions are kept, which is never reached through a
 /// link (`assertNoSymlinkInChainOrThrow` over the directory's path in the
 /// project).

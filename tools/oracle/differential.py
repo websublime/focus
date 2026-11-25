@@ -171,14 +171,16 @@ SHAPES = {
         "starts at, which carries the path the shard was read from, so neither is the same in two trees. A request "
         "id is compared by the order in which each engine first writes it (<request-1>, <request-2>), wherever it "
         "is written: the row, the reviewer's file, the answer. An attempt's name is recomputed here from the rows "
-        "of the tree's own ledger, and one that matches is compared as <attempt>; one that does not is compared as "
+        "of the tree's own ledger, and one that matches is compared as <attempt> (the second of a check that has "
+        "two, as <attempt-2>, and so on, in the order each is first written); one that does not is compared as "
         "it is. The source a request of a stage that "
         "writes the workspace is bound to is the tree's own too (see source-baseline): the listing the request "
         "keeps is verified row by row against the tree's files, and a fingerprint that names it is compared as the "
         "tree's, wherever a request or a completion says it. A completion's record holds the request's id, the "
         "attempt's name and the moment it was written, so its digest is the tree's own as well: the digest a "
         "completion's row carries is recomputed here from the file that row names, and one that matches is "
-        "compared as the record's digest; the record itself is compared line by line, under its settled path",
+        "compared as the record's digest (and so is the one a gate's decision about a finding names, beside the "
+        "record's path); the record itself is compared line by line, under its settled path",
     "summary-authorization":
         "a summary's authorization id is a hash over the attempt, the stage, the workflow, the questions file's "
         "name, what was confirmed and the choice, and the name carries the workspace directory's (aidlc/ there, "
@@ -1662,6 +1664,7 @@ def authorization_ids(tree):
 
 REVIEW_REQUEST_FILE = re.compile(r"review:([0-9a-f]{32})(?![0-9a-f])|(?<=\.)([0-9a-f]{32})(?=\.review\.md)")
 REVIEW_RECORD_ROW = re.compile(r"(\*\*Review Record\*\*: (\S+)\n\*\*Review Record Digest\*\*: )(sha256:[0-9a-f]{64})")
+REVIEW_RECORD_DECIDED = re.compile(r'("reviewed_record":\{"path":"([^"]+)","digest":")(sha256:[0-9a-f]{64})')
 REVIEW_ATTEMPT = re.compile(r"(/reviews/[^/\s\"`]+/(?:stage|units/[^/\s\"`]+)/)([0-9a-f]{16})(?=[/\s]|$)")
 
 
@@ -1713,10 +1716,16 @@ def settle_review_ids(tree, outcome):
                             return found.group(1) + "<the record's digest>"
         return found.group(0)
     for key in list(outcome):
-        text = REVIEW_RECORD_ROW.sub(own_digest, outcome[key])
+        text = REVIEW_RECORD_DECIDED.sub(own_digest, REVIEW_RECORD_ROW.sub(own_digest, outcome[key]))
         settled |= text != outcome[key]
         outcome[key] = text
-    settle_attempt = lambda m: m.group(1) + ("<attempt>" if m.group(2) in attempts else m.group(2))
+    # The attempts of the check, in the order each is first written: what was said in that order, then the paths.
+    named_attempts = {}
+    for said in [outcome.get(key, "") for key in order] + sorted(outcome):
+        for found in REVIEW_ATTEMPT.finditer(said):
+            if found.group(2) in attempts:
+                named_attempts.setdefault(found.group(2), f"<attempt-{len(named_attempts) + 1}>" if named_attempts else "<attempt>")
+    settle_attempt = lambda m: m.group(1) + named_attempts.get(m.group(2), "<attempt>" if m.group(2) in attempts else m.group(2))
     for key in list(outcome):
         text = outcome[key]
         for raw, name in numbered.items():
@@ -2658,6 +2667,10 @@ DEVIATIONS.update({
     "review-brief/usage/summary_not_ported":
         "the brief of a summary confirmation reads the stage's questions and what was confirmed before: focus "
         "refuses it by name until it writes it (M5, slice 3e-v-c)",
+    "state/gates/findings_decisions_a_list_for_a_text":
+        "the same row read at the gate, where the decisions a gate records are made from the list of findings: "
+        "upstream reads the list as text, approves and records; focus refuses the approval, and the request for "
+        "changes that names a finding, with what is wrong",
     r"(jump/execute|utility/create)/delegated_worktree":
         "upstream runs inside a worktree an engine created for one unit of work, resolving it to the main checkout's "
         "piece of work; focus refuses the checkout by name (worktrees come with parallel Construction, deferred)",
@@ -2722,14 +2735,6 @@ DEVIATIONS.update({
         "with the Sensors ceremony on and the declared artifacts on disk, opening a gate fires the stage's gate "
         "sensors through the sensor tool (M5): upstream runs them, records their findings and opens the gate; focus "
         "refuses the opening by name and says how to open it without them (`--sensors off`, FOCUS_DISABLE_SENSORS)",
-    r"state/gates/review_findings_(rows|section)":
-        "a review's findings follow the gate's decision (the review brief, M5): upstream reads them off the review "
-        "artifact's `## Review` section (and its review rows) and records each open one on the decision as an "
-        "accepted risk; focus refuses the decision by name while there are review rows on the ledger or the "
-        "section is there, since it does not read findings yet",
-    r"state/gates/reject_findings(_with_reviewer)?":
-        "--reject-finding and --reopen-finding name a review's finding: upstream looks it up in the review brief "
-        "and refuses one that is not current; focus refuses the flags by name",
     "state/gates/unit_team":
         "with Unit Ownership team, a per-unit Construction stage's gate is a unit's gate, which needs the unit DAG "
         "and the units' lifecycle (M4): upstream looks the unit up in the DAG; focus refuses by name",
@@ -3899,7 +3904,7 @@ REVIEW_RECOVERY = ("**Recovery**: stale-receipt", "**Recovery Cause**: artifact"
 REVIEWED = lambda state, override="advisory": state.replace("- **Review Override**: none", f"- **Review Override**: {override}")
 
 
-def reviewed_by_hand(*passes, minute=1, findings=(), stage="intent-capture", unit=None, body="It reads well.\n"):
+def reviewed_by_hand(*passes, minute=1, findings=(), stage="intent-capture", unit=None, body="It reads well.\n", derived=None):
     def edit(tree):
         rows = ""
         for index, (n, verdict, more, fingerprint) in enumerate(passes):
@@ -3912,7 +3917,7 @@ def reviewed_by_hand(*passes, minute=1, findings=(), stage="intent-capture", uni
             tree.write(record, json.dumps({
                 "version": 1, "stage": stage, "unit": unit, "workflow": None, "attempt": "0" * 16, "iteration": n, "reviewer": REVIEWER_BY_HAND, "verdict": verdict,
                 "request_id": ident, "request_challenge": None, "artifact_fingerprint": fingerprint, "source_fingerprint": None, "unit_source_fingerprint": None,
-                "findings": list(findings), "body": body, "recorded_at": "2026-01-05T10:00:00Z"}, indent=2) + "\n")
+                "findings": list(findings), **({} if derived is None else {"derived_findings": list(derived)}), "body": body, "recorded_at": "2026-01-05T10:00:00Z"}, indent=2) + "\n")
             with open(tree.path(record), "rb") as handle:
                 digest = "sha256:" + hashlib.sha256(handle.read()).hexdigest()
             rows += block("REVIEW_COMPLETED", T(minute + 2 * index + 1), *scope, f"**Verdict**: {verdict}", f"**Request Fingerprint**: {fingerprint}",
@@ -5108,6 +5113,113 @@ def gate_checks():
     gate_reviewed("gates/review_unfinished_person_approves_nobody_replied", g_asked, steps=[g_person], env=direct)
     gate_reviewed("gates/review_unfinished_person_approves_replied", g_asked, steps=[g_person], env=direct, more=[lambda tree: tree.edit(CREATED_SHARD, lambda text: text + HUMAN(9))])
     check_("gates/review_guard_off", created(GATE_STATE.replace("- **Review Override**: none", "- **Review Override**: "), **ic), [["gate-start", "intent-capture"], approve], {**quiet, "SKIP_REVIEWER_GATE_GUARD": "1"})
+    # What a gate records of the findings a review left. An approval accepts the risk of each one still open; a
+    # request for changes may say of one that it is none, or that one the reviewer found fixed is not.
+    g_not = (1, "NOT-READY", (), REVIEWED_CURRENT)
+    g_find = lambda n, status="New", **more: {"id": f"R-{n:02d}", "severity": "Major", "location": "intent-statement.md > Intent", "finding": f"Finding {n}", "required_action": f"Do {n}", "status": status, **more}
+    g_fixed = lambda n: {**g_find(n, "Resolved"), "reviewer_note": "Done", "resolved_by_reviewer": True, "resolved_in_review": True, "introduced_in_review": False}
+    g_statement = f"{CREATED_DIR}/ideation/intent-capture/intent-statement.md"
+    g_decides = lambda *flags: ["reject", "intent-capture", "--feedback", "needs more", *flags]
+    g_no, g_again = lambda spec: g_decides("--reject-finding", spec), lambda spec: g_decides("--reopen-finding", spec)
+    # (A request for changes starts a new attempt, which owes a review of its own: to see what the next approval
+    # records of the first one's findings, the reviewer's guard is off where the gate is shown again.)
+    g_shown_again, g_unguarded = [["revise", "intent-capture"], approve], {**quiet, "SKIP_REVIEWER_GATE_GUARD": "1"}
+    def gate_found(name, steps, *passes, findings=(), derived=None, body="It reads well.\n", state=REVIEWED(GATE_STATE), env=quiet, more=(), **over):
+        check_(name, created(state, **{**REVIEWED_OUTPUTS, **over}), [["gate-start", "intent-capture"], *steps], env,
+               edits=[reviewed_by_hand(*(passes or [g_not]), findings=findings, derived=derived, body=body), *more])
+    g_mixed = [g_find(1), g_find(2, "Unresolved"), g_find(3, "Resolved"), g_find(4, "Accepted risk"), g_find(5, "Rejected: not ours")]
+    gate_found("gates/findings_approved_none", [approve], g_ready)
+    gate_found("gates/findings_approved_of_each_status", [approve], findings=g_mixed)
+    gate_found("gates/findings_approved_in_order", [approve], findings=[g_find(10), g_find(2), g_find(1), g_find(100)])
+    gate_found("gates/findings_approved_fixed_by_the_reviewer", [approve], findings=[g_find(1), g_find(2)], derived=[g_fixed(1), g_find(2)])
+    gate_found("gates/findings_approved_review_class_none", [approve], findings=[g_find(1)], state=GATE_STATE)
+    gate_found("gates/findings_approved_record_gone", [approve], findings=[g_find(1)], more=[lambda t: os.remove(t.path(REVIEW_RECORD(1)))])
+    mr_at_gate = at_stage(GATE_STATE, "market-research", done=["intent-capture"]).replace("- [-] market-research", "- [?] market-research")
+    g_section = "# Intent\n\nAdd login to the app.\n\n## Review\n\n**Verdict:** NOT-READY\n\n### Findings\n\n| ID | Severity | Location | Finding | Required action | Status |\n| --- | --- | --- | --- | --- | --- |\n| R-01 | Major | Intent | It names no user | Name the user | New |\n| R-02 | Minor | Intent | It is long | Cut it | Resolved |\n"
+    check_("gates/findings_approved_legacy_section", created(awaiting, opened, **{**ic, g_statement: g_section}), [approve], quiet)
+    # (A stage nobody reviews has no findings to decide, whatever its documents say.)
+    check_("gates/findings_approved_no_reviewer", created(mr_at_gate, **artifact("market-research", "competitive-analysis", g_section)), [["approve", "market-research", "--user-input", "Approve"]], quiet)
+    check_("gates/findings_rejected_legacy_section", created(awaiting, opened, **{**ic, g_statement: g_section}), [g_no("R-01=not ours"), *g_shown_again], g_unguarded)
+    # A request for changes with nothing said of the findings records nothing about them.
+    gate_found("gates/findings_changes_asked", [reject, *g_shown_again], findings=g_mixed)
+    gate_found("gates/findings_changes_asked_and_shown_again", [reject, *g_shown_again], findings=g_mixed, env=g_unguarded)
+    # One finding rejected, each way of naming it; then the gate shown again and approved: the rest are accepted.
+    for label, spec in (("id", "R-01=not ours"), ("stem", "intent-statement#R-01=not ours"), ("file", "intent-statement.md#R-01=not ours"), ("path", f"{g_statement}#R-01=not ours"),
+                        ("tail", "intent-capture/intent-statement.md#R-01=not ours"), ("spaced", "  intent-statement  #R-01=not ours,  said twice  "), ("lines", "R-01=not ours\nat all"),
+                        ("hash_in_the_reason", "R-01=see #R-02=x")):
+        gate_found(f"gates/findings_rejected_by_{label}", [g_no(spec), *g_shown_again], findings=[g_find(1), g_find(2)], env=g_unguarded)
+    gate_found("gates/findings_rejected_by_id_spaced", [g_no("  R-01=not ours  "), *g_shown_again], findings=[g_find(1), g_find(2)], env=g_unguarded)
+    gate_found("gates/findings_rejected_two", [g_decides("--reject-finding", "R-02=second", "--reject-finding", "R-01=first"), *g_shown_again], findings=[g_find(1), g_find(2), g_find(3)], env=g_unguarded)
+    gate_found("gates/findings_rejected_then_no_review", [g_no("R-01=not ours"), *g_shown_again], findings=[g_find(1), g_find(2)])
+    gate_found("gates/findings_reopened", [g_again("R-01=it is back"), *g_shown_again], findings=[g_find(1), g_find(2)], derived=[g_fixed(1), g_find(2)], env=g_unguarded)
+    gate_found("gates/findings_rejected_and_reopened", [g_decides("--reopen-finding", "R-01=it is back", "--reject-finding", "R-02=not ours"), *g_shown_again], findings=[g_find(1), g_find(2)], derived=[g_fixed(1), g_find(2)],
+               env=g_unguarded)
+    # What is refused: a value that is not of the form, a finding that is not there or not one the decision fits,
+    # one named twice. Nothing is recorded, and the gate stays open.
+    gate_found("gates/findings_rejected_malformed", [g_no(spec) for spec in ("R-01", "R-01=", "R-01=   ", "#R-01", "R-1x=y", "R-01 =x", "r-01=x", "=x", "", "intent-statement#=x", "a#b#R-01=x", "intent-statement#R-01=  x")] + [g_again("R-01")],
+               findings=[g_find(1)])
+    gate_found("gates/findings_rejected_not_there", [g_no("R-09=x"), g_no("nope#R-01=x"), g_no("statement#R-01=x"), g_no("intent-statement.md.md#R-01=x"), g_again("R-09=x"), g_again("R-02=x")],
+               findings=[g_find(1), g_find(2), g_find(4, "Accepted risk")])
+    gate_found("gates/findings_rejected_none_to_reject", [g_no("R-09=x"), g_again("R-09=x")], findings=[g_find(4, "Accepted risk")])
+    gate_found("gates/findings_rejected_no_findings", [g_no("R-01=x"), g_again("R-01=x")], g_ready)
+    gate_found("gates/findings_rejected_does_not_fit", [g_no("R-01=x"), g_no("R-04=x"), g_no("R-05=x"), g_again("R-02=x"), g_again("R-04=x")],
+               findings=[g_find(1), g_find(2), g_find(4), g_find(5)], derived=[g_fixed(1), g_find(2), g_find(4, "Accepted risk"), g_find(5, "Rejected: not ours")])
+    gate_found("gates/findings_rejected_twice", [g_decides("--reject-finding", "R-01=x", "--reject-finding", "intent-statement#R-01=y"), g_decides("--reject-finding", "R-02=x", "--reopen-finding", "R-02=y"),
+                                                 g_decides("--reopen-finding", "R-03=x", "--reopen-finding", "intent-statement.md#R-03=y"), g_decides("--reopen-finding", "R-02=y", "--reject-finding", "R-09=x"),
+                                                 # (Both decisions for one the reviewer found fixed: named twice is said before either is weighed. And the
+                                                 # ones to reject are looked up first, wherever the flags stand.)
+                                                 g_decides("--reject-finding", "R-03=x", "--reopen-finding", "R-03=y"), g_decides("--reopen-finding", "nope", "--reject-finding", "R-09=x"),
+                                                 g_decides("--reject-finding", "nope", "--reopen-finding", "R-09=x")],
+               findings=[g_find(1), g_find(2), g_find(3)], derived=[g_find(1), g_find(2), g_fixed(3)])
+    gate_found("gates/findings_same_id_twice_in_the_list", [g_no("R-01=x"), g_no("intent-statement#R-01=x"), approve], findings=[g_find(1), g_find(1)])
+    # (Named by its whole path, a finding is the first the list has by that name, however many share its id.)
+    gate_found("gates/findings_same_id_twice_named_whole", [g_no("R-01=x"), g_no(f"{g_statement}#R-01=x")], findings=[g_find(1), g_find(1)])
+    # What an approval records of a review that did not finish: the person's own approval over a request with no
+    # verdict (the recovery review included), and any approval over the NOT-READY no reviewer gave.
+    g_person_opens = ["gate-start", "intent-capture", "--recovered", "--person-approves"]
+    def gate_unfinished(name, *passes, state=REVIEWED(GATE_STATE), steps=None, env=quiet, more=(), body="It reads well.\n", findings=()):
+        check_(name, created(state, **REVIEWED_OUTPUTS), steps or [g_person_opens, approve], env, edits=[reviewed_by_hand(*passes, body=body, findings=findings), *more])
+    gate_unfinished("gates/unfinished_review_approved", g_asked)
+    gate_unfinished("gates/unfinished_recovery_review_approved", g_old, (2, None, REVIEW_RECOVERY, REVIEWED_CURRENT), state=g_strict)
+    gate_unfinished("gates/unfinished_review_approved_team_strict", g_asked, more=[memory("team", "Mode: strict")])
+    # (The last stage of the work: the approval goes on to close the workflow, with the same approval.)
+    g_last = lambda state: re.sub(r"^- \[ \] (\S+) \u2014 EXECUTE$", lambda found: f"- [ ] {found.group(1)} \u2014 SKIP", state, flags=re.M)
+    assert g_last(g_strict) != g_strict
+    gate_unfinished("gates/unfinished_review_approved_last_stage", g_asked, state=g_last(REVIEWED(GATE_STATE)))
+    gate_unfinished("gates/unfinished_recovery_review_approved_last_stage", g_old, (2, None, REVIEW_RECOVERY, REVIEWED_CURRENT), state=g_last(g_strict))
+    gate_unfinished("gates/unfinished_verdict_approved", g_not, body="", steps=[["gate-start", "intent-capture"], approve])
+    gate_unfinished("gates/unfinished_verdict_ready_approved", g_ready, body="", steps=[["gate-start", "intent-capture"], approve])
+    gate_unfinished("gates/unfinished_verdict_then_a_finished_one_approved", g_not, (2, "READY", (), REVIEWED_CURRENT), body="", steps=[["gate-start", "intent-capture"], approve])
+    gate_unfinished("gates/finished_review_approved_by_the_person", g_ready)
+    # The whole way, with reviews the log tool records: a first review leaves two findings, the person says one is
+    # none; the next attempt's review finds the other fixed and raises a third; the person says the fixed one is not;
+    # a last review, and the approval accepts what is still open.
+    w_lead = "aidlc-product-lead-agent"
+    w_asks = lambda n, *more: ["@log", "review", "--stage", "intent-capture", "--reviewer", w_lead, "--iteration", str(n), *more]
+    w_writes = lambda text: ["@write", "{REVIEW}", text]
+    w_six = "| ID | Severity | Location | Finding | Required action | Status |\n|---|---|---|---|---|---|\n"
+    w_first = (f"**Verdict:** NOT-READY\n**Reviewer:** {w_lead}\n**Iteration:** 1\n\n### Findings\n\n{w_six}"
+               "| R-01 | Major | intent-statement.md > Intent | It names no user | Name the user | New |\n| R-02 | Minor | intent-statement.md > Intent | It is long | Cut it | New |\n")
+    def w_report(verdict, prior, new=(), n=1):
+        text = f"**Verdict:** {verdict}\n**Reviewer:** {w_lead}\n**Iteration:** {n}\n\n### Findings\n\n**Prior findings**\n\n| ID | Now | Severity | Note |\n|---|---|---|---|\n"
+        text += "".join(f"| {row} |\n" for row in prior) + "\n**New findings**\n\n| Severity | Location | Finding | Required action |\n|---|---|---|---|\n"
+        return text + "".join(f"| {row} |\n" for row in new)
+    w_state = REVIEWED(GATE_STATE, "adversarial")
+    w_review = [w_asks(1), w_writes(w_first), w_asks(1, "--verdict", "NOT-READY"), ["gate-start", "intent-capture"]]
+    w_second = [w_asks(1), w_writes(w_report("NOT-READY", ["R-02 | Fixed | Minor | Shorter now"], ["Major | stakeholder-map.md > Stakeholders | It names no owner | Name one"])),
+                w_asks(1, "--verdict", "NOT-READY"), ["revise", "intent-capture"]]
+    w_third = [w_asks(1), w_writes(w_report("NOT-READY", ["R-02 | Still applies | Minor | Long again", "R-03 | Still applies | Major | No owner yet"])), w_asks(1, "--verdict", "NOT-READY"), ["revise", "intent-capture"]]
+    def gate_whole(name, *steps):
+        check_(name, created(w_state, **REVIEWED_OUTPUTS), [step for part in steps for step in part], quiet)
+    gate_whole("gates/findings_whole_approved", w_review, [approve])
+    gate_whole("gates/findings_whole_rejected_then_approved", w_review, [g_no("R-01=not ours")], w_second, [approve])
+    gate_whole("gates/findings_whole_rejected_reopened_then_approved", w_review, [g_no("intent-statement#R-01=not ours")], w_second,
+               [g_no("R-02=x"), g_again("R-03=x"), g_again("R-01=x"), g_decides("--reopen-finding", "R-02=it is long again", "--reject-finding", "R-03=the owner is named elsewhere")], w_third, [approve])
+    gate_whole("gates/findings_whole_reopened_then_approved", w_review, [g_no("R-01=not ours")], w_second, [g_again("R-02=it is long again")], w_third, [approve])
+    # (And the row Focus refuses to read, at the gate: see the jump's.)
+    g_listed = block("GATE_APPROVED", T(9), "**Stage**: intent-capture", "**Review Finding Dispositions**: " + json.dumps(
+        {"version": 1, "dispositions": [{"artifact": g_statement, "id": ["R-01"], "fingerprint": "sha256:" + "b" * 64, "status": "Accepted risk"}]}))
+    gate_found("gates/findings_decisions_a_list_for_a_text", [approve, g_no("R-01=x")], findings=[g_find(1)], more=[lambda t: t.edit(CREATED_SHARD, lambda text: text + g_listed)])
     check_("gates/review_findings_rows", created(awaiting, opened + block("REVIEW_FINDING", T(2), "**Stage**: intent-capture", "**Finding**: R-01", "**Status**: open"), **ic), [approve], quiet)
     # The review artifact's `## Review` section: findings (not read), a heading inside a fence, an empty section.
     check_("gates/review_findings_section", created(awaiting, opened, **artifact("intent-capture", "intent-statement", "# Intent\n\n## Review\n- R-01 open: the title\n")), [approve], quiet)

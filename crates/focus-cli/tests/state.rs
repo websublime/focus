@@ -1167,10 +1167,9 @@ fn a_gate_decision_that_is_not_the_persons_is_refused_for_the_agent() {
     let _ = fs::remove_dir_all(root);
 }
 
-/// Deliberate deviation. The sensors a gate fires, a review's findings, the
-/// gate words and the units' gates are the sensor tool's, the review brief's,
-/// the human-turn hook's and the units' lifecycle (M4, M5): where upstream
-/// reads them, Focus refuses by name.
+/// Deliberate deviation. The sensors a gate fires and the units' gates are
+/// the sensor tool's and the units' lifecycle (M5): where upstream reads
+/// them, Focus refuses by name.
 #[test]
 fn what_a_gate_cannot_weigh_yet_is_refused_by_name() {
     let root = created("gate-by-name", CREATED);
@@ -1194,89 +1193,6 @@ fn what_a_gate_cannot_weigh_yet_is_refused_by_name() {
         .chain([("FOCUS_DISABLE_SENSORS", "1")])
         .collect();
     ok(&state(&root, &["gate-start", "intent-capture"], &quiet_off));
-    // A `## Review` section in the review artifact.
-    write(
-        &root,
-        &format!("{CREATED_RECORD}/ideation/intent-capture/intent-statement.md"),
-        "# Intent\n\n## Review\n- R-01 New: the title\n",
-    );
-    let findings = refusal(&state(
-        &root,
-        &["approve", "intent-capture", "--user-input", "Approve"],
-        &quiet_off,
-    ));
-    assert!(findings.ends_with("intent-statement.md carries a `## Review` section, whose findings the gate would record on its decision: Focus does not read review findings yet."), "{findings}");
-    // A review asked for and never finished, at a stage that owes one: the
-    // person's own approval goes over it, so what stops the approval is the
-    // findings the gate would record, not the reviewer's guard. (Upstream
-    // approves and records `Review: not finished`; no comparison holds
-    // either refusal.)
-    {
-        let state_before = created_state(&root);
-        let shard_path = root.join(CREATED_RECORD).join("audit/laptop-abc123.md");
-        let shard_before = fs::read_to_string(&shard_path).unwrap();
-        write(
-            &root,
-            &format!("{CREATED_RECORD}/ideation/intent-capture/intent-statement.md"),
-            "# Intent\n",
-        );
-        with(&state_before.replace(
-            "- **Review Override**: none",
-            "- **Review Override**: advisory",
-        ));
-        let approve = ["approve", "intent-capture", "--user-input", "Approve"];
-        let owed = refusal(&state(&root, &approve, &quiet_off));
-        assert!(
-            owed.starts_with("Cannot complete \"intent-capture\" because focus-product-lead-agent has not reviewed the current output."),
-            "{owed}"
-        );
-        let shard_owed = fs::read_to_string(&shard_path).unwrap();
-        fs::write(
-            &shard_path,
-            format!(
-                "{shard_owed}\n## Review Requested\n**Timestamp**: 2026-01-05T10:30:00Z\n**Event**: REVIEW_REQUESTED\n**Stage**: intent-capture\n**Reviewer**: focus-product-lead-agent\n**Iteration**: 1\n**Artifact Fingerprint**: sha256:{}\n**Request Id**: review:{}\n\n---\n",
-                "a".repeat(64),
-                "1".repeat(32)
-            ),
-        )
-        .unwrap();
-        let over = refusal(&state(&root, &approve, &quiet_off));
-        assert!(
-            over.starts_with("\"intent-capture\" has review rows in its ledger, whose findings the gate would record on its decision"),
-            "{over}"
-        );
-        fs::write(&shard_path, shard_before).unwrap();
-        with(&state_before);
-        let _ = fs::remove_dir_all(
-            root.join(CREATED_RECORD)
-                .join(".focus-engine/guard-refusals"),
-        );
-        write(
-            &root,
-            &format!("{CREATED_RECORD}/ideation/intent-capture/intent-statement.md"),
-            "# Intent\n\n## Review\n- R-01 New: the title\n",
-        );
-    }
-    assert_eq!(
-        refusal(&state(
-            &root,
-            &[
-                "reject",
-                "intent-capture",
-                "--feedback",
-                "x",
-                "--reject-finding",
-                "intent-statement#R-01=no"
-            ],
-            &quiet_off
-        )),
-        "--reject-finding and --reopen-finding record the person's decision on a review's findings, which Focus does not read yet."
-    );
-    write(
-        &root,
-        &format!("{CREATED_RECORD}/ideation/intent-capture/intent-statement.md"),
-        "# Intent\n",
-    );
     // A team's unit gate.
     let team = created_state(&root)
         .replace("- **Revision Count**: 0\n", "")
@@ -1774,6 +1690,134 @@ fn a_backward_jump_refuses_a_review_it_cannot_read() {
         "{}",
         fs::read_to_string(&shard_path).unwrap()
     );
+    let _ = fs::remove_dir_all(root);
+}
+
+/// What a gate records of a review's findings: an approval accepts the risk
+/// of each one still open, and a request for changes says of the one it
+/// names that it is none.
+///
+/// Deliberate deviation: a decision a gate's row holds, edited by hand so a
+/// list stands where the finding's id belongs. Upstream reads the list as
+/// text and decides the gate; Focus refuses the approval, and the request
+/// for changes that names a finding, and records neither.
+#[test]
+fn a_gate_records_what_the_person_decided_about_findings() {
+    use sha2::{Digest, Sha256};
+    let state_text = CREATED
+        .replace("- [-] intent-capture ", "- [?] intent-capture ")
+        .replace(
+            "- **Review Override**: none",
+            "- **Review Override**: none\n- **Sensors**: off (set by a command)",
+        );
+    let root = created("gate-findings", &state_text);
+    let statement = format!("{CREATED_RECORD}/ideation/intent-capture/intent-statement.md");
+    write(&root, &statement, "# Intent\n");
+    let reviewer = "focus-product-lead-agent";
+    let fingerprint = format!("sha256:{}", "c".repeat(64));
+    let request = format!("review:{}", "1".repeat(32));
+    let finding = |id: &str| {
+        format!(
+            "    {{\n      \"id\": \"{id}\",\n      \"severity\": \"Major\",\n      \"location\": \"Intent\",\n      \"finding\": \"Finding {id}\",\n      \"required_action\": \"Fix {id}\",\n      \"status\": \"New\"\n    }}"
+        )
+    };
+    let record = format!(
+        "{{\n  \"version\": 1,\n  \"stage\": \"intent-capture\",\n  \"unit\": null,\n  \"workflow\": null,\n  \"attempt\": \"0000000000000000\",\n  \"iteration\": 1,\n  \"reviewer\": \"{reviewer}\",\n  \"verdict\": \"NOT-READY\",\n  \"request_id\": \"{request}\",\n  \"request_challenge\": null,\n  \"artifact_fingerprint\": \"{fingerprint}\",\n  \"source_fingerprint\": null,\n  \"unit_source_fingerprint\": null,\n  \"findings\": [\n{},\n{}\n  ],\n  \"body\": \"It reads well.\\n\",\n  \"recorded_at\": \"2026-01-05T10:00:00Z\"\n}}\n",
+        finding("R-02"),
+        finding("R-01")
+    );
+    let record_rel = ".focus-engine/reviews/intent-capture/stage/0000000000000000/1.json";
+    write(&root, &format!("{CREATED_RECORD}/{record_rel}"), &record);
+    let digest: String = Sha256::digest(record.as_bytes())
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect();
+    let scope = format!("**Stage**: intent-capture\n**Reviewer**: {reviewer}\n**Iteration**: 1\n");
+    let reviewed = format!(
+        "\n## Review Requested\n**Timestamp**: 2026-01-05T10:01:00Z\n**Event**: REVIEW_REQUESTED\n{scope}**Artifact Fingerprint**: {fingerprint}\n**Request Id**: {request}\n\n---\n\n## Review Completed\n**Timestamp**: 2026-01-05T10:02:00Z\n**Event**: REVIEW_COMPLETED\n{scope}**Verdict**: NOT-READY\n**Request Fingerprint**: {fingerprint}\n**Artifact Fingerprint**: {fingerprint}\n**Request Id**: {request}\n**Review Record**: {record_rel}\n**Review Record Digest**: sha256:{digest}\n\n---\n"
+    );
+    let opened = "\n## Stage Awaiting Approval\n**Timestamp**: 2026-01-05T10:03:00Z\n**Event**: STAGE_AWAITING_APPROVAL\n**Stage**: intent-capture\n\n---\n";
+    let shard_path = root.join(CREATED_RECORD).join("audit/laptop-abc123.md");
+    let shard = format!("{CREATED_SHARD}{reviewed}{opened}");
+    fs::write(&shard_path, &shard).unwrap();
+    let approve = ["approve", "intent-capture", "--user-input", "Approve"];
+    let no = |spec: &'static str| {
+        [
+            "reject",
+            "intent-capture",
+            "--feedback",
+            "needs more",
+            "--reject-finding",
+            spec,
+        ]
+    };
+    // The deviation first: nothing is decided and nothing recorded.
+    let listed = format!(
+        "\n## Gate Approved\n**Timestamp**: 2026-01-05T09:00:00Z\n**Event**: GATE_APPROVED\n**Stage**: intent-capture\n**Review Finding Dispositions**: {{\"version\":1,\"dispositions\":[{{\"artifact\":\"{statement}\",\"id\":[\"R-01\"],\"fingerprint\":\"sha256:{}\",\"status\":\"Accepted risk\"}}]}}\n\n---\n",
+        "b".repeat(64)
+    );
+    fs::write(&shard_path, format!("{shard}{listed}")).unwrap();
+    let not_text = "the Review Finding Dispositions field holds a decision that is not written as text: it is not read";
+    assert_eq!(refusal(&state(&root, &approve, &QUIET)), not_text);
+    assert_eq!(refusal(&state(&root, &no("R-01=x"), &QUIET)), not_text);
+    assert_eq!(created_state(&root), state_text);
+    assert!(!created_shard(&root).contains("## Gate Rejected"));
+    assert_eq!(created_shard(&root).matches("## Gate Approved").count(), 1);
+    fs::write(&shard_path, &shard).unwrap();
+    // A finding that is not there is named back with the ones that are,
+    // and one named twice is refused.
+    assert_eq!(
+        refusal(&state(&root, &no("R-09=x"), &QUIET)),
+        format!(
+            "Cannot reject R-09: it is not a current review finding for this gate. Current rejectable findings: {statement}#R-01, {statement}#R-02."
+        )
+    );
+    assert_eq!(
+        refusal(&state(
+            &root,
+            &[
+                "reject",
+                "intent-capture",
+                "--feedback",
+                "needs more",
+                "--reject-finding",
+                "R-01=x",
+                "--reject-finding",
+                "intent-statement#R-01=y"
+            ],
+            &QUIET
+        )),
+        format!(
+            "Finding {statement}#R-01 cannot appear more than once across --reject-finding and --reopen-finding. Keep only the intended decision."
+        )
+    );
+    // (A refusal leaves its own row, and no decision.)
+    assert!(!created_shard(&root).contains("**Event**: GATE_"));
+    assert_eq!(created_state(&root), state_text);
+    // The approval accepts the risk of both, in the order of their ids,
+    // each with the record of the review that raised it.
+    ok(&state(&root, &approve, &QUIET));
+    let after = created_shard(&root);
+    let row = after
+        .lines()
+        .find(|line| line.starts_with("**Review Finding Dispositions**: "))
+        .unwrap_or_else(|| panic!("{after}"));
+    let decided: serde_json::Value =
+        serde_json::from_str(&row["**Review Finding Dispositions**: ".len()..]).unwrap();
+    assert_eq!(decided["version"], 1);
+    let decisions = decided["dispositions"].as_array().unwrap();
+    assert_eq!(decisions.len(), 2, "{row}");
+    for (decision, id) in decisions.iter().zip(["R-01", "R-02"]) {
+        assert_eq!(decision["artifact"], statement.as_str());
+        assert_eq!(decision["id"], id);
+        assert_eq!(decision["status"], "Accepted risk");
+        assert_eq!(decision["decided_at_severity"], "Major");
+        assert_eq!(decision["reviewed_record"]["path"], record_rel);
+        assert_eq!(
+            decision["reviewed_record"]["digest"],
+            format!("sha256:{digest}").as_str()
+        );
+    }
     let _ = fs::remove_dir_all(root);
 }
 
