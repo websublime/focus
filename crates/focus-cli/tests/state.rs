@@ -388,7 +388,7 @@ fn an_observer_writes_nothing() {
 }
 
 /// Deliberate deviation. Upstream's usage lists its 33 verbs and its
-/// refusal of a verb it does not know too; Focus lists the nineteen it has,
+/// refusal of a verb it does not know too; Focus lists the twenty-six it has,
 /// and refuses the others by name, before any fence is consulted (upstream
 /// passes them through the state-transition fence first).
 #[test]
@@ -396,7 +396,7 @@ fn the_state_command_names_the_verbs_it_has() {
     let root = project("usage");
     assert_eq!(
         refusal(&state(&root, &[], &[])),
-        "Usage: focus engine state <subcommand>. Valid: get, set, checkbox, count, advance, finalize, complete-workflow, gate-start, approve, reject, revise, skip, resume, park, unpark, acknowledge-compaction, practices-event, reuse-artifact, lookup. Run with --help for detail."
+        "Usage: focus engine state <subcommand>. Valid: get, set, checkbox, count, advance, finalize, complete-workflow, gate-start, approve, reject, revise, skip, resume, park, unpark, acknowledge-compaction, practices-event, reuse-artifact, lookup, set-skeleton-stance, set-construction-iteration, set-construction-checkpoints, set-construction-execution, set-construction-verification-command, set-unit-gate-rhythm, sync-unit-scope-stage. Run with --help for detail."
     );
     assert_eq!(
         refusal(&state(&root, &["nope"], &[])),
@@ -404,7 +404,7 @@ fn the_state_command_names_the_verbs_it_has() {
     );
     for (verb, does) in [
         ("set-unit-ownership", "sets the units' ownership"),
-        ("sync-unit-scope-stage", "syncs a unit's scope stage"),
+        ("refresh-unit-progress", "refreshes the units' progress"),
         ("fork", "forks the state for a bolt"),
         ("unit", "runs a unit of work's step"),
         ("practices-promote", "promotes a practice"),
@@ -2043,6 +2043,326 @@ fn reuse_artifact_records_what_becomes_of_what_a_stage_has() {
 /// list stands where the finding's id belongs. Upstream reads the list as
 /// text and decides the gate; Focus refuses the approval, and the request
 /// for changes that names a finding, and records neither.
+/// The created record's state with the settings a creation writes.
+fn running() -> String {
+    let state = CREATED.replace(
+        "## Phase Progress\n",
+        "## Runtime State\n- **Revision Count**: 0\n- **Construction Checkpoints**: enabled\n- **Construction Iteration**: unit-major\n- **Construction Execution**: serial\n\n## Phase Progress\n",
+    );
+    assert_ne!(state, CREATED);
+    state
+}
+
+/// How Construction runs is the person's to set. Before Construction a
+/// setting is a preference anyone records; during it, a change is theirs:
+/// asked for since the last decision, or chosen at a policy question.
+#[test]
+fn how_construction_runs_is_the_persons_to_set() {
+    let root = created("policy", &running());
+    let set = |args: &[&str], env: &[(&str, &str)]| state(&root, args, env);
+    assert_eq!(
+        ok(&set(&["set-skeleton-stance", "scope-dependent"], &[])),
+        "{\"updated\":true,\"skeleton_stance\":\"scope-dependent\"}\n"
+    );
+    assert!(created_state(&root).contains("- **Skeleton Stance**: scope-dependent\n"));
+    assert_eq!(
+        refusal(&set(&["set-skeleton-stance", "maybe"], &[])),
+        "Invalid skeleton stance \"maybe\". Valid: on, off, scope-dependent."
+    );
+    // Before Construction: recorded, with what it was.
+    assert_eq!(
+        ok(&set(&["set-construction-iteration", "stage-major"], &[])),
+        "{\"updated\":true,\"construction_iteration\":\"stage-major\",\"notice\":\"Construction now goes stage by stage (it built one Unit at a time). You can switch back any time.\"}\n"
+    );
+    assert!(created_shard(&root).contains(
+        "**Event**: CONSTRUCTION_POLICY_SET\n**Field**: Construction Iteration\n**Value**: stage-major\n**Previous Value**: unit-major\n**Construction Iteration**: stage-major\n**Construction Checkpoints**: enabled\n"
+    ));
+    assert_eq!(
+        ok(&set(&["set-construction-iteration", "stage-major"], &[])),
+        "{\"updated\":true,\"construction_iteration\":\"stage-major\",\"notice\":\"Construction already goes stage by stage.\"}\n"
+    );
+    assert_eq!(
+        created_shard(&root)
+            .matches("CONSTRUCTION_POLICY_SET")
+            .count(),
+        1
+    );
+    assert_eq!(
+        ok(&set(&["set-construction-execution", "swarm"], &[])),
+        "{\"updated\":true,\"field\":\"Construction Execution\",\"value\":\"swarm\",\"notice\":\"Construction now builds the Units in parallel (it built the Units one after another). You can switch back any time.\"}\n"
+    );
+    assert_eq!(
+        refusal(&set(&["set-construction-iteration", "unit-major"], &[])),
+        "Select Construction Execution: serial before switching to unit-major iteration."
+    );
+    assert_eq!(
+        ok(&set(&["set-construction-checkpoints", "disabled"], &[])),
+        "{\"updated\":true,\"field\":\"Construction Checkpoints\",\"value\":\"disabled\",\"notice\":\"Construction checkpoints (a stop after each Unit for you to check and approve it) are off for this work now (they were on). You can switch back any time.\"}\n"
+    );
+    assert_eq!(
+        refusal(&set(&["set-construction-execution", "serial"], &[])),
+        "Enable Construction Checkpoints before selecting Construction Execution."
+    );
+    let _ = fs::remove_dir_all(&root);
+
+    // During Construction.
+    let built = running().replace(
+        "- **Lifecycle Phase**: IDEATION",
+        "- **Lifecycle Phase**: CONSTRUCTION",
+    );
+    let root = created("policy-built", &built);
+    let set = |args: &[&str], env: &[(&str, &str)]| state(&root, args, env);
+    let recovery = "When the person asks for this Construction change, run focus engine state set-construction-checkpoints, set-construction-execution, or set-construction-iteration with the value they asked for, then say its notice line to them. Do not ask them to confirm it, and never change it on your own.";
+    assert_eq!(
+        refusal(&set(&["set-construction-checkpoints", "disabled"], &[])),
+        format!(
+            "No message from the person since the last decision asks to change Construction Checkpoints. Change it only when they ask for it, never to clear a refusal or on your own. {recovery}"
+        )
+    );
+    assert!(created_state(&root).contains("- **Construction Checkpoints**: enabled\n"));
+    // (What it already is needs nobody.)
+    assert_eq!(
+        ok(&set(&["set-construction-checkpoints", "enabled"], &[])),
+        "{\"updated\":true,\"field\":\"Construction Checkpoints\",\"value\":\"enabled\",\"notice\":\"Construction checkpoints (a stop after each Unit for you to check and approve it) are already on for this work.\"}\n"
+    );
+    // The person asked: their words go on the row.
+    let shard_rel = format!("{CREATED_RECORD}/audit/laptop-abc123.md");
+    let asked = format!(
+        "{CREATED_SHARD}\n## Human Turn\n**Timestamp**: 2026-01-05T10:09:00Z\n**Event**: HUMAN_TURN\n**Session**: s1\n\n---\n"
+    );
+    write(&root, &shard_rel, &asked);
+    write(
+        &root,
+        &format!("{CREATED_RECORD}/.focus-engine/gate-words/s1.json"),
+        &format!(
+            "{{\"version\":1,\"session\":\"s1\",\"shard\":\"{shard_rel}\",\"dropped\":0,\"messages\":[{{\"offset\":{},\"text\":\"turn the checkpoints off\"}}]}}",
+            CREATED_SHARD.len() + 20
+        ),
+    );
+    assert_eq!(
+        refusal(&set(
+            &["set-construction-checkpoints", "disabled"],
+            &[("FOCUS_UNATTENDED", "1")]
+        )),
+        format!(
+            "An unattended run does not change Construction Checkpoints: it changes when the person asks for it. {recovery}"
+        )
+    );
+    assert!(
+        ok(&set(&["set-construction-checkpoints", "disabled"], &[]))
+            .contains("are off for this work now (they were on)")
+    );
+    assert!(
+        created_shard(&root).contains(
+            "**Field**: Construction Checkpoints\n**Value**: disabled\n**Previous Value**: enabled\n**Construction Iteration**: unit-major\n**Construction Checkpoints**: disabled\n**Person Reply**: turn the checkpoints off\n"
+        ),
+        "{}",
+        created_shard(&root)
+    );
+    let _ = fs::remove_dir_all(&root);
+
+    // Chosen at a policy question: the receipt is enough, once, for its value.
+    let root = created("policy-receipt", &built);
+    let set = |args: &[&str], env: &[(&str, &str)]| state(&root, args, env);
+    write(
+        &root,
+        &shard_rel,
+        &format!(
+            "{CREATED_SHARD}\n## Construction Policy Recorded\n**Timestamp**: 2026-01-05T10:08:00Z\n**Event**: CONSTRUCTION_POLICY_RECORDED\n**Checkpoint**: Construction Policy\n**Field**: Construction Iteration\n**Value**: stage-major\n**Session**: s1\n**User Input**: Approve\n\n---\n"
+        ),
+    );
+    assert!(
+        ok(&set(
+            &["set-construction-iteration", "stage-major"],
+            &[("FOCUS_UNATTENDED", "1")]
+        ))
+        .contains("Construction now goes stage by stage")
+    );
+    assert!(!created_shard(&root).contains("Person Reply"));
+    assert!(
+        refusal(&set(&["set-construction-iteration", "unit-major"], &[]))
+            .starts_with("No message from the person since the last decision asks to change Construction Iteration.")
+    );
+    let _ = fs::remove_dir_all(&root);
+}
+
+/// Deliberate deviation. Upstream looks the value a setting had up in a
+/// plain object, so a name every object has is found there with nothing to
+/// say, and the notice reads `(undefined)`. Focus knows no such value.
+#[test]
+fn a_setting_that_was_an_objects_name_is_a_value_like_any_other() {
+    let root = created(
+        "policy-object",
+        &running().replace(
+            "- **Construction Iteration**: unit-major",
+            "- **Construction Iteration**: constructor",
+        ),
+    );
+    assert_eq!(
+        ok(&state(
+            &root,
+            &["set-construction-iteration", "stage-major"],
+            &[]
+        )),
+        "{\"updated\":true,\"construction_iteration\":\"stage-major\",\"notice\":\"Construction now goes stage by stage. You can switch back any time.\"}\n"
+    );
+    assert!(created_shard(&root).contains("**Previous Value**: constructor\n"));
+    let _ = fs::remove_dir_all(&root);
+}
+
+/// The command that verifies a unit is written to the state only with the
+/// receipt of the person's approval for that very command.
+#[test]
+fn the_verification_command_needs_the_persons_receipt() {
+    let root = created("policy-command", &running());
+    let set = |args: &[&str]| {
+        state(
+            &root,
+            &[&["set-construction-verification-command"], args].concat(),
+            &[],
+        )
+    };
+    assert_eq!(
+        refusal(&set(&[])),
+        "Usage: focus engine state set-construction-verification-command --command-file <record-relative path> (or one positional command argument)."
+    );
+    assert_eq!(
+        refusal(&set(&["a\u{200b}b"])),
+        "Construction verification command must contain no display-spoofing characters. Put complex checks in a script and record its invocation."
+    );
+    assert_eq!(
+        refusal(&set(&["a\tb"])),
+        "Construction verification command must be nonblank, at most 1024 characters, and contain no control characters. Put multiline checks in a script and record its invocation."
+    );
+    let unapproved = refusal(&set(&["cargo test"]));
+    assert!(
+        unapproved.starts_with("No current VERIFICATION_COMMAND_RECORDED with matching Command SHA-256 and User Input: Approve authorizes this command. Write the proposed command to <record>/verification-command.txt with the harness file-write tool"),
+        "{unapproved}"
+    );
+    assert!(
+        unapproved.ends_with("Apply the receipt with focus engine state set-construction-verification-command --command-file verification-command.txt."),
+        "{unapproved}"
+    );
+    assert!(!created_state(&root).contains("Construction Verification Command"));
+    let command = "echo $HOME $1 $&";
+    let digest = sha256_hex(command.as_bytes());
+    let receipt = |digest: &str| {
+        format!(
+            "{CREATED_SHARD}\n## Verification Command Recorded\n**Timestamp**: 2026-01-05T10:08:00Z\n**Event**: VERIFICATION_COMMAND_RECORDED\n**Checkpoint**: Construction Verification Command\n**Command SHA-256**: {digest}\n**User Input**: Approve\n\n---\n"
+        )
+    };
+    let shard_rel = format!("{CREATED_RECORD}/audit/laptop-abc123.md");
+    write(&root, &shard_rel, &receipt(&sha256_hex(b"make check")));
+    assert_eq!(
+        ok(&set(&["make check"])),
+        format!(
+            "{{\"updated\":true,\"command_sha256\":\"{}\",\"command_label\":\"make check\"}}\n",
+            sha256_hex(b"make check")
+        )
+    );
+    // Another command, from a file of the record: it replaces the first,
+    // dollar signs and all, and says so.
+    write(&root, &shard_rel, &receipt(&digest));
+    write(
+        &root,
+        &format!("{CREATED_RECORD}/checks/command.txt"),
+        &format!("  {command}\n"),
+    );
+    assert_eq!(
+        ok(&set(&["--command-file", "checks\\command.txt"])),
+        format!(
+            "{{\"updated\":true,\"command_sha256\":\"{digest}\",\"command_label\":\"{command}\",\"notice\":\"Using `{command}` from here on.\"}}\n"
+        )
+    );
+    assert!(created_state(&root).contains(&format!(
+        "- **Construction Verification Command**: {command}\n"
+    )));
+    // (Bytes that are no text are read as the character that stands for
+    // them, and it is that reading the person approved.)
+    fs::write(
+        root.join(CREATED_RECORD).join("checks/command.txt"),
+        b"cargo \xff test\n",
+    )
+    .unwrap();
+    let read = "cargo \u{fffd} test";
+    write(&root, &shard_rel, &receipt(&sha256_hex(read.as_bytes())));
+    assert!(
+        ok(&set(&["--command-file", "checks/command.txt"]))
+            .contains(&format!("\"command_label\":\"{read}\"")),
+    );
+    for (file, says) in [
+        ("../x.txt", "path component \"..\" escapes its anchor "),
+        ("/x.txt", "path escapes its anchor lexically: /x.txt"),
+        ("\\x.txt", "path escapes its anchor lexically: \\x.txt"),
+        ("c:x.txt", "path escapes its anchor lexically: c:x.txt"),
+    ] {
+        let refused = refusal(&set(&["--command-file", file]));
+        assert!(refused.starts_with(says), "{refused}");
+    }
+    let _ = fs::remove_dir_all(&root);
+}
+
+/// Deliberate deviation. `Unit Ownership: team` is deferred: upstream sets
+/// the gate rhythm of a team's units and syncs a claimed unit's stage;
+/// Focus refuses both by name. Without a team both refuse as upstream does.
+#[test]
+fn a_teams_units_are_refused_by_name() {
+    let root = created("policy-solo", &running());
+    assert_eq!(
+        refusal(&state(&root, &["set-unit-gate-rhythm", "unit-end"], &[])),
+        "Unit gate rhythm requires Unit Ownership: team. Run focus engine state set-unit-ownership team first."
+    );
+    assert_eq!(
+        refusal(&state(&root, &["set-unit-gate-rhythm", "nope"], &[])),
+        "Invalid unit gate rhythm \"nope\". Valid: per-stage, unit-end."
+    );
+    assert_eq!(
+        refusal(&state(
+            &root,
+            &["sync-unit-scope-stage", "code-generation", "--unit", "api"],
+            &DIRECT
+        )),
+        "Scoped Unit stage sync requires a live Unit claim."
+    );
+    assert_eq!(
+        refusal(&state(
+            &root,
+            &["sync-unit-scope-stage", "code-generation"],
+            &DIRECT
+        )),
+        "Usage: focus engine state sync-unit-scope-stage <stage> --unit <unit>"
+    );
+    let _ = fs::remove_dir_all(&root);
+    let team = running().replace(
+        "- **Revision Count**: 0\n",
+        "- **Revision Count**: 0\n- **Unit Ownership**: team\n",
+    );
+    assert_ne!(team, running());
+    let root = created("policy-team", &team);
+    assert_eq!(
+        refusal(&state(&root, &["set-unit-gate-rhythm", "unit-end"], &[])),
+        "Unit Ownership is team, and the gate rhythm of a team's units is frozen by what its units have done since the workflow started or was jumped: Focus does not run a team's units."
+    );
+    assert_eq!(
+        refusal(&state(
+            &root,
+            &["sync-unit-scope-stage", "code-generation", "--unit", "api"],
+            &DIRECT
+        )),
+        "Unit Ownership is team, and a unit's stage is synced from the scope stamp of the checkout that claimed it, checked against the claim registry: Focus does not run a team's units."
+    );
+    assert_eq!(
+        refusal(&state(
+            &root,
+            &["set-construction-iteration", "stage-major"],
+            &[]
+        )),
+        "Construction Iteration cannot leave unit-major while Unit Ownership is team. Set unit ownership to solo first."
+    );
+    assert_eq!(created_state(&root), team);
+    let _ = fs::remove_dir_all(&root);
+}
+
 #[test]
 fn a_gate_records_what_the_person_decided_about_findings() {
     use sha2::{Digest, Sha256};

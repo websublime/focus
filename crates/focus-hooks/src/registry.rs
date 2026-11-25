@@ -7,8 +7,9 @@ use focus_js::order::cmp_utf16;
 use focus_js::text::trim;
 use focus_workspace::Layout;
 use focus_workspace::names::{DEFAULT_SPACE, SESSIONS_DIR};
+pub use focus_workspace::records::active_intent_uuid;
 use focus_workspace::records::{
-    active_intent, list_intent_dirs, read_intent_registry, row_names_record, valid_session_id,
+    list_intent_dirs, read_intent_registry, row_names_record, valid_session_id,
 };
 use serde_json::Value;
 
@@ -79,19 +80,6 @@ pub fn intent_uuid_of(layout: &Layout, space: &str, dir_name: &str) -> Option<St
         .into_iter()
         .find(|row| row_names_record(row, dir_name))
         .and_then(|row| row.get("uuid").and_then(Value::as_str).map(str::to_owned))
-}
-
-/// `activeIntentUuid`: the uuid of the active intent of `space` (the active
-/// space when none), from its registry row.
-#[must_use]
-pub fn active_intent_uuid(layout: &Layout, space: Option<&str>) -> Option<String> {
-    let space = space.map_or_else(|| layout.active_space(), str::to_owned);
-    let active = active_intent(layout, &space).ok().flatten()?;
-    read_intent_registry(layout, &space)
-        .into_iter()
-        .find(|row| row_names_record(row, &active))
-        .and_then(|row| row.get("uuid").and_then(Value::as_str).map(str::to_owned))
-        .filter(|uuid| !uuid.is_empty())
 }
 
 /// `readSessionIntentUuid`: the uuid stamped in `.focus-sessions/<id>`.

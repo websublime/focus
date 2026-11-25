@@ -7,7 +7,7 @@
 //! target is checked first. Mirrors `linkOnTheWay` / `LinkedFolderError` in
 //! `aidlc-runtime-paths.ts` (L598).
 
-use std::path::{Component, Path};
+use std::path::{Component, Path, PathBuf};
 
 use focus_js::{Result, bail};
 
@@ -133,6 +133,18 @@ pub fn refuse_link_in_chain(anchor: &Path, rel: &Path) -> Result<()> {
 /// not exist cannot redirect anything.
 #[must_use]
 pub fn chain_is_link_free(anchor: &Path, rel: &str) -> bool {
+    target_in_chain(anchor, rel).is_ok()
+}
+
+/// `assertNoSymlinkInChainOrThrow` with `rel` as text: the file `rel` names
+/// under `anchor`, reached through no link. `rel` is read as
+/// [`chain_is_link_free`] says.
+///
+/// # Errors
+///
+/// `rel` has a root or a `..`; a component is a link.
+pub fn target_in_chain(anchor: &Path, rel: &str) -> Result<PathBuf> {
+    // `boundaryRelativePartsOrThrow`.
     let mut chars = rel.chars();
     let rooted = match (chars.next(), chars.next()) {
         (Some('/' | '\\'), _) => true,
@@ -140,23 +152,29 @@ pub fn chain_is_link_free(anchor: &Path, rel: &str) -> bool {
         _ => false,
     };
     if rooted {
-        return false;
+        bail!("path escapes its anchor lexically: {rel}");
     }
     let parts: Vec<&str> = rel
         .split(['/', '\\'])
-        .filter(|part| !part.is_empty())
+        .filter(|part| !part.is_empty() && *part != ".")
         .collect();
     if parts.contains(&"..") {
-        return false;
+        bail!(
+            "path component \"..\" escapes its anchor {}: {rel}",
+            anchor.display()
+        );
     }
     let mut current = anchor.to_path_buf();
     for part in parts {
         current.push(part);
         if std::fs::symlink_metadata(&current).is_ok_and(|meta| meta.file_type().is_symlink()) {
-            return false;
+            bail!(
+                "{} is a symlink, and no path component may be a symlink here. A redirected container directory is refused exactly like a symlink found INSIDE an already-trusted one.",
+                current.display()
+            );
         }
     }
-    true
+    Ok(current)
 }
 
 #[cfg(all(test, unix))]
