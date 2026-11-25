@@ -2661,12 +2661,6 @@ DEVIATIONS.update({
         "the units of a stage that runs for each unit, when no plan names them, are the folders found under "
         "construction/: upstream shows their lists in the order the host lists that folder in, which no two file "
         "systems agree on; focus shows them by name (with a plan, both show its order, and that is compared)",
-    "review-brief/usage/review_not_ported":
-        "the brief shown at a gate reads what changed since the review and what the person decided, and keeps what "
-        "it printed beside the review's record: focus refuses it by name until it writes it (M5, slice 3e-v-c)",
-    "review-brief/usage/summary_not_ported":
-        "the brief of a summary confirmation reads the stage's questions and what was confirmed before: focus "
-        "refuses it by name until it writes it (M5, slice 3e-v-c)",
     "state/gates/findings_decisions_a_list_for_a_text":
         "the same row read at the gate, where the decisions a gate records are made from the list of findings: "
         "upstream reads the list as text, approves and records; focus refuses the approval, and the request for "
