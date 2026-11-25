@@ -2947,6 +2947,7 @@ def state_checks():
     check_("compaction/no_current_stage", with_rows(compacted, state=CREATED_STATE.replace("- **Current Stage**: intent-capture", "- **Current Stage**: ")), [ack("--choice", "review")])
     check_("compaction/archived", with_rows(compacted, state=CREATED_STATE.replace("- **Status**: Running", "- **Status**: Archived")), [ack("--choice", "review")])
     check_("compaction/no_record", CLONE, [ack("--choice", "review"), ack()])
+    check_("compaction/observer", with_rows(compacted), [ack("--choice", "review")], {"STOP_HOOK_PROBE": "1"})
 
     # reuse-artifact: what becomes of artifacts a stage already has.
     reuse = lambda slug, decision, artifacts, *more: ["reuse-artifact", slug, "--decision", decision, "--artifacts", artifacts, *more]
@@ -2965,7 +2966,11 @@ def state_checks():
     UNRECORDED.update(f"state/reuse/{name}" for name in ("repo_named_as_the_project_kept", "repo_named_as_the_project_with_repos", "single_codekb_no_repos", "single_codekb_store_asked"))
     check_("reuse/repo_named_as_the_project_kept", created(), [reuse("intent-capture", "keep", "a.md", "--repo", "{N}")])
     reg = lambda listed: CREATED_REGISTRY.replace('"status": "in-flight"', '"status": "in-flight",\n    "repos": ' + listed)
-    check_("reuse/repo_named_as_the_project_with_repos", created(registry=reg('["{N}"]')), [reuse("reverse-engineering", "keep", "a.md", "--repo", "{N}")])
+    # (With one registered under that very name, it is a repository like any other, and recorded.)
+    registered_by_its_name = lambda tree: tree.edit("aidlc/spaces/default/intents/intents.json", lambda text: text.replace("{N}", os.path.basename(tree.root)))
+    check_("reuse/repo_named_as_the_project_with_repos", created(registry=reg('["{N}"]')), [reuse("reverse-engineering", "keep", "a.md", "--repo", "{N}")], edits=[registered_by_its_name])
+    # (A row that cannot be written: the refusal says what the verb was doing.)
+    check_("reuse/observer", created(), [reuse("intent-capture", "keep", "a.md")], {"STOP_HOOK_PROBE": "1"})
     check_("reuse/repos_registered", created(registry=reg('["app", "web"]')), [reuse("reverse-engineering", "keep", "a.md", "--repo", "app"), reuse("reverse-engineering", "keep", "a.md")])
     check_("reuse/archived", created(CREATED_STATE.replace("- **Status**: Running", "- **Status**: Archived")), [reuse("intent-capture", "keep", "a.md")])
     check_("reuse/no_record", CLONE, [reuse("intent-capture", "keep", "a.md")])
@@ -2981,9 +2986,11 @@ def state_checks():
     check_("reuse/single_the_ordinary_run", with_rows(block("STAGE_STARTED", T(5), "**Stage**: market-research")), by_itself)
     check_("reuse/single_closed_by_the_ordinary_run", with_rows(alone("market-research"), block("STAGE_COMPLETED", T(6), "**Stage**: market-research")), by_itself)
     check_("reuse/single_closed_at_the_same_instant", with_rows(alone("market-research"), ended("market-research", 5)), by_itself)
+    check_("reuse/single_closed_under_another_stage_s_name", with_rows(alone("market-research"), block("STAGE_COMPLETED", T(6), "**Stage**: intent-capture", "**Workflow**: single-stage:market-research")), by_itself)
     check_("reuse/single_closed_before_it_started", with_rows(ended("market-research", 4), alone("market-research")), by_itself)
     other = f"{CREATED_DIR}/audit/desktop-def456.md"
     check_("reuse/single_closed_at_the_same_instant_in_another_shard", created(CREATED_STATE, CREATED_AUDIT + alone("market-research"), **{other: TITLE + ended("market-research", 5)}), by_itself)
+    check_("reuse/single_closed_earlier_in_another_shard", created(CREATED_STATE, CREATED_AUDIT + alone("market-research"), **{other: TITLE + ended("market-research", 4)}), by_itself)
     check_("reuse/single_started_in_two_shards", created(CREATED_STATE, CREATED_AUDIT + alone("market-research"), **{other: TITLE + alone("market-research")}), by_itself)
     check_("reuse/single_started_twice_at_one_instant", with_rows(alone("market-research"), ended("market-research", 5), alone("market-research", 5)), by_itself)
     # (Keeping the CodeKB of a reverse-engineering run by itself: the repository named must be the record's, and
@@ -3017,6 +3024,7 @@ def state_checks():
     check_("practices/fields_of_the_row", created(), [says("discovered", "Timestamp: then", "Event: STAGE_STARTED", "Stage: intent-capture"), says("empty", "A: b\nc", "**B**: x", "C: ---")])
     check_("practices/archived", created(CREATED_STATE.replace("- **Status**: Running", "- **Status**: Archived")), [says("discovered", "A: b")])
     check_("practices/no_record", CLONE, [says("discovered", "A: b")])
+    check_("practices/observer", created(), [says("discovered", "A: b")], {"STOP_HOOK_PROBE": "1"})
 
     # get: a field, a field with spaces, an empty one, one that is not there, and with no state file.
     check_("get/fields", record, [["get", "Scope"], ["get", "Current", "Stage"], ["get", "Parked"], ["get", "Nope"],

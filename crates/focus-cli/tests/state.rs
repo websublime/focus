@@ -2013,6 +2013,15 @@ fn reuse_artifact_records_what_becomes_of_what_a_stage_has() {
         )
     );
     let rows = created_shard(&root).matches("ARTIFACT_REUSED").count();
+    // (The store may be given with spaces around it, or with the other
+    // slash: it is the same store.)
+    for given in [format!("  {store} "), store.replace('/', "\\")] {
+        assert!(
+            refusal(&kept(&given, &[]))
+                .starts_with("Keeping the CodeKB of a reverse-engineering run by itself asks"),
+            "{given}"
+        );
+    }
     assert_eq!(
         refusal(&kept(&store, &[])),
         format!(

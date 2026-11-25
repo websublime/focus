@@ -532,6 +532,8 @@ fn transition_of(wf: &Workflow, verb: &str, args: &[String]) -> Verb {
                     decision,
                     artifacts,
                     repo,
+                    // (After the slug, as upstream looks: a slug so named
+                    // is no stage either way.)
                     single: rest.iter().any(|arg| arg == "--single"),
                 },
             )?
