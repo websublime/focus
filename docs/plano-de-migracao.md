@@ -3810,7 +3810,9 @@ A fatia junta coisas de tamanhos muito diferentes: verbos de `state` que não t�
 | 5b. `reuse-artifact` | A linha `ARTIFACT_REUSED`, com o reuso de uma stage corrida sozinha (`--single`) | A recusa pelo nome do verbo | Feita (abaixo) |
 | `practices-promote` | Sai desta fatia: promove a secção Testing Posture pelo leitor do contrato de testes (`promotableTestingPosture`, `classifyPosture`), que é a fatia 11. Fica recusado pelo nome até lá | | Fatia 11 |
 | 5c. A política de Construction | `set-skeleton-stance`, `set-construction-iteration`, `set-construction-checkpoints`, `set-construction-execution`, `set-construction-verification-command`, `set-unit-gate-rhythm`, `sync-unit-scope-stage` | A recusa pelo nome dos sete | Feita (abaixo) |
-| 5d em diante | O verbo `unit` (623 linhas), `bolt` sem worktree, `construction-checkpoints`, uma stage de Construction em `advance` e nos gates, `jump reopen` e `execute --units`, `skip --unit`, e o que as fatias 2e, 3 e 3e recusam pelo nome por falta de units (os recibos por unit, o congelamento por unit, o brief de uma unit) | O limite 1 de M3 | Por fazer; parte-se quando lá chegar |
+| 5d. As units como dados | O chão de uma tentativa como o token que um recibo leva (5d-i), e as linhas do ciclo de uma unit lidas contra ele: os checkpoints abertos, os recibos de conclusão, as units saltadas (5d-ii). Funções, sob o oráculo | Nada ainda: é o que o verbo `unit` e os gates de unit leem | 5d-i feita (abaixo) |
+| 5e. O verbo `unit` | `unit complete` inteiro; `start`, `pause` e `resume` até à pergunta da rota, que o original faz a `orchestrate next` num subprocesso: recusada pelo nome até à fatia 7. `--wave` pelo nome | A recusa pelo nome do verbo | Por fazer |
+| 5f em diante | `bolt` sem worktree, `construction-checkpoints`, uma stage de Construction em `advance` e nos gates, `jump reopen` e `execute --units`, `skip --unit`, e o que as fatias 2e, 3 e 3e recusam pelo nome por falta de units (os recibos por unit, o congelamento por unit, o brief de uma unit) | O limite 1 de M3 | Por fazer; parte-se quando lá chegar |
 
 ### Fatia 5a: `lookup`, `acknowledge-compaction` e `practices-event`
 
@@ -3917,6 +3919,28 @@ Uma corrida sem ninguém (`FOCUS_UNATTENDED=1`) só muda por recibo, mesmo com a
 | Diferencial, tudo | 4 664 verificações: 4 434 iguais, 230 desvios declarados, 0 diferentes. Gravadas 4 548 sobre 1 952 árvores (os dois checks de um ficheiro com bytes que não são texto comparam-se ao vivo; o teste do CLI lê um); fuzz 600 iguais. `state/usage/set-construction-checkpoints_not_ported`, que deixou de ser desvio, deu lugar a `set-unit-ownership` |
 | Mutação | 91 mutantes: 89 apanhados (82 à primeira), 2 eram código a mais e saíram |
 | `cargo test` | 619 testes. Quatro novos: `how_construction_runs_is_the_persons_to_set` (as linhas gravadas, o pedido com as palavras na linha, o recibo que serve uma vez, sem ninguém), `the_verification_command_needs_the_persons_receipt` (o recibo, a substituição com `$`, o ficheiro, os bytes que não são texto, os caminhos com raiz), e os dois dos desvios |
+
+### Fatia 5d-i: o chão de uma tentativa, como token
+
+**O que existe.** `focus-lifecycle::run_floor`. Os recibos do ciclo de uma unit (`UNIT_STARTED` a `UNIT_COMPLETED`) e os de um swarm levam um `Run floor`: a última fronteira da tentativa da stage quando foram escritos (a criação do trabalho, um salto que alcança a stage, uma rejeição do seu gate, um início dela), com o lugar que tem entre as fronteiras do seu tipo. Um recibo conta enquanto o chão lido agora for o que ele leva: uma fronteira nova reforma todos os recibos da tentativa anterior, mesmo os escritos no mesmo segundo.
+
+| Função | O que lê |
+| --- | --- |
+| `latest` (`latestMainWorkflowStageRunFloorFromRows`) | O token da última fronteira, com as linhas em qualquer ordem. Um início guarda o ordinal que tem entre todos os inícios da stage, e um salto o que tem entre todos os saltos: uma troca de flooring não muda o nome de um chão. Fronteiras de shards diferentes no mesmo segundo não têm ordem: o chão é `AMBIGUOUS:<instante>#<digest de todas>`, que nenhum recibo anterior leva |
+| `starts_under_stage_flooring` (`stageStartsUnderStageFlooring`) | Os inícios gravados com flooring stage-major em vigor, pelas linhas `CONSTRUCTION_POLICY_SET` que a 5c escreve: sob unit-major só esses são fronteira |
+| `unit_lifecycle` (`unitLifecycleRunFloorForProject`) | O chão que o recibo de uma unit leva: o da unit quando o flooring é por unit ou ela tem uma rejeição própria, o da stage nos outros casos; sob stage-major deixa de fora os inícios gravados sob unit-major (`stageStartsUnderUnitFlooring`, que `review_attempt` já tinha) |
+
+Nada o consome ainda fora do oráculo: é o que a 5d-ii lê.
+
+**O que a mutação encontrou.** 39 mutantes sobre o módulo: 37 apanhados à primeira, 2 depois de casos novos. O primeiro: alterações de política que nenhuma ordem põe primeiro (uma escrita fora de passo num shard e uma de outro shard entre as duas: cada uma está claramente antes da seguinte, à volta toda), onde um início anterior lê todas; o gerador ganhou esses ledgers à mão, com cada alteração a encontrar ou não unit-major. O segundo: a ordem das fronteiras decide-se aqui e não vem das linhas como são dadas; quem lê o ledger entrega-as por shard e por posição, por isso só um teste que as entrega ao contrário distingue o desempate pela posição (`rows_in_any_order_give_one_floor`).
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Oráculo, `run_floor` | 1 332 casos, todos iguais à primeira corrida (corpus: 85 383 casos, 93 kinds; os outros kinds não mudaram). Os ledgers são os da janela de uma revisão (linhas que partilham instantes entre shards, alterações de política à volta de inícios da stage), com rejeições que nomeiam uma unit, gates de várias stages, uma segunda criação e saltos, lidos sob cada flooring, para a stage e para uma unit. Sem fronteira 119, ambíguos 134, uma fronteira que não é a primeira do seu tipo 369, o chão da unit diferente do da stage 53, inícios contados sob stage-major 216 e deixados de fora sob unit-major 636 |
+| Mutação | 39 mutantes: 39 apanhados (37 à primeira) |
+| `cargo test` | 620 testes; `every_lifecycle_case_gets_upstreams_answer` repete o kind com os seus mínimos |
 
 ### O que M4 não levantou
 

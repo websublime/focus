@@ -16,7 +16,8 @@ use crate::review_attempt;
 use crate::workflow::Workflow;
 
 /// The case kinds this crate answers.
-pub const KINDS: [&str; 13] = [
+pub const KINDS: [&str; 14] = [
+    "run_floor",
     "review_window",
     "review_accounting",
     "review_snapshot",
@@ -56,6 +57,42 @@ fn ledger(case: &Value) -> Vec<ShardEvent> {
 pub fn run_case(wf: &Workflow, case: &Value) -> Value {
     let text = |key: &str| case.get(key).and_then(Value::as_str).unwrap_or_default();
     match text("kind") {
+        "run_floor" => {
+            let rows = ledger(case);
+            let graph = &wf.install.graph;
+            let unit = case["unit"].as_str();
+            let unit_major = case["unit_major"] == true;
+            let ids = |marked: Vec<bool>| {
+                let mut ids: Vec<String> = rows
+                    .iter()
+                    .zip(marked)
+                    .filter(|(_, marked)| *marked)
+                    .map(|(row, _)| format!("{}:{}", row.shard_index, row.pos))
+                    .collect();
+                ids.sort_by(|a, b| focus_js::order::cmp_utf16(a, b));
+                ids
+            };
+            json!({
+                "floor": crate::run_floor::latest(
+                    &rows,
+                    text("slug"),
+                    unit_major,
+                    unit,
+                    case["unit_receipts"] == true,
+                    graph,
+                ),
+                "unit_floor": crate::run_floor::unit_lifecycle(
+                    &rows,
+                    text("slug"),
+                    unit_major,
+                    unit,
+                    case["unit_scoped"].as_bool().unwrap_or(unit.is_some()),
+                    graph,
+                ),
+                "stage_flooring": ids(crate::run_floor::starts_under_stage_flooring(&rows)),
+                "unit_flooring": ids(review_attempt::starts_under_unit_flooring(&rows, graph)),
+            })
+        }
         "review_window" => {
             let per_unit = case["per_unit"] == true;
             let state = text("state");

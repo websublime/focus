@@ -56,7 +56,7 @@ const planGuardPrivate = await import(planGuardShim);
 const libShim = tool("aidlc-lib.focus-oracle.ts");
 // (`rawFingerprintForm` and `lastWorkspaceSourceFailure` are asked of the copy too: what a walk remembers is the
 // module's own.)
-writeFileSync(libShim, `${readFileSync(tool("aidlc-lib.ts"), "utf-8")}\nexport { walkWorkspaceSource, gateStagesFromBlock, splitMarkdownRow, auditBlockFieldNamesOnce };\n`);
+writeFileSync(libShim, `${readFileSync(tool("aidlc-lib.ts"), "utf-8")}\nexport { walkWorkspaceSource, gateStagesFromBlock, splitMarkdownRow, auditBlockFieldNamesOnce, latestMainWorkflowStageRunFloorFromRows, stageStartsUnderStageFlooring, stageStartsUnderUnitFlooring };\n`);
 process.on("exit", () => rmSync(libShim, { force: true }));
 const libPrivate = await import(libShim);
 // The log tool's own reader of a review file's headings is asked the same way.
@@ -1759,6 +1759,33 @@ async function answer(c: Record<string, any>): Promise<unknown> {
         ref: lib.reviewRecordRefFromBlock(c.completion),
         matches: request === null ? null : lib.reviewCompletionMatchesRequest(request, c.completion),
       };
+    }
+    case "run_floor": {
+      // The floor of a stage's attempt as the token a receipt carries, read off a ledger given as its shards: the
+      // stage's, a unit's lifecycle receipts', and the stage starts each flooring counts or leaves out.
+      const rows = (c.shards as { shard: string; content: string }[]).flatMap((shard, index) =>
+        lib.parseAuditShardEvents(shard.content, shard.shard, index, new Set<number>()));
+      const data = resolve(upstream, "dist", "claude", ".claude", "tools", "data");
+      const before = [process.env.AIDLC_STAGE_GRAPH, process.env.AIDLC_SCOPE_GRID];
+      process.env.AIDLC_STAGE_GRAPH = join(data, "stage-graph.json");
+      process.env.AIDLC_SCOPE_GRID = join(data, "scope-grid.json");
+      try {
+        const unit = (c.unit as string | null) ?? undefined;
+        const ids = (set: Set<{ shardIndex: number; pos: number }>) => [...set].map((row) => `${row.shardIndex}:${row.pos}`).sort();
+        return {
+          floor: libPrivate.latestMainWorkflowStageRunFloorFromRows(rows, c.slug, c.unit_major, unit, c.unit_receipts),
+          unit_floor: c.unit_scoped === null
+            ? lib.unitLifecycleRunFloorForProject(scratch, c.slug, c.unit_major, unit, rows)
+            : lib.unitLifecycleRunFloorForProject(scratch, c.slug, c.unit_major, unit, rows, c.unit_scoped),
+          stage_flooring: ids(libPrivate.stageStartsUnderStageFlooring(rows)),
+          unit_flooring: ids(libPrivate.stageStartsUnderUnitFlooring(rows)),
+        };
+      } finally {
+        for (const [index, name] of ["AIDLC_STAGE_GRAPH", "AIDLC_SCOPE_GRID"].entries()) {
+          if (before[index] === undefined) delete process.env[name];
+          else process.env[name] = before[index];
+        }
+      }
     }
     case "review_window": {
       // The review attempt of a stage, read off a ledger given as its shards:
