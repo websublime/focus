@@ -3812,7 +3812,8 @@ A fatia junta coisas de tamanhos muito diferentes: verbos de `state` que não t�
 | 5c. A política de Construction | `set-skeleton-stance`, `set-construction-iteration`, `set-construction-checkpoints`, `set-construction-execution`, `set-construction-verification-command`, `set-unit-gate-rhythm`, `sync-unit-scope-stage` | A recusa pelo nome dos sete | Feita (abaixo) |
 | 5d. As units como dados | O chão de uma tentativa como o token que um recibo leva (5d-i), e as linhas do ciclo de uma unit lidas contra ele: os checkpoints abertos, os recibos de conclusão, as units saltadas (5d-ii). Funções, sob o oráculo | Nada ainda: é o que o verbo `unit` e os gates de unit leem | Feita (abaixo) |
 | 5e. O verbo `unit` | `unit complete` inteiro; `start`, `pause` e `resume` até à pergunta da rota, que o original faz a `orchestrate next` num subprocesso: recusada pelo nome até à fatia 7. `--wave` pelo nome | A recusa pelo nome do verbo | Feita (abaixo) |
-| 5f em diante | `bolt` sem worktree, `construction-checkpoints`, uma stage de Construction em `advance` e nos gates, `jump reopen` e `execute --units`, `skip --unit`, e o que as fatias 2e, 3 e 3e recusam pelo nome por falta de units (os recibos por unit, o congelamento por unit, o brief de uma unit) | O limite 1 de M3 | Por fazer; parte-se quando lá chegar |
+| 5f. `skip --unit` | O passo de uma stage que não se aplica a uma unit: a unit é saltada sozinha e, quando nenhuma deve a stage, salta-se a stage | A recusa da flag pelo nome | Feita (abaixo) |
+| 5g em diante | `bolt` sem worktree, `construction-checkpoints`, uma stage de Construction em `advance` e nos gates, `jump reopen` e `execute --units`, `log review --unit` e as perguntas e respostas de uma unit, e o que as fatias 2e, 3 e 3e recusam pelo nome por falta de units (os recibos por unit, o congelamento por unit, o brief de uma unit) | O limite 1 de M3 | Por fazer; parte-se quando lá chegar |
 
 ### Fatia 5a: `lookup`, `acknowledge-compaction` e `practices-event`
 
@@ -4008,6 +4009,31 @@ Os três últimos têm o teste `a_units_step_over_what_focus_does_not_run_is_ref
 | Diferencial, tudo | 4 739 verificações: 4 501 iguais, 238 desvios declarados, 0 diferentes. Gravadas 4 623 sobre 2 014 árvores; fuzz 600 iguais. `state/usage/unit_not_ported`, que deixou de ser desvio, deu lugar a `refresh-unit-progress`. A primeira gravação atravessou a meia-noite UTC e gravou 66 criações com a pasta do dia seguinte por extenso, que a repetição não devolve: o gravador passou a recusar gravar quando o dia UTC muda durante a corrida |
 | Mutação | 62 mutantes: 57 apanhados (45 à primeira), 2 eram código a mais e saíram, 3 equivalentes escritos na linha |
 | `cargo test` | 623 testes. Três novos: `a_units_completion_is_a_receipt_with_evidence` (os artefactos em falta, a unit ativa, a linha com o chão, o espelho que sai, a segunda conclusão, a pausa) e os dois dos desvios |
+
+### Fatia 5f: `skip --unit`
+
+**O que existe.** `transitions::skip` passou a levar a unit (`handleSkip` com `--unit`): o passo de uma stage de Construction que corre por unit e não se aplica a uma delas.
+
+| Passo | O que acontece |
+| --- | --- |
+| O que se exige | Uma razão; iteração unit-major com units a solo; a stage e a stage corrente a correr por unit em Construction; a stage na corrente ou depois dela, ou aprovada antes dela; a unit no DAG, e a dever alguma coisa à stage (pelos `produces_kinds` do seu tipo). Uma recusa única diz as condições todas |
+| A linha | `UNIT_SKIPPED` com `Stage`, `Unit`, `Reason` e o `Run floor` da unit (`run_floor::unit_lifecycle`), que `unit_lifecycle` lê de volta |
+| Ainda há units a dever a stage | Responde `unit-skipped` com as que devem (`owed_by`) |
+| A stage está aprovada atrás da corrente | Só o salto da unit se grava: a stage fica aprovada para as outras |
+| Nenhuma unit deve a stage | A stage salta-se, com a razão a dizer qual foi a última unit: se é a corrente, encaminha-se como `skip --route`; se está à frente, marca-se saltada, `Next Stage` recalcula-se e grava-se `STAGE_SKIPPED` com `Skip Kind: conditional-runtime` |
+
+Sem desvios: as 26 verificações deram iguais à primeira. A recusa pelo nome que M3 deixou (`state/skip/unit` em `DEVIATIONS`, a linha do teste das recusas pelo nome) saiu.
+
+**O que a mutação encontrou.** @MUT@
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Diferencial, `state/skip/unit*` | @SKIP@ |
+| Diferencial, tudo | @ALL@ |
+| Mutação | @MUTROW@ |
+| `cargo test` | @TESTS@ |
 
 ### O que M4 não levantou
 

@@ -3386,6 +3386,14 @@ def state_checks():
     check_("skip/unit_skipped_then_started", per_unit(), [pass_over("api"), pass_over("web"), ["@write", f"{CREATED_DIR}/audit/desktop-def456.md", TITLE + receipt("STARTED", "web", 59)], pass_over(), *where], direct)
     check_("skip/unit_scope_unknown", per_unit(state=designing().replace("- **Scope**: feature", "- **Scope**: nope")),
            [pass_over("api", stage="nfr-design"), pass_over("web", stage="nfr-design"), pass_over(stage="nfr-design"), *where], direct)
+    # (The floor on the row is the unit's: under unit-major a start of the stage is no boundary, a rejection of the
+    # unit's own is, and boundaries of two shards in one second make a token of the unit's fields too.)
+    check_("skip/unit_floor_after_a_start", per_unit(block("STAGE_STARTED", T(5), "**Stage**: functional-design")), [pass_over()], direct)
+    check_("skip/unit_floor_after_its_rejection", per_unit(block("GATE_REJECTED", T(5), "**Stage**: functional-design", "**Unit**: auth", "**Feedback**: again")), [pass_over(), pass_over("api")], direct)
+    check_("skip/unit_floor_of_two_shards", per_unit(block("GATE_REJECTED", T(5), "**Stage**: functional-design", "**Feedback**: again"),
+                                                    **{f"{CREATED_DIR}/audit/desktop-def456.md": TITLE + block("STAGE_JUMPED", T(5), "**Target**: functional-design")}), [pass_over()], direct)
+    # (Construction's own: a stage that runs for each unit in another phase is not skipped for one.)
+    check_("skip/unit_stage_of_another_phase", per_unit(), [pass_over(stage="nfr-design")], direct, edits=[of_the_graph("nfr-design", phase="operation")])
     check_("skip/unit_observer", per_unit(), [pass_over()], {**direct, "STOP_HOOK_PROBE": "1"})
     check_("skip/unit_archived", per_unit(state=designing().replace("- **Status**: Running", "- **Status**: Archived")), [pass_over()], direct)
 

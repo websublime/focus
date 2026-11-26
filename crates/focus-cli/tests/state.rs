@@ -2544,6 +2544,24 @@ fn a_stage_is_skipped_for_one_unit_and_then_for_all() {
     ));
     // The current stage: the last unit's skip routes it.
     assert!(ok(&skip("functional-design", "api")).contains("\"owed_by\":[\"auth\"]"));
+    // (Routing carries the usage rollup, which Focus does not read yet:
+    // with usage on the ledger that is refused before the unit's own row.)
+    write(
+        &root,
+        "focus/.focus-sessions/usage-ledger.json",
+        "{\"workflows\":{\"w\":{\"byStage\":{\"intent-capture\":{}},\"totals\":{\"tokens\":{\"input\":1}}}}}\n",
+    );
+    let rows = created_shard(&root).matches("UNIT_SKIPPED").count();
+    assert!(
+        refusal(&skip("functional-design", "auth")).ends_with(
+            "Focus does not read the usage ledger yet. Set FOCUS_DISABLE_USAGE_TRACKING=1 to complete without the rollup."
+        )
+    );
+    assert_eq!(created_shard(&root).matches("UNIT_SKIPPED").count(), rows);
+    // (A stage ahead is ticked off, not routed: nothing is rolled up.)
+    assert!(ok(&skip("nfr-requirements", "api")).contains("\"owed_by\":[\"auth\"]"));
+    assert!(ok(&skip("nfr-requirements", "auth")).contains("\"new_state\":\"skipped\""));
+    fs::remove_file(root.join("focus/.focus-sessions/usage-ledger.json")).unwrap();
     let routed = ok(&skip("functional-design", "auth"));
     assert!(!routed.contains("unit-skipped"), "{routed}");
     let after = created_state(&root);

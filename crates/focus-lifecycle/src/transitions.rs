@@ -705,9 +705,24 @@ fn skip_unit(
     if !owes(unit) {
         bail!("Cannot skip \"{slug}\" for unit \"{unit}\": that unit owes nothing for this stage.");
     }
+    let skipped_units = |rows: &[focus_audit::shards::ShardEvent]| {
+        unit_lifecycle::snapshot(rows, slug, content, &|_| None, false, graph).skipped
+    };
+    let rows = wf.events();
+    // This skip may leave the current stage owed by no unit, and the stage
+    // is then routed as skipped, which carries the usage rollup: what Focus
+    // cannot give is refused here, before the unit's own row is written.
+    if slug == current {
+        let skipped = skipped_units(&rows);
+        if !units.iter().any(|name| {
+            name != unit && owes(name) && !skipped.iter().any(|(skipped, _)| skipped == name)
+        }) {
+            refuse_usage_rollup(wf, None)?;
+        }
+    }
     // (Floored on the unit, as its other receipts are under unit-major
     // iteration with solo units, which is what was just required.)
-    let floor = run_floor::unit_lifecycle(&wf.events(), slug, true, Some(unit), true, graph);
+    let floor = run_floor::unit_lifecycle(&rows, slug, true, Some(unit), true, graph);
     wf.emit(
         held,
         "UNIT_SKIPPED",
@@ -727,8 +742,7 @@ fn skip_unit(
         })));
     }
     // `unitSkippedUnits`, with the row just written.
-    let skipped =
-        unit_lifecycle::snapshot(&wf.events(), slug, content, &|_| None, false, graph).skipped;
+    let skipped = skipped_units(&wf.events());
     let still_owed: Vec<&String> = units
         .iter()
         .filter(|name| owes(name) && !skipped.iter().any(|(skipped, _)| skipped == *name))
@@ -804,7 +818,6 @@ pub fn skip(
         Some(unit) => match skip_unit(wf, &held, stage, trim(unit), reason, &content)? {
             UnitSkip::Done(out) => return Ok(out),
             UnitSkip::Route(reason) => {
-                refuse_usage_rollup(wf, None)?;
                 routed_for = reason;
                 (Some(routed_for.as_str()), true)
             }
