@@ -1127,7 +1127,7 @@ Antes de mexer, a transição passa pela cadeia de admissão (`admitStageAction`
 | Os hashes do recibo de validade | Sobre caminhos que levam o nome do diretório do workspace (`aidlc/`) | Sobre `focus/`: diferem por construção. O diferencial recalcula os hashes de cada engine a partir da sua própria árvore e dos seus nomes e compara os que batem como `<verified>` (`SHAPES`); um que não bata compara-se tal como está. A gravação guarda `<verified>` e o replay normaliza os hashes de Focus da mesma forma |
 | A confirmação do sumário, o recibo do reviewer e os handoffs de um pipeline, quando devidos | Pesa os registos de `aidlc-log` e recusa com o que falta | Recusa pelo nome (M5). Com a cerimónia `summary_confirmation` desligada (`--summary-confirmation off`, `FOCUS_DISABLE_SUMMARY_CONFIRMATION`, `FOCUS_SKIP_SUMMARY_CONFIRMATION_GUARD`), a classe de review `none` (`--review none`, `review_cap` do scope), uma stage sem reviewer, ou `FOCUS_DISABLE_ENSEMBLE_EVIDENCE` para um pipeline, nenhum dos dois deve nada e a transição corre inteira. Uma stage já marcada que tem linhas `REVIEW_*` na auditoria recusa-se também: a recuperação do original pesa-as |
 | Uma stage de Construction | Admite-a sem DAG de units como stage ao nível da stage | Recusa a fase pelo nome: checkpoints, unit gates e swarms são M4 |
-| O rollup de uso (tokens, custo) na linha de conclusão | Lê o ledger de uso que os hooks do harness dobram das transcrições | Recusa a conclusão enquanto `focus/.focus-sessions/usage-ledger.json` tiver uso para ela (`FOCUS_DISABLE_USAGE_TRACKING=1` para concluir sem) |
+| O rollup de uso (tokens, custo) na linha de conclusão | Lê o ledger de uso que os hooks do harness dobram das transcrições | Recusa a conclusão enquanto `focus/.focus-sessions/usage-ledger.json` tiver uso para ela (`FOCUS_DISABLE_USAGE_TRACKING=1` para concluir sem). Desde a fatia 5f de M5 a mesma recusa alcança o salto da última unit que deve a stage corrente, antes da linha da unit |
 | `skip --unit` | Verifica a política de Construction e recusa por ela | Recusa a flag pelo nome (M4). Levantado na fatia 5f de M5: `skip --unit` está portado |
 | O uso de `state` | Lista os 33 verbos | Lista os que tem (nove nesta fatia, treze com a 4b) |
 
@@ -4022,18 +4022,20 @@ Os três últimos têm o teste `a_units_step_over_what_focus_does_not_run_is_ref
 | A stage está aprovada atrás da corrente | Só o salto da unit se grava: a stage fica aprovada para as outras |
 | Nenhuma unit deve a stage | A stage salta-se, com a razão a dizer qual foi a última unit: se é a corrente, encaminha-se como `skip --route`; se está à frente, marca-se saltada, `Next Stage` recalcula-se e grava-se `STAGE_SKIPPED` com `Skip Kind: conditional-runtime` |
 
-Sem desvios: as 26 verificações deram iguais à primeira. A recusa pelo nome que M3 deixou (`state/skip/unit` em `DEVIATIONS`, a linha do teste das recusas pelo nome) saiu.
+**Desvio deliberado**: o do rollup de uso (fatia 4a de M3), por uma porta nova. O salto da última unit que deve a stage corrente encaminha a stage, e um salto encaminhado leva o rollup de uso do ledger, que Focus ainda não lê. Com uso no ledger, Focus recusa pelo nome antes de gravar a linha da unit, onde o original grava a linha e encaminha com o rollup; `FOCUS_DISABLE_USAGE_TRACKING=1` conclui sem ele, igual ao original. Uma stage à frente marca-se saltada sem se encaminhar e não leva rollup. `state/skip/unit_usage_ledger`, na mesma entrada de `DEVIATIONS` que `advance/usage_ledger` e `skip/route_usage_ledger`; o teste `the_last_units_skip_is_refused_ahead_of_its_row_while_usage_is_owed`.
 
-**O que a mutação encontrou.** @MUT@
+O resto deu igual, as 26 primeiras verificações à primeira. A recusa pelo nome que M3 deixou (`state/skip/unit` em `DEVIATIONS`, a linha do teste das recusas pelo nome) saiu.
+
+**O que a mutação encontrou.** 33 mutantes sobre o passo da unit, em duas corridas (29, e 9 depois de o código mudar de ordem, cinco deles os que tinham ficado): 27 apanhados à primeira, 6 depois de casos novos. Os seis: uma stage por unit noutra fase (exige-se Construction, não só o marcador); os três argumentos do chão da linha (um início da stage, que em unit-major não é fronteira; uma rejeição da própria unit, que é; duas fronteiras de dois shards no mesmo segundo, que fazem um token com os campos da unit); a recusa do rollup de uso, que estava depois da linha da unit e que o diferencial não distingue por ser um desvio declarado: passou para antes da linha, com o teste do desvio a contar as linhas; e uma unit cujo tipo nada deve à stage, que não a mantém devida (o mesmo teste, e `skip/unit_the_last_that_owes` sem uso no ledger).
 
 **Verificado.**
 
 | Verificação | Resultado |
 | --- | --- |
-| Diferencial, `state/skip/unit*` | @SKIP@ |
+| Diferencial, `state/skip/unit*` | 34 verificações: 33 iguais, 1 desvio (o rollup de uso), 0 diferentes. O uso e as flags; a cerca; uma unit de três; a última da stage corrente, de uma stage à frente e da seguinte; a stage aprovada atrás da corrente, atrás e aberta, atrás e saltada, concluída e corrente; stage-major, iteração por definir, equipa; uma stage que não corre por unit, a corrente que não corre, a corrente desconhecida; a unit fora do DAG, sem DAG, DAG ilegível; a unit que nada deve, e a última que deve; depois do seu início; saltada e depois iniciada noutro shard; scope desconhecido; o chão da linha de três maneiras; uma stage por unit noutra fase; o ledger de uso (ligado, desligado, numa stage à frente); o observador; arquivado |
 | Diferencial, tudo | @ALL@ |
-| Mutação | @MUTROW@ |
-| `cargo test` | @TESTS@ |
+| Mutação | 33 mutantes: 27 apanhados à primeira, 6 depois de casos novos e de a recusa do rollup mudar de sítio |
+| `cargo test` | 625 testes. Dois novos: `a_stage_is_skipped_for_one_unit_and_then_for_all` (as recusas, a linha com o chão, uma stage à frente marcada saltada, a corrente encaminhada) e o do desvio |
 
 ### O que M4 não levantou
 
