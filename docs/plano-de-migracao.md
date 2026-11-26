@@ -4033,7 +4033,7 @@ O resto deu igual, as 26 primeiras verificações à primeira. A recusa pelo nom
 | Verificação | Resultado |
 | --- | --- |
 | Diferencial, `state/skip/unit*` | 34 verificações: 33 iguais, 1 desvio (o rollup de uso), 0 diferentes. O uso e as flags; a cerca; uma unit de três; a última da stage corrente, de uma stage à frente e da seguinte; a stage aprovada atrás da corrente, atrás e aberta, atrás e saltada, concluída e corrente; stage-major, iteração por definir, equipa; uma stage que não corre por unit, a corrente que não corre, a corrente desconhecida; a unit fora do DAG, sem DAG, DAG ilegível; a unit que nada deve, e a última que deve; depois do seu início; saltada e depois iniciada noutro shard; scope desconhecido; o chão da linha de três maneiras; uma stage por unit noutra fase; o ledger de uso (ligado, desligado, numa stage à frente); o observador; arquivado |
-| Diferencial, tudo | @ALL@ |
+| Diferencial, tudo | 4 772 verificações: 4 534 iguais, 238 desvios declarados, 0 diferentes. Gravadas 4 656 sobre 2 035 árvores; fuzz 600 iguais. O desvio de `state/skip/unit` (a recusa da flag) saiu e entrou o do rollup de uso por esta porta |
 | Mutação | 33 mutantes: 27 apanhados à primeira, 6 depois de casos novos e de a recusa do rollup mudar de sítio |
 | `cargo test` | 625 testes. Dois novos: `a_stage_is_skipped_for_one_unit_and_then_for_all` (as recusas, a linha com o chão, uma stage à frente marcada saltada, a corrente encaminhada) e o do desvio |
 
