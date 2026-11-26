@@ -4091,8 +4091,8 @@ Nada lê ficheiros aqui. O leitor do manifesto (que pergunta ao git o que está 
 | --- | --- |
 | Oráculo, `unit_source_path` | 287 casos, todos iguais à primeira corrida: 47 escritos à mão (absolutos, de drive, com barras invertidas, padrões, `..` como segmento e dentro de um nome, só `.` e barras, NUL, parênteses e chavetas) e 240 gerados de segmentos |
 | Oráculo, `unit_source` | 1 643 casos, todos iguais à primeira corrida (corpus: 88 884 casos, 96 kinds; os outros não mudaram, byte a byte). Listagens com parte reclamada e parte não, por claims exatas e por pastas (uma pasta que é prefixo de um nome vizinho, o prefixo vazio de um repositório); um hash de manifesto que não o é, de nove maneiras; chaves e entradas com que uma listagem não se escreve, reclamadas ou não; formas cruas lembradas do manifesto, de um ficheiro reclamado e de um por reclamar (78 casos em que a fingerprint crua fica lembrada, 13 em que a forma crua não se escreve e a fingerprint falha apesar de o texto se escrever); e o texto lido de volta com o cabeçalho ou uma linha estragados de dezasseis maneiras |
-| Mutação | @UMUT@ |
-| `cargo test` | @UTESTS@ |
+| Mutação | 34 mutantes sobre o módulo, só contra o corpus (sem os testes do próprio módulo): 34 apanhados à primeira |
+| `cargo test` | 630 testes. Dois novos, de unidade: o caminho de uma claim, e a fingerprint que liga o manifesto ao que ele reclama. O teste do corpus ganhou os mínimos dos dois kinds |
 
 ### O que M4 não levantou
 
