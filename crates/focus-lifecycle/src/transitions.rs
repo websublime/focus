@@ -648,11 +648,9 @@ fn skip_unit(
     let graph = &wf.install.graph;
     let current = get_field(content, "Current Stage").unwrap_or("");
     let at = |slug: &str| graph.iter().position(|stage| stage.slug == slug);
-    // (`findIndex`: a stage that is not in the graph stands before all.)
-    let before = |a: Option<usize>, b: Option<usize>| {
-        a.map_or(-1, |a| a as i64) < b.map_or(-1, |b| b as i64)
-    };
-    let behind = before(at(slug), at(current));
+    // (`findIndex`: a stage that is not in the graph stands before all, as
+    // nothing does before something.)
+    let behind = at(slug) < at(current);
     // A unit's step reopened behind its stage's approval: the stage stays
     // approved for every other unit, so only this unit's skip is recorded.
     let approved_behind = behind && slug_state(content, slug) == Some(CheckboxState::Completed);
