@@ -2551,6 +2551,17 @@ fn a_stage_is_skipped_for_one_unit_and_then_for_all() {
         "focus/.focus-sessions/usage-ledger.json",
         "{\"workflows\":{\"w\":{\"byStage\":{\"intent-capture\":{}},\"totals\":{\"tokens\":{\"input\":1}}}}}\n",
     );
+    // (A unit whose kind owes the stage nothing does not keep it owed.)
+    let dependencies =
+        format!("{CREATED_RECORD}/inception/units-generation/unit-of-work-dependency.md");
+    write(
+        &root,
+        &dependencies,
+        &UNITS.replace(
+            "  - name: auth\n",
+            "  - name: pkg\n    kind: packaging\n    depends_on: []\n  - name: auth\n",
+        ),
+    );
     let rows = created_shard(&root).matches("UNIT_SKIPPED").count();
     assert!(
         refusal(&skip("functional-design", "auth")).ends_with(
@@ -2558,6 +2569,7 @@ fn a_stage_is_skipped_for_one_unit_and_then_for_all() {
         )
     );
     assert_eq!(created_shard(&root).matches("UNIT_SKIPPED").count(), rows);
+    write(&root, &dependencies, UNITS);
     // (A stage ahead is ticked off, not routed: nothing is rolled up.)
     assert!(ok(&skip("nfr-requirements", "api")).contains("\"owed_by\":[\"auth\"]"));
     assert!(ok(&skip("nfr-requirements", "auth")).contains("\"new_state\":\"skipped\""));
