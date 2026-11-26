@@ -1,6 +1,7 @@
 //! `focus engine jump <verb>`: `resolve` says where a jump would land,
-//! `execute` moves the work there, `reopen` starts a per-unit stage again
-//! for named units (not ported: refused by name).
+//! `execute` moves the work there (with `--units`, only the named units, by
+//! the state tool's one-unit skip), `reopen` starts a per-unit stage again
+//! for named units.
 //!
 //! Mirrors `main` and `error` in `aidlc-jump.ts`.
 
@@ -22,7 +23,10 @@ Moving the active record's work to another stage.
                            Where a jump would land, and what it passes over or resets
   execute --target <slug> --direction <forward|backward|redo> [--scope <scope>]
                            Move the work there, with the rows an advance would write
-  reopen                   Start a per-unit stage again for named units (not ported)
+  execute --target <slug> --direction forward --units <unit[,unit...]> [--stages <slug[,slug...]>]
+                           Move only the named units on, skipping the named steps for them
+  reopen --target <slug> --units <unit[,unit...]> [--stages <slug[,slug...]>] [--via redo|change]
+                           Start a per-unit stage again for the named units
 ";
 
 pub fn run(args: &mut Args) -> Result<(), Failure> {
@@ -66,7 +70,14 @@ fn answer(args: &mut Args, context: &Context) -> Result<String, Refusal> {
     };
     let answered = match verb {
         Some("resolve") => jump::resolve(&open()?, &rest[1..])?,
-        Some("execute") => jump::execute(&open()?, &rest[1..])?,
+        Some("execute") => {
+            let wf = open()?;
+            let skip = |slug: &str, unit: &str, reason: &str| {
+                crate::state::skip_for_a_jump(context, &wf, slug, unit, reason)
+                    .map_err(focus_js::EngineError::new)
+            };
+            jump::execute(&wf, &rest[1..], &skip)?
+        }
         Some("reopen") => jump::reopen(&open()?, &rest[1..])?,
         other => {
             return Err(Refusal::of(format!(

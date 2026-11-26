@@ -288,6 +288,51 @@ fn answer(args: &mut Args, context: &Context) -> Verb {
     }
 }
 
+/// `skip <slug> --unit <unit> --reason <reason>` as the jump tool's
+/// `execute --units` runs it. Upstream spawns the state tool for the step,
+/// with a token that lets this one verb past the state-transition fence,
+/// and repeats the error it printed. The row that refusal leaves is the
+/// state tool's own, ahead of the jump tool's.
+///
+/// # Errors
+///
+/// What the state tool refuses, as it prints it.
+pub fn skip_for_a_jump(
+    jump: &Context,
+    wf: &Workflow,
+    slug: &str,
+    unit: &str,
+    reason: &str,
+) -> Result<(), String> {
+    let project = jump
+        .project()
+        .map(|project| project.display().to_string())
+        .unwrap_or_default();
+    let context = Context {
+        project_dir: jump.project_dir.clone(),
+        harness: jump.harness.clone(),
+        tool: "focus-state",
+        command: format!(
+            "focus-state skip {slug} --unit {unit} --reason {reason} --project-dir {project}"
+        ),
+        selector: Selector::default(),
+    };
+    let skipped = || -> Result<(), Refusal> {
+        let content = wf.read_state()?;
+        if get_field(&content, "Status") == Some("Archived") {
+            return Err(Refusal::of(
+                "Workflow is Archived, so `focus engine state skip` is refused. Bring it back first with `/focus intent unarchive <name>`.",
+            ));
+        }
+        transitions::skip(wf, slug, Some(reason), false, Some(unit))?;
+        Ok(())
+    };
+    skipped().map_err(|refusal| {
+        context.record_error(&refusal.message);
+        refusal.message
+    })
+}
+
 /// `getFlagValue`: the value after `flag`, which must be there and not be
 /// another flag.
 fn flag_value<'a>(args: &'a [String], flag: &str) -> Result<Option<&'a str>, Refusal> {

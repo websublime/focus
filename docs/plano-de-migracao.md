@@ -1208,7 +1208,7 @@ Fora de M3 e recusados pelo nome, como `fragment-fork` ficou em M2: os subcomand
 | --- | --- | --- |
 | `park`/`unpark` com `Unit Ownership: team` | Lê o carimbo de scope de unit do checkout e verifica-o contra o registo de claims e o fan-out | Recusa pelo nome (M4) |
 | O baseline de fonte nas linhas `STAGE_JUMPED` e `STAGE_STARTED` de um salto | Escreve o snapshot da atestação e o campo `Source Baseline` | Não escreve nenhum (M5; `SHAPES`, como na criação); um observador pára na primeira linha da auditoria, não no snapshot. Levantado em M5 (fatia 1d): o campo e o snapshot são escritos e comparados |
-| `execute --units`, `reopen` | Movem units uma a uma | Recusam-se pelo nome (M4), `reopen` depois de satisfeito o uso |
+| `execute --units`, `reopen` | Movem units uma a uma | Recusam-se pelo nome (M4), `reopen` depois de satisfeito o uso. Levantado na fatia 5g de M5: os dois estão portados |
 | Um salto para trás com uma sessão ligada | Guarda o aviso do caminho de volta nas linhas pendentes do chat (hook de turno) e omite `notice` | Recusa pelo nome (M4) |
 | O marcador de diretiva ativa | Lê dele o passo em que a pessoa estava | Recusa o salto pelo nome (M5) |
 | As reviews que um salto para trás invalida | Lê os registos de review do brief, mais as secções `## Review` embutidas | Só as secções; com linhas `REVIEW_*` na auditoria e uma stage com reviewer atrás do salto, recusa pelo nome (M5) |
@@ -3813,7 +3813,8 @@ A fatia junta coisas de tamanhos muito diferentes: verbos de `state` que não t�
 | 5d. As units como dados | O chão de uma tentativa como o token que um recibo leva (5d-i), e as linhas do ciclo de uma unit lidas contra ele: os checkpoints abertos, os recibos de conclusão, as units saltadas (5d-ii). Funções, sob o oráculo | Nada ainda: é o que o verbo `unit` e os gates de unit leem | Feita (abaixo) |
 | 5e. O verbo `unit` | `unit complete` inteiro; `start`, `pause` e `resume` até à pergunta da rota, que o original faz a `orchestrate next` num subprocesso: recusada pelo nome até à fatia 7. `--wave` pelo nome | A recusa pelo nome do verbo | Feita (abaixo) |
 | 5f. `skip --unit` | O passo de uma stage que não se aplica a uma unit: a unit é saltada sozinha e, quando nenhuma deve a stage, salta-se a stage | A recusa da flag pelo nome | Feita (abaixo) |
-| 5g em diante | `bolt` sem worktree, `construction-checkpoints`, uma stage de Construction em `advance` e nos gates, `jump reopen` e `execute --units`, `log review --unit` e as perguntas e respostas de uma unit, e o que as fatias 2e, 3 e 3e recusam pelo nome por falta de units (os recibos por unit, o congelamento por unit, o brief de uma unit) | O limite 1 de M3 | Por fazer; parte-se quando lá chegar |
+| 5g. `jump reopen` e `execute --units` | Uma stage por unit reaberta só para as units nomeadas, com a linha que a rejeição da própria unit grava; e as units nomeadas levadas em frente, cada passo saltado para elas pelo salto de uma unit da ferramenta de estado | As duas recusas pelo nome de `jump` | Feita (abaixo) |
+| 5h em diante | A fonte de uma unit (o manifesto do que reclama, a fingerprint e o snapshot do que é dela), que os pedidos e recibos de revisão de uma unit ligam; `log review --unit` e as perguntas e respostas de uma unit, com os recibos por unit na admissão, no congelamento e no brief; `construction-checkpoints` (o que um checkpoint de unit prova e quem o aprovou) e, com ele, uma stage de Construction em `advance` e nos gates; `bolt` sem worktree (verificar, perguntar, aprovar e rejeitar um checkpoint) | O limite 1 de M3 | Por fazer, por esta ordem (cada uma lê a anterior); parte-se quando lá chegar |
 
 ### Fatia 5a: `lookup`, `acknowledge-compaction` e `practices-event`
 
@@ -4037,6 +4038,39 @@ O resto deu igual, as 26 primeiras verificações à primeira. A recusa pelo nom
 | Mutação | 33 mutantes: 27 apanhados à primeira, 6 depois de casos novos e de a recusa do rollup mudar de sítio |
 | `cargo test` | 625 testes. Dois novos: `a_stage_is_skipped_for_one_unit_and_then_for_all` (as recusas, a linha com o chão, uma stage à frente marcada saltada, a corrente encaminhada) e o do desvio |
 
+### Fatia 5g: `jump reopen` e `execute --units`
+
+**O que existe.** Os dois modos de `jump` que movem units uma a uma, em `focus-lifecycle::jump` (`handleReopen`, `executeUnitsForward`). Nenhum move a stage para as outras units: não há `STAGE_JUMPED`, nem caixa que as outras ainda devam, nem mudança da stage corrente.
+
+| Verbo | O que faz |
+| --- | --- |
+| `reopen --target <slug> --units <a,b> [--stages <slug,...>] [--via redo\|change] [--scope <scope>]` | Recomeça uma stage por unit só para as units nomeadas. Cada uma recebe a `GATE_REJECTED` que a rejeição da própria unit grava (`Stage`, `Gate Stages`, `Gate Scope: unit-end`, `Unit`, `Reopen`, `Feedback`), que é uma tentativa nova dessa unit nessa stage (o chão da fatia 5d lê-a assim). `--via redo` grava também a resposta à pergunta de reuso (`ARTIFACT_REUSED` com `Decision: redo`, `Source: Redo on re-entry`); `--via change` leva `User Input: Request Changes` e, como `Feedback`, as palavras da pessoa no gate da stage corrente, quando as há. O espelho da unit aberta sai do estado. De uma stage posterior da mesma fase que corre uma vez (Build and Test), o trabalho volta ao alvo como num salto para trás (`movedState`), sem `STAGE_JUMPED` |
+| `execute --target <slug> --direction forward --units <a,b> [--stages <slug,...>]` | Leva só as units nomeadas até uma stage por unit. Cada passo nomeado (por unit, antes do alvo) é saltado para cada uma delas pelo `skip --unit` da ferramenta de estado, com a razão `Skipped by jump to <alvo> (forward)`. O espelho sai quando a unit aberta é uma das movidas |
+
+**O salto de uma unit é o da ferramenta de estado.** O original corre `aidlc-state.ts skip` num subprocesso, com um token que deixa esse verbo, e só esse, passar a cerca de transições, e repete o erro que ele imprimiu. Focus chama a mesma transição (`focus-cli::state::skip_for_a_jump`) com o que a ferramenta de estado faz à volta: a recusa de um trabalho arquivado, e a linha `ERROR_LOGGED` da própria ferramenta (`Tool: focus-state`, com o comando que o original correria) antes da linha de `jump`. Um salto que falha a meio deixa gravados os anteriores, como no original.
+
+**As linhas de `reopen` não gastam as palavras do gate.** A ferramenta de `jump` grava com `appendAuditEntry` e não com o `emitAudit` da ferramenta de estado, que limpa as palavras guardadas da pessoa quando uma linha responde a um gate. `Workflow::append_row` é essa escrita simples: uma stage reaberta para uma unit não é resposta ao gate que está aberto.
+
+**Desvios deliberados**: os dois que a ferramenta de estado já tinha, alcançados por `execute --units`.
+
+| Onde | O original | Focus |
+| --- | --- | --- |
+| O salto da última unit que deve a stage corrente, com uso no ledger | Grava a linha da unit e encaminha a stage com o rollup | Recusa pelo nome antes da linha (fatia 5f). `jump/execute/units_usage_ledger` |
+| Um salto com o marcador de diretiva ativa | Grava e escreve o estado ao lado do marcador | Recusa a escrita do estado pelo nome, como nos outros verbos de `state` (M3). `jump/execute/units_directive_marker` |
+
+Os dois têm o teste `a_units_jump_meets_what_the_state_tool_refuses_by_name`. As entradas `jump/execute/units` e `jump/reopen/by_name` de `DEVIATIONS` saíram, com as linhas do teste das recusas pelo nome.
+
+**O que a mutação encontrou.** 53 mutantes sobre os dois modos e o passo da ferramenta de estado: 50 apanhados à primeira (dois deles reescritos, por não compilarem como estavam), 1 depois de um caso novo, 1 que era código a mais e saiu, 1 equivalente escrito na linha. O caso novo: de uma stage anterior da mesma fase que corre uma vez, nada anda para a frente até ao alvo (uma stage posterior marcada por unit no grafo). O código a mais: três `trim` sobre o valor de um campo do estado, que `get_field` já devolve aparado. O equivalente: a stage corrente nunca é o próprio alvo, porque o alvo corre por unit e ela não.
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Diferencial, `jump/reopen` e `jump/execute/units*` | 61 verificações: 59 iguais, 2 desvios (o rollup de uso e o marcador de diretiva, pela ferramenta de estado), 0 diferentes. `reopen`: o uso, as units como escritas, os nomes, o alvo (desconhecido, de outra fase, que corre uma vez, por número, com o nome de uma stage por unit sem o marcador, marcada por unit no grafo), `--stages` de nove maneiras, `--via redo` e `change` (sem palavras, com palavras, só uma escolha, de outro gate, sem sessão, sem stage corrente ou com ela em branco), as palavras que um reopen simples não gasta, o espelho, de uma stage posterior (com outro scope, scope desconhecido, uma stage do meio), de uma stage por unit posterior, de uma anterior, de outra fase, a corrente desconhecida ou ausente, sem DAG, stage-major, equipa, o observador, arquivado, sem estado. `execute --units`: o uso, os passos recusados, sem passos, um passo, dois de duas units, todas as units da stage corrente (que a encaminha) e de duas stages, duas vezes, uma que não é unit, uma que nada deve, stage-major, equipa, sem DAG, com a cerca ligada, o espelho da unit movida e de outra, o scope, o alvo que o plano salta, o observador, arquivado, o ledger de uso ligado e desligado |
+| Diferencial, tudo | 4 830 verificações: 4 592 iguais, 238 desvios declarados, 0 diferentes. Gravadas 4 714 sobre 2 052 árvores; fuzz 600 iguais. Saíram os dois desvios das recusas pelo nome e entraram os dois da ferramenta de estado |
+| Mutação | 53 mutantes: 51 apanhados (50 à primeira), 1 era código a mais e saiu, 1 equivalente escrito na linha |
+| `cargo test` | 628 testes. Três novos: `a_per_unit_stage_is_reopened_for_named_units` (as recusas, as linhas de um redo, de um reopen simples e de uma alteração, o espelho, o regresso de Build and Test sem `STAGE_JUMPED`), `named_units_move_forward_by_their_own_skips` (as recusas, as linhas de cada passo, sem passos, e a recusa da ferramenta de estado com a linha de erro de cada ferramenta) e o dos desvios |
+
 ### O que M4 não levantou
 
-A secção 14 marca como M4 o que depende de units; M4 fechou sem units, que são da fatia 5 deste marco. Mantêm-se recusados pelo nome até lá: os verbos de units de `state`, `skip --unit`, `jump reopen` e `execute --units`, e uma stage de Construction em `advance`. O que é de equipa (`park` e `unpark` com `Unit Ownership: team`, o gate de uma unit de equipa, o board no `status`) está adiado com `unit` (secção 11). As concessões que o turno humano guarda para um chat antes de o trabalho existir e as linhas devidas à pessoa, também marcadas M4, são da porta da frente (fatia 9) e da emissão (fatia 7).
+A secção 14 marca como M4 o que depende de units; M4 fechou sem units, que são da fatia 5 deste marco. Mantêm-se recusados pelo nome até lá: os verbos de units de `state`, `skip --unit`, `jump reopen` e `execute --units`, e uma stage de Construction em `advance`. (As fatias 5c a 5g levantaram os verbos, `skip --unit` e os dois de `jump`; a stage de Construction em `advance` espera os checkpoints.) O que é de equipa (`park` e `unpark` com `Unit Ownership: team`, o gate de uma unit de equipa, o board no `status`) está adiado com `unit` (secção 11). As concessões que o turno humano guarda para um chat antes de o trabalho existir e as linhas devidas à pessoa, também marcadas M4, são da porta da frente (fatia 9) e da emissão (fatia 7).
