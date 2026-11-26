@@ -509,12 +509,7 @@ fn transition_of(wf: &Workflow, verb: &str, args: &[String]) -> Verb {
                     "focus engine state skip takes --route or --unit, not both.",
                 ));
             }
-            if let Some(unit) = unit {
-                return Err(Refusal::of(format!(
-                    "skip --unit skips one unit of work's step (\"{unit}\"), which needs the unit DAG and the units' lifecycle: Focus does not run units yet."
-                )));
-            }
-            transitions::skip(wf, slug, reason, route)?
+            transitions::skip(wf, slug, reason, route, unit)?
         }
         "reuse-artifact" => {
             let Some(slug) = args.first() else {
