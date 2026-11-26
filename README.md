@@ -64,6 +64,7 @@ focus engine state lookup next-stage intent-capture feature   # ask the stage gr
 focus engine state reuse-artifact intent-capture --decision keep --artifacts intent-statement.md   # what becomes of what a stage already has
 focus engine state set-construction-checkpoints disabled   # how Construction runs: the person's to set once it has begun
 focus engine state unit complete --stage functional-design --unit auth   # a unit's work for a stage is done: a receipt with evidence
+focus engine state skip nfr-design --unit auth --reason "a library has none"   # a stage's step that does not apply to one unit
 focus engine state advance intent-capture       # close a stage, open the next in-scope one
 focus engine state skip market-research --route --reason "no market to research"
 focus engine state complete-workflow feedback-optimization --reason "done"
