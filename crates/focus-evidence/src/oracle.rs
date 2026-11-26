@@ -19,15 +19,18 @@ use crate::review_record;
 use crate::source::listing::{self, Listing};
 use crate::source::raw;
 use crate::source::state;
+use crate::source::unit;
 use crate::source::walk::{self, Budgets, Names, Options, Stop};
 use crate::summary;
 
 /// The kinds of case this crate answers.
-pub const KINDS: [&str; 14] = [
+pub const KINDS: [&str; 16] = [
     "source_listing_parse",
     "source_listing",
     "source_changed",
     "source_walk",
+    "unit_source_path",
+    "unit_source",
     "summary",
     "summary_input",
     "review_binding",
@@ -272,6 +275,78 @@ fn written(listing: &Listing) -> Value {
     }
 }
 
+/// A unit's claims over a listing: what they cover, the text and the
+/// fingerprint of the unit's part, and that text (or the case's own) read
+/// back. The case first has the process remember the raw forms it names.
+fn unit_source_case(case: &Value) -> Value {
+    let strings = |key: &str| -> Vec<String> {
+        case[key]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter_map(|value| value.as_str().map(str::to_owned))
+            .collect()
+    };
+    for pair in case["remember"].as_array().into_iter().flatten() {
+        if let (Some(raw), Some(current)) = (pair[0].as_str(), pair[1].as_str()) {
+            raw::remember(raw, current);
+        }
+    }
+    let listing = pairs(&case["listing"]);
+    let model = unit::ClaimModel {
+        claims: strings("claims").into_iter().collect(),
+        prefixes: strings("prefixes"),
+    };
+    let sha = case["sha"].as_str().unwrap_or_default();
+    let mut out = serde_json::Map::new();
+    out.insert(
+        "covers".to_owned(),
+        json!(
+            listing
+                .iter()
+                .map(|(key, _)| unit::claim_covers(key, &model))
+                .collect::<Vec<_>>()
+        ),
+    );
+    out.insert(
+        "restricted".to_owned(),
+        written(&unit::restrict(&listing, &model)),
+    );
+    let serialized = unit::serialize(&listing, &model, sha);
+    match &serialized {
+        Ok(text) => out.insert("text".to_owned(), json!(text)),
+        Err(error) => out.insert("text_error".to_owned(), json!(error)),
+    };
+    match unit::fingerprint(&listing, &model, sha) {
+        Ok(fingerprint) => {
+            out.insert("raw".to_owned(), json!(raw::raw_form(&fingerprint)));
+            out.insert("fingerprint".to_owned(), json!(fingerprint));
+        }
+        Err(error) => {
+            out.insert("fingerprint_error".to_owned(), json!(error));
+        }
+    }
+    let asked = case["text"]
+        .as_str()
+        .map(str::to_owned)
+        .or_else(|| serialized.ok());
+    if let Some(asked) = asked {
+        match unit::parse(&asked) {
+            Ok(None) => out.insert("parsed".to_owned(), Value::Null),
+            Ok(Some(parsed)) => out.insert(
+                "parsed".to_owned(),
+                json!({
+                    "sha": parsed.manifest_sha256,
+                    "listing": written(&parsed.listing),
+                    "size": parsed.listing.len(),
+                }),
+            ),
+            Err(error) => out.insert("parsed_error".to_owned(), json!(error)),
+        };
+    }
+    Value::Object(out)
+}
+
 /// Answer one oracle case. An unknown `kind` answers `{"unsupported": kind}`.
 #[must_use]
 pub fn run_case(case: &Value) -> Value {
@@ -323,6 +398,11 @@ pub fn run_case(case: &Value) -> Value {
             })
         }
         "source_walk" => walk_case(case),
+        "unit_source_path" => match unit::normalize_manifest_path(text("path")) {
+            Ok(claim) => json!({ "path": claim.path, "prefix": claim.prefix }),
+            Err(reason) => json!({ "reason": reason }),
+        },
+        "unit_source" => unit_source_case(case),
         "summary" => {
             let content = text("content");
             let answer = match summary::answer(content) {

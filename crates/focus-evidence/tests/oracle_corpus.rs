@@ -50,6 +50,9 @@ fn every_evidence_case_gets_upstreams_answer() {
     let (mut inputs, mut set_aside) = (0, 0);
     let (mut same_asked, mut same_alias, mut same_raw, mut same_boundary) = (0, 0, 0, 0);
     let (mut boundaries, mut left_out, mut escaped, mut cut_short) = (0, 0, 0, 0);
+    let (mut claim_paths, mut claim_folders, mut claim_refused) = (0, 0, 0);
+    let (mut unit_parts, mut unit_bound, mut unit_raw, mut unit_raw_unwritten) = (0, 0, 0, 0);
+    let (mut unit_read, mut unit_unread) = (0, 0);
     let mut differing = Vec::new();
     for (line, want) in cases.iter().zip(&expected) {
         // Parsed as upstream's driver parses it, so nested objects are in the
@@ -96,6 +99,25 @@ fn every_evidence_case_gets_upstreams_answer() {
                     .as_str()
                     .is_some_and(|detail| detail.contains("embedded git repository")),
             );
+        } else if kind == "unit_source_path" {
+            claim_paths += 1;
+            claim_folders += usize::from(out["prefix"] == true);
+            claim_refused += usize::from(out.get("reason").is_some());
+        } else if kind == "unit_source" {
+            // A unit's part of a listing: some of it claimed and some not,
+            // bound to its manifest, with the form recorded over raw line
+            // endings remembered (or unwritable, which fails the whole).
+            let covers = out["covers"].as_array().cloned().unwrap_or_default();
+            unit_parts += usize::from(
+                covers.iter().any(|claimed| claimed == true)
+                    && covers.iter().any(|claimed| claimed == false),
+            );
+            unit_bound += usize::from(out["fingerprint"].is_string());
+            unit_raw += usize::from(out["raw"].is_string());
+            unit_raw_unwritten +=
+                usize::from(out.get("fingerprint_error").is_some() && out["text"].is_string());
+            unit_read += usize::from(out["parsed"].is_object());
+            unit_unread += usize::from(out.get("parsed").is_some_and(Value::is_null));
         } else if kind == "summary" {
             summaries += 1;
             hashed += usize::from(out["hash"].as_str().is_some_and(|hash| hash.len() == 64));
@@ -335,6 +357,18 @@ fn every_evidence_case_gets_upstreams_answer() {
     assert!(
         cut >= 180 && settled >= 45 && copied >= 190 && marked >= 35,
         "{cut} {settled} {copied} {marked}"
+    );
+    assert!(
+        claim_paths >= 280 && claim_folders >= 40 && claim_refused >= 120,
+        "{claim_paths} {claim_folders} {claim_refused}"
+    );
+    assert!(
+        unit_parts >= 350 && unit_bound >= 1500 && unit_raw >= 70 && unit_raw_unwritten >= 10,
+        "{unit_parts} {unit_bound} {unit_raw} {unit_raw_unwritten}"
+    );
+    assert!(
+        unit_read >= 600 && unit_unread >= 800,
+        "{unit_read} {unit_unread}"
     );
     assert!(
         differing.is_empty(),

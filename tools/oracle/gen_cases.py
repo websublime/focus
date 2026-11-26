@@ -10112,5 +10112,106 @@ for unit in (None, "api"):
             shards[GS_SHARDS[shard]] += gs_row(at, event, Stage="requirements-analysis") + gs_row(at, "SESSION_RESUMED" if event == "GATE_APPROVED" else "GATE_APPROVED", Stage="requirements-analysis")
         gs_add("requirements-analysis", [{"op": "leave"}, {"op": "record"}], unit=unit, shards=shards)
 
+# A unit's own source: the path of a claim as its manifest keeps it, what its claims cover of a listing, the text and
+# the fingerprint of that part, and the text read back. (Its own stream: the listing helpers above draw from `rng`.)
+us = random.Random(seed * 7919 + 43)
+US_PATHS = ["src/a.ts", "src/lib/", "./src/./a.ts", "src//a.ts", "src/", "/", "./", ".", "", "..", "a/../b", "a/..", "../a", "a/...", "..a/b", "/abs", "C:/a", "c:/a", "C:a", "1:/a", "C:\\a", "a\\b",
+            "a*", "a?b", "*", "app/[id]/page.tsx", "{a,b}.ts", "a b/ c ", " ", "a\x00b", "\x00", "é/ü.rs", "😀/", "a/./", "a/.//", ".hidden/", ".git/config", "a/.", "a//", "//a", "a\tb", "a\nb/", "Ç:/a",
+            "focus/x", ".focus/x", "src/A.ts", "x/" + "y/" * 6 + "z"]
+for path in US_PATHS:
+    add("unit_source_path", path=path)
+US_PARTS = ["a", "b", "src", "lib", ".", "..", "", "*", "?", "[id]", "\\", "C:", " ", "é", "\x00", "...", ".a"]
+for _ in range(40 * scale):
+    add("unit_source_path", path="/".join(us.choice(US_PARTS) for _ in range(us.randint(1, 5))) + us.choice(["", "", "/", "//"]))
+
+
+def us_oid():
+    return "".join(us.choice(SL_HEX) for _ in range(us.choice([40, 40, 64])))
+
+
+def us_sha():
+    return "".join(us.choice(SL_HEX) for _ in range(64))
+
+
+US_REPOS = ["", "", "", "api", "web-app"]
+US_FILES = ["src/a.ts", "src/b.ts", "src/lib/c.ts", "src/lib/deep/d.ts", "src/library.ts", "README.md", "srcx/e.ts", "a\tb", "é/ü.rs", "lib/f.ts", "src/A.ts", "Z", "src"]
+US_FOLDERS = ["src/", "src/lib/", "src/lib/deep/", "lib/", "é/", "", "src/lib", "sr"]
+
+
+def us_entry(wild=0.0):
+    oid = us_oid()
+    if us.random() < wild:
+        return us.choice(["100644  " + oid, oid.upper(), "", "100644", oid[:-1], "100644 " + oid + " "])
+    return us.choice(SL_MODES) + " " + oid if us.random() < 0.75 else oid
+
+
+def us_listing(count, wild=0.0):
+    seen, listing = set(), []
+    while len(listing) < count:
+        key = us.choice(US_REPOS) + "\x00" + us.choice(US_FILES)
+        if us.random() < wild:
+            key = us.choice(["src/a.ts", "\x00", "a b\x00c", "api\x00src\x00a", ""])
+        if key in seen:
+            continue
+        seen.add(key)
+        listing.append([key, us_entry(wild)])
+    return listing
+
+
+def us_model(listing):
+    keys = [key for key, _ in listing]
+    claims = [key for key in keys if us.random() < 0.4] + [us.choice(US_REPOS) + "\x00" + us.choice(US_FILES) for _ in range(us.randint(0, 2))]
+    prefixes = [us.choice(US_REPOS) + "\x00" + us.choice(US_FOLDERS) for _ in range(us.randint(0, 3))]
+    us.shuffle(claims)
+    return claims, prefixes
+
+
+add("unit_source", listing=[], claims=[], prefixes=[], sha=us_sha())
+add("unit_source", listing=[], claims=[], prefixes=[], sha="")
+for _ in range(60 * scale):
+    listing = us_listing(us.randint(0, 8))
+    claims, prefixes = us_model(listing)
+    add("unit_source", listing=listing, claims=claims, prefixes=prefixes, sha=us_sha())
+# Everything claimed, by one folder of the root and by none; a claim listed twice.
+for _ in range(6 * scale):
+    listing = us_listing(us.randint(1, 6))
+    add("unit_source", listing=listing, claims=[], prefixes=[repo + "\x00" for repo in US_REPOS[2:]], sha=us_sha())
+    add("unit_source", listing=listing, claims=[listing[0][0], listing[0][0]], prefixes=["\x00src/", "\x00src/"], sha=us_sha())
+# A manifest hash that is not one; keys and entries a listing cannot be written with, claimed and not.
+for sha in ["", "nope", "A" * 64, "a" * 63, "a" * 65, "g" * 64, " " + "a" * 64, "a" * 64 + "\n", "ａ" * 64]:
+    listing = us_listing(us.randint(0, 3))
+    add("unit_source", listing=listing, claims=[key for key, _ in listing], prefixes=[], sha=sha)
+for _ in range(20 * scale):
+    listing = us_listing(us.randint(1, 5), wild=0.3)
+    claims, prefixes = us_model(listing)
+    add("unit_source", listing=listing, claims=claims + ([key for key, _ in listing] if us.random() < 0.5 else []), prefixes=prefixes, sha=us_sha())
+# What was recorded over raw line endings: of the manifest, of a claimed file, of one that is not claimed, of both; a
+# raw form that is no entry; and a raw form that is the current one.
+for _ in range(20 * scale):
+    listing = us_listing(us.randint(1, 5))
+    claims, prefixes = us_model(listing)
+    sha = us_sha()
+    remember = []
+    if us.random() < 0.5:
+        remember.append([us_sha(), sha])
+    for key, entry in listing:
+        roll = us.random()
+        if roll < 0.3:
+            remember.append([entry.rsplit(" ", 1)[0][:-len(entry.split(" ")[-1])] + us_oid() if " " in entry else us_oid(), entry])
+        elif roll < 0.36:
+            remember.append([us.choice(["", "zz", "100644", entry.upper()]), entry])
+        elif roll < 0.4:
+            remember.append([entry, entry])
+    add("unit_source", listing=listing, claims=claims + [listing[0][0]], prefixes=prefixes, sha=sha, remember=remember)
+# The text read back, when it is not what was written: a header that is none, no line feed, a row that is none.
+for _ in range(10 * scale):
+    listing = us_listing(us.randint(0, 4))
+    sha = us_sha()
+    rows = "".join(f"{key.split(chr(0))[0]}\t{key.split(chr(0))[1]}\t" + entry.replace(" ", "\t") + "\n" for key, entry in listing)
+    for text in [f"manifest\t{sha}\t-\n{rows}", f"manifest\t{sha}\t-", f"manifest\t{sha}\t-\n{rows}"[:-1] if rows else "x", f"manifest\t{sha.upper()}\t-\n{rows}", f"manifest\t{sha}\t\n{rows}",
+                 f"manifest {sha} -\n{rows}", f"\nmanifest\t{sha}\t-\n{rows}", f"manifest\t{sha}\t-\r\n{rows}", f"manifest\t{sha}\t-\n{rows}x\n", f"manifest\t{sha}\t-\n\n{rows}",
+                 f"Manifest\t{sha}\t-\n{rows}", f"manifest\t{sha[:-1]}\t-\n{rows}", f"manifest\t{sha}\t-\n{rows}{rows}", "", "\n", f"manifest\t{sha}\t-\n\ta\x00b\t{'a' * 40}\n"]:
+        add("unit_source", listing=[], claims=[], prefixes=[], sha=sha, text=text)
+
 for case in cases:
     sys.stdout.write(json.dumps(case, ensure_ascii=False) + "\n")
