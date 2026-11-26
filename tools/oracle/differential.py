@@ -2712,9 +2712,6 @@ DEVIATIONS.update({
         "a completion row carries the token usage the harness hooks folded into the usage ledger; upstream reads "
         "the ledger and adds the rollup fields; focus does not read it yet and refuses the completion while the "
         "ledger holds usage for it, rather than write the row without",
-    "state/skip/unit":
-        "skip --unit skips one unit of work's step, which needs the unit DAG and the units' lifecycle (M4); "
-        "upstream checks the Construction policy first and refuses on that; focus refuses the flag by name",
     "state/park/team_units":
         "with Unit Ownership team, park and unpark work on the unit this checkout claimed, read from its unit "
         "scope stamp and checked against the claim registry and the fan-out (M4): focus refuses both by name",
@@ -3352,6 +3349,45 @@ def state_checks():
     check_("unit/serial_though_autonomous", with_units(in_code, state=running("enabled", "stage-major", "serial", phase="CONSTRUCTION", more=autonomous)), [step("complete", stage="code-generation")])
     check_("unit/swarm_stage_of_another_phase", with_units(in_code, state=running("disabled", "stage-major", phase="CONSTRUCTION", more=autonomous)), [step("complete", stage="code-generation")],
            edits=[of_the_graph("code-generation", phase="operation")])
+
+    # skip --unit: one unit's step of a per-unit Construction stage does not apply to it. When no unit owes the
+    # stage any more, the stage itself is skipped: routed when it is the current one, ticked off when it is ahead.
+    before_design = ["intent-capture", "market-research", "feasibility", "scope-definition", "team-formation", "rough-mockups", "approval-handoff", "practices-discovery", "requirements-analysis",
+                     "user-stories", "refined-mockups", "domain-design", "units-generation", "contract-design", "delivery-planning"]
+    designing = lambda state=None, current="functional-design", done=(): at_stage(running() if state is None else state, current, done=before_design + list(done), phase="CONSTRUCTION")
+    def per_unit(*rows, state=None, units=A_UNITS, **more):
+        files = created(designing() if state is None else state, CREATED_AUDIT + "".join(rows), **more)
+        return files if units is None else {**files, DEPENDENCIES: units}
+    pass_over = lambda unit="auth", *args, stage="functional-design", reason="nothing to design": ["skip", stage, *([] if unit is None else ["--unit", unit]), *([] if reason is None else ["--reason", reason]), *args]
+    where = [["get", "Current Stage"], ["get", "Next Stage"], ["get", "Lifecycle Phase"]]
+    check_("skip/unit_usage", per_unit(), [pass_over(reason=None), pass_over(reason=""), pass_over(reason="  "), pass_over("auth", "--route"), pass_over("a/b"), pass_over(""), pass_over(" auth "),
+                                           pass_over(stage="nope"), ["skip", "functional-design", "--unit"]], direct)
+    check_("skip/unit_fenced", per_unit(state=designing().replace("- **Guard Policy**: off", "- **Guard Policy**: on")), [pass_over()])
+    check_("skip/unit_one_of_three", per_unit(), [pass_over(), pass_over(), pass_over("api", reason="  later  "), *where], direct)
+    check_("skip/unit_the_last_of_the_current_stage", per_unit(), [pass_over("api"), pass_over("web"), pass_over(), *where, ["get", "Status"]], direct)
+    check_("skip/unit_the_last_of_a_stage_ahead", per_unit(), [pass_over("api", stage="nfr-design"), pass_over("web", stage="nfr-design"), pass_over(stage="nfr-design"), *where], direct)
+    check_("skip/unit_the_last_of_the_next_stage", per_unit(), [pass_over("api", stage="nfr-requirements"), pass_over("web", stage="nfr-requirements"), pass_over(stage="nfr-requirements"), *where], direct)
+    check_("skip/unit_stage_approved_behind", per_unit(state=designing(current="nfr-design", done=["functional-design", "nfr-requirements"])), [pass_over(), pass_over("api"), pass_over("web"), *where], direct)
+    check_("skip/unit_stage_behind_and_open", per_unit(state=designing(current="nfr-design", done=["nfr-requirements"])), [pass_over()], direct)
+    check_("skip/unit_stage_behind_and_skipped", per_unit(state=at_stage(running(), "nfr-design", done=before_design + ["nfr-requirements"], skipped=["functional-design"], phase="CONSTRUCTION")), [pass_over()], direct)
+    check_("skip/unit_stage_done_and_current", per_unit(state=designing().replace("- [-] functional-design ", "- [x] functional-design ")), [pass_over()], direct)
+    check_("skip/unit_stage_major", per_unit(state=designing(running("disabled", "stage-major"))), [pass_over()], direct)
+    check_("skip/unit_iteration_unset", per_unit(state=designing(running(iteration=None))), [pass_over()], direct)
+    check_("skip/unit_of_a_team", per_unit(state=designing(running(more=team))), [pass_over()], direct)
+    check_("skip/unit_stage_not_per_unit", per_unit(), [pass_over(stage="build-and-test"), pass_over(stage="units-generation")], direct)
+    check_("skip/unit_current_not_per_unit", {**created(running()), DEPENDENCIES: A_UNITS}, [pass_over(), pass_over(stage="intent-capture")], direct)
+    check_("skip/unit_current_unknown", per_unit(state=designing().replace("- **Current Stage**: functional-design", "- **Current Stage**: nope")), [pass_over()], direct)
+    check_("skip/unit_not_a_unit", per_unit(), [pass_over("billing")], direct)
+    check_("skip/unit_no_units", per_unit(units=None), [pass_over()], direct)
+    check_("skip/unit_units_unreadable", per_unit(units="# Dependencies\n\nNo block here.\n"), [pass_over()], direct)
+    packaged = A_UNITS.replace("kind: service", "kind: packaging")
+    check_("skip/unit_owes_nothing", per_unit(units=packaged), [pass_over(), pass_over("api"), pass_over("web"), *where], direct)
+    check_("skip/unit_after_its_start", per_unit(receipt("STARTED")), [pass_over(), step("complete")], direct)
+    check_("skip/unit_skipped_then_started", per_unit(), [pass_over("api"), pass_over("web"), ["@write", f"{CREATED_DIR}/audit/desktop-def456.md", TITLE + receipt("STARTED", "web", 59)], pass_over(), *where], direct)
+    check_("skip/unit_scope_unknown", per_unit(state=designing().replace("- **Scope**: feature", "- **Scope**: nope")),
+           [pass_over("api", stage="nfr-design"), pass_over("web", stage="nfr-design"), pass_over(stage="nfr-design"), *where], direct)
+    check_("skip/unit_observer", per_unit(), [pass_over()], {**direct, "STOP_HOOK_PROBE": "1"})
+    check_("skip/unit_archived", per_unit(state=designing().replace("- **Status**: Running", "- **Status**: Archived")), [pass_over()], direct)
 
     # practices-event: the three rows the practices-discovery stage leaves, with the fields it gives.
     says = lambda kind, *fields: ["practices-event", "--type", kind, *[part for field in fields for part in ("--field", field)]]

@@ -28,14 +28,17 @@ use focus_workspace::records::read_intent_registry;
 use serde_json::{Map, Value, json};
 
 use crate::admission::{self, Action, Carried, PersonApproval};
+use crate::artifacts::{self, Dag};
 use crate::events::{
     answer_mode_fields, audit_tail_has_fields, current_routed_skip_audit_tail,
     has_stage_audit_event,
 };
 use crate::registry::update_intent_status;
+use crate::review_attempt::is_team_unit_ownership;
 use crate::stage;
 use crate::validity;
 use crate::workflow::Workflow;
+use crate::{run_floor, unit_lifecycle};
 
 /// `getSlugState`.
 fn slug_state(content: &str, slug: &str) -> Option<CheckboxState> {
@@ -614,14 +617,182 @@ pub fn complete_workflow_locked(
     Ok(Value::Object(out))
 }
 
-/// `handleSkip` without `--unit`: mark `slug` skipped; with `route`, move
-/// on from it as `advance` would, writing once what a crashed attempt
-/// already wrote.
+/// What a one-unit skip leaves for the stage itself.
+enum UnitSkip {
+    /// The unit's skip is all there is to say.
+    Done(Value),
+    /// No unit owes the stage now, and it is the current one: it is routed
+    /// as skipped, for this reason.
+    Route(String),
+}
+
+/// `handleSkip` with `--unit`: one unit's step of a per-unit Construction
+/// stage does not apply to it. The unit's skip is recorded with the floor
+/// of the stage's attempt; when no unit owes the stage any more, the stage
+/// itself is skipped.
+fn skip_unit(
+    wf: &Workflow,
+    held: &WorkspaceLock,
+    stage: &Stage,
+    unit: &str,
+    reason: Option<&str>,
+    content: &str,
+) -> Result<UnitSkip> {
+    let slug = stage.slug.as_str();
+    let Some(reason) = reason else {
+        bail!("focus engine state skip --unit requires a nonblank --reason <text>.");
+    };
+    if let Some(refusal) = focus_audit::units::validate_unit_name(unit) {
+        bail!("{refusal}");
+    }
+    let graph = &wf.install.graph;
+    let current = get_field(content, "Current Stage").unwrap_or("");
+    let at = |slug: &str| graph.iter().position(|stage| stage.slug == slug);
+    // (`findIndex`: a stage that is not in the graph stands before all.)
+    let before = |a: Option<usize>, b: Option<usize>| {
+        a.map_or(-1, |a| a as i64) < b.map_or(-1, |b| b as i64)
+    };
+    let behind = before(at(slug), at(current));
+    // A unit's step reopened behind its stage's approval: the stage stays
+    // approved for every other unit, so only this unit's skip is recorded.
+    let approved_behind = behind && slug_state(content, slug) == Some(CheckboxState::Completed);
+    if !approved_behind {
+        validate_slug_in_state(
+            content,
+            slug,
+            &[
+                CheckboxState::Pending,
+                CheckboxState::InProgress,
+                CheckboxState::Revising,
+            ],
+        )?;
+    }
+    let per_unit_construction = |stage: Option<&Stage>| {
+        stage.is_some_and(|stage| stage.phase == "construction" && stage::has_unit_marker(stage))
+    };
+    if get_field(content, "Construction Iteration") != Some("unit-major")
+        || is_team_unit_ownership(content)
+        || !per_unit_construction(Some(stage))
+        || !per_unit_construction(at(current).map(|index| &graph[index]))
+        || (!approved_behind && behind)
+    {
+        bail!(
+            "Cannot skip \"{slug}\" for unit \"{unit}\": a one-unit skip needs Construction Iteration: unit-major with solo units, and a per-unit Construction stage at or after Current Stage \"{current}\", or one approved before it."
+        );
+    }
+    let dag = artifacts::resolve_bolt_dag(wf);
+    let Dag::Ok {
+        units, unit_kinds, ..
+    } = &dag
+    else {
+        bail!(
+            "Cannot skip \"{slug}\" for unit \"{unit}\": it is not in the authoritative unit DAG."
+        );
+    };
+    if !units.iter().any(|known| known == unit) {
+        bail!(
+            "Cannot skip \"{slug}\" for unit \"{unit}\": it is not in the authoritative unit DAG."
+        );
+    }
+    let owes = |name: &str| {
+        let kind = unit_kinds.as_ref().and_then(|kinds| {
+            kinds
+                .iter()
+                .find(|(known, _)| known == name)
+                .map(|(_, kind)| kind.as_str())
+        });
+        !artifacts::filter_produces_by_kind(stage::produces_kinds(stage), &stage.produces, kind)
+            .is_empty()
+    };
+    if !owes(unit) {
+        bail!("Cannot skip \"{slug}\" for unit \"{unit}\": that unit owes nothing for this stage.");
+    }
+    // (Floored on the unit, as its other receipts are under unit-major
+    // iteration with solo units, which is what was just required.)
+    let floor = run_floor::unit_lifecycle(&wf.events(), slug, true, Some(unit), true, graph);
+    wf.emit(
+        held,
+        "UNIT_SKIPPED",
+        &[
+            ("Stage", slug.to_owned()),
+            ("Unit", unit.to_owned()),
+            ("Reason", reason.to_owned()),
+            ("Run floor", floor),
+        ],
+    )?;
+    if approved_behind {
+        return Ok(UnitSkip::Done(json!({
+            "slug": slug,
+            "unit": unit,
+            "new_state": "unit-skipped",
+            "stage_state": "completed",
+        })));
+    }
+    // `unitSkippedUnits`, with the row just written.
+    let skipped =
+        unit_lifecycle::snapshot(&wf.events(), slug, content, &|_| None, false, graph).skipped;
+    let still_owed: Vec<&String> = units
+        .iter()
+        .filter(|name| owes(name) && !skipped.iter().any(|(skipped, _)| skipped == *name))
+        .collect();
+    if !still_owed.is_empty() {
+        return Ok(UnitSkip::Done(json!({
+            "slug": slug,
+            "unit": unit,
+            "new_state": "unit-skipped",
+            "owed_by": still_owed,
+        })));
+    }
+    // No unit owes the stage now: the stage itself is skipped.
+    let reason = format!("No unit needs this stage; the last, \"{unit}\", was skipped: {reason}");
+    if slug == current {
+        return Ok(UnitSkip::Route(reason));
+    }
+    let mut content = set_checkbox(content, slug, CheckboxState::Skipped);
+    let scope = get_field(&content, "Scope").unwrap_or("");
+    let next = wf
+        .install
+        .definition(scope)
+        .and_then(|definition| next_in_scope_stage(current, definition, graph, Some(&content)));
+    content = set_field(
+        &content,
+        "Next Stage",
+        next.map_or("none", |next| next.slug.as_str()),
+    );
+    let timestamp = iso_timestamp(SystemTime::now());
+    content = set_field(&content, "Last Updated", &timestamp);
+    wf.emit(
+        held,
+        "STAGE_SKIPPED",
+        &[
+            ("Stage", slug.to_owned()),
+            ("Reason", reason),
+            ("Skip Kind", "conditional-runtime".to_owned()),
+        ],
+    )?;
+    wf.write_state(&content)?;
+    Ok(UnitSkip::Done(json!({
+        "slug": slug,
+        "unit": unit,
+        "new_state": "skipped",
+        "timestamp": timestamp,
+    })))
+}
+
+/// `handleSkip`: mark `slug` skipped; with `route`, move on from it as
+/// `advance` would, writing once what a crashed attempt already wrote;
+/// with `unit`, skip the stage for that unit alone ([`skip_unit`]).
 ///
 /// # Errors
 ///
 /// Anything upstream refuses, in its words.
-pub fn skip(wf: &Workflow, slug: &str, reason: Option<&str>, route: bool) -> Result<Value> {
+pub fn skip(
+    wf: &Workflow,
+    slug: &str,
+    reason: Option<&str>,
+    route: bool,
+    unit: Option<&str>,
+) -> Result<Value> {
     let reason = reason.map(trim).filter(|reason| !reason.is_empty());
     if route {
         refuse_usage_rollup(wf, None)?;
@@ -629,6 +800,18 @@ pub fn skip(wf: &Workflow, slug: &str, reason: Option<&str>, route: bool) -> Res
     let held = wf.lock("skipping a stage")?;
     let mut content = wf.read_state()?;
     let stage = wf.stage(slug)?;
+    let routed_for;
+    let (reason, route) = match unit {
+        None => (reason, route),
+        Some(unit) => match skip_unit(wf, &held, stage, trim(unit), reason, &content)? {
+            UnitSkip::Done(out) => return Ok(out),
+            UnitSkip::Route(reason) => {
+                refuse_usage_rollup(wf, None)?;
+                routed_for = reason;
+                (Some(routed_for.as_str()), true)
+            }
+        },
+    };
     if !route {
         validate_slug_in_state(
             &content,

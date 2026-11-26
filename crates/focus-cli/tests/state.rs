@@ -843,14 +843,6 @@ fn what_focus_cannot_weigh_yet_is_refused_by_name() {
     );
     assert!(refusal(&state(&root, &["advance", "intent-capture"], &DIRECT)).ends_with("Focus does not read the usage ledger yet. Set FOCUS_DISABLE_USAGE_TRACKING=1 to complete without the rollup."));
     fs::remove_file(root.join("focus/.focus-sessions/usage-ledger.json")).unwrap();
-    assert!(
-        refusal(&state(
-            &root,
-            &["skip", "intent-capture", "--unit", "api", "--reason", "x"],
-            &DIRECT
-        ))
-        .starts_with("skip --unit skips one unit of work's step (\"api\")")
-    );
     assert_eq!(
         refusal(&state(
             &root,
@@ -2469,6 +2461,96 @@ fn a_units_completion_is_a_receipt_with_evidence() {
     assert_eq!(
         refusal(&state(&root, &[&UNIT[..], &["auth"]].concat(), &[])),
         "Refusing to complete unit \"auth\" for \"functional-design\": it is paused (reason: lunch). Resume it first (focus engine state unit resume --stage functional-design --unit auth); a paused unit's work is not done."
+    );
+    let _ = fs::remove_dir_all(&root);
+}
+
+/// A stage's step that does not apply to one unit is skipped for that unit
+/// alone, with the floor of the attempt on the row. When no unit owes the
+/// stage any more the stage itself is skipped: ticked off when it is ahead,
+/// routed when it is the current one.
+#[test]
+fn a_stage_is_skipped_for_one_unit_and_then_for_all() {
+    let root = with_units("skip-unit", "", "");
+    let skip = |stage: &str, unit: &str| {
+        state(
+            &root,
+            &[
+                "skip",
+                stage,
+                "--unit",
+                unit,
+                "--reason",
+                "nothing to design",
+            ],
+            &DIRECT,
+        )
+    };
+    // (The created record stands at Intent Capture, which runs once.)
+    assert_eq!(
+        refusal(&skip("functional-design", "auth")),
+        "Cannot skip \"functional-design\" for unit \"auth\": a one-unit skip needs Construction Iteration: unit-major with solo units, and a per-unit Construction stage at or after Current Stage \"intent-capture\", or one approved before it."
+    );
+    let at_design = created_state(&root)
+        .replace("- [-] intent-capture ", "- [x] intent-capture ")
+        .replace("- [ ] functional-design ", "- [-] functional-design ")
+        .replace(
+            "- **Current Stage**: intent-capture",
+            "- **Current Stage**: functional-design",
+        );
+    assert!(
+        at_design.contains("- [-] functional-design ")
+            && at_design.contains("- **Current Stage**: functional-design")
+    );
+    write(
+        &root,
+        &format!("{CREATED_RECORD}/focus-state.md"),
+        &at_design,
+    );
+    assert_eq!(
+        refusal(&state(
+            &root,
+            &["skip", "functional-design", "--unit", "auth"],
+            &DIRECT
+        )),
+        "focus engine state skip --unit requires a nonblank --reason <text>."
+    );
+    assert_eq!(
+        refusal(&skip("functional-design", "billing")),
+        "Cannot skip \"functional-design\" for unit \"billing\": it is not in the authoritative unit DAG."
+    );
+    // A stage ahead: one unit, then the other, and the stage is ticked off.
+    assert_eq!(
+        ok(&skip("nfr-design", "auth")),
+        "{\"slug\":\"nfr-design\",\"unit\":\"auth\",\"new_state\":\"unit-skipped\",\"owed_by\":[\"api\"]}\n"
+    );
+    assert!(
+        created_shard(&root).contains(
+            "**Event**: UNIT_SKIPPED\n**Stage**: nfr-design\n**Unit**: auth\n**Reason**: nothing to design\n**Run floor**: WORKFLOW_STARTED:2026-01-05T10:00:00Z#1\n"
+        ),
+        "{}",
+        created_shard(&root)
+    );
+    let ticked = ok(&skip("nfr-design", "api"));
+    assert!(
+        ticked.starts_with(
+            "{\"slug\":\"nfr-design\",\"unit\":\"api\",\"new_state\":\"skipped\",\"timestamp\":\""
+        ),
+        "{ticked}"
+    );
+    assert!(created_state(&root).contains("- [S] nfr-design "));
+    assert!(created_shard(&root).contains(
+        "**Event**: STAGE_SKIPPED\n**Stage**: nfr-design\n**Reason**: No unit needs this stage; the last, \"api\", was skipped: nothing to design\n**Skip Kind**: conditional-runtime\n"
+    ));
+    // The current stage: the last unit's skip routes it.
+    assert!(ok(&skip("functional-design", "api")).contains("\"owed_by\":[\"auth\"]"));
+    let routed = ok(&skip("functional-design", "auth"));
+    assert!(!routed.contains("unit-skipped"), "{routed}");
+    let after = created_state(&root);
+    assert!(
+        after.contains("- [S] functional-design ")
+            && !after.contains("- **Current Stage**: functional-design"),
+        "{after}"
     );
     let _ = fs::remove_dir_all(&root);
 }

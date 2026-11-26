@@ -1128,7 +1128,7 @@ Antes de mexer, a transição passa pela cadeia de admissão (`admitStageAction`
 | A confirmação do sumário, o recibo do reviewer e os handoffs de um pipeline, quando devidos | Pesa os registos de `aidlc-log` e recusa com o que falta | Recusa pelo nome (M5). Com a cerimónia `summary_confirmation` desligada (`--summary-confirmation off`, `FOCUS_DISABLE_SUMMARY_CONFIRMATION`, `FOCUS_SKIP_SUMMARY_CONFIRMATION_GUARD`), a classe de review `none` (`--review none`, `review_cap` do scope), uma stage sem reviewer, ou `FOCUS_DISABLE_ENSEMBLE_EVIDENCE` para um pipeline, nenhum dos dois deve nada e a transição corre inteira. Uma stage já marcada que tem linhas `REVIEW_*` na auditoria recusa-se também: a recuperação do original pesa-as |
 | Uma stage de Construction | Admite-a sem DAG de units como stage ao nível da stage | Recusa a fase pelo nome: checkpoints, unit gates e swarms são M4 |
 | O rollup de uso (tokens, custo) na linha de conclusão | Lê o ledger de uso que os hooks do harness dobram das transcrições | Recusa a conclusão enquanto `focus/.focus-sessions/usage-ledger.json` tiver uso para ela (`FOCUS_DISABLE_USAGE_TRACKING=1` para concluir sem) |
-| `skip --unit` | Verifica a política de Construction e recusa por ela | Recusa a flag pelo nome (M4) |
+| `skip --unit` | Verifica a política de Construction e recusa por ela | Recusa a flag pelo nome (M4). Levantado na fatia 5f de M5: `skip --unit` está portado |
 | O uso de `state` | Lista os 33 verbos | Lista os que tem (nove nesta fatia, treze com a 4b) |
 
 **O que a fatia 4a não tem.** Os verbos de gate (`gate-start`, `approve`, `reject`, `revise`), que leem a resposta da pessoa e os sensores: fatia 4b. `park`, `unpark`, `jump`, `validity` e `--status`: fatia 5.
