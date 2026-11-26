@@ -191,6 +191,26 @@ impl Workflow {
         event: &str,
         fields: &[(&str, String)],
     ) -> Result<()> {
+        self.append_row(held, event, fields)?;
+        if GATE_WORDS_SPENT_BY.contains(&event) {
+            self.clear_gate_words();
+        }
+        Ok(())
+    }
+
+    /// `appendAuditEntry` alone: the row, as the ledger words a refusal, and
+    /// nothing kept for a gate is cleared. The jump tool's rows are written
+    /// so: a unit's stage reopened is no answer to the gate that is open.
+    ///
+    /// # Errors
+    ///
+    /// The row cannot be written.
+    pub fn append_row(
+        &self,
+        held: &WorkspaceLock,
+        event: &str,
+        fields: &[(&str, String)],
+    ) -> Result<()> {
         let mut set = Fields::new();
         for (name, value) in fields {
             set.set(*name, value);
@@ -201,9 +221,6 @@ impl Workflow {
             &self.selector(),
             &self.invoker,
         )?;
-        if GATE_WORDS_SPENT_BY.contains(&event) {
-            self.clear_gate_words();
-        }
         Ok(())
     }
 

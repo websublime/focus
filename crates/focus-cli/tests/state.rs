@@ -1488,31 +1488,7 @@ fn a_jump_resolves_and_moves_the_work() {
         after.contains("- **Ideation**: Active\n- **Inception**: Pending"),
         "{after}"
     );
-    // Deliberate deviations: units, the directive marker, a bound session and reopen are M4/M5.
-    assert!(
-        refusal(&jump(
-            &root,
-            &[
-                "execute",
-                "--target",
-                "feasibility",
-                "--direction",
-                "forward",
-                "--units",
-                "api"
-            ],
-            &[]
-        ))
-        .ends_with("Focus does not run units yet.")
-    );
-    assert!(
-        refusal(&jump(
-            &root,
-            &["reopen", "--target", "functional-design", "--units", "api"],
-            &[]
-        ))
-        .ends_with("Focus does not run units yet.")
-    );
+    // Deliberate deviations: the directive marker and a bound session are M4/M5.
     assert!(
         refusal(&jump(
             &root,
@@ -2618,6 +2594,325 @@ fn the_last_units_skip_is_refused_ahead_of_its_row_while_usage_is_owed() {
     let routed = ok(&skip("functional-design", "auth", &untracked));
     assert!(!routed.contains("unit-skipped"), "{routed}");
     assert!(created_state(&root).contains("- [S] functional-design "));
+    let _ = fs::remove_dir_all(&root);
+}
+
+/// A per-unit stage is started again for the named units alone: each gets
+/// the row its own rejection would write, a redo also the answer to the
+/// re-use question, and no other unit's work is touched. From a later stage
+/// of the phase that runs once, the work moves back with no jump row.
+#[test]
+fn a_per_unit_stage_is_reopened_for_named_units() {
+    let root = with_units(
+        "reopen-units",
+        "- **Active Unit**: auth\n- **Unit Stage**: functional-design\n- **Unit State**: in-progress\n",
+        "",
+    );
+    design_is_current(&root);
+    let reopen = |args: &[&str]| jump(&root, &[&["reopen"], args].concat(), &[]);
+    let of = ["--target", "functional-design", "--units"];
+    for (args, why) in [
+        (
+            &["--target", "functional-design"][..],
+            "Usage: reopen --target <slug> [--stages <slug[,slug...]>] --units <unit[,unit...]> [--via redo|change] [--scope <scope>]",
+        ),
+        (
+            &["--target", "intent-capture", "--units", "auth"][..],
+            "Not a per-unit stage: intent-capture",
+        ),
+        (
+            &[
+                "--target",
+                "functional-design",
+                "--units",
+                "auth",
+                "--via",
+                "later",
+            ][..],
+            "Unknown --via: later (only \"redo\" or \"change\")",
+        ),
+        (
+            &[
+                "--target",
+                "functional-design",
+                "--units",
+                "auth",
+                "--stages",
+                "nfr-design",
+            ][..],
+            "--stages must start with the target \"functional-design\"",
+        ),
+        (
+            &[
+                "--target",
+                "functional-design",
+                "--units",
+                "auth",
+                "--stages",
+                "functional-design,build-and-test",
+            ][..],
+            "Not a per-unit stage: build-and-test",
+        ),
+        (
+            &["--target", "functional-design", "--units", "auth,a/b"][..],
+            "Invalid Unit name: a/b",
+        ),
+    ] {
+        assert_eq!(refusal(&reopen(args)), why);
+    }
+    assert!(!created_shard(&root).contains("GATE_REJECTED"));
+    assert_eq!(
+        ok(&reopen(
+            &[
+                &of[..],
+                &[
+                    "auth, api",
+                    "--stages",
+                    "functional-design, nfr-design",
+                    "--via",
+                    "redo"
+                ]
+            ]
+            .concat()
+        )),
+        "{\"reopened\":\"functional-design\",\"stages\":[\"functional-design\",\"nfr-design\"],\"units\":[\"auth\",\"api\"],\"state_updated\":true,\"audit_appended\":true}\n"
+    );
+    let ledger = created_shard(&root);
+    for unit in ["auth", "api"] {
+        assert!(
+            ledger.contains(&format!(
+                "**Event**: GATE_REJECTED\n**Stage**: functional-design\n**Gate Stages**: functional-design, nfr-design\n**Gate Scope**: unit-end\n**Unit**: {unit}\n**Reopen**: redo\n**Feedback**: Redid Functional Design for unit {unit} at the person's request (redo on re-entry).\n"
+            )),
+            "{ledger}"
+        );
+        assert!(
+            ledger.contains(&format!(
+                "**Event**: ARTIFACT_REUSED\n**Stage**: functional-design\n**Decision**: redo\n**Artifacts**: construction/{unit}/functional-design/\n**Unit**: {unit}\n**Source**: Redo on re-entry\n"
+            )),
+            "{ledger}"
+        );
+    }
+    let state = created_state(&root);
+    assert!(
+        !state.contains("Active Unit")
+            && !state.contains("Unit Stage")
+            && !state.contains("Unit State"),
+        "{state}"
+    );
+    assert!(state.contains("- **Current Stage**: functional-design"));
+    // A plain reopen says so, and a change with nothing said has its own words.
+    ok(&reopen(&[&of[..], &["api"]].concat()));
+    ok(&reopen(&[&of[..], &["api", "--via", "change"]].concat()));
+    let ledger = created_shard(&root);
+    assert!(ledger.contains("**Unit**: api\n**Reopen**: jump\n**Feedback**: Reopened Functional Design for unit api (/focus --stage functional-design).\n"), "{ledger}");
+    assert!(ledger.contains("**Unit**: api\n**Reopen**: change\n**User Input**: Request Changes\n**Feedback**: Reopened Functional Design for unit api for a change.\n"), "{ledger}");
+    // From Build and Test, which runs once: the work moves back to the target.
+    let mut testing = created_state(&root)
+        .replace(
+            "- **Current Stage**: functional-design",
+            "- **Current Stage**: build-and-test",
+        )
+        .replace("- [ ] build-and-test ", "- [-] build-and-test ");
+    for slug in [
+        "functional-design",
+        "nfr-requirements",
+        "nfr-design",
+        "infrastructure-design",
+        "code-generation",
+    ] {
+        testing = testing
+            .replace(&format!("- [-] {slug} "), &format!("- [x] {slug} "))
+            .replace(&format!("- [ ] {slug} "), &format!("- [x] {slug} "));
+    }
+    assert!(
+        testing.contains("- [-] build-and-test ") && testing.contains("- [x] code-generation ")
+    );
+    write(&root, &format!("{CREATED_RECORD}/focus-state.md"), &testing);
+    let jumps = created_shard(&root).matches("STAGE_JUMPED").count();
+    let moved = ok(&reopen(&["--target", "nfr-design", "--units", "auth"]));
+    assert!(
+        moved.starts_with("{\"reopened\":\"nfr-design\",\"stages\":[\"nfr-design\"],\"units\":[\"auth\"],\"stages_reset\":[\"nfr-design\","),
+        "{moved}"
+    );
+    let state = created_state(&root);
+    assert!(
+        state.contains("- **Current Stage**: nfr-design")
+            && state.contains("- [-] nfr-design ")
+            && state.contains("- [x] nfr-requirements ")
+            && state.contains("- [ ] build-and-test "),
+        "{state}"
+    );
+    assert_eq!(created_shard(&root).matches("STAGE_JUMPED").count(), jumps);
+    let _ = fs::remove_dir_all(&root);
+}
+
+/// Named units move forward alone: each step named is skipped for each of
+/// them by the state tool's own one-unit skip, and nothing else moves. What
+/// that tool refuses is the jump's refusal, after a row of its own.
+#[test]
+fn named_units_move_forward_by_their_own_skips() {
+    let root = with_units(
+        "units-forward",
+        "- **Active Unit**: auth\n- **Unit Stage**: functional-design\n- **Unit State**: in-progress\n",
+        "",
+    );
+    design_is_current(&root);
+    let onward = |units: &str, stages: &str, more: &[&str]| {
+        jump(
+            &root,
+            &[
+                &[
+                    "execute",
+                    "--target",
+                    "code-generation",
+                    "--units",
+                    units,
+                    "--stages",
+                    stages,
+                ][..],
+                more,
+            ]
+            .concat(),
+            &[],
+        )
+    };
+    let forward = ["--direction", "forward"];
+    assert_eq!(
+        refusal(&onward(
+            "auth",
+            "functional-design",
+            &["--direction", "backward"]
+        )),
+        "execute --units moves Units forward to a per-unit stage: --direction forward --units <unit[,unit...]> [--stages <slug[,slug...]>]"
+    );
+    assert_eq!(
+        refusal(&onward("a/b", "functional-design", &forward)),
+        "Invalid Unit name: a/b"
+    );
+    assert_eq!(
+        refusal(&onward(
+            "auth",
+            "functional-design,code-generation",
+            &forward
+        )),
+        "Not a per-unit stage before code-generation: code-generation"
+    );
+    assert!(!created_shard(&root).contains("UNIT_SKIPPED"));
+    let moved = ok(&onward("auth", "functional-design, nfr-design", &forward));
+    assert!(
+        moved.starts_with("{\"direction\":\"forward\",\"target\":\"code-generation\",\"target_phase\":\"CONSTRUCTION\",\"units\":[\"auth\"],\"stages_skipped\":[\"functional-design\",\"nfr-design\"],\"stages_reset\":[],\"state_updated\":true,\"audit_appended\":true,\"completed_count\":4,\"workflow_stopped\":false,\"timestamp\":\""),
+        "{moved}"
+    );
+    let ledger = created_shard(&root);
+    for stage in ["functional-design", "nfr-design"] {
+        assert!(
+            ledger.contains(&format!(
+                "**Event**: UNIT_SKIPPED\n**Stage**: {stage}\n**Unit**: auth\n**Reason**: Skipped by jump to code-generation (forward)\n"
+            )),
+            "{ledger}"
+        );
+    }
+    assert!(
+        !ledger.contains("STAGE_JUMPED") && !ledger.contains("STAGE_SKIPPED"),
+        "{ledger}"
+    );
+    let state = created_state(&root);
+    assert!(
+        state.contains("- **Current Stage**: functional-design") && !state.contains("Active Unit"),
+        "{state}"
+    );
+    // No step named: nothing is skipped, and nothing is written but the date.
+    let nothing = ok(&jump(
+        &root,
+        &[
+            "execute",
+            "--target",
+            "code-generation",
+            "--direction",
+            "forward",
+            "--units",
+            "api",
+        ],
+        &[],
+    ));
+    assert!(nothing.contains("\"stages_skipped\":[],\"stages_reset\":[],\"state_updated\":true,\"audit_appended\":false"), "{nothing}");
+    // The state tool's refusal is the jump's, and each tool leaves its row.
+    assert_eq!(
+        refusal(&onward("api,billing", "nfr-requirements", &forward)),
+        "Cannot skip \"nfr-requirements\" for unit \"billing\": it is not in the authoritative unit DAG."
+    );
+    let ledger = created_shard(&root);
+    assert!(ledger.contains("**Stage**: nfr-requirements\n**Unit**: api\n**Reason**: Skipped by jump to code-generation (forward)\n"), "{ledger}");
+    let errors: Vec<&str> = ledger.split("**Event**: ERROR_LOGGED\n").skip(1).collect();
+    let last_two = &errors[errors.len() - 2..];
+    assert!(
+        last_two[0].starts_with("**Tool**: focus-state\n**Command**: focus-state skip nfr-requirements --unit billing --reason Skipped by jump to code-generation (forward) --project-dir "),
+        "{}",
+        last_two[0]
+    );
+    assert!(last_two[1].starts_with("**Tool**: focus-jump\n**Command**: focus-jump execute --target code-generation --units api,billing --stages nfr-requirements --direction forward\n"), "{}", last_two[1]);
+    for row in last_two {
+        assert!(row.contains("**Error**: Cannot skip \"nfr-requirements\" for unit \"billing\": it is not in the authoritative unit DAG.\n"), "{row}");
+    }
+    let _ = fs::remove_dir_all(&root);
+}
+
+/// Deliberate deviation. The one-unit skips of `execute --units` are the
+/// state tool's, and meet what that tool refuses by name in Focus: the
+/// usage rollup a routed skip carries, and a state write beside the
+/// engine's active-directive marker. Upstream skips, routes and writes.
+#[test]
+fn a_units_jump_meets_what_the_state_tool_refuses_by_name() {
+    let root = with_units("units-forward-by-name", "", "");
+    design_is_current(&root);
+    let onward = |units: &str| {
+        jump(
+            &root,
+            &[
+                "execute",
+                "--target",
+                "nfr-requirements",
+                "--direction",
+                "forward",
+                "--units",
+                units,
+                "--stages",
+                "functional-design",
+            ],
+            &[],
+        )
+    };
+    write(
+        &root,
+        "focus/.focus-sessions/usage-ledger.json",
+        "{\"workflows\":{\"w\":{\"byStage\":{\"intent-capture\":{}},\"totals\":{\"tokens\":{\"input\":1}}}}}\n",
+    );
+    assert!(
+        refusal(&onward("api,auth")).ends_with(
+            "Focus does not read the usage ledger yet. Set FOCUS_DISABLE_USAGE_TRACKING=1 to complete without the rollup."
+        )
+    );
+    assert_eq!(
+        created_shard(&root).matches("UNIT_SKIPPED").count(),
+        1,
+        "{}",
+        created_shard(&root)
+    );
+    fs::remove_file(root.join("focus/.focus-sessions/usage-ledger.json")).unwrap();
+    write(
+        &root,
+        &format!("{CREATED_RECORD}/.focus-engine/active-directive.json"),
+        "{}\n",
+    );
+    assert!(
+        refusal(&onward("auth")).ends_with(
+            "which Focus does not keep yet. Remove the marker, or write the state with the engine's own tools."
+        )
+    );
+    // (As for the state tool's own verbs, the refusal is at the state's
+    // write: the unit's row is in the ledger by then.)
+    assert_eq!(created_shard(&root).matches("UNIT_SKIPPED").count(), 2);
+    assert!(created_state(&root).contains("- **Current Stage**: functional-design"));
     let _ = fs::remove_dir_all(&root);
 }
 
