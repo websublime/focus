@@ -56,7 +56,7 @@ const planGuardPrivate = await import(planGuardShim);
 const libShim = tool("aidlc-lib.focus-oracle.ts");
 // (`rawFingerprintForm` and `lastWorkspaceSourceFailure` are asked of the copy too: what a walk remembers is the
 // module's own.)
-writeFileSync(libShim, `${readFileSync(tool("aidlc-lib.ts"), "utf-8")}\nexport { walkWorkspaceSource, gateStagesFromBlock, splitMarkdownRow, auditBlockFieldNamesOnce, latestMainWorkflowStageRunFloorFromRows, stageStartsUnderStageFlooring, stageStartsUnderUnitFlooring };\n`);
+writeFileSync(libShim, `${readFileSync(tool("aidlc-lib.ts"), "utf-8")}\nexport { serializeUnitSourceListing, walkWorkspaceSource, gateStagesFromBlock, splitMarkdownRow, auditBlockFieldNamesOnce, latestMainWorkflowStageRunFloorFromRows, stageStartsUnderStageFlooring, stageStartsUnderUnitFlooring };\n`);
 process.on("exit", () => rmSync(libShim, { force: true }));
 const libPrivate = await import(libShim);
 // The log tool's own reader of a review file's headings is asked the same way.
@@ -828,6 +828,43 @@ async function answer(c: Record<string, any>): Promise<unknown> {
     case "summary_input":
       // A stage's questions as a review's input: text, or bytes that are none.
       return lib.summaryInputReviewFingerprint(c.hex !== undefined ? Buffer.from(c.hex, "hex") : Buffer.from(c.text, "utf-8"));
+    case "unit_source_path":
+      // A claim's path as a unit's source manifest keeps it, or what is wrong with it.
+      return lib.normalizeManifestSourcePath(c.path);
+    case "unit_source": {
+      // A unit's claims over a listing: what they cover, the text and the fingerprint of the unit's part, and that
+      // text (or the case's own) read back. The process first remembers the raw forms the case names. (All of it is
+      // asked of one copy of the library: what is remembered is that copy's.)
+      for (const [raw, current] of (c.remember ?? []) as [string, string][]) libPrivate.rememberRawFingerprint(raw, current);
+      const listing = new Map<string, string>(c.listing);
+      const model = { claims: new Set<string>(c.claims), prefixes: c.prefixes as string[] };
+      const out: Record<string, unknown> = {
+        covers: [...listing.keys()].map((key) => libPrivate.sourceClaimCovers(key, model)),
+        restricted: writtenListing(libPrivate.restrictSourceListing(listing, model)),
+      };
+      try {
+        out.text = libPrivate.serializeUnitSourceListing(listing, model, c.sha);
+      } catch (err) {
+        out.text_error = (err as Error).message;
+      }
+      try {
+        const fingerprint = libPrivate.unitSourceFingerprint(listing, model, c.sha);
+        out.raw = libPrivate.rawFingerprintForm(fingerprint);
+        out.fingerprint = fingerprint;
+      } catch (err) {
+        out.fingerprint_error = (err as Error).message;
+      }
+      const asked = c.text ?? out.text;
+      if (asked !== undefined) {
+        try {
+          const parsed = libPrivate.parseUnitSourceListing(asked);
+          out.parsed = parsed === null ? null : { sha: parsed.manifestSha256, listing: writtenListing(parsed.listing), size: parsed.listing.size };
+        } catch (err) {
+          out.parsed_error = (err as Error).message;
+        }
+      }
+      return out;
+    }
     case "source_changed": {
       // A recorded listing as today's walk would take it, what changed between it and the current one, and paths
       // as a person is told them.
