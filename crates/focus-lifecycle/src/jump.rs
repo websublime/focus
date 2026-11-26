@@ -7,27 +7,33 @@
 //! own EXECUTE/SKIP suffix for a stage wins over the scope's grid, when
 //! the scope asked about is the state's own.
 //!
-//! What is not here, and refused by name: `reopen` and `execute --units`,
-//! which move units of work one at a time through per-unit stages (M4);
-//! the record's active-directive marker and the pending person lines of a
-//! chat (the orchestrator's and the human-turn hook's, M4/M5); and the
-//! review records a backward jump names (the review brief, M5).
+//! Units of work move one at a time: `execute --units` takes the named
+//! units forward to a per-unit stage by skipping, for each of them alone,
+//! the steps before it; `reopen` starts a per-unit stage again for the
+//! named units, with the row a unit's own rejection writes. Neither moves
+//! the stage for the other units.
 //!
-//! Mirrors `aidlc-jump.ts`: `handleResolve`, `handleExecute`, `movedState`,
-//! `forwardJumpNotice`, `backwardJumpNotice`, `stageArtifactPaths`,
-//! `stageReviewPaths` and `parseFlags`; `stageLabel` in
-//! `aidlc-validity.ts`.
+//! What is not here, and refused by name: the record's active-directive
+//! marker and the pending person lines of a chat (the orchestrator's and
+//! the human-turn hook's, M4/M5); and the review records a backward jump
+//! names (the review brief, M5).
+//!
+//! Mirrors `aidlc-jump.ts`: `handleResolve`, `handleExecute`,
+//! `executeUnitsForward`, `handleReopen`, `movedState`, `forwardJumpNotice`,
+//! `backwardJumpNotice`, `stageArtifactPaths`, `stageReviewPaths` and
+//! `parseFlags`; `stageLabel` in `aidlc-validity.ts`.
 
 use std::path::Path;
 use std::time::SystemTime;
 
 use focus_audit::time::iso_timestamp;
+use focus_graph::query::is_per_unit;
 use focus_graph::runtime::{ScopeDefinition, Stage};
 use focus_graph::stage_schema::PHASES;
 use focus_intent::plan::{next_in_scope_stage, stages_in_scope};
 use focus_js::order::cmp_utf16;
 use focus_js::text::trim;
-use focus_js::{EngineError, Result, bail, json};
+use focus_js::{EngineError, Result, bail, json, re};
 use focus_state::fields::{get_field, remove_field, set_field, set_phase_progress};
 use focus_state::progress::{
     CheckboxState, count_checkboxes, parse_checkboxes, parse_stage_suffixes, set_checkbox,
@@ -166,14 +172,36 @@ pub(crate) const PHASE_NUMBERS: [(&str, &str); 5] = [
     ("4", "operation"),
 ];
 
-fn refuse_units_flag(flags: &[(String, String)]) -> Result<()> {
-    if flag(flags, "units").is_some() {
-        bail!(
-            "--units moves units of work forward one at a time, which needs the units' lifecycle: Focus does not run units yet."
-        );
-    }
-    Ok(())
+/// `UNIT_NAME_REGEX`, as `reopen` and `execute --units` ask it: the name's
+/// shape alone, with no word on its length.
+const UNIT_NAME: &str = r"^[A-Za-z0-9][A-Za-z0-9._-]*$";
+
+/// The fields that mirror the open unit in the state file.
+const UNIT_MIRROR: [&str; 5] = [
+    "Active Unit",
+    "Unit Stage",
+    "Unit State",
+    "Unit Pause Reason",
+    "Unit Next Action",
+];
+
+/// `REDO_REUSE_SOURCE`.
+const REDO_REUSE_SOURCE: &str = "Redo on re-entry";
+
+/// A comma-separated flag as upstream reads one: trimmed, the empty left out.
+fn listed(value: &str) -> Vec<&str> {
+    value
+        .split(',')
+        .map(trim)
+        .filter(|item| !item.is_empty())
+        .collect()
 }
+
+/// The one-unit skip `execute --units` asks of the state tool, as
+/// `(slug, unit, reason)`. Upstream runs that tool as its own command and
+/// repeats what it refused; the caller gives the same step, with whatever
+/// the state tool does around it.
+pub type UnitSkip<'a> = dyn Fn(&str, &str, &str) -> Result<()> + 'a;
 
 /// `handleResolve`.
 ///
@@ -612,7 +640,7 @@ fn refuse_directive_marker(wf: &Workflow) -> Result<()> {
 /// # Errors
 ///
 /// What upstream refuses, in its words; what Focus refuses by name.
-pub fn execute(wf: &Workflow, args: &[String]) -> Result<Value> {
+pub fn execute(wf: &Workflow, args: &[String], skip_for_unit: &UnitSkip<'_>) -> Result<Value> {
     let flags = parse_flags(args);
     let held = wf.lock("jumping between stages")?;
     let content = wf.read_state()?;
@@ -635,7 +663,11 @@ pub fn execute(wf: &Workflow, args: &[String]) -> Result<Value> {
             plan.scope
         );
     }
-    refuse_units_flag(&flags)?;
+    if flag(&flags, "units").is_some() {
+        // (Each skip is the state tool's own step, under its own lock.)
+        drop(held);
+        return execute_units_forward(wf, &flags, target, direction, skip_for_unit);
+    }
     refuse_directive_marker(wf)?;
     let graph = &wf.install.graph;
     let current_slug = get_field(&content, "Current Stage")
@@ -814,30 +846,205 @@ pub fn execute(wf: &Workflow, args: &[String]) -> Result<Value> {
     Ok(Value::Object(out))
 }
 
-/// `handleReopen`: a per-unit stage reopened for named units (M4).
+/// `executeUnitsForward`: a forward jump that moves only the named units
+/// on. Each named step is skipped for those units with the state tool's own
+/// one-unit skip, so every other unit keeps its work: no `STAGE_JUMPED`, no
+/// checkbox the other units still owe, no move of the current stage.
+fn execute_units_forward(
+    wf: &Workflow,
+    flags: &[(String, String)],
+    target: &Stage,
+    direction: Direction,
+    skip_for_unit: &UnitSkip<'_>,
+) -> Result<Value> {
+    let units = listed(flag(flags, "units").unwrap_or(""));
+    if direction != Direction::Forward || units.is_empty() || !is_per_unit(target) {
+        bail!(
+            "execute --units moves Units forward to a per-unit stage: --direction forward --units <unit[,unit...]> [--stages <slug[,slug...]>]"
+        );
+    }
+    for unit in &units {
+        if !re::test(UNIT_NAME, "", unit) {
+            bail!("Invalid Unit name: {unit}");
+        }
+    }
+    let stages = listed(flag(flags, "stages").unwrap_or(""));
+    let target_idx = stage_index(wf, &target.slug);
+    for slug in &stages {
+        let before =
+            wf.install.stage(slug).is_some_and(is_per_unit) && stage_index(wf, slug) < target_idx;
+        if !before {
+            bail!("Not a per-unit stage before {}: {slug}", target.slug);
+        }
+    }
+    let word = direction.word();
+    let reason = format!("Skipped by jump to {} ({word})", target.slug);
+    for slug in &stages {
+        for unit in &units {
+            skip_for_unit(slug, unit, &reason)?;
+        }
+    }
+    // The open unit's mirror describes the step it left; the next start of
+    // a unit writes it again.
+    let _held = wf.lock("jumping between stages")?;
+    let mut content = wf.read_state()?;
+    let active = get_field(&content, "Active Unit").unwrap_or("");
+    if units.contains(&active) {
+        for field in UNIT_MIRROR {
+            content = remove_field(&content, field);
+        }
+    }
+    let timestamp = iso_timestamp(SystemTime::now());
+    content = set_field(&content, "Last Updated", &timestamp);
+    wf.write_state(&content)?;
+    let mut out = Map::new();
+    out.insert("direction".to_owned(), json!(word));
+    out.insert("target".to_owned(), json!(target.slug));
+    out.insert(
+        "target_phase".to_owned(),
+        json!(target.phase.to_uppercase()),
+    );
+    out.insert("units".to_owned(), json!(units));
+    out.insert("stages_skipped".to_owned(), json!(stages));
+    out.insert("stages_reset".to_owned(), json!(Vec::<String>::new()));
+    out.insert("state_updated".to_owned(), json!(true));
+    out.insert("audit_appended".to_owned(), json!(!stages.is_empty()));
+    out.insert(
+        "completed_count".to_owned(),
+        json!(count_checkboxes(&content, CheckboxState::Completed)),
+    );
+    out.insert("workflow_stopped".to_owned(), json!(false));
+    out.insert("timestamp".to_owned(), json!(timestamp));
+    Ok(Value::Object(out))
+}
+
+/// `handleReopen`: a per-unit stage started again for the named units only.
+/// Each unit gets the unit-scoped `GATE_REJECTED` a unit checkpoint's Request
+/// Changes writes, which is a new attempt of that unit in that stage; every
+/// other unit keeps its work. From a later stage of the same phase that does
+/// not run per unit, the work moves back to the target as a backward jump
+/// moves it, with no `STAGE_JUMPED`.
 ///
 /// # Errors
 ///
-/// Always: the units' lifecycle is not ported.
+/// What upstream refuses, in its words.
 pub fn reopen(wf: &Workflow, args: &[String]) -> Result<Value> {
     let flags = parse_flags(args);
-    let _ = wf.read_state()?;
-    let target = flag(&flags, "target").filter(|slug| !slug.is_empty());
-    let units: Vec<&str> = flag(&flags, "units")
-        .unwrap_or("")
-        .split(',')
-        .map(trim)
-        .filter(|unit| !unit.is_empty())
-        .collect();
-    if target.is_none() || units.is_empty() {
+    let held = wf.lock("reopening a stage for units")?;
+    let mut content = wf.read_state()?;
+    let target_slug = flag(&flags, "target").filter(|slug| !slug.is_empty());
+    let units = listed(flag(&flags, "units").unwrap_or(""));
+    let Some(target_slug) = target_slug.filter(|_| !units.is_empty()) else {
         bail!(
             "Usage: reopen --target <slug> [--stages <slug[,slug...]>] --units <unit[,unit...]> [--via redo|change] [--scope <scope>]"
         );
+    };
+    let via = flag(&flags, "via");
+    if let Some(via) = via
+        && via != "redo"
+        && via != "change"
+    {
+        bail!("Unknown --via: {via} (only \"redo\" or \"change\")");
     }
-    bail!(
-        "reopen starts a per-unit stage again for the named units ({}), which needs the units' lifecycle: Focus does not run units yet.",
-        units.join(", ")
-    )
+    let per_unit = |slug: &str| wf.install.stage(slug).filter(|stage| is_per_unit(stage));
+    let Some(target) = per_unit(target_slug) else {
+        bail!("Not a per-unit stage: {target_slug}");
+    };
+    // The target and the later per-unit steps it reopens with it.
+    let stages = listed(flag(&flags, "stages").unwrap_or(target_slug));
+    if stages.first() != Some(&target_slug) {
+        bail!("--stages must start with the target \"{target_slug}\"");
+    }
+    for slug in &stages {
+        if per_unit(slug).is_none() {
+            bail!("Not a per-unit stage: {slug}");
+        }
+    }
+    for unit in &units {
+        if !re::test(UNIT_NAME, "", unit) {
+            bail!("Invalid Unit name: {unit}");
+        }
+    }
+    let stage_name = stage::name(target);
+    // A change is kept in the person's own words, from the gate they answered.
+    let gate_stage = get_field(&content, "Current Stage")
+        .unwrap_or(target_slug)
+        .to_owned();
+    let change_words = if via == Some("change") {
+        crate::presence::persons_gate_feedback(wf, &gate_stage)
+    } else {
+        None
+    };
+    for unit in &units {
+        let mut fields = vec![
+            ("Stage", target_slug.to_owned()),
+            ("Gate Stages", stages.join(", ")),
+            ("Gate Scope", "unit-end".to_owned()),
+            ("Unit", (*unit).to_owned()),
+            ("Reopen", via.unwrap_or("jump").to_owned()),
+        ];
+        if via == Some("change") {
+            fields.push(("User Input", "Request Changes".to_owned()));
+        }
+        fields.push((
+            "Feedback",
+            match via {
+                Some("redo") => format!(
+                    "Redid {stage_name} for unit {unit} at the person's request (redo on re-entry)."
+                ),
+                Some("change") => change_words.clone().unwrap_or_else(|| {
+                    format!("Reopened {stage_name} for unit {unit} for a change.")
+                }),
+                _ => {
+                    format!("Reopened {stage_name} for unit {unit} (/focus --stage {target_slug}).")
+                }
+            },
+        ));
+        wf.append_row(&held, "GATE_REJECTED", &fields)?;
+        // Redo is the person's answer to the re-use question for this unit's
+        // step too: recorded here, so the reopened step redoes it unasked.
+        if via == Some("redo") {
+            wf.append_row(
+                &held,
+                "ARTIFACT_REUSED",
+                &[
+                    ("Stage", target_slug.to_owned()),
+                    ("Decision", "redo".to_owned()),
+                    ("Artifacts", format!("construction/{unit}/{target_slug}/")),
+                    ("Unit", (*unit).to_owned()),
+                    ("Source", REDO_REUSE_SOURCE.to_owned()),
+                ],
+            )?;
+        }
+    }
+    for field in UNIT_MIRROR {
+        content = remove_field(&content, field);
+    }
+    content = set_field(&content, "Last Updated", &iso_timestamp(SystemTime::now()));
+    let current = get_field(&content, "Current Stage").unwrap_or("");
+    let mut stages_reset = Vec::new();
+    if let Some(from) = wf.install.stage(current)
+        && !is_per_unit(from)
+        && from.phase == target.phase
+        // (Never the target itself: that one runs per unit.)
+        && stage_index(wf, current) > stage_index(wf, target_slug)
+    {
+        let plan = plan(wf, &content, flag(&flags, "scope"))?;
+        let moved = moved_state(wf, &content, target, Direction::Backward, &plan)?;
+        content = moved.content;
+        stages_reset = moved.stages_reset;
+    }
+    wf.write_state(&content)?;
+    let mut out = Map::new();
+    out.insert("reopened".to_owned(), json!(target_slug));
+    out.insert("stages".to_owned(), json!(stages));
+    out.insert("units".to_owned(), json!(units));
+    if !stages_reset.is_empty() {
+        out.insert("stages_reset".to_owned(), json!(stages_reset));
+    }
+    out.insert("state_updated".to_owned(), json!(true));
+    out.insert("audit_appended".to_owned(), json!(true));
+    Ok(Value::Object(out))
 }
 
 #[cfg(test)]

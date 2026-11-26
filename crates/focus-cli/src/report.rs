@@ -169,7 +169,7 @@ impl Context {
     /// `emitError`'s row: an `ERROR_LOGGED` in the ledger of the record the
     /// command targeted, when that record has a state file. Best effort,
     /// on an already failing command.
-    fn record_error(&self, message: &str) {
+    pub(crate) fn record_error(&self, message: &str) {
         let Ok(layout) = self.workspace() else {
             return;
         };

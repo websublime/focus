@@ -2698,7 +2698,7 @@ DEVIATIONS.update({
     r"state/usage/metrics_endpoint":
         "upstream sends a metric for the ERROR_LOGGED row to the configured endpoint; focus has no metrics yet "
         "and writes no row rather than leave the endpoint without what it expects (the refusal is printed either way)",
-    r"state/marker/active_directive.*":
+    r"state/marker/active_directive.*|jump/execute/units_directive_marker":
         "a record carrying an active-directive marker: upstream reads the engine's instruction and the turn "
         "sequence off it and keeps the state-write record beside it; the orchestrator that writes it is M5, so "
         "focus refuses to decide a fence with the marker there, and refuses to write the state beside it",
@@ -2708,7 +2708,7 @@ DEVIATIONS.update({
     "state/advance/construction":
         "a Construction stage runs per unit of work with checkpoints, unit gates and swarms (M4): upstream admits "
         "it with no unit DAG as a stage-level one; focus refuses the phase by name",
-    r"state/(advance/usage_ledger|skip/(route|unit)_usage_ledger)":
+    r"state/(advance/usage_ledger|skip/(route|unit)_usage_ledger)|jump/execute/units_usage_ledger":
         "a completion row carries the token usage the harness hooks folded into the usage ledger; upstream reads "
         "the ledger and adds the rollup fields; focus does not read it yet and refuses the completion while the "
         "ledger holds usage for it, rather than write the row without",
@@ -2717,9 +2717,6 @@ DEVIATIONS.update({
         "scope stamp and checked against the claim registry and the fan-out (M4): focus refuses both by name",
     "jump/usage/flag_without_its_value":
         "upstream takes a trailing --project-dir with no value as an argument of the verb; focus refuses the flag",
-    "jump/execute/units":
-        "execute --units moves units of work forward one at a time to a per-unit stage, with the state tool's "
-        "one-unit skip (M4): upstream runs it or refuses on its own shape; focus refuses the flag by name",
     "jump/execute/backward_construction_is_a_file":
         "a jump back over a per-unit stage finds its units by listing the record's construction folder; where a file "
         "has that name, upstream fails with what its runtime says of the listing (ENOTDIR ... scandir), focus says what "
@@ -2805,9 +2802,6 @@ DEVIATIONS.update({
         "file does not exist, and falls over on a directory with the runtime's EISDIR; focus reads it as every "
         "file of the record that decides something, a regular "
         "file with one name reached through no link, and refuses the rest by name",
-    "jump/reopen/by_name":
-        "reopen starts a per-unit stage again for named units with their own GATE_REJECTED rows (M4); focus "
-        "refuses by name once the usage is satisfied",
     r"utility/status/directive_marker(_by_flags)?":
         "a record carrying an active-directive marker: the status reads the step the engine last handed out off "
         "it, and the guards read the authority behind the command off it (M5); focus refuses the status by name "
@@ -3406,6 +3400,86 @@ def state_checks():
     check_("skip/unit_the_last_that_owes", per_unit(units=A_UNITS.replace("kind: service", "kind: packaging")), last_of_three, direct)
     check_("skip/unit_observer", per_unit(), [pass_over()], {**direct, "STOP_HOOK_PROBE": "1"})
     check_("skip/unit_archived", per_unit(state=designing().replace("- **Status**: Running", "- **Status**: Archived")), [pass_over()], direct)
+
+    # jump reopen: a per-unit stage started again for the named units alone, each with the row a unit's own rejection
+    # writes. From a later stage of the phase that does not run per unit, the work moves back with no STAGE_JUMPED.
+    jump_ = lambda name, files, steps, env=None, edits=(): runtime_check(name, files, steps, env, edits, group="jump")
+    again = lambda units="auth", *args, target="functional-design": ["reopen", *([] if target is None else ["--target", target]), *([] if units is None else ["--units", units]), *args]
+    per_unit_stages = ["functional-design", "nfr-requirements", "nfr-design", "infrastructure-design", "code-generation"]
+    testing = designing(current="build-and-test", done=per_unit_stages)
+    jump_("reopen/usage_of_units", per_unit(), [again(","), again(" , "), again("auth", target=""), again(None), again("auth", target=None), again("auth", "--via", "nope"), again("auth", "--via", "")])
+    jump_("reopen/one_unit", per_unit(), [again(), again("api,web"), ["resolve", "--stage", "functional-design"]])
+    jump_("reopen/units_as_written", per_unit(), [again(" auth , ,api,"), again("auth,auth")])
+    jump_("reopen/unit_names", per_unit(), [again("a/b"), again("auth,-x"), again(".."), again("x" * 70), again("billing"), again("auth, b c")])
+    jump_("reopen/target", per_unit(), [again(target="nope"), again(target="intent-capture"), again(target="build-and-test"), again(target="3.1"), again(target="code-generation")])
+    jump_("reopen/target_named_per_unit_without_its_marker", per_unit(), [again()], edits=[of_the_graph("functional-design", for_each=None)])
+    jump_("reopen/target_marked_per_unit", per_unit(), [again(target="build-and-test")], edits=[of_the_graph("build-and-test", for_each="unit-of-work")])
+    jump_("reopen/stages", per_unit(), [again("auth", "--stages", "functional-design,nfr-design"), again("auth", "--stages", " functional-design , nfr-requirements ,"),
+                                         again("auth", "--stages", "nfr-design"), again("auth", "--stages", "nfr-design,functional-design"), again("auth", "--stages", ""), again("auth", "--stages", ","),
+                                         again("auth", "--stages", "functional-design,build-and-test"), again("auth", "--stages", "functional-design,nope"), again("auth", "--stages", "functional-design,functional-design")])
+    jump_("reopen/via_redo", per_unit(), [again("auth,api", "--via", "redo"), again("auth", "--via", "redo", target="code-generation")])
+    jump_("reopen/via_change_no_words", per_unit(), [again("auth,api", "--via", "change")])
+    shown = CREATED_AUDIT + block("STAGE_AWAITING_APPROVAL", T(5), "**Stage**: functional-design")
+    said = {**per_unit(), f"{CREATED_DIR}/audit/laptop-abc123.md": shown}
+    in_chat = {"SESSION_OVERRIDE": "s1"}
+    jump_("reopen/via_change_words", {**said, **words(shown, "the auth rules miss lockout\nand the api ones too")}, [again("auth,api", "--via", "change")], in_chat)
+    jump_("reopen/via_change_words_only_a_pick", {**said, **words(shown, "Request Changes")}, [again("auth", "--via", "change")], in_chat)
+    jump_("reopen/via_change_words_of_another_gate", {**said, **words(shown, "change it")}, [again("auth", "--via", "change", target="nfr-design")], in_chat)
+    jump_("reopen/via_change_words_no_session", {**said, **words(shown, "change it")}, [again("auth", "--via", "change")])
+    jump_("reopen/via_jump_ignores_words", {**said, **words(shown, "change it")}, [again("auth")], in_chat)
+    jump_("reopen/via_change_words_current_absent", {**per_unit(state=designing().replace("- **Current Stage**: functional-design\n", "")), f"{CREATED_DIR}/audit/laptop-abc123.md": shown, **words(shown, "change it")},
+          [again("auth", "--via", "change"), again("api", "--via", "change", target="nfr-design")], in_chat)
+    jump_("reopen/via_change_words_current_blank", {**per_unit(state=designing().replace("- **Current Stage**: functional-design\n", "- **Current Stage**: \n")), f"{CREATED_DIR}/audit/laptop-abc123.md": shown, **words(shown, "change it")},
+          [again("auth", "--via", "change")], in_chat)
+    jump_("reopen/mirror", per_unit(state=designing() + mirrored), [again("api"), ["resolve", "--stage", "functional-design"]])
+    jump_("reopen/from_a_later_stage", per_unit(state=testing), [again(), ["resolve", "--stage", "build-and-test"]])
+    jump_("reopen/from_a_later_stage_a_middle_one", per_unit(state=testing), [again("auth,api", "--stages", "nfr-design,code-generation", target="nfr-design"), ["resolve", "--stage", "build-and-test"]])
+    jump_("reopen/from_a_later_stage_scope", per_unit(state=testing), [again("auth", "--scope", "bugfix"), ["resolve", "--stage", "build-and-test"]])
+    jump_("reopen/from_a_later_stage_scope_unknown", per_unit(state=testing), [again("auth", "--scope", "nope"), ["resolve", "--stage", "build-and-test"]])
+    jump_("reopen/from_a_later_stage_own_scope_unknown", per_unit(state=testing.replace("- **Scope**: feature", "- **Scope**: nope")), [again()])
+    jump_("reopen/from_a_later_per_unit_stage", per_unit(state=designing(current="code-generation", done=per_unit_stages[:-1])), [again(), ["resolve", "--stage", "code-generation"]])
+    jump_("reopen/from_an_earlier_stage", {**created(running()), DEPENDENCIES: A_UNITS}, [again(), ["resolve", "--stage", "intent-capture"]])
+    # (An earlier stage of the same phase that runs once: nothing moves forward to the target.)
+    jump_("reopen/from_an_earlier_stage_of_the_phase", per_unit(state=testing), [again(target="ci-pipeline"), ["resolve", "--stage", "build-and-test"]], edits=[of_the_graph("ci-pipeline", for_each="unit-of-work")])
+    jump_("reopen/from_another_phase", per_unit(state=at_stage(running(), "deployment-pipeline", done=before_design + per_unit_stages + ["build-and-test"], phase="OPERATION")), [again()])
+    jump_("reopen/current_unknown", per_unit(state=designing().replace("- **Current Stage**: functional-design", "- **Current Stage**: nope")), [again()])
+    jump_("reopen/current_absent", per_unit(state=designing().replace("- **Current Stage**: functional-design\n", "")), [again("auth", "--via", "change")])
+    jump_("reopen/no_units_file", per_unit(units=None), [again()])
+    jump_("reopen/stage_major", per_unit(state=designing(running("disabled", "stage-major"))), [again()])
+    jump_("reopen/of_a_team", per_unit(state=designing(running(more=team))), [again()])
+    jump_("reopen/observer", per_unit(), [again()], {"STOP_HOOK_PROBE": "1"})
+    jump_("reopen/archived", per_unit(state=designing().replace("- **Status**: Running", "- **Status**: Archived")), [again()])
+    jump_("reopen/no_state_file", {**per_unit(), f"{CREATED_DIR}/aidlc-state.md": None}, [again()])
+
+    # jump execute --units: only the named units move on, each named step skipped for them by the state tool's own
+    # one-unit skip. What that tool refuses is the jump's refusal, and leaves a row of its own before the jump's.
+    onward = lambda units="auth", stages=None, *args, target="code-generation", direction="forward": [
+        "execute", "--target", target, "--direction", direction, *([] if units is None else ["--units", units]), *([] if stages is None else ["--stages", stages]), *args]
+    jump_("execute/units_usage", per_unit(), [onward(""), onward(","), onward(direction="backward"), onward(direction="redo"), onward(target="build-and-test"), onward(target="nope"),
+                                               onward("a/b"), onward("auth,-x"), onward("x" * 70), onward(direction="sideways")])
+    jump_("execute/units_stages_refused", per_unit(), [onward("auth", "nope"), onward("auth", "build-and-test"), onward("auth", "code-generation"), onward("auth", "intent-capture"),
+                                                        onward("auth", "functional-design,nfr-design", target="nfr-design"), onward("auth", "nfr-design", target="functional-design")])
+    jump_("execute/units_no_stages", per_unit(), [onward(), onward("auth", ""), onward("auth", " , "), onward("billing")])
+    jump_("execute/units_one_step", per_unit(), [onward("auth", "functional-design"), ["resolve", "--stage", "functional-design"]])
+    jump_("execute/units_steps_of_two", per_unit(), [onward("auth, api", "functional-design, nfr-requirements ,nfr-design,infrastructure-design")])
+    jump_("execute/units_all_of_the_current_stage", per_unit(), [onward("api,web,auth", "functional-design", target="nfr-requirements"), ["resolve", "--stage", "nfr-requirements"]])
+    jump_("execute/units_all_of_two_stages", per_unit(), [onward("api,web,auth", "functional-design,nfr-requirements", target="nfr-design"), ["resolve", "--stage", "nfr-design"]])
+    jump_("execute/units_twice", per_unit(), [onward("auth", "functional-design"), onward("auth", "functional-design")])
+    jump_("execute/units_one_not_a_unit", per_unit(), [onward("auth,billing,api", "functional-design")])
+    jump_("execute/units_one_owes_nothing", per_unit(units=A_UNITS.replace("kind: service", "kind: packaging")), [onward("api,auth,web", "functional-design")])
+    jump_("execute/units_stage_major", per_unit(state=designing(running("disabled", "stage-major"))), [onward("auth", "functional-design")])
+    jump_("execute/units_of_a_team", per_unit(state=designing(running(more=team))), [onward("auth", "functional-design")])
+    jump_("execute/units_no_units_file", per_unit(units=None), [onward("auth", "functional-design")])
+    jump_("execute/units_fenced", per_unit(state=designing().replace("- **Guard Policy**: off", "- **Guard Policy**: on")), [onward("auth", "functional-design")])
+    jump_("execute/units_mirror_of_one_moved", per_unit(state=designing() + mirrored), [onward("auth", "functional-design")])
+    jump_("execute/units_mirror_of_another", per_unit(state=designing() + mirrored), [onward("api", "functional-design"), onward("api")])
+    jump_("execute/units_scope", per_unit(), [onward("auth", "functional-design", "--scope", "bugfix"), onward("auth", "functional-design", "--scope", "nope")])
+    jump_("execute/units_target_skipped_by_the_plan", per_unit(state=designing().replace("- [ ] code-generation \u2014 EXECUTE", "- [ ] code-generation \u2014 SKIP")), [onward("auth", "functional-design")])
+    jump_("execute/units_directive_marker", per_unit(**{f"{CREATED_DIR}/.aidlc-engine/active-directive.json": "{}\n"}), [onward("auth", "functional-design")])
+    jump_("execute/units_observer", per_unit(), [onward("auth", "functional-design")], {"STOP_HOOK_PROBE": "1"})
+    jump_("execute/units_archived", per_unit(state=designing().replace("- **Status**: Running", "- **Status**: Archived")), [onward("auth", "functional-design"), onward("auth")])
+    jump_("execute/units_usage_ledger", per_unit(**spent), [onward("api,web,auth", "functional-design", target="nfr-requirements")])
+    jump_("execute/units_usage_ledger_off", per_unit(**spent), [onward("api,web,auth", "functional-design", target="nfr-requirements")], {"DISABLE_USAGE_TRACKING": "1"})
 
     # practices-event: the three rows the practices-discovery stage leaves, with the fields it gives.
     says = lambda kind, *fields: ["practices-event", "--type", kind, *[part for field in fields for part in ("--field", field)]]
@@ -7642,7 +7716,8 @@ def jump_checks():
                                                                       "**Options**: Guide me, I'll edit the file, Chat") + block("QUESTION_ANSWERED", T(2), "**Stage**: intent-capture", "**Details**: Chat")),
            [forward])
     check_("execute/units", created(**ic), [["execute", "--target", "functional-design", "--direction", "forward", "--units", "api"],
-                                            ["execute", "--target", "feasibility", "--direction", "forward", "--units", ""]])
+                                            ["execute", "--target", "feasibility", "--direction", "forward", "--units", ""],
+                                            ["execute", "--target", "feasibility", "--direction", "forward", "--units", "api"], ["execute", "--target", "feasibility", "--direction", "forward", "--units"]])
     # A per-unit stage's units are found by listing the record's construction folder.
     before_code = re.findall(r"^- \[ \] (\S+) \u2014 EXECUTE$", CREATED_STATE.split("- [ ] code-generation")[0], re.M)
     at_code = at_stage(CREATED_STATE, "code-generation", done=before_code)
@@ -7654,7 +7729,7 @@ def jump_checks():
     check_("execute/no_state_file", created(**{f"{CREATED_DIR}/aidlc-state.md": None}), [forward])
     check_("execute/archived", created(CREATED_STATE.replace("- **Status**: Running", "- **Status**: Archived")), [forward])
     check_("reopen/usage", created(), [["reopen"], ["reopen", "--target", "functional-design"], ["reopen", "--units", "api"]])
-    check_("reopen/by_name", created(), [["reopen", "--target", "functional-design", "--units", "api,web"], ["reopen", "--target", "intent-capture", "--units", "api", "--via", "redo"]])
+    check_("reopen/at_ideation", created(), [["reopen", "--target", "functional-design", "--units", "api,web"], ["reopen", "--target", "intent-capture", "--units", "api", "--via", "redo"]])
     for marker in ("STOP_HOOK_PROBE", "ROUTE_CHECK"):
         check_(f"observer/{marker.lower()}", created(**ic), [forward, ["resolve", "--stage", "feasibility"]], {marker: "1"})
 
