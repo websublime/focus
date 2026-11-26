@@ -792,9 +792,9 @@ fn a_skip_routes_and_a_completion_closes_the_registry_row() {
     let _ = fs::remove_dir_all(root);
 }
 
-/// Deliberate deviation. A Construction stage's checkpoints and units, the
-/// usage ledger's rollup and a unit's skip are each M4's or M5's: upstream
-/// weighs them, Focus refuses by name. (The evidence a transition owes to
+/// Deliberate deviation. A Construction stage's checkpoints and units and the
+/// usage ledger's rollup are each M4's or M5's: upstream weighs them, Focus
+/// refuses by name. (The evidence a transition owes to
 /// `aidlc-log` records is weighed, a summary confirmation, a pipeline's
 /// handoffs and a reviewer's receipt: their refusals are a guard's.)
 #[test]
@@ -2465,6 +2465,27 @@ fn a_units_completion_is_a_receipt_with_evidence() {
     let _ = fs::remove_dir_all(&root);
 }
 
+/// The created record moved to Functional Design, the first stage that runs
+/// for each unit.
+fn design_is_current(root: &Path) {
+    let at_design = created_state(root)
+        .replace("- [-] intent-capture ", "- [x] intent-capture ")
+        .replace("- [ ] functional-design ", "- [-] functional-design ")
+        .replace(
+            "- **Current Stage**: intent-capture",
+            "- **Current Stage**: functional-design",
+        );
+    assert!(
+        at_design.contains("- [-] functional-design ")
+            && at_design.contains("- **Current Stage**: functional-design")
+    );
+    write(
+        root,
+        &format!("{CREATED_RECORD}/focus-state.md"),
+        &at_design,
+    );
+}
+
 /// A stage's step that does not apply to one unit is skipped for that unit
 /// alone, with the floor of the attempt on the row. When no unit owes the
 /// stage any more the stage itself is skipped: ticked off when it is ahead,
@@ -2491,22 +2512,7 @@ fn a_stage_is_skipped_for_one_unit_and_then_for_all() {
         refusal(&skip("functional-design", "auth")),
         "Cannot skip \"functional-design\" for unit \"auth\": a one-unit skip needs Construction Iteration: unit-major with solo units, and a per-unit Construction stage at or after Current Stage \"intent-capture\", or one approved before it."
     );
-    let at_design = created_state(&root)
-        .replace("- [-] intent-capture ", "- [x] intent-capture ")
-        .replace("- [ ] functional-design ", "- [-] functional-design ")
-        .replace(
-            "- **Current Stage**: intent-capture",
-            "- **Current Stage**: functional-design",
-        );
-    assert!(
-        at_design.contains("- [-] functional-design ")
-            && at_design.contains("- **Current Stage**: functional-design")
-    );
-    write(
-        &root,
-        &format!("{CREATED_RECORD}/focus-state.md"),
-        &at_design,
-    );
+    design_is_current(&root);
     assert_eq!(
         refusal(&state(
             &root,
@@ -2544,13 +2550,48 @@ fn a_stage_is_skipped_for_one_unit_and_then_for_all() {
     ));
     // The current stage: the last unit's skip routes it.
     assert!(ok(&skip("functional-design", "api")).contains("\"owed_by\":[\"auth\"]"));
-    // (Routing carries the usage rollup, which Focus does not read yet:
-    // with usage on the ledger that is refused before the unit's own row.)
+    let routed = ok(&skip("functional-design", "auth"));
+    assert!(!routed.contains("unit-skipped"), "{routed}");
+    let after = created_state(&root);
+    assert!(
+        after.contains("- [S] functional-design ")
+            && !after.contains("- **Current Stage**: functional-design"),
+        "{after}"
+    );
+    let _ = fs::remove_dir_all(&root);
+}
+
+/// Deliberate deviation. The skip of the last unit that owes the current
+/// stage routes the stage, and a routed skip carries the usage rollup, which
+/// Focus does not read yet: with usage on the ledger it is refused by name
+/// before the unit's own row is written, where upstream writes the row and
+/// routes with the rollup. A stage ahead is ticked off, not routed, and
+/// carries none.
+#[test]
+fn the_last_units_skip_is_refused_ahead_of_its_row_while_usage_is_owed() {
+    let root = with_units("skip-unit-usage", "", "");
+    design_is_current(&root);
+    let skip = |stage: &str, unit: &str, env: &[(&str, &str)]| {
+        state(
+            &root,
+            &[
+                "skip",
+                stage,
+                "--unit",
+                unit,
+                "--reason",
+                "nothing to design",
+            ],
+            env,
+        )
+    };
     write(
         &root,
         "focus/.focus-sessions/usage-ledger.json",
         "{\"workflows\":{\"w\":{\"byStage\":{\"intent-capture\":{}},\"totals\":{\"tokens\":{\"input\":1}}}}}\n",
     );
+    // (While another unit owes the stage nothing is routed.)
+    assert!(ok(&skip("functional-design", "api", &DIRECT)).contains("\"owed_by\":[\"auth\"]"));
     // (A unit whose kind owes the stage nothing does not keep it owed.)
     let dependencies =
         format!("{CREATED_RECORD}/inception/units-generation/unit-of-work-dependency.md");
@@ -2563,25 +2604,20 @@ fn a_stage_is_skipped_for_one_unit_and_then_for_all() {
         ),
     );
     let rows = created_shard(&root).matches("UNIT_SKIPPED").count();
+    assert_eq!(rows, 1);
     assert!(
-        refusal(&skip("functional-design", "auth")).ends_with(
+        refusal(&skip("functional-design", "auth", &DIRECT)).ends_with(
             "Focus does not read the usage ledger yet. Set FOCUS_DISABLE_USAGE_TRACKING=1 to complete without the rollup."
         )
     );
     assert_eq!(created_shard(&root).matches("UNIT_SKIPPED").count(), rows);
     write(&root, &dependencies, UNITS);
-    // (A stage ahead is ticked off, not routed: nothing is rolled up.)
-    assert!(ok(&skip("nfr-requirements", "api")).contains("\"owed_by\":[\"auth\"]"));
-    assert!(ok(&skip("nfr-requirements", "auth")).contains("\"new_state\":\"skipped\""));
-    fs::remove_file(root.join("focus/.focus-sessions/usage-ledger.json")).unwrap();
-    let routed = ok(&skip("functional-design", "auth"));
+    assert!(ok(&skip("nfr-design", "api", &DIRECT)).contains("\"owed_by\":[\"auth\"]"));
+    assert!(ok(&skip("nfr-design", "auth", &DIRECT)).contains("\"new_state\":\"skipped\""));
+    let untracked = [DIRECT[0], ("FOCUS_DISABLE_USAGE_TRACKING", "1")];
+    let routed = ok(&skip("functional-design", "auth", &untracked));
     assert!(!routed.contains("unit-skipped"), "{routed}");
-    let after = created_state(&root);
-    assert!(
-        after.contains("- [S] functional-design ")
-            && !after.contains("- **Current Stage**: functional-design"),
-        "{after}"
-    );
+    assert!(created_state(&root).contains("- [S] functional-design "));
     let _ = fs::remove_dir_all(&root);
 }
 

@@ -2708,7 +2708,7 @@ DEVIATIONS.update({
     "state/advance/construction":
         "a Construction stage runs per unit of work with checkpoints, unit gates and swarms (M4): upstream admits "
         "it with no unit DAG as a stage-level one; focus refuses the phase by name",
-    r"state/(advance/usage_ledger|skip/route_usage_ledger)":
+    r"state/(advance/usage_ledger|skip/(route|unit)_usage_ledger)":
         "a completion row carries the token usage the harness hooks folded into the usage ledger; upstream reads "
         "the ledger and adds the rollup fields; focus does not read it yet and refuses the completion while the "
         "ledger holds usage for it, rather than write the row without",
@@ -3394,6 +3394,16 @@ def state_checks():
                                                     **{f"{CREATED_DIR}/audit/desktop-def456.md": TITLE + block("STAGE_JUMPED", T(5), "**Target**: functional-design")}), [pass_over()], direct)
     # (Construction's own: a stage that runs for each unit in another phase is not skipped for one.)
     check_("skip/unit_stage_of_another_phase", per_unit(), [pass_over(stage="nfr-design")], direct, edits=[of_the_graph("nfr-design", phase="operation")])
+    spent = {"aidlc/.aidlc-sessions/usage-ledger.json": json.dumps({"schemaVersion": 3, "cursors": {}, "workflows": {"w": {
+        "totals": {"tokens": {"input": 10, "output": 5, "cacheRead": 0, "cacheCreate5m": 0, "cacheCreate1h": 0}}, "byStage": {"intent-capture": {}}}}})}
+    # (The same roll-up when the last unit's skip routes the current stage: focus refuses it before the unit's own
+    # row. A stage ahead is ticked off, not routed, and carries none.)
+    last_of_three = [pass_over("api"), pass_over("web"), pass_over(), *where]
+    check_("skip/unit_usage_ledger", per_unit(**spent), last_of_three, direct)
+    check_("skip/unit_usage_ledger_off", per_unit(**spent), last_of_three, {**direct, "DISABLE_USAGE_TRACKING": "1"})
+    check_("skip/unit_usage_ledger_stage_ahead", per_unit(**spent), [pass_over("api", stage="nfr-design"), pass_over("web", stage="nfr-design"), pass_over(stage="nfr-design"), *where], direct)
+    # (A unit whose kind owes the stage nothing does not keep it owed: the second skip is the last.)
+    check_("skip/unit_the_last_that_owes", per_unit(units=A_UNITS.replace("kind: service", "kind: packaging")), last_of_three, direct)
     check_("skip/unit_observer", per_unit(), [pass_over()], {**direct, "STOP_HOOK_PROBE": "1"})
     check_("skip/unit_archived", per_unit(state=designing().replace("- **Status**: Running", "- **Status**: Archived")), [pass_over()], direct)
 
