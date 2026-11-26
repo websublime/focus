@@ -4060,15 +4060,15 @@ O resto deu igual, as 26 primeiras verificações à primeira. A recusa pelo nom
 
 Os dois têm o teste `a_units_jump_meets_what_the_state_tool_refuses_by_name`. As entradas `jump/execute/units` e `jump/reopen/by_name` de `DEVIATIONS` saíram, com as linhas do teste das recusas pelo nome.
 
-**O que a mutação encontrou.** @JMUT@
+**O que a mutação encontrou.** 53 mutantes sobre os dois modos e o passo da ferramenta de estado: 50 apanhados à primeira (dois deles reescritos, por não compilarem como estavam), 1 depois de um caso novo, 1 que era código a mais e saiu, 1 equivalente escrito na linha. O caso novo: de uma stage anterior da mesma fase que corre uma vez, nada anda para a frente até ao alvo (uma stage posterior marcada por unit no grafo). O código a mais: três `trim` sobre o valor de um campo do estado, que `get_field` já devolve aparado. O equivalente: a stage corrente nunca é o próprio alvo, porque o alvo corre por unit e ela não.
 
 **Verificado.**
 
 | Verificação | Resultado |
 | --- | --- |
-| Diferencial, `jump/reopen` e `jump/execute/units*` | @JUMP@ |
+| Diferencial, `jump/reopen` e `jump/execute/units*` | 61 verificações: 59 iguais, 2 desvios (o rollup de uso e o marcador de diretiva, pela ferramenta de estado), 0 diferentes. `reopen`: o uso, as units como escritas, os nomes, o alvo (desconhecido, de outra fase, que corre uma vez, por número, com o nome de uma stage por unit sem o marcador, marcada por unit no grafo), `--stages` de nove maneiras, `--via redo` e `change` (sem palavras, com palavras, só uma escolha, de outro gate, sem sessão, sem stage corrente ou com ela em branco), as palavras que um reopen simples não gasta, o espelho, de uma stage posterior (com outro scope, scope desconhecido, uma stage do meio), de uma stage por unit posterior, de uma anterior, de outra fase, a corrente desconhecida ou ausente, sem DAG, stage-major, equipa, o observador, arquivado, sem estado. `execute --units`: o uso, os passos recusados, sem passos, um passo, dois de duas units, todas as units da stage corrente (que a encaminha) e de duas stages, duas vezes, uma que não é unit, uma que nada deve, stage-major, equipa, sem DAG, com a cerca ligada, o espelho da unit movida e de outra, o scope, o alvo que o plano salta, o observador, arquivado, o ledger de uso ligado e desligado |
 | Diferencial, tudo | @JALL@ |
-| Mutação | @JMUTROW@ |
+| Mutação | 53 mutantes: 51 apanhados (50 à primeira), 1 era código a mais e saiu, 1 equivalente escrito na linha |
 | `cargo test` | @JTESTS@ |
 
 ### O que M4 não levantou

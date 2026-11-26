@@ -3439,6 +3439,8 @@ def state_checks():
     jump_("reopen/from_a_later_stage_own_scope_unknown", per_unit(state=testing.replace("- **Scope**: feature", "- **Scope**: nope")), [again()])
     jump_("reopen/from_a_later_per_unit_stage", per_unit(state=designing(current="code-generation", done=per_unit_stages[:-1])), [again(), ["resolve", "--stage", "code-generation"]])
     jump_("reopen/from_an_earlier_stage", {**created(running()), DEPENDENCIES: A_UNITS}, [again(), ["resolve", "--stage", "intent-capture"]])
+    # (An earlier stage of the same phase that runs once: nothing moves forward to the target.)
+    jump_("reopen/from_an_earlier_stage_of_the_phase", per_unit(state=testing), [again(target="ci-pipeline"), ["resolve", "--stage", "build-and-test"]], edits=[of_the_graph("ci-pipeline", for_each="unit-of-work")])
     jump_("reopen/from_another_phase", per_unit(state=at_stage(running(), "deployment-pipeline", done=before_design + per_unit_stages + ["build-and-test"], phase="OPERATION")), [again()])
     jump_("reopen/current_unknown", per_unit(state=designing().replace("- **Current Stage**: functional-design", "- **Current Stage**: nope")), [again()])
     jump_("reopen/current_absent", per_unit(state=designing().replace("- **Current Stage**: functional-design\n", "")), [again("auth", "--via", "change")])

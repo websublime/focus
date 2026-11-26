@@ -888,7 +888,7 @@ fn execute_units_forward(
     // a unit writes it again.
     let _held = wf.lock("jumping between stages")?;
     let mut content = wf.read_state()?;
-    let active = get_field(&content, "Active Unit").map(trim).unwrap_or("");
+    let active = get_field(&content, "Active Unit").unwrap_or("");
     if units.contains(&active) {
         for field in UNIT_MIRROR {
             content = remove_field(&content, field);
@@ -968,7 +968,6 @@ pub fn reopen(wf: &Workflow, args: &[String]) -> Result<Value> {
     let stage_name = stage::name(target);
     // A change is kept in the person's own words, from the gate they answered.
     let gate_stage = get_field(&content, "Current Stage")
-        .map(trim)
         .unwrap_or(target_slug)
         .to_owned();
     let change_words = if via == Some("change") {
@@ -1022,11 +1021,12 @@ pub fn reopen(wf: &Workflow, args: &[String]) -> Result<Value> {
         content = remove_field(&content, field);
     }
     content = set_field(&content, "Last Updated", &iso_timestamp(SystemTime::now()));
-    let current = get_field(&content, "Current Stage").map(trim).unwrap_or("");
+    let current = get_field(&content, "Current Stage").unwrap_or("");
     let mut stages_reset = Vec::new();
     if let Some(from) = wf.install.stage(current)
         && !is_per_unit(from)
         && from.phase == target.phase
+        // (Never the target itself: that one runs per unit.)
         && stage_index(wf, current) > stage_index(wf, target_slug)
     {
         let plan = plan(wf, &content, flag(&flags, "scope"))?;
