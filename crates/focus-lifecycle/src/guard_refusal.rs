@@ -419,7 +419,7 @@ fn unit_major_stage_slugs<'a>(
 
 /// `constructionCheckpointsApply`: Construction's checkpoints are on, the
 /// units are no team's, and a stage of the walk writes code.
-fn construction_checkpoints_apply(wf: &Workflow, state: &str) -> bool {
+pub(crate) fn construction_checkpoints_apply(wf: &Workflow, state: &str) -> bool {
     if get_field(state, "Construction Checkpoints") != Some("enabled")
         || is_team_unit_ownership(state)
     {

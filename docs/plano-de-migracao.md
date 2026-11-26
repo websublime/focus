@@ -3811,7 +3811,7 @@ A fatia junta coisas de tamanhos muito diferentes: verbos de `state` que não t�
 | `practices-promote` | Sai desta fatia: promove a secção Testing Posture pelo leitor do contrato de testes (`promotableTestingPosture`, `classifyPosture`), que é a fatia 11. Fica recusado pelo nome até lá | | Fatia 11 |
 | 5c. A política de Construction | `set-skeleton-stance`, `set-construction-iteration`, `set-construction-checkpoints`, `set-construction-execution`, `set-construction-verification-command`, `set-unit-gate-rhythm`, `sync-unit-scope-stage` | A recusa pelo nome dos sete | Feita (abaixo) |
 | 5d. As units como dados | O chão de uma tentativa como o token que um recibo leva (5d-i), e as linhas do ciclo de uma unit lidas contra ele: os checkpoints abertos, os recibos de conclusão, as units saltadas (5d-ii). Funções, sob o oráculo | Nada ainda: é o que o verbo `unit` e os gates de unit leem | Feita (abaixo) |
-| 5e. O verbo `unit` | `unit complete` inteiro; `start`, `pause` e `resume` até à pergunta da rota, que o original faz a `orchestrate next` num subprocesso: recusada pelo nome até à fatia 7. `--wave` pelo nome | A recusa pelo nome do verbo | Por fazer |
+| 5e. O verbo `unit` | `unit complete` inteiro; `start`, `pause` e `resume` até à pergunta da rota, que o original faz a `orchestrate next` num subprocesso: recusada pelo nome até à fatia 7. `--wave` pelo nome | A recusa pelo nome do verbo | Feita (abaixo) |
 | 5f em diante | `bolt` sem worktree, `construction-checkpoints`, uma stage de Construction em `advance` e nos gates, `jump reopen` e `execute --units`, `skip --unit`, e o que as fatias 2e, 3 e 3e recusam pelo nome por falta de units (os recibos por unit, o congelamento por unit, o brief de uma unit) | O limite 1 de M3 | Por fazer; parte-se quando lá chegar |
 
 ### Fatia 5a: `lookup`, `acknowledge-compaction` e `practices-event`
@@ -3965,6 +3965,49 @@ O fingerprint dos outputs de uma unit entra por quem chama (`reviewArtifactFinge
 | Oráculo, `unit_lifecycle` | 1 571 casos, todos iguais à primeira corrida (corpus: 86 954 casos, 94 kinds; os outros não mudaram). Histórias de uma stage (a criação, inícios, um salto, rejeições do gate da stage e de uma unit, alterações de política) com recibos que levam o chão do momento, um mais antigo ou nenhum, em um a três shards. Com units feitas 421, saltadas 124, abertas 805 (várias 293, paradas 239, postas de lado 79), só em wave 43, dos dois modos 217, e com todos os recibos de uma tentativa anterior 486 |
 | Mutação | 51 mutantes, mais 7 sobre o código reescrito: todos apanhados (45 à primeira) |
 | `cargo test` | 620 testes; `every_lifecycle_case_gets_upstreams_answer` repete o kind com os seus mínimos |
+
+### Fatia 5e: o verbo `unit`
+
+**O que existe.** `focus-lifecycle::unit`, por trás de `focus engine state unit <start|pause|resume|complete> --stage <slug> --unit <nome>` (`handleUnit`). É o primeiro consumidor da 5d: lê os recibos da tentativa (`unit_lifecycle`) e carimba o que escreve com o chão dela (`run_floor`).
+
+**`unit complete`, inteiro.** Uma conclusão é um recibo com evidência. Grava-se para a unit que está aberta e em curso, e recusa, pela ordem e com as palavras do original:
+
+| Recusa | Quando |
+| --- | --- |
+| Não é a unit ativa | Nenhuma está aberta (com o comando para a começar), ou está outra (com o nome e o estado) |
+| Já está concluída | A unit tem um recibo de conclusão que vale; nada mais a fazer por ela |
+| Está parada | Com a razão gravada; retoma-se primeiro |
+| A revisão da unit espera um veredicto | Um pedido aberto sem veredicto (`openUnitReview`, sobre `review_receipts::fresh`): "ainda espera", ou "pedido antes de os outputs mudarem" quando o fingerprint já não é o do pedido. As palavras da pessoa ganham: se falou desde a última decisão (sem ser a pergunta sobre um interruptor), o recibo grava-se e a revisão fica devida no gate. Sem classe de revisão, não se pergunta |
+| Faltam artefactos | Os que a stage deve a uma unit desse tipo (`produces_kinds` pelo `kind` do DAG; todos para uma unit sem tipo), como ficheiros em `construction/<unit>/<stage>/`. `FOCUS_SKIP_ARTIFACT_GUARD=1` desliga |
+
+Gravada, a linha `UNIT_COMPLETED` leva `Stage`, `Unit` e `Run floor`, e o estado perde o espelho da unit aberta (`Active Unit`, `Unit Stage`, `Unit State`, `Unit Pause Reason`, `Unit Next Action`).
+
+**Antes da conclusão, para as quatro ações**, tudo como o original: o uso, as flags, o nome da unit, os valores de uma linha, a stage (tem de correr por unit), `pause` com razão e passo seguinte, `--wave` só com `complete`, `--set-aside-for` só com `pause` e para outra unit, o plano que salta Units Generation (a stage corre uma vez), e o DAG das units (ilegível, ou a unit não está nele).
+
+**Desvios deliberados**, cada um declarado nas três vias:
+
+| Onde | O original | Focus |
+| --- | --- | --- |
+| `start`, `pause`, `resume` | Pergunta ao motor de orquestração que unit ele encaminha agora (corre `orchestrate next` num subprocesso), para um recibo em série não cair numa wave nem numa unit que o motor não encaminhou | Recusa as três pelo nome onde essa pergunta se faz, depois de todas as recusas anteriores. Levanta-se com o orquestrador (fatia 7). `state/unit/route_(start\|pause\|resume)`; `a_units_step_that_asks_the_route_is_refused_by_name` |
+| `complete --wave` | Assenta uma entrada do lote que o motor encaminha | Recusa pelo nome, pela mesma razão. `state/unit/wave`; o mesmo teste |
+| `Unit Ownership: team` | Confere a unit com o checkout que a reclamou | Recusa pelo nome: a equipa está adiada (secção 11). `state/unit/of_a_team` |
+| Construction em swarm, numa stage de subagente fora de unit-major | Pergunta se o swarm é dono das units da stage (a primeira stage planeada de Construction; a unit aprovada do esqueleto) e recusa o recibo quando é | Recusa a pergunta pelo nome: Focus não corre swarms. `state/unit/swarm` |
+| Conclusão sem unit aberta, com o marcador de diretiva ativa | Lê no marcador se a pessoa escolheu gravar a conclusão numa pergunta de recuperação | Não lê o marcador ainda: recusa pelo nome. `state/unit/picked_on_an_ask` |
+
+Os três últimos têm o teste `a_units_step_over_what_focus_does_not_run_is_refused_by_name`.
+
+**A ferramenta de comparação** ganhou `--keep`, que deixa as árvores das verificações onde estão e diz onde: foi assim que se leu o fingerprint que o pedido de revisão do próprio original grava para os outputs da unit de teste.
+
+**O que a mutação encontrou.** 62 mutantes sobre o módulo, a ligação no CLI e a leitura do marcador: 45 apanhados à primeira, 12 depois de casos novos, 2 que eram código a mais e saíram, 3 equivalentes escritos na linha. Os doze: um veredicto gravado (a revisão já não espera, diga o que disser); uma conclusão de revisão que não traz registo; uma revisão de recuperação sob uma política que aceita alterações, e sob uma estrita; a pessoa que falou e depois aprovou outra coisa (a aprovação gasta o turno); uma stage que perdeu o marcador no grafo (só o marcador diz que corre por unit); uma pausa com a razão em branco; o chão de dois shards no mesmo segundo, com o token da unit no recibo e na conclusão; o marcador de diretiva com outra unit aberta (não se pergunta pela escolha); o swarm ligado pela execução quando os checkpoints se aplicam, e desligado por ela apesar da autonomia; uma stage de subagente fora de Construction; e o marcador como pasta (teste do CLI). Os dois a mais: as saídas antecipadas de `open_review` para uma stage sem revisor e para a classe `none`, que `review_receipts::fresh` já responde vazias. Os três equivalentes: sem registo não há ledger nem unit aberta, por isso a lista de artefactos nunca se pede aí; uma conclusão em wave grava sempre o fingerprint de um conjunto inteiro, por isso exigir todos os artefactos só distingue uma linha que nenhum motor escreve; e procurar as flags em todos os argumentos só difere quando a ação é ela própria uma flag, que não é nenhuma das quatro.
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Diferencial, `state/unit` | 75 verificações: 67 iguais, 8 desvios (três da rota, a wave, a equipa, o swarm de duas maneiras, a escolha numa pergunta de recuperação), 0 diferentes. O uso e cada flag; a stage; o plano que salta as units; o DAG; a conclusão (a unit ativa, retomada, outra ativa ou parada, parada com e sem razão, já concluída, saltada, de outra stage, de uma tentativa anterior, sem chão, depois de um início da stage sob cada flooring, com uma rejeição própria, com o chão de dois shards, concluída em wave); os artefactos (em falta, alguns, um que é pasta, a rastreabilidade com outro nome, ao nível da stage, do seu tipo, sem tipo, de uma stage sem tipos, a guarda desligada); o observador; e a revisão da unit em 18 checks (aberta, consultiva, com os outputs mudados, sem classe, a pessoa falou, perguntou por um interruptor, falou antes da última decisão, falou e aprovou, de outra unit, da stage, segunda passagem, estrita, com veredicto, sem registo, de recuperação) |
+| Diferencial, tudo | 4 739 verificações: 4 501 iguais, 238 desvios declarados, 0 diferentes. Gravadas 4 623 sobre 2 014 árvores; fuzz 600 iguais. `state/usage/unit_not_ported`, que deixou de ser desvio, deu lugar a `refresh-unit-progress`. A primeira gravação atravessou a meia-noite UTC e gravou 66 criações com a pasta do dia seguinte por extenso, que a repetição não devolve: o gravador passou a recusar gravar quando o dia UTC muda durante a corrida |
+| Mutação | 62 mutantes: 57 apanhados (45 à primeira), 2 eram código a mais e saíram, 3 equivalentes escritos na linha |
+| `cargo test` | 623 testes. Três novos: `a_units_completion_is_a_receipt_with_evidence` (os artefactos em falta, a unit ativa, a linha com o chão, o espelho que sai, a segunda conclusão, a pausa) e os dois dos desvios |
 
 ### O que M4 não levantou
 

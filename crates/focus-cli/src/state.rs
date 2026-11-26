@@ -41,7 +41,7 @@ use focus_lifecycle::construction_policy::{self, Policy};
 use focus_lifecycle::gates::{self, GateStart, Reject};
 use focus_lifecycle::transitions;
 use focus_lifecycle::workflow::Workflow;
-use focus_lifecycle::{lookup, rows};
+use focus_lifecycle::{lookup, rows, unit};
 use focus_state::fields::{get_field, set_field};
 use focus_state::file::{read_state_file, write_state_file};
 use focus_state::progress::{CheckboxState, count_checkboxes, set_checkbox};
@@ -107,14 +107,20 @@ The state file of the active record, as data.
   sync-unit-scope-stage <stage> --unit <unit>
                            A team's units (refused: Focus runs no team's units)
 
+  unit complete --stage <slug> --unit <name>
+                           Record that a unit's work for a stage is done
+  unit <start|pause|resume> --stage <slug> --unit <name> [--reason <text>]
+       [--next-action <text>] [--set-aside-for <unit>]
+                           (refused until Focus has an orchestrator)
+
 A state is one of pending, in-progress, awaiting-approval, revising,
 completed, skipped. Writes are the engine's: set FOCUS_ALLOW_DIRECT_STATE_TRANSITIONS=1
 to make one by hand.";
 
-const USAGE: &str = "Usage: focus engine state <subcommand>. Valid: get, set, checkbox, count, advance, finalize, complete-workflow, gate-start, approve, reject, revise, skip, resume, park, unpark, acknowledge-compaction, practices-event, reuse-artifact, lookup, set-skeleton-stance, set-construction-iteration, set-construction-checkpoints, set-construction-execution, set-construction-verification-command, set-unit-gate-rhythm, sync-unit-scope-stage. Run with --help for detail.";
+const USAGE: &str = "Usage: focus engine state <subcommand>. Valid: get, set, checkbox, count, advance, finalize, complete-workflow, gate-start, approve, reject, revise, skip, resume, park, unpark, acknowledge-compaction, practices-event, reuse-artifact, lookup, set-skeleton-stance, set-construction-iteration, set-construction-checkpoints, set-construction-execution, set-construction-verification-command, set-unit-gate-rhythm, sync-unit-scope-stage, unit. Run with --help for detail.";
 
 /// The verbs Focus has.
-const VERBS: [&str; 26] = [
+const VERBS: [&str; 27] = [
     "get",
     "set",
     "checkbox",
@@ -141,6 +147,7 @@ const VERBS: [&str; 26] = [
     "set-construction-verification-command",
     "set-unit-gate-rhythm",
     "sync-unit-scope-stage",
+    "unit",
 ];
 
 /// `engineOwnedTransitions`: the verbs that pass the state-transition fence.
@@ -160,14 +167,13 @@ const ENGINE_OWNED: [&str; 12] = [
 ];
 
 /// The verbs upstream has that Focus does not port, each refused by name.
-const NOT_PORTED: [(&str, &str); 7] = [
+const NOT_PORTED: [(&str, &str); 6] = [
     ("set-unit-ownership", "sets the units' ownership"),
     ("refresh-unit-progress", "refreshes the units' progress"),
     ("fold-unit-merge", "folds a unit's merge into the state"),
     ("practices-promote", "promotes a practice"),
     ("fork", "forks the state for a bolt"),
     ("merge", "merges a bolt's state"),
-    ("unit", "runs a unit of work's step"),
 ];
 
 /// What a verb answered: text to print, or nothing.
@@ -554,6 +560,23 @@ fn transition_of(wf: &Workflow, verb: &str, args: &[String]) -> Verb {
         "sync-unit-scope-stage" => {
             let unit = flag_value(args.get(1..).unwrap_or_default(), "--unit")?;
             construction_policy::sync_unit_scope_stage(wf, args.first().map(String::as_str), unit)?
+        }
+        "unit" => {
+            // (After the action, as upstream looks: an action that is a
+            // flag is none of the four either way.)
+            let rest = args.get(1..).unwrap_or_default();
+            unit::unit(
+                wf,
+                unit::Ask {
+                    action: args.first().map(String::as_str),
+                    stage: flag_value(rest, "--stage")?,
+                    unit: flag_value(rest, "--unit")?,
+                    reason: flag_value(rest, "--reason")?,
+                    next_action: flag_value(rest, "--next-action")?,
+                    set_aside_for: flag_value(rest, "--set-aside-for")?,
+                    wave: rest.iter().any(|arg| arg == "--wave"),
+                },
+            )?
         }
         "acknowledge-compaction" => rows::acknowledge_compaction(wf, args)?,
         "practices-event" => rows::practices_event(wf, args)?,

@@ -29,6 +29,19 @@ use focus_workspace::observer;
 /// issued, and beside which the state-write record is kept.
 const ACTIVE_DIRECTIVE_MARKER: &str = "active-directive.json";
 
+/// Whether the record of the state at `path` carries the marker.
+#[must_use]
+pub fn has_active_directive(path: &Path) -> bool {
+    marker_of(path).symlink_metadata().is_ok()
+}
+
+fn marker_of(path: &Path) -> std::path::PathBuf {
+    path.parent()
+        .unwrap_or(Path::new("."))
+        .join(ENGINE_DIR)
+        .join(ACTIVE_DIRECTIVE_MARKER)
+}
+
 /// `readStateFile`: the file's text, bytes that are not UTF-8 replaced.
 ///
 /// # Errors
@@ -60,11 +73,7 @@ pub fn write_state_file(path: &Path, content: &str) -> Result<()> {
         fs::create_dir_all(parent)
             .map_err(|err| focus_js::EngineError::new(format!("{}: {err}", parent.display())))?;
     }
-    let marker = path
-        .parent()
-        .unwrap_or(Path::new("."))
-        .join(ENGINE_DIR)
-        .join(ACTIVE_DIRECTIVE_MARKER);
+    let marker = marker_of(path);
     if marker.symlink_metadata().is_ok() {
         bail!(
             "{} says the engine has a step in hand, and upstream records beside it every write that moves the state, which Focus does not keep yet. Remove the marker, or write the state with the engine's own tools.",

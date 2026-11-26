@@ -2,7 +2,7 @@
 """Run upstream's engine and focus on the same project trees and compare.
 
     differential.py <upstream checkout with dist/ built> [focus binary]
-                    [--fuzz N] [--seed S] [--only PATTERN] [--record DIR] [--explain] [--show]
+                    [--fuzz N] [--seed S] [--only PATTERN] [--record DIR] [--explain] [--show] [--keep]
                     [--markdown N]
 
 Every check builds a Claude Code project from upstream's own distribution,
@@ -83,6 +83,8 @@ MARKDOWN = int(option("--markdown", "0"))
 SEED = int(option("--seed", "1"))
 ONLY = option("--only")
 EXPLAIN = "--explain" in argv and not argv.remove("--explain")
+# --keep leaves the trees the checks ran on where they are, and says where: to read what a tool wrote.
+KEEP = "--keep" in argv and not argv.remove("--keep")
 UPSTREAM = os.path.abspath(argv[0])
 FOCUS = os.path.abspath(argv[1] if len(argv) > 1 else "target/release/focus")
 BUN = shutil.which("bun") or os.path.expanduser("~/.bun/bin/bun")
@@ -332,7 +334,7 @@ class Pair(list):
         return 2
 
     def dispose(self):
-        if self.made:
+        if self.made and not KEEP:
             shutil.rmtree(os.path.join(WORK, self.name.replace("/", "_")), ignore_errors=True)
 
 
@@ -2665,8 +2667,27 @@ DEVIATIONS.update({
     r"state/policy/(rhythm|sync)_of_a_team":
         "Unit Ownership: team is deferred (the plan, section 11): upstream sets the gate rhythm of a team's units "
         "and syncs a claimed unit's stage from its checkout's scope stamp; focus refuses both by name",
+    r"state/unit/route_(start|pause|resume)":
+        "before a start, a pause or a resumption upstream asks the orchestration engine which unit it routes now "
+        "(it runs `orchestrate next` in a subprocess), so that a serial receipt cannot land in a wave or on a unit "
+        "the engine did not route; focus has no orchestrator yet and refuses the three by name where that question "
+        "is asked, after every refusal that comes before it",
+    r"state/unit/wave":
+        "a completion in a wave settles an entry of the batch the orchestration engine routes, which upstream asks "
+        "it for; focus has no orchestrator yet and refuses --wave by name",
+    r"state/unit/of_a_team":
+        "Unit Ownership: team is deferred (the plan, section 11): upstream checks the unit against the checkout "
+        "that claimed it and goes on; focus refuses a team's unit by name",
+    r"state/unit/swarm(_by_execution)?":
+        "with Construction built as a swarm upstream asks whether the swarm owns the units of a subagent's stage "
+        "(the first planned stage of Construction, the walking skeleton's approved unit) and refuses the receipt "
+        "when it does; focus runs no swarm yet and refuses the question by name",
+    r"state/unit/picked_on_an_ask":
+        "with no unit open, upstream reads the active-directive marker for the person's pick on a recovery ask "
+        "(record the completion without the start receipt); focus does not read that marker yet, and with one "
+        "beside the state refuses by name",
     r"state/usage/(none|unknown)":
-        "upstream's usage lists its 33 verbs, Focus's the twenty-six it has",
+        "upstream's usage lists its 33 verbs, Focus's the twenty-seven it has",
     "state/lookup/names_of_an_object":
         "upstream looks a scope and a phase up in plain objects, so the names every object has (constructor, "
         "__proto__, toString) are found there: validate-phase falls over on them, first-in-phase fails as on an "
@@ -2902,7 +2923,7 @@ def state_checks():
     check_("usage/set_no_pair", record, [["set"]], direct)
     check_("usage/checkbox_no_pair", record, [["checkbox"]], direct)
     check_("usage/count_no_state", record, [["count"]])
-    for verb in ("gate-start", "approve", "park", "unit", "fork", "practices-promote", "set-unit-ownership"):
+    for verb in ("gate-start", "approve", "park", "refresh-unit-progress", "fork", "practices-promote", "set-unit-ownership"):
         check_(f"usage/{verb}_not_ported", {**record, **shard}, [[verb]])
 
     # lookup: questions about the stage graph and the scopes, answered without touching the work.
@@ -3191,6 +3212,146 @@ def state_checks():
     check_("policy/sync_usage", created(), [sync(), sync("code-generation"), sync("code-generation", "--unit"), sync("--unit", "api"), sync("", "--unit", "api"), sync("code-generation", "--unit", ""),
                                             sync("code-generation", "--unit", "--x"), sync("code-generation", "--unit", "api"), sync("nope", "--unit", "api")], direct)
     check_("policy/sync_of_a_team", created(running(more=team)), [sync("code-generation", "--unit", "api")], direct)
+
+    # unit: the receipts of a unit's lifecycle in a stage that runs for each unit. A completion is compared whole; a
+    # start, a pause and a resumption up to where upstream asks the orchestration engine for the route.
+    DEPENDENCIES = f"{CREATED_DIR}/inception/units-generation/unit-of-work-dependency.md"
+    FLOOR = f"WORKFLOW_STARTED:{T(0)}#1"
+    step = lambda action, *args, stage="functional-design", unit="auth": ["unit", action, *([] if stage is None else ["--stage", stage]), *([] if unit is None else ["--unit", unit]), *args]
+    receipt = lambda kind, unit="auth", minute=9, floor=FLOOR, stage="functional-design", *more: block(
+        f"UNIT_{kind}", T(minute), f"**Stage**: {stage}", f"**Unit**: {unit}", *([] if floor is None else [f"**Run floor**: {floor}"]), *more)
+    def outputs(unit="auth", stage="functional-design", names=("entities", "rules", "functional-spec", "traceability")):
+        return {f"{CREATED_DIR}/construction/{unit}/{stage}/{name}{'.json' if name == 'traceability' else '.md'}": f"# {name}\n" for name in names}
+    def with_units(*rows, state=None, units=A_UNITS, **more):
+        files = created(running(phase="CONSTRUCTION") if state is None else state, CREATED_AUDIT + "".join(rows), **more)
+        return files if units is None else {**files, DEPENDENCIES: units}
+    done = [step("complete"), ["get", "Active Unit"], ["get", "Unit State"]]
+    mirrored = "- **Active Unit**: auth\n- **Unit Stage**: functional-design\n- **Unit State**: in-progress\n- **Unit Pause Reason**: x\n- **Unit Next Action**: y\n"
+    check_("unit/usage", with_units(), [["unit"], ["unit", "finish"], ["unit", "--stage", "functional-design"], step("complete", stage=None), step("complete", unit=None), step("complete", stage=""),
+                                        step("complete", unit=""), step("complete", "--reason"), step("complete", unit="a/b"), step("complete", unit=".."), step("complete", unit="x" * 200)])
+    check_("unit/line_values", with_units(), [step("pause", "--reason", "a\tb", "--next-action", "go"), step("pause", "--reason", "why", "--next-action", "a\nb"), step("complete", "--reason", "a\u0007b")])
+    check_("unit/stage", with_units(), [step("complete", stage="nope"), step("complete", stage="intent-capture"), step("complete", stage="build-and-test"), step("complete", stage="3.1")])
+    check_("unit/pause_needs_why", with_units(), [step("pause"), step("pause", "--reason", "why"), step("pause", "--next-action", "go"), step("pause", "--reason", "  ", "--next-action", "go"),
+                                                  step("pause", "--reason", "why", "--next-action", " ")])
+    check_("unit/wave_only_completes", with_units(), [step("start", "--wave"), step("pause", "--wave", "--reason", "why", "--next-action", "go"), step("resume", "--wave")])
+    check_("unit/set_aside", with_units(), [step("start", "--set-aside-for", "api"), step("complete", "--set-aside-for", "api"), step("pause", "--set-aside-for", "a/b"), step("pause", "--set-aside-for", "auth"),
+                                            step("pause", "--set-aside-for", " auth "), step("pause", "--set-aside-for", "nope"), step("pause", "--set-aside-for", "")])
+    check_("unit/archived", {**created(archived), DEPENDENCIES: A_UNITS}, [step("complete"), step("start")])
+    check_("unit/no_record", CLONE, [step("complete"), ["unit"]])
+    check_("unit/plan_skips_the_units", with_units(state=running(phase="CONSTRUCTION").replace("- [ ] units-generation \u2014 EXECUTE", "- [S] units-generation \u2014 SKIP")), [step("complete"), step("start")])
+    check_("unit/no_units", with_units(units=None), [step("complete"), step("start")])
+    check_("unit/units_unreadable", with_units(units="# Dependencies\n\nNo block here.\n"), [step("complete"), step("start")])
+    check_("unit/not_a_unit", with_units(), [step("complete", unit="billing"), step("start", unit="billing")])
+    # The completion.
+    check_("unit/complete", with_units(receipt("STARTED"), **outputs()), [*done, step("complete")])
+    check_("unit/complete_clears_the_mirror", with_units(receipt("STARTED"), state=running(phase="CONSTRUCTION", more=mirrored), **outputs()), [*done, ["get", "Unit Stage"], ["get", "Unit Pause Reason"], ["get", "Unit Next Action"]])
+    check_("unit/complete_resumed", with_units(receipt("STARTED", "auth", 7), receipt("PAUSED", "auth", 8, FLOOR, "functional-design", "**Reason**: lunch", "**Next Action**: eat"), receipt("RESUMED"), **outputs()), done)
+    check_("unit/complete_nothing_started", with_units(**outputs()), done)
+    check_("unit/complete_another_is_active", with_units(receipt("STARTED", "api"), **outputs()), done)
+    check_("unit/complete_another_is_paused", with_units(receipt("STARTED", "api", 7), receipt("PAUSED", "api", 8, FLOOR, "functional-design", "**Reason**: lunch"), **outputs()), done)
+    check_("unit/complete_paused", with_units(receipt("STARTED", "auth", 7), receipt("PAUSED", "auth", 8, FLOOR, "functional-design", "**Reason**: lunch", "**Next Action**: eat"), **outputs()), done)
+    check_("unit/complete_paused_no_reason", with_units(receipt("STARTED", "auth", 7), receipt("PAUSED", "auth", 8), **outputs()), done)
+    check_("unit/complete_already_done", with_units(receipt("STARTED", "auth", 7), receipt("COMPLETED", "auth", 8), **outputs()), done)
+    check_("unit/complete_already_done_another_active", with_units(receipt("STARTED", "auth", 7), receipt("COMPLETED", "auth", 8), receipt("STARTED", "api"), **outputs()), done)
+    check_("unit/complete_skipped", with_units(receipt("SKIPPED", "auth", 8, FLOOR, "functional-design", "**Reason**: nothing to design"), **outputs()), done)
+    check_("unit/complete_of_another_stage", with_units(receipt("STARTED", "auth", 9, FLOOR, "nfr-design"), **outputs()), done)
+    check_("unit/complete_of_an_older_attempt", with_units(receipt("STARTED"), block("GATE_REJECTED", T(10), "**Stage**: functional-design", "**Feedback**: again"), **outputs()), done)
+    check_("unit/complete_no_floor", with_units(receipt("STARTED", "auth", 9, None), **outputs()), done)
+    check_("unit/complete_after_a_start_of_the_stage", with_units(block("STAGE_STARTED", T(5), "**Stage**: functional-design"), receipt("STARTED"), receipt("STARTED", "api", 9, f"STAGE_STARTED:{T(5)}#1"), **outputs()), done)
+    # (Unit-major flooring: a start of the stage is no boundary, and the row says so.)
+    check_("unit/complete_unit_major_floor", with_units(block("STAGE_STARTED", T(5), "**Stage**: functional-design"), receipt("STARTED"), **outputs()), done)
+    check_("unit/complete_stage_major_floor", with_units(block("STAGE_STARTED", T(5), "**Stage**: functional-design"), receipt("STARTED", "auth", 9, f"STAGE_STARTED:{T(5)}#1"),
+                                                        state=running("disabled", "stage-major", phase="CONSTRUCTION"), **outputs()), done)
+    check_("unit/complete_own_rejection", with_units(block("GATE_REJECTED", T(5), "**Stage**: functional-design", "**Unit**: auth", "**Feedback**: again"), receipt("STARTED", "auth", 9, f"GATE_REJECTED:{T(5)}#1"),
+                                                    receipt("STARTED", "api", 9, f"GATE_REJECTED:{T(5)}#1"), **outputs()), [step("complete"), step("complete", unit="api")])
+    check_("unit/complete_in_a_wave_done", with_units(receipt("COMPLETED", "auth", 8, FLOOR, "functional-design", "**Mode**: wave", "**Artifact Fingerprint**: sha256:" + "a" * 64), **outputs()), done)
+    # What the unit owes: a kind's artifacts, all of them for a unit of no kind.
+    check_("unit/artifacts_missing", with_units(receipt("STARTED")), done)
+    check_("unit/artifacts_some_missing", with_units(receipt("STARTED"), **outputs(names=("entities", "traceability"))), done)
+    check_("unit/artifacts_one_is_a_folder", with_units(receipt("STARTED"), **outputs(names=("entities", "rules", "traceability")), **{f"{CREATED_DIR}/construction/auth/functional-design/functional-spec.md/x": "x"}), done)
+    check_("unit/artifacts_traceability_as_markdown", with_units(receipt("STARTED"), **outputs(names=("entities", "rules", "functional-spec")), **{f"{CREATED_DIR}/construction/auth/functional-design/traceability.md": "x"}), done)
+    check_("unit/artifacts_at_stage_level", with_units(receipt("STARTED"), **{f"{CREATED_DIR}/construction/functional-design/{name}": "x\n" for name in ("entities.md", "rules.md", "functional-spec.md", "traceability.json")}), done)
+    check_("unit/artifacts_guard_off", with_units(receipt("STARTED")), done, {"SKIP_ARTIFACT_GUARD": "1"})
+    by_kind = A_UNITS.replace("kind: service", "kind: ui")
+    check_("unit/artifacts_of_its_kind", with_units(receipt("STARTED"), units=by_kind, **outputs(names=("functional-spec", "traceability"))), done)
+    check_("unit/artifacts_of_its_kind_missing", with_units(receipt("STARTED"), units=by_kind, **outputs(names=("entities", "rules"))), done)
+    check_("unit/artifacts_of_no_kind", with_units(receipt("STARTED", "api"), units=by_kind, **outputs("api", names=("functional-spec", "traceability"))), [step("complete", unit="api")])
+    check_("unit/artifacts_of_a_stage_with_no_kinds", with_units(receipt("STARTED", "auth", 9, FLOOR, "code-generation")), [step("complete", stage="code-generation")])
+    check_("unit/observer", with_units(receipt("STARTED"), **outputs()), done, {"STOP_HOOK_PROBE": "1"})
+    # The unit's review: open with no verdict, the completion waits; the person's words let it record.
+    # (The fingerprint of the four outputs `outputs()` lays for auth, as upstream's own request records it.)
+    UNIT_PRINT = "sha256:a7f126b4d4cfa19f0fa552c5a0608e9d43ee2272551eacd09827d7369c2c51fb"
+    def asked_review(fingerprint=UNIT_PRINT, unit="auth", iteration=1, minute=10):
+        return block("REVIEW_REQUESTED", T(minute), "**Stage**: functional-design", "**Reviewer**: aidlc-architecture-reviewer-agent", *([] if unit is None else [f"**Unit**: {unit}"]),
+                     f"**Iteration**: {iteration}", f"**Artifact Fingerprint**: {fingerprint}", "**Request Id**: review:" + "1" * 32)
+    weighed = lambda override="adversarial": REVIEWED(running(phase="CONSTRUCTION"), override)
+    spoke_since = lambda *fields: block("HUMAN_TURN", T(11), "**Session**: s1", *fields)
+    check_("unit/review_open", with_units(receipt("STARTED"), asked_review(), state=weighed(), **outputs()), done)
+    check_("unit/review_open_advisory", with_units(receipt("STARTED"), asked_review(), state=weighed("advisory"), **outputs()), done)
+    check_("unit/review_open_outputs_changed", with_units(receipt("STARTED"), asked_review("sha256:" + "a" * 64), state=weighed(), **outputs()), done)
+    check_("unit/review_open_not_weighed", with_units(receipt("STARTED"), asked_review(), **outputs()), done)
+    check_("unit/review_open_person_spoke", with_units(receipt("STARTED"), asked_review(), spoke_since(), state=weighed(), **outputs()), done)
+    check_("unit/review_open_person_asked_about_a_switch", with_units(receipt("STARTED"), asked_review(), spoke_since("**Reply**: question"), state=weighed(), **outputs()), done)
+    check_("unit/review_open_person_spoke_before", with_units(receipt("STARTED"), block("HUMAN_TURN", T(8), "**Session**: s1"), block("GATE_REJECTED", T(9), "**Stage**: intent-capture", "**Feedback**: again"),
+                                                              asked_review(), state=weighed(), **outputs()), done)
+    check_("unit/review_open_of_another_unit", with_units(receipt("STARTED"), asked_review(unit="api"), state=weighed(), **outputs()), done)
+    check_("unit/review_open_of_the_stage", with_units(receipt("STARTED"), asked_review(unit=None), state=weighed(), **outputs()), done)
+    check_("unit/review_open_second_pass", with_units(receipt("STARTED"), asked_review(iteration=2), state=weighed(), **outputs()), done)
+    check_("unit/review_open_guard_off", with_units(receipt("STARTED"), asked_review()), [step("complete")], {"SKIP_ARTIFACT_GUARD": "1"})
+    # (A verdict was recorded: the review is not waiting for one, whatever it said. A completion that carries no
+    # review record answered nothing that can be verified, and the gate weighs that. A recovery review under a
+    # policy that accepts changes is the gate's too.)
+    check_("unit/review_not_ready", with_units(receipt("STARTED"), state=weighed(), **outputs()), done,
+           edits=[reviewed_by_hand((1, "NOT-READY", (), UNIT_PRINT), minute=10, stage="functional-design", unit="auth")])
+    check_("unit/review_ready", with_units(receipt("STARTED"), state=weighed(), **outputs()), done,
+           edits=[reviewed_by_hand((1, "READY", (), UNIT_PRINT), minute=10, stage="functional-design", unit="auth")])
+    unverifiable = block("REVIEW_COMPLETED", T(11), "**Stage**: functional-design", "**Reviewer**: aidlc-architecture-reviewer-agent", "**Unit**: auth", "**Iteration**: 1", "**Verdict**: READY",
+                         f"**Request Fingerprint**: {UNIT_PRINT}", f"**Artifact Fingerprint**: {UNIT_PRINT}", "**Request Id**: review:" + "1" * 32)
+    check_("unit/review_completion_carries_no_record", with_units(receipt("STARTED"), asked_review(), unverifiable, state=weighed(), **outputs()), done)
+    recovery = asked_review().replace("**Request Id**", "\n".join(REVIEW_RECOVERY) + "\n**Request Id**")
+    strict = lambda state: state.replace("- **Guard Policy**: off", "- **Guard Policy**: on")
+    check_("unit/review_recovery_changes_accepted", with_units(receipt("STARTED"), recovery, state=weighed(), **outputs()), done)
+    check_("unit/review_recovery_strict", with_units(receipt("STARTED"), recovery, state=strict(weighed()), **outputs()), done)
+    check_("unit/review_open_strict", with_units(receipt("STARTED"), asked_review(), state=strict(weighed()), **outputs()), done)
+    check_("unit/review_open_person_spoke_then_approved", with_units(receipt("STARTED"), asked_review(), spoke_since(), block("GATE_APPROVED", T(12), "**Stage**: intent-capture", "**User Input**: Approve"),
+                                                                    state=weighed(), **outputs()), done)
+    def of_the_graph(slug, **given):
+        def change(tree):
+            graph = tree.json(".claude/tools/data/stage-graph.json")
+            for node in graph:
+                if node["slug"] == slug:
+                    for key, value in given.items():
+                        node.pop(key, None) if value is None else node.__setitem__(key, value)
+            tree.write_json(".claude/tools/data/stage-graph.json", graph)
+        return change
+    # (The marker alone says a stage runs for each unit: one of the five that always do, in a graph that lost it, does not.)
+    check_("unit/stage_lost_its_marker", with_units(receipt("STARTED"), **outputs()), done, edits=[of_the_graph("functional-design", for_each=None)])
+    check_("unit/complete_paused_blank_reason", with_units(receipt("STARTED", "auth", 7), receipt("PAUSED", "auth", 8, FLOOR, "functional-design", "**Reason**: ", "**Next Action**: eat"), **outputs()), done)
+    # (Boundaries of two shards in one second: the floor is a token made of both, and for a unit floored on its own
+    # of two more of their fields. The receipt carries that one, and so does the completion.)
+    tied_at = len(CREATED_AUDIT.split("\n---\n")) - 1
+    tied = "AMBIGUOUS:" + T(5) + "#" + hashlib.sha256("|".join(sorted([f"laptop-abc123.md:{tied_at}:GATE_REJECTED:functional-design::", "desktop-def456.md:0:STAGE_JUMPED:::"])).encode()).hexdigest()[:12]
+    check_("unit/complete_floor_of_two_shards", with_units(block("GATE_REJECTED", T(5), "**Stage**: functional-design", "**Feedback**: again"), receipt("STARTED", "auth", 9, tied),
+                                                          **{f"{CREATED_DIR}/audit/desktop-def456.md": TITLE + block("STAGE_JUMPED", T(5), "**Target**: functional-design")}, **outputs()), done)
+    # A start, a pause and a resumption reach the route.
+    check_("unit/route_start", with_units(), [step("start")])
+    check_("unit/route_pause", with_units(receipt("STARTED")), [step("pause", "--reason", "lunch", "--next-action", "eat"), step("pause", "--set-aside-for", "api")])
+    check_("unit/route_resume", with_units(receipt("STARTED", "auth", 7), receipt("PAUSED", "auth", 8, FLOOR, "functional-design", "**Reason**: lunch", "**Next Action**: eat")), [step("resume")])
+    check_("unit/wave", with_units(**outputs()), [step("complete", "--wave")])
+    check_("unit/of_a_team", with_units(state=running(phase="CONSTRUCTION", more=team)), [step("complete"), step("start"), ["unit"], step("complete", unit="a/b")])
+    check_("unit/swarm", with_units(receipt("STARTED", "auth", 9, FLOOR, "code-generation"), state=running("disabled", "stage-major", phase="CONSTRUCTION", more="- **Construction Autonomy Mode**: autonomous\n")),
+           [step("complete", stage="code-generation"), step("complete")])
+    check_("unit/swarm_unit_major", with_units(receipt("STARTED", "auth", 9, FLOOR, "code-generation"), state=running("disabled", "unit-major", phase="CONSTRUCTION", more="- **Construction Autonomy Mode**: autonomous\n")),
+           [step("complete", stage="code-generation")])
+    check_("unit/picked_on_an_ask", with_units(**outputs(), **{f"{CREATED_DIR}/.aidlc-engine/active-directive.json": "{}\n"}), done)
+    check_("unit/marker_another_is_active", with_units(receipt("STARTED", "api"), **outputs(), **{f"{CREATED_DIR}/.aidlc-engine/active-directive.json": "{}\n"}), done)
+    # (The swarm is switched by the execution when Construction's checkpoints apply, and by the autonomy when they do not.)
+    autonomous = "- **Construction Autonomy Mode**: autonomous\n"
+    in_code = receipt("STARTED", "auth", 9, FLOOR, "code-generation")
+    check_("unit/swarm_by_execution", with_units(in_code, state=running("enabled", "stage-major", "swarm", phase="CONSTRUCTION")), [step("complete", stage="code-generation")])
+    check_("unit/serial_though_autonomous", with_units(in_code, state=running("enabled", "stage-major", "serial", phase="CONSTRUCTION", more=autonomous)), [step("complete", stage="code-generation")])
+    check_("unit/swarm_stage_of_another_phase", with_units(in_code, state=running("disabled", "stage-major", phase="CONSTRUCTION", more=autonomous)), [step("complete", stage="code-generation")],
+           edits=[of_the_graph("code-generation", phase="operation")])
 
     # practices-event: the three rows the practices-discovery stage leaves, with the fields it gives.
     says = lambda kind, *fields: ["practices-event", "--type", kind, *[part for field in fields for part in ("--field", field)]]
@@ -8555,9 +8716,18 @@ try:
     if MARKDOWN:
         markdown_fuzz(MARKDOWN)
 finally:
-    shutil.rmtree(WORK, ignore_errors=True)
+    if KEEP:
+        print(f"kept: {WORK}")
+    else:
+        shutil.rmtree(WORK, ignore_errors=True)
 
-if RECORD and not ONLY and not results["DIFFERENT"]:
+# A record minted after midnight carries a day the placeholder does not name (TODAY is the day the run started),
+# so a run that crossed it would record what no later replay gives back.
+CROSSED_MIDNIGHT = time.strftime("%y%m%d", time.gmtime()) != TODAY
+if RECORD and CROSSED_MIDNIGHT:
+    print("not recorded: the UTC day changed during the run, and records minted after it are named by a day the "
+          "recording cannot settle. Run it again.")
+if RECORD and not ONLY and not results["DIFFERENT"] and not CROSSED_MIDNIGHT:
     os.makedirs(RECORD, exist_ok=True)
     with open(os.path.join(RECORD, "trees.json"), "w", encoding="utf-8") as handle:
         json.dump(dict(sorted(RECORDED_TREES.items())), handle, indent=1, ensure_ascii=False, sort_keys=True)
@@ -8575,4 +8745,4 @@ if GRAPHS:
 for name, count in shapes.items():
     if count:
         print(f"{count} of the same after a difference of shape ({name}): {SHAPES[name]}")
-sys.exit(1 if results["DIFFERENT"] else 0)
+sys.exit(1 if results["DIFFERENT"] or (RECORD and CROSSED_MIDNIGHT) else 0)

@@ -61,6 +61,7 @@ pub mod stage;
 pub mod status;
 pub mod summary_evidence;
 pub mod transitions;
+pub mod unit;
 pub mod unit_lifecycle;
 pub mod validity;
 pub mod workflow;
