@@ -3814,7 +3814,8 @@ A fatia junta coisas de tamanhos muito diferentes: verbos de `state` que não t�
 | 5e. O verbo `unit` | `unit complete` inteiro; `start`, `pause` e `resume` até à pergunta da rota, que o original faz a `orchestrate next` num subprocesso: recusada pelo nome até à fatia 7. `--wave` pelo nome | A recusa pelo nome do verbo | Feita (abaixo) |
 | 5f. `skip --unit` | O passo de uma stage que não se aplica a uma unit: a unit é saltada sozinha e, quando nenhuma deve a stage, salta-se a stage | A recusa da flag pelo nome | Feita (abaixo) |
 | 5g. `jump reopen` e `execute --units` | Uma stage por unit reaberta só para as units nomeadas, com a linha que a rejeição da própria unit grava; e as units nomeadas levadas em frente, cada passo saltado para elas pelo salto de uma unit da ferramenta de estado | As duas recusas pelo nome de `jump` | Feita (abaixo) |
-| 5h em diante | A fonte de uma unit (o manifesto do que reclama, a fingerprint e o snapshot do que é dela), que os pedidos e recibos de revisão de uma unit ligam; `log review --unit` e as perguntas e respostas de uma unit, com os recibos por unit na admissão, no congelamento e no brief; `construction-checkpoints` (o que um checkpoint de unit prova e quem o aprovou) e, com ele, uma stage de Construction em `advance` e nos gates; `bolt` sem worktree (verificar, perguntar, aprovar e rejeitar um checkpoint) | O limite 1 de M3 | Por fazer, por esta ordem (cada uma lê a anterior); parte-se quando lá chegar |
+| 5h. A fonte de uma unit, sem ler ficheiros | O caminho de uma claim como o manifesto o guarda, o que uma claim cobre, a parte de uma listagem que é da unit, a fingerprint que liga essa parte aos bytes do manifesto, e o texto de um snapshot dela lido de volta. Funções, sob o oráculo | Nada ainda: é o que o leitor do manifesto, os recibos de revisão de uma unit e os checkpoints leem | Feita (abaixo) |
+| 5i em diante | O leitor do manifesto de fonte de uma unit (`readUnitSourceManifest`: os repositórios do trabalho, as exclusões, o que o git ignora, para onde os links levam) e os snapshots da fonte de uma unit; `log review --unit` e as perguntas e respostas de uma unit, com os recibos por unit na admissão, no congelamento e no brief; `construction-checkpoints` (o que um checkpoint de unit prova e quem o aprovou) e, com ele, uma stage de Construction em `advance` e nos gates; `bolt` sem worktree (verificar, perguntar, aprovar e rejeitar um checkpoint) | O limite 1 de M3 | Por fazer, por esta ordem (cada uma lê a anterior); parte-se quando lá chegar |
 
 ### Fatia 5a: `lookup`, `acknowledge-compaction` e `practices-event`
 
@@ -4070,6 +4071,28 @@ Os dois têm o teste `a_units_jump_meets_what_the_state_tool_refuses_by_name`. A
 | Diferencial, tudo | 4 830 verificações: 4 592 iguais, 238 desvios declarados, 0 diferentes. Gravadas 4 714 sobre 2 052 árvores; fuzz 600 iguais. Saíram os dois desvios das recusas pelo nome e entraram os dois da ferramenta de estado |
 | Mutação | 53 mutantes: 51 apanhados (50 à primeira), 1 era código a mais e saiu, 1 equivalente escrito na linha |
 | `cargo test` | 628 testes. Três novos: `a_per_unit_stage_is_reopened_for_named_units` (as recusas, as linhas de um redo, de um reopen simples e de uma alteração, o espelho, o regresso de Build and Test sem `STAGE_JUMPED`), `named_units_move_forward_by_their_own_skips` (as recusas, as linhas de cada passo, sem passos, e a recusa da ferramenta de estado com a linha de erro de cada ferramenta) e o dos desvios |
+
+### Fatia 5h: a fonte de uma unit, sem ler ficheiros
+
+**O que existe.** `focus-evidence::source::unit`: uma unit diz o que escreve em `source-manifest.json`, uma claim por escrita (um ficheiro pelo caminho, uma pasta por um caminho que acaba em `/`). A fonte da unit é a parte da listagem do workspace que as claims cobrem, e a fingerprint liga essa parte aos bytes do próprio manifesto: nenhum dos dois muda debaixo de uma revisão sem ela ver.
+
+| Função | O que é |
+| --- | --- |
+| `normalize_manifest_path` (`normalizeManifestSourcePath`) | O caminho de uma claim como fica guardado: relativo, com `/`, literal (`*` e `?` recusados; parênteses retos e chavetas são caracteres de um nome), sem segmentos `..`, sem os vazios e os `.`; a barra final diz que é uma pasta. Cada recusa nas palavras do original |
+| `claim_covers`, `restrict` (`sourceClaimCovers`, `restrictSourceListing`) | Uma chave está coberta se é uma claim exata ou começa pelo prefixo de uma pasta; a parte da listagem que fica, pela ordem da listagem |
+| `serialize`, `fingerprint` (`serializeUnitSourceListing`, `unitSourceFingerprint`) | Uma primeira linha com o hash do manifesto e depois a listagem da unit; o `sha256:` desse texto. A mesma listagem sobre os bytes crus (dos ficheiros e do manifesto), como se gravava antes de os fins de linha se lerem como LF, fica lembrada como esta (`source::raw`) |
+| `parse` (`parseUnitSourceListing`) | O texto de um snapshot lido de volta: o hash do manifesto e a listagem, ou nada quando uma linha não o é |
+
+Nada lê ficheiros aqui. O leitor do manifesto (que pergunta ao git o que está ignorado e segue os links) e os snapshots vêm com as fatias que os usam.
+
+**Verificado.**
+
+| Verificação | Resultado |
+| --- | --- |
+| Oráculo, `unit_source_path` | 287 casos, todos iguais à primeira corrida: 47 escritos à mão (absolutos, de drive, com barras invertidas, padrões, `..` como segmento e dentro de um nome, só `.` e barras, NUL, parênteses e chavetas) e 240 gerados de segmentos |
+| Oráculo, `unit_source` | 1 643 casos, todos iguais à primeira corrida (corpus: 88 884 casos, 96 kinds; os outros não mudaram, byte a byte). Listagens com parte reclamada e parte não, por claims exatas e por pastas (uma pasta que é prefixo de um nome vizinho, o prefixo vazio de um repositório); um hash de manifesto que não o é, de nove maneiras; chaves e entradas com que uma listagem não se escreve, reclamadas ou não; formas cruas lembradas do manifesto, de um ficheiro reclamado e de um por reclamar (78 casos em que a fingerprint crua fica lembrada, 13 em que a forma crua não se escreve e a fingerprint falha apesar de o texto se escrever); e o texto lido de volta com o cabeçalho ou uma linha estragados de dezasseis maneiras |
+| Mutação | 34 mutantes sobre o módulo, só contra o corpus (sem os testes do próprio módulo): 34 apanhados à primeira |
+| `cargo test` | 630 testes. Dois novos, de unidade: o caminho de uma claim, e a fingerprint que liga o manifesto ao que ele reclama. O teste do corpus ganhou os mínimos dos dois kinds |
 
 ### O que M4 não levantou
 

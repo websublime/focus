@@ -1,0 +1,287 @@
+{"id":"unit_source_path-00000","out":{"path":"src/a.ts","prefix":false}}
+{"id":"unit_source_path-00001","out":{"path":"src/lib/","prefix":true}}
+{"id":"unit_source_path-00002","out":{"path":"src/a.ts","prefix":false}}
+{"id":"unit_source_path-00003","out":{"path":"src/a.ts","prefix":false}}
+{"id":"unit_source_path-00004","out":{"path":"src/","prefix":true}}
+{"id":"unit_source_path-00005","out":{"reason":"writes[].path must be relative, not absolute"}}
+{"id":"unit_source_path-00006","out":{"reason":"writes[].path must name a path below the repository root"}}
+{"id":"unit_source_path-00007","out":{"reason":"writes[].path must name a path below the repository root"}}
+{"id":"unit_source_path-00008","out":{"reason":"writes[].path must be non-empty"}}
+{"id":"unit_source_path-00009","out":{"reason":"writes[].path cannot contain '..' segments"}}
+{"id":"unit_source_path-00010","out":{"reason":"writes[].path cannot contain '..' segments"}}
+{"id":"unit_source_path-00011","out":{"reason":"writes[].path cannot contain '..' segments"}}
+{"id":"unit_source_path-00012","out":{"reason":"writes[].path cannot contain '..' segments"}}
+{"id":"unit_source_path-00013","out":{"path":"a/...","prefix":false}}
+{"id":"unit_source_path-00014","out":{"path":"..a/b","prefix":false}}
+{"id":"unit_source_path-00015","out":{"reason":"writes[].path must be relative, not absolute"}}
+{"id":"unit_source_path-00016","out":{"reason":"writes[].path must be relative, not absolute"}}
+{"id":"unit_source_path-00017","out":{"reason":"writes[].path must be relative, not absolute"}}
+{"id":"unit_source_path-00018","out":{"path":"C:a","prefix":false}}
+{"id":"unit_source_path-00019","out":{"path":"1:/a","prefix":false}}
+{"id":"unit_source_path-00020","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00021","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00022","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00023","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00024","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00025","out":{"path":"app/[id]/page.tsx","prefix":false}}
+{"id":"unit_source_path-00026","out":{"path":"{a,b}.ts","prefix":false}}
+{"id":"unit_source_path-00027","out":{"path":"a b/ c ","prefix":false}}
+{"id":"unit_source_path-00028","out":{"path":" ","prefix":false}}
+{"id":"unit_source_path-00029","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00030","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00031","out":{"path":"é/ü.rs","prefix":false}}
+{"id":"unit_source_path-00032","out":{"path":"😀/","prefix":true}}
+{"id":"unit_source_path-00033","out":{"path":"a/","prefix":true}}
+{"id":"unit_source_path-00034","out":{"path":"a/","prefix":true}}
+{"id":"unit_source_path-00035","out":{"path":".hidden/","prefix":true}}
+{"id":"unit_source_path-00036","out":{"path":".git/config","prefix":false}}
+{"id":"unit_source_path-00037","out":{"path":"a","prefix":false}}
+{"id":"unit_source_path-00038","out":{"path":"a/","prefix":true}}
+{"id":"unit_source_path-00039","out":{"reason":"writes[].path must be relative, not absolute"}}
+{"id":"unit_source_path-00040","out":{"path":"a\tb","prefix":false}}
+{"id":"unit_source_path-00041","out":{"path":"a\nb/","prefix":true}}
+{"id":"unit_source_path-00042","out":{"path":"Ç:/a","prefix":false}}
+{"id":"unit_source_path-00043","out":{"path":"focus/x","prefix":false}}
+{"id":"unit_source_path-00044","out":{"path":".focus/x","prefix":false}}
+{"id":"unit_source_path-00045","out":{"path":"src/A.ts","prefix":false}}
+{"id":"unit_source_path-00046","out":{"path":"x/y/y/y/y/y/y/z","prefix":false}}
+{"id":"unit_source_path-00047","out":{"path":".a","prefix":false}}
+{"id":"unit_source_path-00048","out":{"path":"é","prefix":false}}
+{"id":"unit_source_path-00049","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00050","out":{"reason":"writes[].path must be relative, not absolute"}}
+{"id":"unit_source_path-00051","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00052","out":{"path":"é","prefix":false}}
+{"id":"unit_source_path-00053","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00054","out":{"path":"b","prefix":false}}
+{"id":"unit_source_path-00055","out":{"reason":"writes[].path must be relative, not absolute"}}
+{"id":"unit_source_path-00056","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00057","out":{"path":".../","prefix":true}}
+{"id":"unit_source_path-00058","out":{"path":"src/[id]/","prefix":true}}
+{"id":"unit_source_path-00059","out":{"reason":"writes[].path must be relative, not absolute"}}
+{"id":"unit_source_path-00060","out":{"path":"é/b/b/.a","prefix":false}}
+{"id":"unit_source_path-00061","out":{"reason":"writes[].path cannot contain '..' segments"}}
+{"id":"unit_source_path-00062","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00063","out":{"reason":"writes[].path cannot contain '..' segments"}}
+{"id":"unit_source_path-00064","out":{"path":"...","prefix":false}}
+{"id":"unit_source_path-00065","out":{"path":".a/C:/b/","prefix":true}}
+{"id":"unit_source_path-00066","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00067","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00068","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00069","out":{"reason":"writes[].path must be relative, not absolute"}}
+{"id":"unit_source_path-00070","out":{"reason":"writes[].path must be relative, not absolute"}}
+{"id":"unit_source_path-00071","out":{"path":"src/ /[id]/","prefix":true}}
+{"id":"unit_source_path-00072","out":{"path":" ","prefix":false}}
+{"id":"unit_source_path-00073","out":{"reason":"writes[].path cannot contain '..' segments"}}
+{"id":"unit_source_path-00074","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00075","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00076","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00077","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00078","out":{"reason":"writes[].path must name a path below the repository root"}}
+{"id":"unit_source_path-00079","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00080","out":{"reason":"writes[].path must name a path below the repository root"}}
+{"id":"unit_source_path-00081","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00082","out":{"reason":"writes[].path cannot contain '..' segments"}}
+{"id":"unit_source_path-00083","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00084","out":{"reason":"writes[].path cannot contain '..' segments"}}
+{"id":"unit_source_path-00085","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00086","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00087","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00088","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00089","out":{"path":"[id]/lib/","prefix":true}}
+{"id":"unit_source_path-00090","out":{"reason":"writes[].path cannot contain '..' segments"}}
+{"id":"unit_source_path-00091","out":{"reason":"writes[].path cannot contain '..' segments"}}
+{"id":"unit_source_path-00092","out":{"path":"é","prefix":false}}
+{"id":"unit_source_path-00093","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00094","out":{"path":"src/b/b","prefix":false}}
+{"id":"unit_source_path-00095","out":{"path":"lib","prefix":false}}
+{"id":"unit_source_path-00096","out":{"path":"[id]/[id]","prefix":false}}
+{"id":"unit_source_path-00097","out":{"path":".a/C:/[id]/lib","prefix":false}}
+{"id":"unit_source_path-00098","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00099","out":{"path":"src/[id]/[id]/","prefix":true}}
+{"id":"unit_source_path-00100","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00101","out":{"path":" /","prefix":true}}
+{"id":"unit_source_path-00102","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00103","out":{"reason":"writes[].path cannot contain '..' segments"}}
+{"id":"unit_source_path-00104","out":{"path":"é/","prefix":true}}
+{"id":"unit_source_path-00105","out":{"path":"[id]/","prefix":true}}
+{"id":"unit_source_path-00106","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00107","out":{"path":"[id]","prefix":false}}
+{"id":"unit_source_path-00108","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00109","out":{"reason":"writes[].path cannot contain '..' segments"}}
+{"id":"unit_source_path-00110","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00111","out":{"reason":"writes[].path must name a path below the repository root"}}
+{"id":"unit_source_path-00112","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00113","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00114","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00115","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00116","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00117","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00118","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00119","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00120","out":{"path":".a/ /b/","prefix":true}}
+{"id":"unit_source_path-00121","out":{"path":"src/lib/[id]/...","prefix":false}}
+{"id":"unit_source_path-00122","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00123","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00124","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00125","out":{"path":"b/","prefix":true}}
+{"id":"unit_source_path-00126","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00127","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00128","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00129","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00130","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00131","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00132","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00133","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00134","out":{"reason":"writes[].path must be relative, not absolute"}}
+{"id":"unit_source_path-00135","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00136","out":{"path":".../","prefix":true}}
+{"id":"unit_source_path-00137","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00138","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00139","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00140","out":{"path":"[id]/é/é/[id]","prefix":false}}
+{"id":"unit_source_path-00141","out":{"path":"lib/[id]/","prefix":true}}
+{"id":"unit_source_path-00142","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00143","out":{"reason":"writes[].path must be non-empty"}}
+{"id":"unit_source_path-00144","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00145","out":{"reason":"writes[].path must be relative, not absolute"}}
+{"id":"unit_source_path-00146","out":{"path":"src/ /lib","prefix":false}}
+{"id":"unit_source_path-00147","out":{"path":"[id]/ /é/b","prefix":false}}
+{"id":"unit_source_path-00148","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00149","out":{"path":".a/","prefix":true}}
+{"id":"unit_source_path-00150","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00151","out":{"path":"[id]/.../ /.a/","prefix":true}}
+{"id":"unit_source_path-00152","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00153","out":{"path":".../","prefix":true}}
+{"id":"unit_source_path-00154","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00155","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00156","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00157","out":{"path":"[id]","prefix":false}}
+{"id":"unit_source_path-00158","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00159","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00160","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00161","out":{"reason":"writes[].path cannot contain '..' segments"}}
+{"id":"unit_source_path-00162","out":{"path":".../é/é","prefix":false}}
+{"id":"unit_source_path-00163","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00164","out":{"path":"lib/lib/.a/","prefix":true}}
+{"id":"unit_source_path-00165","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00166","out":{"path":".a/","prefix":true}}
+{"id":"unit_source_path-00167","out":{"path":"src","prefix":false}}
+{"id":"unit_source_path-00168","out":{"path":"[id]/.../","prefix":true}}
+{"id":"unit_source_path-00169","out":{"path":"a/[id]/ ","prefix":false}}
+{"id":"unit_source_path-00170","out":{"reason":"writes[].path must be relative, not absolute"}}
+{"id":"unit_source_path-00171","out":{"reason":"writes[].path cannot contain '..' segments"}}
+{"id":"unit_source_path-00172","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00173","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00174","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00175","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00176","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00177","out":{"path":".../","prefix":true}}
+{"id":"unit_source_path-00178","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00179","out":{"reason":"writes[].path must be relative, not absolute"}}
+{"id":"unit_source_path-00180","out":{"path":".a/","prefix":true}}
+{"id":"unit_source_path-00181","out":{"path":"a/a/lib/C:/","prefix":true}}
+{"id":"unit_source_path-00182","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00183","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00184","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00185","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00186","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00187","out":{"path":"b/ /","prefix":true}}
+{"id":"unit_source_path-00188","out":{"path":"b","prefix":false}}
+{"id":"unit_source_path-00189","out":{"reason":"writes[].path must name a path below the repository root"}}
+{"id":"unit_source_path-00190","out":{"path":".../","prefix":true}}
+{"id":"unit_source_path-00191","out":{"path":".a","prefix":false}}
+{"id":"unit_source_path-00192","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00193","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00194","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00195","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00196","out":{"reason":"writes[].path cannot contain '..' segments"}}
+{"id":"unit_source_path-00197","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00198","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00199","out":{"path":"lib/","prefix":true}}
+{"id":"unit_source_path-00200","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00201","out":{"reason":"writes[].path cannot contain '..' segments"}}
+{"id":"unit_source_path-00202","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00203","out":{"path":"a/","prefix":true}}
+{"id":"unit_source_path-00204","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00205","out":{"path":".a/.a/C:/.../","prefix":true}}
+{"id":"unit_source_path-00206","out":{"path":"[id]/","prefix":true}}
+{"id":"unit_source_path-00207","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00208","out":{"path":"[id]/","prefix":true}}
+{"id":"unit_source_path-00209","out":{"path":"src","prefix":false}}
+{"id":"unit_source_path-00210","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00211","out":{"path":"[id]/.a","prefix":false}}
+{"id":"unit_source_path-00212","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00213","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00214","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00215","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00216","out":{"reason":"writes[].path must be non-empty"}}
+{"id":"unit_source_path-00217","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00218","out":{"path":"a/","prefix":true}}
+{"id":"unit_source_path-00219","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00220","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00221","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00222","out":{"reason":"writes[].path cannot contain '..' segments"}}
+{"id":"unit_source_path-00223","out":{"path":"a","prefix":false}}
+{"id":"unit_source_path-00224","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00225","out":{"reason":"writes[].path cannot contain '..' segments"}}
+{"id":"unit_source_path-00226","out":{"path":".a/b/ /[id]/","prefix":true}}
+{"id":"unit_source_path-00227","out":{"path":"é/","prefix":true}}
+{"id":"unit_source_path-00228","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00229","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00230","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00231","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00232","out":{"reason":"writes[].path must be relative, not absolute"}}
+{"id":"unit_source_path-00233","out":{"path":".a/.../","prefix":true}}
+{"id":"unit_source_path-00234","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00235","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00236","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00237","out":{"path":"é/é/ ","prefix":false}}
+{"id":"unit_source_path-00238","out":{"path":".a/é/C:/","prefix":true}}
+{"id":"unit_source_path-00239","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00240","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00241","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00242","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00243","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00244","out":{"path":"a/C:","prefix":false}}
+{"id":"unit_source_path-00245","out":{"path":".../src/a/","prefix":true}}
+{"id":"unit_source_path-00246","out":{"path":"lib/.a/é","prefix":false}}
+{"id":"unit_source_path-00247","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00248","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00249","out":{"path":"lib","prefix":false}}
+{"id":"unit_source_path-00250","out":{"reason":"writes[].path cannot contain '..' segments"}}
+{"id":"unit_source_path-00251","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00252","out":{"path":"src/.a/","prefix":true}}
+{"id":"unit_source_path-00253","out":{"path":"b","prefix":false}}
+{"id":"unit_source_path-00254","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00255","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00256","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00257","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00258","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00259","out":{"path":"[id]/","prefix":true}}
+{"id":"unit_source_path-00260","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00261","out":{"path":"b/lib/a/","prefix":true}}
+{"id":"unit_source_path-00262","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00263","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00264","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00265","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00266","out":{"reason":"writes[].path cannot contain '..' segments"}}
+{"id":"unit_source_path-00267","out":{"reason":"writes[].path must be relative, not absolute"}}
+{"id":"unit_source_path-00268","out":{"path":".../","prefix":true}}
+{"id":"unit_source_path-00269","out":{"reason":"writes[].path cannot contain a NUL byte"}}
+{"id":"unit_source_path-00270","out":{"path":" /","prefix":true}}
+{"id":"unit_source_path-00271","out":{"path":"[id]/C:/","prefix":true}}
+{"id":"unit_source_path-00272","out":{"path":".a","prefix":false}}
+{"id":"unit_source_path-00273","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00274","out":{"path":".a/.../a/lib","prefix":false}}
+{"id":"unit_source_path-00275","out":{"path":"a/","prefix":true}}
+{"id":"unit_source_path-00276","out":{"reason":"writes[].path names one file or folder literally (a trailing / claims a folder); * and ? are not accepted"}}
+{"id":"unit_source_path-00277","out":{"reason":"writes[].path must use POSIX '/' separators, not backslashes"}}
+{"id":"unit_source_path-00278","out":{"reason":"writes[].path must be relative, not absolute"}}
+{"id":"unit_source_path-00279","out":{"reason":"writes[].path must be relative, not absolute"}}
+{"id":"unit_source_path-00280","out":{"path":"a/[id]/lib/.a/","prefix":true}}
+{"id":"unit_source_path-00281","out":{"reason":"writes[].path must be non-empty"}}
+{"id":"unit_source_path-00282","out":{"path":" /.a/...","prefix":false}}
+{"id":"unit_source_path-00283","out":{"path":"src/src/.../C:/","prefix":true}}
+{"id":"unit_source_path-00284","out":{"path":"[id]/[id]/a/C:/","prefix":true}}
+{"id":"unit_source_path-00285","out":{"path":"a/src/","prefix":true}}
+{"id":"unit_source_path-00286","out":{"reason":"writes[].path cannot contain '..' segments"}}
